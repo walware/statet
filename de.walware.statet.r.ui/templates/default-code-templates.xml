@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+StatET
+-->
+
+<templates>
+
+<!-- R -->
+
+<template id="de.walware.statet.r.ui.text.r_code_templates.NewRScriptFile" 
+	context="r_NewRScriptFile_context" 
+	name="r_NewRScriptFile" 
+	description="%r_NewRScriptFile_description" 
+	># ${file_name}
+# 
+# ${todo}: %r_NewRScriptFile_content2
+#
+# %r_NewRScriptFile_content3 ${user}
+###############################################################################
+
+
+</template>
+
+<!-- Rd -->
+
+<template id="de.walware.statet.r.ui.text.rd_code_templates.NewRDocFile" 
+	context="rd_NewRDocFile_context"
+	name="rd_NewRDocFile" 
+	description="%rd_NewRDocFile_description" 
+	>%rd_C ${file_name}
+%rd_C
+%rd_C ${todo}: %rd_NewRDocFile_content2
+
+
+</template>
+
+
+</templates>

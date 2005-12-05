@@ -1,0 +1,40 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: StatET: Base
+Bundle-SymbolicName: de.walware.statet.base; singleton:=true
+Bundle-Version: 0.2.1
+Bundle-Activator: de.walware.statet.base.StatetPlugin
+Bundle-Vendor: WalWare (Stephan Wahlbrink / www.walware.de)
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.jface.text,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.core.filebuffers,
+ org.eclipse.ui,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide
+Eclipse-AutoStart: true
+Export-Package: de.walware.eclipsecommon.templates,
+ de.walware.eclipsecommon.ui.dialogs,
+ de.walware.eclipsecommon.ui.dialogs.groups,
+ de.walware.eclipsecommon.ui.preferences,
+ de.walware.eclipsecommon.ui.text,
+ de.walware.eclipsecommon.ui.util,
+ de.walware.statet.base,
+ de.walware.statet.ext.templates,
+ de.walware.statet.ext.ui,
+ de.walware.statet.ext.ui.dialogs,
+ de.walware.statet.ext.ui.editors,
+ de.walware.statet.ext.ui.preferences,
+ de.walware.statet.ext.ui.text,
+ de.walware.statet.ext.ui.wizards,
+ de.walware.statet.ui,
+ de.walware.statet.ui.util,
+ org.apache.commons.collections.primitives,
+ org.apache.commons.collections.primitives.adapters,
+ org.apache.commons.collections.primitives.adapters.io,
+ org.apache.commons.collections.primitives.decorators
+Bundle-ClassPath: libs/commons-primitives.jar,
+ commons.jar,
+ base.jar

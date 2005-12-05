@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ #
+ # Contributors:
+ #    Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
+-->
+
+<plugin>
+   <extension-point id="codeGenerationTemplatesCategory" name="Adds a new category of templates to the StatET dialog for editing code-templates" schema="schema/codeGenerationTemplatesCategory.exsd"/>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="de.walware.statet.base.StatetPreferenceInitializer"/>
+   </extension>
+   <extension
+         id="StatetNature"
+         name="StatET Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="de.walware.statet.base.StatetProject"/>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.walware.statet.internal.ui.StatetPerspectiveFactory"
+            icon="icons/view_16/statet_perspective.gif"
+            id="de.walware.statet.base.ui.perspectives.StatetPerspective"
+            name="%perspectives.StatetPerspective.name"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            description="%contexts.TextEditorScope.description"
+            id="de.walware.statet.ui.contexts.TextEditorScope"
+            name="%contexts.TextEditorScope.name"
+            parentId="org.eclipse.ui.textEditorScope"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            description="%actionSets.StatetCoding.description"
+            id="de.walware.statet.ui.actionSets.CodingActionSet"
+            label="%actionSets.StatetCoding.label"
+            visible="false">
+         <action
+               definitionId="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
+               id="de.walware.statet.ui.actions.GotoMatchingBracket"
+               label="%actions.GotoMatchingBracket.label"
+               menubarPath="navigate/goTo/statet.add"
+               retarget="true"
+               style="push"/>
+         <action
+               definitionId="de.walware.statet.ui.textediting.source.ToggleComment"
+               id="de.walware.statet.ui.actions.ToggleComment"
+               label="%actions.ToggleComment.label"
+               menubarPath="edit/statet.add"
+               retarget="true"
+               style="push"/>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            description="%categorys.StatetSource.description"
+            id="de.walware.statet.ui.categorys.StatetSource"
+            name="%categorys.StatetSource.name"/>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="%commands.GotoMatchingBracket.description"
+            id="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
+            name="%commands.GotoMatchingBracket.name"/>
+      <command
+            categoryId="de.walware.statet.ui.categorys.StatetSource"
+            description="%commands.ToggleComment.description"
+            id="de.walware.statet.ui.textediting.source.ToggleComment"
+            name="%commands.ToggleComment.name"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
+            contextId="de.walware.statet.ui.contexts.TextEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+P"/>
+      <key
+            commandId="de.walware.statet.ui.textediting.source.ToggleComment"
+            contextId="de.walware.statet.ui.contexts.TextEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+C"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="de.walware.statet.internal.ui.preferences.StatetBasePreferencePage"
+            id="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            name="%preferencePages.StatetBase.name">
+         <keywordReference id="de.walware.statet.ui.keywords.StatetGeneral"/>
+      </page>
+      <page
+            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            class="de.walware.statet.internal.ui.preferences.EditorsPreferencePage"
+            id="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            name="%preferencePages.Editors.name">
+         <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
+         <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
+      </page>
+      <page
+            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            class="de.walware.statet.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
+            id="de.walware.statet.ui.preferences.CodeGenerationTemplatesPage"
+            name="%preferencePages.CodeGenerationTemplates.name">
+         <keywordReference id="de.walware.statet.ui.keywords.Template"/>
+         <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
+      </page>
+      <page
+            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            class="de.walware.statet.internal.ui.preferences.TaskTagsPreferencePage"
+            id="de.walware.statet.ui.preferences.TaskTagsPage"
+            name="%preferencePages.TaskTags.name">
+         <keywordReference id="de.walware.statet.ui.keywords.TaskTag"/>
+         <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="de.walware.statet.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
+            id="de.walware.statet.ui.propertyPages.CodeGenerationTemplatesPage"
+            name="%propertyPages.CodeGenerationTemplates.name"
+            objectClass="org.eclipse.core.resources.IProject">
+         <filter
+               name="nature"
+               value="de.walware.statet.base.StatetNature"/>
+         <keywordReference id="de.walware.statet.ui.keywords.Template"/>
+         <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
+      </page>
+      <page
+            class="de.walware.statet.internal.ui.preferences.TaskTagsPreferencePage"
+            id="de.walware.statet.ui.propertyPages.TaskTagsPage"
+            name="%propertyPages.TaskTags.name"
+            objectClass="org.eclipse.core.resources.IProject">
+         <filter
+               name="nature"
+               value="de.walware.statet.base.StatetNature"/>
+         <keywordReference id="de.walware.statet.ui.keywords.TaskTag"/>
+         <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.keywords">
+      <keyword
+            id="de.walware.statet.ui.keywords.StatetGeneral"
+            label="%keywords.StatetGeneral"/>
+      <keyword
+            id="de.walware.statet.ui.keywords.Appearance"
+            label="%keywords.Appearance"/>
+      <keyword
+            id="de.walware.statet.ui.keywords.Template"
+            label="%keywords.Template"/>
+      <keyword
+            id="de.walware.statet.ui.keywords.Editor"
+            label="%keywords.Editor"/>
+      <keyword
+            id="de.walware.statet.ui.keywords.TaskTag"
+            label="%keywords.TaskTag"/>
+      <keyword
+            id="de.walware.statet.ui.keywords.ProjectSpecific"
+            label="%keywords.ProjectSpecific"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="de.walware.statet.ui.wizards.StatetCategory"
+            name="StatET"/>
+   </extension>
+
+</plugin>

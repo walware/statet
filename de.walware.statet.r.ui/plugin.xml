@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ #
+ # Contributors:
+ #    Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
+-->
+
+<plugin>
+
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="de.walware.statet.r.ui.RUiPreferenceInitializer"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/ovr_16/r_ovr.gif"
+            id="de.walware.statet.r.ui.images.RProjectImage"
+            natureId="de.walware.statet.r.core.RNature"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentCreation">
+      <factory
+            class="de.walware.statet.r.ui.editors.RDocumentFactory"
+            contentTypeId="de.walware.statet.r.core.RContent"/>
+      <factory
+            class="de.walware.statet.r.ui.editors.RdDocumentFactory"
+            contentTypeId="de.walware.statet.r.core.RdContent"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="de.walware.statet.r.ui.editors.RDocumentSetupParticipant"
+            contentTypeId="de.walware.statet.r.core.RContent"/>
+      <participant
+            class="de.walware.statet.r.ui.editors.RdDocumentSetupParticipant"
+            contentTypeId="de.walware.statet.r.core.RdContent"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <include
+      		file="templates/default-code-templates.xml"
+      		translations="templates/default-templates.properties">
+      </include>
+      <include
+            file="templates/default-reditor-templates.xml"
+            translations="templates/default-templates.properties"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="de.walware.statet.r.ui.editors.REditor"
+            contributorClass="de.walware.statet.ext.ui.editors.StatextEditor1ActionContributor"
+            default="true"
+            icon="icons/obj_16/r-file_obj.gif"
+            id="de.walware.statet.ui.editors.REditor"
+            name="%editors.RScriptEditor.name">
+         <contentTypeBinding contentTypeId="de.walware.statet.r.core.RContent"/>
+      </editor>
+      <editor
+            class="de.walware.statet.r.ui.editors.RdEditor"
+            contributorClass="de.walware.statet.ext.ui.editors.StatextEditor1ActionContributor"
+            default="true"
+            icon="icons/obj_16/rd-file_obj.gif"
+            id="de.walware.statet.ui.editors.RdEditor"
+            name="%editors.RDocEditor.name">
+         <contentTypeBinding contentTypeId="de.walware.statet.r.core.RdContent"/>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation targetID="de.walware.statet.ui.actionSets.CodingActionSet">
+         <part id="de.walware.statet.ui.editors.REditor"/>
+         <part id="de.walware.statet.ui.editors.RdEditor"/>
+      </actionSetPartAssociation>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            description="%categorys.RSource.description"
+            id="de.walware.statet.r.ui.contexts.REditorScope"
+            name="%categorys.RSource.name"
+            parentId="de.walware.statet.ui.contexts.TextEditorScope"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
+            id="de.walware.statet.r.ui.preferences.RSyntaxColoringPreferencePage"
+            name="%preferencePages.RSyntaxColoring.name">
+         <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
+         <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
+      </page>
+      <page
+            category="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage"
+            id="de.walware.statet.r.ui.preferences.RdSyntaxColoringPreferencePage"
+            name="%preferencePages.RdSyntaxColoring.name">
+         <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
+         <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
+      </page>
+      <page
+            category="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage"
+            id="de.walware.statet.r.ui.preferences.REditorTemplatesPreferencePage"
+            name="%preferencePages.REditorTemplates.name">
+         <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
+      </page>
+   </extension>
+   <extension
+         point="de.walware.statet.base.codeGenerationTemplatesCategory">
+      <category
+            id="de.walware.statet.r.codegenerationCategory.RCodeTemplates"
+            name="%templatesCategory.RCodeTemplates.name"
+            providerClass="de.walware.statet.r.internal.ui.preferences.RCodeTemplatesProvider"/>
+      <category
+            id="de.walware.statet.r.codegenerationCategory.RdCodeTemplates"
+            name="%templatesCategory.RdCodeTemplates.name"
+            providerClass="de.walware.statet.r.internal.ui.preferences.RdCodeTemplatesProvider"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="de.walware.statet.ui.wizards.StatetCategory"
+            class="de.walware.statet.r.internal.ui.wizards.NewRFileCreationWizard"
+            icon="icons/tool_16/new_r-file.gif"
+            id="de.walware.statet.r.ui.wizards.NewRFileCreationWizard"
+            name="%wizards.NewRFile.name"
+            project="false">
+         <description>
+            %wizards.NewRFile.description
+         </description>
+      </wizard>
+      <wizard
+            category="de.walware.statet.ui.wizards.StatetCategory"
+            class="de.walware.statet.r.internal.ui.wizards.NewRdFileCreationWizard"
+            icon="icons/tool_16/new_rd-file.gif"
+            id="de.walware.statet.r.ui.wizards.NewRdFileCreationWizard"
+            name="%wizards.NewRdFile.name"
+            project="false">
+         <description>
+            %wizards.NewRdFile.description
+         </description>
+      </wizard>
+      <wizard
+            category="de.walware.statet.ui.wizards.StatetCategory"
+            class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
+            icon="icons/tool_16/new_r-project.gif"
+            id="de.walware.statet.r.ui.wizards.NewRProjectCreationWizard"
+            name="%wizards.NewRProject.name"
+            project="true">
+         <description>
+            %wizards.NewRProject.description
+         </description>
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="de.walware.statet.base.ui.perspectives.StatetPerspective">
+         <newWizardShortcut id="de.walware.statet.r.ui.wizards.NewRFileCreationWizard"/>
+         <actionSet id="de.walware.statet.r.ui.actionSets.RToolbarSet"/>
+      </perspectiveExtension>
+   </extension>
+
+
+
+
+
+
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            category="org.eclipse.ui.externaltools"
+            delegate="de.walware.statet.r.internal.debug.launchconfigs.RConsoleLaunchConfigurationDelegate"
+            id="de.walware.statet.r.launching.RCmdConfigurationType"
+            modes="run"
+            name="%launch.RunR"
+            public="true">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            id="de.walware.statet.r.launching.RCmdConfigurationTypeImage"
+            configTypeID="de.walware.statet.r.launching.RCmdConfigurationType"
+            icon="icons/tool_16/run_r-cmd.gif">
+      </launchConfigurationTypeImage>
+   </extension>
+
+
+
+   <extension-point 
+   		id="rCodeLaunchConnector" 
+   		name="Point to register Connectors which can launch r code" 
+   		schema="schema/RCodeLaunchConnector.exsd"/>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="de.walware.statet.r.internal.debug.launchconfigs.RConsoleTabGroup"
+            description="%launchConfiguration.RLaunchConfiguration.description"
+            helpContextId="org.eclipse.ui.externaltools.launchConfigHelpContext.program"
+            id="de.walware.statet.r.launching.RConfigurationTabGroup"
+            type="de.walware.statet.r.launching.RCmdConfigurationType"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            category="de.walware.statet.r"
+            class="de.walware.statet.r.internal.debug.launcher.RScriptViaSourceLaunchShortcut"
+            icon="icons/tool_16/run_r-script-source.gif"
+            id="de.walware.statet.r.launching.RScriptViaSourceLaunchShortcut"
+            label="R-Script via &apos;source&apos;-command"
+            modes="run">
+         <contextualLaunch>
+            <enablement>
+               <and>
+	               <with variable="selection">
+	                  <count value="1"/>	
+	                  <iterate>
+	                  <test 
+	                  		property="org.eclipse.debug.ui.matchesContentType"
+	                        value="de.walware.statet.r.core.RContent"/>
+	                  </iterate>	               </with>
+	               
+               </and>
+            </enablement>
+            <contextLabel
+                  label="%launchShortcuts.RunRScriptViaSource"
+                  mode="run"/>
+         </contextualLaunch>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r"
+            class="de.walware.statet.r.internal.debug.launcher.RScriptDirectLaunchShortcut"
+            icon="icons/tool_16/run_r-script.gif"
+            id="de.walware.statet.r.launching.RScriptDirectLaunchShortcut"
+            label="R-Script submitting directly"
+            modes="run">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+
+                  <iterate>
+                     <test 
+                     		property="org.eclipse.debug.ui.matchesContentType"
+                            value="de.walware.statet.r.core.RContent"/>
+                  </iterate>
+               </with>
+            </enablement>
+            <contextLabel
+                  label="%launchShortcuts.RunRScriptDirect"
+                  mode="run"/>
+         </contextualLaunch>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r"
+            class="de.walware.statet.r.internal.debug.launcher.RSelectionDirectLaunchShortcut"
+            icon="icons/tool_16/run_r-selection.gif"
+            id="de.walware.statet.r.launching.REditorSelectionDirectLaunchShortcut"
+            label="R-Code-Selection submitting directly"
+            modes="run">
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+
+                  <iterate>
+                  <and>
+                  <test 
+                  		property="org.eclipse.debug.ui.matchesContentType"
+                        value="de.walware.statet.r.core.RContent"/>
+                  <instanceof value="org.eclipse.ui.IFileEditorInput"/>
+                  
+                  </and>
+                  </iterate>
+               </with>
+            </enablement>
+            <contextLabel
+                  label="%launchShortcuts.RunRSelectionDirect"
+                  mode="run"/>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="de.walware.statet.r.ui.actionSets.RToolbarSet"
+            label="%actionSets.RToolbar.label">
+         <action
+               class="de.walware.statet.r.internal.debug.launcher.RunRCodePulldownAction"
+               id="de.walware.statet.r.ui.actions.RunRCodePulldown"
+               label="%actions.RunRCode.label"
+               style="pulldown"
+               toolbarPath="statet.r"
+               />
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            class="de.walware.statet.r.internal.debug.preferences.RInteractionPreferencePage"
+            id="de.walware.statet.r.debug.preferences.RInteractionPreferencePage"
+            name="%preferencePages.RInteraction.name"/>
+   </extension>
+
+   <extension point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.r.launching.RScriptViaSourceLaunchShortcut.run"
+            name="%commands.RunRScriptViaSource.name"
+            categoryId="org.eclipse.debug.ui.category.run">
+      </command>
+      <command
+            id="de.walware.statet.r.launching.RScriptDirectLaunchShortcut.run"
+            name="%commands.RunRScriptDirect.name"
+            categoryId="org.eclipse.debug.ui.category.run">
+      </command>
+      <command
+            id="de.walware.statet.r.launching.REditorSelectionDirectLaunchShortcut.run"
+            name="%commands.RunRSelectionDirect.name"
+            categoryId="org.eclipse.debug.ui.category.run">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            defaultHandler="de.walware.statet.r.internal.debug.GotoRConsole"
+            id="de.walware.statet.r.debug.GotoRConsole"
+            name="%commands.GotoRConsole"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="de.walware.statet.r.launching.RScriptViaSourceLaunchShortcut.run"
+            contextId="de.walware.statet.r.ui.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R S"/>
+      <key
+            commandId="de.walware.statet.r.launching.RScriptViaSourceLaunchShortcut.run"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+X, R"/>
+
+      <key
+            commandId="de.walware.statet.r.launching.RScriptDirectLaunchShortcut.run"
+            contextId="de.walware.statet.r.ui.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R D"/>
+
+      <key
+            commandId="de.walware.statet.r.launching.REditorSelectionDirectLaunchShortcut.run"
+            contextId="de.walware.statet.r.ui.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R R"/>
+      <key
+            commandId="de.walware.statet.r.debug.GotoRConsole"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R C"/>
+   </extension>
+   <extension
+         point="de.walware.statet.r.ui.rCodeLaunchConnector">
+      <connector
+            class="de.walware.statet.r.internal.debug.connector.RConsoleConnector"
+            description="%rConnector.RConsoleConnector.description"
+            id="de.walware.statet.r.launching.RConsoleConnector"
+            name="%rConnector.RConsoleConnector.name"/>
+   </extension>
+
+</plugin>
