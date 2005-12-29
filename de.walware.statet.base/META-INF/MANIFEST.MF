@@ -1,20 +1,20 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
 Bundle-Name: StatET: Base
 Bundle-SymbolicName: de.walware.statet.base; singleton:=true
-Bundle-Version: 0.2.1
+Bundle-Version: 0.3.0
 Bundle-Activator: de.walware.statet.base.StatetPlugin
-Bundle-Vendor: WalWare (Stephan Wahlbrink / www.walware.de)
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.jface.text,
- org.eclipse.core.runtime,
- org.eclipse.core.resources,
+ org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.core.filebuffers,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Export-Package: de.walware.eclipsecommon.templates,
  de.walware.eclipsecommon.ui.dialogs,
  de.walware.eclipsecommon.ui.dialogs.groups,
@@ -38,3 +38,4 @@ Export-Package: de.walware.eclipsecommon.templates,
 Bundle-ClassPath: libs/commons-primitives.jar,
  commons.jar,
  base.jar
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

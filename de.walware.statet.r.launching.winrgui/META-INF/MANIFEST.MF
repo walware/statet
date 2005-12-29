@@ -1,19 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
 Bundle-Name: StatET: R-GUI-Connector for Windows
 Bundle-SymbolicName: de.walware.statet.r.launching.winrgui; singleton:=true
-Bundle-Version: 0.1.2
+Bundle-Version: 0.2.0
 Bundle-Activator: de.walware.statet.r.launching.winrgui.WinRGuiConnectorPlugin
-Bundle-Vendor: WalWare (Stephan Wahlbrink / www.walware.de)
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.core.resources,
- org.eclipse.swt,
- org.eclipse.jface,
+Require-Bundle: org.eclipse.jface,
  org.eclipse.ui,
  org.eclipse.ui.workbench,
  org.eclipse.debug.core,
- de.walware.statet.base,
+ de.walware.statet.base;bundle-version="0.3.0",
  de.walware.statet.r.ui
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Eclipse-PlatformFilter: (& (osgi.ws=win32) (osgi.os=win32))
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -1,17 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
 Bundle-Name: StatET: R Core
 Bundle-SymbolicName: de.walware.statet.r.core; singleton:=true
-Bundle-Version: 0.2.1
-Bundle-Vendor: WalWare (Stephan Wahlbrink / www.walware.de)
+Bundle-Version: 0.3.0
 Bundle-Activator: de.walware.statet.r.core.RCorePlugin
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.core.resources,
- org.eclipse.team.core;resolution:=optional,
+Require-Bundle: org.eclipse.team.core;resolution:=optional,
  de.walware.statet.base,
  org.eclipse.ui
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Export-Package: de.walware.statet.r.core,
  de.walware.statet.r.core.rdoc,
  de.walware.statet.r.core.rlang
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
