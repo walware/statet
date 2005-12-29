@@ -32,8 +32,6 @@ public class RImages extends AbstractImagesCollection {
 	public static final ImageDescriptor DESC_WIZBAN_NEWRDFILE = fgInstance.create(T_WIZBAN, "new_rd-file.png"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_WIZBAN_NEWRPROJECT = fgInstance.create(T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
 	
-	public static final String IMG_LAUNCHCONFIGTAB_MAIN = RUiPlugin.ID + ".image.launchconfigtab.main";	 //$NON-NLS-1$
-	
 	private RImages() {
 		super(RUiPlugin.getDefault());
 	}
@@ -41,6 +39,5 @@ public class RImages extends AbstractImagesCollection {
 	@Override
 	protected void declareImages() {
 
-		declareRegistryImage(IMG_LAUNCHCONFIGTAB_MAIN, T_OBJ, "main_tab.gif"); //$NON-NLS-1$
 	}
 }

@@ -51,8 +51,8 @@ import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.ui.IRUiStatusConstants;
-import de.walware.statet.r.ui.RImages;
 import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.ui.StatetImages;
 
 
 public class RConsoleMainTab extends AbstractLaunchConfigurationTab implements
@@ -142,7 +142,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab implements
 
 	@Override
 	public Image getImage() {
-		return RImages.getDefault().getImage(RImages.IMG_LAUNCHCONFIGTAB_MAIN);
+		return StatetImages.getDefault().getImage(StatetImages.IMG_LAUNCHCONFIG_MAIN);
 	}
 	
 	public void createControl(Composite parent) {
