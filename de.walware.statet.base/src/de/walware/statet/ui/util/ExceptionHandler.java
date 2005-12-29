@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import de.walware.statet.base.StatetPlugin;
@@ -100,7 +99,7 @@ public class ExceptionHandler {
 	private static void perform(final IStatus status, final Shell shell, final String message) {
 		
 		StatetPlugin.log(status);
-		getDisplay(shell).asyncExec(new Runnable() {
+		StatetPlugin.getDisplay(shell).asyncExec(new Runnable() {
 			public void run() {
 				Shell s = shell;
 				if (s == null) {
@@ -126,7 +125,7 @@ public class ExceptionHandler {
 		}
 		final String finalMessage = msg.toString();
 		
-		getDisplay(shell).asyncExec(new Runnable() {
+		StatetPlugin.getDisplay(shell).asyncExec(new Runnable() {
 			public void run() {
 				Shell s = shell;
 				if (s == null) {
@@ -135,18 +134,6 @@ public class ExceptionHandler {
 				MessageDialog.openError(s, StatetMessages.ErrorDialog_title, finalMessage);			
 			}
 		});
-	}
-	
-	private static Display getDisplay(Shell shell) {
-
-		Display display = null;
-		if (shell != null) {
-			display = shell.getDisplay();
-		}
-		if (shell == null) {
-			display = Display.getDefault();
-		}
-		return display;
 	}
 
 }

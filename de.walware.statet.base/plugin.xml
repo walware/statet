@@ -181,5 +181,11 @@
             id="de.walware.statet.ui.wizards.StatetCategory"
             name="StatET"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="de.walware.statet.ui.views.StatetCategory"
+            name="StatET"/>
+   </extension>
 
 </plugin>

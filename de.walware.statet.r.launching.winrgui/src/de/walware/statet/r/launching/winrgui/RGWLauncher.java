@@ -26,23 +26,22 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.swt.SWTError;
 import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.ui.util.DNDUtil;
 
 
 public class RGWLauncher implements IRCodeLaunchConnector {
 
+	
+	private Clipboard fClipboard;
 	
 	private class ProcessPointer {
 		public Process fProcess;
@@ -216,19 +215,11 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 			builder.append("\n");
 		}
 		
-		while (true) {
-			try {
-				Clipboard clipboard = new Clipboard(Display.getCurrent());
-				clipboard.setContents(new String[] { builder.toString() }, new Transfer[] { TextTransfer.getInstance() });
-				return true;
-			}
-			catch (SWTError e) {
-				if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD)
-					throw e;
-	
-				if (!MessageDialog.openQuestion(StatetPlugin.getActiveWorkbenchShell(), "Problem Copying to Clipboard", "There was a problem when accessing the system clipboard. Retry?"))
-					return false;
-			}
-		}
+		if (fClipboard == null)
+			fClipboard = new Clipboard(Display.getCurrent());
+		
+		return DNDUtil.setContent(fClipboard, 
+				new String[] { builder.toString() }, 
+				new Transfer[] { TextTransfer.getInstance() } );
 	}
 }

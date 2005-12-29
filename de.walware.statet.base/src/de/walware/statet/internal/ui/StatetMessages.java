@@ -16,8 +16,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class StatetMessages extends NLS {
 	
-	private static final String BUNDLE_NAME = StatetMessages.class.getName();
-
 
 	public static String ErrorDialog_title;
 	public static String InternalError_UnexpectedException;
@@ -30,6 +28,11 @@ public class StatetMessages extends NLS {
 	public static String CoreUtility_Build_AllTask_name;
 	public static String CoreUtility_Build_ProjectTask_name;
 	
+	public static String CopyToClipboard_error_title;
+	public static String CopyToClipboard_error_message;
+
+	
+	private static final String BUNDLE_NAME = StatetMessages.class.getName();
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, StatetMessages.class);
