@@ -19,7 +19,6 @@ public class StatetWizardsMessages extends NLS {
 	private static final String BUNDLE_NAME = StatetWizardsMessages.class.getName();
 
 
-	public static String NewElementWizard_error_DuringOperation_title;
 	public static String NewElementWizard_error_DuringOperation_message;
 
 	public static String NewProjectReferencePage_title;

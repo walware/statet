@@ -20,7 +20,6 @@ public class RLaunchingMessages extends NLS {
 
 	public static String RLaunchPulldown_Item_label;
 
-	public static String RLaunch_error_titel;
 	public static String RLaunch_error_description;
 
 	public static String RSelectionLaunch_error_message;

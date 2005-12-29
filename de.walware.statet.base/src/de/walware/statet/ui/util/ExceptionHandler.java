@@ -19,9 +19,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.internal.ui.StatetMessages;
 
@@ -34,11 +34,11 @@ public class ExceptionHandler {
 	 * for the dialog window.
 	 * 
 	 * @param e the <code>CoreException</code> to be handled
-	 * @param title the dialog window's window title
 	 * @param message message to be displayed by the dialog window
 	 */
-	public static void handle(CoreException e, String title, String message) {
-		handle(e, StatetPlugin.getActiveWorkbenchShell(), title, message);
+	public static void handle(CoreException e, String message) {
+		
+		handle(e, null, message);
 	}
 	
 	/**
@@ -46,58 +46,107 @@ public class ExceptionHandler {
 	 * 
 	 * @param e the <code>CoreException</code> to be handled
 	 * @param parent the dialog window's parent shell
-	 * @param title the dialog window's window title
 	 * @param message message to be displayed by the dialog window
 	 */
-	public static void handle(CoreException e, Shell parent, String title, String message) {
-		perform(e, parent, title, message);
+	public static void handle(CoreException e, Shell shell, String message) {
+		
+		perform(e, shell, message);
 	}
 	
-	
-	public static void handle(InvocationTargetException e, Shell shell, String title, String message) {
+	/**
+	 * Handles the given <code>InvocationTargetException</code>. 
+	 * 
+	 * @param e the <code>InvocationTargetException</code> to be handled
+	 * @param parent the dialog window's parent shell or <code>null</code>.
+	 * @param message message to be displayed by the dialog window
+	 */
+	public static void handle(InvocationTargetException e, Shell shell, String message) {
 		
 		Throwable target = e.getTargetException();
 		if (target instanceof CoreException) {
-			perform((CoreException) target, shell, title, message);
+			perform((CoreException) target, shell, message);
 		} else {
 			// CoreExceptions are handled above, but unexpected runtime
 			// exceptions and errors may still occur.
 			StatetPlugin.logUnexpectedError(target);
-			displayMessageDialog(target.getMessage(), shell, title, message);
+			displayMessageDialog(target.getMessage(), shell, message);
 		}
 	}
 	
+	/**
+	 * Handles the given <code>IStatus</code>, which describes the error.
+	 * 
+	 * @param status a status-object representing an error.
+	 */
+	public static void handle(IStatus status) {
+		
+		perform(status, null, status.getMessage());
+	}
 	
-	protected static void perform(CoreException e, Shell shell, String title, String message) {
+	
+	private static void perform(CoreException e, Shell shell, String message) {
 
-		StatetPlugin.log(new Status(
-				IStatus.INFO, 
-				StatetPlugin.ID, 
-				IStatetStatusConstants.INTERNAL_ERROR, 
-				StatetMessages.InternalError_HandledProblem, 
-				e));
 		IStatus status = e.getStatus();
 		if (status != null) {
-			ErrorDialog.openError(shell, title, message, status);
-		} else {
-			displayMessageDialog(e.getMessage(), shell, title, message);
+			perform(status, shell, message);
+		} 
+		else {
+			StatetPlugin.log(new Status(Status.ERROR, StatetPlugin.ID, 0, 
+					"No status of CoreException available.", e));
+			displayMessageDialog(e.getMessage(), shell, message);
 		}
 	}
-
 	
-	private static void displayMessageDialog(String exceptionMessage, Shell shell, String title, String message) {
+	private static void perform(final IStatus status, final Shell shell, final String message) {
+		
+		StatetPlugin.log(status);
+		getDisplay(shell).asyncExec(new Runnable() {
+			public void run() {
+				Shell s = shell;
+				if (s == null) {
+					s = StatetPlugin.getActiveWorkbenchShell();
+				}
+				ErrorDialog.openError(s, StatetMessages.ErrorDialog_title, message, status);
+			}
+		});
+	}
+
+	private static void displayMessageDialog(String exceptionMessage, final Shell shell, String message) {
 		
 		StringWriter msg = new StringWriter();
 		if (message != null) {
 			msg.write(message);
 			msg.write("\n\n"); //$NON-NLS-1$
 		}
-		if (exceptionMessage == null || exceptionMessage.length() == 0)
+		if (exceptionMessage == null || exceptionMessage.length() == 0) {
 			msg.write("No details available. See error log."); 
-		else
+		} 
+		else {
 			msg.write(exceptionMessage);
+		}
+		final String finalMessage = msg.toString();
 		
-		MessageDialog.openError(shell, title, msg.toString());			
-	}	
+		getDisplay(shell).asyncExec(new Runnable() {
+			public void run() {
+				Shell s = shell;
+				if (s == null) {
+					s = StatetPlugin.getActiveWorkbenchShell();
+				}
+				MessageDialog.openError(s, StatetMessages.ErrorDialog_title, finalMessage);			
+			}
+		});
+	}
+	
+	private static Display getDisplay(Shell shell) {
+
+		Display display = null;
+		if (shell != null) {
+			display = shell.getDisplay();
+		}
+		if (shell == null) {
+			display = Display.getDefault();
+		}
+		return display;
+	}
 
 }

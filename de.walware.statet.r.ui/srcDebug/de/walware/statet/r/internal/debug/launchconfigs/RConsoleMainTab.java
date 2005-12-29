@@ -48,9 +48,9 @@ import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
-import de.walware.statet.r.ui.IRUiStatusConstants;
 import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.ui.StatetImages;
 
@@ -554,7 +554,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab implements
 	
 	protected void logError(String msg, CoreException ce) {
 		StatetPlugin.log(new Status(
-				IStatus.ERROR, 	RUiPlugin.ID, IRUiStatusConstants.LAUNCHCONFIG_ERROR,
+				IStatus.ERROR, 	RUiPlugin.ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 				msg, ce));
 	}
 }

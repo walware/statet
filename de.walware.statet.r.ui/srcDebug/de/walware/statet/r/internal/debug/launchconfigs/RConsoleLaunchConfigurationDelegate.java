@@ -37,8 +37,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
 
+import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
-import de.walware.statet.r.ui.IRUiStatusConstants;
 import de.walware.statet.r.ui.RUiPlugin;
 
 
@@ -172,7 +172,7 @@ public class RConsoleLaunchConfigurationDelegate implements
 			process = DebugPlugin.newProcess(launch, p, location.toOSString(), processAttributes);
 			if (process == null) {
 				p.destroy();
-				throw new CoreException(new Status(IStatus.ERROR, RUiPlugin.ID, IRUiStatusConstants.LAUNCHING_ERROR, RLaunchingMessages.RConsoleLaunchDelegate_error_ProcessHandle, null)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, RUiPlugin.ID, IStatetStatusConstants.LAUNCHING_ERROR, RLaunchingMessages.RConsoleLaunchDelegate_error_ProcessHandle, null)); //$NON-NLS-1$
 			}
 			
 		}

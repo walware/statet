@@ -19,8 +19,8 @@ public class StatetMessages extends NLS {
 	private static final String BUNDLE_NAME = StatetMessages.class.getName();
 
 
+	public static String ErrorDialog_title;
 	public static String InternalError_UnexpectedException;
-	public static String InternalError_HandledProblem;
 	
 	public static String TaskPriority_High;
 	public static String TaskPriority_Normal;

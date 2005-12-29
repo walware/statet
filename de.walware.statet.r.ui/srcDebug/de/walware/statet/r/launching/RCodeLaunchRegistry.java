@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.ui.DebugUITools;
 
+import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
-import de.walware.statet.r.ui.IRUiStatusConstants;
 import de.walware.statet.r.ui.RUiPlugin;
 
 
@@ -138,7 +138,7 @@ public class RCodeLaunchRegistry implements org.eclipse.core.runtime.Preferences
 					throw new CoreException(new Status(
 							IStatus.ERROR,
 							RUiPlugin.ID,
-							IRUiStatusConstants.LAUNCHCONFIG_ERROR,
+							IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 							"Error loading R Launch Connector '"+elements[i].getAttribute(ATT_NAME)+"'", e.getCause()
 							));
 				}
