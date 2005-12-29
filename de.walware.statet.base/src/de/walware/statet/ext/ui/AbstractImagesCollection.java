@@ -22,12 +22,19 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public abstract class AbstractImagesCollection {
 
+	/** Icons of Views */
 	protected static final String T_VIEW = "view_16";             //$NON-NLS-1$
+	/** Icons for global tools */
 	protected static final String T_TOOL = "tool_16";             //$NON-NLS-1$
+	/** Icons for object, e.g. files or model objects. */
 	protected static final String T_OBJ = "obj_16";               //$NON-NLS-1$
+	/** Icon overlays */
 	protected static final String T_OVR = "ovr_16"; 	          //$NON-NLS-1$
+	/** Icons in the banners of wizards */
 	protected static final String T_WIZBAN = "wizban";            //$NON-NLS-1$
+	/** Icons in local tools */
 	protected static final String T_LOCTOOL = "loctool_16"; 	  //$NON-NLS-1$
+	/** Icons of deactivated local tools */
 	protected static final String T_LOCTOOL_D = "loctool_16_d";   //$NON-NLS-1$
 	
 	
@@ -99,11 +106,10 @@ public abstract class AbstractImagesCollection {
 		}
 		fImageRegistry.put(key, desc);
 	}
-
 	
 	
 	/**
-	 * Returns the <code>Image<code> identified by the given key,
+	 * Returns the shared <code>Image<code> identified by the given key,
 	 * or <code>null</code> if it does not exist.
 	 */
 	public Image getImage(String key) {
@@ -111,4 +117,12 @@ public abstract class AbstractImagesCollection {
 		return getImageRegistry().get(key);
 	}
 	
+	/**
+	 * Returns the <code>ImageDescriptor<code> of shared images, identified 
+	 * by the given key, or <code>null</code> if it does not exist.
+	 */
+	public ImageDescriptor getDescriptor(String key) {
+		
+		return getImageRegistry().getDescriptor(key);
+	}
 }
