@@ -373,9 +373,13 @@
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
             class="de.walware.statet.r.internal.debug.connector.RConsoleConnector"
-            description="%rConnector.RConsoleConnector.description"
+            description="%rConnector_RConsoleConnector_description"
             id="de.walware.statet.r.launching.RConsoleConnector"
-            name="%rConnector.RConsoleConnector.name"/>
+            name="%rConnector_RConsoleConnector_name"/>
+      <connector
+            class="de.walware.statet.r.nico.RControllerCodeLaunchConnector"
+            id="de.walware.statet.r.launching.RNewConsoleConnector"
+            name="%rConnector_RNewConsoleConnector_name"/>
    </extension>
 
 </plugin>
