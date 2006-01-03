@@ -184,7 +184,7 @@
             delegate="de.walware.statet.r.internal.debug.launchconfigs.RConsoleLaunchConfigurationDelegate"
             id="de.walware.statet.r.launching.RCmdConfigurationType"
             modes="run"
-            name="%launch.RunR"
+            name="%LaunchConfiguration_RConsole_name"
             public="true">
       </launchConfigurationType>
    </extension>
@@ -207,7 +207,7 @@
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
             class="de.walware.statet.r.internal.debug.launchconfigs.RConsoleTabGroup"
-            description="%launchConfiguration.RLaunchConfiguration.description"
+            description="%LaunchConfiguration_RConsole_description"
             helpContextId="org.eclipse.ui.externaltools.launchConfigHelpContext.program"
             id="de.walware.statet.r.launching.RConfigurationTabGroup"
             type="de.walware.statet.r.launching.RCmdConfigurationType"/>

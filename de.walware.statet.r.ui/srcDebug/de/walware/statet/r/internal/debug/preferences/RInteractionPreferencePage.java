@@ -121,7 +121,11 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			public void modifyText(ModifyEvent e) {
 				int idx = fConnectorsSelector.getSelectionIndex();
 				setValue(R_CONNECTOR, fConnectors[idx].fId);
-				fConnectorsDescription.setText(fConnectors[idx].fDescription);
+				String description = fConnectors[idx].fDescription;
+				if (description == null) {
+					description = "";
+				}
+				fConnectorsDescription.setText(description);
 				updateDescriptionSize();
 			};
 		});

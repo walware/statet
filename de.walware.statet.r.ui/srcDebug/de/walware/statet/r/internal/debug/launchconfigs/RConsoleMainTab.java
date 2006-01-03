@@ -25,7 +25,6 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
-import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -55,8 +54,7 @@ import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.ui.StatetImages;
 
 
-public class RConsoleMainTab extends AbstractLaunchConfigurationTab implements
-		ILaunchConfigurationTab {
+public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 
 	public static final String FIRST_EDIT = IRConsoleConstants.ROOT + "firstedit";
 	
@@ -128,7 +126,6 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab implements
 			}
 			
 		}
-
 	}
 
 	
@@ -553,6 +550,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab implements
 
 	
 	protected void logError(String msg, CoreException ce) {
+		
 		StatetPlugin.log(new Status(
 				IStatus.ERROR, 	RUiPlugin.ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 				msg, ce));
