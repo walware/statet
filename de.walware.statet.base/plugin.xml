@@ -186,6 +186,11 @@
       <category
             id="de.walware.statet.ui.views.StatetCategory"
             name="StatET"/>
+      <view
+            id="de.walware.statet.ui.views.HistoryView"
+            category="de.walware.statet.ui.views.StatetCategory"
+            class="de.walware.statet.nico.addviews.HistoryView"
+            name="%views_History_name"/>
    </extension>
 
 </plugin>
