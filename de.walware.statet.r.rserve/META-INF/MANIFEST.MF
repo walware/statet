@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
+Bundle-Name: StatET: RServe test support
+Bundle-SymbolicName: de.walware.statet.r.rserve;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-Activator: de.walware.statet.r.rserve.RServePlugin
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.jface.databinding,
+ org.eclipse.ui.console,
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui,
+ de.walware.statet.base,
+ de.walware.statet.r.ui
+Eclipse-LazyStart: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
