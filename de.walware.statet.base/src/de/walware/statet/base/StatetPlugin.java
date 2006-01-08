@@ -152,7 +152,9 @@ public class StatetPlugin extends AbstractUIPlugin {
 	
 	public static void log(IStatus status) {
 		
-		getDefault().getLog().log(status);
+		if (status != null) {
+			getDefault().getLog().log(status);
+		}
 	}
 	public static void logUnexpectedError(Throwable e) {
 		

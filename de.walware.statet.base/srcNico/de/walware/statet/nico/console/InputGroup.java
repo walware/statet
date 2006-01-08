@@ -51,7 +51,6 @@ public class InputGroup {
 		public void keyReleased(KeyEvent e) {
 			
 		}
-		
 	}
 
 
@@ -70,7 +69,7 @@ public class InputGroup {
 	public InputGroup(NIConsole console) {
 		
 		fConsole = console;
-		fController = console.getController();
+		fController = console.getProcess().getController();
 		
 		fDocument = new InputDocument();
 		
@@ -169,10 +168,10 @@ public class InputGroup {
 	public void doSubmit() {
 		
 		String content = fDocument.get();
-		fDocument.set("");
-		fCurrentHistoryEntry = null;
-		
-		fController.submit(content, SubmitType.CONSOLE);
+		if (fController.submit(content, SubmitType.CONSOLE)) {
+			fDocument.set("");
+			fCurrentHistoryEntry = null;
+		}
 	}
 
 	public Composite getComposite() {

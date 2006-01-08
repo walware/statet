@@ -14,12 +14,15 @@ package de.walware.statet.r.rserve;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugException;
 import org.rosuda.JRclient.REXP;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
+import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.runtime.IToolRunnable;
 import de.walware.statet.nico.runtime.SubmitType;
+import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.rserve.internal.launchconfigs.ConnectionConfig;
 
@@ -46,11 +49,15 @@ public class RServeClientController extends AbstractRController {
 				else {
 					fErrorOutputStream.append("[RServe] Warning: Server returned null.", fType);
 				}
-			} 
+			}
 			catch (RSrvException e) {
 				fErrorOutputStream.append("[RServe] Error: " + e.getLocalizedMessage() + ".", fType);
 				if (!fRconnection.isConnected() || e.getRequestReturnCode() == -1) {
-					terminate();
+					try {
+						fProcess.terminate();
+					} catch (DebugException de) {
+						StatetPlugin.log(de.getStatus());
+					}
 				}
 			}
 		}
@@ -61,9 +68,9 @@ public class RServeClientController extends AbstractRController {
 	private Rconnection fRconnection;
 	
 	
-	public RServeClientController(String name, ConnectionConfig config) {
+	public RServeClientController(ToolProcess process, ConnectionConfig config) {
 		
-		super(name);
+		super(process);
 		fConfig = config;
 	}
 	

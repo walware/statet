@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.actions.ActionFactory;
@@ -50,7 +49,7 @@ class SubmitPasteAction extends Action {
 		
 		Transfer transfer = TextTransfer.getInstance();
 		String text = (String) fView.getClipboard().getContents(transfer);
-		ToolController controller = fView.getConsole().getController();
+		ToolController controller = fView.getConsole().getProcess().getController();
 		
 		if (text == null || controller == null)
 			return;
@@ -66,7 +65,7 @@ class SubmitPasteAction extends Action {
 		return new IRunnableWithProgress () {
 			public void run(IProgressMonitor monitor) throws InterruptedException {
 
-				monitor.beginTask(NLS.bind(Messages.SubmitTask_name, controller.getName()), 3);
+				monitor.beginTask(controller.createSubmitMessage(), 3);
 				
 				String[] lines = splitString(text);
 				monitor.worked(1);

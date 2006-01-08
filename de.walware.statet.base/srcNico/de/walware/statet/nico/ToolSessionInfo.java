@@ -14,40 +14,25 @@ package de.walware.statet.nico;
 import org.eclipse.ui.IViewPart;
 
 import de.walware.statet.nico.console.NIConsole;
-import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.runtime.ToolProcess;
 
 
 public class ToolSessionInfo {
 
 	
-	ToolController fController;
+	ToolProcess fProcess;
 	NIConsole fConsole;
 	IViewPart fSource;
 	
 	
-	public void setConsole(NIConsole console) {
-		
-		fConsole = console;
-	}
-
 	public NIConsole getConsole() {
 		
 		return fConsole;
 	}
 	
-	public void setController(ToolController controller) {
+	public ToolProcess getProcess() {
 		
-		fController = controller;
-	}
-	
-	public ToolController getController() {
-		
-		return fController;
-	}
-	
-	public void setSource(IViewPart source) {
-		
-		fSource = source;
+		return fProcess;
 	}
 	
 	public IViewPart getSource() {
@@ -60,7 +45,7 @@ public class ToolSessionInfo {
 	public String toString() {
 		
 		StringBuilder s = new StringBuilder();
-		s.append("Controller: ").append(fController != null ? fController.getName() : "<null>").append('\n');
+		s.append("Process: ").append(fProcess != null ? fProcess.getLabel() : "<null>").append('\n');
 		s.append("Source: ").append(fSource != null ? fSource.getTitle() : "<null>").append('\n');
 		s.append("Console: ").append(fConsole != null ? fConsole.getName() : "<null>").append('\n');
 		return s.toString();

@@ -15,9 +15,11 @@ import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.ToolRegistry;
+import de.walware.statet.nico.ToolSessionInfo;
 import de.walware.statet.nico.console.NIConsole;
 import de.walware.statet.nico.runtime.SubmitType;
 import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 
@@ -25,20 +27,24 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 
 	public void submit(String[] rCommands) throws CoreException {
 		
-		ToolRegistry reg = ToolRegistry.getRegistry(StatetPlugin.getActivePage());
-		ToolController controller = reg.getActiveToolSession().getController();
-		if (controller != null) {
-			controller.submit(rCommands, SubmitType.EDITOR);
+		ToolSessionInfo info = ToolRegistry.getRegistry().getActiveToolSession(
+				StatetPlugin.getActivePage());
+		ToolProcess process = info.getProcess();
+		if (process != null) {
+			ToolController controller = process.getController();
+			if (controller != null) {
+				controller.submit(rCommands, SubmitType.EDITOR);
+				return;
+			}
 		}
-		else {
-			// search controller / message?
-		}
+		// search controller / message?
 	}
 
 	public void gotoConsole() throws CoreException {
 		
-		ToolRegistry reg = ToolRegistry.getRegistry(StatetPlugin.getActivePage());
-		NIConsole console = reg.getActiveToolSession().getConsole();
+		ToolSessionInfo info = ToolRegistry.getRegistry().getActiveToolSession(
+				StatetPlugin.getActivePage());
+		NIConsole console = info.getConsole();
 		if (console != null) {
 			console.show(true);
 		}

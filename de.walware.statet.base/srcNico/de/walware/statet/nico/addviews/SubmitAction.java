@@ -14,7 +14,6 @@ package de.walware.statet.nico.addviews;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 
 import de.walware.statet.nico.Messages;
@@ -58,7 +57,7 @@ class SubmitAction extends BaseSelectionListenerAction {
 
 			public void run(IProgressMonitor monitor) throws InterruptedException {
 				
-				monitor.beginTask(NLS.bind(Messages.SubmitTask_name, controller.getName()), 3);
+				monitor.beginTask(controller.createSubmitMessage(), 3);
 				
 				String[] commands = createCommandArray(selection);
 				monitor.worked(1);

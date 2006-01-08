@@ -57,7 +57,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 	public void drop(DropTargetEvent event) {
 		
 		String text = (String) event.data;
-		ToolController controller = fPage.getConsole().getController();
+		ToolController controller = fPage.getConsole().getProcess().getController();
 		
 		if (text == null || controller == null)
 			return;
@@ -70,7 +70,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 	private void validate(DropTargetEvent event) {
 		
 		if (( (event.operations & DND.DROP_COPY) == DND.DROP_COPY) 
-				&& fPage.getConsole().getController().isStarted() ) {
+				&& !fPage.getConsole().getProcess().isTerminated() ) {
 			event.detail = DND.DROP_COPY;
 		}
 		else {

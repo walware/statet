@@ -16,8 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.internal.ui.DebugPluginImages;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -33,10 +40,9 @@ import org.eclipse.ui.part.IPageBookViewPage;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.Messages;
-import de.walware.statet.nico.runtime.IStatusListener;
 import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.ToolStreamProxy;
-import de.walware.statet.nico.runtime.ToolController.ToolStatus;
 
 
 /**
@@ -53,39 +59,26 @@ public class NIConsole extends IOConsole {
 	private IOConsoleOutputStream fOutputError;
 	
 	private ToolController fController;
+	private ToolProcess fProcess;
+	
+	private IDebugEventSetListener fDebugListener;
 	
 	
 	/**
 	 * Constructs a new console.
 	 * 
 	 * @param name console name
-	 * @param autoLifecycle whether lifecycle methods should be called automatically
-	 *  when added and removed from the console manager
 	 */
-	public NIConsole(ToolController controller, boolean autoLifecycle) {
+	public NIConsole(ToolProcess process) {
 		
-		super(computeName(controller, ToolStatus.STARTING), 
-				NICONSOLE_TYPE, null, 
-				autoLifecycle);
+		super("<>", NICONSOLE_TYPE, null, true);
 		
-		fController = controller;
+		fProcess = process;
+		fController = process.getController();
+		
+		setImageDescriptor(computeImageDescriptor());
 		
 		connectStreams(fController.getStreams());
-		fController.addStatusListener(new IStatusListener() {
-			
-			public void statusChanged(ToolStatus oldStatus, ToolStatus newStatus) {
-				
-				final ToolStatus status = newStatus;
-	            Runnable r = new Runnable() {
-	                public void run() {
-	                	setName(computeName(fController, status));
-//	                	ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
-	                	ConsolePlugin.getDefault().getConsoleManager().refresh(NIConsole.this);
-	                }
-	            };
-	            StatetPlugin.getDisplay(null).asyncExec(r);
-			}
-		});
 	}
 	
 	protected void connectStreams(ToolStreamProxy streams) {
@@ -129,22 +122,79 @@ public class NIConsole extends IOConsole {
 	}
 	
 	@Override
-    public IPageBookViewPage createPage(IConsoleView view) {
+	protected void init() {
 		
+		super.init();
+		
+		setName(computeName(Messages.Status_Starting_description));
+		
+		fDebugListener = new IDebugEventSetListener() {
+			public void handleDebugEvents(DebugEvent[] events) {
+				
+				EVENTS: for (DebugEvent event : events) {
+					if (event.getSource() == fProcess) {
+						switch (event.getKind()) {
+						case DebugEvent.MODEL_SPECIFIC:
+							switch (event.getDetail()) {
+								case ToolProcess.STATUS_CALCULATE:
+									runSetName(Messages.Status_StartedCalculating_description);
+									continue EVENTS;
+								case ToolProcess.STATUS_IDLE:
+									runSetName(Messages.Status_StartedIdle_description);
+									continue EVENTS;
+								case ToolProcess.STATUS_QUEUE_PAUSE:
+									runSetName(Messages.Status_StartedPaused_description);
+									continue EVENTS;
+							}
+							break;
+						case DebugEvent.TERMINATE:
+							runSetName(Messages.Status_Terminated_description);
+							continue EVENTS;
+						}
+					}
+				}
+			}
+			
+			private void runSetName(final String statusDescription) {
+		            Runnable r = new Runnable() {
+	                public void run() {
+	                	setName(computeName(statusDescription));
+	//                	ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
+	                	ConsolePlugin.getDefault().getConsoleManager().refresh(NIConsole.this);
+	                }
+	            };
+	            StatetPlugin.getDisplay(null).asyncExec(r);
+			}
+		};
+		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
+
 		JFaceResources.getFontRegistry().addListener(new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (JFaceResources.TEXT_FONT.equals(event.getProperty()) )
 					setFont(null);
 			};
 		});
+	}
+	
+	@Override
+	protected void dispose() {
+		
+		super.dispose();
+		
+		DebugPlugin.getDefault().removeDebugEventListener(fDebugListener);
+		fDebugListener = null;
+	}
+	
+	@Override
+    public IPageBookViewPage createPage(IConsoleView view) {
 		
         return new NIConsolePage(this, view);
     }
 
-	
-	public ToolController getController() {
+
+	public ToolProcess getProcess() {
 		
-		return fController;
+		return fProcess;
 	}
 	
 	/**
@@ -162,7 +212,7 @@ public class NIConsole extends IOConsole {
 			return;
 		}
 
-		String name = fController.getName();
+		String name = fProcess.getLabel();
 		IConsoleView choosenView = null;
 		
 		List<IConsoleView> consoleViews = getConsoleViews(page);
@@ -241,14 +291,35 @@ public class NIConsole extends IOConsole {
 		return consoleViews;
 	}
 	
-	protected static String computeName(ToolController controller, ToolStatus status) {
+	protected String computeName(String statusDescription) {
 		
 		StringBuilder name = new StringBuilder();
-		name.append(controller.getName());
+		name.append(fProcess.getLabel());
 		name.append(" New Console <");
-		name.append(Messages.getDefaultStatusDescription(status));
+		name.append(statusDescription);
 		name.append('>');
 		
 		return name.toString();
 	}
+	
+    /**
+     * Computes and returns the image descriptor for this console.
+     * 
+     * @return an image descriptor for this console or <code>null</code>
+     */
+    protected ImageDescriptor computeImageDescriptor() {
+    	
+        ILaunchConfiguration configuration = fProcess.getLaunch().getLaunchConfiguration();
+        if (configuration != null) {
+            ILaunchConfigurationType type;
+            try {
+                type = configuration.getType();
+                return DebugPluginImages.getImageDescriptor(type.getIdentifier());
+            } catch (CoreException e) {
+                StatetPlugin.logUnexpectedError(e);
+            }
+        }
+        return null;
+    }
+	
 }

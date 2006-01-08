@@ -58,6 +58,7 @@ import de.walware.statet.nico.console.ScrollLockAction.Receiver;
 import de.walware.statet.nico.runtime.History;
 import de.walware.statet.nico.runtime.IHistoryListener;
 import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.History.Entry;
 import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.StatetImages;
@@ -204,8 +205,7 @@ public class HistoryView extends ViewPart {
 	private Action fSubmitAction;
 
 	private ToolController fController; // für submit
-	private ToolRegistry fToolRegistry;
-	private IToolRegistryListener fToolListener;
+	private IToolRegistryListener fToolRegistryListener;
 
 	
 	/**
@@ -260,15 +260,15 @@ public class HistoryView extends ViewPart {
 				new HistoryDragAdapter(this));
 
 		// listen on console changes
-		fToolRegistry = ToolRegistry.getRegistry(getViewSite().getPage());
-		connect(fToolRegistry.getActiveToolSession().getController());
-		fToolListener = new IToolRegistryListener() {
+		ToolRegistry toolRegistry = ToolRegistry.getRegistry();
+		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
+		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionInfo info) {
-				connect(info.getController());
+				connect(info.getProcess());
 			}
 			public void toolSessionClosed(ToolSessionInfo info) { }
 		};
-		fToolRegistry.addListener(fToolListener);
+		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
 	}
 
 	private void createActions() {
@@ -366,8 +366,10 @@ public class HistoryView extends ViewPart {
 	}
 	
 	/** Should only be called inside UI Thread */
-	public void connect(final ToolController controller) {
+	public void connect(ToolProcess process) {
 		
+		final ToolController controller = (process != null) ? 
+				process.getController() : null;
 		Runnable runnable = new Runnable() {
 			public void run() {
 				fController = controller;
@@ -393,10 +395,9 @@ public class HistoryView extends ViewPart {
 	@Override
 	public void dispose() {
 		
-		if (fToolRegistry != null) {
-			fToolRegistry.removeListener(fToolListener);
-			fToolListener = null;
-			fToolRegistry = null;
+		if (fToolRegistryListener != null) {
+			ToolRegistry.getRegistry().removeListener(fToolRegistryListener);
+			fToolRegistryListener = null;
 		}
 		if (fCopyAction != null) {
 			fCopyAction.dispose();

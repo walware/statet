@@ -29,8 +29,15 @@
       <launchConfigurationTabGroup
             class="de.walware.statet.r.rserve.internal.launchconfigs.RServeClientLaunchConfigTabGroup"
             description="LaunchConfiguration_RServeClient_description"
-            id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigTabGroup"
+            id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationTabGroup"
             type="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"
+            icon="icons/tool_16/rserve-client.png"
+            id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationTypeImage"/>
    </extension>
 
 </plugin>

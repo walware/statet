@@ -57,12 +57,10 @@ public class ToolRunner implements IPlatformRunnable {
 					ToolRunner.this.run(process);
 				} 
 				catch (CoreException e) {
-					ToolController controller = process.getController();
 					ExceptionHandler.handle(e, NLS.bind(
 							Messages.LaunchDelegate_error_UnexpectedTermination_message, 
-							controller.getName()
+							process.getLabel()
 					));
-					controller.setStatus(ToolController.ToolStatus.TERMINATED);
 					process.fExitValue = 1010;
 				}
 			}

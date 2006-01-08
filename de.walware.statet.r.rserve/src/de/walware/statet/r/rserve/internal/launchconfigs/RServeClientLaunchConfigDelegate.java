@@ -24,6 +24,7 @@ import org.eclipse.ui.console.IConsole;
 import de.walware.statet.nico.console.NIConsole;
 import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.ToolRunner;
+import de.walware.statet.r.nico.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 
 
@@ -41,12 +42,12 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 		}
 		
 		String name = configuration.getName() + " [" + configuration.getType().getName() + "]";
-		ConnectionConfig connectionConfig = new ConnectionConfig();
+		final ConnectionConfig connectionConfig = new ConnectionConfig();
 		connectionConfig.readFrom(configuration);
 		
-		RServeClientController controller = new RServeClientController(name, connectionConfig);
-		ToolProcess process = new ToolProcess(launch, controller);
-		final NIConsole console = new NIConsole(controller, false);
+		ToolProcess process = new ToolProcess(launch, name);
+		process.setController(new RServeClientController(process, connectionConfig));
+		final NIConsole console = new RConsole(process);
     	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
     			new IConsole[] { console });
 

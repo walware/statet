@@ -31,6 +31,9 @@ public class RImages extends AbstractImagesCollection {
 	public static final ImageDescriptor DESC_WIZBAN_NEWRFILE = fgInstance.create(T_WIZBAN, "new_r-file.png"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_WIZBAN_NEWRDFILE = fgInstance.create(T_WIZBAN, "new_rd-file.png"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_WIZBAN_NEWRPROJECT = fgInstance.create(T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
+
+	public static final ImageDescriptor DESC_RCONSOLE = fgInstance.create(T_TOOL, "r-console.png"); //$NON-NLS-1$
+	
 	
 	private RImages() {
 		super(RUiPlugin.getDefault());

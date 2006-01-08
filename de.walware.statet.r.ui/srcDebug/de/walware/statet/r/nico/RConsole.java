@@ -11,24 +11,16 @@
 
 package de.walware.statet.r.nico;
 
-import org.eclipse.core.runtime.CoreException;
-
-import de.walware.statet.nico.runtime.SubmitType;
-import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.console.NIConsole;
 import de.walware.statet.nico.runtime.ToolProcess;
 
 
-public class AbstractRController extends ToolController {
+public class RConsole extends NIConsole {
 
 	
-	public AbstractRController(ToolProcess process) {
-		
-		super(process);
-	}
+	public RConsole(ToolProcess process) {
 
-	public void submit(String[] rCommands) throws CoreException {
-		
-		submit(rCommands, SubmitType.EDITOR);
+		super(process);
 	}
 
 }
