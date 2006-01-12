@@ -40,9 +40,7 @@ import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 
 /**
- * Default Configuration for SourceViewer of R code.
- * 
- * @author Stephan Wahlbrink
+ * Configuration for SourceViewer...
  */
 public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
@@ -66,6 +64,11 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	protected abstract StatextTextScanner[] initializeScanners();
 
 	public abstract boolean affectsTextPresentation(PropertyChangeEvent event);
+	
+	public IPreferenceStore getPreferenceStore() {
+		
+		return fPreferenceStore;
+	}
 	
 	public void handlePropertyChangeEvent(PropertyChangeEvent event) {
 		

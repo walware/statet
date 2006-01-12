@@ -22,20 +22,18 @@ import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
 public class REditor extends StatextEditor1 {
 
-	private static final char[][] BRACKETS = { {'{', '}'}, {'(', ')'}, {'[', ']'} };
 
 	
 	public REditor() {
 		super();
 		
 		setDocumentProvider(RUiPlugin.getDefault().getRDocumentProvider());
-		initStatext(
-				new PairMatcher(BRACKETS, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, IRDocumentPartitions.R_DEFAULT)
-		);
+		initStatext(new RBracketPairMatcher());
 	}
 	
 	@Override

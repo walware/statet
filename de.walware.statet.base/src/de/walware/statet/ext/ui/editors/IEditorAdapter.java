@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,22 +9,25 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui;
+package de.walware.statet.ext.ui.editors;
+
+import org.eclipse.jface.text.source.ISourceViewer;
 
 
-/**
- * Defines the action definition IDs for the editor actions.
- * 
- * <p>
- * This interface is not intended to be implemented or extended.
- * </p>.
- */
-public interface IStatextEditorActionDefinitionIds {
+public interface IEditorAdapter {
 
 	/**
-	 * Action definition ID of the source -> toggle comment action
+	 * Allows access to the SourceViewer.
 	 * 
-	 * Value: @value
+	 * @return the source viewer of the editor.
 	 */
-	public static final String TOGGLE_COMMENT = 		"de.walware.statet.ui.textediting.source.ToggleComment";
+	public ISourceViewer getSourceViewer();
+	
+	/**
+	 * Shows the message to the status line, if possible.
+	 * 
+	 * @param message message to show.
+	 */
+	public void setStatusLineErrorMessage(String message);
+
 }

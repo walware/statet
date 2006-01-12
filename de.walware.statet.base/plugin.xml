@@ -41,7 +41,7 @@
             description="%contexts.TextEditorScope.description"
             id="de.walware.statet.ui.contexts.TextEditorScope"
             name="%contexts.TextEditorScope.name"
-            parentId="org.eclipse.ui.textEditorScope"/>
+            parentId="org.eclipse.ltk.ui.sourceEditingScope"/>
    </extension>
    <extension
          point="org.eclipse.ui.actionSets">
@@ -51,7 +51,7 @@
             label="%actionSets.StatetCoding.label"
             visible="false">
          <action
-               definitionId="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
+               definitionId="org.eclipse.ltk.ui.sourceEditing.gotoMatchingBracket"
                id="de.walware.statet.ui.actions.GotoMatchingBracket"
                label="%actions.GotoMatchingBracket.label"
                menubarPath="navigate/goTo/statet.add"
@@ -73,11 +73,6 @@
             id="de.walware.statet.ui.categorys.StatetSource"
             name="%categorys.StatetSource.name"/>
       <command
-            categoryId="org.eclipse.ui.category.navigate"
-            description="%commands.GotoMatchingBracket.description"
-            id="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
-            name="%commands.GotoMatchingBracket.name"/>
-      <command
             categoryId="de.walware.statet.ui.categorys.StatetSource"
             description="%commands.ToggleComment.description"
             id="de.walware.statet.ui.textediting.source.ToggleComment"
@@ -85,11 +80,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
-      <key
-            commandId="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
-            contextId="de.walware.statet.ui.contexts.TextEditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M2+P"/>
       <key
             commandId="de.walware.statet.ui.textediting.source.ToggleComment"
             contextId="de.walware.statet.ui.contexts.TextEditorScope"

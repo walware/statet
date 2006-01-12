@@ -20,7 +20,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
@@ -32,13 +31,11 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.ext.ui.text.ITokenScanner;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
@@ -46,97 +43,21 @@ import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 public abstract class StatextEditor1 extends TextEditor {
 
-	public static final String ACTION_ID_GOTO_MATCHING_BRACKET = "de.walware.statet.ui.actions.GotoMatchingBracket";
 	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment";
 
 	
-	private final class GotoMatchingBracketAction extends TextEditorAction {
+	private class EditorAdapter implements IEditorAdapter {
 		
-		private char[][] fBrackets;
-		
-		GotoMatchingBracketAction() {
-			super(EditorMessages.getCompatibilityBundle(), "GotoMatchingBracketAction_", StatextEditor1.this);
-			
-			fBrackets = fBracketMatcher.getPairs();
-			setEnabled(true);
+		public void setStatusLineErrorMessage(String message) {
+
+			StatextEditor1.this.setStatusLineErrorMessage(message);
 		}
 		
-		public void run() {
-			gotoMatchingBracket();
+		public ISourceViewer getSourceViewer() {
+			
+			return StatextEditor1.this.getSourceViewer();
 		}
-	
-		/**
-		 * Jumps to the matching bracket.
-		 */
-		public void gotoMatchingBracket() {
-			
-			ISourceViewer sourceViewer = getSourceViewer();
-			IDocument document = sourceViewer.getDocument();
-			if (document == null)
-				return;
-			
-			ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
-			int offset = selection.getOffset();
-			int selectionLength = selection.getLength();
-	
-			if (selectionLength == 1) {
-				try {
-					char c = document.getChar(offset);
-					for (int i = 0; i < fBrackets.length; i++) {
-						if (c == fBrackets[i][ITokenScanner.OPENING_PEER]) {
-							offset++;
-							selectionLength = 0;
-							break;
-						}
-						if (c == fBrackets[i][ITokenScanner.CLOSING_PEER]) {
-							selectionLength = 0;
-							break;
-						}
-					}
-				} catch (BadLocationException e) {
-				}
-			}
-			
-			if (selectionLength > 0) {
-				setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_InvalidSelection);		
-				sourceViewer.getTextWidget().getDisplay().beep();
-				return;
-			}
-	
-			IRegion region = fBracketMatcher.match(document, offset);
-			if (region == null) {
-				setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket);		
-				sourceViewer.getTextWidget().getDisplay().beep();
-				return;		
-			}
-			
-			int matchingOffset = region.getOffset();
-			int matchingLength = region.getLength();
-			
-			if (matchingLength < 1)
-				return;
-				
-			int targetOffset = (fBracketMatcher.getAnchor() == PairMatcher.RIGHT) ? matchingOffset+1 : matchingOffset+matchingLength-1;
-			
-			boolean visible = false;
-			if (sourceViewer instanceof ITextViewerExtension5) {
-				ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
-				visible = (extension.modelOffset2WidgetOffset(targetOffset) > -1);
-			} else {
-				IRegion visibleRegion = sourceViewer.getVisibleRegion();
-				visible = (targetOffset >= visibleRegion.getOffset() && targetOffset <= visibleRegion.getOffset() + visibleRegion.getLength());
-			}
-			
-			if (!visible) {
-				setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement);		
-				sourceViewer.getTextWidget().getDisplay().beep();
-				return;
-			}
-			
-			sourceViewer.setSelectedRange(targetOffset, 0);
-			sourceViewer.revealRange(targetOffset, 0);
-		}
-	}		
+	}
 	
 	private final class ToggleCommentAction extends TextEditorAction {
 		
@@ -334,6 +255,7 @@ public abstract class StatextEditor1 extends TextEditor {
 	
 	/** The editor's bracket matcher */
 	protected PairMatcher fBracketMatcher = null;
+	private IEditorAdapter fEditorAdapter = new EditorAdapter();
 
 	
 	public StatextEditor1() {
@@ -398,9 +320,8 @@ public abstract class StatextEditor1 extends TextEditor {
 		Action action;
 		
 		if (fBracketMatcher != null) {
-			action = new GotoMatchingBracketAction();
-			action.setActionDefinitionId(IStatextEditorActionDefinitionIds.GOTO_MATCHING_BRACKET);				
-			setAction(ACTION_ID_GOTO_MATCHING_BRACKET, action);
+			action = new GotoMatchingBracketAction(fBracketMatcher, fEditorAdapter);
+			setAction(GotoMatchingBracketAction.ACTION_ID, action);
 		}
 
 		action = new ToggleCommentAction();
@@ -410,17 +331,6 @@ public abstract class StatextEditor1 extends TextEditor {
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}
 
-	/**
-	 * Sets the given message as error message to this editor's status line.
-	 *
-	 * @param msg message to be set
-	 */
-	protected void setStatusLineErrorMessage(String msg) {
-		
-		IEditorStatusLine statusLine = (IEditorStatusLine) getAdapter(IEditorStatusLine.class);
-		if (statusLine != null)
-			statusLine.setMessage(true, msg, null);
-	}
 
 	@Override
 	protected boolean affectsTextPresentation(PropertyChangeEvent event) {

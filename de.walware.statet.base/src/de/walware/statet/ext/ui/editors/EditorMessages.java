@@ -18,15 +18,18 @@ import org.eclipse.osgi.util.NLS;
 
 public class EditorMessages extends NLS {
 	
-	private static final String BUNDLE_NAME = EditorMessages.class.getName();
 
-
+	public static String GotoMatchingBracketAction_label;
+	public static String GotoMatchingBracketAction_tooltip;
+	public static String GotoMatchingBracketAction_description;
 	public static String GotoMatchingBracketAction_error_BracketOutsideSelectedElement;
 	public static String GotoMatchingBracketAction_error_InvalidSelection;
 	public static String GotoMatchingBracketAction_error_NoMatchingBracket;
 
 	public static String ToggleCommentAction_error;
+
 	
+	private static final String BUNDLE_NAME = EditorMessages.class.getName();
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, EditorMessages.class);
@@ -38,5 +41,4 @@ public class EditorMessages extends NLS {
 	public static ResourceBundle getCompatibilityBundle() {
 		return fgCompatibilityBundle;
 	}
-	
 }
