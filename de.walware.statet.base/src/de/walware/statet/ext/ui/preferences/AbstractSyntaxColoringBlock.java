@@ -50,6 +50,7 @@ import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.StatetPreferenceConstants;
+import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
@@ -340,7 +341,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fPreviewViewer.setEditable(false);
 		StatextSourceViewerConfiguration configuration = getSourceViewerConfiguration(fColorManager, store);
 		fPreviewViewer.configure(configuration);
-		new SourcePreviewerUpdater(fPreviewViewer, configuration, store);
+		new SourceViewerUpdater(fPreviewViewer, configuration, store);
 		
 		String content = loadPreviewContentFromFile(getPreviewFileName()); //$NON-NLS-1$
 		IDocument document = new Document(content);

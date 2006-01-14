@@ -12,29 +12,24 @@
 
 // Org: org.eclipse.jdt.internal.ui.preferences.JavaSourcePreviewerUpdater
 
-package de.walware.statet.ext.ui.preferences;
+package de.walware.statet.ext.ui.editors;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.util.Assert;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
-
-import org.eclipse.jface.text.source.SourceViewer;
-
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
-
 
 /**
- * Handles editor font and properties changes for source preview viewers.
- * 
- * @since 3.0
+ * Handles editor font and properties changes for source viewers.
+ * <p>
+ * It disposes itself automatically.
  */
-public class SourcePreviewerUpdater {
+public class SourceViewerUpdater {
 
 
 	private IPreferenceStore fPreferenceStore;
@@ -42,16 +37,28 @@ public class SourcePreviewerUpdater {
 	private IPropertyChangeListener fPropertyChangeListener;
 	
 	/**
-	 * Creates a Java source preview updater for the given viewer, configuration and preference store.
+	 * Creates a source preview updater for the given viewer, configuration and preference store from configuration.
+	 *
+	 * @param viewer the viewer
+	 * @param configuration the configuration
+	 */
+	public SourceViewerUpdater(SourceViewer viewer, StatextSourceViewerConfiguration configuration) {
+		
+		this(viewer, configuration, configuration.getPreferenceStore());
+	}
+
+	/**
+	 * Creates a source preview updater for the given viewer, configuration and preference store.
 	 *
 	 * @param viewer the viewer
 	 * @param configuration the configuration
 	 * @param preferenceStore the preference store
 	 */
-	public SourcePreviewerUpdater(final SourceViewer viewer, final StatextSourceViewerConfiguration configuration, final IPreferenceStore preferenceStore) {
-		Assert.isNotNull(viewer);
-		Assert.isNotNull(configuration);
-		Assert.isNotNull(preferenceStore);
+	public SourceViewerUpdater(final SourceViewer viewer, final StatextSourceViewerConfiguration configuration, final IPreferenceStore preferenceStore) {
+		
+		assert (viewer != null);
+		assert (configuration != null);
+		assert (preferenceStore != null);
 		
 		fPreferenceStore = preferenceStore;
 		

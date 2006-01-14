@@ -25,9 +25,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
 import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
+import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
-import de.walware.statet.ext.ui.preferences.SourcePreviewerUpdater;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
 import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
@@ -71,7 +71,7 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 
 		StatextSourceViewerConfiguration configuration = fViewerConfiguration.getSourceViewerConfiguration();
 		viewer.configure(configuration);
-		new SourcePreviewerUpdater(viewer, configuration, fViewerConfiguration.getPreferenceStore());
+		new SourceViewerUpdater(viewer, configuration, fViewerConfiguration.getPreferenceStore());
 
 		IDocument document = new Document();       
 		new RDocumentSetupParticipant().setup(document);

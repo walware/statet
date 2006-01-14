@@ -58,10 +58,10 @@ import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
-import de.walware.statet.ext.ui.preferences.SourcePreviewerUpdater;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
 
 
@@ -175,7 +175,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	protected Group fGroup;
 	private SourceViewer fPatternViewer;
 	private int fPatternViewerConfiguredCategory = -1;
-	private SourcePreviewerUpdater fPatternViewerUpdater = null;
+	private SourceViewerUpdater fPatternViewerUpdater = null;
 	
 	private TemplateVariableProcessor fTemplateProcessor;
 	
@@ -322,7 +322,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 				
 				StatextSourceViewerConfiguration configuration = prov.getSourceViewerConfiguration();
 				fPatternViewer.configure(configuration);
-				fPatternViewerUpdater = new SourcePreviewerUpdater(fPatternViewer, configuration, prov.getPreferenceStore());
+				fPatternViewerUpdater = new SourceViewerUpdater(fPatternViewer, configuration, prov.getPreferenceStore());
 				
 				IDocument document = new Document(template.getPattern());
 				prov.getDocumentSetupParticipant().setup(document);

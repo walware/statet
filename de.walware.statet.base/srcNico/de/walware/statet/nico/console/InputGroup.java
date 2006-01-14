@@ -39,6 +39,7 @@ import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
+import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.nico.runtime.History;
@@ -130,7 +131,6 @@ public class InputGroup {
 		fProcess = page.getConsole().getProcess();
 		
 		fDocument = new InputDocument();
-		
 	}
 
 	public Composite createControl(Composite parent, IEditorConfiguration editorConfig) {
@@ -220,6 +220,8 @@ public class InputGroup {
 			if (docuSetup != null) {
 				docuSetup.setup(fDocument);
 			}
+			
+			new SourceViewerUpdater(fSourceViewer, sourceViewerConfig);
 		}
 		fSourceViewer.setDocument(fDocument);
 		
