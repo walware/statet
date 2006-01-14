@@ -23,6 +23,7 @@ import org.eclipse.debug.internal.ui.views.console.ConsoleRemoveAllTerminatedAct
 import org.eclipse.debug.internal.ui.views.console.ConsoleRemoveLaunchAction;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -46,6 +47,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
@@ -68,6 +70,7 @@ import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.ToolRegistry;
 import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.TextViewerAction;
@@ -100,7 +103,28 @@ public class NIConsolePage implements IPageBookViewPage,
 				wasEmpty = isEmpty;
 			}
 		}
+	}
+	private class PostUpdater implements IDocumentListener, Runnable {
+		
+		private volatile boolean fIsSheduled = false;
+		
+		public void documentAboutToBeChanged(DocumentEvent event) {
+		}
 
+		public void documentChanged(DocumentEvent event) {
+
+			if (!fIsSheduled) {
+				fIsSheduled = true;
+				Display display = StatetPlugin.getDisplay(getSite().getShell());
+				display.asyncExec(this);
+			}
+		}
+
+		public void run() {
+			// post change run
+			fIsSheduled = false;
+			fMultiActionHandler.updateEnabledState();
+		}
 	}
 
 	private NIConsole fConsole;
@@ -132,8 +156,11 @@ public class NIConsolePage implements IPageBookViewPage,
 	private TextViewerAction fInputCopyAction;
 	private TextViewerAction fInputPasteAction;
 	private TextViewerAction fInputSelectAllAction;
+	private TextViewerAction fInputUndoAction;
+	private TextViewerAction fInputRedoAction;
 	
 	// Process control actions
+	private IDebugEventSetListener fDebugListener;
 	private ConsoleRemoveLaunchAction fRemoveAction;
 	private ConsoleRemoveAllTerminatedAction fRemoveAllAction;
 	private TerminateToolAction fTerminateAction;
@@ -155,7 +182,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	public void init(IPageSite site) throws PartInitException {
 		
 		fSite = site;
-		fInputGroup = new InputGroup(fConsole);
+		fInputGroup = new InputGroup(this);
 	}
 
 	public void createControl(Composite parent) {
@@ -173,7 +200,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fOutputViewer.getControl().setLayoutData(gd);
 		
-		fInputGroup.createControl(fControl);
+		fInputGroup.createControl(fControl, getInputEditorConfiguration());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fInputGroup.getComposite().setLayoutData(gd);
 		
@@ -185,7 +212,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		hookDND();
 		contributeToActionBars();
 		
-		DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
+		fDebugListener = new IDebugEventSetListener() {
 			public void handleDebugEvents(DebugEvent[] events) {
 				EVENTS: for (DebugEvent event : events) {
 					if (event.getSource() == getConsole().getProcess()) {
@@ -197,12 +224,25 @@ public class NIConsolePage implements IPageBookViewPage,
 					}
 				}
 			}
-		});
+		};
+		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
 		new ConsoleActivationNotifier();
 		
 		fIsCreated = true;
 	}
 	
+	/**
+	 * Creates the adapter to configure the input source viewer.
+	 * Will be disposed automatically.
+	 * 
+	 * @return the adapter
+	 */
+	protected IEditorConfiguration getInputEditorConfiguration() {
+		
+		return null;
+	}
+
+
 	private class ConsoleActivationNotifier implements Listener {
 
 		private ConsoleActivationNotifier() {
@@ -236,43 +276,57 @@ public class NIConsolePage implements IPageBookViewPage,
 		SourceViewer inputViewer = fInputGroup.getSourceViewer();
 		Control inputControl = inputViewer.getControl();
 		
-		fMultiActionHandler = new MultiActionHandler();
+		fMultiActionHandler = new MultiActionHandler(fConsoleView.getViewSite());
 
 		fOutputCopyAction = TextViewerAction.createCopyAction(fOutputViewer);
-		fMultiActionHandler.addAction(outputControl, ActionFactory.COPY.getId(), fOutputCopyAction);
+		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.COPY.getId(), fOutputCopyAction);
 	
 		fOutputPasteAction = new SubmitPasteAction(this);
 		fOutputPasteAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);
-		fMultiActionHandler.addAction(outputControl, ActionFactory.PASTE.getId(), fOutputPasteAction);
+		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.PASTE.getId(), fOutputPasteAction);
 		
 		fOutputSelectAllAction = TextViewerAction.createSelectAllAction(fOutputViewer);
-		fMultiActionHandler.addAction(outputControl, ActionFactory.SELECT_ALL.getId(), fOutputSelectAllAction);
+		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.SELECT_ALL.getId(), fOutputSelectAllAction);
 		
 		fOutputClearAllAction = new ClearOutputAction(fConsole);
 		fOutputScrollLockAction = new ScrollLockAction(this, false);
 		
 		fInputDeleteAction = TextViewerAction.createDeleteAction(inputViewer);
-		fMultiActionHandler.addAction(inputControl, ActionFactory.DELETE.getId(), fInputDeleteAction);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.DELETE.getId(), fInputDeleteAction);
 		
 		fInputCutAction = TextViewerAction.createCutAction(inputViewer);
-		fMultiActionHandler.addAction(inputControl, ActionFactory.CUT.getId(), fInputCutAction);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.CUT.getId(), fInputCutAction);
 		
 		fInputCopyAction = TextViewerAction.createCopyAction(inputViewer);
-		fMultiActionHandler.addAction(inputControl, ActionFactory.COPY.getId(), fInputCopyAction);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.COPY.getId(), fInputCopyAction);
 		
 		fInputPasteAction = TextViewerAction.createPasteAction(inputViewer);
-		fMultiActionHandler.addAction(inputControl, ActionFactory.PASTE.getId(), fInputPasteAction);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.PASTE.getId(), fInputPasteAction);
 
 		fInputSelectAllAction = TextViewerAction.createSelectAllAction(inputViewer);
-		fMultiActionHandler.addAction(inputControl, ActionFactory.SELECT_ALL.getId(), fInputSelectAllAction);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.SELECT_ALL.getId(), fInputSelectAllAction);
+		
+		fInputUndoAction = TextViewerAction.createUndoAction(inputViewer);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.UNDO.getId(), fInputUndoAction);
+		fInputRedoAction = TextViewerAction.createRedoAction(inputViewer);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.REDO.getId(), fInputRedoAction);
 
         ResourceBundle bundle = SharedMessages.getCompatibilityBundle();
 		fFindReplaceAction = new FindReplaceAction(bundle, "FindReplaceAction_", fConsoleView); //$NON-NLS-1$
 		fFindReplaceAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.FIND_REPLACE);
-		fMultiActionHandler.addAction(outputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
-		fMultiActionHandler.addAction(inputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
+		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
+		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
 		fOutputViewer.getDocument().addDocumentListener(new FindReplaceUpdater());
-		inputViewer.getDocument().addDocumentListener(new FindReplaceUpdater());
+		((InputDocument) inputViewer.getDocument()).addDocumentListener(new PostUpdater());
+//		inputViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
+//
+//			public void selectionChanged(SelectionChangedEvent event) {
+//				// TODO Auto-generated method stub
+//				fMultiActionHandler.updateEnabledState();
+//			}
+//			
+//		});
+		fInputGroup.createActions(fMultiActionHandler);
 
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);
 		fOutputViewer.addSelectionChangedListener(fMultiActionHandler);
@@ -324,7 +378,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		IActionBars bars = getSite().getActionBars();
 		
-		fMultiActionHandler.registerGlobalActions(bars);
+		fMultiActionHandler.registerActions(bars);
 		
 		IToolBarManager toolBar = bars.getToolBarManager();
 		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputClearAllAction);
@@ -340,6 +394,12 @@ public class NIConsolePage implements IPageBookViewPage,
 		manager.add(fInputCutAction);
 		manager.add(fInputCopyAction);
 		manager.add(fInputPasteAction);
+        manager.add(new GroupMarker(IWorkbenchActionConstants.CUT_EXT));
+
+		manager.add(new Separator());
+		manager.add(fInputUndoAction);
+		manager.add(fInputRedoAction);
+        manager.add(new GroupMarker(IWorkbenchActionConstants.UNDO_EXT));
 		
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
@@ -388,7 +448,13 @@ public class NIConsolePage implements IPageBookViewPage,
 			fInputCopyAction = null;
 			fInputPasteAction = null;
 			fInputSelectAllAction = null;
+			fInputUndoAction = null;
 			
+			DebugPlugin debug = DebugPlugin.getDefault();
+			if (debug != null) {
+				debug.removeDebugEventListener(fDebugListener);
+			}
+			fDebugListener = null;
 			fRemoveAction.dispose();
 			fRemoveAction = null;
 			fRemoveAllAction.dispose();

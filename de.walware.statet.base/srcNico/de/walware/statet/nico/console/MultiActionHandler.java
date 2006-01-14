@@ -12,6 +12,7 @@
 package de.walware.statet.nico.console;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +25,15 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IKeyBindingService;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.texteditor.IUpdate;
 
 
+/**
+ * Manages activation of actions and keybiding contexts for different controls
+ * (based on FocusIn/FocusOut event) in a view.
+ */
 public class MultiActionHandler implements Listener, ISelectionChangedListener {
 
 	
@@ -66,9 +73,18 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
+	private IViewSite fViewSite;
 	private Widget fActiveWidget;
 	private List<Widget> fKnownWidgets = new ArrayList<Widget>();
 	private Map<String, ActionWrapper> fActions = new HashMap<String, ActionWrapper>();
+	private Map<Widget, String> fScopes = new HashMap<Widget, String>();
+	
+	
+	MultiActionHandler(IViewSite viewSite) {
+		
+		fViewSite = viewSite;
+	}
+	
 	
 	private ActionWrapper getActionWrapper(String id) {
 		
@@ -80,10 +96,22 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		return wrapper;
 	}
 	
-	public void addAction(Widget widget, String globalId, Action action) {
+	public void addGlobalAction(Widget widget, String globalId, Action action) {
 		
 		ActionWrapper wrapper = getActionWrapper(globalId);
 		wrapper.fWidgetActionMap.put(widget, action);
+		
+		addWidget(widget);
+	}
+	
+	public void addKeybindingScope(Widget widget, String scope) {
+		
+		fScopes.put(widget, scope);
+		
+		addWidget(widget);
+	}
+	
+	private void addWidget(Widget widget) {
 		
 		if (!fKnownWidgets.contains(widget)) {
 			widget.addListener(SWT.FocusIn, this);
@@ -92,7 +120,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
-	public void registerGlobalActions(IActionBars bars) {
+	public void registerActions(IActionBars bars) {
 		
 		for (String id : fActions.keySet()) {
 			bars.setGlobalActionHandler(id, fActions.get(id));
@@ -104,10 +132,12 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		switch (event.type) {
 		case SWT.FocusIn:
 			fActiveWidget = event.widget;
+			addScope(fActiveWidget);
 			updateEnabledState();
 			break;
 
 		case SWT.FocusOut:
+			removeScope(fActiveWidget);
 			fActiveWidget = null;
 			updateEnabledState();
 			break;
@@ -128,6 +158,45 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 			wrapper.update();
 		}
 	}
+	
+	private void addScope(Widget widget) {
+		
+		String scope = fScopes.get(widget);
+		IKeyBindingService keys = fViewSite.getKeyBindingService();
+		if (scope == null || keys == null) {
+			return;
+		}
+
+		String[] scopes = keys.getScopes();
+		List<String> scopeList = Arrays.asList(scopes);
+		if (!scopeList.contains(scope)) {
+			int length = scopes.length;
+			String[] newScopes = new String[length+1];
+			System.arraycopy(scopes, 0, newScopes, 0, length);
+			newScopes[length] = scope;
+			keys.setScopes(newScopes);
+		}
+	}
+	
+	private void removeScope(Widget widget) {
+		
+		String scope = fScopes.get(widget);
+		IKeyBindingService keys = fViewSite.getKeyBindingService();
+		if (scope == null || keys == null) {
+			return;
+		}
+
+		String[] scopes = keys.getScopes();
+		List<String> scopeList = Arrays.asList(scopes);
+		int idx = scopeList.indexOf(scope);
+		if (idx >= 0) {
+			int length = scopes.length;
+			String[] newScopes = new String[length-1];
+			System.arraycopy(scopes, 0, newScopes, 0, idx);
+			System.arraycopy(scopes, idx+1, newScopes, idx, length-idx-1);
+			keys.setScopes(newScopes);
+		}
+	}
 
 	public void dispose() {
 		
@@ -135,4 +204,5 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		fActions.clear();
 		fKnownWidgets.clear();
 	}
+
 }

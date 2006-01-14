@@ -57,7 +57,6 @@ import de.walware.statet.nico.console.ScrollLockAction;
 import de.walware.statet.nico.console.ScrollLockAction.Receiver;
 import de.walware.statet.nico.runtime.History;
 import de.walware.statet.nico.runtime.IHistoryListener;
-import de.walware.statet.nico.runtime.ToolController;
 import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.History.Entry;
 import de.walware.statet.ui.SharedMessages;
@@ -85,9 +84,10 @@ public class HistoryView extends ViewPart {
 		
 		public Object[] getElements(Object parent) {
 			
-			if (fController == null)
+			if (fProcess == null) {
 				return new History.Entry[0];
-			return fController.getHistory().toArray();
+			}
+			return fProcess.getHistory().toArray();
 		}
 
 		public void dispose() {
@@ -100,7 +100,7 @@ public class HistoryView extends ViewPart {
 			
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					if (fController.getHistory() != e.getHistory()) {
+					if (fProcess.getHistory() != e.getHistory()) {
 						return;
 					}
 					
@@ -204,7 +204,7 @@ public class HistoryView extends ViewPart {
 	
 	private Action fSubmitAction;
 
-	private ToolController fController; // für submit
+	private ToolProcess fProcess; // für submit
 	private IToolRegistryListener fToolRegistryListener;
 
 	
@@ -366,23 +366,21 @@ public class HistoryView extends ViewPart {
 	}
 	
 	/** Should only be called inside UI Thread */
-	public void connect(ToolProcess process) {
+	public void connect(final ToolProcess process) {
 		
-		final ToolController controller = (process != null) ? 
-				process.getController() : null;
 		Runnable runnable = new Runnable() {
 			public void run() {
-				fController = controller;
-				fTableViewer.setInput((fController != null) ? 
-						fController.getHistory() : null);
+				fProcess = process;
+				fTableViewer.setInput((fProcess != null) ? 
+						fProcess.getHistory() : null);
 			}
 		};
 		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
 	}
 	
-	public ToolController getController() {
+	public ToolProcess getToolProcess() {
 		
-		return fController;
+		return fProcess;
 	}
 	
 	

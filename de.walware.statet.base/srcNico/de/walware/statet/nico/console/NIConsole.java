@@ -181,7 +181,10 @@ public class NIConsole extends IOConsole {
 		
 		super.dispose();
 		
-		DebugPlugin.getDefault().removeDebugEventListener(fDebugListener);
+		DebugPlugin debugPlugin = DebugPlugin.getDefault();
+		if (debugPlugin != null) {
+			debugPlugin.removeDebugEventListener(fDebugListener);
+		}
 		fDebugListener = null;
 	}
 	
@@ -321,5 +324,5 @@ public class NIConsole extends IOConsole {
         }
         return null;
     }
-	
+
 }

@@ -119,5 +119,24 @@ public class TextViewerAction extends Action implements IUpdate {
 		action.setToolTipText(SharedMessages.SelectAllAction_tooltip);
 		return action;
 	}
+	
+	public static TextViewerAction createUndoAction(ITextViewer viewer) {
+		
+		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.UNDO);
+		action.setId(ActionFactory.UNDO.getId());
+		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.UNDO);
+		action.setText(SharedMessages.UndoAction_name);
+		action.setToolTipText(SharedMessages.UndoAction_tooltip);
+		return action;
+	}
 
+	public static TextViewerAction createRedoAction(ITextViewer viewer) {
+		
+		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.REDO);
+		action.setId(ActionFactory.REDO.getId());
+		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.REDO);
+		action.setText(SharedMessages.RedoAction_name);
+		action.setToolTipText(SharedMessages.RedoAction_tooltip);
+		return action;
+	}
 }

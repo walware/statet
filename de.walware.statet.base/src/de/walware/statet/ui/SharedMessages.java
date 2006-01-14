@@ -27,6 +27,8 @@ public class SharedMessages extends NLS {
 	
 	public static String UndoAction_name;
 	public static String UndoAction_tooltip;
+	public static String RedoAction_name;
+	public static String RedoAction_tooltip;
 	
 	public static String DeleteAction_name;
 	public static String DeleteAction_tooltip;

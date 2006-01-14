@@ -68,6 +68,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	private ILaunch fLaunch;
 	private String fName;
 	private ToolController fController;
+	private History fHistory;
 	
 	private Map<String, String> fAttributes;
 	private boolean fCaptureOutput;
@@ -92,7 +93,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	public void setController(ToolController controller) {
 		
 		fController = controller;
-
+		fHistory = fController.getHistory();
 	}
 	
 	public String getLabel() {
@@ -108,6 +109,11 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	public ToolController getController() {
 		
 		return fController;
+	}
+	
+	public History getHistory() {
+		
+		return fHistory;
 	}
 
 	public IStreamsProxy getStreamsProxy() {

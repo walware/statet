@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,23 +12,23 @@
 package de.walware.statet.r.nico;
 
 import org.eclipse.ui.console.IConsoleView;
-import org.eclipse.ui.part.IPageBookViewPage;
 
+import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.console.NIConsole;
-import de.walware.statet.nico.runtime.ToolProcess;
+import de.walware.statet.nico.console.NIConsolePage;
 
 
-public class RConsole extends NIConsole {
+public class RConsolePage extends NIConsolePage {
 
-	
-	public RConsole(ToolProcess process) {
-
-		super(process);
+	public RConsolePage(NIConsole console, IConsoleView view) {
+		
+		super(console, view);
 	}
 
+	
 	@Override
-	public IPageBookViewPage createPage(IConsoleView view) {
+	protected IEditorConfiguration getInputEditorConfiguration() {
 		
-		return new RConsolePage(this, view);
+		return new RInputConfiguration();
 	}
 }

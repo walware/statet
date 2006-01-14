@@ -15,7 +15,8 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
-
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 
 public class InputSourceViewer extends SourceViewer {
@@ -26,15 +27,29 @@ public class InputSourceViewer extends SourceViewer {
 		super(parent, null, null, false, SWT.SINGLE);
 		
 		initDND();
+		initTabControl();
 	}
 	
-	
+
 	private void initDND() {
 		
 		// TODO: Drop Action, related to Eclipse-Bug #106372
 //		DNDUtil.addDropSupport(this, xxx, 
 //				DND.DROP_COPY, 
 //				new Transfer[] { TextTransfer.getInstance() });
+	}
+	
+	private void initTabControl() {
+		// disable traverse on TAB key event, to enable TAB char insertion.
+		
+		getTextWidget().addListener(SWT.Traverse, new Listener() {
+			public void handleEvent(Event event) {
+				
+				if (event.stateMask == SWT.NONE && event.character == SWT.TAB) {
+					event.doit = false;
+				}
+			}
+		});
 	}
 	
     /**
@@ -44,10 +59,13 @@ public class InputSourceViewer extends SourceViewer {
      *            the tab width used by this viewer
      */
     public void setTabWidth(int tabWidth) {
+    	
         StyledText styledText = getTextWidget();
         int oldWidth = styledText.getTabs();
         if (tabWidth != oldWidth) {
             styledText.setTabs(tabWidth);
         }
     }
+    
+    
 }

@@ -19,6 +19,7 @@ import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import de.walware.statet.nico.Messages;
 import de.walware.statet.nico.runtime.SubmitType;
 import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.History.Entry;
 
 
@@ -48,7 +49,8 @@ class SubmitAction extends BaseSelectionListenerAction {
 	public void run() {
 		
 		final IStructuredSelection selection = getStructuredSelection();
-		final ToolController controller = fView.getController();
+		ToolProcess process = fView.getToolProcess();
+		final ToolController controller = (process != null) ? process.getController() : null;
 		
 		if (selection == null || controller == null)
 			return;
