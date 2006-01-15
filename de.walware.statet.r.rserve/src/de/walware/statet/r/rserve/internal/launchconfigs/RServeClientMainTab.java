@@ -17,10 +17,13 @@ import java.beans.PropertyChangeListener;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.jface.databinding.BeanUpdatableFactory;
 import org.eclipse.jface.databinding.BindSpec;
 import org.eclipse.jface.databinding.DataBinding;
 import org.eclipse.jface.databinding.IDataBindingContext;
+import org.eclipse.jface.databinding.IUpdatableFactory;
 import org.eclipse.jface.databinding.Property;
+import org.eclipse.jface.databinding.swt.SWTUpdatableFactory;
 import org.eclipse.jface.databinding.validator.RegexStringValidator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -53,7 +56,15 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		IDataBindingContext dbc = DataBinding.createContext(mainComposite);
+		
+		SWTUpdatableFactory swtUpdater = new SWTUpdatableFactory();
+		swtUpdater.setUpdateTime(IDataBindingContext.TIME_EARLY);
+		IUpdatableFactory[] updaters = new IUpdatableFactory[] { 
+				new BeanUpdatableFactory(),
+				swtUpdater, 
+//				new ViewersUpdatableFactory(), 
+		};
+		IDataBindingContext dbc = DataBinding.createContext(mainComposite, updaters);
 		
 		Layouter main = new Layouter(mainComposite, new GridLayout());
 		Layouter layouter = new Layouter(main.addGroup("Connection:"), 2);
