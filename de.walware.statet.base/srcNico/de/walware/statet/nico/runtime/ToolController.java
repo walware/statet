@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,12 @@
 package de.walware.statet.nico.runtime;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
@@ -68,6 +70,8 @@ public class ToolController {
 //			return fType;
 //		}
 	}
+	
+	private static NullProgressMonitor fgProgressMonitorDummy = new NullProgressMonitor(); 
 	
 	private LinkedList<IToolRunnable> fQueue;
 	
@@ -235,13 +239,36 @@ public class ToolController {
 	 * 
 	 * @throws InterruptedException if action is interupted via monitor.
 	 */
-	public boolean submit(String[] text, SubmitType type, IProgressMonitor monitor) throws InterruptedException {
+	public boolean submit(String[] text, SubmitType type, IProgressMonitor monitor) {
 		
+		assert (text != null);
+		monitor.beginTask("Submitting to queue.", 3);
+
 		synchronized (fQueue) {
-			if (monitor.isCanceled())
-				throw new InterruptedException();
-			
-			return submit(text, type);
+			if (acceptSubmit()) {
+				if (monitor.isCanceled()) {
+					return false;
+				}
+				monitor.worked(1);
+				
+				IToolRunnable[] runs = new IToolRunnable[text.length];
+				for (int i = 0; i < text.length; i++) {
+					runs[i] = createCommandRunnable(text[i], type);
+				}
+
+				if (monitor.isCanceled()) {
+					return false;
+				}
+				monitor.worked(1);
+
+				doSubmit(runs);
+				
+				monitor.done();
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 	}
 	
@@ -256,20 +283,7 @@ public class ToolController {
 	 */
 	public boolean submit(String[] text, SubmitType type) {
 		
-		assert (text != null);
-		// texts are checked in runnable constructor.
-		
-		synchronized (fQueue) {
-			if (acceptSubmit()) {
-				for (String s : text) {
-					doSubmit(createCommandRunnable(s, type));
-				}
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
+		return submit(text, type, fgProgressMonitorDummy);
 	}
 	
 	/**
@@ -299,7 +313,7 @@ public class ToolController {
 	 * @return <code>true</code>, if adding task to queue was successful, 
 	 * 		otherwise <code>false</code>. 
 	 */
-	public boolean submit(IToolRunnable task) {
+	public boolean submit(IToolRunnable[] task) {
 		
 		assert (task != null);
 		
@@ -332,9 +346,9 @@ public class ToolController {
 	 * Note: call only inside synchronized(fQueue) block
 	 * @param task
 	 */
-	private void doSubmit(IToolRunnable task) {
+	private void doSubmit(IToolRunnable[] tasks) {
 		
-		fQueue.add(task);
+		fQueue.addAll(Arrays.asList(tasks));
 		if (fStatus == ToolStatus.STARTED_IDLE) {
 			doResume();
 		}
@@ -366,7 +380,7 @@ public class ToolController {
 					continue;
 				}
 			}
-		 }
+		}
 	}
 	
 	private boolean doRunTask() {
