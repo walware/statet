@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
@@ -133,10 +134,27 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	}
 
 
-//	public Object getAdapter(Class adapter) {
-//
-//		return super.getAdapter(adapter);
-//	}
+	@Override
+	public Object getAdapter(Class adapter) {
+
+		if (adapter.equals(IProcess.class)) {
+			return this;
+		}
+		if (adapter.equals(IDebugTarget.class)) {
+			ILaunch launch = getLaunch();
+			IDebugTarget[] targets = launch.getDebugTargets();
+			for (int i = 0; i < targets.length; i++) {
+				if (this.equals(targets[i].getProcess())) {
+					return targets[i];
+				}
+			}
+			return null;
+		}
+		if (adapter.equals(ILaunch.class)) {
+			return getLaunch();
+		}
+		return super.getAdapter(adapter);
+	}
 
 
 	public boolean canTerminate() {
