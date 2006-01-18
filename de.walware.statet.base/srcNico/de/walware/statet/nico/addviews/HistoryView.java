@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.addviews;
 
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -35,13 +34,15 @@ import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -50,6 +51,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
+import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.statet.nico.IToolRegistryListener;
 import de.walware.statet.nico.ToolRegistry;
 import de.walware.statet.nico.ToolSessionInfo;
@@ -64,22 +66,22 @@ import de.walware.statet.ui.StatetImages;
 
 
 /**
- * 
+ * A view for the history of a tool process.
  */
 public class HistoryView extends ViewPart {
 	
 	
 	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
 		
-		private TableViewer fViewer;
 		
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 
-			fViewer = (TableViewer) v;
-			if (oldInput != null)
+			if (oldInput != null) {
 				((History) oldInput).removeListener(this);
-			if (newInput != null)
+			}
+			if (newInput != null) {
 				((History) newInput).addListener(this);
+			}
 		}
 		
 		public Object[] getElements(Object parent) {
@@ -91,50 +93,56 @@ public class HistoryView extends ViewPart {
 		}
 
 		public void dispose() {
-			
-			fViewer = null;
 		}
 
 		
 		public void entryAdded(final Entry e) {
+			// history event
 			
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					if (fProcess.getHistory() != e.getHistory()) {
+					if (fProcess.getHistory() != e.getHistory()
+							|| !Layouter.isOkToUse(fTableViewer)) {
 						return;
 					}
 					
-					fViewer.add(e);
+					fTableViewer.add(e);
 
 					if (fDoAutoscroll)
-						fViewer.reveal(e);
+						fTableViewer.reveal(e);
 					else {
-						Table table = (Table) fViewer.getControl();
-						TableItem item = table.getItem(new Point(0, 0));
-						if (item != null)
-							table.showItem(item);
+//						Table table = (Table) fViewer.getControl();
+//						TableItem item = table.getItem(new Point(0, 0));
+//						if (item != null)
+//							table.showItem(item);
 					}
 				}
 			});
 		}
 
 		public void entryRemoved(final Entry e) {
+			// history event. 
 			
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					fViewer.remove(e);
+					if (!Layouter.isOkToUse(fTableViewer)) {
+						return;
+					}
+					fTableViewer.remove(e);
 				}
 			});
 		}
 
-		public void completeChange() {
+		public void completeChange() { 
+			// history event
+			// Not tested yet!
 			
-			fViewer.refresh(true);
+			fTableViewer.refresh(true);
+//			packTable(); //???
 		}
 	}
 	
-	private class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
-		
+	private class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		
 		public String getColumnText(Object obj, int index) {
 			
@@ -245,9 +253,22 @@ public class HistoryView extends ViewPart {
 
 	public void createPartControl(Composite parent) {
 		
-		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
+		fTableViewer.getTable().setLinesVisible(false);
+		fTableViewer.getTable().setHeaderVisible(false);
+		new TableColumn(fTableViewer.getTable(), SWT.DEFAULT);
+		fTableViewer.getTable().addControlListener(new ControlAdapter() {
+			public void controlResized(ControlEvent e) {
+				// adapt the column width to the width of the table 
+				Table table = fTableViewer.getTable();
+				Rectangle area = table.getClientArea();
+				TableColumn column = table.getColumn(0);
+				column.setWidth(area.width-3); // it looks better with a small gap
+			}
+		});
+		
 		fTableViewer.setContentProvider(new ViewContentProvider());
-		fTableViewer.setLabelProvider(new ViewLabelProvider());
+		fTableViewer.setLabelProvider(new TableLabelProvider());
 		
 		createActions();
 		hookContextMenu();
@@ -370,6 +391,9 @@ public class HistoryView extends ViewPart {
 		
 		Runnable runnable = new Runnable() {
 			public void run() {
+				if (!Layouter.isOkToUse(fTableViewer)) {
+					return;
+				}
 				fProcess = process;
 				fTableViewer.setInput((fProcess != null) ? 
 						fProcess.getHistory() : null);
@@ -383,7 +407,7 @@ public class HistoryView extends ViewPart {
 		return fProcess;
 	}
 	
-	
+	@Override
 	public void setFocus() {
 		// Passing the focus request to the viewer's control.
 		
@@ -408,6 +432,8 @@ public class HistoryView extends ViewPart {
 			fClipboard.dispose();
 			fClipboard = null;
 		}
+		
+		fTableViewer = null;
 	}
 	
 	

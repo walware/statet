@@ -12,6 +12,7 @@
 package de.walware.eclipsecommon.ui.dialogs;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -27,7 +28,6 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommon.ui.dialogs.groups.OptionsGroup;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
-
 
 
 public class Layouter {
@@ -233,7 +233,22 @@ public class Layouter {
 	 * Tests is the control is not <code>null</code> and not disposed.
 	*/
 	public static final boolean isOkToUse(Control control) {
+		
 		return (control != null) && (Display.getCurrent() != null) && !control.isDisposed();
 	}
+	
+	/**
+	 * Tests is the viewer is not <code>null</code> and its control is not disposed.
+	*/
+	public static final boolean isOkToUse(Viewer viewer) {
+		
+		Control control;
+		return ((viewer != null) 
+				&& ((control = viewer.getControl()) != null) 
+				&& !control.isDisposed()
+				&& (Display.getCurrent() != null) 
+		);
+	}
+	
 
 }
