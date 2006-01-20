@@ -34,35 +34,41 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 	public void launch(ILaunchConfiguration configuration, String mode, 
 			ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
-		if (monitor == null) {
-			monitor = new NullProgressMonitor();
-		}
-		if (monitor.isCanceled()) {
-			return;
-		}
-		
-		String name = configuration.getName() + " [" + configuration.getType().getName() + "]";
-		final ConnectionConfig connectionConfig = new ConnectionConfig();
-		connectionConfig.readFrom(configuration);
-		
-		ToolProcess process = new ToolProcess(launch, name);
-		process.setController(new RServeClientController(process, connectionConfig));
-		final NIConsole console = new RConsole(process);
-    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
-    			new IConsole[] { console });
-
-    	new ToolRunner().runInBackgroundThread(process);
-
-    	// open console
-    	Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				try {
-					console.show(true);
-				} 
-				catch (CoreException e) {
-				}
+		try {
+			if (monitor == null) {
+				monitor = new NullProgressMonitor();
 			}
-    	});
+//			monitor.beginTask("", 1000);
+			if (monitor.isCanceled()) {
+				return;
+			}
+			
+			String name = configuration.getName() + " [" + configuration.getType().getName() + "]";
+			final ConnectionConfig connectionConfig = new ConnectionConfig();
+			connectionConfig.readFrom(configuration);
+			
+			ToolProcess process = new ToolProcess(launch, name);
+			process.setController(new RServeClientController(process, connectionConfig));
+			final NIConsole console = new RConsole(process);
+	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
+	    			new IConsole[] { console });
+	
+	    	new ToolRunner().runInBackgroundThread(process);
+	
+	    	// open console
+	    	Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					try {
+						console.show(true);
+					} 
+					catch (CoreException e) {
+					}
+				}
+	    	});
+		}
+		finally {
+			monitor.done();
+		}
 	}
 	
 }

@@ -12,6 +12,7 @@
 package de.walware.statet.nico.addviews;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
@@ -59,13 +60,18 @@ class SubmitAction extends BaseSelectionListenerAction {
 
 			public void run(IProgressMonitor monitor) throws InterruptedException {
 				
-				monitor.beginTask(controller.createSubmitMessage(), 3);
-				
-				String[] commands = createCommandArray(selection);
-				monitor.worked(1);
-				
-				controller.submit(commands, SubmitType.OTHER, monitor);
-				monitor.done();
+				try {
+					monitor.beginTask(controller.createSubmitMessage(), 1000);
+					
+					String[] commands = createCommandArray(selection);
+					monitor.worked(200);
+					
+					controller.submit(commands, SubmitType.OTHER, 
+							new SubProgressMonitor(monitor, 800));
+				}
+				finally {
+					monitor.done();
+				}
 			}
 			
 		};

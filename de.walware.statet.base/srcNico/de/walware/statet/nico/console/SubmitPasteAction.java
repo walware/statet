@@ -14,6 +14,7 @@ package de.walware.statet.nico.console;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -65,13 +66,18 @@ class SubmitPasteAction extends Action {
 		return new IRunnableWithProgress () {
 			public void run(IProgressMonitor monitor) throws InterruptedException {
 
-				monitor.beginTask(controller.createSubmitMessage(), 3);
-				
-				String[] lines = splitString(text);
-				monitor.worked(1);
-				
-				controller.submit(lines, SubmitType.CONSOLE, monitor);
-				monitor.done();
+				try {
+					monitor.beginTask(controller.createSubmitMessage(), 1000);
+					
+					String[] lines = splitString(text);
+					monitor.worked(200);
+					
+					controller.submit(lines, SubmitType.CONSOLE, 
+							new SubProgressMonitor(monitor, 800));
+				}
+				finally {
+					monitor.done();
+				}
 			}
 		};
 	}

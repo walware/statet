@@ -113,20 +113,23 @@ public class RProject extends StatextProject {
 
 	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
 
-		monitor.beginTask("Config R Project...", 1000);
-		
-		if (!project.hasNature(ID)) {
-			StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
+		try {
+			monitor.beginTask("Config R Project...", 1000);
 			
-			IProjectDescription description = project.getDescription();
-			String[] prevNatures = description.getNatureIds();
-			String[] newNatures = new String[prevNatures.length + 1];
-			System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
-			newNatures[prevNatures.length] = ID;
-			description.setNatureIds(newNatures);
-			project.setDescription(description, new SubProgressMonitor(monitor, 600));
-		} 
-		else
+			if (!project.hasNature(ID)) {
+				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
+				
+				IProjectDescription description = project.getDescription();
+				String[] prevNatures = description.getNatureIds();
+				String[] newNatures = new String[prevNatures.length + 1];
+				System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
+				newNatures[prevNatures.length] = ID;
+				description.setNatureIds(newNatures);
+				project.setDescription(description, new SubProgressMonitor(monitor, 600));
+			} 
+		}
+		finally {
 			monitor.done();
+		}
 	}
 }

@@ -129,8 +129,8 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	        InputStream initialContents = getInitialFileContents(newFileHandle);
 
 	        try {
-	        	Assert.isNotNull(containerPath);
-	        	Assert.isNotNull(newFileHandle);
+	        	assert (containerPath != null);
+	        	assert (newFileHandle != null);
 	        	
 		        monitor.beginTask("Create new file...", 1000);
 		        ContainerGenerator generator = new ContainerGenerator(containerPath);
@@ -280,17 +280,21 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	    		throws CoreException {
 	    	
 	        // run the new project creation operation
-//	        try {
+	        try {
                 monitor.beginTask("Create Project", 1000); //$NON-NLS-1$
 
                 projectHandle.create(description, new SubProgressMonitor(monitor, 500));
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                 	throw new OperationCanceledException();
-
+                }
                 projectHandle.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
-                if (monitor.isCanceled())
+                if (monitor.isCanceled()) {
                 	throw new OperationCanceledException();
-//	        }
+                }
+	        }
+	        finally {
+	        	monitor.done();
+	        }
 	    }
 	}
 	
@@ -346,11 +350,14 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 						monitor = new NullProgressMonitor();
 					}
 					doFinish(monitor);
-				} catch (InterruptedException e) {
+				} 
+				catch (InterruptedException e) {
 					throw new OperationCanceledException(e.getMessage());
-				} catch (CoreException e) {
+				} 
+				catch (CoreException e) {
 					throw new InvocationTargetException(e);
-				} finally {
+				} 
+				finally {
 					monitor.done();
 				}
 			}

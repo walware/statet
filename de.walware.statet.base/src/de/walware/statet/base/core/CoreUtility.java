@@ -53,22 +53,22 @@ public class CoreUtility {
 		protected IStatus run(IProgressMonitor monitor) {
 			
 			// check for other BuildJobs
-			synchronized (getClass()) {
-				if (monitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				}
-		        Job[] buildJobs = Platform.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
-		        for (Job job : buildJobs) {
-		        	if (job != this && job instanceof BuildJob) {
-		        		BuildJob buildJob = (BuildJob) job;
-		        		if (buildJob.isCoveredBy(this)) {
-		        			buildJob.cancel();  // cancel all other build jobs of our kind
-		        		}
-		        	}
-				}
-			}
-			
 			try {
+				synchronized (getClass()) {
+					if (monitor.isCanceled()) {
+						throw new OperationCanceledException();
+					}
+			        Job[] buildJobs = Platform.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
+			        for (Job job : buildJobs) {
+			        	if (job != this && job instanceof BuildJob) {
+			        		BuildJob buildJob = (BuildJob) job;
+			        		if (buildJob.isCoveredBy(this)) {
+			        			buildJob.cancel();  // cancel all other build jobs of our kind
+			        		}
+			        	}
+					}
+				}
+			
 				if (fProject != null) {
 					monitor.beginTask(NLS.bind(StatetMessages.CoreUtility_Build_ProjectTask_name, fProject.getName()), 2); 
 					fProject.build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor,1));

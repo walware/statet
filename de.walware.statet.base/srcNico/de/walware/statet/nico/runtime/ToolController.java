@@ -241,34 +241,37 @@ public class ToolController {
 	 */
 	public boolean submit(String[] text, SubmitType type, IProgressMonitor monitor) {
 		
-		assert (text != null);
-		monitor.beginTask("Submitting to queue.", 3);
+		try {
+			monitor.beginTask("Submitting to queue.", 3);
+			assert (text != null);
 
-		synchronized (fQueue) {
-			if (acceptSubmit()) {
-				if (monitor.isCanceled()) {
+			synchronized (fQueue) {
+				if (acceptSubmit()) {
+					if (monitor.isCanceled()) {
+						return false;
+					}
+					monitor.worked(1);
+					
+					IToolRunnable[] runs = new IToolRunnable[text.length];
+					for (int i = 0; i < text.length; i++) {
+						runs[i] = createCommandRunnable(text[i], type);
+					}
+	
+					if (monitor.isCanceled()) {
+						return false;
+					}
+					monitor.worked(1);
+	
+					doSubmit(runs);
+					return true;
+				}
+				else {
 					return false;
 				}
-				monitor.worked(1);
-				
-				IToolRunnable[] runs = new IToolRunnable[text.length];
-				for (int i = 0; i < text.length; i++) {
-					runs[i] = createCommandRunnable(text[i], type);
-				}
-
-				if (monitor.isCanceled()) {
-					return false;
-				}
-				monitor.worked(1);
-
-				doSubmit(runs);
-				
-				monitor.done();
-				return true;
 			}
-			else {
-				return false;
-			}
+		}
+		finally {
+			monitor.done();
 		}
 	}
 	

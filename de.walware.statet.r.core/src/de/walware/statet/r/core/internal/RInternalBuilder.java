@@ -206,7 +206,8 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 
 		if (kind == IncrementalProjectBuilder.FULL_BUILD) {
 			doFullBuild(monitor);
-		} else {
+		} 
+		else {
 			IResourceDelta delta = getDelta(getProject());
 			if (delta == null) {
 				doFullBuild(monitor);
@@ -214,6 +215,7 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 				doIncrementalBuild(delta, monitor);
 			}
 		}
+		monitor.done();
 		return null;
 	}
 

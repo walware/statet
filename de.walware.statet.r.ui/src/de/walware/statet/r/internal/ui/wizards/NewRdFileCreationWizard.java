@@ -104,13 +104,17 @@ public class NewRdFileCreationWizard extends NewElementWizard {
     
 	protected void doFinish(IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
     
-		monitor.beginTask("Create new file...", 1000); //$NON-NLS-1$
-
-		fNewRFile.createFile(new SubProgressMonitor(monitor, 800) );
-		
-		fFirstPage.saveSettings();
-		
-		monitor.worked(200);
+		try {
+			monitor.beginTask("Create new file...", 1000); //$NON-NLS-1$
+	
+			fNewRFile.createFile(new SubProgressMonitor(monitor, 800) );
+			
+			fFirstPage.saveSettings();
+			monitor.worked(200);
+		}
+		finally {
+			monitor.done();
+		}
 	}
     
 }

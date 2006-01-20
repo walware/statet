@@ -85,14 +85,17 @@ public class NewRProjectWizard extends NewElementWizard {
     
 	protected void doFinish(IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
     
-		monitor.beginTask("Create new project...", 1000); //$NON-NLS-1$
-
-		fNewRProject.createProject(new SubProgressMonitor(monitor, 500) );
-		
-		RProject.addNature(fNewRProject.getProjectHandle(), new SubProgressMonitor(monitor, 500));
-		
+		try {
+			monitor.beginTask("Create new project...", 1000); //$NON-NLS-1$
+	
+			fNewRProject.createProject(new SubProgressMonitor(monitor, 500) );
+			
+			RProject.addNature(fNewRProject.getProjectHandle(), new SubProgressMonitor(monitor, 500));
 //		fFirstPage.saveSettings();
-//		monitor.worked(200);
+		}
+		finally {
+			monitor.done();
+		}
 	}
     
 }
