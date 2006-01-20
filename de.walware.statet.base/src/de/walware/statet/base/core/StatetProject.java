@@ -9,19 +9,21 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base;
+package de.walware.statet.base.core;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
+import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.ext.core.StatextProject;
 
-public class StatetProject implements IProjectNature {
+
+public class StatetProject extends StatextProject {
 
 	
 	public static final String ID = "de.walware.statet.base.StatetNature";
@@ -58,28 +60,6 @@ public class StatetProject implements IProjectNature {
 
 
 /* */
-
-	/**
-	 * Helper method for returning one option value only.
-	 * Note that it may answer <code>null</code> if this option does not exist, or if there is no custom value for it.
-	 * <p>
-	 * For a complete description of the configurable options, see <code>StatetCore#getDefaultOptions</code>.
-	 * </p>
-	 * 
-	 * @param optionName the name of an option
-	 * @param inheritCoreOptions - boolean indicating whether JavaCore options should be inherited as well
-	 * @return the String value of a given option
-	 */
-	public String getOption(String optionName, boolean inheritCoreOptions) {
-		
-		IEclipsePreferences projectPreferences = getEclipsePreferences();
-		String coreValue = inheritCoreOptions ? StatetCore.getOption(optionName) : null;
-		if (projectPreferences == null) 
-			return coreValue;
-		String value = projectPreferences.get(optionName, coreValue);
-		return (value == null) ? 
-				null : value.trim();
-	}
 	
 	/**
 	 * Returns the project custom preference pool.
@@ -105,8 +85,9 @@ public class StatetProject implements IProjectNature {
 			description.setNatureIds(newNatures);
 			project.setDescription(description, monitor);
 		} 
-		else
+		else {
 			monitor.done();
+		}
 	}
 	
 }

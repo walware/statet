@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.core.internal.builder;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.core.runtime.CoreException;
@@ -21,13 +18,13 @@ import org.eclipse.core.runtime.CoreException;
 
 public class RdParser {
 
-	private static class LineManager {
+	private static class LineManager implements ILineResolver {
 		
 		IntList fList = new ArrayIntList();
 		
-		public void setLineStart(int line, int startOffset) {
+		public void addLine(int startOffset) {
 			
-			fList.add(line-1, startOffset);
+			fList.add(startOffset);
 		}
 		
 		public int getLineOfOffset(int offset) {
@@ -64,37 +61,35 @@ public class RdParser {
 	
 	public void check() throws CoreException {
 		
-		fLineStructure.setLineStart(1, 0);
-		
-			READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
+		READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
 				
-				if (checkNewLine())
-					continue READ;
+			if (checkNewLine())
+				continue READ;
+	
+			if (checkBackslash())
+				continue READ;
+					
+			char current = fContent[fCurrentOffset];
+			switch (current) {
+			case '%':
+				readComment();
+				continue READ;
 
-				if (checkBackslash())
-					continue READ;
-				
-				char current = fContent[fCurrentOffset];
-				switch (current) {
-				case '%':
-					readComment();
-					continue READ;
-
-				case '#':
-					if (fLastChar == Last.NEWLINE) {
-						CHECK_KEYS: for (int i = 0; i < PLATFORM_KEYWORDS.length; i++) {
-							int offset = fCurrentOffset+1;
-							CHECK_KEYCHARS: for (int j = 0; j < PLATFORM_KEYWORDS[i].length; j++) {
-								if (offset < fContent.length && PLATFORM_KEYWORDS[i][j] == fContent[offset++])
-									continue CHECK_KEYCHARS;
-								continue CHECK_KEYS;
-							}
-							readPlatformInstruction(PLATFORM_KEYWORDS[i]);
+			case '#':
+				if (fLastChar == Last.NEWLINE) {
+					CHECK_KEYS: for (int i = 0; i < PLATFORM_KEYWORDS.length; i++) {
+						int offset = fCurrentOffset+1;
+						CHECK_KEYCHARS: for (int j = 0; j < PLATFORM_KEYWORDS[i].length; j++) {
+							if (offset < fContent.length && PLATFORM_KEYWORDS[i][j] == fContent[offset++])
+								continue CHECK_KEYCHARS;
+							continue CHECK_KEYS;
 						}
+						readPlatformInstruction(PLATFORM_KEYWORDS[i]);
 					}
-					continue READ;
 				}
+				continue READ;
 			}
+		}
 	}
 	
 	private void readPlatformInstruction(char[] keyword) {
@@ -123,7 +118,7 @@ public class RdParser {
 				break READ;
 			}
 		}
-		provisoriHandleComment(start, end);
+		fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
 	}
 
 	private boolean checkNewLine() {
@@ -135,7 +130,7 @@ public class RdParser {
 				fCurrentOffset++;
 			}
 			
-			fLineStructure.setLineStart(++fCurrentLine, fCurrentOffset);
+			fLineStructure.addLine(fCurrentOffset);
 			fLastChar = Last.NEWLINE;
 			return true;
 		}
@@ -154,18 +149,5 @@ public class RdParser {
 		}
 		return false;
 	}
-	
-	
-	private void provisoriHandleComment(int start, int end) throws CoreException {
-		
-		String content = new String(fContent, start, end-start+1);
 
-		Pattern pattern = fMarkers.getTaskPattern();
-		Matcher matcher = pattern.matcher(content);
-		if (matcher.find()) {
-			String text = content.substring(matcher.start(1));
-			fMarkers.addTaskMarker(text, fLineStructure.getLineOfOffset(start), matcher.group(1));
-		}
-		
-	}
 }

@@ -11,11 +11,11 @@
 
 package de.walware.statet.ext.ui.preferences;
 
-
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
+import de.walware.statet.base.core.StatetProject;
 
 
 /**
@@ -27,6 +27,7 @@ public interface ICodeGenerationTemplatesCategory {
 	
 	public ContextTypeRegistry getContextTypeRegistry();
 	
-	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(TemplateVariableProcessor processor);
+	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(
+			TemplateVariableProcessor processor, StatetProject project);
 	
 }

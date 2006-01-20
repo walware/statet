@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,7 @@
 
 package de.walware.statet.ext.ui.editors;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
@@ -29,9 +27,10 @@ import org.eclipse.jface.text.templates.TemplateVariableResolver;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.IPreferenceAccess;
+import de.walware.eclipsecommon.preferences.PreferencesUtil;
 import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommon.templates.WordFinder;
 import de.walware.eclipsecommon.ui.util.ColorManager;
@@ -44,13 +43,28 @@ import de.walware.statet.ext.ui.text.StatextTextScanner;
  */
 public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
+	
+	public static CombinedPreferenceStore createCombinedPreferenceStore(
+			IPreferenceStore store, IPreferenceAccess corePrefs, String[] coreQualifier) {
+
+		IPreferenceStore[] stores = new IPreferenceStore[] {
+			store,
+			StatetPlugin.getDefault().getPreferenceStore(),
+			EditorsUI.getPreferenceStore(),
+		};
+		return new CombinedPreferenceStore(stores, (corePrefs != null) ? corePrefs : PreferencesUtil.getInstancePrefs(), coreQualifier);
+	}
+
+	
 	protected ColorManager fColorManager;
 
 	private StatextTextScanner[] fScanners;
 	protected ContentAssistant fContentAssistant;
 	
 
-	public StatextSourceViewerConfiguration(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	public StatextSourceViewerConfiguration(
+			ColorManager colorManager, 
+			CombinedPreferenceStore preferenceStore) {
 
 		super(preferenceStore);
 
@@ -65,9 +79,9 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 
 	public abstract boolean affectsTextPresentation(PropertyChangeEvent event);
 	
-	public IPreferenceStore getPreferenceStore() {
+	public CombinedPreferenceStore getPreferences() {
 		
-		return fPreferenceStore;
+		return (CombinedPreferenceStore) fPreferenceStore;
 	}
 	
 	public void handlePropertyChangeEvent(PropertyChangeEvent event) {
@@ -84,18 +98,6 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	}
 	
 	
-	public static IPreferenceStore createCombinedPreferenceStore(AbstractUIPlugin plugin) {
-		List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>(3);
-		
-		stores.add(plugin.getPreferenceStore());
-		stores.add(StatetPlugin.getDefault().getPreferenceStore());
-		stores.add(EditorsUI.getPreferenceStore());
-		
-		return new ChainedPreferenceStore((IPreferenceStore[]) stores.toArray(new IPreferenceStore[stores.size()]));
-	}
-	
-
-
 /* For TemplateEditors ********************************************************/
 	
 	protected static class TemplateVariableTextHover implements ITextHover {

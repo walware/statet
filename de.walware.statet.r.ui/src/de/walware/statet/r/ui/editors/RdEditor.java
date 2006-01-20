@@ -11,21 +11,18 @@
 
 package de.walware.statet.r.ui.editors;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipse.ui.IEditorInput;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.texteditor.ChainedPreferenceStore;
-
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.ext.ui.text.PairMatcher;
+import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUiPlugin;
 
 
-public class RdEditor extends StatextEditor1 {
+public class RdEditor extends StatextEditor1<RProject> {
 
 	private static final char[][] BRACKETS = { {'{', '}'} };
 
@@ -40,38 +37,34 @@ public class RdEditor extends StatextEditor1 {
 	}
 	
 	@Override
-	protected void initializeEditor() {
-		super.initializeEditor();
-		IPreferenceStore preferenceStore = createCombinedPreferenceStore(); 
-		setPreferenceStore(preferenceStore);
+	protected RProject getProject(IEditorInput input) {
 		
-		setSourceViewerConfiguration(new RdSourceViewerConfiguration(
+		return (RProject) getProject(input, RProject.ID);
+	}
+	
+	protected void setupConfiguration() {
+		
+		CombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
+				RUiPlugin.getDefault().getPreferenceStore(), fProject);
+		setPreferenceStore(preferenceStore);
+		setSourceViewerConfiguration(new RdSourceViewerConfiguration( 
 				StatetPlugin.getDefault().getColorManager(), preferenceStore));
 	}
 	
-	private IPreferenceStore createCombinedPreferenceStore() {
-		List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>(3);
-		
-		stores.add(RUiPlugin.getDefault().getPreferenceStore());
-		stores.add(StatetPlugin.getDefault().getPreferenceStore());
-		stores.add(EditorsUI.getPreferenceStore());
-		
-		return new ChainedPreferenceStore((IPreferenceStore[]) stores.toArray(new IPreferenceStore[stores.size()]));
-	}
-	
-	
-	@Override
-	public void dispose() {
-		super.dispose();
-	}
-
 	@Override
 	protected String[] collectContextMenuPreferencePages() {
+		
 		String[] ids = super.collectContextMenuPreferencePages();
 		String[] more = new String[ids.length + 1];
 		more[0]= "de.walware.statet.r.ui.preferences.RdSyntaxColoringPreferencePage"; //$NON-NLS-1$
 		System.arraycopy(ids, 0, more, 1, ids.length);
 		return more;
 	}
-	
+
+	@Override
+	public void dispose() {
+		
+		super.dispose();
+	}
+
 }

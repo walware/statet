@@ -25,7 +25,7 @@ import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
 
-import de.walware.statet.base.StatetProject;
+import de.walware.statet.base.core.StatetProject;
 
 
 public class StatextCodeTemplatesContext extends TemplateContext implements IStatetContext {

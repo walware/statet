@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Text;
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
-import de.walware.statet.base.StatetCore.TaskPriority;
+import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.internal.ui.StatetMessages;
 import de.walware.statet.internal.ui.preferences.TaskTagsConfigurationBlock.TaskTag;
 

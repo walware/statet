@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
@@ -41,6 +40,7 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 import de.walware.statet.r.core.RCorePlugin;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.RResourceUnit;
@@ -54,17 +54,6 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 	
 	public static final String ID = "de.walware.statet.r.core.RInternalBuilder";
 	
-	
-	private class SettingsListener implements Preferences.IPropertyChangeListener, IEclipsePreferences.IPreferenceChangeListener {
-		
-		public void propertyChange(Preferences.PropertyChangeEvent event) {
-			fInitialized = false;
-		}
-
-		public void preferenceChange(PreferenceChangeEvent event) {
-			fInitialized = false;
-		}
-	}
 	
 	static class ExceptionCollector {
 		
@@ -141,6 +130,14 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 		}
 	}
 	
+	private class SettingsListener implements IEclipsePreferences.IPreferenceChangeListener {
+		
+		public void preferenceChange(PreferenceChangeEvent event) {
+			
+			fInitialized = false;
+		}
+	}
+	
 	
 	private RProject fRProject;
 	private SettingsListener fSettingsListener;
@@ -170,10 +167,14 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 		// Listen to preference changes
 		try {
 			fSettingsListener = new SettingsListener();
-			StatetPlugin.getDefault().getPluginPreferences().addPropertyChangeListener(fSettingsListener);
-
+			
 			fRProject = (RProject) getProject().getNature(RProject.ID);
-			fRProject.getStatetProject().getEclipsePreferences().addPreferenceChangeListener(fSettingsListener);
+			IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
+					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER);
+			
+			for (IEclipsePreferences node : nodes) {
+				node.addPreferenceChangeListener(fSettingsListener);
+			}
 			fStartupSuccessfull = true;
 		} catch (CoreException e1) {
 			StatetPlugin.logUnexpectedError(e1);

@@ -12,23 +12,22 @@
 package de.walware.statet.r.ui.editors;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
-import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
-public class REditor extends StatextEditor1 {
+public class REditor extends StatextEditor1<RProject> {
 
 
-	
 	public REditor() {
 		super();
 		
@@ -37,13 +36,18 @@ public class REditor extends StatextEditor1 {
 	}
 	
 	@Override
-	protected void initializeEditor() {
+	protected RProject getProject(IEditorInput input) {
 		
-		super.initializeEditor();
-		IPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(RUiPlugin.getDefault()); 
+		return (RProject) getProject(input, RProject.ID);
+	}
+
+	@Override
+	protected void setupConfiguration() {
+		
+		CombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
+				RUiPlugin.getDefault().getPreferenceStore(), fProject);
 		setPreferenceStore(preferenceStore);
-		
-		setSourceViewerConfiguration(new RSourceViewerConfiguration(this,
+		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 
 				StatetPlugin.getDefault().getColorManager(), preferenceStore));
 	}
 	
@@ -53,12 +57,6 @@ public class REditor extends StatextEditor1 {
 		setKeyBindingScopes(new String[] { "de.walware.statet.r.ui.contexts.REditorScope" });
 	}
 	
-	@Override
-	public void dispose() {
-		
-		super.dispose();
-	}
-
 	@Override
 	protected String[] collectContextMenuPreferencePages() {
 		
@@ -79,4 +77,11 @@ public class REditor extends StatextEditor1 {
         action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
         setAction("ContentAssistProposal", action); //$NON-NLS-1$
 	}
+
+	@Override
+	public void dispose() {
+		
+		super.dispose();
+	}
+
 }

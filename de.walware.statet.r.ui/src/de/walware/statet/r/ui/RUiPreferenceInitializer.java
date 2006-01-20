@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.ui;
 
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
@@ -30,8 +30,8 @@ public class RUiPreferenceInitializer extends AbstractPreferenceInitializer {
 		EditorsUI.useQuickDiffPreferencePage(store);
 		RUiPreferenceConstants.initializeDefaultValues(store);
 		
-		Preferences prefs = RUiPlugin.getDefault().getPluginPreferences();
-		RDebugPreferenceConstants.initializeDefaultValues(prefs);
+		DefaultScope defaultScope = new DefaultScope();
+		RDebugPreferenceConstants.initializeDefaultValues(defaultScope);
 	}
 
 }

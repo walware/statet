@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
@@ -28,6 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
@@ -39,18 +39,13 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 
 	
 	protected ColorManager fColorManager;
-	protected IPreferenceStore fPreferenceStore;
+	protected CombinedPreferenceStore fPreferenceStore;
 	protected String[] fTokenNames; 
 	
 	private Map<String, IToken> fTokenMap = new HashMap<String, IToken>();
 	
-	/**
-	 * Creates the list of rules controlling this scanner.
-	 */
-	abstract protected List<IRule> createRules();
-		
-
-	public StatextTextScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	
+	public StatextTextScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
 		super();
 		fColorManager = colorManager;
 		fPreferenceStore = preferenceStore;
@@ -68,6 +63,12 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 		fTokenNames = tokens.toArray(new String[tokens.size()]);
 	}
 
+	/**
+	 * Creates the list of rules controlling this scanner.
+	 */
+	abstract protected List<IRule> createRules();
+
+	
 	public IToken getToken(String key) {
 		IToken token = fTokenMap.get(key);
 		if (token == null) {

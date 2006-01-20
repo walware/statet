@@ -11,27 +11,24 @@
 
 package de.walware.statet.r.internal.debug;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 
-import de.walware.statet.r.internal.debug.connector.RConsoleConnector;
+import de.walware.statet.r.launching.RCodeLaunchRegistry;
 
 
 public class RDebugPreferenceConstants {
 
 
-	public static final String ROOT = "de.walware.statet.r.debug";
+	public static final String ROOT_QUALIFIER = "de.walware.statet.r.debug";
 
-	
-	public static final String R_CONNECTOR = ROOT + ".rconnector";
-	
+	public static final String CAT_RCONNECTOR_QUALIFIER = ROOT_QUALIFIER + "/RConnector";
+
 	
 	/**
-	 * Initializes the given preference store with the default values.
-	 * 
-	 * @param store the preference store to be initialized
+	 * Initializes the default values.
 	 */
-	public static void initializeDefaultValues(Preferences prefs) {
+	public static void initializeDefaultValues(IScopeContext context) {
 
-		prefs.setDefault(R_CONNECTOR, RConsoleConnector.ID);
+		RCodeLaunchRegistry.initializeDefaultValues(context);
 	}
 }

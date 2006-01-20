@@ -32,7 +32,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.statet.base.StatetProject;
+import de.walware.statet.base.core.StatetProject;
 
 
 public class StatextCodeTemplatesContextType extends TemplateContextType {

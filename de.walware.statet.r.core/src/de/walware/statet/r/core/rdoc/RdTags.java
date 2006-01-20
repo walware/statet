@@ -41,14 +41,14 @@ public class RdTags {
 	public static final String EXAMPLES = "\\examples";
 	public static final String KEYWORD = "\\keyword";
 	public static final String USER_SECTION = "\\section";
-	public static final String INDICES = "\\concept";
+	public static final String CONCEPT = "\\concept";
 	
 	public static final String[] MAIN_SECTIONS = {
 		NAME, DOCTYPE, ALIAS, TITLE, DESCRIPTION, 
 		SYNOPSIS, USAGE, ARGUMENTS, DETAILS, VALUE,
 		FORMAT, SOURCE, 
 		REFERENCES, NOTE, AUTHOR, SEEALSO, EXAMPLES, KEYWORD,
-		USER_SECTION
+		USER_SECTION, CONCEPT
 	};
 	
 	//---- common

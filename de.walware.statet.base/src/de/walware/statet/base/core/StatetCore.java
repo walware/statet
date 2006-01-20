@@ -9,12 +9,11 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base;
+package de.walware.statet.base.core;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -23,32 +22,11 @@ import org.eclipse.core.runtime.CoreException;
 public class StatetCore {
 
 	
-	public static enum TaskPriority { 
-		HIGH (IMarker.PRIORITY_HIGH), 
-		NORMAL (IMarker.PRIORITY_NORMAL), 
-		LOW (IMarker.PRIORITY_LOW);
-	
-		private int fPriority;
-		
-		TaskPriority(int priority) {
-			fPriority = priority;
-		}
-		
-		public int getMarkerPriority() {
-			return fPriority;
-		}
-	};
-	
-	
 	public StatetCore() {
 
 		super();
 	}
 	
-	public static String getOption(String optionName) {
-		
-		return StatetPlugin.getDefault().getPreferenceStore().getString(optionName);
-	}
 	
 	public static Set<StatetProject> getStatetProjects() {
 		

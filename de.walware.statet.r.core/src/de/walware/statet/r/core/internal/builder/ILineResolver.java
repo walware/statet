@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,22 +9,12 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.eclipsecommon.ui.preferences;
-
-import de.walware.eclipsecommon.preferences.Preference.Type;
+package de.walware.statet.r.core.internal.builder;
 
 
-public class PreferenceKey {
-
-
-	public final String fKey;
-	public final Type fType;
+public interface ILineResolver {
 
 	
-	public PreferenceKey(String key, Type type) {
-
-		fKey = key;
-		fType = type;
-	}
+	public int getLineOfOffset(int offset);
 
 }

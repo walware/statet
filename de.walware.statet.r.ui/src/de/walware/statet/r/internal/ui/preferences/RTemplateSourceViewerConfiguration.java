@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,18 +18,23 @@ import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 
 
 class RTemplateSourceViewerConfiguration extends RSourceViewerConfiguration {
 
+	
 	private final TemplateVariableProcessor fProcessor;
 
-	public RTemplateSourceViewerConfiguration(TemplateVariableProcessor processor) {
+	
+	public RTemplateSourceViewerConfiguration(
+			TemplateVariableProcessor processor, StatetProject project) {
 		
-		super(	null, StatetPlugin.getDefault().getColorManager(), 
-				RSourceViewerConfiguration.createCombinedPreferenceStore(RUiPlugin.getDefault()));
+		super(null, StatetPlugin.getDefault().getColorManager(), 
+				RSourceViewerConfiguration.createCombinedPreferenceStore(
+						RUiPlugin.getDefault().getPreferenceStore(), project));
 		fProcessor = processor;
 	}
 

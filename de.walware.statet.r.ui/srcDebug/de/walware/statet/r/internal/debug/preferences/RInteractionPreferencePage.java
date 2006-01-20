@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.debug.preferences;
 
+import static de.walware.statet.r.launching.RCodeLaunchRegistry.PREF_R_CONNECTOR;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -24,14 +26,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import de.walware.eclipsecommon.preferences.Preference;
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
-import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
-import de.walware.statet.r.ui.RUiPlugin;
 
 
 public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage<RInteractionConfigurationBlock> {
@@ -53,17 +54,12 @@ public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage
 
 class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 
-	
-	private static final Key R_CONNECTOR = createKey(RUiPlugin.ID, RDebugPreferenceConstants.R_CONNECTOR);
-	
-
-/* GUI ************************************************************************/
-	
 
 	private RCodeLaunchRegistry.ConnectorConfig[] fConnectors;
 	private Combo fConnectorsSelector;
 	private Link fConnectorsDescription;
 	
+
 	RInteractionConfigurationBlock () {
 
 		super(null);
@@ -83,8 +79,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	private void createConnectorComponent(Layouter parent, IWorkbenchPreferenceContainer container) {
 		
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
-		setupPreferenceManager(container, new Key[] {
-				R_CONNECTOR,
+		setupPreferenceManager(container, new Preference[] {
+				PREF_R_CONNECTOR,
 		} );
 
 		String[] connectorLabels = new String[fConnectors.length];
@@ -120,7 +116,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		fConnectorsSelector.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				int idx = fConnectorsSelector.getSelectionIndex();
-				setValue(R_CONNECTOR, fConnectors[idx].fId);
+				setPrefValue(PREF_R_CONNECTOR, fConnectors[idx].fId);
 				String description = fConnectors[idx].fDescription;
 				if (description == null) {
 					description = "";
@@ -150,7 +146,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		
 	private void loadValues() {
 
-		String selectedConnector = getValue(R_CONNECTOR);
+		String selectedConnector = getPreferenceValue(PREF_R_CONNECTOR);
 
 		for (int i = 0; i < fConnectors.length; i++) {
 			if (selectedConnector.equals(fConnectors[i].fId))

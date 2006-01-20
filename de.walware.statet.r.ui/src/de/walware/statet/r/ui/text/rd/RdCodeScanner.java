@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,13 +14,13 @@ package de.walware.statet.r.ui.text.rd;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
 import de.walware.statet.ext.ui.text.OperatorRule;
@@ -52,7 +52,7 @@ public class RdCodeScanner extends StatextTextScanner {
 		}
 	}
 	
-	public RdCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	public RdCodeScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
 		super(colorManager, preferenceStore);
 		initialize();
 	}
@@ -81,23 +81,23 @@ public class RdCodeScanner extends StatextTextScanner {
 		rules.add(charRule);
 		
 		WordRule tagRule = new WordRule(new TagDetector(), tUnlistedTag);
-		for (int i = 0; i < RdTags.MAIN_SECTIONS.length; i++) {
-			tagRule.addWord(RdTags.MAIN_SECTIONS[i], tSectionTag);
+		for (String tag : RdTags.MAIN_SECTIONS) {
+			tagRule.addWord(tag, tSectionTag);
 		}
-		for (int i = 0; i < RdTags.SUB_SECTIONS.length; i++) {
-			tagRule.addWord(RdTags.SUB_SECTIONS[i], tSubSectionTag);
+		for (String tag : RdTags.SUB_SECTIONS) {
+			tagRule.addWord(tag, tSubSectionTag);
 		}
-		for (int i = 0; i < RdTags.TEXT_MARKUP_TAGs.length; i++) {
-			tagRule.addWord(RdTags.TEXT_MARKUP_TAGs[i], tOtherTag);
+		for (String tag : RdTags.TEXT_MARKUP_TAGs) {
+			tagRule.addWord(tag, tOtherTag);
 		}
-		for (int i = 0; i < RdTags.LIST_TABLE_TAGS.length; i++) {
-			tagRule.addWord(RdTags.LIST_TABLE_TAGS[i], tOtherTag);
+		for (String tag : RdTags.LIST_TABLE_TAGS) {
+			tagRule.addWord(tag, tOtherTag);
 		}
-		for (int i = 0; i < RdTags.MATH_TAGS.length; i++) {
-			tagRule.addWord(RdTags.MATH_TAGS[i], tOtherTag);
+		for (String tag : RdTags.MATH_TAGS) {
+			tagRule.addWord(tag, tOtherTag);
 		}
-		for (int i = 0; i < RdTags.INSERTIONS.length; i++) {
-			tagRule.addWord(RdTags.INSERTIONS[i], tOtherTag);
+		for (String tag : RdTags.INSERTIONS) {
+			tagRule.addWord(tag, tOtherTag);
 		}
 		rules.add(tagRule);
 		

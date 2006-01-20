@@ -17,17 +17,29 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.debug.ui.DebugUITools;
 
+import de.walware.eclipsecommon.preferences.PreferencesUtil;
+import de.walware.eclipsecommon.preferences.Preference.StringPref;
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
+import de.walware.statet.r.internal.debug.connector.RConsoleConnector;
 import de.walware.statet.r.ui.RUiPlugin;
 
+public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 
-public class RCodeLaunchRegistry implements org.eclipse.core.runtime.Preferences.IPropertyChangeListener {
 
+	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id");
+
+	public static void initializeDefaultValues(IScopeContext context) {
+		
+		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, RConsoleConnector.ID);
+	}
 
 
 	public static boolean isConfigured() {
@@ -117,7 +129,7 @@ public class RCodeLaunchRegistry implements org.eclipse.core.runtime.Preferences
 		fgRegistry = this;
 		loadExtensions();
 		
-		RUiPlugin.getDefault().getPluginPreferences().addPropertyChangeListener(this);
+		new InstanceScope().getNode(PREF_R_CONNECTOR.getQualifier()).addPreferenceChangeListener(this);
 	}
 	
 	private void loadExtensions() throws CoreException {
@@ -126,8 +138,7 @@ public class RCodeLaunchRegistry implements org.eclipse.core.runtime.Preferences
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUiPlugin.ID, EXTENSION_POINT);
 		
-		Preferences prefs = RUiPlugin.getDefault().getPluginPreferences();
-		String id = prefs.getString(RDebugPreferenceConstants.R_CONNECTOR).trim();
+		String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_R_CONNECTOR);
 
 		for (int i = 0; i < elements.length; i++) {
 			if (id.equals(elements[i].getAttribute(ATT_ID))) {
@@ -154,14 +165,12 @@ public class RCodeLaunchRegistry implements org.eclipse.core.runtime.Preferences
 		return fConnector;
 	}
 
-	public void propertyChange(org.eclipse.core.runtime.Preferences.PropertyChangeEvent event) {
+	public void preferenceChange(PreferenceChangeEvent event) {
 		
-		if (event.getProperty().equals(RDebugPreferenceConstants.R_CONNECTOR)) {
-			try {
-				loadExtensions();
-			} catch (CoreException e) {
-				fConnector = null;
-			}
+		try {
+			loadExtensions();
+		} catch (CoreException e) {
+			fConnector = null;
 		}
 	}
 	

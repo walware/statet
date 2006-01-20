@@ -12,6 +12,8 @@
 
 package de.walware.statet.internal.ui.preferences;
 
+import static de.walware.statet.base.core.preferences.TaskTagsPreferences.PREF_TAGS;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.util.Assert;
 import org.eclipse.jface.viewers.ColumnLayoutData;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -34,14 +35,15 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import de.walware.eclipsecommon.preferences.Preference;
 import de.walware.eclipsecommon.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommon.ui.dialogs.groups.SelectionItem;
 import de.walware.eclipsecommon.ui.dialogs.groups.TableOptionButtonsGroup;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
-import de.walware.statet.base.StatetPreferenceConstants;
-import de.walware.statet.base.StatetCore.TaskPriority;
+import de.walware.statet.base.core.preferences.TaskTagsPreferences;
+import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 import de.walware.statet.internal.ui.StatetMessages;
 
@@ -49,10 +51,6 @@ import de.walware.statet.internal.ui.StatetMessages;
 /**
   */
 public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
-
-	
-	private static final Key PREF_TASK_TAGS = createStatetCoreKey(StatetPreferenceConstants.TASK_TAGS);
-	private static final Key PREF_TASK_TAGS_PRIORITIES = createStatetCoreKey(StatetPreferenceConstants.TASK_TAGS_PRIORITIES);
 	
 
 	public static class TaskTag extends SelectionItem {
@@ -193,6 +191,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			doEdit(item);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void handleButtonPressed(int buttonIndex) {
 			
@@ -246,9 +245,9 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 
 		super.createContents(layouter, container, preferenceStore);
 		
-		setupPreferenceManager(container, new Key[] {
-				PREF_TASK_TAGS,
-				PREF_TASK_TAGS_PRIORITIES,
+		setupPreferenceManager(container, new Preference[] {
+				TaskTagsPreferences.PREF_TAGS,
+				TaskTagsPreferences.PREF_PRIORITIES,
 		} );
 
 		layouter.addGroup(fTasksGroup);
@@ -261,12 +260,15 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		
 		TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, fTasksGroup.fSelectionModel);
 		if (dialog.open() == Window.OK) {
+			TaskTag newItem = dialog.getResult();
 			if (item != null) {
-				fTasksGroup.replaceItem(item, dialog.getResult());
+				if (item == fTasksGroup.fDefaultTask)
+					fTasksGroup.fDefaultTask = newItem;
+				fTasksGroup.replaceItem(item, newItem);
 			} else {
-				fTasksGroup.addItem(dialog.getResult());
+				fTasksGroup.addItem(newItem);
 			}
-			saveValues(PREF_TASK_TAGS);
+			saveValues(PREF_TAGS);
 		}
 		
 	}
@@ -277,7 +279,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			fTasksGroup.fDefaultTask = null;
 		fTasksGroup.removeItems(selection);
 		
-		saveValues(PREF_TASK_TAGS);
+		saveValues(PREF_TAGS);
 	}
 	
 	private void doSetDefault(TaskTag item) {
@@ -290,7 +292,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		fTasksGroup.fSelectionViewer.refresh();
 		fTasksGroup.handleListSelection();
 		
-		saveValues(PREF_TASK_TAGS);
+		saveValues(PREF_TAGS);
 	}
 
 	@Override
@@ -302,17 +304,13 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		
 	private void loadValues() {
 
-		String tagValue = getValue(PREF_TASK_TAGS);
-		String priosValue = getValue(PREF_TASK_TAGS_PRIORITIES);
-		String[] tags = tagValue.split(",");
-		String[] prios = priosValue.split(",");
-		Assert.isTrue(tags.length == prios.length);
+		TaskTagsPreferences taskPrefs = TaskTagsPreferences.load(this);
+		String[] tags = taskPrefs.getTags();
+		TaskPriority[] prios = taskPrefs.getPriorities();
 		
 		List<TaskTag> items = new ArrayList<TaskTag>(tags.length);
 		for (int i = 0; i < tags.length; i++) {
-			String tagName = tags[i]; //.trim();
-			if (tagName.length() > 0)
-				items.add(new TaskTag(tagName, TaskPriority.valueOf(prios[i].trim()) ));
+			items.add(new TaskTag(tags[i], prios[i]));
 		}
 		fTasksGroup.fSelectionModel.clear();
 		fTasksGroup.fSelectionModel.addAll(items);
@@ -321,20 +319,21 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			fTasksGroup.fDefaultTask = items.get(0);
 	}
 
-	private void saveValues(Key key) {
+	private void saveValues(Preference key) {
 		
-		if (key == PREF_TASK_TAGS) {
-			StringBuffer tags = new StringBuffer();
-			StringBuffer prios = new StringBuffer();
-			for (TaskTag tag : fTasksGroup.fSelectionModel) {
-				tags.append(tag.fName);
-				tags.append(',');
-				prios.append(tag.fPriority.toString());
-				prios.append(',');
+		if (key == PREF_TAGS) {
+			int n = fTasksGroup.fSelectionModel.size();
+			String[] tags = new String[n];
+			TaskPriority[] prios = new TaskPriority[n];
+			for (int i = 0; i < n; i++) {
+				TaskTag item = fTasksGroup.fSelectionModel.get(i);
+				tags[i] = item.fName;
+				prios[i] = item.fPriority;
 			}
-				
-			setValue(PREF_TASK_TAGS, tags.toString());
-			setValue(PREF_TASK_TAGS_PRIORITIES, prios.toString());
+			TaskTagsPreferences taskPrefs = new TaskTagsPreferences(
+					tags, prios);
+
+			setPrefValues(taskPrefs.getPreferencesMap());
 		}
 		
 		validateSettings();

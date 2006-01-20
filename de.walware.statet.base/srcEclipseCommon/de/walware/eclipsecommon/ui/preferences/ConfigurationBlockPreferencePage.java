@@ -11,6 +11,7 @@
 
 package de.walware.eclipsecommon.ui.preferences;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -21,6 +22,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.statet.ui.util.ExceptionHandler;
 
 
 /**
@@ -41,12 +43,16 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	public ConfigurationBlockPreferencePage() {
 	}
 	
-	protected abstract Block createConfigurationBlock();
+	protected abstract Block createConfigurationBlock() throws CoreException;
 	
 
 	public void init(IWorkbench workbench) {
-
-		fBlock = createConfigurationBlock();
+		
+		try {
+			fBlock = createConfigurationBlock();
+		} catch (CoreException e) {
+			ExceptionHandler.handle(e, getShell(), "Error occured when initializing the configuration block for '" + getTitle() + "').");
+		}
 	}
 
 	public void dispose() {

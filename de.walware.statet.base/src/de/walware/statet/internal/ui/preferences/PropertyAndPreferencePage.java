@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.ControlEnableState;
@@ -41,8 +42,8 @@ import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommon.ui.dialogs.StatusUtil;
 import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.statet.base.StatetCore;
-import de.walware.statet.base.StatetProject;
+import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.preferences.ProjectSelectionDialog;
 
 
@@ -78,7 +79,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	protected abstract String getPreferencePageID();
 	protected abstract String getPropertyPageID();
 
-	protected abstract Block createConfigurationBlock(IProject project);
+	protected abstract Block createConfigurationBlock(IProject project) throws CoreException;
 	protected abstract boolean hasProjectSpecificSettings(IProject project);
 	
 
@@ -301,7 +302,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 //
 //		fBlock = createConfigurationBlock(getProject());
 //	}
-	protected final Block createConfigurationBlock() {
+	protected final Block createConfigurationBlock() throws CoreException {
 		
 		return createConfigurationBlock(getProject());
 	}

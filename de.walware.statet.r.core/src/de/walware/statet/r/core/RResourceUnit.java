@@ -8,18 +8,18 @@
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
+
 package de.walware.statet.r.core;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IEditorInput;
 
-import de.walware.statet.base.StatetProject;
+import de.walware.statet.base.core.StatetProject;
 
 
 /**
  * 
- * @author Stephan Wahlbrink
  */
 public class RResourceUnit {
 
@@ -59,7 +59,9 @@ public class RResourceUnit {
 		if (fFile != null) {
 			try {
 				RProject rproj = (RProject) fFile.getProject().getNature(RProject.ID);
-				return rproj.getStatetProject();
+				if (rproj != null) {
+					return rproj.getStatetProject();
+				}
 			} catch (CoreException e) {
 			}
 		}

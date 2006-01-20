@@ -20,7 +20,6 @@ import static de.walware.statet.r.ui.text.rd.IRdTextTokens.COMMENT;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.PLATFORM_SPECIF;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.TASK_TAG;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -28,8 +27,9 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
-import de.walware.statet.base.StatetPreferenceConstants;
+import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
@@ -54,7 +54,7 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	private RdDoubleClickStrategy fDoubleClickStrategy;
 
 	
-	public RdSourceViewerConfiguration(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	public RdSourceViewerConfiguration(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
 
 		super(colorManager, preferenceStore);
 	}
@@ -64,41 +64,34 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	 */
 	protected StatextTextScanner[] initializeScanners() {
 
-		fDocScanner = new RdCodeScanner(fColorManager, fPreferenceStore);
-		fCommentScanner = new CommentScanner(fColorManager, fPreferenceStore, COMMENT, TASK_TAG);
-		fPlatformSpecifScanner = new SingleTokenScanner(fColorManager, fPreferenceStore, PLATFORM_SPECIF);
+		CombinedPreferenceStore store = getPreferences();
+		fDocScanner = new RdCodeScanner(fColorManager, store);
+		fCommentScanner = new CommentScanner(fColorManager, store, COMMENT, TASK_TAG);
+		fPlatformSpecifScanner = new SingleTokenScanner(fColorManager, store, PLATFORM_SPECIF);
 		
 		fDoubleClickStrategy = new RdDoubleClickStrategy();
 		
 		return new StatextTextScanner[] { fDocScanner, fCommentScanner, fPlatformSpecifScanner };
 	}
 
-	
+	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
 
 		return RDOC_PARTITIONS;
 	}
 
-	/* 
-	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getConfiguredDocumentPartitioning(org.eclipse.jface.text.source.ISourceViewer) 
-	 */
+	@Override
 	public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
 
 		return RDOC_DOCUMENT_PARTITIONING;
 	}
 	
-	/* 
-	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getDoubleClickStrategy(org.eclipse.jface.text.source.ISourceViewer, java.lang.String)
-	 */
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
 
 		return fDoubleClickStrategy;
 	}
 
-	/* 
-	 * @see org.eclipse.jface.text.source.SourceViewerConfiguration#getPresentationReconciler(org.eclipse.jface.text.source.ISourceViewer) 
-	 */
 	@Override
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 
@@ -120,7 +113,7 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 		return reconciler;
 	}
 
-	/* @see SourceViewerConfiguration#getDefaultPrefixes(ISourceViewer, String)	*/
+	@Override
 	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
 		return new String[] { "%", "" }; //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -129,17 +122,8 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	public boolean affectsTextPresentation(PropertyChangeEvent event) {
 		
 		String property = event.getProperty();
-		return property.startsWith(RUiPreferenceConstants.Rd.TS_ROOT)
-				|| property.equals(StatetPreferenceConstants.TASK_TAGS);
-	}
-	
-	@Override
-	public void handlePropertyChangeEvent(PropertyChangeEvent event) {
-		
-		super.handlePropertyChangeEvent(event);
-		
-		if (event.getProperty().equals(StatetPreferenceConstants.TASK_TAGS))
-			fCommentScanner.loadTaskTags();
+		return (property.startsWith(RUiPreferenceConstants.Rd.TS_ROOT)
+				|| property.equals(TaskTagsPreferences.PREF_TAGS.getKey()) );
 	}
 	
 }

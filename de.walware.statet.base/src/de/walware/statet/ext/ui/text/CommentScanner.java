@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,14 +14,15 @@ package de.walware.statet.ext.ui.text;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
+import org.eclipse.jface.util.PropertyChangeEvent;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
-import de.walware.statet.base.StatetPreferenceConstants;
+import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 
 /**
@@ -53,12 +54,10 @@ public class CommentScanner extends StatextTextScanner {
 			fWords.clear();
 		}
 	
-		public void addTaskTags(String value) {
-			String[] tasks = value.split(","); //$NON-NLS-1$
-			for (int i= 0; i < tasks.length; i++) {
-				if (tasks[i].length() > 0) {
-					addWord(tasks[i], fToken);
-				}
+		public void addTaskTags(String[] tags) {
+			
+			for (String tag : tags) {
+				addWord(tag, fToken);
 			}
 		}
 	}
@@ -69,7 +68,7 @@ public class CommentScanner extends StatextTextScanner {
 	private String fCommentTokenKey;
 	private String fTaskTokenKey;
 	
-	public CommentScanner(ColorManager colorManager, IPreferenceStore preferenceStore, 
+	public CommentScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore, 
 			String commentTokenKey, String taskTokenKey) {
 		
 		super(colorManager, preferenceStore);
@@ -96,13 +95,24 @@ public class CommentScanner extends StatextTextScanner {
 
 		return list;
 	}
+	
+	@Override
+	public void adaptToPreferenceChange(PropertyChangeEvent event) {
+		
+		super.adaptToPreferenceChange(event);
+		
+		if (event.getProperty().equals(TaskTagsPreferences.PREF_TAGS.getKey())) {
+			loadTaskTags();
+		}
+	}
 
 	public void loadTaskTags() {
 		
 		fTaskTagRule.clearTaskTags();
-		String tasks = fPreferenceStore.getString(StatetPreferenceConstants.TASK_TAGS);
-		if (tasks != null) {
-			fTaskTagRule.addTaskTags(tasks);
+		
+		String[] tags = TaskTagsPreferences.loadTagsOnly(fPreferenceStore.getCorePreferences());
+		if (tags != null) {
+			fTaskTagRule.addTaskTags(tags);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,11 +14,11 @@ package de.walware.statet.r.ui.text.r;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
+import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
 import de.walware.statet.ext.ui.text.OperatorRule;
@@ -33,7 +33,7 @@ import de.walware.statet.r.core.rlang.RTokens;
  */
 public class RCodeScanner extends StatextTextScanner {
 	
-	public RCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	public RCodeScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
 		super(colorManager, preferenceStore);
 		initialize();
 	}

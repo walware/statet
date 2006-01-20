@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import de.walware.eclipsecommon.preferences.PreferencesUtil;
 import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
@@ -21,6 +22,7 @@ import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxItem;
 import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.r.ui.RUiPreferenceConstants;
+import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 
@@ -45,9 +47,13 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			}
 
 			@Override
-			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(ColorManager colorManager, IPreferenceStore store) {
+			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
+					ColorManager colorManager, IPreferenceStore store) {
 				
-				return new RdSourceViewerConfiguration(colorManager, store);
+				return new RdSourceViewerConfiguration(colorManager, 
+						RSourceViewerConfiguration.createCombinedPreferenceStore(
+								store, PreferencesUtil.getDefaultPrefs())
+						);
 			}
 			
 			@Override

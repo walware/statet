@@ -16,13 +16,13 @@ import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import org.eclipse.jface.text.Assert;
+import de.walware.eclipsecommon.preferences.Preference.Type;
 
 
 /**
  * An overlaying preference store.
  */
-public class OverlayPreferenceStore  implements IPreferenceStore {
+public class OverlayPreferenceStore implements IPreferenceStore {
 	
 	private class PropertyListener implements IPropertyChangeListener {
 				
@@ -71,7 +71,7 @@ public class OverlayPreferenceStore  implements IPreferenceStore {
 			return;
 		}
 		
-		PreferenceKey.Type type = key.fType;
+		Type type = key.fType;
 		switch (type) {
 
 		case BOOLEAN: {
@@ -125,7 +125,7 @@ public class OverlayPreferenceStore  implements IPreferenceStore {
 	
 	private void loadProperty(IPreferenceStore orgin, PreferenceKey key, IPreferenceStore target, boolean forceInitialization) {
 		
-		PreferenceKey.Type type = key.fType;
+		Type type = key.fType;
 		switch (type) {
 		
 		case BOOLEAN: {
@@ -446,8 +446,8 @@ public class OverlayPreferenceStore  implements IPreferenceStore {
 	 * @since 3.0
 	 */
 	public void addKeys(PreferenceKey[] keys) {
-		Assert.isTrue(!fLoaded);
-		Assert.isNotNull(keys);
+		assert (!fLoaded);
+		assert (keys != null);
 		
 		int PreferenceKeysLength= fPreferenceKeys.length;
 		PreferenceKey[] result= new PreferenceKey[keys.length + PreferenceKeysLength];

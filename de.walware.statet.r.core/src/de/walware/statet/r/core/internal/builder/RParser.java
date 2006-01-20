@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.core.internal.builder;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.core.runtime.CoreException;
@@ -21,13 +18,13 @@ import org.eclipse.core.runtime.CoreException;
 
 public class RParser {
 
-	private static class LineManager {
+	private static class LineManager implements ILineResolver {
 		
 		IntList fList = new ArrayIntList();
 		
-		public void setLineStart(int line, int startOffset) {
+		public void addLine(int startOffset) {
 			
-			fList.add(line-1, startOffset);
+			fList.add(startOffset);
 		}
 		
 		public int getLineOfOffset(int offset) {
@@ -61,28 +58,28 @@ public class RParser {
 	
 	public void check() throws CoreException {
 		
-		fLineStructure.setLineStart(1, 0);
-		
-			READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
-				
-				if (checkNewLine())
-					continue READ;
-
-				if (checkBackslash())
-					continue READ;
-				
-				char current = fContent[fCurrentOffset];
-				switch (current) {
-				case '#':
-					readComment();
-					continue READ;
-
-				case '"':
-				case '\'':
-					readString(current);
-					continue READ;
-				}
+		READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
+			
+			if (checkNewLine()) {
+				continue READ;
 			}
+
+			if (checkBackslash()) {
+				continue READ;
+			}
+				
+			char current = fContent[fCurrentOffset];
+			switch (current) {
+			case '#':
+				readComment();
+				continue READ;
+
+			case '"':
+			case '\'':
+				readString(current);
+				continue READ;
+			}
+		}
 	}
 	
 	private void readString(char b) {
@@ -120,7 +117,7 @@ public class RParser {
 				break READ;
 			}
 		}
-		provisoriHandleComment(start, end);
+		fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
 	}
 
 	private boolean checkNewLine() {
@@ -132,7 +129,7 @@ public class RParser {
 				fCurrentOffset++;
 			}
 			
-			fLineStructure.setLineStart(++fCurrentLine, fCurrentOffset);
+			fLineStructure.addLine(fCurrentOffset);
 			fLastChar = Last.NEWLINE;
 			return true;
 		}
@@ -152,17 +149,4 @@ public class RParser {
 		return false;
 	}
 	
-	
-	private void provisoriHandleComment(int start, int end) throws CoreException {
-		
-		String content = new String(fContent, start, end-start+1);
-
-		Pattern pattern = fMarkers.getTaskPattern();
-		Matcher matcher = pattern.matcher(content);
-		if (matcher.find()) {
-			String text = content.substring(matcher.start(1));
-			fMarkers.addTaskMarker(text, fLineStructure.getLineOfOffset(start), matcher.group(1));
-		}
-		
-	}
 }

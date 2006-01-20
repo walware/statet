@@ -24,7 +24,7 @@
          name="StatET Project Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
-         <run class="de.walware.statet.base.StatetProject"/>
+         <run class="de.walware.statet.base.core.StatetProject"/>
       </runtime>
    </extension>
    <extension
@@ -177,9 +177,10 @@
             id="de.walware.statet.ui.views.StatetCategory"
             name="StatET"/>
       <view
-            id="de.walware.statet.ui.views.HistoryView"
+            allowMultiple="true"
             category="de.walware.statet.ui.views.StatetCategory"
             class="de.walware.statet.nico.addviews.HistoryView"
+            id="de.walware.statet.ui.views.HistoryView"
             name="%views_History_name"/>
    </extension>
 

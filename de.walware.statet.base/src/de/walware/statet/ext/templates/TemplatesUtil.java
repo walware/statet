@@ -32,9 +32,9 @@ import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.text.edits.RangeMarker;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.statet.base.StatetCore;
-import de.walware.statet.base.StatetPreferenceConstants;
-import de.walware.statet.base.StatetProject;
+import de.walware.eclipsecommon.preferences.PreferencesUtil;
+import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 
 public class TemplatesUtil {
@@ -85,6 +85,12 @@ public class TemplatesUtil {
 		return text.substring(0, i);
 	}
 	
+	/**
+	 * Vergleicht zwei Strings und gibt den gemeinsamen Beginn zurück
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
 	private static String getEqualStart(String s1, String s2) {
 		
 		int n = Math.min(s1.length(), s2.length());
@@ -168,21 +174,16 @@ public class TemplatesUtil {
 	}
 
 	public static String getTodoTaskTag(StatetProject project) {
-		String markers = null;
-		if (project != null)
-			markers = project.getOption(StatetPreferenceConstants.TASK_TAGS, true);
-		else
-			markers = StatetCore.getOption(StatetPreferenceConstants.TASK_TAGS);
 		
-		if (markers != null && markers.length() > 0) {
-			int idx = markers.indexOf(',');
-			if (idx == -1) {
-				return markers;
-			} else {
-				return markers.substring(0, idx);
-			}
-		}
-		return null;
+		TaskTagsPreferences taskPrefs = (project != null) ?
+			TaskTagsPreferences.load(project) :
+			TaskTagsPreferences.load(PreferencesUtil.getInstancePrefs());
+		
+		String[] markers = taskPrefs.getTags();
+		
+		if (markers == null || markers.length == 0)
+			return null;
+		return markers[0];
 	}
 
 	

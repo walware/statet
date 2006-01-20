@@ -29,7 +29,7 @@ import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.statet.base.StatetProject;
+import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.IStatetContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.r.core.RResourceUnit;

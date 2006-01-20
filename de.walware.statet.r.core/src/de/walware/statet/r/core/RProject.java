@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,22 +14,19 @@ package de.walware.statet.r.core;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.walware.statet.base.StatetProject;
+import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.r.core.internal.RInternalBuilder;
 
 
-public class RProject implements IProjectNature {
+public class RProject extends StatextProject {
 
 	
 	public static final String ID = "de.walware.statet.r.core.RNature";
-	
-	
-	private IProject fProject;
 	
 	
 	public RProject() {
@@ -48,16 +45,6 @@ public class RProject implements IProjectNature {
 	public void deconfigure() throws CoreException {
 
 		removeBuilders();
-	}
-
-	public void setProject(IProject project) {
-		
-		fProject = project;
-	}
-	
-	public IProject getProject() {
-
-		return fProject;
 	}
 
 	
@@ -129,10 +116,7 @@ public class RProject implements IProjectNature {
 		monitor.beginTask("Config R Project...", 1000);
 		
 		if (!project.hasNature(ID)) {
-			if (!project.hasNature(StatetProject.ID))
-				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
-			else
-				monitor.worked(400);
+			StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
 			
 			IProjectDescription description = project.getDescription();
 			String[] prevNatures = description.getNatureIds();

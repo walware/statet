@@ -58,6 +58,7 @@ import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
@@ -167,6 +168,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	
 
 	protected IProject fProject;
+	protected StatetProject fStatetProject;
 	private String[] fCategoryIds;
 	private ICodeGenerationTemplatesCategory[] fCategoryProvider;
 	
@@ -180,9 +182,12 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	private TemplateVariableProcessor fTemplateProcessor;
 	
 	
-	public CodeGenerationTemplatesConfigurationBlock(IProject project) {
+	public CodeGenerationTemplatesConfigurationBlock(IProject project) throws CoreException {
 		
 		fProject = project;
+		if (fProject != null) {
+			fStatetProject = (StatetProject) fProject.getNature(StatetProject.ID);
+		}
 
 		fGroup = new Group();
 		loadRegisteredTemplates();
@@ -309,7 +314,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 			
 			TemplateContextType type = category.getContextTypeRegistry().getContextType(template.getContextTypeId());
 			fTemplateProcessor.setContextType(type);
-			TemplateViewerConfigurationProvider prov = category.getEditTemplateDialogConfiguation(fTemplateProcessor);
+			TemplateViewerConfigurationProvider prov = category.getEditTemplateDialogConfiguation(fTemplateProcessor, fStatetProject);
 
 			if (item.fCategoryIndex != fPatternViewerConfiguredCategory) {
 				fPatternViewerConfiguredCategory = item.fCategoryIndex;
@@ -344,7 +349,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 
 		EditTemplateDialog dialog = new EditTemplateDialog(
 				getShell(), item.fData.getTemplate(), true, false, 
-				fCategoryProvider[item.fCategoryIndex].getEditTemplateDialogConfiguation(fTemplateProcessor),
+				fCategoryProvider[item.fCategoryIndex].getEditTemplateDialogConfiguation(fTemplateProcessor, fStatetProject),
 				fTemplateProcessor,
 				fCategoryProvider[item.fCategoryIndex].getContextTypeRegistry());
 		if (dialog.open() == Window.OK) {

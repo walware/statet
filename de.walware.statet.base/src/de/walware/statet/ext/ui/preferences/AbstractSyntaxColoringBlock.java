@@ -21,7 +21,6 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -40,16 +39,15 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
+import de.walware.eclipsecommon.preferences.Preference.Type;
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedItem;
 import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedOptionsGroup;
 import de.walware.eclipsecommon.ui.preferences.OverlayStoreConfigurationBlock;
 import de.walware.eclipsecommon.ui.preferences.PreferenceKey;
-import de.walware.eclipsecommon.ui.preferences.PreferenceKey.Type;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.base.StatetPreferenceConstants;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
@@ -331,10 +329,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	private Control createPreviewer(Composite parent) {
 		
-		IPreferenceStore additionalStore = new PreferenceStore();
-		additionalStore.setValue(StatetPreferenceConstants.TASK_TAGS, "TODO"); //$NON-NLS-1$
 		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { 
-				fOverlayStore, additionalStore, EditorsUI.getPreferenceStore() });
+				fOverlayStore, EditorsUI.getPreferenceStore() });
 		fPreviewViewer = new SourceViewer(parent, null, null, false, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 		Font font = JFaceResources.getFont(JFaceResources.TEXT_FONT);
 		fPreviewViewer.getTextWidget().setFont(font);
