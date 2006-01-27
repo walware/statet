@@ -120,9 +120,15 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		fConnectorsSelector.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				int idx = fConnectorsSelector.getSelectionIndex();
-				setValue(R_CONNECTOR, fConnectors[idx].fId);
-				fConnectorsDescription.setText(fConnectors[idx].fDescription);
-				updateDescriptionSize();
+				if (idx >= 0) {
+					setValue(R_CONNECTOR, fConnectors[idx].fId);
+					String description = fConnectors[idx].fDescription;
+					if (description == null) {
+						description = "";
+					}
+					fConnectorsDescription.setText(description);
+					updateDescriptionSize();
+				}
 			};
 		});
 	}
