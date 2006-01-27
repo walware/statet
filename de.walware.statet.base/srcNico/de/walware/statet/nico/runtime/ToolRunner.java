@@ -21,7 +21,7 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.Messages;
+import de.walware.statet.nico.ui.NicoMessages;
 import de.walware.statet.ui.util.ExceptionHandler;
 
 
@@ -58,7 +58,7 @@ public class ToolRunner implements IPlatformRunnable {
 				} 
 				catch (CoreException e) {
 					ExceptionHandler.handle(e, NLS.bind(
-							Messages.LaunchDelegate_error_UnexpectedTermination_message, 
+							NicoMessages.LaunchDelegate_error_UnexpectedTermination_message, 
 							process.getLabel()
 					));
 					process.fExitValue = 1010;
@@ -75,7 +75,7 @@ public class ToolRunner implements IPlatformRunnable {
 						IStatus.ERROR, 
 						StatetPlugin.ID, 
 						IStatetStatusConstants.RUNTIME_ERROR, 
-						NLS.bind(Messages.Runtime_error_message, t.getName()), 
+						NLS.bind(NicoMessages.Runtime_error_message, t.getName()), 
 						e)
 				);
 				process.fExitValue = 1020;

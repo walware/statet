@@ -35,6 +35,10 @@ import de.walware.statet.nico.runtime.ToolController.ToolStatus;
 public class ToolProcess extends PlatformObject implements IProcess {
 
 	
+	public static final int MASK_STATUS = (1 << 6);
+	public static final int MASK_QUEUE_ENTRY = (2 << 6);
+	
+	
 	/** 
 	 * Constant for detail of a DebugEvent, signalising that
 	 * the process/controller started to work/calculate.
@@ -43,7 +47,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_CALCULATE = 1;
+	public static final int STATUS_CALCULATE = MASK_STATUS | 1;
 
 	/** 
 	 * Constant for detail of a DebugEvent, signalising that
@@ -53,7 +57,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_IDLE = 2;
+	public static final int STATUS_IDLE = MASK_STATUS | 2;
 
 	/** 
 	 * Constant for detail of a DebugEvent, signalising that
@@ -63,12 +67,67 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_QUEUE_PAUSE = 4;
+	public static final int STATUS_QUEUE_PAUSE = MASK_STATUS | 3;
+	
+	
+	/**
+	 * Constant for detail of a DebugEvent, signalising that
+	 * a entry (IToolRunnable) was added to the queue.
+	 * <p>
+	 * The queue entry (<code>IToolRunnable</code>) is attached as
+	 * data to this event. The source of the event is the ToolProcess.
+	 * <p>
+	 * Usage: Events of this type are sended by the ToolProcess/its queue.
+	 * The constant is applicable for DebugEvents of kind 
+	 * <code>MODEL_SPECIFIC</code>.</p>
+	 */
+	public static final int QUEUE_ENTRIES_ADDED = MASK_QUEUE_ENTRY | 1;
+	
+	/**
+	 * Constant for detail of a DebugEvent, signalising that
+	 * queue has changed e.g. reordered, cleared,... .
+	 * <p>
+	 * The queue entries (<code>IToolRunnable[]</code>) are attached as
+	 * data to this event. The source of the event is the ToolProcess.
+	 * <p>
+	 * Usage: Events of this type are sended by the ToolProcess/its queue.
+	 * The constant is applicable for DebugEvents of kind 
+	 * <code>MODEL_SPECIFIC</code>.</p>
+	 */
+	public static final int QUEUE_COMPLETE_CHANGE = MASK_QUEUE_ENTRY | 2;
+
+	/**
+	 * Constant for detail of a DebugEvent, sending the complete queue.
+	 * This does not signalising, that the queue has changed.
+	 * <p>
+	 * The queue entries (<code>IToolRunnable[]</code>) are attached as
+	 * data to this event. The source of the event is the ToolProcess.
+	 * <p>
+	 * Usage: Events of this type are sended by the ToolProcess/its queue.
+	 * The constant is applicable for DebugEvents of kind 
+	 * <code>MODEL_SPECIFIC</code>.</p>
+	 */
+	public static final int QUEUE_COMPLETE_INFO = MASK_QUEUE_ENTRY | 3;
+	
+	/**
+	 * Constant for detail of a DebugEvent, signalising that
+	 * a entry (IToolRunnable) was removed from the queue and that 
+	 * the process/controller started processing the entry.
+	 * <p>
+	 * The queue entry (<code>IToolRunnable</code>) is attached as
+	 * data to this event. The source of the event is the ToolProcess.
+	 * <p>
+	 * Usage: Events of this type are sended by the ToolProcess/its queue.
+	 * The constant is applicable for DebugEvents of kind 
+	 * <code>MODEL_SPECIFIC</code>.</p>
+	 */
+	public static final int QUEUE_ENTRY_STARTED_PROCESSING = MASK_QUEUE_ENTRY | 4;
 	
 	
 	private ILaunch fLaunch;
 	private String fName;
 	private ToolController fController;
+	private Queue fQueue;
 	private History fHistory;
 	
 	private Map<String, String> fAttributes;
@@ -95,6 +154,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 		
 		fController = controller;
 		fHistory = fController.getHistory();
+		fQueue = fController.getQueue();
 	}
 	
 	public String getLabel() {
@@ -116,7 +176,12 @@ public class ToolProcess extends PlatformObject implements IProcess {
 		
 		return fHistory;
 	}
-
+	
+	public Queue getQueue() {
+		
+		return fQueue;
+	}
+	
 	public IStreamsProxy getStreamsProxy() {
 		
 		return (fCaptureOutput) ? fController.getStreams() : null;
@@ -207,16 +272,18 @@ public class ToolProcess extends PlatformObject implements IProcess {
 			break;
 		}
 	}
+
 	
 	/**
-	 * Fires the given debug event.
+	 * Fires the given debug events.
 	 * 
-	 * @param event debug event to fire
+	 * @param event array with debug events to fire
 	 */
 	protected void fireEvent(DebugEvent event) {
-		DebugPlugin manager= DebugPlugin.getDefault();
+				
+		DebugPlugin manager = DebugPlugin.getDefault();
 		if (manager != null) {
-			manager.fireDebugEventSet(new DebugEvent[]{event});
+			manager.fireDebugEventSet(new DebugEvent[] { event });
 		}
 	}
 

@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.addviews;
+package de.walware.statet.nico.internal.ui.actions;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -18,18 +18,18 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.statet.nico.runtime.History.Entry;
+import de.walware.statet.nico.ui.views.HistoryView;
 import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.util.DNDUtil;
 
 
-class CopyAction extends BaseSelectionListenerAction {
+public class HistoryCopyAction extends BaseSelectionListenerAction {
 
 	
 	private HistoryView fView;
 	
 	
-	public CopyAction(HistoryView view) {
+	public HistoryCopyAction(HistoryView view) {
 		
 		super(SharedMessages.CopyAction_name);
 		setToolTipText(SharedMessages.CopyAction_tooltip);
@@ -50,7 +50,7 @@ class CopyAction extends BaseSelectionListenerAction {
 	@Override
 	public void run() {
 		
-		String text = createTextBlock(getStructuredSelection());
+		String text = HistoryView.createTextBlock(getStructuredSelection());
 		DNDUtil.setContent(fView.getClipboard(), 
 				new String[] { text }, 
 				new Transfer[] { TextTransfer.getInstance() } );
@@ -60,18 +60,5 @@ class CopyAction extends BaseSelectionListenerAction {
 		
 		fView.getTableViewer().removeSelectionChangedListener(this);
 		fView = null;
-	}
-	
-	static String createTextBlock(IStructuredSelection selection) {
-		
-		Object[] elements = selection.toArray();
-		StringBuilder text = new StringBuilder(elements.length * 8);
-		for (Object obj : elements) {
-			Entry e = (Entry) obj;
-			text.append(e.getCommand());
-			text.append('\n');
-		}
-		
-		return text.toString();
 	}
 }

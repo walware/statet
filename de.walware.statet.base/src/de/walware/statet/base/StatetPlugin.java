@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -141,12 +142,19 @@ public class StatetPlugin extends AbstractUIPlugin {
 			display = shell.getDisplay();
 		}
 		if (display == null) {
-			display = Display.getCurrent();
-			if (display == null) {
-				display = Display.getDefault();
-			}
+			display = PlatformUI.getWorkbench().getDisplay();
 		}
 		return display;
+	}
+	
+	/**
+	 * Returns the display for this workbench.
+	 * 
+	 * @return a display.
+	 */
+	public static Display getDisplay() {
+		
+		return PlatformUI.getWorkbench().getDisplay();
 	}
 	
 	

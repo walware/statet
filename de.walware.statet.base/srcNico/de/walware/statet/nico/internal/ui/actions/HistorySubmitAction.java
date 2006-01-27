@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.addviews;
+package de.walware.statet.nico.internal.ui.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -17,22 +17,23 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 
-import de.walware.statet.nico.Messages;
 import de.walware.statet.nico.runtime.SubmitType;
 import de.walware.statet.nico.runtime.ToolController;
 import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.History.Entry;
+import de.walware.statet.nico.ui.NicoMessages;
+import de.walware.statet.nico.ui.views.HistoryView;
 
 
-class SubmitAction extends BaseSelectionListenerAction {
+public class HistorySubmitAction extends BaseSelectionListenerAction {
 
 	
 	private HistoryView fView;
 	
 	
-	public SubmitAction(HistoryView view) {
+	public HistorySubmitAction(HistoryView view) {
 		
-		super(Messages.SubmitAction_name);
+		super(NicoMessages.SubmitAction_name);
 		
 		setId("de.walware.statet.nico.addviews.submit");
 		
@@ -50,7 +51,7 @@ class SubmitAction extends BaseSelectionListenerAction {
 	public void run() {
 		
 		final IStructuredSelection selection = getStructuredSelection();
-		ToolProcess process = fView.getToolProcess();
+		ToolProcess process = fView.getProcess();
 		final ToolController controller = (process != null) ? process.getController() : null;
 		
 		if (selection == null || controller == null)

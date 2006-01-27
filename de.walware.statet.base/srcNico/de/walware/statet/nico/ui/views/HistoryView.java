@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.addviews;
+package de.walware.statet.nico.ui.views;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -57,6 +57,9 @@ import de.walware.statet.nico.ToolRegistry;
 import de.walware.statet.nico.ToolSessionInfo;
 import de.walware.statet.nico.console.ScrollLockAction;
 import de.walware.statet.nico.console.ScrollLockAction.Receiver;
+import de.walware.statet.nico.internal.ui.actions.HistoryCopyAction;
+import de.walware.statet.nico.internal.ui.actions.HistoryDragAdapter;
+import de.walware.statet.nico.internal.ui.actions.HistorySubmitAction;
 import de.walware.statet.nico.runtime.History;
 import de.walware.statet.nico.runtime.IHistoryListener;
 import de.walware.statet.nico.runtime.ToolProcess;
@@ -67,10 +70,32 @@ import de.walware.statet.ui.StatetImages;
 
 /**
  * A view for the history of a tool process.
+ * 
+ * Usage: This class is not intend to be subclassed.
  */
 public class HistoryView extends ViewPart {
 	
 	
+	/**
+	 * Converts the selection of this view/viewer into a commmand text block.
+	 *  
+	 * @param selection a selection with history entries.
+	 * @return command block.
+	 */
+	public static String createTextBlock(IStructuredSelection selection) {
+		
+		Object[] elements = selection.toArray();
+		StringBuilder text = new StringBuilder(elements.length * 8);
+		for (Object obj : elements) {
+			Entry e = (Entry) obj;
+			text.append(e.getCommand());
+			text.append('\n');
+		}
+		
+		return text.toString();
+	}
+	
+
 	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
 		
 		
@@ -208,7 +233,7 @@ public class HistoryView extends ViewPart {
 	private Action fScrollLockAction;
 	
 	private Action fSelectAllAction;
-	private CopyAction fCopyAction;
+	private HistoryCopyAction fCopyAction;
 	
 	private Action fSubmitAction;
 
@@ -306,8 +331,8 @@ public class HistoryView extends ViewPart {
 			}
 		};
 		
-		fCopyAction = new CopyAction(this);
-		fSubmitAction = new SubmitAction(this);
+		fCopyAction = new HistoryCopyAction(this);
+		fSubmitAction = new HistorySubmitAction(this);
 		
 		enabledSelectionActions(false);
 		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -402,10 +427,39 @@ public class HistoryView extends ViewPart {
 		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
 	}
 	
-	public ToolProcess getToolProcess() {
+	/**
+	 * Returns the tool process, which this view is connected to.
+	 * 
+	 * @return a tool process or <code>null</code>, if no process is connected.
+	 */
+	public ToolProcess getProcess() {
 		
 		return fProcess;
 	}
+	
+	/**
+	 * Returns the table viewer, containing the entries of the history.
+	 * 
+	 * @return a table viewer.
+	 */
+	public TableViewer getTableViewer() {
+		
+		return fTableViewer;
+	}
+	
+	/**
+	 * Returns a shared clipboard resource, which can be used by actions of this view.
+	 * 
+	 * @return a clipboard object.
+	 */
+	public Clipboard getClipboard() {
+		
+		if (fClipboard == null)
+			fClipboard = new Clipboard(Display.getCurrent());
+		
+		return fClipboard;
+	}
+
 	
 	@Override
 	public void setFocus() {
@@ -434,21 +488,6 @@ public class HistoryView extends ViewPart {
 		}
 		
 		fTableViewer = null;
-	}
-	
-	
-	
-	TableViewer getTableViewer() {
-		
-		return fTableViewer;
-	}
-	
-	Clipboard getClipboard() {
-		
-		if (fClipboard == null)
-			fClipboard = new Clipboard(Display.getCurrent());
-		
-		return fClipboard;
 	}
 	
 }

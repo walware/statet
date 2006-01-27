@@ -16,7 +16,9 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 
 
-
+/**
+ * Command history.
+ */
 public class History {
 
 	
@@ -26,11 +28,14 @@ public class History {
 	private Entry fNewest;
 	private Entry fOldest;
 	
-	private ListenerList fListeners = new ListenerList();
+	private ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
 	
 	private boolean fIgnoreCommentLines;
 	
 	
+	/**
+	 * An entry of this history.
+	 */
 	public class Entry {
 		
 		private final String fCommand;

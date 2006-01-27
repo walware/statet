@@ -41,10 +41,10 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 	 */
 	public void createFieldEditors() {
 //		addField(new DirectoryFieldEditor(PreferenceConstants.R_DIRECTORY, 
-//				Messages.getString(I.RES, "RootPage.rDirectory"), getFieldEditorParent()));
+//				NicoMessages.getString(I.RES, "RootPage.rDirectory"), getFieldEditorParent()));
 //
 //		Label label = new Label(getFieldEditorParent(), SWT.LEFT);
-//		label.setText(Messages.getString(I.RES, "RootPage.rDirectory.info"));
+//		label.setText(NicoMessages.getString(I.RES, "RootPage.rDirectory.info"));
 //		GridData gd = new GridData();
 //		gd.horizontalSpan = 2;
 //		label.setLayoutData(gd);

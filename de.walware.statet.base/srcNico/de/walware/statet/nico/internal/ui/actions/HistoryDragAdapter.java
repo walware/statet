@@ -9,14 +9,16 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.addviews;
+package de.walware.statet.nico.internal.ui.actions;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 
+import de.walware.statet.nico.ui.views.HistoryView;
 
-class HistoryDragAdapter extends DragSourceAdapter {
+
+public class HistoryDragAdapter extends DragSourceAdapter {
 	
 	
 	private HistoryView fView;
@@ -24,7 +26,7 @@ class HistoryDragAdapter extends DragSourceAdapter {
 	private IStructuredSelection fCurrentSelection;
 	
 	
-	HistoryDragAdapter(HistoryView view) {
+	public HistoryDragAdapter(HistoryView view) {
 		
 		fView = view;
 	}
@@ -41,7 +43,7 @@ class HistoryDragAdapter extends DragSourceAdapter {
 	@Override
 	public void dragSetData(DragSourceEvent event) {
 		
-		String text = CopyAction.createTextBlock(fCurrentSelection);
+		String text = HistoryView.createTextBlock(fCurrentSelection);
 		event.data = text;
 	}
 	

@@ -9,16 +9,12 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico;
-
-import java.util.EnumMap;
+package de.walware.statet.nico.ui;
 
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.nico.runtime.ToolController.ToolStatus;
 
-
-public class Messages extends NLS {
+public class NicoMessages extends NLS {
 	
 
 	public static String Status_Starting_description;
@@ -30,6 +26,9 @@ public class Messages extends NLS {
 	public static String SubmitAction_name;
 	
 	public static String PasteSubmitAction_name;
+	
+	public static String PauseAction_name;
+	public static String PasteSubmitAction_tooltip;
 
 	public static String SubmitTask_name;
 	public static String Submit_error_message;
@@ -37,31 +36,12 @@ public class Messages extends NLS {
 	public static String LaunchDelegate_error_UnexpectedTermination_message;
 	
 	public static String Runtime_error_message;
-
-	
-	private static EnumMap<ToolStatus, String> fgStatusDescription;
-	
-	private static void initDefaultStatusDescriptions() {
-		
-		fgStatusDescription = new EnumMap<ToolStatus, String>(ToolStatus.class);
-		fgStatusDescription.put(ToolStatus.STARTING, Messages.Status_Starting_description);
-		fgStatusDescription.put(ToolStatus.STARTED_IDLE, Messages.Status_StartedIdle_description);
-		fgStatusDescription.put(ToolStatus.STARTED_CALCULATING, Messages.Status_StartedCalculating_description);
-		fgStatusDescription.put(ToolStatus.STARTED_PAUSED, Messages.Status_StartedPaused_description);
-		fgStatusDescription.put(ToolStatus.TERMINATED, Messages.Status_Terminated_description);
-	}
-	
-	public static String getDefaultStatusDescription(ToolStatus status) {
-		
-		return fgStatusDescription.get(status);
-	}
 	
 	
-	private static final String BUNDLE_NAME = Messages.class.getName();
+	private static final String BUNDLE_NAME = NicoMessages.class.getName();
 	
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
-		initDefaultStatusDescriptions();
+		NLS.initializeMessages(BUNDLE_NAME, NicoMessages.class);
 	}
 	
 }

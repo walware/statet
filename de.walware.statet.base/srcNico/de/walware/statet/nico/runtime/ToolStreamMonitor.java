@@ -30,7 +30,7 @@ public class ToolStreamMonitor implements IStreamMonitor {
 		// Create listener lists
 		fListeners = new EnumMap<SubmitType, ListenerList>(SubmitType.class);
 		for (SubmitType type : EnumSet.allOf(SubmitType.class)) {
-			fListeners.put(type, new ListenerList());
+			fListeners.put(type, new ListenerList(ListenerList.IDENTITY));
 		}
 	}
 

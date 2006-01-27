@@ -22,9 +22,9 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.statet.nico.Messages;
 import de.walware.statet.nico.runtime.SubmitType;
 import de.walware.statet.nico.runtime.ToolController;
+import de.walware.statet.nico.ui.NicoMessages;
 
 
 class SubmitPasteAction extends Action {
@@ -37,7 +37,7 @@ class SubmitPasteAction extends Action {
 	
 	public SubmitPasteAction(NIConsolePage consolePage) {
 		
-		super(Messages.PasteSubmitAction_name);
+		super(NicoMessages.PasteSubmitAction_name);
 		
 		setId(ActionFactory.PASTE.getId());
 		setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);

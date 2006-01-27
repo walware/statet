@@ -30,7 +30,7 @@ public interface IToolRunnable {
 	public void run();
 	
 	/**
-	 * Return a label for this runnable, used by the GUI.
+	 * Return a label for this runnable, used by the UI.
 	 * @return
 	 */
 	public String getLabel();

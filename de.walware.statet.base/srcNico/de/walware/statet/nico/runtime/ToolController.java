@@ -12,28 +12,34 @@
 package de.walware.statet.nico.runtime;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.LinkedList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import de.walware.statet.nico.Messages;
+import de.walware.statet.nico.ui.NicoMessages;
 import de.walware.statet.ui.util.ExceptionHandler;
 
 
 /**
  * Controller for a long running tight integrated tool.
+ * <p>
+ * Usage: This class is intend to be subclass. Subclasses are responsible for the
+ * lifecicle of the tool (<code>startTool()</code>, <code>terminateTool()</code>.
+ * Subclasses should provide an interface which can be used by IToolRunnables
+ * to access the features of the tool. E.g. provide an abstract implementation of 
+ * IToolRunnable with the necessary methods (in protected scope).</p>
  */
-public class ToolController {
+public abstract class ToolController {
 
 	
-	public static enum ToolStatus {
+	static enum ToolStatus {
 		STARTING,
 		STARTED_IDLE,
 		STARTED_CALCULATING,
@@ -41,7 +47,27 @@ public class ToolController {
 		TERMINATED;
 	}
 	
-	protected class SimpleRunnable implements IToolRunnable {
+	
+	private static NullProgressMonitor fgProgressMonitorDummy = new NullProgressMonitor(); 
+	
+	
+	/**
+	 * Note: if you want to be notified, if the controller really is in pause status,
+	 * listen to debug events {@link ToolProcess#STATUS_QUEUE_PAUSE}.
+	 */
+	public interface IPauseRequestListener {
+		
+		void pauseRequested();
+		void unpauseRequested();
+	}
+	
+	/**
+	 * Default implementation of a runnable which can be used for
+	 * {@link ToolController#createCommandRunnable(String, SubmitType)}.
+	 * 
+	 * Usage: This class is intend to be subclassed.
+	 */
+	public abstract class SimpleRunnable extends PlatformObject implements IToolRunnable {
 		
 		protected final String fText;
 		protected final SubmitType fType;
@@ -51,29 +77,21 @@ public class ToolController {
 			assert (text != null);
 			assert (type != null);
 			
-			this.fText = text;
-			this.fType = type;;
+			fText = text;
+			fType = type;;
 		}
 
 		public void run() {
 			
 			doOnCommandRun(fText, fType);
 		}
-
+		
 		public String getLabel() {
 			
 			return fText;
 		}
-		
-//		public SubmitType getType() {
-//			
-//			return fType;
-//		}
 	}
 	
-	private static NullProgressMonitor fgProgressMonitorDummy = new NullProgressMonitor(); 
-	
-	private LinkedList<IToolRunnable> fQueue;
 	
 	private ToolStreamProxy fStreams;
 	protected ToolStreamMonitor fInputStream;
@@ -81,23 +99,25 @@ public class ToolController {
 	protected ToolStreamMonitor fErrorOutputStream;
 	
 	protected final ToolProcess fProcess;
+	private Queue fQueue;
 	private History fHistory;
 	 
 	private ToolStatus fStatus = ToolStatus.STARTING;
 	private boolean fPauseRequested = false;
+	private ListenerList fPauseRequestListeners = new ListenerList(ListenerList.IDENTITY);
 	private boolean fTerminateRequested = false;
 	
 	
-	public ToolController(ToolProcess process) {
+	protected ToolController(ToolProcess process) {
 		
 		fProcess = process;
-		fQueue = new LinkedList<IToolRunnable>();
 		
 		fStreams = new ToolStreamProxy();
 		fInputStream = fStreams.getInputStreamMonitor();
 		fDefaultOutputStream = fStreams.getOutputStreamMonitor();
 		fErrorOutputStream = fStreams.getErrorStreamMonitor();
 		
+		fQueue = new Queue(process);
 		fHistory = new History(fInputStream);
 	}
 	
@@ -105,10 +125,16 @@ public class ToolController {
 	 * Returns the history of this tool instance. There is one history per controller.
 	 * @return the history
 	 */
-	public History getHistory() {
+	History getHistory() {
 		
 		return fHistory;
 	}
+	
+	Queue getQueue() {
+
+		return fQueue;
+	}
+
 	
 	public ToolStreamProxy getStreams() {
 		
@@ -154,20 +180,52 @@ public class ToolController {
 			if (doPause) {
 				if (fStatus == ToolStatus.STARTED_CALCULATING || fStatus == ToolStatus.STARTED_IDLE) {
 					fPauseRequested = true;
+					for (Object obj : fPauseRequestListeners.getListeners()) {
+						((IPauseRequestListener) obj).pauseRequested();
+					}
 					doResume(); // so we can switch to pause status
 				}
 				return;
 			}
 			else { // !doPause
-				if (fPauseRequested) {
-					fPauseRequested = false;
-				}
-				if (fStatus == ToolStatus.STARTED_PAUSED) {
-					doResume();
+				if (fPauseRequested || fStatus == ToolStatus.STARTED_PAUSED) {
+					for (Object obj : fPauseRequestListeners.getListeners()) {
+						((IPauseRequestListener) obj).unpauseRequested();
+					}
+					if (fPauseRequested) {
+						fPauseRequested = false;
+					}
+					if (fStatus == ToolStatus.STARTED_PAUSED) {
+						doResume();
+					}
 				}
 				return;
 			}
 		}
+	}
+	
+	/**
+	 * Checks, wether the controller is paused. 
+	 * Note that <code>true</code> is also returned, if a pause is requested
+	 * but a runnable is still in process.
+	 * 
+	 * @return <code>true</code> if pause is requested or in pause, otherwise <code>false</code>.
+	 */
+	public boolean isPaused() {
+		
+		synchronized (fQueue) {
+			return (fPauseRequested || fStatus == ToolStatus.STARTED_PAUSED);
+		}
+	}
+	
+	public void addPauseRequestListener(IPauseRequestListener listener) {
+		
+		fPauseRequestListeners.add(listener);
+	}
+	
+	public void removePauseRequestListener(IPauseRequestListener listener) {
+		
+		fPauseRequestListeners.remove(listener);
 	}
 	
 	void terminate() {
@@ -290,22 +348,21 @@ public class ToolController {
 	}
 	
 	/**
-	 * Overwrite this method to create a runnable for text commands 
+	 * Implement this method to create a runnable for text commands 
 	 * (e.g. from console or editor).
 	 * 
 	 * The runnable should commit this commands to the tool 
 	 * and print command and results to the console.
 	 * You can extends <code>SimpleRunnable</code> or create a 
 	 * completely new implementation.
+	 * @see SimpleRunnable
 	 *
 	 * @param command text command
 	 * @param type type of this submission
 	 * @return runnable for this command
+	 * 
 	 */
-	protected IToolRunnable createCommandRunnable(String command, SubmitType type) {
-		
-		return new SimpleRunnable(command, type);
-	}
+	protected abstract IToolRunnable createCommandRunnable(String command, SubmitType type);
 	
 	/**
 	 * Submit the runnable ("task") for the tool.
@@ -351,9 +408,12 @@ public class ToolController {
 	 */
 	private void doSubmit(IToolRunnable[] tasks) {
 		
-		fQueue.addAll(Arrays.asList(tasks));
 		if (fStatus == ToolStatus.STARTED_IDLE) {
+			fQueue.internalAdd(tasks, true);
 			doResume();
+		}
+		else {
+			fQueue.internalAdd(tasks, false);
 		}
 	}
 	
@@ -364,6 +424,8 @@ public class ToolController {
 			while (doRunTask()) {}
 			
 			synchronized (fQueue) {
+				fQueue.internalCheckCache();
+				
 				if (fTerminateRequested) {
 					fTerminateRequested = false;
 					if (terminateTool()) { // termination can be canceled
@@ -377,7 +439,7 @@ public class ToolController {
 					doWait();
 					continue;
 				}
-				if (fQueue.isEmpty()) {
+				if (fQueue.internalIsEmpty()) {
 					setStatus(ToolStatus.STARTED_IDLE);
 					doWait();
 					continue;
@@ -390,10 +452,10 @@ public class ToolController {
 		
 		IToolRunnable e = null;
 		synchronized (fQueue) {
-			if (fQueue.isEmpty() || fPauseRequested || fTerminateRequested) {
+			if (fQueue.internalIsEmpty() || fPauseRequested || fTerminateRequested) {
 				return false;
 			}
-			e = fQueue.poll();
+			e = fQueue.internalPoll();
 			setStatus(ToolStatus.STARTED_CALCULATING);
 		}
 
@@ -444,7 +506,7 @@ public class ToolController {
 	
 	public String createSubmitMessage() {
 		
-		return NLS.bind(Messages.SubmitTask_name, fProcess.getLabel());
+		return NLS.bind(NicoMessages.SubmitTask_name, fProcess.getLabel());
 	}
 	
 	public void runSubmitInBackground(IRunnableWithProgress runnable, Shell shell) {
@@ -454,10 +516,11 @@ public class ToolController {
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
 		} catch (InvocationTargetException e) {
 			ExceptionHandler.handle(e, shell, 
-					NLS.bind(Messages.Submit_error_message, fProcess.getLabel()) 
+					NLS.bind(NicoMessages.Submit_error_message, fProcess.getLabel()) 
 			);
 		} catch (InterruptedException e) {
 			// something to do?
 		}
 	}
+
 }

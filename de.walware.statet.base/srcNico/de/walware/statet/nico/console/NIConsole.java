@@ -23,7 +23,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
-import org.eclipse.debug.internal.ui.DebugPluginImages;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -39,10 +39,10 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.Messages;
 import de.walware.statet.nico.runtime.ToolController;
 import de.walware.statet.nico.runtime.ToolProcess;
 import de.walware.statet.nico.runtime.ToolStreamProxy;
+import de.walware.statet.nico.ui.NicoMessages;
 
 
 /**
@@ -52,6 +52,23 @@ public class NIConsole extends IOConsole {
 	
 	
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console";
+	
+
+	public static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
+		
+		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
+		
+		IViewReference[] allReferences = page.getViewReferences();
+		for (IViewReference reference : allReferences) {
+			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
+				IViewPart view = reference.getView(false);
+				if (view != null) {
+					consoleViews.add((IConsoleView) view);
+				}
+			}
+		}
+		return consoleViews;
+	}
 	
 	
 	private IOConsoleOutputStream fOutputCommands;
@@ -126,7 +143,7 @@ public class NIConsole extends IOConsole {
 		
 		super.init();
 		
-		setName(computeName(Messages.Status_Starting_description));
+		setName(computeName(NicoMessages.Status_Starting_description));
 		
 		fDebugListener = new IDebugEventSetListener() {
 			public void handleDebugEvents(DebugEvent[] events) {
@@ -137,18 +154,18 @@ public class NIConsole extends IOConsole {
 						case DebugEvent.MODEL_SPECIFIC:
 							switch (event.getDetail()) {
 								case ToolProcess.STATUS_CALCULATE:
-									runSetName(Messages.Status_StartedCalculating_description);
+									runSetName(NicoMessages.Status_StartedCalculating_description);
 									continue EVENTS;
 								case ToolProcess.STATUS_IDLE:
-									runSetName(Messages.Status_StartedIdle_description);
+									runSetName(NicoMessages.Status_StartedIdle_description);
 									continue EVENTS;
 								case ToolProcess.STATUS_QUEUE_PAUSE:
-									runSetName(Messages.Status_StartedPaused_description);
+									runSetName(NicoMessages.Status_StartedPaused_description);
 									continue EVENTS;
 							}
 							break;
 						case DebugEvent.TERMINATE:
-							runSetName(Messages.Status_Terminated_description);
+							runSetName(NicoMessages.Status_Terminated_description);
 							continue EVENTS;
 						}
 					}
@@ -278,22 +295,6 @@ public class NIConsole extends IOConsole {
 				activate ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_VISIBLE);
 	}
 	
-	public static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
-		
-		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
-		
-		IViewReference[] allReferences = page.getViewReferences();
-		for (IViewReference reference : allReferences) {
-			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
-				IViewPart view = reference.getView(false);
-				if (view != null) {
-					consoleViews.add((IConsoleView) view);
-				}
-			}
-		}
-		return consoleViews;
-	}
-	
 	protected String computeName(String statusDescription) {
 		
 		StringBuilder name = new StringBuilder();
@@ -317,7 +318,7 @@ public class NIConsole extends IOConsole {
             ILaunchConfigurationType type;
             try {
                 type = configuration.getType();
-                return DebugPluginImages.getImageDescriptor(type.getIdentifier());
+                return DebugUITools.getImageDescriptor(type.getIdentifier());
             } catch (CoreException e) {
                 StatetPlugin.logUnexpectedError(e);
             }

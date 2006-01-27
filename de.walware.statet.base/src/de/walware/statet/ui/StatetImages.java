@@ -12,9 +12,11 @@
 package de.walware.statet.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.Image;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.AbstractImagesCollection;
+import de.walware.statet.ext.ui.ImageMap;
 
 
 public class StatetImages extends AbstractImagesCollection {
@@ -26,7 +28,12 @@ public class StatetImages extends AbstractImagesCollection {
 		
 		return fgInstance;
 	}
-
+	
+	public static Image getCachedImage(ImageDescriptor descriptor) {
+		
+		return getDefault().fImageCache.get(descriptor);
+	}
+	
 	
 /* Set of Image Descriptions **************************************************/
 
@@ -35,9 +42,13 @@ public class StatetImages extends AbstractImagesCollection {
 
 	public static final ImageDescriptor DESC_LOCTOOL_EXPANDALL = fgInstance.create(T_LOCTOOL, "expandall.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_LOCTOOL_COLLAPSEALL = fgInstance.create(T_LOCTOOL, "collapseall.gif"); //$NON-NLS-1$
-
+	
 	public static final ImageDescriptor DESC_LOCTOOL_SCROLLLOCK = fgInstance.create(T_LOCTOOL, "scrolllock.gif"); //$NON-NLS-1$
+	
+	public static final ImageDescriptor DESC_LOCTOOL_PAUSE = fgInstance.create(T_LOCTOOL, "pause.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor DESC_LOCTOOLD_PAUSE = fgInstance.create(T_LOCTOOL_D, "pause.gif"); //$NON-NLS-1$
 
+	
 /* Set of Image Keys **********************************************************/
 	public static final String IMG_CONTENTASSIST_TEMPLATE = StatetPlugin.ID + ".image.contentassist.template";  //$NON-NLS-1$
 	
@@ -48,8 +59,11 @@ public class StatetImages extends AbstractImagesCollection {
 	public static final String IMG_LOCTOOL_SORT_ALPHA = StatetPlugin.ID + ".tool.sort.alpha";  //$NON-NLS-1
 	
 	
+	private ImageMap fImageCache;
+	
 	private StatetImages() {
 		super(StatetPlugin.getDefault());
+		fImageCache = new ImageMap();
 	}
 	
 	@Override
@@ -60,4 +74,5 @@ public class StatetImages extends AbstractImagesCollection {
 		declareRegistryImage(IMG_OBJ_COMMAND, T_OBJ, "command.png"); //$NON-NLS-1$
 		declareRegistryImage(IMG_LOCTOOL_SORT_ALPHA, T_LOCTOOL, "sort_alpha.gif"); //$NON-NLS-1$
 	}
+		
 }

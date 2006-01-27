@@ -60,7 +60,7 @@ public class ToolRegistry {
 		private ToolProcess fActiveProcess;
 		private NIConsole fActiveConsole;
 		
-		private ListenerList fLocalListeners = new ListenerList();
+		private ListenerList fLocalListeners = new ListenerList(ListenerList.IDENTITY);
 		
 		PageRegistry(IWorkbenchPage page) {
 			

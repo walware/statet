@@ -18,7 +18,7 @@ import de.walware.statet.nico.runtime.ToolController;
 import de.walware.statet.nico.runtime.ToolProcess;
 
 
-public class AbstractRController extends ToolController {
+public abstract class AbstractRController extends ToolController {
 
 	
 	public AbstractRController(ToolProcess process) {

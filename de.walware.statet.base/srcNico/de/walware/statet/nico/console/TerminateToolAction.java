@@ -49,17 +49,11 @@ public class TerminateToolAction extends Action implements IUpdate {
 		update();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.texteditor.IUpdate#update()
-	 */
 	public void update() {
 		
 		setEnabled(fProcess.canTerminate());
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.action.IAction#run()
-	 */
 	public void run() {
 		
 		try {
