@@ -224,16 +224,13 @@
             modes="run">
          <contextualLaunch>
             <enablement>
-               <and>
-	               <with variable="selection">
-	                  <count value="1"/>	
-	                  <iterate>
-	                  <test 
-	                  		property="org.eclipse.debug.ui.matchesContentType"
-	                        value="de.walware.statet.r.core.RContent"/>
-	                  </iterate>	               </with>
-	               
-               </and>
+	            <with variable="selection">
+	               <count value="1"/>	
+	               <iterate>
+	               <test 
+	               		property="org.eclipse.debug.ui.matchesContentType"
+	                    value="de.walware.statet.r.core.RContent"/>
+	               </iterate>	            </with>
             </enablement>
             <contextLabel
                   label="%launchShortcuts.RunRScriptViaSource"

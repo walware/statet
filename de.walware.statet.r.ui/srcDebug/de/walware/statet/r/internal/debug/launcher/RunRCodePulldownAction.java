@@ -167,6 +167,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 
 	private void loadShortcuts() {
 		
+		@SuppressWarnings("unchecked")
 		List<LaunchShortcutExtension> list = DebugUIPlugin.getDefault().getLaunchConfigurationManager().getLaunchShortcuts("de.walware.statet.r");
 		List<LaunchShortcutAction> actions = new ArrayList<LaunchShortcutAction>(list.size());
 
@@ -229,7 +230,9 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 	 * org from LaunchShortcutsAction
 	 * @return an Evaluation context with default variable = selection
 	 */
+	@SuppressWarnings("unchecked")
 	private IEvaluationContext createContext() {
+		
 	    List list = null;
 		IWorkbenchWindow window = StatetPlugin.getActiveWorkbenchWindow();
 		if (window != null) {

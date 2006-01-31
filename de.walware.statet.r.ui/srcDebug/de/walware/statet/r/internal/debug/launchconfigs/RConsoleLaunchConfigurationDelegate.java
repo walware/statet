@@ -164,7 +164,7 @@ public class RConsoleLaunchConfigurationDelegate implements
 			IProcess process = null;
 			
 			// add process type to process attributes
-			Map processAttributes = new HashMap();
+			Map<String, Object> processAttributes = new HashMap<String, Object>();
 			String programName = location.lastSegment();
 			String extension = location.getFileExtension();
 			if (extension != null) {
