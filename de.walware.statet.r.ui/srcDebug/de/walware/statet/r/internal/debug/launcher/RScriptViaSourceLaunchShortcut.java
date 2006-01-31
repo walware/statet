@@ -59,7 +59,7 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 	
 	private void doRun(IFile file) throws CoreException {
 
-		RCodeLaunchRegistry.runRFileViaSource(file);
+		RCodeLaunchRegistry.runFileUsingCommand("source(\"${file}\")", file);
 	}
 	
 }

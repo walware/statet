@@ -11,7 +11,11 @@
 
 package de.walware.statet.r.launching;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -22,7 +26,9 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
-import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IStatusHandler;
+import org.eclipse.debug.ui.IDebugUIConstants;
 
 import de.walware.eclipsecommon.preferences.PreferencesUtil;
 import de.walware.eclipsecommon.preferences.Preference.StringPref;
@@ -35,6 +41,12 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 
 
 	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id");
+	
+	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E");
+
+	private static final IStatus STATUS_PROMPTER = new Status(IStatus.INFO, IDebugUIConstants.PLUGIN_ID, 200, "", null);
+	private static final IStatus STATUS_SAVE = new Status(IStatus.INFO, DebugPlugin.getUniqueIdentifier(), 222, "", null);
+
 
 	public static void initializeDefaultValues(IScopeContext context) {
 		
@@ -49,15 +61,49 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		return (elements != null && elements.length > 0);
 	}
 	
-	public static void runRFileViaSource(IFile file) throws CoreException {
+	/**
+	 * Runs a file related command in R. 
+	 * <p>
+	 * The pattern ${file} in command string is replaced by the path of
+	 * the specified file.</p> 
+	 * 
+	 * @param command the command, (at moment) should be single line.
+	 * @param file the file.
+	 * @throws CoreException if running failed.
+	 */
+	public static void runFileUsingCommand(String command, IFile file) throws CoreException {
 		
 		String path = file.getLocation().toString();
 		IRCodeLaunchConnector connector = getDefault().getConnector();
-		if (!DebugUITools.saveBeforeLaunch())
-			return;
 		
-		String cmd = "source(\""+path+"\");";
+		// save before launch
+		IProject project = file.getProject();
+		if (project != null) {
+			IProject[] referencedProjects = project.getReferencedProjects();
+			IProject[] allProjects = new IProject[referencedProjects.length+1];
+			allProjects[0] = project;
+			System.arraycopy(referencedProjects, 0, allProjects, 1, referencedProjects.length);
+			if (!saveBeforeLaunch(allProjects)) {
+				return;
+			}
+		}
+		
+		project.getReferencedProjects();
+		
+		String cmd = fgFileNamePattern.matcher(command).replaceAll(
+				Matcher.quoteReplacement(path));
 		connector.submit(new String[] { cmd });
+	}
+	
+	private static boolean saveBeforeLaunch(IProject[] projects) throws CoreException {
+		
+		IStatusHandler prompter = null;
+		prompter = DebugPlugin.getDefault().getStatusHandler(STATUS_PROMPTER);
+		if (prompter != null) {
+			return ((Boolean) prompter.handleStatus(STATUS_SAVE, 
+					new Object[] { null, projects } )).booleanValue();
+		}
+		return true;
 	}
 
 	public static void runRCodeDirect(String[] code) throws CoreException {
