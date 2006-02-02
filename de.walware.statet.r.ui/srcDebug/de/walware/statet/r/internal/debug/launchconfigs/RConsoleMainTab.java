@@ -346,7 +346,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		if (isWin) {
 			StringBuilder path = new StringBuilder();
 			path.append("${env_var:PROGRAMFILES}");
-			path.append("\\R\\rw2xxx\\bin\\");
+			path.append("\\R\\R-2.x.x\\bin\\");
 			path.append("Rterm.exe");
 			defaultLocation = path.toString();
 		}
