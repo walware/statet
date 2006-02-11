@@ -32,13 +32,14 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.RefreshTab;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.IWindowListener;
-import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
 
 import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.ui.RUiPlugin;
 
@@ -46,33 +47,22 @@ import de.walware.statet.r.ui.RUiPlugin;
 public class RConsoleLaunchConfigurationDelegate implements
 		ILaunchConfigurationDelegate {
 
-	
-	private static IWindowListener windowListener;
+
+	private static Object fgWorkbenchListenerLock = new Object();
+	private static IWorkbenchListener fgWorkbenchListener;
 
 	/**
-	 * A window listener that warns the user about any running programs when
+	 * A workbench listener that warns the user about any running programs when
 	 * the workbench closes. Programs are killed when the VM exits.
 	 */
-	private class ProgramLaunchWindowListener implements IWindowListener {
-		
-		public void windowActivated(IWorkbenchWindow window) {
-		}
-		public void windowDeactivated(IWorkbenchWindow window) {
-		}
-		public void windowOpened(IWorkbenchWindow window) {
-		}
+	private class WorkbenchListener implements IWorkbenchListener {
 
-		public void windowClosed(IWorkbenchWindow window) {
-			
-			IWorkbenchWindow windows[] = PlatformUI.getWorkbench().getWorkbenchWindows();
-			if (windows.length > 1) {
-				// There are more windows still open.
-				return;
-			}
+		public boolean preShutdown(IWorkbench workbench, boolean forced) {
+
 			ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 			ILaunchConfigurationType programType = manager.getLaunchConfigurationType(IRConsoleConstants.ID_RCMD_LAUNCHCONFIG);
 			if (programType == null) {
-				return;
+				return true;
 			}
 			ILaunch launches[] = manager.getLaunches();
 			ILaunchConfigurationType configType;
@@ -89,11 +79,35 @@ public class RConsoleLaunchConfigurationDelegate implements
 				}
 				if (configType.equals(programType)) {
 					if (!launches[i].isTerminated()) {
-						MessageDialog.openWarning(window.getShell(), RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title, RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message); //$NON-NLS-1$ //$NON-NLS-2$
+						if (forced) {
+							MessageDialog.openWarning(StatetPlugin.getDisplay().getActiveShell(),
+									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
+									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message);
+						}
+						else {
+							MessageDialog dialog = new MessageDialog(StatetPlugin.getDisplay().getActiveShell(),
+									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
+									null,
+									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message, // TODO: update messsages
+									MessageDialog.WARNING,
+									new String[] { 
+										RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_button_Continue,
+										RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_button_Cancel, 
+									}, 1);
+							int answer = dialog.open();
+							if (answer == 1) {
+								return false;
+							}
+						}
 						break;
 					}
 				}
 			}
+
+			return true;
+		}
+
+		public void postShutdown(IWorkbench workbench) {
 		}
 	}
 	
@@ -156,9 +170,11 @@ public class RConsoleLaunchConfigurationDelegate implements
 				return;
 			}
 			
-			if (windowListener == null) {
-				windowListener = new ProgramLaunchWindowListener();
-				PlatformUI.getWorkbench().addWindowListener(windowListener);
+			synchronized (fgWorkbenchListenerLock) {
+				if (fgWorkbenchListener == null) {
+					fgWorkbenchListener = new WorkbenchListener();
+					PlatformUI.getWorkbench().addWorkbenchListener(fgWorkbenchListener);
+				}
 			}
 			Process p = DebugPlugin.exec(cmdLine, workingDir, envp);
 			IProcess process = null;
