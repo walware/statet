@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,26 +68,17 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	public RdFastPartitionScanner() {
 	}
 
-	/*
-	 * @see ITokenScanner#setRange(IDocument, int, int)
-	 */
+
 	public void setRange(IDocument document, int offset, int length) {
 
-		fScanner.setRange(document, offset, length);
-		fTokenOffset = offset;
-		fTokenLength = 0;		
-		fPrefixLength = 0;
-		
-		fLast = (fScanner.getColumn() == 0) ? Last.NEW_LINE : Last.NONE;
-		fState = State.DEFAULT;
+		setPartialRange(document, offset, length, null, -1);
 	}
 	
-
-	/*
-	 * @see IPartitionTokenScanner#setPartialRange(IDocument, int, int, String, int)
-	 */
 	public void setPartialRange(IDocument document, int offset, int length, String contentType, int partitionOffset) {
 
+		if (partitionOffset < 0) {
+			partitionOffset = offset;
+		}
 		fScanner.setRange(document, offset, length);
 		fTokenOffset = partitionOffset;
 		fTokenLength = 0;
@@ -96,9 +87,7 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 		fState = (offset == partitionOffset) ? State.DEFAULT : getState(contentType);
 	}
 	
-	/*
-	 * @see org.eclipse.jface.text.rules.ITokenScanner#nextToken()
-	 */
+
 	public IToken nextToken() {
 		
 		fTokenOffset += fTokenLength;
@@ -240,16 +229,10 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	}
 	
 	
-	/*
-	 * @see ITokenScanner#getTokenLength()
-	 */
 	public int getTokenLength() {
 		return fTokenLength;
 	}
 
-	/*
-	 * @see ITokenScanner#getTokenOffset()
-	 */
 	public int getTokenOffset() {
 		return fTokenOffset;
 	}
