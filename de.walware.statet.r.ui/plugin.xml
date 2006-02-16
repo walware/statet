@@ -27,15 +27,6 @@
             natureId="de.walware.statet.r.core.RNature"/>
    </extension>
    <extension
-         point="org.eclipse.core.filebuffers.documentCreation">
-      <factory
-            class="de.walware.statet.r.ui.editors.RDocumentFactory"
-            contentTypeId="de.walware.statet.r.core.RContent"/>
-      <factory
-            class="de.walware.statet.r.ui.editors.RdDocumentFactory"
-            contentTypeId="de.walware.statet.r.core.RdContent"/>
-   </extension>
-   <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
             class="de.walware.statet.r.ui.editors.RDocumentSetupParticipant"
