@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.debug.launchconfigs;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -25,6 +26,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -42,8 +44,10 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
+import org.eclipse.ui.ide.IDE;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
@@ -342,18 +346,30 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		
 		boolean isWin = Platform.getOS().startsWith("win");
-		String defaultLocation;
+		
+		String rLocation;
 		if (isWin) {
 			StringBuilder path = new StringBuilder();
 			path.append("${env_var:PROGRAMFILES}");
 			path.append("\\R\\R-2.x.x\\bin\\");
 			path.append("Rterm.exe");
-			defaultLocation = path.toString();
+			rLocation = path.toString();
 		}
-		else
-			defaultLocation = "/usr/local/bin/R";
+		else {
+			rLocation = "/usr/local/bin/R";
+		}
 		
-		configuration.setAttribute(IRConsoleConstants.ATTR_R_LOCATION, defaultLocation);
+		String workingDirectory = "${project_loc}";
+		IResource selectedResource = DebugUITools.getSelectedResource();
+		if (selectedResource != null) {
+			IProject project = selectedResource.getProject();
+			if (project != null) {
+				workingDirectory = "${project_loc:"+project.getName()+"}";
+			}
+		}
+		
+		configuration.setAttribute(IRConsoleConstants.ATTR_R_LOCATION, rLocation);
+		configuration.setAttribute(IRConsoleConstants.ATTR_WORKING_DIRECTORY, workingDirectory);
 		configuration.setAttribute(IRConsoleConstants.ATTR_R_CMD, "TERM");
 		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : "--no-readline");
 		
