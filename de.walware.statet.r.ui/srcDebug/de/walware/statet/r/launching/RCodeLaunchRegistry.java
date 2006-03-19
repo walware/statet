@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -62,7 +63,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 	
 	/**
-	 * Runs a file related command in R. 
+	 * Runs a file related command in R.
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
 	 * the specified file.</p> 
@@ -72,9 +73,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	 * @throws CoreException if running failed.
 	 */
 	public static void runFileUsingCommand(String command, IFile file) throws CoreException {
-		
-		String path = file.getLocation().toString();
-		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
 		// save before launch
 		IProject project = file.getProject();
@@ -87,14 +85,31 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 				return;
 			}
 		}
-		
-		project.getReferencedProjects();
-		
-		String cmd = fgFileNamePattern.matcher(command).replaceAll(
-				Matcher.quoteReplacement(path));
-		connector.submit(new String[] { cmd });
+
+		runFileUsingCommand(command, file.getLocation());
 	}
 	
+	/**
+	 * Runs a file related command in R. 
+	 * Use this method only, if you don't have a IFile object for your file 
+	 * (e.g. external file).
+	 * <p>
+	 * The pattern ${file} in command string is replaced by the path of
+	 * the specified file.</p> 
+	 * 
+	 * @param command the command, (at moment) should be single line.
+	 * @param file the file.
+	 * @throws CoreException if running failed.
+	 */
+	public static void runFileUsingCommand(String command, IPath filePath) throws CoreException {
+		
+		IRCodeLaunchConnector connector = getDefault().getConnector();
+		
+		String cmd = fgFileNamePattern.matcher(command).replaceAll(
+				Matcher.quoteReplacement(filePath.toString()));
+		connector.submit(new String[] { cmd });
+	}
+
 	private static boolean saveBeforeLaunch(IProject[] projects) throws CoreException {
 		
 		IStatusHandler prompter = null;

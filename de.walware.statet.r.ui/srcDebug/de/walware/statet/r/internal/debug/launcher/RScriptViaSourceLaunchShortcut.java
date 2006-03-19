@@ -12,12 +12,13 @@
 package de.walware.statet.r.internal.debug.launcher;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPathEditorInput;
 
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
@@ -25,6 +26,10 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 
 public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 
+	
+	private static final String COMMAND = "source(\"${file}\")";
+	
+	
 	public void launch(ISelection selection, String mode) {
 
 		assert mode.equals("run");
@@ -33,7 +38,8 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 			IStructuredSelection sel = (IStructuredSelection) selection;
 			Object firstElement = sel.getFirstElement();
 			if (firstElement instanceof IFile) {
-				doRun((IFile) firstElement);
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND,
+						((IFile) firstElement) );
 			}
 		}
 		catch (Exception e) {
@@ -47,19 +53,23 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 		assert mode.equals("run");
 		
 		try {
-			IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-			doRun(input.getFile());
+			IEditorInput input = editor.getEditorInput();
+			if (input instanceof IFileEditorInput) {
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, 
+						((IFileEditorInput) input).getFile() );
+			}
+			else if (input instanceof IPathEditorInput) {
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, 
+						((IPathEditorInput) input).getPath() );
+			}
+			else {
+				throw new Exception("Unsupported editor input: "+input.getClass().getName());
+			}
 		}
 		catch (Exception e) {
 			LaunchShortcutUtil.handleRLaunchException(e, 
 					RLaunchingMessages.RScriptLaunch_error_message);
 		}
-	}
-
-	
-	private void doRun(IFile file) throws CoreException {
-
-		RCodeLaunchRegistry.runFileUsingCommand("source(\"${file}\")", file);
 	}
 	
 }
