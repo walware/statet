@@ -11,7 +11,8 @@
 
 package de.walware.statet.r.ui.editors.templates;
 
-import java.text.Collator;
+import com.ibm.icu.text.Collator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

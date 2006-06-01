@@ -11,8 +11,9 @@
 
 package de.walware.statet.r.ui.editors.templates;
 
-import java.text.Collator;
 import java.util.Comparator;
+
+import com.ibm.icu.text.Collator;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
