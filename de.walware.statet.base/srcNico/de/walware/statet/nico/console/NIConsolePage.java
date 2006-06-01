@@ -39,7 +39,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
-import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Font;
@@ -318,14 +317,6 @@ public class NIConsolePage implements IPageBookViewPage,
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
 		fOutputViewer.getDocument().addDocumentListener(new FindReplaceUpdater());
 		((InputDocument) inputViewer.getDocument()).addDocumentListener(new PostUpdater());
-//		inputViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
-//
-//			public void selectionChanged(SelectionChangedEvent event) {
-//				// TODO Auto-generated method stub
-//				fMultiActionHandler.updateEnabledState();
-//			}
-//			
-//		});
 		fInputGroup.createActions(fMultiActionHandler);
 
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);
@@ -370,7 +361,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	protected void hookDND() {
 		
 		DNDUtil.addDropSupport(fOutputViewer, 
-				new SubmitDropAdapter(this), DND.DROP_COPY, 
+				new SubmitDropAdapter(this), 
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
 	

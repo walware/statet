@@ -50,13 +50,20 @@ public class DNDUtil {
 		}
 	}
 	
-	
+	/**
+	 * for common options (DEFAULT, MOVE, COPY).  
+	 * @param viewer
+	 * @param listener
+	 * @param transferTypes
+	 */
 	public static void addDropSupport(Viewer viewer, DropTargetListener listener,
-			int operations, Transfer[] transferTypes) {
+			Transfer[] transferTypes) {
 		
 		addDropSupport(viewer.getControl(), new DropTargetListener[] { listener }, 
-				operations, transferTypes);
+				DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY, 
+				transferTypes);
 	}
+	
 	public static void addDropSupport(Control control, DropTargetListener[] listeners,
 			int operations, Transfer[] transferTypes) {
 
