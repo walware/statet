@@ -1,7 +1,11 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 /** small class encapsulating packets from/to Rserv
-    @version $Id: Rpacket.java,v 1.4 2003/07/30 23:03:52 starsoft Exp $
+    @version $Id: Rpacket.java,v 1.10 2006/03/09 22:07:21 dmao Exp $
 */
 public class Rpacket {
     int cmd;
@@ -33,4 +37,6 @@ public class Rpacket {
     /** get content
 	@return inner package content */
     public byte[] getCont() { return cont; }
+
+    public String toString() { return "Rpacket[cmd="+cmd+",len="+((cont==null)?"<null>":(""+cont.length))+"]"; }
 }

@@ -1,5 +1,9 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 import java.io.*;
 
 /** <b>RFileInputStream</b> is an {@link InputStream} to transfer files
@@ -7,7 +11,7 @@ import java.io.*;
     a {@link FileInputStream}. Currently mark and seek is not supported.
     The current implementation is also "one-shot" only, that means the file
     can be read only once.
-    @version $Id: RFileInputStream.java,v 1.4 2003/07/30 23:03:52 starsoft Exp $
+    @version $Id: RFileInputStream.java,v 1.5 2005/01/24 18:25:42 urbaneks Exp $
 */
 public class RFileInputStream extends InputStream {
     /** Rtalk class to use for communication with the Rserve */

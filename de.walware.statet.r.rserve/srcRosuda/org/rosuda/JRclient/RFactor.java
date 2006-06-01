@@ -1,5 +1,9 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 import java.util.*;
 
 /** representation of a factor variable. In R there is no actual xpression
@@ -7,7 +11,7 @@ import java.util.*;
     attribute. The parser code of REXP converts such constructs directly into
     the RFactor objects and defines an own XT_FACTOR type 
     
-    @version $Id: RFactor.java,v 1.3 2003/07/30 23:03:52 starsoft Exp $
+    @version $Id: RFactor.java,v 1.4 2005/01/24 18:25:42 urbaneks Exp $
 */    
 public class RFactor extends Object {
     /** IDs (content: Integer) each entry corresponds to a case, ID specifies the category */

@@ -1,5 +1,9 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 import java.util.*;
 
 /** implementation of R-lists<br>
@@ -14,7 +18,7 @@ import java.util.*;
     parsed according to the structure - in that case "head" and "body" have to be evaluated
     separately according to their meaning in that context.
 
-    @version $Id: RList.java,v 1.4 2003/07/30 23:03:52 starsoft Exp $
+    @version $Id: RList.java,v 1.5 2005/01/24 18:25:42 urbaneks Exp $
 */
 public class RList extends Object {
     /** xpressions containing head and body. 

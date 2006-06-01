@@ -1,5 +1,9 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -11,7 +15,7 @@ import java.net.*;
     The current implementation supports long (0.3+/0102) data format only
     up to 32-bit and only for incoming packets.
     <p>
-    @version $Id: Rtalk.java,v 1.14 2004/01/27 18:53:31 urbaneks Exp $
+    @version $Id: Rtalk.java,v 1.16 2005/09/13 22:17:58 urbaneks Exp $
 */
 public class Rtalk {
     public static final int DT_INT=1;
@@ -40,6 +44,10 @@ public class Rtalk {
     
     public static final int CMD_setBufferSize=0x081;
 
+    public static final int CMD_detachSession=0x030;
+    public static final int CMD_detachedVoidEval=0x031;
+    public static final int CMD_attachSession=0x032;
+
     // errors as returned by Rserve
     public static final int ERR_auth_failed=0x41;
     public static final int ERR_conn_broken=0x42;
@@ -54,6 +62,8 @@ public class Rtalk {
     public static final int ERR_data_overflow=0x4b;
     public static final int ERR_object_too_big=0x4c;
     public static final int ERR_out_of_mem=0x4d;
+    public static final int ERR_session_busy=0x50;
+    public static final int ERR_detach_failed=0x51;
    
     InputStream is;
     OutputStream os;
@@ -162,7 +172,7 @@ public class Rtalk {
     }
 
     /** sends a request with attached prefix and  parameters. Both prefix and cont can be <code>null</code>. Effectively <code>request(a,b,null)</code> and <code>request(a,null,b)</code> are equivalent.
-	@param cmd command
+	@param cmd command - a special command of -1 prevents request from sending anything
         @param prefix - this content is sent *before* cont. It is provided to save memory copy operations where a small header precedes a large data chunk (usually prefix conatins the parameter header and cont contains the actual data).
         @param cont contents
         @param offset offset in cont where to start sending (if <0 then 0 is assumed, if >cont.length then no cont is sent)
@@ -182,11 +192,13 @@ public class Rtalk {
 	setInt(contlen,hdr,4);
 	for(int i=8;i<16;i++) hdr[i]=0;
 	try {
-	    os.write(hdr);
-            if (prefix!=null && prefix.length>0)
-                os.write(prefix);
-	    if (cont!=null && cont.length>0)
-		os.write(cont,offset,len);
+	    if (cmd!=-1) {
+		os.write(hdr);
+		if (prefix!=null && prefix.length>0)
+		    os.write(prefix);
+		if (cont!=null && cont.length>0)
+		    os.write(cont,offset,len);
+	    }
 
 	    byte[] ih=new byte[16];
 	    if (is.read(ih)!=16)

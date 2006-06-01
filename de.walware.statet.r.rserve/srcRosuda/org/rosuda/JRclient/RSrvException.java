@@ -1,11 +1,12 @@
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
 //
 //  RSrvException.java
-//  Klimt
 //
 //  Created by Simon Urbanek on Mon Aug 18 2003.
-//  Copyright (c) 2003 __MyCompanyName__. All rights reserved.
 //
-//  $Id: RSrvException.java,v 1.2 2003/10/17 22:54:30 urbaneks Exp $
+//  $Id: RSrvException.java,v 1.4 2006/02/10 17:57:54 urbaneks Exp $
 //
 
 package org.rosuda.JRclient;
@@ -16,7 +17,11 @@ public class RSrvException extends Exception {
     protected int reqReturnCode;
 
     public String getRequestErrorDescription() {
-        switch(reqReturnCode) {
+		return getRequestErrorDescription(reqReturnCode);
+	}
+	
+    public String getRequestErrorDescription(int code) {
+        switch(code) {
             case 0: return "no error";
             case 2: return "R parser: input incomplete";
             case 3: return "R parser: syntax error";
@@ -32,23 +37,30 @@ public class RSrvException extends Exception {
             case Rtalk.ERR_data_overflow: return "data overflow, incoming data too big";
             case Rtalk.ERR_object_too_big: return "evaluation successful, but returned object is too big to transport";
             case Rtalk.ERR_out_of_mem: return "FATAL: Rserve ran out of memory, closing connection";
+			case Rtalk.ERR_session_busy: return "session is busy";
+			case Rtalk.ERR_detach_failed: return "session detach failed";
         }
-        return "Error ("+reqReturnCode+")";
+        return "error code: "+code;
     }
 
     public String getMessage() {
-        return super.getMessage()+" [request status: "+getRequestErrorDescription()+"]";
+        return super.getMessage()+((reqReturnCode!=-1)?", request status: "+getRequestErrorDescription():"");
     }
     
     public RSrvException(Rconnection c, String msg) {
-        this(c,msg,0);
+        this(c,msg,-1);
     }
 
     public RSrvException(Rconnection c, String msg, int requestReturnCode) {
         super(msg);
         conn=c; reqReturnCode=requestReturnCode;
+		if (c!=null) c.lastError=getMessage();
     }
 
+	public RSrvException(Rconnection c, String msg, Rpacket p) {
+		this(c, msg, (p==null)?-1:p.getStat());
+	}
+	
     public int getRequestReturnCode() {
         return reqReturnCode;
     }

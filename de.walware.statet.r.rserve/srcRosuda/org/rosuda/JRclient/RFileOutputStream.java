@@ -1,9 +1,10 @@
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2003 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
 //
 //  RFileOutputStream.java
-//  Klimt
 //
 //  Created by Simon Urbanek on Wed Oct 22 2003.
-//  Copyright (c) 2003 __MyCompanyName__. All rights reserved.
 //
 
 package org.rosuda.JRclient;
@@ -15,7 +16,7 @@ from the client to <b>Rserve</b> server. It is used very much like
 a {@link FileOutputStream}. Currently mark and seek is not supported.
 The current implementation is also "one-shot" only, that means the file
 can be written only once.
-@version $Id: RFileOutputStream.java,v 1.1 2003/10/22 12:36:35 urbaneks Exp $
+@version $Id: RFileOutputStream.java,v 1.2 2005/01/24 18:25:42 urbaneks Exp $
 */
 
 public class RFileOutputStream extends OutputStream {

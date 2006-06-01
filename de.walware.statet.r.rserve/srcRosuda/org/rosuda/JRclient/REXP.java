@@ -1,12 +1,16 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 import java.util.*;
 
 /** representation of R-eXpressions in Java
 
-    @version $Id: REXP.java,v 1.17 2004/08/01 20:31:52 urbaneks Exp $
+    @version $Id: REXP.java,v 1.20 2006/02/13 15:48:28 urbaneks Exp $
 */
-public class REXP extends Object {
+public class REXP extends Object implements java.io.Serializable {
     /** xpression type: NULL */
     public static final int XT_NULL=0;
     /** xpression type: integer */
@@ -629,4 +633,13 @@ public class REXP extends Object {
 	sb.append("]");
 	return sb.toString();
     };
+	
+	public static String quoteString(String s) {
+		// this code uses API introdiced in 1.4 so it needs to be re-written for earlier JDKs
+		if (s.indexOf('\\')>=0)
+			s.replaceAll("\\","\\\\");
+		if (s.indexOf('"')>=0)
+			s.replaceAll("\"", "\\\"");
+        return "\""+s+"\"";
+	}
 }   

@@ -1,13 +1,17 @@
 package org.rosuda.JRclient;
 
+// JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
+// Copyright (C) 2004-06 Simon Urbanek
+// --- for licensing information see LICENSE file in the original JRclient distribution ---
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-/**  class providing TCP/IP connection to an Rserv
-     @version $Id: Rconnection.java,v 1.18 2004/03/21 15:59:23 urbaneks Exp $
+/**  class providing TCP/IP connection to an Rserve
+     @version $Id: Rconnection.java,v 1.22 2006/02/12 07:22:56 urbaneks Exp $
 */
 public class Rconnection {
     /** last error string */
@@ -20,6 +24,9 @@ public class Rconnection {
     int authType=AT_plain;
     String Key=null;
     Rtalk rt=null;
+
+    String host;
+    int port;
 
     /** This static variable specifies the character set used to encode string for transfer. Under normal circumstances there should be no reason for changing this variable. The default is UTF-8, which makes sure that 7-bit ASCII characters are sent in a backward-compatible fashion. Currently (Rserve 0.1-7) there is no further conversion on Rserve's side, i.e. the strings are passed to R without re-coding. If necessary the setting should be changed <u>before</u> connecting to the Rserve in case later Rserves will provide a possibility of setting the encoding during the handshake. */
     public static String transferCharset="UTF-8";
@@ -34,38 +41,52 @@ public class Rconnection {
     
     /** make a new local connection on default port (6311) */
     public Rconnection() throws RSrvException {
-	this("127.0.0.1",6311);
+		this("127.0.0.1", 6311);
     }
 
     /** make a new connection to specified host on default port (6311)
 	@param host host name/IP
     */
     public Rconnection(String host) throws RSrvException {
-	this(host,6311);
+		this(host, 6311);
     }
 
-    /** make a new connection to specified host and given port.
-	Make sure you check {@link #isConnected} and/or {@link #isOk}.
-	@param host host name/IP
-	@param port TCP port
-	@param timeout timeout in ms for the socket ({@link Socket#setSoTimeout(int)}.
-    */
+    /** 
+	 * Make a new connection to specified host and given port.
+	 * Make sure you check {@link #isConnected} and/or {@link #isOk}.
+	 * @param host host name/IP
+	 * @param port TCP port
+     */
     public Rconnection(String host, int port) throws RSrvException {
+		this(host, port, null);
+    }
+
+    Rconnection(RSession session) throws RSrvException {
+		this(null, 0, session);
+    }
+
+    Rconnection(String host, int port, RSession session) throws RSrvException {
         try {
             if (connected) s.close();
             s=null;
         } catch (Exception e) {
             throw new RSrvException(this,"Cannot connect: "+e.getMessage());
         }
+		if (session!=null) {
+			host=session.host;
+			port=session.port;
+		}
         connected=false;
+		this.host=host;
+		this.port=port;
         try {
             s=new Socket(host,port);
         
             // StatET CHANGED
             setSoTimeout(15000); // for connection
             
-		    // disable Nagle's algorithm since we really want immediate replies
-		    s.setTcpNoDelay(true);
+			// disable Nagle's algorithm since we really want immediate replies
+			s.setTcpNoDelay(true);
         } catch (Exception sce) {
             throw new RSrvException(this,"Cannot connect: "+sce.getMessage());
         }
