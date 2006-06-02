@@ -294,7 +294,12 @@ public class QueueView extends ViewPart {
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionInfo info) {
-				connect(info.getProcess());
+				final ToolProcess process = info.getProcess();
+				StatetPlugin.getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						connect(process);
+					}
+				});
 			}
 			public void toolSessionClosed(ToolSessionInfo info) { }
 		};
@@ -350,7 +355,7 @@ public class QueueView extends ViewPart {
 				fTableViewer.setInput(fProcess);
 			}
 		};
-		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
+		BusyIndicator.showWhile(StatetPlugin.getDisplay(), runnable);
 	}
 	
 	/**

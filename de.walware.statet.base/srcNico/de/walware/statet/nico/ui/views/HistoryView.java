@@ -52,6 +52,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.IToolRegistryListener;
 import de.walware.statet.nico.ToolRegistry;
 import de.walware.statet.nico.ToolSessionInfo;
@@ -310,7 +311,12 @@ public class HistoryView extends ViewPart {
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionInfo info) {
-				connect(info.getProcess());
+				final ToolProcess process = info.getProcess();
+				StatetPlugin.getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						connect(process);
+					}
+				});
 			}
 			public void toolSessionClosed(ToolSessionInfo info) { }
 		};
@@ -424,7 +430,7 @@ public class HistoryView extends ViewPart {
 						fProcess.getHistory() : null);
 			}
 		};
-		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
+		BusyIndicator.showWhile(StatetPlugin.getDisplay(), runnable);
 	}
 	
 	/**
