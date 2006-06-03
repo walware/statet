@@ -338,7 +338,7 @@
             commandId="de.walware.statet.r.launching.RScriptViaSourceLaunchShortcut.run"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M2+M3+X, R"/>
+            sequence="M2+M3+X R"/>
 
       <key
             commandId="de.walware.statet.r.launching.RScriptDirectLaunchShortcut.run"
