@@ -91,6 +91,8 @@ public class StatextEditor1ActionContributor extends TextEditorActionContributor
 
 		actionBars.setGlobalActionHandler(
 				GotoMatchingBracketAction.ACTION_ID, getAction(textEditor, GotoMatchingBracketAction.ACTION_ID));
+		actionBars.setGlobalActionHandler(
+				StatextEditor1.ACTION_ID_TOGGLE_COMMENT, getAction(textEditor, StatextEditor1.ACTION_ID_TOGGLE_COMMENT));
 	}
 
 }

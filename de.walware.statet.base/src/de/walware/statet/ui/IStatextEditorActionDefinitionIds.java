@@ -21,10 +21,19 @@ package de.walware.statet.ui;
  */
 public interface IStatextEditorActionDefinitionIds {
 
+	
+	/**
+	 * Action definition ID of the navigate -> go to matching bracket action
+	 * 
+	 * Value: @value
+	 */
+	public static final String GOTO_MATCHING_BRACKET = 	"de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"; //$NON-NLS-1$
+	
 	/**
 	 * Action definition ID of the source -> toggle comment action
 	 * 
 	 * Value: @value
 	 */
 	public static final String TOGGLE_COMMENT = 		"de.walware.statet.ui.textediting.source.ToggleComment";
+	
 }
