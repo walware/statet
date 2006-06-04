@@ -17,6 +17,7 @@ import static de.walware.statet.ext.ui.text.ITokenScanner.OPENING_PEER;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
@@ -29,6 +30,8 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
  */
 public class PairMatcher implements ICharacterPairMatcher {
 	
+	
+	private static char IGNORE = '\n';
 	
 	protected char[][] fPairs;
 	protected IDocument fDocument;
@@ -113,49 +116,47 @@ public class PairMatcher implements ICharacterPairMatcher {
 	 */
 	protected boolean matchPairsAt() {
 
-		int i;
-		int pairIndex = -1;
-
 		fStartPos = -1;
 		fEndPos = -1;
 
 		// get the chars preceding and following the start position
 		try {
 
+			char thisChar = (fOffset < fDocument.getLength()) ? 
+					fDocument.getChar(fOffset) : IGNORE;
 			char prevChar = (fOffset > 0 && fPartition.equals(TextUtilities.getPartition(fDocument, fPartitioning, fOffset-1, false).getType())) ? 
-							fDocument.getChar(fOffset-1) : '\n';
-			char thisChar = (fOffset == fDocument.getLength()) ? '\n' : fDocument.getChar(fOffset);
+					fDocument.getChar(fOffset-1) : IGNORE;
+					
+			if (fOffset > 0) {
+				ITypedRegion partition = TextUtilities.getPartition(fDocument, fPartitioning, fOffset-1, false);
+				if (fPartition.equals(partition.getType())) {
+					prevChar = fDocument.getChar(fOffset-1);
+					
+					// check, if escaped
+					int partitionOffset = partition.getOffset();
+					int checkOffset = fOffset-2;
+					while (checkOffset >= partitionOffset) {
+						if (fDocument.getChar(checkOffset) == fEscapeChar) {
+							checkOffset--;
+						}
+						else {
+							break;
+						}
+					}
+					if ( (fOffset - checkOffset) % 2 == 1) {
+						prevChar = IGNORE;
+					}
+					else if (prevChar == fEscapeChar) {
+						thisChar = IGNORE;
+					}
+				}
+			}
 
-			boolean escaped = (fEscapeChar == prevChar);
-			// search for opening peer character next to the activation point
-			for (i = 0; i < fPairs.length; i++) {
-				if (prevChar == fPairs[i][OPENING_PEER]) {
-					fStartPos = fOffset - 1;
-					pairIndex = i;
-					break;	// ignore currentChar
-				}
-				else if (thisChar == fPairs[i][OPENING_PEER] && !escaped) {
-					fStartPos = fOffset;
-					pairIndex = i;
-				} 
-			}
-			
-			// search for closing peer character next to the activation point
-			for (i = 0; i < fPairs.length; i++) {
-				if (thisChar == fPairs[i][CLOSING_PEER] && !escaped) {
-					fEndPos = fOffset;
-					pairIndex = i;
-					break;  // ignore prevChar
-				}
-				else if (prevChar == fPairs[i][CLOSING_PEER]) {
-					fEndPos = fOffset - 1;
-					pairIndex = i;
-				} 
-			}
+			int pairIdx = findChar(prevChar, thisChar);
 
 			if (fStartPos > -1) {  		// closing peer
 				fAnchor = LEFT;
-				fEndPos = searchForClosingPeer(fStartPos, fPairs[pairIndex]);
+				fEndPos = searchForClosingPeer(fStartPos, fPairs[pairIdx]);
 				if (fEndPos > -1)
 					return true;
 				else
@@ -163,7 +164,7 @@ public class PairMatcher implements ICharacterPairMatcher {
 			}
 			else if (fEndPos > -1) {  	// opening peer
 				fAnchor = RIGHT;
-				fStartPos = searchForOpeningPeer(fEndPos, fPairs[pairIndex]);
+				fStartPos = searchForOpeningPeer(fEndPos, fPairs[pairIdx]);
 				if (fStartPos > -1)
 					return true;
 				else
@@ -174,6 +175,42 @@ public class PairMatcher implements ICharacterPairMatcher {
 		} // ignore
 
 		return false;
+	}
+
+	
+	/**
+	 * @param prevChar
+	 * @param thisChar
+	 * @return
+	 */
+	private int findChar(char prevChar, char thisChar) {
+		// search order 3{2 1}4
+		
+		for (int i = 0; i < fPairs.length; i++) {
+			if (thisChar == fPairs[i][CLOSING_PEER]) {
+				fEndPos = fOffset;
+				return i;
+			}
+		}
+		for (int i = 0; i < fPairs.length; i++) {
+			if (prevChar == fPairs[i][OPENING_PEER]) {
+				fStartPos = fOffset-1;
+				return i;
+			} 
+		}
+		for (int i = 0; i < fPairs.length; i++) {
+			if (thisChar == fPairs[i][OPENING_PEER]) {
+				fStartPos = fOffset;
+				return i;
+			}
+		}		
+		for (int i = 0; i < fPairs.length; i++) {
+			if (prevChar == fPairs[i][CLOSING_PEER]) {
+				fEndPos = fOffset-1;
+				return i;
+			} 
+		}
+		return -1;
 	}
 	
 	protected int searchForClosingPeer(int offset, char[] pair) throws BadLocationException {
