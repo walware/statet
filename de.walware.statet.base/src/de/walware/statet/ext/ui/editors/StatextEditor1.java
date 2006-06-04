@@ -71,8 +71,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			int length = (selection.getLength() == 0) ? 
 					line.getLength() : selection.getLength() + (selection.getOffset() - line.getOffset());
 			return new Region(line.getOffset(), length);
-
-		} catch (BadLocationException x) {
+		} 
+		catch (BadLocationException x) {
 			StatetPlugin.logUnexpectedError(x);					// should not happen
 		}
 		return null;
@@ -454,15 +454,20 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	@Override
 	protected boolean affectsTextPresentation(PropertyChangeEvent event) {
 		
-		return ((StatextSourceViewerConfiguration) getSourceViewerConfiguration()).affectsTextPresentation(event) || super.affectsTextPresentation(event);
+		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
+		if (viewerConfiguration != null && viewerConfiguration.affectsTextPresentation(event)) {
+			return true;
+		}
+		return super.affectsTextPresentation(event);
 	}
 	
 	@Override
 	protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
 		
 		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
-		viewerConfiguration.handlePropertyChangeEvent(event);
-		
+		if (viewerConfiguration != null) {
+			viewerConfiguration.handlePropertyChangeEvent(event);
+		}
 		super.handlePreferenceStoreChanged(event);
 	}
 
