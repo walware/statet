@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.rserve.internal.launchconfigs;
 
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
@@ -35,6 +36,7 @@ public class RServeClientLaunchConfigTabGroup extends AbstractLaunchConfiguratio
 					public void setDefaults(ILaunchConfigurationWorkingCopy config) {
 						super.setDefaults(config);
 						config.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
+						config.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, false);
 					}
 				},
 				
