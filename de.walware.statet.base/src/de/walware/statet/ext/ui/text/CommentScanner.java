@@ -20,7 +20,7 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
@@ -68,7 +68,7 @@ public class CommentScanner extends StatextTextScanner {
 	private String fCommentTokenKey;
 	private String fTaskTokenKey;
 	
-	public CommentScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore, 
+	public CommentScanner(ColorManager colorManager, ICombinedPreferenceStore preferenceStore, 
 			String commentTokenKey, String taskTokenKey) {
 		
 		super(colorManager, preferenceStore);

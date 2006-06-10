@@ -17,7 +17,7 @@ import java.util.List;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 
 
@@ -28,7 +28,7 @@ public class SingleTokenScanner extends StatextTextScanner {
 
 	private String fDefaultTokenKey;
 	
-	public SingleTokenScanner (ColorManager colorManager, CombinedPreferenceStore preferenceStore, 
+	public SingleTokenScanner (ColorManager colorManager, ICombinedPreferenceStore preferenceStore, 
 			String defaultTokenKey) {
 
 		super(colorManager, preferenceStore);

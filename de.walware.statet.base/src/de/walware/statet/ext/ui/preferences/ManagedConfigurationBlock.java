@@ -12,6 +12,12 @@
 package de.walware.statet.ext.ui.preferences;
 
 
+import static de.walware.eclipsecommon.preferences.Preference.Type.BOOLEAN;
+import static de.walware.eclipsecommon.preferences.Preference.Type.DOUBLE;
+import static de.walware.eclipsecommon.preferences.Preference.Type.FLOAT;
+import static de.walware.eclipsecommon.preferences.Preference.Type.INT;
+import static de.walware.eclipsecommon.preferences.Preference.Type.LONG;
+
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -33,6 +39,7 @@ import org.osgi.service.prefs.BackingStoreException;
 import de.walware.eclipsecommon.preferences.IPreferenceAccess;
 import de.walware.eclipsecommon.preferences.Preference;
 import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.CoreUtility;
 
@@ -98,7 +105,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			
 			IScopeContext projectContext = new ProjectScope(project);
 			for (Preference<Object> key : fPreferenceKeys) {
-				if (getStoredValue(key, projectContext, true) != null)
+				if (getInternalValue(key, projectContext, true) != null)
 					return true;
 			}
 			return false;
@@ -122,7 +129,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			fDisabledProjectSettings = new IdentityHashMap<Preference, Object>();
 			for (Preference<Object> key : fPreferenceKeys) {
 				fDisabledProjectSettings.put(key, getValue(key));
-				setStoredValue(key, null); // clear project settings
+				setInternalValue(key, null); // clear project settings
 			}
 			
 		}
@@ -188,16 +195,16 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			IScopeContext currContext = fLookupOrder[0];
 			boolean needsBuild = false;
 			for (Preference<Object> key : fPreferenceKeys) {
-				String oldVal = getStoredValue(key, currContext, false);
-				String val = getStoredValue(key, currContext, true);
+				String oldVal = getInternalValue(key, currContext, false);
+				String val = getInternalValue(key, currContext, true);
 				if (val == null) {
 					if (oldVal != null) {
 						changedSettings.add(key);
-						needsBuild |= !oldVal.equals(getStoredValue(key, true));
+						needsBuild |= !oldVal.equals(getInternalValue(key, true));
 					}
 				} else if (!val.equals(oldVal)) {
 					changedSettings.add(key);
-					needsBuild |= oldVal != null || !val.equals(getStoredValue(key, true));
+					needsBuild |= oldVal != null || !val.equals(getInternalValue(key, true));
 				}
 			}
 			return needsBuild;
@@ -208,8 +215,8 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 
 			DefaultScope defaultScope = new DefaultScope();
 			for (Preference<Object> key : fPreferenceKeys) {
-				String defValue = getStoredValue(key, defaultScope, false);
-				setValue(key, defValue);
+				String defValue = getInternalValue(key, defaultScope, false);
+				setInternalValue(key, defValue);
 			}
 
 		}
@@ -218,7 +225,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		private void testIfOptionsComplete() {
 			
 			for (Preference<Object> key : fPreferenceKeys) {
-				if (getStoredValue(key, false) == null) {
+				if (getInternalValue(key, false) == null) {
 					System.out.println("preference option missing: " + key + " (" + this.getClass().getName() +')');  //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
@@ -233,15 +240,15 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			return node;
 		}
 
-		private String getStoredValue(Preference<Object> key, IScopeContext context, boolean useWorkingCopy) {
+		private String getInternalValue(Preference<Object> key, IScopeContext context, boolean useWorkingCopy) {
 			
 			return getNode(context, key.getQualifier(), useWorkingCopy).get(key.getKey(), null);
 		}
 		
-		private String getStoredValue(Preference<Object> key, boolean ignoreTopScope) {
+		private String getInternalValue(Preference<Object> key, boolean ignoreTopScope) {
 			
 			for (int i = ignoreTopScope ? 1 : 0; i < fLookupOrder.length; i++) {
-				String value = getStoredValue(key, fLookupOrder[i], true);
+				String value = getInternalValue(key, fLookupOrder[i], true);
 				if (value != null) {
 					return value;
 				}
@@ -249,7 +256,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			return null;
 		}
 		
-		private void setStoredValue(Preference<Object> key, String value) {
+		private void setInternalValue(Preference<Object> key, String value) {
 			
 			if (value != null) {
 				getNode(fLookupOrder[0], key.getQualifier(), true).put(key.getKey(), value);
@@ -262,27 +269,30 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		private <T> void setValue(Preference<T> key, T value) {
 			
 			IEclipsePreferences node = getNode(fLookupOrder[0], key.getQualifier(), true);
-			if (value == null)
+			if (value == null) {
 				node.remove(key.getKey());
+				return;
+			}
 			
-			switch (key.getType()) {
+			Object valueToStore = key.usage2Store(value);
+			switch (key.getStoreType()) {
 			case BOOLEAN:
-				node.putBoolean(key.getKey(), (Boolean) value);
+				node.putBoolean(key.getKey(), (Boolean) valueToStore);
 				break;
 			case INT:
-				node.putInt(key.getKey(), (Integer) value);
+				node.putInt(key.getKey(), (Integer) valueToStore);
 				break;
 			case LONG:
-				node.putLong(key.getKey(), (Long) value);
+				node.putLong(key.getKey(), (Long) valueToStore);
 				break;
 			case DOUBLE:
-				node.putDouble(key.getKey(), (Double) value);
+				node.putDouble(key.getKey(), (Double) valueToStore);
 				break;
 			case FLOAT:
-				node.putFloat(key.getKey(), (Float) value);
+				node.putFloat(key.getKey(), (Float) valueToStore);
 				break;
 			default:
-				node.put(key.getKey(), (String) value);
+				node.put(key.getKey(), (String) valueToStore);
 				break;
 			}
 		}
@@ -302,20 +312,31 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			if (node == null)
 				return null;
 
-			switch (key.getType()) {
+			Object storedValue;
+			switch (key.getStoreType()) {
 			case BOOLEAN:
-				return (T) Boolean.valueOf(node.getBoolean(key.getKey(), IPreferenceStore.BOOLEAN_DEFAULT_DEFAULT));
+				storedValue = Boolean.valueOf(node.getBoolean(key.getKey(), IPreferenceStore.BOOLEAN_DEFAULT_DEFAULT));
+				break;
 			case INT:
-				return (T) Integer.valueOf(node.getInt(key.getKey(), IPreferenceStore.INT_DEFAULT_DEFAULT));
+				storedValue = Integer.valueOf(node.getInt(key.getKey(), IPreferenceStore.INT_DEFAULT_DEFAULT));
+				break;
 			case LONG:
-				return (T) Long.valueOf(node.getLong(key.getKey(), IPreferenceStore.LONG_DEFAULT_DEFAULT));
+				storedValue = Long.valueOf(node.getLong(key.getKey(), IPreferenceStore.LONG_DEFAULT_DEFAULT));
+				break;
 			case DOUBLE:
-				return (T) Double.valueOf(node.getDouble(key.getKey(), IPreferenceStore.DOUBLE_DEFAULT_DEFAULT));
+				storedValue = Double.valueOf(node.getDouble(key.getKey(), IPreferenceStore.DOUBLE_DEFAULT_DEFAULT));
+				break;
 			case FLOAT:
-				return (T) Float.valueOf(node.getFloat(key.getKey(), IPreferenceStore.FLOAT_DEFAULT_DEFAULT));
+				storedValue = Float.valueOf(node.getFloat(key.getKey(), IPreferenceStore.FLOAT_DEFAULT_DEFAULT));
+				break;
 			default:
-				return (T) node.get(key.getKey(), null);
+				storedValue = node.get(key.getKey(), null);
+				break;
 			}
+			if (storedValue == null) {
+				return null;
+			}
+			return key.store2Usage(storedValue);
 		}
 	}
 	

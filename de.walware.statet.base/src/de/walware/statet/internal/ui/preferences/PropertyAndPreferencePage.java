@@ -42,6 +42,7 @@ import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommon.ui.dialogs.StatusUtil;
 import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
+
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.preferences.ProjectSelectionDialog;
@@ -330,8 +331,9 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	}
 
 	public void performDefaults() {
-		if (useProjectSettings()) {
-			doEnableProjectSpecificSettings(false);
+
+		if (isProjectPreferencePage() && !useProjectSettings()) {
+			return;
 		}
 		super.performDefaults();
 	}

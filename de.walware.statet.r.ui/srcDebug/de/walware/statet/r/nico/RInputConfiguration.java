@@ -14,7 +14,8 @@ package de.walware.statet.r.nico;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
@@ -33,7 +34,7 @@ public class RInputConfiguration implements IEditorConfiguration {
 	
 	public StatextSourceViewerConfiguration getSourceViewerConfiguration() {
 		
-		CombinedPreferenceStore store = RSourceViewerConfiguration.createCombinedPreferenceStore(
+		ICombinedPreferenceStore store = RSourceViewerConfiguration.createCombinedPreferenceStore(
 				RUiPlugin.getDefault().getPreferenceStore(), null);
 		return new RSourceViewerConfiguration(null, 
 				StatetPlugin.getDefault().getColorManager(), store);

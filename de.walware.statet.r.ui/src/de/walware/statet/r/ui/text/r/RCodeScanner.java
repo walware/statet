@@ -18,8 +18,9 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
+
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
 import de.walware.statet.ext.ui.text.OperatorRule;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
@@ -33,7 +34,7 @@ import de.walware.statet.r.core.rlang.RTokens;
  */
 public class RCodeScanner extends StatextTextScanner {
 	
-	public RCodeScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
+	public RCodeScanner(ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
 		super(colorManager, preferenceStore);
 		initialize();
 	}

@@ -16,7 +16,8 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
@@ -44,7 +45,7 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected void setupConfiguration() {
 		
-		CombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
+		ICombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
 				RUiPlugin.getDefault().getPreferenceStore(), fProject);
 		setPreferenceStore(preferenceStore);
 		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 

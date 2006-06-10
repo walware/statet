@@ -28,7 +28,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.preferences.IPreferenceAccess;
 import de.walware.eclipsecommon.preferences.PreferencesUtil;
 import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
@@ -44,7 +44,7 @@ import de.walware.statet.ext.ui.text.StatextTextScanner;
 public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
 	
-	public static CombinedPreferenceStore createCombinedPreferenceStore(
+	public static ICombinedPreferenceStore createCombinedPreferenceStore(
 			IPreferenceStore store, IPreferenceAccess corePrefs, String[] coreQualifier) {
 
 		IPreferenceStore[] stores = new IPreferenceStore[] {
@@ -52,7 +52,11 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			StatetPlugin.getDefault().getPreferenceStore(),
 			EditorsUI.getPreferenceStore(),
 		};
-		return new CombinedPreferenceStore(stores, (corePrefs != null) ? corePrefs : PreferencesUtil.getInstancePrefs(), coreQualifier);
+		return PreferencesUtil.createCombindedPreferenceStore(
+				stores, 
+				(corePrefs != null) ? corePrefs : PreferencesUtil.getInstancePrefs(), 
+				coreQualifier
+		);
 	}
 
 	
@@ -64,7 +68,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 
 	public StatextSourceViewerConfiguration(
 			ColorManager colorManager, 
-			CombinedPreferenceStore preferenceStore) {
+			ICombinedPreferenceStore preferenceStore) {
 
 		super(preferenceStore);
 
@@ -79,9 +83,9 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 
 	public abstract boolean affectsTextPresentation(PropertyChangeEvent event);
 	
-	public CombinedPreferenceStore getPreferences() {
+	public ICombinedPreferenceStore getPreferences() {
 		
-		return (CombinedPreferenceStore) fPreferenceStore;
+		return (ICombinedPreferenceStore) fPreferenceStore;
 	}
 	
 	public void handlePropertyChangeEvent(PropertyChangeEvent event) {

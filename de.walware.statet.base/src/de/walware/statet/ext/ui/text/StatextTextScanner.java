@@ -27,7 +27,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
@@ -39,13 +39,13 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 
 	
 	protected ColorManager fColorManager;
-	protected CombinedPreferenceStore fPreferenceStore;
+	protected ICombinedPreferenceStore fPreferenceStore;
 	protected String[] fTokenNames; 
 	
 	private Map<String, IToken> fTokenMap = new HashMap<String, IToken>();
 	
 	
-	public StatextTextScanner(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
+	public StatextTextScanner(ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
 		super();
 		fColorManager = colorManager;
 		fPreferenceStore = preferenceStore;

@@ -17,6 +17,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import de.walware.eclipsecommon.preferences.PreferencesUtil;
 import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommon.ui.util.ColorManager;
+
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxItem;

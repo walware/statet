@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.ui.wizards;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+
 import de.walware.statet.ext.ui.wizards.NewElementWizardPage;
 
 

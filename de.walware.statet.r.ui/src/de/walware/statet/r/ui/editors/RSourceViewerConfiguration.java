@@ -22,9 +22,10 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.preferences.IPreferenceAccess;
 import de.walware.eclipsecommon.ui.util.ColorManager;
+
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.ext.ui.editors.ContentAssistPreference;
@@ -48,7 +49,7 @@ import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration {
 
 
-	public static CombinedPreferenceStore createCombinedPreferenceStore(
+	public static ICombinedPreferenceStore createCombinedPreferenceStore(
 			IPreferenceStore store, IPreferenceAccess corePrefs) {
 		
 		return StatextSourceViewerConfiguration.createCombinedPreferenceStore(
@@ -67,7 +68,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 	
 	public RSourceViewerConfiguration(ITextEditor editor, 
-			ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
+			ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
 
 		super(colorManager, preferenceStore);
 		fEditor = editor;
@@ -78,7 +79,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	 */
 	protected StatextTextScanner[] initializeScanners() {
 
-		CombinedPreferenceStore store = getPreferences();
+		ICombinedPreferenceStore store = getPreferences();
 		fCodeScanner = new RCodeScanner(fColorManager, store);
 		fCommentScanner = new CommentScanner(fColorManager, store, IRTextTokens.COMMENT, IRTextTokens.TASK_TAG);
 		fStringScanner = new SingleTokenScanner(fColorManager, store, IRTextTokens.STRING);

@@ -17,6 +17,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.r.ui.RUiPlugin;

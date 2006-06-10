@@ -27,8 +27,9 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.walware.eclipsecommon.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommon.ui.util.ColorManager;
+
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
@@ -54,7 +55,7 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	private RdDoubleClickStrategy fDoubleClickStrategy;
 
 	
-	public RdSourceViewerConfiguration(ColorManager colorManager, CombinedPreferenceStore preferenceStore) {
+	public RdSourceViewerConfiguration(ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
 
 		super(colorManager, preferenceStore);
 	}
@@ -64,7 +65,7 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	 */
 	protected StatextTextScanner[] initializeScanners() {
 
-		CombinedPreferenceStore store = getPreferences();
+		ICombinedPreferenceStore store = getPreferences();
 		fDocScanner = new RdCodeScanner(fColorManager, store);
 		fCommentScanner = new CommentScanner(fColorManager, store, COMMENT, TASK_TAG);
 		fPlatformSpecifScanner = new SingleTokenScanner(fColorManager, store, PLATFORM_SPECIF);
