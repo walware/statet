@@ -33,6 +33,7 @@ import org.eclipse.text.edits.RangeMarker;
 import org.eclipse.text.edits.TextEdit;
 
 import de.walware.eclipsecommon.preferences.PreferencesUtil;
+
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
@@ -176,8 +177,8 @@ public class TemplatesUtil {
 	public static String getTodoTaskTag(StatetProject project) {
 		
 		TaskTagsPreferences taskPrefs = (project != null) ?
-			TaskTagsPreferences.load(project) :
-			TaskTagsPreferences.load(PreferencesUtil.getInstancePrefs());
+				new TaskTagsPreferences(project) :
+				new TaskTagsPreferences(PreferencesUtil.getInstancePrefs());
 		
 		String[] markers = taskPrefs.getTags();
 		

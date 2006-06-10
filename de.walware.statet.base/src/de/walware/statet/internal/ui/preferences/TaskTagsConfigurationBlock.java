@@ -42,6 +42,7 @@ import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommon.ui.dialogs.groups.SelectionItem;
 import de.walware.eclipsecommon.ui.dialogs.groups.TableOptionButtonsGroup;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
+
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
@@ -304,7 +305,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		
 	private void loadValues() {
 
-		TaskTagsPreferences taskPrefs = TaskTagsPreferences.load(this);
+		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(this);
 		String[] tags = taskPrefs.getTags();
 		TaskPriority[] prios = taskPrefs.getPriorities();
 		

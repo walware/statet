@@ -85,7 +85,7 @@ public class MarkerHandler {
 		fTaskTagPattern = null;
 		fTaskTagMap = null;
 		
-		TaskTagsPreferences taskPrefs = TaskTagsPreferences.load(fProject);
+		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(fProject);
 		String[] tags = taskPrefs.getTags();
 		TaskPriority[] prios = taskPrefs.getPriorities();
 		

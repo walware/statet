@@ -11,23 +11,37 @@
 
 package de.walware.statet.base.core.preferences;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.preferences.DefaultScope;
+
+import de.walware.eclipsecommon.preferences.Preference;
+import de.walware.eclipsecommon.preferences.PreferencesUtil;
+
+import de.walware.statet.base.StatetPlugin;
 
 
 public class StatetCorePreferenceNodes {
 
 	
-	private static final String PLUGIN_QUALIFIER = "de.walware.statet.base";
-	public static final String CORE_QUALIFIER = PLUGIN_QUALIFIER + "/core";
+	public static final String CORE_QUALIFIER = StatetPlugin.ID + "/core";
 	
 	public static final String CAT_MANAGMENT_QUALIFIER = CORE_QUALIFIER + "/managment";
+	
 	
 	/**
 	 * Initializes the default values.
 	 */
 	public static void initializeDefaultValues(DefaultScope scope) {
 
-		TaskTagsPreferences.setDefaultValues(scope);
+		Map<Preference, Object> defaults = new HashMap<Preference, Object>();
+		
+		new TaskTagsPreferences().addPreferencesToMap(defaults);
+		
+		for (Preference<Object> unit : defaults.keySet()) {
+			PreferencesUtil.setPrefValue(scope, unit, defaults.get(unit));
+		}
 	}
 	
 }
