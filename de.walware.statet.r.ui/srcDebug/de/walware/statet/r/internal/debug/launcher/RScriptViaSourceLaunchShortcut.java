@@ -17,8 +17,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.ide.ResourceUtil;
 
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
@@ -54,9 +54,9 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 		
 		try {
 			IEditorInput input = editor.getEditorInput();
-			if (input instanceof IFileEditorInput) {
-				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, 
-						((IFileEditorInput) input).getFile() );
+			IFile file = ResourceUtil.getFile(input);
+			if (file != null) {
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, file);
 			}
 			else if (input instanceof IPathEditorInput) {
 				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, 

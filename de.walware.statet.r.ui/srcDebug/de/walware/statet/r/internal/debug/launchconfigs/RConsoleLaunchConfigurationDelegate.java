@@ -88,7 +88,7 @@ public class RConsoleLaunchConfigurationDelegate implements
 							MessageDialog dialog = new MessageDialog(StatetPlugin.getDisplay().getActiveShell(),
 									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
 									null,
-									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message, // TODO: update messsages
+									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message,
 									MessageDialog.WARNING,
 									new String[] { 
 										RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_button_Continue,

@@ -44,13 +44,12 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.ResourceSelectionDialog;
-import org.eclipse.ui.ide.IDE;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
+
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
@@ -371,7 +370,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		configuration.setAttribute(IRConsoleConstants.ATTR_R_LOCATION, rLocation);
 		configuration.setAttribute(IRConsoleConstants.ATTR_WORKING_DIRECTORY, workingDirectory);
 		configuration.setAttribute(IRConsoleConstants.ATTR_R_CMD, "TERM");
-		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : "--no-readline");
+		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : "");
 		
 		configuration.setAttribute(FIRST_EDIT, true);
 	}
