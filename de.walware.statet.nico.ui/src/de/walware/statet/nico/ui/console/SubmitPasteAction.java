@@ -31,7 +31,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 class SubmitPasteAction extends Action {
 
 	
-	private static Pattern fLineSplitPattern = Pattern.compile("\\r(\\n)?|\\n");
+	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n");
 	
 	
 	private NIConsolePage fView;
@@ -86,7 +86,7 @@ class SubmitPasteAction extends Action {
 	
 	static String[] splitString(String text) {
 		
-		String[] lines = fLineSplitPattern.split(text);
+		String[] lines = gLineSeparatorPattern.split(text);
 		return lines;
 	}
 }
