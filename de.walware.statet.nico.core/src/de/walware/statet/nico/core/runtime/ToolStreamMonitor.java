@@ -42,17 +42,24 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	
 	/**
 	 * Adds the given listener to this stream monitor's registered listeners.
-	 * Has no effect if an identical listener is already registered.
+	 * <p>
 	 * The events (streamAppended) are filtered by the specified set.
+	 * If an identical listener is already registered, the filter settings
+	 * are replaced.</p>
 	 *
 	 * @param listener the listener to add
 	 * @param types the types to listen for 
 	 */
 	public void addListener(IStreamListener listener, EnumSet<SubmitType> types) {
 		
-		for (SubmitType type : types) {
+		for (SubmitType type : SubmitType.values()) {
 			ListenerList list = fListeners.get(type);
-			list.add(listener);
+			if (types.contains(type)) {
+				list.add(listener);
+			}
+			else {
+				list.remove(listener);
+			}
 		}
 	}
 
@@ -82,5 +89,11 @@ public class ToolStreamMonitor implements IStreamMonitor {
 			IStreamListener listener = (IStreamListener) obj;
 			listener.streamAppended(text, this);
 		}
+	}
+	
+	
+	void dispose() {
+		
+		fListeners.clear();
 	}
 }

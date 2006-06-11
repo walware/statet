@@ -143,11 +143,11 @@ public abstract class ToolController {
 			}
 			loop();
 		}
-		catch (CoreException e) {
+		finally {
 			synchronized (fQueue) {
 				setStatus(ToolStatus.TERMINATED);
 			}
-			throw e;
+			clear();
 		}
 	}
 	
@@ -484,6 +484,20 @@ public abstract class ToolController {
 		return true;
 	}
 	
+	/**
+	 * Is called after tool is terminated.
+	 * 
+	 * Call super
+	 */
+	protected void clear() {
+		
+		fStreams.dispose();
+		fStreams = null;
+		fInputStream = null;
+		fDefaultOutputStream = null;
+		fErrorOutputStream = null;
+	}
+
 	protected void doOnCommandRun(String command, SubmitType type) {
 
 		fInputStream.append(command, type);

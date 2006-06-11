@@ -46,4 +46,16 @@ public class ToolStreamProxy implements IStreamsProxy {
 		
 		return fInputMonitor;
 	}
+	
+	
+	/**
+	 * 
+	 */
+	public void dispose() {
+		
+		fOutputMonitor.dispose();
+		fErrorMonitor.dispose();
+		fInputMonitor.dispose();
+	}
+
 }
