@@ -68,6 +68,7 @@ import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.ui.ToolRegistry;
@@ -360,7 +361,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	
 	protected void hookDND() {
 		
-		DNDUtil.addDropSupport(fOutputViewer, 
+		DNDUtil.addDropSupport(fOutputViewer.getControl(), 
 				new SubmitDropAdapter(this), 
 				new Transfer[] { TextTransfer.getInstance() } );
 	}

@@ -120,7 +120,7 @@ public class StatetPlugin extends AbstractUIPlugin {
 	
 	public static IWorkbenchPage getActivePage() {
 		
-		IWorkbenchWindow window = getDefault().getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchWindow window = getActiveWorkbenchWindow();
 		if (window != null)
 			return window.getActivePage();
 		return null;

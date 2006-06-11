@@ -14,10 +14,6 @@ package de.walware.statet.nico.ui.console;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DropTargetAdapter;
-import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
@@ -34,30 +30,19 @@ public class InputSourceViewer extends SourceViewer {
 		
 		super(parent, null, null, false, SWT.SINGLE);
 		
-		initDND();
+		initializeDragAndDrop();
 		initTabControl();
 	}
 	
 
-	private void initDND() {
+	protected void initializeDragAndDrop() {
 		
-		DropTargetListener textDropListener = new DropTargetAdapter() {
-			public void dragEnter(DropTargetEvent e) {
-				if (e.detail == DND.DROP_DEFAULT) {
-					e.detail = DND.DROP_COPY;
-				}
+		DNDUtil.addDropSupport(getTextWidget(), new DNDUtil.SimpleTextDropAdapter() {
+			@Override
+			protected StyledText getTextWidget() {
+				return InputSourceViewer.this.getTextWidget();
 			}
-			public void dragOperationChanged(DropTargetEvent e) {
-				if (e.detail == DND.DROP_DEFAULT) {
-					e.detail = DND.DROP_COPY;
-				}
-			}
-			public void drop(DropTargetEvent e) {
-				getTextWidget().insert((String)e.data);
-			}
-		};
-		DNDUtil.addDropSupport(this, textDropListener,
-				new Transfer[] { TextTransfer.getInstance() });
+		}, new Transfer[] { TextTransfer.getInstance() });
 	}
 	
 	private void initTabControl() {
