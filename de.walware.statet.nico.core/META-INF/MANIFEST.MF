@@ -7,7 +7,6 @@ Bundle-Version: 0.3.0
 Bundle-Activator: de.walware.statet.nico.core.internal.NicoPlugin
 Bundle-Localization: plugin
 Require-Bundle: de.walware.statet.base,
- org.eclipse.core.runtime,
  org.eclipse.debug.core
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

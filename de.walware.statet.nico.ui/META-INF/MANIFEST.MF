@@ -9,9 +9,9 @@ Bundle-Localization: plugin
 Require-Bundle: de.walware.statet.base,
  org.eclipse.jface.text,
  org.eclipse.ui,
+ org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.console,
- org.eclipse.ui.workbench.texteditor,
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
  de.walware.statet.nico.core

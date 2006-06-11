@@ -8,15 +8,12 @@ Bundle-Activator: de.walware.statet.base.StatetPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
- org.eclipse.core.filebuffers,
  org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
- org.eclipse.ui.console,
- org.eclipse.debug.core,
- org.eclipse.debug.ui
+ org.eclipse.debug.core
 Eclipse-LazyStart: true
 Export-Package: de.walware.eclipsecommon.preferences,
  de.walware.eclipsecommon.templates,
