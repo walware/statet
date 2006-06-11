@@ -49,7 +49,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			connectionConfig.readFrom(configuration);
 			
 			ToolProcess process = new ToolProcess(launch, name);
-			process.setController(new RServeClientController(process, connectionConfig));
+			process.init(new RServeClientController(process, connectionConfig));
 			final NIConsole console = new RConsole(process);
 	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 	    			new IConsole[] { console });

@@ -145,16 +145,17 @@ public class ToolProcess extends PlatformObject implements IProcess {
 		
 		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
-		
-		launch.addProcess(this);
-		fireEvent(new DebugEvent(this, DebugEvent.CREATE));
+
 	}
 	
-	public void setController(ToolController controller) {
+	public void init(ToolController controller) {
 		
 		fController = controller;
-		fHistory = fController.getHistory();
+		fHistory = new History(this);
 		fQueue = fController.getQueue();
+
+		fLaunch.addProcess(this);
+		fireEvent(new DebugEvent(this, DebugEvent.CREATE));
 	}
 	
 	public String getLabel() {
@@ -184,7 +185,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	
 	public IStreamsProxy getStreamsProxy() {
 		
-		return (fCaptureOutput) ? fController.getStreams() : null;
+		return (fCaptureOutput && fController != null) ? fController.getStreams() : null;
 	}
 
 	

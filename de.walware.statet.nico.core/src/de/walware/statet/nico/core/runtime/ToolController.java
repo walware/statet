@@ -91,7 +91,6 @@ public abstract class ToolController {
 	
 	protected final ToolProcess fProcess;
 	private Queue fQueue;
-	private History fHistory;
 	 
 	private ToolStatus fStatus = ToolStatus.STARTING;
 	private boolean fPauseRequested = false;
@@ -109,17 +108,8 @@ public abstract class ToolController {
 		fErrorOutputStream = fStreams.getErrorStreamMonitor();
 		
 		fQueue = new Queue(process);
-		fHistory = new History(fInputStream);
 	}
 	
-	/**
-	 * Returns the history of this tool instance. There is one history per controller.
-	 * @return the history
-	 */
-	History getHistory() {
-		
-		return fHistory;
-	}
 	
 	Queue getQueue() {
 

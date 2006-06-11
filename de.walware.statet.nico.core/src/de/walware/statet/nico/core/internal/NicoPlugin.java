@@ -28,7 +28,7 @@ public class NicoPlugin extends Plugin {
 	 * Plugin-ID
 	 * Value: @value
 	 */
-	public static final String ID = "de.walware.statet.nico";
+	public static final String ID = "de.walware.statet.nico.core";
 
 	/** The shared instance. */
 	private static NicoPlugin gPlugin;

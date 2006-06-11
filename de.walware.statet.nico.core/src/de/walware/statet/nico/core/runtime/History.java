@@ -11,9 +11,19 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.EnumSet;
+
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
+
+import de.walware.eclipsecommon.preferences.PreferencesUtil;
+
+import de.walware.statet.nico.core.NicoPreferenceNodes;
+import de.walware.statet.nico.core.internal.preferences.HistoryPreferences;
 
 
 /**
@@ -24,13 +34,17 @@ public class History {
 	
 	private int fMaxSize = 100;
 	private int fCurrentSize = 0;
+	private boolean fIgnoreCommentLines;
 	
 	private Entry fNewest;
 	private Entry fOldest;
 	
 	private ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
 	
-	private boolean fIgnoreCommentLines;
+	private ToolProcess fProcess;
+	private IPreferenceChangeListener fPreferenceListener;
+	private HistoryPreferences fCurrentPreferences;
+	private IStreamListener fStreamListener;
 	
 	
 	/**
@@ -86,14 +100,60 @@ public class History {
 	}
 	
 	
-	public History(ToolStreamMonitor inputStream) {
-		// TODO: load preferences - set max size, ignore comments, filters
+	public History(ToolProcess process) {
 		
-		inputStream.addListener(new IStreamListener() {
+		fProcess = process;
+		
+		fStreamListener = new IStreamListener() {
 			public void streamAppended(String text, IStreamMonitor monitor) {
 				addCommand(text);
 			}
-		});
+		};
+		
+		fPreferenceListener = new IPreferenceChangeListener() {
+			public void preferenceChange(PreferenceChangeEvent event) {
+				checkSettings();
+			}
+		};
+		IEclipsePreferences[] nodes = PreferencesUtil.getInstancePrefs().getPreferenceNodes(NicoPreferenceNodes.CAT_HISTORY_QUALIFIER);
+		for (IEclipsePreferences node : nodes) {
+			node.addPreferenceChangeListener(fPreferenceListener);
+		}
+		checkSettings();
+	}
+	
+	private void checkSettings() {
+		
+		HistoryPreferences prefs = new HistoryPreferences(PreferencesUtil.getInstancePrefs());
+		if (prefs.equals(fCurrentPreferences)) {
+			return;
+		}
+		ToolController controller = fProcess.getController();
+		if (controller != null) {
+			ToolStreamProxy streams = controller.getStreams();
+			fIgnoreCommentLines = prefs.filterComments();
+			
+			EnumSet<SubmitType> types = prefs.getSelectedTypes();
+			streams.getInputStreamMonitor().addListener(fStreamListener, types);
+		}
+		
+		synchronized (this) {
+			fMaxSize = prefs.getLimitCount();;
+			if (fMaxSize < fCurrentSize) {
+				Object[] listeners = fListeners.getListeners();
+
+				while (fMaxSize < fCurrentSize) {
+					Entry removed = fOldest;
+					fOldest = fOldest.fNewer;
+					fOldest.fOlder = null;
+					fCurrentSize--;
+					
+					for (Object obj : listeners) {
+						((IHistoryListener) obj).entryRemoved(removed);
+					}
+				}
+			}
+		}
 	}
 	
 	private void addCommand(String command) {
@@ -125,9 +185,7 @@ public class History {
 			else {
 				fCurrentSize++;
 			}
-		}
 		
-		synchronized (fListeners) {
 			Object[] listeners = fListeners.getListeners();
 			for (Object obj : listeners) {
 				IHistoryListener listener = (IHistoryListener) obj;
@@ -178,9 +236,7 @@ public class History {
      */
 	public void addListener(IHistoryListener listener) {
 		
-		synchronized (fListeners) {
-			fListeners.add(listener);
-		}
+		fListeners.add(listener);
 	}
 	
     /**
@@ -191,9 +247,7 @@ public class History {
      */
 	public void removeListener(IHistoryListener listener) {
 		
-		synchronized (fListeners) {
-			fListeners.remove(listener);
-		}
+		fListeners.remove(listener);
 	}
 	
 	/** 
@@ -217,6 +271,4 @@ public class History {
 		}
 		return true;
 	}
-
-	
 }
