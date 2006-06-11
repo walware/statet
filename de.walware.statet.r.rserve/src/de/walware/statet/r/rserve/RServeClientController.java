@@ -20,9 +20,9 @@ import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.runtime.IToolRunnable;
-import de.walware.statet.nico.runtime.SubmitType;
-import de.walware.statet.nico.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.rserve.internal.launchconfigs.ConnectionConfig;
 

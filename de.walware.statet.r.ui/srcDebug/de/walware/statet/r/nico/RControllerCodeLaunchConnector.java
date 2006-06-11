@@ -14,12 +14,12 @@ package de.walware.statet.r.nico;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.ToolRegistry;
-import de.walware.statet.nico.ToolSessionInfo;
-import de.walware.statet.nico.console.NIConsole;
-import de.walware.statet.nico.runtime.SubmitType;
-import de.walware.statet.nico.runtime.ToolController;
-import de.walware.statet.nico.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.ui.ToolRegistry;
+import de.walware.statet.nico.ui.ToolSessionInfo;
+import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 

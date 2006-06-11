@@ -186,29 +186,6 @@
       <category
             id="de.walware.statet.ui.views.StatetCategory"
             name="StatET"/>
-      <view
-            allowMultiple="true"
-            category="de.walware.statet.ui.views.StatetCategory"
-            class="de.walware.statet.nico.ui.views.HistoryView"
-            icon="icons/view_16/history.png"
-            id="de.walware.statet.ui.views.HistoryView"
-            name="%views_History_name"/>
-     <view
-           allowMultiple="true"
-           category="de.walware.statet.ui.views.StatetCategory"
-           class="de.walware.statet.nico.ui.views.QueueView"
-           icon="icons/view_16/queue.png"
-           id="de.walware.statet.ui.views.QueueView"
-           name="%views_Queue_name"/>
-
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.adapters">
-      <factory
-            adaptableType="de.walware.statet.nico.runtime.ToolController$SimpleRunnable"
-            class="de.walware.statet.nico.internal.ui.CommandRunnableAdapterFactory">
-         <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
-      </factory>
    </extension>
 
 </plugin>

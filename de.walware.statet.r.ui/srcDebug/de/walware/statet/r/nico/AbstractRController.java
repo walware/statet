@@ -13,9 +13,9 @@ package de.walware.statet.r.nico;
 
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.statet.nico.runtime.SubmitType;
-import de.walware.statet.nico.runtime.ToolController;
-import de.walware.statet.nico.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 
 
 public abstract class AbstractRController extends ToolController {

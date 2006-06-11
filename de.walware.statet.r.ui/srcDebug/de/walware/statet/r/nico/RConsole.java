@@ -14,8 +14,8 @@ package de.walware.statet.r.nico;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.part.IPageBookViewPage;
 
-import de.walware.statet.nico.console.NIConsole;
-import de.walware.statet.nico.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.ui.console.NIConsole;
 
 
 public class RConsole extends NIConsole {

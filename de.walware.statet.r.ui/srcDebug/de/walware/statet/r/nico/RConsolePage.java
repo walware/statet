@@ -14,8 +14,8 @@ package de.walware.statet.r.nico;
 import org.eclipse.ui.console.IConsoleView;
 
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
-import de.walware.statet.nico.console.NIConsole;
-import de.walware.statet.nico.console.NIConsolePage;
+import de.walware.statet.nico.ui.console.NIConsole;
+import de.walware.statet.nico.ui.console.NIConsolePage;
 
 
 public class RConsolePage extends NIConsolePage {

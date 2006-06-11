@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
@@ -136,4 +137,15 @@ public class ExceptionHandler {
 		});
 	}
 
+	
+	public static class StatusHandler implements IStatusHandler {
+
+		
+		public Object handleStatus(IStatus status, Object source) throws CoreException {
+			
+			handle(status);
+			return Boolean.TRUE;
+		}
+
+	}
 }

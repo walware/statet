@@ -21,11 +21,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 
-import de.walware.statet.nico.console.NIConsole;
-import de.walware.statet.nico.runtime.ToolProcess;
-import de.walware.statet.nico.runtime.ToolRunner;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolRunner;
+import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.r.nico.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
+import de.walware.statet.ui.util.ExceptionHandler;
 
 
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {
@@ -53,7 +54,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 	    			new IConsole[] { console });
 	
-	    	new ToolRunner().runInBackgroundThread(process);
+	    	new ToolRunner().runInBackgroundThread(process, new ExceptionHandler.StatusHandler());
 	
 	    	// open console
 	    	Display.getDefault().asyncExec(new Runnable() {
