@@ -13,7 +13,10 @@ package de.walware.statet.nico.ui.console;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
@@ -39,9 +42,9 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.part.IPageBookViewPage;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolStreamProxy;
+import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
 import de.walware.statet.nico.ui.NicoMessages;
 
 
@@ -71,14 +74,14 @@ public class NIConsole extends IOConsole {
 	}
 	
 	
-	private IOConsoleOutputStream fOutputCommands;
-	private IOConsoleOutputStream fOutputResults;
-	private IOConsoleOutputStream fOutputError;
+	private Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
+	private boolean fStreamsClosed;
 	
-	private ToolController fController;
 	private ToolProcess fProcess;
+	private NIConsoleColorAdapter fAdapter;
 	
 	private IDebugEventSetListener fDebugListener;
+	private IPropertyChangeListener fFontListener;
 	
 	
 	/**
@@ -86,65 +89,19 @@ public class NIConsole extends IOConsole {
 	 * 
 	 * @param name console name
 	 */
-	public NIConsole(ToolProcess process) {
+	public NIConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
 		
-		super("<>", NICONSOLE_TYPE, null, true);
+		super(computeName(process, NicoMessages.Status_Starting_description),
+				NICONSOLE_TYPE, null, "UTF-8", true);
 		
 		fProcess = process;
-		fController = process.getController();
+		fAdapter = adapter;
 		
 		setImageDescriptor(computeImageDescriptor());
 		
-		connectStreams(fController.getStreams());
-	}
-	
-	protected void connectStreams(ToolStreamProxy streams) {
-		// Connect input, output, error stream
-		
-		fOutputCommands = newOutputStream();
-		streams.getInputStreamMonitor().addListener(new IStreamListener() {
-			public void streamAppended(String text, IStreamMonitor monitor) {
-			    try {
-					fOutputCommands.write("\n> " + text + "\n");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		fOutputResults = newOutputStream();
-		streams.getOutputStreamMonitor().addListener(new IStreamListener() {
-			public void streamAppended(String text, IStreamMonitor monitor) {
-			    try {
-					fOutputResults.write(text);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		fStreamsClosed = fProcess.isTerminated();
+		fAdapter.connect(process, this);
 
-		fOutputError = newOutputStream();
-		streams.getErrorStreamMonitor().addListener(new IStreamListener() {
-			public void streamAppended(String text, IStreamMonitor monitor) {
-			    try {
-					fOutputError.write(text);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-	
-	@Override
-	protected void init() {
-		
-		super.init();
-		
-		setName(computeName(NicoMessages.Status_Starting_description));
-		
 		fDebugListener = new IDebugEventSetListener() {
 			public void handleDebugEvents(DebugEvent[] events) {
 				
@@ -166,6 +123,7 @@ public class NIConsole extends IOConsole {
 							break;
 						case DebugEvent.TERMINATE:
 							runSetName(NicoMessages.Status_Terminated_description);
+							disconnect();
 							continue EVENTS;
 						}
 					}
@@ -175,7 +133,7 @@ public class NIConsole extends IOConsole {
 			private void runSetName(final String statusDescription) {
 		            Runnable r = new Runnable() {
 	                public void run() {
-	                	setName(computeName(statusDescription));
+	                	setName(computeName(fProcess, statusDescription));
 	//                	ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
 	                	ConsolePlugin.getDefault().getConsoleManager().refresh(NIConsole.this);
 	                }
@@ -184,14 +142,22 @@ public class NIConsole extends IOConsole {
 			}
 		};
 		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
-
-		JFaceResources.getFontRegistry().addListener(new IPropertyChangeListener() {
+	}
+	
+	@Override
+	protected void init() {
+		
+		super.init();
+		
+		fFontListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (JFaceResources.TEXT_FONT.equals(event.getProperty()) )
 					setFont(null);
 			};
-		});
+		};
+		JFaceResources.getFontRegistry().addListener(fFontListener);
 	}
+	
 	
 	@Override
 	protected void dispose() {
@@ -203,6 +169,10 @@ public class NIConsole extends IOConsole {
 			debugPlugin.removeDebugEventListener(fDebugListener);
 		}
 		fDebugListener = null;
+
+		disconnect();
+
+		JFaceResources.getFontRegistry().removeListener(fFontListener);
 	}
 	
 	@Override
@@ -211,6 +181,61 @@ public class NIConsole extends IOConsole {
         return new NIConsolePage(this, view);
     }
 
+
+	public void connect(ToolStreamMonitor streamMonitor, String streamId, EnumSet<SubmitType> filter) {
+		
+		synchronized (fStreams) {
+			if (fStreamsClosed) {
+				return;
+			}
+			
+			IOConsoleOutputStream stream = fStreams.get(streamId);
+			if (stream == null) {
+				stream = newOutputStream();
+				stream.setColor(fAdapter.getColor(streamId));
+				fStreams.put(streamId, stream);
+			}
+			
+			final IOConsoleOutputStream out = stream;
+			streamMonitor.addListener(new IStreamListener() {
+				public void streamAppended(String text, IStreamMonitor monitor) {
+				    try {
+						out.write(text + '\n'); // TODO: move line separator to controller
+					} catch (IOException e) {
+						StatetPlugin.logUnexpectedError(e);
+					}
+				}
+			}, filter);
+		}
+	}
+
+	public IOConsoleOutputStream getStream(String streamId) {
+		
+		synchronized (fStreams) {
+			return fStreams.get(streamId);
+		}
+	}
+
+	private void disconnect() {
+		
+		synchronized (fStreams) {
+			if (fStreamsClosed) {
+				return;
+			}
+			
+			for (IOConsoleOutputStream stream : fStreams.values()) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					StatetPlugin.logUnexpectedError(e);
+				}
+			}
+			fStreamsClosed = true;
+
+			fAdapter.disconnect();
+			fAdapter = null;
+		}
+	}
 
 	public ToolProcess getProcess() {
 		
@@ -295,10 +320,10 @@ public class NIConsole extends IOConsole {
 				activate ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_VISIBLE);
 	}
 	
-	protected String computeName(String statusDescription) {
+	protected static String computeName(ToolProcess process, String statusDescription) {
 		
 		StringBuilder name = new StringBuilder();
-		name.append(fProcess.getLabel());
+		name.append(process.getLabel());
 		name.append(" New Console <");
 		name.append(statusDescription);
 		name.append('>');

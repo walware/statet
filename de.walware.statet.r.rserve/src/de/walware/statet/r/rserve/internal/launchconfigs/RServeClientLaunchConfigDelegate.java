@@ -24,6 +24,7 @@ import org.eclipse.ui.console.IConsole;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.console.NIConsole;
+import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.r.nico.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 import de.walware.statet.ui.util.ExceptionHandler;
@@ -50,7 +51,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			
 			ToolProcess process = new ToolProcess(launch, name);
 			process.init(new RServeClientController(process, connectionConfig));
-			final NIConsole console = new RConsole(process);
+			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 	    			new IConsole[] { console });
 	

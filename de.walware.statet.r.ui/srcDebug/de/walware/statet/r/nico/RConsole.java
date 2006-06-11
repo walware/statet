@@ -16,14 +16,15 @@ import org.eclipse.ui.part.IPageBookViewPage;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
+import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 
 
 public class RConsole extends NIConsole {
 
 	
-	public RConsole(ToolProcess process) {
+	public RConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
 
-		super(process);
+		super(process, adapter);
 	}
 
 	@Override
