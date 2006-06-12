@@ -57,6 +57,7 @@ import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedItem;
 import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
@@ -208,7 +209,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		TemplateStore[] templates = new TemplateStore[elements.length];
 
 		for (int i = 0; i < elements.length; i++) {
-			fCategoryIds[i] = elements[i].getAttributeAsIs(ATT_ID);
+			fCategoryIds[i] = elements[i].getAttribute(ATT_ID);
 			Assert.isLegal(fCategoryIds[i] != null);
 			
 			fGroup.fCategorys[i] = elements[i].getAttribute(ATT_NAME);
@@ -230,15 +231,24 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		} catch (IOException e) {
 			StatetPlugin.logUnexpectedError(e);
 		}
-		for (int i = 0; i < templates.length; i++) {
+		for (int i = 0; i < fCategoryIds.length; i++) {
 			TemplatePersistenceData[] datas = fTemplatesStore.getTemplateData(i);
 			
 			fGroup.fCategoryChilds[i] = new TemplateItem[datas.length];
-			for (int j = 0; j < datas.length; j++) {
+			for (int j = 0; j < fGroup.fCategoryChilds[i].length; j++) {
 				fGroup.fCategoryChilds[i][j] = new TemplateItem(datas[j]);
 			}
 		}
+	}
 	
+	private void reloadTemplateData() {
+		
+		for (int i = 0; i < fCategoryIds.length; i++) {
+			for (int j = 0; j < fGroup.fCategoryChilds[i].length; j++) {
+				fGroup.fCategoryChilds[i][j].fData = fTemplatesStore.getTemplateData(
+						i, fGroup.fCategoryChilds[i][j].fData.getId());
+			}
+		}
 	}
 	
 	private void updateTemplate(TemplatePersistenceData data) {
@@ -459,6 +469,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	
 	public void performDefaults() {
 		fTemplatesStore.restoreDefaults();
+		reloadTemplateData();
 		
 		// refresh
 		fGroup.fSelectionViewer.refresh();

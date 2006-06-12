@@ -117,17 +117,39 @@ public final class CodeGenerationTemplatesStore {
 	public Template findTemplateById(String id) {
 		
 		Template template = null;
-
-		if (fProjectStore != null)
+		if (fProjectStore != null) {
 			template = fProjectStore.findTemplateById(id);
-		
-		for (int i = 0; template != null && i < fInstanceStores.length; i++) {
-				template = fInstanceStores[i].findTemplateById(id);
 		}
-		
+		for (int i = 0; template == null && i < fInstanceStores.length; i++) {
+			template = fInstanceStores[i].findTemplateById(id);
+		}
 		return template;
 	}
 	
+	public TemplatePersistenceData getTemplateData(String id) {
+		
+		TemplatePersistenceData data = null;
+		if (fProjectStore != null) {
+			data = fProjectStore.getTemplateData(id);
+		}
+		for (int i = 0; data == null && i < fInstanceStores.length; i++) {
+			data = fInstanceStores[i].getTemplateData(id);
+		}
+		return data;
+	}
+	
+	public TemplatePersistenceData getTemplateData(int categoryIndex, String id) {
+		
+		TemplatePersistenceData data = null;
+		if (fProjectStore != null) {
+			data = fProjectStore.getTemplateData(id);
+		}
+		if (data == null) {
+			data = fInstanceStores[categoryIndex].getTemplateData(id);
+		}
+		return data;
+	}
+
 	public void load() throws IOException {
 		
 		if (fProjectStore != null) {
