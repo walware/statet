@@ -20,10 +20,18 @@ import de.walware.statet.nico.ui.console.NIConsole;
 public class ToolSessionInfo {
 
 	
-	ToolProcess fProcess;
-	NIConsole fConsole;
-	IViewPart fSource;
+	private final ToolProcess fProcess;
+	private final NIConsole fConsole;
+	private final IViewPart fSource;
 	
+	
+	public ToolSessionInfo(ToolProcess process, NIConsole console, 
+			IViewPart source) {
+		
+		fProcess = process;
+		fConsole = console;
+		fSource = source;
+	}
 	
 	public NIConsole getConsole() {
 		

@@ -72,7 +72,18 @@ public class NIConsole extends IOConsole {
 		}
 		return consoleViews;
 	}
-	
+
+	protected static String computeName(ToolProcess process, String statusDescription) {
+		
+		StringBuilder name = new StringBuilder();
+		name.append(process.getLabel());
+		name.append(" New Console <");
+		name.append(statusDescription);
+		name.append('>');
+		
+		return name.toString();
+	}
+
 	
 	private Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
 	private boolean fStreamsClosed;
@@ -242,95 +253,7 @@ public class NIConsole extends IOConsole {
 		return fProcess;
 	}
 	
-	/**
-	 * More intelligent and flexible method to show this console.
-	 * 
-	 * @param activate <code>true</code> to activate the console, 
-	 * 		or <code>false</code> to show the console without changing the focus.
-	 * 
-	 * @throws CoreException
-	 */
-	public void show(boolean activate) throws CoreException {
-		
-		IWorkbenchPage page = StatetPlugin.getActivePage();
-		if (page == null) {
-			return;
-		}
 
-		String name = fProcess.getLabel();
-		IConsoleView choosenView = null;
-		
-		List<IConsoleView> consoleViews = getConsoleViews(page);
-		IConsoleView fullMatchView = null;
-		for (IConsoleView view : consoleViews) {
-			if (name.equals(view.getViewSite().getSecondaryId())) {
-				fullMatchView = view;
-				break;
-			}
-		}
-		
-		// Does a console view already show the console
-		if (fullMatchView != null && fullMatchView.getConsole() == this) {
-			choosenView = fullMatchView;
-		}
-		else {
-			for (IConsoleView view : consoleViews) {
-				if (view.getConsole() == this) {
-					choosenView = view;
-					break;
-				}
-			}
-		}
-		if (choosenView != null) {
-			if (activate) {
-				page.activate(choosenView);
-			}
-			else {
-				page.bringToTop(choosenView);
-			}
-			return;
-		}
-		
-		// Search a view, which is not pinned
-		if (fullMatchView != null && !fullMatchView.isPinned()) {
-			choosenView = fullMatchView;
-		}
-		else {
-			for (IConsoleView view : consoleViews) {
-				if (!view.isPinned()) {
-					choosenView = view;
-					break;
-				}
-			}
-		}
-		if (choosenView != null) {
-			choosenView.display(this);
-			if (activate) {
-				page.activate(choosenView);
-			}
-			else {
-				page.bringToTop(choosenView);
-			}
-			return;
-		}
-		
-		// Create a new console view
-		page.showView(
-				IConsoleConstants.ID_CONSOLE_VIEW, name, 
-				activate ? IWorkbenchPage.VIEW_ACTIVATE : IWorkbenchPage.VIEW_VISIBLE);
-	}
-	
-	protected static String computeName(ToolProcess process, String statusDescription) {
-		
-		StringBuilder name = new StringBuilder();
-		name.append(process.getLabel());
-		name.append(" New Console <");
-		name.append(statusDescription);
-		name.append('>');
-		
-		return name.toString();
-	}
-	
     /**
      * Computes and returns the image descriptor for this console.
      * 

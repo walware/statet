@@ -12,12 +12,16 @@
 package de.walware.statet.r.nico;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.ui.ToolRegistry;
+import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionInfo;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
@@ -27,7 +31,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 
 	public void submit(String[] rCommands) throws CoreException {
 		
-		ToolSessionInfo info = ToolRegistry.getRegistry().getActiveToolSession(
+		ToolSessionInfo info = NicoUITools.getRegistry().getActiveToolSession(
 				StatetPlugin.getActivePage());
 		ToolProcess process = info.getProcess();
 		if (process != null) {
@@ -42,14 +46,21 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 
 	public void gotoConsole() throws CoreException {
 		
-		ToolSessionInfo info = ToolRegistry.getRegistry().getActiveToolSession(
-				StatetPlugin.getActivePage());
+		IWorkbenchPage page = StatetPlugin.getActivePage();
+		ToolSessionInfo info = NicoUITools.getRegistry().getActiveToolSession(page);
 		NIConsole console = info.getConsole();
 		if (console != null) {
-			console.show(true);
+			NicoUITools.showConsole(console, page, true);
 		}
 		else {
-			// search console / message?
+			IWorkbenchPart part = page.getActivePart();
+			if (part != null) {
+				IEditorAdapter adapter = (IEditorAdapter) part.getAdapter(IEditorAdapter.class);
+				if (adapter != null) {
+					adapter.setStatusLineErrorMessage("No Console found"); // Todo External
+				}
+			}
+			Display.getCurrent().beep();
 		}
 	}
 

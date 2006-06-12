@@ -471,6 +471,16 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 
 	@Override
+	public Object getAdapter(Class adapter) {
+		
+		if (IEditorAdapter.class.equals(adapter)) {
+			return fEditorAdapter;
+		}
+		return super.getAdapter(adapter);
+	}
+	
+	
+	@Override
 	protected boolean affectsTextPresentation(PropertyChangeEvent event) {
 		
 		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();

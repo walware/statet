@@ -17,17 +17,19 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
+import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.r.nico.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 import de.walware.statet.ui.util.ExceptionHandler;
+import de.walware.statet.ui.util.UIAccess;
 
 
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {
@@ -45,6 +47,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 				return;
 			}
 			
+			IWorkbenchPage page = UIAccess.getActiveWorkbenchPage();
 			String name = configuration.getName() + " [" + configuration.getType().getName() + "]";
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.readFrom(configuration);
@@ -58,15 +61,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 	    	new ToolRunner().runInBackgroundThread(process, new ExceptionHandler.StatusHandler());
 	
 	    	// open console
-	    	Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					try {
-						console.show(true);
-					} 
-					catch (CoreException e) {
-					}
-				}
-	    	});
+	    	NicoUITools.showConsole(console, page, true);
 		}
 		finally {
 			monitor.done();

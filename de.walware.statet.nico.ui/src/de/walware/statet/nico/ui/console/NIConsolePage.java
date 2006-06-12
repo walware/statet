@@ -71,7 +71,7 @@ import de.walware.eclipsecommon.ui.dialogs.Layouter;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
-import de.walware.statet.nico.ui.ToolRegistry;
+import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.TextViewerAction;
 import de.walware.statet.ui.util.DNDUtil;
@@ -250,7 +250,7 @@ public class NIConsolePage implements IPageBookViewPage,
 			fControl.addListener(SWT.Activate, this);
 			fControl.addListener(SWT.Dispose, this);
 			if (fControl.isVisible()) {
-				ToolRegistry.getRegistry().consoleActivated(fConsoleView, fConsole);
+				NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
 			}
 		}
 		
@@ -258,7 +258,7 @@ public class NIConsolePage implements IPageBookViewPage,
 			switch (event.type) {
 			
 			case SWT.Activate:
-				ToolRegistry.getRegistry().consoleActivated(fConsoleView, fConsole);
+				NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
 				break;
 			
 			case SWT.Dispose:

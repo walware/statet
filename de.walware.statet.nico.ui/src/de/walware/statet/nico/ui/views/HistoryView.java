@@ -52,13 +52,15 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
+import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
-import de.walware.statet.nico.ui.ToolRegistry;
+import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionInfo;
 import de.walware.statet.nico.ui.console.ScrollLockAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction.Receiver;
@@ -307,7 +309,7 @@ public class HistoryView extends ViewPart {
 				new HistoryDragAdapter(this));
 
 		// listen on console changes
-		ToolRegistry toolRegistry = ToolRegistry.getRegistry();
+		IToolRegistry toolRegistry = NicoUITools.getRegistry();
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionInfo info) {
@@ -478,7 +480,7 @@ public class HistoryView extends ViewPart {
 	public void dispose() {
 		
 		if (fToolRegistryListener != null) {
-			ToolRegistry.getRegistry().removeListener(fToolRegistryListener);
+			NicoUITools.getRegistry().removeListener(fToolRegistryListener);
 			fToolRegistryListener = null;
 		}
 		if (fCopyAction != null) {

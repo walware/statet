@@ -37,6 +37,9 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 		return gPlugin;
 	}
 
+
+	private ToolRegistry fToolRegistry;
+
 	
 	/**
 	 * The constructor
@@ -50,6 +53,8 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		
 		super.start(context);
+		
+		fToolRegistry = new ToolRegistry();
 	}
 
 	@Override
@@ -57,6 +62,14 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 		
 		gPlugin = null;
 		super.stop(context);
+		
+		fToolRegistry.dispose();
+		fToolRegistry = null;
 	}
 
+	
+	public ToolRegistry getToolRegistry() {
+		
+		return fToolRegistry;
+	}
 }
