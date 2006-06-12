@@ -39,8 +39,8 @@
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
-            adaptableType="de.walware.statet.nico.runtime.ToolController$SimpleRunnable"
-            class="de.walware.statet.nico.internal.ui.CommandRunnableAdapterFactory">
+            adaptableType="de.walware.statet.nico.core.runtime.ToolController$SimpleRunnable"
+            class="de.walware.statet.nico.ui.internal.CommandRunnableAdapterFactory">
          <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
       </factory>
    </extension>

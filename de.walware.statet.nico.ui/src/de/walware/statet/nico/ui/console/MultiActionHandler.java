@@ -12,7 +12,6 @@
 package de.walware.statet.nico.ui.console;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +24,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IKeyBindingService;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.texteditor.IUpdate;
 
 
@@ -75,6 +75,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 	
 	private IViewSite fViewSite;
 	private Widget fActiveWidget;
+	private IContextActivation fActivatedContext;
 	private List<Widget> fKnownWidgets = new ArrayList<Widget>();
 	private Map<String, ActionWrapper> fActions = new HashMap<String, ActionWrapper>();
 	private Map<Widget, String> fScopes = new HashMap<Widget, String>();
@@ -132,12 +133,12 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		switch (event.type) {
 		case SWT.FocusIn:
 			fActiveWidget = event.widget;
-			addScope(fActiveWidget);
+			addContext();
 			updateEnabledState();
 			break;
 
 		case SWT.FocusOut:
-			removeScope(fActiveWidget);
+			removeContext();
 			fActiveWidget = null;
 			updateEnabledState();
 			break;
@@ -159,42 +160,21 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
-	private void addScope(Widget widget) {
+	private void addContext() {
 		
-		String scope = fScopes.get(widget);
-		IKeyBindingService keys = fViewSite.getKeyBindingService();
-		if (scope == null || keys == null) {
-			return;
-		}
-
-		String[] scopes = keys.getScopes();
-		List<String> scopeList = Arrays.asList(scopes);
-		if (!scopeList.contains(scope)) {
-			int length = scopes.length;
-			String[] newScopes = new String[length+1];
-			System.arraycopy(scopes, 0, newScopes, 0, length);
-			newScopes[length] = scope;
-			keys.setScopes(newScopes);
+		String scope = fScopes.get(fActiveWidget);
+		IContextService service = (IContextService) fViewSite.getService(IContextService.class);
+		if (scope != null && service != null) {
+			fActivatedContext = service.activateContext(scope);
 		}
 	}
 	
-	private void removeScope(Widget widget) {
+	private void removeContext() {
 		
-		String scope = fScopes.get(widget);
-		IKeyBindingService keys = fViewSite.getKeyBindingService();
-		if (scope == null || keys == null) {
-			return;
-		}
-
-		String[] scopes = keys.getScopes();
-		List<String> scopeList = Arrays.asList(scopes);
-		int idx = scopeList.indexOf(scope);
-		if (idx >= 0) {
-			int length = scopes.length;
-			String[] newScopes = new String[length-1];
-			System.arraycopy(scopes, 0, newScopes, 0, idx);
-			System.arraycopy(scopes, idx+1, newScopes, idx, length-idx-1);
-			keys.setScopes(newScopes);
+		IContextService service = (IContextService) fViewSite.getService(IContextService.class);
+		if (fActivatedContext != null || service != null) {
+			service.deactivateContext(fActivatedContext);
+			fActivatedContext = null;
 		}
 	}
 

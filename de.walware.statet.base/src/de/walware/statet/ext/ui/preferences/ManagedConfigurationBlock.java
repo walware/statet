@@ -11,13 +11,6 @@
 
 package de.walware.statet.ext.ui.preferences;
 
-
-import static de.walware.eclipsecommon.preferences.Preference.Type.BOOLEAN;
-import static de.walware.eclipsecommon.preferences.Preference.Type.DOUBLE;
-import static de.walware.eclipsecommon.preferences.Preference.Type.FLOAT;
-import static de.walware.eclipsecommon.preferences.Preference.Type.INT;
-import static de.walware.eclipsecommon.preferences.Preference.Type.LONG;
-
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -421,6 +414,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 * @param key preference key
 	 * @return value of the preference
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T getPreferenceValue(Preference<T> key) {
 
 		assert (fPreferenceManager != null);
@@ -454,6 +448,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 * @param value new value 
 	 * @return old value
 	 */
+	@SuppressWarnings("unchecked")
 	public <T> T setPrefValue(Preference<T> key, T value) {
 		
 		assert (fPreferenceManager != null);

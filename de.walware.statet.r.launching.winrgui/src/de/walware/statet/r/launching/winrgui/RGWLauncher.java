@@ -21,9 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -54,7 +54,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		
 		URL dir = WinRGuiConnectorPlugin.getDefault().getBundle().getEntry("/win32/RGWConnector.exe");
 		try {
-			String local = Platform.asLocalURL(dir).getPath();
+			String local = FileLocator.toFileURL(dir).getPath();
 			File file = new File(local);
 			if (!file.exists())
 				throw new IOException("Missing File '"+file.getAbsolutePath() + "'.");

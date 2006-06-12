@@ -214,7 +214,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		fDebugListener = new IDebugEventSetListener() {
 			public void handleDebugEvents(DebugEvent[] events) {
-				EVENTS: for (DebugEvent event : events) {
+				for (DebugEvent event : events) {
 					if (event.getSource() == getConsole().getProcess()) {
 						switch (event.getKind()) {
 						case DebugEvent.TERMINATE:
