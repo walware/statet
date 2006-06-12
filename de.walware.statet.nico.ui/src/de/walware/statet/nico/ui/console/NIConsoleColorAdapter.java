@@ -31,6 +31,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamProxy;
+import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences;
 import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences.FilterPreferences;
 import de.walware.statet.ui.util.UIAccess;
@@ -41,6 +42,8 @@ import de.walware.statet.ui.util.UIAccess;
  */
 public class NIConsoleColorAdapter implements IConsoleColorProvider {
 
+	
+	public static final String ID_INFO_STREAM = NicoUIPlugin.ID+".InfoStream";
 	
 	private NIConsole fConsole;
 	
@@ -82,6 +85,8 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 					filter.showAllErrors() ? EnumSet.allOf(SubmitType.class) : filter.getSelectedTypes());
 			console.connect(proxy.getOutputStreamMonitor(), IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM, 
 					filter.getSelectedTypes());
+			console.connect(proxy.getInfoStreamMonitor(), ID_INFO_STREAM, 
+					filter.getSelectedTypes());
 			console.connect(proxy.getInputStreamMonitor(), IDebugUIConstants.ID_STANDARD_INPUT_STREAM, 
 					filter.getSelectedTypes());
 		}
@@ -111,6 +116,9 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 		if (streamId.equals(IDebugUIConstants.ID_STANDARD_INPUT_STREAM)) {
 			return ConsolePreferences.INPUT_COLOR;
 		}
+		else if (streamId.equals(ID_INFO_STREAM)) {
+			return ConsolePreferences.INFO_COLOR;
+		}
 		else if (streamId.equals(IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM)) {
 			return ConsolePreferences.OUTPUT_COLOR;
 		}
@@ -124,6 +132,9 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 		
 		if (colorId.equals(ConsolePreferences.INPUT_COLOR)) {
 			return IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
+		}
+		else if (colorId.equals(ConsolePreferences.INFO_COLOR)) {
+			return ID_INFO_STREAM;
 		}
 		else if (colorId.equals(ConsolePreferences.OUTPUT_COLOR)) {
 			return IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM;

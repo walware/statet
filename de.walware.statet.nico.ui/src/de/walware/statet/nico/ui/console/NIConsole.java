@@ -211,7 +211,7 @@ public class NIConsole extends IOConsole {
 			streamMonitor.addListener(new IStreamListener() {
 				public void streamAppended(String text, IStreamMonitor monitor) {
 				    try {
-						out.write(text + '\n'); // TODO: move line separator to controller
+						out.write(text);
 					} catch (IOException e) {
 						StatetPlugin.logUnexpectedError(e);
 					}

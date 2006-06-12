@@ -44,20 +44,24 @@ public class RServeClientController extends AbstractRController {
 			try {
 				REXP rx = fRconnection.eval(fText);
 				if (rx != null) {
-					fDefaultOutputStream.append(rx.toString(), fType);
+					fDefaultOutputStream.append(rx.toString()+fLineDelimiter, fType);
 				}
 				else {
-					fErrorOutputStream.append("[RServe] Warning: Server returned null.", fType);
+					fErrorOutputStream.append("[RServe] Warning: Server returned null."+fLineDelimiter, fType);
 				}
+				doOnCommandFinished(true, fType);
 			}
 			catch (RSrvException e) {
-				fErrorOutputStream.append("[RServe] Error: " + e.getLocalizedMessage() + ".", fType);
+				fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineDelimiter, fType);
 				if (!fRconnection.isConnected() || e.getRequestReturnCode() == -1) {
 					try {
 						fProcess.terminate();
 					} catch (DebugException de) {
 						StatetPlugin.log(de.getStatus());
 					}
+				}
+				else {
+					doOnCommandFinished(true, fType);
 				}
 			}
 		}
@@ -91,9 +95,8 @@ public class RServeClientController extends AbstractRController {
 						null));
 			}
 			
-			fDefaultOutputStream.append(
-					"[RServe] Server version: " + fRconnection.getServerVersion() + ".",
-					SubmitType.OTHER);
+			fDefaultOutputStream.append("[RServe] Server version: "+fRconnection.getServerVersion()+"."+fLineDelimiter, SubmitType.OTHER);
+			doOnCommandFinished(true, SubmitType.OTHER);
 			
 			if (fRconnection.needLogin()) {
 				fRconnection.login("guest", "guest");

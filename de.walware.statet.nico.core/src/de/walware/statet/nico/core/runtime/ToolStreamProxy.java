@@ -22,9 +22,10 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 public class ToolStreamProxy implements IStreamsProxy {
 
 	
+	private ToolStreamMonitor fInputMonitor = new ToolStreamMonitor();
+	private ToolStreamMonitor fInfoMonitor = new ToolStreamMonitor();
 	private ToolStreamMonitor fOutputMonitor = new ToolStreamMonitor();
 	private ToolStreamMonitor fErrorMonitor = new ToolStreamMonitor();
-	private ToolStreamMonitor fInputMonitor = new ToolStreamMonitor();
 
 	
 	public void write(String input) throws IOException {
@@ -32,6 +33,16 @@ public class ToolStreamProxy implements IStreamsProxy {
 		throw new IOException("Function is not supported.");
 	}
 
+	public ToolStreamMonitor getInputStreamMonitor() {
+		
+		return fInputMonitor;
+	}
+	
+	public ToolStreamMonitor getInfoStreamMonitor() {
+		
+		return fInfoMonitor;
+	}
+	
 	public ToolStreamMonitor getOutputStreamMonitor() {
 
 		return fOutputMonitor;
@@ -42,20 +53,16 @@ public class ToolStreamProxy implements IStreamsProxy {
 		return fErrorMonitor;
 	}
 	
-	public ToolStreamMonitor getInputStreamMonitor() {
-		
-		return fInputMonitor;
-	}
-	
 	
 	/**
 	 * 
 	 */
 	public void dispose() {
 		
+		fInputMonitor.dispose();
+		fInfoMonitor.dispose();
 		fOutputMonitor.dispose();
 		fErrorMonitor.dispose();
-		fInputMonitor.dispose();
 	}
 
 }

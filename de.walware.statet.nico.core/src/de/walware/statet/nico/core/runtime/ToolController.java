@@ -86,6 +86,7 @@ public abstract class ToolController {
 	
 	private ToolStreamProxy fStreams;
 	protected ToolStreamMonitor fInputStream;
+	protected ToolStreamMonitor fInfoStream;
 	protected ToolStreamMonitor fDefaultOutputStream;
 	protected ToolStreamMonitor fErrorOutputStream;
 	
@@ -104,6 +105,7 @@ public abstract class ToolController {
 		
 		fStreams = new ToolStreamProxy();
 		fInputStream = fStreams.getInputStreamMonitor();
+		fInfoStream = fStreams.getInfoStreamMonitor();
 		fDefaultOutputStream = fStreams.getOutputStreamMonitor();
 		fErrorOutputStream = fStreams.getErrorStreamMonitor();
 		
@@ -487,13 +489,14 @@ public abstract class ToolController {
 	/**
 	 * Is called after tool is terminated.
 	 * 
-	 * Call super
+	 * Call super!
 	 */
 	protected void clear() {
 		
 		fStreams.dispose();
 		fStreams = null;
 		fInputStream = null;
+		fInfoStream = null;
 		fDefaultOutputStream = null;
 		fErrorOutputStream = null;
 	}

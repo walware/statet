@@ -36,6 +36,7 @@ import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
 public class ConsolePreferences {
 
 	public static final String INPUT_COLOR = "input.color";
+	public static final String INFO_COLOR = "info.color";
 	public static final String OUTPUT_COLOR = "output.color";
 	public static final String ERROR_COLOR = "error.color";
 	
@@ -59,6 +60,7 @@ public class ConsolePreferences {
 		
 		IPreferenceStore store = getStore();
 		PreferenceConverter.setDefault(store, INPUT_COLOR, new RGB(73, 177, 117));
+		PreferenceConverter.setDefault(store, INFO_COLOR, new RGB(0, 0, 127));
 		PreferenceConverter.setDefault(store, OUTPUT_COLOR, new RGB(0, 0, 0));
 		PreferenceConverter.setDefault(store, ERROR_COLOR, new RGB(255, 0, 0));
 		

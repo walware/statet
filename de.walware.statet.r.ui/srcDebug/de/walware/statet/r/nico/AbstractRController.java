@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.nico;
 
-import org.eclipse.core.runtime.CoreException;
-
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -21,14 +19,31 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 public abstract class AbstractRController extends ToolController {
 
 	
+	protected String fLineDelimiter;
+	protected String fPromptNewInput;
+	protected String fPromptContinueInput;
+	
+	
 	public AbstractRController(ToolProcess process) {
 		
 		super(process);
-	}
-
-	public void submit(String[] rCommands) throws CoreException {
 		
-		submit(rCommands, SubmitType.EDITOR);
+		fLineDelimiter = System.getProperty("line.separator");
+		fPromptNewInput = "> ";
+		fPromptContinueInput = "$ ";
 	}
 
+	
+	@Override
+	protected void doOnCommandRun(String command, SubmitType type) {
+		
+		super.doOnCommandRun(command, type);
+		fInfoStream.append(fLineDelimiter, type);
+	}
+	
+	protected void doOnCommandFinished(boolean complete, SubmitType type) {
+		
+		// TODO cache state / inform console? / print with next input type?
+		fInfoStream.append(complete ? fPromptNewInput : fPromptContinueInput, type);
+	}
 }
