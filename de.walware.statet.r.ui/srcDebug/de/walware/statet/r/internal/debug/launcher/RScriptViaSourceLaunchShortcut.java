@@ -13,11 +13,14 @@ package de.walware.statet.r.internal.debug.launcher;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPathEditorInput;
 
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
@@ -33,7 +36,7 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 			IStructuredSelection sel = (IStructuredSelection) selection;
 			Object firstElement = sel.getFirstElement();
 			if (firstElement instanceof IFile) {
-				doRun((IFile) firstElement);
+				doRun( ((IFile) firstElement).getLocation() );
 			}
 		}
 		catch (Exception e) {
@@ -47,8 +50,16 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 		assert mode.equals("run");
 		
 		try {
-			IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-			doRun(input.getFile());
+			IEditorInput input = editor.getEditorInput();
+			if (input instanceof IFileEditorInput) {
+				doRun( ((IFileEditorInput) input).getFile().getLocation() );
+			}
+			else if (input instanceof IPathEditorInput) {
+				doRun( ((IPathEditorInput) input).getPath() );
+			}
+			else {
+				throw new Exception("Unsupported editor input: "+input.getClass().getName());
+			}
 		}
 		catch (Exception e) {
 			LaunchShortcutUtil.handleRLaunchException(e, 
@@ -57,9 +68,9 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 	}
 
 	
-	private void doRun(IFile file) throws CoreException {
+	private void doRun(IPath filePath) throws CoreException {
 
-		RCodeLaunchRegistry.runRFileViaSource(file);
+		RCodeLaunchRegistry.runRFileViaSource(filePath);
 	}
 	
 }

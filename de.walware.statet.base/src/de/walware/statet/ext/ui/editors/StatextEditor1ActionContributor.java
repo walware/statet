@@ -90,6 +90,7 @@ public class StatextEditor1ActionContributor extends TextEditorActionContributor
 		statusLine.setErrorMessage(null);
 
 		actionBars.setGlobalActionHandler(StatextEditor1.ACTION_ID_GOTO_MATCHING_BRACKET, getAction(textEditor, StatextEditor1.ACTION_ID_GOTO_MATCHING_BRACKET));
+		actionBars.setGlobalActionHandler(StatextEditor1.ACTION_ID_TOGGLE_COMMENT, getAction(textEditor, StatextEditor1.ACTION_ID_TOGGLE_COMMENT));
 	}
 
 }

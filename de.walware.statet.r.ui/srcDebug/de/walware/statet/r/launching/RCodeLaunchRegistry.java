@@ -11,10 +11,10 @@
 
 package de.walware.statet.r.launching;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
@@ -37,9 +37,9 @@ public class RCodeLaunchRegistry implements org.eclipse.core.runtime.Preferences
 		return (elements != null && elements.length > 0);
 	}
 	
-	public static void runRFileViaSource(IFile file) throws CoreException {
+	public static void runRFileViaSource(IPath filePath) throws CoreException {
 		
-		String path = file.getLocation().toString();
+		String path = filePath.toString();
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		if (!DebugUITools.saveBeforeLaunch())
 			return;

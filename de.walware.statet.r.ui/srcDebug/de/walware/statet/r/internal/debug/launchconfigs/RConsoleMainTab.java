@@ -369,7 +369,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		configuration.setAttribute(IRConsoleConstants.ATTR_R_LOCATION, rLocation);
 		configuration.setAttribute(IRConsoleConstants.ATTR_WORKING_DIRECTORY, workingDirectory);
 		configuration.setAttribute(IRConsoleConstants.ATTR_R_CMD, "TERM");
-		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : "--no-readline");
+		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : "");
 		
 		configuration.setAttribute(FIRST_EDIT, true);
 	}

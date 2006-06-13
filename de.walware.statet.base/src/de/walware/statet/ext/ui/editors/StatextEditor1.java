@@ -432,7 +432,9 @@ public abstract class StatextEditor1 extends TextEditor {
 	protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
 		
 		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
-		viewerConfiguration.handlePropertyChangeEvent(event);
+		if (viewerConfiguration != null) {
+			viewerConfiguration.handlePropertyChangeEvent(event);
+		}
 		
 		super.handlePreferenceStoreChanged(event);
 	}
