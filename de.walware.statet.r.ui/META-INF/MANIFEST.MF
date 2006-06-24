@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
 Bundle-Name: StatET: R UI
 Bundle-SymbolicName: de.walware.statet.r.ui; singleton:=true
-Bundle-Version: 0.2.2
+Bundle-Version: 0.2.3
 Bundle-Activator: de.walware.statet.r.ui.RUiPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
@@ -15,8 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
- de.walware.statet.base,
- de.walware.statet.r.core,
+ de.walware.statet.base;bundle-version="[0.2.3,0.3.0)",
+ de.walware.statet.r.core;bundle-version="[0.2.1,0.3.0)",
  org.eclipse.debug.core,
  org.eclipse.debug.ui,
  org.eclipse.ui.console,
