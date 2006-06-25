@@ -61,7 +61,7 @@ public class ToolRunner implements IPlatformRunnable {
 					try {
 						handler.handleStatus(new Status(
 								IStatus.ERROR,
-								NicoPlugin.ID,
+								NicoPlugin.PLUGIN_ID,
 								IStatetStatusConstants.RUNTIME_ERROR,
 								NLS.bind(NicoMessages.Runtime_error_UnexpectedTermination_message, process.getLabel()),
 								e), 
@@ -82,7 +82,7 @@ public class ToolRunner implements IPlatformRunnable {
 				try {
 					handler.handleStatus(new Status(
 							IStatus.ERROR, 
-							NicoPlugin.ID, 
+							NicoPlugin.PLUGIN_ID, 
 							IStatetStatusConstants.RUNTIME_ERROR, 
 							NLS.bind(NicoMessages.Runtime_error_CriticalError_message, t.getName()), 
 							e), 

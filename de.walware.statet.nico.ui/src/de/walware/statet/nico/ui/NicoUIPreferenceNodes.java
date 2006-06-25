@@ -20,5 +20,5 @@ import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 public class NicoUIPreferenceNodes {
 
 		
-	public static final String CAT_CONSOLE_QUALIFIER = NicoUIPlugin.ID + "/console";
+	public static final String CAT_CONSOLE_QUALIFIER = NicoUIPlugin.PLUGIN_ID + "/console";
 }

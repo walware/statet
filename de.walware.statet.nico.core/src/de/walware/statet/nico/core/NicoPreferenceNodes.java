@@ -20,5 +20,5 @@ import de.walware.statet.nico.core.internal.NicoPlugin;
 public class NicoPreferenceNodes {
 
 		
-	public static final String CAT_HISTORY_QUALIFIER = NicoPlugin.ID + "/history";
+	public static final String CAT_HISTORY_QUALIFIER = NicoPlugin.PLUGIN_ID + "/history";
 }

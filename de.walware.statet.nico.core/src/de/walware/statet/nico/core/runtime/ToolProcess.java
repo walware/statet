@@ -244,7 +244,7 @@ public class ToolProcess extends PlatformObject implements IProcess {
 		
 		if (!isTerminated()) {
 			throw new DebugException(new Status(
-					IStatus.ERROR, NicoPlugin.ID, 0,
+					IStatus.ERROR, NicoPlugin.PLUGIN_ID, 0,
 					"Exit value is not available until process terminates.",
 					null));
 		}
