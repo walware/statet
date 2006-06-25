@@ -21,6 +21,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -29,7 +31,6 @@ import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.r.nico.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 import de.walware.statet.ui.util.ExceptionHandler;
-import de.walware.statet.ui.util.UIAccess;
 
 
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {

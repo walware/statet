@@ -25,6 +25,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
 import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommon.ui.util.UIAccess;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.SubmitType;
@@ -34,7 +35,6 @@ import de.walware.statet.nico.core.runtime.ToolStreamProxy;
 import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences;
 import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences.FilterPreferences;
-import de.walware.statet.ui.util.UIAccess;
 
 
 /**
