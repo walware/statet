@@ -249,7 +249,7 @@ public class ToolRegistry implements IToolRegistry {
 	
 	public IWorkbenchPage findWorkbenchPage(ToolProcess process) {
 
-		IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage();
+		IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(false);
 		IWorkbenchPage page = null;
 		synchronized (fPageRegistries) {
 			for (PageRegistry reg : fPageRegistries.values()) {

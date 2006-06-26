@@ -33,7 +33,6 @@ public class ToolWorkspace implements IToolStatusListener {
 	public static final int DETAIL_PROMPT = 1;
 	public static final int DETAIL_LINE_SEPARTOR = 2;
 	
-	
 	private volatile String fLineSeparator;
 
 	private Object fPromptMutex = new Object();
@@ -83,6 +82,11 @@ public class ToolWorkspace implements IToolStatusListener {
 	public IFileStore getWorkspaceDir() {
 		
 		return null;
+	}
+	
+	public String getEncoding() {
+		
+		return "UTF-8";
 	}
 
 	

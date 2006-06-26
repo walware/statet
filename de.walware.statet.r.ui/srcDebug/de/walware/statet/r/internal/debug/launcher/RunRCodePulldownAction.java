@@ -37,6 +37,8 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowPulldownDelegate;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 
@@ -82,7 +84,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		 */
 		public void run() {
 			
-			IWorkbenchWindow wb = StatetPlugin.getActiveWorkbenchWindow();
+			IWorkbenchWindow wb = UIAccess.getActiveWorkbenchWindow(true);
 			if (wb != null) {
 				IWorkbenchPage page = wb.getActivePage();
 				if (page != null) {
@@ -234,7 +236,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 	private IEvaluationContext createContext() {
 		
 	    List list = null;
-		IWorkbenchWindow window = StatetPlugin.getActiveWorkbenchWindow();
+		IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
 		if (window != null) {
 			IWorkbenchPage page = window.getActivePage();
 			if (page != null) {

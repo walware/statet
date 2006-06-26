@@ -25,7 +25,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.internal.ui.StatetMessages;
 
 
@@ -69,7 +70,7 @@ public class DNDUtil {
 					throw e;
 	
 				if (!MessageDialog.openQuestion(
-						StatetPlugin.getActiveWorkbenchShell(), 
+						UIAccess.getActiveWorkbenchShell(true), 
 						StatetMessages.CopyToClipboard_error_title,
 						StatetMessages.CopyToClipboard_error_message))
 					return false;

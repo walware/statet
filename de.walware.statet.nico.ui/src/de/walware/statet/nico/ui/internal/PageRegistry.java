@@ -38,6 +38,8 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.progress.WorkbenchJob;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistryListener;
@@ -120,7 +122,7 @@ class PageRegistry {
 				return Status.CANCEL_STATUS;
 			}
 			try {
-				if (page == StatetPlugin.getActivePage()) {
+				if (page == UIAccess.getActiveWorkbenchPage(true)) {
 					cancelShowConsoleViewDefaultJob();
 				}
 				

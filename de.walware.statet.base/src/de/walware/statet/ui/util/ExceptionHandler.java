@@ -82,7 +82,7 @@ public class ExceptionHandler {
 	 */
 	public static void handle(IStatus status) {
 		
-		perform(status, null, status.getMessage());
+		perform(status, null, null);
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public class ExceptionHandler {
 			public void run() {
 				Shell s = shell;
 				if (s == null) {
-					s = StatetPlugin.getActiveWorkbenchShell();
+					s = UIAccess.getActiveWorkbenchShell(true);
 				}
 				ErrorDialog.openError(s, StatetMessages.ErrorDialog_title, message, status);
 			}
@@ -142,7 +142,7 @@ public class ExceptionHandler {
 			public void run() {
 				Shell s = shell;
 				if (s == null) {
-					s = StatetPlugin.getActiveWorkbenchShell();
+					s = UIAccess.getActiveWorkbenchShell(true);
 				}
 				MessageDialog.openError(s, StatetMessages.ErrorDialog_title, finalMessage);			
 			}

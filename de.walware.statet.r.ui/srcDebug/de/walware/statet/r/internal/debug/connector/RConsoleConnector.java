@@ -34,8 +34,9 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IOConsole;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.base.IStatetStatusConstants;
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.launchconfigs.IRConsoleConstants;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 import de.walware.statet.r.ui.RUiPlugin;
@@ -80,7 +81,7 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 
 		IOConsole console = getConsole();
 		if (console == null) {
-			IWorkbenchWindow window = StatetPlugin.getActiveWorkbenchWindow();
+			IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
 			((ApplicationWindow) window).setStatus("No R-Console available.");
 		}
 	}
@@ -155,8 +156,7 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 	
 	private IConsoleView getConsoleView(boolean activateConsoleView) throws PartInitException {
 		
-		IWorkbenchWindow window = StatetPlugin.getActiveWorkbenchWindow();
-		IWorkbenchPage page = window.getActivePage();
+		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		IConsoleView view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW);
 		if (activateConsoleView)
 			page.activate(view);

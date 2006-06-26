@@ -14,9 +14,6 @@ package de.walware.statet.base;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -101,30 +98,6 @@ public class StatetPlugin extends AbstractUIPlugin {
 		return AbstractUIPlugin.imageDescriptorFromPlugin("de.walware.statet.base", path);
 	}
 
-	
-	public static IWorkbenchWindow getActiveWorkbenchWindow() {
-		
-		return getDefault().getWorkbench().getActiveWorkbenchWindow();
-	}
-	
-	public static Shell getActiveWorkbenchShell() {
-		
-		 IWorkbenchWindow window = getActiveWorkbenchWindow();
-		 if (window != null) {
-		 	return window.getShell();
-		 }
-		 
-		 return null;
-	}
-	
-	public static IWorkbenchPage getActivePage() {
-		
-		IWorkbenchWindow window = getActiveWorkbenchWindow();
-		if (window != null)
-			return window.getActivePage();
-		return null;
-	}
-	
 	
 	public static void log(IStatus status) {
 		

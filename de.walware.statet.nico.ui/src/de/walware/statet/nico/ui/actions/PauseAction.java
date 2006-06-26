@@ -32,7 +32,7 @@ public class PauseAction extends Action implements IPauseRequestListener {
 	public PauseAction() {
 		
 		setText(NicoMessages.PauseAction_name);
-		setToolTipText(NicoMessages.PasteSubmitAction_tooltip);
+		setToolTipText(NicoMessages.PauseAction_tooltip);
 		setImageDescriptor(StatetImages.DESC_LOCTOOL_PAUSE);
 		setDisabledImageDescriptor(StatetImages.DESC_LOCTOOLD_PAUSE);
 		setChecked(false);

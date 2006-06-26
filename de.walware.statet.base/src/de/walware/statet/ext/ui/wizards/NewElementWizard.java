@@ -47,6 +47,8 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ui.util.ExceptionHandler;
 
@@ -413,7 +415,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 
     protected void openResource(final IFile resource) {
 		
-		final IWorkbenchPage activePage = StatetPlugin.getActivePage();
+		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(true);
 		if (activePage != null) {
 			final Display display = getShell().getDisplay();
 			if (display != null) {

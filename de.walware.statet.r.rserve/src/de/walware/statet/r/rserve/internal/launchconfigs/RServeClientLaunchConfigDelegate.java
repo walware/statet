@@ -49,7 +49,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 				return;
 			}
 			
-			IWorkbenchPage page = UIAccess.getActiveWorkbenchPage();
+			IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			String name = configuration.getName() + " [" + configuration.getType().getName() + "]";
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.readFrom(configuration);

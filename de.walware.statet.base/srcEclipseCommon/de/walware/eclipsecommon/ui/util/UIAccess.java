@@ -60,7 +60,11 @@ public class UIAccess {
 		return display;
 	}
 
-	public static IWorkbenchWindow getActiveWorkbenchWindow() {
+	public static IWorkbenchWindow getActiveWorkbenchWindow(boolean inUIThread) {
+		
+		if (inUIThread) {
+			return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		}
 		
 		final AtomicReference<IWorkbenchWindow> windowRef = new AtomicReference<IWorkbenchWindow>();
 		getDisplay().syncExec(new Runnable() {
@@ -71,13 +75,22 @@ public class UIAccess {
 		return windowRef.get();
 	}
 	
-	public static IWorkbenchPage getActiveWorkbenchPage() {
+	public static IWorkbenchPage getActiveWorkbenchPage(boolean inUIThread) {
 		
-		IWorkbenchWindow window = getActiveWorkbenchWindow();
+		IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
 		if (window != null) {
 			return window.getActivePage();
 		}
 		return null;
+	}
+
+	public static Shell getActiveWorkbenchShell(boolean inUIThread) {
+		
+		 IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
+		 if (window != null) {
+		 	return window.getShell();
+		 }
+		 return null;
 	}
 
 	public static Color getColor(final ColorManager colorManager, final RGB rgb) {

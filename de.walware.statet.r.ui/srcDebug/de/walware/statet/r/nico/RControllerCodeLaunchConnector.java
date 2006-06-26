@@ -16,7 +16,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
@@ -32,7 +33,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	public void submit(String[] rCommands) throws CoreException {
 		
 		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(
-				StatetPlugin.getActivePage());
+				UIAccess.getActiveWorkbenchPage(false));
 		ToolProcess process = info.getProcess();
 		if (process != null) {
 			ToolController controller = process.getController();
@@ -46,7 +47,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 
 	public void gotoConsole() throws CoreException {
 		
-		IWorkbenchPage page = StatetPlugin.getActivePage();
+		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(page);
 		NIConsole console = info.getConsole();
 		if (console != null) {

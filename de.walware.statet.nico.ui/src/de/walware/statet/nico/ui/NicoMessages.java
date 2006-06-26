@@ -24,14 +24,13 @@ public class NicoMessages extends NLS {
 	public static String Status_Terminated_description;
 
 	public static String SubmitAction_name;
-	
 	public static String PasteSubmitAction_name;
-	
-	public static String PauseAction_name;
-	public static String PasteSubmitAction_tooltip;
-
 	public static String SubmitTask_name;
 	public static String Submit_error_message;
+
+	public static String PauseAction_name;
+	public static String PauseAction_tooltip;
+		
 
 	public static String Runtime_error_message;
 	
