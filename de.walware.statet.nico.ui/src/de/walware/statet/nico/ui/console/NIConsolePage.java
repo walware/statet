@@ -68,8 +68,8 @@ import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.eclipsecommon.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.SharedMessages;
@@ -115,7 +115,7 @@ public class NIConsolePage implements IPageBookViewPage,
 
 			if (!fIsSheduled) {
 				fIsSheduled = true;
-				Display display = StatetPlugin.getDisplay(getSite().getShell());
+				Display display = UIAccess.getDisplay(getSite().getShell());
 				display.asyncExec(this);
 			}
 		}
@@ -545,7 +545,7 @@ public class NIConsolePage implements IPageBookViewPage,
 			fTerminateAction.update();
 			fOutputPasteAction.setEnabled(false);
 
-			StatetPlugin.getDisplay(getSite().getShell()).asyncExec(new Runnable() {
+			UIAccess.getDisplay(getSite().getShell()).asyncExec(new Runnable() {
 				public void run() {
 					if (fIsCreated) {
 						fInputGroup.getSubmitButton().setEnabled(false);

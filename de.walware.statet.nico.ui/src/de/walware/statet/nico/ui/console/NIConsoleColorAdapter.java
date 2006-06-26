@@ -64,7 +64,7 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 			public void propertyChange(PropertyChangeEvent event) {
 			    final String streamId = getStreamId(event.getProperty());
 				if (streamId != null) {
-					StatetPlugin.getDisplay().asyncExec(new Runnable() {
+					UIAccess.getDisplay().asyncExec(new Runnable() {
 						public void run() {
 						    IOConsoleOutputStream stream = fConsole.getStream(streamId);
 						    if (stream != null) {

@@ -38,8 +38,8 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.eclipsecommon.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -122,7 +122,7 @@ public class QueueView extends ViewPart {
 		
 		private void setElements(final IToolRunnable[] elements) {
 			
-			StatetPlugin.getDisplay().syncExec(new Runnable() {
+			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
 					if (!Layouter.isOkToUse(fTableViewer)) {
 						return;
@@ -155,7 +155,7 @@ public class QueueView extends ViewPart {
 								}
 							}
 						
-							StatetPlugin.getDisplay().syncExec(new Runnable() {
+							UIAccess.getDisplay().syncExec(new Runnable() {
 								public void run() {
 									if (!Layouter.isOkToUse(fTableViewer)) {
 										return;
@@ -169,7 +169,7 @@ public class QueueView extends ViewPart {
 					case ToolProcess.QUEUE_ENTRY_STARTED_PROCESSING:
 						if (!fExpectInfoEvent) {
 							final IToolRunnable entry = (IToolRunnable) event.getData();
-							StatetPlugin.getDisplay().syncExec(new Runnable() {
+							UIAccess.getDisplay().syncExec(new Runnable() {
 								public void run() {
 									if (!Layouter.isOkToUse(fTableViewer)) {
 										return;
@@ -297,7 +297,7 @@ public class QueueView extends ViewPart {
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionInfo info) {
 				final ToolProcess process = info.getProcess();
-				StatetPlugin.getDisplay().asyncExec(new Runnable() {
+				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
 						connect(process);
 					}
@@ -357,7 +357,7 @@ public class QueueView extends ViewPart {
 				fTableViewer.setInput(fProcess);
 			}
 		};
-		BusyIndicator.showWhile(StatetPlugin.getDisplay(), runnable);
+		BusyIndicator.showWhile(UIAccess.getDisplay(), runnable);
 	}
 	
 	/**

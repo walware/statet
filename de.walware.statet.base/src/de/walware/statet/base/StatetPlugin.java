@@ -14,15 +14,14 @@ package de.walware.statet.base;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.walware.eclipsecommon.ui.util.ColorManager;
+
 import de.walware.statet.internal.ui.StatetMessages;
 
 
@@ -124,37 +123,6 @@ public class StatetPlugin extends AbstractUIPlugin {
 		if (window != null)
 			return window.getActivePage();
 		return null;
-	}
-
-	/**
-	 * Searches a appropriate display.
-	 * <p>
-	 * Order for search: display of specified shell, display of thread
-	 * and default.
-	 * 
-	 * @param shell optional shell
-	 * @return display
-	 */
-	public static Display getDisplay(Shell shell) {
-		
-		Display display = null;
-		if (shell != null) {
-			display = shell.getDisplay();
-		}
-		if (display == null) {
-			display = PlatformUI.getWorkbench().getDisplay();
-		}
-		return display;
-	}
-	
-	/**
-	 * Returns the display for this workbench.
-	 * 
-	 * @return a display.
-	 */
-	public static Display getDisplay() {
-		
-		return PlatformUI.getWorkbench().getDisplay();
 	}
 	
 	

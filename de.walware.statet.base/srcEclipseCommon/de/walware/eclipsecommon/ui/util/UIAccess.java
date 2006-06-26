@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -28,11 +29,37 @@ import org.eclipse.ui.PlatformUI;
 public class UIAccess {
 
 	
+	/**
+	 * Returns the display for this workbench.
+	 * 
+	 * @return a display.
+	 */
 	public static Display getDisplay() {
 		
 		return PlatformUI.getWorkbench().getDisplay();
 	}
 	
+	/**
+	 * Searches a appropriate display.
+	 * <p>
+	 * Order for search: display of specified shell,
+	 * display for the workbench. 
+	 * 
+	 * @param shell optional shell
+	 * @return display
+	 */
+	public static Display getDisplay(Shell shell) {
+		
+		Display display = null;
+		if (shell != null) {
+			display = shell.getDisplay();
+		}
+		if (display == null) {
+			display = PlatformUI.getWorkbench().getDisplay();
+		}
+		return display;
+	}
+
 	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		
 		final AtomicReference<IWorkbenchWindow> windowRef = new AtomicReference<IWorkbenchWindow>();
@@ -63,4 +90,5 @@ public class UIAccess {
 		});
 		return colorRef.get();
 	}
+
 }

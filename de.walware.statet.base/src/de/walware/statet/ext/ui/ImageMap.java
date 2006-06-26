@@ -20,7 +20,8 @@ import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 
 
 /**
@@ -39,7 +40,7 @@ public class ImageMap {
 	 */
 	public ImageMap() {
 		
-		this(StatetPlugin.getDisplay(null));
+		this(UIAccess.getDisplay(null));
 	}
 	
 	/**

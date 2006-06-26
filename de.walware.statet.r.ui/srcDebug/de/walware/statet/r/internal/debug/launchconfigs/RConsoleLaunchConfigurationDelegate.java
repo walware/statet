@@ -38,8 +38,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.base.IStatetStatusConstants;
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.ui.RUiPlugin;
 
@@ -80,12 +81,12 @@ public class RConsoleLaunchConfigurationDelegate implements
 				if (configType.equals(programType)) {
 					if (!launches[i].isTerminated()) {
 						if (forced) {
-							MessageDialog.openWarning(StatetPlugin.getDisplay().getActiveShell(),
+							MessageDialog.openWarning(UIAccess.getDisplay().getActiveShell(),
 									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
 									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message);
 						}
 						else {
-							MessageDialog dialog = new MessageDialog(StatetPlugin.getDisplay().getActiveShell(),
+							MessageDialog dialog = new MessageDialog(UIAccess.getDisplay().getActiveShell(),
 									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
 									null,
 									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message,

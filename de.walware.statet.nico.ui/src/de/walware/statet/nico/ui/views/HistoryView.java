@@ -52,8 +52,8 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.eclipsecommon.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -314,7 +314,7 @@ public class HistoryView extends ViewPart {
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionInfo info) {
 				final ToolProcess process = info.getProcess();
-				StatetPlugin.getDisplay().asyncExec(new Runnable() {
+				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
 						connect(process);
 					}
@@ -432,7 +432,7 @@ public class HistoryView extends ViewPart {
 						fProcess.getHistory() : null);
 			}
 		};
-		BusyIndicator.showWhile(StatetPlugin.getDisplay(), runnable);
+		BusyIndicator.showWhile(UIAccess.getDisplay(), runnable);
 	}
 	
 	/**
