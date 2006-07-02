@@ -53,6 +53,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
+import de.walware.statet.nico.ui.internal.Messages;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
@@ -151,7 +152,7 @@ public class InputGroup {
 		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
 		fPrefix.setLayoutData(gd);
 		fPrefix.setFont(fComposite.getFont());
-		fPrefix.setText("> ");
+		fPrefix.setText("> "); //$NON-NLS-1$
 		
 		createSourceViewer(editorConfig);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -163,7 +164,7 @@ public class InputGroup {
 		gd.horizontalIndent = 3;
 		gd.heightHint = new PixelConverter(fSubmitButton).convertHeightInCharsToPixels(1);
 		fSubmitButton.setLayoutData(gd);
-		fSubmitButton.setText("Submit");
+		fSubmitButton.setText(Messages.Console_SubmitButton_label);
 		fSubmitButton.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				doSubmit();
@@ -252,7 +253,7 @@ public class InputGroup {
 					fPairMatcherGotoAction.getId(), fPairMatcherGotoAction);
 		}
 		
-		multiActionHandler.addKeybindingScope(widget, "de.walware.statet.ui.contexts.TextEditorScope");
+		multiActionHandler.addKeybindingScope(widget, "de.walware.statet.ui.contexts.TextEditorScope"); //$NON-NLS-1$
 	}
 	
 	
@@ -287,7 +288,7 @@ public class InputGroup {
 		fCurrentHistoryEntry = fCurrentHistoryEntry.getNewer();
 
 		String text = (fCurrentHistoryEntry != null) ?
-				fCurrentHistoryEntry.getCommand() : "";
+				fCurrentHistoryEntry.getCommand() : ""; //$NON-NLS-1$
 		
 		if (!fIsHistoryCompoundChangeOpen) {
 			fIsHistoryCompoundChangeOpen = true;
@@ -325,7 +326,7 @@ public class InputGroup {
 		String content = fDocument.get();
 		ToolController controller = fProcess.getController();
 		if (controller != null && controller.submit(content, SubmitType.CONSOLE)) {
-			fDocument.set("");
+			fDocument.set(""); //$NON-NLS-1$
 			fCurrentHistoryEntry = null;
 			fSourceViewer.getUndoManager().reset();
 		}

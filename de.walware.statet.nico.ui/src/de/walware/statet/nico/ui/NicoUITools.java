@@ -56,7 +56,7 @@ public class NicoUITools {
 	
 	public static String createSubmitMessage(ToolProcess process) {
 		
-		return NLS.bind(NicoMessages.SubmitTask_name, process.getLabel());
+		return NLS.bind(NicoUIMessages.SubmitTask_name, process.getToolLabel(false));
 	}
 	
 	public static void runSubmitInBackground(ToolProcess process, IRunnableWithProgress runnable, Shell shell) {
@@ -66,7 +66,7 @@ public class NicoUITools {
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
 		} catch (InvocationTargetException e) {
 			ExceptionHandler.handle(e, shell, 
-					NLS.bind(NicoMessages.Submit_error_message, process.getLabel()) 
+					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)) 
 			);
 		} catch (InterruptedException e) {
 			// something to do?

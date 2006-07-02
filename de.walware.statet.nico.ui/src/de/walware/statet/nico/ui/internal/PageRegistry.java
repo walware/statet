@@ -14,12 +14,12 @@ package de.walware.statet.nico.ui.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
@@ -52,18 +52,9 @@ import de.walware.statet.nico.ui.console.NIConsole;
  *
  */
 class PageRegistry {
-		
-	private static void cancelShowConsoleViewDefaultJob() {
-		
-		Job[] jobs = Platform.getJobManager().find(null);
-		for (Job job : jobs) {
-			if (job.getName().startsWith("Show Console View")) {
-				job.cancel();
-				return;
-			}
-		}
-	}
-
+	
+	static final String SHOW_CONSOLE_JOB_NAME = "Show NIConsole"; //$NON-NLS-1$
+	
 	private static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
 		
 		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
@@ -98,20 +89,22 @@ class PageRegistry {
 	
 	private class ShowConsoleViewJob extends WorkbenchJob {
 		
-		private NIConsole fConsoleToShow;
-		private boolean fActivate;
+		private volatile NIConsole fConsoleToShow;
+		private volatile boolean fActivate;
 		
 		ShowConsoleViewJob() {
 			
-			super("Show NIConsole"); //$NON-NLS-1$
+			super(SHOW_CONSOLE_JOB_NAME);
 			setSystem(true);
 			setPriority(Job.SHORT);
 		}
 		
-		void setup(NIConsole console, boolean activate) {
+		void schedule(NIConsole console, boolean activate) {
 			
+			cancel();
 			fConsoleToShow = console;
 			fActivate = activate;
+			schedule(100);
 		}
 		
 		public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -122,10 +115,6 @@ class PageRegistry {
 				return Status.CANCEL_STATUS;
 			}
 			try {
-				if (page == UIAccess.getActiveWorkbenchPage(true)) {
-					cancelShowConsoleViewDefaultJob();
-				}
-				
 				IWorkbenchPart activePart = page.getActivePart();
 				if (activePart instanceof IConsoleView) {
 					if (console == ((IConsoleView) activePart).getConsole()) {
@@ -138,7 +127,7 @@ class PageRegistry {
 					IConsoleView view = iter.next();
 					if (view.isPinned()) {					// visible and pinned
 						if (console == view.getConsole()) {
-							return doShow(console, view, monitor);
+							return doShow(view, monitor);
 						} else {
 							iter.remove();
 						}
@@ -148,7 +137,7 @@ class PageRegistry {
 				for (IConsoleView view : views) {
 					if (console == view.getConsole()) {
 						if (page.isPartVisible(view)) {	// already visible
-							return doShow(console, view, monitor);
+							return doShow(view, monitor);
 						}
 						else { 								// already selected 
 							preferedView[0] = view; 
@@ -169,10 +158,10 @@ class PageRegistry {
 				}
 				for (int i = 0; i < preferedView.length; i++) {
 					if (preferedView[i] != null) {
-						return doShow(console, preferedView[i], monitor);
+						return doShow(preferedView[i], monitor);
 					}
 				}
-				return doShow(console, null, monitor);
+				return doShow(null, monitor);
 			} catch (PartInitException e) {
 				StatetPlugin.logUnexpectedError(e);
 				return Status.OK_STATUS;
@@ -181,18 +170,21 @@ class PageRegistry {
 			}
 		}
 		
-		private IStatus doShow(NIConsole console, IConsoleView view, IProgressMonitor monitor) throws PartInitException {
+		private IStatus doShow(IConsoleView view, IProgressMonitor monitor) throws PartInitException {
 			
+			NIConsole console = fActiveConsole;
+			boolean activate = fActivate;
 			IWorkbenchPage page = getPage();
 			if (page == null || monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
+
 			if (view == null) {
 				String secId = console.getType() + System.currentTimeMillis(); // force creation
 				view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW, secId, IWorkbenchPage.VIEW_CREATE);
 			}
 			view.display(console);
-			if (fActivate) {
+			if (activate) {
 				page.activate(view);
 			}
 			else {
@@ -204,6 +196,80 @@ class PageRegistry {
 	}
 	private ShowConsoleViewJob fShowConsoleViewJob = new ShowConsoleViewJob();
 
+	private class UpdateConsoleJob extends Job {
+		
+		private volatile NIConsole fConsole;
+		private volatile IViewPart fSource;
+		private volatile List<ToolProcess> fExclude;
+		
+		public UpdateConsoleJob() {
+			super("Update Console");
+			setSystem(true);
+			setPriority(Job.SHORT);
+		}
+		
+		void schedule(NIConsole console, IViewPart source, List<ToolProcess> exclude) {
+			
+			cancel();
+			fConsole = console;
+			fSource = source;
+			fExclude = exclude;
+			schedule(50);
+		}
+		
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			
+			final IWorkbenchPage page = getPage();
+			if (page == null) {
+				return Status.OK_STATUS;
+			}
+			NIConsole console = fConsole;
+			final List<ToolProcess> exclude = fExclude; 
+			
+			if (console == null) {
+				final AtomicReference<NIConsole> ref = new AtomicReference<NIConsole>();
+				UIAccess.getDisplay(page.getWorkbenchWindow().getShell()).syncExec(new Runnable() {
+					public void run() {
+						ref.set(searchConsole(page, exclude));
+					}
+				});
+				console = ref.get();
+			}
+			
+			synchronized(PageRegistry.this) {
+				if (monitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
+				if ((console == fActiveConsole)
+						|| (console != null && console.equals(fActiveConsole)) ) {
+					return Status.OK_STATUS;
+				}
+				fActiveProcess = (console != null) ? console.getProcess() : null;
+				fActiveConsole = console;
+			}
+			
+			// don't cancel after process is changed
+			notifyActiveToolSessionChanged(fSource);
+			
+			return Status.OK_STATUS;
+		}
+
+		private void notifyActiveToolSessionChanged(IViewPart source) {
+			
+			ToolSessionUIData info = new ToolSessionUIData(fActiveProcess,
+					fActiveConsole, source);
+			
+			System.out.println("activated: " + info.toString());
+			
+			Object[] listeners = fListeners.getListeners();
+			for (Object obj : listeners) {
+				((IToolRegistryListener) obj).toolSessionActivated(info);
+			}
+		}
+
+	}
+	private UpdateConsoleJob fConsoleUpdateJob = new UpdateConsoleJob();
 	
 	PageRegistry(IWorkbenchPage page) {
 		
@@ -249,6 +315,8 @@ class PageRegistry {
 		DebugContextManager.getDefault().removeDebugContextListener(fDebugContextListener, fPage.getWorkbenchWindow());
 		fShowConsoleViewJob.cancel();
 		fShowConsoleViewJob = null;
+		fConsoleUpdateJob.cancel();
+		fConsoleUpdateJob = null;
 		fListeners.clear();
 		fActiveProcess = null;
 		fActiveConsole = null;
@@ -280,51 +348,25 @@ class PageRegistry {
 	
 	public synchronized void doActiveConsoleChanged(NIConsole console, IViewPart source, List<ToolProcess> exclude) {
 		
-		if (fPage == null) {
-			return;
-		}
-		if (console == null) {
-			console = searchConsole(exclude);
-		}
-		if ((console == fActiveConsole)
-				|| (console != null && console.equals(fActiveConsole)) ) {
-			return;
-		}
-		
-		fActiveProcess = (console != null) ? console.getProcess() : null;
-		fActiveConsole = console;
-		
-		notifyActiveToolSessionChanged(source);
+		fConsoleUpdateJob.schedule(console, source, exclude);
 	}
 	
 	public synchronized void showConsole(NIConsole console, boolean activate) {
 		
-		cancelShowConsoleViewDefaultJob();
-		fShowConsoleViewJob.setup(console, activate);
-		fShowConsoleViewJob.schedule(100);
+		fShowConsoleViewJob.schedule(console, activate);
 	}
 
-	private void notifyActiveToolSessionChanged(IViewPart source) {
-		
-		ToolSessionUIData info = new ToolSessionUIData(fActiveProcess,
-				fActiveConsole, source);
-		
-		System.out.println("activated: " + info.toString());
-		
-		Object[] listeners = fListeners.getListeners();
-		for (Object obj : listeners) {
-			((IToolRegistryListener) obj).toolSessionActivated(info);
-		}
-	}
-
-	private NIConsole searchConsole(List<ToolProcess> exclude) {
+	/**
+	 * only in UI thread 
+	 */
+	private static NIConsole searchConsole(IWorkbenchPage page, List<ToolProcess> exclude) {
 		// Search NIConsole in
 		// 1. active part
 		// 2. visible part
 		// 3. all
 
 		NIConsole nico = null;
-		IWorkbenchPart part = fPage.getActivePart();
+		IWorkbenchPart part = page.getActivePart();
 		if (part instanceof IConsoleView) {
 			IConsole console = ((IConsoleView) part).getConsole();
 			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console))) {
@@ -332,12 +374,12 @@ class PageRegistry {
 			}
 		}
 
-		List<IConsoleView> consoleViews = getConsoleViews(fPage);
+		List<IConsoleView> consoleViews = getConsoleViews(page);
 		NIConsole secondChoice = null;
 		for (IConsoleView view : consoleViews) {
 			IConsole console = view.getConsole();
 			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console))) {
-				if (fPage.isPartVisible(view)) {
+				if (page.isPartVisible(view)) {
 					return nico;
 				}
 				else if (secondChoice == null) {

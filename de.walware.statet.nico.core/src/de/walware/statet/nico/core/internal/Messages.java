@@ -14,19 +14,23 @@ package de.walware.statet.nico.core.internal;
 import org.eclipse.osgi.util.NLS;
 
 
-public class NicoMessages extends NLS {
+public class Messages extends NLS {
 	
+
+	public static String LoadHistory_AllocatingTask_label;
+	public static String LoadHistory_error_message;
+	public static String SaveHistory_error_message;
 
 	public static String InternalError_UnexpectedException_message;
 	
 	public static String Runtime_error_CriticalError_message;
 	public static String Runtime_error_UnexpectedTermination_message;
+
 	
-	
-	private static final String BUNDLE_NAME = NicoMessages.class.getName();
+	private static final String BUNDLE_NAME = Messages.class.getName();
 	
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, NicoMessages.class);
+		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 	
 }

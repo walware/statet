@@ -8,6 +8,8 @@ Bundle-Activator: de.walware.statet.base.StatetPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
+ org.eclipse.core.filesystem;visibility:=reexport,
+ org.eclipse.core.variables,
  org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
@@ -15,8 +17,10 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reex
  org.eclipse.ui.ide,
  org.eclipse.debug.core
 Eclipse-LazyStart: true
-Export-Package: de.walware.eclipsecommon.preferences,
+Export-Package: de.walware.eclipsecommon,
+ de.walware.eclipsecommon.preferences,
  de.walware.eclipsecommon.templates,
+ de.walware.eclipsecommon.ui,
  de.walware.eclipsecommon.ui.dialogs,
  de.walware.eclipsecommon.ui.dialogs.groups,
  de.walware.eclipsecommon.ui.preferences,

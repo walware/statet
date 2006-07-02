@@ -12,6 +12,7 @@
 package de.walware.eclipsecommon.ui.preferences;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -70,6 +71,8 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		fBlock.createContents(layouter, (IWorkbenchPreferenceContainer) getContainer(), getPreferenceStore());
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		layouter.fComposite.setLayoutData(data);
+		
+		Dialog.applyDialogFont(layouter.fComposite);
 		
 		return layouter.fComposite;
 	}

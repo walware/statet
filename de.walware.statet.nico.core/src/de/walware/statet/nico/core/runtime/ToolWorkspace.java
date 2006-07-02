@@ -86,7 +86,7 @@ public class ToolWorkspace implements IToolStatusListener {
 	
 	public String getEncoding() {
 		
-		return "UTF-8";
+		return "UTF-8"; //$NON-NLS-1$
 	}
 
 	
@@ -156,7 +156,7 @@ public class ToolWorkspace implements IToolStatusListener {
 	void setLineSeparator(String newSeparator) {
 		
 		String oldSeparator = fLineSeparator;
-		fLineSeparator = (newSeparator != null) ? newSeparator : System.getProperty("line.separator");
+		fLineSeparator = (newSeparator != null) ? newSeparator : System.getProperty("line.separator"); //$NON-NLS-1$
 		if (!fLineSeparator.equals(oldSeparator)) {
 			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_LINE_SEPARTOR);
 			event.setData(fLineSeparator);

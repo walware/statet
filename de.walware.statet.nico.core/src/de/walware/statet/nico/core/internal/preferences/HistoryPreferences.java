@@ -31,9 +31,9 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 public class HistoryPreferences {
 
 	
-	private static final String KEY_FILTER_SUBMIT_TYPES = "filter.submit_types";
-	private static final String KEY_FILTER_COMMENTS = "filter.comments";
-	private static final String KEY_LIMIT_COUNT = "limit.count";
+	private static final String KEY_FILTER_SUBMIT_TYPES = "filter.submit_types"; //$NON-NLS-1$
+	private static final String KEY_FILTER_COMMENTS = "filter.comments"; //$NON-NLS-1$
+	private static final String KEY_LIMIT_COUNT = "limit.count"; //$NON-NLS-1$
 	
 	private static final EnumSetPref<SubmitType> PREF_FILTER_SUBMIT_TYPES = new EnumSetPref<SubmitType>(
 			NicoPreferenceNodes.CAT_HISTORY_QUALIFIER, KEY_FILTER_SUBMIT_TYPES, SubmitType.class);

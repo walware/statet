@@ -52,10 +52,10 @@ public class ToolSessionUIData {
 	@Override
 	public String toString() {
 		
-		StringBuilder s = new StringBuilder();
-		s.append("Process: ").append(fProcess != null ? fProcess.getLabel() : "<null>").append('\n');
-		s.append("Source: ").append(fSource != null ? fSource.getTitle() : "<null>").append('\n');
-		s.append("Console: ").append(fConsole != null ? fConsole.getName() : "<null>").append('\n');
+		StringBuilder s = new StringBuilder("["); //$NON-NLS-1$
+		s.append("Process: ").append(fProcess != null ? fProcess.getToolLabel(true) : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		s.append("Source: ").append(fSource != null ? fSource.getTitle() : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		s.append("Console: ").append(fConsole != null ? fConsole.getName() : "<null>").append("]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return s.toString();
 	}
 }

@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.rserve.internal.launchconfigs;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -50,9 +53,10 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			}
 			
 			IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-			String name = configuration.getName() + " [" + configuration.getType().getName() + "]";
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.readFrom(configuration);
+			String name = "rserve://"+connectionConfig.getServerAddress()+":"+connectionConfig.getServerPort()
+					+" ("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")";
 			
 			ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, name);
 			process.init(new RServeClientController(process, connectionConfig));

@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
+import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.internal.NicoPlugin;
 
 
@@ -419,7 +420,7 @@ public abstract class ToolController<
 	public boolean submit(String[] text, SubmitType type, IProgressMonitor monitor) {
 		
 		try {
-			monitor.beginTask("Submitting to queue.", 3);
+			monitor.beginTask(NicoCoreMessages.SubmitTask_label, 3); //$NON-NLS-1$
 			assert (text != null);
 
 			synchronized (fQueue) {
@@ -584,7 +585,6 @@ public abstract class ToolController<
 		}
 
 		// muss nicht synchronisiert werden, da Zugriff nur durch einen Thread
-		// TODO try catch
 		fCurrentRunnable.run(fRunnableAdapter);
 		fCurrentRunnable = null;
 		return true;

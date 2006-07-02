@@ -24,7 +24,7 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 	 * Plugin-ID
 	 * Value: @value
 	 */
-	public static final String PLUGIN_ID = "de.walware.statet.nico.ui";
+	public static final String PLUGIN_ID = "de.walware.statet.nico.ui"; //$NON-NLS-1$
 
 	/** The shared instance. */
 	private static NicoUIPlugin gPlugin;

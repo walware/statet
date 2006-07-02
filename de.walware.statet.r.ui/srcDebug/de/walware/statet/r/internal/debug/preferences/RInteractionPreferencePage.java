@@ -109,7 +109,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		PixelConverter pixelConverter = new PixelConverter(fConnectorsDescription);
 		gd.horizontalSpan = 1;
 		gd.widthHint = pixelConverter.convertWidthInCharsToPixels(40);
-		gd.heightHint = pixelConverter.convertHeightInCharsToPixels(3);
+		gd.heightHint = pixelConverter.convertHeightInCharsToPixels(5);
 		scrolled.setLayoutData(gd);
 		scrolled.setContent(fConnectorsDescription);
 		

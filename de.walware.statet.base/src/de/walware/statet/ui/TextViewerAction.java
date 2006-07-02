@@ -19,6 +19,8 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
+import de.walware.eclipsecommon.ui.SharedMessages;
+
 
 /**
  * Common function for actions that operate on a text viewer.

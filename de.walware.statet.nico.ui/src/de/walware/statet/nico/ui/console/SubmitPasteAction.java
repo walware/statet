@@ -24,21 +24,21 @@ import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
-import de.walware.statet.nico.ui.NicoMessages;
+import de.walware.statet.nico.ui.NicoUIMessages;
 import de.walware.statet.nico.ui.NicoUITools;
 
 
 class SubmitPasteAction extends Action {
 
 	
-	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n");
+	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
 	private NIConsolePage fView;
 	
 	public SubmitPasteAction(NIConsolePage consolePage) {
 		
-		super(NicoMessages.PasteSubmitAction_name);
+		super(NicoUIMessages.PasteSubmitAction_name);
 		
 		setId(ActionFactory.PASTE.getId());
 		setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);

@@ -16,7 +16,7 @@ import org.eclipse.jface.action.Action;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolController.IPauseRequestListener;
-import de.walware.statet.nico.ui.NicoMessages;
+import de.walware.statet.nico.ui.NicoUIMessages;
 import de.walware.statet.ui.StatetImages;
 
 
@@ -31,8 +31,8 @@ public class PauseAction extends Action implements IPauseRequestListener {
 	
 	public PauseAction() {
 		
-		setText(NicoMessages.PauseAction_name);
-		setToolTipText(NicoMessages.PauseAction_tooltip);
+		setText(NicoUIMessages.PauseAction_name);
+		setToolTipText(NicoUIMessages.PauseAction_tooltip);
 		setImageDescriptor(StatetImages.DESC_LOCTOOL_PAUSE);
 		setDisabledImageDescriptor(StatetImages.DESC_LOCTOOLD_PAUSE);
 		setChecked(false);

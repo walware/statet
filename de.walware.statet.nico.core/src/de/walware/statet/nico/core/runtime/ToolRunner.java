@@ -21,7 +21,7 @@ import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.base.IStatetStatusConstants;
-import de.walware.statet.nico.core.internal.NicoMessages;
+import de.walware.statet.nico.core.internal.Messages;
 import de.walware.statet.nico.core.internal.NicoPlugin;
 
 
@@ -63,7 +63,8 @@ public class ToolRunner implements IPlatformRunnable {
 								IStatus.ERROR,
 								NicoPlugin.PLUGIN_ID,
 								IStatetStatusConstants.RUNTIME_ERROR,
-								NLS.bind(NicoMessages.Runtime_error_UnexpectedTermination_message, process.getLabel()),
+								NLS.bind(Messages.Runtime_error_UnexpectedTermination_message, 
+										new Object[] { process.getToolLabel(false), process.getLabel() }),
 								e), 
 								null);
 					} catch (CoreException e1) {
@@ -75,7 +76,7 @@ public class ToolRunner implements IPlatformRunnable {
 		
 		Thread background = new Thread(r);
 		background.setDaemon(true);
-		background.setName("StatET Thread \""+process.getLabel()+"\"");
+		background.setName("StatET Thread '"+process.getLabel()+"'"); //$NON-NLS-1$ //$NON-NLS-2$
 		background.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
 				process.fExitValue = 1020;
@@ -84,7 +85,7 @@ public class ToolRunner implements IPlatformRunnable {
 							IStatus.ERROR, 
 							NicoPlugin.PLUGIN_ID, 
 							IStatetStatusConstants.RUNTIME_ERROR, 
-							NLS.bind(NicoMessages.Runtime_error_CriticalError_message, t.getName()), 
+							NLS.bind(Messages.Runtime_error_CriticalError_message, t.getName()), 
 							e), 
 							null);
 				} catch (CoreException e1) {

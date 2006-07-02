@@ -17,8 +17,8 @@ package de.walware.statet.nico.core.runtime;
  */
 public class Prompt {
 	
-	public static final Prompt NONE = new Prompt("", 0);
-	public static final Prompt DEFAULT = new Prompt("> ", IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
+	public static final Prompt NONE = new Prompt("", 0); //$NON-NLS-1$
+	public static final Prompt DEFAULT = new Prompt("> ", IToolRunnableControllerAdapter.META_PROMPT_DEFAULT); //$NON-NLS-1$
 	
 	
 	public final String text;

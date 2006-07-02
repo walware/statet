@@ -35,13 +35,13 @@ import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
  */
 public class ConsolePreferences {
 
-	public static final String INPUT_COLOR = "input.color";
-	public static final String INFO_COLOR = "info.color";
-	public static final String OUTPUT_COLOR = "output.color";
-	public static final String ERROR_COLOR = "error.color";
+	public static final String INPUT_COLOR = "input.color"; //$NON-NLS-1$
+	public static final String INFO_COLOR = "info.color"; //$NON-NLS-1$
+	public static final String OUTPUT_COLOR = "output.color"; //$NON-NLS-1$
+	public static final String ERROR_COLOR = "error.color"; //$NON-NLS-1$
 	
-	public static final String KEY_FILTER_SUBMIT_TYPES = "filter.submit_types";
-	public static final String KEY_FILTER_SHOW_ALL_ERRORS = "filter.show_all_errors";
+	public static final String KEY_FILTER_SUBMIT_TYPES = "filter.submit_types"; //$NON-NLS-1$
+	public static final String KEY_FILTER_SHOW_ALL_ERRORS = "filter.show_all_errors"; //$NON-NLS-1$
 
 	private static final EnumSetPref<SubmitType> PREF_FILTER_SUBMIT_TYPES = new EnumSetPref<SubmitType>(
 			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_FILTER_SUBMIT_TYPES, SubmitType.class);

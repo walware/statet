@@ -21,7 +21,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
-import de.walware.statet.nico.ui.NicoMessages;
+import de.walware.statet.nico.ui.NicoUIMessages;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.views.HistoryView;
 
@@ -34,9 +34,9 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 	
 	public HistorySubmitAction(HistoryView view) {
 		
-		super(NicoMessages.SubmitAction_name);
+		super(NicoUIMessages.SubmitAction_name);
 		
-		setId("de.walware.statet.nico.addviews.submit");
+		setId("de.walware.statet.nico.addviews.submit"); //$NON-NLS-1$
 		
 		fView = view;
 		view.getTableViewer().addSelectionChangedListener(this);

@@ -68,6 +68,7 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
+import de.walware.eclipsecommon.ui.SharedMessages;
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.UIAccess;
 
@@ -76,7 +77,6 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.internal.NicoUIPlugin;
-import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.TextViewerAction;
 import de.walware.statet.ui.util.DNDUtil;
 
@@ -356,10 +356,8 @@ public class NIConsolePage implements IPageBookViewPage,
 	
 	private void hookContextMenu() {
 		
-		String idBase = fConsole.getType();
-		
-		String id = idBase + "#OutputContextMenu";
-		MenuManager menuMgr = new MenuManager("#OutputContextMenu", id);
+		String id = NIConsole.NICONSOLE_TYPE + "#OutputContextMenu"; //$NON-NLS-1$
+		MenuManager menuMgr = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
@@ -371,8 +369,8 @@ public class NIConsolePage implements IPageBookViewPage,
 		control.setMenu(menu);
 		getSite().registerContextMenu(id, menuMgr, fOutputViewer);
 		
-		id = idBase + "#InputContextMenu";
-		menuMgr = new MenuManager("#InputContextMenu", id);
+		id = NIConsole.NICONSOLE_TYPE + "#InputContextMenu"; //$NON-NLS-1$
+		menuMgr = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
@@ -427,14 +425,14 @@ public class NIConsolePage implements IPageBookViewPage,
 		manager.add(fOutputCopyAction);
 		manager.add(fOutputSelectAllAction);
 		
-		manager.add(new Separator("more"));
+		manager.add(new Separator("more")); //$NON-NLS-1$
 		manager.add(fFindReplaceAction);
 //		manager.add(new FollowHyperlinkAction(fViewer));
 
-		manager.add(new Separator("submit"));
+		manager.add(new Separator("submit")); //$NON-NLS-1$
 		manager.add(fOutputPasteAction);
 		
-		manager.add(new Separator("view"));
+		manager.add(new Separator("view")); //$NON-NLS-1$
 		manager.add(fOutputClearAllAction);
 		manager.add(fOutputScrollLockAction);
 		

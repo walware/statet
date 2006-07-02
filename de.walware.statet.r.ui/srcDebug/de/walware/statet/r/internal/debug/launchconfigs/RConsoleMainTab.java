@@ -45,9 +45,9 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.eclipsecommon.ui.dialogs.ResourceSelectionDialog;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
 
 import de.walware.statet.base.IStatetStatusConstants;
@@ -234,15 +234,17 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 	 * <code>null</code> if no location was obtained from the user.
 	 */
 	protected void handleLocationWorkspaceButtonSelected() {
-		ResourceSelectionDialog dialog;
-		dialog = new ResourceSelectionDialog(getShell(), ResourcesPlugin.getWorkspace().getRoot(), RLaunchingMessages.RCmdMainTab_SelectRExecutable); //$NON-NLS-1$
-		dialog.open();
-		Object[] results = dialog.getResult();
-		if (results == null || results.length < 1) {
-			return;
+
+		ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(),  
+				RLaunchingMessages.RCmdMainTab_SelectRExecutable); //$NON-NLS-1$
+		if (dialog.open() == Dialog.OK) {
+			Object[] results = dialog.getResult();
+			if (results == null || results.length == 0) {
+				return;
+			}
+			IResource resource = (IResource) results[0];
+			fLocationField.setText(newVariableExpression("workspace_loc", resource.getFullPath().toString())); //$NON-NLS-1$
 		}
-		IResource resource = (IResource)results[0];
-		fLocationField.setText(newVariableExpression("workspace_loc", resource.getFullPath().toString())); //$NON-NLS-1$
 	}
 
 	/**

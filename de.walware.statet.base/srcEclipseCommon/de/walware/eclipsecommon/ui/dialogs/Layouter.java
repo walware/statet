@@ -11,6 +11,7 @@
 
 package de.walware.eclipsecommon.ui.dialogs;
 
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -69,8 +70,21 @@ public class Layouter {
 		fComposite.setLayout(layout);
 	}
 
+	public void add(Control composite) {
+		
+		add(composite, fNumColumns);
+	}
+	
+	public void add(Control composite, int horizontalSpan) {
+		
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = horizontalSpan;
+		composite.setLayoutData(gd);
+	}
+
 	public void addFiller() {
 		
+		Dialog.applyDialogFont(fComposite);
 		PixelConverter pixelConverter = new PixelConverter(fComposite);
 		
 		Label filler = new Label(fComposite, SWT.LEFT );
@@ -90,6 +104,14 @@ public class Layouter {
 		gd.heightHint = pixelConverter.convertHeightInCharsToPixels(1) / 8;
 		filler.setLayoutData(gd);
 	}
+	
+	public void addSpaceGrabber() {
+		
+		Label filler = new Label(fComposite, SWT.NONE);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = fNumColumns;
+		filler.setLayoutData(gd);
+	}
 
 	public void addHorizontalLine() {
 		
@@ -100,7 +122,11 @@ public class Layouter {
 //		horizontalLine.setFont(composite.getFont());
 	}
 	
-	
+	/**
+	 * Label (spans all cols)
+	 * @param text
+	 * @return the created label
+	 */
 	public Label addLabel(String text) {
 		
 		return addLabel(text, 0, fNumColumns);
@@ -169,12 +195,26 @@ public class Layouter {
 	}
 
 	public Combo addComboControl(String[] items, int numColumns) {
+		
+		return addComboControl(items, true, numColumns);
+	}
 
-		Combo combo = new Combo(fComposite, SWT.DROP_DOWN | SWT.READ_ONLY);
-		combo.setItems(items);
+	public Combo addComboControl(String[] items, boolean readOnly, int numColumns) {
 
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+		int style = SWT.DROP_DOWN;
+		if (readOnly) {
+			style |= SWT.READ_ONLY;
+		}
+		Combo combo = new Combo(fComposite, style);
+		if (items != null) {
+			combo.setItems(items);
+		}
+
+		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = numColumns;
+//		PixelConverter conv = new PixelConverter(combo);
+//		gd.widthHint = conv.convertWidthInCharsToPixels(charWidth);
+		gd.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
 		combo.setLayoutData(gd);
 		
 		return combo;
@@ -190,7 +230,7 @@ public class Layouter {
 		button.setText(label);
 		GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, false, false);
 		gd.horizontalSpan = horizontalSpan;
-		gd.widthHint = getButtonWidthHint(button);
+		gd.minimumWidth = getButtonWidthHint(button);
 		button.setLayoutData(gd);
 		
 		if (listener != null)
@@ -201,6 +241,7 @@ public class Layouter {
 	
 	private int getButtonWidthHint(Button button) {
 
+		Dialog.applyDialogFont(button);
 		PixelConverter converter = new PixelConverter(button);
 		int widthHint = converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
 		return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);

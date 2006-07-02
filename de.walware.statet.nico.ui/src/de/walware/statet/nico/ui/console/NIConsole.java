@@ -18,16 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.IStreamListener;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
-import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -47,7 +43,7 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
-import de.walware.statet.nico.ui.NicoMessages;
+import de.walware.statet.nico.ui.util.ToolInfoGroup;
 
 
 /**
@@ -56,7 +52,7 @@ import de.walware.statet.nico.ui.NicoMessages;
 public class NIConsole extends IOConsole {
 	
 	
-	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console";
+	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
 	
 
 	public static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
@@ -73,17 +69,6 @@ public class NIConsole extends IOConsole {
 			}
 		}
 		return consoleViews;
-	}
-
-	protected static String computeName(ToolProcess process, String statusDescription) {
-		
-		StringBuilder name = new StringBuilder();
-		name.append(process.getLabel());
-		name.append(" New Console <");
-		name.append(statusDescription);
-		name.append('>');
-		
-		return name.toString();
 	}
 
 	
@@ -104,13 +89,13 @@ public class NIConsole extends IOConsole {
 	 */
 	public NIConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
 		
-		super(computeName(process, NicoMessages.Status_Starting_description),
+		super(process.getAttribute(IProcess.ATTR_PROCESS_LABEL),
 				NICONSOLE_TYPE, null, "UTF-8", true);
 		
 		fProcess = process;
 		fAdapter = adapter;
 		
-		setImageDescriptor(computeImageDescriptor());
+		setImageDescriptor(ToolInfoGroup.computeImageDescriptor(fProcess));
 		
 		fStreamsClosed = fProcess.isTerminated();
 		fAdapter.connect(process, this);
@@ -121,21 +106,16 @@ public class NIConsole extends IOConsole {
 				EVENTS: for (DebugEvent event : events) {
 					if (event.getSource() == fProcess) {
 						switch (event.getKind()) {
-						case DebugEvent.MODEL_SPECIFIC:
-							switch (event.getDetail()) {
-								case ToolProcess.STATUS_CALCULATE:
-									runSetName(NicoMessages.Status_StartedCalculating_description);
-									continue EVENTS;
-								case ToolProcess.STATUS_IDLE:
-									runSetName(NicoMessages.Status_StartedIdle_description);
-									continue EVENTS;
-								case ToolProcess.STATUS_QUEUE_PAUSE:
-									runSetName(NicoMessages.Status_StartedPaused_description);
-									continue EVENTS;
+						case DebugEvent.CHANGE:
+							Object obj = event.getData();
+							if (obj != null && obj instanceof String[]) {
+								String[] attrChange = (String[]) obj;
+								if (attrChange.length == 3 && IProcess.ATTR_PROCESS_LABEL.equals(attrChange[0])) {
+									runSetName(attrChange[2]);
+								}
 							}
-							break;
+							continue EVENTS;
 						case DebugEvent.TERMINATE:
-							runSetName(NicoMessages.Status_Terminated_description);
 							disconnect();
 							continue EVENTS;
 						}
@@ -143,15 +123,14 @@ public class NIConsole extends IOConsole {
 				}
 			}
 			
-			private void runSetName(final String statusDescription) {
-		            Runnable r = new Runnable() {
+			private void runSetName(final String name) {
+				UIAccess.getDisplay().syncExec(new Runnable() {
 	                public void run() {
-	                	setName(computeName(fProcess, statusDescription));
+	                	setName(name);
 	//                	ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
 	                	ConsolePlugin.getDefault().getConsoleManager().refresh(NIConsole.this);
 	                }
-	            };
-	            UIAccess.getDisplay(null).asyncExec(r);
+	            });
 			}
 		};
 		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
@@ -254,26 +233,4 @@ public class NIConsole extends IOConsole {
 		
 		return fProcess;
 	}
-	
-
-    /**
-     * Computes and returns the image descriptor for this console.
-     * 
-     * @return an image descriptor for this console or <code>null</code>
-     */
-    protected ImageDescriptor computeImageDescriptor() {
-    	
-        ILaunchConfiguration configuration = fProcess.getLaunch().getLaunchConfiguration();
-        if (configuration != null) {
-            ILaunchConfigurationType type;
-            try {
-                type = configuration.getType();
-                return DebugUITools.getImageDescriptor(type.getIdentifier());
-            } catch (CoreException e) {
-                StatetPlugin.logUnexpectedError(e);
-            }
-        }
-        return null;
-    }
-
 }

@@ -74,7 +74,7 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	public String getContents() {
 		// not buffered
 		
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 	
 	/**

@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui;
+package de.walware.eclipsecommon.ui;
 
 import java.util.ResourceBundle;
 
@@ -47,6 +47,11 @@ public class SharedMessages extends NLS {
 	
 	public static String FindReplaceAction_name;
 	public static String FindReplaceAction_tooltip;
+	
+	
+	public static String BrowseWorkspace_button_name;
+	public static String BrowseFilesystem_button_name;
+	public static String BrowseVariables_button_name;
 	
 	
 	private static final String BUNDLE_NAME = SharedMessages.class.getName();

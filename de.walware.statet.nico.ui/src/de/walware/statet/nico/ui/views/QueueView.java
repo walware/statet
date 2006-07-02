@@ -237,7 +237,7 @@ public class QueueView extends ViewPart {
 			if (columnIndex == 0) {
 				return getText(element);
 			}
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 		
 		public String getText(Object element) {

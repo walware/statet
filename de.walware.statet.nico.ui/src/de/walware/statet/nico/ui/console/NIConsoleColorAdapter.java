@@ -43,7 +43,7 @@ import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences.FilterP
 public class NIConsoleColorAdapter implements IConsoleColorProvider {
 
 	
-	public static final String ID_INFO_STREAM = NicoUIPlugin.PLUGIN_ID+".InfoStream";
+	public static final String ID_INFO_STREAM = NicoUIPlugin.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
 	
 	private NIConsole fConsole;
 	

@@ -20,7 +20,7 @@ import org.eclipse.jface.text.Document;
 public class InputDocument extends Document {
 
 	
-	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n");
+	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 
 	
 	InputDocument() {
@@ -31,7 +31,7 @@ public class InputDocument extends Document {
 	@Override
 	public void replace(int pos, int length, String text, long modificationStamp) throws BadLocationException {
 		
-		text = gLineSeparatorPattern.matcher(text).replaceAll("");
+		text = gLineSeparatorPattern.matcher(text).replaceAll(""); //$NON-NLS-1$
 		super.replace(pos, length, text, modificationStamp);
 	}
 }

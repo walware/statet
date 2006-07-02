@@ -17,11 +17,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -57,7 +61,7 @@ public class ToolRegistry implements IToolRegistry {
 			private List<ToolProcess> fList = new ArrayList<ToolProcess>();
 			
 			public RemoveToolsJob() {
-				super("Remove Tools");
+				super("Remove Tools"); //$NON-NLS-1$
 			}
 			
 			public synchronized void schedule(List<ToolProcess> list) {
@@ -148,12 +152,48 @@ public class ToolRegistry implements IToolRegistry {
 		}
 	};
 
+	private class JobListener implements IJobChangeListener {
+		
+		private AtomicInteger fOwnJobs = new AtomicInteger(0);
+
+		public void scheduled(IJobChangeEvent event) {
+			if (event.getJob().getName() == PageRegistry.SHOW_CONSOLE_JOB_NAME) {
+				fOwnJobs.incrementAndGet();
+			}
+			else {
+				checkJob(event.getJob());
+			}
+		}
+		public void aboutToRun(IJobChangeEvent event) {
+			checkJob(event.getJob());
+		}
+		public void done(IJobChangeEvent event) {
+			if (event.getJob().getName() == PageRegistry.SHOW_CONSOLE_JOB_NAME) {
+				fOwnJobs.decrementAndGet();
+			}
+		}
+		private void checkJob(Job eventJob) {
+			if (fOwnJobs.get() > 0
+					&& eventJob.getName().startsWith("Show Console View")) { //$NON-NLS-1$)
+				eventJob.cancel();
+				System.out.println("show job cancel");
+			}
+		}
+
+		public void sleeping(IJobChangeEvent event) {
+		}
+		public void awake(IJobChangeEvent event) {
+		}
+		public void running(IJobChangeEvent event) {
+		}
+	}
 	
 	private Map<IWorkbenchPage, PageRegistry> fPageRegistries = new HashMap<IWorkbenchPage, PageRegistry>();
 	private boolean isDisposed = false;
 	
 	private LaunchesListener fLaunchesListener;
 	private IPageListener fPagesListener;
+	private JobListener fJobListener;
 	
 	private ListenerList fListeners = new ListenerList();
 	
@@ -162,7 +202,9 @@ public class ToolRegistry implements IToolRegistry {
 		
 		fLaunchesListener = new LaunchesListener();
 		fPagesListener = new PageListener();
+		fJobListener = new JobListener();
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(fLaunchesListener);
+		Platform.getJobManager().addJobChangeListener(fJobListener);
 	}
 	
 	public void dispose() {
@@ -180,6 +222,8 @@ public class ToolRegistry implements IToolRegistry {
 			isDisposed = true;
 		}
 		
+		Platform.getJobManager().addJobChangeListener(fJobListener);
+		fJobListener = null;
 		System.out.println("Registry closed.");
 	}
 

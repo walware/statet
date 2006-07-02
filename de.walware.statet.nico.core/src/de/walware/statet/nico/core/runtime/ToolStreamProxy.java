@@ -34,7 +34,7 @@ public class ToolStreamProxy implements IStreamsProxy {
 	
 	public void write(String input) throws IOException {
 		
-		throw new IOException("Function is not supported.");
+		throw new IOException("Function is not supported."); //$NON-NLS-1$
 	}
 
 	public ToolStreamMonitor getInputStreamMonitor() {

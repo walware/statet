@@ -51,6 +51,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
+import de.walware.eclipsecommon.ui.SharedMessages;
 import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.UIAccess;
 
@@ -62,12 +63,13 @@ import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
+import de.walware.statet.nico.ui.actions.LoadHistoryAction;
+import de.walware.statet.nico.ui.actions.SaveHistoryAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction.Receiver;
 import de.walware.statet.nico.ui.internal.actions.HistoryCopyAction;
 import de.walware.statet.nico.ui.internal.actions.HistoryDragAdapter;
 import de.walware.statet.nico.ui.internal.actions.HistorySubmitAction;
-import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.StatetImages;
 
 
@@ -163,10 +165,16 @@ public class HistoryView extends ViewPart {
 
 		public void completeChange() { 
 			// history event
-			// Not tested yet!
 			
-			fTableViewer.refresh(true);
-//			packTable(); //???
+			UIAccess.getDisplay().syncExec(new Runnable() {
+				public void run() {
+					if (!Layouter.isOkToUse(fTableViewer)) {
+						return;
+					}
+					fTableViewer.refresh(true);
+					//			packTable(); //???
+				}
+			});
 		}
 	}
 	
@@ -226,19 +234,21 @@ public class HistoryView extends ViewPart {
 	private TableViewer fTableViewer;
 	private Clipboard fClipboard;
 
-	private static final String M_SORT_ALPHA = "HistoryView.SortAlpha";
+	private static final String M_SORT_ALPHA = "HistoryView.SortAlpha"; //$NON-NLS-1$
 	private boolean fDoSortAlpha;
 	private NameSorter fNameSorter = new NameSorter();
 	private Action fToggleSortAction;
 
-	private static final String M_AUTOSCROLL = "HistoryView.Autoscroll";
+	private static final String M_AUTOSCROLL = "HistoryView.Autoscroll"; //$NON-NLS-1$
 	private boolean fDoAutoscroll;
 	private Action fScrollLockAction;
 	
 	private Action fSelectAllAction;
 	private HistoryCopyAction fCopyAction;
-	
 	private Action fSubmitAction;
+	
+	private LoadHistoryAction fLoadHistoryAction;
+	private SaveHistoryAction fSaveHistoryAction;
 
 	private ToolProcess fProcess; // für submit
 	private IToolRegistryListener fToolRegistryListener;
@@ -256,14 +266,14 @@ public class HistoryView extends ViewPart {
 		super.init(site, memento);
 		
 		String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
-		if (autoscroll != null && autoscroll.equals("off")) {
+		if (autoscroll != null && autoscroll.equals("off")) { //$NON-NLS-1$
 			fDoAutoscroll = false;
 		} else { // default
 			fDoAutoscroll = true;
 		}
 
 		String sortAlpha = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
-		if (sortAlpha != null && sortAlpha.equals("on")) {
+		if (sortAlpha != null && sortAlpha.equals("on")) { //$NON-NLS-1$
 			fDoSortAlpha = true;
 		} else { // default
 			fDoSortAlpha = false;
@@ -275,8 +285,8 @@ public class HistoryView extends ViewPart {
 		
 		super.saveState(memento);
 		
-		memento.putString(M_AUTOSCROLL, (fDoAutoscroll) ? "on" : "off");
-		memento.putString(M_SORT_ALPHA, (fDoSortAlpha) ? "on" : "off");
+		memento.putString(M_AUTOSCROLL, (fDoAutoscroll) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
+		memento.putString(M_SORT_ALPHA, (fDoSortAlpha) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void createPartControl(Composite parent) {
@@ -310,19 +320,28 @@ public class HistoryView extends ViewPart {
 
 		// listen on console changes
 		IToolRegistry toolRegistry = NicoUITools.getRegistry();
-		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
-				UIAccess.getDisplay().asyncExec(new Runnable() {
+				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						connect(process);
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) { }
+			public void toolSessionClosed(ToolSessionUIData info) { 
+				final ToolProcess process = info.getProcess();
+				UIAccess.getDisplay().syncExec(new Runnable() {
+					public void run() {
+						if (fProcess != null && fProcess == process) {
+							connect(null);
+						}
+					}
+				});
+			}
 		};
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
+		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 	}
 
 	private void createActions() {
@@ -355,6 +374,9 @@ public class HistoryView extends ViewPart {
 				}
 			}
 		} );
+		
+		fLoadHistoryAction = new LoadHistoryAction();
+		fSaveHistoryAction = new SaveHistoryAction();
 	}
 
 	protected void enabledSelectionActions(boolean enable) {
@@ -366,7 +388,7 @@ public class HistoryView extends ViewPart {
 
 	private void hookContextMenu() {
 		
-		MenuManager menuMgr = new MenuManager("#PopupMenu");
+		MenuManager menuMgr = new MenuManager("ContextMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
@@ -390,7 +412,10 @@ public class HistoryView extends ViewPart {
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		
+
+		manager.add(fLoadHistoryAction);
+		manager.add(fSaveHistoryAction);
+		manager.add(new Separator());
 		manager.add(fToggleSortAction);
 		manager.add(new Separator());
 	}
@@ -430,9 +455,11 @@ public class HistoryView extends ViewPart {
 				fProcess = process;
 				fTableViewer.setInput((fProcess != null) ? 
 						fProcess.getHistory() : null);
+				fLoadHistoryAction.connect(fProcess);
+				fSaveHistoryAction.connect(fProcess);
 			}
 		};
-		BusyIndicator.showWhile(UIAccess.getDisplay(), runnable);
+		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
 	}
 	
 	/**
@@ -487,6 +514,8 @@ public class HistoryView extends ViewPart {
 			fCopyAction.dispose();
 			fCopyAction = null;
 		}
+		fLoadHistoryAction = null;
+		fSaveHistoryAction = null;
 		
 		super.dispose();
 

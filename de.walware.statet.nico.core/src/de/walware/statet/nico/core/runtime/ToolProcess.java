@@ -11,10 +11,17 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_CALCULATING;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_IDLE;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_PAUSED;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTING;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.TERMINATED;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
@@ -22,10 +29,12 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
+import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.internal.NicoPlugin;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
@@ -129,6 +138,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	private final ILaunch fLaunch;
 	private final String fName;
+	private String fToolLabelShort;
+	
 	private ToolController<?, WorkspaceType> fController;
 	private Queue fQueue;
 	private History fHistory;
@@ -146,6 +157,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fLaunch = launch;
 		fName = name;
 		fAttributes = new HashMap<String, String>(5);
+		computeToolLabel();
+		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeDynamicLabel(ToolStatus.STARTING));
 		
 		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
@@ -166,6 +179,67 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public String getLabel() {
 		
 		return fName;
+	}
+	
+	public String getToolLabel(boolean longLabel) {
+		
+		if (longLabel) {
+			return fToolLabelShort + ' ' + getLabel();
+		}
+		return fToolLabelShort;
+	}
+	
+	private void computeToolLabel() {
+		
+		StringBuilder s = new StringBuilder();
+        ILaunchConfiguration config = getLaunch().getLaunchConfiguration();
+        if (config != null) {
+        	String type = null;
+            try {
+                type = config.getType().getName();
+            } catch (CoreException e) {
+            }
+            s.append(config.getName());
+            if (type != null) {
+                s.append(" ["); //$NON-NLS-1$
+                s.append(type);
+                s.append("]"); //$NON-NLS-1$
+            }
+            
+            fToolLabelShort = s.toString();
+        }
+        else {
+        	fToolLabelShort = "[-]"; //$NON-NLS-1$
+        }
+	}
+	
+	private String computeDynamicLabel(ToolStatus status) {
+		
+		StringBuilder s = new StringBuilder(fToolLabelShort);
+		s.append(' ');
+		s.append(getLabel());
+		
+        s.append(" <"); //$NON-NLS-1$
+        switch(status) {
+        case STARTING:
+        	s.append(NicoCoreMessages.Status_Starting_label);
+        	break;
+        case STARTED_IDLE:
+        	s.append(NicoCoreMessages.Status_StartedIdle_label);
+        	break;
+        case STARTED_PAUSED:
+        	s.append(NicoCoreMessages.Status_StartedPaused_label);
+        	break;
+        case STARTED_CALCULATING:
+        	s.append(NicoCoreMessages.Status_StartedCalculating_label);
+        	break;
+        case TERMINATED:
+        	s.append(NicoCoreMessages.Status_Terminated_label);
+        	break;
+        }
+        s.append('>');
+        
+		return s.toString();
 	}
 
 	public ILaunch getLaunch() {
@@ -201,13 +275,23 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 
 	public void setAttribute(String key, String value) {
 		
+		DebugEvent event = doSetAttribute(key, value);
+		if (event != null) {
+			fireEvent(event);
+		}
+	}
+	
+	private DebugEvent doSetAttribute(String key, String value) {
+		
 		synchronized (fAttributes) {
 			String oldValue = fAttributes.put(key, value);
 			if (oldValue == value 
 					|| (oldValue != null && oldValue.equals(value)) ) {
-				return;
+				return null;
 			}
-			fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CHANGE));
+			DebugEvent event = new DebugEvent(ToolProcess.this, DebugEvent.CHANGE);
+			event.setData(new String[] { key, oldValue, value });
+			return event;
 		}
 	}
 
@@ -265,7 +349,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		if (!isTerminated()) {
 			throw new DebugException(new Status(
 					IStatus.ERROR, NicoPlugin.PLUGIN_ID, 0,
-					"Exit value is not available until process terminates.",
+					"Exit value is not available until process terminates.", //$NON-NLS-1$
 					null));
 		}
 		return fExitValue;
@@ -296,6 +380,12 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 			break;
 		}
 		
+		synchronized (fAttributes) {
+			DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeDynamicLabel(newStatus));
+			if (nameEvent != null) {
+				eventCollection.add(nameEvent);
+			}
+		}
 	}
 
 	

@@ -28,7 +28,7 @@ public class NicoPlugin extends Plugin {
 	 * Plugin-ID
 	 * Value: @value
 	 */
-	public static final String PLUGIN_ID = "de.walware.statet.nico.core";
+	public static final String PLUGIN_ID = "de.walware.statet.nico.core"; //$NON-NLS-1$
 
 	/** The shared instance. */
 	private static NicoPlugin gPlugin;
@@ -70,7 +70,7 @@ public class NicoPlugin extends Plugin {
 				IStatus.ERROR, 
 				PLUGIN_ID, 
 				IStatetStatusConstants.INTERNAL_ERROR, 
-				NicoMessages.InternalError_UnexpectedException_message, 
+				Messages.InternalError_UnexpectedException_message, 
 				e)); 
 	}
 

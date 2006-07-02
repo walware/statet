@@ -14,14 +14,8 @@ package de.walware.statet.nico.ui;
 import org.eclipse.osgi.util.NLS;
 
 
-public class NicoMessages extends NLS {
+public class NicoUIMessages extends NLS {
 	
-
-	public static String Status_Starting_description;
-	public static String Status_StartedIdle_description;
-	public static String Status_StartedCalculating_description;
-	public static String Status_StartedPaused_description;
-	public static String Status_Terminated_description;
 
 	public static String SubmitAction_name;
 	public static String PasteSubmitAction_name;
@@ -30,15 +24,18 @@ public class NicoMessages extends NLS {
 
 	public static String PauseAction_name;
 	public static String PauseAction_tooltip;
-		
+	
+	public static String LoadHistory_title;
+	public static String LoadHistoryAction_name;
+	public static String LoadHistoryAction_tooltip;
+	public static String SaveHistory_title;
+	public static String SaveHistoryAction_name;
+	public static String SaveHistoryAction_tooltip;
 
-	public static String Runtime_error_message;
 	
-	
-	private static final String BUNDLE_NAME = NicoMessages.class.getName();
-	
+	private static final String BUNDLE_NAME = NicoUIMessages.class.getName();
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, NicoMessages.class);
+		NLS.initializeMessages(BUNDLE_NAME, NicoUIMessages.class);
 	}
-	
+	private NicoUIMessages() {}
 }
