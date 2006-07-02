@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.DocumentEvent;
 
 
 public class InputDocument extends Document {
@@ -33,5 +34,11 @@ public class InputDocument extends Document {
 		
 		text = gLineSeparatorPattern.matcher(text).replaceAll(""); //$NON-NLS-1$
 		super.replace(pos, length, text, modificationStamp);
+	}
+	
+	public void updatePartitioning() {
+		
+		updateDocumentStructures(new DocumentEvent(this, 0, getLength(), get()));
+		fireDocumentPartitioningChanged();
 	}
 }

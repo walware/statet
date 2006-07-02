@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.nico;
 
+import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
@@ -20,6 +21,16 @@ public abstract class AbstractRController<
 		WorkspaceType extends RWorkspace> 
 		extends ToolController<RunnableAdapterType, WorkspaceType> {
 
+	public class IncompleteInputPrompt extends Prompt {
+		
+		public final String input;
+		
+		public IncompleteInputPrompt(String previousInput) {
+			
+			super("$ ", IRRunnableControllerAdapter.META_PROMPT_INCOMPLETE_INPUT);
+			input = previousInput;
+		}
+	}
 	
 	public AbstractRController(ToolProcess process) {
 		

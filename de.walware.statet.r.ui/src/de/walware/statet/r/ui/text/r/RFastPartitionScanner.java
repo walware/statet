@@ -50,6 +50,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	/** The length of the last returned token. */
 	private int fTokenLength;
 	
+	private State fStartPartitionState = State.DEFAULT;
 	/** The state of the scanner. */	
 	private State fState;
 	/** The last significant characters read. */
@@ -70,6 +71,15 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	public RFastPartitionScanner() {
 	}
 
+	/**
+	 * Sets explicitly the partition type on position 0.
+	 * 
+	 * @param contentType
+	 */
+	public void setStartPartitionType(String contentType) {
+		
+		fStartPartitionState = getState(contentType);
+	}
 	
 	public void setRange(IDocument document, int offset, int length) {
 
@@ -86,7 +96,12 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		fTokenLength = 0;
 		fPrefixLength = offset - partitionOffset;
 		fLast = Last.NONE;
-		fState = (offset == partitionOffset) ? State.DEFAULT : getState(contentType);
+		if (offset == 0) {
+			fState = fStartPartitionState;
+		}
+		else {
+			fState = (fPrefixLength == 0) ? State.DEFAULT : getState(contentType);
+		}
 	}
 	
 

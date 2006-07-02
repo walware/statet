@@ -119,7 +119,7 @@ public class InputGroup {
 	private Composite fComposite;
 	private Label fPrefix;
 	private InputSourceViewer fSourceViewer;
-	private InputDocument fDocument;
+	protected InputDocument fDocument;
 	private Button fSubmitButton;
 	
 	private EditorAdapter fEditorAdapter = new EditorAdapter();
@@ -152,6 +152,8 @@ public class InputGroup {
 		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
 		fPrefix.setLayoutData(gd);
 		fPrefix.setFont(fComposite.getFont());
+		float[] hsb = fPrefix.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB().getHSB();
+		fPrefix.setBackground(StatetPlugin.getDefault().getColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
 		fPrefix.setText("> "); //$NON-NLS-1$
 		
 		createSourceViewer(editorConfig);
@@ -274,11 +276,14 @@ public class InputGroup {
 					Prompt p = (prompt != null) ? prompt : fProcess.getWorkspaceData().getPrompt();
 					fPrefix.setText(p.text);
 					getComposite().layout(new Control[] { fPrefix });
+					onPromptUpdate(p);
 				}
 			}
 		});
 	}
 	
+	protected void onPromptUpdate(Prompt prompt) {
+	}
 	
 	public void doHistoryNewer() {
 		

@@ -20,4 +20,7 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 public interface IRRunnableControllerAdapter extends
 		IToolRunnableControllerAdapter {
 
+	
+	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
+
 }

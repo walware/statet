@@ -40,8 +40,12 @@ public class RServeClientController
 		@Override
 		protected Prompt doSubmit(String input) {
 			
+			String completeInput = input;
+			if ((fPrompt.meta & IRRunnableControllerAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+				completeInput = ((IncompleteInputPrompt) fPrompt).input + input;
+			}
 			try {
-				REXP rx = fRconnection.eval(input);
+				REXP rx = fRconnection.eval(completeInput);
 				if (rx != null) {
 					fDefaultOutputStream.append(rx.toString()+fLineSeparator, fCurrentRunnable.getType(), 0);
 				}
@@ -51,6 +55,9 @@ public class RServeClientController
 				return fDefaultPrompt;
 			}
 			catch (RSrvException e) {
+				if (e.getRequestReturnCode() == 2) {
+					return new IncompleteInputPrompt(completeInput+fLineSeparator);
+				}
 				fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineSeparator, fCurrentRunnable.getType(), 0);
 				if (!fRconnection.isConnected() || e.getRequestReturnCode() == -1) {
 					try {

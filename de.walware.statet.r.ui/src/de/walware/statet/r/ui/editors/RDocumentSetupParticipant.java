@@ -16,6 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
@@ -26,6 +27,24 @@ import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
  */
 public class RDocumentSetupParticipant implements IDocumentSetupParticipant {
 
+
+	public static class ExtFastPartitioner extends FastPartitioner {
+		
+		private IPartitionTokenScanner fScanner;
+		
+		public ExtFastPartitioner(IPartitionTokenScanner scanner, String[] legalContentTypes) {
+			
+			super(scanner, legalContentTypes);
+			fScanner = scanner;
+		}
+		
+		public IPartitionTokenScanner getPartitionTokenScanner() {
+			
+			return fScanner;
+		}
+	}
+	
+	
 	public RDocumentSetupParticipant() {
 	}
 	
@@ -43,7 +62,7 @@ public class RDocumentSetupParticipant implements IDocumentSetupParticipant {
 	}
 	
 	private IDocumentPartitioner createDocumentPartitioner() {
-		return new FastPartitioner(
+		return new ExtFastPartitioner(
 				new RFastPartitionScanner(), IRDocumentPartitions.R_PARTITIONS);
 	}
 }

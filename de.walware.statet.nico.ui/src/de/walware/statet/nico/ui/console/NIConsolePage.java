@@ -186,7 +186,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	public void init(IPageSite site) throws PartInitException {
 		
 		fSite = site;
-		fInputGroup = new InputGroup(this);
+		fInputGroup = createInputGroup();
 
 		fDebugListener = new IDebugEventSetListener() {
 			public void handleDebugEvents(DebugEvent[] events) {
@@ -213,6 +213,11 @@ public class NIConsolePage implements IPageBookViewPage,
 			}
 		};
 		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
+	}
+	
+	protected InputGroup createInputGroup() {
+		
+		return new InputGroup(this);
 	}
 
 	public void createControl(Composite parent) {
