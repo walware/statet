@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU General Public License v2.0
  * or newer, which accompanies this distribution, and is available at
@@ -20,48 +20,48 @@ import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.r.nico.AbstractRController;
+import de.walware.statet.r.nico.IRRunnableControllerAdapter;
+import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.rserve.internal.launchconfigs.ConnectionConfig;
 
 
-public class RServeClientController extends AbstractRController {
+public class RServeClientController 
+		extends AbstractRController<IRRunnableControllerAdapter, RWorkspace> {
 
 	
-	private class CommandRunnable extends SimpleRunnable {
-
-		CommandRunnable(String text, SubmitType type) {
-
-			super(text, type);
-		}
+	private class RServeAdapter extends RunnableAdapter implements IRRunnableControllerAdapter {
+		
 		
 		@Override
-		public void run() {
+		protected Prompt doSubmit(String input) {
 			
-			doOnCommandRun(fText, fType);
 			try {
-				REXP rx = fRconnection.eval(fText);
+				REXP rx = fRconnection.eval(input);
 				if (rx != null) {
-					fDefaultOutputStream.append(rx.toString()+fLineDelimiter, fType);
+					fDefaultOutputStream.append(rx.toString()+fLineSeparator, fCurrentRunnable.getType(), 0);
 				}
 				else {
-					fErrorOutputStream.append("[RServe] Warning: Server returned null."+fLineDelimiter, fType);
+					fErrorOutputStream.append("[RServe] Warning: Server returned null."+fLineSeparator, fCurrentRunnable.getType(), 0);
 				}
-				doOnCommandFinished(true, fType);
+				return fDefaultPrompt;
 			}
 			catch (RSrvException e) {
-				fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineDelimiter, fType);
+				fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineSeparator, fCurrentRunnable.getType(), 0);
 				if (!fRconnection.isConnected() || e.getRequestReturnCode() == -1) {
 					try {
 						fProcess.terminate();
 					} catch (DebugException de) {
 						StatetPlugin.log(de.getStatus());
 					}
+					return Prompt.NONE;
 				}
 				else {
-					doOnCommandFinished(true, fType);
+					return fDefaultPrompt;
 				}
 			}
 		}
@@ -76,6 +76,10 @@ public class RServeClientController extends AbstractRController {
 		
 		super(process);
 		fConfig = config;
+		
+		fWorkspaceData = new RWorkspace();
+		addToolStatusListener(fWorkspaceData);
+		fRunnableAdapter = new RServeAdapter();
 	}
 	
 	@Override
@@ -89,25 +93,29 @@ public class RServeClientController extends AbstractRController {
 			if (!fRconnection.isConnected()) {
 				throw new CoreException(new Status(
 						IStatus.ERROR,
-						RServePlugin.ID,
+						RServePlugin.PLUGIN_ID,
 						0,
 						"Cannot connect to RServe server.",
 						null));
 			}
 			
-			fDefaultOutputStream.append("[RServe] Server version: "+fRconnection.getServerVersion()+"."+fLineDelimiter, SubmitType.OTHER);
-			doOnCommandFinished(true, SubmitType.OTHER);
+			fRconnection.setSoTimeout(fConfig.getSocketTimeout());
+			fDefaultOutputStream.append("[RServe] Server version: "+fRconnection.getServerVersion()+"."+fWorkspaceData.getLineSeparator(), SubmitType.OTHER, 0);
 			
 			if (fRconnection.needLogin()) {
 				fRconnection.login("guest", "guest");
 			}
 
-			fRconnection.setSoTimeout(fConfig.getSocketTimeout());
+			RServeAdapter system = (RServeAdapter) fRunnableAdapter;
+			Prompt prompt = new Prompt("> ", IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
+			system.setDefaultPrompt(prompt);
+			system.setPrompt(prompt);
+			system.setLineSeparator("\n");
 		} 
 		catch (RSrvException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR,
-					RServePlugin.ID,
+					RServePlugin.PLUGIN_ID,
 					0,
 					"Error when connecting to RServe server.",
 					e));
@@ -123,9 +131,4 @@ public class RServeClientController extends AbstractRController {
 		return true;
 	}
 
-	@Override
-	protected IToolRunnable createCommandRunnable(String command, SubmitType type) {
-
-		return new CommandRunnable(command, type);
-	}
 }

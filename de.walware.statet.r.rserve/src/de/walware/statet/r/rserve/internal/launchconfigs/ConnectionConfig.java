@@ -185,7 +185,7 @@ public class ConnectionConfig {
 	protected void logError(String msg, CoreException ce) {
 		
 		StatetPlugin.log(new Status(
-				IStatus.ERROR, RServePlugin.ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+				IStatus.ERROR, RServePlugin.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 				msg, ce));
 	}
 	

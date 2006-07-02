@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,26 +11,27 @@
 
 package de.walware.statet.nico.core.runtime;
 
-import java.util.EnumSet;
 
-
-public enum SubmitType {
+/**
+ * 
+ */
+public class Prompt {
 	
-	/** Console interaction by user */
-	CONSOLE,
-	/** Submit from editor */
-	EDITOR,
-	/** Submit from tools (GUI etc.) */
-	TOOLS,
-	/** Others, e.g. by controller */
-	OTHER,
-//	/** Use only, if you know, what you do */
-//	INTERNAL,
-	;
+	public static final Prompt NONE = new Prompt("", 0);
+	public static final Prompt DEFAULT = new Prompt("> ", IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
 	
 	
-	public static EnumSet<SubmitType> getDefaultSet() {
+	public final String text;
+	public final int meta;
+	
+	public Prompt(String text) {
 		
-		return EnumSet.range(CONSOLE, OTHER);
+		this(text, 0);
+	}
+	
+	public Prompt(String text, int meta) {
+		
+		this.text = text;
+		this.meta = meta;
 	}
 }

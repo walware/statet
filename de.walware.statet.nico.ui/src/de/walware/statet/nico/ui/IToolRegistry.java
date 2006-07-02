@@ -13,6 +13,8 @@ package de.walware.statet.nico.ui;
 
 import org.eclipse.ui.IWorkbenchPage;
 
+import de.walware.statet.nico.core.runtime.ToolProcess;
+
 
 /**
  *
@@ -27,6 +29,8 @@ public interface IToolRegistry {
 	 * 
 	 * @return never <code>null</code>, but the fields can be <code>null</code>.
 	 */
-	public ToolSessionInfo getActiveToolSession(IWorkbenchPage page);
+	public ToolSessionUIData getActiveToolSession(IWorkbenchPage page);
+	
+	public IWorkbenchPage findWorkbenchPage(ToolProcess process);
 	
 }

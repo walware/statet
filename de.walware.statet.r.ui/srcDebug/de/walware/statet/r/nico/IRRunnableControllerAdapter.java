@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU General Public License v2.0
  * or newer, which accompanies this distribution, and is available at
@@ -9,14 +9,15 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.rserve.internal.launchconfigs;
+package de.walware.statet.r.nico;
 
-import de.walware.statet.r.rserve.RServePlugin;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 
 
-public interface IRServeConstants {
+/**
+ *
+ */
+public interface IRRunnableControllerAdapter extends
+		IToolRunnableControllerAdapter {
 
-	String CONFIG_CONNECTION_SERVERADDRESS = 	RServePlugin.PLUGIN_ID + "/connection/server_address";
-	String CONFIG_CONNECTION_SERVERPORT = 	    RServePlugin.PLUGIN_ID + "/connection/server_port";
-	String CONFIG_CONNECTION_SOCKETTIMEOUT =    RServePlugin.PLUGIN_ID + "/connection/socket_timeout";
 }

@@ -78,7 +78,7 @@ public class ConsolePreferences {
 		 */
 		public FilterPreferences() {
 			
-			setup(	EnumSet.allOf(SubmitType.class),
+			setup(	SubmitType.getDefaultSet(),
 					false
 			);
 		}

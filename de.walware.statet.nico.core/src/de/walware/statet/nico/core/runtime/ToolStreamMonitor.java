@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public class ToolStreamMonitor implements IStreamMonitor {
 
 	
 	private EnumMap<SubmitType, ListenerList> fListeners;
+	private int fCurrentMeta;
 	
 	
 	public ToolStreamMonitor() {
@@ -37,7 +38,7 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	public void addListener(IStreamListener listener) {
 		// Assign all SubmitTypes to this listener 
 		
-		addListener(listener, EnumSet.allOf(SubmitType.class));
+		addListener(listener, SubmitType.getDefaultSet());
 	}
 	
 	/**
@@ -81,14 +82,21 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	 * 
 	 * @param text text to append.
 	 * @param type the type of the runnable.
+	 * @param optional meta data
 	 */
-	public void append(String text, SubmitType type) {
+	public void append(String text, SubmitType type, int meta) {
 		
 		ListenerList list = fListeners.get(type);
+		fCurrentMeta = meta;
 		for (Object obj : list.getListeners()) {
 			IStreamListener listener = (IStreamListener) obj;
 			listener.streamAppended(text, this);
 		}
+	}
+	
+	public int getMeta() {
+		
+		return fCurrentMeta;
 	}
 	
 	

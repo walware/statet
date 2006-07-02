@@ -12,6 +12,7 @@
 package de.walware.statet.nico.core.runtime;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
@@ -26,13 +27,15 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
 import de.walware.statet.nico.core.internal.NicoPlugin;
+import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
 
 
 /**
  * Provides <code>IProcess</code> for a <code>ToolController</code>.
  */
-public class ToolProcess extends PlatformObject implements IProcess {
+public class ToolProcess<WorkspaceType extends ToolWorkspace> 
+		extends PlatformObject implements IProcess, IToolStatusListener {
 
 	
 	public static final int MASK_STATUS = (1 << 6);
@@ -124,38 +127,40 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	public static final int QUEUE_ENTRY_STARTED_PROCESSING = MASK_QUEUE_ENTRY | 4;
 	
 	
-	private ILaunch fLaunch;
-	private String fName;
-	private ToolController fController;
+	private final ILaunch fLaunch;
+	private final String fName;
+	private ToolController<?, WorkspaceType> fController;
 	private Queue fQueue;
 	private History fHistory;
+	private WorkspaceType fWorkspaceData;
 	
-	private Map<String, String> fAttributes;
-	private boolean fCaptureOutput;
+	private final Map<String, String> fAttributes;
+	private final boolean fCaptureOutput;
 	
 	private volatile boolean fIsTerminated = false;
-	protected int fExitValue = 0;
+	protected volatile int fExitValue = 0;
 	
 	
 	public ToolProcess(ILaunch launch, String name) {
 		
 		fLaunch = launch;
 		fName = name;
-		fAttributes = new HashMap<String, String>();
+		fAttributes = new HashMap<String, String>(5);
 		
 		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
 
 	}
 	
-	public void init(ToolController controller) {
+	public void init(ToolController<?, WorkspaceType> controller) {
 		
 		fController = controller;
 		fHistory = new History(this);
 		fQueue = fController.getQueue();
+		fWorkspaceData = fController.fWorkspaceData;
 
 		fLaunch.addProcess(this);
-		fireEvent(new DebugEvent(this, DebugEvent.CREATE));
+		fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CREATE));
 	}
 	
 	public String getLabel() {
@@ -189,14 +194,28 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	}
 
 	
+	public WorkspaceType getWorkspaceData() {
+
+		return fWorkspaceData;
+	}
+
 	public void setAttribute(String key, String value) {
 		
-		fAttributes.put(key, value);
+		synchronized (fAttributes) {
+			String oldValue = fAttributes.put(key, value);
+			if (oldValue == value 
+					|| (oldValue != null && oldValue.equals(value)) ) {
+				return;
+			}
+			fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CHANGE));
+		}
 	}
 
 	public String getAttribute(String key) {
 		
-		return fAttributes.get(key);
+		synchronized (fAttributes) {
+			return fAttributes.get(key);
+		}
 	}
 
 
@@ -231,7 +250,8 @@ public class ToolProcess extends PlatformObject implements IProcess {
 	public void terminate() throws DebugException {
 		
 		if (fController != null) {
-			fController.terminate();
+			fController.asyncTerminate();
+			// TODO: add monitor / force terminate
 		}
 	}
 
@@ -251,27 +271,31 @@ public class ToolProcess extends PlatformObject implements IProcess {
 		return fExitValue;
 	}
 
-	
-	void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus) {
+	/** Called by Controller */
+	public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
 
 		switch(newStatus) {
 		
 		case STARTED_CALCULATING:
-			fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.MODEL_SPECIFIC, STATUS_CALCULATE));
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, STATUS_CALCULATE) );
 			break;
 		case STARTED_IDLE:
-			fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.MODEL_SPECIFIC, STATUS_IDLE));
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, STATUS_IDLE) );
 			break;
 		case STARTED_PAUSED:
-			fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.MODEL_SPECIFIC, STATUS_QUEUE_PAUSE));
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, STATUS_QUEUE_PAUSE) );
 			break;
 			
 		case TERMINATED:
 			fIsTerminated = true;
-			fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.TERMINATE));
 			fController = null;
+			eventCollection.add(new DebugEvent(ToolProcess.this, DebugEvent.TERMINATE) );
 			break;
 		}
+		
 	}
 
 	

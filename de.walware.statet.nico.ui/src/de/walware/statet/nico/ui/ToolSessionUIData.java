@@ -17,7 +17,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
 
 
-public class ToolSessionInfo {
+public class ToolSessionUIData {
 
 	
 	private final ToolProcess fProcess;
@@ -25,7 +25,7 @@ public class ToolSessionInfo {
 	private final IViewPart fSource;
 	
 	
-	public ToolSessionInfo(ToolProcess process, NIConsole console, 
+	public ToolSessionUIData(ToolProcess process, NIConsole console, 
 			IViewPart source) {
 		
 		fProcess = process;

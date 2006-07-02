@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,7 +42,7 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.nico.ui.ToolSessionInfo;
+import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 
 
@@ -258,26 +258,31 @@ class PageRegistry {
 		return fPage;
 	}
 	
-	public synchronized ToolSessionInfo createSessionInfo(IViewPart source) {
+	public synchronized ToolProcess getActiveProcess() {
 		
-		return new ToolSessionInfo(fActiveProcess, 
+		return fActiveProcess;
+	}
+	
+	public synchronized ToolSessionUIData createSessionInfo(IViewPart source) {
+		
+		return new ToolSessionUIData(fActiveProcess, 
 				fActiveConsole, null);
 	}
 	
-	public synchronized void reactOnConsolesRemoved(List consoles) {
+	public synchronized void reactOnConsolesRemoved(List<ToolProcess> consoles) {
 		
-		if (consoles.contains(fActiveConsole)) {
-			doActiveConsoleChanged(null, null); 
+		if (consoles.contains(fActiveProcess)) {
+			doActiveConsoleChanged(null, null, consoles); 
 		}
 	}
 	
-	public synchronized void doActiveConsoleChanged(NIConsole console, IViewPart source) {
+	public synchronized void doActiveConsoleChanged(NIConsole console, IViewPart source, List<ToolProcess> exclude) {
 		
 		if (fPage == null) {
 			return;
 		}
 		if (console == null) {
-			console = searchConsole();
+			console = searchConsole(exclude);
 		}
 		if ((console == fActiveConsole)
 				|| (console != null && console.equals(fActiveConsole)) ) {
@@ -299,7 +304,7 @@ class PageRegistry {
 
 	private void notifyActiveToolSessionChanged(IViewPart source) {
 		
-		ToolSessionInfo info = new ToolSessionInfo(fActiveProcess,
+		ToolSessionUIData info = new ToolSessionUIData(fActiveProcess,
 				fActiveConsole, source);
 		
 		System.out.println("activated: " + info.toString());
@@ -310,17 +315,18 @@ class PageRegistry {
 		}
 	}
 
-	private NIConsole searchConsole() {
+	private NIConsole searchConsole(List<ToolProcess> exclude) {
 		// Search NIConsole in
 		// 1. active part
 		// 2. visible part
 		// 3. all
 
+		NIConsole nico = null;
 		IWorkbenchPart part = fPage.getActivePart();
 		if (part instanceof IConsoleView) {
 			IConsole console = ((IConsoleView) part).getConsole();
-			if (console instanceof NIConsole) {
-				return (NIConsole) console;
+			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console))) {
+				return nico;
 			}
 		}
 
@@ -328,12 +334,12 @@ class PageRegistry {
 		NIConsole secondChoice = null;
 		for (IConsoleView view : consoleViews) {
 			IConsole console = view.getConsole();
-			if (console instanceof NIConsole) {
+			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console))) {
 				if (fPage.isPartVisible(view)) {
-					return (NIConsole) console;
+					return nico;
 				}
 				else if (secondChoice == null) {
-					secondChoice = (NIConsole) console;
+					secondChoice = nico;
 				}
 			}
 		}

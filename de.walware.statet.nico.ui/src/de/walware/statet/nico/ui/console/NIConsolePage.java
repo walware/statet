@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -71,6 +72,9 @@ import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
+import de.walware.statet.nico.core.runtime.Prompt;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.SharedMessages;
 import de.walware.statet.ui.TextViewerAction;
@@ -136,7 +140,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	private IOConsoleViewer fOutputViewer;
 	private InputGroup fInputGroup;
 	
-	private boolean fIsCreated = false;
+	private volatile boolean fIsCreated = false;
 	
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
@@ -183,11 +187,47 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		fSite = site;
 		fInputGroup = new InputGroup(this);
+
+		fDebugListener = new IDebugEventSetListener() {
+			public void handleDebugEvents(DebugEvent[] events) {
+				ToolProcess process = getConsole().getProcess();
+				ToolWorkspace data = process.getWorkspaceData();
+				for (DebugEvent event : events) {
+					Object source = event.getSource();
+					
+					if (source == process) {
+						switch (event.getKind()) {
+						case DebugEvent.TERMINATE:
+							onToolTerminated();
+							break;
+						}
+					}
+					else if (source == data) {
+						if (event.getKind() == DebugEvent.CHANGE 
+								&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT && fIsCreated) {
+							Prompt prompt = (Prompt) event.getData();
+							fInputGroup.updatePrompt(prompt);
+						}
+					}
+				}
+			}
+		};
+		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
 	}
 
 	public void createControl(Composite parent) {
 		
-		fControl = new Composite(parent, SWT.NONE);
+		fControl = new Composite(parent, SWT.NONE) {
+			@Override
+			public boolean setFocus() {
+				try {
+					return fInputGroup.getSourceViewer().getControl().setFocus();
+				}
+				catch (NullPointerException e) {
+					return super.setFocus();
+				}
+			}
+		};
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
 		layout.verticalSpacing = 3;
@@ -212,23 +252,9 @@ public class NIConsolePage implements IPageBookViewPage,
 		hookDND();
 		contributeToActionBars();
 		
-		fDebugListener = new IDebugEventSetListener() {
-			public void handleDebugEvents(DebugEvent[] events) {
-				for (DebugEvent event : events) {
-					if (event.getSource() == getConsole().getProcess()) {
-						switch (event.getKind()) {
-						case DebugEvent.TERMINATE:
-							onToolTerminated();
-							break;
-						}
-					}
-				}
-			}
-		};
-		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
 		new ConsoleActivationNotifier();
-		
 		fIsCreated = true;
+		fInputGroup.updatePrompt(null);
 	}
 	
 	/**
@@ -544,11 +570,11 @@ public class NIConsolePage implements IPageBookViewPage,
 		if (fIsCreated) {
 			fTerminateAction.update();
 			fOutputPasteAction.setEnabled(false);
-
+			final Button button = fInputGroup.getSubmitButton();
 			UIAccess.getDisplay(getSite().getShell()).asyncExec(new Runnable() {
 				public void run() {
-					if (fIsCreated) {
-						fInputGroup.getSubmitButton().setEnabled(false);
+					if (Layouter.isOkToUse(button)) {
+						button.setEnabled(false);
 					}
 				}
 			});

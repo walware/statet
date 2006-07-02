@@ -29,6 +29,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.r.nico.RConsole;
+import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.rserve.RServeClientController;
 import de.walware.statet.ui.util.ExceptionHandler;
 
@@ -53,7 +54,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.readFrom(configuration);
 			
-			ToolProcess process = new ToolProcess(launch, name);
+			ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, name);
 			process.init(new RServeClientController(process, connectionConfig));
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(

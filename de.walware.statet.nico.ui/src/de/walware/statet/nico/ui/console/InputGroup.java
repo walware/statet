@@ -28,6 +28,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -35,7 +36,10 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
+import de.walware.eclipsecommon.ui.dialogs.Layouter;
 import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
@@ -44,6 +48,7 @@ import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
+import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -255,6 +260,22 @@ public class InputGroup {
 		
 		fPrefix.setFont(font);
 		fSourceViewer.getControl().setFont(font);
+	}
+	
+	/**
+	 * @param prompt new prompt or null.
+	 */
+	public void updatePrompt(final Prompt prompt) {
+		
+		UIAccess.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				if (Layouter.isOkToUse(fPrefix)) {
+					Prompt p = (prompt != null) ? prompt : fProcess.getWorkspaceData().getPrompt();
+					fPrefix.setText(p.text);
+					getComposite().layout(new Control[] { fPrefix });
+				}
+			}
+		});
 	}
 	
 	

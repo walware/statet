@@ -85,6 +85,16 @@ public class ExceptionHandler {
 		perform(status, null, status.getMessage());
 	}
 	
+	/**
+	 * Handles the given <code>IStatus</code>, which describes the error.
+	 * 
+	 * @param status a status-object representing an error.
+	 * @param message
+	 */
+	public static void handle(IStatus status, String message) {
+		
+		perform(status, null, message);
+	}
 	
 	private static void perform(CoreException e, Shell shell, String message) {
 

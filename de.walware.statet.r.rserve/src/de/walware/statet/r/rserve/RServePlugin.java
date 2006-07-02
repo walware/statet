@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU General Public License v2.0
  * or newer, which accompanies this distribution, and is available at
@@ -16,16 +16,16 @@ import org.osgi.framework.BundleContext;
 
 
 /**
- * The main plugin class to be used in the desktop.
+ * The activator class controls the plug-in life cycle
  */
 public class RServePlugin extends AbstractUIPlugin {
 
 	
-	public static final String ID = "de.walware.statet.r.rserve";
+	public static final String PLUGIN_ID = "de.walware.statet.r.rserve";
 		
 	
 	/** The shared instance. */
-	private static RServePlugin fgPlugin;
+	private static RServePlugin gPlugin;
 	
 	/**
 	 * Returns the shared instance.
@@ -34,7 +34,7 @@ public class RServePlugin extends AbstractUIPlugin {
 	 */
 	public static RServePlugin getDefault() {
 		
-		return fgPlugin;
+		return gPlugin;
 	}
 
 	
@@ -43,7 +43,7 @@ public class RServePlugin extends AbstractUIPlugin {
 	 */
 	public RServePlugin() {
 		
-		fgPlugin = this;
+		gPlugin = this;
 	}
 
 	/**
@@ -59,8 +59,8 @@ public class RServePlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		
+		gPlugin = null;
 		super.stop(context);
-		fgPlugin = null;
 	}
 
 }

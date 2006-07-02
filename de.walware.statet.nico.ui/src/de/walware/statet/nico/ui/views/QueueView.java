@@ -47,7 +47,7 @@ import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.IToolRunnableAdapter;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.nico.ui.ToolSessionInfo;
+import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.PauseAction;
 import de.walware.statet.ui.StatetImages;
 
@@ -295,7 +295,7 @@ public class QueueView extends ViewPart {
 		IToolRegistry toolRegistry = NicoUITools.getRegistry();
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
-			public void toolSessionActivated(ToolSessionInfo info) {
+			public void toolSessionActivated(ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
@@ -303,7 +303,7 @@ public class QueueView extends ViewPart {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionInfo info) { }
+			public void toolSessionClosed(ToolSessionUIData info) { }
 		};
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
 	}

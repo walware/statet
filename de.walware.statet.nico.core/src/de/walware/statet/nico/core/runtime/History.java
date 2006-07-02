@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,9 @@ public class History {
 			
 			fCommand = command;
 			fOlder = older;
+			if (older != null) {
+				older.fNewer = this;
+			}
 		}
 		
 		public String getCommand() {
@@ -97,6 +100,16 @@ public class History {
 			
 			return History.this;
 		}
+		
+		private Entry dispose() {
+			
+			Entry newer = fNewer;
+			fNewer = null;
+			if (newer != null) {
+				newer.fOlder = null;
+			}
+			return newer;
+		}
 	}
 	
 	
@@ -106,7 +119,9 @@ public class History {
 		
 		fStreamListener = new IStreamListener() {
 			public void streamAppended(String text, IStreamMonitor monitor) {
-				addCommand(text);
+				if ((((ToolStreamMonitor) monitor).getMeta() & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) == 0) {
+					addCommand(text);
+				}
 			}
 		};
 		
@@ -136,25 +151,26 @@ public class History {
 			EnumSet<SubmitType> types = prefs.getSelectedTypes();
 			streams.getInputStreamMonitor().addListener(fStreamListener, types);
 		}
-		
-		synchronized (this) {
-			fMaxSize = prefs.getLimitCount();;
-			if (fMaxSize < fCurrentSize) {
-				Object[] listeners = fListeners.getListeners();
 
-				while (fMaxSize < fCurrentSize) {
-					Entry removed = fOldest;
-					fOldest = fOldest.fNewer;
-					fOldest.fOlder = null;
-					fCurrentSize--;
-					
-					for (Object obj : listeners) {
-						((IHistoryListener) obj).entryRemoved(removed);
-					}
+		synchronized (this) {
+			fMaxSize = prefs.getLimitCount();
+			if (fCurrentSize > fMaxSize) {
+				trimSize();
+				for (Object obj : fListeners.getListeners()) {
+					((IHistoryListener) obj).completeChange();
 				}
 			}
 		}
 	}
+	
+	private void trimSize() {
+		
+		while (fCurrentSize > fMaxSize) {
+			fOldest = fOldest.dispose();
+			fCurrentSize--;
+		}
+	}
+		
 	
 	private void addCommand(String command) {
 		
@@ -178,9 +194,7 @@ public class History {
 			fNewest = newEntry;
 			
 			if (fCurrentSize == fMaxSize) {
-				removedEntry = fOldest;
-				fOldest = fOldest.fNewer;
-				fOldest.fOlder = null;
+				fOldest = fOldest.dispose();
 			} 
 			else {
 				fCurrentSize++;
@@ -192,7 +206,6 @@ public class History {
 				if (removedEntry != null)
 					listener.entryRemoved(removedEntry);
 				listener.entryAdded(newEntry);
-				
 			}
 		}
 	}

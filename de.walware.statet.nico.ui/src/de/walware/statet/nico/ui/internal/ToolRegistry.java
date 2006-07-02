@@ -13,11 +13,16 @@ package de.walware.statet.nico.ui.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchesListener;
@@ -29,10 +34,12 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsoleView;
 
+import de.walware.eclipsecommon.ui.util.UIAccess;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
-import de.walware.statet.nico.ui.ToolSessionInfo;
+import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 
 
@@ -45,6 +52,41 @@ public class ToolRegistry implements IToolRegistry {
 	
 	private class LaunchesListener implements ILaunchesListener {
 
+		private class RemoveToolsJob extends Job {
+			
+			private List<ToolProcess> fList = new ArrayList<ToolProcess>();
+			
+			public RemoveToolsJob() {
+				super("Remove Tools");
+			}
+			
+			public synchronized void schedule(List<ToolProcess> list) {
+				
+				cancel();
+				fList.addAll(list);
+				schedule(100);
+			}
+			
+			public synchronized IStatus run(IProgressMonitor monitor) {
+				
+				if (monitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
+				
+				PageRegistry[] regs = getPageRegistries();
+				for (PageRegistry reg : regs) {
+					reg.reactOnConsolesRemoved(fList);
+				}
+				for (ToolProcess process : fList) {
+					notifyToolSessionClosed(process);
+				}
+				fList.clear();
+				return Status.OK_STATUS;
+			}
+		};
+		
+		RemoveToolsJob fRemoveJob = new RemoveToolsJob();
+
 		public void launchesAdded(ILaunch[] launches) {
 		}
 		public void launchesChanged(ILaunch[] launches) {
@@ -52,7 +94,7 @@ public class ToolRegistry implements IToolRegistry {
 
 		public void launchesRemoved(ILaunch[] launches) {
 			
-			List<ToolProcess> list = new ArrayList<ToolProcess>();
+			final List<ToolProcess> list = new ArrayList<ToolProcess>();
 			for (ILaunch launch : launches) {
 				IProcess[] processes = launch.getProcesses();
 				for (IProcess process : processes) {
@@ -69,13 +111,7 @@ public class ToolRegistry implements IToolRegistry {
 			// Because debug plugin removes only ProcessConsoles, we have to do...
 			removeConsoles(list);
 
-			PageRegistry[] regs = getPageRegistries();
-			for (PageRegistry reg : regs) {
-				reg.reactOnConsolesRemoved(list);
-			}
-			for (ToolProcess process : list) {
-				notifyToolSessionClosed(process);
-			}
+			fRemoveJob.schedule(list);
 		}
 		
 		private void removeConsoles(List<ToolProcess> processes) {
@@ -197,11 +233,11 @@ public class ToolRegistry implements IToolRegistry {
 		IWorkbenchPage page = consoleView.getViewSite().getPage();
 		PageRegistry reg = getPageRegistry(page);
 		if (reg != null) {
-			reg.doActiveConsoleChanged(console, consoleView);
+			reg.doActiveConsoleChanged(console, consoleView, Collections.EMPTY_LIST);
 		}
 	}
 	
-	public ToolSessionInfo getActiveToolSession(IWorkbenchPage page) {
+	public ToolSessionUIData getActiveToolSession(IWorkbenchPage page) {
 		
 		if (page == null) {
 			return null;
@@ -210,10 +246,30 @@ public class ToolRegistry implements IToolRegistry {
 		PageRegistry reg = getPageRegistry(page);
 		return reg.createSessionInfo(null);
 	}
+	
+	public IWorkbenchPage findWorkbenchPage(ToolProcess process) {
+
+		IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage();
+		IWorkbenchPage page = null;
+		synchronized (fPageRegistries) {
+			for (PageRegistry reg : fPageRegistries.values()) {
+				if (reg.getActiveProcess() == process) {
+					page = reg.getPage();
+					if (page == activePage) {
+						return page;
+					}
+				}
+			}
+		}
+		if (page != null) {
+			return page;
+		}
+		return activePage;
+	}
 
 	private void notifyToolSessionClosed(ToolProcess process) {
 		
-		ToolSessionInfo info = new ToolSessionInfo(process, null, null);
+		ToolSessionUIData info = new ToolSessionUIData(process, null, null);
 		
 		System.out.println("closed: " + info.toString());
 		
