@@ -175,7 +175,7 @@ class PageRegistry {
 			NIConsole console = fActiveConsole;
 			boolean activate = fActivate;
 			IWorkbenchPage page = getPage();
-			if (page == null || monitor.isCanceled()) {
+			if (page == null || console == null || monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
 
