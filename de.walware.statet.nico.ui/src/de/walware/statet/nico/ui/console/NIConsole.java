@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.console;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -90,11 +91,11 @@ public class NIConsole extends IOConsole {
 	public NIConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
 		
 		super(process.getAttribute(IProcess.ATTR_PROCESS_LABEL),
-				NICONSOLE_TYPE, null, "UTF-8", true);
+				NICONSOLE_TYPE, null, null, true);
 		
 		fProcess = process;
 		fAdapter = adapter;
-		
+		Charset.defaultCharset();
 		setImageDescriptor(ToolInfoGroup.computeImageDescriptor(fProcess));
 		
 		fStreamsClosed = fProcess.isTerminated();
@@ -201,7 +202,7 @@ public class NIConsole extends IOConsole {
 		}
 	}
 
-	public IOConsoleOutputStream getStream(String streamId) {
+    public IOConsoleOutputStream getStream(String streamId) {
 		
 		synchronized (fStreams) {
 			return fStreams.get(streamId);
