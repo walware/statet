@@ -38,10 +38,9 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.base.IStatetStatusConstants;
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
-import de.walware.statet.r.core.RCorePlugin;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.internal.builder.MarkerHandler;
@@ -80,9 +79,7 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 				}
 				
 				IStatus status = new MultiStatus(
-						StatetPlugin.ID,
-						500,
-						allStatus,
+						RCore.PLUGIN_ID, StatetCore.STATUSCODE_BUILD_ERROR,	allStatus,
 						NLS.bind(Messages.Builder_error_MultipleErrors_message, Integer.toString(allStatus.length)),
 						null);
 				
@@ -176,8 +173,9 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 				node.addPreferenceChangeListener(fSettingsListener);
 			}
 			fStartupSuccessfull = true;
-		} catch (CoreException e1) {
-			StatetPlugin.logUnexpectedError(e1);
+		} catch (CoreException e) {
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, StatetCore.STATUSCODE_BUILD_ERROR,
+					"Error occured while initizalizing the builder ("+ID+").", e));
 		}
 	}
 	
@@ -185,11 +183,8 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 		
 		if (!fStartupSuccessfull)
 			throw new CoreException(new Status(
-					IStatus.ERROR, 
-					RCorePlugin.ID, 
-					IStatetStatusConstants.BUILD_ERROR, 
-					Messages.Builder_error_OnStartup_message, 
-					null));
+					IStatus.ERROR, RCore.PLUGIN_ID,	StatetCore.STATUSCODE_BUILD_ERROR, 
+					Messages.Builder_error_OnStartup_message, null));
 		
 		fExceptions = new ExceptionCollector();
 		fResourceMarkers = new MarkerHandler(fRProject);
@@ -310,15 +305,13 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 			
 		} catch (UnsupportedEncodingException e) {
 			throw new CoreException(new Status(
-					IStatus.ERROR,	RCorePlugin.ID,	IStatetStatusConstants.BUILD_ERROR,
+					IStatus.ERROR, RCore.PLUGIN_ID, StatetCore.STATUSCODE_BUILD_ERROR,
 					NLS.bind(Messages.Builder_error_UnsupportedEncoding_message, new String[] {
-							charset, file.getName() } ),
-					e));
+							charset, file.getName() } ), e));
 		} catch (IOException e) {
 			throw new CoreException(new Status(
-					IStatus.ERROR,	RCorePlugin.ID,	IStatetStatusConstants.BUILD_ERROR,
-					NLS.bind(Messages.Builder_error_IOReadingFile_message, file.getName() ),
-					e));
+					IStatus.ERROR, RCore.PLUGIN_ID, StatetCore.STATUSCODE_BUILD_ERROR,
+					NLS.bind(Messages.Builder_error_IOReadingFile_message, file.getName() ), e));
 		}
 	}
 }

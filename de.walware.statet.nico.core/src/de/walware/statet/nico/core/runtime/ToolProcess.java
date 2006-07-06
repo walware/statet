@@ -11,12 +11,6 @@
 
 package de.walware.statet.nico.core.runtime;
 
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_CALCULATING;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_IDLE;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_PAUSED;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTING;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.TERMINATED;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +28,8 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
+import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
-import de.walware.statet.nico.core.internal.NicoPlugin;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
 
@@ -348,7 +342,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		
 		if (!isTerminated()) {
 			throw new DebugException(new Status(
-					IStatus.ERROR, NicoPlugin.PLUGIN_ID, 0,
+					IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
 					"Exit value is not available until process terminates.", //$NON-NLS-1$
 					null));
 		}

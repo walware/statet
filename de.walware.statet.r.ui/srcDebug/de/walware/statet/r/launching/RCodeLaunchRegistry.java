@@ -31,8 +31,9 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.debug.ui.IDebugUIConstants;
 
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
-import de.walware.eclipsecommon.preferences.Preference.StringPref;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference.StringPref;
+
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.connector.RConsoleConnector;

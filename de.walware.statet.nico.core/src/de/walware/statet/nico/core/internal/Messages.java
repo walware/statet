@@ -21,8 +21,8 @@ public class Messages extends NLS {
 	public static String LoadHistory_error_message;
 	public static String SaveHistory_error_message;
 
-	public static String InternalError_UnexpectedException_message;
-	
+	public static String ErrorHandling_error_message;
+	public static String ToolRunnable_error_RuntimeError_message;
 	public static String Runtime_error_CriticalError_message;
 	public static String Runtime_error_UnexpectedTermination_message;
 

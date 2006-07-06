@@ -14,7 +14,7 @@ package de.walware.statet.nico.ui.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
 
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUIMessages;

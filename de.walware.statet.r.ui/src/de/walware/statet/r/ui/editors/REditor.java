@@ -16,7 +16,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.EditorMessages;

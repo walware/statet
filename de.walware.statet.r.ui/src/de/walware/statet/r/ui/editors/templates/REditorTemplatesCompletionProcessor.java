@@ -11,12 +11,13 @@
 
 package de.walware.statet.r.ui.editors.templates;
 
-import com.ibm.icu.text.Collator;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.ibm.icu.text.Collator;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -182,7 +183,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 		if (contextType != null) {
 			
 			IDocument document = contextViewer.getDocument();
-			RResourceUnit unit = new RResourceUnit(fEditor.getEditorInput());
+			RResourceUnit unit = new RResourceUnit((IFile) fEditor.getEditorInput().getAdapter(IFile.class));
 			return new REditorContext(contextType, document, region.getOffset(), region.getLength(), unit);
 		}
 		return null;

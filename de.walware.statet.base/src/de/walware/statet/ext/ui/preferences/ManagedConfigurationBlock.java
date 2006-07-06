@@ -29,9 +29,9 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.preferences.IWorkingCopyManager;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.walware.eclipsecommon.preferences.IPreferenceAccess;
-import de.walware.eclipsecommon.preferences.Preference;
-import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
+import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.Preference;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.CoreUtility;

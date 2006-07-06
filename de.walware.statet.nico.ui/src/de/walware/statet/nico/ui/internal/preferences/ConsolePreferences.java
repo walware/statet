@@ -19,12 +19,13 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.preferences.IPreferenceAccess;
-import de.walware.eclipsecommon.preferences.Preference;
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
-import de.walware.eclipsecommon.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommon.preferences.Preference.EnumSetPref;
+import de.walware.eclipsecommons.ui.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
+import de.walware.eclipsecommons.preferences.Preference.EnumSetPref;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
@@ -51,7 +52,7 @@ public class ConsolePreferences {
 	
 	public static ICombinedPreferenceStore getStore() {
 		
-		return PreferencesUtil.createCombindedPreferenceStore(
+		return CombinedPreferenceStore.createStore(
 				PreferencesUtil.getInstancePrefs(),
 				NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER);
 	}

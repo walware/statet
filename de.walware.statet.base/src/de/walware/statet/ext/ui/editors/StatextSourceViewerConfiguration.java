@@ -28,12 +28,14 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.preferences.IPreferenceAccess;
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
-import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommon.templates.WordFinder;
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.templates.WordFinder;
+import de.walware.eclipsecommons.ui.preferences.CombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
 
@@ -52,7 +54,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			StatetPlugin.getDefault().getPreferenceStore(),
 			EditorsUI.getPreferenceStore(),
 		};
-		return PreferencesUtil.createCombindedPreferenceStore(
+		return CombinedPreferenceStore.createStore(
 				stores, 
 				(corePrefs != null) ? corePrefs : PreferencesUtil.getInstancePrefs(), 
 				coreQualifier

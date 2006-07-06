@@ -13,7 +13,7 @@ package de.walware.statet.nico.ui.console;
 
 import org.eclipse.jface.action.Action;
 
-import de.walware.eclipsecommon.ui.SharedMessages;
+import de.walware.eclipsecommons.ui.SharedMessages;
 
 import de.walware.statet.ui.StatetImages;
 

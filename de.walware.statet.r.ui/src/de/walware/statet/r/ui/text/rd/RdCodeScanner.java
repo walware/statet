@@ -20,8 +20,8 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
 import de.walware.statet.ext.ui.text.OperatorRule;

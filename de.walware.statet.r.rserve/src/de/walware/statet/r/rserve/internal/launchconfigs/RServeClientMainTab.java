@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.statet.ui.StatetImages;
 
 

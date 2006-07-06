@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;

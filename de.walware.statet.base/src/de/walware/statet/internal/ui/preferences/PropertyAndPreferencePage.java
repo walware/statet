@@ -36,12 +36,12 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import de.walware.eclipsecommon.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommon.ui.dialogs.StatusUtil;
-import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
-import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
+import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;

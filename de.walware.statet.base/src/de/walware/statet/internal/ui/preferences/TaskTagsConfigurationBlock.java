@@ -35,13 +35,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommon.preferences.Preference;
-import de.walware.eclipsecommon.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommon.ui.dialogs.groups.SelectionItem;
-import de.walware.eclipsecommon.ui.dialogs.groups.TableOptionButtonsGroup;
-import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+import de.walware.eclipsecommons.ui.dialogs.groups.SelectionItem;
+import de.walware.eclipsecommons.ui.dialogs.groups.TableOptionButtonsGroup;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.preferences.Preference;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;

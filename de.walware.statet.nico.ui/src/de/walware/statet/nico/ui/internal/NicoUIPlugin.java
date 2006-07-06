@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.internal;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -25,6 +26,9 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 	 * Value: @value
 	 */
 	public static final String PLUGIN_ID = "de.walware.statet.nico.ui"; //$NON-NLS-1$
+	
+	public static final int INTERNAL_ERROR = 100;
+	
 
 	/** The shared instance. */
 	private static NicoUIPlugin gPlugin;
@@ -71,5 +75,11 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 	public ToolRegistry getToolRegistry() {
 		
 		return fToolRegistry;
+	}
+	
+	
+	public static void log(IStatus status) {
+		
+		getDefault().getLog().log(status);
 	}
 }

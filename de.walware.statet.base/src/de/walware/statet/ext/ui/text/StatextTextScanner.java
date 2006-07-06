@@ -27,13 +27,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
 /**
- * Basis für CodeScanners
+ * Basis fï¿½r CodeScanners
  */
 public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 

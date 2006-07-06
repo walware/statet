@@ -17,8 +17,8 @@ import java.util.Map;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 
-import de.walware.eclipsecommon.preferences.Preference;
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 
 public class NicoPreferenceInitializer extends AbstractPreferenceInitializer {

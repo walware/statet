@@ -27,8 +27,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.eclipsecommon.ui.dialogs.ChooseResourceComposite;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.internal.Messages;

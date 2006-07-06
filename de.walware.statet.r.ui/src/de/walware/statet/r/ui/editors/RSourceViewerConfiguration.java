@@ -22,9 +22,9 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.preferences.IPreferenceAccess;
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;

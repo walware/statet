@@ -27,8 +27,8 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;

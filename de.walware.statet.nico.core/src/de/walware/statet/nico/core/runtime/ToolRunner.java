@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.internal.Messages;
 import de.walware.statet.nico.core.internal.NicoPlugin;
 
@@ -57,18 +57,19 @@ public class ToolRunner implements IPlatformRunnable {
 					ToolRunner.this.run(process);
 				} 
 				catch (CoreException e) {
-					process.fExitValue = 1010;
+					process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;
+					IStatus status = new Status(
+							IStatus.ERROR,
+							NicoCore.PLUGIN_ID,
+							NicoCore.STATUSCODE_RUNTIME_ERROR,
+							NLS.bind(Messages.Runtime_error_UnexpectedTermination_message, 
+									new Object[] { process.getToolLabel(false), process.getLabel() }),
+							e);
 					try {
-						handler.handleStatus(new Status(
-								IStatus.ERROR,
-								NicoPlugin.PLUGIN_ID,
-								IStatetStatusConstants.RUNTIME_ERROR,
-								NLS.bind(Messages.Runtime_error_UnexpectedTermination_message, 
-										new Object[] { process.getToolLabel(false), process.getLabel() }),
-								e), 
-								null);
+						handler.handleStatus(status, null);
 					} catch (CoreException e1) {
-						NicoPlugin.logUnexpectedError(e);
+						NicoPlugin.log(status);
+						NicoPlugin.log(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 					}
 				}
 			}
@@ -79,17 +80,18 @@ public class ToolRunner implements IPlatformRunnable {
 		background.setName("StatET Thread '"+process.getLabel()+"'"); //$NON-NLS-1$ //$NON-NLS-2$
 		background.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
-				process.fExitValue = 1020;
+				process.fExitValue = NicoCore.EXITVALUE_RUNTIME_EXCEPTION;
+				IStatus status = new Status(
+						IStatus.ERROR, 
+						NicoCore.PLUGIN_ID, 
+						NicoCore.STATUSCODE_RUNTIME_ERROR,
+						NLS.bind(Messages.Runtime_error_CriticalError_message, t.getName()), 
+						e);
 				try {
-					handler.handleStatus(new Status(
-							IStatus.ERROR, 
-							NicoPlugin.PLUGIN_ID, 
-							IStatetStatusConstants.RUNTIME_ERROR, 
-							NLS.bind(Messages.Runtime_error_CriticalError_message, t.getName()), 
-							e), 
-							null);
+					handler.handleStatus(status, null);
 				} catch (CoreException e1) {
-					NicoPlugin.logUnexpectedError(e);
+					NicoPlugin.log(status);
+					NicoPlugin.log(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 				}
 			}
 		});

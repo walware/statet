@@ -17,7 +17,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.internal.ui.StatetMessages;
 

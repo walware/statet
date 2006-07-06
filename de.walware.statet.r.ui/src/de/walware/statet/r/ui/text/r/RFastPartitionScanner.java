@@ -20,7 +20,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
-import de.walware.eclipsecommon.ui.text.BufferedDocumentScanner;
+import de.walware.eclipsecommons.ui.text.BufferedDocumentScanner;
 
 import de.walware.statet.r.ui.IRDocumentPartitions;
 

@@ -24,8 +24,8 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.SubmitType;

@@ -47,7 +47,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ui.util.ExceptionHandler;

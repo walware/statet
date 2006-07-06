@@ -13,7 +13,7 @@ package de.walware.statet.r.ui.editors;
 
 import org.eclipse.ui.IEditorInput;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.StatextEditor1;

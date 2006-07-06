@@ -18,7 +18,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommon.ui.SharedMessages;
+import de.walware.eclipsecommons.ui.SharedMessages;
 
 import de.walware.statet.nico.ui.views.HistoryView;
 import de.walware.statet.ui.util.DNDUtil;

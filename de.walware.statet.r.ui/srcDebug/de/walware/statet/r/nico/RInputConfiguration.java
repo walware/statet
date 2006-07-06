@@ -14,7 +14,7 @@ package de.walware.statet.r.nico;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.eclipsecommon.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;

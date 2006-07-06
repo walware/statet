@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
-import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 
 

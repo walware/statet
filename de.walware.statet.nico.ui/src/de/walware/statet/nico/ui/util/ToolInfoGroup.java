@@ -25,8 +25,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.StatetImages;
 
 
@@ -47,7 +47,7 @@ public class ToolInfoGroup {
                 type = configuration.getType();
                 return DebugUITools.getImageDescriptor(type.getIdentifier());
             } catch (CoreException e) {
-                StatetPlugin.logUnexpectedError(e);
+                NicoUIPlugin.log(e.getStatus());
             }
         }
         return null;

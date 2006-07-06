@@ -36,7 +36,8 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -68,9 +69,9 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommon.ui.SharedMessages;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.SharedMessages;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -544,9 +545,15 @@ public class NIConsolePage implements IPageBookViewPage,
         IDebugTarget target = (IDebugTarget) process.getAdapter(IDebugTarget.class);
         ISelection selection = null;
         if (target == null) {
-            selection = new StructuredSelection(process);
+            selection = new TreeSelection(new TreePath(new Object[]{
+            		DebugPlugin.getDefault().getLaunchManager(),
+            		process.getLaunch(),
+            		process}));
         } else {
-            selection = new StructuredSelection(target);
+        	selection = new TreeSelection(new TreePath(new Object[]{
+            		DebugPlugin.getDefault().getLaunchManager(),
+            		target.getLaunch(),
+            		target}));
         }
         return new ShowInContext(null, selection);
     }

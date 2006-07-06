@@ -6,15 +6,14 @@ Bundle-SymbolicName: de.walware.statet.nico.ui; singleton:=true
 Bundle-Version: 0.3.0
 Bundle-Activator: de.walware.statet.nico.ui.internal.NicoUIPlugin
 Bundle-Localization: plugin
-Require-Bundle: de.walware.statet.base,
- org.eclipse.jface.text,
+Require-Bundle: org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
- org.eclipse.ui.console,
- org.eclipse.debug.core,
- org.eclipse.debug.ui,
- de.walware.statet.nico.core
+ org.eclipse.ui.console;visibility:=reexport,
+ org.eclipse.debug.ui;visibility:=reexport,
+ de.walware.statet.nico.core,
+ de.walware.statet.base
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: de.walware.statet.nico.ui,

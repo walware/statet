@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
-import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;

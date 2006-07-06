@@ -65,8 +65,8 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
+import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 
 
 /**

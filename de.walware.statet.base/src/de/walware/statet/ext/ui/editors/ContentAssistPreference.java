@@ -18,7 +18,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 

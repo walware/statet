@@ -51,12 +51,12 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedItem;
-import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedOptionButtonsGroup;
-import de.walware.eclipsecommon.ui.preferences.AbstractConfigurationBlock;
-import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedItem;
+import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
+import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;

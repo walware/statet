@@ -36,9 +36,9 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.util.PixelConverter;
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;

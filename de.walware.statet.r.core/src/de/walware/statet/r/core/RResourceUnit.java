@@ -13,7 +13,6 @@ package de.walware.statet.r.core;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ui.IEditorInput;
 
 import de.walware.statet.base.core.StatetProject;
 
@@ -35,11 +34,7 @@ public class RResourceUnit {
 //		fElementStorageName = elementStorageName;
 //	}
 	
-	public RResourceUnit(IEditorInput editorInput) {
-		
-		this ((IFile) editorInput.getAdapter(IFile.class));
-	}
-	
+
 	public RResourceUnit(IFile file) {
 		
 		fFile = file;

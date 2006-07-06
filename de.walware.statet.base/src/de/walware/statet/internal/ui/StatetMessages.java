@@ -24,10 +24,6 @@ public class StatetMessages extends NLS {
 	public static String TaskPriority_Normal;
 	public static String TaskPriority_Low;
 
-	public static String CoreUtility_Build_Job_title;
-	public static String CoreUtility_Build_AllTask_name;
-	public static String CoreUtility_Build_ProjectTask_name;
-	
 	public static String CopyToClipboard_error_title;
 	public static String CopyToClipboard_error_message;
 

@@ -46,9 +46,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.ResourceSelectionDialog;
-import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.ResourceSelectionDialog;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;

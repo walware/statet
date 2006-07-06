@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.core;
 
-import de.walware.statet.nico.core.internal.NicoPlugin;
 
 
 /**
@@ -19,6 +18,7 @@ import de.walware.statet.nico.core.internal.NicoPlugin;
  */
 public class NicoPreferenceNodes {
 
-		
-	public static final String CAT_HISTORY_QUALIFIER = NicoPlugin.PLUGIN_ID + "/history"; //$NON-NLS-1$
+
+	public static final String CAT_HISTORY_QUALIFIER = NicoCore.PLUGIN_ID + "/history"; //$NON-NLS-1$
+
 }

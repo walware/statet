@@ -31,16 +31,16 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommon.FileUtil;
-import de.walware.eclipsecommon.FileUtil.ReadTextFileOperation;
-import de.walware.eclipsecommon.FileUtil.ReaderAction;
-import de.walware.eclipsecommon.FileUtil.WriteTextFileOperation;
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.FileUtil;
+import de.walware.eclipsecommons.FileUtil.ReadTextFileOperation;
+import de.walware.eclipsecommons.FileUtil.ReaderAction;
+import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
+import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.internal.Messages;
-import de.walware.statet.nico.core.internal.NicoPlugin;
 import de.walware.statet.nico.core.internal.preferences.HistoryPreferences;
 
 
@@ -224,7 +224,7 @@ public class History {
 					monitor.done();
 				}
 			};
-			ReadTextFileOperation op = FileUtil.createReadTextFileOp(action, file, NicoPlugin.PLUGIN_ID);
+			ReadTextFileOperation op = FileUtil.createReadTextFileOp(action, file, NicoCore.PLUGIN_ID);
 			op.setCharset(charset, forceCharset);
 			op.doOperation(new SubProgressMonitor(monitor, 90));
 			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getToolLabel(false)));
@@ -239,7 +239,7 @@ public class History {
 				fireCompleteChange();
 			}
 		} catch (CoreException e) {
-			throw new CoreException(new Status(Status.ERROR, NicoPlugin.PLUGIN_ID, 0,
+			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
 					NLS.bind(Messages.LoadHistory_error_message, 
 							new Object[] { fProcess.getToolLabel(true), file.toString() }), e));
 		} finally {
@@ -302,12 +302,12 @@ public class History {
 			}
 			monitor.worked(1);
 			
-			WriteTextFileOperation op = FileUtil.createWriteTextFileOp(content, file, NicoPlugin.PLUGIN_ID);
+			WriteTextFileOperation op = FileUtil.createWriteTextFileOp(content, file, NicoCore.PLUGIN_ID);
 			op.setCharset(charset, forceCharset);
 			op.setFileOperationMode(mode);
 			op.doOperation(new SubProgressMonitor(monitor, 2));
 		} catch (CoreException e) {
-			throw new CoreException(new Status(Status.ERROR, NicoPlugin.PLUGIN_ID, 0,
+			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
 					NLS.bind(Messages.SaveHistory_error_message, 
 							new Object[] { fProcess.getLabel(), file.toString() }), e));
 		} finally {

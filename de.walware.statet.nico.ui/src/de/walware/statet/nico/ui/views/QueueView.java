@@ -37,8 +37,8 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
@@ -259,7 +259,7 @@ public class QueueView extends ViewPart {
 	
 	private TableViewer fTableViewer;
 	
-	private ToolProcess fProcess; // für submit
+	private ToolProcess fProcess; // fï¿½r submit
 	private IToolRegistryListener fToolRegistryListener;
 	
 	private PauseAction fPauseAction;

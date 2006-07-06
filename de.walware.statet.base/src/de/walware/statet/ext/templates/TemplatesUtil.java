@@ -32,7 +32,7 @@ import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.text.edits.RangeMarker;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
@@ -87,7 +87,7 @@ public class TemplatesUtil {
 	}
 	
 	/**
-	 * Vergleicht zwei Strings und gibt den gemeinsamen Beginn zurück
+	 * Vergleicht zwei Strings und gibt den gemeinsamen Beginn zurï¿½ck
 	 * @param s1
 	 * @param s2
 	 * @return

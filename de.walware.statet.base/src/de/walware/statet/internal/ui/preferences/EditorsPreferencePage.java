@@ -28,13 +28,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommon.preferences.Preference.Type;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.groups.ListedOptionsGroup;
-import de.walware.eclipsecommon.ui.dialogs.groups.SelectionItem;
-import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommon.ui.preferences.OverlayStoreConfigurationBlock;
-import de.walware.eclipsecommon.ui.preferences.PreferenceKey;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.groups.ListedOptionsGroup;
+import de.walware.eclipsecommons.ui.dialogs.groups.SelectionItem;
+import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
+import de.walware.eclipsecommons.ui.preferences.PreferenceKey;
+import de.walware.eclipsecommons.preferences.Preference.Type;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 

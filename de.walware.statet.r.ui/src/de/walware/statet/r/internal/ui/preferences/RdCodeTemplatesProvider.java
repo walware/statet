@@ -18,7 +18,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
-import de.walware.eclipsecommon.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;

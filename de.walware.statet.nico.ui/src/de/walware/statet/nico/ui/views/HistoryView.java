@@ -51,9 +51,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
-import de.walware.eclipsecommon.ui.SharedMessages;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.SharedMessages;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -250,7 +250,7 @@ public class HistoryView extends ViewPart {
 	private LoadHistoryAction fLoadHistoryAction;
 	private SaveHistoryAction fSaveHistoryAction;
 
-	private ToolProcess fProcess; // für submit
+	private ToolProcess fProcess; // fï¿½r submit
 	private IToolRegistryListener fToolRegistryListener;
 
 	

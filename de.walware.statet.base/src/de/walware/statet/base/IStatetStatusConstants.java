@@ -15,17 +15,10 @@ package de.walware.statet.base;
 public interface IStatetStatusConstants {
 
 	
-	int INTERNAL_ERROR = 10001;
-	
-	/** Code for errors in (incremental) builders */
-	int BUILD_ERROR = 10100;
-	
+	int INTERNAL_ERROR = 100;
 	
 	int LAUNCHING_ERROR = 20100;
 	
 	/** Code for errors when handle LaunchConfigurations */
 	int LAUNCHCONFIG_ERROR = 20110;
-	
-	/** Code for errors when handle Threads/Runnables */
-	int RUNTIME_ERROR = 20200;
 }

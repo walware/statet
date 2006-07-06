@@ -39,14 +39,15 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import de.walware.eclipsecommon.preferences.Preference.Type;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedItem;
-import de.walware.eclipsecommon.ui.dialogs.groups.CategorizedOptionsGroup;
-import de.walware.eclipsecommon.ui.preferences.OverlayStoreConfigurationBlock;
-import de.walware.eclipsecommon.ui.preferences.PreferenceKey;
-import de.walware.eclipsecommon.ui.util.ColorManager;
-import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedItem;
+import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionsGroup;
+import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
+import de.walware.eclipsecommons.ui.preferences.PreferenceKey;
+import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.preferences.Preference.Type;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;

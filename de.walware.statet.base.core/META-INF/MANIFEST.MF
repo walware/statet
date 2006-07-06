@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
+Bundle-Name: StatET: Base Core
+Bundle-SymbolicName: de.walware.statet.base.core
+Bundle-Version: 0.3.0
+Bundle-Activator: de.walware.statet.base.core.internal.BasePlugin
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reexport,
+ org.eclipse.core.resources;visibility:=reexport,
+ org.eclipse.core.filesystem;visibility:=reexport
+Eclipse-LazyStart: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: de.walware.eclipsecommons,
+ de.walware.eclipsecommons.preferences,
+ de.walware.statet.base.core,
+ de.walware.statet.base.core.preferences,
+ de.walware.statet.ext.core,
+ org.apache.commons.collections.primitives

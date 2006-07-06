@@ -26,10 +26,11 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommon.preferences.Preference;
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommon.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.preferences.Preference;
+
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;

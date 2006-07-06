@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 
-import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
+import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.statet.base.StatetPlugin;
 
 

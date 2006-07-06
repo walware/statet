@@ -14,9 +14,9 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.eclipsecommon.preferences.PreferencesUtil;
-import de.walware.eclipsecommon.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommon.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;

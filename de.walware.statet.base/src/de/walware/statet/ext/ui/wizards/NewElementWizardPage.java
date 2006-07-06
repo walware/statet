@@ -35,9 +35,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.eclipsecommon.ui.dialogs.Layouter;
-import de.walware.eclipsecommon.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommon.ui.dialogs.StatusUtil;
+import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.dialogs.ContainerSelectionComposite;
 import de.walware.statet.ext.ui.dialogs.StatetDialogsMessages;

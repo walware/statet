@@ -16,13 +16,18 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.osgi.util.NLS;
 
+import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
+import de.walware.statet.nico.core.internal.Messages;
 import de.walware.statet.nico.core.internal.NicoPlugin;
 
 
@@ -545,7 +550,13 @@ public abstract class ToolController<
 				 while (loopRunTask()) {}
 			}
 			catch (Exception e) {
-				handleRunnableError(e);
+				handleRunnableError(new Status(
+						IStatus.ERROR,
+						NicoCore.PLUGIN_ID,
+						NicoPlugin.EXTERNAL_ERROR,
+						NLS.bind(Messages.ToolRunnable_error_RuntimeError_message, 
+								new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
+						e));
 				fCurrentRunnable = null;
 			}
 			
@@ -606,9 +617,9 @@ public abstract class ToolController<
 	}
 	
 	
-	protected void handleRunnableError(Exception e) {
+	protected void handleRunnableError(IStatus status) {
 		
-		NicoPlugin.logUnexpectedError(e);
+		NicoPlugin.log(status);
 	}
 	
 	/**

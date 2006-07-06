@@ -6,30 +6,23 @@ Bundle-SymbolicName: de.walware.statet.base; singleton:=true
 Bundle-Version: 0.3.0
 Bundle-Activator: de.walware.statet.base.StatetPlugin
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reexport,
- org.eclipse.core.resources;visibility:=reexport,
- org.eclipse.core.filesystem;visibility:=reexport,
- org.eclipse.core.variables,
+Require-Bundle: org.eclipse.core.variables,
  org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
- org.eclipse.debug.core
+ org.eclipse.debug.core,
+ de.walware.statet.base.core;visibility:=reexport
 Eclipse-LazyStart: true
-Export-Package: de.walware.eclipsecommon,
- de.walware.eclipsecommon.preferences,
- de.walware.eclipsecommon.templates,
- de.walware.eclipsecommon.ui,
- de.walware.eclipsecommon.ui.dialogs,
- de.walware.eclipsecommon.ui.dialogs.groups,
- de.walware.eclipsecommon.ui.preferences,
- de.walware.eclipsecommon.ui.text,
- de.walware.eclipsecommon.ui.util,
+Export-Package: de.walware.eclipsecommons.templates,
+ de.walware.eclipsecommons.ui,
+ de.walware.eclipsecommons.ui.dialogs,
+ de.walware.eclipsecommons.ui.dialogs.groups,
+ de.walware.eclipsecommons.ui.preferences,
+ de.walware.eclipsecommons.ui.text,
+ de.walware.eclipsecommons.ui.util,
  de.walware.statet.base,
- de.walware.statet.base.core,
- de.walware.statet.base.core.preferences,
- de.walware.statet.ext.core,
  de.walware.statet.ext.templates,
  de.walware.statet.ext.ui,
  de.walware.statet.ext.ui.dialogs,
@@ -38,12 +31,5 @@ Export-Package: de.walware.eclipsecommon,
  de.walware.statet.ext.ui.text,
  de.walware.statet.ext.ui.wizards,
  de.walware.statet.ui,
- de.walware.statet.ui.util,
- org.apache.commons.collections.primitives,
- org.apache.commons.collections.primitives.adapters,
- org.apache.commons.collections.primitives.adapters.io,
- org.apache.commons.collections.primitives.decorators
-Bundle-ClassPath: libs/commons-primitives.jar,
- commons.jar,
- base.jar
+ de.walware.statet.ui.util
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

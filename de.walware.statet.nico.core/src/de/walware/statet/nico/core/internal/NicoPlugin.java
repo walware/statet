@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
-import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.statet.nico.core.NicoCore;
 
 
 /**
@@ -24,17 +24,18 @@ import de.walware.statet.base.IStatetStatusConstants;
  */
 public class NicoPlugin extends Plugin {
 
-	/**
-	 * Plugin-ID
-	 * Value: @value
-	 */
-	public static final String PLUGIN_ID = "de.walware.statet.nico.core"; //$NON-NLS-1$
+
+	public static final int INTERNAL_ERROR = 100;
+	public static final int EXTERNAL_ERROR = 105;
+	
 
 	/** The shared instance. */
 	private static NicoPlugin gPlugin;
 	
 	/**
-	 * Returns the shared instance.
+	 * Returns the shared instance
+	 *
+	 * @return the shared instance
 	 */
 	public static NicoPlugin getDefault() {
 		
@@ -64,14 +65,14 @@ public class NicoPlugin extends Plugin {
 	}
 
 	
-	public static void logUnexpectedError(Throwable e) {
+	public static void log(IStatus status) {
 		
-		getDefault().getLog().log(new Status(
-				IStatus.ERROR, 
-				PLUGIN_ID, 
-				IStatetStatusConstants.INTERNAL_ERROR, 
-				Messages.InternalError_UnexpectedException_message, 
-				e)); 
+		getDefault().getLog().log(status);
+	}
+	
+	public static void log(int code, String message, Throwable e) {
+		
+		log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, code, message, e)); 
 	}
 
 }
