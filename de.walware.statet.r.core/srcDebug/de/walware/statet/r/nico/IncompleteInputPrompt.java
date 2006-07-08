@@ -12,18 +12,27 @@
 package de.walware.statet.r.nico;
 
 import de.walware.statet.nico.core.runtime.Prompt;
-import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 
 /**
- *
+ * Prompt to continue incomplete input.
+ * 
+ * The flag IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT is setted.
+ * The previous incomplete input accesible as field.
  */
-public class RWorkspace extends ToolWorkspace {
-
+public class IncompleteInputPrompt extends Prompt {
 	
-	public RWorkspace() {
+	
+	/**
+	 * The whole previous incomplete input (can be multiple lines).
+	 */
+	public final String previousInput;
+	
+	
+	public IncompleteInputPrompt(String pPreviousInput) {
 		
-		super(	new Prompt("> ", IBasicRAdapter.META_PROMPT_DEFAULT), 
-				"\n");
+		super("$ ", IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT);
+		previousInput = pPreviousInput;
 	}
+	
 }

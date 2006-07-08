@@ -25,24 +25,25 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.r.nico.AbstractRController;
-import de.walware.statet.r.nico.IRRunnableControllerAdapter;
+import de.walware.statet.r.nico.IBasicRAdapter;
+import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.rserve.internal.launchconfigs.ConnectionConfig;
 
 
 public class RServeClientController 
-		extends AbstractRController<IRRunnableControllerAdapter, RWorkspace> {
+		extends AbstractRController<IBasicRAdapter, RWorkspace> {
 
 	
-	private class RServeAdapter extends RunnableAdapter implements IRRunnableControllerAdapter {
+	private class RServeAdapter extends RunnableAdapter implements IBasicRAdapter {
 		
 		
 		@Override
 		protected Prompt doSubmit(String input) {
 			
 			String completeInput = input;
-			if ((fPrompt.meta & IRRunnableControllerAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-				completeInput = ((IncompleteInputPrompt) fPrompt).input + input;
+			if ((fPrompt.meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+				completeInput = ((IncompleteInputPrompt) fPrompt).previousInput + input;
 			}
 			try {
 				REXP rx = fRconnection.eval(completeInput);

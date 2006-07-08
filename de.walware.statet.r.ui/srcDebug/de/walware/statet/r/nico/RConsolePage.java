@@ -18,7 +18,6 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
-import de.walware.statet.r.nico.AbstractRController.IncompleteInputPrompt;
 
 
 public class RConsolePage extends NIConsolePage {
@@ -43,9 +42,9 @@ public class RConsolePage extends NIConsolePage {
 			@Override
 			protected void onPromptUpdate(Prompt prompt) {
 
-				if ((prompt.meta & IRRunnableControllerAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+				if ((prompt.meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 					IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
-					fDocument.setPrefix(p.input);
+					fDocument.setPrefix(p.previousInput);
 				}
 				else {
 					fDocument.setPrefix("");
