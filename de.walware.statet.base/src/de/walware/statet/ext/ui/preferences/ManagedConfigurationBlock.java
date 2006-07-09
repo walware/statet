@@ -418,6 +418,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	public <T> T getPreferenceValue(Preference<T> key) {
 
 		assert (fPreferenceManager != null);
+		assert (key != null);
 		
 		if (fPreferenceManager.fDisabledProjectSettings != null)
 			return (T) fPreferenceManager.fDisabledProjectSettings.get(key);
@@ -427,6 +428,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	public IEclipsePreferences[] getPreferenceNodes(String nodeQualifier) {
 		
 		assert (fPreferenceManager != null);
+		assert (nodeQualifier != null);
 		
 		IEclipsePreferences[] nodes = new IEclipsePreferences[fPreferenceManager.fLookupOrder.length - 1];
 		for (int i = 0; i < nodes.length; i++) {
@@ -438,6 +440,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	public IScopeContext[] getPreferenceContexts() {
 		
 		assert (fPreferenceManager != null);
+		
 		return fPreferenceManager.fLookupOrder;
 	}
 	
@@ -452,6 +455,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	public <T> T setPrefValue(Preference<T> key, T value) {
 		
 		assert (fPreferenceManager != null);
+		assert (value != null);
 		
 		if (fPreferenceManager.fDisabledProjectSettings != null)
 			return (T) fPreferenceManager.fDisabledProjectSettings.put(key, value);

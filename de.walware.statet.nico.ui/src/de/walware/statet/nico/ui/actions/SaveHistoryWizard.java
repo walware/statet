@@ -82,7 +82,9 @@ public class SaveHistoryWizard extends AbstractWizard {
 			}
 			final int fmode = mode;
 
-			assert (history != null && (wsFile != null || efsFile != null) && charset != null);
+			assert (history != null);
+			assert (wsFile != null || efsFile != null);
+			assert (charset != null);
 			
 			Job job = new Job(NicoCoreMessages.SaveHistoryJob_label) {
 				@Override

@@ -13,6 +13,7 @@ package de.walware.statet.ext.templates;
 
 import java.util.Iterator;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.ILineTracker;
@@ -57,7 +58,7 @@ public class StatextCodeTemplatesContext extends TemplateContext implements ISta
 		while (iterator.hasNext()) {
 			TemplateVariableResolver var = (TemplateVariableResolver) iterator.next();
 			if (var instanceof StatextCodeTemplatesContextType.CodeTemplatesVariableResolver) {
-				assert (getVariable(var.getType()) != null) : ("Variable " + var.getType() + "not defined"); //$NON-NLS-1$ //$NON-NLS-2$
+				Assert.isNotNull(getVariable(var.getType()), "Variable " + var.getType() + "not defined"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 

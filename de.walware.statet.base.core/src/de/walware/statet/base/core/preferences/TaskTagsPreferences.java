@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.Assert;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
@@ -26,8 +27,8 @@ import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
 
 public class TaskTagsPreferences {
 
-	private static final String KEY_TAGS = "task_tags";
-	private static final String KEY_PRIORITIES = "task_tags.priority";
+	private static final String KEY_TAGS = "task_tags"; //$NON-NLS-1$
+	private static final String KEY_PRIORITIES = "task_tags.priority"; //$NON-NLS-1$
 	
 	public static final StringArrayPref PREF_TAGS = new StringArrayPref(
 			StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER, KEY_TAGS);
@@ -79,7 +80,7 @@ public class TaskTagsPreferences {
 	 */
 	public TaskTagsPreferences() {
 		
-		setup(	new String[] { "TODO", "FIXME" },
+		setup(	new String[] { "TODO", "FIXME" }, //$NON-NLS-1$ //$NON-NLS-2$
 				new TaskPriority[] { TaskPriority.NORMAL, TaskPriority.NORMAL }
 		);
 	}
@@ -99,7 +100,7 @@ public class TaskTagsPreferences {
 	
 	private void setup(String[] tags, TaskPriority[] priorities) {
 		
-		assert (tags.length == priorities.length);
+		Assert.isLegal(tags.length == priorities.length, "Invalid preference values for task tags.");  //$NON-NLS-1$
 		fTags = tags;
 		fPrios = priorities;
 	}

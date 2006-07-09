@@ -73,7 +73,9 @@ public class LoadHistoryWizard extends AbstractWizard {
 			final IFileStore efsFile = fPage.fResourceInEFS;
 			final String charset = fPage.fEncoding;
 
-			assert (history != null && (wsFile != null || efsFile != null) && charset != null);
+			assert (history != null);
+			assert (wsFile != null || efsFile != null);
+			assert (charset != null);
 			
 			Job job = new Job(NicoCoreMessages.LoadHistoryJob_label) {
 				@Override
