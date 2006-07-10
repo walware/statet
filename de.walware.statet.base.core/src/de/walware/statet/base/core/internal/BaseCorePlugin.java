@@ -7,18 +7,18 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class BasePlugin extends Plugin {
+public class BaseCorePlugin extends Plugin {
 
 
 	/** The shared instance. */
-	private static BasePlugin gPlugin;
+	private static BaseCorePlugin gPlugin;
 	
 	/**
 	 * Returns the shared instance
 	 *
 	 * @return the shared instance
 	 */
-	public static BasePlugin getDefault() {
+	public static BaseCorePlugin getDefault() {
 		
 		return gPlugin;
 	}
@@ -27,7 +27,7 @@ public class BasePlugin extends Plugin {
 	/**
 	 * The constructor
 	 */
-	public BasePlugin() {
+	public BaseCorePlugin() {
 		
 		gPlugin = this;
 	}

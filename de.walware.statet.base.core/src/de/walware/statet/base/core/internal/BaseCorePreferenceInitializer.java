@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,23 +9,24 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base;
+package de.walware.statet.base.core.internal;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 
-import de.walware.statet.ui.StatetUiPreferenceConstants;
+import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 
 
-public class StatetPreferenceInitializer extends AbstractPreferenceInitializer {
-
+/**
+ *
+ */
+public class BaseCorePreferenceInitializer extends AbstractPreferenceInitializer {
 
 	@Override
 	public void initializeDefaultPreferences() {
-
-		// UI
-		IPreferenceStore store = StatetPlugin.getDefault().getPreferenceStore();
-		StatetUiPreferenceConstants.initializeDefaultValues(store);
+		
+		// Core
+		DefaultScope defaultScope = new DefaultScope();
+		StatetCorePreferenceNodes.initializeDefaultValues(defaultScope);
 	}
-
 }
