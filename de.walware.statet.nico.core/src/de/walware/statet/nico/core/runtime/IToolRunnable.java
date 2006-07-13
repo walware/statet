@@ -11,9 +11,11 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 
 /**
- * Runnables part which can communicate with the software. 
+ * Runnables part which can communicate with the tool software. 
  * The are added to the queue and runned, when it is one's turn.
  *
  * A runnable depends on an adapter type. It is a good idea, if 
@@ -22,18 +24,31 @@ package de.walware.statet.nico.core.runtime;
 public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 
 	/**
-	 * This method is called by the Tool-thread, when it is one's turn.
+	 * This method is called by the tool controller, when it is one's turn.
 	 * <p>
 	 * This method is running in the Tool-thread and blocks the thread, 
-	 * until <code>run</code> its finished. So you have exlusive access to 
+	 * until <code>run</code> is finished. So you have exlusive access to 
 	 * the Tool inside this method.
 	 * <p>
 	 * Don't call this method on another place.
+	 * 
+	 * @param tools your interface to the tool software
+	 * @param monitor a progress monitor for long running tasks
 	 */
-	public void run(T tools);
+	public void run(T tools, IProgressMonitor monitor);
+	
+	/**
+	 * This method is called after the run() method has finished. 
+	 * It's like a finally block in the run method. 
+	 *
+	 * This method is called by the tool controller, don't call this 
+	 * method on another place.
+	 */
+	public void finish();
 	
 	/**
 	 * Return a label for this runnable, used by the UI.
+	 * 
 	 * @return the label
 	 */
 	public String getLabel();
@@ -41,7 +56,8 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	/**
 	 * Return the submit type of this entry. The same runnable should
 	 * always return the same type.
-	 * @return
+	 * 
+	 * @return the type
 	 */
 	public SubmitType getType();
 }

@@ -11,26 +11,19 @@
 
 package de.walware.statet.r.nico;
 
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Prompt;
 
 
 /**
- * Interface to access R by a ToolRunnable.
+ *
+ * Note: the methods sets the properties at java side. The caller is 
+ * responsible for the synchronization of the properties with R.
  */
-public interface IBasicRAdapter extends
-		IToolRunnableControllerAdapter {
+public interface ISetupRAdapter {
 
+	public void setDefaultPrompt(Prompt prompt);
+	public void setPrompt(Prompt prompt);
+	public void setIncompletePromptText(String text);
 	
-	/**
-	 * This flag indicates that the current input is incomplete.
-	 * 
-	 * The prompt have to be a instance of {@link IncompleteInputPrompt<RunnableAdapterType, WorkspaceType>}.
-	 */
-	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
-
-
-//	public void voidEval(String );
-
-//	public REXP eval(String );
-
+	public void setLineSeparator(String newSeparator);
 }

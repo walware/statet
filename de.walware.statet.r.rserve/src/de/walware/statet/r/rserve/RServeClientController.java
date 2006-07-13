@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU General Public License v2.0
- * or newer, which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
+ * are made available under the terms of the GNU Lesser General Public License 
+ * v2.1 or newer, which accompanies this distribution, and is available at
+ * http://www.gnu.org/licenses/lgpl.html
  *
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
@@ -26,6 +26,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.IBasicRAdapter;
+import de.walware.statet.r.nico.ISetupRAdapter;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.rserve.internal.launchconfigs.ConnectionConfig;
@@ -35,7 +36,7 @@ public class RServeClientController
 		extends AbstractRController<IBasicRAdapter, RWorkspace> {
 
 	
-	private class RServeAdapter extends RunnableAdapter implements IBasicRAdapter {
+	private class RServeAdapter extends AbstractRAdapter implements IBasicRAdapter, ISetupRAdapter {
 		
 		
 		@Override
@@ -57,7 +58,7 @@ public class RServeClientController
 			}
 			catch (RSrvException e) {
 				if (e.getRequestReturnCode() == 2) {
-					return new IncompleteInputPrompt(completeInput+fLineSeparator);
+					return createIncompleteInputPrompt(fPrompt, input);
 				}
 				fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineSeparator, fCurrentRunnable.getType(), 0);
 				if (!fRconnection.isConnected() || e.getRequestReturnCode() == -1) {
@@ -114,9 +115,10 @@ public class RServeClientController
 				fRconnection.login("guest", "guest");
 			}
 
-			RServeAdapter system = (RServeAdapter) fRunnableAdapter;
+			ISetupRAdapter system = (RServeAdapter) fRunnableAdapter;
 			Prompt prompt = new Prompt("> ", IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
 			system.setDefaultPrompt(prompt);
+			system.setIncompletePromptText("$ ");
 			system.setPrompt(prompt);
 			system.setLineSeparator("\n");
 		} 

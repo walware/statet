@@ -148,7 +148,7 @@ public abstract class ToolController<
 			fInputStream.append(input, type, 
 					(fPrompt.meta & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) );
 			fInputStream.append(fWorkspaceData.getLineSeparator(), type, 
-					(IToolRunnableControllerAdapter.META_HISTORY_DONTADD) );
+					IToolRunnableControllerAdapter.META_HISTORY_DONTADD);
 		}
 		
 		protected abstract Prompt doSubmit(String input);
@@ -174,9 +174,17 @@ public abstract class ToolController<
 			fType = type;
 		}
 
-		public void run(IToolRunnableControllerAdapter tools) {
+		public boolean needsProgressMonitor() {
+
+			return false;
+		}
+		
+		public void run(IToolRunnableControllerAdapter tools, IProgressMonitor monitor) {
 			
 			tools.submitToConsole(fText);
+		}
+		
+		public void finish() {
 		}
 		
 		public String getLabel() {
@@ -199,13 +207,16 @@ public abstract class ToolController<
 	
 	protected final ToolProcess fProcess;
 	private Queue fQueue;
+
 	protected IToolRunnable fCurrentRunnable;
+	private IProgressMonitor fRunnableProgressMonitor = new NullProgressMonitor();
 	 
 	private ToolStatus fStatus = ToolStatus.STARTING;
 	private IToolStatusListener[] fToolStatusListeners;
 	private boolean fPauseRequested = false;
 	private ListenerList fPauseRequestListeners = new ListenerList(ListenerList.IDENTITY);
 	private boolean fTerminateRequested = false;
+	private boolean fIgnoreRequests = false;
 
 	protected WorkspaceType fWorkspaceData;
 	protected RunnableAdapterType fRunnableAdapter;
@@ -411,7 +422,7 @@ public abstract class ToolController<
 	}
 	
 	/**
-	 * Submit one or multiple text lines to the tool.
+	 * Submits one or multiple text lines to the tool.
 	 * The texts will be treated as usual commands with console output.
 	 * 
 	 * @param text array with text lines.
@@ -459,7 +470,7 @@ public abstract class ToolController<
 	}
 	
 	/**
-	 * Submit one or multiple text lines to the tool.
+	 * Submits one or multiple text lines to the tool.
 	 * The texts will be treated as usual commands with console output.
 	 * 
 	 * @param text array with text lines.
@@ -490,7 +501,7 @@ public abstract class ToolController<
 	}
 	
 	/**
-	 * Submit the runnable ("task") for the tool.
+	 * Submits the runnable ("task") for the tool.
 	 * <p>
 	 * The runnable will be added to the queue and will be runned, if it's its turn.
 	 * 
@@ -498,13 +509,38 @@ public abstract class ToolController<
 	 * @return <code>true</code>, if adding task to queue was successful, 
 	 * 		otherwise <code>false</code>. 
 	 */
-	public boolean submit(IToolRunnable<IToolRunnableControllerAdapter>[] task) {
+	public boolean submit(IToolRunnable<IToolRunnableControllerAdapter>[] tasks) {
+		
+		assert (tasks != null);
+		
+		synchronized (fQueue) {
+			if (acceptSubmit()) {
+				doSubmit(tasks);
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * Runs the runnable ("task"), if the tool is currently on idle.
+	 * 
+	 * Note: The runnable is always executed asynchronious.
+	 * 
+	 * @param task the runnable
+	 * @return <code>true</code>, if adding task to queue was successful, 
+	 * 		otherwise <code>false</code>. 
+	 */
+	public boolean runOnIdle(IToolRunnable<IToolRunnableControllerAdapter> task) {
 		
 		assert (task != null);
 		
 		synchronized (fQueue) {
-			if (acceptSubmit()) {
-				doSubmit(task);
+			if (acceptSubmit() && fStatus == ToolStatus.STARTED_IDLE) {
+				fIgnoreRequests = true;
+				doSubmit(new IToolRunnable[] { task });
 				return true;
 			}
 			else {
@@ -557,7 +593,13 @@ public abstract class ToolController<
 						NLS.bind(Messages.ToolRunnable_error_RuntimeError_message, 
 								new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
 						e));
-				fCurrentRunnable = null;
+				fIgnoreRequests = false;
+			}
+			finally {
+				if (fCurrentRunnable != null) {
+					fCurrentRunnable.finish();
+					fCurrentRunnable = null;
+				}
 			}
 			
 			synchronized (fQueue) {
@@ -588,7 +630,7 @@ public abstract class ToolController<
 	private boolean loopRunTask() {
 		
 		synchronized (fQueue) {
-			if (fQueue.internalIsEmpty() || fPauseRequested || fTerminateRequested) {
+			if (fQueue.internalIsEmpty() || fIgnoreRequests || fPauseRequested || fTerminateRequested) {
 				return false;
 			}
 			fCurrentRunnable = fQueue.internalPoll();
@@ -596,8 +638,11 @@ public abstract class ToolController<
 		}
 
 		// muss nicht synchronisiert werden, da Zugriff nur durch einen Thread
-		fCurrentRunnable.run(fRunnableAdapter);
+		fCurrentRunnable.run(fRunnableAdapter, fRunnableProgressMonitor);
+		fCurrentRunnable.finish();
+		fRunnableProgressMonitor.setCanceled(false);
 		fCurrentRunnable = null;
+		fIgnoreRequests = false;
 		return true;
 	} 
 

@@ -49,7 +49,7 @@ public class ToolRunner implements IPlatformRunnable {
 		return null;
 	}
 	
-	public void runInBackgroundThread(final ToolProcess process, final IStatusHandler handler) {
+	public <WorkspaceType extends ToolWorkspace> void runInBackgroundThread(final ToolProcess<WorkspaceType> process, final IStatusHandler handler) {
 		
 		Runnable r = new Runnable() {
 			public void run() {

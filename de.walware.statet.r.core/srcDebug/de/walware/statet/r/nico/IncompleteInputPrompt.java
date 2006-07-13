@@ -29,10 +29,20 @@ public class IncompleteInputPrompt extends Prompt {
 	public final String previousInput;
 	
 	
-	public IncompleteInputPrompt(String pPreviousInput) {
+	IncompleteInputPrompt(Prompt previousPrompt, String lastInput, String promptText) {
 		
-		super("$ ", IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT);
-		previousInput = pPreviousInput;
+		super(promptText, IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT);
+		if ((previousPrompt.meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+			lastInput = ((IncompleteInputPrompt) previousPrompt).previousInput + lastInput;
+		}
+		previousInput = lastInput;
+	}
+
+	
+	IncompleteInputPrompt(String allInput, String promptText) {
+		
+		super(promptText, IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT);
+		previousInput = allInput;
 	}
 	
 }
