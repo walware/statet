@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
 Bundle-Name: StatET: R Core
 Bundle-SymbolicName: de.walware.statet.r.core; singleton:=true
-Bundle-Version: 0.3.0
+Bundle-Version: 0.3.0.qualifier
 Bundle-Activator: de.walware.statet.r.core.internal.RCorePlugin
 Bundle-Localization: plugin
 Require-Bundle: de.walware.statet.base.core;bundle-version="0.3.0",

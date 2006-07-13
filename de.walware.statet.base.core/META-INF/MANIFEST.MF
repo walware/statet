@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Vendor: StatET-Project (www.walware.de/goto/statet)
 Bundle-Name: StatET: Base Core
-Bundle-SymbolicName: de.walware.statet.base.core
-Bundle-Version: 0.3.0
-Bundle-Activator: de.walware.statet.base.core.internal.BasePlugin
+Bundle-SymbolicName: de.walware.statet.base.core;singleton:=true
+Bundle-Version: 0.3.0.qualifier
+Bundle-Activator: de.walware.statet.base.core.internal.BaseCorePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.2.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
