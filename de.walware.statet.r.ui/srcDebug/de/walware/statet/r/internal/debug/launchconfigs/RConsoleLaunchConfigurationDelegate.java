@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,95 +24,24 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.RefreshTab;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchListener;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsUtil;
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
-
-import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
+import de.walware.statet.ui.util.UnterminatedLaunchAlerter;
 
 
 public class RConsoleLaunchConfigurationDelegate implements
 		ILaunchConfigurationDelegate {
 
 
-	private static Object fgWorkbenchListenerLock = new Object();
-	private static IWorkbenchListener fgWorkbenchListener;
-
-	/**
-	 * A workbench listener that warns the user about any running programs when
-	 * the workbench closes. Programs are killed when the VM exits.
-	 */
-	private class WorkbenchListener implements IWorkbenchListener {
-
-		public boolean preShutdown(IWorkbench workbench, boolean forced) {
-
-			ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-			ILaunchConfigurationType programType = manager.getLaunchConfigurationType(IRConsoleConstants.ID_RCMD_LAUNCHCONFIG);
-			if (programType == null) {
-				return true;
-			}
-			ILaunch launches[] = manager.getLaunches();
-			ILaunchConfigurationType configType;
-			ILaunchConfiguration config;
-			for (int i = 0; i < launches.length; i++) {
-				try {
-					config = launches[i].getLaunchConfiguration();
-					if (config == null) {
-						continue;
-					}
-					configType = config.getType();
-				} catch (CoreException e) {
-					continue;
-				}
-				if (configType.equals(programType)) {
-					if (!launches[i].isTerminated()) {
-						if (forced) {
-							MessageDialog.openWarning(UIAccess.getDisplay().getActiveShell(),
-									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
-									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message);
-						}
-						else {
-							MessageDialog dialog = new MessageDialog(UIAccess.getDisplay().getActiveShell(),
-									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_title,
-									null,
-									RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_message,
-									MessageDialog.WARNING,
-									new String[] { 
-										RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_button_Continue,
-										RLaunchingMessages.RConsoleLaunchDelegate_WorkbenchClosing_button_Cancel, 
-									}, 1);
-							int answer = dialog.open();
-							if (answer == 1) {
-								return false;
-							}
-						}
-						break;
-					}
-				}
-			}
-
-			return true;
-		}
-
-		public void postShutdown(IWorkbench workbench) {
-		}
-	}
-	
-	
 	public void launch(ILaunchConfiguration configuration, String mode,
 			ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
@@ -171,12 +100,7 @@ public class RConsoleLaunchConfigurationDelegate implements
 				return;
 			}
 			
-			synchronized (fgWorkbenchListenerLock) {
-				if (fgWorkbenchListener == null) {
-					fgWorkbenchListener = new WorkbenchListener();
-					PlatformUI.getWorkbench().addWorkbenchListener(fgWorkbenchListener);
-				}
-			}
+			UnterminatedLaunchAlerter.registerLaunchType(IRConsoleConstants.ID_RCMD_LAUNCHCONFIG);
 			Process p = DebugPlugin.exec(cmdLine, workingDir, envp);
 			IProcess process = null;
 			

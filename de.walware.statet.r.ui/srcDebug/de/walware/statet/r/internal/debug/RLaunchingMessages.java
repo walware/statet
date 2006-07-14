@@ -24,11 +24,6 @@ public class RLaunchingMessages extends NLS {
 	public static String RSelectionLaunch_error_message;
 	public static String RScriptLaunch_error_message;
 
-	
-	public static String RConsoleLaunchDelegate_WorkbenchClosing_title;
-	public static String RConsoleLaunchDelegate_WorkbenchClosing_message;
-	public static String RConsoleLaunchDelegate_WorkbenchClosing_button_Continue;
-	public static String RConsoleLaunchDelegate_WorkbenchClosing_button_Cancel;
 	public static String RConsoleLaunchDelegate_Running;
 	public static String RConsoleLaunchDelegate_error_ProcessHandle;
 

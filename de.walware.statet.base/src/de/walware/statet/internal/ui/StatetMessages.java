@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,11 +27,15 @@ public class StatetMessages extends NLS {
 	public static String CopyToClipboard_error_title;
 	public static String CopyToClipboard_error_message;
 
+	public static String UnterminatedLaunchAlerter_WorkbenchClosing_title;
+	public static String UnterminatedLaunchAlerter_WorkbenchClosing_message;
+	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue;
+	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Cancel;
+
 	
 	private static final String BUNDLE_NAME = StatetMessages.class.getName();
-
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, StatetMessages.class);
 	}
-	
+	private StatetMessages() { }
 }
