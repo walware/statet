@@ -33,7 +33,10 @@ public class Messages extends NLS {
 	public static String LoadSaveHistoryPage_Encoding_label;
 	
 	public static String Console_SubmitButton_label;
-
+	
+	public static String Console_error_UnexpectedException_message;
+	
+	
 	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

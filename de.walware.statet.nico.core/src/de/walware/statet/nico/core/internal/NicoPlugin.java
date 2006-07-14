@@ -70,7 +70,7 @@ public class NicoPlugin extends Plugin {
 		getDefault().getLog().log(status);
 	}
 	
-	public static void log(int code, String message, Throwable e) {
+	public static void logError(int code, String message, Throwable e) {
 		
 		log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, code, message, e)); 
 	}

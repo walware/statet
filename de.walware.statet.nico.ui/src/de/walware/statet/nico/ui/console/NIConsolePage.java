@@ -77,6 +77,7 @@ import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
+import de.walware.statet.nico.ui.internal.Messages;
 import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.TextViewerAction;
 import de.walware.statet.ui.util.DNDUtil;
@@ -146,6 +147,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
 	
+	private FindReplaceUpdater fFindReplaceUpdater;
 	private FindReplaceAction fFindReplaceAction;
 	
 	// Output viewer actions
@@ -348,8 +350,9 @@ public class NIConsolePage implements IPageBookViewPage,
 		fFindReplaceAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.FIND_REPLACE);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
-		fOutputViewer.getDocument().addDocumentListener(new FindReplaceUpdater());
-		((InputDocument) inputViewer.getDocument()).addDocumentListener(new PostUpdater());
+		fFindReplaceUpdater = new FindReplaceUpdater();
+		fConsole.getDocument().addDocumentListener(fFindReplaceUpdater);
+		inputViewer.getDocument().addDocumentListener(new PostUpdater());
 		fInputGroup.createActions(fMultiActionHandler);
 
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);
@@ -448,14 +451,24 @@ public class NIConsolePage implements IPageBookViewPage,
 	public void dispose() {
 
 		fConsole.removePropertyChangeListener(this);
+		DebugPlugin debug = DebugPlugin.getDefault();
+		if (debug != null) {
+			debug.removeDebugEventListener(fDebugListener);
+		}
 		
 		if (fIsCreated) { // control created
 			fIsCreated = false;
 
-			fOutputViewer.removeSelectionChangedListener(fMultiActionHandler);
-			fInputGroup.getSourceViewer().removeSelectionChangedListener(fMultiActionHandler);
-			fMultiActionHandler.dispose();
+			try {
+				fConsole.getDocument().removeDocumentListener(fFindReplaceUpdater);
+				fOutputViewer.removeSelectionChangedListener(fMultiActionHandler);
+				fInputGroup.getSourceViewer().removeSelectionChangedListener(fMultiActionHandler);
+			}
+			catch (Exception e) { 
+				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, Messages.Console_error_UnexpectedException_message, e); 
+			}
 
+			fMultiActionHandler.dispose();
 			fMultiActionHandler = null;
 			
 			fFindReplaceAction = null;
@@ -472,10 +485,6 @@ public class NIConsolePage implements IPageBookViewPage,
 			fInputSelectAllAction = null;
 			fInputUndoAction = null;
 			
-			DebugPlugin debug = DebugPlugin.getDefault();
-			if (debug != null) {
-				debug.removeDebugEventListener(fDebugListener);
-			}
 			fDebugListener = null;
 			fRemoveAction.dispose();
 			fRemoveAction = null;

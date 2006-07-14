@@ -69,7 +69,7 @@ public class ToolRunner implements IPlatformRunnable {
 						handler.handleStatus(status, null);
 					} catch (CoreException e1) {
 						NicoPlugin.log(status);
-						NicoPlugin.log(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
+						NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 					}
 				}
 			}
@@ -91,7 +91,7 @@ public class ToolRunner implements IPlatformRunnable {
 					handler.handleStatus(status, null);
 				} catch (CoreException e1) {
 					NicoPlugin.log(status);
-					NicoPlugin.log(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
+					NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 				}
 			}
 		});

@@ -211,7 +211,7 @@ public class InputGroup {
 			fSourceViewer.configure(sourceViewerConfig);
 			
 			fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
-					fSourceViewer, null, null, EditorsPlugin.getDefault().getSharedTextColors());
+					fSourceViewer, null, null, EditorsPlugin.getDefault().getSharedTextColors()); // AFTER 3.2.0: EditorsUI.getSharedColoes()
 
 			fPairMatcher = editorConfig.getPairMatcher();
 			if (fPairMatcher != null) {
@@ -226,7 +226,7 @@ public class InputGroup {
 			
 			IDocumentSetupParticipant docuSetup = editorConfig.getDocumentSetupParticipant();
 			if (docuSetup != null) {
-				docuSetup.setup(fDocument);
+				docuSetup.setup(fDocument.getMasterDocument());
 			}
 			
 			new SourceViewerUpdater(fSourceViewer, sourceViewerConfig);

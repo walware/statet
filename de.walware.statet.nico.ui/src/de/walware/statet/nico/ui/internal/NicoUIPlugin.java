@@ -12,8 +12,11 @@
 package de.walware.statet.nico.ui.internal;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import de.walware.statet.nico.core.NicoCore;
 
 
 /**
@@ -82,4 +85,10 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 		
 		getDefault().getLog().log(status);
 	}
+	
+	public static void logError(int code, String message, Throwable e) {
+		
+		log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, code, message, e)); 
+	}
+	
 }
