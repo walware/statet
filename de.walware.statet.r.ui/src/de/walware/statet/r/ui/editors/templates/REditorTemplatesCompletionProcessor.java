@@ -38,7 +38,7 @@ import org.eclipse.ui.IEditorPart;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.RTemplateProposal.RTemplateComparator;
 import de.walware.statet.ui.StatetImages;
 
@@ -65,8 +65,8 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 	
 	public REditorTemplatesCompletionProcessor(IEditorPart editor) {
 		
-		fTemplateStore = RUiPlugin.getDefault().getREditorTemplateStore();
-		fTypeRegistry = RUiPlugin.getDefault().getREditorTemplateContextRegistry();
+		fTemplateStore = RUIPlugin.getDefault().getREditorTemplateStore();
+		fTypeRegistry = RUIPlugin.getDefault().getREditorTemplateContextRegistry();
 		fEditor = editor;
 	}
 
@@ -93,7 +93,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 
 		if (prefix.length() > 0 && prefix.length() == selection.getLength()) {
 			doComputeProposals(matches, context, prefix, region);
-			prefix = ""; // wenn erfolglos, dann ohne prefix
+			prefix = ""; // wenn erfolglos, dann ohne prefix //$NON-NLS-1$
 		}
 
 		if (matches.isEmpty()) {
@@ -117,7 +117,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 				continue;
 			}
 			if (template.getContextTypeId().equals(context.getContextType().getId()) 
-					&& template.getName().startsWith(prefix)) // <- änderung gegenüger super
+					&& template.getName().startsWith(prefix)) // <- ï¿½nderung gegenï¿½ger super
 				templateMatches.add(createProposal(template, context, replacementRegion, getRelevance(template, prefix)));
 		}
 		if (templateMatches.size() > 0) {

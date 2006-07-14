@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.preferences;
+package de.walware.statet.r.ui.internal.preferences;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -30,7 +30,7 @@ import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 
 
@@ -46,20 +46,20 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	TemplateVariableProcessor fDialogTemplateProcessor;
 	
     public REditorTemplatePreferencePage() {
-        setPreferenceStore(RUiPlugin.getDefault().getPreferenceStore());
-        setTemplateStore(RUiPlugin.getDefault().getREditorTemplateStore());
-        setContextTypeRegistry(RUiPlugin.getDefault().getREditorTemplateContextRegistry());
+        setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
+        setTemplateStore(RUIPlugin.getDefault().getREditorTemplateStore());
+        setContextTypeRegistry(RUIPlugin.getDefault().getREditorTemplateContextRegistry());
         
         fTemplateProcessor = new TemplateVariableProcessor();
         fViewerConfiguration = new TemplateViewerConfigurationProvider(
         		new RTemplateSourceViewerConfiguration(fTemplateProcessor, null),
         		new RDocumentSetupParticipant(),
-        		RUiPlugin.getDefault().getPreferenceStore()	);
+        		RUIPlugin.getDefault().getPreferenceStore()	);
         fDialogTemplateProcessor = new TemplateVariableProcessor();
         fDialogViewerConfiguration = new TemplateViewerConfigurationProvider(
         		new RTemplateSourceViewerConfiguration(fDialogTemplateProcessor, null),
         		new RDocumentSetupParticipant(),
-        		RUiPlugin.getDefault().getPreferenceStore()	);
+        		RUIPlugin.getDefault().getPreferenceStore()	);
     }
 
     @Override

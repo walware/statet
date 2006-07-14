@@ -32,7 +32,7 @@ public class RSelectionDirectLaunchShortcut implements ILaunchShortcut {
 
 	public void launch(IEditorPart editor, String mode) {
 
-		assert mode.equals("run");
+		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
 			AbstractTextEditor redt = (AbstractTextEditor) editor;

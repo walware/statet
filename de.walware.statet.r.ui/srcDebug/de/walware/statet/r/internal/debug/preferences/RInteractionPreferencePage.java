@@ -98,7 +98,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		layouter.addLabel(Messages.RInteraction_RConnector_Description_label, 0, 1);
 		
 		ScrolledComposite scrolled = new ScrolledComposite(layouter.fComposite, SWT.V_SCROLL);
-		fConnectorsDescription = addLinkControl(scrolled, "");
+		fConnectorsDescription = addLinkControl(scrolled, ""); //$NON-NLS-1$
 		scrolled.addControlListener(new ControlListener() {
 			public void controlMoved(org.eclipse.swt.events.ControlEvent e) {};
 			public void controlResized(org.eclipse.swt.events.ControlEvent e) {
@@ -121,7 +121,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 					setPrefValue(PREF_R_CONNECTOR, fConnectors[idx].fId);
 					String description = fConnectors[idx].fDescription;
 					if (description == null) {
-						description = "";
+						description = ""; //$NON-NLS-1$
 					}
 					fConnectorsDescription.setText(description);
 					updateDescriptionSize();

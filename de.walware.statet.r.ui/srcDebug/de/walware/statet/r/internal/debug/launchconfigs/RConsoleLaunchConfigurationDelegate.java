@@ -42,7 +42,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.RUI;
 
 
 public class RConsoleLaunchConfigurationDelegate implements
@@ -194,7 +194,7 @@ public class RConsoleLaunchConfigurationDelegate implements
 				process = DebugPlugin.newProcess(launch, p, location.toOSString(), processAttributes);
 				if (process == null) {
 					p.destroy();
-					throw new CoreException(new Status(IStatus.ERROR, RUiPlugin.ID, IStatetStatusConstants.LAUNCHING_ERROR, RLaunchingMessages.RConsoleLaunchDelegate_error_ProcessHandle, null)); //$NON-NLS-1$
+					throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR, RLaunchingMessages.RConsoleLaunchDelegate_error_ProcessHandle, null)); //$NON-NLS-1$
 				}
 				
 			}

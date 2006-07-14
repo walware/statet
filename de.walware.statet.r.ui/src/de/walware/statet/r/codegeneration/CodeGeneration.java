@@ -17,7 +17,7 @@ import org.eclipse.jface.text.templates.Template;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 
 
 /**
@@ -36,7 +36,7 @@ public class CodeGeneration {
 	 */
 	public static String getNewRFileContent(RResourceUnit cu, String lineDelimiter) throws CoreException {
 		
-		Template template = RUiPlugin.getDefault().getRCodeGenerationTemplateStore().findTemplate(RCodeTemplatesContextType.NEW_RSCRIPTFILE);
+		Template template = RUIPlugin.getDefault().getRCodeGenerationTemplateStore().findTemplate(RCodeTemplatesContextType.NEW_RSCRIPTFILE);
 		if (template == null) {
 			return null;
 		}
@@ -56,7 +56,7 @@ public class CodeGeneration {
 	 */
 	public static String getNewRdFileContent(RResourceUnit cu, String lineDelimiter) throws CoreException {
 		
-		Template template = RUiPlugin.getDefault().getRdCodeGenerationTemplateStore().findTemplate(RdCodeTemplatesContextType.NEW_RDOCFILE);
+		Template template = RUIPlugin.getDefault().getRdCodeGenerationTemplateStore().findTemplate(RdCodeTemplatesContextType.NEW_RDOCFILE);
 		if (template == null) {
 			return null;
 		}

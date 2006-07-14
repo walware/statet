@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.wizards;
+package de.walware.statet.r.ui.internal.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -25,7 +25,8 @@ import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.ext.ui.wizards.StatetWizardsMessages;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.ui.RImages;
+import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 
 
 
@@ -41,7 +42,7 @@ public class NewRProjectWizard extends NewElementWizard {
 	
     public NewRProjectWizard() {
     	
-        setDefaultPageImageDescriptor(RImages.DESC_WIZBAN_NEWRPROJECT);
+        setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEWRPROJECT));
         setWindowTitle(Messages.NewRProjectWizard_title); 
     }
   

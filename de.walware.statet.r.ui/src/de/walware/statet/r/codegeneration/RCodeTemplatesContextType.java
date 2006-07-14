@@ -25,7 +25,7 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 	public static final String NEW_RSCIRPTFILE_CONTEXTTYPE = "r_NewRScriptFile_context"; //$NON-NLS-1$
 
 /* templates ******************************************************************/
-	public static final String NEW_RSCRIPTFILE = "r_NewRScriptFile";	//$NON-NLS-1
+	public static final String NEW_RSCRIPTFILE = "r_NewRScriptFile"; //$NON-NLS-1$
 	
 //	public static final String COMMENT_SUFFIX= "comment"; //$NON-NLS-1$
 //	

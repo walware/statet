@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
+<?eclipse version="3.2"?>
 <!--
  ###############################################################################
  # Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
@@ -17,7 +17,7 @@
 
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.r.ui.RUiPreferenceInitializer"/>
+      <initializer class="de.walware.statet.r.ui.internal.RUIPreferenceInitializer"/>
    </extension>
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
@@ -86,7 +86,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="de.walware.statet.ui.preferences.EditorsPreferencePage"
-            class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
+            class="de.walware.statet.r.ui.internal.preferences.RSyntaxColoringPreferencePage"
             id="de.walware.statet.r.ui.preferences.RSyntaxColoringPreferencePage"
             name="%preferencePages.RSyntaxColoring.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
@@ -94,7 +94,7 @@
       </page>
       <page
             category="de.walware.statet.ui.preferences.EditorsPreferencePage"
-            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage"
+            class="de.walware.statet.r.ui.internal.preferences.RdSyntaxColoringPreferencePage"
             id="de.walware.statet.r.ui.preferences.RdSyntaxColoringPreferencePage"
             name="%preferencePages.RdSyntaxColoring.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
@@ -102,7 +102,7 @@
       </page>
       <page
             category="de.walware.statet.ui.preferences.EditorsPreferencePage"
-            class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage"
+            class="de.walware.statet.r.ui.internal.preferences.REditorTemplatePreferencePage"
             id="de.walware.statet.r.ui.preferences.REditorTemplatesPreferencePage"
             name="%preferencePages.REditorTemplates.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
@@ -113,17 +113,17 @@
       <category
             id="de.walware.statet.r.codegenerationCategory.RCodeTemplates"
             name="%templatesCategory.RCodeTemplates.name"
-            providerClass="de.walware.statet.r.internal.ui.preferences.RCodeTemplatesProvider"/>
+            providerClass="de.walware.statet.r.ui.internal.preferences.RCodeTemplatesProvider"/>
       <category
             id="de.walware.statet.r.codegenerationCategory.RdCodeTemplates"
             name="%templatesCategory.RdCodeTemplates.name"
-            providerClass="de.walware.statet.r.internal.ui.preferences.RdCodeTemplatesProvider"/>
+            providerClass="de.walware.statet.r.ui.internal.preferences.RdCodeTemplatesProvider"/>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
             category="de.walware.statet.ui.wizards.StatetCategory"
-            class="de.walware.statet.r.internal.ui.wizards.NewRFileCreationWizard"
+            class="de.walware.statet.r.ui.internal.wizards.NewRFileCreationWizard"
             icon="icons/tool_16/new_r-file.gif"
             id="de.walware.statet.r.ui.wizards.NewRFileCreationWizard"
             name="%wizards.NewRFile.name"
@@ -134,7 +134,7 @@
       </wizard>
       <wizard
             category="de.walware.statet.ui.wizards.StatetCategory"
-            class="de.walware.statet.r.internal.ui.wizards.NewRdFileCreationWizard"
+            class="de.walware.statet.r.ui.internal.wizards.NewRdFileCreationWizard"
             icon="icons/tool_16/new_rd-file.gif"
             id="de.walware.statet.r.ui.wizards.NewRdFileCreationWizard"
             name="%wizards.NewRdFile.name"
@@ -145,7 +145,7 @@
       </wizard>
       <wizard
             category="de.walware.statet.ui.wizards.StatetCategory"
-            class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
+            class="de.walware.statet.r.ui.internal.wizards.NewRProjectWizard"
             icon="icons/tool_16/new_r-project.gif"
             id="de.walware.statet.r.ui.wizards.NewRProjectCreationWizard"
             name="%wizards.NewRProject.name"
@@ -365,7 +365,7 @@
             id="de.walware.statet.r.launching.RConsoleConnector"
             name="%rConnector_RConsoleConnector_name"/>
       <connector
-            class="de.walware.statet.r.nico.RControllerCodeLaunchConnector"
+            class="de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector"
             id="de.walware.statet.r.launching.RNewConsoleConnector"
             name="%rConnector_RNewConsoleConnector_name"/>
    </extension>

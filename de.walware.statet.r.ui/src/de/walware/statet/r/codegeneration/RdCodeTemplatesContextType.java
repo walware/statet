@@ -24,7 +24,7 @@ public class RdCodeTemplatesContextType extends StatextCodeTemplatesContextType 
 	public static final String NEW_RDOCFILE_CONTEXTTYPE = "rd_NewRDocFile_context"; //$NON-NLS-1$
 
 /* templates ******************************************************************/
-	public static final String NEW_RDOCFILE = "rd_NewRDocFile";	
+	public static final String NEW_RDOCFILE = "rd_NewRDocFile";	 //$NON-NLS-1$
 		
 	
 	public RdCodeTemplatesContextType(String contextName) {

@@ -29,9 +29,9 @@ import de.walware.statet.ui.StatetUiPreferenceConstants;
  * @see org.eclipse.jface.preference.PreferenceConverter
  *
  */
-public class RUiPreferenceConstants extends StatetUiPreferenceConstants {
+public class RUIPreferenceConstants extends StatetUiPreferenceConstants {
 
-	private RUiPreferenceConstants() {
+	private RUIPreferenceConstants() {
 	}
 
 	public interface R {

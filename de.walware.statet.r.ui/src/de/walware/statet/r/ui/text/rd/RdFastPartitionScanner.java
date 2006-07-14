@@ -39,7 +39,7 @@ public class RdFastPartitionScanner implements IPartitionTokenScanner {
 	private static enum Last { NONE, BACKSLASH, NEW_LINE };
 	
 	private static final char[][] PLATFORM_KEYWORDS = {			// without '#'
-			"ifdef".toCharArray(), "ifndef".toCharArray(), "endif".toCharArray() };
+			"ifdef".toCharArray(), "ifndef".toCharArray(), "endif".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	
 	
 	/** The scanner. */

@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico;
+package de.walware.statet.r.nico.ui;
 
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.part.IPageBookViewPage;

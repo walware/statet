@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.preferences;
+package de.walware.statet.r.ui.internal.preferences;
 
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
@@ -20,7 +20,7 @@ import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 
 
@@ -35,11 +35,11 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 	}
 	
 	public TemplateStore getTemplateStore() {
-		return RUiPlugin.getDefault().getRCodeGenerationTemplateStore();
+		return RUIPlugin.getDefault().getRCodeGenerationTemplateStore();
 	}
 
 	public ContextTypeRegistry getContextTypeRegistry() {
-		return RUiPlugin.getDefault().getRCodeGenerationTemplateContextRegistry();
+		return RUIPlugin.getDefault().getRCodeGenerationTemplateContextRegistry();
 	}
 
 	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(
@@ -51,7 +51,7 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 		return new TemplateViewerConfigurationProvider(
 				configuration,
 				new RDocumentSetupParticipant(),
-				RUiPlugin.getDefault().getPreferenceStore() );
+				RUIPlugin.getDefault().getPreferenceStore() );
 	}
 
 }

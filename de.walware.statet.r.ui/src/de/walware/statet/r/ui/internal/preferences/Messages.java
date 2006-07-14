@@ -9,14 +9,16 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.preferences;
+package de.walware.statet.r.ui.internal.preferences;
 
 import org.eclipse.osgi.util.NLS;
 
 
 public class Messages extends NLS {
 	
-	private static final String BUNDLE_NAME = Messages.class.getName();
+
+	public static String RSyntaxColoring_CodeCategory_label;
+	public static String RSyntaxColoring_CommentsCategory_label;
 
 	public static String RSyntaxColoring_Default_label;
 	public static String RSyntaxColoring_Default_description;
@@ -47,6 +49,9 @@ public class Messages extends NLS {
 	public static String RSyntaxColoring_taskTag_label;
 	public static String RSyntaxColoring_taskTag_description;
 	
+	public static String RdSyntaxColoring_CodeCategory_label;
+	public static String RdSyntaxColoring_CommentsCategory_label;
+	
 	public static String RdSyntaxColoring_Default_label;
 	public static String RdSyntaxColoring_Default_description;
 	public static String RdSyntaxColoring_Verbatim_label;
@@ -69,8 +74,10 @@ public class Messages extends NLS {
 	public static String RdSyntaxColoring_TaskTag_description;
 
 
+	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
+	private Messages() { }
 	
 }

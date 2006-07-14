@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.wizards;
+package de.walware.statet.r.ui.internal.wizards;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 
@@ -24,10 +24,10 @@ import de.walware.statet.ext.ui.wizards.NewElementWizardPage;
  * will only accept file name without the extension or
  * with the extension that matches the expected one (r).
  */
-public class NewRdFileCreationWizardPage extends NewElementWizardPage {
+public class NewRFileCreationWizardPage extends NewElementWizardPage {
 
 	
-	private static final String fgDefaultExtension = ".Rd";
+	private static final String fgDefaultExtension = ".R"; //$NON-NLS-1$
 	
 	
 	ResourceGroup fResourceGroup;
@@ -35,11 +35,11 @@ public class NewRdFileCreationWizardPage extends NewElementWizardPage {
 	/**
 	 * Constructor.
 	 */
-	public NewRdFileCreationWizardPage(IStructuredSelection selection) {
-		super("NewRdFileCreationWizardPage", selection);
+	public NewRFileCreationWizardPage(IStructuredSelection selection) {
+		super("NewRFileCreationWizardPage", selection); //$NON-NLS-1$
 		
-		setTitle(Messages.NewRDocFileWizardPage_title);
-		setDescription(Messages.NewRDocFileWizardPage_description);
+		setTitle(Messages.NewRScriptFileWizardPage_title);
+		setDescription(Messages.NewRScriptFileWizardPage_description);
 
 		fResourceGroup = new ResourceGroup(fgDefaultExtension);
 	}

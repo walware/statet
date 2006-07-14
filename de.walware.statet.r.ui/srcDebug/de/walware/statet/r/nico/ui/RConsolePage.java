@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico;
+package de.walware.statet.r.nico.ui;
 
 import org.eclipse.ui.console.IConsoleView;
 
@@ -18,6 +18,8 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
+import de.walware.statet.r.nico.IBasicRAdapter;
+import de.walware.statet.r.nico.IncompleteInputPrompt;
 
 
 public class RConsolePage extends NIConsolePage {
@@ -47,7 +49,7 @@ public class RConsolePage extends NIConsolePage {
 					fDocument.setPrefix(p.previousInput);
 				}
 				else {
-					fDocument.setPrefix("");
+					fDocument.setPrefix(""); //$NON-NLS-1$
 				}
 			}
 				

@@ -46,7 +46,7 @@ import de.walware.statet.r.internal.debug.RLaunchingMessages;
 public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate {
 
 	
-	private static final String LAST_LAUNCH_REMEMBER_KEY = "de.walware.statet.r.RunRCodePullDown.LastLaunch.id";
+	private static final String LAST_LAUNCH_REMEMBER_KEY = "de.walware.statet.r.RunRCodePullDown.LastLaunch.id"; //$NON-NLS-1$
 	
 	
 	private class LaunchShortcutAction extends Action {
@@ -105,7 +105,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 	}
 
 	
-	private String fMode = "run";
+	private String fMode = "run"; //$NON-NLS-1$
 	private LaunchShortcutAction[] fActions;
 	
 	private IAction fButtonAction;
@@ -170,7 +170,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 	private void loadShortcuts() {
 		
 		@SuppressWarnings("unchecked")
-		List<LaunchShortcutExtension> list = DebugUIPlugin.getDefault().getLaunchConfigurationManager().getLaunchShortcuts("de.walware.statet.r");
+		List<LaunchShortcutExtension> list = DebugUIPlugin.getDefault().getLaunchConfigurationManager().getLaunchShortcuts("de.walware.statet.r"); //$NON-NLS-1$
 		List<LaunchShortcutAction> actions = new ArrayList<LaunchShortcutAction>(list.size());
 
 		for (LaunchShortcutExtension ext : list) {

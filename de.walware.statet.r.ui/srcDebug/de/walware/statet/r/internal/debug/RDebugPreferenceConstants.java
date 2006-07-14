@@ -19,9 +19,9 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 public class RDebugPreferenceConstants {
 
 
-	public static final String ROOT_QUALIFIER = "de.walware.statet.r.debug";
+	public static final String ROOT_QUALIFIER = "de.walware.statet.r.ui"; // 'ui', because at moment in 'ui' plugin //$NON-NLS-1$
 
-	public static final String CAT_RCONNECTOR_QUALIFIER = ROOT_QUALIFIER + "/RConnector";
+	public static final String CAT_RCONNECTOR_QUALIFIER = ROOT_QUALIFIER + "/RConnector"; //$NON-NLS-1$
 
 	
 	/**

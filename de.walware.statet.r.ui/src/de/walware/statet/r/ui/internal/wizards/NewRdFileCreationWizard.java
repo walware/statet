@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.wizards;
+package de.walware.statet.r.ui.internal.wizards;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -23,30 +23,30 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.ui.RImages;
+import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 
 
-public class NewRFileCreationWizard extends NewElementWizard {
+public class NewRdFileCreationWizard extends NewElementWizard {
     
 	
-	private static class NewRFileCreator extends NewFileCreator {
+	private static class NewRdFileCreator extends NewFileCreator {
 
-		public NewRFileCreator(IPath containerPath, String resourceName) {
+		public NewRdFileCreator(IPath containerPath, String resourceName) {
 			
 			super(containerPath, resourceName);
 		}
 
 		protected InputStream getInitialFileContents(IFile newFileHandle) {
 		
-			String lineDelimiter = TemplatesUtil.getLineSeparator(newFileHandle.getProject());
+			String lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			String content;
 			try {
 				RResourceUnit rcu = new RResourceUnit(newFileHandle);
-				content = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
+				content = CodeGeneration.getNewRdFileContent(rcu, lineDelimiter);
 				if (content != null)
 					return new ByteArrayInputStream(content.getBytes());
 			} catch (CoreException e) {
@@ -56,20 +56,20 @@ public class NewRFileCreationWizard extends NewElementWizard {
 		}
 	}
 	
-	private NewRFileCreationWizardPage fFirstPage;
+	private NewRdFileCreationWizardPage fFirstPage;
 	private NewFileCreator fNewRFile;
 
 	
-    public NewRFileCreationWizard() {
+	public NewRdFileCreationWizard() {
     	
-        setDefaultPageImageDescriptor(RImages.DESC_WIZBAN_NEWRFILE);
-        setWindowTitle(Messages.NewRScriptFileWizard_title); 
+        setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEWRDFILE));
+        setWindowTitle(Messages.NewRDocFileWizard_title); 
     }
   
-    public void addPages() {
+	public void addPages() {
     	
         super.addPages();
-        fFirstPage = new NewRFileCreationWizardPage(getSelection());
+        fFirstPage = new NewRdFileCreationWizardPage(getSelection());
         addPage(fFirstPage);
     }
     
@@ -87,7 +87,7 @@ public class NewRFileCreationWizard extends NewElementWizard {
     public boolean performFinish() {
 
     	// befor super, so it can be used in getSchedulingRule
-        fNewRFile = new NewRFileCreator(
+        fNewRFile = new NewRdFileCreator(
         		fFirstPage.fResourceGroup.getContainerFullPath(),
         		fFirstPage.fResourceGroup.getResourceName() );
 
@@ -104,14 +104,14 @@ public class NewRFileCreationWizard extends NewElementWizard {
     }
     
 	protected void doFinish(IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
-
+    
 		try {
 			monitor.beginTask("Create new file...", 1000); //$NON-NLS-1$
-
-			fNewRFile.createFile(new SubProgressMonitor(monitor, 900) );
-		
+	
+			fNewRFile.createFile(new SubProgressMonitor(monitor, 800) );
+			
 			fFirstPage.saveSettings();
-			monitor.worked(100);
+			monitor.worked(200);
 		}
 		finally {
 			monitor.done();

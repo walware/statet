@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.wizards;
+package de.walware.statet.r.ui.internal.wizards;
 
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 
@@ -27,7 +27,7 @@ public class NewRProjectWizardPage extends WizardNewProjectCreationPage {
 	 * Constructor.
 	 */
 	public NewRProjectWizardPage() {
-		super("NewRProjectWizardPage");
+		super("NewRProjectWizardPage"); //$NON-NLS-1$
 		
 		setTitle(Messages.NewRProjectWizardPage_title);
 		setDescription(Messages.NewRProjectWizardPage_description);

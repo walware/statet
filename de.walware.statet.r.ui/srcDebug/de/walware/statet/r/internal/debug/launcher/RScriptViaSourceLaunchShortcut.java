@@ -27,12 +27,12 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 
 	
-	private static final String COMMAND = "source(\"${file}\")";
+	private static final String COMMAND = "source(\"${file}\")"; //$NON-NLS-1$
 	
 	
 	public void launch(ISelection selection, String mode) {
 
-		assert mode.equals("run");
+		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
 			IStructuredSelection sel = (IStructuredSelection) selection;
@@ -50,7 +50,7 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 
 	public void launch(IEditorPart editor, String mode) {
 
-		assert mode.equals("run");
+		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
 			IEditorInput input = editor.getEditorInput();

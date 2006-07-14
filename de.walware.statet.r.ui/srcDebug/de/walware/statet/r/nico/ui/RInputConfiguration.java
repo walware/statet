@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico;
+package de.walware.statet.r.nico.ui;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
@@ -20,9 +20,9 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.ui.RUiPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
@@ -35,7 +35,7 @@ public class RInputConfiguration implements IEditorConfiguration {
 	public StatextSourceViewerConfiguration getSourceViewerConfiguration() {
 		
 		ICombinedPreferenceStore store = RSourceViewerConfiguration.createCombinedPreferenceStore(
-				RUiPlugin.getDefault().getPreferenceStore(), null);
+				RUIPlugin.getDefault().getPreferenceStore(), null);
 		return new RSourceViewerConfiguration(null, 
 				StatetPlugin.getDefault().getColorManager(), store);
 	}

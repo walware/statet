@@ -161,7 +161,7 @@ public class ElementListWDescriptionSelectionDialog extends ElementListSelection
 		if (selected != null && selected.length == 1) {
 			Element option = (Element)selected[0];
 			if (option.fHasArgument)
-				return option.fName + "=" + fArgumentValue;
+				return option.fName + "=" + fArgumentValue; //$NON-NLS-1$
 			return option.fName;
 		}
 		return null;

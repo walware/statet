@@ -16,7 +16,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class RLaunchingMessages extends NLS {
 	
-	private static final String BUNDLE_NAME = RLaunchingMessages.class.getName();
 
 	public static String RLaunchPulldown_Item_label;
 
@@ -67,10 +66,9 @@ public class RLaunchingMessages extends NLS {
 	public static String SelectionDialog_Description;
 
 
-
-	
+	private static final String BUNDLE_NAME = RLaunchingMessages.class.getName();
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, RLaunchingMessages.class);
 	}
-	
+	private RLaunchingMessages() { }
 }

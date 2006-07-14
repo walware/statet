@@ -33,7 +33,7 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 
 	public void launch(ISelection selection, String mode) {
 
-		assert mode.equals("run");
+		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
 			IStructuredSelection sel = (IStructuredSelection) selection;
@@ -50,7 +50,7 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 
 	public void launch(IEditorPart editor, String mode) {
 
-		assert mode.equals("run");
+		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
 			AbstractTextEditor redt = (AbstractTextEditor) editor;

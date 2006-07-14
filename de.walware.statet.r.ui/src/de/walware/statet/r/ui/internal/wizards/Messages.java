@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.wizards;
+package de.walware.statet.r.ui.internal.wizards;
 
 import org.eclipse.osgi.util.NLS;
 

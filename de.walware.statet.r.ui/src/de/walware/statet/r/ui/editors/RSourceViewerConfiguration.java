@@ -34,7 +34,7 @@ import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
 import de.walware.statet.r.ui.IRDocumentPartitions;
-import de.walware.statet.r.ui.RUiPreferenceConstants;
+import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RCodeScanner;
@@ -138,7 +138,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	public boolean affectsTextPresentation(PropertyChangeEvent event) {
 		
 		String property = event.getProperty();
-		return (property.startsWith(RUiPreferenceConstants.R.TS_ROOT) 
+		return (property.startsWith(RUIPreferenceConstants.R.TS_ROOT) 
 				|| property.equals(TaskTagsPreferences.PREF_TAGS.getKey()) );
 	}
 	

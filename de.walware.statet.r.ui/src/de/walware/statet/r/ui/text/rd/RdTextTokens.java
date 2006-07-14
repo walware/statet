@@ -19,20 +19,20 @@ package de.walware.statet.r.ui.text.rd;
  */
 public interface RdTextTokens {
 	
-	public static final String ROOT = "text_Rd_";;
+	public static final String ROOT = "text_Rd_";; //$NON-NLS-1$
 	
-	public static final String DEFAULT = ROOT+"rdDefault";
-	public static final String VERBATIM = ROOT+"rdVerbatim";
-	public static final String COMMENT = ROOT+"rdComment";
-	public static final String PLATFORM_SPECIF = ROOT+"rdPlatformSpecif";
+	public static final String DEFAULT = ROOT+"rdDefault"; //$NON-NLS-1$
+	public static final String VERBATIM = ROOT+"rdVerbatim"; //$NON-NLS-1$
+	public static final String COMMENT = ROOT+"rdComment"; //$NON-NLS-1$
+	public static final String PLATFORM_SPECIF = ROOT+"rdPlatformSpecif"; //$NON-NLS-1$
 	
-	public static final String SECTION_TAG = ROOT+"rdSectionTag";
-	public static final String SUBSECTION_TAG = ROOT+"rdSubSectionTag";
-	public static final String OTHER_TAG = ROOT+"rdOtherTag";
-	public static final String UNLISTED_TAG = ROOT+"rdUnlistedTag";
+	public static final String SECTION_TAG = ROOT+"rdSectionTag"; //$NON-NLS-1$
+	public static final String SUBSECTION_TAG = ROOT+"rdSubSectionTag"; //$NON-NLS-1$
+	public static final String OTHER_TAG = ROOT+"rdOtherTag"; //$NON-NLS-1$
+	public static final String UNLISTED_TAG = ROOT+"rdUnlistedTag"; //$NON-NLS-1$
 	
-	public static final String BRACKETS = "rdBrackets";
+	public static final String BRACKETS = "rdBrackets"; //$NON-NLS-1$
 	
-	public static final String TASK_TAG = ROOT+"taskTag";
+	public static final String TASK_TAG = ROOT+"taskTag"; //$NON-NLS-1$
 	
 }

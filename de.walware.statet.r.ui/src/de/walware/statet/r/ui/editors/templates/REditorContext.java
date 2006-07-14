@@ -68,7 +68,7 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 
 		TemplateBuffer buffer = super.evaluate(template);
 		indent(buffer);
-		String selection = getVariable("selection");
+		String selection = getVariable("selection"); //$NON-NLS-1$
 		if (selection != null && TextUtilities.indexOf(getDocument().getLegalLineDelimiters(), selection, 0)[0] != -1) {
 			String ln = TextUtilities.getDefaultLineDelimiter(getDocument());
 			buffer.setContent(buffer.getString()+ln, buffer.getVariables());
@@ -87,7 +87,7 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 		MultiTextEdit root = new MultiTextEdit(0, templateDoc.getLength());
 		root.addChildren(positions.toArray(new TextEdit[positions.size()]));
 
-		String indentation = getVariable("indentation");
+		String indentation = getVariable("indentation"); //$NON-NLS-1$
 
 		// first line
 		int offset = templateDoc.getLineOffset(0);
@@ -119,7 +119,7 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 	@Override
 	public void setVariable(String name, String value) {
 		
-		if ("selection".equals(name) && value != null && value.length() > 0) {
+		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
 			IDocument valueDoc = new Document(value);
 			String ind = TemplatesUtil.searchMultilineIndentation(valueDoc);
 
@@ -135,7 +135,7 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 							edit.apply(valueDoc, 0);
 						}
 					}
-					setVariable("indentation", ind);
+					setVariable("indentation", ind); //$NON-NLS-1$
 					value = valueDoc.get();
 				} 
 				catch (BadLocationException e) {

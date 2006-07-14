@@ -14,7 +14,7 @@ package de.walware.statet.r.codegeneration;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.StatextCodeTemplatesContext;
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 
 
 public class RCodeTemplatesContext extends StatextCodeTemplatesContext {
@@ -23,7 +23,7 @@ public class RCodeTemplatesContext extends StatextCodeTemplatesContext {
 	public RCodeTemplatesContext(String contextTypeName, StatetProject project, String lineDelim) {
 		
 		super(
-				RUiPlugin.getDefault().getRCodeGenerationTemplateContextRegistry().getContextType(contextTypeName), 
+				RUIPlugin.getDefault().getRCodeGenerationTemplateContextRegistry().getContextType(contextTypeName), 
 				project, 
 				lineDelim);
 	}

@@ -31,8 +31,8 @@ import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
-import de.walware.statet.r.nico.RConsole;
 import de.walware.statet.r.nico.RWorkspace;
+import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 import de.walware.statet.ui.util.ExceptionHandler;
 

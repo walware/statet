@@ -161,8 +161,9 @@ public class InputDocument extends AbstractDocument {
 			}
 		});
 		fMaster.addDocumentPartitioningListener(new IDocumentPartitioningListener() {
+			@SuppressWarnings("deprecation")
 			public void documentPartitioningChanged(IDocument document) {
-				fireDocumentPartitioningChanged();
+				fireDocumentPartitioningChanged(); // the new methods seems not work for us
 			}
 		});
 	}

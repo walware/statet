@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.preferences;
+package de.walware.statet.r.ui.internal.preferences;
 
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewerExtension2;
@@ -25,7 +25,7 @@ import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
@@ -42,11 +42,11 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 	}
 	
 	public TemplateStore getTemplateStore() {
-		return RUiPlugin.getDefault().getRdCodeGenerationTemplateStore();
+		return RUIPlugin.getDefault().getRdCodeGenerationTemplateStore();
 	}
 
 	public ContextTypeRegistry getContextTypeRegistry() {
-		return RUiPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry();
+		return RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry();
 	}
 
 	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(final TemplateVariableProcessor processor, StatetProject project) {
@@ -54,7 +54,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 		StatextSourceViewerConfiguration configuration = new RdSourceViewerConfiguration(
 				StatetPlugin.getDefault().getColorManager(), 
 				RSourceViewerConfiguration.createCombinedPreferenceStore(
-						RUiPlugin.getDefault().getPreferenceStore(), project)
+						RUIPlugin.getDefault().getPreferenceStore(), project)
 				) {
 			
 			@Override
@@ -80,7 +80,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 		return new TemplateViewerConfigurationProvider(
 				configuration,
 				new RdDocumentSetupParticipant(),
-				RUiPlugin.getDefault().getPreferenceStore() );
+				RUIPlugin.getDefault().getPreferenceStore() );
 	}
 
 }

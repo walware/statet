@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,22 +9,24 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.ui;
+package de.walware.statet.r.ui.internal;
 
 import java.io.IOException;
 
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
 import org.osgi.framework.BundleContext;
+
+import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
+import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.RDocumentProvider;
 import de.walware.statet.r.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
@@ -33,10 +35,13 @@ import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class RUiPlugin extends AbstractUIPlugin {
+public class RUIPlugin extends AbstractUIPlugin {
 
 
-	public static final String ID = "de.walware.statet.r.ui";
+	public static final String IMG_WIZBAN_NEWRDFILE = RUI.PLUGIN_ID + "/img/wizban/new.rd-file"; //$NON-NLS-1$
+	public static final String IMG_WIZBAN_NEWRFILE = RUI.PLUGIN_ID + "/img/wizban/new.r-file"; //$NON-NLS-1$
+	public static final String IMG_WIZBAN_NEWRPROJECT = RUI.PLUGIN_ID + "/img/wizban/new.r-project"; //$NON-NLS-1$
+
 	
 	private static final String R_CODE_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_code_templates"; //$NON-NLS-1$
 	private static final String RD_CODE_TEMPLATES_KEY = "de.walware.statet.r.ui.text.rd_code_templates"; //$NON-NLS-1$
@@ -44,7 +49,7 @@ public class RUiPlugin extends AbstractUIPlugin {
 	
 	
 	//The shared instance.
-	private static RUiPlugin fgPlugin;
+	private static RUIPlugin gPlugin;
 
 	private RDocumentProvider fRDocumentProvider;
 	private RdDocumentProvider fRdDocumentProvider;
@@ -56,20 +61,22 @@ public class RUiPlugin extends AbstractUIPlugin {
 
 	private TemplateStore fREditorTemplatesStore;
 	private ContextTypeRegistry fREditorContextTypeRegistry;
-
+	
+	private ImageRegistry fImageRegistry;
 	
 	
 	/**
 	 * The constructor.
 	 */
-	public RUiPlugin() {
-		fgPlugin = this;
+	public RUIPlugin() {
+		gPlugin = this;
 	}
 
 	/**
 	 * This method is called upon plug-in activation
 	 */
 	public void start(BundleContext context) throws Exception {
+		
 		super.start(context);
 	}
 
@@ -78,41 +85,46 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		try {
-		
+			if (fImageRegistry != null) {
+				fImageRegistry.dispose();
+				fImageRegistry = null;
+			}
 		} finally {
+			gPlugin = null;
 			super.stop(context);
-			fgPlugin = null;
 		}
 	}
 
 	/**
 	 * Returns the shared instance.
 	 */
-	public static RUiPlugin getDefault() {
-		return fgPlugin;
+	public static RUIPlugin getDefault() {
+		
+		return gPlugin;
 	}
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path.
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("de.walware.statet.r.ui", path);
+	
+	@Override
+	protected void initializeImageRegistry(ImageRegistry reg) {
+
+		fImageRegistry = reg;
+		ImageRegistryUtil util = new ImageRegistryUtil(this);
+		util.register(IMG_WIZBAN_NEWRPROJECT, ImageRegistryUtil.T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
+		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png"); //$NON-NLS-1$
+		util.register(IMG_WIZBAN_NEWRDFILE, ImageRegistryUtil.T_WIZBAN, "new_rd-file.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_RCONSOLE, ImageRegistryUtil.T_TOOL, "r-console.png"); //$NON-NLS-1$
 	}
-	
-	
 	
 	
     public synchronized RDocumentProvider getRDocumentProvider() {
+    	
 		if (fRDocumentProvider == null)
 			fRDocumentProvider = new RDocumentProvider();
 		return fRDocumentProvider;
 	}
 
     public synchronized RdDocumentProvider getRdDocumentProvider() {
+    	
 		if (fRdDocumentProvider == null)
 			fRdDocumentProvider = new RdDocumentProvider();
 		return fRdDocumentProvider;
@@ -128,13 +140,17 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public ContextTypeRegistry getRCodeGenerationTemplateContextRegistry() {
 		
-		if (fRCodeTemplatesContextTypeRegistry == null) {
-			fRCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
-			
-			RCodeTemplatesContextType.registerContextTypes(fRCodeTemplatesContextTypeRegistry);
+		if (fRCodeTemplatesContextTypeRegistry != null) {
+			return fRCodeTemplatesContextTypeRegistry;
 		}
-
-		return fRCodeTemplatesContextTypeRegistry;
+		synchronized (this) {
+			if (fRCodeTemplatesContextTypeRegistry == null) {
+				fRCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
+				
+				RCodeTemplatesContextType.registerContextTypes(fRCodeTemplatesContextTypeRegistry);
+			}
+			return fRCodeTemplatesContextTypeRegistry;
+		}
 	}
 
 	/**
@@ -144,16 +160,21 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public TemplateStore getRCodeGenerationTemplateStore() {
 		
-		if (fRCodeTemplatesStore == null) {
-			fRCodeTemplatesStore = new ContributionTemplateStore(
-					getRCodeGenerationTemplateContextRegistry(), getPreferenceStore(), R_CODE_TEMPLATES_KEY);
-			try {
-				fRCodeTemplatesStore.load();
-			} catch (IOException e) {
-				StatetPlugin.logUnexpectedError(e);
-			}
+		if (fRCodeTemplatesStore != null) {
+			return fRCodeTemplatesStore;
 		}
-		return fRCodeTemplatesStore;
+		synchronized (this) {
+			if (fRCodeTemplatesStore == null) {
+				fRCodeTemplatesStore = new ContributionTemplateStore(
+						getRCodeGenerationTemplateContextRegistry(), getPreferenceStore(), R_CODE_TEMPLATES_KEY);
+				try {
+					fRCodeTemplatesStore.load();
+				} catch (IOException e) {
+					StatetPlugin.logUnexpectedError(e);
+				}
+			}
+			return fRCodeTemplatesStore;
+		}
 	}
 	
 	/**
@@ -164,13 +185,17 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public ContextTypeRegistry getRdCodeGenerationTemplateContextRegistry() {
 		
-		if (fRdCodeTemplatesContextTypeRegistry == null) {
-			fRdCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
-
-			RdCodeTemplatesContextType.registerContextTypes(fRdCodeTemplatesContextTypeRegistry);
+		if (fRdCodeTemplatesContextTypeRegistry != null) {
+			return fRdCodeTemplatesContextTypeRegistry;
 		}
-
-		return fRdCodeTemplatesContextTypeRegistry;
+		synchronized (this) {
+			if (fRdCodeTemplatesContextTypeRegistry == null) {
+				fRdCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
+	
+				RdCodeTemplatesContextType.registerContextTypes(fRdCodeTemplatesContextTypeRegistry);
+			}
+			return fRdCodeTemplatesContextTypeRegistry;
+		}
 	}
 
 	/**
@@ -180,16 +205,21 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public TemplateStore getRdCodeGenerationTemplateStore() {
 		
-		if (fRdCodeTemplatesStore == null) {
-			fRdCodeTemplatesStore = new ContributionTemplateStore(
-					getRdCodeGenerationTemplateContextRegistry(), getPreferenceStore(), RD_CODE_TEMPLATES_KEY);
-			try {
-				fRdCodeTemplatesStore.load();
-			} catch (IOException e) {
-				StatetPlugin.logUnexpectedError(e);
-			}
+		if (fRdCodeTemplatesStore != null) {
+			return fRdCodeTemplatesStore;
 		}
-		return fRdCodeTemplatesStore;
+		synchronized (this) {
+			if (fRdCodeTemplatesStore == null) {
+				fRdCodeTemplatesStore = new ContributionTemplateStore(
+						getRdCodeGenerationTemplateContextRegistry(), getPreferenceStore(), RD_CODE_TEMPLATES_KEY);
+				try {
+					fRdCodeTemplatesStore.load();
+				} catch (IOException e) {
+					StatetPlugin.logUnexpectedError(e);
+				}
+			}
+			return fRdCodeTemplatesStore;
+		}
 	}
 
 
@@ -201,13 +231,17 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public ContextTypeRegistry getREditorTemplateContextRegistry() {
 		
-		if (fREditorContextTypeRegistry == null) {
-			fREditorContextTypeRegistry = new ContributionContextTypeRegistry();
-			
-			REditorTemplatesContextType.registerContextTypes(fREditorContextTypeRegistry);
+		if (fREditorContextTypeRegistry != null) {
+			return fREditorContextTypeRegistry;
 		}
-
-		return fREditorContextTypeRegistry;
+		synchronized (this) {
+			if (fREditorContextTypeRegistry == null) {
+				fREditorContextTypeRegistry = new ContributionContextTypeRegistry();
+				
+				REditorTemplatesContextType.registerContextTypes(fREditorContextTypeRegistry);
+			}
+			return fREditorContextTypeRegistry;
+		}
 	}
 
 	/**
@@ -217,16 +251,21 @@ public class RUiPlugin extends AbstractUIPlugin {
 	 */
 	public TemplateStore getREditorTemplateStore() {
 		
-		if (fREditorTemplatesStore == null) {
-			fREditorTemplatesStore = new ContributionTemplateStore(
-					getREditorTemplateContextRegistry(), getPreferenceStore(), R_EDITOR_TEMPLATES_KEY);
-			try {
-				fREditorTemplatesStore.load();
-			} catch (IOException e) {
-				StatetPlugin.logUnexpectedError(e);
-			}
+		if (fREditorTemplatesStore != null) {
+			return fREditorTemplatesStore;
 		}
-		return fREditorTemplatesStore;
+		synchronized (this) {
+			if (fREditorTemplatesStore == null) {
+				fREditorTemplatesStore = new ContributionTemplateStore(
+						getREditorTemplateContextRegistry(), getPreferenceStore(), R_EDITOR_TEMPLATES_KEY);
+				try {
+					fREditorTemplatesStore.load();
+				} catch (IOException e) {
+					StatetPlugin.logUnexpectedError(e);
+				}
+			}
+			return fREditorTemplatesStore;
+		}
 	}
 
 }

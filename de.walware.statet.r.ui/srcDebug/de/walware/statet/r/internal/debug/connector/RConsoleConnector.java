@@ -39,13 +39,13 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.launchconfigs.IRConsoleConstants;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.RUI;
 
 
 public class RConsoleConnector implements IRCodeLaunchConnector {
 
 	
-	public static final String ID = "de.walware.statet.r.launching.RConsoleConnector";
+	public static final String ID = "de.walware.statet.r.launching.RConsoleConnector"; //$NON-NLS-1$
 
 
 	public RConsoleConnector() {
@@ -57,7 +57,7 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 		if (console == null)
 			throw new CoreException(new Status(
 					IStatus.WARNING,
-					RUiPlugin.ID,
+					RUI.PLUGIN_ID,
 					IStatetStatusConstants.LAUNCHING_ERROR,
 					"No R-Console available.",
 					null));
@@ -70,7 +70,7 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 		} catch (BadLocationException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR,
-					RUiPlugin.ID,
+					RUI.PLUGIN_ID,
 					IStatetStatusConstants.LAUNCHING_ERROR,
 					"Error when running R-Console-Connector",
 					e));

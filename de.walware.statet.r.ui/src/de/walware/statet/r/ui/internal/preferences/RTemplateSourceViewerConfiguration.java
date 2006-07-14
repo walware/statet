@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.preferences;
+package de.walware.statet.r.ui.internal.preferences;
 
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewerExtension2;
@@ -20,7 +20,7 @@ import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 
 
@@ -35,7 +35,7 @@ class RTemplateSourceViewerConfiguration extends RSourceViewerConfiguration {
 		
 		super(null, StatetPlugin.getDefault().getColorManager(), 
 				RSourceViewerConfiguration.createCombinedPreferenceStore(
-						RUiPlugin.getDefault().getPreferenceStore(), project));
+						RUIPlugin.getDefault().getPreferenceStore(), project));
 		fProcessor = processor;
 	}
 

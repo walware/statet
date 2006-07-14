@@ -22,7 +22,7 @@ public interface IRDocumentPartitions {
 	 * Id of partitioning of R-documents.
 	 * Value: {@value}
 	 */
-	String R_DOCUMENT_PARTITIONING = "__r_partitioning";
+	String R_DOCUMENT_PARTITIONING = "__r_partitioning"; //$NON-NLS-1$
 	
 	
 	/**
@@ -35,13 +35,13 @@ public interface IRDocumentPartitions {
 	 * The name of a string partition in R documents.
 	 * Value: {@value}
 	 */
-	String R_STRING = "__r_string";
+	String R_STRING = "__r_string"; //$NON-NLS-1$
 
 	/**
 	 * The name of a comment partition in R documents.
 	 * Value: {@value}
 	 */
-	String R_COMMENT = "__r_comment";
+	String R_COMMENT = "__r_comment"; //$NON-NLS-1$
 
 	
 	/**
@@ -59,7 +59,7 @@ public interface IRDocumentPartitions {
 	 * Id of partitioning of Rd-documents.
 	 * Value: {@value}
 	 */
-	String RDOC_DOCUMENT_PARTITIONING = "__rd_partitioning";
+	String RDOC_DOCUMENT_PARTITIONING = "__rd_partitioning"; //$NON-NLS-1$
 
 
 	/**
@@ -72,14 +72,14 @@ public interface IRDocumentPartitions {
 	 * The name of a comment partition in Rd documents.
 	 * Value: {@value}
 	 */
-	String RDOC_COMMENT = "__rd_comment";
+	String RDOC_COMMENT = "__rd_comment"; //$NON-NLS-1$
 	
 	/**
 	 * The name of a platform instruction partition in Rd documents.
 	 * Value: {@value}
 	 */
 
-	String RDOC_PLATFORM_SPECIF = "__rd_platform";
+	String RDOC_PLATFORM_SPECIF = "__rd_platform"; //$NON-NLS-1$
 	
 
 	/**

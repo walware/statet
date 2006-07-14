@@ -22,7 +22,7 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
@@ -32,7 +32,7 @@ public class REditor extends StatextEditor1<RProject> {
 	public REditor() {
 		super();
 		
-		setDocumentProvider(RUiPlugin.getDefault().getRDocumentProvider());
+		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		initStatext(new RBracketPairMatcher());
 	}
 	
@@ -46,7 +46,7 @@ public class REditor extends StatextEditor1<RProject> {
 	protected void setupConfiguration() {
 		
 		ICombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
-				RUiPlugin.getDefault().getPreferenceStore(), fProject);
+				RUIPlugin.getDefault().getPreferenceStore(), fProject);
 		setPreferenceStore(preferenceStore);
 		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 
 				StatetPlugin.getDefault().getColorManager(), preferenceStore));
@@ -55,7 +55,7 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected void initializeKeyBindingScopes() {
 		
-		setKeyBindingScopes(new String[] { "de.walware.statet.r.ui.contexts.REditorScope" });
+		setKeyBindingScopes(new String[] { "de.walware.statet.r.ui.contexts.REditorScope" }); //$NON-NLS-1$
 	}
 	
 	@Override

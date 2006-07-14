@@ -53,13 +53,13 @@ import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.RUI;
 import de.walware.statet.ui.StatetImages;
 
 
 public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 
-	public static final String FIRST_EDIT = IRConsoleConstants.ROOT + "firstedit";
+	public static final String FIRST_EDIT = IRConsoleConstants.ROOT + "firstedit"; //$NON-NLS-1$
 	
 	
 	protected Text fLocationField;
@@ -332,11 +332,11 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		int pos = fArgumentField.getCaretPosition();
 		int end = pos+fArgumentField.getSelectionCount();
 		StringBuffer buffer = new StringBuffer(variable);
-		if ( (pos > 0) && (!" ".equals(fArgumentField.getText(pos-1, pos)) ) ) {
+		if ( (pos > 0) && (!" ".equals(fArgumentField.getText(pos-1, pos)) ) ) { //$NON-NLS-1$
 			buffer.insert(0, ' ');
 		}
-		if ( (end < fArgumentField.getCharCount()) && (!" ".equals(fArgumentField.getText(end, end+1)) 
-				&& !variable.endsWith("="))) {
+		if ( (end < fArgumentField.getCharCount()) && (!" ".equals(fArgumentField.getText(end, end+1))  //$NON-NLS-1$
+				&& !variable.endsWith("="))) { //$NON-NLS-1$
 			buffer.append(' ');
 		}
 		fArgumentField.insert(buffer.toString());
@@ -346,33 +346,33 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 	
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
 		
-		boolean isWin = Platform.getOS().startsWith("win");
+		boolean isWin = Platform.getOS().startsWith("win"); //$NON-NLS-1$
 		
 		String rLocation;
 		if (isWin) {
 			StringBuilder path = new StringBuilder();
-			path.append("${env_var:PROGRAMFILES}");
-			path.append("\\R\\R-2.x.x\\bin\\");
-			path.append("Rterm.exe");
+			path.append("${env_var:PROGRAMFILES}"); //$NON-NLS-1$
+			path.append("\\R\\R-2.x.x\\bin\\"); //$NON-NLS-1$
+			path.append("Rterm.exe"); //$NON-NLS-1$
 			rLocation = path.toString();
 		}
 		else {
-			rLocation = "/usr/local/bin/R";
+			rLocation = "/usr/local/bin/R"; //$NON-NLS-1$
 		}
 		
-		String workingDirectory = "${project_loc}";
+		String workingDirectory = "${project_loc}"; //$NON-NLS-1$
 		IResource selectedResource = DebugUITools.getSelectedResource();
 		if (selectedResource != null) {
 			IProject project = selectedResource.getProject();
 			if (project != null) {
-				workingDirectory = "${project_loc:"+project.getName()+"}";
+				workingDirectory = "${project_loc:"+project.getName()+"}"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		
 		configuration.setAttribute(IRConsoleConstants.ATTR_R_LOCATION, rLocation);
 		configuration.setAttribute(IRConsoleConstants.ATTR_WORKING_DIRECTORY, workingDirectory);
-		configuration.setAttribute(IRConsoleConstants.ATTR_R_CMD, "TERM");
-		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : "");
+		configuration.setAttribute(IRConsoleConstants.ATTR_R_CMD, "TERM"); //$NON-NLS-1$
+		configuration.setAttribute(IRConsoleConstants.ATTR_CMD_ARGUMENTS, isWin? "--ess" : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		configuration.setAttribute(FIRST_EDIT, true);
 	}
@@ -569,7 +569,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 	protected void logError(String msg, CoreException ce) {
 		
 		StatetPlugin.log(new Status(
-				IStatus.ERROR, 	RUiPlugin.ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+				IStatus.ERROR, 	RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 				msg, ce));
 	}
 }

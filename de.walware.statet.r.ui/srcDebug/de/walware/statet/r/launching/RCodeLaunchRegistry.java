@@ -37,17 +37,17 @@ import de.walware.eclipsecommons.preferences.Preference.StringPref;
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.connector.RConsoleConnector;
-import de.walware.statet.r.ui.RUiPlugin;
+import de.walware.statet.r.ui.RUI;
 
 public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 
 
-	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id");
+	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
 	
-	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E");
+	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
 
-	private static final IStatus STATUS_PROMPTER = new Status(IStatus.INFO, IDebugUIConstants.PLUGIN_ID, 200, "", null);
-	private static final IStatus STATUS_SAVE = new Status(IStatus.INFO, DebugPlugin.getUniqueIdentifier(), 222, "", null);
+	private static final IStatus STATUS_PROMPTER = new Status(IStatus.INFO, IDebugUIConstants.PLUGIN_ID, 200, "", null); //$NON-NLS-1$
+	private static final IStatus STATUS_SAVE = new Status(IStatus.INFO, DebugPlugin.getUniqueIdentifier(), 222, "", null); //$NON-NLS-1$
 
 
 	public static void initializeDefaultValues(IScopeContext context) {
@@ -59,7 +59,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	public static boolean isConfigured() {
 
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUiPlugin.ID, EXTENSION_POINT);
+		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		return (elements != null && elements.length > 0);
 	}
 	
@@ -137,11 +137,11 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 
 	
-	static public final String EXTENSION_POINT = "rCodeLaunchConnector";
-	private static final String ATT_ID = "id";
-	private static final String ATT_NAME = "name";
-	private static final String ATT_DESCRIPTION = "description";
-	private static final String ATT_CLASS = "class";
+	static public final String EXTENSION_POINT = "rCodeLaunchConnector"; //$NON-NLS-1$
+	private static final String ATT_ID = "id"; //$NON-NLS-1$
+	private static final String ATT_NAME = "name"; //$NON-NLS-1$
+	private static final String ATT_DESCRIPTION = "description"; //$NON-NLS-1$
+	private static final String ATT_CLASS = "class"; //$NON-NLS-1$
 	
 	private static RCodeLaunchRegistry fgRegistry;
 	
@@ -172,7 +172,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	public static ConnectorConfig[] getAvailableConnectors() {
 		
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUiPlugin.ID, EXTENSION_POINT);
+		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		ConnectorConfig[] configs = new ConnectorConfig[elements.length];
 		for (int i = 0; i < elements.length; i++) {
 			configs[i] = new ConnectorConfig(elements[i]);
@@ -198,7 +198,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		
 		fConnector = null;
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUiPlugin.ID, EXTENSION_POINT);
+		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		
 		String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_R_CONNECTOR);
 
@@ -210,7 +210,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 				} catch (Exception e) {
 					throw new CoreException(new Status(
 							IStatus.ERROR,
-							RUiPlugin.ID,
+							RUI.PLUGIN_ID,
 							IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 							"Error loading R Launch Connector '"+elements[i].getAttribute(ATT_NAME)+"'", e.getCause()
 							));
@@ -222,7 +222,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	private IRCodeLaunchConnector getConnector() throws CoreException {
 		
 		if (fConnector == null)
-			throw new CoreException(new Status(IStatus.ERROR, RUiPlugin.ID, IStatus.OK, "No R Launch Connector configured.", null));
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatus.OK, "No R Launch Connector configured.", null));
 		
 		return fConnector;
 	}

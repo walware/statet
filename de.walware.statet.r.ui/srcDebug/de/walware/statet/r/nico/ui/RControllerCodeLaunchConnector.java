@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico;
+package de.walware.statet.r.nico.ui;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.widgets.Display;
