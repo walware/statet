@@ -33,18 +33,10 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 * Don't call this method on another place.
 	 * 
 	 * @param tools your interface to the tool software
-	 * @param monitor a progress monitor for long running tasks
+	 * @param monitor a progress monitor (you can check for cancel)
+	 * @throws InterruptedException 
 	 */
-	public void run(T tools, IProgressMonitor monitor);
-	
-	/**
-	 * This method is called after the run() method has finished. 
-	 * It's like a finally block in the run method. 
-	 *
-	 * This method is called by the tool controller, don't call this 
-	 * method on another place.
-	 */
-	public void finish();
+	public void run(T tools, IProgressMonitor monitor) throws InterruptedException;
 	
 	/**
 	 * Return a label for this runnable, used by the UI.

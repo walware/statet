@@ -52,9 +52,8 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 	public void run() {
 		
 		final IStructuredSelection selection = getStructuredSelection();
-		ToolProcess process = fView.getProcess();
+		ToolProcess process = fView.getTool();
 		final ToolController controller = (process != null) ? process.getController() : null;
-		
 		if (selection == null || controller == null)
 			return;
 		
@@ -80,11 +79,12 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 		NicoUITools.runSubmitInBackground(process, runnable, fView.getSite().getShell());
 	}
 	
-	public void dispose() {
-		
-		fView.getTableViewer().removeSelectionChangedListener(this);
-		fView = null;
-	}
+// Lifecycle with view
+//	public void dispose() {
+//		
+//		fView.getTableViewer().removeSelectionChangedListener(this);
+//		fView = null;
+//	}
 	
 	static String[] createCommandArray(IStructuredSelection selection) {
 		

@@ -19,6 +19,7 @@ public class Messages extends NLS {
 
 	public static String LoadHistory_AllocatingTask_label;
 	public static String LoadHistory_error_message;
+	public static String Runtime_error_TerminationFailed_message;
 	public static String SaveHistory_error_message;
 
 	public static String ErrorHandling_error_message;
@@ -28,9 +29,9 @@ public class Messages extends NLS {
 
 	
 	private static final String BUNDLE_NAME = Messages.class.getName();
-	
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
+	private Messages() { }
 	
 }

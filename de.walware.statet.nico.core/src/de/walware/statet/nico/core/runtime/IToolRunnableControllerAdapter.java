@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 
 /**
  * This is the interface of the controller to the runnables.
@@ -32,6 +34,6 @@ public interface IToolRunnableControllerAdapter {
 	
 	public ToolController getController();
 	
-	public void submitToConsole(String input);
+	public void submitToConsole(String input, IProgressMonitor monitor) throws InterruptedException;
 	
 }

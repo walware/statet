@@ -35,10 +35,6 @@ public class ConnectionConfig {
 	private static final int DEFAULT_SERVERPORT = 6311;
 	private int fServerPort;
 
-	public static final String PROP_SOCKETTIMEOUT = "socketTimeout";
-	private static final int DEFAULT_SOCKETTIMEOUT = 1000;
-	private int fSocketTimeout;
-	
 	
 	public ConnectionConfig() {
 		
@@ -49,7 +45,6 @@ public class ConnectionConfig {
 		
 		fServerAddress = DEFAULT_SERVERADDRESS;
 		fServerPort = DEFAULT_SERVERPORT;
-		fSocketTimeout = DEFAULT_SOCKETTIMEOUT;
 		
 		if (activateBeanSupport) {
 			fPropertyChangeSupport = new PropertyChangeSupport(this);
@@ -86,20 +81,6 @@ public class ConnectionConfig {
 	}
 
 
-	public void setSocketTimeout(int socketTimeout) {
-		
-		int oldValue = fSocketTimeout;
-		fSocketTimeout = socketTimeout;
-		fPropertyChangeSupport.firePropertyChange(PROP_SOCKETTIMEOUT, 
-				oldValue, socketTimeout);
-	}
-
-	public int getSocketTimeout() {
-		
-		return fSocketTimeout;
-	}
-	
-	
 //-- ILaunchConfigurationAdapter
 	public static void writeDefaultsTo(ILaunchConfigurationWorkingCopy configuration) {
 		
@@ -115,10 +96,6 @@ public class ConnectionConfig {
 		int port = read(configuration, 
 				IRServeConstants.CONFIG_CONNECTION_SERVERPORT, DEFAULT_SERVERPORT);
 		setServerPort(port);
-
-		int timeout = read(configuration, 
-				IRServeConstants.CONFIG_CONNECTION_SOCKETTIMEOUT, DEFAULT_SOCKETTIMEOUT);
-		setSocketTimeout(timeout);
 	}
 	
 	public void writeTo(ILaunchConfigurationWorkingCopy configuration) {
@@ -128,9 +105,6 @@ public class ConnectionConfig {
 		
 		int port = getServerPort();
 		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERPORT, port);
-		
-		int timeout = getSocketTimeout();
-		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SOCKETTIMEOUT, timeout);
 	}
 
 	

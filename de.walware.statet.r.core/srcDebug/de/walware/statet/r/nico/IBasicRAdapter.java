@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.nico;
 
+import org.eclipse.core.runtime.IAdaptable;
+
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 
 
@@ -18,7 +20,7 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
  * Interface to access R by a ToolRunnable.
  */
 public interface IBasicRAdapter extends
-		IToolRunnableControllerAdapter {
+		IToolRunnableControllerAdapter, IAdaptable {
 
 	
 	/**

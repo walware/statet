@@ -16,7 +16,7 @@
 <plugin>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.nico.core.internal.preferences.NicoPreferenceInitializer"/>
+      <initializer class="de.walware.statet.nico.core.internal.NicoPreferenceInitializer"/>
    </extension>
 
 </plugin>

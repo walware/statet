@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.ui.actions;
 
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -23,36 +22,30 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 /**
  * 
  */
-public class LoadHistoryAction extends Action  {
+public class LoadHistoryAction extends ToolAction {
 	
 	
-	private ToolProcess fProcess;
-	
-
-	public LoadHistoryAction() {
+	public LoadHistoryAction(IToolActionSupport support) {
+		
+		super(support, false);
 		
 		setText(NicoUIMessages.LoadHistoryAction_name);
 		setToolTipText(NicoUIMessages.LoadHistoryAction_tooltip);
 //		setImageDescriptor();
 //		setDisabledImageDescriptor();
-		setEnabled(false);
-	}
-	
-	public void connect(ToolProcess process) {
 		
-		fProcess = process;
-		setEnabled(fProcess != null);
+		handleToolChanged();
 	}
 	
 	public void run() {
 		
-		ToolProcess process = fProcess;
-		if (process == null) {
+		ToolProcess tool = getTool();
+		if (tool == null) {
 			return;
 		}
 		
 		WizardDialog dialog = new WizardDialog(UIAccess.getActiveWorkbenchShell(true), 
-				new LoadHistoryWizard(process));
+				new LoadHistoryWizard(tool));
 		dialog.open();
 	}
 	

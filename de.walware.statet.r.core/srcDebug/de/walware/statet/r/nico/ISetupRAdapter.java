@@ -21,9 +21,9 @@ import de.walware.statet.nico.core.runtime.Prompt;
  */
 public interface ISetupRAdapter {
 
-	public void setDefaultPrompt(Prompt prompt);
-	public void setPrompt(Prompt prompt);
+	public void setDefaultPromptText(String text);
 	public void setIncompletePromptText(String text);
+	public void setPrompt(Prompt prompt);
 	
 	public void setLineSeparator(String newSeparator);
 }

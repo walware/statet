@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.views;
 
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -63,6 +64,8 @@ import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
+import de.walware.statet.nico.ui.actions.IToolAction;
+import de.walware.statet.nico.ui.actions.IToolActionSupport;
 import de.walware.statet.nico.ui.actions.LoadHistoryAction;
 import de.walware.statet.nico.ui.actions.SaveHistoryAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction;
@@ -78,7 +81,7 @@ import de.walware.statet.ui.StatetImages;
  * 
  * Usage: This class is not intend to be subclassed.
  */
-public class HistoryView extends ViewPart {
+public class HistoryView extends ViewPart implements IToolActionSupport {
 	
 	
 	/**
@@ -231,6 +234,9 @@ public class HistoryView extends ViewPart {
 	}
 	
 
+	private ToolProcess fProcess;
+	private IToolRegistryListener fToolRegistryListener;
+
 	private TableViewer fTableViewer;
 	private Clipboard fClipboard;
 
@@ -243,15 +249,14 @@ public class HistoryView extends ViewPart {
 	private boolean fDoAutoscroll;
 	private Action fScrollLockAction;
 	
+	private ListenerList fToolActions = new ListenerList();
+	
 	private Action fSelectAllAction;
-	private HistoryCopyAction fCopyAction;
+	private Action fCopyAction;
 	private Action fSubmitAction;
 	
 	private LoadHistoryAction fLoadHistoryAction;
 	private SaveHistoryAction fSaveHistoryAction;
-
-	private ToolProcess fProcess; // f�r submit
-	private IToolRegistryListener fToolRegistryListener;
 
 	
 	/**
@@ -375,8 +380,8 @@ public class HistoryView extends ViewPart {
 			}
 		} );
 		
-		fLoadHistoryAction = new LoadHistoryAction();
-		fSaveHistoryAction = new SaveHistoryAction();
+		fLoadHistoryAction = new LoadHistoryAction(this);
+		fSaveHistoryAction = new SaveHistoryAction(this);
 	}
 
 	protected void enabledSelectionActions(boolean enable) {
@@ -455,19 +460,26 @@ public class HistoryView extends ViewPart {
 				fProcess = process;
 				fTableViewer.setInput((fProcess != null) ? 
 						fProcess.getHistory() : null);
-				fLoadHistoryAction.connect(fProcess);
-				fSaveHistoryAction.connect(fProcess);
+				for (Object action : fToolActions.getListeners()) {
+					((IToolAction) action).setTool(fProcess);
+				}
 			}
 		};
 		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
 	}
+	
+	public void addToolAction(IToolAction action) {
+		
+		fToolActions.add(action);
+	}
+	
 	
 	/**
 	 * Returns the tool process, which this view is connected to.
 	 * 
 	 * @return a tool process or <code>null</code>, if no process is connected.
 	 */
-	public ToolProcess getProcess() {
+	public ToolProcess getTool() {
 		
 		return fProcess;
 	}
@@ -510,10 +522,9 @@ public class HistoryView extends ViewPart {
 			NicoUITools.getRegistry().removeListener(fToolRegistryListener);
 			fToolRegistryListener = null;
 		}
-		if (fCopyAction != null) {
-			fCopyAction.dispose();
-			fCopyAction = null;
-		}
+		fToolActions.clear();
+		fCopyAction = null;
+		fSubmitAction = null;
 		fLoadHistoryAction = null;
 		fSaveHistoryAction = null;
 		

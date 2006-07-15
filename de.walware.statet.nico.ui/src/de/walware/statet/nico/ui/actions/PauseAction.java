@@ -11,19 +11,23 @@
 
 package de.walware.statet.nico.ui.actions;
 
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.action.Action;
+
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolController.IPauseRequestListener;
-import de.walware.statet.nico.ui.NicoUIMessages;
+import de.walware.statet.nico.ui.internal.Messages;
 import de.walware.statet.ui.StatetImages;
 
 
 /**
  * 
  */
-public class PauseAction extends Action implements IPauseRequestListener {
+public class PauseAction extends Action implements IDebugEventSetListener {
 	
 	
 	private ToolProcess fProcess;
@@ -31,68 +35,96 @@ public class PauseAction extends Action implements IPauseRequestListener {
 	
 	public PauseAction() {
 		
-		setText(NicoUIMessages.PauseAction_name);
-		setToolTipText(NicoUIMessages.PauseAction_tooltip);
+		setText(Messages.PauseAction_name);
+		setToolTipText(Messages.PauseAction_tooltip);
 		setImageDescriptor(StatetImages.DESC_LOCTOOL_PAUSE);
 		setDisabledImageDescriptor(StatetImages.DESC_LOCTOOLD_PAUSE);
 		setChecked(false);
 		setEnabled(false);
 	}
 	
-	public void run() {
+	public synchronized void run() {
 		
-		ToolController controller = null;
+		ToolController controller;
 		if (fProcess == null 
 				|| (controller = fProcess.getController()) == null) {
 			return;
 		}
-		controller.pause(isChecked());
+		boolean checked = isChecked();
+		controller.pause(checked);
+		setChecked(!checked);
 	}
 
 	/**
 	 * 
 	 * @param process must not be <code>null</code>.
 	 */
-	public void connect(ToolProcess process) {
+	public synchronized void setTool(ToolProcess process) {
 		
-		fProcess = process;
 		ToolController controller;
-		if (!fProcess.isTerminated() && (controller = fProcess.getController()) != null) {
+		if (process != null && !process.isTerminated() && (controller = process.getController()) != null) {
+			fProcess = process;
+			DebugPlugin.getDefault().addDebugEventListener(this);
 			setEnabled(true);
 			setChecked(controller.isPaused());
-			controller.addPauseRequestListener(this);
+		}
+		else {
+			disconnect();
+			setEnabled(false);
+			setChecked(false);
 		}
 	}
 	
-	public void disconnect() {
+	private void disconnect() {
 		
-		disconnectProcess();
-		setEnabled(false);
-		setChecked(false);
-	}
-	
-	public void pauseRequested() {
-		
-		setChecked(true);
-	}
-
-	public void unpauseRequested() {
-		
-		setChecked(false);
-	}
-	
-	private void disconnectProcess() {
-		
-		ToolController controller;
-		if (fProcess != null && (controller = fProcess.getController()) != null) {
-			controller.removePauseRequestListener(this);
-		}
 		fProcess = null;
+		DebugPlugin.getDefault().removeDebugEventListener(this);
 	}
 	
+	public synchronized void handleDebugEvents(DebugEvent[] events) {
+		
+		for (DebugEvent event : events) {
+			if (event.getSource() == fProcess) {
+				switch (event.getKind()) {
+				case DebugEvent.MODEL_SPECIFIC:
+					int detail = event.getDetail();
+					switch (detail) {
+					case ToolProcess.REQUEST_PAUSE:
+					case ToolProcess.STATUS_PAUSE:
+						UIAccess.getDisplay().syncExec(new Runnable() {
+							public void run() {
+								setChecked(true);
+							}
+						});
+						break;
+					default:
+						if ((detail & ToolProcess.MASK_STATUS) == ToolProcess.MASK_STATUS) { // status other than QUEUE_PAUSE
+							UIAccess.getDisplay().syncExec(new Runnable() {
+								public void run() {
+									setChecked(false);
+								}
+							});
+						}
+						break;
+					}
+					break;
+				case DebugEvent.TERMINATE:
+					UIAccess.getDisplay().syncExec(new Runnable() {
+						public void run() {
+							setChecked(false);
+							setEnabled(false);
+						}
+					});
+					disconnect();
+					break;
+				}
+			}
+		}
+	}
+		
 	public void dispose() {
 		
-		disconnectProcess();
+		disconnect();
 	}
 	
 }

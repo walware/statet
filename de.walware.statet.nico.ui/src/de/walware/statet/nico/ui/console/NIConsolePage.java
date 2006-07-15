@@ -14,6 +14,7 @@ package de.walware.statet.nico.ui.console;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -59,6 +60,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
+import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.ClearOutputAction;
 import org.eclipse.ui.internal.console.IOConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
@@ -77,6 +79,10 @@ import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
+import de.walware.statet.nico.ui.actions.CancelAction;
+import de.walware.statet.nico.ui.actions.IToolAction;
+import de.walware.statet.nico.ui.actions.IToolActionSupport;
+import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.internal.Messages;
 import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.TextViewerAction;
@@ -91,7 +97,7 @@ import de.walware.statet.ui.util.DNDUtil;
  */
 public class NIConsolePage implements IPageBookViewPage, 
 		IAdaptable, IShowInSource, IShowInTargetList, 
-		IPropertyChangeListener, ScrollLockAction.Receiver {
+		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport {
 
 	
 	private class FindReplaceUpdater implements IDocumentListener {
@@ -146,6 +152,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
+	private ListenerList fToolActions = new ListenerList();
 	
 	private FindReplaceUpdater fFindReplaceUpdater;
 	private FindReplaceAction fFindReplaceAction;
@@ -171,6 +178,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	private ConsoleRemoveLaunchAction fRemoveAction;
 	private ConsoleRemoveAllTerminatedAction fRemoveAllAction;
 	private TerminateToolAction fTerminateAction;
+	private CancelAction fCancelAction;
 
 
 	/**
@@ -361,6 +369,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		fRemoveAction = new ConsoleRemoveLaunchAction(fConsole.getProcess().getLaunch());
 		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
         fTerminateAction = new TerminateToolAction(fConsole.getProcess());
+        fCancelAction = new CancelAction(this);
 	}
 	
 	private void hookContextMenu() {
@@ -409,6 +418,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputClearAllAction);
 		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputScrollLockAction);
 
+		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fCancelAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAllAction);
@@ -524,6 +534,27 @@ public class NIConsolePage implements IPageBookViewPage,
 		return fClipboard;
 	}
 	
+	public ToolProcess getTool() {
+		
+		return fConsole.getProcess();
+	}
+    
+	public void addToolAction(IToolAction action) {
+		
+		fToolActions.add(action);
+	}
+
+	public TextConsoleViewer getOutputViewer() {
+		
+		return fOutputViewer;
+	}
+	
+	public SourceViewer getInputViewer() {
+		
+		return fInputGroup.getSourceViewer();
+	}
+	
+	
     public Object getAdapter(Class required) {
     	
 		if (Widget.class.equals(required)) {
@@ -588,6 +619,9 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		if (fIsCreated) {
 			fTerminateAction.update();
+			for (Object action : fToolActions.getListeners()) {
+				((ToolAction) action).handleToolTerminated();
+			}
 			fOutputPasteAction.setEnabled(false);
 			final Button button = fInputGroup.getSubmitButton();
 			UIAccess.getDisplay(getSite().getShell()).asyncExec(new Runnable() {
@@ -634,5 +668,6 @@ public class NIConsolePage implements IPageBookViewPage,
 			}
 		} 
 	}
-    
+
+
 }

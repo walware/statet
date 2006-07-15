@@ -68,19 +68,14 @@ public class QueueView extends ViewPart {
 		
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			
-			if (oldInput != null) {
-				if (newInput == null) {
-					unregister();
-				}
-
-//				ToolProcess oldProcess = (ToolProcess) oldInput;
-
-				fPauseAction.disconnect();
+			if (oldInput != null && newInput == null) {
+				unregister();
+				fPauseAction.setTool(null);
 			}
 			if (newInput != null) {
 				ToolProcess newProcess = (ToolProcess) newInput;
 
-				fPauseAction.connect(newProcess);
+				fPauseAction.setTool(newProcess);
 				
 				DebugPlugin manager = DebugPlugin.getDefault();
 				if (manager != null) {
@@ -134,75 +129,91 @@ public class QueueView extends ViewPart {
 		}
 		
 		public void handleDebugEvents(DebugEvent[] events) {
-			for (int i = 0; i < events.length; i++) {
+			
+			ToolProcess process = fProcess;
+			if (process == null) {
+				return;
+			}
+			Queue queue = fProcess.getQueue();
+			EVENT: for (int i = 0; i < events.length; i++) {
 				DebugEvent event = events[i];
-				switch (event.getKind()) {
-				case DebugEvent.MODEL_SPECIFIC:
-					switch (event.getDetail()) {
+				Object source = event.getSource();
+				if (source == process) {
+					if (event.getKind() == DebugEvent.TERMINATE) {
+						fPauseAction.setTool(null);
+					}
+					continue EVENT;
+				}
+				if (source == queue) {
+					switch (event.getKind()) {
 					
-					case ToolProcess.QUEUE_ENTRIES_ADDED:
-						if (!fExpectInfoEvent) {
-							final IToolRunnable[] entries = (IToolRunnable[]) event.getData();
-							
-							if (events.length > i+1 && entries.length == 1) {
-								// Added and removed in same set
-								DebugEvent next = events[i+1];
-								if (next.getKind() == DebugEvent.MODEL_SPECIFIC
-										&& next.getDetail() == ToolProcess.QUEUE_ENTRY_STARTED_PROCESSING
-										&& next.getData() == entries[0]) {
-									i++;
-									break;
+					case DebugEvent.CHANGE:
+						if (event.getDetail() != DebugEvent.CONTENT) {
+							continue EVENT;
+						}
+						final Queue.Delta delta = (Queue.Delta) event.getData();
+						switch (delta.type) {
+						case Queue.ENTRIES_ADD:
+							if (!fExpectInfoEvent) {
+								if (events.length > i+1 && delta.data.length == 1) {
+									// Added and removed in same set
+									DebugEvent next = events[i+1];
+									if (next.getSource() == queue
+											&& next.getKind() == DebugEvent.CHANGE
+											&& next.getDetail() == DebugEvent.CONTENT
+											&& ((Queue.Delta)next.getData()).data[0] == delta.data[0]) {
+										i++;
+										continue EVENT;
+									}
 								}
+								UIAccess.getDisplay().syncExec(new Runnable() {
+									public void run() {
+										if (!Layouter.isOkToUse(fTableViewer)) {
+											return;
+										}
+										fTableViewer.add(delta.data);
+									}
+								});
 							}
+							continue EVENT;
 						
-							UIAccess.getDisplay().syncExec(new Runnable() {
-								public void run() {
-									if (!Layouter.isOkToUse(fTableViewer)) {
-										return;
+						case Queue.ENTRY_START_PROCESSING:
+						case Queue.ENTRIES_DELETE:
+							if (!fExpectInfoEvent) {
+								UIAccess.getDisplay().syncExec(new Runnable() {
+									public void run() {
+										if (!Layouter.isOkToUse(fTableViewer)) {
+											return;
+										}
+										fTableViewer.remove(delta.data);
 									}
-									fTableViewer.add(entries);
-								}
-							});
-						}
-						break;
-
-					case ToolProcess.QUEUE_ENTRY_STARTED_PROCESSING:
-						if (!fExpectInfoEvent) {
-							final IToolRunnable entry = (IToolRunnable) event.getData();
-							UIAccess.getDisplay().syncExec(new Runnable() {
-								public void run() {
-									if (!Layouter.isOkToUse(fTableViewer)) {
-										return;
-									}
-									fTableViewer.remove(entry);
-								}
-							});
-						}
-						break;
+								});
+							}
+							continue EVENT;
 						
-					case ToolProcess.QUEUE_COMPLETE_CHANGE:
-						if (!fExpectInfoEvent) {
-							setElements((IToolRunnable[]) event.getData());
+//						case Queue.QUEUE_CHANGE:
+//							if (!fExpectInfoEvent) {
+//								setElements((IToolRunnable[]) event.getData());
+//							}
+//							continue EVENT;
 						}
-						break;
-					
-					case ToolProcess.QUEUE_COMPLETE_INFO:
-						if (fExpectInfoEvent) {
+						continue EVENT;
+						
+					case DebugEvent.MODEL_SPECIFIC:
+						if (event.getDetail() == Queue.QUEUE_INFO && fExpectInfoEvent) {
 							fExpectInfoEvent = false;
 							setElements((IToolRunnable[]) event.getData());
 						}
-						break;
+						continue EVENT;
+						
+					case DebugEvent.TERMINATE:
+						fPauseAction.setTool(null);
+						fProcess = null;
+						continue EVENT;
 						
 					default:
-						break;
+						continue EVENT;
 					}
-					break;
-					
-				case DebugEvent.TERMINATE:
-					if (fProcess != null && event.getSource() == fProcess) {
-						fPauseAction.disconnect();
-					}
-					break;
 				}
 			}
 		}

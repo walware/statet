@@ -56,10 +56,11 @@ public class HistoryCopyAction extends BaseSelectionListenerAction {
 				new String[] { text }, 
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
-	
-	public void dispose() {
-		
-		fView.getTableViewer().removeSelectionChangedListener(this);
-		fView = null;
-	}
+
+// Lifecycle with view
+//	public void dispose() {
+//		
+//		fView.getTableViewer().removeSelectionChangedListener(this);
+//		fView = null;
+//	}
 }

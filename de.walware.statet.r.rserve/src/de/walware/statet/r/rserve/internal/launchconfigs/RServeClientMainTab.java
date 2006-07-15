@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+
 import de.walware.statet.ui.StatetImages;
 
 
@@ -49,7 +50,6 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 	
 	private Text fServerAddress;
 	private Text fServerPort;
-	private Text fSocketTimeout;
 	
 	
 	public RServeClientMainTab() {
@@ -92,14 +92,6 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		        		new RegexStringValidator("^[0-9]*$", "^[0-9]+$", "Please enter a number"), 
 		        		null));		
 
-		fSocketTimeout = layouter.addLabeledTextControl("Socket Timeout (ms):");
-		dbc.bind(fSocketTimeout, 
-				new Property(fConnectionConfig, ConnectionConfig.PROP_SOCKETTIMEOUT), 
-		        new BindSpec(null, 
-		        		new ConvertString2Integer(),
-		        		new RegexStringValidator("^[0-9]*$", "^[0-9]+$", "Please enter a number"),
-		        		null));
-		
 		fConnectionConfig.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent evt) {
 				updateLaunchConfigurationDialog();

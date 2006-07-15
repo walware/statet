@@ -31,10 +31,12 @@ import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
+import de.walware.statet.nico.ui.util.TerminatingMonitor;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 import de.walware.statet.ui.util.ExceptionHandler;
+import de.walware.statet.ui.util.UnterminatedLaunchAlerter;
 
 
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {
@@ -58,8 +60,14 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			String name = "rserve://"+connectionConfig.getServerAddress()+":"+connectionConfig.getServerPort()
 					+" ("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")";
 			
+			if (monitor.isCanceled()) {
+				return;
+			}
+			UnterminatedLaunchAlerter.registerLaunchType(IRServeConstants.ID_RSERVE_LAUNCHCONFIG);
+
 			ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, name);
 			process.init(new RServeClientController(process, connectionConfig));
+			new TerminatingMonitor(process);
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 	    			new IConsole[] { console });

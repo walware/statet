@@ -11,6 +11,13 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_IDLING;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_PAUSED;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_PROCESSING;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_SUSPENDED;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTING;
+import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.TERMINATED;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +31,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchesListener;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
@@ -41,8 +49,14 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		extends PlatformObject implements IProcess, IToolStatusListener {
 
 	
-	public static final int MASK_STATUS = (1 << 6);
-	public static final int MASK_QUEUE_ENTRY = (2 << 6);
+	public static final int MASK_STATUS = 0x001000;
+	public static final int MASK_REQUEST = 0x002000;
+	
+	private static final int PROCESS = 0x001;
+	private static final int IDLE = 0x002;
+	private static final int PAUSE = 0x004;
+	private static final int OTHER = 0x008;
+	private static final int TERMINATE = 0x00f;
 	
 	
 	/** 
@@ -53,7 +67,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_CALCULATE = MASK_STATUS | 1;
+	public static final int STATUS_PROCESS = MASK_STATUS | PROCESS;
 
 	/** 
 	 * Constant for detail of a DebugEvent, signalising that
@@ -63,7 +77,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_IDLE = MASK_STATUS | 2;
+	public static final int STATUS_IDLE = MASK_STATUS | IDLE;
 
 	/** 
 	 * Constant for detail of a DebugEvent, signalising that
@@ -73,61 +87,12 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_QUEUE_PAUSE = MASK_STATUS | 3;
+	public static final int STATUS_PAUSE = MASK_STATUS | PAUSE;
 	
 	
-	/**
-	 * Constant for detail of a DebugEvent, signalising that
-	 * a entry (IToolRunnable) was added to the queue.
-	 * <p>
-	 * The queue entry (<code>IToolRunnable</code>) is attached as
-	 * data to this event. The source of the event is the ToolProcess.
-	 * <p>
-	 * Usage: Events of this type are sended by the ToolProcess/its queue.
-	 * The constant is applicable for DebugEvents of kind 
-	 * <code>MODEL_SPECIFIC</code>.</p>
-	 */
-	public static final int QUEUE_ENTRIES_ADDED = MASK_QUEUE_ENTRY | 1;
+	public static final int REQUEST_PAUSE = MASK_REQUEST | PAUSE;
 	
-	/**
-	 * Constant for detail of a DebugEvent, signalising that
-	 * queue has changed e.g. reordered, cleared,... .
-	 * <p>
-	 * The queue entries (<code>IToolRunnable[]</code>) are attached as
-	 * data to this event. The source of the event is the ToolProcess.
-	 * <p>
-	 * Usage: Events of this type are sended by the ToolProcess/its queue.
-	 * The constant is applicable for DebugEvents of kind 
-	 * <code>MODEL_SPECIFIC</code>.</p>
-	 */
-	public static final int QUEUE_COMPLETE_CHANGE = MASK_QUEUE_ENTRY | 2;
-
-	/**
-	 * Constant for detail of a DebugEvent, sending the complete queue.
-	 * This does not signalising, that the queue has changed.
-	 * <p>
-	 * The queue entries (<code>IToolRunnable[]</code>) are attached as
-	 * data to this event. The source of the event is the ToolProcess.
-	 * <p>
-	 * Usage: Events of this type are sended by the ToolProcess/its queue.
-	 * The constant is applicable for DebugEvents of kind 
-	 * <code>MODEL_SPECIFIC</code>.</p>
-	 */
-	public static final int QUEUE_COMPLETE_INFO = MASK_QUEUE_ENTRY | 3;
-	
-	/**
-	 * Constant for detail of a DebugEvent, signalising that
-	 * a entry (IToolRunnable) was removed from the queue and that 
-	 * the process/controller started processing the entry.
-	 * <p>
-	 * The queue entry (<code>IToolRunnable</code>) is attached as
-	 * data to this event. The source of the event is the ToolProcess.
-	 * <p>
-	 * Usage: Events of this type are sended by the ToolProcess/its queue.
-	 * The constant is applicable for DebugEvents of kind 
-	 * <code>MODEL_SPECIFIC</code>.</p>
-	 */
-	public static final int QUEUE_ENTRY_STARTED_PROCESSING = MASK_QUEUE_ENTRY | 4;
+	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE;
 	
 	
 	private final ILaunch fLaunch;
@@ -157,6 +122,24 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
 
+		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(new ILaunchesListener() {
+			public void launchesAdded(ILaunch[] launches) {
+			}
+			public void launchesChanged(ILaunch[] launches) {
+			}
+			public void launchesRemoved(ILaunch[] launches) {
+				for (ILaunch launch : launches) {
+					if (fLaunch == launch) {
+						DebugPlugin plugin = DebugPlugin.getDefault();
+						if (plugin != null) {
+							plugin.getLaunchManager().removeLaunchListener(this);
+							dispose();
+						}
+					}
+				}
+				
+			}
+		});
 	}
 	
 	public void init(ToolController<?, WorkspaceType> controller) {
@@ -218,17 +201,23 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
         case STARTING:
         	s.append(NicoCoreMessages.Status_Starting_label);
         	break;
-        case STARTED_IDLE:
+        case STARTED_IDLING:
         	s.append(NicoCoreMessages.Status_StartedIdle_label);
+        	break;
+        case STARTED_PROCESSING:
+        	s.append(NicoCoreMessages.Status_StartedProcessing_label);
         	break;
         case STARTED_PAUSED:
         	s.append(NicoCoreMessages.Status_StartedPaused_label);
         	break;
-        case STARTED_CALCULATING:
-        	s.append(NicoCoreMessages.Status_StartedCalculating_label);
+        case STARTED_SUSPENDED:
+        	s.append(NicoCoreMessages.Status_StartedSuspended_label);
         	break;
         case TERMINATED:
         	s.append(NicoCoreMessages.Status_Terminated_label);
+        	break;
+        default:
+        	assert(false);
         	break;
         }
         s.append('>');
@@ -327,9 +316,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 
 	public void terminate() throws DebugException {
 		
-		if (fController != null) {
-			fController.asyncTerminate();
-			// TODO: add monitor / force terminate
+		ToolController controller = fController;
+		if (controller != null) {
+			controller.terminate();
 		}
 	}
 
@@ -349,22 +338,36 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		return fExitValue;
 	}
 
+	public void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
+
+		switch(requestedStatus) {
+		
+		case STARTED_PAUSED:
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE) );
+			break;
+		case TERMINATED:
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE) );
+		}
+	}
+	
 	/** Called by Controller */
 	public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
 
 		switch(newStatus) {
 		
-		case STARTED_CALCULATING:
+		case STARTED_PROCESSING:
 			eventCollection.add(new DebugEvent(ToolProcess.this, 
-					DebugEvent.MODEL_SPECIFIC, STATUS_CALCULATE) );
+					DebugEvent.MODEL_SPECIFIC, STATUS_PROCESS) );
 			break;
-		case STARTED_IDLE:
+		case STARTED_IDLING:
 			eventCollection.add(new DebugEvent(ToolProcess.this, 
 					DebugEvent.MODEL_SPECIFIC, STATUS_IDLE) );
 			break;
 		case STARTED_PAUSED:
 			eventCollection.add(new DebugEvent(ToolProcess.this, 
-					DebugEvent.MODEL_SPECIFIC, STATUS_QUEUE_PAUSE) );
+					DebugEvent.MODEL_SPECIFIC, STATUS_PAUSE) );
 			break;
 			
 		case TERMINATED:
@@ -382,6 +385,12 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 	}
 
+	protected void dispose() {
+		
+		if (fQueue != null) {
+			fQueue.dispose();
+		}
+	}
 	
 	/**
 	 * Fires the given debug events.

@@ -35,7 +35,18 @@ public class Messages extends NLS {
 	public static String Console_SubmitButton_label;
 	
 	public static String Console_error_UnexpectedException_message;
+
+	public static String PauseAction_name;
+	public static String PauseAction_tooltip;
+	public static String CancelAction_name;
+	public static String CancelAction_tooltip;
 	
+	public static String TerminatingMonitor_title;
+	public static String TerminatingMonitor_message;
+	public static String TerminatingMonitor_CancelButton_label;
+	public static String TerminatingMonitor_ForceButton_label;
+	public static String TerminatingMonitor_WaitButton_label;
+
 	
 	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {

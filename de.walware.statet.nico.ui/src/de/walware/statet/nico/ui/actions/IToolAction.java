@@ -9,21 +9,19 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.core;
+package de.walware.statet.nico.ui.actions;
 
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
-
+import de.walware.statet.nico.core.runtime.ToolProcess;
 
 
 /**
  *
  */
-public class NicoPreferenceNodes {
-
-
-	public static final String CAT_HISTORY_QUALIFIER = NicoCore.PLUGIN_ID + "/history"; //$NON-NLS-1$
+public interface IToolAction {
 
 	
-	public static final IntPref KEY_DEFAULT_TIMEOUT = new IntPref(NicoCore.PLUGIN_ID, "timeout.default"); //$NON-NLS-1$
+	void setTool(ToolProcess tool);
+	
+	void handleToolTerminated();
 	
 }

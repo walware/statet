@@ -27,7 +27,38 @@ import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
  * 
  * @author Stephan Wahlbrink
  */
-public class ToolWorkspace implements IToolStatusListener {
+public class ToolWorkspace { 
+	
+	protected class ControllerListener implements IToolStatusListener {
+	
+		public void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
+			
+		}
+		
+		public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
+			// by definition in tool lifecycle thread
+
+			PUBLISH_PROMPT: if (fPublishPromptStatusSet.contains(newStatus)) {
+				if (fPublishPromptStatusSet.contains(oldStatus)) {
+					break PUBLISH_PROMPT;
+				}
+				Prompt prompt = fCurrentPrompt;
+				if (prompt == null || prompt == fDefaultPrompt) {
+					break PUBLISH_PROMPT;
+				}
+				synchronized (fPromptMutex) {
+					fIsCurrentPromptPublished = true;
+				}
+				firePrompt(prompt);
+			}
+			else if (fIsCurrentPromptPublished) {
+				synchronized (fPromptMutex) {
+					fIsCurrentPromptPublished = false;
+				}
+				firePrompt(fDefaultPrompt);
+			}
+		}
+	}
 
 	
 	public static final int DETAIL_PROMPT = 1;
@@ -39,22 +70,29 @@ public class ToolWorkspace implements IToolStatusListener {
 	private Prompt fCurrentPrompt;
 	private Prompt fDefaultPrompt;
 	private boolean fIsCurrentPromptPublished = false;
-	private EnumSet<ToolStatus> fPublishPromptStatusSet = EnumSet.of(ToolStatus.STARTED_IDLE, ToolStatus.STARTED_PAUSED);
+	private EnumSet<ToolStatus> fPublishPromptStatusSet = EnumSet.of(ToolStatus.STARTED_IDLING, ToolStatus.STARTED_PAUSED);
 
 	
-	public ToolWorkspace() {
+	public ToolWorkspace(ToolController controller) {
 		
-		this(null, null);
+		this(controller, null, null);
 	}
 	
-	public ToolWorkspace(Prompt prompt, String lineSeparator) {
+	public ToolWorkspace(ToolController controller, Prompt prompt, String lineSeparator) {
 		
 		if (prompt == null) {
 			prompt = Prompt.DEFAULT;
 		}
 		fCurrentPrompt = fDefaultPrompt = prompt;
 		setLineSeparator(lineSeparator);
+
+		controller.addToolStatusListener(createToolStatusListener());
 	}		
+	
+	protected IToolStatusListener createToolStatusListener() {
+		
+		return new ControllerListener();
+	}
 	
 	
 	public String getLineSeparator() {
@@ -89,46 +127,26 @@ public class ToolWorkspace implements IToolStatusListener {
 		return "UTF-8"; //$NON-NLS-1$
 	}
 
-	
-	public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
-		// by definition in tool lifecycle thread
-
-		PUBLISH_PROMPT: if (fPublishPromptStatusSet.contains(newStatus)) {
-			if (fPublishPromptStatusSet.contains(oldStatus)) {
-				break PUBLISH_PROMPT;
-			}
-			Prompt prompt = fCurrentPrompt;
-			if (prompt == null || prompt == fDefaultPrompt) {
-				break PUBLISH_PROMPT;
-			}
-			synchronized (fPromptMutex) {
-				fIsCurrentPromptPublished = true;
-			}
-			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
-			event.setData(prompt);
-			eventCollection.add(event);
-		}
-		else if (fIsCurrentPromptPublished) {
-			synchronized (fPromptMutex) {
-				fIsCurrentPromptPublished = false;
-			}
-			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
-			event.setData(fDefaultPrompt);
-			eventCollection.add(event);
-		}
-	}
-
 	/**
 	 * Use only in tool lifecycle thread.
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
-	void setCurrentPrompt(Prompt prompt) {
+	void setCurrentPrompt(Prompt prompt, ToolStatus status) {
 		
 		if (prompt == fCurrentPrompt || prompt == null) {
 			return;
 		}
+		boolean firePrompt = false;
 		synchronized (fPromptMutex) {
 			fCurrentPrompt = prompt;
+			if (fPublishPromptStatusSet.contains(status) 
+					&& (prompt != fDefaultPrompt || fIsCurrentPromptPublished) ) {
+				firePrompt = true;
+				fIsCurrentPromptPublished = (prompt != fDefaultPrompt);
+			}
+		}
+		if (firePrompt) {
+			firePrompt(prompt);
 		}
 	}
 
@@ -144,9 +162,9 @@ public class ToolWorkspace implements IToolStatusListener {
 		synchronized (fPromptMutex) {
 			fDefaultPrompt = prompt;
 		}
-		DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
-		event.setData(prompt);
-		fireEvent(event);
+		if (!fIsCurrentPromptPublished) {
+			firePrompt(fDefaultPrompt);
+		}
 	}
 	
 	/**
@@ -164,6 +182,13 @@ public class ToolWorkspace implements IToolStatusListener {
 		}
 	}
 		
+	
+	private void firePrompt(Prompt prompt) {
+		
+		DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
+		event.setData(prompt);
+		fireEvent(event);
+	}
 	
 	protected void fireEvent(DebugEvent event) {
 		

@@ -11,28 +11,28 @@
 
 package de.walware.statet.nico.ui.actions;
 
-import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.widgets.Display;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
-
+import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.ui.NicoUIMessages;
+import de.walware.statet.nico.ui.NicoUI;
+import de.walware.statet.nico.ui.internal.Messages;
 
 
 /**
- * 
+ *
  */
-public class SaveHistoryAction extends ToolAction  {
+public class CancelAction extends ToolAction {
+
 	
-	
-	public SaveHistoryAction(IToolActionSupport support) {
+	public CancelAction(IToolActionSupport support) {
 		
-		super(support, false);
+		super(support, true);
 		
-		setText(NicoUIMessages.SaveHistoryAction_name);
-		setToolTipText(NicoUIMessages.SaveHistoryAction_tooltip);
-//		setImageDescriptor();
-//		setDisabledImageDescriptor();
+		setText(Messages.CancelAction_name);
+		setToolTipText(Messages.CancelAction_tooltip);
+		setImageDescriptor(NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOL_CANCEL));
+		setDisabledImageDescriptor(NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOLD_CANCEL));
 		
 		handleToolChanged();
 	}
@@ -41,13 +41,13 @@ public class SaveHistoryAction extends ToolAction  {
 	public void run() {
 		
 		ToolProcess tool = getTool();
-		if (tool == null) {
+		ToolController controller = (tool != null) ? tool.getController() : null;
+		if (controller == null) {
 			return;
 		}
 		
-		WizardDialog dialog = new WizardDialog(UIAccess.getActiveWorkbenchShell(true), 
-				new SaveHistoryWizard(tool));
-		dialog.open();
+		if (!controller.cancel()) {
+			Display.getCurrent().beep();
+		}
 	}
-	
 }

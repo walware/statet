@@ -11,13 +11,29 @@
 
 package de.walware.statet.nico.ui;
 
+import org.eclipse.jface.resource.ImageDescriptor;
+
+import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 
 
 /**
  *
  */
-public class NicoUIPreferenceNodes {
+public class NicoUI {
 
+	/**
+	 * Plugin-ID
+	 * Value: @value
+	 */
+	public static final String PLUGIN_ID = "de.walware.statet.nico.ui"; //$NON-NLS-1$
+	
+	
+	public static final String IMG_LOCTOOL_CANCEL = PLUGIN_ID+"/img/loctool/cancel";  //$NON-NLS-1$
+	public static final String IMG_LOCTOOLD_CANCEL = PLUGIN_ID+"/img.d/loctool/cancel";  //$NON-NLS-1$
+	
+	
+	public static ImageDescriptor getImageDescriptor(String key) {
 		
-	public static final String CAT_CONSOLE_QUALIFIER = NicoUI.PLUGIN_ID + "/console"; //$NON-NLS-1$
+		return NicoUIPlugin.getDefault().getImageRegistry().getDescriptor(key);
+	}
 }

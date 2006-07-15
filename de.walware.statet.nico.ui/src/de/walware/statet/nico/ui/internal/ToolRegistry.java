@@ -148,6 +148,9 @@ public class ToolRegistry implements IToolRegistry {
 				page.getWorkbenchWindow().removePageListener(this);
 				reg = fPageRegistries.remove(page);
 			}
+			for (Object obj : reg.fListeners.getListeners()) {
+				fListeners.remove(obj);
+			}
 			reg.dispose();
 		}
 	};

@@ -21,9 +21,10 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace;
 public class RWorkspace extends ToolWorkspace {
 
 	
-	public RWorkspace() {
+	public RWorkspace(AbstractRController controller) {
 		
-		super(	new Prompt("> ", IBasicRAdapter.META_PROMPT_DEFAULT), 
+		super(  controller,
+				new Prompt("> ", IBasicRAdapter.META_PROMPT_DEFAULT), 
 				"\n");
 	}
 }

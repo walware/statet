@@ -48,7 +48,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	public IFile fResourceInWorkspace;
 	public IFileStore fResourceInEFS;
 
-	public String fEncoding = "UTF-8";
+	public String fEncoding = "UTF-8"; //$NON-NLS-1$
 	
 	protected ToolProcess fTool;
 	protected boolean isIntialized = false;

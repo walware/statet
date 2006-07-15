@@ -22,9 +22,6 @@ public class NicoUIMessages extends NLS {
 	public static String SubmitTask_name;
 	public static String Submit_error_message;
 
-	public static String PauseAction_name;
-	public static String PauseAction_tooltip;
-	
 	public static String LoadHistory_title;
 	public static String LoadHistoryAction_name;
 	public static String LoadHistoryAction_tooltip;

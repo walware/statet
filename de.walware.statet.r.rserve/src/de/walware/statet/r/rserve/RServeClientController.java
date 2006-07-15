@@ -12,6 +12,8 @@
 package de.walware.statet.r.rserve;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
@@ -19,8 +21,10 @@ import org.rosuda.JRclient.REXP;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+
 import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -36,11 +40,11 @@ public class RServeClientController
 		extends AbstractRController<IBasicRAdapter, RWorkspace> {
 
 	
-	private class RServeAdapter extends AbstractRAdapter implements IBasicRAdapter, ISetupRAdapter {
+	private class RServeAdapter extends AbstractRAdapter implements IBasicRAdapter, ISetupRAdapter, IAdaptable {
 		
 		
 		@Override
-		protected Prompt doSubmit(String input) {
+		protected Prompt doSubmit(String input, IProgressMonitor monitor) {
 			
 			String completeInput = input;
 			if ((fPrompt.meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
@@ -86,8 +90,7 @@ public class RServeClientController
 		super(process);
 		fConfig = config;
 		
-		fWorkspaceData = new RWorkspace();
-		addToolStatusListener(fWorkspaceData);
+		fWorkspaceData = new RWorkspace(this);
 		fRunnableAdapter = new RServeAdapter();
 	}
 	
@@ -95,9 +98,10 @@ public class RServeClientController
 	protected void startTool() throws CoreException {
 		
 		try {
+    		int timeout = PreferencesUtil.getInstancePrefs().getPreferenceValue(NicoPreferenceNodes.KEY_DEFAULT_TIMEOUT);
 			fRconnection = new Rconnection(
-					fConfig.getServerAddress(), 
-					fConfig.getServerPort());
+					fConfig.getServerAddress(), fConfig.getServerPort(),
+					timeout);
 			
 			if (!fRconnection.isConnected()) {
 				throw new CoreException(new Status(
@@ -108,19 +112,16 @@ public class RServeClientController
 						null));
 			}
 			
-			fRconnection.setSoTimeout(fConfig.getSocketTimeout());
-			fDefaultOutputStream.append("[RServe] Server version: "+fRconnection.getServerVersion()+"."+fWorkspaceData.getLineSeparator(), SubmitType.OTHER, 0);
+			fInfoStream.append("[RServe] Server version: "+fRconnection.getServerVersion()+"."+fWorkspaceData.getLineSeparator(), SubmitType.OTHER, 0);
 			
 			if (fRconnection.needLogin()) {
 				fRconnection.login("guest", "guest");
 			}
 
-			ISetupRAdapter system = (RServeAdapter) fRunnableAdapter;
-			Prompt prompt = new Prompt("> ", IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
-			system.setDefaultPrompt(prompt);
-			system.setIncompletePromptText("$ ");
-			system.setPrompt(prompt);
-			system.setLineSeparator("\n");
+//			ISetupRAdapter system = (RServeAdapter) fRunnableAdapter;
+//			system.setDefaultPromptText("> ");
+//			system.setIncompletePromptText("+ ");
+//			system.setLineSeparator("\n");
 		} 
 		catch (RSrvException e) {
 			throw new CoreException(new Status(
@@ -133,12 +134,29 @@ public class RServeClientController
 	}
 	
 	@Override
-	protected boolean terminateTool() {
+	protected boolean terminateTool(boolean forced) {
 		
-		fRconnection.close();
-		fRconnection = null;
-		
+		Rconnection con = fRconnection;
+		if (con != null) {
+			con.close();
+			fRconnection = null;
+		}
 		return true;
 	}
-
+	
+	@Override
+	protected void interruptTool(int hardness) {
+		
+		if (hardness == 0) {
+			return;
+		}
+		getControllerThread().interrupt();
+	}
+	
+	@Override
+	protected boolean isToolAlive() {
+		
+		return fRconnection.isConnected();
+	}
+	
 }

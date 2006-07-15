@@ -29,8 +29,8 @@ public class RSession implements java.io.Serializable {
     }
 
     /** attach/resume this session */
-    public Rconnection attach() throws RSrvException {
-	Rconnection c = new Rconnection(this);
+    public Rconnection attach(int initTimeout) throws RSrvException {
+	Rconnection c = new Rconnection(this, initTimeout);
 	attachPacket = c.rt.request(-1);
 	return c;
     }

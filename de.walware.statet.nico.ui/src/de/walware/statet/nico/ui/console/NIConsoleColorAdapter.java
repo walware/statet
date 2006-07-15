@@ -32,7 +32,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamProxy;
-import de.walware.statet.nico.ui.internal.NicoUIPlugin;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences;
 import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences.FilterPreferences;
 
@@ -43,7 +43,7 @@ import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences.FilterP
 public class NIConsoleColorAdapter implements IConsoleColorProvider {
 
 	
-	public static final String ID_INFO_STREAM = NicoUIPlugin.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
+	public static final String ID_INFO_STREAM = NicoUI.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
 	
 	private NIConsole fConsole;
 	

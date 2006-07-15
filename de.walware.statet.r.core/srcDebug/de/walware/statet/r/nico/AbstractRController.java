@@ -12,6 +12,7 @@
 package de.walware.statet.r.nico;
 
 import de.walware.statet.nico.core.runtime.Prompt;
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
@@ -22,18 +23,33 @@ public abstract class AbstractRController<
 		extends ToolController<RunnableAdapterType, WorkspaceType> {
 
 	
-	protected abstract class AbstractRAdapter extends RunnableAdapter {
+	protected abstract class AbstractRAdapter extends RunnableAdapter implements IBasicRAdapter, ISetupRAdapter {
 
-		protected String fIncompletePromptText = "$ ";
+		protected String fIncompletePromptText = "+ ";
 		
+		
+		public Object getAdapter(Class adapter) {
+			
+			if (ISetupRAdapter.class.equals(adapter)) {
+				return this;
+			}
+			return null;
+		}
 		public void setIncompletePromptText(String text) {
 			
 			fIncompletePromptText = text;
 		}
 		
-		public Prompt createIncompleteInputPrompt(Prompt previousPrompt, String lastInput) {
+		protected Prompt createIncompleteInputPrompt(Prompt previousPrompt, String lastInput) {
 			
 			return new IncompleteInputPrompt(previousPrompt, lastInput+fLineSeparator, fIncompletePromptText);
+		}
+		
+		public void cancelIncompletePrompt() {
+			
+			fInfoStream.append(fPrompt.text+"(Input cancelled)"+fLineSeparator, 
+					(fCurrentRunnable != null) ? fCurrentRunnable.getType() : SubmitType.TOOLS, fPrompt.meta);
+			setPrompt(fDefaultPrompt);
 		}
 	}
 	
@@ -42,4 +58,21 @@ public abstract class AbstractRController<
 		
 		super(process);
 	}
+	
+	
+	@Override
+	public boolean cancel() {
+		
+		synchronized (getQueue()) {
+			if ((getStatus() == ToolStatus.STARTED_IDLING || getStatus() == ToolStatus.STARTED_PAUSED) 
+					&& (fWorkspaceData.getPrompt().meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+				((AbstractRAdapter) fRunnableAdapter).cancelIncompletePrompt(); // Interface ?
+				return true;
+			}
+			else {
+				return super.cancel();
+			}
+		}
+	}
+	
 }
