@@ -14,7 +14,6 @@ package de.walware.statet.nico.core.runtime;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
@@ -117,7 +116,7 @@ public class ToolWorkspace {
 		return fDefaultPrompt;
 	}
 	
-	public IFileStore getWorkspaceDir() {
+	public Object getWorkspaceDir() {
 		
 		return null;
 	}

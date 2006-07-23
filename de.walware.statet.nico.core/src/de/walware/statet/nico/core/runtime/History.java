@@ -15,8 +15,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.EnumSet;
 
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ListenerList;
@@ -188,15 +186,21 @@ public class History {
 		int size;
 	}
 	
-	public void load(IFileStore file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
-		doLoad(file, charset, forceCharset, monitor);
-	}
-
-	public void load(IFile file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
-		doLoad(file, charset, forceCharset, monitor);
-	}
-		
-	private void doLoad(Object file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
+	/**
+	 * Load the history from a text file. Previous entries are removed.
+	 * 
+	 * Note: The thread can be blocked because of workspace operations. So 
+	 * it is a good idea, that the user have the chance to cancel the action.
+	 *  
+	 * @param file, type must be supported by IFileUtil impl.
+	 * @param charset the charset (if not detected automatically)
+	 * @param forceCharset use always the specified charset
+	 * @param monitor
+	 * 
+	 * @throws CoreException
+	 * @throws OperationCanceledException
+	 */
+	public void load(Object file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -247,34 +251,22 @@ public class History {
 		}
 	}
 	
-
-	public void save(IFile file, int mode, String charset, boolean forceCharset, 
-			IProgressMonitor monitor) 
-			throws CoreException, OperationCanceledException {
-		
-		doSave(file, mode, charset, forceCharset, monitor);
-	}
-	public void save(IFileStore file, int mode, String charset, boolean forceCharset, 
-			IProgressMonitor monitor) 
-			throws CoreException, OperationCanceledException {
-
-		doSave(file, mode, charset, forceCharset, monitor);
-	}
-
 	/**
+	 * Save the history to a text file.
+	 * 
 	 * Note: The thread can be blocked because of workspace operations. So 
 	 * it is a good idea, that the user have the chance to cancel the action.
 	 *  
-	 * @param file
-	 * @param append append to file (if the file already exists)
-	 * @param overwrite delete existing file (if the file already exists and append is false) 
+	 * @param file, type must be supported by IFileUtil impl.
+	 * @param mode allowed: EFS.OVERWRITE, EFS.APPEND
 	 * @param charset the charset (if not appended)
+	 * @param forceCharset use always the specified charset
 	 * @param monitor
 	 * 
 	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	private void doSave(Object file, int mode, String charset, boolean forceCharset, 
+	public void save(Object file, int mode, String charset, boolean forceCharset, 
 			IProgressMonitor monitor) 
 			throws CoreException, OperationCanceledException {
 		
