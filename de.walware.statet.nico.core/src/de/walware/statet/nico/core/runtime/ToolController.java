@@ -68,6 +68,8 @@ public abstract class ToolController<
 		
 		void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection);
 		
+		void controllerStatusRequestCanceled(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection);
+
 		/**
 		 * Should be fast!
 		 * 
@@ -309,28 +311,33 @@ public abstract class ToolController<
 	 * 
 	 * @param doPause <code>true</code> to switch in pause mode, <code>false</code>
 	 * 		to continue the calculation.
+	 * @return isPaused()
 	 */
-	public void pause(boolean doPause) {
+	public boolean pause(boolean doPause) {
 		
 		synchronized (fQueue) {
 			if (doPause) {
 				if (fStatus == ToolStatus.STARTED_PROCESSING || fStatus == ToolStatus.STARTED_IDLING) {
 					if (!fPauseRequested) {
 						fPauseRequested = true;
-						statusRequested(ToolStatus.STARTED_PAUSED);
+						statusRequested(ToolStatus.STARTED_PAUSED, true);
 					}
 					resume(); // so we can switch to pause status
 				}
-				return;
+				return true;
 			}
 			else { // !doPause
-				if (fPauseRequested || fStatus == ToolStatus.STARTED_PAUSED) {
+				if (fStatus == ToolStatus.STARTED_PAUSED) {
 					fPauseRequested = false;
-					if (fStatus == ToolStatus.STARTED_PAUSED) {
-						resume();
-					}
+					resume();
+					return true;
 				}
-				return;
+				else if (fPauseRequested) {
+					fPauseRequested = false;
+					statusRequested(ToolStatus.STARTED_PAUSED, false);
+					return false;
+				}
+				return false;
 			}
 		}
 	}
@@ -387,7 +394,7 @@ public abstract class ToolController<
 				if (!fTerminateRequested) {
 					fTerminateRequested = true;
 				}
-				statusRequested(ToolStatus.TERMINATED);
+				statusRequested(ToolStatus.TERMINATED, true);
 				resume();
 			}
 		}
@@ -402,8 +409,11 @@ public abstract class ToolController<
 			if (fStatus != ToolStatus.TERMINATED) {
 				if (fTerminateRequested) {
 					fTerminateRequested = false;
+					if (fTerminateForced) {
+						fRunnableProgressMonitor.setCanceled(false);
+					}
 					fTerminateForced = false;
-//					statusRequested(ToolStatus.);
+					statusRequested(ToolStatus.TERMINATED, false);
 				}
 			}
 		}
@@ -450,17 +460,25 @@ public abstract class ToolController<
 				IStatus.ERROR, NicoCore.PLUGIN_ID, NicoCore.STATUSCODE_RUNTIME_ERROR, 
 				NLS.bind(Messages.Runtime_error_TerminationFailed_message, fProcess.getToolLabel(true)), exception));
 	}
-		
+	
 	/**
 	 * Should be only called inside synchronized(fQueue) blocks.
 	 * 
 	 * @param newStatus
 	 */
-	private void statusRequested(ToolStatus requestedStatus) {
+	private void statusRequested(ToolStatus requestedStatus, boolean on) {
 		
-		for (IToolStatusListener listener : fToolStatusListeners) {
-			listener.controllerStatusRequested(fStatus, requestedStatus, fEventCollector);
+		if (on) {
+			for (IToolStatusListener listener : fToolStatusListeners) {
+				listener.controllerStatusRequested(fStatus, requestedStatus, fEventCollector);
+			}
 		}
+		else {
+			for (IToolStatusListener listener : fToolStatusListeners) {
+				listener.controllerStatusRequestCanceled(fStatus, requestedStatus, fEventCollector);
+			}
+		}
+		
 		DebugPlugin manager = DebugPlugin.getDefault();
 		if (manager != null) {
 			manager.fireDebugEventSet(fEventCollector.toArray(new DebugEvent[fEventCollector.size()]));

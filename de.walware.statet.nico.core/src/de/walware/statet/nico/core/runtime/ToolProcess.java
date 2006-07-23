@@ -11,13 +11,6 @@
 
 package de.walware.statet.nico.core.runtime;
 
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_IDLING;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_PAUSED;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_PROCESSING;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTED_SUSPENDED;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.STARTING;
-import static de.walware.statet.nico.core.runtime.ToolController.ToolStatus.TERMINATED;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,11 +45,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int MASK_STATUS = 0x001000;
 	public static final int MASK_REQUEST = 0x002000;
 	
-	private static final int PROCESS = 0x001;
-	private static final int IDLE = 0x002;
-	private static final int PAUSE = 0x004;
-	private static final int OTHER = 0x008;
-	private static final int TERMINATE = 0x00f;
+	private static final int PROCESS = 0x010;
+	private static final int IDLE = 0x020;
+	private static final int PAUSE = 0x040;
+	private static final int OTHER = 0x080;
+	private static final int TERMINATE = 0x0f0;
 	
 	
 	/** 
@@ -90,9 +83,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int STATUS_PAUSE = MASK_STATUS | PAUSE;
 	
 	
-	public static final int REQUEST_PAUSE = MASK_REQUEST | PAUSE;
+	public static final int REQUEST_PAUSE = MASK_REQUEST | PAUSE | 0x1;
+	public static final int REQUEST_PAUSE_CANCELED = MASK_REQUEST | PAUSE | 0x2;
 	
-	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE;
+	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE | 0x1;
+	public static final int REQUEST_TERMINATE_CANCELED = MASK_REQUEST | TERMINATE | 0x2;
 	
 	
 	private final ILaunch fLaunch;
@@ -341,7 +336,6 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
 
 		switch(requestedStatus) {
-		
 		case STARTED_PAUSED:
 			eventCollection.add(new DebugEvent(ToolProcess.this, 
 					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE) );
@@ -349,6 +343,21 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		case TERMINATED:
 			eventCollection.add(new DebugEvent(ToolProcess.this, 
 					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE) );
+			break;
+		}
+	}
+	
+	public void controllerStatusRequestCanceled(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
+
+		switch(requestedStatus) {
+		case STARTED_PAUSED:
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE_CANCELED) );
+			break;
+		case TERMINATED:
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE_CANCELED) );
+			break;
 		}
 	}
 	

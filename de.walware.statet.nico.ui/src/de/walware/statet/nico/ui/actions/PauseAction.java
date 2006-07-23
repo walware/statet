@@ -51,8 +51,10 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 			return;
 		}
 		boolean checked = isChecked();
-		controller.pause(checked);
-		setChecked(!checked);
+		boolean paused = controller.pause(checked);
+		if (checked != paused) {
+			setChecked(paused);
+		}
 	}
 
 	/**
@@ -87,25 +89,29 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 			if (event.getSource() == fProcess) {
 				switch (event.getKind()) {
 				case DebugEvent.MODEL_SPECIFIC:
+					Boolean checked = null;
 					int detail = event.getDetail();
 					switch (detail) {
 					case ToolProcess.REQUEST_PAUSE:
 					case ToolProcess.STATUS_PAUSE:
-						UIAccess.getDisplay().syncExec(new Runnable() {
-							public void run() {
-								setChecked(true);
-							}
-						});
+						checked = Boolean.TRUE;
+						break;
+					case ToolProcess.REQUEST_PAUSE_CANCELED:
+						checked = Boolean.FALSE;
 						break;
 					default:
 						if ((detail & ToolProcess.MASK_STATUS) == ToolProcess.MASK_STATUS) { // status other than QUEUE_PAUSE
-							UIAccess.getDisplay().syncExec(new Runnable() {
-								public void run() {
-									setChecked(false);
-								}
-							});
+							checked = Boolean.FALSE;
 						}
 						break;
+					}
+					if (checked != null) {
+						final boolean finalChecked = checked.booleanValue(); 
+						UIAccess.getDisplay().syncExec(new Runnable() {
+							public void run() {
+								setChecked(finalChecked);
+							}
+						});
 					}
 					break;
 				case DebugEvent.TERMINATE:

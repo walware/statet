@@ -160,10 +160,13 @@ public class QueueView extends ViewPart {
 									DebugEvent next = events[i+1];
 									if (next.getSource() == queue
 											&& next.getKind() == DebugEvent.CHANGE
-											&& next.getDetail() == DebugEvent.CONTENT
-											&& ((Queue.Delta)next.getData()).data[0] == delta.data[0]) {
-										i++;
-										continue EVENT;
+											&& next.getDetail() == DebugEvent.CONTENT) {
+										Queue.Delta nextDelta = (Queue.Delta) next.getData();
+										if (nextDelta.type == Queue.ENTRY_START_PROCESSING
+												&& delta.data[0] == nextDelta.data[0]) {
+											i++;
+											continue EVENT;
+										}
 									}
 								}
 								UIAccess.getDisplay().syncExec(new Runnable() {
@@ -207,8 +210,7 @@ public class QueueView extends ViewPart {
 						continue EVENT;
 						
 					case DebugEvent.TERMINATE:
-						fPauseAction.setTool(null);
-						fProcess = null;
+						disconnect(process);
 						continue EVENT;
 						
 					default:
@@ -314,7 +316,9 @@ public class QueueView extends ViewPart {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) { }
+			public void toolSessionClosed(ToolSessionUIData info) { 
+				disconnect(info.getProcess());
+			}
 		};
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
 	}
@@ -356,6 +360,17 @@ public class QueueView extends ViewPart {
 		manager.add(fPauseAction);
 	}
 	
+	private void disconnect(final ToolProcess process) {
+		
+		UIAccess.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				if (fProcess != null && fProcess == process) {
+					connect(null);
+				}
+			}
+		});
+	}
+
 	/** Should only be called inside UI Thread */
 	public void connect(final ToolProcess process) {
 		
@@ -365,7 +380,8 @@ public class QueueView extends ViewPart {
 					return;
 				}
 				fProcess = process;
-				fTableViewer.setInput(fProcess);
+				fPauseAction.setTool(process);
+				fTableViewer.setInput(process);
 			}
 		};
 		BusyIndicator.showWhile(UIAccess.getDisplay(), runnable);

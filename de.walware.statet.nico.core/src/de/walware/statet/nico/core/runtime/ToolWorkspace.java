@@ -31,7 +31,9 @@ public class ToolWorkspace {
 	protected class ControllerListener implements IToolStatusListener {
 	
 		public void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
-			
+		}
+		
+		public void controllerStatusRequestCanceled(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
 		}
 		
 		public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
