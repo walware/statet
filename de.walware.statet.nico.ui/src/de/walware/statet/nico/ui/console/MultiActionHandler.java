@@ -105,6 +105,12 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		addWidget(widget);
 	}
 	
+	/**
+	 * Note: At moment, only one scope per widget are supported.
+	 * 
+	 * @param widget
+	 * @param scope
+	 */
 	public void addKeybindingScope(Widget widget, String scope) {
 		
 		fScopes.put(widget, scope);

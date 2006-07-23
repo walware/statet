@@ -15,6 +15,11 @@ package de.walware.statet.nico.ui.internal;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.LegacyHandlerSubmissionExpression;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.IConsoleConstants;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -45,6 +50,7 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 
 
 	private ImageRegistry fImageRegistry;
+	private IContextActivation fConsoleContextActivation; // global context activation
 	
 	private ToolRegistry fToolRegistry;
 
@@ -63,11 +69,20 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 		super.start(context);
 		
 		fToolRegistry = new ToolRegistry();
+		
+		IContextService service = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
+		fConsoleContextActivation = service.activateContext("org.eclipse.debug.ui.console",  //$NON-NLS-1$
+				new LegacyHandlerSubmissionExpression(IConsoleConstants.ID_CONSOLE_VIEW, null, null), true);
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		try {
+			IContextService service = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
+			if (service != null && fConsoleContextActivation != null) {
+				service.deactivateContext(fConsoleContextActivation);
+			}
+			
 			if (fImageRegistry != null) {
 				fImageRegistry.dispose();
 				fImageRegistry = null;

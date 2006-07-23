@@ -24,6 +24,7 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -40,6 +41,7 @@ import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
@@ -149,9 +151,8 @@ public class InputGroup {
 		fComposite.setLayout(layout);
 		
 		fPrefix = new Label(fComposite, SWT.LEFT);
-		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
 		fPrefix.setLayoutData(gd);
-		fPrefix.setFont(fComposite.getFont());
 		float[] hsb = fPrefix.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB().getHSB();
 		fPrefix.setBackground(StatetPlugin.getDefault().getColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
 		fPrefix.setText("> "); //$NON-NLS-1$

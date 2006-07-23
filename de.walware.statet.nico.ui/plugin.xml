@@ -44,5 +44,25 @@
          <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
       </factory>
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.nico.ui.Cancel"
+            name="%commands_Cancel_name"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="de.walware.statet.nico.ui.Cancel"
+            contextId="org.eclipse.debug.ui.console"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="BREAK"/>
+      <key
+            commandId="de.walware.statet.nico.ui.Cancel"
+            contextId="org.eclipse.debug.ui.console"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+BREAK"/>
+   </extension>
 
 </plugin>

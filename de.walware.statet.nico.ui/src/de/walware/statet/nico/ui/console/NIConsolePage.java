@@ -30,6 +30,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IFindReplaceTarget;
@@ -62,6 +63,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.ClearOutputAction;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.console.IOConsoleViewer;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
@@ -236,12 +238,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		fControl = new Composite(parent, SWT.NONE) {
 			@Override
 			public boolean setFocus() {
-				try {
-					return fInputGroup.getSourceViewer().getControl().setFocus();
-				}
-				catch (NullPointerException e) {
-					return super.setFocus();
-				}
+				return false; // our page handles focus
 			}
 		};
 		GridLayout layout = new GridLayout(1, false);
@@ -370,6 +367,9 @@ public class NIConsolePage implements IPageBookViewPage,
 		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
         fTerminateAction = new TerminateToolAction(fConsole.getProcess());
         fCancelAction = new CancelAction(this);
+        
+        IHandlerService commands = (IHandlerService) getSite().getService(IHandlerService.class);
+        commands.activateHandler("de.walware.statet.nico.ui.Cancel", new ActionHandler(fCancelAction));
 	}
 	
 	private void hookContextMenu() {
