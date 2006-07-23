@@ -171,9 +171,9 @@ public class InputGroup {
 		fSubmitButton.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				doSubmit();
+				fSourceViewer.getControl().setFocus();
 			}
 			public void widgetDefaultSelected(SelectionEvent e) {
-				doSubmit();
 			}
 		});
 		
@@ -331,11 +331,17 @@ public class InputGroup {
 		
 		String content = fDocument.get();
 		ToolController controller = fProcess.getController();
+		
 		if (controller != null && controller.submit(content, SubmitType.CONSOLE)) {
-			fDocument.set(""); //$NON-NLS-1$
-			fCurrentHistoryEntry = null;
-			fSourceViewer.getUndoManager().reset();
+			clear();
 		}
+	}
+	
+	public void clear() {
+		
+		fDocument.set(""); //$NON-NLS-1$
+		fCurrentHistoryEntry = null;
+		fSourceViewer.getUndoManager().reset();
 	}
 
 	public Composite getComposite() {

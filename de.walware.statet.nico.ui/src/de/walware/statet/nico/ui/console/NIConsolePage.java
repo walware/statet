@@ -61,7 +61,6 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
-import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.ClearOutputAction;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.console.IOConsoleViewer;
@@ -149,6 +148,8 @@ public class NIConsolePage implements IPageBookViewPage,
 	
 	private IOConsoleViewer fOutputViewer;
 	private InputGroup fInputGroup;
+	private MenuManager fOutputMenuManager;
+	private MenuManager fInputMenuManager;
 	
 	private volatile boolean fIsCreated = false;
 	
@@ -375,30 +376,30 @@ public class NIConsolePage implements IPageBookViewPage,
 	private void hookContextMenu() {
 		
 		String id = NIConsole.NICONSOLE_TYPE + "#OutputContextMenu"; //$NON-NLS-1$
-		MenuManager menuMgr = new MenuManager("ContextMenu", id); //$NON-NLS-1$
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
+		fOutputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
+		fOutputMenuManager.setRemoveAllWhenShown(true);
+		fOutputMenuManager.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
 				fillOutputContextMenu(manager);
 			}
 		});
 		Control control = fOutputViewer.getControl();
-		Menu menu = menuMgr.createContextMenu(control);
+		Menu menu = fOutputMenuManager.createContextMenu(control);
 		control.setMenu(menu);
-		getSite().registerContextMenu(id, menuMgr, fOutputViewer);
+		getSite().registerContextMenu(id, fOutputMenuManager, fOutputViewer);
 		
 		id = NIConsole.NICONSOLE_TYPE + "#InputContextMenu"; //$NON-NLS-1$
-		menuMgr = new MenuManager("ContextMenu", id); //$NON-NLS-1$
-		menuMgr.setRemoveAllWhenShown(true);
-		menuMgr.addMenuListener(new IMenuListener() {
+		fInputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
+		fInputMenuManager.setRemoveAllWhenShown(true);
+		fInputMenuManager.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
 				fillInputContextMenu(manager);
 			}
 		});
 		control = fInputGroup.getSourceViewer().getControl();
-		menu = menuMgr.createContextMenu(control);
+		menu = fInputMenuManager.createContextMenu(control);
 		control.setMenu(menu);
-		getSite().registerContextMenu(id, menuMgr, fInputGroup.getSourceViewer());
+		getSite().registerContextMenu(id, fInputMenuManager, fInputGroup.getSourceViewer());
 	}
 	
 	protected void hookDND() {
@@ -544,16 +545,33 @@ public class NIConsolePage implements IPageBookViewPage,
 		fToolActions.add(action);
 	}
 
-	public TextConsoleViewer getOutputViewer() {
+	public IMenuManager getOutputContextMenuManager() {
 		
-		return fOutputViewer;
+		return fOutputMenuManager;
 	}
 	
-	public SourceViewer getInputViewer() {
+	public IMenuManager getInputContextMenuManager() {
 		
-		return fInputGroup.getSourceViewer();
+		return fInputMenuManager;
 	}
 	
+	/**
+	 * Return the text in the input line.
+	 * 
+	 * @return
+	 */
+	public String getInput() {
+		
+		return fInputGroup.fDocument.get();
+	}
+	
+	/**
+	 * Clear the input line (e.g. after successfull submit).
+	 */
+	public void clearInput() {
+		
+		fInputGroup.clear();
+	}
 	
     public Object getAdapter(Class required) {
     	

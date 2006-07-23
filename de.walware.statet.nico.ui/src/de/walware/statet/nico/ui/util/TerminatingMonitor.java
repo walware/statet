@@ -69,12 +69,7 @@ public class TerminatingMonitor implements IDebugEventSetListener {
 			MessageDialog dialog = new MessageDialog(window.getShell(), title, null, message, MessageDialog.QUESTION, buttons, 0);
 			switch (dialog.open()) {
 			case 0:
-				try {
-					process.terminate();
-					rescheduleCheck();
-				} catch (CoreException e) {
-					ExceptionHandler.handle(e.getStatus());
-				}
+				rescheduleCheck();
 				break;
 			case 1: {
 					try {
@@ -139,8 +134,13 @@ public class TerminatingMonitor implements IDebugEventSetListener {
 			if (event.getSource() == fProcess) {
 				switch (event.getKind()) {
 				case DebugEvent.MODEL_SPECIFIC:
-					if (event.getDetail() == ToolProcess.REQUEST_TERMINATE) {
+					switch (event.getDetail()) {
+					case ToolProcess.REQUEST_TERMINATE:
 						scheduleCheck();
+						break;
+					case ToolProcess.REQUEST_TERMINATE_CANCELED:
+						cancelCheck();
+						break;
 					}
 					break;
 				case DebugEvent.TERMINATE:

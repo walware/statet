@@ -29,7 +29,7 @@ import de.walware.statet.nico.ui.ToolSessionUIData;
 
 
 /**
- *
+ * TODO: Implementation not finished!
  */
 public class ToolActionDelegate implements IActionDelegate, IActionDelegate2, IToolRegistryListener, IDebugEventSetListener {
 

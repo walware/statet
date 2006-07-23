@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -51,7 +52,7 @@ import de.walware.statet.nico.ui.util.ToolInfoGroup;
 /**
  * A console to interact with controller using command-line-based interface.
  */
-public class NIConsole extends IOConsole {
+public class NIConsole extends IOConsole implements IAdaptable {
 	
 	
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
