@@ -12,8 +12,10 @@
 package de.walware.statet.nico.core.runtime;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -29,6 +31,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
+import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
@@ -39,7 +42,7 @@ import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
  * Provides <code>IProcess</code> for a <code>ToolController</code>.
  */
 public class ToolProcess<WorkspaceType extends ToolWorkspace> 
-		extends PlatformObject implements IProcess, IToolStatusListener {
+		extends PlatformObject implements IProcess, ITool, IToolStatusListener {
 
 	
 	public static final int MASK_STATUS = 0x001000;
@@ -91,6 +94,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	
 	private final ILaunch fLaunch;
+	private Set<String> fFeatureSets = new HashSet<String>();
 	private final String fName;
 	private String fToolLabelShort;
 	
@@ -147,6 +151,18 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fLaunch.addProcess(this);
 		fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CREATE));
 	}
+	
+	
+	public void registerFeatureSet(String featureSetID) {
+		
+		fFeatureSets.add(featureSetID);
+	}
+
+	public boolean isProvidingFeatureSet(String featureSetID) {
+		
+		return fFeatureSets.contains(featureSetID);
+	}
+
 	
 	public String getLabel() {
 		

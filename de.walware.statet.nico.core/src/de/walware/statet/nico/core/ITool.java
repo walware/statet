@@ -9,22 +9,13 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico;
-
-import org.eclipse.core.runtime.IAdaptable;
-
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+package de.walware.statet.nico.core;
 
 
 /**
- * Interface to access R by a ToolRunnable.
+ * At moment, this is always a ToolProcess.
  */
-public interface IBasicRAdapter extends
-		IToolRunnableControllerAdapter, IAdaptable {
+public interface ITool {
 
-	
-//	public void voidEval(String );
-
-//	public REXP eval(String );
-
+	boolean isProvidingFeatureSet(String featureSetId);
 }

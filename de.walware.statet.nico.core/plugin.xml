@@ -19,4 +19,14 @@
       <initializer class="de.walware.statet.nico.core.internal.NicoPreferenceInitializer"/>
    </extension>
 
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="de.walware.statet.nico.core.internal.ToolPropertyTester"
+            id="de.walware.statet.nico.ToolPropertyTester"
+            namespace="de.walware.statet.nico"
+            properties="isProvidingFeatureSet"
+            type="org.eclipse.core.runtime.IAdaptable"/>
+   </extension>
+
 </plugin>

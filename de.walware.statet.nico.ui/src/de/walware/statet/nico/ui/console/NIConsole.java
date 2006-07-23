@@ -41,6 +41,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
@@ -234,4 +235,13 @@ public class NIConsole extends IOConsole {
 		
 		return fProcess;
 	}
+	
+	public Object getAdapter(Class adapter) {
+
+    	if (ITool.class.equals(adapter)) {
+    		return fProcess;
+    	}
+		return null;
+	}
+	
 }

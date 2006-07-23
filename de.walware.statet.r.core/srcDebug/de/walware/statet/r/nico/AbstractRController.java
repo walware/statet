@@ -57,6 +57,8 @@ public abstract class AbstractRController<
 	public AbstractRController(ToolProcess process) {
 		
 		super(process);
+		
+		process.registerFeatureSet(BasicR.FEATURESET_ID);
 	}
 	
 	
@@ -65,7 +67,7 @@ public abstract class AbstractRController<
 		
 		synchronized (getQueue()) {
 			if ((getStatus() == ToolStatus.STARTED_IDLING || getStatus() == ToolStatus.STARTED_PAUSED) 
-					&& (fWorkspaceData.getPrompt().meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+					&& (fWorkspaceData.getPrompt().meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 				((AbstractRAdapter) fRunnableAdapter).cancelIncompletePrompt(); // Interface ?
 				return true;
 			}

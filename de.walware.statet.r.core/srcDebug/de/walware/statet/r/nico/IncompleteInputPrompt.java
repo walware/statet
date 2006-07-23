@@ -31,8 +31,8 @@ public class IncompleteInputPrompt extends Prompt {
 	
 	IncompleteInputPrompt(Prompt previousPrompt, String lastInput, String promptText) {
 		
-		super(promptText, IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT);
-		if ((previousPrompt.meta & IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT);
+		if ((previousPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			lastInput = ((IncompleteInputPrompt) previousPrompt).previousInput + lastInput;
 		}
 		previousInput = lastInput;
@@ -41,7 +41,7 @@ public class IncompleteInputPrompt extends Prompt {
 	
 	IncompleteInputPrompt(String allInput, String promptText) {
 		
-		super(promptText, IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT);
+		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT);
 		previousInput = allInput;
 	}
 	
