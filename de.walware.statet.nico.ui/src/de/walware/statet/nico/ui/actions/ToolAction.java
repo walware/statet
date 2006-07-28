@@ -44,6 +44,7 @@ public class ToolAction extends Action implements IToolAction {
 	public void setTool(ToolProcess tool) {
 		
 		fTool = tool;
+		handleToolChanged();
 	}
 	
 	public void handleToolChanged() {

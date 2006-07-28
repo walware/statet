@@ -145,6 +145,13 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		}
 	}
 	
+	public Object getFile() {
+		
+		if (fResourceInWorkspace != null) {
+			return fResourceInWorkspace;
+		}
+		return fResourceInEFS;
+	}
 	
 	public void saveSettings() {
 		

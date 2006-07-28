@@ -11,19 +11,16 @@
 
 package de.walware.statet.nico.ui.actions;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.wizards.AbstractWizard;
-import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUIMessages;
@@ -53,7 +50,7 @@ public class SaveHistoryWizard extends AbstractWizard {
 		setDialogSettings(NicoUIPlugin.getDefault(), STORE_SECTION);
 		setWindowTitle(NicoUIMessages.SaveHistory_title);
 //		setDefaultPageImageDescriptor();
-		setNeedsProgressMonitor(false);
+		setNeedsProgressMonitor(true);
 	}
 	
 	@Override
@@ -70,8 +67,7 @@ public class SaveHistoryWizard extends AbstractWizard {
 		
 		try {
 			final History history = fProcess.getHistory();
-			final IFile wsFile = fPage.fResourceInWorkspace;
-			final IFileStore efsFile = fPage.fResourceInEFS;
+			final Object file = fPage.getFile();
 			final String charset = fPage.fEncoding;
 			int mode = EFS.NONE;
 			if (fPage.fOverwriteFile) {
@@ -83,31 +79,25 @@ public class SaveHistoryWizard extends AbstractWizard {
 			final int fmode = mode;
 
 			assert (history != null);
-			assert (wsFile != null || efsFile != null);
+			assert (file != null);
 			assert (charset != null);
 			
-			Job job = new Job(NicoCoreMessages.SaveHistoryJob_label) {
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
+			getContainer().run(true, true, new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) throws InvocationTargetException {
 					try {
-						if (wsFile != null) {
-							history.save(wsFile, fmode, charset, false, monitor);
-						}
-						else {
-							history.save(efsFile, fmode, charset, false, monitor);
-						}
-						return Status.OK_STATUS;
+						history.save(file, fmode, charset, false, monitor);
 					} catch (CoreException e) {
-						ExceptionHandler.handle(e.getStatus());
-						return Status.OK_STATUS;
-					}
-					catch (OperationCanceledException e) {
-						return Status.CANCEL_STATUS;
+						throw new InvocationTargetException(e);
 					}
 				}
-			};
-			job.setUser(true);
-			job.schedule();
+			});
+		}
+		catch (InvocationTargetException e) {
+			ExceptionHandler.handle(e, null, null);
+			return false;
+		}
+		catch (OperationCanceledException e) {
+			return false;
 		}
 		catch (Exception e) {
 			StatetPlugin.logUnexpectedError(e);

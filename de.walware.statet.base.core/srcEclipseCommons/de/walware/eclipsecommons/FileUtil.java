@@ -142,6 +142,11 @@ public class FileUtil {
 			return WORKSPACE_UTIL.createWriteTextFileOp(content, (IFile) file, pluginID); 
 		}
 		else if (file instanceof IFileStore) {
+			IFileStore efsFile = (IFileStore) file;
+			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
+			if (iFile != null) {
+				return WORKSPACE_UTIL.createWriteTextFileOp(content, iFile, pluginID);
+			}
 			return EFS_UTIL.createWriteTextFileOp(content, (IFileStore) file, pluginID);
 		}
 		throw new IllegalArgumentException("Unknown file object.");

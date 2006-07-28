@@ -72,7 +72,7 @@ public class EFSUtilImpl extends FileUtil {
 				Writer out = null;
 				try {
 					boolean exists = file.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
-					if (exists && (fMode & (EFS.OVERWRITE & EFS.APPEND)) == 0) {
+					if (exists && (fMode & (EFS.OVERWRITE | EFS.APPEND)) == 0) {
 						throw new CoreException(new Status(IStatus.ERROR, pluginID, 0,
 								"The file already exists.", null));
 					}
