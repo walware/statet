@@ -121,13 +121,14 @@ class PageRegistry {
 						return Status.OK_STATUS;
 					}
 				}
+				// Search the console view
 				List<IConsoleView> views = getConsoleViews(page);
 				ListIterator<IConsoleView> iter = views.listIterator();
 				while (iter.hasNext()) {
 					IConsoleView view = iter.next();
 					if (view.isPinned()) {					// visible and pinned
 						if (console == view.getConsole()) {
-							return doShow(view, monitor);
+							return showInView(view, monitor);
 						} else {
 							iter.remove();
 						}
@@ -137,7 +138,7 @@ class PageRegistry {
 				for (IConsoleView view : views) {
 					if (console == view.getConsole()) {
 						if (page.isPartVisible(view)) {	// already visible
-							return doShow(view, monitor);
+							return showInView(view, monitor);
 						}
 						else { 								// already selected 
 							preferedView[0] = view; 
@@ -158,10 +159,10 @@ class PageRegistry {
 				}
 				for (int i = 0; i < preferedView.length; i++) {
 					if (preferedView[i] != null) {
-						return doShow(preferedView[i], monitor);
+						return showInView(preferedView[i], monitor);
 					}
 				}
-				return doShow(null, monitor);
+				return showInView(null, monitor);
 			} catch (PartInitException e) {
 				StatetPlugin.logUnexpectedError(e);
 				return Status.OK_STATUS;
@@ -170,12 +171,12 @@ class PageRegistry {
 			}
 		}
 		
-		private IStatus doShow(IConsoleView view, IProgressMonitor monitor) throws PartInitException {
+		private IStatus showInView(IConsoleView view, IProgressMonitor monitor) throws PartInitException {
 			
-			NIConsole console = fActiveConsole;
+			NIConsole console = fConsoleToShow;
 			boolean activate = fActivate;
 			IWorkbenchPage page = getPage();
-			if (page == null || console == null || monitor.isCanceled()) {
+			if (page == null || monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
 
