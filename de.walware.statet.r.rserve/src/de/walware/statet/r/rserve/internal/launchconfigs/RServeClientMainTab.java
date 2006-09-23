@@ -66,7 +66,9 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		final DataBindingContext dbc = new DataBindingContext();
 		dbc.addObservableFactory(new DefaultObservableFactory(dbc));
 		dbc.addObservableFactory(new BeanObservableFactory(dbc, null, new Class[]{Widget.class}));
-		dbc.addObservableFactory(new SWTObservableFactory());
+		SWTObservableFactory swtFac = new SWTObservableFactory();
+		swtFac.setUpdateTime(DataBindingContext.TIME_EARLY);
+		dbc.addObservableFactory(swtFac);
 		dbc.addBindingFactory(new DefaultBindingFactory());
 		dbc.addBindingFactory(new ViewersBindingFactory());
 		dbc.addBindSupportFactory(new DefaultBindSupportFactory());
