@@ -96,7 +96,7 @@ public class RServeClientController
 	}
 	
 	@Override
-	protected void startTool() throws CoreException {
+	protected void startTool(IProgressMonitor monitor) throws CoreException {
 		
 		try {
     		int timeout = PreferencesUtil.getInstancePrefs().getPreferenceValue(NicoPreferenceNodes.KEY_DEFAULT_TIMEOUT);
@@ -135,7 +135,7 @@ public class RServeClientController
 	}
 	
 	@Override
-	protected boolean terminateTool(boolean forced) {
+	protected boolean terminateTool(boolean forced, IProgressMonitor monitor) {
 		
 		Rconnection con = fRconnection;
 		if (con != null) {

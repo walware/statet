@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 
@@ -34,6 +35,7 @@ public interface IToolRunnableControllerAdapter {
 	
 	public ToolController getController();
 	
-	public void submitToConsole(String input, IProgressMonitor monitor) throws InterruptedException;
+	public void submitToConsole(String input, IProgressMonitor monitor) 
+			throws CoreException, InterruptedException;
 	
 }

@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 
@@ -34,9 +35,11 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 * 
 	 * @param tools your interface to the tool software
 	 * @param monitor a progress monitor (you can check for cancel)
-	 * @throws InterruptedException 
+	 * @throws InterruptedException if action was cancelled
+	 * @throws CoreException if error occured
 	 */
-	public void run(T tools, IProgressMonitor monitor) throws InterruptedException;
+	public void run(T tools, IProgressMonitor monitor) 
+			throws InterruptedException, CoreException;
 	
 	/**
 	 * Return a label for this runnable, used by the UI.
