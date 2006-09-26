@@ -33,7 +33,6 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
 
@@ -115,8 +114,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fLaunch = launch;
 		fName = name;
 		fAttributes = new HashMap<String, String>(5);
-		computeToolLabel();
-		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeDynamicLabel(ToolStatus.STARTING));
+		fToolLabelShort = computeToolLabel();
+		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, 
+				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
 		
 		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
@@ -164,20 +164,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	}
 
 	
-	public String getLabel() {
-		
-		return fName;
-	}
-	
-	public String getToolLabel(boolean longLabel) {
-		
-		if (longLabel) {
-			return fToolLabelShort + ' ' + getLabel();
-		}
-		return fToolLabelShort;
-	}
-	
-	private void computeToolLabel() {
+	private String computeToolLabel() {
 		
 		StringBuilder s = new StringBuilder();
         ILaunchConfiguration config = getLaunch().getLaunchConfiguration();
@@ -194,48 +181,31 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
                 s.append("]"); //$NON-NLS-1$
             }
             
-            fToolLabelShort = s.toString();
+            return s.toString();
         }
         else {
-        	fToolLabelShort = "[-]"; //$NON-NLS-1$
+        	return "[-]"; //$NON-NLS-1$
         }
 	}
 	
-	private String computeDynamicLabel(ToolStatus status) {
+	private String computerConsoleLabel(String statusLabel) {
 		
-		StringBuilder s = new StringBuilder(fToolLabelShort);
-		s.append(' ');
-		s.append(getLabel());
-		
-        s.append(" <"); //$NON-NLS-1$
-        switch(status) {
-        case STARTING:
-        	s.append(NicoCoreMessages.Status_Starting_label);
-        	break;
-        case STARTED_IDLING:
-        	s.append(NicoCoreMessages.Status_StartedIdle_label);
-        	break;
-        case STARTED_PROCESSING:
-        	s.append(NicoCoreMessages.Status_StartedProcessing_label);
-        	break;
-        case STARTED_PAUSED:
-        	s.append(NicoCoreMessages.Status_StartedPaused_label);
-        	break;
-        case STARTED_SUSPENDED:
-        	s.append(NicoCoreMessages.Status_StartedSuspended_label);
-        	break;
-        case TERMINATED:
-        	s.append(NicoCoreMessages.Status_Terminated_label);
-        	break;
-        default:
-        	assert(false);
-        	break;
-        }
-        s.append('>');
-        
-		return s.toString();
+		return fToolLabelShort + " " + fName + " " + statusLabel;
 	}
 
+	public String getLabel() {
+		
+		return fName;
+	}
+	
+	public String getToolLabel(boolean longLabel) {
+		
+		if (longLabel) {
+			return fToolLabelShort + ' ' + fName;
+		}
+		return fToolLabelShort;
+	}
+	
 	public ILaunch getLaunch() {
 		
 		return fLaunch;
@@ -403,7 +373,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 		
 		synchronized (fAttributes) {
-			DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeDynamicLabel(newStatus));
+			DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, 
+					computerConsoleLabel(newStatus.getMarkedLabel())); 
 			if (nameEvent != null) {
 				eventCollection.add(nameEvent);
 			}

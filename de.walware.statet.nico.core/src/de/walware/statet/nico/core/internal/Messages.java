@@ -27,6 +27,12 @@ public class Messages extends NLS {
 	public static String Runtime_error_CriticalError_message;
 	public static String Runtime_error_UnexpectedTermination_message;
 
+	public static String Progress_Starting_label;
+	public static String Progress_Terminating_label;
+	
+	public static String Progress_Canceled_label;
+	public static String Progress_Blocked_label;
+
 	
 	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {

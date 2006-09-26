@@ -24,6 +24,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 
+	
+	public static final int TOTAL_WORK = 10000;
+	
+	
 	/**
 	 * This method is called by the tool controller, when it is one's turn.
 	 * <p>
@@ -32,6 +36,9 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 * the Tool inside this method.
 	 * <p>
 	 * Don't call this method on another place.
+	 * <p>
+	 * The monitor is already setup with main label of getLabel() and total
+	 * work of TOTAL_WORK.
 	 * 
 	 * @param tools your interface to the tool software
 	 * @param monitor a progress monitor (you can check for cancel)
