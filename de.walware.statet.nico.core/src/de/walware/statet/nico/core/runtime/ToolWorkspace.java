@@ -18,7 +18,6 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
-import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
 
 /**
  * 

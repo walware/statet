@@ -11,11 +11,11 @@
 
 package de.walware.statet.nico.ui.views;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -30,10 +30,15 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
@@ -45,10 +50,11 @@ import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
-import de.walware.statet.nico.ui.IToolRunnableAdapter;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.PauseAction;
+import de.walware.statet.nico.ui.internal.Messages;
+import de.walware.statet.nico.ui.util.ToolProgressGroup;
 import de.walware.statet.ui.StatetImages;
 
 
@@ -64,7 +70,6 @@ public class QueueView extends ViewPart {
 
 		private volatile boolean fExpectInfoEvent = false;
 		private IToolRunnable[] fRefreshData;
-		
 		
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			
@@ -134,7 +139,8 @@ public class QueueView extends ViewPart {
 			if (process == null) {
 				return;
 			}
-			Queue queue = fProcess.getQueue();
+			boolean updateProgress = false;
+			Queue queue = process.getQueue();
 			EVENT: for (int i = 0; i < events.length; i++) {
 				DebugEvent event = events[i];
 				Object source = event.getSource();
@@ -164,6 +170,7 @@ public class QueueView extends ViewPart {
 										Queue.Delta nextDelta = (Queue.Delta) next.getData();
 										if (nextDelta.type == Queue.ENTRY_START_PROCESSING
 												&& delta.data[0] == nextDelta.data[0]) {
+											updateProgress = true;
 											i++;
 											continue EVENT;
 										}
@@ -181,6 +188,8 @@ public class QueueView extends ViewPart {
 							continue EVENT;
 						
 						case Queue.ENTRY_START_PROCESSING:
+							updateProgress = true;
+							// no break, continue with delete
 						case Queue.ENTRIES_DELETE:
 							if (!fExpectInfoEvent) {
 								UIAccess.getDisplay().syncExec(new Runnable() {
@@ -218,6 +227,12 @@ public class QueueView extends ViewPart {
 					}
 				}
 			}
+			if (updateProgress && fShowProgress) {
+				ToolProgressGroup progress = fProgressControl;
+				if (progress != null) {
+					progress.refresh(false);
+				}
+			}
 		}
 	}
 	
@@ -234,13 +249,9 @@ public class QueueView extends ViewPart {
 		@Override
 		public Image getImage(Object element) {
 			
-			IToolRunnable runnable = (IToolRunnable) element;
-			IToolRunnableAdapter adapter = getAdapter(runnable);
-			if (adapter != null) {
-				ImageDescriptor descriptor = adapter.getImageDescriptor();
-				if (descriptor != null) {
-					return StatetImages.getCachedImage(descriptor);
-				}
+			ImageDescriptor descriptor = NicoUITools.getImageDescriptor((IToolRunnable) element);
+			if (descriptor != null) {
+				return StatetImages.getCachedImage(descriptor);
 			}
 			return null;
 		}
@@ -258,33 +269,122 @@ public class QueueView extends ViewPart {
 			IToolRunnable runnable = (IToolRunnable) element;
 			return runnable.getLabel();
 		}
+	}
+	
+	private class ShowDescriptionAction extends Action {
 		
-	    protected IToolRunnableAdapter getAdapter(IToolRunnable runnable) {
-	    	
-	        if (!(runnable instanceof IAdaptable)) {
-	            return null;
-	        }
-	        return (IToolRunnableAdapter) ((IAdaptable) runnable)
-	                .getAdapter(IToolRunnableAdapter.class);
-	    }
+		public ShowDescriptionAction() {
+			
+			setText(Messages.ShowToolDescription_name);
+			setToolTipText(Messages.ShowToolDescription_tooltip);
+			setChecked(fShowDescription);
+		}
+		
+		@Override
+		public void run() {
+			
+			fShowDescription = isChecked();
+			updateContentDescription(fProcess);
+		}
+	}
+	
+	private class ShowProgressAction extends Action {
+		
+		public ShowProgressAction() {
+			
+			setText(Messages.ShowProgress_name);
+			setToolTipText(Messages.ShowProgress_tooltip);
+			setChecked(fShowProgress);
+		}
+		
+		@Override
+		public void run() {
+			
+			fShowProgress = isChecked();
+			if (fShowProgress) {
+				createProgressControl();
+				fProgressControl.setTool(fProcess, true);
+				fProgressControl.getControl().moveAbove(fTableViewer.getControl());
+			}
+			else {
+				if (fProgressControl != null) {
+					fProgressControl.getControl().dispose();
+					fProgressControl = null;
+				}
+			}
+			fComposite.layout(true);
+		}
 	}
 	
 	
+	private Composite fComposite;
+	private ToolProgressGroup fProgressControl;
 	private TableViewer fTableViewer;
 	
-	private ToolProcess fProcess; // f�r submit
+	private ToolProcess fProcess;
 	private IToolRegistryListener fToolRegistryListener;
 	
 	private PauseAction fPauseAction;
 	
+	private static final String M_SHOW_DESCRIPTION = "QueueView.ShowDescription"; //$NON-NLS-1$
+	private boolean fShowDescription;
+	private Action fShowDescriptionAction;
+	
+	private static final String M_SHOW_PROGRESS = "QueueView.ShowProgress"; //$NON-NLS-1$
+	private boolean fShowProgress;
+	private Action fShowProgressAction;
+
 	private Action fSelectAllAction;
 	private Action fDeleteAction;
 	
 	
 	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		
+		super.init(site, memento);
+		
+		String showDescription = (memento != null) ? memento.getString(M_SHOW_DESCRIPTION) : null;
+		if (showDescription == null || showDescription.equals("off")) { // default  //$NON-NLS-1$
+			fShowDescription = false;
+		} else {
+			fShowDescription = true;
+		}
+
+		String showProgress = (memento != null) ? memento.getString(M_SHOW_PROGRESS) : null;
+		if (showProgress== null || showProgress.equals("on")) { // default  //$NON-NLS-1$
+			fShowProgress = true;
+		} else {
+			fShowProgress = false;
+		}
+	}
+	
+	@Override
+	public void saveState(IMemento memento) {
+		
+		super.saveState(memento);
+		
+		memento.putString(M_SHOW_DESCRIPTION, (fShowDescription) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
+		memento.putString(M_SHOW_PROGRESS, (fShowProgress) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	@Override
 	public void createPartControl(Composite parent) {
 		
+		updateContentDescription(null);
+		
+		fComposite = parent;
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.verticalSpacing = 0;
+		parent.setLayout(layout);
+
+		if (fShowProgress) {
+			createProgressControl();
+		}
+		
 		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL);
+		fTableViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fTableViewer.getTable().setLinesVisible(false);
 		fTableViewer.getTable().setHeaderVisible(false);
 		new TableColumn(fTableViewer.getTable(), SWT.DEFAULT);
@@ -310,7 +410,7 @@ public class QueueView extends ViewPart {
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
-				UIAccess.getDisplay().asyncExec(new Runnable() {
+				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						connect(process);
 					}
@@ -323,9 +423,30 @@ public class QueueView extends ViewPart {
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
 	}
 	
+	
+	private void createProgressControl() {
+		
+		fProgressControl = new ToolProgressGroup(fComposite);
+		fProgressControl.getControl().setLayoutData(
+				new GridData(SWT.FILL, SWT.FILL, true, false));
+	}
+	
+	protected void updateContentDescription(ToolProcess process) {
+		
+		if (fShowDescription) {
+			setContentDescription(process != null ? process.getToolLabel(false) : " "); //$NON-NLS-1$
+		}
+		else {
+			setContentDescription(""); //$NON-NLS-1$
+		}
+	}
+	
 	private void createActions() {
 		
 		fPauseAction = new PauseAction();
+		
+		fShowDescriptionAction = new ShowDescriptionAction();
+		fShowProgressAction = new ShowProgressAction();
 		
 		fSelectAllAction = new Action() {
 			public void run() {
@@ -351,8 +472,14 @@ public class QueueView extends ViewPart {
 		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), fSelectAllAction);
 		bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), fDeleteAction);
 		
-//		fillLocalPullDown(bars.getMenuManager());
+		fillLocalPullDown(bars.getMenuManager());
 		fillLocalToolBar(bars.getToolBarManager());
+	}
+
+	private void fillLocalPullDown(IMenuManager manager) {
+		
+		manager.add(fShowDescriptionAction);
+		manager.add(fShowProgressAction);
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
@@ -380,7 +507,11 @@ public class QueueView extends ViewPart {
 					return;
 				}
 				fProcess = process;
+				updateContentDescription(process);
 				fPauseAction.setTool(process);
+				if (fProgressControl != null) {
+					fProgressControl.setTool(process, true);
+				}
 				fTableViewer.setInput(process);
 			}
 		};

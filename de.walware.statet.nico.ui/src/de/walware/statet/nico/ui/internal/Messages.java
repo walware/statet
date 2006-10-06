@@ -40,6 +40,10 @@ public class Messages extends NLS {
 	public static String PauseAction_tooltip;
 	public static String CancelAction_name;
 	public static String CancelAction_tooltip;
+	public static String ShowToolDescription_name;
+	public static String ShowToolDescription_tooltip;
+	public static String ShowProgress_name;
+	public static String ShowProgress_tooltip;
 	
 	public static String TerminatingMonitor_title;
 	public static String TerminatingMonitor_message;

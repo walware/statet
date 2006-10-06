@@ -25,6 +25,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 
 	
+	/**
+	 * Total work of progress monitors.
+	 * Value = {@value}
+	 */
 	public static final int TOTAL_WORK = 10000;
 	
 	

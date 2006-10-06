@@ -47,39 +47,6 @@ public abstract class ToolController<
 
 	
 	/**
-	 * Runtime status. Use this only in runtime classes.
-	 */
-	public static enum ToolStatus {
-		STARTING (NicoCoreMessages.Status_Starting_label),
-		STARTED_IDLING (NicoCoreMessages.Status_StartedIdle_label),
-		STARTED_PROCESSING (NicoCoreMessages.Status_StartedProcessing_label),
-		STARTED_PAUSED (NicoCoreMessages.Status_StartedPaused_label),
-		STARTED_SUSPENDED (NicoCoreMessages.Status_StartedSuspended_label),
-//		STARTED_CUSTOM,
-		TERMINATED (NicoCoreMessages.Status_Terminated_label);
-		
-		private String fLabel;
-		private String fMarkedLabel;
-		
-		ToolStatus(String label) {
-			
-			fLabel = label;
-			fMarkedLabel = "<"+label+">";
-		}
-		
-		public String getLabel() {
-			
-			return fLabel;
-		}
-		
-		public String getMarkedLabel() {
-			
-			return fMarkedLabel;
-		}
-	}
-	
-	
-	/**
 	 * Listens for changes of the status of a controller.
 	 * 
 	 * Use this only if it's really necessary, otherwise listen to 
@@ -533,15 +500,15 @@ public abstract class ToolController<
 	 * 
 	 * @param newStatus
 	 */
-	private void loopChangeStatus(ToolStatus newStatus, String label) {
+	private void loopChangeStatus(ToolStatus newStatus, RunnableProgressMonitor newMonitor) {
 		
-		if (fStatus != newStatus && label == null) {
-			label = newStatus.getMarkedLabel();
+		if (fStatus != newStatus && newMonitor == null) {
+			newMonitor = new RunnableProgressMonitor(newStatus.getMarkedLabel());
 		}
 		
 		// update progress info
-		if (label != null) {
-			fRunnableProgressMonitor = new RunnableProgressMonitor(label);
+		if (newMonitor != null) {
+			fRunnableProgressMonitor = newMonitor;
 		}
 		
 		// update status
@@ -801,7 +768,8 @@ public abstract class ToolController<
 			}
 			fIgnoreRequests = false;
 			fCurrentRunnable = fQueue.internalPoll();
-			loopChangeStatus(ToolStatus.STARTED_PROCESSING, fCurrentRunnable.getLabel());
+			loopChangeStatus(ToolStatus.STARTED_PROCESSING, 
+					new RunnableProgressMonitor(fCurrentRunnable));
 		}
 
 		try {
@@ -852,7 +820,8 @@ public abstract class ToolController<
 
 	private boolean loopTerminate() {
 		
-		loopChangeStatus(ToolStatus.STARTED_PROCESSING, Messages.Progress_Terminating_label);
+		loopChangeStatus(ToolStatus.STARTED_PROCESSING, 
+				new RunnableProgressMonitor(Messages.Progress_Terminating_label));
 		try {
 			return terminateTool(false, fRunnableProgressMonitor);
 		}

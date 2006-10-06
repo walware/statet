@@ -271,17 +271,17 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		super.init(site, memento);
 		
 		String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
-		if (autoscroll != null && autoscroll.equals("off")) { //$NON-NLS-1$
-			fDoAutoscroll = false;
-		} else { // default
+		if (autoscroll == null || autoscroll.equals("on")) { // default  //$NON-NLS-1$
 			fDoAutoscroll = true;
+		} else {
+			fDoAutoscroll = false;
 		}
 
 		String sortAlpha = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
-		if (sortAlpha != null && sortAlpha.equals("on")) { //$NON-NLS-1$
-			fDoSortAlpha = true;
-		} else { // default
+		if (sortAlpha == null || sortAlpha.equals("off")) { // default  //$NON-NLS-1$
 			fDoSortAlpha = false;
+		} else {
+			fDoSortAlpha = true;
 		}
 	}
 	

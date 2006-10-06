@@ -11,10 +11,6 @@
 
 package de.walware.statet.nico.ui.util;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ViewForm;
@@ -28,7 +24,7 @@ import org.eclipse.swt.widgets.Label;
 import de.walware.eclipsecommons.ui.dialogs.ShortedLabel;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.ui.internal.NicoUIPlugin;
+import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.ui.StatetImages;
 
 
@@ -38,29 +34,9 @@ import de.walware.statet.ui.StatetImages;
 public class ToolInfoGroup {
 
 	
-    /**
-     * Computes and returns the image descriptor for this console.
-     * 
-     * @return an image descriptor for this console or <code>null</code>
-     */
-    public static ImageDescriptor computeImageDescriptor(ToolProcess process) {
-    	
-        ILaunchConfiguration configuration = process.getLaunch().getLaunchConfiguration();
-        if (configuration != null) {
-            ILaunchConfigurationType type;
-            try {
-                type = configuration.getType();
-                return DebugUITools.getImageDescriptor(type.getIdentifier());
-            } catch (CoreException e) {
-                NicoUIPlugin.log(e.getStatus());
-            }
-        }
-        return null;
-    }
-
-	
 	private ToolProcess fProcess;
 	private ViewForm fForm;
+
 	
 	public ToolInfoGroup(Composite parent, ToolProcess process) {
 		
@@ -79,7 +55,7 @@ public class ToolInfoGroup {
 		fForm.setContent(info);
 
 		Label text = new Label(info, SWT.NONE);
-		ImageDescriptor imageDescr = computeImageDescriptor(fProcess);
+		ImageDescriptor imageDescr = NicoUITools.getImageDescriptor(fProcess);
 		Image image = null;
 		if (imageDescr != null) {
 			image = StatetImages.getCachedImage(imageDescr);

@@ -16,14 +16,12 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugException;
 import org.rosuda.JRclient.REXP;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
@@ -51,6 +49,7 @@ public class RServeClientController
 			if ((fPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 				completeInput = ((IncompleteInputPrompt) fPrompt).previousInput + input;
 			}
+			monitor.subTask(fDefaultPrompt.text + " " + completeInput);  //$NON-NLS-1$
 			try {
 				REXP rx = fRconnection.eval(completeInput);
 				if (rx != null) {
@@ -67,11 +66,7 @@ public class RServeClientController
 				}
 				fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineSeparator, fCurrentRunnable.getType(), 0);
 				if (!fRconnection.isConnected() || e.getRequestReturnCode() == -1) {
-					try {
-						fProcess.terminate();
-					} catch (DebugException de) {
-						StatetPlugin.log(de.getStatus());
-					}
+					terminate();
 					return Prompt.NONE;
 				}
 				else {

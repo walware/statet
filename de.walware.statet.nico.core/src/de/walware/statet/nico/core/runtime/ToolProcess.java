@@ -34,7 +34,6 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
-import de.walware.statet.nico.core.runtime.ToolController.ToolStatus;
 
 
 /**
@@ -91,6 +90,29 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE | 0x1;
 	public static final int REQUEST_TERMINATE_CANCELED = MASK_REQUEST | TERMINATE | 0x2;
 	
+	public static ToolStatus getChangedToolStatus(DebugEvent event) {
+		
+		switch (event.getKind()) {
+		case DebugEvent.CREATE:
+			return ToolStatus.STARTING;
+		case DebugEvent.MODEL_SPECIFIC:
+			switch (event.getDetail()) {
+			case STATUS_PROCESS:
+				return ToolStatus.STARTED_PROCESSING;
+			case STATUS_IDLE:
+				return ToolStatus.STARTED_IDLING;
+			case STATUS_PAUSE:
+				return ToolStatus.STARTED_PAUSED;
+			default:
+				return null;
+			}
+		case DebugEvent.TERMINATE:
+			return ToolStatus.TERMINATED;
+		default:
+			return null;
+		}
+	}
+	
 	
 	private final ILaunch fLaunch;
 	private Set<String> fFeatureSets = new HashSet<String>();
@@ -104,8 +126,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	private final Map<String, String> fAttributes;
 	private final boolean fCaptureOutput;
-	
-	private volatile boolean fIsTerminated = false;
+
+	private volatile ToolStatus fStatus = ToolStatus.STARTING;
 	protected volatile int fExitValue = 0;
 	
 	
@@ -190,7 +212,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	private String computerConsoleLabel(String statusLabel) {
 		
-		return fToolLabelShort + " " + fName + " " + statusLabel;
+		return fToolLabelShort + " " + fName + " " + statusLabel; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String getLabel() {
@@ -266,6 +288,10 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 	}
 
+	public ToolStatus getToolStatus() {
+		
+		return fStatus;
+	}
 
 	@Override
 	public Object getAdapter(Class adapter) {
@@ -305,7 +331,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 
 	public boolean isTerminated() {
 		
-		return fIsTerminated;
+		return fStatus == ToolStatus.TERMINATED;
 	}
 	
 	public int getExitValue() throws DebugException {
@@ -350,6 +376,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	/** Called by Controller */
 	public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
 
+		fStatus = newStatus;
 		switch(newStatus) {
 		
 		case STARTED_PROCESSING:
@@ -366,9 +393,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 			break;
 			
 		case TERMINATED:
-			fIsTerminated = true;
 			fController = null;
-			eventCollection.add(new DebugEvent(ToolProcess.this, DebugEvent.TERMINATE) );
+			eventCollection.add(new DebugEvent(ToolProcess.this, 
+					DebugEvent.TERMINATE) );
 			break;
 		}
 		

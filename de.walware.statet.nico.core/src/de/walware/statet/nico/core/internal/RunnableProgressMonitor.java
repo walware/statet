@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.nico.core.runtime.IProgressInfo;
+import de.walware.statet.nico.core.runtime.IToolRunnable;
 
 
 /**
@@ -26,20 +27,26 @@ import de.walware.statet.nico.core.runtime.IProgressInfo;
 public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IProgressInfo {
 	
 	
-	private boolean fRefreshLabel = true;
-	private String fLabel;
 	private String fMainName;
 	private String fSubTaskName = ""; //$NON-NLS-1$
+	private IToolRunnable fRunnable = null;
+	private boolean fRefreshLabel = true;
+	private String fLabel;
 		
-	private int fCurrentWorked = 0;
-
+	private volatile int fCurrentWorked = 0;
 	private volatile String fBlockedMessage = null;
-	private volatile boolean isCanceled;
+	private volatile boolean isCanceled = false;
 		
 	
 	public RunnableProgressMonitor(String name) {
 		
 		fMainName = (name != null) ? name : ""; //$NON-NLS-1$
+	}
+	
+	public RunnableProgressMonitor(IToolRunnable runnable) {
+		
+		fRunnable = runnable;
+		fMainName = runnable.getLabel();
 	}
 	
 	
@@ -130,5 +137,10 @@ public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IP
 					fMainName, blocked }));
 		}
 		return fMainName;
+	}
+	
+	public IToolRunnable getRunnable() {
+		
+		return fRunnable;
 	}
 }

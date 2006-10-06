@@ -32,5 +32,11 @@ public interface IProgressInfo {
 	 * Worked part of IToolRunnable.TOTAL_WORK = 10000.
 	 */
 	public int getWorked();
+
+	/**
+	 * Current runnable
+	 * @return the runnable, can be <code>null</code>
+	 */
+	public IToolRunnable getRunnable();
 	
 }

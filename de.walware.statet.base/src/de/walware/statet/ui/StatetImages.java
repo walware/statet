@@ -55,8 +55,10 @@ public class StatetImages extends AbstractImagesCollection {
 	public static final String IMG_LAUNCHCONFIG_MAIN = StatetPlugin.ID + ".image.launchconfig.main";  //$NON-NLS-1$
 	
 	public static final String IMG_OBJ_COMMAND = StatetPlugin.ID + ".image.obj.command";  //$NON-NLS-1$
+	public static final String IMG_OBJ_COMMAND_DUMMY = StatetPlugin.ID + ".image.obj.commanddummy";  //$NON-NLS-1$
 	
-	public static final String IMG_LOCTOOL_SORT_ALPHA = StatetPlugin.ID + ".tool.sort.alpha";  //$NON-NLS-1
+	public static final String IMG_LOCTOOL_SORT_ALPHA = StatetPlugin.ID + ".tool.sort.alpha";  //$NON-NLS-1$
+	
 	
 	
 	private ImageMap fImageCache;
@@ -72,6 +74,7 @@ public class StatetImages extends AbstractImagesCollection {
 		declareRegistryImage(IMG_CONTENTASSIST_TEMPLATE, T_OBJ, "template_proposal.gif"); //$NON-NLS-1$
 		declareRegistryImage(IMG_LAUNCHCONFIG_MAIN, T_OBJ, "main_tab.gif"); //$NON-NLS-1$
 		declareRegistryImage(IMG_OBJ_COMMAND, T_OBJ, "command.png"); //$NON-NLS-1$
+		declareRegistryImage(IMG_OBJ_COMMAND_DUMMY, T_OBJ, "command_dummy.png"); //$NON-NLS-1$
 		declareRegistryImage(IMG_LOCTOOL_SORT_ALPHA, T_LOCTOOL, "sort_alpha.gif"); //$NON-NLS-1$
 	}
 		
