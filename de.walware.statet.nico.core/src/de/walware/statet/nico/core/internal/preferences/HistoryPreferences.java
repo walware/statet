@@ -53,7 +53,7 @@ public class HistoryPreferences {
 	 */
 	public HistoryPreferences() {
 		
-		setup(	EnumSet.of(SubmitType.CONSOLE),
+		setup(	EnumSet.of(SubmitType.CONSOLE, SubmitType.EDITOR),
 				true,
 				100
 		);

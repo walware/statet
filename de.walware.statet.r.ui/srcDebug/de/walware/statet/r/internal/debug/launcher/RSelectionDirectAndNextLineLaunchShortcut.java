@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.debug.launcher;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -21,25 +22,22 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
+import de.walware.statet.r.ui.internal.RUIPlugin;
 
 
 /**
- * Launch shortcut, which submits the current line/selection directly to R
- * and does not change the focus.
+ * Launch shortcut, which submits the current line/selection 
+ * directly to R and moves the curser to the next line.
  * 
  * Supports only text editors.
  */
-public class RSelectionDirectLaunchShortcut implements ILaunchShortcut {
-	
-	
-	protected boolean fGotoConsole = false;
-	
+public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcut {
 	
 	public void launch(ISelection selection, String mode) {
 		
 		// not supported
 	}
-
+	
 	public void launch(IEditorPart editor, String mode) {
 		
 		assert mode.equals("run"); //$NON-NLS-1$
@@ -50,12 +48,17 @@ public class RSelectionDirectLaunchShortcut implements ILaunchShortcut {
 			ITextSelection selection = (ITextSelection) redt.getSelectionProvider().getSelection();
 			
 			String[] lines = LaunchShortcutUtil.listLines(doc, selection);
-
+			
 			if (lines == null) {
 				return;
 			}
 			
-			RCodeLaunchRegistry.runRCodeDirect(lines, fGotoConsole);
+			RCodeLaunchRegistry.runRCodeDirect(lines, false);
+			
+			int newOffset = getNextLineOffset(doc, selection.getEndLine());
+			if (newOffset >= 0) {
+				redt.selectAndReveal(newOffset, 0);
+			}
 		}
 		catch (CoreException e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
@@ -64,10 +67,19 @@ public class RSelectionDirectLaunchShortcut implements ILaunchShortcut {
 	}
 	
 	
-//	private void reportError(AbstractTextEditor editor, String msg) {
-//
-//		IEditorStatusLine statusLine = (IEditorStatusLine) editor.getAdapter(IEditorStatusLine.class);
-//		if (statusLine != null)
-//			statusLine.setMessage(true, msg, null);
-//	}
+	private int getNextLineOffset(IDocument doc, int endLine) {
+		
+		try {
+			if (endLine >= 0 && endLine+1 < doc.getNumberOfLines()) {
+				return doc.getLineOffset(endLine+1);
+			}
+			else {
+				return -1;
+			}
+		} catch (BadLocationException e) {
+			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error while find next line.", e);
+			return -1;
+		}
+	}
+	
 }

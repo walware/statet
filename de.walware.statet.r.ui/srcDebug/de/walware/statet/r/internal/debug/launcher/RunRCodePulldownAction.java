@@ -44,7 +44,7 @@ import de.walware.statet.r.internal.debug.RLaunchingMessages;
 
 
 public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate {
-
+	
 	
 	private static final String LAST_LAUNCH_REMEMBER_KEY = "de.walware.statet.r.RunRCodePullDown.LastLaunch.id"; //$NON-NLS-1$
 	
@@ -53,8 +53,8 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		
 		private String fMode;
 		private LaunchShortcutExtension fShortcut;
-
-
+		
+		
 		/**
 		 * Constructor for LaunchShortcutAction.
 		 */
@@ -70,7 +70,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		
 		public boolean isApplicable(IEvaluationContext context) {
 			try {
-				Expression expr = fShortcut.getContextualLaunchEnablementExpression();
+				Expression expr = fShortcut.getShortcutEnablementExpression();
 				return fShortcut.evalEnablementExpression(context, expr);
 			} catch (CoreException e) {
 				return false;
@@ -79,7 +79,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		
 		/**
 		 * Runs with either the active editor or workbench selection.
-		 * 
+		 *
 		 * @see IAction#run()
 		 */
 		public void run() {
@@ -103,7 +103,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		}
 
 	}
-
+	
 	
 	private String fMode = "run"; //$NON-NLS-1$
 	private LaunchShortcutAction[] fActions;
@@ -120,7 +120,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 	public void initAction(IAction action) {
 		
 		fButtonAction = action;
-
+		
 		String lastLaunchId = StatetPlugin.getDefault().getDialogSettings().get(LAST_LAUNCH_REMEMBER_KEY);
 		if (lastLaunchId != null) {
 			for (LaunchShortcutAction item : fActions) {
@@ -132,7 +132,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		}
 		if (fLastAction == null)
 			fLastAction = fActions[0];
-
+		
 		updateTooltip();
 	}
 	
@@ -156,23 +156,23 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		updateEnablement();
 		return menu;
 	}
-
+	
 	public void run(IAction action) {
-
+		
 		updateEnablement();
-
+		
 		LaunchShortcutAction lastLaunched = getLastLaunch();
 		if (lastLaunched != null && lastLaunched.isEnabled())
 			lastLaunched.run();
 	}
-
-
+	
+	
 	private void loadShortcuts() {
 		
 		@SuppressWarnings("unchecked")
-		List<LaunchShortcutExtension> list = DebugUIPlugin.getDefault().getLaunchConfigurationManager().getLaunchShortcuts("de.walware.statet.r"); //$NON-NLS-1$
+		List<LaunchShortcutExtension> list = DebugUIPlugin.getDefault().getLaunchConfigurationManager().getLaunchShortcuts("de.walware.statet.r.basic"); //$NON-NLS-1$
 		List<LaunchShortcutAction> actions = new ArrayList<LaunchShortcutAction>(list.size());
-
+		
 		for (LaunchShortcutExtension ext : list) {
 			if (ext.getModes().contains(fMode))
 				actions.add(new LaunchShortcutAction(fMode, ext));
@@ -257,7 +257,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 			        }
 			    }
 			}
-		}	    
+		}
 		// create a default evaluation context with default variable
 		// of the user selection or editor input
 		if (list == null) {
@@ -267,6 +267,6 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		context.addVariable("selection", list); //$NON-NLS-1$
 		
 		return context;
-	}	
+	}
 
 }

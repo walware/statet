@@ -39,25 +39,26 @@ import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.connector.RConsoleConnector;
 import de.walware.statet.r.ui.RUI;
 
+
 public class RCodeLaunchRegistry implements IPreferenceChangeListener {
-
-
+	
+	
 	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
 	
 	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
-
+	
 	private static final IStatus STATUS_PROMPTER = new Status(IStatus.INFO, IDebugUIConstants.PLUGIN_ID, 200, "", null); //$NON-NLS-1$
 	private static final IStatus STATUS_SAVE = new Status(IStatus.INFO, DebugPlugin.getUniqueIdentifier(), 222, "", null); //$NON-NLS-1$
-
-
+	
+	
 	public static void initializeDefaultValues(IScopeContext context) {
 		
 		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, RConsoleConnector.ID);
 	}
-
-
+	
+	
 	public static boolean isConfigured() {
-
+		
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		return (elements != null && elements.length > 0);
@@ -67,13 +68,13 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	 * Runs a file related command in R.
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
-	 * the specified file.</p> 
-	 * 
+	 * the specified file.</p>
+	 *
 	 * @param command the command, (at moment) should be single line.
 	 * @param file the file.
 	 * @throws CoreException if running failed.
 	 */
-	public static void runFileUsingCommand(String command, IFile file) throws CoreException {
+	public static void runFileUsingCommand(String command, IFile file, boolean gotoConsole) throws CoreException {
 		
 		// save before launch
 		IProject project = file.getProject();
@@ -86,29 +87,29 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 				return;
 			}
 		}
-
-		runFileUsingCommand(command, file.getLocation());
+		
+		runFileUsingCommand(command, file.getLocation(), gotoConsole);
 	}
 	
 	/**
-	 * Runs a file related command in R. 
-	 * Use this method only, if you don't have a IFile object for your file 
+	 * Runs a file related command in R.
+	 * Use this method only, if you don't have a IFile object for your file
 	 * (e.g. external file).
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
-	 * the specified file.</p> 
-	 * 
+	 * the specified file.</p>
+	 *
 	 * @param command the command, (at moment) should be single line.
 	 * @param file the file.
 	 * @throws CoreException if running failed.
 	 */
-	public static void runFileUsingCommand(String command, IPath filePath) throws CoreException {
+	public static void runFileUsingCommand(String command, IPath filePath, boolean gotoConsole) throws CoreException {
 		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
 		String cmd = fgFileNamePattern.matcher(command).replaceAll(
 				Matcher.quoteReplacement(filePath.toString()));
-		connector.submit(new String[] { cmd });
+		connector.submit(new String[] { cmd }, gotoConsole);
 	}
 
 	private static boolean saveBeforeLaunch(IProject[] projects) throws CoreException {
@@ -116,19 +117,19 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		IStatusHandler prompter = null;
 		prompter = DebugPlugin.getDefault().getStatusHandler(STATUS_PROMPTER);
 		if (prompter != null) {
-			return ((Boolean) prompter.handleStatus(STATUS_SAVE, 
+			return ((Boolean) prompter.handleStatus(STATUS_SAVE,
 					new Object[] { null, projects } )).booleanValue();
 		}
 		return true;
 	}
 
-	public static void runRCodeDirect(String[] code) throws CoreException {
+	public static boolean runRCodeDirect(String[] code, boolean gotoConsole) throws CoreException {
 		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
-		connector.submit(code);
+		return connector.submit(code, gotoConsole);
 	}
-	
+
 	public static void gotoRConsole() throws CoreException {
 		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
@@ -136,7 +137,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		connector.gotoConsole();
 	}
 
-	
+
 	static public final String EXTENSION_POINT = "rCodeLaunchConnector"; //$NON-NLS-1$
 	private static final String ATT_ID = "id"; //$NON-NLS-1$
 	private static final String ATT_NAME = "name"; //$NON-NLS-1$
@@ -146,15 +147,15 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	private static RCodeLaunchRegistry fgRegistry;
 	
 	private static synchronized RCodeLaunchRegistry getDefault() throws CoreException {
-		
+	
 		if (fgRegistry == null)
 			new RCodeLaunchRegistry();
 		return fgRegistry;
 	}
+	
 
-	
 /* Config *********************************************************************/
-	
+
 	public static class ConnectorConfig {
 		
 		public final String fId;
@@ -181,8 +182,8 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		return configs;
 	}
 	
-	
-/* Instance *******************************************************************/	
+
+/* Instance *******************************************************************/
 
 	private IRCodeLaunchConnector fConnector;
 	
@@ -201,7 +202,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		
 		String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_R_CONNECTOR);
-
+		
 		for (int i = 0; i < elements.length; i++) {
 			if (id.equals(elements[i].getAttribute(ATT_ID))) {
 				try {
@@ -226,7 +227,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		
 		return fConnector;
 	}
-
+	
 	public void preferenceChange(PreferenceChangeEvent event) {
 		
 		try {

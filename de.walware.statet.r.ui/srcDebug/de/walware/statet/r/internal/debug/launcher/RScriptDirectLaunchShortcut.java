@@ -29,10 +29,18 @@ import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
 
 
+/**
+ * Launch shortcut, which submits the whole script directly to R
+ * and does not change the focus.
+ */
 public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
-
+	
+	
+	protected boolean fGotoConsole = false;
+	
+	
 	public void launch(ISelection selection, String mode) {
-
+		
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
@@ -43,13 +51,13 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 			}
 		}
 		catch (Exception e) {
-			LaunchShortcutUtil.handleRLaunchException(e, 
+			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RScriptLaunch_error_message);
 		}
 	}
-
+	
 	public void launch(IEditorPart editor, String mode) {
-
+		
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
@@ -64,17 +72,17 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 					lineLength -= lineDelimiter.length();
 				lines[i] = doc.get(doc.getLineOffset(i), lineLength);
 			}
-			RCodeLaunchRegistry.runRCodeDirect(lines);
+			RCodeLaunchRegistry.runRCodeDirect(lines, fGotoConsole);
 		}
 		catch (Exception e) {
-			LaunchShortcutUtil.handleRLaunchException(e, 
+			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RScriptLaunch_error_message);
 		}
 	}
-	
-	
-	private void doRun(IFile file) throws Exception {
 
+
+	private void doRun(IFile file) throws Exception {
+		
 		InputStream input = file.getContents();
 		
 		String charset = file.getCharset();
@@ -84,6 +92,8 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 		while ((line = reader.readLine()) != null) {
 			lines.add(line);
 		}
-		RCodeLaunchRegistry.runRCodeDirect(lines.toArray(new String[lines.size()]));
+		RCodeLaunchRegistry.runRCodeDirect(lines.toArray(new String[lines.size()]),
+				fGotoConsole);
 	}
+	
 }

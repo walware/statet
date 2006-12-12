@@ -28,6 +28,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.window.ApplicationWindow;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.console.IConsoleConstants;
@@ -43,42 +44,57 @@ import de.walware.statet.r.ui.RUI;
 
 
 public class RConsoleConnector implements IRCodeLaunchConnector {
-
+	
 	
 	public static final String ID = "de.walware.statet.r.launching.RConsoleConnector"; //$NON-NLS-1$
-
-
+	
+	
 	public RConsoleConnector() {
 	}
-
-	public void submit(String[] rCommands) throws CoreException {
+	
+	public boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException {
 		
-		IOConsole console = getConsole();
-		if (console == null)
-			throw new CoreException(new Status(
-					IStatus.WARNING,
-					RUI.PLUGIN_ID,
-					IStatetStatusConstants.LAUNCHING_ERROR,
-					"No R-Console available.",
-					null));
+		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
+		IWorkbenchPart activePart = page.getActivePart();
 		
-		IDocument doc = console.getDocument();
 		try {
-			for (int i = 0; i < rCommands.length; i++) {
-				doc.replace(doc.getLength(), 0, rCommands[i]+'\n');
+			IOConsole console = getConsole();
+			if (console == null)
+				throw new CoreException(new Status(
+						IStatus.WARNING,
+						RUI.PLUGIN_ID,
+						IStatetStatusConstants.LAUNCHING_ERROR,
+						"No R-Console available.",
+						null));
+
+			IDocument doc = console.getDocument();
+
+			try {
+				for (int i = 0; i < rCommands.length; i++) {
+					doc.replace(doc.getLength(), 0, rCommands[i]+'\n');
+				}
+				if (gotoConsole) {
+					activePart = null;
+				}
+				return true;
+			} catch (BadLocationException e) {
+				throw new CoreException(new Status(
+						IStatus.ERROR,
+						RUI.PLUGIN_ID,
+						IStatetStatusConstants.LAUNCHING_ERROR,
+						"Error when running R-Console-Connector",
+						e));
 			}
-		} catch (BadLocationException e) {
-			throw new CoreException(new Status(
-					IStatus.ERROR,
-					RUI.PLUGIN_ID,
-					IStatetStatusConstants.LAUNCHING_ERROR,
-					"Error when running R-Console-Connector",
-					e));
+		}
+		finally {
+			if (activePart != null) {
+				page.activate(activePart);
+			}
 		}
 	}
-
+	
 	public void gotoConsole() throws CoreException {
-
+		
 		IOConsole console = getConsole();
 		if (console == null) {
 			IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
@@ -88,7 +104,7 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 	
 	
 	private ILaunch[] getProcesses() {
-
+		
 		ArrayList<ILaunch> list = new ArrayList<ILaunch>();
 		
 		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
@@ -115,28 +131,28 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 				}
 			}
 		}
-		
+
 		return list.toArray(new ILaunch[list.size()]);
 	}
 	
 	private IOConsole getConsole() throws CoreException {
 		
-		List<IOConsole> consoles = getAvailableConsoles(); 
+		List<IOConsole> consoles = getAvailableConsoles();
 		IConsoleView view = getConsoleView(true);
 		if (consoles.isEmpty())
 			return null;
 		int idx = consoles.indexOf(view.getConsole());
 		if (idx != -1)
 			return consoles.get(idx);
-			
+		
 		IOConsole console = consoles.get(0);
-
+		
 		view.display(console);
 		return console;
 	}
 	
 	private List<IOConsole> getAvailableConsoles() {
-
+		
 		ILaunch[] launches = getProcesses();
 		if (launches.length == 0)
 			return new ArrayList<IOConsole>(0);
@@ -160,8 +176,7 @@ public class RConsoleConnector implements IRCodeLaunchConnector {
 		IConsoleView view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW);
 		if (activateConsoleView)
 			page.activate(view);
-		return view; 
+		return view;
 	}
-	
 	
 }

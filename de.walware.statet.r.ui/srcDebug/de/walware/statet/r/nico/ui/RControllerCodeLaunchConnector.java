@@ -29,22 +29,28 @@ import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 
 public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
-
-	public void submit(String[] rCommands) throws CoreException {
+	
+	public boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException {
 		
-		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(
-				UIAccess.getActiveWorkbenchPage(false));
+		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
+		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(page);
 		ToolProcess process = info.getProcess();
 		if (process != null) {
 			ToolController controller = process.getController();
 			if (controller != null) {
 				controller.submit(rCommands, SubmitType.EDITOR);
-				return;
+				NIConsole console = info.getConsole();
+				if (console != null) {
+					NicoUITools.showConsole(console, page, gotoConsole);
+				}
+				return true;
 			}
 		}
-		// search controller / message?
+		
+		UIAccess.getDisplay().beep();
+		return false;
 	}
-
+	
 	public void gotoConsole() throws CoreException {
 		
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);

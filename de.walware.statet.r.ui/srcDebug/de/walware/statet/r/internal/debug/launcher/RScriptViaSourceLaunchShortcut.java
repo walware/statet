@@ -24,14 +24,22 @@ import de.walware.statet.r.internal.debug.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
 
 
+/**
+ * Launch shortcut, which submits the whole script (file)
+ * using the <code>source</code> command to R
+ * and does not change the focus.
+ */
 public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
-
+	
 	
 	private static final String COMMAND = "source(\"${file}\")"; //$NON-NLS-1$
 	
 	
+	protected boolean fGotoConsole = false;
+	
+	
 	public void launch(ISelection selection, String mode) {
-
+		
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
@@ -39,35 +47,35 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 			Object firstElement = sel.getFirstElement();
 			if (firstElement instanceof IFile) {
 				RCodeLaunchRegistry.runFileUsingCommand(COMMAND,
-						((IFile) firstElement) );
+						((IFile) firstElement) , fGotoConsole);
 			}
 		}
 		catch (Exception e) {
-			LaunchShortcutUtil.handleRLaunchException(e, 
+			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RScriptLaunch_error_message);
 		}
 	}
-
+	
 	public void launch(IEditorPart editor, String mode) {
-
+		
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
 			IEditorInput input = editor.getEditorInput();
 			IFile file = ResourceUtil.getFile(input);
 			if (file != null) {
-				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, file);
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, file, fGotoConsole);
 			}
 			else if (input instanceof IPathEditorInput) {
-				RCodeLaunchRegistry.runFileUsingCommand(COMMAND, 
-						((IPathEditorInput) input).getPath() );
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND,
+						((IPathEditorInput) input).getPath(), fGotoConsole);
 			}
 			else {
 				throw new Exception("Unsupported editor input: "+input.getClass().getName());
 			}
 		}
 		catch (Exception e) {
-			LaunchShortcutUtil.handleRLaunchException(e, 
+			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RScriptLaunch_error_message);
 		}
 	}

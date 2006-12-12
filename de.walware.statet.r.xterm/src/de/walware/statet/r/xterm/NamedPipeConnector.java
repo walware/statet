@@ -22,8 +22,8 @@ import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 
 public class NamedPipeConnector implements IRCodeLaunchConnector {
-
-
+	
+	
 	private final String fLineSeparator;
 	private final String fPipeName;
 	
@@ -33,9 +33,9 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 		fLineSeparator = System.getProperty("line.separator");
 		fPipeName = System.getProperty("user.home") + "/.r-eclipse-pipe";
 	}
-
 	
-	public void submit(final String[] rCommands) throws CoreException {
+	
+	public boolean submit(final String[] rCommands, boolean gotoConsole) throws CoreException {
 		// Initializing the pipe/file each time has the advantages:
 		//  - No problem if pipe/file is deleted during one Eclipse session.
 		//  - The pipe/file can be closed.
@@ -48,7 +48,8 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 				pipe.writeChars(line);
 				pipe.writeChars(fLineSeparator);
 			}
-		} 
+			return true;
+		}
 		catch (IOException e) {
 			
 			throw new CoreException(new Status(
@@ -67,9 +68,9 @@ public class NamedPipeConnector implements IRCodeLaunchConnector {
 			}
 		}
 	}
-
+	
 	public void gotoConsole() throws CoreException {
 		
 	}
-
+	
 }

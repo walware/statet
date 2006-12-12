@@ -15,10 +15,18 @@ import org.eclipse.core.runtime.CoreException;
 
 
 public interface IRCodeLaunchConnector {
-
 	
-	void submit(String[] rCommands) throws CoreException;
-
+	/**
+	 * Submit commands to R.
+	 * 
+	 * @param rCommands array with commands
+	 * @param gotoConsole if <code>true</code>, switch focus console, else does not change the focus.
+	 * @return <code>false</code>, if not successful, otherwise <code>true</code> (hint)
+	 * 
+	 * @throws CoreException if a technical error occured
+	 */
+	boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException;
+	
 	void gotoConsole() throws CoreException;
 	
 }

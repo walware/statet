@@ -13,6 +13,8 @@ package de.walware.statet.r.ui.internal;
 
 import java.io.IOException;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
@@ -37,6 +39,9 @@ import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
  */
 public class RUIPlugin extends AbstractUIPlugin {
 
+	
+	public static final int INTERNAL_ERROR = 100;
+	
 
 	public static final String IMG_WIZBAN_NEWRDFILE = RUI.PLUGIN_ID + "/img/wizban/new.rd-file"; //$NON-NLS-1$
 	public static final String IMG_WIZBAN_NEWRFILE = RUI.PLUGIN_ID + "/img/wizban/new.r-file"; //$NON-NLS-1$
@@ -266,6 +271,17 @@ public class RUIPlugin extends AbstractUIPlugin {
 			}
 			return fREditorTemplatesStore;
 		}
+	}
+
+	
+	public static void log(IStatus status) {
+
+		getDefault().getLog().log(status);
+	}
+
+	public static void logError(int code, String message, Throwable e) {
+
+		log(new Status(IStatus.ERROR, RUI.PLUGIN_ID, code, message, e));
 	}
 
 }

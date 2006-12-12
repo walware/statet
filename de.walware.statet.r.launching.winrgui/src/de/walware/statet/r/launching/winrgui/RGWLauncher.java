@@ -46,7 +46,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 	private class ProcessPointer {
 		public Process fProcess;
 	}
-
+	
 	
 	private String fExecutable;
 	
@@ -71,7 +71,8 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 
 	private enum SubmitType { DONOTHING, SUBMITINPUT, PASTECLIPBOARD };
 	
-	public void submit(final String[] rCommands) throws CoreException {
+	public boolean submit(final String[] rCommands, boolean gotoConsole) throws CoreException {
+		// goto option not implemented (requires extension of .net-code)
 		
 		final SubmitType type;
 		if (rCommands.length == 0)
@@ -80,11 +81,12 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 			type = SubmitType.SUBMITINPUT;
 		else {
 			if (!copyToClipboard(rCommands))
-				return;
+				return false;
 			type = SubmitType.PASTECLIPBOARD;
 		}
 
 		doRunConnector(type, (type == SubmitType.SUBMITINPUT) ? rCommands : null);
+		return true;
 //		StringBuilder rCmd = new StringBuilder();
 //		for (int i = 0; i < rCommands.length; i++) {
 //			rCmd.append(rCommands[i].replace("\"", "\\\""));
@@ -101,29 +103,29 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 	private void doRunConnector(SubmitType connectorCmd, final String[] writeToProcess) throws CoreException {
 
 		final String[] processCmd = new String[] {
-			fExecutable, connectorCmd.toString().toLowerCase() }; 
+			fExecutable, connectorCmd.toString().toLowerCase() };
 		final ProcessPointer connector = new ProcessPointer();
 		
 		IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		
 		IRunnableWithProgress runnable = new IRunnableWithProgress(){
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-						
+				
 				try {
-					connector.fProcess = DebugPlugin.exec(processCmd, null); 
-					Process process = connector.fProcess; 
-						
+					connector.fProcess = DebugPlugin.exec(processCmd, null);
+					Process process = connector.fProcess;
+					
 					if (writeToProcess != null) {
 						writeTextToProcess(process, writeToProcess);
 					}
-		
+					
 					int exitCode = process.waitFor();
 					String message = null;
 					switch (exitCode) {
 					case 0:
 						// ok
 						break;
-						
+					
 					case 100: {
 						BufferedReader reader = null;
 						try {
@@ -136,14 +138,14 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 							message = "Unable to detect Error";
 						}
 						finally {
-							if (reader != null)	
+							if (reader != null)
 								try {
-									reader.close(); 
+									reader.close();
 								} catch (Exception e) {};
 						}
 						}
 						break;
-						
+					
 					default:
 						message = "Unknown Error";
 						break;
@@ -162,7 +164,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 				}
 			}
 		};
-			
+		
 		try {
 			progressService.busyCursorWhile(runnable);
 
@@ -195,14 +197,14 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 			for (int i = 0; i < text.length; i++) {
 				writer.println(text[i]);
 			}
-		} 
+		}
 		catch (Exception e) {
 			
 		}
 		finally {
-			if (writer != null)	
+			if (writer != null)
 				try {
-					writer.close(); 
+					writer.close();
 				} catch (Exception e) {};
 		}
 	}
@@ -218,8 +220,8 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		if (fClipboard == null)
 			fClipboard = new Clipboard(Display.getCurrent());
 		
-		return DNDUtil.setContent(fClipboard, 
-				new String[] { builder.toString() }, 
+		return DNDUtil.setContent(fClipboard,
+				new String[] { builder.toString() },
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
 }
