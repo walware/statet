@@ -28,7 +28,6 @@ import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
-import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
 import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
@@ -104,7 +103,8 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
     @Override
     protected Template editTemplate(Template template, boolean edit, boolean isNameModifiable) {
     	
-		EditTemplateDialog dialog = new EditTemplateDialog(getShell(), template, edit, isNameModifiable, 
+    	de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
+    			getShell(), template, edit, isNameModifiable, 
 				fDialogViewerConfiguration, fDialogTemplateProcessor, getContextTypeRegistry());
 		if (dialog.open() == Dialog.OK) {
 			return dialog.getTemplate();
