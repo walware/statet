@@ -15,7 +15,7 @@ public class ToolPropertyTester extends PropertyTester {
 	public ToolPropertyTester() {
 	}
 
-	@Override
+	
 	public boolean test(Object receiver, String property, Object[] args, Object expectedValue) {
 		
 		ITool tool = null;

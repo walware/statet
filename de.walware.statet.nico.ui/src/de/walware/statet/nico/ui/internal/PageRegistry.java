@@ -24,8 +24,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.internal.ui.contexts.DebugContextManager;
-import org.eclipse.debug.internal.ui.contexts.provisional.IDebugContextListener;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.contexts.DebugContextEvent;
+import org.eclipse.debug.ui.contexts.IDebugContextListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IViewPart;
@@ -277,7 +278,8 @@ class PageRegistry {
 		fPage = page;
 		
 		fDebugContextListener = new IDebugContextListener() {
-			public void contextActivated(ISelection selection, IWorkbenchPart part) {
+			public void debugContextChanged(DebugContextEvent event) {
+				ISelection selection = event.getContext();
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection sel = (IStructuredSelection) selection;
 					if (sel.size() == 1) {
@@ -304,16 +306,13 @@ class PageRegistry {
 					}
 				}
 			}
-			public void contextChanged(ISelection selection, IWorkbenchPart part) {
-				System.out.println("DebugContext changed");
-			}
 		};
-		DebugContextManager.getDefault().addDebugContextListener(fDebugContextListener, fPage.getWorkbenchWindow());
+		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).addDebugContextListener(fDebugContextListener);
 	}
 	
 	public synchronized void  dispose() {
-		
-		DebugContextManager.getDefault().removeDebugContextListener(fDebugContextListener, fPage.getWorkbenchWindow());
+
+		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).removeDebugContextListener(fDebugContextListener);
 		fShowConsoleViewJob.cancel();
 		fShowConsoleViewJob = null;
 		fConsoleUpdateJob.cancel();
