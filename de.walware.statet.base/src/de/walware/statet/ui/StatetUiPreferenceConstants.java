@@ -29,6 +29,13 @@ import de.walware.statet.base.StatetPlugin;
  */
 public class StatetUiPreferenceConstants {
 
+	
+	/**
+	 * Preference key suffix for enablement of optional text styles.
+	 * Value: @value
+	 */
+	public static final String TS_ENABLE_SUFFIX = ".enable";
+
 	/**
 	 * Preference key suffix for color text style preference keys.
 	 * Value: @value
@@ -162,6 +169,7 @@ public class StatetUiPreferenceConstants {
 	 * </p>
 	 */
 	public final static String CODEASSIST_REPLACEMENT_FOREGROUND = CODEASSIST_ROOT + "CompletionReplacement_foreground"; //$NON-NLS-1$
+
 	
 //	/**
 //	 * A named preference that controls whether the ouline page should sort its elements.
