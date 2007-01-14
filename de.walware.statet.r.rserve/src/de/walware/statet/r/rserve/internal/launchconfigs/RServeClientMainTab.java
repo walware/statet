@@ -11,23 +11,20 @@
 
 package de.walware.statet.r.rserve.internal.launchconfigs;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.DefaultBindSpec;
+import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.value.IValueChangeListener;
+import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
+import org.eclipse.core.databinding.validation.IValidator;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
-import org.eclipse.jface.internal.databinding.provisional.BindSpec;
-import org.eclipse.jface.internal.databinding.provisional.DataBindingContext;
-import org.eclipse.jface.internal.databinding.provisional.beans.BeanObservableFactory;
-import org.eclipse.jface.internal.databinding.provisional.conversion.ConvertString2Integer;
-import org.eclipse.jface.internal.databinding.provisional.description.Property;
-import org.eclipse.jface.internal.databinding.provisional.factories.DefaultBindSupportFactory;
-import org.eclipse.jface.internal.databinding.provisional.factories.DefaultBindingFactory;
-import org.eclipse.jface.internal.databinding.provisional.factories.DefaultObservableFactory;
-import org.eclipse.jface.internal.databinding.provisional.swt.SWTObservableFactory;
-import org.eclipse.jface.internal.databinding.provisional.validation.RegexStringValidator;
-import org.eclipse.jface.internal.databinding.provisional.viewers.ViewersBindingFactory;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -36,9 +33,9 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ui.StatetImages;
 
@@ -63,15 +60,12 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		final DataBindingContext dbc = new DataBindingContext();
-		dbc.addObservableFactory(new DefaultObservableFactory(dbc));
-		dbc.addObservableFactory(new BeanObservableFactory(dbc, null, new Class[]{Widget.class}));
-		SWTObservableFactory swtFac = new SWTObservableFactory();
-		swtFac.setUpdateTime(DataBindingContext.TIME_EARLY);
-		dbc.addObservableFactory(swtFac);
-		dbc.addBindingFactory(new DefaultBindingFactory());
-		dbc.addBindingFactory(new ViewersBindingFactory());
-		dbc.addBindSupportFactory(new DefaultBindSupportFactory());
+		Realm realm = Realm.getDefault();
+		if (realm == null) {
+			realm = SWTObservables.getRealm(UIAccess.getDisplay());
+			Realm.setDefault(realm);
+		}
+		final DataBindingContext dbc = new DataBindingContext(realm);
 		mainComposite.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				dbc.dispose();
@@ -82,22 +76,41 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		Layouter layouter = new Layouter(main.addGroup("Connection:"), 2);
 
 		fServerAddress = layouter.addLabeledTextControl("Server Address:");
-		dbc.bind(fServerAddress, 
-				new Property(fConnectionConfig, ConnectionConfig.PROP_SERVERADDRESS), 
+		dbc.bindValue(SWTObservables.observeText(fServerAddress, SWT.Modify), 
+				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERADDRESS), 
 				null);
 		
 		fServerPort = layouter.addLabeledTextControl("Server Port:");
-		dbc.bind(fServerPort, 
-				new Property(fConnectionConfig,	ConnectionConfig.PROP_SERVERPORT), 
-		        new BindSpec(null, 
-		        		new ConvertString2Integer(), 
-		        		new RegexStringValidator("^[0-9]*$", "^[0-9]+$", "Please enter a number"), 
-		        		null));		
+		dbc.bindValue(SWTObservables.observeText(fServerPort, SWT.Modify), 
+				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERPORT),
+				new DefaultBindSpec()
+						.setTargetValidator(new IValidator() {
+							public IStatus validate(Object value) {
+								try {
+									int n = Integer.parseInt((String) value);
+									if (n < 0 || n > 65535) {
+										return ValidationStatus.error("The valid port range is 0-65535.");
+									}
+									return Status.OK_STATUS;
+								} catch (Throwable t) {
+									return ValidationStatus.error("Please enter a number specifing the port");
+								}
+							}
+						})
+//						.setTargetUpdatePolicy(DataBindingContext.TIME_EARLY)
+				);
 
-		fConnectionConfig.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
+		dbc.getValidationStatus().addValueChangeListener(new IValueChangeListener() {
+			public void handleValueChange(ValueChangeEvent event) {
+				IStatus status = (IStatus) event.getObservableValue().getValue();
+				if (!status.isOK()) {
+					setErrorMessage(status.getMessage());
+				}
+				else {
+					setErrorMessage(null);
+				}
 				updateLaunchConfigurationDialog();
-			};
+			}
 		});
 	}
 

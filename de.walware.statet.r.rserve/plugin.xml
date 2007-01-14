@@ -28,7 +28,7 @@
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
             class="de.walware.statet.r.rserve.internal.launchconfigs.RServeClientLaunchConfigTabGroup"
-            description="LaunchConfiguration_RServeClient_description"
+            description="%LaunchConfiguration_RServeClient_description"
             id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationTabGroup"
             type="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"/>
    </extension>
