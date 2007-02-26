@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("StatET-Project (www.walware.de/goto/statet)")]
 [assembly: AssemblyProduct("RGWConnector")]
-[assembly: AssemblyCopyright("Copyright © 2005-2006 Stephan Wahlbrink")]
+[assembly: AssemblyCopyright("Copyright © 2005-2007 Stephan Wahlbrink")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]	
 
@@ -30,5 +30,5 @@ using System.Runtime.InteropServices;
 //      Buildnummer
 //      Revision
 //
-[assembly: AssemblyVersion("0.3.0.2")]
-[assembly: AssemblyFileVersion("0.3.0.2")]
+[assembly: AssemblyVersion("0.3.0.3")]
+[assembly: AssemblyFileVersion("0.3.0.3")]

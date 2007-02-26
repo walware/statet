@@ -47,15 +47,6 @@ namespace RGWConnector {
 
 		[DllImport("USER32.DLL", SetLastError = true)]
 		private static extern uint RealGetWindowClass(IntPtr hWnd, StringBuilder pszType, uint cchType);
-		/*
-		 * MDI:
-		 * Main Window Class = Rgui Workspace
-		 * Child Window Class = Rgui Document
-		 * 
-		 * SDI:
-		 * Window Class = Rgui
-		 * 
-		 */
 
 		[DllImport("USER32.DLL", SetLastError = true)]
 		private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
@@ -72,10 +63,22 @@ namespace RGWConnector {
 		private static extern bool EnumChildWindows(IntPtr hWndParent, WndEnumProc callback, int lParam);
 
 
+		/*
+		 * MDI:
+		 * Main Window Class = Rgui Workspace
+		 * Child Window Class = Rgui Document
+		 * 
+		 * SDI:
+		 * Window Class = Rgui
+		 * 
+		 * */
+
 		private const int M_MDI_CLIENT = 10;
 		private const int M_MDI_FALLBACK = 11;
 		private const int M_SDI = 20;
 		private const int M_PROCESS = 50;
+
+        private const int WAIT_MS = 10;
 
 
 		private char[] fEscapeChars;
@@ -134,6 +137,7 @@ namespace RGWConnector {
 			if (fMode > 0) {
 				focusWindow(fWindow);
 				if (fMode == M_MDI_CLIENT) {
+                    Thread.Sleep(WAIT_MS);
 					focusWindow(fChildWindow);
 				}
 			}
@@ -269,7 +273,7 @@ namespace RGWConnector {
 				return;
 			}
 
-			Thread.Sleep(5);
+            Thread.Sleep(WAIT_MS);
 			focusWindow(fWindow);
 			System.Windows.Forms.SendKeys.Flush();
 			focusWindow(fWindow);
