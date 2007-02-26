@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StatET: R-GUI-Connector for Windows
 Bundle-SymbolicName: de.walware.statet.r.launching.winrgui; singleton:=true
-Bundle-Version: 0.1.2
+Bundle-Version: 0.1.3.qualifier
 Bundle-Activator: de.walware.statet.r.launching.winrgui.WinRGuiConnectorPlugin
 Bundle-Vendor: WalWare (Stephan Wahlbrink / www.walware.de)
 Bundle-Localization: plugin
