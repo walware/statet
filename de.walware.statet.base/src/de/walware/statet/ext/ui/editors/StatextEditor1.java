@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,9 +32,6 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.custom.BusyIndicator;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
@@ -49,7 +46,6 @@ import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
-import de.walware.statet.ui.util.DNDUtil;
 
 
 public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor {
@@ -379,21 +375,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	protected void initializeKeyBindingScopes() {
 		
 		setKeyBindingScopes(new String[] { "de.walware.statet.ui.contexts.TextEditorScope" });
-	}
-	
-	@Override
-	protected void initializeDragAndDrop(ISourceViewer viewer) {
-
-		// AFTER 3.2.0: Supported by default text editor?
-		DNDUtil.addDropSupport(viewer.getTextWidget(), 
-				new DNDUtil.SimpleTextDropAdapter() {
-			@Override
-			protected StyledText getTextWidget() {
-				return StatextEditor1.this.getSourceViewer().getTextWidget();
-			}
-		}, new Transfer[] { TextTransfer.getInstance() });
-
-		super.initializeDragAndDrop(viewer);
 	}
 	
 	@Override

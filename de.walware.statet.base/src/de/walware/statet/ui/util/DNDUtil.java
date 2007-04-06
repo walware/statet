@@ -51,6 +51,12 @@ public class DNDUtil {
 			}
 		}
 		
+		@Override
+		public void dragOver(DropTargetEvent event) {
+
+			event.feedback = DND.FEEDBACK_SCROLL | DND.FEEDBACK_SELECT;
+		}
+		
 		public void drop(DropTargetEvent e) {
 			
 			getTextWidget().insert((String)e.data);

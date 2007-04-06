@@ -48,6 +48,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 
 	public void dragOver(DropTargetEvent event) {
 		
+		event.feedback = DND.FEEDBACK_NONE;
 	}
 
 	public void dropAccept(DropTargetEvent event) {
