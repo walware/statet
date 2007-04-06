@@ -18,19 +18,6 @@ public class Messages extends NLS {
 	
 	private static final String BUNDLE_NAME = Messages.class.getName();
 
-
-	public static String SyntaxColoring_link;
-	public static String SyntaxColoring_List_label;
-	public static String SyntaxColoring_Enable;
-	public static String SyntaxColoring_Color;
-	public static String SyntaxColoring_Bold;
-	public static String SyntaxColoring_Italic;
-	public static String SyntaxColoring_Underline;
-	public static String SyntaxColoring_Strikethrough;
-	public static String SyntaxColoring_Preview;
-	public static String SyntaxColoring_ItemInfo;
-
-
 	public static String EditTemplateDialog_title_Edit;
 	public static String EditTemplateDialog_title_New;
 	public static String EditTemplateDialog_error_NoName;
@@ -53,10 +40,6 @@ public class Messages extends NLS {
 	public static String ProjectSelectionDialog_filter;
 
 	public static String TemplateVariableProposal_error_title;
-
-
-
-
 	
 
 	static {

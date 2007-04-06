@@ -18,19 +18,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.databinding.BindSpec;
-import org.eclipse.core.databinding.Binding;
-import org.eclipse.core.databinding.BindingEvent;
 import org.eclipse.core.databinding.DataBindingContext;
-import org.eclipse.core.databinding.IBindingListener;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.conversion.ConvertString2Boolean;
-import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.value.IValueChangeListener;
+import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.preference.ColorSelector;
@@ -41,10 +36,12 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -57,13 +54,13 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import de.walware.eclipsecommons.preferences.Preference.Type;
+import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.ui.databinding.ColorSelectorObservableValue;
-import de.walware.eclipsecommons.ui.databinding.ConvertString2RGB;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
-import de.walware.eclipsecommons.ui.preferences.PreferenceKey;
+import de.walware.eclipsecommons.ui.preferences.OverlayStorePreference;
 import de.walware.eclipsecommons.ui.preferences.PreferenceStoreBeanWrapper;
+import de.walware.eclipsecommons.ui.preferences.RGBPref;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.TreeUtil;
@@ -73,18 +70,28 @@ import de.walware.eclipsecommons.ui.util.TreeUtil.Node;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.internal.ui.preferences.Messages;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
+/**
+ * Common UI to configure the style of syntax tokens (tree, options, preview).
+ */
 public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurationBlock {
 
 	
+	/**
+	 * Generic node of the tree.
+	 * 
+	 * Note: getter and setters in all nodes for easy DataBinding.
+	 */
 	protected static abstract class SyntaxNode extends Node {
 		
-		protected SyntaxNode(String name, SyntaxNode[] children) {
+		private SyntaxNode(String name, SyntaxNode[] children) {
 			
 			super(name, children);
 		}
+		
 		
 		public SyntaxNode[] getChildren() {
 			
@@ -96,7 +103,26 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			return null;
 		}
 		
+		
+		/*-- Bean-Support --*/
+		
+		public void addPropertyChangeListener(PropertyChangeListener listener) {
+		}
 
+		public void addPropertyChangeListener(String propertyName,
+				PropertyChangeListener listener) {
+		}
+
+		public void removePropertyChangeListener(PropertyChangeListener listener) {
+		}
+
+		public void removePropertyChangeListener(String propertyName,
+				PropertyChangeListener listener) {
+		}
+
+		
+		/*-- Property-Access --*/
+		
 		public RGB getColor() {
 			return null;
 		}
@@ -132,23 +158,11 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 		public void setUnderline(boolean enabled) {
 		}
-		
-//		-- Bean-Support
-		public void addPropertyChangeListener(PropertyChangeListener listener) {
-		}
-
-		public void addPropertyChangeListener(String propertyName,
-				PropertyChangeListener listener) {
-		}
-
-		public void removePropertyChangeListener(PropertyChangeListener listener) {
-		}
-
-		public void removePropertyChangeListener(String propertyName,
-				PropertyChangeListener listener) {
-		}
 	}
 
+	/**
+	 * Category Node without syntax style.
+	 */
 	protected static class CategoryNode extends SyntaxNode {
 		
 		public CategoryNode(String name, SyntaxNode[] children) {
@@ -157,16 +171,17 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 	}
 	
+	/**
+	 * Style Node with syntax style, connected to overlay-preferencestory.
+	 */
 	protected static class StyleNode extends CategoryNode {
-		
-		private static IConverter gBoolConverter = new ConvertString2Boolean();
-		private static IConverter gRGBConverter = new ConvertString2RGB();
 		
 		private String fDescription;
 		private String fRootKey;
 		private boolean fAllowActivation;
 		
-		private Object[][] fPreferences; 
+		/** tuple { pref : Preference, beanProperty : String } */ 
+		private Object[][] fPreferences;
 		private IPreferenceStore fPreferenceStore;
 		private PreferenceStoreBeanWrapper fBeanSupport;
 		
@@ -180,13 +195,13 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			fAllowActivation = allowActivation;
 			List<Object[]> prefs = new ArrayList<Object[]>();
 			if (fAllowActivation) {
-				prefs.add(new Object[] { new PreferenceKey(getEnableKey(), Type.BOOLEAN), "enabled", gBoolConverter }); 
+				prefs.add(new Object[] { new Preference.BooleanPref(null, getEnableKey()), "enabled" }); 
 			}
-			prefs.add(new Object[] { new PreferenceKey(getColorKey(), Type.STRING), "color", gRGBConverter });
-			prefs.add(new Object[] { new PreferenceKey(getBoldKey(), Type.BOOLEAN), "bold", gBoolConverter });
-			prefs.add(new Object[] { new PreferenceKey(getItalicKey(), Type.BOOLEAN), "italic", gBoolConverter });
-			prefs.add(new Object[] { new PreferenceKey(getUnderlineKey(), Type.BOOLEAN), "underline", gBoolConverter });
-			prefs.add(new Object[] { new PreferenceKey(getStrikethroughKey(), Type.BOOLEAN), "strikethrough", gBoolConverter });
+			prefs.add(new Object[] { new RGBPref(null, getColorKey()), "color" });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getBoldKey()), "bold" });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getItalicKey()), "italic" });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getUnderlineKey()), "underline" });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getStrikethroughKey()), "strikethrough" });
 			fPreferences = prefs.toArray(new Object[prefs.size()][]);
 		}
 		
@@ -200,7 +215,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			return fDescription;
 		}
 
-		
+
 		private String getEnableKey() {
 			return fRootKey + StatetUiPreferenceConstants.TS_ENABLE_SUFFIX;
 		}
@@ -220,10 +235,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			return fRootKey + StatetUiPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
 		}
 
-		protected void addPreferenceKeys(List<PreferenceKey> keys) {
+		protected void gatherPreferenceKeys(List<OverlayStorePreference> keys) {
 			
 			for (Object[] pref : fPreferences) {
-				keys.add((PreferenceKey) pref[0]);
+				keys.add(OverlayStorePreference.create((Preference) pref[0]));
 			}
 		}
 		protected void connectPreferenceStore(IPreferenceStore store) {
@@ -231,10 +246,12 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			fPreferenceStore = store;
 			fBeanSupport = new PreferenceStoreBeanWrapper(store, this);
 			for (Object[] pref : fPreferences) {
-				fBeanSupport.addPreference(((PreferenceKey) pref[0]).fKey, (String) pref[1], (IConverter) pref[2]);
+				fBeanSupport.addPreference((String) pref[1], (Preference) pref[0]);
 			}
 		}
 
+		
+		/*-- Bean-Support --*/
 		
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
 			
@@ -258,6 +275,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			fBeanSupport.removePropertyChangeListener(propertyName, listener);
 		}
 
+		
+		/*-- Property-Access --*/
 		
 		public boolean isEnabled() {
 			if (fAllowActivation) {
@@ -306,7 +325,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			fPreferenceStore.setValue(getUnderlineKey(), enabled);
 		}
 	}
-		
+	
+	
 	private class SyntaxNodeLabelProvider extends CellLabelProvider {
 
 		public String getText(Object element) {
@@ -317,6 +337,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		public String getToolTipText(Object element) {
 			if (element instanceof StyleNode) {
 				return ((StyleNode) element).getDescription();
+			}
+			if (element instanceof CategoryNode) {
+				return (NLS.bind(Messages.SyntaxColoring_Category_tooltip,((Node) element).getName()));
 			}
 			return null;
 		}
@@ -347,6 +370,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	public AbstractSyntaxColoringBlock() {
 	}
 
+
 	protected abstract SyntaxNode[] createItems();
 	
 
@@ -357,9 +381,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		// Prepare model
 		fRootNodes = createItems();
-		List<PreferenceKey> keys = new ArrayList<PreferenceKey>();
+		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
 		collectKeys(keys, fRootNodes);
-		setupPreferenceManager(preferenceStore, keys.toArray(new PreferenceKey[keys.size()]));
+		setupPreferenceManager(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
 		connectStore(fRootNodes);
 
 		addLinkHeader(block, Messages.SyntaxColoring_link);
@@ -382,6 +406,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		Control optionControl = createOptionsControl(group);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalIndent = 5;
 		optionControl.setLayoutData(gd);
 
 		// Previewer
@@ -396,7 +421,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		initFields();
 		initBindings();
-		updateControls();
 
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			public void run() {
@@ -408,10 +432,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 	}
 	
-	private void collectKeys(List<PreferenceKey> keys, SyntaxNode[] nodes) {
+	private void collectKeys(List<OverlayStorePreference> keys, SyntaxNode[] nodes) {
 		for (SyntaxNode node : nodes) {
 			if (node instanceof StyleNode) {
-				((StyleNode) node).addPreferenceKeys(keys);
+				((StyleNode) node).gatherPreferenceKeys(keys);
 			}
 			SyntaxNode[] children = node.getChildren();
 			if (children != null) {
@@ -439,7 +463,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		fSelectionViewer.setContentProvider(new TreeUtil.NodeContentProvider());
 		fSelectionViewer.setLabelProvider(new SyntaxNodeLabelProvider());
-		fSelectionViewer.activateCustomTooltips();
+		ColumnViewerToolTipSupport.enableFor(fSelectionViewer);
 		
 		TreeUtil.addDoubleClickExpansion(fSelectionViewer);
 		
@@ -514,36 +538,14 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	
-//	@Override
-//	protected void updateControls() {
-//		super.updateControls();
-//
-//		fGroup.handleListSelection();
-//	}
-
-
 	public void initFields() {
 
 		fSelectionViewer.setInput(fRootNodes);
-	// TODO: check
-//		fSelectionViewer.refresh();
-//		handleListSelection(); // -> deaktiveren
 	}
 	
 	private void initBindings() {
 	
-// Binding listiner below is enough
-//		fSelectionViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-//			public void selectionChanged(SelectionChangedEvent event) {
-//				updateEnablement((IStructuredSelection) event.getSelection());
-//			}
-//		});
-
 		Realm realm = Realm.getDefault();
-		if (realm == null) {
-			realm = SWTObservables.getRealm(UIAccess.getDisplay());
-			Realm.setDefault(realm);
-		}
 		fDbc = new DataBindingContext(realm);
 
 		// Observe changes in selection.
@@ -551,34 +553,33 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			ViewersObservables.observeSingleSelection(fSelectionViewer);
 
 		// Bind option widgets to the properties of the current selection.
-		Binding enablement = fDbc.bindValue(SWTObservables.observeSelection(fEnableCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, 
-						"enabled", boolean.class), null);
-		enablement.addBindingEventListener(new IBindingListener() {
-			public IStatus bindingEvent(BindingEvent e) {
-				if (e.pipelinePosition == BindingEvent.PIPELINE_AFTER_CHANGE) {
-					updateEnablement((IStructuredSelection) fSelectionViewer.getSelection());
-				}
-				return Status.OK_STATUS; 
-			}
-		});
+		ISWTObservableValue obs = SWTObservables.observeSelection(fEnableCheckbox);
+		fDbc.bindValue(obs, 
+				BeansObservables.observeDetailValue(realm, selection, "enabled", boolean.class),
+				null, null);
+		obs.addValueChangeListener(
+				new IValueChangeListener() {
+					public void handleValueChange(ValueChangeEvent event) {
+						updateEnablement((IStructuredSelection) fSelectionViewer.getSelection());
+					}
+				});
+
 		fDbc.bindValue(new ColorSelectorObservableValue(fForegroundColorEditor), 
-				BeansObservables.observeDetailValue(realm, selection, 
-						"color", RGB.class), null);
+				BeansObservables.observeDetailValue(realm, selection, "color", RGB.class), 
+				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fBoldCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, 
-						"bold", boolean.class), null);
+				BeansObservables.observeDetailValue(realm, selection, "bold", boolean.class), 
+				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fItalicCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, 
-						"italic", boolean.class), new BindSpec());
+				BeansObservables.observeDetailValue(realm, selection, "italic", boolean.class), 
+				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fStrikethroughCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, 
-						"strikethrough", boolean.class), new BindSpec());
+				BeansObservables.observeDetailValue(realm, selection, "strikethrough", boolean.class), 
+				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fUnderlineCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, 
-						"underline", boolean.class), new BindSpec());
+				BeansObservables.observeDetailValue(realm, selection, "underline", boolean.class), 
+				null, null);
 	}
-	
 	
 	private void updateEnablement(IStructuredSelection selection) {
 		

@@ -86,7 +86,7 @@ public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 		super();
 	}
 
-	protected void setupPreferenceManager(IPreferenceStore store, PreferenceKey[] keys) {
+	protected void setupPreferenceManager(IPreferenceStore store, OverlayStorePreference[] keys) {
 		
 		fOverlayStore = new OverlayPreferenceStore(store, keys);
 		fOverlayStore.load();

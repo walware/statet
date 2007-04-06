@@ -33,7 +33,7 @@ import de.walware.eclipsecommons.ui.dialogs.groups.ListedOptionsGroup;
 import de.walware.eclipsecommons.ui.dialogs.groups.SelectionItem;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
-import de.walware.eclipsecommons.ui.preferences.PreferenceKey;
+import de.walware.eclipsecommons.ui.preferences.OverlayStorePreference;
 import de.walware.eclipsecommons.preferences.Preference.Type;
 
 import de.walware.statet.base.StatetPlugin;
@@ -121,14 +121,14 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 
 		super.createContents(layouter, container, preferenceStore);
 		
-		List<PreferenceKey> keys = new ArrayList<PreferenceKey>();
-		keys.add(new PreferenceKey(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS, Type.BOOLEAN));
-		keys.add(new PreferenceKey(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR, Type.STRING));
+		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
+		keys.add(new OverlayStorePreference(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS, Type.BOOLEAN));
+		keys.add(new OverlayStorePreference(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR, Type.STRING));
 		for (AppearanceColorsItem color : fAppearanceColors.fSelectionModel) {
-			keys.add(new PreferenceKey(color.fColorKey, Type.STRING));
+			keys.add(new OverlayStorePreference(color.fColorKey, Type.STRING));
 		}
-		keys.add(new PreferenceKey(StatetUiPreferenceConstants.CODEASSIST_AUTOINSERT, Type.BOOLEAN));
-		setupPreferenceManager(preferenceStore, keys.toArray(new PreferenceKey[keys.size()]));
+		keys.add(new OverlayStorePreference(StatetUiPreferenceConstants.CODEASSIST_AUTOINSERT, Type.BOOLEAN));
+		setupPreferenceManager(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
 
 		addLinkHeader(layouter, Messages.Editors_link);
 		

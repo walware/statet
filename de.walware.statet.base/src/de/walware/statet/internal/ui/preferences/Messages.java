@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,9 +16,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	
-	private static final String BUNDLE_NAME = Messages.class.getName();
-
-
+	
 	public static String StatetBase_description;
 
 	public static String PropertyAndPreference_UseProjectSettings_label;
@@ -40,6 +38,17 @@ public class Messages extends NLS {
 	public static String Editors_CodeAssistReplacementBackgroundColor;
 	public static String Editors_CodeAssist;
 	public static String Editors_CodeAssist_AutoInsert;
+
+	public static String SyntaxColoring_link;
+	public static String SyntaxColoring_List_label;
+	public static String SyntaxColoring_Category_tooltip;
+	public static String SyntaxColoring_Enable;
+	public static String SyntaxColoring_Color;
+	public static String SyntaxColoring_Bold;
+	public static String SyntaxColoring_Italic;
+	public static String SyntaxColoring_Underline;
+	public static String SyntaxColoring_Strikethrough;
+	public static String SyntaxColoring_Preview;
 
 	public static String CodeTemplates_title;
 	public static String CodeTemplates_label;
@@ -93,13 +102,10 @@ public class Messages extends NLS {
 	public static String TaskTags_InputDialog_error_ShouldStartWithLetterOrDigit_message;
 
 
-
-
-
-
-
+	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
+	private Messages() {}
 	
 }

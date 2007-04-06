@@ -30,7 +30,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 		 * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
 		 */
 		public void propertyChange(PropertyChangeEvent event) {
-			PreferenceKey key= findPreferenceKey(event.getProperty());
+			OverlayStorePreference key= findPreferenceKey(event.getProperty());
 			if (key != null)
 				propagateProperty(fParent, key, fStore); 
 		}
@@ -39,19 +39,19 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 	
 	private IPreferenceStore fParent;
 	private IPreferenceStore fStore;
-	private PreferenceKey[] fPreferenceKeys;
+	private OverlayStorePreference[] fPreferenceKeys;
 	
 	private PropertyListener fPropertyListener;
 	private boolean fLoaded;
 	
 	
-	public OverlayPreferenceStore(IPreferenceStore parent, PreferenceKey[] PreferenceKeys) {
+	public OverlayPreferenceStore(IPreferenceStore parent, OverlayStorePreference[] PreferenceKeys) {
 		fParent= parent;
 		fPreferenceKeys= PreferenceKeys;
 		fStore= new PreferenceStore();
 	}
 	
-	private PreferenceKey findPreferenceKey(String key) {
+	private OverlayStorePreference findPreferenceKey(String key) {
 		for (int i= 0; i < fPreferenceKeys.length; i++) {
 			if (fPreferenceKeys[i].fKey.equals(key))
 				return fPreferenceKeys[i];
@@ -63,7 +63,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 		return (findPreferenceKey(key) != null);
 	}
 	
-	private void propagateProperty(IPreferenceStore orgin, PreferenceKey key, IPreferenceStore target) {
+	private void propagateProperty(IPreferenceStore orgin, OverlayStorePreference key, IPreferenceStore target) {
 		
 		if (orgin.isDefault(key.fKey)) {
 			if (!target.isDefault(key.fKey))
@@ -123,7 +123,7 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 			propagateProperty(fStore, fPreferenceKeys[i], fParent);
 	}
 	
-	private void loadProperty(IPreferenceStore orgin, PreferenceKey key, IPreferenceStore target, boolean forceInitialization) {
+	private void loadProperty(IPreferenceStore orgin, OverlayStorePreference key, IPreferenceStore target, boolean forceInitialization) {
 		
 		Type type = key.fType;
 		switch (type) {
@@ -445,12 +445,12 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 	 * @param keys
 	 * @since 3.0
 	 */
-	public void addKeys(PreferenceKey[] keys) {
+	public void addKeys(OverlayStorePreference[] keys) {
 		assert (!fLoaded);
 		assert (keys != null);
 		
 		int PreferenceKeysLength= fPreferenceKeys.length;
-		PreferenceKey[] result= new PreferenceKey[keys.length + PreferenceKeysLength];
+		OverlayStorePreference[] result= new OverlayStorePreference[keys.length + PreferenceKeysLength];
 
 		for (int i= 0, length= PreferenceKeysLength; i < length; i++)
 			result[i]= fPreferenceKeys[i];

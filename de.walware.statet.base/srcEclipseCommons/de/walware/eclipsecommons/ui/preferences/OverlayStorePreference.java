@@ -11,17 +11,23 @@
 
 package de.walware.eclipsecommons.ui.preferences;
 
-import de.walware.eclipsecommons.preferences.Preference.Type;
+import de.walware.eclipsecommons.preferences.Preference;
 
 
-public class PreferenceKey {
+public class OverlayStorePreference {
 
 
+	public static OverlayStorePreference create(Preference pref) {
+		
+		return new OverlayStorePreference(pref.getKey(), pref.getStoreType());
+	}
+	
+	
 	public final String fKey;
-	public final Type fType;
+	public final Preference.Type fType;
 
 	
-	public PreferenceKey(String key, Type type) {
+	public OverlayStorePreference(String key, Preference.Type type) {
 
 		fKey = key;
 		fType = type;

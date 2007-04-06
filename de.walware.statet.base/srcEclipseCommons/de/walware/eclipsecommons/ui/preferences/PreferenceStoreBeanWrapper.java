@@ -15,27 +15,28 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
 
-import org.eclipse.core.databinding.conversion.IConverter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+
+import de.walware.eclipsecommons.preferences.Preference;
 
 
 /**
  * Provides PropertyChangeSupport (Java Bean) for bean/preferences in
  * a IPreferenceStore (JFace), e.g. OverlayPreferenceStore.
+ * 
+ * All property-preference-pairs must be registered using {@link #addPreference(String, Preference)}.
  */
 public class PreferenceStoreBeanWrapper {
 	
-	private class Preference {
+	private class PrefData {
 		
-		final String storeKey;
 		final String beanProperty;
-		final IConverter converter;
+		final Preference converter;
 
-		public Preference(final String storeKey, final String beanProperty, final IConverter converter) {
+		public PrefData(final String beanProperty, final Preference converter) {
 
-			this.storeKey = storeKey;
 			this.beanProperty = beanProperty;
 			this.converter = converter;
 		}
@@ -44,7 +45,7 @@ public class PreferenceStoreBeanWrapper {
 	private IPreferenceStore fStore;
 	private PropertyChangeSupport fBeanSupport;
 	
-	private HashMap<String, Preference> fPreferenceMap = new HashMap<String, Preference>();
+	private HashMap<String, PrefData> fPreferenceMap = new HashMap<String, PrefData>();
 	
 	/**
 	 * 
@@ -57,13 +58,17 @@ public class PreferenceStoreBeanWrapper {
 		fStore.addPropertyChangeListener(new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				String storeKey = event.getProperty();
-				Preference pref = fPreferenceMap.get(storeKey);
+				PrefData pref = fPreferenceMap.get(storeKey);
 				if (pref != null) {
 					Object oldValue = event.getOldValue();
 					Object newValue = event.getNewValue();
-					if (pref.converter != null && oldValue instanceof String) {
-						oldValue = pref.converter.convert(oldValue);
-						newValue = pref.converter.convert(newValue);
+					if (pref.converter != null) {
+						if (!pref.converter.isUsageType(oldValue)) {
+							oldValue = pref.converter.store2Usage(oldValue);
+						}
+						if (!pref.converter.isUsageType(newValue)) {
+							newValue = pref.converter.store2Usage(newValue);
+						}
 					}
 					fBeanSupport.firePropertyChange(pref.beanProperty, 
 							oldValue, newValue);
@@ -72,9 +77,15 @@ public class PreferenceStoreBeanWrapper {
 		});
 	}
 	
-	public void addPreference(String storeKey, String beanProperty, IConverter converter) {
+	/**
+	 * Registers a property/preference, which should be managed.
+	 * 
+	 * @param beanProperty name of bean property
+	 * @param preference identifier for preference store (qualifier not necessary, because not supported by PreferenceStore)
+	 */
+	public void addPreference(String beanProperty, Preference preference) {
 		
-		fPreferenceMap.put(storeKey, new Preference(storeKey, beanProperty, converter));
+		fPreferenceMap.put(preference.getKey(), new PrefData(beanProperty, preference));
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
