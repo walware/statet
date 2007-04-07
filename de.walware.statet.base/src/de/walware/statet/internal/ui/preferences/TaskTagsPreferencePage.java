@@ -12,8 +12,10 @@
 package de.walware.statet.internal.ui.preferences;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
 
 
 /**
@@ -48,9 +50,10 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 	}
 	
 	@Override
-	protected TaskTagsConfigurationBlock createConfigurationBlock(IProject project) {
+	protected TaskTagsConfigurationBlock createConfigurationBlock() 
+			throws CoreException {
 		
-		return new TaskTagsConfigurationBlock(project, getNewStatusChangedListener());
+		return new TaskTagsConfigurationBlock(getProject(), getNewStatusChangedListener());
 	}
 	
 	@Override

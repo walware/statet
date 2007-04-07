@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
 
 
 /**
@@ -51,10 +52,10 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 	}
 	
 	@Override
-	protected CodeGenerationTemplatesConfigurationBlock createConfigurationBlock(
-			IProject project) throws CoreException {
+	protected CodeGenerationTemplatesConfigurationBlock createConfigurationBlock()
+			throws CoreException {
 		
-		return new CodeGenerationTemplatesConfigurationBlock(project);
+		return new CodeGenerationTemplatesConfigurationBlock(getProject());
 	}
 
 	

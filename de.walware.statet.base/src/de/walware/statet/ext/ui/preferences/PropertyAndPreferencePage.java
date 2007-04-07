@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.internal.ui.preferences;
+package de.walware.statet.ext.ui.preferences;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.ui.preferences.ProjectSelectionDialog;
+import de.walware.statet.internal.ui.preferences.Messages;
 
 
 /**
@@ -80,7 +80,9 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	protected abstract String getPreferencePageID();
 	protected abstract String getPropertyPageID();
 
-	protected abstract Block createConfigurationBlock(IProject project) throws CoreException;
+	@Override
+	protected abstract Block createConfigurationBlock() throws CoreException;
+	
 	protected abstract boolean hasProjectSpecificSettings(IProject project);
 	
 
@@ -303,10 +305,6 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 //
 //		fBlock = createConfigurationBlock(getProject());
 //	}
-	protected final Block createConfigurationBlock() throws CoreException {
-		
-		return createConfigurationBlock(getProject());
-	}
 
 	public void applyData(Object data) {
 		if (data instanceof Map) {
