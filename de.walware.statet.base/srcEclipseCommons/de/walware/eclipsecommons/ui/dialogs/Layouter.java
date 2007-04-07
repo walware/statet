@@ -132,13 +132,18 @@ public class Layouter {
 		return addLabel(text, 0, fNumColumns);
 	}
 		
-	public Label addLabel(String text, int indentation, int horizontalSpan) {
+	public Label addLabel(String text, int indentation, int hSpan) {
+		
+		return addLabel(text, indentation, hSpan, false);
+	}
+
+	public Label addLabel(String text, int indentation, int hSpan, boolean vAlignTop) {
 		
 		Label label = new Label(fComposite, SWT.LEFT);
 		label.setText(text);
-		GridData gd = new GridData(SWT.FILL, SWT.TOP, false, false);
+		GridData gd = new GridData(SWT.FILL, vAlignTop ? SWT.TOP : SWT.CENTER, false, false);
 		gd.horizontalIndent = indentation;
-		gd.horizontalSpan = horizontalSpan;
+		gd.horizontalSpan = hSpan;
 		label.setLayoutData(gd);
 		
 		return label;

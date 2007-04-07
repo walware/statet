@@ -95,7 +95,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		fConnectorsSelector = layouter.addComboControl(connectorLabels, 2);
 
 		// Description
-		layouter.addLabel(Messages.RInteraction_RConnector_Description_label, 0, 1);
+		layouter.addLabel(Messages.RInteraction_RConnector_Description_label, 0, 1, true);
 		
 		ScrolledComposite scrolled = new ScrolledComposite(layouter.fComposite, SWT.V_SCROLL);
 		fConnectorsDescription = addLinkControl(scrolled, ""); //$NON-NLS-1$
