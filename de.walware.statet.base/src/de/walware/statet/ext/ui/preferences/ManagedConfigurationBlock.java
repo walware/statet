@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,6 +74,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 				};
 			}
 			
+			// XXX
 			testIfOptionsComplete();
 
 			// init disabled settings, if required
@@ -354,18 +355,29 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		new PreferenceManager(container, keys);
 	}
 	
+	/**
+	 * Point to hook, before the managed preference values are saved to store.
+	 * E.g. you can set some additional (or all) values.
+	 */
+	protected void onBeforeSave() {
+		
+	}
 	
 	@Override
 	public void performApply() {
 		
-		if (fPreferenceManager != null)
+		if (fPreferenceManager != null) {
+			onBeforeSave();
 			fPreferenceManager.processChanges(true);
+		}
 	}
 	
 	public boolean performOk() {
 		
-		if (fPreferenceManager != null)
+		if (fPreferenceManager != null) {
+			onBeforeSave();
 			return fPreferenceManager.processChanges(false);
+		}
 		return false;
 	}
 
