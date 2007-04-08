@@ -196,15 +196,15 @@ public class Layouter {
 	public Combo addLabeledComboControl(String label, String[] items) {
 
 		addLabel(label, 0, 1);
-		return addComboControl(items, fNumColumns - 1);
+		return addComboControl(items, true, 0, fNumColumns - 1, false);
 	}
 
 	public Combo addComboControl(String[] items, int numColumns) {
 		
-		return addComboControl(items, true, numColumns);
+		return addComboControl(items, true, 0, numColumns, true);
 	}
 
-	public Combo addComboControl(String[] items, boolean readOnly, int numColumns) {
+	public Combo addComboControl(String[] items, boolean readOnly, int hIndent, int hSpan, boolean hGrab) {
 
 		int style = SWT.DROP_DOWN;
 		if (readOnly) {
@@ -215,11 +215,20 @@ public class Layouter {
 			combo.setItems(items);
 		}
 
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		gd.horizontalSpan = numColumns;
+		GridData gd = new GridData((hGrab ? SWT.FILL : SWT.LEFT), SWT.CENTER, hGrab, false);
+		gd.horizontalIndent = hIndent;
+		gd.horizontalSpan = hSpan;
+		if (!hGrab && items != null && items.length > 0) {
+			int max = 0;
+			for (String s : items) {
+				max = Math.max(max, s.length());
+			}
+			gd.widthHint = (int) (new PixelConverter(combo).convertWidthInCharsToPixels(max) * 1.1);
+		} else {
+			gd.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
+		}
 //		PixelConverter conv = new PixelConverter(combo);
 //		gd.widthHint = conv.convertWidthInCharsToPixels(charWidth);
-		gd.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
 		combo.setLayoutData(gd);
 		
 		return combo;

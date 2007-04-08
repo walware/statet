@@ -102,7 +102,7 @@ public class ChooseResourceComposite extends Composite {
 	private void createContent() {
 		
 		Layouter layouter = new Layouter(this, 1);
-		fLocationField = layouter.addComboControl(null, false, 1);
+		fLocationField = layouter.addComboControl(null, false, 0, 1, true);
 		
 		Layouter buttonLayouter = new Layouter(new Composite(layouter.fComposite, SWT.NONE), 2);
 		GridData gd = new GridData(SWT.END, SWT.CENTER, false, false);
