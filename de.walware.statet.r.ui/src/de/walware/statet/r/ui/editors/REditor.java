@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,9 +31,15 @@ public class REditor extends StatextEditor1<RProject> {
 
 	public REditor() {
 		super();
+	}
+	
+	@Override
+	protected void initializeEditor() {
 		
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		initStatext(new RBracketPairMatcher());
+
+		super.initializeEditor();
 	}
 	
 	@Override
@@ -43,10 +49,10 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 
 	@Override
-	protected void setupConfiguration() {
+	protected void setupConfiguration(RProject project) {
 		
 		ICombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
-				RUIPlugin.getDefault().getPreferenceStore(), fProject);
+				RUIPlugin.getDefault().getPreferenceStore(), project);
 		setPreferenceStore(preferenceStore);
 		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 
 				StatetPlugin.getDefault().getColorManager(), preferenceStore));

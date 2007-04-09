@@ -339,9 +339,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 /*- Fields -----------------------------------------------------------------*/
 	
 	/** The editor's bracket matcher */
-	protected PairMatcher fBracketMatcher = null;
+	private PairMatcher fBracketMatcher;
 	private IEditorAdapter fEditorAdapter = new EditorAdapter();
-	protected ProjectT fProject = null;
+	private ProjectT fProject;
 	
 	
 /*- Contructors ------------------------------------------------------------*/
@@ -358,7 +358,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 		super.initializeEditor();
 		setCompatibilityMode(false);
-		setupConfiguration();
+		setupConfiguration(getProject());
 	}
 	
 	/**
@@ -390,7 +390,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 				((ISourceViewerExtension2) sourceViewer).unconfigure();
 			}
 			
-			setupConfiguration();
+			disposeConfiguration(prevProject);
+			setupConfiguration(fProject);
 
 			if (sourceViewer != null) {
 				sourceViewer.configure(getSourceViewerConfiguration());
@@ -398,6 +399,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 
 		super.doSetInput(input);
+	}
+	
+	/**
+	 * Subclasses should setup the SourceViewerConfiguration.
+	 */
+	protected void setupConfiguration(ProjectT project) {
+		
+	}
+	
+	protected void disposeConfiguration(ProjectT previousProject) {
+		
 	}
 	
 	/**
@@ -412,12 +424,13 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	/**
-	 * Subclasses should setup the SourceViewerConfiguration.
+	 * @return the project of current input, or <code>null</code>, if none/not supported.
 	 */
-	protected void setupConfiguration() {
+	protected final ProjectT getProject() {
 		
+		return fProject;
 	}
-	
+		
 
 	@Override
 	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
@@ -488,6 +501,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			fBracketMatcher.dispose();
 			fBracketMatcher= null;
 		}
+		disposeConfiguration(getProject());
 
 		super.dispose();
 	}
