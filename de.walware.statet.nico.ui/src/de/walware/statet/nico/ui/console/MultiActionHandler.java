@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -24,22 +25,21 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.contexts.IContextActivation;
-import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.texteditor.IUpdate;
 
 
 /**
- * Manages activation of actions and keybiding contexts for different controls
+ * Manages activation of actions for different controls
  * (based on FocusIn/FocusOut event) in a view.
+ * 
+ * For compatibility with old action framework.
  */
 public class MultiActionHandler implements Listener, ISelectionChangedListener {
 
 	
 	private class ActionWrapper extends Action {
 		
-		private Map<Widget, Action> fWidgetActionMap = new HashMap<Widget, Action>();
+		private Map<Widget, IAction> fWidgetActionMap = new HashMap<Widget, IAction>();
 		
 		ActionWrapper() {
 		}
@@ -49,7 +49,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 			boolean enabled = false;
 			
 			if (fActiveWidget != null) {
-				Action action = fWidgetActionMap.get(fActiveWidget);
+				IAction action = fWidgetActionMap.get(fActiveWidget);
 				if (action != null) {
 					if (action instanceof IUpdate) {
 						((IUpdate) action).update();
@@ -65,7 +65,7 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		public void runWithEvent(Event event) {
 			
 			if (fActiveWidget != null) {
-				Action action = fWidgetActionMap.get(fActiveWidget);
+				IAction action = fWidgetActionMap.get(fActiveWidget);
 				if (action != null) {
 					action.runWithEvent(event);
 				}
@@ -73,17 +73,13 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
-	private IViewSite fViewSite;
 	private Widget fActiveWidget;
-	private IContextActivation fActivatedContext;
 	private List<Widget> fKnownWidgets = new ArrayList<Widget>();
 	private Map<String, ActionWrapper> fActions = new HashMap<String, ActionWrapper>();
-	private Map<Widget, String> fScopes = new HashMap<Widget, String>();
 	
 	
-	MultiActionHandler(IViewSite viewSite) {
+	MultiActionHandler() {
 		
-		fViewSite = viewSite;
 	}
 	
 	
@@ -97,27 +93,18 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		return wrapper;
 	}
 	
-	public void addGlobalAction(Widget widget, String globalId, Action action) {
+	public void addGlobalAction(Widget widget, String globalId, IAction action) {
 		
 		ActionWrapper wrapper = getActionWrapper(globalId);
 		wrapper.fWidgetActionMap.put(widget, action);
 		
 		addWidget(widget);
 	}
-	
-	/**
-	 * Note: At moment, only one scope per widget are supported.
-	 * 
-	 * @param widget
-	 * @param scope
-	 */
-	public void addKeybindingScope(Widget widget, String scope) {
+	public void addCommandAction(Widget widget, String commandId, IAction action) {
 		
-		fScopes.put(widget, scope);
 		
-		addWidget(widget);
 	}
-	
+		
 	private void addWidget(Widget widget) {
 		
 		if (!fKnownWidgets.contains(widget)) {
@@ -139,12 +126,10 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		switch (event.type) {
 		case SWT.FocusIn:
 			fActiveWidget = event.widget;
-			addContext();
 			updateEnabledState();
 			break;
 
 		case SWT.FocusOut:
-			removeContext();
 			fActiveWidget = null;
 			updateEnabledState();
 			break;
@@ -163,24 +148,6 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		
 		for (ActionWrapper wrapper : fActions.values()) {
 			wrapper.update();
-		}
-	}
-	
-	private void addContext() {
-		
-		String scope = fScopes.get(fActiveWidget);
-		IContextService service = (IContextService) fViewSite.getService(IContextService.class);
-		if (scope != null && service != null) {
-			fActivatedContext = service.activateContext(scope);
-		}
-	}
-	
-	private void removeContext() {
-		
-		IContextService service = (IContextService) fViewSite.getService(IContextService.class);
-		if (fActivatedContext != null || service != null) {
-			service.deactivateContext(fActivatedContext);
-			fActivatedContext = null;
 		}
 	}
 

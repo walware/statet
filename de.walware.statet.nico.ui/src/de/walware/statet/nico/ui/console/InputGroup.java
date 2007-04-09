@@ -13,6 +13,7 @@ package de.walware.statet.nico.ui.console;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -34,7 +35,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.contexts.IContextService;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
@@ -56,6 +59,7 @@ import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.ui.internal.Messages;
+import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
@@ -124,13 +128,13 @@ public class InputGroup {
 	protected InputDocument fDocument;
 	private Button fSubmitButton;
 	
-	private EditorAdapter fEditorAdapter = new EditorAdapter();
+	EditorAdapter fEditorAdapter = new EditorAdapter();
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
 	private PairMatcher fPairMatcher;
 	
 	private boolean fIsHistoryCompoundChangeOpen = false; // for undo manager
 	/** Indicates that the document is change by a history action */
-	private boolean fInHistoryChange = false; 
+	private boolean fInHistoryChange = false;
 	
 
 	public InputGroup(NIConsolePage page) {
@@ -212,7 +216,7 @@ public class InputGroup {
 			fSourceViewer.configure(sourceViewerConfig);
 			
 			fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
-					fSourceViewer, null, null, EditorsPlugin.getDefault().getSharedTextColors()); // AFTER 3.2.0: EditorsUI.getSharedColoes()
+					fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
 
 			fPairMatcher = editorConfig.getPairMatcher();
 			if (fPairMatcher != null) {
@@ -248,15 +252,18 @@ public class InputGroup {
 	
 	public void createActions(MultiActionHandler multiActionHandler) {
 		
-		Widget widget = fSourceViewer.getTextWidget();
+		Widget control = fSourceViewer.getTextWidget();
 		if (fPairMatcher != null) {
 			GotoMatchingBracketAction fPairMatcherGotoAction =
 				new GotoMatchingBracketAction(fPairMatcher, fEditorAdapter);
-			multiActionHandler.addGlobalAction(widget, 
+			multiActionHandler.addGlobalAction(control, 
 					fPairMatcherGotoAction.getId(), fPairMatcherGotoAction);
 		}
+	}
+
+	public void configureServices(IHandlerService commands, IContextService keys) {
 		
-		multiActionHandler.addKeybindingScope(widget, "de.walware.statet.ui.contexts.TextEditorScope"); //$NON-NLS-1$
+		keys.activateContext("de.walware.statet.ui.contexts.TextEditorScope");
 	}
 	
 	
@@ -357,6 +364,11 @@ public class InputGroup {
 	public Button getSubmitButton() {
 		
 		return fSubmitButton;
+	}
+	
+	protected NIConsolePage getConsolePage() {
+		
+		return fConsolePage;
 	}
 
 	public void dispose() {

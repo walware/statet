@@ -15,9 +15,7 @@ package de.walware.statet.nico.ui.internal;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.LegacyHandlerSubmissionExpression;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -69,10 +67,6 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 		super.start(context);
 		
 		fToolRegistry = new ToolRegistry();
-		
-		IContextService service = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
-		fConsoleContextActivation = service.activateContext("org.eclipse.debug.ui.console",  //$NON-NLS-1$
-				new LegacyHandlerSubmissionExpression(IConsoleConstants.ID_CONSOLE_VIEW, null, null), true);
 	}
 
 	@Override

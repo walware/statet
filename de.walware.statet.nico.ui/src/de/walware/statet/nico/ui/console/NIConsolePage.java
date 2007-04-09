@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,8 +62,12 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.actions.ClearOutputAction;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.console.IOConsoleViewer;
+import org.eclipse.ui.internal.contexts.NestableContextService;
+import org.eclipse.ui.internal.handlers.NestableHandlerService;
+import org.eclipse.ui.internal.services.ServiceLocator;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInSource;
@@ -76,6 +80,7 @@ import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -156,6 +161,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
 	private ListenerList fToolActions = new ListenerList();
+	private ServiceLocator fInputServices;
 	
 	private FindReplaceUpdater fFindReplaceUpdater;
 	private FindReplaceAction fFindReplaceAction;
@@ -316,15 +322,45 @@ public class NIConsolePage implements IPageBookViewPage,
 		SourceViewer inputViewer = fInputGroup.getSourceViewer();
 		Control inputControl = inputViewer.getControl();
 		
-		fMultiActionHandler = new MultiActionHandler(fConsoleView.getViewSite());
+        fInputServices = new ServiceLocator(getSite());
+        IHandlerService pageCommands = (IHandlerService) getSite().getService(IHandlerService.class);
+        IHandlerService inputCommands = new NestableHandlerService(pageCommands, null);
+        fInputServices.registerService(IHandlerService.class, inputCommands);
+        IContextService pageKeys = (IContextService) getSite().getService(IContextService.class);
+        IContextService inputKeys = new NestableContextService(pageKeys, null);
+        fInputServices.registerService(IContextService.class, inputKeys);
+        
+        inputControl.addListener(SWT.FocusIn, new Listener() {
+        	public void handleEvent(Event event) {
+        		if (fInputServices != null) {
+        			fInputServices.activate();
+        			getSite().getActionBars().updateActionBars();
+        		}
+        	}
+        });
+        inputControl.addListener(SWT.FocusOut, new Listener() {
+        	public void handleEvent(Event event) {
+        		if (fInputServices != null) {
+        			fInputServices.deactivate();
+        			getSite().getActionBars().updateActionBars();
+        		}
+        	}
+        });
+
+        fMultiActionHandler = new MultiActionHandler();
+        
+		fRemoveAction = new ConsoleRemoveLaunchAction(fConsole.getProcess().getLaunch());
+		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
+        fTerminateAction = new TerminateToolAction(fConsole.getProcess());
+        fCancelAction = new CancelAction(this);
+        pageCommands.activateHandler("de.walware.statet.nico.ui.Cancel", new ActionHandler(fCancelAction));
+        pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
 
 		fOutputCopyAction = TextViewerAction.createCopyAction(fOutputViewer);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.COPY.getId(), fOutputCopyAction);
-	
 		fOutputPasteAction = new SubmitPasteAction(this);
 		fOutputPasteAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.PASTE.getId(), fOutputPasteAction);
-		
 		fOutputSelectAllAction = TextViewerAction.createSelectAllAction(fOutputViewer);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.SELECT_ALL.getId(), fOutputSelectAllAction);
 		
@@ -333,16 +369,12 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		fInputDeleteAction = TextViewerAction.createDeleteAction(inputViewer);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.DELETE.getId(), fInputDeleteAction);
-		
 		fInputCutAction = TextViewerAction.createCutAction(inputViewer);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.CUT.getId(), fInputCutAction);
-		
 		fInputCopyAction = TextViewerAction.createCopyAction(inputViewer);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.COPY.getId(), fInputCopyAction);
-		
 		fInputPasteAction = TextViewerAction.createPasteAction(inputViewer);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.PASTE.getId(), fInputPasteAction);
-
 		fInputSelectAllAction = TextViewerAction.createSelectAllAction(inputViewer);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.SELECT_ALL.getId(), fInputSelectAllAction);
 		
@@ -360,17 +392,10 @@ public class NIConsolePage implements IPageBookViewPage,
 		fConsole.getDocument().addDocumentListener(fFindReplaceUpdater);
 		inputViewer.getDocument().addDocumentListener(new PostUpdater());
 		fInputGroup.createActions(fMultiActionHandler);
+		fInputGroup.configureServices(inputCommands, inputKeys);
 
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);
 		fOutputViewer.addSelectionChangedListener(fMultiActionHandler);
-		
-		fRemoveAction = new ConsoleRemoveLaunchAction(fConsole.getProcess().getLaunch());
-		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
-        fTerminateAction = new TerminateToolAction(fConsole.getProcess());
-        fCancelAction = new CancelAction(this);
-        
-        IHandlerService commands = (IHandlerService) getSite().getService(IHandlerService.class);
-        commands.activateHandler("de.walware.statet.nico.ui.Cancel", new ActionHandler(fCancelAction));
 	}
 	
 	private void hookContextMenu() {
@@ -481,6 +506,8 @@ public class NIConsolePage implements IPageBookViewPage,
 
 			fMultiActionHandler.dispose();
 			fMultiActionHandler = null;
+			fInputServices.dispose();
+			fInputServices = null;
 			
 			fFindReplaceAction = null;
 			
@@ -590,6 +617,9 @@ public class NIConsolePage implements IPageBookViewPage,
         }
         if (IShowInTargetList.class.equals(required)) {
             return this; 
+        }
+        if (IEditorAdapter.class.equals(required)) {
+        	return fInputGroup.fEditorAdapter;
         }
         return null;
     }
