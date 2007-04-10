@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,11 @@
 
 package de.walware.statet.r.launching;
 
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -46,6 +48,8 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
 	
 	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
+	private static Pattern fgBackslashPattern = Pattern.compile("\\\\"); //$NON-NLS-1$
+	private static String fgBackslashReplacement = "\\\\\\\\"; //$NON-NLS-1$
 	
 	private static final IStatus STATUS_PROMPTER = new Status(IStatus.INFO, IDebugUIConstants.PLUGIN_ID, 200, "", null); //$NON-NLS-1$
 	private static final IStatus STATUS_SAVE = new Status(IStatus.INFO, DebugPlugin.getUniqueIdentifier(), 222, "", null); //$NON-NLS-1$
@@ -93,7 +97,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	
 	/**
 	 * Runs a file related command in R.
-	 * Use this method only, if you don't have a IFile object for your file
+	 * Use this method only, if you don't have an IFile object for your file
 	 * (e.g. external file).
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
@@ -107,11 +111,43 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
-		String cmd = fgFileNamePattern.matcher(command).replaceAll(
-				Matcher.quoteReplacement(filePath.toString()));
+		String fileString = fgBackslashPattern.matcher(filePath.makeAbsolute().toOSString()).replaceAll(fgBackslashReplacement);
+		String cmd = fgFileNamePattern.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
 		connector.submit(new String[] { cmd }, gotoConsole);
 	}
 
+	/**
+	 * Runs a file related command in R.
+	 * Use this method only, if you don't have an IFile or IPath object for your file
+	 * (e.g. file on webserver).
+	 * <p>
+	 * The pattern ${file} in command string is replaced by the path of
+	 * the specified file.</p>
+	 *
+	 * @param command the command, (at moment) should be single line.
+	 * @param file the file.
+	 * @throws CoreException if running failed.
+	 */
+	public static void runFileUsingCommand(String command, URI filePath, boolean gotoConsole) throws CoreException {
+		
+		IRCodeLaunchConnector connector = getDefault().getConnector();
+
+		String fileString = null;
+		try {
+			if (EFS.getLocalFileSystem().equals(EFS.getFileSystem(filePath.getScheme()))) {
+				fileString = EFS.getLocalFileSystem().getStore(filePath).toString();
+			}
+		} catch (CoreException e) {
+		}
+		if (fileString == null) {
+			fileString = filePath.toString();
+		}
+		
+		fileString = fgBackslashPattern.matcher(fileString).replaceAll(fgBackslashReplacement);
+		String cmd = fgFileNamePattern.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
+		connector.submit(new String[] { cmd }, gotoConsole);
+	}
+	
 	private static boolean saveBeforeLaunch(IProject[] projects) throws CoreException {
 		
 		IStatusHandler prompter = null;

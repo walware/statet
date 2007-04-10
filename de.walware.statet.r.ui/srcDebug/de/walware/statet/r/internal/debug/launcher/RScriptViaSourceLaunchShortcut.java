@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPathEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.ide.ResourceUtil;
 
 import de.walware.statet.r.internal.debug.RLaunchingMessages;
@@ -69,6 +70,10 @@ public class RScriptViaSourceLaunchShortcut implements ILaunchShortcut {
 			else if (input instanceof IPathEditorInput) {
 				RCodeLaunchRegistry.runFileUsingCommand(COMMAND,
 						((IPathEditorInput) input).getPath(), fGotoConsole);
+			}
+			else if (input instanceof IURIEditorInput) {
+				RCodeLaunchRegistry.runFileUsingCommand(COMMAND,
+						((IURIEditorInput) input).getURI(), fGotoConsole);
 			}
 			else {
 				throw new Exception("Unsupported editor input: "+input.getClass().getName());
