@@ -2,7 +2,7 @@
 <?eclipse version="3.2"?>
 <!--
  ###############################################################################
- # Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ # Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="de.walware.statet.r.ui.editors.REditor"
-            contributorClass="de.walware.statet.ext.ui.editors.StatextEditor1ActionContributor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             icon="icons/obj_16/r-file_obj.gif"
             id="de.walware.statet.ui.editors.REditor"
@@ -59,20 +59,13 @@
       </editor>
       <editor
             class="de.walware.statet.r.ui.editors.RdEditor"
-            contributorClass="de.walware.statet.ext.ui.editors.StatextEditor1ActionContributor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             icon="icons/obj_16/rd-file_obj.gif"
             id="de.walware.statet.ui.editors.RdEditor"
             name="%editors.RDocEditor.name">
          <contentTypeBinding contentTypeId="de.walware.statet.r.core.RdContent"/>
       </editor>
-   </extension>
-   <extension
-         point="org.eclipse.ui.actionSetPartAssociations">
-      <actionSetPartAssociation targetID="de.walware.statet.ui.actionSets.CodingActionSet">
-         <part id="de.walware.statet.ui.editors.REditor"/>
-         <part id="de.walware.statet.ui.editors.RdEditor"/>
-      </actionSetPartAssociation>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">

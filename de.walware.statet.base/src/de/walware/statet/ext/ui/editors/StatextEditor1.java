@@ -153,6 +153,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		ToggleCommentAction() {
 			
 			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this);
+			setActionDefinitionId(IStatextEditorActionDefinitionIds.TOGGLE_COMMENT);		
 			
 			configure();
 		}
@@ -457,9 +458,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 
 		action = new ToggleCommentAction();
-		action.setActionDefinitionId(IStatextEditorActionDefinitionIds.TOGGLE_COMMENT);		
 		setAction(ACTION_ID_TOGGLE_COMMENT, action); //$NON-NLS-1$
 		markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true); //$NON-NLS-1$
+		
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}
 

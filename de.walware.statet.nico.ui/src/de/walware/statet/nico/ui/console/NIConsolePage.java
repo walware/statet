@@ -391,7 +391,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		fFindReplaceUpdater = new FindReplaceUpdater();
 		fConsole.getDocument().addDocumentListener(fFindReplaceUpdater);
 		inputViewer.getDocument().addDocumentListener(new PostUpdater());
-		fInputGroup.createActions(fMultiActionHandler);
+
 		fInputGroup.configureServices(inputCommands, inputKeys);
 
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);

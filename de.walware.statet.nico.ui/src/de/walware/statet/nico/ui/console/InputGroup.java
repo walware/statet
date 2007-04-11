@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.console;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.DocumentEvent;
@@ -34,7 +35,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -250,20 +250,15 @@ public class InputGroup {
 		});
 	}
 	
-	public void createActions(MultiActionHandler multiActionHandler) {
-		
-		Widget control = fSourceViewer.getTextWidget();
-		if (fPairMatcher != null) {
-			GotoMatchingBracketAction fPairMatcherGotoAction =
-				new GotoMatchingBracketAction(fPairMatcher, fEditorAdapter);
-			multiActionHandler.addGlobalAction(control, 
-					fPairMatcherGotoAction.getId(), fPairMatcherGotoAction);
-		}
-	}
-
 	public void configureServices(IHandlerService commands, IContextService keys) {
 		
 		keys.activateContext("de.walware.statet.ui.contexts.TextEditorScope");
+		
+		IAction action;
+		if (fPairMatcher != null) {
+			action = new GotoMatchingBracketAction(fPairMatcher, fEditorAdapter);
+			commands.activateHandler(IStatextEditorActionDefinitionIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
+		}
 	}
 	
 	

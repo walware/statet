@@ -2,7 +2,7 @@
 <?eclipse version="3.0"?>
 <!--
  ###############################################################################
- # Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ # Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -44,27 +44,23 @@
             parentId="org.eclipse.ui.textEditorScope"/>
    </extension>
    <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            description="%actionSets.StatetCoding.description"
-            id="de.walware.statet.ui.actionSets.CodingActionSet"
-            label="%actionSets.StatetCoding.label"
-            visible="false">
-         <action
-               definitionId="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
-               id="de.walware.statet.ui.actions.GotoMatchingBracket"
-               label="%actions.GotoMatchingBracket.label"
-               menubarPath="navigate/goTo/statet.add"
-               retarget="true"
-               style="push"/>
-         <action
-               definitionId="de.walware.statet.ui.textediting.source.ToggleComment"
-               id="de.walware.statet.ui.actions.ToggleComment"
-               label="%actions.ToggleComment.label"
-               menubarPath="edit/statet.add"
-               retarget="true"
-               style="push"/>
-      </actionSet>
+         point="org.eclipse.ui.menus">
+      <menuContribution locationURI="menu:edit">
+         <command
+               commandId="de.walware.statet.ui.textediting.source.ToggleComment"
+               label="%menuCommand.ToggleComment.label"
+               style="push">
+            <visibleWhen checkEnabled="true"/>
+         </command>
+      </menuContribution>
+      <menuContribution locationURI="menu:goTo">
+         <command
+               commandId="de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"
+               label="%menuCommand.GotoMatchingBracket.label"
+               style="push">
+            <visibleWhen checkEnabled="true"/>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
