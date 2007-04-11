@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,6 @@ public class CombinedPreferenceStore {
 	public static ICombinedPreferenceStore createStore(
 			IPreferenceStore[] preferenceStores, IPreferenceAccess corePrefs, String[] coreQualifier) {
 		
-		
 		IScopeContext[] contexts = corePrefs.getPreferenceContexts();
 		// default scope must not be included (will be automatically added)
 		if (contexts.length > 0 && contexts[contexts.length-1] instanceof DefaultScope) {
@@ -79,12 +78,13 @@ public class CombinedPreferenceStore {
 			return new ScopedCombinedStore(mainScope, coreQualifier[0], corePrefs);
 		}
 		
-		List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>(Arrays.asList(preferenceStores));
+		List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
 		for (String qualifier : coreQualifier) {
 			ScopedPreferenceStore store = new ScopedPreferenceStore(mainScope, qualifier);
 			store.setSearchContexts(contexts);
 			stores.add(store);
 		}
+		stores.addAll(Arrays.asList(preferenceStores));
 		return new ChainedCombinedStore(stores.toArray(new IPreferenceStore[stores.size()]), corePrefs);
 	}
 	
