@@ -61,7 +61,7 @@ public class RdEditor extends StatextEditor1<RProject> {
 		
 		String[] ids = super.collectContextMenuPreferencePages();
 		String[] more = new String[ids.length + 1];
-		more[0]= "de.walware.statet.r.ui.preferences.RdSyntaxColoringPreferencePage"; //$NON-NLS-1$
+		more[0]= "de.walware.statet.r.ui.preferencePages.RdSyntaxColoring"; //$NON-NLS-1$
 		System.arraycopy(ids, 0, more, 1, ids.length);
 		return more;
 	}

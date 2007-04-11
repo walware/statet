@@ -100,30 +100,30 @@
          point="org.eclipse.ui.preferencePages">
       <page
             class="de.walware.statet.internal.ui.preferences.StatetBasePreferencePage"
-            id="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            id="de.walware.statet.base.ui.preferencePages.StatetBase"
             name="%preferencePages.StatetBase.name">
          <keywordReference id="de.walware.statet.ui.keywords.StatetGeneral"/>
       </page>
       <page
-            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.StatetBase"
             class="de.walware.statet.internal.ui.preferences.EditorsPreferencePage"
-            id="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            id="de.walware.statet.base.ui.preferencePages.Editors"
             name="%preferencePages.Editors.name">
          <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
       </page>
       <page
-            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.StatetBase"
             class="de.walware.statet.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
-            id="de.walware.statet.ui.preferences.CodeGenerationTemplatesPage"
+            id="de.walware.statet.base.ui.preferencePages.CodeGenerationTemplates"
             name="%preferencePages.CodeGenerationTemplates.name">
          <keywordReference id="de.walware.statet.ui.keywords.Template"/>
          <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
       </page>
       <page
-            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.StatetBase"
             class="de.walware.statet.internal.ui.preferences.TaskTagsPreferencePage"
-            id="de.walware.statet.ui.preferences.TaskTagsPage"
+            id="de.walware.statet.base.ui.preferencePages.TaskTags"
             name="%preferencePages.TaskTags.name">
          <keywordReference id="de.walware.statet.ui.keywords.TaskTag"/>
          <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
@@ -133,7 +133,7 @@
          point="org.eclipse.ui.propertyPages">
       <page
             class="de.walware.statet.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
-            id="de.walware.statet.ui.propertyPages.CodeGenerationTemplatesPage"
+            id="de.walware.statet.base.ui.propertyPages.CodeGenerationTemplates"
             name="%propertyPages.CodeGenerationTemplates.name"
             objectClass="org.eclipse.core.resources.IProject">
          <filter
@@ -144,7 +144,7 @@
       </page>
       <page
             class="de.walware.statet.internal.ui.preferences.TaskTagsPreferencePage"
-            id="de.walware.statet.ui.propertyPages.TaskTagsPage"
+            id="de.walware.statet.base.ui.propertyPages.TaskTags"
             name="%propertyPages.TaskTags.name"
             objectClass="org.eclipse.core.resources.IProject">
          <filter

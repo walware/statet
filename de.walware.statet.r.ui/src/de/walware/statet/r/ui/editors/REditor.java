@@ -68,9 +68,10 @@ public class REditor extends StatextEditor1<RProject> {
 	protected String[] collectContextMenuPreferencePages() {
 		
 		String[] ids = super.collectContextMenuPreferencePages();
-		String[] more = new String[ids.length + 1];
-		more[0]= "de.walware.statet.r.ui.preferences.RSyntaxColoringPreferencePage"; //$NON-NLS-1$
-		System.arraycopy(ids, 0, more, 1, ids.length);
+		String[] more = new String[ids.length + 2];
+		more[0]= "de.walware.statet.r.ui.preferencePages.RSyntaxColoring"; //$NON-NLS-1$
+		more[1]= "de.walware.statet.r.ui.preferencePages.REditorTemplates"; //$NON-NLS-1$
+		System.arraycopy(ids, 0, more, 2, ids.length);
 		return more;
 	}
 	

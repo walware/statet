@@ -85,25 +85,25 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.Editors"
             class="de.walware.statet.r.ui.internal.preferences.RSyntaxColoringPreferencePage"
-            id="de.walware.statet.r.ui.preferences.RSyntaxColoringPreferencePage"
+            id="de.walware.statet.r.ui.preferencePages.RSyntaxColoring"
             name="%preferencePages.RSyntaxColoring.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
          <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
       </page>
       <page
-            category="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.Editors"
             class="de.walware.statet.r.ui.internal.preferences.RdSyntaxColoringPreferencePage"
-            id="de.walware.statet.r.ui.preferences.RdSyntaxColoringPreferencePage"
+            id="de.walware.statet.r.ui.preferencePages.RdSyntaxColoring"
             name="%preferencePages.RdSyntaxColoring.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
          <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
       </page>
       <page
-            category="de.walware.statet.ui.preferences.EditorsPreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.Editors"
             class="de.walware.statet.r.ui.internal.preferences.REditorTemplatePreferencePage"
-            id="de.walware.statet.r.ui.preferences.REditorTemplatesPreferencePage"
+            id="de.walware.statet.r.ui.preferencePages.REditorTemplates"
             name="%preferencePages.REditorTemplates.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
       </page>
@@ -410,7 +410,7 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="de.walware.statet.ui.preferences.StatetBasePreferencePage"
+            category="de.walware.statet.base.ui.preferencePages.StatetBase"
             class="de.walware.statet.r.internal.debug.preferences.RInteractionPreferencePage"
             id="de.walware.statet.r.debug.preferences.RInteractionPreferencePage"
             name="%preferencePages.RInteraction.name"/>

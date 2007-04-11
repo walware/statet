@@ -24,8 +24,8 @@ import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
  */
 public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreferencePage<CodeGenerationTemplatesConfigurationBlock> {
 
-	public static final String PREF_ID = "de.walware.statet.ui.preferences.CodeGenerationTemplatesPage"; //$NON-NLS-1$
-	public static final String PROP_ID = "de.walware.statet.ui.propertyPages.CodeGenerationTemplatesPage"; //$NON-NLS-1$
+	public static final String PREF_ID = "de.walware.statet.base.ui.preferencePages.CodeGenerationTemplates"; //$NON-NLS-1$
+	public static final String PROP_ID = "de.walware.statet.base.ui.propertyPages.CodeGenerationTemplates"; //$NON-NLS-1$
 	
 //	public static final String DATA_SELECT_TEMPLATE = "CodeTemplatePreferencePage.select_template"; //$NON-NLS-1$
 	

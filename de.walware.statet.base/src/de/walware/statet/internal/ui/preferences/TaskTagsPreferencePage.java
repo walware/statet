@@ -23,8 +23,8 @@ import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
  */
 public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsConfigurationBlock> {
 
-	public static final String PREF_ID = "de.walware.statet.ui.preferences.TaskTagsPage"; //$NON-NLS-1$
-	public static final String PROP_ID = "de.walware.statet.ui.propertyPages.TaskTagsPage"; //$NON-NLS-1$
+	public static final String PREF_ID = "de.walware.statet.base.ui.preferencePages.TaskTags"; //$NON-NLS-1$
+	public static final String PROP_ID = "de.walware.statet.base.ui.propertyPages.TaskTags"; //$NON-NLS-1$
 	
 	
 	public TaskTagsPreferencePage() {
