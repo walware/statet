@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -171,15 +171,19 @@ public class Layouter {
 	
 	public Text addTextControl() {
 		
-		return addTextControl(fNumColumns);
+		return addTextControl(0, fNumColumns, true, -1);
 	}
 	
-	public Text addTextControl(int horizontalSpan) {
+	public Text addTextControl(int hIndent, int horizontalSpan, boolean hGrab, int widthHint) {
 		
 		Text text = new Text(fComposite, SWT.SINGLE | SWT.BORDER);
 		
-		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		GridData gd = new GridData(hGrab ? SWT.FILL : SWT.LEFT, SWT.CENTER, hGrab, false);
+		gd.horizontalIndent = hIndent;
 		gd.horizontalSpan = horizontalSpan;
+		if (widthHint > 0) {
+			gd.widthHint = new PixelConverter(text).convertWidthInCharsToPixels(widthHint);
+		}
 		text.setLayoutData(gd);
 		
 		return text;
@@ -188,11 +192,15 @@ public class Layouter {
 	public Text addLabeledTextControl(String label) {
 		
 		addLabel(label, 0, 1);
-		Text text = addTextControl(fNumColumns - 1);
-		
-		return text;
+		return addTextControl(0, fNumColumns - 1, true, -1);
 	}
 
+	public Text addLabeledTextControl(String label, int widthHint) {
+		
+		addLabel(label, 0, 1);
+		return addTextControl(0, fNumColumns - 1, false, widthHint);
+	}
+	
 	public Combo addLabeledComboControl(String label, String[] items) {
 
 		addLabel(label, 0, 1);
@@ -215,7 +223,7 @@ public class Layouter {
 			combo.setItems(items);
 		}
 
-		GridData gd = new GridData((hGrab ? SWT.FILL : SWT.LEFT), SWT.CENTER, hGrab, false);
+		GridData gd = new GridData(hGrab ? SWT.FILL : SWT.LEFT, SWT.CENTER, hGrab, false);
 		gd.horizontalIndent = hIndent;
 		gd.horizontalSpan = hSpan;
 		if (!hGrab && items != null && items.length > 0) {
