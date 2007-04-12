@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,8 +26,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+
 import de.walware.statet.base.StatetPlugin;
 
 
@@ -66,12 +67,13 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 		}
 	}
 	
-	private static class ProjectSorter extends ViewerSorter {
+	private static class ProjectComparator extends ViewerComparator {
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public int compare(Viewer viewer, Object e1, Object e2) {
 			
-			return collator.compare( ((IProjectNature) e1).getProject().getName(), ((IProjectNature) e2).getProject().getName() );
+			return getComparator().compare( ((IProjectNature) e1).getProject().getName(), ((IProjectNature) e2).getProject().getName() );
 		}
 	}
 	
@@ -142,7 +144,7 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 		
 		fTableViewer.setContentProvider(new ContentProvider());
 		fTableViewer.setLabelProvider(new ProjectLabelProvider());
-		fTableViewer.setSorter(new ProjectSorter());
+		fTableViewer.setComparator((new ProjectComparator()));
 
 		Button checkbox = new Button(composite, SWT.CHECK);
 		checkbox.setText(Messages.ProjectSelectionDialog_filter); 

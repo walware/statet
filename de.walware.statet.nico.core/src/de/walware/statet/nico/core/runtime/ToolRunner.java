@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ package de.walware.statet.nico.core.runtime;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPlatformRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.IStatusHandler;
@@ -28,20 +27,10 @@ import de.walware.statet.nico.core.internal.NicoPlugin;
 /**
  * Allows to run a ToolProcess in Eclipse.
  */
-public class ToolRunner implements IPlatformRunnable {
+public class ToolRunner {
 
 	
-	public Object run(Object args) throws CoreException {
-
-		if (args instanceof ToolProcess) {
-			
-			return doRun((ToolProcess) args);
-		}
-		return null;
-	}
-
-	
-	private Object doRun(ToolProcess process) throws CoreException {
+	private Object run(ToolProcess process) throws CoreException {
 		
 		ToolController controller = process.getController();
 		controller.run();

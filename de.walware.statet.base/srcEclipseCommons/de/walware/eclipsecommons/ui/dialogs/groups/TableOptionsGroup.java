@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -36,6 +36,16 @@ import org.eclipse.swt.widgets.TableColumn;
 
 public abstract class TableOptionsGroup<ItemT extends SelectionItem> 
 		extends StructuredSelectionOptionsGroup<TableViewer, ItemT> {
+
+	private static class ItemComparator extends ViewerComparator {
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			
+			return getComparator().compare(((SelectionItem) e1).fName, ((SelectionItem) e2).fName);
+		}
+	}
 
 	private class ItemContentProvider implements IStructuredContentProvider {
 
@@ -51,14 +61,6 @@ public abstract class TableOptionsGroup<ItemT extends SelectionItem>
 		}
 	}
 	
-	private class ItemSorter extends ViewerSorter {
-		
-		@SuppressWarnings("unchecked")
-		public int compare(Viewer viewer, Object e1, Object e2) {
-			return collator.compare(((ItemT) e1).fName, ((ItemT) e2).fName);
-		}
-	}
-
 	
 	private String[] fColumnHeaders;
 
@@ -94,7 +96,7 @@ public abstract class TableOptionsGroup<ItemT extends SelectionItem>
 		
 		fSelectionViewer.setContentProvider(new ItemContentProvider());
 		fSelectionViewer.setLabelProvider(createTableLabelProvider());
-		fSelectionViewer.setSorter(new ItemSorter());
+		fSelectionViewer.setComparator(new ItemComparator());
 		
 		fSelectionViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {

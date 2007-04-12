@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.Clipboard;
@@ -103,9 +103,36 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		return text.toString();
 	}
 	
-
-	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
+	
+	private static class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
 		
+		public String getColumnText(Object obj, int index) {
+			
+			Entry e = (Entry) obj;
+			return e.getCommand();
+		}
+		
+		public Image getColumnImage(Object obj, int index) {
+			
+			if (index != 0)
+				return null;
+			
+			return StatetImages.getDefault().getImage(StatetImages.IMG_OBJ_COMMAND);
+		}
+	}
+	
+	private static class EntryComparator extends ViewerComparator {
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			
+			return getComparator().compare(((Entry) e1).getCommand(), ((Entry) e2).getCommand());
+		}
+	}
+
+	
+	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
 		
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 
@@ -181,33 +208,6 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		}
 	}
 	
-	private class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
-		
-		public String getColumnText(Object obj, int index) {
-			
-			Entry e = (Entry) obj;
-			return e.getCommand();
-		}
-		
-		public Image getColumnImage(Object obj, int index) {
-			
-			if (index != 0)
-				return null;
-			
-			return StatetImages.getDefault().getImage(StatetImages.IMG_OBJ_COMMAND);
-		}
-	}
-	
-	private class NameSorter extends ViewerSorter {
-		
-		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
-			
-			return collator.compare(
-					((Entry) e1).getCommand(), 
-					((Entry) e2).getCommand() );
-		}
-	}
 
 	private class ToggleSortAction extends Action {
 		
@@ -227,9 +227,9 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			boolean switchOn = isChecked();
 			fDoSortAlpha = switchOn;
 			if (switchOn)
-				fTableViewer.setSorter(fNameSorter);
+				fTableViewer.setComparator(fEntryComparator);
 			else
-				fTableViewer.setSorter(null);
+				fTableViewer.setComparator(null);
 		}
 	}
 	
@@ -242,7 +242,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 
 	private static final String M_SORT_ALPHA = "HistoryView.SortAlpha"; //$NON-NLS-1$
 	private boolean fDoSortAlpha;
-	private NameSorter fNameSorter = new NameSorter();
+	private EntryComparator fEntryComparator = new EntryComparator();
 	private Action fToggleSortAction;
 
 	private static final String M_AUTOSCROLL = "HistoryView.Autoscroll"; //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.ui.views.navigator.ResourceSorter;
+import org.eclipse.ui.views.navigator.ResourceComparator;
 
 
 /**
@@ -183,7 +183,7 @@ public class TreeAndListGroup implements ISelectionChangedListener {
 		fListViewer.getTable().setFont(parent.getFont());
 		fListViewer.setContentProvider(fListContentProvider);
 		fListViewer.setLabelProvider(fListLabelProvider);
-		fListViewer.setSorter(new ResourceSorter(ResourceSorter.NAME));
+		fListViewer.setComparator(new ResourceComparator(ResourceComparator.NAME));
 		fListViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				notifySelectionListeners(event);
@@ -211,7 +211,7 @@ public class TreeAndListGroup implements ISelectionChangedListener {
 		fTreeViewer = new TreeViewer(tree);
 		fTreeViewer.setContentProvider(fTreeContentProvider);
 		fTreeViewer.setLabelProvider(fTreeLabelProvider);
-		fTreeViewer.setSorter(new ResourceSorter(ResourceSorter.NAME));
+		fTreeViewer.setComparator(new ResourceComparator(ResourceComparator.NAME));
 		fTreeViewer.addSelectionChangedListener(this);
 		
 	}

@@ -131,7 +131,10 @@
             class="de.walware.statet.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
             id="de.walware.statet.base.ui.propertyPages.CodeGenerationTemplates"
             name="%propertyPages.CodeGenerationTemplates.name"
-            objectClass="org.eclipse.core.resources.IProject">
+            >
+         <enabledWhen>
+            <instanceof value="org.eclipse.core.resources.IProject"/>
+         </enabledWhen>
          <filter
                name="nature"
                value="de.walware.statet.base.StatetNature"/>
@@ -142,7 +145,10 @@
             class="de.walware.statet.internal.ui.preferences.TaskTagsPreferencePage"
             id="de.walware.statet.base.ui.propertyPages.TaskTags"
             name="%propertyPages.TaskTags.name"
-            objectClass="org.eclipse.core.resources.IProject">
+            >
+         <enabledWhen>
+            <instanceof value="org.eclipse.core.resources.IProject"/>
+         </enabledWhen>
          <filter
                name="nature"
                value="de.walware.statet.base.StatetNature"/>

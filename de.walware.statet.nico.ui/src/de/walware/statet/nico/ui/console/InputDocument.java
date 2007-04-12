@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -134,7 +134,7 @@ public class InputDocument extends AbstractDocument {
 	InputDocument() {
 		
 		fMaster = new Document();
-		setTextStore(new CopyOnWriteTextStore(new GapTextStore(50, 300)));
+		setTextStore(new CopyOnWriteTextStore(new GapTextStore(64, 256, 0.1f)));
 		setLineTracker(new DefaultLineTracker());
 		completeInitialization();
 		

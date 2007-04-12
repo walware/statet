@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 IBM Corporation and 
+ * Copyright (c) 2005-2007 IBM Corporation and 
  *    StatET-Project (http://www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -58,7 +57,7 @@ public class CoreUtility {
 					if (monitor.isCanceled()) {
 						throw new OperationCanceledException();
 					}
-			        Job[] buildJobs = Platform.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
+			        Job[] buildJobs = Job.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
 			        for (Job job : buildJobs) {
 			        	if (job != this && job instanceof BuildJob) {
 			        		BuildJob buildJob = (BuildJob) job;
