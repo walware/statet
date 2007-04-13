@@ -173,12 +173,12 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		
-		fConnectionConfig.readFrom(configuration);
+		fConnectionConfig.load(configuration);
 	}
 
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
 		
-		fConnectionConfig.writeTo(configuration);
+		fConnectionConfig.save(configuration);
 	}
 
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
+import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
@@ -54,7 +55,8 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		
 		return StatextSourceViewerConfiguration.createCombinedPreferenceStore(
 				store, corePrefs, new String[] { 
-					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER });
+					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER,
+					RCorePreferenceNodes.CAT_R_CODESTYLE_PRESENTATION_QUALIFIER });
 	}
 	
 	

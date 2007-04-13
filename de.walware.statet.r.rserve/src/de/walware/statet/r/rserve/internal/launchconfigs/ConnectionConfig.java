@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Lesser General Public License 
  * v2.1 or newer, which accompanies this distribution, and is available at
@@ -11,21 +11,20 @@
 
 package de.walware.statet.r.rserve.internal.launchconfigs;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
+import de.walware.eclipsecommons.AbstractSettingsModelObject;
+
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.rserve.RServePlugin;
 
 
-public class ConnectionConfig {
+public class ConnectionConfig extends AbstractSettingsModelObject {
 
 	public static final String PROP_SERVERADDRESS = "serverAddress";
 	private static final String DEFAULT_SERVERADDRESS = "127.0.0.1";
@@ -38,27 +37,16 @@ public class ConnectionConfig {
 	
 	public ConnectionConfig() {
 		
-		this(true);
-	}
-	
-	private ConnectionConfig(boolean activateBeanSupport) {
-		
 		fServerAddress = DEFAULT_SERVERADDRESS;
 		fServerPort = DEFAULT_SERVERPORT;
-		
-		if (activateBeanSupport) {
-			fPropertyChangeSupport = new PropertyChangeSupport(this);
-		}
 	}
-	
-	
+
 	
 	public void setServerAddress(String address) {
 		
 		String oldValue = fServerAddress;
 		fServerAddress = address;
-		fPropertyChangeSupport.firePropertyChange(PROP_SERVERADDRESS, 
-				oldValue, address);
+		firePropertyChange(PROP_SERVERADDRESS, 	oldValue, address);
 	}
 
 	public String getServerAddress() {
@@ -71,8 +59,7 @@ public class ConnectionConfig {
 		
 		int oldValue = fServerPort;
 		fServerPort = port;
-		fPropertyChangeSupport.firePropertyChange(PROP_SERVERPORT, 
-				oldValue, port);
+		firePropertyChange(PROP_SERVERPORT, oldValue, port);
 	}
 	
 	public int getServerPort() {
@@ -84,10 +71,10 @@ public class ConnectionConfig {
 //-- ILaunchConfigurationAdapter
 	public static void writeDefaultsTo(ILaunchConfigurationWorkingCopy configuration) {
 		
-		new ConnectionConfig(false).writeTo(configuration);
+		new ConnectionConfig().save(configuration);
 	}
 	
-	public void readFrom(ILaunchConfiguration configuration) {
+	public void load(ILaunchConfiguration configuration) {
 		
 		String address = read(configuration, 
 				IRServeConstants.CONFIG_CONNECTION_SERVERADDRESS, DEFAULT_SERVERADDRESS);
@@ -98,7 +85,7 @@ public class ConnectionConfig {
 		setServerPort(port);
 	}
 	
-	public void writeTo(ILaunchConfigurationWorkingCopy configuration) {
+	public void save(ILaunchConfigurationWorkingCopy configuration) {
 		
 		String address = getServerAddress();
 		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERADDRESS, address);
@@ -107,32 +94,6 @@ public class ConnectionConfig {
 		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERPORT, port);
 	}
 
-	
-//-- Bean-Support
-	private PropertyChangeSupport fPropertyChangeSupport;
-	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		
-		fPropertyChangeSupport.addPropertyChangeListener(listener);
-	}
-
-	public void addPropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		
-		fPropertyChangeSupport.addPropertyChangeListener(propertyName, listener);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		
-		fPropertyChangeSupport.removePropertyChangeListener(listener);
-	}
-
-	public void removePropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		
-		fPropertyChangeSupport.removePropertyChangeListener(propertyName, listener);
-	}
-	
 	
 	protected String read(ILaunchConfiguration config, String attributeName, String defaultValue) {
 		

@@ -56,7 +56,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			
 			IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
-			connectionConfig.readFrom(configuration);
+			connectionConfig.load(configuration);
 			String name = "rserve://"+connectionConfig.getServerAddress()+":"+connectionConfig.getServerPort()
 					+" ("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")";
 			

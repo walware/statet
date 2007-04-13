@@ -54,7 +54,7 @@ public class RTokens {
 	};
 	
 	public static final String[] ASSIGNMENT_OPERATORS = {
-			"<-", "->", "=",
+			"<-", "->", "<<-", "->>", "=",
 	};
 	
 	public static final String[] DEFAULT_OPERATORS = {
