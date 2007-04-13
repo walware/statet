@@ -176,6 +176,9 @@
       <keyword
             id="de.walware.statet.ui.keywords.ProjectSpecific"
             label="%keywords.ProjectSpecific"/>
+      <keyword
+            id="de.walware.statet.ui.keywords.Formatting"
+            label="%keywords.Formatting"/>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

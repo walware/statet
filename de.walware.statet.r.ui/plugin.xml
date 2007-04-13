@@ -94,6 +94,14 @@
          <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
       </page>
       <page
+            category="de.walware.statet.base.ui.preferencePages.StatetBase"
+            class="de.walware.statet.r.ui.internal.preferences.RCodeStylePreferencePage"
+            id="de.walware.statet.r.ui.preferencePages.RCodeStyle"
+            name="%preferencePages.RCodeStyle.name">
+         <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
+         <keywordReference id="de.walware.statet.ui.keywords.Formatting"/>
+      </page>
+      <page
             category="de.walware.statet.base.ui.preferencePages.Editors"
             class="de.walware.statet.r.ui.internal.preferences.REditorTemplatePreferencePage"
             id="de.walware.statet.r.ui.preferencePages.REditorTemplates"

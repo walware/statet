@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,6 +72,9 @@ public class Messages extends NLS {
 	public static String RdSyntaxColoring_Brackets_description;
 	public static String RdSyntaxColoring_TaskTag_label;
 	public static String RdSyntaxColoring_TaskTag_description;
+	
+	public static String RCodeStyle_TabSize_label;
+	public static String RCodeStyle_TabSize_error_message;
 
 
 	private static final String BUNDLE_NAME = Messages.class.getName();
