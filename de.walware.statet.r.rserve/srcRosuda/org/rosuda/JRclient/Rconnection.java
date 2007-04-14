@@ -4,7 +4,7 @@ package org.rosuda.JRclient;
 // Copyright (C) 2004-06 Simon Urbanek
 // --- for licensing information see LICENSE file in the original JRclient distribution ---
 //
-// Changes of StatET-Project are marked with "StatET CHANGED"
+// Changes of WalWare/StatET-Project are marked with "StatET CHANGED"
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import de.walware.statet.ext.core.StatextProject;
 public class StatetProject extends StatextProject {
 
 	
-	public static final String ID = "de.walware.statet.base.StatetNature";
+	public static final String ID = "de.walware.statet.base.core.StatetNature";
 	
 	
 	private IProject fProject;
