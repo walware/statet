@@ -163,7 +163,21 @@
          <actionSet id="de.walware.statet.r.ui.actionSets.RToolbarSet"/>
       </perspectiveExtension>
    </extension>
-
+   <extension
+         point="org.eclipse.help.ui.searchEngine">
+      <engine
+            enabled="true"
+            engineTypeId="org.eclipse.help.ui.web"
+            id="de.walware.statet.r.ui.searchEngine.RSiteSearch"
+            label="%searchEngine.RSiteSearch.label">
+         <param
+               name="url"
+               value="http://search.r-project.org/cgi-bin/namazu.cgi?query={expression}&amp;max=20&amp;result=normal&amp;sort=score&amp;idxname=functions&amp;idxname=docs"/>
+         <description>
+            %searchEngine.RSiteSearch.description
+         </description>
+      </engine>
+   </extension>
 
 
    <extension
@@ -185,13 +199,6 @@
             icon="icons/tool_16/run_r-cmd.gif">
       </launchConfigurationTypeImage>
    </extension>
-
-
-
-   <extension-point
-   		id="rCodeLaunchConnector"
-   		name="Point to register Connectors which can launch r code"
-   		schema="schema/RCodeLaunchConnector.exsd"/>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
@@ -201,6 +208,12 @@
             id="de.walware.statet.r.launching.RConfigurationTabGroup"
             type="de.walware.statet.r.launching.RCmdConfigurationType"/>
    </extension>
+
+
+   <extension-point
+   		id="rCodeLaunchConnector"
+   		name="Point to register Connectors which can launch r code"
+   		schema="schema/RCodeLaunchConnector.exsd"/>
 
    <extension
          point="org.eclipse.debug.ui.launchShortcuts">
