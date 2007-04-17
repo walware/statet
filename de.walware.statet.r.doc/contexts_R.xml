@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.contexts"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ ###############################################################################
+-->
+
+<contexts>
+
+    <context id="r_editor">
+        <description>The R Editor provides you with R specific text editing support.</description>
+        <topic label="Workbench - Editors" href="/org.eclipse.platform.doc.user/concepts/concepts-6.htm" />
+        <topic label="Workbench - Navigating the user interface using the keyboard" href="/org.eclipse.platform.doc.user/concepts/accessibility/navigation.htm" />
+    </context>
+    <context id="r_console">
+        <description>The R Console enables command based interaction with R.
+
+You can type commands in the bottom text field and edit R code almost like in the R Editor. Using the UP- and DOWN-key you can navigate through the history of the last inputs. Pressing ENTER or the 'Submit'-Button sends your current input to R.
+        </description>
+    </context>
+
+</contexts>

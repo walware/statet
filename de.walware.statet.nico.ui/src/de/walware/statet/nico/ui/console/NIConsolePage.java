@@ -239,6 +239,11 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		return new InputGroup(this);
 	}
+	
+	protected InputGroup getInputGroup() {
+		
+		return fInputGroup;
+	}
 
 	public void createControl(Composite parent) {
 		

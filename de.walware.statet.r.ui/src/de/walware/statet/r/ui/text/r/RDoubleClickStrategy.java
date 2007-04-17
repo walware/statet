@@ -17,12 +17,11 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.ui.RUIUtil;
 
 
 /**
@@ -80,7 +79,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 					textViewer.setSelectedRange(partitionOffset + 1, partition.getLength() - 2);
 					return;
 				} else {
-					IRegion region = getDefaultWordSelection(document, offset);
+					IRegion region = RUIUtil.getDefaultWord(document, offset);
 					textViewer.setSelectedRange(region.getOffset(), region.getLength());
 				}
 			} else
@@ -104,80 +103,8 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 		} catch (NullPointerException e) {
 		}
 		// else
-		IRegion region = getRWordSelection(document, offset, false);
+		IRegion region = RUIUtil.getRWord(document, offset, false);
 		textViewer.setSelectedRange(region.getOffset(), region.getLength());
-	}
-
-	protected static IRegion getRWordSelection(IDocument document, int anchor, boolean isDotSeparator) {
-
-		try {
-
-			int offset = anchor;
-			char c;
-
-			while (offset >= 0) {
-				c = document.getChar(offset);
-				if (RTokens.isRobustSeparator(c, isDotSeparator))
-					break;
-				--offset;
-			}
-			
-			int start = offset;
-
-			offset = anchor;
-			int length = document.getLength();
-
-			while (offset < length) {
-				c = document.getChar(offset);
-				if (RTokens.isRobustSeparator(c, isDotSeparator))
-					break;
-				++offset;
-			}
-			
-			int end = offset;
-			
-			if (start < end)
-				return new Region (start + 1, end - start - 1);
-			
-		} catch (BadLocationException x) {
-		}
-		return new Region(anchor, 0);
-	}
-	
-	protected IRegion getDefaultWordSelection(IDocument document, int anchor) {
-		
-		try {
-	
-			int offset = anchor;
-			char c;
-	
-			while (offset >= 0) {
-				c = document.getChar(offset);
-				if (!Character.isLetterOrDigit(c))
-					break;
-				--offset;
-			}
-	
-			int start = offset;
-	
-			offset = anchor;
-			int length = document.getLength();
-	
-			while (offset < length) {
-				c = document.getChar(offset);
-				if (!Character.isLetterOrDigit(c))
-					break;
-				++offset;
-			}
-			
-			int end = offset;
-			
-			if (start < end)
-				return new Region (start + 1, end - start - 1);
-			
-		} catch (BadLocationException x) {
-		}
-		return new Region(anchor, 0);
 	}
 	
 }

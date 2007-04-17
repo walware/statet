@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: WalWare.de
+Bundle-Name: StatET R Documentation
+Bundle-SymbolicName: de.walware.statet.r.doc;singleton:=true
+Bundle-Version: 0.4.0.qualifier
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.help

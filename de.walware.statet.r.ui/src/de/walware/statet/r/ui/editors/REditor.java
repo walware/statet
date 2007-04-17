@@ -11,8 +11,12 @@
 
 package de.walware.statet.r.ui.editors;
 
+import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
+import org.eclipse.swt.events.HelpEvent;
+import org.eclipse.swt.events.HelpListener;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
@@ -22,13 +26,18 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.ui.RUIHelp;
 import de.walware.statet.r.ui.internal.RUIPlugin;
+import de.walware.statet.r.ui.internal.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
 public class REditor extends StatextEditor1<RProject> {
 
 
+	private IContextProvider fHelpContextProvider;
+	
+	
 	public REditor() {
 		super();
 	}
@@ -38,7 +47,8 @@ public class REditor extends StatextEditor1<RProject> {
 		
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		initStatext(new RBracketPairMatcher());
-
+		// help init in #createActions() to avoid default trigger
+		
 		super.initializeEditor();
 	}
 	
@@ -81,12 +91,30 @@ public class REditor extends StatextEditor1<RProject> {
 
 		super.createActions();
 		
+		// Editor Help
+//		setHelpContextId(IRUIHelpContextIds.R_EDITOR);
+		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(this, IRUIHelpContextIds.R_EDITOR);
+		getSourceViewer().getTextWidget().addHelpListener(new HelpListener() {
+			public void helpRequested(HelpEvent e) {
+				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
+			}
+		});
+		
 		Action action = new ContentAssistAction(
 				EditorMessages.getCompatibilityBundle(), "ContentAssistProposal_", this); //$NON-NLS-1$
         action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
         setAction("ContentAssistProposal", action); //$NON-NLS-1$
-	}
+   	}
 
+	@Override
+	public Object getAdapter(Class adapter) {
+		
+		if (IContextProvider.class.equals(adapter)) {
+			return fHelpContextProvider;
+		}
+		return super.getAdapter(adapter);
+	}
+	
 	@Override
 	public void dispose() {
 		
