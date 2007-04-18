@@ -32,9 +32,9 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamProxy;
+import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences;
+import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences.FilterPreferences;
 import de.walware.statet.nico.ui.NicoUI;
-import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences;
-import de.walware.statet.nico.ui.internal.preferences.ConsolePreferences.FilterPreferences;
 
 
 /**

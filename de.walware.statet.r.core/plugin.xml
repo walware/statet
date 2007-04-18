@@ -16,7 +16,7 @@
 <plugin>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.r.core.internal.RCorePreferenceInitializer"/>
+      <initializer class="de.walware.statet.r.internal.core.RCorePreferenceInitializer"/>
    </extension>
    <extension
          id="RNature"
@@ -59,7 +59,7 @@
          name="%builders.RInternalBuilder.name"
          point="org.eclipse.core.resources.builders">
       <builder hasNature="true">
-         <run class="de.walware.statet.r.core.internal.RInternalBuilder"/>
+         <run class="de.walware.statet.r.internal.core.RInternalBuilder"/>
       </builder>
    </extension>
    <extension

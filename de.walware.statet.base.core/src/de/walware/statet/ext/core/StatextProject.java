@@ -26,7 +26,7 @@ import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.base.core.internal.BaseCorePlugin;
+import de.walware.statet.base.internal.core.BaseCorePlugin;
 
 
 /**

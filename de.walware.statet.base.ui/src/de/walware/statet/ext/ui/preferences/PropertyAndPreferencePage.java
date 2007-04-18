@@ -45,7 +45,7 @@ import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ui.internal.preferences.Messages;
+import de.walware.statet.base.internal.ui.preferences.Messages;
 
 
 /**

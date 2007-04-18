@@ -18,7 +18,7 @@
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             category="org.eclipse.ui.externaltools"
-            delegate="de.walware.statet.r.rserve.internal.launchconfigs.RServeClientLaunchConfigDelegate"
+            delegate="de.walware.statet.r.internal.rserve.launchconfigs.RServeClientLaunchConfigDelegate"
             id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"
             modes="run"
             name="%LaunchConfiguration_RServeClient_name"
@@ -27,7 +27,7 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="de.walware.statet.r.rserve.internal.launchconfigs.RServeClientLaunchConfigTabGroup"
+            class="de.walware.statet.r.internal.rserve.launchconfigs.RServeClientLaunchConfigTabGroup"
             description="%LaunchConfiguration_RServeClient_description"
             id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationTabGroup"
             type="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"/>

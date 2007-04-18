@@ -85,12 +85,12 @@ import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
+import de.walware.statet.nico.internal.ui.Messages;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.actions.CancelAction;
 import de.walware.statet.nico.ui.actions.IToolAction;
 import de.walware.statet.nico.ui.actions.IToolActionSupport;
 import de.walware.statet.nico.ui.actions.ToolAction;
-import de.walware.statet.nico.ui.internal.Messages;
-import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.TextViewerAction;
 import de.walware.statet.ui.util.DNDUtil;
 

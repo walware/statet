@@ -4,7 +4,7 @@ Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Base Core
 Bundle-SymbolicName: de.walware.statet.base.core;singleton:=true
 Bundle-Version: 0.4.0.qualifier
-Bundle-Activator: de.walware.statet.base.core.internal.BaseCorePlugin
+Bundle-Activator: de.walware.statet.base.internal.core.BaseCorePlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,

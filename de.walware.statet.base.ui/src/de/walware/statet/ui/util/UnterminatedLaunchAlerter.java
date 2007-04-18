@@ -19,7 +19,7 @@ import org.eclipse.ui.PlatformUI;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.ui.internal.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetMessages;
 
 
 /**

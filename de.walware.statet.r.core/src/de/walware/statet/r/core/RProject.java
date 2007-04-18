@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.core.StatextProject;
-import de.walware.statet.r.core.internal.RInternalBuilder;
+import de.walware.statet.r.internal.core.RInternalBuilder;
 
 
 public class RProject extends StatextProject {

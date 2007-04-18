@@ -37,8 +37,8 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.base.IStatetStatusConstants;
-import de.walware.statet.r.internal.debug.RDebugPreferenceConstants;
-import de.walware.statet.r.internal.debug.connector.RConsoleConnector;
+import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
+import de.walware.statet.r.internal.debug.ui.connector.RConsoleConnector;
 import de.walware.statet.r.ui.RUI;
 
 

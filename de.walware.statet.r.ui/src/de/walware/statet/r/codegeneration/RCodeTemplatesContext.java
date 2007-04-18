@@ -14,7 +14,7 @@ package de.walware.statet.r.codegeneration;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.StatextCodeTemplatesContext;
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.ui.internal.RUIPlugin;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 public class RCodeTemplatesContext extends StatextCodeTemplatesContext {

@@ -4,7 +4,7 @@ Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Core
 Bundle-SymbolicName: de.walware.statet.r.core; singleton:=true
 Bundle-Version: 0.4.0.qualifier
-Bundle-Activator: de.walware.statet.r.core.internal.RCorePlugin
+Bundle-Activator: de.walware.statet.r.internal.core.RCorePlugin
 Bundle-Localization: plugin
 Require-Bundle: de.walware.statet.base.core;bundle-version="0.4.0",
  org.eclipse.team.core;resolution:=optional,

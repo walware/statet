@@ -22,10 +22,10 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
+import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.nico.BasicR;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.ui.RUIHelp;
-import de.walware.statet.r.ui.internal.help.IRUIHelpContextIds;
 
 
 public class RConsolePage extends NIConsolePage {

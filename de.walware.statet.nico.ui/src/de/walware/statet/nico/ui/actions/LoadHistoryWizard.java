@@ -22,9 +22,9 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.wizards.AbstractWizard;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.internal.ui.LoadHistoryPage;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUIMessages;
-import de.walware.statet.nico.ui.internal.LoadHistoryPage;
-import de.walware.statet.nico.ui.internal.NicoUIPlugin;
 import de.walware.statet.ui.util.ExceptionHandler;
 
 

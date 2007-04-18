@@ -15,8 +15,8 @@ import org.eclipse.swt.widgets.Display;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.ui.NicoUI;
-import de.walware.statet.nico.ui.internal.Messages;
 
 
 /**

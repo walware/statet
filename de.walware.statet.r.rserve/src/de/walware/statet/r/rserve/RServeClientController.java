@@ -26,13 +26,13 @@ import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.r.internal.rserve.launchconfigs.ConnectionConfig;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.BasicR;
 import de.walware.statet.r.nico.IBasicRAdapter;
 import de.walware.statet.r.nico.ISetupRAdapter;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.nico.RWorkspace;
-import de.walware.statet.r.rserve.internal.launchconfigs.ConnectionConfig;
 
 
 public class RServeClientController 

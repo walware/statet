@@ -68,10 +68,10 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.eclipsecommons.ui.util.TreeUtil.Node;
 
 import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.preferences.Messages;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
-import de.walware.statet.ui.internal.preferences.Messages;
 
 
 /**

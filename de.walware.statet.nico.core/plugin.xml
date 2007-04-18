@@ -16,13 +16,13 @@
 <plugin>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.nico.core.internal.NicoPreferenceInitializer"/>
+      <initializer class="de.walware.statet.nico.internal.core.NicoPreferenceInitializer"/>
    </extension>
 
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="de.walware.statet.nico.core.internal.ToolPropertyTester"
+            class="de.walware.statet.nico.internal.core.ToolPropertyTester"
             id="de.walware.statet.nico.ToolPropertyTester"
             namespace="de.walware.statet.nico"
             properties="isProvidingFeatureSet"

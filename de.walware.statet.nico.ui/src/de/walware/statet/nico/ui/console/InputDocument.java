@@ -31,8 +31,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TypedRegion;
 
-import de.walware.statet.nico.ui.internal.Messages;
-import de.walware.statet.nico.ui.internal.NicoUIPlugin;
+import de.walware.statet.nico.internal.ui.Messages;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
 
 public class InputDocument extends AbstractDocument {

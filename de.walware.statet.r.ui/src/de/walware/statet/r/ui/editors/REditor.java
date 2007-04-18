@@ -26,9 +26,9 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUIHelp;
-import de.walware.statet.r.ui.internal.RUIPlugin;
-import de.walware.statet.r.ui.internal.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 

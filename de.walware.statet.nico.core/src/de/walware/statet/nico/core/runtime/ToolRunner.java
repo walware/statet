@@ -20,8 +20,8 @@ import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.internal.Messages;
-import de.walware.statet.nico.core.internal.NicoPlugin;
+import de.walware.statet.nico.internal.core.Messages;
+import de.walware.statet.nico.internal.core.NicoPlugin;
 
 
 /**

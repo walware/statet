@@ -38,8 +38,8 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
 import de.walware.statet.nico.core.NicoPreferenceNodes;
-import de.walware.statet.nico.core.internal.Messages;
-import de.walware.statet.nico.core.internal.preferences.HistoryPreferences;
+import de.walware.statet.nico.internal.core.Messages;
+import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;
 
 
 /**

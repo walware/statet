@@ -20,9 +20,9 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
-import de.walware.statet.r.ui.internal.RUIPlugin;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 

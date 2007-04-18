@@ -14,7 +14,7 @@ package de.walware.statet.r.ui;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 
-import de.walware.statet.r.ui.internal.RUIPlugin;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 /**

@@ -38,7 +38,7 @@ import org.eclipse.ui.IEditorPart;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.ui.internal.RUIPlugin;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.RTemplateProposal.RTemplateComparator;
 import de.walware.statet.ui.StatetImages;
 

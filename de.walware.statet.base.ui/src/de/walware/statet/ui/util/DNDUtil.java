@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Control;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.ui.internal.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetMessages;
 
 
 public class DNDUtil {

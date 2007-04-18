@@ -19,7 +19,7 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
-import de.walware.statet.ui.internal.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetMessages;
 
 
 /**

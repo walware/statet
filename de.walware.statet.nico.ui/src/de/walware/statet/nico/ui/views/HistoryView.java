@@ -60,6 +60,9 @@ import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
+import de.walware.statet.nico.internal.ui.actions.HistoryCopyAction;
+import de.walware.statet.nico.internal.ui.actions.HistoryDragAdapter;
+import de.walware.statet.nico.internal.ui.actions.HistorySubmitAction;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -70,9 +73,6 @@ import de.walware.statet.nico.ui.actions.LoadHistoryAction;
 import de.walware.statet.nico.ui.actions.SaveHistoryAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction.Receiver;
-import de.walware.statet.nico.ui.internal.actions.HistoryCopyAction;
-import de.walware.statet.nico.ui.internal.actions.HistoryDragAdapter;
-import de.walware.statet.nico.ui.internal.actions.HistorySubmitAction;
 import de.walware.statet.ui.StatetImages;
 
 

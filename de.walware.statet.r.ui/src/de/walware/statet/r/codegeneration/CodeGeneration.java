@@ -17,7 +17,7 @@ import org.eclipse.jface.text.templates.Template;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.ui.internal.RUIPlugin;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 /**

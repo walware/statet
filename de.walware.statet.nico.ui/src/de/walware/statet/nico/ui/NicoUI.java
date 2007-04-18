@@ -13,7 +13,7 @@ package de.walware.statet.nico.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import de.walware.statet.nico.ui.internal.NicoUIPlugin;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
 
 /**

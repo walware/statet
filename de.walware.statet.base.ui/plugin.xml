@@ -22,7 +22,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="de.walware.statet.ui.internal.StatetPerspectiveFactory"
+            class="de.walware.statet.base.internal.ui.StatetPerspectiveFactory"
             icon="icons/view_16/statet_perspective.gif"
             id="de.walware.statet.base.ui.perspectives.StatetPerspective"
             name="%perspectives.StatetPerspective.name"/>
@@ -87,14 +87,14 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="de.walware.statet.ui.internal.preferences.StatetBasePreferencePage"
+            class="de.walware.statet.base.internal.ui.preferences.StatetBasePreferencePage"
             id="de.walware.statet.base.ui.preferencePages.StatetBase"
             name="%preferencePages.StatetBase.name">
          <keywordReference id="de.walware.statet.ui.keywords.StatetGeneral"/>
       </page>
       <page
             category="de.walware.statet.base.ui.preferencePages.StatetBase"
-            class="de.walware.statet.ui.internal.preferences.EditorsPreferencePage"
+            class="de.walware.statet.base.internal.ui.preferences.EditorsPreferencePage"
             id="de.walware.statet.base.ui.preferencePages.Editors"
             name="%preferencePages.Editors.name">
          <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
@@ -102,7 +102,7 @@
       </page>
       <page
             category="de.walware.statet.base.ui.preferencePages.StatetBase"
-            class="de.walware.statet.ui.internal.preferences.CodeGenerationTemplatesPreferencePage"
+            class="de.walware.statet.base.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
             id="de.walware.statet.base.ui.preferencePages.CodeGenerationTemplates"
             name="%preferencePages.CodeGenerationTemplates.name">
          <keywordReference id="de.walware.statet.ui.keywords.Template"/>
@@ -110,7 +110,7 @@
       </page>
       <page
             category="de.walware.statet.base.ui.preferencePages.StatetBase"
-            class="de.walware.statet.ui.internal.preferences.TaskTagsPreferencePage"
+            class="de.walware.statet.base.internal.ui.preferences.TaskTagsPreferencePage"
             id="de.walware.statet.base.ui.preferencePages.TaskTags"
             name="%preferencePages.TaskTags.name">
          <keywordReference id="de.walware.statet.ui.keywords.TaskTag"/>
@@ -120,7 +120,7 @@
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            class="de.walware.statet.ui.internal.preferences.CodeGenerationTemplatesPreferencePage"
+            class="de.walware.statet.base.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
             id="de.walware.statet.base.ui.propertyPages.CodeGenerationTemplates"
             name="%propertyPages.CodeGenerationTemplates.name"
             >
@@ -134,7 +134,7 @@
          <keywordReference id="de.walware.statet.ui.keywords.ProjectSpecific"/>
       </page>
       <page
-            class="de.walware.statet.ui.internal.preferences.TaskTagsPreferencePage"
+            class="de.walware.statet.base.internal.ui.preferences.TaskTagsPreferencePage"
             id="de.walware.statet.base.ui.propertyPages.TaskTags"
             name="%propertyPages.TaskTags.name"
             >

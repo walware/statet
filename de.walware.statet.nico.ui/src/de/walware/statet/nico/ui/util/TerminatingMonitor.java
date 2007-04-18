@@ -33,7 +33,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.ui.internal.Messages;
+import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.ui.util.ExceptionHandler;
 
 

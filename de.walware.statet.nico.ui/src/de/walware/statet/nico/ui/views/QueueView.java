@@ -48,12 +48,12 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.PauseAction;
-import de.walware.statet.nico.ui.internal.Messages;
 import de.walware.statet.nico.ui.util.ToolProgressGroup;
 import de.walware.statet.ui.StatetImages;
 

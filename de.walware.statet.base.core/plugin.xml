@@ -16,7 +16,7 @@
 <plugin>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.base.core.internal.BaseCorePreferenceInitializer"/>
+      <initializer class="de.walware.statet.base.internal.core.BaseCorePreferenceInitializer"/>
    </extension>
    <extension
          id="StatetNature"

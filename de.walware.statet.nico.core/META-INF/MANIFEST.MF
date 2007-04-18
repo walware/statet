@@ -4,7 +4,7 @@ Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico Core
 Bundle-SymbolicName: de.walware.statet.nico.core;singleton:=true
 Bundle-Version: 0.4.0.qualifier
-Bundle-Activator: de.walware.statet.nico.core.internal.NicoPlugin
+Bundle-Activator: de.walware.statet.nico.internal.core.NicoPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.debug.core;visibility:=reexport,

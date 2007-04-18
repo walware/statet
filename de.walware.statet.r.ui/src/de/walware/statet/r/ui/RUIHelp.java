@@ -15,7 +15,7 @@ import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.IWorkbenchPart3;
 
-import de.walware.statet.r.ui.internal.help.EnrichedRHelpContext;
+import de.walware.statet.r.internal.ui.help.EnrichedRHelpContext;
 
 
 /**

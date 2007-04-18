@@ -58,7 +58,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
-import de.walware.statet.nico.ui.internal.Messages;
+import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
 import de.walware.statet.ui.StatetUiPreferenceConstants;
 

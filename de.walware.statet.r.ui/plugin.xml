@@ -17,7 +17,7 @@
 
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.r.ui.internal.RUIPreferenceInitializer"/>
+      <initializer class="de.walware.statet.r.internal.ui.RUIPreferenceInitializer"/>
    </extension>
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
@@ -79,7 +79,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="de.walware.statet.base.ui.preferencePages.Editors"
-            class="de.walware.statet.r.ui.internal.preferences.RSyntaxColoringPreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
             id="de.walware.statet.r.ui.preferencePages.RSyntaxColoring"
             name="%preferencePages.RSyntaxColoring.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
@@ -87,7 +87,7 @@
       </page>
       <page
             category="de.walware.statet.base.ui.preferencePages.Editors"
-            class="de.walware.statet.r.ui.internal.preferences.RdSyntaxColoringPreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage"
             id="de.walware.statet.r.ui.preferencePages.RdSyntaxColoring"
             name="%preferencePages.RdSyntaxColoring.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
@@ -95,7 +95,7 @@
       </page>
       <page
             category="de.walware.statet.base.ui.preferencePages.StatetBase"
-            class="de.walware.statet.r.ui.internal.preferences.RCodeStylePreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage"
             id="de.walware.statet.r.ui.preferencePages.RCodeStyle"
             name="%preferencePages.RCodeStyle.name">
          <keywordReference id="de.walware.statet.ui.keywords.Appearance"/>
@@ -103,7 +103,7 @@
       </page>
       <page
             category="de.walware.statet.base.ui.preferencePages.Editors"
-            class="de.walware.statet.r.ui.internal.preferences.REditorTemplatePreferencePage"
+            class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage"
             id="de.walware.statet.r.ui.preferencePages.REditorTemplates"
             name="%preferencePages.REditorTemplates.name">
          <keywordReference id="de.walware.statet.ui.keywords.Editor"/>
@@ -114,17 +114,17 @@
       <category
             id="de.walware.statet.r.codegenerationCategory.RCodeTemplates"
             name="%templatesCategory.RCodeTemplates.name"
-            providerClass="de.walware.statet.r.ui.internal.preferences.RCodeTemplatesProvider"/>
+            providerClass="de.walware.statet.r.internal.ui.preferences.RCodeTemplatesProvider"/>
       <category
             id="de.walware.statet.r.codegenerationCategory.RdCodeTemplates"
             name="%templatesCategory.RdCodeTemplates.name"
-            providerClass="de.walware.statet.r.ui.internal.preferences.RdCodeTemplatesProvider"/>
+            providerClass="de.walware.statet.r.internal.ui.preferences.RdCodeTemplatesProvider"/>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
             category="de.walware.statet.ui.wizards.StatetCategory"
-            class="de.walware.statet.r.ui.internal.wizards.NewRFileCreationWizard"
+            class="de.walware.statet.r.internal.ui.wizards.NewRFileCreationWizard"
             icon="icons/tool_16/new_r-file.gif"
             id="de.walware.statet.r.ui.wizards.NewRFileCreationWizard"
             name="%wizards.NewRFile.name"
@@ -135,7 +135,7 @@
       </wizard>
       <wizard
             category="de.walware.statet.ui.wizards.StatetCategory"
-            class="de.walware.statet.r.ui.internal.wizards.NewRdFileCreationWizard"
+            class="de.walware.statet.r.internal.ui.wizards.NewRdFileCreationWizard"
             icon="icons/tool_16/new_rd-file.gif"
             id="de.walware.statet.r.ui.wizards.NewRdFileCreationWizard"
             name="%wizards.NewRdFile.name"
@@ -146,7 +146,7 @@
       </wizard>
       <wizard
             category="de.walware.statet.ui.wizards.StatetCategory"
-            class="de.walware.statet.r.ui.internal.wizards.NewRProjectWizard"
+            class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
             icon="icons/tool_16/new_r-project.gif"
             id="de.walware.statet.r.ui.wizards.NewRProjectCreationWizard"
             name="%wizards.NewRProject.name"
@@ -184,7 +184,7 @@
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             category="org.eclipse.ui.externaltools"
-            delegate="de.walware.statet.r.internal.debug.launchconfigs.RConsoleLaunchConfigurationDelegate"
+            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleLaunchConfigurationDelegate"
             id="de.walware.statet.r.launching.RCmdConfigurationType"
             modes="run"
             name="%LaunchConfiguration_RConsole_name"
@@ -202,7 +202,7 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.debug.launchconfigs.RConsoleTabGroup"
+            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleTabGroup"
             description="%LaunchConfiguration_RConsole_description"
             helpContextId="org.eclipse.ui.externaltools.launchConfigHelpContext.program"
             id="de.walware.statet.r.launching.RConfigurationTabGroup"
@@ -219,7 +219,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.launcher.RScriptViaSourceLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptViaSourceLaunchShortcut"
             icon="icons/tool_16/run_r-script-source.gif"
             id="de.walware.statet.r.launching.RScriptViaSourceLaunchShortcut"
             label="%launchShortcuts.RunRScriptViaSource"
@@ -252,7 +252,7 @@
       </shortcut>
       <shortcut
             category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.launcher.RScriptViaSourceAndConsoleLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptViaSourceAndConsoleLaunchShortcut"
             icon="icons/tool_16/run_r-script-source.gif"
             id="de.walware.statet.r.launching.RScriptViaSourceAndConsoleLaunchShortcut"
             label="%launchShortcuts.RunRScriptViaSourceAndGotoConsole"
@@ -271,7 +271,7 @@
       </shortcut>
       <shortcut
             category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.launcher.RScriptDirectLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptDirectLaunchShortcut"
             icon="icons/tool_16/run_r-script.gif"
             id="de.walware.statet.r.launching.RScriptDirectLaunchShortcut"
             label="%launchShortcuts.RunRScriptDirect"
@@ -305,7 +305,7 @@
       </shortcut>
       <shortcut
             category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.launcher.RScriptDirectAndConsoleLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptDirectAndConsoleLaunchShortcut"
             icon="icons/tool_16/run_r-script.gif"
             id="de.walware.statet.r.launching.RScriptDirectAndConsoleLaunchShortcut"
             label="%launchShortcuts.RunRScriptDirectAndGotoConsole"
@@ -324,7 +324,7 @@
       </shortcut>
       <shortcut
             category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.launcher.RSelectionDirectLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectLaunchShortcut"
             icon="icons/tool_16/run_r-selection.gif"
             id="de.walware.statet.r.launching.REditorSelectionDirectLaunchShortcut"
             label="%launchShortcuts.RunRSelectionDirect"
@@ -364,7 +364,7 @@
       </shortcut>
       <shortcut
             category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.launcher.RSelectionDirectAndConsoleLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectAndConsoleLaunchShortcut"
             icon="icons/tool_16/run_r-selection.gif"
             id="de.walware.statet.r.launching.REditorSelectionDirectAndConsoleLaunchShortcut"
             label="%launchShortcuts.RunRSelectionDirect"
@@ -386,7 +386,7 @@
       </shortcut>
       <shortcut
             category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.launcher.RSelectionDirectAndNextLineLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectAndNextLineLaunchShortcut"
             icon="icons/tool_16/run_r-selection.gif"
             id="de.walware.statet.r.launching.REditorSelectionDirectAndNextLineLaunchShortcut"
             label="%launchShortcuts.RunRSelectionDirectAndGotoNextLine"
@@ -413,7 +413,7 @@
             id="de.walware.statet.r.ui.actionSets.RToolbarSet"
             label="%actionSets.RToolbar.label">
          <action
-               class="de.walware.statet.r.internal.debug.launcher.RunRCodePulldownAction"
+               class="de.walware.statet.r.internal.debug.ui.launcher.RunRCodePulldownAction"
                id="de.walware.statet.r.ui.actions.RunRCodePulldown"
                label="%actions.RunRCode.label"
                style="pulldown"
@@ -425,7 +425,7 @@
          point="org.eclipse.ui.preferencePages">
       <page
             category="de.walware.statet.base.ui.preferencePages.StatetBase"
-            class="de.walware.statet.r.internal.debug.preferences.RInteractionPreferencePage"
+            class="de.walware.statet.r.internal.debug.ui.preferences.RInteractionPreferencePage"
             id="de.walware.statet.r.debug.preferences.RInteractionPreferencePage"
             name="%preferencePages.RInteraction.name"/>
    </extension>
@@ -468,7 +468,7 @@
       </command>
       <command
             categoryId="org.eclipse.debug.ui.category.run"
-            defaultHandler="de.walware.statet.r.internal.debug.GotoRConsole"
+            defaultHandler="de.walware.statet.r.internal.debug.ui.GotoRConsole"
             id="de.walware.statet.r.debug.GotoRConsole"
             name="%commands.GotoRConsole"/>
    </extension>
@@ -526,7 +526,7 @@
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
-            class="de.walware.statet.r.internal.debug.connector.RConsoleConnector"
+            class="de.walware.statet.r.internal.debug.ui.connector.RConsoleConnector"
             description="%rConnector_RConsoleConnector_description"
             id="de.walware.statet.r.launching.RConsoleConnector"
             name="%rConnector_RConsoleConnector_name"/>

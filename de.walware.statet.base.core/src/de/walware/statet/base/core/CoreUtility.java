@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.base.core.internal.Messages;
+import de.walware.statet.base.internal.core.Messages;
 
 
 public class CoreUtility {

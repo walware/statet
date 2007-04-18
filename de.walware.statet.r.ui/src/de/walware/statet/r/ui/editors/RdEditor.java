@@ -19,8 +19,8 @@ import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.IRDocumentPartitions;
-import de.walware.statet.r.ui.internal.RUIPlugin;
 
 
 public class RdEditor extends StatextEditor1<RProject> {

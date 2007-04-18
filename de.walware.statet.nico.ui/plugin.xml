@@ -16,7 +16,7 @@
 <plugin>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.nico.ui.internal.preferences.NicoUIPreferenceInitializer"/>
+      <initializer class="de.walware.statet.nico.internal.ui.preferences.NicoUIPreferenceInitializer"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -40,7 +40,7 @@
          point="org.eclipse.core.runtime.adapters">
       <factory
             adaptableType="de.walware.statet.nico.core.runtime.ToolController$ConsoleCommandRunnable"
-            class="de.walware.statet.nico.ui.internal.CommandRunnableAdapterFactory">
+            class="de.walware.statet.nico.internal.ui.CommandRunnableAdapterFactory">
          <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
       </factory>
    </extension>

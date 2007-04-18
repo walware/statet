@@ -27,9 +27,9 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
-import de.walware.statet.nico.core.internal.Messages;
-import de.walware.statet.nico.core.internal.NicoPlugin;
-import de.walware.statet.nico.core.internal.RunnableProgressMonitor;
+import de.walware.statet.nico.internal.core.Messages;
+import de.walware.statet.nico.internal.core.NicoPlugin;
+import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
 
 
 /**
