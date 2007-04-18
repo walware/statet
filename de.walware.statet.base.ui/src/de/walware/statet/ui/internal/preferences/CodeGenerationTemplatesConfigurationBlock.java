@@ -187,7 +187,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		
 		fProject = project;
 		if (fProject != null) {
-			fStatetProject = (StatetProject) fProject.getNature(StatetProject.ID);
+			fStatetProject = (StatetProject) fProject.getNature(StatetProject.NATURE_ID);
 		}
 
 		fGroup = new Group();

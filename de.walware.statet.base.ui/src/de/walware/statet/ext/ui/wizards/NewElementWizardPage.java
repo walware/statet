@@ -76,7 +76,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 
 				IProject project = container.getProject();
 				try {
-					if (project.hasNature(StatetProject.ID))
+					if (project.hasNature(StatetProject.NATURE_ID))
 						return true;
 				} catch (CoreException e) {	}
 

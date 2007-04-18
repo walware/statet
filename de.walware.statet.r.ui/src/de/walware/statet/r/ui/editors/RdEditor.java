@@ -44,7 +44,7 @@ public class RdEditor extends StatextEditor1<RProject> {
 	@Override
 	protected RProject getProject(IEditorInput input) {
 		
-		return (RProject) getProject(input, RProject.ID);
+		return (RProject) getProject(input, RProject.NATURE_ID);
 	}
 	
 	protected void setupConfiguration(RProject project) {

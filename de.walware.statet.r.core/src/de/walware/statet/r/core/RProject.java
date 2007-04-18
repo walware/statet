@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import de.walware.statet.r.core.internal.RInternalBuilder;
 public class RProject extends StatextProject {
 
 	
-	public static final String ID = "de.walware.statet.r.core.RNature";
+	public static final String NATURE_ID = "de.walware.statet.r.core.RNature";
 	
 	
 	public RProject() {
@@ -51,7 +51,7 @@ public class RProject extends StatextProject {
 /* **/
 	public StatetProject getStatetProject() throws CoreException {
 		
-		return (StatetProject) fProject.getNature(StatetProject.ID);
+		return (StatetProject) fProject.getNature(StatetProject.NATURE_ID);
 	}
 	
 	
@@ -116,15 +116,10 @@ public class RProject extends StatextProject {
 		try {
 			monitor.beginTask("Config R Project...", 1000);
 			
-			if (!project.hasNature(ID)) {
+			if (!project.hasNature(NATURE_ID)) {
 				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
 				
-				IProjectDescription description = project.getDescription();
-				String[] prevNatures = description.getNatureIds();
-				String[] newNatures = new String[prevNatures.length + 1];
-				System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
-				newNatures[prevNatures.length] = ID;
-				description.setNatureIds(newNatures);
+				IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
 				project.setDescription(description, new SubProgressMonitor(monitor, 600));
 			} 
 		}

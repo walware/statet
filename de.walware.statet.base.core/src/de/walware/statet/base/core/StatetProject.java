@@ -25,7 +25,7 @@ import de.walware.statet.ext.core.StatextProject;
 public class StatetProject extends StatextProject {
 
 	
-	public static final String ID = "de.walware.statet.base.core.StatetNature";
+	public static final String NATURE_ID = "de.walware.statet.base.core.StatetNature";
 	
 	
 	private IProject fProject;
@@ -75,13 +75,8 @@ public class StatetProject extends StatextProject {
 	
 	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
 
-		if (!project.hasNature(ID)) {
-			IProjectDescription description = project.getDescription();
-			String[] prevNatures = description.getNatureIds();
-			String[] newNatures = new String[prevNatures.length + 1];
-			System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
-			newNatures[prevNatures.length] = ID;
-			description.setNatureIds(newNatures);
+		if (!project.hasNature(NATURE_ID)) {
+			IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
 			project.setDescription(description, monitor);
 		} 
 		else {

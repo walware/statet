@@ -53,7 +53,7 @@ public class RResourceUnit {
 		
 		if (fFile != null) {
 			try {
-				RProject rproj = (RProject) fFile.getProject().getNature(RProject.ID);
+				RProject rproj = (RProject) fFile.getProject().getNature(RProject.NATURE_ID);
 				if (rproj != null) {
 					return rproj.getStatetProject();
 				}

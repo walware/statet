@@ -37,7 +37,7 @@ public class StatetCore {
 		
 		try {
 			for (IProject project : projects) {
-				StatetProject sp = (StatetProject) project.getNature(StatetProject.ID);
+				StatetProject sp = (StatetProject) project.getNature(StatetProject.NATURE_ID);
 				if (sp != null)
 					collected.add(sp);
 			}

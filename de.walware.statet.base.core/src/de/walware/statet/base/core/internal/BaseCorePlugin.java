@@ -1,7 +1,11 @@
 package de.walware.statet.base.core.internal;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
+
+import de.walware.statet.base.core.StatetCore;
 
 
 /**
@@ -21,6 +25,16 @@ public class BaseCorePlugin extends Plugin {
 	public static BaseCorePlugin getDefault() {
 		
 		return gPlugin;
+	}
+
+	public static void log(IStatus status) {
+		
+		getDefault().getLog().log(status);
+	}
+	
+	public static void logError(int code, String message, Throwable e) {
+		
+		log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e)); 
 	}
 
 	

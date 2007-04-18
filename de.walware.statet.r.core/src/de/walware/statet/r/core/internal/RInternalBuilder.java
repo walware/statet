@@ -165,7 +165,7 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 		try {
 			fSettingsListener = new SettingsListener();
 			
-			fRProject = (RProject) getProject().getNature(RProject.ID);
+			fRProject = (RProject) getProject().getNature(RProject.NATURE_ID);
 			IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER);
 			
