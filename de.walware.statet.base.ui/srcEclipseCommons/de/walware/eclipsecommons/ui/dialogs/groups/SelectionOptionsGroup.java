@@ -22,13 +22,14 @@ import org.eclipse.swt.widgets.Control;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 
 
-public abstract class SelectionOptionsGroup<ItemT extends SelectionItem> implements OptionsGroup {
+public abstract class SelectionOptionsGroup<ItemT extends Object> implements OptionsGroup {
 
 	private boolean fGrabSelectionHorizontal;
 	private boolean fGrabVertical;
 	
-	public List<ItemT> fSelectionModel = new ArrayList<ItemT>();
-	public Composite fComposite;
+	private List<ItemT> fSelectionModel = new ArrayList<ItemT>();
+	private Composite fComposite;
+	
 	
 	public SelectionOptionsGroup(boolean grabSelectionHorizontal, boolean grabVertical) {
 		
@@ -36,46 +37,44 @@ public abstract class SelectionOptionsGroup<ItemT extends SelectionItem> impleme
 		fGrabVertical = grabVertical;
 	}
 	
-	public SelectionOptionsGroup() {
-		
-		this(false, false);
+
+	public List<ItemT> getListModel() {
+		return fSelectionModel;
 	}
-	
+
 
 	public void createGroup(Layouter parent) {
 		
-		Layouter layouter = new Layouter(new Composite(parent.fComposite, SWT.NONE), 2);
-		fComposite = layouter.fComposite;
+		Layouter layouter = new Layouter(new Composite(parent.composite, SWT.NONE), 2);
+		fComposite = layouter.composite;
 		fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, fGrabVertical, parent.fNumColumns, 1));
 				
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, fGrabSelectionHorizontal, true);
-		Control selectionControl = createSelectionControl(fComposite, gd);
-		selectionControl.setLayoutData(gd);
+		Control selectionControl = createSelectionControl(fComposite);
+		selectionControl.setLayoutData(createSelectionGridData());
 
-		gd = new GridData(SWT.FILL, SWT.FILL, !fGrabSelectionHorizontal, true);
-		Control optionControl = createOptionsControl(fComposite, gd);
-		optionControl.setLayoutData(gd);
-		
+		Control optionControl = createOptionsControl(fComposite);
+		optionControl.setLayoutData(createOptionsGridData());
 	}
 
-	protected abstract Control createSelectionControl(Composite parent, GridData gd);
+	protected abstract Control createSelectionControl(Composite parent);
+	
+	protected GridData createSelectionGridData() {
+		
+		return new GridData(SWT.FILL, SWT.FILL, fGrabSelectionHorizontal, true);
+	}
 
-	protected abstract Control createOptionsControl(Composite parent, GridData gd);
+	protected abstract Control createOptionsControl(Composite parent);
+	
+	protected GridData createOptionsGridData() {
+		
+		return new GridData(SWT.FILL, SWT.FILL, !fGrabSelectionHorizontal, true);
+	}
 	
 	/**
 	 * Standard-Implementierung macht nichts.
 	 */
 	public void initFields() {
 
-	}
-
-	/**
-	 * Selection-change in List
-	 * <p>
-	 * Default-Implementierung macht nichts.
-	 */
-	public void handleListSelection() {
-		
 	}
 
 }

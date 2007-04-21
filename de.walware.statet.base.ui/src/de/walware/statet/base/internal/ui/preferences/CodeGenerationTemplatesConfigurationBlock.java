@@ -53,13 +53,14 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedItem;
 import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
+import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
@@ -109,7 +110,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		
 
 		@Override
-		protected void handleDoubleClick(TemplateItem item) {
+		protected void handleDoubleClick(TemplateItem item, IStructuredSelection rawSelection) {
 			
 			if (item instanceof TemplateItem) {
 				doEdit((TemplateItem) item);
@@ -117,31 +118,26 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		}
 		
 		@Override
-		public void handleListSelection() {
+		public void handleSelection(TemplateItem item, IStructuredSelection rawSelection) {
 			
-			IStructuredSelection selection = getSelectedItems();
-			TemplateItem single = getSingleSelectedItem();
+			fButtonGroup.enableButton(IDX_EDIT, (item != null));
+			fButtonGroup.enableButton(IDX_EXPORT, rawSelection.size() > 0);
 			
-			fButtonGroup.enableButton(IDX_EDIT, (single != null));
-			fButtonGroup.enableButton(IDX_EXPORT, selection.size() > 0);
-			
-			updateSourceViewerInput(single);
+			updateSourceViewerInput(item);
 		}
 		
 		@Override
-		public void handleButtonPressed(int buttonIdx) {
+		public void handleButtonPressed(int buttonIdx, TemplateItem item, IStructuredSelection rawSelection) {
 
 			switch (buttonIdx) {
 			case IDX_EDIT:
-				TemplateItem item = getSingleSelectedItem();
 				if (item != null)
 					doEdit(item);
 				break;
 
 			case IDX_EXPORT:
-				IStructuredSelection selection = getSelectedItems();
 				List<TemplatePersistenceData> datas = new ArrayList<TemplatePersistenceData>();
-				for (Iterator iter = selection.iterator(); iter.hasNext();) {
+				for (Iterator iter = rawSelection.iterator(); iter.hasNext();) {
 					Object curr = iter.next();
 					if (curr instanceof TemplateItem) {
 						datas.add( ((TemplateItem) curr).fData );
@@ -200,7 +196,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	private void loadRegisteredTemplates() {
 		
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IConfigurationElement[] elements = registry.getConfigurationElementsFor(StatetPlugin.PLUGIN_ID, EXTENSION_POINT);
+		IConfigurationElement[] elements = registry.getConfigurationElementsFor(StatetUIPlugin.PLUGIN_ID, EXTENSION_POINT);
 		
 		fCategoryIds = new String[elements.length];
 		fCategoryProvider = new ICodeGenerationTemplatesCategory[elements.length];
@@ -229,7 +225,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		try {
 			fTemplatesStore.load();
 		} catch (IOException e) {
-			StatetPlugin.logUnexpectedError(e);
+			StatetUIPlugin.logUnexpectedError(e);
 		}
 		for (int i = 0; i < fCategoryIds.length; i++) {
 			TemplatePersistenceData[] datas = fTemplatesStore.getTemplateData(i);
@@ -269,9 +265,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		super.setUseProjectSpecificSettings(enable);
 		
 		if (enable) {
-			fGroup.fComposite.getDisplay().asyncExec(new Runnable() {
+			UIAccess.getDisplay(getShell()).asyncExec(new Runnable() {
 				public void run() {
-					fGroup.handleListSelection();
+					fGroup.reselect();
 				}
 			});
 		}
@@ -296,7 +292,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		
 		layouter.addLabel(Messages.CodeTemplates_Preview_label);
 		
-		SourceViewer viewer = new SourceViewer(layouter.fComposite, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		SourceViewer viewer = new SourceViewer(layouter.composite, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setEditable(false);
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 
@@ -314,20 +310,20 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	
 	protected void updateSourceViewerInput(TemplateItem item) {
 		
-		if (fPatternViewer == null || !(Layouter.isOkToUse(fPatternViewer.getControl())) )
+		if (fPatternViewer == null || !(UIAccess.isOkToUse(fPatternViewer.getControl())) )
 			return;
 
 		if (item != null) {
 			TemplatePersistenceData data = item.fData;
-			ICodeGenerationTemplatesCategory category = fCategoryProvider[item.fCategoryIndex];
+			ICodeGenerationTemplatesCategory category = fCategoryProvider[item.getCategoryIndex()];
 			Template template = data.getTemplate();
 			
 			TemplateContextType type = category.getContextTypeRegistry().getContextType(template.getContextTypeId());
 			fTemplateProcessor.setContextType(type);
 			TemplateViewerConfigurationProvider prov = category.getEditTemplateDialogConfiguation(fTemplateProcessor, fStatetProject);
 
-			if (item.fCategoryIndex != fPatternViewerConfiguredCategory) {
-				fPatternViewerConfiguredCategory = item.fCategoryIndex;
+			if (item.getCategoryIndex() != fPatternViewerConfiguredCategory) {
+				fPatternViewerConfiguredCategory = item.getCategoryIndex();
 				
 				if (fPatternViewerUpdater != null) {
 					fPatternViewerUpdater.unregister();
@@ -359,14 +355,14 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 
 		EditTemplateDialog dialog = new EditTemplateDialog(
 				getShell(), item.fData.getTemplate(), true, false, 
-				fCategoryProvider[item.fCategoryIndex].getEditTemplateDialogConfiguation(fTemplateProcessor, fStatetProject),
+				fCategoryProvider[item.getCategoryIndex()].getEditTemplateDialogConfiguation(fTemplateProcessor, fStatetProject),
 				fTemplateProcessor,
-				fCategoryProvider[item.fCategoryIndex].getContextTypeRegistry());
+				fCategoryProvider[item.getCategoryIndex()].getContextTypeRegistry());
 		if (dialog.open() == Window.OK) {
 			// changed
 			item.fData.setTemplate(dialog.getTemplate());
-			fGroup.fSelectionViewer.refresh(item);
-			fGroup.fSelectionViewer.setSelection(new StructuredSelection(item));
+			fGroup.getStructuredViewer().refresh(item);
+			fGroup.getStructuredViewer().setSelection(new StructuredSelection(item));
 		}
 	}
 	
@@ -398,8 +394,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 				}
 			}
 
-			fGroup.fSelectionViewer.refresh();
-			updateSourceViewerInput(fGroup.getSingleSelectedItem());
+			fGroup.getStructuredViewer().refresh();
+			updateSourceViewerInput(fGroup.getSingleItem(fGroup.getSelectedItems()));
 
 		} catch (FileNotFoundException e) {
 			openReadErrorDialog(e);
@@ -472,8 +468,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		reloadTemplateData();
 		
 		// refresh
-		fGroup.fSelectionViewer.refresh();
-		updateSourceViewerInput(fGroup.getSingleSelectedItem());
+		fGroup.getStructuredViewer().refresh();
+		updateSourceViewerInput(fGroup.getSingleItem(fGroup.getSelectedItems()));
 	}
 	
 	public boolean performOk() {
@@ -486,7 +482,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		try {
 			fTemplatesStore.save();
 		} catch (IOException e) {
-			StatetPlugin.logUnexpectedError(e);
+			StatetUIPlugin.logUnexpectedError(e);
 			openWriteErrorDialog(e);
 		}
 		return true;

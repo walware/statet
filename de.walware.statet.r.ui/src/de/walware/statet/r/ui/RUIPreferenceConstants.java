@@ -11,14 +11,18 @@
 
 package de.walware.statet.r.ui;
 
+import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_BOLD_SUFFIX;
+import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
+import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX;
+import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
+import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
 
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.rd.IRdTextTokens;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
-
 
 /**
  * Preference constants used in the StatET-R preference store. Clients should only read the
@@ -29,7 +33,7 @@ import de.walware.statet.ui.StatetUiPreferenceConstants;
  * @see org.eclipse.jface.preference.PreferenceConverter
  *
  */
-public class RUIPreferenceConstants extends StatetUiPreferenceConstants {
+public class RUIPreferenceConstants {
 
 	private RUIPreferenceConstants() {
 	}

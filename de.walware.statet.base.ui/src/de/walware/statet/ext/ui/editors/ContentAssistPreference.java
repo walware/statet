@@ -19,26 +19,27 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
+
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
 public class ContentAssistPreference {
 
 	/** Preference key for content assist auto activation */
-	private final static String AUTOACTIVATION = StatetUiPreferenceConstants.CODEASSIST_AUTOACTIVATION;
+	private final static String AUTOACTIVATION = IStatetUIPreferenceConstants.CODEASSIST_AUTOACTIVATION;
 	/** Preference key for content assist auto activation delay */
-	private final static String AUTOACTIVATION_DELAY = StatetUiPreferenceConstants.CODEASSIST_AUTOACTIVATION_DELAY;
+	private final static String AUTOACTIVATION_DELAY = IStatetUIPreferenceConstants.CODEASSIST_AUTOACTIVATION_DELAY;
 	/** Preference key for content assist proposal color */
-	private final static String PROPOSALS_FOREGROUND = StatetUiPreferenceConstants.CODEASSIST_PROPOSALS_FOREGROUND;
+	private final static String PROPOSALS_FOREGROUND = IStatetUIPreferenceConstants.CODEASSIST_PROPOSALS_FOREGROUND;
 	/** Preference key for content assist proposal color */
-	private final static String PROPOSALS_BACKGROUND = StatetUiPreferenceConstants.CODEASSIST_PROPOSALS_BACKGROUND;
+	private final static String PROPOSALS_BACKGROUND = IStatetUIPreferenceConstants.CODEASSIST_PROPOSALS_BACKGROUND;
 	/** Preference key for content assist parameters color */
-	private final static String PARAMETERS_FOREGROUND = StatetUiPreferenceConstants.CODEASSIST_PARAMETERS_FOREGROUND;
+	private final static String PARAMETERS_FOREGROUND = IStatetUIPreferenceConstants.CODEASSIST_PARAMETERS_FOREGROUND;
 	/** Preference key for content assist parameters color */
-	private final static String PARAMETERS_BACKGROUND = StatetUiPreferenceConstants.CODEASSIST_PARAMETERS_BACKGROUND;
+	private final static String PARAMETERS_BACKGROUND = IStatetUIPreferenceConstants.CODEASSIST_PARAMETERS_BACKGROUND;
 	/** Preference key for content assist auto insert */
-	private final static String AUTOINSERT= StatetUiPreferenceConstants.CODEASSIST_AUTOINSERT;
+	private final static String AUTOINSERT= IStatetUIPreferenceConstants.CODEASSIST_AUTOINSERT;
 	
 
 //	/** Preference key for java content assist auto activation triggers */
@@ -61,7 +62,7 @@ public class ContentAssistPreference {
 	
 	private static Color getColor(IPreferenceStore store, String key) {
 		
-		ColorManager manager = StatetPlugin.getDefault().getColorManager();
+		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
 		RGB rgb = PreferenceConverter.getColor(store, PROPOSALS_FOREGROUND);
 		
 		return manager.getColor(rgb);
@@ -71,10 +72,10 @@ public class ContentAssistPreference {
 	public static void adaptToPreferenceChange(ContentAssistant assistant, PropertyChangeEvent event) {
 
 		String p = event.getProperty();
-		if (!p.startsWith(StatetUiPreferenceConstants.CODEASSIST_ROOT))
+		if (!p.startsWith(IStatetUIPreferenceConstants.CODEASSIST_ROOT))
 			return;
 		
-		IPreferenceStore store = StatetPlugin.getDefault().getPreferenceStore();
+		IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
 		
 		if (AUTOACTIVATION.equals(p)) {
 			assistant.enableAutoActivation(store.getBoolean(AUTOACTIVATION));
@@ -178,8 +179,8 @@ public class ContentAssistPreference {
 	 */
 	public static void configure(ContentAssistant assistant) {
 
-		IPreferenceStore store = StatetPlugin.getDefault().getPreferenceStore();
-		ColorManager manager = StatetPlugin.getDefault().getColorManager();
+		IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
+		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
 		
 		assistant.enableAutoActivation(store.getBoolean(AUTOACTIVATION));
 		assistant.setAutoActivationDelay(store.getInt(AUTOACTIVATION_DELAY));

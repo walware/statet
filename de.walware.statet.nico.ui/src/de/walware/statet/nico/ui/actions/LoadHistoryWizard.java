@@ -18,14 +18,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.ext.ui.wizards.AbstractWizard;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.LoadHistoryPage;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUIMessages;
-import de.walware.statet.ui.util.ExceptionHandler;
 
 
 /**
@@ -91,7 +90,7 @@ public class LoadHistoryWizard extends AbstractWizard {
 			return false;
 		}
 		catch (Exception e) {
-			StatetPlugin.logUnexpectedError(e);
+			NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when performing load history.", e); //$NON-NLS-1$
 			return false;
 		}
 		

@@ -19,9 +19,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.ui.text.ITokenScanner;
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
 
 
 public class GotoMatchingBracketAction extends Action {
@@ -45,7 +45,7 @@ public class GotoMatchingBracketAction extends Action {
 		setToolTipText(EditorMessages.GotoMatchingBracketAction_tooltip);
 		setDescription(EditorMessages.GotoMatchingBracketAction_description);
 		setId(ACTION_ID);
-		setActionDefinitionId(IStatextEditorActionDefinitionIds.GOTO_MATCHING_BRACKET);
+		setActionDefinitionId(IStatetUICommandIds.GOTO_MATCHING_BRACKET);
 
 		setEnabled(true);
 	}

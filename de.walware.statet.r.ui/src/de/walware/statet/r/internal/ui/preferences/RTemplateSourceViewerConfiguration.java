@@ -18,8 +18,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 
@@ -33,7 +33,7 @@ class RTemplateSourceViewerConfiguration extends RSourceViewerConfiguration {
 	public RTemplateSourceViewerConfiguration(
 			TemplateVariableProcessor processor, StatetProject project) {
 		
-		super(null, StatetPlugin.getDefault().getColorManager(), 
+		super(null, StatetUIServices.getSharedColorManager(), 
 				RSourceViewerConfiguration.createCombinedPreferenceStore(
 						RUIPlugin.getDefault().getPreferenceStore(), project));
 		fProcessor = processor;

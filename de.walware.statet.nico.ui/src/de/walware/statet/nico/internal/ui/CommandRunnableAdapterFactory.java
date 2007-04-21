@@ -14,9 +14,9 @@ package de.walware.statet.nico.internal.ui;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.ui.IToolRunnableAdapter;
-import de.walware.statet.ui.StatetImages;
 
 
 /**
@@ -35,7 +35,7 @@ public class CommandRunnableAdapterFactory implements IAdapterFactory {
 		
 		public ImageDescriptor getImageDescriptor() {
 			
-			return StatetImages.getDefault().getDescriptor(StatetImages.IMG_OBJ_COMMAND);
+			return StatetImages.getDescriptor(StatetImages.OBJ_COMMAND);
 		}
 	}
 	

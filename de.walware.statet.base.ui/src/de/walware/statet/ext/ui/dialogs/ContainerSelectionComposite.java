@@ -50,7 +50,8 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownAdapter;
 
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.statet.ui.StatetImages;
+
+import de.walware.statet.base.ui.StatetImages;
 
 
 /**
@@ -89,7 +90,7 @@ public class ContainerSelectionComposite extends Composite {
 			setText(StatetDialogsMessages.CollapseAllAction_label); 
 			setDescription(StatetDialogsMessages.CollapseAllAction_description); 
 			setToolTipText(StatetDialogsMessages.CollapseAllAction_tooltip); 
-			setImageDescriptor(StatetImages.DESC_LOCTOOL_COLLAPSEALL);
+			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_COLLAPSEALL));
 		}
 	 
 		@Override
@@ -106,7 +107,7 @@ public class ContainerSelectionComposite extends Composite {
 			setText(StatetDialogsMessages.ExpandAllAction_label); 
 			setDescription(StatetDialogsMessages.ExpandAllAction_description); 
 			setToolTipText(StatetDialogsMessages.ExpandAllAction_tooltip); 
-			setImageDescriptor(StatetImages.DESC_LOCTOOL_EXPANDALL);
+			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_EXPANDALL));
 		}
 	 
 		@Override
@@ -123,8 +124,8 @@ public class ContainerSelectionComposite extends Composite {
 			setText(StatetDialogsMessages.FilterFavouredContainersAction_label); 
 			setDescription(StatetDialogsMessages.FilterFavouredContainersAction_description); 
 			setToolTipText(StatetDialogsMessages.FilterFavouredContainersAction_tooltip); 
-			setImageDescriptor(StatetImages.DESC_LOCTOOL_FILTER);
-			setDisabledImageDescriptor(StatetImages.DESC_LOCTOOLD_FILTER);
+			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER));
+			setDisabledImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOLD_FILTER));
 			setChecked(false);
 		}
 		

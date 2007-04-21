@@ -40,11 +40,12 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.ui.IStatetUICommandIds;
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
@@ -59,8 +60,6 @@ import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.internal.ui.Messages;
-import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
 public class InputGroup {
@@ -158,7 +157,7 @@ public class InputGroup {
 		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
 		fPrefix.setLayoutData(gd);
 		float[] hsb = fPrefix.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB().getHSB();
-		fPrefix.setBackground(StatetPlugin.getDefault().getColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
+		fPrefix.setBackground(StatetUIServices.getSharedColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
 		fPrefix.setText("> "); //$NON-NLS-1$
 		
 		createSourceViewer(editorConfig);
@@ -222,8 +221,8 @@ public class InputGroup {
 			if (fPairMatcher != null) {
 				fSourceViewerDecorationSupport.setCharacterPairMatcher(fPairMatcher);
 				fSourceViewerDecorationSupport.setMatchingCharacterPainterPreferenceKeys(
-						StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
-						StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
+						IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
+						IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
 			}
 			
 			editorConfig.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
@@ -257,7 +256,7 @@ public class InputGroup {
 		IAction action;
 		if (fPairMatcher != null) {
 			action = new GotoMatchingBracketAction(fPairMatcher, fEditorAdapter);
-			commands.activateHandler(IStatextEditorActionDefinitionIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
+			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
 		}
 	}
 	
@@ -275,7 +274,7 @@ public class InputGroup {
 		
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
-				if (Layouter.isOkToUse(fPrefix)) {
+				if (UIAccess.isOkToUse(fPrefix)) {
 					Prompt p = (prompt != null) ? prompt : fProcess.getWorkspaceData().getPrompt();
 					fPrefix.setText(p.text);
 					getComposite().layout(new Control[] { fPrefix });

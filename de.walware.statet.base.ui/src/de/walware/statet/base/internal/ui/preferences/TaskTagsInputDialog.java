@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Text;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
+
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.preferences.TaskTagsConfigurationBlock.TaskTag;
@@ -53,15 +54,15 @@ public class TaskTagsInputDialog extends StatusDialog {
 		super(parent);
 		
 		if (task != null) {
-			fName = task.fName;
-			fPriority = task.fPriority;
+			fName = task.name;
+			fPriority = task.priority;
 		}
 			
 		fExistingNames = new ArrayList<String>(existingEntries.size());
 		for (int i = 0; i < existingEntries.size(); i++) {
 			TaskTag curr = (TaskTag) existingEntries.get(i);
 			if (!curr.equals(task)) {
-				fExistingNames.add(curr.fName);
+				fExistingNames.add(curr.name);
 			}
 		}
 		

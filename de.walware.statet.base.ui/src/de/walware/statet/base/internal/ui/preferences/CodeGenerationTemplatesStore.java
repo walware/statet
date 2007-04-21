@@ -32,7 +32,7 @@ import org.eclipse.jface.text.templates.persistence.TemplateReaderWriter;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public final class CodeGenerationTemplatesStore {
@@ -51,7 +51,7 @@ public final class CodeGenerationTemplatesStore {
 		if (project == null) {
 			fProjectStore = null;
 		} else {
-			final IPreferenceStore projectSettings = new ScopedPreferenceStore(new ProjectScope(project), StatetPlugin.PLUGIN_ID);
+			final IPreferenceStore projectSettings = new ScopedPreferenceStore(new ProjectScope(project), StatetUIPlugin.PLUGIN_ID);
 			fProjectStore = new TemplateStore(projectSettings, KEY) {
 				/*
 				 * Make sure we keep the id of added code templates - add removes
@@ -233,7 +233,7 @@ public final class CodeGenerationTemplatesStore {
 	
 	public static boolean hasProjectSpecificTempates(IProject project) {
 		
-		String pref = new ProjectScope(project).getNode(StatetPlugin.PLUGIN_ID).get(KEY, null);
+		String pref = new ProjectScope(project).getNode(StatetUIPlugin.PLUGIN_ID).get(KEY, null);
 		if (pref != null && pref.trim().length() > 0) {
 			Reader input = new StringReader(pref);
 			TemplateReaderWriter reader= new TemplateReaderWriter();

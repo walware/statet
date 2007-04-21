@@ -23,9 +23,9 @@ import org.eclipse.swt.widgets.Label;
 
 import de.walware.eclipsecommons.ui.dialogs.ShortedLabel;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.ui.StatetImages;
 
 
 /**

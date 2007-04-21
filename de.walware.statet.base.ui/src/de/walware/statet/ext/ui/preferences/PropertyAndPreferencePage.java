@@ -113,7 +113,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 		
 		if (isProjectPreferencePage()) {
 			Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
-			layouter.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			
 			fUseProjectSettings = layouter.addCheckBox(Messages.PropertyAndPreference_UseProjectSettings_label, 0, 1);
 			fUseProjectSettings.addSelectionListener(new SelectionListener() {
@@ -125,7 +125,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 			});
 			
 			if (offerLink()) {
-				fChangeWorkspaceSettings = createLink(layouter.fComposite, Messages.PropertyAndPreference_ShowWorkspaceSettings_label);
+				fChangeWorkspaceSettings = createLink(layouter.composite, Messages.PropertyAndPreference_ShowWorkspaceSettings_label);
 			}
 			
 			layouter.addHorizontalLine();

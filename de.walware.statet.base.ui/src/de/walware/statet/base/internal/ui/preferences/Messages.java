@@ -23,7 +23,6 @@ public class Messages extends NLS {
 	public static String PropertyAndPreference_ShowProjectSpecificSettings_label;
 	public static String PropertyAndPreference_ShowWorkspaceSettings_label;
 
-	public static String Editors_description;
 	public static String Editors_link;
 	public static String Editors_Appearance;
 	public static String Editors_HighlightMatchingBrackets;
@@ -41,7 +40,6 @@ public class Messages extends NLS {
 
 	public static String SyntaxColoring_link;
 	public static String SyntaxColoring_List_label;
-	public static String SyntaxColoring_Category_tooltip;
 	public static String SyntaxColoring_Enable;
 	public static String SyntaxColoring_Color;
 	public static String SyntaxColoring_Bold;
@@ -79,11 +77,6 @@ public class Messages extends NLS {
 	public static String TaskTags_description;
 	public static String TaskTags_TaskColumn_name;
 	public static String TaskTags_PriorityColumn_name;
-	public static String TaskTags_DefaultTask;
-	public static String TaskTags_AddButton_label;
-	public static String TaskTags_EditButton_label;
-	public static String TaskTags_RemoveButton_label;
-	public static String TaskTags_DefaultButton_label;
 	public static String TaskTags_CaseSensitive_label;
 	public static String TaskTags_warning_NoTag_message;
 	public static String TaskTags_error_DefaultTast_message;

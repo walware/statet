@@ -69,12 +69,12 @@ public abstract class AbstractHistoryPage extends WizardPage {
     	GridLayout layout = new GridLayout();
     	layout.marginHeight = 0;
     	Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
-		layouter.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		setControl(layouter.fComposite);
+		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		setControl(layouter.composite);
 		
 		createContents(layouter);
 		
-		Dialog.applyDialogFont(layouter.fComposite);
+		Dialog.applyDialogFont(layouter.composite);
 		initFields();
 		isIntialized = true;
 		validate();
@@ -102,7 +102,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 
 //		contentLayouter.addSmallFiller();
 		contentLayouter.addSpaceGrabber();
-		contentLayouter.add(new ToolInfoGroup(contentLayouter.fComposite,
+		contentLayouter.add(new ToolInfoGroup(contentLayouter.composite,
 				fTool).getControl());
 	}
 	

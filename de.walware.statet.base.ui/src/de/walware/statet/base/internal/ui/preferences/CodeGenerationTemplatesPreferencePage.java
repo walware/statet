@@ -15,7 +15,7 @@ package de.walware.statet.base.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
 
 
@@ -32,7 +32,7 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 	
 	public CodeGenerationTemplatesPreferencePage() {
 
-		setPreferenceStore(StatetPlugin.getDefault().getPreferenceStore());
+		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 		
 		// only used when page is shown programatically
 		setTitle(Messages.CodeTemplates_title);		 

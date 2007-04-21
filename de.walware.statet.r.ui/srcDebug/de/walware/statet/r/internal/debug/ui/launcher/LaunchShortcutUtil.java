@@ -19,10 +19,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 
 import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.ui.util.ExceptionHandler;
 
 
 public class LaunchShortcutUtil {

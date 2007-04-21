@@ -26,13 +26,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.preferences.Preference;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
 
 
@@ -41,7 +41,7 @@ public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage
 	
 	public RInteractionPreferencePage() {
 		
-		setPreferenceStore(StatetPlugin.getDefault().getPreferenceStore());
+		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 		setDescription(Messages.RInteraction_description);
 	}
 	
@@ -97,7 +97,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		// Description
 		layouter.addLabel(Messages.RInteraction_RConnector_Description_label, 0, 1, true);
 		
-		ScrolledComposite scrolled = new ScrolledComposite(layouter.fComposite, SWT.V_SCROLL);
+		ScrolledComposite scrolled = new ScrolledComposite(layouter.composite, SWT.V_SCROLL);
 		fConnectorsDescription = addLinkControl(scrolled, ""); //$NON-NLS-1$
 		scrolled.addControlListener(new ControlListener() {
 			public void controlMoved(org.eclipse.swt.events.ControlEvent e) {};

@@ -13,8 +13,10 @@ package de.walware.eclipsecommons.ui.util;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
@@ -102,6 +104,28 @@ public class UIAccess {
 			}
 		});
 		return colorRef.get();
+	}
+
+	
+	/**
+	 * Tests is the control is not <code>null</code> and not disposed.
+	*/
+	public static final boolean isOkToUse(Control control) {
+		
+		return (control != null) && (Display.getCurrent() != null) && !control.isDisposed();
+	}
+
+	/**
+	 * Tests is the viewer is not <code>null</code> and its control is not disposed.
+	*/
+	public static final boolean isOkToUse(Viewer viewer) {
+		
+		Control control;
+		return ((viewer != null) 
+				&& ((control = viewer.getControl()) != null) 
+				&& !control.isDisposed()
+				&& (Display.getCurrent() != null) 
+		);
 	}
 
 }

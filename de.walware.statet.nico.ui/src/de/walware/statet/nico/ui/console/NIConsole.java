@@ -41,11 +41,11 @@ import org.eclipse.ui.part.IPageBookViewPage;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUITools;
 
 
@@ -197,7 +197,7 @@ public class NIConsole extends IOConsole implements IAdaptable {
 				    try {
 						out.write(text);
 					} catch (IOException e) {
-						StatetPlugin.logUnexpectedError(e);
+						NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when writing to console stream.", e); //$NON-NLS-1$
 					}
 				}
 			}, filter);
@@ -222,7 +222,7 @@ public class NIConsole extends IOConsole implements IAdaptable {
 				try {
 					stream.close();
 				} catch (IOException e) {
-					StatetPlugin.logUnexpectedError(e);
+					NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when closing a console stream.", e); //$NON-NLS-1$
 				}
 			}
 			fStreamsClosed = true;

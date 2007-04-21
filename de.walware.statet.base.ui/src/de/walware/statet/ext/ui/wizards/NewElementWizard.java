@@ -49,8 +49,8 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.ui.util.ExceptionHandler;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.util.ExceptionHandler;
 
 
 public abstract class NewElementWizard extends Wizard implements INewWizard {
@@ -305,7 +305,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	
 	public NewElementWizard() {
 		
-        setDialogSettings(StatetPlugin.getDefault().getDialogSettings());
+        setDialogSettings(StatetUIPlugin.getDefault().getDialogSettings());
 		setNeedsProgressMonitor(true);
 	}
 			
@@ -424,7 +424,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 						try {
 							IDE.openEditor(activePage, resource, true);
 						} catch (PartInitException e) {
-							StatetPlugin.logUnexpectedError(e);
+							StatetUIPlugin.logUnexpectedError(e);
 						}
 					}
 				});

@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui.util;
+package de.walware.statet.base.ui.util;
 
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -24,8 +24,8 @@ import org.eclipse.swt.widgets.Shell;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.internal.ui.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class ExceptionHandler {
@@ -70,7 +70,7 @@ public class ExceptionHandler {
 		} else {
 			// CoreExceptions are handled above, but unexpected runtime
 			// exceptions and errors may still occur.
-			StatetPlugin.logUnexpectedError(target);
+			StatetUIPlugin.logUnexpectedError(target);
 			displayMessageDialog(target.getMessage(), shell, message);
 		}
 	}
@@ -103,7 +103,7 @@ public class ExceptionHandler {
 			perform(status, shell, message);
 		} 
 		else {
-			StatetPlugin.log(new Status(Status.ERROR, StatetPlugin.PLUGIN_ID, 0, 
+			StatetUIPlugin.log(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, 0, 
 					"No status of CoreException available.", e));
 			displayMessageDialog(e.getMessage(), shell, message);
 		}
@@ -111,7 +111,7 @@ public class ExceptionHandler {
 	
 	private static void perform(final IStatus status, final Shell shell, final String message) {
 		
-		StatetPlugin.log(status);
+		StatetUIPlugin.log(status);
 		UIAccess.getDisplay(shell).asyncExec(new Runnable() {
 			public void run() {
 				Shell s = shell;

@@ -13,56 +13,17 @@ package de.walware.eclipsecommons.ui.dialogs.groups;
 
 import java.util.List;
 
-import org.eclipse.jface.viewers.ColumnLayoutData;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
 
 
-public abstract class TableOptionsGroup<ItemT extends SelectionItem> 
+public abstract class TableOptionsGroup<ItemT extends Object> 
 		extends StructuredSelectionOptionsGroup<TableViewer, ItemT> {
-
-	private static class ItemComparator extends ViewerComparator {
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
-			
-			return getComparator().compare(((SelectionItem) e1).fName, ((SelectionItem) e2).fName);
-		}
-	}
-
-	private class ItemContentProvider implements IStructuredContentProvider {
-
-		public void dispose() {
-		}
-
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		}
-		
-		public Object[] getElements(Object inputElement) {
-			
-			return fSelectionModel.toArray();
-		}
-	}
-	
-	
-	private String[] fColumnHeaders;
 
 	
 	public TableOptionsGroup(boolean grabSelectionHorizontal, boolean grabVertical) {
@@ -71,96 +32,50 @@ public abstract class TableOptionsGroup<ItemT extends SelectionItem>
 	
 	
 	@Override
-	protected Control createSelectionControl(Composite parent, GridData gd) {
+	public TableViewer createSelectionViewer(Composite parent) {
 		
 		Table table = new Table(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
-		fSelectionViewer = new TableViewer(table);
+		TableViewer viewer = new TableViewer(table);
 		TableLayout layout = new TableLayout();
 		table.setLayout(layout);
 
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		ColumnLayoutData[] columnsData = createColumnLayoutData(table);
-		for (int i = 0; i < fColumnHeaders.length; i++) {
-			TableColumn col = new TableColumn(table, SWT.LEFT);
-			col.setText(fColumnHeaders[i]);
-			if (columnsData != null)
-				layout.addColumnData(columnsData[i]);
-		}
+		createTableColumns(viewer, table, layout);
 		
 		table.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				handleKeyPressed(e);
 			}
 		});
-		
-		fSelectionViewer.setContentProvider(new ItemContentProvider());
-		fSelectionViewer.setLabelProvider(createTableLabelProvider());
-		fSelectionViewer.setComparator(new ItemComparator());
-		
-		fSelectionViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				handleListSelection();
-			}
-		});
-		fSelectionViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				ItemT item = getSingleSelectedItem();
-				if (item != null)
-					handleDoubleClick(item);
-			}
-		});
-		
-		return fSelectionViewer.getControl();
+
+		return viewer;
 	}
 	
-	protected abstract ITableLabelProvider createTableLabelProvider();
-	
-	public void setTableColumns(String[] columnHeaders) {
-		
-		fColumnHeaders = columnHeaders;
-	}
-	
-	protected ColumnLayoutData[] createColumnLayoutData(Table table) {
-		
-		return null;
-	}
-		
-	
-	
-	
-	/**
-	 * Handles key events in the table viewer.
-	 * <p>
-	 * Standard-Implementierung macht nichts.
-	 */
-	protected void handleKeyPressed(KeyEvent event) {
-	}
-	
-	
+	protected abstract void createTableColumns(TableViewer viewer, Table table, TableLayout layout);
 	
 	
 	public void addItem(ItemT newItem) {
 		
-		fSelectionModel.add(newItem);
-		fSelectionViewer.refresh();
+		getListModel().add(newItem);
+		getStructuredViewer().refresh();
 	}
 	
 	public void replaceItem(ItemT oldItem, ItemT newItem) {
 		
-		int idx = fSelectionModel.indexOf(oldItem);
+		int idx = getListModel().indexOf(oldItem);
 		if (idx == -1)
 			return; // Error
 		
-		fSelectionModel.set(idx, newItem);
-		fSelectionViewer.refresh();
+		getListModel().set(idx, newItem);
+		getStructuredViewer().refresh();
 	}
 	
 	public void removeItems(List<ItemT> items) {
 		
 		for (ItemT item : items) {
-			fSelectionModel.remove(item);
+			getListModel().remove(item);
 		}
-		fSelectionViewer.refresh();
+		getStructuredViewer().refresh();
 	}
 }

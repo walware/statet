@@ -15,7 +15,7 @@ import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class StatetBasePreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -25,7 +25,7 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 		
 		super(GRID);
 		
-		setPreferenceStore(StatetPlugin.getDefault().getPreferenceStore());
+		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 		setDescription(Messages.StatetBase_description);
 	}
 

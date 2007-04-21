@@ -13,7 +13,6 @@ package de.walware.eclipsecommons.ui.dialogs;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -22,7 +21,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -37,7 +35,7 @@ public class Layouter {
 	public static final int DEFAULT_INDENTION = 20;
 	
 	
-	public Composite fComposite;
+	public Composite composite;
 	public int fNumColumns;
 	
 	/**
@@ -50,7 +48,7 @@ public class Layouter {
 	 */
 	public Layouter(Composite composite, int numColums) {
 
-		fComposite = composite;
+		this.composite = composite;
 		fNumColumns = numColums;
 
 		GridLayout layout = new GridLayout();
@@ -59,15 +57,15 @@ public class Layouter {
 			layout.marginWidth = 0;
 		}
 		layout.numColumns = fNumColumns;
-		fComposite.setLayout(layout);
+		composite.setLayout(layout);
 	}
 
 	public Layouter(Composite composite, GridLayout layout) {
 
-		fComposite = composite;
+		this.composite = composite;
 		fNumColumns = layout.numColumns;
 
-		fComposite.setLayout(layout);
+		composite.setLayout(layout);
 	}
 
 	public void add(Control composite) {
@@ -84,10 +82,10 @@ public class Layouter {
 
 	public void addFiller() {
 		
-		Dialog.applyDialogFont(fComposite);
-		PixelConverter pixelConverter = new PixelConverter(fComposite);
+		Dialog.applyDialogFont(composite);
+		PixelConverter pixelConverter = new PixelConverter(composite);
 		
-		Label filler = new Label(fComposite, SWT.LEFT );
+		Label filler = new Label(composite, SWT.LEFT );
 		GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gd.horizontalSpan = fNumColumns;
 		gd.heightHint = pixelConverter.convertHeightInCharsToPixels(1) / 2;
@@ -96,9 +94,9 @@ public class Layouter {
 
 	public void addSmallFiller() {
 		
-		PixelConverter pixelConverter = new PixelConverter(fComposite);
+		PixelConverter pixelConverter = new PixelConverter(composite);
 		
-		Label filler = new Label(fComposite, SWT.LEFT);
+		Label filler = new Label(composite, SWT.LEFT);
 		GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gd.horizontalSpan = fNumColumns;
 		gd.heightHint = pixelConverter.convertHeightInCharsToPixels(1) / 8;
@@ -107,7 +105,7 @@ public class Layouter {
 	
 	public void addSpaceGrabber() {
 		
-		Label filler = new Label(fComposite, SWT.NONE);
+		Label filler = new Label(composite, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = fNumColumns;
 		filler.setLayoutData(gd);
@@ -115,7 +113,7 @@ public class Layouter {
 
 	public void addHorizontalLine() {
 		
-		Label horizontalLine = new Label(fComposite, SWT.SEPARATOR | SWT.HORIZONTAL);
+		Label horizontalLine = new Label(composite, SWT.SEPARATOR | SWT.HORIZONTAL);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = fNumColumns;
 		horizontalLine.setLayoutData(gd);
@@ -139,7 +137,7 @@ public class Layouter {
 
 	public Label addLabel(String text, int indentation, int hSpan, boolean vAlignTop) {
 		
-		Label label = new Label(fComposite, SWT.LEFT);
+		Label label = new Label(composite, SWT.LEFT);
 		label.setText(text);
 		GridData gd = new GridData(SWT.FILL, vAlignTop ? SWT.TOP : SWT.CENTER, false, false);
 		gd.horizontalIndent = indentation;
@@ -157,7 +155,7 @@ public class Layouter {
 	}
 	public Button addCheckBox(String label, int indentation, int horizontalSpan) {		
 
-		Button checkBox = new Button(fComposite, SWT.CHECK);
+		Button checkBox = new Button(composite, SWT.CHECK);
 		checkBox.setText(label);
 		
 		GridData gd = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false);
@@ -176,7 +174,7 @@ public class Layouter {
 	
 	public Text addTextControl(int hIndent, int horizontalSpan, boolean hGrab, int widthHint) {
 		
-		Text text = new Text(fComposite, SWT.SINGLE | SWT.BORDER);
+		Text text = new Text(composite, SWT.SINGLE | SWT.BORDER);
 		
 		GridData gd = new GridData(hGrab ? SWT.FILL : SWT.LEFT, SWT.CENTER, hGrab, false);
 		gd.horizontalIndent = hIndent;
@@ -218,7 +216,7 @@ public class Layouter {
 		if (readOnly) {
 			style |= SWT.READ_ONLY;
 		}
-		Combo combo = new Combo(fComposite, style);
+		Combo combo = new Combo(composite, style);
 		if (items != null) {
 			combo.setItems(items);
 		}
@@ -248,7 +246,7 @@ public class Layouter {
 	}
 	public Button addButton(String label, SelectionListener listener, int horizontalSpan) {
 		
-		Button button = new Button(fComposite, SWT.PUSH);
+		Button button = new Button(composite, SWT.PUSH);
 		button.setText(label);
 		GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, false, false);
 		gd.horizontalSpan = horizontalSpan;
@@ -282,7 +280,7 @@ public class Layouter {
 	}
 	public Group addGroup(String label, boolean grabVerticalSpace) {
 		
-		Group group = new Group(fComposite, SWT.NONE);
+		Group group = new Group(composite, SWT.NONE);
 		group.setText(label);
 
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, grabVerticalSpace);
@@ -290,27 +288,6 @@ public class Layouter {
 		group.setLayoutData(gd);
 
 		return group;
-	}
-
-	/**
-	 * Tests is the control is not <code>null</code> and not disposed.
-	*/
-	public static final boolean isOkToUse(Control control) {
-		
-		return (control != null) && (Display.getCurrent() != null) && !control.isDisposed();
-	}
-	
-	/**
-	 * Tests is the viewer is not <code>null</code> and its control is not disposed.
-	*/
-	public static final boolean isOkToUse(Viewer viewer) {
-		
-		Control control;
-		return ((viewer != null) 
-				&& ((control = viewer.getControl()) != null) 
-				&& !control.isDisposed()
-				&& (Display.getCurrent() != null) 
-		);
 	}
 	
 

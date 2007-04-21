@@ -1,4 +1,4 @@
-package de.walware.statet.ui.util;
+package de.walware.statet.base.ui.util;
 
 import java.util.HashSet;
 import java.util.LinkedList;

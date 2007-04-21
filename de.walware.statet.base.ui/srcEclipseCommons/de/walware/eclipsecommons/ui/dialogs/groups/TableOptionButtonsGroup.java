@@ -11,48 +11,71 @@
 
 package de.walware.eclipsecommons.ui.dialogs.groups;
 
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.groups.ButtonGroup.ButtonListener;
 
 
-public abstract class TableOptionButtonsGroup<ItemT extends SelectionItem> 
-		extends TableOptionsGroup<ItemT> 
-		implements ButtonGroup.ButtonListener {
+public abstract class TableOptionButtonsGroup<ItemT extends Object> 
+		extends TableOptionsGroup<ItemT> {
 	
 	
 	protected ButtonGroup fButtonGroup;
 	private int fRemoveButtonIdx = -1;
+	private int fDefaultButtonIdx = -1;
 	
 	
 	public TableOptionButtonsGroup(String[] buttonLabels) {
 		super(true, true);
-		fButtonGroup = new ButtonGroup(buttonLabels, this);
+		fButtonGroup = new ButtonGroup(buttonLabels, new ButtonListener() {
+			public void handleButtonPressed(int buttonIdx) {
+				IStructuredSelection selection = getSelectedItems();
+				TableOptionButtonsGroup.this.handleButtonPressed(buttonIdx, getSingleItem(selection), selection);
+			}
+		});
 	}
 	
 	@Override
-	protected Control createOptionsControl(Composite parent, GridData gd) {
+	protected Control createOptionsControl(Composite parent) {
 		
 		Layouter options = new Layouter(new Composite(parent, SWT.NONE), 1);
 		fButtonGroup.createGroup(options);
 		
-		return options.fComposite;
+		return options.composite;
 	}
 	
 	/**
 	 * Sets the buttons-action for pressing DEL
 	 * @param buttonIdx idx of button with DEL funktion
 	 */
-	public void setRemoveButtonIndex(int buttonIdx) {
+	public void setRemoveButton(int buttonIdx) {
 		
 		fRemoveButtonIdx = buttonIdx;
 	}
 	
-	public abstract void handleButtonPressed(int buttonIdx);
+	/**
+	 * Sets the buttons-action for double click
+	 * @param buttonIdx idx of button
+	 */
+	public void setDefaultButton(int buttonIdx) {
+		
+		fDefaultButtonIdx = buttonIdx;
+	}
+
+	public abstract void handleButtonPressed(int buttonIdx, ItemT item, IStructuredSelection rawSelection);
+	
+	@Override
+	protected void handleDoubleClick(ItemT item, IStructuredSelection rawSelection) {
+		
+		if (fDefaultButtonIdx != -1 && fButtonGroup.isButtonEnabled(fDefaultButtonIdx)) {
+			handleButtonPressed(fDefaultButtonIdx, item, rawSelection);
+		}
+	}
 	
 	/**
 	 * Handles key events in the table viewer. Specifically
@@ -62,7 +85,8 @@ public abstract class TableOptionButtonsGroup<ItemT extends SelectionItem>
 		
 		if (event.character == SWT.DEL && event.stateMask == 0) {
 			if (fRemoveButtonIdx != -1 && fButtonGroup.isButtonEnabled(fRemoveButtonIdx)) {
-				handleButtonPressed(fRemoveButtonIdx);
+				IStructuredSelection selection = getSelectedItems();
+				handleButtonPressed(fRemoveButtonIdx, getSingleItem(selection), selection);
 			}
 		} 
 	}	

@@ -41,11 +41,11 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
+import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.ui.IStatextEditorActionDefinitionIds;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
 public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor {
@@ -73,7 +73,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			return new Region(line.getOffset(), length);
 		} 
 		catch (BadLocationException x) {
-			StatetPlugin.logUnexpectedError(x);					// should not happen
+			StatetUIPlugin.logUnexpectedError(x);					// should not happen
 		}
 		return null;
 	}
@@ -98,7 +98,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			return (offset > region.getOffset() + region.getLength() ? -1 : startLine + 1);
 
 		} catch (BadLocationException x) {
-			StatetPlugin.logUnexpectedError(x);	// should not happen
+			StatetUIPlugin.logUnexpectedError(x);	// should not happen
 		}
 		return -1;
 	}
@@ -153,7 +153,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		ToggleCommentAction() {
 			
 			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this);
-			setActionDefinitionId(IStatextEditorActionDefinitionIds.TOGGLE_COMMENT);		
+			setActionDefinitionId(IStatetUICommandIds.TOGGLE_COMMENT);		
 			
 			configure();
 		}
@@ -288,7 +288,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 				return true;
 
 			} catch (BadLocationException x) {
-				StatetPlugin.logUnexpectedError(x);		// should not happen
+				StatetUIPlugin.logUnexpectedError(x);		// should not happen
 			}
 			return false;
 		}
@@ -329,7 +329,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 				return true;
 
 			} catch (BadLocationException x) {
-				StatetPlugin.logUnexpectedError(x);		// should not happen
+				StatetUIPlugin.logUnexpectedError(x);		// should not happen
 			}
 			return false;
 		}
@@ -439,8 +439,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		if (fBracketMatcher != null) {
 			support.setCharacterPairMatcher(fBracketMatcher);
 			support.setMatchingCharacterPainterPreferenceKeys(
-					StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
-					StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
+					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
+					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
 		}
 
 		super.configureSourceViewerDecorationSupport(support);

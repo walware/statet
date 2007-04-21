@@ -34,8 +34,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
+import de.walware.eclipsecommons.ui.util.DNDUtil;
+
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
-import de.walware.statet.ui.util.DNDUtil;
 
 
 public class RGWLauncher implements IRCodeLaunchConnector {

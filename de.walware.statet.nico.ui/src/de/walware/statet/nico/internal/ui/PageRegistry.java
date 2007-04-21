@@ -41,7 +41,6 @@ import org.eclipse.ui.progress.WorkbenchJob;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -165,7 +164,7 @@ class PageRegistry {
 				}
 				return showInView(null, monitor);
 			} catch (PartInitException e) {
-				StatetPlugin.logUnexpectedError(e);
+				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when showing a console view.", e); //$NON-NLS-1$
 				return Status.OK_STATUS;
 			} finally {
 				fConsoleToShow = null;

@@ -53,9 +53,9 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -73,7 +73,6 @@ import de.walware.statet.nico.ui.actions.LoadHistoryAction;
 import de.walware.statet.nico.ui.actions.SaveHistoryAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction.Receiver;
-import de.walware.statet.ui.StatetImages;
 
 
 /**
@@ -117,7 +116,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			if (index != 0)
 				return null;
 			
-			return StatetImages.getDefault().getImage(StatetImages.IMG_OBJ_COMMAND);
+			return StatetImages.getImage(StatetImages.OBJ_COMMAND);
 		}
 	}
 	
@@ -162,7 +161,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
 					if (fProcess.getHistory() != e.getHistory()
-							|| !Layouter.isOkToUse(fTableViewer)) {
+							|| !UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
 					
@@ -185,7 +184,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
-					if (!Layouter.isOkToUse(fTableViewer)) {
+					if (!UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
 					fTableViewer.remove(e);
@@ -198,7 +197,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
-					if (!Layouter.isOkToUse(fTableViewer)) {
+					if (!UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
 					fTableViewer.refresh(true);
@@ -215,8 +214,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			
 			setText(SharedMessages.ToggleSortAction_name);
 			setToolTipText(SharedMessages.ToggleSortAction_tooltip);
-			setImageDescriptor(StatetImages.getDefault().getDescriptor(
-					StatetImages.IMG_LOCTOOL_SORT_ALPHA) );
+			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_SORT_ALPHA));
 			
 			setChecked(fDoSortAlpha);
 		}
@@ -454,7 +452,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		
 		Runnable runnable = new Runnable() {
 			public void run() {
-				if (!Layouter.isOkToUse(fTableViewer)) {
+				if (!UIAccess.isOkToUse(fTableViewer)) {
 					return;
 				}
 				fProcess = process;

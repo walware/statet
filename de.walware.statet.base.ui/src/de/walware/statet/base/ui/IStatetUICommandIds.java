@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui;
+package de.walware.statet.base.ui;
 
 
 /**
@@ -19,7 +19,7 @@ package de.walware.statet.ui;
  * This interface is not intended to be implemented or extended.
  * </p>.
  */
-public interface IStatextEditorActionDefinitionIds {
+public interface IStatetUICommandIds {
 
 	
 	/**

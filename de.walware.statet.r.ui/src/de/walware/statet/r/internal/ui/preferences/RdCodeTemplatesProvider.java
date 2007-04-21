@@ -20,8 +20,8 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
@@ -52,7 +52,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(final TemplateVariableProcessor processor, StatetProject project) {
 
 		StatextSourceViewerConfiguration configuration = new RdSourceViewerConfiguration(
-				StatetPlugin.getDefault().getColorManager(), 
+				StatetUIServices.getSharedColorManager(), 
 				RSourceViewerConfiguration.createCombinedPreferenceStore(
 						RUIPlugin.getDefault().getPreferenceStore(), project)
 				) {

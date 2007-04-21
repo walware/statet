@@ -24,9 +24,6 @@ public class StatetMessages extends NLS {
 	public static String TaskPriority_Normal;
 	public static String TaskPriority_Low;
 
-	public static String CopyToClipboard_error_title;
-	public static String CopyToClipboard_error_message;
-
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_title;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_message;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue;

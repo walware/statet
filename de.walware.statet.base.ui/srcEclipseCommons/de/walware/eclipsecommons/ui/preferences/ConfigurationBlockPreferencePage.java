@@ -23,7 +23,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.statet.ui.util.ExceptionHandler;
+
+import de.walware.statet.base.ui.util.ExceptionHandler;
 
 
 /**
@@ -66,15 +67,15 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	protected Control createContents(Composite parent) {
 		
 		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 1);
-		fBlockControl = layouter.fComposite;
+		fBlockControl = layouter.composite;
 			
 		fBlock.createContents(layouter, (IWorkbenchPreferenceContainer) getContainer(), getPreferenceStore());
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		layouter.fComposite.setLayoutData(data);
+		layouter.composite.setLayoutData(data);
 		
-		Dialog.applyDialogFont(layouter.fComposite);
+		Dialog.applyDialogFont(layouter.composite);
 		
-		return layouter.fComposite;
+		return layouter.composite;
 	}
 	
 	public boolean performOk() {

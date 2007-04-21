@@ -17,6 +17,9 @@ import java.util.List;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -28,16 +31,16 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import de.walware.eclipsecommons.preferences.Preference.Type;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.groups.ListedOptionsGroup;
-import de.walware.eclipsecommons.ui.dialogs.groups.SelectionItem;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
 import de.walware.eclipsecommons.ui.preferences.OverlayStorePreference;
-import de.walware.eclipsecommons.preferences.Preference.Type;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
 public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<EditorsConfigurationBlock> {
@@ -45,7 +48,7 @@ public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<Edit
 	
 	public EditorsPreferencePage() {
 		
-		setPreferenceStore(StatetPlugin.getDefault().getPreferenceStore());
+		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 	}
 	
 	@Override
@@ -58,16 +61,16 @@ public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<Edit
 
 class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 
-	private class AppearanceColorsItem extends SelectionItem {
+	private class AppearanceColorsItem {
 		
-		public String fColorKey;
+		String name;
+		String colorKey;
 		
 		AppearanceColorsItem(String label, String colorKey) {
 			
-			super(label);
-			fColorKey = colorKey;
+			this.name = label;
+			this.colorKey = colorKey;
 		}
-		
 	}
 	
 	private class ListedAppearanceColorsGroup extends ListedOptionsGroup<AppearanceColorsItem> {
@@ -77,32 +80,47 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 
 		ListedAppearanceColorsGroup() {
 
-			super();
+			super(false, false);
 			
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor, StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR));
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor, StatetUiPreferenceConstants.CODEASSIST_PROPOSALS_FOREGROUND));
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor, StatetUiPreferenceConstants.CODEASSIST_PROPOSALS_BACKGROUND));
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor, StatetUiPreferenceConstants.CODEASSIST_PARAMETERS_FOREGROUND));
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor, StatetUiPreferenceConstants.CODEASSIST_PARAMETERS_BACKGROUND));
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor, StatetUiPreferenceConstants.CODEASSIST_REPLACEMENT_FOREGROUND));
-			fSelectionModel.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor, StatetUiPreferenceConstants.CODEASSIST_REPLACEMENT_BACKGROUND));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor, IStatetUIPreferenceConstants.CODEASSIST_PROPOSALS_FOREGROUND));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor, IStatetUIPreferenceConstants.CODEASSIST_PROPOSALS_BACKGROUND));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor, IStatetUIPreferenceConstants.CODEASSIST_PARAMETERS_FOREGROUND));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor, IStatetUIPreferenceConstants.CODEASSIST_PARAMETERS_BACKGROUND));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor, IStatetUIPreferenceConstants.CODEASSIST_REPLACEMENT_FOREGROUND));
+			getListModel().add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor, IStatetUIPreferenceConstants.CODEASSIST_REPLACEMENT_BACKGROUND));
 		}
 		
 		@Override
-		protected Control createOptionsControl(Composite parent, GridData gd) {
+		protected ILabelProvider createLabelProvider() {
+			
+			return new LabelProvider() {
+				@Override
+				public String getText(Object element) {
+					AppearanceColorsItem item = (AppearanceColorsItem) element;
+					return item.name;
+				}
+			};
+		}
+		
+		@Override
+		protected Control createOptionsControl(Composite parent) {
 			
 			fStylesComposite = new Composite(parent, SWT.NONE);
 			return fStylesComposite;
 		}
 		
 		@Override
-		public void handleListSelection() {
-			int i = fListControl.getSelectionIndex();
-			if (i == -1)
-				return;
-			String key = fSelectionModel.get(i).fColorKey;
-			RGB rgb = PreferenceConverter.getColor(fOverlayStore, key);
-			fColorEditor.setColorValue(rgb);		
+		protected void handleSelection(AppearanceColorsItem item, IStructuredSelection rawSelection) {
+
+			if (item != null) {
+				RGB rgb = PreferenceConverter.getColor(fOverlayStore, item.colorKey);
+				fColorEditor.setEnabled(true);
+				fColorEditor.setColorValue(rgb);
+			}
+			else {
+				fColorEditor.setEnabled(false);
+			}
 		}
 	};
 
@@ -122,12 +140,12 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 		super.createContents(layouter, container, preferenceStore);
 		
 		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
-		keys.add(new OverlayStorePreference(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS, Type.BOOLEAN));
-		keys.add(new OverlayStorePreference(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR, Type.STRING));
-		for (AppearanceColorsItem color : fAppearanceColors.fSelectionModel) {
-			keys.add(new OverlayStorePreference(color.fColorKey, Type.STRING));
+		keys.add(new OverlayStorePreference(IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, Type.BOOLEAN));
+		keys.add(new OverlayStorePreference(IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR, Type.STRING));
+		for (AppearanceColorsItem color : fAppearanceColors.getListModel()) {
+			keys.add(new OverlayStorePreference(color.colorKey, Type.STRING));
 		}
-		keys.add(new OverlayStorePreference(StatetUiPreferenceConstants.CODEASSIST_AUTOINSERT, Type.BOOLEAN));
+		keys.add(new OverlayStorePreference(IStatetUIPreferenceConstants.CODEASSIST_AUTOINSERT, Type.BOOLEAN));
 		setupPreferenceManager(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
 
 		addLinkHeader(layouter, Messages.Editors_link);
@@ -148,7 +166,7 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 		layouter.addSmallFiller();
 
 		manager.addCheckBox(Messages.Editors_HighlightMatchingBrackets, 
-				StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS);
+				IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
 		
 		layouter.addSmallFiller();
 		
@@ -159,7 +177,7 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 		Layouter stylesLayouter = new Layouter(fAppearanceColors.fStylesComposite, 2);
 		stylesLayouter.addLabel(Messages.Editors_Color, 0, 1); 
 
-		fAppearanceColors.fColorEditor = new ColorSelector(stylesLayouter.fComposite);
+		fAppearanceColors.fColorEditor = new ColorSelector(stylesLayouter.composite);
 		Button foregroundColorButton = fAppearanceColors.fColorEditor.getButton();
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalAlignment = GridData.BEGINNING;
@@ -170,12 +188,10 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 				// do nothing
 			}
 			public void widgetSelected(SelectionEvent e) {
-				int i = fAppearanceColors.fListControl.getSelectionIndex();
-				if (i == -1)
-					return;
-
-				String key = fAppearanceColors.fSelectionModel.get(i).fColorKey;
-				PreferenceConverter.setValue(fOverlayStore, key, fAppearanceColors.fColorEditor.getColorValue());
+				AppearanceColorsItem item = fAppearanceColors.getSingleItem(fAppearanceColors.getSelectedItems());
+				if (item != null) {
+					PreferenceConverter.setValue(fOverlayStore, item.colorKey, fAppearanceColors.fColorEditor.getColorValue());
+				}
 			}
 		});
 	}
@@ -187,14 +203,15 @@ class EditorsConfigurationBlock extends OverlayStoreConfigurationBlock {
 
 		layouter.addSmallFiller();
 		manager.addCheckBox(Messages.Editors_CodeAssist_AutoInsert, 
-				StatetUiPreferenceConstants.CODEASSIST_AUTOINSERT);
+				IStatetUIPreferenceConstants.CODEASSIST_AUTOINSERT);
 	}
 
 	@Override
 	protected void updateControls() {
 		super.updateControls();
 		
-		if (Layouter.isOkToUse(fAppearanceColors.fListControl))
-			fAppearanceColors.handleListSelection();
+		if (UIAccess.isOkToUse(fAppearanceColors.getStructuredViewer())) {
+			fAppearanceColors.reselect();
+		}
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,9 +14,12 @@ package de.walware.eclipsecommons.ui.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 
 public class ColorManager {
@@ -30,6 +33,11 @@ public class ColorManager {
 	 * the current display gets disposed.
 	 */
 	private boolean fAutoDisposeOnDisplayDispose;
+	private Listener fDisposeListener = new Listener() {
+		public void handleEvent(Event event) {
+			dispose(event.display);
+		}
+	};
 
 
 	/**
@@ -48,25 +56,33 @@ public class ColorManager {
 	 * automatically disposes all managed colors when the current display gets disposed
 	 * and all calls to {@link org.eclipse.jface.text.source.ISharedTextColors#dispose()} are ignored.
 	 */
-	public ColorManager(boolean autoDisposeOnDisplayDispose) {
+	private ColorManager(boolean autoDisposeOnDisplayDispose) {
 		
 		fAutoDisposeOnDisplayDispose = autoDisposeOnDisplayDispose;
 	}
 
 	
 	public void dispose() {
-
-		if (!fAutoDisposeOnDisplayDispose)
-			dispose(Display.getCurrent());
+		
+		for (Display display : fDisplayTable.keySet()) {
+			final Display ref = display;
+			display.asyncExec(new Runnable() {
+				public void run() {
+					dispose(ref);
+				}
+			});
+		}
 	}
 
 	private void dispose(Display display) {
 		
-		Map<RGB, Color> colorTable = fDisplayTable.get(display);
+		display.removeListener(SWT.Dispose, fDisposeListener);
+		Map<RGB, Color> colorTable = fDisplayTable.remove(display);
 		if (colorTable != null) {
 			for (Color color : colorTable.values()) {
-				if (color != null && !color.isDisposed())
+				if (color != null && !color.isDisposed()) {
 					color.dispose();
+				}
 			}
 		}
 	}
@@ -82,11 +98,7 @@ public class ColorManager {
 			colorTable = new HashMap<RGB, Color>(10);
 			fDisplayTable.put(display, colorTable);
 			if (fAutoDisposeOnDisplayDispose) {
-				display.disposeExec(new Runnable() {
-					public void run() {
-						dispose(display);
-					}
-				});
+				display.addListener(SWT.Dispose, fDisposeListener);
 			}
 		}
 

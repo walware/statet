@@ -11,62 +11,43 @@
 
 package de.walware.eclipsecommons.ui.dialogs.groups;
 
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.List;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 
-public abstract class ListedOptionsGroup<ItemT extends SelectionItem> extends SelectionOptionsGroup<ItemT> {
+public abstract class ListedOptionsGroup<ItemT extends Object> extends StructuredSelectionOptionsGroup<ListViewer, ItemT> {
 
-	
-	public List fListControl;
-	
+
 	public ListedOptionsGroup(boolean grabSelectionHorizontal,	boolean grabVertical) {
-		super(grabSelectionHorizontal, grabVertical);
-
-	}
-
-	public ListedOptionsGroup() {
-		super();
-	}
-
-	@Override
-	protected Control createSelectionControl(Composite parent, GridData gd) {
-
-		fListControl = new List(parent, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
-
-		fListControl.addSelectionListener(new SelectionListener() {
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-			public void widgetSelected(SelectionEvent e) {
-				handleListSelection();
-			}
-		});
 		
-		return fListControl;
+		super(grabSelectionHorizontal, grabVertical);
 	}
+
+	
+	@Override
+	protected ListViewer createSelectionViewer(Composite parent) {
+		
+		ListViewer viewer = new ListViewer(parent, SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
+		viewer.setLabelProvider(createLabelProvider());
+		
+		return viewer;
+	}
+	
+	protected abstract ILabelProvider createLabelProvider();
 	
 	@Override
 	public void initFields() {
+		
 		super.initFields();
-		
-		String[] listItems = new String[fSelectionModel.size()];
-		for (int i = 0; i < listItems.length; i++) {
-			listItems[i] = fSelectionModel.get(i).fName;
-		}
-		fListControl.setItems(listItems);
-		
-		fListControl.getDisplay().asyncExec(new Runnable() {
+		getStructuredViewer().getControl().getDisplay().asyncExec(new Runnable() {
 			public void run() {
-				if (Layouter.isOkToUse(fListControl)) {
-					fListControl.select(0);
-					handleListSelection();
+				if (UIAccess.isOkToUse(getStructuredViewer())) {
+					getStructuredViewer().getList().select(0);
+					reselect();
 				}
 			}
 		});

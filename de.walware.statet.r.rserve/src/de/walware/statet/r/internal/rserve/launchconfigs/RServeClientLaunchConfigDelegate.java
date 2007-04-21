@@ -26,6 +26,8 @@ import org.eclipse.ui.console.IConsole;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.util.ExceptionHandler;
+import de.walware.statet.base.ui.util.UnterminatedLaunchAlerter;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -35,8 +37,6 @@ import de.walware.statet.nico.ui.util.TerminatingMonitor;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
-import de.walware.statet.ui.util.ExceptionHandler;
-import de.walware.statet.ui.util.UnterminatedLaunchAlerter;
 
 
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {

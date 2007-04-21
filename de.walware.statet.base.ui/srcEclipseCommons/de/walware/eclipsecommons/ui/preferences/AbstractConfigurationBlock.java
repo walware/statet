@@ -36,7 +36,7 @@ public abstract class AbstractConfigurationBlock {
 			IWorkbenchPreferenceContainer container, 
 			IPreferenceStore preferenceStore) {
 
-		fShell = layouter.fComposite.getShell();
+		fShell = layouter.composite.getShell();
 	}
 	
 	public void dispose() {
@@ -68,7 +68,7 @@ public abstract class AbstractConfigurationBlock {
 
 	protected void addLinkHeader(Layouter layouter, String text) {
 		
-		Link link = addLinkControl(layouter.fComposite, text);
+		Link link = addLinkControl(layouter.composite, text);
 		GridData gridData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		gridData.widthHint = 150; // only expand further if anyone else requires it
 		gridData.horizontalSpan = layouter.fNumColumns;

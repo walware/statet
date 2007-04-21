@@ -33,8 +33,8 @@ import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.base.core.CoreUtility;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class ManagedConfigurationBlock extends AbstractConfigurationBlock 
@@ -165,7 +165,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 				try {
 					fManager.applyChanges();
 				} catch (BackingStoreException e) {
-					StatetPlugin.logUnexpectedError(e);
+					StatetUIPlugin.logUnexpectedError(e);
 					return false;
 				}
 				if (doBuild) {

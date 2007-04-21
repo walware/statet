@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 
 public class ButtonGroup {
@@ -50,7 +51,7 @@ public class ButtonGroup {
 
 	public void createGroup(Layouter layouter) {
 
-		fComposite = layouter.fComposite;
+		fComposite = layouter.composite;
 		
 		SelectionListener listener = new SelectionListener() {
 			
@@ -93,12 +94,12 @@ public class ButtonGroup {
 	
 	public void updateButtonStatet() {
 		
-		if (fButtons == null || !Layouter.isOkToUse(fComposite))
+		if (fButtons == null || !UIAccess.isOkToUse(fComposite))
 			return;
 		
 		boolean global = fComposite.isEnabled();
 		for (int i = 0; i < fButtons.length; i++) {
-			if (Layouter.isOkToUse(fButtons[i]))
+			if (UIAccess.isOkToUse(fButtons[i]))
 				fButtons[i].setEnabled(global && fButtonsEnabled[i]);
 		}
 	}

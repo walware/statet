@@ -26,7 +26,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.statet.ui.util.ExceptionHandler;
+import de.walware.statet.base.ui.util.ExceptionHandler;
 
 
 public class TerminateToolAction extends Action implements IUpdate {

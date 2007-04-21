@@ -18,9 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -51,10 +49,9 @@ import de.walware.eclipsecommons.ui.dialogs.ResourceSelectionDialog;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.IStatetStatusConstants;
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.ui.RUI;
-import de.walware.statet.ui.StatetImages;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
@@ -142,7 +139,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public Image getImage() {
-		return StatetImages.getDefault().getImage(StatetImages.IMG_LAUNCHCONFIG_MAIN);
+		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 	
 	public void createControl(Composite parent) {
@@ -168,7 +165,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		
 		Layouter buttonLayouter = new Layouter(new Composite(group, SWT.NONE), 3);
 		GridData gd = new GridData(SWT.END, SWT.CENTER, false, false);
-		buttonLayouter.fComposite.setLayoutData(gd);
+		buttonLayouter.composite.setLayoutData(gd);
 
 		fLocationWorkspaceButton = buttonLayouter.addButton(RLaunchingMessages.MainTab_Location_Browse_Workspace, fListener, 1);
 		fLocationFileButton = buttonLayouter.addButton(RLaunchingMessages.MainTab_Location_Browse_FileSystem, fListener, 1);
@@ -191,7 +188,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		
 		Layouter buttonLayouter = new Layouter(new Composite(group, SWT.NONE), 3);
 		GridData gd = new GridData(SWT.END, SWT.CENTER, false, false);
-		buttonLayouter.fComposite.setLayoutData(gd);
+		buttonLayouter.composite.setLayoutData(gd);
 
 		fWorkDirectoryWorkspaceButton = buttonLayouter.addButton(RLaunchingMessages.MainTab_WorkingDirectory_Browse_Workspace, fListener, 1);
 		fWorkDirectoryFileButton = buttonLayouter.addButton(RLaunchingMessages.MainTab_WorkingDirectory_Browse_FileSystem, fListener, 1);
@@ -219,7 +216,7 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 		
 		Layouter buttonLayouter = new Layouter(new Composite(group, SWT.NONE), 2);
 		gd = new GridData(SWT.END, SWT.CENTER, false, false);
-		buttonLayouter.fComposite.setLayoutData(gd);
+		buttonLayouter.composite.setLayoutData(gd);
 
 		fArgumentROptionsButton = buttonLayouter.addButton(RLaunchingMessages.RCmdMainTab_ROptions, fListener, 1);
 		fArgumentVariablesButton = buttonLayouter.addButton(RLaunchingMessages.MainTab_Arguments_Variables, fListener, 1);
@@ -568,8 +565,6 @@ public class RConsoleMainTab extends AbstractLaunchConfigurationTab {
 	
 	protected void logError(String msg, CoreException ce) {
 		
-		StatetPlugin.log(new Status(
-				IStatus.ERROR, 	RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
-				msg, ce));
+		RUIPlugin.logError(IStatetStatusConstants.LAUNCHCONFIG_ERROR, msg, ce);
 	}
 }

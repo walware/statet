@@ -95,9 +95,9 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		});
 		fModel = new RCodeStyleSettings(this);
 		
-		Layouter layout = new Layouter(new Composite(parent.fComposite, SWT.NONE), 2);
+		Layouter layout = new Layouter(new Composite(parent.composite, SWT.NONE), 2);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		layout.fComposite.setLayoutData(gd);
+		layout.composite.setLayoutData(gd);
 		
 		fTabSizeText = layout.addLabeledTextControl(Messages.RCodeStyle_TabSize_label, 2);
 		

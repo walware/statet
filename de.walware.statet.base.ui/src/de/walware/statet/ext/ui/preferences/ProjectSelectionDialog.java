@@ -40,7 +40,7 @@ import org.eclipse.ui.dialogs.SelectionStatusDialog;
 
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extends SelectionStatusDialog {
@@ -157,7 +157,7 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 				updateFilter(((Button) e.widget).getSelection());
 			}
 		});
-		IDialogSettings dialogSettings = StatetPlugin.getDefault().getDialogSettings();
+		IDialogSettings dialogSettings = StatetUIPlugin.getDefault().getDialogSettings();
 		boolean doFilter = !dialogSettings.getBoolean(DIALOG_SETTINGS_SHOW_ALL) && !fFilteredItems.isEmpty();
 		checkbox.setSelection(doFilter);
 		updateFilter(doFilter);
@@ -175,7 +175,7 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 		} else {
 			fTableViewer.removeFilter(fFilter);
 		}
-		StatetPlugin.getDefault().getDialogSettings().put(DIALOG_SETTINGS_SHOW_ALL, !selected);
+		StatetUIPlugin.getDefault().getDialogSettings().put(DIALOG_SETTINGS_SHOW_ALL, !selected);
 	}
 
 	private void doSelectionChanged(Object[] objects) {

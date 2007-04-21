@@ -29,7 +29,8 @@ import org.eclipse.swt.graphics.RGB;
 
 import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
+
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
 /**
@@ -79,7 +80,7 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 	
 	private IToken addToken(String key) {
 		
-		String colorKey = key + StatetUiPreferenceConstants.TS_COLOR_SUFFIX;
+		String colorKey = key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
 		RGB rgb = PreferenceConverter.getColor(fPreferenceStore, colorKey);
 		fColorManager.bindColor(colorKey, rgb);
 		
@@ -102,17 +103,17 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 	 */
 	private TextAttribute createTextAttribute(String key) {
 		
-		Color color = fColorManager.getColor(key + StatetUiPreferenceConstants.TS_COLOR_SUFFIX);
+		Color color = fColorManager.getColor(key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX);
 
-		int style = fPreferenceStore.getBoolean(key + StatetUiPreferenceConstants.TS_BOLD_SUFFIX) ? 
+		int style = fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_BOLD_SUFFIX) ? 
 				SWT.BOLD : SWT.NORMAL;
-		if (fPreferenceStore.getBoolean(key + StatetUiPreferenceConstants.TS_ITALIC_SUFFIX))
+		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX))
 			style |= SWT.ITALIC;
 
-		if (fPreferenceStore.getBoolean(key + StatetUiPreferenceConstants.TS_STRIKETHROUGH_SUFFIX))
+		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX))
 			style |= TextAttribute.STRIKETHROUGH;
 
-		if (fPreferenceStore.getBoolean(key + StatetUiPreferenceConstants.TS_UNDERLINE_SUFFIX))
+		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX))
 			style |= TextAttribute.UNDERLINE;
 
 		return new TextAttribute(color, null, style);
@@ -123,7 +124,7 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 		for (String name : fTokenNames) {
 			if (p.startsWith(name)) {
 				Token token = (Token) fTokenMap.get(name);
-				if (p.endsWith(StatetUiPreferenceConstants.TS_COLOR_SUFFIX)) {
+				if (p.endsWith(IStatetUIPreferenceConstants.TS_COLOR_SUFFIX)) {
 					RGB rgb = PreferenceConverter.getColor(fPreferenceStore, p);
 					fColorManager.bindColor(p, rgb);
 				}

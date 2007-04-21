@@ -20,7 +20,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import de.walware.statet.ui.util.DNDUtil;
+import de.walware.eclipsecommons.ui.util.DNDUtil;
+
 
 
 public class InputSourceViewer extends SourceViewer {

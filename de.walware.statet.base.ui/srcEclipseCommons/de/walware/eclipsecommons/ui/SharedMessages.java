@@ -54,6 +54,12 @@ public class SharedMessages extends NLS {
 	public static String BrowseVariables_button_name;
 	
 	
+	public static String CollectionEditing_AddItem_label;
+	public static String CollectionEditing_EditItem_label;
+	public static String CollectionEditing_RemoveItem_label;
+	public static String CollectionEditing_DefaultItem_label;
+	
+	
 	private static final String BUNDLE_NAME = SharedMessages.class.getName();
 	
 	static {

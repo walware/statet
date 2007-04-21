@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui.util;
+package de.walware.eclipsecommons.ui.util;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWTError;
@@ -25,9 +25,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.internal.ui.StatetMessages;
+import de.walware.eclipsecommons.internal.ui.Messages;
 
 
 public class DNDUtil {
@@ -77,8 +75,8 @@ public class DNDUtil {
 	
 				if (!MessageDialog.openQuestion(
 						UIAccess.getActiveWorkbenchShell(true), 
-						StatetMessages.CopyToClipboard_error_title,
-						StatetMessages.CopyToClipboard_error_message))
+						Messages.CopyToClipboard_error_title,
+						Messages.CopyToClipboard_error_message))
 					return false;
 			}
 		}

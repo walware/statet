@@ -34,4 +34,7 @@ public class Messages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
+	public static String CopyToClipboard_error_title;
+	public static String CopyToClipboard_error_message;
+
 }

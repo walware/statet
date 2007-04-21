@@ -27,12 +27,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 
+import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.internal.ui.ToolRegistry;
 import de.walware.statet.nico.ui.console.NIConsole;
-import de.walware.statet.ui.util.ExceptionHandler;
 
 
 /**

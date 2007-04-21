@@ -16,7 +16,7 @@ import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
@@ -37,7 +37,7 @@ public class RInputConfiguration implements IEditorConfiguration {
 		ICombinedPreferenceStore store = RSourceViewerConfiguration.createCombinedPreferenceStore(
 				RUIPlugin.getDefault().getPreferenceStore(), null);
 		return new RSourceViewerConfiguration(null, 
-				StatetPlugin.getDefault().getColorManager(), store);
+				StatetUIServices.getSharedColorManager(), store);
 	}
 	
 	public PairMatcher getPairMatcher() {

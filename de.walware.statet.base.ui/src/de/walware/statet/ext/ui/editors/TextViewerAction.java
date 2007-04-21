@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui;
+package de.walware.statet.ext.ui.editors;
 
 
 import org.eclipse.jface.action.Action;

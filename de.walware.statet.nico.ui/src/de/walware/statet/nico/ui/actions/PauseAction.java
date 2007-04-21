@@ -18,10 +18,10 @@ import org.eclipse.jface.action.Action;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;
-import de.walware.statet.ui.StatetImages;
 
 
 /**
@@ -37,8 +37,8 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 		
 		setText(Messages.PauseAction_name);
 		setToolTipText(Messages.PauseAction_tooltip);
-		setImageDescriptor(StatetImages.DESC_LOCTOOL_PAUSE);
-		setDisabledImageDescriptor(StatetImages.DESC_LOCTOOLD_PAUSE);
+		setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_PAUSE));
+		setDisabledImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOLD_PAUSE));
 		setChecked(false);
 		setEnabled(false);
 	}

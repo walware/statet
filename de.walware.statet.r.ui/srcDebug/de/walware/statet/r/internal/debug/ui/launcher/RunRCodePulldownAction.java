@@ -39,8 +39,8 @@ import org.eclipse.ui.IWorkbenchWindowPulldownDelegate;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate {
@@ -121,7 +121,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		
 		fButtonAction = action;
 		
-		String lastLaunchId = StatetPlugin.getDefault().getDialogSettings().get(LAST_LAUNCH_REMEMBER_KEY);
+		String lastLaunchId = RUIPlugin.getDefault().getDialogSettings().get(LAST_LAUNCH_REMEMBER_KEY);
 		if (lastLaunchId != null) {
 			for (LaunchShortcutAction item : fActions) {
 				if (lastLaunchId.equals(item.getId())) {
@@ -195,7 +195,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 			fLastAction = action;
 			updateTooltip();
 			
-			StatetPlugin.getDefault().getDialogSettings().put(LAST_LAUNCH_REMEMBER_KEY, action.getId());
+			RUIPlugin.getDefault().getDialogSettings().put(LAST_LAUNCH_REMEMBER_KEY, action.getId());
 		}
 	}
 	

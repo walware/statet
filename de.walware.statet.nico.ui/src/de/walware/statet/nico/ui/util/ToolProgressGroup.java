@@ -31,16 +31,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.progress.WorkbenchJob;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.ShortedLabel;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.IProgressInfo;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.ui.StatetImages;
 
 
 /**
@@ -228,7 +228,7 @@ public class ToolProgressGroup {
 	
 	private void internalRefresh() {
 		
-		if (!Layouter.isOkToUse(fComposite)) {
+		if (!UIAccess.isOkToUse(fComposite)) {
 			return;
 		}
 		ToolInfo tool = fTool;
@@ -246,7 +246,7 @@ public class ToolProgressGroup {
 			image = getToolImage(tool);
 		}
 		if (image == null) {
-			image = StatetImages.getDefault().getImage(StatetImages.IMG_OBJ_COMMAND_DUMMY);
+			image = StatetImages.getImage(StatetImages.OBJ_COMMAND_DUMMY);
 		}
 		if (!(image.equals(fImageLabel.getImage()))) {
 			fImageLabel.setImage(image);

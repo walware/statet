@@ -30,11 +30,11 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;
-import de.walware.statet.ui.util.ExceptionHandler;
 
 
 /**

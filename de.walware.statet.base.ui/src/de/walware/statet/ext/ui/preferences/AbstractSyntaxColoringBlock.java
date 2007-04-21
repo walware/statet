@@ -41,7 +41,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -67,11 +66,11 @@ import de.walware.eclipsecommons.ui.util.TreeUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.eclipsecommons.ui.util.TreeUtil.Node;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.internal.ui.preferences.Messages;
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
-import de.walware.statet.ui.StatetUiPreferenceConstants;
 
 
 /**
@@ -174,7 +173,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	/**
 	 * Style Node with syntax style, connected to overlay-preferencestory.
 	 */
-	protected static class StyleNode extends CategoryNode {
+	protected static class StyleNode extends SyntaxNode {
 		
 		private String fDescription;
 		private String fRootKey;
@@ -217,22 +216,22 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 
 		private String getEnableKey() {
-			return fRootKey + StatetUiPreferenceConstants.TS_ENABLE_SUFFIX;
+			return fRootKey + IStatetUIPreferenceConstants.TS_ENABLE_SUFFIX;
 		}
 		private String getColorKey() {
-			return fRootKey + StatetUiPreferenceConstants.TS_COLOR_SUFFIX;
+			return fRootKey + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
 		}
 		private String getBoldKey() {
-			return fRootKey + StatetUiPreferenceConstants.TS_BOLD_SUFFIX;
+			return fRootKey + IStatetUIPreferenceConstants.TS_BOLD_SUFFIX;
 		}
 		private String getItalicKey() {
-			return fRootKey + StatetUiPreferenceConstants.TS_ITALIC_SUFFIX;
+			return fRootKey + IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX;
 		}
 		private String getUnderlineKey() {
-			return fRootKey + StatetUiPreferenceConstants.TS_UNDERLINE_SUFFIX;
+			return fRootKey + IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX;
 		}
 		private String getStrikethroughKey() {
-			return fRootKey + StatetUiPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
+			return fRootKey + IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
 		}
 
 		protected void gatherPreferenceKeys(List<OverlayStorePreference> keys) {
@@ -332,14 +331,14 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		public String getText(Object element) {
 			return ((Node) element).getName();
 		}
-		
+		@Override
+		public boolean useNativeToolTip(Object object) {
+			return true;
+		}
 		@Override
 		public String getToolTipText(Object element) {
 			if (element instanceof StyleNode) {
 				return ((StyleNode) element).getDescription();
-			}
-			if (element instanceof CategoryNode) {
-				return (NLS.bind(Messages.SyntaxColoring_Category_tooltip,((Node) element).getName()));
 			}
 			return null;
 		}
@@ -388,15 +387,15 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		addLinkHeader(block, Messages.SyntaxColoring_link);
 
-		Layouter content = new Layouter(new Composite(block.fComposite, SWT.NONE), 2);
+		Layouter content = new Layouter(new Composite(block.composite, SWT.NONE), 2);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = block.fNumColumns;
-		content.fComposite.setLayoutData(gd);
+		content.composite.setLayoutData(gd);
 		
 		// Tree / Options
 		content.addLabel(Messages.SyntaxColoring_List_label);
-		Layouter group = new Layouter(new Composite(content.fComposite, SWT.NONE), 2);
-		group.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, content.fNumColumns, 1));
+		Layouter group = new Layouter(new Composite(content.composite, SWT.NONE), 2);
+		group.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, content.fNumColumns, 1));
 		Control selectionControl = createTreeViewer(group);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
 		Point size = TreeUtil.calculateTreeSizeHint(fSelectionViewer.getControl(), fRootNodes, 9);
@@ -411,7 +410,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		// Previewer
 		content.addLabel(Messages.SyntaxColoring_Preview);
-		Control previewerControl = createPreviewer(content.fComposite);
+		Control previewerControl = createPreviewer(content.composite);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 2;
 		PixelConverter conv = new PixelConverter(previewerControl);
@@ -424,7 +423,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			public void run() {
-				if (Layouter.isOkToUse(fSelectionViewer)) {
+				if (UIAccess.isOkToUse(fSelectionViewer)) {
 					fSelectionViewer.setSelection(new StructuredSelection(fRootNodes[0]));
 				}
 			}
@@ -459,7 +458,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	public Control createTreeViewer(Layouter parent) {
 		
-		fSelectionViewer = new TreeViewer(parent.fComposite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		fSelectionViewer = new TreeViewer(parent.composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 
 		fSelectionViewer.setContentProvider(new TreeUtil.NodeContentProvider());
 		fSelectionViewer.setLabelProvider(new SyntaxNodeLabelProvider());
@@ -472,11 +471,11 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	private Control createOptionsControl(Layouter parent) {
 		
-		Layouter options = new Layouter(new Composite(parent.fComposite, SWT.NONE), 2);
+		Layouter options = new Layouter(new Composite(parent.composite, SWT.NONE), 2);
 		fEnableCheckbox = options.addCheckBox(Messages.SyntaxColoring_Enable, 0, 2);
 		final int indent = 20;
 		options.addLabel(Messages.SyntaxColoring_Color, indent, 1);
-		fForegroundColorEditor = new ColorSelector(options.fComposite);
+		fForegroundColorEditor = new ColorSelector(options.composite);
 		Button foregroundColorButton = fForegroundColorEditor.getButton();
 		GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		foregroundColorButton.setLayoutData(gd);
@@ -485,12 +484,12 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fUnderlineCheckbox = options.addCheckBox(Messages.SyntaxColoring_Underline, indent);
 		fStrikethroughCheckbox = options.addCheckBox(Messages.SyntaxColoring_Strikethrough, indent);
 		
-		return options.fComposite;
+		return options.composite;
 	}
 	
 	private Control createPreviewer(Composite parent) {
 		
-		fColorManager = new ColorManager(false);
+		fColorManager = new ColorManager();
 
 		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { 
 				fOverlayStore, EditorsUI.getPreferenceStore() });
@@ -528,7 +527,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 				buffer.append(separator);
 			}
 		} catch (IOException io) {
-			StatetPlugin.logUnexpectedError(io);
+			StatetUIPlugin.logUnexpectedError(io);
 		} finally {
 			if (reader != null) {
 				try { reader.close(); } catch (IOException e) {}

@@ -36,7 +36,7 @@ import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 
@@ -51,7 +51,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 
 		IPreferenceStore[] stores = new IPreferenceStore[] {
 			store,
-			StatetPlugin.getDefault().getPreferenceStore(),
+			StatetUIPlugin.getDefault().getPreferenceStore(),
 			EditorsUI.getPreferenceStore(),
 		};
 		return CombinedPreferenceStore.createStore(

@@ -77,11 +77,12 @@ import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.DNDUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
+import de.walware.statet.ext.ui.editors.TextViewerAction;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
@@ -91,8 +92,6 @@ import de.walware.statet.nico.ui.actions.CancelAction;
 import de.walware.statet.nico.ui.actions.IToolAction;
 import de.walware.statet.nico.ui.actions.IToolActionSupport;
 import de.walware.statet.nico.ui.actions.ToolAction;
-import de.walware.statet.ui.TextViewerAction;
-import de.walware.statet.ui.util.DNDUtil;
 
 
 /**
@@ -679,7 +678,7 @@ public class NIConsolePage implements IPageBookViewPage,
 			final Button button = fInputGroup.getSubmitButton();
 			UIAccess.getDisplay(getSite().getShell()).asyncExec(new Runnable() {
 				public void run() {
-					if (Layouter.isOkToUse(button)) {
+					if (UIAccess.isOkToUse(button)) {
 						button.setEnabled(false);
 					}
 				}
@@ -695,7 +694,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	
     public void propertyChange(PropertyChangeEvent event) {
     	
-        if (Layouter.isOkToUse(fControl) ) {
+        if (UIAccess.isOkToUse(fControl) ) {
 			Object source = event.getSource();
 			String property = event.getProperty();
 			

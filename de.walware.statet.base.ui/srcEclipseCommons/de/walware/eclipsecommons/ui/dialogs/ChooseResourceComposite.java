@@ -43,7 +43,7 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 import de.walware.eclipsecommons.internal.ui.Messages;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
@@ -104,9 +104,9 @@ public class ChooseResourceComposite extends Composite {
 		Layouter layouter = new Layouter(this, 1);
 		fLocationField = layouter.addComboControl(null, false, 0, 1, true);
 		
-		Layouter buttonLayouter = new Layouter(new Composite(layouter.fComposite, SWT.NONE), 2);
+		Layouter buttonLayouter = new Layouter(new Composite(layouter.composite, SWT.NONE), 2);
 		GridData gd = new GridData(SWT.END, SWT.CENTER, false, false);
-		buttonLayouter.fComposite.setLayoutData(gd);
+		buttonLayouter.composite.setLayoutData(gd);
 		
 		fLocationWorkspaceButton = buttonLayouter.addButton(Messages.BrowseWorkspace_button_name, 
 				new SelectionAdapter() {
@@ -277,7 +277,7 @@ public class ChooseResourceComposite extends Composite {
 		}
 		catch (IllegalArgumentException e) {
 		}
-		throw new CoreException(new Status(IStatus.ERROR, StatetPlugin.PLUGIN_ID, 0, Messages.Location_error_UnknownFormat_messageLocation_error_UnknownFormat_message, null));
+		throw new CoreException(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, 0, Messages.Location_error_UnknownFormat_messageLocation_error_UnknownFormat_message, null));
 	}
 	
 	public IStatus validate() {

@@ -49,7 +49,7 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	
 	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
 		
-		return new ChooseResourceComposite(layouter.fComposite, 0, 
+		return new ChooseResourceComposite(layouter.composite, 0, 
 				Messages.SaveHistoryPage_FileTask_label);
 	}
 	

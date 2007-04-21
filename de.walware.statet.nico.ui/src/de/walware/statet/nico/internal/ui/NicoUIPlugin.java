@@ -15,14 +15,12 @@ package de.walware.statet.nico.internal.ui;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextActivation;
-import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.ui.NicoUI;
 
@@ -47,9 +45,6 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 	}
 
 
-	private ImageRegistry fImageRegistry;
-	private IContextActivation fConsoleContextActivation; // global context activation
-	
 	private ToolRegistry fToolRegistry;
 
 	
@@ -72,15 +67,6 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		try {
-			IContextService service = (IContextService) PlatformUI.getWorkbench().getService(IContextService.class);
-			if (service != null && fConsoleContextActivation != null) {
-				service.deactivateContext(fConsoleContextActivation);
-			}
-			
-			if (fImageRegistry != null) {
-				fImageRegistry.dispose();
-				fImageRegistry = null;
-			}
 			if (fToolRegistry != null) {
 				fToolRegistry.dispose();
 				fToolRegistry = null;
@@ -94,9 +80,14 @@ public class NicoUIPlugin extends AbstractUIPlugin {
 
 	
 	@Override
+	protected ImageRegistry createImageRegistry() {
+
+		return StatetUIServices.getSharedImageRegistry();
+	}
+	
+	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 
-		fImageRegistry = reg;
 		ImageRegistryUtil util = new ImageRegistryUtil(this);
 		util.register(NicoUI.IMG_LOCTOOL_CANCEL, ImageRegistryUtil.T_LOCTOOL, "cancel.png"); //$NON-NLS-1$
 		util.register(NicoUI.IMG_LOCTOOLD_CANCEL, ImageRegistryUtil.T_LOCTOOL_D, "cancel.png"); //$NON-NLS-1$

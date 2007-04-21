@@ -15,7 +15,7 @@ import org.eclipse.jface.action.Action;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
 
-import de.walware.statet.ui.StatetImages;
+import de.walware.statet.base.ui.StatetImages;
 
 
 public class ScrollLockAction extends Action {
@@ -35,7 +35,7 @@ public class ScrollLockAction extends Action {
 		setText(SharedMessages.ToggleScrollLockAction_name);
 		setToolTipText(SharedMessages.ToggleScrollLockAction_tooltip);
 		
-		setImageDescriptor(StatetImages.DESC_LOCTOOL_SCROLLLOCK);
+		setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_SCROLLLOCK));
 		
 		fView = view;
 		setChecked(initialChecked);

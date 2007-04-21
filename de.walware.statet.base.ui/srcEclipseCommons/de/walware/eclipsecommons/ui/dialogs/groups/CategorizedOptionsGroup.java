@@ -12,12 +12,11 @@
 package de.walware.eclipsecommons.ui.dialogs.groups;
 
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -28,25 +27,51 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 
 
-public abstract class CategorizedOptionsGroup<ItemT extends CategorizedItem> 
+public abstract class CategorizedOptionsGroup<ItemT extends CategorizedOptionsGroup.CategorizedItem> 
 		extends StructuredSelectionOptionsGroup<TreeViewer, ItemT> {
 
 	
-	private class ItemLabelProvider extends LabelProvider {
+	public static class CategorizedItem {
+
+		private int fCategoryIndex;
+		private String fName;
+		
+		public CategorizedItem(String name) {
+			
+			fName = name;
+		}
+		
+		public String getName() {
+			
+			return fName;
+		}
+
+		private void setCategory(int index) {
+			
+			fCategoryIndex = index;
+		}
+		
+		public int getCategoryIndex() {
+			
+			return fCategoryIndex;
+		}
+	}
+
+	private class CategorizedItemLabelProvider extends LabelProvider {
 
 		public String getText(Object element) {
 			if (element instanceof String) // Category
 				return (String) element;
-			return ((CategorizedItem) element).fName; // ItemT
+			return ((CategorizedItem) element).getName(); // ItemT
 		}
 	}
 
-	private class ItemContentProvider implements ITreeContentProvider {
+	private class CategorizedItemContentProvider implements ITreeContentProvider {
 	
 		public void dispose() {
 		}
@@ -79,7 +104,7 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedItem>
 			if (element instanceof String)
 				return null;
 			
-			int idx = ((CategorizedItem) element).fCategoryIndex;
+			int idx = ((CategorizedItem) element).getCategoryIndex();
 			return fCategorys[idx];
 		}
 	}
@@ -91,58 +116,82 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedItem>
 		super(grabSelectionHorizontal, grabVertical);
 	}
 	
-	protected Control createSelectionControl(Composite parent, GridData gd) {
+	@Override
+	protected TreeViewer createSelectionViewer(Composite parent) {
 		
-		fSelectionViewer = new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		TreeViewer viewer = new TreeViewer(parent, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer.setLabelProvider(new CategorizedItemLabelProvider());
 
-		PixelConverter pixel = new PixelConverter(parent);
+		return viewer;
+	}
+	
+	@Override
+	protected GridData createSelectionGridData() {
+		
+		GridData gd = super.createSelectionGridData();
+		
+		Control control = getStructuredViewer().getControl();
+		PixelConverter pixel = new PixelConverter(control);
 		gd.heightHint = pixel.convertHeightInCharsToPixels(9);
 		int maxWidth = 0;
-		for (CategorizedItem item : fSelectionModel)
-			maxWidth = Math.max(maxWidth, pixel.convertWidthInCharsToPixels(item.fName.length()));
-		ScrollBar vBar = ((Scrollable) fSelectionViewer.getControl()).getVerticalBar();
+		for (CategorizedItem item : getListModel())
+			maxWidth = Math.max(maxWidth, pixel.convertWidthInCharsToPixels(item.getName().length()));
+		ScrollBar vBar = ((Scrollable) control).getVerticalBar();
 		if (vBar != null)
 			maxWidth += vBar.getSize().x * 4; // scrollbars and tree indentation guess
 		gd.widthHint = maxWidth;
 		
-		fSelectionViewer.setLabelProvider(new ItemLabelProvider());
-		fSelectionViewer.setContentProvider(new ItemContentProvider());
-
-		fSelectionViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				handleListSelection();
-			}
-		});
-		fSelectionViewer.addDoubleClickListener(new IDoubleClickListener() {
+		return gd;
+	}
+	
+	@Override
+	protected IContentProvider createContentProvider() {
+		
+		return new CategorizedItemContentProvider();
+	}
+	
+	protected IDoubleClickListener createDoubleClickListener() {
+		
+		return new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection != null && selection.size() == 1) {
 					Object item = selection.getFirstElement();
 					if (item instanceof String) {
-						if (fSelectionViewer.getExpandedState(item))
-							fSelectionViewer.collapseToLevel(item, TreeViewer.ALL_LEVELS);
+						if (getStructuredViewer().getExpandedState(item))
+							getStructuredViewer().collapseToLevel(item, TreeViewer.ALL_LEVELS);
 						else
-							fSelectionViewer.expandToLevel(item, 1);
+							getStructuredViewer().expandToLevel(item, 1);
 					}
-					else
-						handleDoubleClick(getSingleItem(selection));
+					else {
+						handleDoubleClick(getSingleItem(selection), selection);
+					}
 				}
 			}
-		});
-		
-		return fSelectionViewer.getControl();
+		};
 	}
 	
 	@Override
 	public void initFields() {
 		super.initFields();
 		
-		fComposite.getDisplay().asyncExec(new Runnable() {
+		getStructuredViewer().getControl().getDisplay().asyncExec(new Runnable() {
 			public void run() {
-				if (fSelectionViewer != null && Layouter.isOkToUse(fSelectionViewer.getControl()))
-					fSelectionViewer.setSelection(new StructuredSelection(fCategorys[0]));
+				TreeViewer viewer = getStructuredViewer();
+				if (viewer != null && UIAccess.isOkToUse(viewer)) {
+					viewer.setSelection(new StructuredSelection(fCategorys[0]));
+				}
 			}
 		});
+	}
+	
+	@Override
+	public ItemT getSingleItem(IStructuredSelection selection) {
+		
+		if (selection.getFirstElement() instanceof String) {
+			return null;
+		}
+		return super.getSingleItem(selection);
 	}
 
 	
@@ -150,8 +199,8 @@ public abstract class CategorizedOptionsGroup<ItemT extends CategorizedItem>
 
 		for (int i = 0; i < fCategorys.length; i++) {
 			for (int j = 0; j < fCategoryChilds[i].length; j++) {
-				fCategoryChilds[i][j].fCategoryIndex = i;
-				fSelectionModel.add(fCategoryChilds[i][j]);
+				fCategoryChilds[i][j].setCategory(i);
+				getListModel().add(fCategoryChilds[i][j]);
 			}
 		}
 	}

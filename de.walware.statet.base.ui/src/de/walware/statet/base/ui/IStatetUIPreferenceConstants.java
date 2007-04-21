@@ -9,25 +9,15 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ui;
+package de.walware.statet.base.ui;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.swt.graphics.RGB;
-
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
- * Preference constants used in the RDT-UI preference store. Clients should only read the
- * RDT-UI preference store using these values. Clients are not allowed to modify the 
- * preference store programmatically.
- * 
- * @see org.eclipse.jface.resource.StringConverter
- * @see org.eclipse.jface.preference.PreferenceConverter
- *
+ * Common Preference constants used in Statet UI preference store. 
  */
-public class StatetUiPreferenceConstants {
+public interface IStatetUIPreferenceConstants {
 
 	
 	/**
@@ -68,7 +58,7 @@ public class StatetUiPreferenceConstants {
 
 	
 	
-	public static final String ROOT = StatetPlugin.PLUGIN_ID + ".ui";
+	public static final String ROOT = StatetUIPlugin.PLUGIN_ID + ".ui";
 	
 	
 	/**
@@ -185,33 +175,6 @@ public class StatetUiPreferenceConstants {
 //	public static final String EDITOROUTLINE_LINKWITHEDITOR = ID+"editor_outline.link_with_editor";
 //	
 //	
-	/**
-	 * Initializes the given preference store with the default values.
-	 * 
-	 * @param store the preference store to be initialized
-	 */
-	public static void initializeDefaultValues(IPreferenceStore store) {
-//		// set the default values from ExtendedTextEditor
-//		store.setValue(AbstractDecoratedTextEditorPreferenceConstants.USE_QUICK_DIFF_PREFERENCE_PAGE, true);
-		
-		// EditorPreferences
-		store.setDefault(StatetUiPreferenceConstants.EDITOR_MATCHING_BRACKETS, true);
-		PreferenceConverter.setDefault(store, StatetUiPreferenceConstants.
-				EDITOR_MATCHING_BRACKETS_COLOR, new RGB(192, 192, 192));
-
-		store.setDefault(CODEASSIST_AUTOACTIVATION, true);
-		store.setDefault(CODEASSIST_AUTOACTIVATION_DELAY, 200);
-		store.setDefault(CODEASSIST_AUTOINSERT, true);
-		PreferenceConverter.setDefault(store, CODEASSIST_PROPOSALS_BACKGROUND, new RGB(243, 247, 255));
-		PreferenceConverter.setDefault(store, CODEASSIST_PROPOSALS_FOREGROUND, new RGB(0, 0, 0));
-		PreferenceConverter.setDefault(store, CODEASSIST_PARAMETERS_BACKGROUND, new RGB(255, 255, 255));
-		PreferenceConverter.setDefault(store, CODEASSIST_PARAMETERS_FOREGROUND, new RGB(0, 0, 0));
-		PreferenceConverter.setDefault(store, CODEASSIST_REPLACEMENT_BACKGROUND, new RGB(255, 255, 0));
-		PreferenceConverter.setDefault(store, CODEASSIST_REPLACEMENT_FOREGROUND, new RGB(255, 0, 0));
-		
-//		store.setDefault(EDITOROUTLINE_SORT, false);
-//		store.setDefault(EDITOROUTLINE_LINKWITHEDITOR, true);
-	}
 
 }
 

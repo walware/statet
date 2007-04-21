@@ -42,9 +42,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -55,7 +55,6 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.PauseAction;
 import de.walware.statet.nico.ui.util.ToolProgressGroup;
-import de.walware.statet.ui.StatetImages;
 
 
 /**
@@ -124,7 +123,7 @@ public class QueueView extends ViewPart {
 			
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
-					if (!Layouter.isOkToUse(fTableViewer)) {
+					if (!UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
 					fRefreshData = elements;
@@ -178,7 +177,7 @@ public class QueueView extends ViewPart {
 								}
 								UIAccess.getDisplay().syncExec(new Runnable() {
 									public void run() {
-										if (!Layouter.isOkToUse(fTableViewer)) {
+										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
 										}
 										fTableViewer.add(delta.data);
@@ -194,7 +193,7 @@ public class QueueView extends ViewPart {
 							if (!fExpectInfoEvent) {
 								UIAccess.getDisplay().syncExec(new Runnable() {
 									public void run() {
-										if (!Layouter.isOkToUse(fTableViewer)) {
+										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
 										}
 										fTableViewer.remove(delta.data);
@@ -503,7 +502,7 @@ public class QueueView extends ViewPart {
 		
 		Runnable runnable = new Runnable() {
 			public void run() {
-				if (!Layouter.isOkToUse(fTableViewer)) {
+				if (!UIAccess.isOkToUse(fTableViewer)) {
 					return;
 				}
 				fProcess = process;

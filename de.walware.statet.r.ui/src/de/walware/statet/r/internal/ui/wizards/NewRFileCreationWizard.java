@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
-import de.walware.statet.base.StatetPlugin;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.r.codegeneration.CodeGeneration;
@@ -51,7 +50,7 @@ public class NewRFileCreationWizard extends NewElementWizard {
 				if (content != null)
 					return new ByteArrayInputStream(content.getBytes());
 			} catch (CoreException e) {
-				StatetPlugin.logUnexpectedError(e);
+				RUIPlugin.logError(RUIPlugin.IO_ERROR, "Error occured when applying template to new R-script file.", e); //$NON-NLS-1$
 			}
 			return null;
 		}

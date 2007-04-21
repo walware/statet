@@ -33,9 +33,9 @@ import org.eclipse.ui.externaltools.internal.launchConfigurations.ExternalToolsU
 import org.eclipse.ui.externaltools.internal.program.launchConfigurations.BackgroundResourceRefresher;
 
 import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.statet.base.ui.util.UnterminatedLaunchAlerter;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.ui.util.UnterminatedLaunchAlerter;
 
 
 public class RConsoleLaunchConfigurationDelegate implements

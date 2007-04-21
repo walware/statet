@@ -36,11 +36,11 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorPart;
 
+import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.templates.RTemplateProposal.RTemplateComparator;
-import de.walware.statet.ui.StatetImages;
 
 
 public class REditorTemplatesCompletionProcessor extends TemplateCompletionProcessor {
@@ -172,7 +172,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 	@Override
 	protected Image getImage(Template template) {
 
-		return StatetImages.getDefault().getImage(StatetImages.IMG_CONTENTASSIST_TEMPLATE);
+		return StatetImages.getImage(StatetImages.CONTENTASSIST_TEMPLATE);
 	}
 	
 	

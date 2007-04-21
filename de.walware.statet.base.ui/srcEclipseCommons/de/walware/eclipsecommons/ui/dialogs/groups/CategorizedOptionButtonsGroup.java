@@ -11,17 +11,18 @@
 
 package de.walware.eclipsecommons.ui.dialogs.groups;
 
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.groups.ButtonGroup.ButtonListener;
+import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
 
 
 public abstract class CategorizedOptionButtonsGroup<ItemT extends CategorizedItem> 
-		extends CategorizedOptionsGroup<ItemT>
-		implements ButtonGroup.ButtonListener {
+		extends CategorizedOptionsGroup<ItemT> {
 
 	
 	protected ButtonGroup fButtonGroup;
@@ -30,19 +31,24 @@ public abstract class CategorizedOptionButtonsGroup<ItemT extends CategorizedIte
 	public CategorizedOptionButtonsGroup(String[] buttonLabels) {
 		super(true, false);
 	
-		fButtonGroup = new ButtonGroup(buttonLabels, this);
+		fButtonGroup = new ButtonGroup(buttonLabels, new ButtonListener() {
+			public void handleButtonPressed(int buttonIdx) {
+				IStructuredSelection selection = getSelectedItems();
+				CategorizedOptionButtonsGroup.this.handleButtonPressed(buttonIdx, getSingleItem(selection), selection);
+			}
+		});
 
 	}
 
 	@Override
-	protected Control createOptionsControl(Composite parent, GridData gd) {
+	protected Control createOptionsControl(Composite parent) {
 		
 		Layouter options = new Layouter(new Composite(parent, SWT.NONE), 1);
 		fButtonGroup.createGroup(options);
 		
-		return options.fComposite;
+		return options.composite;
 	}
 
-	public abstract void handleButtonPressed(int buttonIdx);
+	public abstract void handleButtonPressed(int buttonIdx, ItemT item, IStructuredSelection rawSelection);
 	
 }

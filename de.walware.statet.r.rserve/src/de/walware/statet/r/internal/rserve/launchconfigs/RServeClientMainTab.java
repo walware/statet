@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 
-import de.walware.statet.ui.StatetImages;
+import de.walware.statet.base.ui.StatetImages;
 
 
 /**
@@ -95,7 +95,7 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 	
 	public Image getImage() {
 		
-		return StatetImages.getDefault().getImage(StatetImages.IMG_LAUNCHCONFIG_MAIN);
+		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 
 	public void createControl(Composite parent) {

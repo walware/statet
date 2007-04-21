@@ -25,7 +25,7 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.ui.RUI;
@@ -41,6 +41,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 
 	
 	public static final int INTERNAL_ERROR = 100;
+	public static final int IO_ERROR = 101;
 	
 
 	public static final String IMG_WIZBAN_NEWRDFILE = RUI.PLUGIN_ID + "/img/wizban/new.rd-file"; //$NON-NLS-1$
@@ -67,8 +68,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	private TemplateStore fREditorTemplatesStore;
 	private ContextTypeRegistry fREditorContextTypeRegistry;
 	
-	private ImageRegistry fImageRegistry;
-	
 	
 	/**
 	 * The constructor.
@@ -90,10 +89,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		try {
-			if (fImageRegistry != null) {
-				fImageRegistry.dispose();
-				fImageRegistry = null;
-			}
 		} finally {
 			gPlugin = null;
 			super.stop(context);
@@ -108,11 +103,15 @@ public class RUIPlugin extends AbstractUIPlugin {
 		return gPlugin;
 	}
 
+	@Override
+	protected ImageRegistry createImageRegistry() {
+		
+		return StatetUIServices.getSharedImageRegistry();
+	}
 	
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
 
-		fImageRegistry = reg;
 		ImageRegistryUtil util = new ImageRegistryUtil(this);
 		util.register(IMG_WIZBAN_NEWRPROJECT, ImageRegistryUtil.T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
 		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png"); //$NON-NLS-1$
@@ -175,7 +174,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				try {
 					fRCodeTemplatesStore.load();
 				} catch (IOException e) {
-					StatetPlugin.logUnexpectedError(e);
+					RUIPlugin.logError(IO_ERROR, "Error occured when loading 'R code generation' template store.", e); //$NON-NLS-1$
 				}
 			}
 			return fRCodeTemplatesStore;
@@ -220,7 +219,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				try {
 					fRdCodeTemplatesStore.load();
 				} catch (IOException e) {
-					StatetPlugin.logUnexpectedError(e);
+					RUIPlugin.logError(IO_ERROR, "Error occured when loading 'Rd code generation' template store.", e); //$NON-NLS-1$
 				}
 			}
 			return fRdCodeTemplatesStore;
@@ -266,7 +265,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				try {
 					fREditorTemplatesStore.load();
 				} catch (IOException e) {
-					StatetPlugin.logUnexpectedError(e);
+					RUIPlugin.logError(IO_ERROR, "Error occured when loading 'R Editor' template store.", e); //$NON-NLS-1$
 				}
 			}
 			return fREditorTemplatesStore;

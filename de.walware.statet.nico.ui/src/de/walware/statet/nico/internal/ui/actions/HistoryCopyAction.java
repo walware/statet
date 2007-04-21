@@ -19,9 +19,9 @@ import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
+import de.walware.eclipsecommons.ui.util.DNDUtil;
 
 import de.walware.statet.nico.ui.views.HistoryView;
-import de.walware.statet.ui.util.DNDUtil;
 
 
 public class HistoryCopyAction extends BaseSelectionListenerAction {

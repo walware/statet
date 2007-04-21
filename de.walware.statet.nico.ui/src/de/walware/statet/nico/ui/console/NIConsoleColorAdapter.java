@@ -27,7 +27,7 @@ import org.eclipse.ui.console.IOConsoleOutputStream;
 import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.StatetPlugin;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -108,7 +108,7 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 			return null;
 		}
 		RGB rgb = PreferenceConverter.getColor(fPreferences, colorId);
-		return UIAccess.getColor(StatetPlugin.getDefault().getColorManager(), rgb);
+		return UIAccess.getColor(StatetUIServices.getSharedColorManager(), rgb);
 	}
 
 	protected String getColorId(String streamId) {

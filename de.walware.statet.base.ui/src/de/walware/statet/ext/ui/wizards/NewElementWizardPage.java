@@ -100,12 +100,12 @@ public abstract class NewElementWizardPage extends WizardPage {
     	
     	public void createGroup(Layouter parentLayouter) {
     		
-    		Layouter layouter = new Layouter(new Composite(parentLayouter.fComposite, SWT.NONE), 2);
-    		layouter.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    		Layouter layouter = new Layouter(new Composite(parentLayouter.composite, SWT.NONE), 2);
+    		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     		
             // resource and container group
             fContainerGroup = new ContainerSelectionComposite(
-                    layouter.fComposite, true, false, 
+                    layouter.composite, true, false, 
                     null, SIZING_CONTAINER_GROUP_HEIGHT);
             fContainerGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
 
@@ -352,7 +352,7 @@ public abstract class NewElementWizardPage extends WizardPage {
     	GridLayout layout = new GridLayout();
     	layout.marginHeight = 0;
     	Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
-    	layouter.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    	layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     	
     	createContents(layouter);
     	
@@ -360,7 +360,7 @@ public abstract class NewElementWizardPage extends WizardPage {
     	// Show description on opening
     	setErrorMessage(null);
     	setMessage(null);
-    	setControl(layouter.fComposite);
+    	setControl(layouter.composite);
     }
     
 
