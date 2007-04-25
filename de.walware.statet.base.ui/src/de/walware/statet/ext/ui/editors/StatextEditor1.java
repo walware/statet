@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
@@ -42,8 +41,8 @@ import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.base.ui.IStatetUICommandIds;
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.ext.ui.text.PairMatcher;
 
@@ -101,28 +100,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			StatetUIPlugin.logUnexpectedError(x);	// should not happen
 		}
 		return -1;
-	}
-
-	/**
-	 * Looks for the project nature of the editor input.
-	 * @param input the editor input.
-	 * @param id the id of the project nature looking for.
-	 * @return the nature or <code>null</code>.
-	 */
-	protected static IProjectNature getProject(IEditorInput input, String id) {
-		
-		IProjectNature nature = null;
-		if (input != null && input instanceof IFileEditorInput) {
-			IProject project = ((IFileEditorInput)input).getFile().getProject();
-			
-			try {
-				if (project != null & project.hasNature(id))
-					nature = project.getNature(id);
-			} catch (CoreException e) {
-				// pech gehabt
-			}
-		}
-		return nature;
 	}
 
 	
@@ -342,6 +319,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	/** The editor's bracket matcher */
 	private PairMatcher fBracketMatcher;
 	private IEditorAdapter fEditorAdapter = new EditorAdapter();
+	private String fProjectNatureId;
 	private ProjectT fProject;
 	
 	
@@ -362,12 +340,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		setupConfiguration(getProject());
 	}
 	
+	protected void configureStatetProjectNatureId(String id) {
+		
+		fProjectNatureId = id;
+	}
+	
 	/**
 	 * Initialize the extensions of StatextEditor
 	 * 
 	 * @param bracketMatcher a PairMatcher finding the matching brackets, <code>null</code> is allowed. 
 	 */
-	protected void initStatext(PairMatcher bracketMatcher) {
+	protected void configureStatetPairMatching(PairMatcher bracketMatcher) {
 		
 		fBracketMatcher = bracketMatcher;
 	}
@@ -375,7 +358,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	@Override
 	protected void initializeKeyBindingScopes() {
 		
-		setKeyBindingScopes(new String[] { "de.walware.statet.ui.contexts.TextEditorScope" });
+		setKeyBindingScopes(new String[] { "de.walware.statet.base.contexts.TextEditor" }); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -419,8 +402,21 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	 * @param input a editor input.
 	 * @return the project, the input is associated to, or <code>null</code>.
 	 */
+	@SuppressWarnings("unchecked")
 	protected ProjectT getProject(IEditorInput input) {
 		
+		if (fProjectNatureId != null) {
+			if (input != null && input instanceof IFileEditorInput) {
+				IProject project = ((IFileEditorInput)input).getFile().getProject();
+				try {
+					if (project != null & project.hasNature(fProjectNatureId)) {
+						return (ProjectT) project.getNature(fProjectNatureId);
+					}
+				} catch (CoreException e) {
+					// pech gehabt
+				}
+			}
+		}
 		return null;
 	}
 	

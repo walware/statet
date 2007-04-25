@@ -251,7 +251,7 @@ public class InputGroup {
 	
 	public void configureServices(IHandlerService commands, IContextService keys) {
 		
-		keys.activateContext("de.walware.statet.ui.contexts.TextEditorScope");
+		keys.activateContext("de.walware.statet.base.contexts.TextEditor"); //$NON-NLS-1$
 		
 		IAction action;
 		if (fPairMatcher != null) {

@@ -357,7 +357,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
         fTerminateAction = new TerminateToolAction(fConsole.getProcess());
         fCancelAction = new CancelAction(this);
-        pageCommands.activateHandler("de.walware.statet.nico.ui.Cancel", new ActionHandler(fCancelAction));
+        pageCommands.activateHandler("de.walware.statet.nico.commands.Cancel", new ActionHandler(fCancelAction));  //$NON-NLS-1$
         pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
 
 		fOutputCopyAction = TextViewerAction.createCopyAction(fOutputViewer);

@@ -15,7 +15,6 @@ import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -45,19 +44,14 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected void initializeEditor() {
 		
+		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
-		initStatext(new RBracketPairMatcher());
+		configureStatetPairMatching(new RBracketPairMatcher());
 		// help init in #createActions() to avoid default trigger
 		
 		super.initializeEditor();
 	}
 	
-	@Override
-	protected RProject getProject(IEditorInput input) {
-		
-		return (RProject) getProject(input, RProject.NATURE_ID);
-	}
-
 	@Override
 	protected void setupConfiguration(RProject project) {
 		
@@ -71,7 +65,7 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected void initializeKeyBindingScopes() {
 		
-		setKeyBindingScopes(new String[] { "de.walware.statet.r.ui.contexts.REditorScope" }); //$NON-NLS-1$
+		setKeyBindingScopes(new String[] { "de.walware.statet.r.contexts.REditorScope" }); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -79,9 +73,9 @@ public class REditor extends StatextEditor1<RProject> {
 		
 		String[] ids = super.collectContextMenuPreferencePages();
 		String[] more = new String[ids.length + 3];
-		more[0] = "de.walware.statet.r.ui.preferencePages.RSyntaxColoring"; //$NON-NLS-1$
-		more[1] = "de.walware.statet.r.ui.preferencePages.REditorTemplates"; //$NON-NLS-1$
-		more[2] = "de.walware.statet.r.ui.preferencePages.RCodeStyle"; //$NON-NLS-1$
+		more[0] = "de.walware.statet.r.preferencePages.RSyntaxColoring"; //$NON-NLS-1$
+		more[1] = "de.walware.statet.r.preferencePages.REditorTemplates"; //$NON-NLS-1$
+		more[2] = "de.walware.statet.r.preferencePages.RCodeStyle"; //$NON-NLS-1$
 		System.arraycopy(ids, 0, more, 3, ids.length);
 		return more;
 	}

@@ -19,7 +19,7 @@
       <launchConfigurationType
             category="org.eclipse.ui.externaltools"
             delegate="de.walware.statet.r.internal.rserve.launchconfigs.RServeClientLaunchConfigDelegate"
-            id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"
+            id="de.walware.statet.r.launchConfigurationTypes.RServeClient"
             modes="run"
             name="%LaunchConfiguration_RServeClient_name"
             public="true"/>
@@ -29,15 +29,15 @@
       <launchConfigurationTabGroup
             class="de.walware.statet.r.internal.rserve.launchconfigs.RServeClientLaunchConfigTabGroup"
             description="%LaunchConfiguration_RServeClient_description"
-            id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationTabGroup"
-            type="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"/>
+            id="de.walware.statet.r.launchConfigurationTabGroups.RServeClient"
+            type="de.walware.statet.r.launchConfigurationTypes.RServeClient"/>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            configTypeID="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationType"
+            configTypeID="de.walware.statet.r.launchConfigurationTypes.RServeClient"
             icon="icons/tool_16/rserve-client.png"
-            id="de.walware.statet.r.rserve.launching.RServeClientLaunchConfigurationTypeImage"/>
+            id="de.walware.statet.r.launchConfigurationTypes.RServeClientImage"/>
    </extension>
 
 </plugin>

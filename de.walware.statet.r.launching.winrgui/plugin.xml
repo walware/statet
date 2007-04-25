@@ -18,7 +18,7 @@
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
-      		id="de.walware.statet.r.launching.RGWLauncher"
+      		id="de.walware.statet.r.rCodeLaunchConnector.RGuiWin"
             class="de.walware.statet.r.launching.winrgui.RGWLauncher"
             description="%rConnector.description"
             name="%rConnector.name"/>

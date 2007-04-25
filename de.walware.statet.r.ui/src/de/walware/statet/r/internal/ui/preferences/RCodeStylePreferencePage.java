@@ -22,7 +22,7 @@ import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
  */
 public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeStylePreferenceBlock> {
 
-	public static final String PREF_ID = "de.walware.statet.r.ui.preferencePages.RCodeStyle"; //$NON-NLS-1$
+	public static final String PREF_ID = "de.walware.statet.r.preferencePages.RCodeStyle"; //$NON-NLS-1$
 
 	
 	@Override

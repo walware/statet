@@ -19,21 +19,21 @@
       <initializer class="de.walware.statet.r.internal.core.RCorePreferenceInitializer"/>
    </extension>
    <extension
-         id="RNature"
+         id="de.walware.statet.r.RNature"
          name="R Project Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run class="de.walware.statet.r.core.RProject"/>
       </runtime>
-      <requires-nature id="de.walware.statet.base.core.StatetNature"/>
-      <builder id="de.walware.statet.r.core.RInternalBuilder"/>
+      <requires-nature id="de.walware.statet.base.StatetNature"/>
+      <builder id="de.walware.statet.r.builders.RSupport"/>
    </extension>
    <extension
          point="org.eclipse.core.runtime.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-extensions="R"
-            id="RContent"
+            id="de.walware.statet.r.contentTypes.R"
             name="%contentTypes.R.name"
             priority="normal">
          <property name="bom"/>
@@ -41,25 +41,35 @@
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-extensions="Rd"
-            id="RdContent"
+            id="de.walware.statet.r.contentTypes.Rd"
             name="%contentTypes.Rd.name"
             priority="normal">
          <property name="bom"/>
       </content-type>
    </extension>
    <extension
-         id="TaskMarker"
+         id="de.walware.statet.r.markers.Tasks"
          name="%markers.Task.name"
          point="org.eclipse.core.resources.markers">
       <super type="org.eclipse.core.resources.taskmarker"/>
       <persistent value="true"/>
    </extension>
    <extension
-         id="RInternalBuilder"
+         id="de.walware.statet.r.core.RInternalBuilder"
+         name="Compatibility Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="true"
+            hasNature="false">
+         <run class="de.walware.statet.r.internal.core.RCompatibilityBuilder"/>
+      </builder>
+   </extension>
+   <extension
+         id="de.walware.statet.r.builders.RSupport"
          name="%builders.RInternalBuilder.name"
          point="org.eclipse.core.resources.builders">
       <builder hasNature="true">
-         <run class="de.walware.statet.r.internal.core.RInternalBuilder"/>
+         <run class="de.walware.statet.r.internal.core.RSupportBuilder"/>
       </builder>
    </extension>
    <extension

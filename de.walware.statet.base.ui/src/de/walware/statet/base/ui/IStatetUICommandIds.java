@@ -13,7 +13,7 @@ package de.walware.statet.base.ui;
 
 
 /**
- * Defines the action definition IDs for the editor actions.
+ * Defines the commandIds (= action definition IDs).
  * 
  * <p>
  * This interface is not intended to be implemented or extended.
@@ -27,13 +27,13 @@ public interface IStatetUICommandIds {
 	 * 
 	 * Value: @value
 	 */
-	public static final String GOTO_MATCHING_BRACKET = 	"de.walware.statet.ui.textediting.navigate.GotoMatchingBracket"; //$NON-NLS-1$
+	public static final String GOTO_MATCHING_BRACKET = 	"de.walware.statet.base.commands.GotoMatchingBracket"; //$NON-NLS-1$
 	
 	/**
 	 * Action definition ID of the source -> toggle comment action
 	 * 
 	 * Value: @value
 	 */
-	public static final String TOGGLE_COMMENT = 		"de.walware.statet.ui.textediting.source.ToggleComment";
+	public static final String TOGGLE_COMMENT = 		"de.walware.statet.base.commands.ToggleComment";
 	
 }

@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.ui.editors;
 
-import org.eclipse.ui.IEditorInput;
-
 import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
 import de.walware.statet.base.ui.StatetUIServices;
@@ -35,16 +33,11 @@ public class RdEditor extends StatextEditor1<RProject> {
 	@Override
 	protected void initializeEditor() {
 
+		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
-		initStatext(new PairMatcher(BRACKETS, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, IRDocumentPartitions.R_DEFAULT, '\\'));
+		configureStatetPairMatching(new PairMatcher(BRACKETS, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, IRDocumentPartitions.R_DEFAULT, '\\'));
 		
 		super.initializeEditor();
-	}
-	
-	@Override
-	protected RProject getProject(IEditorInput input) {
-		
-		return (RProject) getProject(input, RProject.NATURE_ID);
 	}
 	
 	protected void setupConfiguration(RProject project) {
@@ -61,7 +54,7 @@ public class RdEditor extends StatextEditor1<RProject> {
 		
 		String[] ids = super.collectContextMenuPreferencePages();
 		String[] more = new String[ids.length + 1];
-		more[0]= "de.walware.statet.r.ui.preferencePages.RdSyntaxColoring"; //$NON-NLS-1$
+		more[0]= "de.walware.statet.r.preferencePages.RdSyntaxColoring"; //$NON-NLS-1$
 		System.arraycopy(ids, 0, more, 1, ids.length);
 		return more;
 	}

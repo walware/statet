@@ -17,7 +17,7 @@
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
-            id="de.walware.statet.r.xterm.XTermPipeConnector"
+            id="de.walware.statet.r.rCodeLaunchConnector.XTermPipe"
             class="de.walware.statet.r.xterm.NamedPipeConnector"
             name="%rConnector_XTerm_name"
             description="%rConnector_XTerm_description"

@@ -48,10 +48,10 @@ import de.walware.statet.r.internal.core.builder.RParser;
 import de.walware.statet.r.internal.core.builder.RdParser;
 
 
-public class RInternalBuilder extends IncrementalProjectBuilder {
+public class RSupportBuilder extends IncrementalProjectBuilder {
 
 	
-	public static final String ID = "de.walware.statet.r.core.RInternalBuilder";
+	public static final String ID = "de.walware.statet.r.builders.RSupport";  //$NON-NLS-1$
 	
 	
 	static class ExceptionCollector {
@@ -145,7 +145,7 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 	private boolean fInitialized = false;
 	
 	
-	public RInternalBuilder() {
+	public RSupportBuilder() {
 
 		super();
 	}
@@ -159,6 +159,7 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected void startupOnInitialize() {
 
+		fStartupSuccessfull = false;
 		super.startupOnInitialize();
 
 		// Listen to preference changes
@@ -166,9 +167,11 @@ public class RInternalBuilder extends IncrementalProjectBuilder {
 			fSettingsListener = new SettingsListener();
 			
 			fRProject = (RProject) getProject().getNature(RProject.NATURE_ID);
+			if (fRProject == null) {
+				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "R Project Nature is missing", null));
+			}
 			IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER);
-			
 			for (IEclipsePreferences node : nodes) {
 				node.addPreferenceChangeListener(fSettingsListener);
 			}

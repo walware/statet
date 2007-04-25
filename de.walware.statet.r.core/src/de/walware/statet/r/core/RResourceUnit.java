@@ -23,8 +23,8 @@ import de.walware.statet.base.core.StatetProject;
 public class RResourceUnit {
 
 	
-	public static final String R_CONTENT = "de.walware.statet.r.core.RContent";
-	public static final String RD_CONTENT = "de.walware.statet.r.core.RdContent";
+	public static final String R_CONTENT = "de.walware.statet.r.contentTypes.R"; //$NON-NLS-1$
+	public static final String RD_CONTENT = "de.walware.statet.r.contentTypes.Rd"; //$NON-NLS-1$
 	
 	
 //	private String fElementStorageName;

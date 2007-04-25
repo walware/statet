@@ -19,7 +19,7 @@
       <initializer class="de.walware.statet.base.internal.core.BaseCorePreferenceInitializer"/>
    </extension>
    <extension
-         id="StatetNature"
+         id="de.walware.statet.base.StatetNature"
          name="StatET Project Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>

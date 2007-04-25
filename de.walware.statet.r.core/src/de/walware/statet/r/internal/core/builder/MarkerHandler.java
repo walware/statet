@@ -28,8 +28,9 @@ import de.walware.statet.r.core.RProject;
 public class MarkerHandler {
 
 	
-	public static final String TASK_MARKER_ID = "de.walware.statet.r.core.TaskMarker";
+	public static final String TASK_MARKER_ID = "de.walware.statet.r.markers.Tasks"; //$NON-NLS-1$
 
+	
 	private RProject fProject;
 	
 	private Pattern fTaskTagPattern;

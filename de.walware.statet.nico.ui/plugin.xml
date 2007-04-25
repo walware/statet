@@ -22,17 +22,17 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="true"
-            category="de.walware.statet.ui.views.StatetCategory"
+            category="de.walware.statet.base.views.StatetCategory"
             class="de.walware.statet.nico.ui.views.HistoryView"
             icon="icons/view_16/history.png"
-            id="de.walware.statet.ui.views.HistoryView"
+            id="de.walware.statet.nico.views.HistoryView"
             name="%views_History_name"/>
       <view
            allowMultiple="true"
-           category="de.walware.statet.ui.views.StatetCategory"
+           category="de.walware.statet.base.views.StatetCategory"
            class="de.walware.statet.nico.ui.views.QueueView"
            icon="icons/view_16/queue.png"
-           id="de.walware.statet.ui.views.QueueView"
+           id="de.walware.statet.nico.views.QueueView"
            name="%views_Queue_name"/>
 
    </extension>
@@ -48,18 +48,18 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            id="de.walware.statet.nico.ui.Cancel"
+            id="de.walware.statet.nico.commands.Cancel"
             name="%commands_Cancel_name"/>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="de.walware.statet.nico.ui.Cancel"
+            commandId="de.walware.statet.nico.commands.Cancel"
             contextId="org.eclipse.debug.ui.console"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="BREAK"/>
       <key
-            commandId="de.walware.statet.nico.ui.Cancel"
+            commandId="de.walware.statet.nico.commands.Cancel"
             contextId="org.eclipse.debug.ui.console"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+BREAK"/>

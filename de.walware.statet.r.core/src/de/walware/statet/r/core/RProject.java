@@ -20,13 +20,13 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.core.StatextProject;
-import de.walware.statet.r.internal.core.RInternalBuilder;
+import de.walware.statet.r.internal.core.RSupportBuilder;
 
 
 public class RProject extends StatextProject {
 
 	
-	public static final String NATURE_ID = "de.walware.statet.r.core.RNature";
+	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
 	
 	
 	public RProject() {
@@ -40,6 +40,7 @@ public class RProject extends StatextProject {
 	public void configure() throws CoreException {
 
 		addBuilders();
+
 	}
 
 	public void deconfigure() throws CoreException {
@@ -59,7 +60,7 @@ public class RProject extends StatextProject {
 /* **/
 	public void addBuilders() throws CoreException {
 		
-		String builderId = RInternalBuilder.ID;
+		String builderId = RSupportBuilder.ID;
 		
 		IProjectDescription description = fProject.getDescription();
 		ICommand[] existingCommands = description.getBuildSpec();
@@ -81,7 +82,7 @@ public class RProject extends StatextProject {
 	
 	public void removeBuilders() throws CoreException {
 
-		String builderId = RInternalBuilder.ID;
+		String builderId = RSupportBuilder.ID;
 		
 		IProjectDescription description = getProject().getDescription();
 		ICommand[] existingCommands = description.getBuildSpec();
