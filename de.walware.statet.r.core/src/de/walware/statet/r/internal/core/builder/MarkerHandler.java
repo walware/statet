@@ -94,30 +94,30 @@ public class MarkerHandler {
 			return;
 
 		fTaskTagMap = new HashMap<String, TaskPriority>(tags.length);
-		StringBuilder regex = new StringBuilder("[^\\p{L}](");
+		String separatorRegex = "[^\\p{L}\\p{N}]"; //$NON-NLS-1$
+		StringBuilder regex = new StringBuilder(separatorRegex);
+		regex.append('('); //$NON-NLS-1$
 		for (int i = 0; i < tags.length; i++) {
-			if (tags[i].length() > 0) {
-				String tagName = tags[i];
-				regex.append(tagName);
-				regex.append('|');
-				fTaskTagMap.put(tagName, prios[i]);
-			}
+			String tagName = tags[i];
+			regex.append(Pattern.quote(tagName));
+			regex.append('|'); //$NON-NLS-1$
+			fTaskTagMap.put(tagName, prios[i]);
 		}
-		if (fTaskTagMap.size() > 0) {
-			regex.setCharAt(regex.length()-1, ')');
-			fTaskTagPattern = Pattern.compile(regex.toString());
-		}
+		regex.setCharAt(regex.length()-1, ')'); //$NON-NLS-1$
+		regex.append("(?:\\z|").append(separatorRegex).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+		fTaskTagPattern = Pattern.compile(regex.toString());
 	}
 	
 	
 	public void checkForTasks(String content, int offset, ILineResolver lines) throws CoreException {
 
-		Matcher matcher = fTaskTagPattern.matcher(content);
-		if (matcher.find()) {
-			int start = matcher.start(1);
-			String text = content.substring(start);
-			addTaskMarker(text, offset+start, lines.getLineOfOffset(offset)+1, matcher.group(1));
+		if (fTaskTagPattern != null) {
+			Matcher matcher = fTaskTagPattern.matcher(content);
+			if (matcher.find()) {
+				int start = matcher.start(1);
+				String text = content.substring(start);
+				addTaskMarker(text, offset+start, lines.getLineOfOffset(offset)+1, matcher.group(1));
+			}
 		}
-		
 	}
 }
