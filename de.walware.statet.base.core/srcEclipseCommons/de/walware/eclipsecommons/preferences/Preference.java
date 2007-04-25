@@ -101,6 +101,21 @@ public abstract class Preference<T> {
 		
 		return fQualifier + '/' + fKey;
 	}
+	
+	@Override
+	public int hashCode() {
+		
+		return toString().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+		if (obj.getClass() == getClass()) {
+			return obj.toString().equals(toString());
+		}
+		return false;
+	}
 
 	
 /*-- Implementation for common types -----------------------------------------*/	
@@ -383,7 +398,11 @@ public abstract class Preference<T> {
 		@Override
 		public String[] store2Usage(Object storedValue) {
 			
-			return LIST_SEPARATOR_PATTERN.split((String) storedValue);
+			String s = (String) storedValue;
+			if (s.length() == 0) {
+				return new String[0];
+			}
+			return LIST_SEPARATOR_PATTERN.split(s);
 		}
 		@Override
 		public String usage2Store(String[] array) {
