@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,15 +58,15 @@ public class RTokens {
 	};
 	
 	public static final String[] DEFAULT_OPERATORS = {
-			"+", "-", "*", "/", "%%", "^", 			// arithmetic
+			"+", "-", "*", "/", "^", "%%", "%/%",	// arithmetic
 			">", ">=", "<", "<=", "==", "!=", 		// relational
-			"!", "&", "|", 							// logical
+			"!", "&", "&&", "|", "||",				// logical
 			"~", 									// model formulae
 			":",									// sequence
 	};
 	
-	public static final String[] PREDIFINED_USERDEFINED_INFIXS = {
-			// "%%", 
+	public static final String[] PREDIFINED_INFIX_OPERATORS = {
+			"%%", 
 			"%*%", "%/%", "%in%", "%o%", "%x%",
 	};
 	
@@ -124,16 +124,19 @@ public class RTokens {
 	
 	public static boolean isRobustSeparator(int c, boolean isDotSeparator) {
 		return ( (c == '.')? isDotSeparator :
-				(!isLetter(c) && !isDigit(c)) );
+				(!Character.isLetter(c) && c != '_' && !isDigit(c)) );
 	}
 
 	public static boolean isDigit(int c) {
-		return (c >= 48 && c <= 57);
+		return (c >= 0x30 && c <= 0x39);
 	}
 	
-	public static boolean isLetter(int c) {
-		return (Character.isLetter((char)c) || c == '_');
+	public static boolean isHexDigit(int c) {
+		return ( c >= 0x30 && (c <= 0x39 || 		// 0-9
+				(c >= 0x41 && (c <= 0x46 ||			// A-F
+				(c >= 0x61 && c <= 0x66) ))));		// a-f
 	}
+	
 
 	public static int PERIOD = 46;
 	

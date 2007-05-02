@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,15 @@ public class RBracketPairMatcher extends PairMatcher {
 	
 	public RBracketPairMatcher() {
 		
+		this(new RHeuristicTokenScanner());
+	}
+
+	public RBracketPairMatcher(RHeuristicTokenScanner scanner) {
+		
 		super(BRACKETS, 
-				IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, 
-				IRDocumentPartitions.R_DEFAULT);
+				IRDocumentPartitions.R_DOCUMENT_PARTITIONING, 
+				IRDocumentPartitions.R_DEFAULT,
+				scanner,
+				(char) 0);
 	}
 }

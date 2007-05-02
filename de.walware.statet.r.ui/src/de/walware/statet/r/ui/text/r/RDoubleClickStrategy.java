@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.r.ui.IRDocumentPartitions;
-import de.walware.statet.r.ui.RUIUtil;
 
 
 /**
@@ -33,14 +32,16 @@ import de.walware.statet.r.ui.RUIUtil;
 public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 
 	private static final String PARTITIONING = IRDocumentPartitions.R_DOCUMENT_PARTITIONING;
-	private static final char[][] BRACKETS = { {'{', '}'}, {'(', ')'}, {'[', ']'} };
+
 	
-	protected PairMatcher fPairMatcher;
+	private PairMatcher fPairMatcher;
+	private RHeuristicTokenScanner fScanner;
+	
 	
 	public RDoubleClickStrategy() {
 		super();
-		fPairMatcher = new PairMatcher(BRACKETS, 
-				PARTITIONING, IRDocumentPartitions.R_DEFAULT);
+		fScanner = new RHeuristicTokenScanner();
+		fPairMatcher = new RBracketPairMatcher(fScanner);
 	}
 	
 	/**
@@ -77,12 +78,18 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				if (offset == partitionOffset || offset == partitionOffset+1
 						|| offset == partitionEnd || offset == partitionEnd-1) {
 					textViewer.setSelectedRange(partitionOffset + 1, partition.getLength() - 2);
-					return;
 				} else {
-					IRegion region = RUIUtil.getDefaultWord(document, offset);
-					textViewer.setSelectedRange(region.getOffset(), region.getLength());
+					fScanner.configure(document, null);
+					IRegion region = fScanner.findCommonWord(offset);
+					if (region != null) {
+						textViewer.setSelectedRange(region.getOffset(), region.getLength());
+					}
+					else {
+						textViewer.setSelectedRange(offset, 0);
+					}
 				}
-			} else
+				return;
+			}
 			// Start in Comment-Partitions
 			if (IRDocumentPartitions.R_COMMENT.equals(type)) {
 				int partitionOffset = partition.getOffset();
@@ -90,6 +97,10 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 					textViewer.setSelectedRange(partitionOffset, partition.getLength());
 					return;
 				}
+			}
+			if (IRDocumentPartitions.R_INFIX_OPERATOR.equals(type)) {
+				textViewer.setSelectedRange(partition.getOffset(), partition.getLength());
+				return;
 			}
 			// Spezialfall: End String-Partition 
 			if (partition.getOffset() == offset && offset > 0 
@@ -99,12 +110,23 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				textViewer.setSelectedRange(partition.getOffset() + 1, partition.getLength() - 2);
 				return;
 			}
+
+			fScanner.configure(document, null);
+			IRegion region = fScanner.findRWord(offset, true);
+			if (region != null) {
+				textViewer.setSelectedRange(region.getOffset(), region.getLength());
+				return;
+			}
+			region = fScanner.findHorizontalWhitespace(offset);
+			if (region != null) {
+				textViewer.setSelectedRange(region.getOffset(), region.getLength());
+				return;
+			}
 		} catch (BadLocationException e) {
 		} catch (NullPointerException e) {
 		}
 		// else
-		IRegion region = RUIUtil.getRWord(document, offset, false);
-		textViewer.setSelectedRange(region.getOffset(), region.getLength());
+		textViewer.setSelectedRange(offset, 0);
 	}
 	
 }

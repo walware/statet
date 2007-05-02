@@ -22,9 +22,9 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
@@ -40,6 +40,7 @@ import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProces
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RCodeScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
+import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
 
 
 /**
@@ -61,15 +62,16 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	
 	private RCodeScanner fCodeScanner;
+	private RInfixOperatorScanner fInfixScanner;
 	private CommentScanner fCommentScanner;
 	private SingleTokenScanner fStringScanner;
 	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	
-	private ITextEditor fEditor;
+	private REditor fEditor;
 
 	
-	public RSourceViewerConfiguration(ITextEditor editor, 
+	public RSourceViewerConfiguration(REditor editor, 
 			ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
 
 		super(colorManager, preferenceStore);
@@ -83,12 +85,13 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 		ICombinedPreferenceStore store = getPreferences();
 		fCodeScanner = new RCodeScanner(fColorManager, store);
+		fInfixScanner = new RInfixOperatorScanner(fColorManager, store);
 		fCommentScanner = new CommentScanner(fColorManager, store, IRTextTokens.COMMENT, IRTextTokens.TASK_TAG);
 		fStringScanner = new SingleTokenScanner(fColorManager, store, IRTextTokens.STRING);
 		
 		fDoubleClickStrategy = new RDoubleClickStrategy();
 		
-		return new StatextTextScanner[] { fCodeScanner, fCommentScanner, fStringScanner };
+		return new StatextTextScanner[] { fCodeScanner, fInfixScanner, fCommentScanner, fStringScanner };
 	}
 
 	
@@ -119,6 +122,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
 
+		dr = new DefaultDamagerRepairer(fInfixScanner);
+		reconciler.setDamager(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
+		reconciler.setRepairer(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
+		
 		dr = new DefaultDamagerRepairer(fStringScanner);
 		reconciler.setDamager(dr, IRDocumentPartitions.R_STRING);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_STRING);

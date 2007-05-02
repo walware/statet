@@ -33,13 +33,10 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	
 	
 	/** Enum of states of the scanner. */	
-	private static enum State { DEFAULT, STRING, COMMENT };
+	private static enum State { DEFAULT, INFIX, STRING, COMMENT };
 	
 	/** Enum of last significant characters read. */
 	private static enum Last { NONE, BACKSLASH };
-	
-	private static final char[] STRING_CHARS = { '\"', '\'' };
-	private static final char COMMENT_CHAR = '#';
 	
 	
 	/** The scanner. */
@@ -51,8 +48,10 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	private int fTokenLength;
 	
 	private State fStartPartitionState = State.DEFAULT;
-	/** The state of the scanner. */	
+	/** The current state of the scanner. */	
 	private State fState;
+	/** The new state switch of the scanner. */	
+	private State fNewState;
 	/** The last significant characters read. */
 	private Last fLast;
 	/** The amount of characters already read on first call to nextToken(). */
@@ -64,6 +63,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 
 	{	
 		fTokens.put(State.DEFAULT, new Token(null));
+		fTokens.put(State.INFIX, new Token(IRDocumentPartitions.R_INFIX_OPERATOR));
 		fTokens.put(State.STRING, new Token(IRDocumentPartitions.R_STRING));
 		fTokens.put(State.COMMENT, new Token(IRDocumentPartitions.R_COMMENT));
 	}
@@ -111,10 +111,10 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		fTokenLength = fPrefixLength;
 		
 		CHECK_NEXT: while (true) {
-			final int ch = fScanner.read();
+			final int c = fScanner.read();
 			
 			// characters
-	 		switch (ch) {
+	 		switch (c) {
 	 		case ICharacterScanner.EOF:
 	 			fLast = Last.NONE;
 	 			fPrefixLength = 0;
@@ -128,7 +128,9 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	 		case '\n':
 				switch (fState) {
 				case COMMENT:
-					return preFinish(fState, State.DEFAULT, Last.NONE, 1);
+				case INFIX:
+					fNewState = State.DEFAULT;
+					return preFinish(Last.NONE, 1);
 
 				default:
 					consume(Last.NONE);
@@ -139,31 +141,40 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	 		
 	 		switch (fState) {
 	 		case DEFAULT:
-	 			// String-Beginn?
-	 			for (int i = 0; i < STRING_CHARS.length; i++) {
-	 				if (ch == STRING_CHARS[i]) {
-	 					fEndChar = STRING_CHARS[i];
-						if (fTokenLength > 0) {
-							return preFinish(fState, State.STRING, Last.NONE, 1);
-						} else {
-							prepareNew(State.STRING, Last.NONE, 1);
-							continue CHECK_NEXT;
-						}
-	 				}
+	 			switch (c) {
+	 			case '"':
+	 				fEndChar = '"';
+	 				fNewState = State.STRING;
+	 				break;
+	 			case '\'':
+	 				fEndChar = '\'';
+	 				fNewState = State.STRING;
+	 				break;
+	 			case '#':
+	 				fNewState = State.COMMENT;
+	 				break;
+	 			case '%':
+	 				fNewState = State.INFIX;
+	 				break;
+	 			default:
+		 			// Standard
+					consume(Last.NONE);
+					continue CHECK_NEXT;
 	 			}
-	 			// Kommentar-Beginn?
-	 			if (ch == COMMENT_CHAR) {
-					if (fTokenLength > 0) {
-						return preFinish(fState, State.COMMENT, Last.NONE, 1);
-					} else {
-						prepareNew(State.COMMENT, Last.NONE, 1);
-						continue CHECK_NEXT;
-					}
+				if (fTokenLength > 0) {
+					return preFinish(Last.NONE, 1);
+				} else {
+					prepareNew(Last.NONE, 1);
+					continue CHECK_NEXT;
+				}
+			
+	 		case INFIX:
+	 			if (c == '%') {
+	 				return postFinish();
 	 			}
-	 			// Standard
 				consume(Last.NONE);
 				continue CHECK_NEXT;
-	 		
+	 			
 	 		case STRING:
 	 			// Escaped?
 		 	    if (fLast == Last.BACKSLASH) {
@@ -171,13 +182,13 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 					continue CHECK_NEXT;
 	 			}
 		 	    // Backslash?
-		 	    if (ch == '\\') {
+		 	    if (c == '\\') {
 		 	    	consume(Last.BACKSLASH);
 		 	    	continue CHECK_NEXT;
 		 	    }
 		 	    // String Ende?
-		 	    if (ch == fEndChar) {
-		 	    	return postFinish(State.STRING);
+		 	    if (c == fEndChar) {
+		 	    	return postFinish();
 		 	    }
 	 			// Standard
 				consume(Last.NONE);
@@ -192,29 +203,35 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
  	}
 
 	private final void consume(Last last) {
+		
 		fTokenLength++;
 		fLast = last;	
 	}
 	
-	private final IToken postFinish(State state) {
+	private final IToken postFinish() {
+		
+		IToken token = fTokens.get(fState);
 		fTokenLength++;
 		fLast = Last.NONE;
 		fState = State.DEFAULT;
 		fPrefixLength = 0;		
-		return fTokens.get(state);
+		return token;
 	}
 
-	private final IToken preFinish(State state, State newState, Last last, int prefixLength) {
+	private final IToken preFinish(Last last, int prefixLength) {
+		
+		IToken token = fTokens.get(fState);
 		fLast = last;
-		fState = newState;
+		fState = fNewState;
 		fTokenLength -= (prefixLength-1);
 		fPrefixLength = prefixLength;
-		return fTokens.get(state);
+		return token;
 	}
 
-	private final void prepareNew(State newState, Last last, int prefixLength) {
+	private final void prepareNew(Last last, int prefixLength) {
+		
 		fLast = last;
-		fState = newState;
+		fState = fNewState;
 		fTokenOffset += fTokenLength - (prefixLength-1);
 		fTokenLength = prefixLength;
 		fPrefixLength = 0;
@@ -222,24 +239,29 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 
 	private static State getState(String contentType) {
 
-		if (contentType == null)
+		if (contentType == null) {
 			return State.DEFAULT;
-
-		else if (contentType.equals(IRDocumentPartitions.R_STRING))
+		}
+		else if (contentType.equals(IRDocumentPartitions.R_STRING)) {
 			return State.STRING;
-		
-		else if (contentType.equals(IRDocumentPartitions.R_COMMENT))
+		}
+		else if (contentType.equals(IRDocumentPartitions.R_COMMENT)) {
 			return State.COMMENT;
-
+		}
+		else if (contentType.equals(IRDocumentPartitions.R_INFIX_OPERATOR)) {
+			return State.INFIX;
+		}
 		return State.DEFAULT;
 	}
 	
 	
 	public int getTokenLength() {
+		
 		return fTokenLength;
 	}
 
 	public int getTokenOffset() {
+		
 		return fTokenOffset;
 	}
 

@@ -34,7 +34,7 @@ import org.eclipse.ui.IWorkbenchPart3;
 import org.eclipse.ui.editors.text.TextEditor;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.RUIUtil;
+import de.walware.statet.r.ui.text.r.RHeuristicTokenScanner;
 
 
 /**
@@ -105,8 +105,10 @@ public class EnrichedRHelpContext implements IContext3 {
 		}
 		private String getPlaintextFromDocument(IDocument document, ISelectionProvider selectionProvider) throws BadLocationException {
 			ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
-			IRegion region = RUIUtil.getRWord(document, textSelection.getOffset(), false);
-			if (region.getLength() > 0) {
+			RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
+			scanner.configure(document, null);
+			IRegion region = scanner.findRWord(textSelection.getOffset(), false);
+			if (region != null) {
 				return document.get(region.getOffset(), region.getLength());
 			}
 			return null;

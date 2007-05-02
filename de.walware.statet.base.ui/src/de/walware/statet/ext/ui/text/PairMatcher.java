@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -121,34 +121,34 @@ public class PairMatcher implements ICharacterPairMatcher {
 
 		// get the chars preceding and following the start position
 		try {
-
+			ITypedRegion thisPartition = TextUtilities.getPartition(fDocument, fPartitioning, fOffset, false);
+			if (!fPartition.equals(thisPartition.getType())) {
+				return false;
+			}
+			ITypedRegion prevPartition = (fOffset > 0) ? TextUtilities.getPartition(fDocument, fPartitioning, fOffset-1, false) : null;
+			
 			char thisChar = (fOffset < fDocument.getLength()) ? 
 					fDocument.getChar(fOffset) : IGNORE;
-			char prevChar = (fOffset > 0 && fPartition.equals(TextUtilities.getPartition(fDocument, fPartitioning, fOffset-1, false).getType())) ? 
-					fDocument.getChar(fOffset-1) : IGNORE;
-					
-			if (fOffset > 0) {
-				ITypedRegion partition = TextUtilities.getPartition(fDocument, fPartitioning, fOffset-1, false);
-				if (fPartition.equals(partition.getType())) {
-					prevChar = fDocument.getChar(fOffset-1);
-					
-					// check, if escaped
-					int partitionOffset = partition.getOffset();
-					int checkOffset = fOffset-2;
-					while (checkOffset >= partitionOffset) {
-						if (fDocument.getChar(checkOffset) == fEscapeChar) {
-							checkOffset--;
-						}
-						else {
-							break;
-						}
+			char prevChar = IGNORE;
+			
+			// check, if escaped
+			if (prevPartition != null && fPartition.equals(prevPartition.getType())) {
+				prevChar = fDocument.getChar(fOffset-1);
+				int partitionOffset = prevPartition.getOffset();
+				int checkOffset = fOffset-2;
+				while (checkOffset >= partitionOffset) {
+					if (fDocument.getChar(checkOffset) == fEscapeChar) {
+						checkOffset--;
 					}
-					if ( (fOffset - checkOffset) % 2 == 1) {
-						prevChar = IGNORE;
+					else {
+						break;
 					}
-					else if (prevChar == fEscapeChar) {
-						thisChar = IGNORE;
-					}
+				}
+				if ( (fOffset - checkOffset) % 2 == 1) {
+					prevChar = IGNORE;
+				}
+				else if (prevChar == fEscapeChar) {
+					thisChar = IGNORE;
 				}
 			}
 

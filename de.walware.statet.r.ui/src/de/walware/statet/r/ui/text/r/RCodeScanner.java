@@ -28,7 +28,7 @@ import de.walware.statet.r.core.rlang.RTokens;
 
 
 /**
- * Scanner for usual R code.
+ * Scanner for usual R code (except: strings, infix-operator).
  *  
  * @author Stephan Wahlbrink
  */
@@ -68,7 +68,6 @@ public class RCodeScanner extends StatextTextScanner {
 		opRule.addOps(RTokens.SEPARATORS, tSeparators);
 		opRule.addOps(RTokens.ASSIGNMENT_OPERATORS, tAssignmentOperators);
 		opRule.addOps(RTokens.DEFAULT_OPERATORS, tOtherOperators);
-		opRule.addOps(RTokens.PREDIFINED_USERDEFINED_INFIXS, tOtherOperators);
 		opRule.addOps(RTokens.GROUPING, tGrouping);
 		opRule.addOps(RTokens.SUBELEMENT_ACCESS, tSubelement);
 		opRule.addOps(RTokens.NAMESPACE_ACCESS, tSubelement);

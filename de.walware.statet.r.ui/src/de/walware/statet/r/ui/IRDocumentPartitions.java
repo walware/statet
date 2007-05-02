@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,12 @@ public interface IRDocumentPartitions {
 	String R_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
 
 	/**
+	 * The name of a infix operator partition in R documents.
+	 * Value: {@value}
+	 */
+	String R_INFIX_OPERATOR = "__r_op_infix";
+
+	/**
 	 * The name of a string partition in R documents.
 	 * Value: {@value}
 	 */
@@ -48,7 +54,7 @@ public interface IRDocumentPartitions {
 	 * Array with partitions of R-documents.
 	 */
 	String[] R_PARTITIONS = new String[] {
-			R_DEFAULT, R_STRING, R_COMMENT
+			R_DEFAULT, R_INFIX_OPERATOR, R_STRING, R_COMMENT
 	};
 	
 	
