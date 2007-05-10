@@ -70,6 +70,11 @@
             description="%commands.ToggleComment.description"
             id="de.walware.statet.base.commands.ToggleComment"
             name="%commands.ToggleComment.name"/>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            description="%commands.InsertAssignment.description"
+            id="de.walware.statet.base.commands.InsertAssignment"
+            name="%commands.InsertAssignment.name"/>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -83,6 +88,16 @@
             contextId="de.walware.statet.base.contexts.TextEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M2+C"/>
+      <key
+            commandId="de.walware.statet.base.commands.InsertAssignment"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+&lt;"/>
+      <key
+            commandId="de.walware.statet.base.commands.InsertAssignment"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+="/>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,17 +23,24 @@ public interface IStatetUICommandIds {
 
 	
 	/**
-	 * Action definition ID of the navigate -> go to matching bracket action
+	 * Action definition ID of the 'navigate' &gt; 'go to matching bracket' action
 	 * 
 	 * Value: @value
 	 */
 	public static final String GOTO_MATCHING_BRACKET = 	"de.walware.statet.base.commands.GotoMatchingBracket"; //$NON-NLS-1$
 	
 	/**
-	 * Action definition ID of the source -> toggle comment action
+	 * Action definition ID of the 'source' &gt; 'toggle comment' action
 	 * 
 	 * Value: @value
 	 */
-	public static final String TOGGLE_COMMENT = 		"de.walware.statet.base.commands.ToggleComment";
+	public static final String TOGGLE_COMMENT = 		"de.walware.statet.base.commands.ToggleComment"; //$NON-NLS-1$
+	
+	/**
+	 * Action definition ID of the 'insert assignment' action
+	 * 
+	 * Value: @value
+	 */
+	public static final String INSERT_ASSIGNMENT =      "de.walware.statet.base.commands.InsertAssignment"; //$NON-NLS-1$
 	
 }

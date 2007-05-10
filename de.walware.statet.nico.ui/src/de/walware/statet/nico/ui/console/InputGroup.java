@@ -83,6 +83,11 @@ public class InputGroup {
 			}
 		}
 		
+		public boolean isEditable(boolean validate) {
+			
+			return true;
+		}
+		
 		protected void cleanStatusLine() {
 			
 			if (fMessageSetted) {

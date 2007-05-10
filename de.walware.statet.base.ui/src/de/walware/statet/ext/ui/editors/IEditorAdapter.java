@@ -30,4 +30,10 @@ public interface IEditorAdapter {
 	 */
 	public void setStatusLineErrorMessage(String message);
 
+	/**
+	 * Returns whether the text in this text editor (SourceViewer) can be changed by the user.
+	 *
+	 * @return <code>true</code> if it can be edited, and <code>false</code> if it is read-only
+	 */
+	public boolean isEditable(boolean validate);
 }

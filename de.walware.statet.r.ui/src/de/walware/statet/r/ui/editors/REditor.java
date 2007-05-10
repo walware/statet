@@ -23,6 +23,7 @@ import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.EditorMessages;
+import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -98,6 +99,10 @@ public class REditor extends StatextEditor1<RProject> {
 				EditorMessages.getCompatibilityBundle(), "ContentAssistProposal_", this); //$NON-NLS-1$
         action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
         setAction("ContentAssistProposal", action); //$NON-NLS-1$
+        
+        action = new InsertAssignmentAction((IEditorAdapter) getAdapter(IEditorAdapter.class));
+        setAction(action.getId(), action);
+        markAsContentDependentAction(action.getId(), true);
    	}
 
 	@Override

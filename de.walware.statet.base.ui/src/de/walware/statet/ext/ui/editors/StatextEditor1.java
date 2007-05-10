@@ -116,6 +116,14 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			
 			return StatextEditor1.this.getSourceViewer();
 		}
+		
+		public boolean isEditable(boolean validate) {
+			
+			if (validate) {
+				return StatextEditor1.this.validateEditorInputState();
+			}
+			return StatextEditor1.this.isEditorInputModifiable();
+		}
 	}
 	
 	private final class ToggleCommentAction extends TextEditorAction {

@@ -18,13 +18,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
 
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
-import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
-import de.walware.statet.r.nico.BasicR;
-import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.ui.RUIHelp;
 
 
@@ -49,21 +46,7 @@ public class RConsolePage extends NIConsolePage {
 	@Override
 	protected InputGroup createInputGroup() {
 		
-		return new InputGroup(this) {
-			
-			@Override
-			protected void onPromptUpdate(Prompt prompt) {
-
-				if ((prompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-					IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
-					fDocument.setPrefix(p.previousInput);
-				}
-				else {
-					fDocument.setPrefix(""); //$NON-NLS-1$
-				}
-			}
-				
-		};
+		return new RInputGroup(this);
 	}
 	
 	@Override

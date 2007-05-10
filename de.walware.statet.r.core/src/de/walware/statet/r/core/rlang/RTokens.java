@@ -93,7 +93,7 @@ public class RTokens {
 			'@',
 	};
 	
-	public static final char[] WHITESPACE_CHARS = {
+	public static final char[] WHITESPACE_CHARS = { // on changes, note methods below
 			' ', '\t',
 	};
 	
@@ -137,6 +137,9 @@ public class RTokens {
 				(c >= 0x61 && c <= 0x66) ))));		// a-f
 	}
 	
+	public static boolean isWhitespace(int c) {
+		return (c == WHITESPACE_CHARS[0] || c == WHITESPACE_CHARS[1]);
+	}
 
 	public static int PERIOD = 46;
 	
