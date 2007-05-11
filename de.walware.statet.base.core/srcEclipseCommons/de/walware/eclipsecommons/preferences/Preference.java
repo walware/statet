@@ -291,6 +291,40 @@ public abstract class Preference<T> {
 	}
 	
 	/**
+	 * Default implementation for preferences of type Enum
+	 */
+	public static class EnumPref<E extends Enum<E>> extends Preference<E> {
+		
+		private Class<E> fEnumType;
+		
+		public EnumPref(String qualifier, String key, Class<E> enumType) {
+			super(qualifier, key, Type.STRING);
+			fEnumType = enumType;
+		}
+		
+		@Override
+		public boolean isUsageType(Object obj) {
+			
+			return (obj instanceof Enum);
+		}
+		@Override
+		public E store2Usage(Object obj) {
+			
+			if (obj != null) {
+				String s = (String) obj;
+				if (s.length() > 0) {
+					return Enum.valueOf(fEnumType, s);
+				}
+			}
+			return null;
+		}
+		public String usage2Store(E value) {
+			
+			return value.name();
+		}
+	}
+
+	/**
 	 * Default implementation for preferences of type EnumSet.
 	 */
 	public static class EnumSetPref<E extends Enum<E>> extends Preference<EnumSet<E>> {
