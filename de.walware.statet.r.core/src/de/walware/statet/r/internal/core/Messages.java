@@ -27,6 +27,9 @@ public class Messages extends NLS {
 	public static String Builder_error_IOReadingFile_message;
 
 
+	public static String RProject_ConfigureTask_label;
+
+
 	
 
 	static {

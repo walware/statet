@@ -11,10 +11,12 @@
 
 package de.walware.statet.r.ui.editors;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
@@ -25,17 +27,22 @@ import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.RResourceUnit;
+import de.walware.statet.r.internal.ui.RDoubleCommentAction;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUIHelp;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
-public class REditor extends StatextEditor1<RProject> {
+public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 
 
 	private IContextProvider fHelpContextProvider;
+	private RResourceUnit fRResourceUnit;
 	
 	
 	public REditor() {
@@ -54,13 +61,16 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected void setupConfiguration(RProject project) {
+	protected void setupConfiguration(RProject prevProject, RProject newProject, IEditorInput newInput) {
 		
 		ICombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
-				RUIPlugin.getDefault().getPreferenceStore(), project);
+				RUIPlugin.getDefault().getPreferenceStore(), newProject);
 		setPreferenceStore(preferenceStore);
 		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 
 				StatetUIServices.getSharedColorManager(), preferenceStore));
+		if (newInput != null) {
+			fRResourceUnit = new RResourceUnit((IFile) newInput.getAdapter(IFile.class));
+		}
 	}
 	
 	@Override
@@ -103,8 +113,17 @@ public class REditor extends StatextEditor1<RProject> {
         action = new InsertAssignmentAction((IEditorAdapter) getAdapter(IEditorAdapter.class));
         setAction(action.getId(), action);
         markAsContentDependentAction(action.getId(), true);
+        
+        action = new RDoubleCommentAction((IEditorAdapter) getAdapter(IEditorAdapter.class), this);
+        setAction(action.getId(), action);
+        markAsContentDependentAction(action.getId(), true);
    	}
 
+	public RResourceUnit getRResourceUnit() {
+		
+		return fRResourceUnit;
+	}
+	
 	@Override
 	public Object getAdapter(Class adapter) {
 		
@@ -118,6 +137,12 @@ public class REditor extends StatextEditor1<RProject> {
 	public void dispose() {
 		
 		super.dispose();
+		fRResourceUnit = null;
+	}
+
+	public RCodeStyleSettings getRCodeStyle() {
+		
+		return getRResourceUnit().getRCodeStyle();
 	}
 
 }

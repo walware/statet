@@ -43,4 +43,10 @@ public interface IStatetUICommandIds {
 	 */
 	public static final String INSERT_ASSIGNMENT =      "de.walware.statet.base.commands.InsertAssignment"; //$NON-NLS-1$
 	
+	/**
+	 * Action definition ID of the 'add doc comment' action
+	 * 
+	 * Value: @value
+	 */
+	public static final String ADD_DOC_COMMENT =        "de.walware.statet.base.commands.AddDocComment"; //$NON-NLS-1$
 }

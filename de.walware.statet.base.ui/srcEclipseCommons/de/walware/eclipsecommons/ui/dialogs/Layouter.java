@@ -12,7 +12,6 @@
 package de.walware.eclipsecommons.ui.dialogs;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -26,6 +25,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.dialogs.groups.OptionsGroup;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 
@@ -94,13 +94,7 @@ public class Layouter {
 
 	public void addSmallFiller() {
 		
-		PixelConverter pixelConverter = new PixelConverter(composite);
-		
-		Label filler = new Label(composite, SWT.LEFT);
-		GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gd.horizontalSpan = fNumColumns;
-		gd.heightHint = pixelConverter.convertHeightInCharsToPixels(1) / 8;
-		filler.setLayoutData(gd);
+		LayoutUtil.addSmallFiller(composite);
 	}
 	
 	public void addSpaceGrabber() {
@@ -193,12 +187,6 @@ public class Layouter {
 		return addTextControl(0, fNumColumns - 1, true, -1);
 	}
 
-	public Text addLabeledTextControl(String label, int widthHint) {
-		
-		addLabel(label, 0, 1);
-		return addTextControl(0, fNumColumns - 1, false, widthHint);
-	}
-	
 	public Combo addLabeledComboControl(String label, String[] items) {
 
 		addLabel(label, 0, 1);
@@ -224,15 +212,7 @@ public class Layouter {
 		GridData gd = new GridData(hGrab ? SWT.FILL : SWT.LEFT, SWT.CENTER, hGrab, false);
 		gd.horizontalIndent = hIndent;
 		gd.horizontalSpan = hSpan;
-		if (!hGrab && items != null && items.length > 0) {
-			int max = 0;
-			for (String s : items) {
-				max = Math.max(max, s.length());
-			}
-			gd.widthHint = (int) (new PixelConverter(combo).convertWidthInCharsToPixels(max) * 1.1);
-		} else {
-			gd.widthHint = IDialogConstants.ENTRY_FIELD_WIDTH;
-		}
+		gd.widthHint = LayoutUtil.hintWidth(combo, items);
 //		PixelConverter conv = new PixelConverter(combo);
 //		gd.widthHint = conv.convertWidthInCharsToPixels(charWidth);
 		combo.setLayoutData(gd);
@@ -250,21 +230,13 @@ public class Layouter {
 		button.setText(label);
 		GridData gd = new GridData(SWT.FILL, SWT.BEGINNING, false, false);
 		gd.horizontalSpan = horizontalSpan;
-		gd.minimumWidth = getButtonWidthHint(button);
+		gd.minimumWidth = LayoutUtil.hintWidth(button);
 		button.setLayoutData(gd);
 		
 		if (listener != null)
 			button.addSelectionListener(listener);
 		
 		return button;
-	}
-	
-	private int getButtonWidthHint(Button button) {
-
-		Dialog.applyDialogFont(button);
-		PixelConverter converter = new PixelConverter(button);
-		int widthHint = converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
-		return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
 	}
 	
 	

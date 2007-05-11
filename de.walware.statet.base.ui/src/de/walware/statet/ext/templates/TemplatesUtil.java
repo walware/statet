@@ -53,28 +53,6 @@ public class TemplatesUtil {
 		}
 	}	
 
-	public static String searchMultilineIndentation(IDocument document) {
-		
-		try {
-			String ind = null;
-
-			int n = document.getNumberOfLines();
-			for (int line = 0; line < n; line++) {
-				IRegion lineRegion = document.getLineInformation(line);
-				if (lineRegion.getLength() > 0) {
-					String lineInd = searchIndentation(document.get(lineRegion.getOffset(), lineRegion.getLength()));
-					if (lineRegion.getLength() != lineInd.length())
-						ind = (ind == null) ? lineInd : getEqualStart(ind, lineInd);
-				}
-			}
-			if (ind != null) 
-				return ind;
-		} 
-		catch (BadLocationException e) {
-		}
-		return "";
-	}
-	
 	private static String searchIndentation(String text) throws BadLocationException {
 		
 		int i = 0;
@@ -85,24 +63,6 @@ public class TemplatesUtil {
 		}
 		return text.substring(0, i);
 	}
-	
-	/**
-	 * Vergleicht zwei Strings und gibt den gemeinsamen Beginn zur�ck
-	 * @param s1
-	 * @param s2
-	 * @return
-	 */
-	private static String getEqualStart(String s1, String s2) {
-		
-		int n = Math.min(s1.length(), s2.length());
-		for (int i = 0; i < n; i++) {
-			if (s1.charAt(i) != s2.charAt(i))
-				return s1.substring(0, i);
-		}
-		return s1.substring(0, n);
-	}
-	
-	
 	
 	public static void positionsToVariables(List<TextEdit> positions, TemplateVariable[] variables) {
 

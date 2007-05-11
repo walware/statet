@@ -40,6 +40,7 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.templates.RTemplateProposal.RTemplateComparator;
 
 
@@ -61,9 +62,9 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 	
 	private TemplateStore fTemplateStore;
 	private ContextTypeRegistry fTypeRegistry;
-	private IEditorPart fEditor;
+	private REditor fEditor;
 	
-	public REditorTemplatesCompletionProcessor(IEditorPart editor) {
+	public REditorTemplatesCompletionProcessor(REditor editor) {
 		
 		fTemplateStore = RUIPlugin.getDefault().getREditorTemplateStore();
 		fTypeRegistry = RUIPlugin.getDefault().getREditorTemplateContextRegistry();
@@ -117,7 +118,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 				continue;
 			}
 			if (template.getContextTypeId().equals(context.getContextType().getId()) 
-					&& template.getName().startsWith(prefix)) // <- �nderung gegen�ger super
+					&& template.getName().startsWith(prefix)) // Change <-> super
 				templateMatches.add(createProposal(template, context, replacementRegion, getRelevance(template, prefix)));
 		}
 		if (templateMatches.size() > 0) {
@@ -178,7 +179,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 	
 	@Override
 	protected REditorContext createContext(ITextViewer contextViewer, IRegion region) {
-		
+
 		TemplateContextType contextType = getContextType(contextViewer, region);
 		if (contextType != null) {
 			

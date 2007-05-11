@@ -345,7 +345,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 		super.initializeEditor();
 		setCompatibilityMode(false);
-		setupConfiguration(getProject());
+		setupConfiguration(null, null, null);
 	}
 	
 	protected void configureStatetProjectNatureId(String id) {
@@ -375,32 +375,27 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		ProjectT prevProject = fProject;
 		fProject = (input != null) ? getProject(input) : null;
 		
-		if (input != null && prevProject != fProject) {
-			// project has changed
-			ISourceViewer sourceViewer = getSourceViewer();
-			if (sourceViewer != null) {
-				((ISourceViewerExtension2) sourceViewer).unconfigure();
-			}
-			
-			disposeConfiguration(prevProject);
-			setupConfiguration(fProject);
+		// project has changed
+		ISourceViewer sourceViewer = getSourceViewer();
+		if (sourceViewer != null) {
+			((ISourceViewerExtension2) sourceViewer).unconfigure();
+		}
+		
+		super.doSetInput(input);
 
+		if (input != null) {
+			setupConfiguration(prevProject, fProject, input);
+		
 			if (sourceViewer != null) {
 				sourceViewer.configure(getSourceViewerConfiguration());
 			}
 		}
-
-		super.doSetInput(input);
 	}
 	
 	/**
 	 * Subclasses should setup the SourceViewerConfiguration.
 	 */
-	protected void setupConfiguration(ProjectT project) {
-		
-	}
-	
-	protected void disposeConfiguration(ProjectT previousProject) {
+	protected void setupConfiguration(ProjectT prevProject, ProjectT newProject, IEditorInput newInput) {
 		
 	}
 	
@@ -506,7 +501,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			fBracketMatcher.dispose();
 			fBracketMatcher= null;
 		}
-		disposeConfiguration(getProject());
 
 		super.dispose();
 	}

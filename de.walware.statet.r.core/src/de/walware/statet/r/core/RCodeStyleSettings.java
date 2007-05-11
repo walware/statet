@@ -16,6 +16,7 @@ import java.util.Map;
 import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.preferences.Preference.EnumPref;
 import de.walware.eclipsecommons.preferences.Preference.IntPref;
 
 
@@ -24,9 +25,19 @@ import de.walware.eclipsecommons.preferences.Preference.IntPref;
  */
 public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
+	public static enum IndentationType {
+		TAB, SPACES,
+	}
 	public static final IntPref PREF_TAB_SIZE = new IntPref(
-			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "tab_size"); //$NON-NLS-1$
+			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "tab.size"); //$NON-NLS-1$
 	public static final String PROP_TAB_SIZE = "tabSize"; //$NON-NLS-1$
+	
+	private static final EnumPref<IndentationType> PREF_INDENT_DEFAULT_TYPE = new EnumPref<IndentationType>(
+			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.default.type", IndentationType.class); //$NON-NLS-1$
+	public static final String PROP_INDENT_DEFAULT_TYPE = "indentDefaultType"; //$NON-NLS-1$
+	private static final IntPref PREF_INDENT_SPACES_COUNT = new IntPref(
+			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.spaces.count"); //$NON-NLS-1$
+	public static final String PROP_INDENT_SPACES_COUNT = "indentSpacesCount"; //$NON-NLS-1$
 	
 	/**
 	 * @see RCorePreferenceNodes#CAT_R_CODESTYLE_PRESENTATION_QUALIFIER
@@ -38,6 +49,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
 	
 	private int fTabSize;
+	private IndentationType fIndentationDefaultType;
+	private int fIndentationSpacesCount;
 
 	
 	/**
@@ -58,6 +71,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		resetDirty();
 	}
 
+	
 	@Override
 	public String[] getNodeQualifiers() {
 		
@@ -65,21 +79,27 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public void loadDefaults() {
+	public synchronized void loadDefaults() {
 		
 		setTabSize(4);
+		setIndentDefaultType(IndentationType.SPACES);
+		setIndentSpacesCount(4);
 	}
 	
 	@Override
-	public void load(IPreferenceAccess prefs) {
+	public synchronized void load(IPreferenceAccess prefs) {
 		
 		setTabSize(prefs.getPreferenceValue(PREF_TAB_SIZE));
+		setIndentDefaultType(prefs.getPreferenceValue(PREF_INDENT_DEFAULT_TYPE));
+		setIndentSpacesCount(prefs.getPreferenceValue(PREF_INDENT_SPACES_COUNT));
 	}
 
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
+	public synchronized Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
 		
 		map.put(PREF_TAB_SIZE, getTabSize());
+		map.put(PREF_INDENT_DEFAULT_TYPE, getIndentDefaultType());
+		map.put(PREF_INDENT_SPACES_COUNT, getIndentSpacesCount());
 
 		map.put(Presentation.PREF_TAB_SIZE, getTabSize());
 		
@@ -93,10 +113,33 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		
 		int oldValue = fTabSize;
 		fTabSize = size;
-		firePropertyChange(PROP_TAB_SIZE, oldValue, size);
+		firePropertyChange(PROP_TAB_SIZE, oldValue, fTabSize);
 	}
 	public int getTabSize() {
 		
 		return fTabSize;
 	}
+
+	public void setIndentDefaultType(IndentationType type) {
+		
+		IndentationType oldValue = fIndentationDefaultType;
+		fIndentationDefaultType = type;
+		firePropertyChange(PROP_INDENT_DEFAULT_TYPE, oldValue, fIndentationDefaultType);
+	}
+	public IndentationType getIndentDefaultType() {
+		
+		return fIndentationDefaultType;
+	}
+
+	public void setIndentSpacesCount(int count) {
+		
+		int oldValue = fIndentationSpacesCount;
+		fIndentationSpacesCount = count;
+		firePropertyChange(PROP_INDENT_SPACES_COUNT, oldValue, fIndentationSpacesCount);
+	}
+	public int getIndentSpacesCount() {
+		
+		return fIndentationSpacesCount;
+	}
+
 }

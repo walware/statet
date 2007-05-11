@@ -20,10 +20,11 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.core.StatextProject;
+import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RSupportBuilder;
 
 
-public class RProject extends StatextProject {
+public class RProject extends StatextProject implements IRCoreAccess {
 
 	
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
@@ -115,7 +116,7 @@ public class RProject extends StatextProject {
 	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
 
 		try {
-			monitor.beginTask("Config R Project...", 1000);
+			monitor.beginTask(Messages.RProject_ConfigureTask_label, 1000);
 			
 			if (!project.hasNature(NATURE_ID)) {
 				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
@@ -127,5 +128,11 @@ public class RProject extends StatextProject {
 		finally {
 			monitor.done();
 		}
+	}
+
+
+	public RCodeStyleSettings getRCodeStyle() {
+		
+		return new RCodeStyleSettings(this); // TODO share/cache/monitor
 	}
 }

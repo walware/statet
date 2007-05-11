@@ -16,7 +16,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	
-
 	public static String RSyntaxColoring_CodeCategory_label;
 	public static String RSyntaxColoring_CommentsCategory_label;
 
@@ -75,12 +74,15 @@ public class Messages extends NLS {
 	
 	public static String RCodeStyle_TabSize_label;
 	public static String RCodeStyle_TabSize_error_message;
+	public static String RCodeStyle_Indentation_group;
+	public static String RCodeStyle_Indentation_DefaultPolicy_label;
+	public static String RCodeStyle_IndentationType_UseTabs_name;
+	public static String RCodeStyle_IndentationType_UseSpaces_name;
+	public static String RCodeStyle_Indentation_NumOfSpaces_label;
+	public static String RCodeStyle_Indentation_NumOfSpaces_error_message;
 
 
-	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
-	private Messages() { }
-	
 }

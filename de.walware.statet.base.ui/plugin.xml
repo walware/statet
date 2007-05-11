@@ -75,6 +75,11 @@
             description="%commands.InsertAssignment.description"
             id="de.walware.statet.base.commands.InsertAssignment"
             name="%commands.InsertAssignment.name"/>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            description="%commands.AddDocComment.description"
+            id="de.walware.statet.base.commands.AddDocComment"
+            name="%commands.AddDocComment.name"/>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -98,6 +103,16 @@
             contextId="de.walware.statet.base.contexts.TextEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+="/>
+      <key
+            commandId="de.walware.statet.base.commands.AddDocComment"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+#"/>
+      <key
+            commandId="de.walware.statet.base.commands.AddDocComment"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+/"/>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

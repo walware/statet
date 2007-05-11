@@ -89,7 +89,7 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 				if (proj != null)
 					return proj.getProject().getName();
 			}
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 	}
 	

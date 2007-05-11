@@ -33,7 +33,8 @@ import org.eclipse.jface.text.TypedRegion;
  * @since 0.2
  */
 public class BasicHeuristicTokenScanner implements ITokenScanner {
-
+	
+	
 	/**
 	 * Specifies the stop condition, upon which the <code>scan...</code> methods will decide whether
 	 * to keep scanning or not. This interface may implemented by clients.
@@ -49,8 +50,6 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		 */
 		public abstract boolean stop(boolean forward);
 		
-		public abstract boolean succeedAtBound(boolean forward);
-
 		/**
 		 * Asks the condition to return the next position to query. The default
 		 * is to return the next/previous position.
@@ -61,7 +60,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			return forward ? position + 1 : position - 1;
 		}
 	}
-
+	
 	protected static abstract class PartitionMatcher {
 		
 		public abstract boolean matches(String partitionId);
@@ -118,11 +117,6 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType(fPos))) );
 		}
 		
-		@Override
-		public boolean succeedAtBound(boolean forward) {
-			return false;
-		}
-
 		public int nextPosition(int position, boolean forward) {
 			ITypedRegion partition = getPartition(position);
 			if (fPartition.matches(partition.getType()))
@@ -163,14 +157,6 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		
 	}
 	
-	protected abstract class RegionBoundCondition extends StopCondition {
-		
-		@Override
-		public boolean succeedAtBound(boolean forward) {
-			return true;
-		}
-	}
-	
 	
 	/** The document being scanned. */
 	private IDocument fDocument;
@@ -187,6 +173,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	protected int fPos;
 	/** the most recently read line of position (only if used). */
 	private int fLine;
+	
+	private StopCondition fNonWhitespaceCondition;
 
 
 	/**
@@ -198,6 +186,19 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	public BasicHeuristicTokenScanner(String partitioning) {
 		Assert.isNotNull(partitioning);
 		fPartitioning = partitioning;
+	}
+	
+	protected StopCondition getNonWhitespaceCondition() {
+		
+		if (fNonWhitespaceCondition == null) {
+			fNonWhitespaceCondition = new StopCondition() {
+				@Override
+				public boolean stop(boolean forward) {
+					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t');
+				}
+			};
+		}
+		return fNonWhitespaceCondition;
 	}
 	
 	/**
@@ -330,24 +331,68 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		}
 	}
 	
-	public IRegion findHorizontalWhitespace(int position) {
+	/**
+	 * Finds the smallest position in <code>fDocument</code> such that the position is &gt;= <code>position</code>
+	 * and &lt; <code>bound</code> and <code>Character.isWhitespace(fDocument.getChar(pos))</code> evaluates to <code>false</code>.
+	 *
+	 * @param position the first character position in <code>fDocument</code> to be considered
+	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
+	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>), or <code>NOT_FOUND</code> if none can be found
+	 */
+	public int findNonWhitespaceForwardInAnyPartition(int position, int bound) {
 		
-		return findRegion(position, new RegionBoundCondition() {
-			@Override
-			public boolean stop(boolean forward) {
-				return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t');
-			}
-		});
+		return scanForward(position, bound, getNonWhitespaceCondition());
+	}
+
+	
+	public IRegion findBlankRegion(int position) {
+		
+		return findRegion(position, getNonWhitespaceCondition());
+	}
+		
+	public boolean isBlankLine(int position) throws BadLocationException {
+		
+		IRegion line = fDocument.getLineInformationOfOffset(position);
+		if (line.getLength() > 0) {
+			int nonWhitespace = findNonWhitespaceForwardInAnyPartition(line.getOffset(), line.getOffset()+line.getLength());
+			return (nonWhitespace == NOT_FOUND);
+		}
+		return true;
 	}
 	
 	public IRegion findCommonWord(int position) {
 		
-		return findRegion(position, new RegionBoundCondition() {
+		return findRegion(position, new StopCondition() {
 			@Override
 			public boolean stop(boolean forward) {
 				return (!Character.isLetterOrDigit(fChar));
 			}
 		});
+	}
+	
+	public IRegion getTextBlock(int position1, int position2) throws BadLocationException {
+		
+		int line1 = fDocument.getLineOfOffset(position1);
+		int line2 = fDocument.getLineOfOffset(position2);
+		if (line1 < line2 && fDocument.getLineOffset(line2) == position2) {
+			line2--;
+		}
+		int start = fDocument.getLineOffset(line1);
+		int length = fDocument.getLineOffset(line2)+fDocument.getLineLength(line2)-start;
+		return new Region(start, length);
+	}
+	
+	public int getFirstLineOfRegion(IRegion region) throws BadLocationException {
+
+		return fDocument.getLineOfOffset(region.getOffset());
+	}
+	
+	public int getLastLineOfRegion(IRegion region) throws BadLocationException {
+		
+		if (region.getLength() == 0) {
+			return fDocument.getLineOfOffset(region.getOffset());
+		}
+		return fDocument.getLineOfOffset(region.getOffset()+region.getLength()-1);
 	}
 	
 
@@ -404,10 +449,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				}
 				fPos = condition.nextPosition(fPos, true);
 			}
-			if (condition.succeedAtBound(true)) {
-				fPos = bound;
-				return fPos;
-			}
+			fPos = bound;
 		} catch (BadLocationException e) {
 		}
 		return NOT_FOUND;
@@ -467,10 +509,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				}
 				fPos = condition.nextPosition(fPos, false);
 			}
-			if (condition.succeedAtBound(false)) {
-				fPos = bound;
-				return fPos;
-			}
+			fPos = bound;
 		} catch (BadLocationException e) {
 		}
 		return NOT_FOUND;
@@ -508,11 +547,17 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		
 		int start = position;
 		int end = scanForward(position, UNBOUND, condition);
+		if (end == NOT_FOUND) {
+			end = fPos;
+		}
 		if (end > position) {
 			start = scanBackward(--start, UNBOUND, condition);
+			if (start == NOT_FOUND) {
+				start = fPos;
+			}
 			start++;
 		}
-		if (start != NOT_FOUND && end != NOT_FOUND && start < end) {
+		if (start < end) {
 			return new Region(start, end-start);
 		}
 		return null;

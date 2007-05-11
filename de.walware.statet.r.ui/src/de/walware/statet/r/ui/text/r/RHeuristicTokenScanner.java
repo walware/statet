@@ -35,11 +35,12 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 	
 	public IRegion findRWord(int position, final boolean isDotSeparator) {
 		
-		return findRegion(position, new RegionBoundCondition() {
+		return findRegion(position, new StopCondition() {
 			@Override
 			public boolean stop(boolean forward) {
 				return (RTokens.isRobustSeparator(fChar, isDotSeparator));
 			}
 		});
 	}
+	
 }

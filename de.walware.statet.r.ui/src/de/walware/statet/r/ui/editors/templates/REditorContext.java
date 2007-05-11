@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,12 +27,16 @@ import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.IStatetContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.r.core.RResourceUnit;
+import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.text.r.RIndentation;
+import de.walware.statet.r.ui.text.r.RIndentation.IndentEditAction;
 
 
 public class REditorContext extends DocumentTemplateContext implements IStatetContext {
@@ -120,26 +124,35 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 	public void setVariable(String name, String value) {
 		
 		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
-			IDocument valueDoc = new Document(value);
-			String ind = TemplatesUtil.searchMultilineIndentation(valueDoc);
-
-			if (ind.length() > 0) {
-				try {
+			try {
+				IDocument valueDoc = new Document(value);
+				final RIndentation indent = new RIndentation(valueDoc, fUnit.getRCodeStyle());
+				int depth = indent.getMultilineIndentationDepth(0, valueDoc.getNumberOfLines()-1);
+				if (depth > 0) {
+					IndentEditAction action = indent.new IndentEditAction(depth) {
+						@Override
+						public TextEdit createEdit(int offset, int length, StringBuilder text) throws BadLocationException {
+							int position = indent.getIndentedIndex(text, getDepth());
+							return new ReplaceEdit(offset, length, text.substring(position, text.length()));
+						}
+						@Override
+						public TextEdit createEdit(int offset) throws BadLocationException {
+							int end = indent.getIndentedOffset(getDocument().getLineOfOffset(offset), getDepth());
+							return new DeleteEdit(offset, end-offset);
+						}
+					};
 					for (int line = 0; line < valueDoc.getNumberOfLines(); line++) {
-						IRegion lineRegion = valueDoc.getLineInformation(line);
-						int length = Math.min(lineRegion.getLength(), ind
-								.length());
-						if (length > 0) {
-							TextEdit edit = new DeleteEdit(lineRegion
-									.getOffset(), length);
+						TextEdit edit = indent.edit(line, action);
+						if (edit != null) {
 							edit.apply(valueDoc, 0);
 						}
 					}
-					setVariable("indentation", ind); //$NON-NLS-1$
+					setVariable("indentation", indent.createIndentationString(depth)); //$NON-NLS-1$
 					value = valueDoc.get();
-				} 
-				catch (BadLocationException e) {
 				}
+			}
+			catch (BadLocationException e) {
+				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while computing indentation variable for R editor templates.", e); //$NON-NLS-1$
 			}
 		}
 		super.setVariable(name, value);
