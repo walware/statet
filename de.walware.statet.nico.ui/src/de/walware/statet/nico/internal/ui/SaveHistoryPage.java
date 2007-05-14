@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.internal.ui;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -49,8 +50,10 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	
 	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
 		
-		return new ChooseResourceComposite(layouter.composite, 0, 
-				Messages.SaveHistoryPage_FileTask_label);
+		return new ChooseResourceComposite(layouter.composite, 
+				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_COMBO,
+				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_SAVE, 
+				Messages.LoadSaveHistoryPage_File_label);
 	}
 	
 	protected void addAdditionalContent1(Layouter parent) {
@@ -83,11 +86,17 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	
 	protected void updateMode() {
 		
-		int mode = ChooseResourceComposite.MODE_EXISTING_ERROR;
-		if (fAppendToFile || fOverwriteFile) {
-			mode = ChooseResourceComposite.MODE_EXISTING_WARNING;
+		int severity;
+		if (fAppendToFile) {
+			severity = IStatus.INFO;
 		}
-		fLocationGroup.setMode(mode);
+		else if (fOverwriteFile) {
+			severity = IStatus.WARNING;
+		}
+		else {
+			severity = IStatus.ERROR;
+		}
+		fLocationGroup.getValidator().setOnExisting(severity);
 		validate();
 	}
 	

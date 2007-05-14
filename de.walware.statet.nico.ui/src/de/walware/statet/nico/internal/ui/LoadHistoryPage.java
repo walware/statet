@@ -34,8 +34,10 @@ public class LoadHistoryPage extends AbstractHistoryPage {
 	
 	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
 		
-		return new ChooseResourceComposite(layouter.composite, ChooseResourceComposite.MODE_NEW_ERROR, 
-				Messages.LoadHistoryPage_FileTask_label);
+		return new ChooseResourceComposite(layouter.composite, 
+				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_COMBO,
+				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN, 
+				Messages.LoadSaveHistoryPage_File_label);
 	}
 	
 }

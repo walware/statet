@@ -12,6 +12,8 @@
 package de.walware.eclipsecommons.ui;
 
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -48,27 +50,32 @@ public class SharedMessages extends NLS {
 	public static String FindReplaceAction_name;
 	public static String FindReplaceAction_tooltip;
 	
-	
-	public static String BrowseWorkspace_button_name;
-	public static String BrowseFilesystem_button_name;
-	public static String BrowseVariables_button_name;
-	
-	
 	public static String CollectionEditing_AddItem_label;
 	public static String CollectionEditing_EditItem_label;
 	public static String CollectionEditing_RemoveItem_label;
 	public static String CollectionEditing_DefaultItem_label;
 	
 	
-	private static final String BUNDLE_NAME = SharedMessages.class.getName();
-	
-	static {
-		NLS.initializeMessages(BUNDLE_NAME, SharedMessages.class);
+	private static Pattern MNEMONICS_PATTERN = Pattern.compile("(\\&)[^\\&]");
+
+	public static String removeMnemonics(String label) {
+		
+		Matcher match = MNEMONICS_PATTERN.matcher(label);
+		if (match.find()) {
+			return label.substring(0, match.start(0)) + label.substring(match.start(0)+1, label.length());
+		}
+		return label;
 	}
 
 	
-	private static ResourceBundle fgCompatibilityBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static final String BUNDLE_NAME = SharedMessages.class.getName();
 
+	static {
+		NLS.initializeMessages(BUNDLE_NAME, SharedMessages.class);
+	}
+	
+	
+	private static ResourceBundle fgCompatibilityBundle = ResourceBundle.getBundle(BUNDLE_NAME);
 	public static ResourceBundle getCompatibilityBundle() {
 		return fgCompatibilityBundle;
 	}

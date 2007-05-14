@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,12 +23,15 @@ import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -37,25 +40,70 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
+
+import de.walware.statet.base.core.StatetCore;
 
 import de.walware.eclipsecommons.internal.fileutil.EFSUtilImpl;
 import de.walware.eclipsecommons.internal.fileutil.WorkspaceUtilImpl;
 
 
 /**
- * 
+ * Utilities to work with files.
  */
 public class FileUtil {
 
 	
-	public static String UTF_8 = "UTF-8";
-	public static String UTF_16_BE = "UTF-16BE";
-	public static String UTF_16_LE = "UTF-16LE";
+	public static String UTF_8 = "UTF-8"; //$NON-NLS-1$
+	public static String UTF_16_BE = "UTF-16BE"; //$NON-NLS-1$
+	public static String UTF_16_LE = "UTF-16LE"; //$NON-NLS-1$
 	
 	private static EFSUtilImpl EFS_UTIL = new EFSUtilImpl();
 	private static WorkspaceUtilImpl WORKSPACE_UTIL = new WorkspaceUtilImpl();
 
 	
+/*-- Local files --*/
+	public static IFileStore getLocalFileStore(String s) throws CoreException {
+		
+		if (s.length() > 0) {
+			IFileSystem localFS = EFS.getLocalFileSystem();
+			if (s.startsWith(EFS.SCHEME_FILE)) {
+				return localFS.getStore(URIUtil.toURI(s.substring(localFS.getScheme().length())));
+			}
+			IPath path = Path.fromOSString(s);
+			if (path.isUNC()) {
+				return localFS.getStore(URIUtil.toURI(path));
+			}
+			if (path.isAbsolute()) {
+				String device = path.getDevice();
+				if (device == null || device.length() <= 2) {
+					return localFS.getStore(URIUtil.toURI(path));
+				}
+			}
+		}
+		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No local filesystem resource."));
+	}
+	
+	public static IFileStore expandToLocalFileStore(String location, String child) throws CoreException {
+		
+		IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
+		String expanded = variables.performStringSubstitution(location);
+		IFileStore localFileStore = getLocalFileStore(expanded);
+		if (child != null) {
+			return localFileStore.getChild(child);
+		}
+		return localFileStore;
+	}
+	
+	public static IPath expandToLocalPath(String location, String child) throws CoreException {
+		
+		IFileStore fileStore = expandToLocalFileStore(location, child);
+		return URIUtil.toPath(fileStore.toURI());
+	}
+	
+	
+/*-- File Operations --*/
 	public static abstract class AbstractFileOperation {
 		
 		protected String fPluginID;

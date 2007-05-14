@@ -27,6 +27,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 
@@ -84,7 +85,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	
 	protected void createContents(Layouter contentLayouter) {
 		
-		contentLayouter.addLabel(Messages.LoadSaveHistoryPage_File_label);
 		fLocationGroup = createResourceComposite(contentLayouter);
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
@@ -121,10 +121,11 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		if (!isIntialized) {
 			return;
 		}
-		IStatus status = fLocationGroup.validate();
+		FileValidator validator = fLocationGroup.getValidator();
+		IStatus status = validator.getStatus();
 		if (status != null && status.getSeverity() == IStatus.ERROR) {
 			setMessage(null);
-			setErrorMessage(Messages.LoadSaveHistoryPage_error_File_prefix+status.getMessage());
+			setErrorMessage(status.getMessage());
 			setPageComplete(false);
 			fResourceInWorkspace = null;
 			fResourceInEFS = null;
@@ -139,7 +140,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 				setMessage(null);
 			}
 			setPageComplete(true);
-			fResourceInWorkspace = fLocationGroup.getResourceAsWorkspaceResource();
+			fResourceInWorkspace = (IFile) fLocationGroup.getResourceAsWorkspaceResource();
 			fResourceInEFS = fLocationGroup.getResourceAsFileStore();
 			fResourcePath = fLocationGroup.getResourceString();
 		}
