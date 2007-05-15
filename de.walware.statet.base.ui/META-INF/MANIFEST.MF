@@ -7,8 +7,6 @@ Bundle-Version: 0.4.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.ui.StatetUIPlugin
 Bundle-Localization: plugin
 Require-Bundle: de.walware.statet.base.core;bundle-version="0.4.0";visibility:=reexport,
- org.eclipse.core.variables,
- org.eclipse.core.databinding,
  org.eclipse.core.databinding.beans,
  org.eclipse.jface.text,
  org.eclipse.jface.databinding,
@@ -16,7 +14,8 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="0.4.0";visibility:=r
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
- org.eclipse.debug.core
+ org.eclipse.debug.core,
+ org.eclipse.debug.ui
 Eclipse-LazyStart: true
 Export-Package: de.walware.eclipsecommons.templates,
  de.walware.eclipsecommons.ui,

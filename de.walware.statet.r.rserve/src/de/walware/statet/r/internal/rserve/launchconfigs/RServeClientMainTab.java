@@ -11,20 +11,12 @@
 
 package de.walware.statet.r.internal.rserve.launchconfigs;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.core.databinding.observable.value.IValueChangeListener;
-import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -33,6 +25,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.eclipsecommons.ui.databinding.NumberValidator;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 
@@ -42,40 +35,33 @@ import de.walware.statet.base.ui.StatetImages;
 /**
  * Tab to configure the connection to the RServe-server.
  */
-public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
-
-
+public class RServeClientMainTab extends LaunchConfigTabWithDbc {
+	
+	
 	private ConnectionConfig fConnectionConfig;
 	
 	private Text fServerAddress;
 	private Text fServerPort;
 	
-	private DataBindingContext fDbc;
-	private AggregateValidationStatus fAggregateStatus;
-	private IStatus fCurrentStatus;
-	
 	
 	public RServeClientMainTab() {
-		
+		super();
 		fConnectionConfig = new ConnectionConfig();
 	}
 	
+	
 	public String getName() {
-		
 		return "&Main";
 	}
 	
 	public Image getImage() {
-		
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 
 	public void createControl(Composite parent) {
-		
 		Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
 		Layouter main = new Layouter(mainComposite, new GridLayout());
 		Layouter layouter = new Layouter(main.addGroup("Connection:"), 2);
 
@@ -83,86 +69,32 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		fServerPort = layouter.addLabeledTextControl("Server Port:");
 
 		initBindings();
-
-		fConnectionConfig.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
-				updateLaunchConfigurationDialog();
-			}
-		});
 	}
 
-	private void initBindings() {
-
-		Realm realm = Realm.getDefault();
-		fDbc = new DataBindingContext(realm);
-
-		fDbc.bindValue(SWTObservables.observeText(fServerAddress, SWT.Modify), 
+	@Override
+	protected void addBindings(DataBindingContext dbc, Realm realm) {
+		dbc.bindValue(SWTObservables.observeText(fServerAddress, SWT.Modify), 
 				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERADDRESS), 
 				null, null);
-
-		fDbc.bindValue(SWTObservables.observeText(fServerPort, SWT.Modify), 
+		dbc.bindValue(SWTObservables.observeText(fServerPort, SWT.Modify), 
 				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERPORT),
 				new UpdateValueStrategy(UpdateValueStrategy.POLICY_UPDATE)
 						.setAfterGetValidator(new NumberValidator(0, 65535, "The valid port range is 0-65535.")),
 				null);
-		
-		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(),
-				AggregateValidationStatus.MAX_SEVERITY);
-		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
-			public void handleValueChange(ValueChangeEvent event) {
-				fCurrentStatus = (IStatus) event.diff.getNewValue();
-				if (!fCurrentStatus.isOK()) {
-					setErrorMessage(fCurrentStatus.getMessage());
-				}
-				else {
-					setErrorMessage(null);
-				}
-				updateLaunchConfigurationDialog();
-			}
-		});
-	}
-	
-	@Override
-	public void dispose() {
-		
-		super.dispose();
-		
-		if (fAggregateStatus != null) {
-			fAggregateStatus.dispose();
-			fAggregateStatus = null;
-		}
-		if (fDbc != null) {
-			fDbc.dispose();
-			fDbc = null;
-		}
 	}
 	
 	
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		
 		ConnectionConfig.writeDefaultsTo(configuration);
 	}
 
-	public void initializeFrom(ILaunchConfiguration configuration) {
-		
+	@Override
+	public void doInitialize(ILaunchConfiguration configuration) {
 		fConnectionConfig.load(configuration);
 	}
 
-	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		
+	public void doSave(ILaunchConfigurationWorkingCopy configuration) {
 		fConnectionConfig.save(configuration);
 	}
 
-
-	@Override
-	public boolean isValid(ILaunchConfiguration launchConfig) {
-		
-		return (fCurrentStatus == null || fCurrentStatus.isOK());
-	}
-	
-	@Override
-	public boolean canSave() {
-
-		return (fCurrentStatus != null && fCurrentStatus.isOK());
-	}
 }

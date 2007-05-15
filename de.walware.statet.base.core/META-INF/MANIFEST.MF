@@ -9,8 +9,8 @@ Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.core.filesystem;visibility:=reexport,
- org.eclipse.core.variables,
- org.eclipse.core.databinding
+ org.eclipse.core.variables;visibility:=reexport,
+ org.eclipse.core.databinding;visibility:=reexport
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: de.walware.eclipsecommons,
