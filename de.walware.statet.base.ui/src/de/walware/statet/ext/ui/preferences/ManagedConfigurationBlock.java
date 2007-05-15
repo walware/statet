@@ -16,8 +16,17 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.databinding.AggregateValidationStatus;
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.masterdetail.IObservableFactory;
+import org.eclipse.core.databinding.observable.value.AbstractObservableValue;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.value.IValueChangeListener;
+import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -29,16 +38,17 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.preferences.IWorkingCopyManager;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 
 import de.walware.statet.base.core.CoreUtility;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class ManagedConfigurationBlock extends AbstractConfigurationBlock 
-		implements IPreferenceAccess {
+		implements IPreferenceAccess, IObservableFactory {
 
 	
 	protected class PreferenceManager {
@@ -338,21 +348,48 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	protected IProject fProject;
 	protected PreferenceManager fPreferenceManager;
 	
+	private DataBindingContext fDbc;
+	private AggregateValidationStatus fAggregateStatus;
+	private IStatusChangeListener fStatusListener;
 
-	public ManagedConfigurationBlock(IProject project) {
 
+	protected ManagedConfigurationBlock(IProject project, IStatusChangeListener statusListener) {
 		super();
-		
 		fProject = project;
+		fStatusListener = statusListener;
 	}
-
-	public ManagedConfigurationBlock() {
-		this(null);
+	
+	protected ManagedConfigurationBlock(IProject project) {
+		this(project, null);
 	}
 
 	protected void setupPreferenceManager(IWorkbenchPreferenceContainer container, Preference[] keys) {
 		
 		new PreferenceManager(container, keys);
+	}
+	
+	protected void createDbc() {
+		
+		Realm realm = Realm.getDefault();
+		fDbc = new DataBindingContext(realm);
+		addBindings(fDbc, realm);
+		
+		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(),
+				AggregateValidationStatus.MAX_SEVERITY);
+		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
+			public void handleValueChange(ValueChangeEvent event) {
+				IStatus currentStatus = (IStatus) event.diff.getNewValue();
+				fStatusListener.statusChanged(currentStatus);
+			}
+		});
+	}
+	
+	protected DataBindingContext getDbc() {
+		
+		return fDbc;
+	}
+	
+	protected void addBindings(DataBindingContext dbc, Realm realm) {
 	}
 	
 	/**
@@ -388,6 +425,21 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			updateControls();
 		}
 	}
+	
+	@Override
+	public void dispose() {
+		
+		super.dispose();
+
+		if (fAggregateStatus != null) {
+			fAggregateStatus.dispose();
+			fAggregateStatus = null;
+		}
+		if (fDbc != null) {
+			fDbc.dispose();
+			fDbc = null;
+		}
+	}
 
 	
 /* */
@@ -414,7 +466,9 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	protected void updateControls() {
-		
+		if (fDbc != null) {
+			fDbc.updateTargets();
+		}
 	}
 
 	
@@ -482,7 +536,27 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			setPrefValue(unit, map.get(unit));
 		}
 	}
+	
+	public IObservableValue createObservable(Object target) {
 		
+		final Preference pref = (Preference) target;
+		return new AbstractObservableValue() {
+			public Object getValueType() {
+				return pref.getUsageType();
+			}
+			@Override
+			protected void doSetValue(Object value) {
+				setPrefValue(pref, value);
+			}
+			protected Object doGetValue() {
+				return getPreferenceValue(pref);
+			}
+			@Override
+			public synchronized void dispose() {
+				super.dispose();
+			}
+		};
+	}
 	
 	/**
 	 * Changes requires full build, this method should be overwritten

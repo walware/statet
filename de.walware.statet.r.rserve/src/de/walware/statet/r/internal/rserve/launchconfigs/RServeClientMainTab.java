@@ -13,9 +13,6 @@ package de.walware.statet.r.internal.rserve.launchconfigs;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.ParsePosition;
-
-import com.ibm.icu.text.NumberFormat;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -24,10 +21,7 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
-import org.eclipse.core.databinding.validation.IValidator;
-import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
@@ -39,6 +33,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.eclipsecommons.ui.databinding.NumberValidator;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -50,29 +45,6 @@ import de.walware.statet.base.ui.StatetImages;
 public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 
 
-	private static class PortValidator implements IValidator {
-		
-		private NumberFormat fFormatter;
-
-		public PortValidator() {
-			NumberFormat fFormatter = NumberFormat.getIntegerInstance();
-			fFormatter.setParseIntegerOnly(true);
-		}
-		public IStatus validate(Object value) {
-			String s = ((String) value).trim();
-			ParsePosition result = new ParsePosition(0);
-			int n = fFormatter.parse(s, result).intValue();
-			if (result.getIndex() == s.length() && result.getErrorIndex() < 0) {
-				if (n >= 0 && n <= 65535) {
-					return Status.OK_STATUS;
-				}
-				return ValidationStatus.error("The valid port range is 0-65535.");
-			}
-			return ValidationStatus.error("Please enter a integer specifing the port");
-		}
-	}
-	
-	
 	private ConnectionConfig fConnectionConfig;
 	
 	private Text fServerAddress;
@@ -131,7 +103,7 @@ public class RServeClientMainTab extends AbstractLaunchConfigurationTab {
 		fDbc.bindValue(SWTObservables.observeText(fServerPort, SWT.Modify), 
 				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERPORT),
 				new UpdateValueStrategy(UpdateValueStrategy.POLICY_UPDATE)
-						.setAfterGetValidator(new PortValidator()),
+						.setAfterGetValidator(new NumberValidator(0, 65535, "The valid port range is 0-65535.")),
 				null);
 		
 		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(),

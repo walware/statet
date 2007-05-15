@@ -382,7 +382,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fRootNodes = createItems();
 		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
 		collectKeys(keys, fRootNodes);
-		setupPreferenceManager(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
+		setupOverlayStore(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
 		connectStore(fRootNodes);
 
 		addLinkHeader(block, Messages.SyntaxColoring_link);

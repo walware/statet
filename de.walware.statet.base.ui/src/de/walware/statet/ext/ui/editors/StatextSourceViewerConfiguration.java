@@ -97,10 +97,6 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 				scanner.adaptToPreferenceChange(event);
 			}
 		}
-		
-		if (fContentAssistant != null) {
-			ContentAssistPreference.adaptToPreferenceChange(fContentAssistant, event);
-		}
 	}
 	
 	
@@ -149,7 +145,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		
 	} 
 	
-	public IContentAssistant getTemplateVariableContentAssistant(ISourceViewer sourceViewer, TemplateVariableProcessor processor) {
+	protected IContentAssistant getTemplateVariableContentAssistant(ISourceViewer sourceViewer, TemplateVariableProcessor processor) {
 
 		ContentAssistant assistant = new ContentAssistant();
 		

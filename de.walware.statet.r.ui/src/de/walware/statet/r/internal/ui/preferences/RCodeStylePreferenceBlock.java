@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.ui.preferences;
 
-import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
@@ -19,10 +18,7 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
-import org.eclipse.core.databinding.validation.IValidator;
-import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -40,6 +36,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.ui.databinding.NumberValidator;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
@@ -55,36 +52,6 @@ import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	
-	private static class NumberValidator implements IValidator {
-		
-		private int fMin;
-		private int fMax;
-		private String fErrorMessage;
-		
-		NumberValidator(int min, int max, String errorMessage) {
-			
-			fMin = min;
-			fMax = max;
-			fErrorMessage = errorMessage;
-		}
-		
-		public IStatus validate(Object value) {
-			try {
-				int i = Integer.parseInt((String) value);
-				if (i >= fMin && i <= fMax) {
-					return ValidationStatus.ok();
-				}
-			}
-			catch(NumberFormatException e) {
-			}
-			return ValidationStatus.error(fErrorMessage); 
-		}
-	}
-	
-	
-	private IStatusChangeListener fStatusListener;
-	private AggregateValidationStatus fAggregateStatus;
-	private DataBindingContext fDbc;
 	private RCodeStyleSettings fModel;
 	
 	private Text fTabSize;
@@ -95,8 +62,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	public RCodeStylePreferenceBlock(IProject project, IStatusChangeListener statusListener) {
 		
-		super();
-		fStatusListener = statusListener;
+		super(project, statusListener);
 	}
 	
 	@Override
@@ -127,8 +93,8 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		group.setText(Messages.RCodeStyle_Indentation_group);
 		createIndentControls(group);
 		
-		initBindings();
-		fDbc.updateTargets();
+		createDbc();
+		updateControls();
 	}
 	
 	private void createIndentControls(Composite group) {
@@ -172,13 +138,11 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		fIndentSpaceCount.setLayoutData(gd);
 	}
 
-	private void initBindings() {
+	@Override
+	protected void addBindings(DataBindingContext dbc, Realm realm) {
 		
-		Realm realm = Realm.getDefault();
-		fDbc = new DataBindingContext(realm);
-
-		fDbc.bindValue(SWTObservables.observeText(fTabSize, SWT.Modify), 
-				BeansObservables.observeValue(fModel, RCodeStyleSettings.PROP_TAB_SIZE), 
+		dbc.bindValue(SWTObservables.observeText(fTabSize, SWT.Modify), 
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_TAB_SIZE), 
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_TabSize_error_message)), 
 				null);
 		
@@ -191,21 +155,13 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				fIndentSpaceCount.setEnabled(t == IndentationType.SPACES);
 			}
 		});
-		fDbc.bindValue(indentObservable, BeansObservables.observeValue(fModel, RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE),
+		dbc.bindValue(indentObservable, BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE),
 				null, null);
-		fDbc.bindValue(SWTObservables.observeText(fIndentSpaceCount, SWT.Modify), 
-				BeansObservables.observeValue(fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT), 
+		dbc.bindValue(SWTObservables.observeText(fIndentSpaceCount, SWT.Modify), 
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT), 
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indentation_NumOfSpaces_error_message)), 
 				null);
 		
-		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(),
-				AggregateValidationStatus.MAX_SEVERITY);
-		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
-			public void handleValueChange(ValueChangeEvent event) {
-				IStatus currentStatus = (IStatus) event.diff.getNewValue();
-				fStatusListener.statusChanged(currentStatus);
-			}
-		});
 	}
 	
 	@Override
@@ -213,7 +169,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		
 		fModel.load(this);
 		fModel.resetDirty();
-		fDbc.updateTargets();  // required for invalid target values
+		getDbc().updateTargets();  // required for invalid target values
 	}
 	
 	@Override
@@ -222,17 +178,6 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		if (fModel.isDirty()) {
 			fModel.resetDirty();
 			setPrefValues(fModel.toPreferencesMap());
-		}
-	}
-	
-	@Override
-	public void dispose() {
-		
-		super.dispose();
-		
-		if (fAggregateStatus != null) {
-			fAggregateStatus.dispose();
-			fAggregateStatus = null;
 		}
 	}
 }

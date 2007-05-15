@@ -12,6 +12,7 @@
 package de.walware.eclipsecommons.ui.preferences;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -22,7 +23,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
+import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
 
 import de.walware.statet.base.ui.util.ExceptionHandler;
 
@@ -37,6 +40,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	
 	protected Block fBlock;
 	protected Control fBlockControl;
+	protected IStatus fBlockStatus;
 	
 
 	/**
@@ -87,6 +91,12 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		return super.performOk();
 	}
 	
+	public void performApply() {
+		if (fBlock != null) {
+			fBlock.performApply();
+		}
+	}
+
 	public void performDefaults() {
 		
 		if (fBlock != null) {
@@ -94,5 +104,27 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		}
 		super.performDefaults();
 	}
+
+	/**
+	 * Returns a new status change listener
+	 * @return The new listener
+	 */
+	protected IStatusChangeListener createStatusChangedListener() {
+		return new IStatusChangeListener() {
+			public void statusChanged(IStatus status) {
+				fBlockStatus = status;
+				updateStatus();
+			}
+		};		
+	}
+
+	protected void updateStatus() {
+		updateStatus(fBlockStatus);
+	}
 	
+	protected void updateStatus(IStatus status) {
+		setValid(!status.matches(IStatus.ERROR));
+		StatusUtil.applyToStatusLine(this, status);
+	}
+
 }

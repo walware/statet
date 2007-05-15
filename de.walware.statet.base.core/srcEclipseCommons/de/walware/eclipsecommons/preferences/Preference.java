@@ -72,7 +72,7 @@ public abstract class Preference<T> {
 		return fType;
 	}
 	
-	public abstract boolean isUsageType(Object obj);
+	public abstract Class<T> getUsageType();
 	
 	/**
 	 * Converts object of type T (this Preference is designed for) in the value for the PreferenceStore (type specified by getStoreType)
@@ -134,13 +134,11 @@ public abstract class Preference<T> {
 		}
 		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof String);
+		public Class<String> getUsageType() {
+			return String.class;
 		}
 		@Override
 		public String store2Usage(Object obj) {
-			
 			return (String) obj;
 		}
 	}
@@ -155,13 +153,11 @@ public abstract class Preference<T> {
 		}
 		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof Boolean);
+		public Class<Boolean> getUsageType() {
+			return Boolean.class;
 		}
 		@Override
 		public Boolean store2Usage(Object obj) {
-			
 			if (obj != null) {
 				if (obj instanceof Boolean) {
 					return (Boolean) obj;
@@ -184,13 +180,11 @@ public abstract class Preference<T> {
 		}
 
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof Integer);
+		public Class<Integer> getUsageType() {
+			return Integer.class;
 		}
 		@Override
 		public Integer store2Usage(Object obj) {
-			
 			if (obj != null) {
 				if (obj instanceof Integer) {
 					return (Integer) obj;
@@ -213,13 +207,11 @@ public abstract class Preference<T> {
 		}
 
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof Long);
+		public Class<Long> getUsageType() {
+			return Long.class;
 		}
 		@Override
 		public Long store2Usage(Object obj) {
-			
 			if (obj != null) {
 				if (obj instanceof Boolean) {
 					return (Long) obj;
@@ -242,13 +234,11 @@ public abstract class Preference<T> {
 		}
 		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof Float);
+		public Class<Float> getUsageType() {
+			return Float.class;
 		}
 		@Override
 		public Float store2Usage(Object obj) {
-			
 			if (obj != null) {
 				if (obj instanceof Float) {
 					return (Float) obj;
@@ -271,13 +261,11 @@ public abstract class Preference<T> {
 		}
 		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof Double);
+		public Class<Double> getUsageType() {
+			return Double.class;
 		}
 		@Override
 		public Double store2Usage(Object obj) {
-			
 			if (obj != null) {
 				if (obj instanceof Double) {
 					return (Double) obj;
@@ -301,15 +289,13 @@ public abstract class Preference<T> {
 			super(qualifier, key, Type.STRING);
 			fEnumType = enumType;
 		}
-		
+
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof Enum);
+		public Class<E> getUsageType() {
+			return fEnumType;
 		}
 		@Override
 		public E store2Usage(Object obj) {
-			
 			if (obj != null) {
 				String s = (String) obj;
 				if (s.length() > 0) {
@@ -319,7 +305,6 @@ public abstract class Preference<T> {
 			return null;
 		}
 		public String usage2Store(E value) {
-			
 			return value.name();
 		}
 	}
@@ -337,13 +322,11 @@ public abstract class Preference<T> {
 		}
 		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof EnumSet);
+		public Class getUsageType() {
+			return EnumSet.class;
 		}
 		@Override
 		public EnumSet<E> store2Usage(Object storedValue) {
-			
 			String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
 			EnumSet<E> set = EnumSet.noneOf(fEnumType);
 			for (String s : values) {
@@ -382,13 +365,11 @@ public abstract class Preference<T> {
 		}
 		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof List);
+		public Class getUsageType() {
+			return List.class;
 		}
 		@Override
 		public ArrayList<E> store2Usage(Object storedValue) {
-			
 			String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
 			ArrayList<E> list = new ArrayList<E>(values.length);
 			for (String s : values) {
@@ -400,11 +381,9 @@ public abstract class Preference<T> {
 		}
 		@Override
 		public String usage2Store(List<E> list) {
-			
 			if (list.isEmpty()) {
 				return "";
 			}
-			
 			StringBuilder sb = new StringBuilder();
 			for (E e : list) {
 				sb.append(e.name());
@@ -423,15 +402,12 @@ public abstract class Preference<T> {
 			super(qualifier, key, Type.STRING);
 		}
 		
-		
 		@Override
-		public boolean isUsageType(Object obj) {
-			
-			return (obj instanceof String[]);
+		public Class<String[]> getUsageType() {
+			return String[].class;
 		}
 		@Override
 		public String[] store2Usage(Object storedValue) {
-			
 			String s = (String) storedValue;
 			if (s.length() == 0) {
 				return new String[0];
@@ -440,11 +416,9 @@ public abstract class Preference<T> {
 		}
 		@Override
 		public String usage2Store(String[] array) {
-			
 			if (array.length == 0) {
 				return "";
 			}
-			
 			StringBuilder sb = new StringBuilder();
 			for (String s : array) {
 				sb.append(s);
@@ -453,6 +427,5 @@ public abstract class Preference<T> {
 			return sb.substring(0, sb.length()-1);
 		}
 	}
-	
 	
 }

@@ -23,19 +23,16 @@ import de.walware.eclipsecommons.preferences.Preference;
 public class RGBPref extends Preference<RGB> {
 	
 	public RGBPref(String qualifier, String key) {
-		
 		super(qualifier, key, Type.STRING);
 	}
 
 	@Override
-	public boolean isUsageType(Object obj) {
-		
-		return (obj instanceof RGB);
+	public Class<RGB> getUsageType() {
+		return RGB.class;
 	}
 	
 	@Override
 	public RGB store2Usage(Object obj) {
-		
 		if (obj != null) {
 			return StringConverter.asRGB((String) obj);
 		}
@@ -44,7 +41,6 @@ public class RGBPref extends Preference<RGB> {
 
 	@Override
 	public Object usage2Store(RGB obj) {
-		
 		if (obj != null && obj instanceof RGB) {
 			return StringConverter.asString(obj);
 		}

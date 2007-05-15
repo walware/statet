@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,6 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 		}
 		
 		public Object[] getElements(Object inputElement) {
-			
 			return getListModel().toArray();
 		}
 	}
@@ -54,7 +53,6 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	
 	@Override
 	protected Control createSelectionControl(Composite parent) {
-		
 		fSelectionViewer = createSelectionViewer(parent);
 		fSelectionViewer.setContentProvider(createContentProvider());
 		fSelectionViewer.addSelectionChangedListener(createSelectionChangeListener());
@@ -70,7 +68,6 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	protected abstract SelectionT createSelectionViewer(Composite parent);
 	
 	protected IContentProvider createContentProvider() {
-		
 		return new ItemContentProvider();
 	}
 	
@@ -93,23 +90,22 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	}
 	
 	public SelectionT getStructuredViewer() {
-		
 		return fSelectionViewer;
 	}
 
 	@Override
 	public void initFields() {
-
 		super.initFields();
 		fSelectionViewer.setInput(getListModel());
 		fSelectionViewer.refresh();
-		
-		
 	}
 
-	
+	public void refresh() {
+		getStructuredViewer().refresh();
+		reselect();
+	}
+
 	public void reselect() {
-		
 		IStructuredSelection selection = getSelectedItems();
 		handleSelection(getSingleItem(selection), selection);
 	}
@@ -120,7 +116,6 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	 * Default-Implementierung macht nichts.
 	 */
 	protected void handleSelection(ItemT item, IStructuredSelection rawSelection) {
-		
 	}
 
 	/**
@@ -130,7 +125,6 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 	 * @param item
 	 */
 	protected void handleDoubleClick(ItemT item, IStructuredSelection rawSelection) {
-		
 	}
 
 	/**
@@ -143,13 +137,11 @@ public abstract class StructuredSelectionOptionsGroup<SelectionT extends Structu
 
 	
 	public IStructuredSelection getSelectedItems() {
-		
 		return (IStructuredSelection) fSelectionViewer.getSelection();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public ItemT getSingleItem(IStructuredSelection selection) {
-		
 		if (selection.size() == 1) {
 			return (ItemT) selection.getFirstElement(); 
 		}

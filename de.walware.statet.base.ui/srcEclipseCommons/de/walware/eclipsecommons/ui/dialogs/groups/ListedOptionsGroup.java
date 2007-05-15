@@ -16,8 +16,6 @@ import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
-
 
 public abstract class ListedOptionsGroup<ItemT extends Object> extends StructuredSelectionOptionsGroup<ListViewer, ItemT> {
 
@@ -43,14 +41,7 @@ public abstract class ListedOptionsGroup<ItemT extends Object> extends Structure
 	public void initFields() {
 		
 		super.initFields();
-		getStructuredViewer().getControl().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				if (UIAccess.isOkToUse(getStructuredViewer())) {
-					getStructuredViewer().getList().select(0);
-					reselect();
-				}
-			}
-		});
+		getStructuredViewer().getList().select(0);
+		reselect();
 	}
-
 }

@@ -53,7 +53,7 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 	protected TaskTagsConfigurationBlock createConfigurationBlock() 
 			throws CoreException {
 		
-		return new TaskTagsConfigurationBlock(getProject(), getNewStatusChangedListener());
+		return new TaskTagsConfigurationBlock(getProject(), createStatusChangedListener());
 	}
 	
 	@Override

@@ -11,7 +11,11 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.events.HelpEvent;
@@ -60,6 +64,19 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 		super.initializeEditor();
 	}
 	
+	@Override
+	protected void fetchPreferenceNodes(Set<IEclipsePreferences> nodeCollection) {
+		RSourceViewerConfiguration.fetchPreferenceNodes(nodeCollection);
+	}
+	
+	@Override
+	protected void handlePreferenceChangeEvent(PreferenceChangeEvent event) {
+		RSourceViewerConfiguration config = (RSourceViewerConfiguration) getSourceViewerConfiguration();
+		if (config != null) {
+			config.handlePreferenceChangeEvent(event);
+		}
+	}
+
 	@Override
 	protected void setupConfiguration(RProject prevProject, RProject newProject, IEditorInput newInput) {
 		

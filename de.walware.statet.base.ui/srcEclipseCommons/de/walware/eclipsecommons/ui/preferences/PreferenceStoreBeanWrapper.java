@@ -63,10 +63,10 @@ public class PreferenceStoreBeanWrapper {
 					Object oldValue = event.getOldValue();
 					Object newValue = event.getNewValue();
 					if (pref.converter != null) {
-						if (!pref.converter.isUsageType(oldValue)) {
+						if (!pref.converter.getUsageType().isInstance(oldValue)) {
 							oldValue = pref.converter.store2Usage(oldValue);
 						}
-						if (!pref.converter.isUsageType(newValue)) {
+						if (!pref.converter.getUsageType().isInstance(newValue)) {
 							newValue = pref.converter.store2Usage(newValue);
 						}
 					}

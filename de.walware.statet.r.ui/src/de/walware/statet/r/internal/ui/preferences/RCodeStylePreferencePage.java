@@ -40,7 +40,7 @@ public class RCodeStylePreferencePage extends PropertyAndPreferencePage<RCodeSty
 	@Override
 	protected RCodeStylePreferenceBlock createConfigurationBlock() throws CoreException {
 		
-		return new RCodeStylePreferenceBlock(getProject(), getNewStatusChangedListener());
+		return new RCodeStylePreferenceBlock(getProject(), createStatusChangedListener());
 	}
 	
 	@Override

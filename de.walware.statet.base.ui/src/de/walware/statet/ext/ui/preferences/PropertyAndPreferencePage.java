@@ -36,10 +36,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 
@@ -234,7 +232,6 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	}
 	
 	private void updateLinkVisibility() {
-		
 		if (fChangeWorkspaceSettings == null || fChangeWorkspaceSettings.isDisposed())
 			return;
 		
@@ -242,41 +239,13 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 			fChangeWorkspaceSettings.setEnabled(!useProjectSettings());
 	}
 	
-	/**
-	 * Returns a new status change listener
-	 * when the status has changed
-	 * @return The new listener
-	 */
-	protected IStatusChangeListener getNewStatusChangedListener() {
-		
-		return new IStatusChangeListener() {
-			public void statusChanged(IStatus status) {
-				fBlockSettingsStatus = status;
-				updateStatus();
-			}
-		};		
-	}
-	
-	private void updateStatus() {
-		
-		IStatus status;
+	protected void updateStatus() {
 		if (!isProjectPreferencePage() || useProjectSettings()) {
-			status = fBlockSettingsStatus;
+			updateStatus(fBlockSettingsStatus);
 		} else {
-			status = new StatusInfo();
+			updateStatus(new StatusInfo());
 		}
-		setValid(!status.matches(IStatus.ERROR));
-		StatusUtil.applyToStatusLine(this, status);
 	}
-	
-//	protected void doStatusChanged() {
-//		if (!isProjectPreferencePage() || useProjectSettings()) {
-//			updateStatus(fBlockStatus);
-//		} else {
-//			updateStatus(new StatusInfo());
-//		}
-//	}
-
 	
 
 /* PropertyPage Implementation ************************************************/
@@ -320,12 +289,6 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	
 	protected Map getData() {
 		return fData;
-	}
-
-	public void performApply() {
-		if (fBlock != null) {
-			fBlock.performApply();
-		}
 	}
 
 	public void performDefaults() {

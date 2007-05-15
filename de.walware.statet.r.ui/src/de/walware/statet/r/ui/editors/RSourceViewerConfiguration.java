@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.util.Set;
+
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
@@ -20,7 +24,6 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
@@ -53,11 +56,14 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 	public static ICombinedPreferenceStore createCombinedPreferenceStore(
 			IPreferenceStore store, IPreferenceAccess corePrefs) {
-		
 		return StatextSourceViewerConfiguration.createCombinedPreferenceStore(
 				store, corePrefs, new String[] { 
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER,
 					RCorePreferenceNodes.CAT_R_CODESTYLE_PRESENTATION_QUALIFIER });
+	}
+
+	public static void fetchPreferenceNodes(Set<IEclipsePreferences> list) {
+		list.add(ContentAssistPreference.getCommonPreferencesNode());
 	}
 	
 	
@@ -151,11 +157,15 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 				|| property.equals(TaskTagsPreferences.PREF_TAGS.getKey()) );
 	}
 	
+	public void handlePreferenceChangeEvent(PreferenceChangeEvent event) {
+		if (fContentAssistant != null && event.getNode().name().equals("codeAssist")) {
+			ContentAssistPreference.adaptToPreferenceChange(fContentAssistant, event);
+		}
+	}
 	
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-
-		if (fEditor != null) {
+		if (fEditor != null && fContentAssistant == null) {
 			ContentAssistant assist = new ContentAssistant();
 			REditorTemplatesCompletionProcessor processor = new REditorTemplatesCompletionProcessor(fEditor);
 			
@@ -172,8 +182,8 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			assist.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 	
 			fContentAssistant = assist;
-			return fContentAssistant;
 		}
-		return null;
+		return fContentAssistant;
 	}
+	
 }

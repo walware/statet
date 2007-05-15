@@ -12,10 +12,14 @@
 package de.walware.statet.ext.ui.editors;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -329,6 +333,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private IEditorAdapter fEditorAdapter = new EditorAdapter();
 	private String fProjectNatureId;
 	private ProjectT fProject;
+	private Set<IEclipsePreferences> fPreferenceCollection;
+	private IEclipsePreferences.IPreferenceChangeListener fPreferenceChangeListener;
 	
 	
 /*- Contructors ------------------------------------------------------------*/
@@ -342,10 +348,31 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 	@Override
 	protected void initializeEditor() {
-		
 		super.initializeEditor();
 		setCompatibilityMode(false);
 		setupConfiguration(null, null, null);
+		
+		fPreferenceCollection = new HashSet<IEclipsePreferences>();
+		fetchPreferenceNodes(fPreferenceCollection);
+		if (fPreferenceCollection.isEmpty()) {
+			fPreferenceCollection = null;
+		}
+		else {
+			fPreferenceChangeListener = new IEclipsePreferences.IPreferenceChangeListener() {
+				public void preferenceChange(PreferenceChangeEvent event) {
+					handlePreferenceChangeEvent(event);
+				}
+			};
+			for (IEclipsePreferences node : fPreferenceCollection) {
+				node.addPreferenceChangeListener(fPreferenceChangeListener);
+			}
+		}
+	}
+	
+	protected void fetchPreferenceNodes(Set<IEclipsePreferences> nodeCollection) {
+	}
+	
+	protected void handlePreferenceChangeEvent(PreferenceChangeEvent event) {
 	}
 	
 	protected void configureStatetProjectNatureId(String id) {
@@ -496,10 +523,16 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 	@Override
 	public void dispose() {
-		
 		if (fBracketMatcher != null) {
 			fBracketMatcher.dispose();
 			fBracketMatcher= null;
+		}
+		if (fPreferenceCollection != null) {
+			for (IEclipsePreferences node : fPreferenceCollection) {
+				node.removePreferenceChangeListener(fPreferenceChangeListener);
+			}
+			fPreferenceCollection = null;
+			fPreferenceChangeListener = null;
 		}
 
 		super.dispose();

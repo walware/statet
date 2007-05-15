@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,11 @@
 
 package de.walware.statet.ext.ui.editors;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
@@ -26,21 +27,68 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 public class ContentAssistPreference {
 
-	/** Preference key for content assist auto activation */
-	private final static String AUTOACTIVATION = IStatetUIPreferenceConstants.CODEASSIST_AUTOACTIVATION;
-	/** Preference key for content assist auto activation delay */
-	private final static String AUTOACTIVATION_DELAY = IStatetUIPreferenceConstants.CODEASSIST_AUTOACTIVATION_DELAY;
-	/** Preference key for content assist proposal color */
-	private final static String PROPOSALS_FOREGROUND = IStatetUIPreferenceConstants.CODEASSIST_PROPOSALS_FOREGROUND;
-	/** Preference key for content assist proposal color */
-	private final static String PROPOSALS_BACKGROUND = IStatetUIPreferenceConstants.CODEASSIST_PROPOSALS_BACKGROUND;
-	/** Preference key for content assist parameters color */
-	private final static String PARAMETERS_FOREGROUND = IStatetUIPreferenceConstants.CODEASSIST_PARAMETERS_FOREGROUND;
-	/** Preference key for content assist parameters color */
-	private final static String PARAMETERS_BACKGROUND = IStatetUIPreferenceConstants.CODEASSIST_PARAMETERS_BACKGROUND;
-	/** Preference key for content assist auto insert */
-	private final static String AUTOINSERT= IStatetUIPreferenceConstants.CODEASSIST_AUTOINSERT;
+	/**
+	 * Preference key for content assist auto activation
+	 */
+	public final static String AUTOACTIVATION = "AutoActivation.enable"; //$NON-NLS-1$
 	
+	/**
+	 * Preference key for content assist auto activation delay 
+	 */
+	public final static String AUTOACTIVATION_DELAY = "AutoActivation.delay"; //$NON-NLS-1$
+	
+	/**
+	 * Preference key for content assist auto insert 
+	 */
+	public final static String AUTOINSERT = "AutoInsert.enable"; //$NON-NLS-1$
+
+	/**
+	 * Preference key for content assist proposal color
+	 * <p>
+	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 */
+	public final static String PROPOSALS_FOREGROUND = "Proposals.foreground"; //$NON-NLS-1$
+	
+	/**
+	 * Preference key for content assist proposal color 
+	 * <p>
+	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 */
+	public final static String PROPOSALS_BACKGROUND = "Proposals.background"; //$NON-NLS-1$
+	
+	/**
+	 * Preference key for content assist parameters color 
+	 * <p>
+	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 */
+	public final static String PARAMETERS_FOREGROUND = "Parameters.foreground"; //$NON-NLS-1$
+	
+	/** 
+	 * Preference key for content assist parameters color.
+	 * <p>
+	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 */
+	public final static String PARAMETERS_BACKGROUND = "Parameters.background"; //$NON-NLS-1$
+	
+	/**
+	 * A named preference that holds the foreground color used in the code
+	 * assist selection dialog to mark replaced code.
+	 * <p>
+	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 */
+	public final static String REPLACEMENT_FOREGROUND = "CompletionReplacement.foreground"; //$NON-NLS-1$
+
+	/**
+	 * A named preference that holds the background color used in the code
+	 * assist selection dialog to mark replaced code.
+	 * <p>
+	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 */
+	public final static String REPLACEMENT_BACKGROUND = "CompletionReplacement.background"; //$NON-NLS-1$
+
+	public static IEclipsePreferences getCommonPreferencesNode() {
+		return new InstanceScope().getNode(IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER);
+	}
 
 //	/** Preference key for java content assist auto activation triggers */
 //	private final static String AUTOACTIVATION_TRIGGERS_JAVA= PreferenceConstants.CODEASSIST_AUTOACTIVATION_TRIGGERS_JAVA;
@@ -60,194 +108,51 @@ public class ContentAssistPreference {
 //	private static final String PREFIX_COMPLETION= PreferenceConstants.CODEASSIST_PREFIX_COMPLETION;
 
 	
-	private static Color getColor(IPreferenceStore store, String key) {
+	private static Color getColor(IEclipsePreferences node, String key) {
 		
 		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
-		RGB rgb = PreferenceConverter.getColor(store, PROPOSALS_FOREGROUND);
-		
+		RGB rgb = StringConverter.asRGB(node.get(key, null));
 		return manager.getColor(rgb);
 	}
 	
 	
-	public static void adaptToPreferenceChange(ContentAssistant assistant, PropertyChangeEvent event) {
-
-		String p = event.getProperty();
-		if (!p.startsWith(IStatetUIPreferenceConstants.CODEASSIST_ROOT))
-			return;
+	public static void adaptToPreferenceChange(ContentAssistant assistant, PreferenceChangeEvent event) {
+		String p = (event != null) ? event.getKey() : null;
 		
-		IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
-		
-		if (AUTOACTIVATION.equals(p)) {
-			assistant.enableAutoActivation(store.getBoolean(AUTOACTIVATION));
+		IEclipsePreferences node = getCommonPreferencesNode();
+		if (p == null || AUTOACTIVATION.equals(p)) {
+			assistant.enableAutoActivation(node.getBoolean(AUTOACTIVATION, false));
 		} 
-		else if (AUTOACTIVATION_DELAY.equals(p)) {
-			assistant.setAutoActivationDelay(store.getInt(AUTOACTIVATION_DELAY));
+		if (p == null || AUTOACTIVATION_DELAY.equals(p)) {
+			assistant.setAutoActivationDelay(node.getInt(AUTOACTIVATION_DELAY, 200));
 		}
-		else if (PROPOSALS_FOREGROUND.equals(p)) {
-			assistant.setProposalSelectorForeground(getColor(store, PROPOSALS_FOREGROUND));
+		if (p == null || AUTOINSERT.equals(p)) {
+			assistant.enableAutoInsert(node.getBoolean(AUTOINSERT, false));
 		} 
-		else if (PROPOSALS_BACKGROUND.equals(p)) {
-			assistant.setProposalSelectorBackground(getColor(store, PROPOSALS_BACKGROUND));
+		if (p == null || PROPOSALS_FOREGROUND.equals(p)) {
+			assistant.setProposalSelectorForeground(getColor(node, PROPOSALS_FOREGROUND));
 		} 
-		else if (PARAMETERS_FOREGROUND.equals(p)) {
-			Color c = getColor(store, PARAMETERS_FOREGROUND);
+		if (p == null || PROPOSALS_BACKGROUND.equals(p)) {
+			assistant.setProposalSelectorBackground(getColor(node, PROPOSALS_BACKGROUND));
+		}
+		if (p == null || PARAMETERS_FOREGROUND.equals(p)) {
+			Color c = getColor(node, PARAMETERS_FOREGROUND);
 			assistant.setContextInformationPopupForeground(c);
 			assistant.setContextSelectorForeground(c);
 		} 
-		else if (PARAMETERS_BACKGROUND.equals(p)) {
-			Color c = getColor(store, PARAMETERS_BACKGROUND);
+		if (p == null || PARAMETERS_BACKGROUND.equals(p)) {
+			Color c = getColor(node, PARAMETERS_BACKGROUND);
 			assistant.setContextInformationPopupBackground(c);
 			assistant.setContextSelectorBackground(c);
-		} 
-		else if (AUTOINSERT.equals(p)) {
-			boolean enabled= store.getBoolean(AUTOINSERT);
-			assistant.enableAutoInsert(enabled);
-		} 
-//			else if (PREFIX_COMPLETION.equals(p)) {
-//			boolean enabled= store.getBoolean(PREFIX_COMPLETION);
-//			assistant.enablePrefixCompletion(enabled);
-//		}
-		
-//		changeJavaProcessor(assistant, store, p);
-//		changeJavaDocProcessor(assistant, store, p);
-		
+		}
 	}
 	
-//	private static Color getColor(IPreferenceStore store, String key, ColorManager manager) {
-//		
-//		Color color = manager.getColor(key);
-//		RGB rgb= PreferenceConverter.getColor(store, key);
-//		return manager.getColor(rgb);
-//	}
-//
-//	private static Color getColor(IPreferenceStore store, String key) {
-//		JavaTextTools textTools= JavaPlugin.getDefault().getJavaTextTools();
-//		return getColor(store, key, textTools.getColorManager());
-//	}
-//
-//	private static JavaCompletionProcessor getJavaProcessor(ContentAssistant assistant) {
-//		IContentAssistProcessor p= assistant.getContentAssistProcessor(IDocument.DEFAULT_CONTENT_TYPE);
-//		if (p instanceof JavaCompletionProcessor)
-//			return  (JavaCompletionProcessor) p;
-//		return null;
-//	}
-//
-//	private static JavaDocCompletionProcessor getJavaDocProcessor(ContentAssistant assistant) {
-//		IContentAssistProcessor p= assistant.getContentAssistProcessor(IJavaPartitions.JAVA_DOC);
-//		if (p instanceof JavaDocCompletionProcessor)
-//			return (JavaDocCompletionProcessor) p;
-//		return null;
-//	}
-//
-//	private static void configureJavaProcessor(ContentAssistant assistant, IPreferenceStore store) {
-//		JavaCompletionProcessor jcp= getJavaProcessor(assistant);
-//		if (jcp == null)
-//			return;
-//
-//		String triggers= store.getString(AUTOACTIVATION_TRIGGERS_JAVA);
-//		if (triggers != null)
-//			jcp.setCompletionProposalAutoActivationCharacters(triggers.toCharArray());
-//
-//		boolean enabled= store.getBoolean(SHOW_VISIBLE_PROPOSALS);
-//		jcp.restrictProposalsToVisibility(enabled);
-//
-//		enabled= store.getBoolean(CASE_SENSITIVITY);
-//		jcp.restrictProposalsToMatchingCases(enabled);
-//
-//		enabled= store.getBoolean(ORDER_PROPOSALS);
-//		jcp.orderProposalsAlphabetically(enabled);
-//	}
-//
-//	private static void configureJavaDocProcessor(ContentAssistant assistant, IPreferenceStore store) {
-//		JavaDocCompletionProcessor jdcp= getJavaDocProcessor(assistant);
-//		if (jdcp == null)
-//			return;
-//
-//		String triggers= store.getString(AUTOACTIVATION_TRIGGERS_JAVADOC);
-//		if (triggers != null)
-//			jdcp.setCompletionProposalAutoActivationCharacters(triggers.toCharArray());
-//
-//		boolean enabled= store.getBoolean(CASE_SENSITIVITY);
-//		jdcp.restrictProposalsToMatchingCases(enabled);
-//
-//		enabled= store.getBoolean(ORDER_PROPOSALS);
-//		jdcp.orderProposalsAlphabetically(enabled);
-//	}
-
 	/**
 	 * Configure the given content assistant from the given store.
 	 */
 	public static void configure(ContentAssistant assistant) {
 
-		IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
-		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
-		
-		assistant.enableAutoActivation(store.getBoolean(AUTOACTIVATION));
-		assistant.setAutoActivationDelay(store.getInt(AUTOACTIVATION_DELAY));
-
-		assistant.enableAutoInsert(store.getBoolean(AUTOINSERT));
-
-		Color c = manager.getColor(PreferenceConverter.getColor(store, PROPOSALS_FOREGROUND));
-		assistant.setProposalSelectorForeground(c);
-		c = manager.getColor(PreferenceConverter.getColor(store, PROPOSALS_BACKGROUND));
-		assistant.setProposalSelectorBackground(c);
-
-		c = manager.getColor(PreferenceConverter.getColor(store, PARAMETERS_FOREGROUND));
-		assistant.setContextInformationPopupForeground(c);
-		assistant.setContextSelectorForeground(c);
-
-		c = manager.getColor(PreferenceConverter.getColor(store, PARAMETERS_BACKGROUND));
-		assistant.setContextInformationPopupBackground(c);
-		assistant.setContextSelectorBackground(c);
-
-//		enabled= store.getBoolean(PREFIX_COMPLETION);
-//		assistant.enablePrefixCompletion(enabled);
-
-//		configureJavaProcessor(assistant, store);
-//		configureJavaDocProcessor(assistant, store);
+		adaptToPreferenceChange(assistant, null);
 	}
 
-
-//	private static void changeJavaProcessor(ContentAssistant assistant, IPreferenceStore store, String key) {
-//		JavaCompletionProcessor jcp= getJavaProcessor(assistant);
-//		if (jcp == null)
-//			return;
-//
-//		if (AUTOACTIVATION_TRIGGERS_JAVA.equals(key)) {
-//			String triggers= store.getString(AUTOACTIVATION_TRIGGERS_JAVA);
-//			if (triggers != null)
-//				jcp.setCompletionProposalAutoActivationCharacters(triggers.toCharArray());
-//		} else if (SHOW_VISIBLE_PROPOSALS.equals(key)) {
-//			boolean enabled= store.getBoolean(SHOW_VISIBLE_PROPOSALS);
-//			jcp.restrictProposalsToVisibility(enabled);
-//		} else if (CASE_SENSITIVITY.equals(key)) {
-//			boolean enabled= store.getBoolean(CASE_SENSITIVITY);
-//			jcp.restrictProposalsToMatchingCases(enabled);
-//		} else if (ORDER_PROPOSALS.equals(key)) {
-//			boolean enable= store.getBoolean(ORDER_PROPOSALS);
-//			jcp.orderProposalsAlphabetically(enable);
-//		}
-//	}
-//
-//	private static void changeJavaDocProcessor(ContentAssistant assistant, IPreferenceStore store, String key) {
-//		JavaDocCompletionProcessor jdcp= getJavaDocProcessor(assistant);
-//		if (jdcp == null)
-//			return;
-//
-//		if (AUTOACTIVATION_TRIGGERS_JAVADOC.equals(key)) {
-//			String triggers= store.getString(AUTOACTIVATION_TRIGGERS_JAVADOC);
-//			if (triggers != null)
-//				jdcp.setCompletionProposalAutoActivationCharacters(triggers.toCharArray());
-//		} else if (CASE_SENSITIVITY.equals(key)) {
-//			boolean enabled= store.getBoolean(CASE_SENSITIVITY);
-//			jdcp.restrictProposalsToMatchingCases(enabled);
-//		} else if (ORDER_PROPOSALS.equals(key)) {
-//			boolean enable= store.getBoolean(ORDER_PROPOSALS);
-//			jdcp.orderProposalsAlphabetically(enable);
-//		}
-//	}
-//
-//	public static boolean fillArgumentsOnMethodCompletion(IPreferenceStore store) {
-//		return store.getBoolean(FILL_METHOD_ARGUMENTS);
-//	}
 }
