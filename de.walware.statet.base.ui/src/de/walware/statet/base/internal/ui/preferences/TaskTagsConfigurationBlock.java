@@ -12,8 +12,6 @@
 
 package de.walware.statet.base.internal.ui.preferences;
 
-import static de.walware.statet.base.core.preferences.TaskTagsPreferences.PREF_TAGS;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -67,7 +64,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		TaskPriority priority;
 		
 		public TaskTag(String name, TaskPriority priority) {
-			
 			this.name = name;
 			this.priority = priority;
 		}
@@ -86,7 +82,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		TaskTag fDefaultTask = null;
 		
 		TasksGroup() {
-			
 			super(new String[] {
 					SharedMessages.CollectionEditing_AddItem_label, 
 					SharedMessages.CollectionEditing_EditItem_label, 
@@ -99,24 +94,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		}
 		
 		@Override
-		public TableViewer createSelectionViewer(Composite parent) {
-			
-			TableViewer viewer = super.createSelectionViewer(parent);
-			
-			viewer.setComparator(new ViewerComparator() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public int compare(Viewer viewer, Object e1, Object e2) {
-					return getComparator().compare(((TaskTag) e1).name, ((TaskTag) e2).name);
-				}
-			});
-			
-			return viewer;
-		}
-		
-		@Override
 		protected void createTableColumns(TableViewer viewer, Table table, TableLayout layout) {
-
 			PixelConverter conv = new PixelConverter(table);
 			TableViewerColumn col;
 			
@@ -163,12 +141,20 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			priorityWidth = Math.max(priorityWidth, conv.convertWidthInCharsToPixels(StatetMessages.TaskPriority_Normal.length()));
 			priorityWidth = Math.max(priorityWidth, conv.convertWidthInCharsToPixels(StatetMessages.TaskPriority_Low.length()));
 			layout.addColumnData(new ColumnPixelData(priorityWidth+4, false, true));
+			
+			// Sorter
+			viewer.setComparator(new ViewerComparator() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public int compare(Viewer viewer, Object e1, Object e2) {
+					return getComparator().compare(((TaskTag) e1).name, ((TaskTag) e2).name);
+				}
+			});
 		}
 		
 		
 		@Override
 		public void handleSelection(TaskTag item, IStructuredSelection rawSelection) {
-			
 			fButtonGroup.enableButton(IDX_EDIT, (item != null) );
 			fButtonGroup.enableButton(IDX_DEFAULT, (item != null) && !isDefaultTask(item));
 		}
@@ -176,7 +162,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void handleButtonPressed(int buttonIdx, TaskTag item, IStructuredSelection rawSelection) {
-			
 			switch (buttonIdx) {
 			case IDX_ADD:
 				doEdit(null);
@@ -208,10 +193,8 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 
 	
 	public TaskTagsConfigurationBlock(IProject project, IStatusChangeListener statusListener) {
-
 		super(project);
 		fStatusListener = statusListener;
-		
 		fTasksGroup = new TasksGroup();
 	}
 	
@@ -221,7 +204,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	public void createContents(Layouter layouter, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
-
 		super.createContents(layouter, container, preferenceStore);
 		
 		setupPreferenceManager(container, new Preference[] {
@@ -236,7 +218,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	private void doEdit(TaskTag item) {
-		
 		TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, fTasksGroup.getListModel());
 		if (dialog.open() == Window.OK) {
 			TaskTag newItem = dialog.getResult();
@@ -247,22 +228,21 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			} else {
 				fTasksGroup.addItem(newItem);
 			}
-			saveValues(PREF_TAGS);
+			
+			saveTaskTags();
 		}
-		
 	}
 	
 	private void doRemove(List<TaskTag> selection) {
-		
-		if (selection.contains(fTasksGroup.fDefaultTask))
+		if (selection.contains(fTasksGroup.fDefaultTask)) {
 			fTasksGroup.fDefaultTask = null;
+		}
 		fTasksGroup.removeItems(selection);
 		
-		saveValues(PREF_TAGS);
+		saveTaskTags();
 	}
 	
 	private void doSetDefault(TaskTag item) {
-		
 		fTasksGroup.fDefaultTask = item;
 		if (fTasksGroup.getListModel().indexOf(item) != 0) {
 			fTasksGroup.getListModel().remove(item);
@@ -271,18 +251,16 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		fTasksGroup.getStructuredViewer().refresh();
 		fTasksGroup.reselect();
 		
-		saveValues(PREF_TAGS);
+		saveTaskTags();
 	}
 
 	@Override
 	protected void updateControls() {
-		
 		loadValues();
 		fTasksGroup.getStructuredViewer().refresh();
 	}
 		
 	private void loadValues() {
-
 		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(this);
 		String[] tags = taskPrefs.getTags();
 		TaskPriority[] prios = taskPrefs.getPriorities();
@@ -294,32 +272,29 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		fTasksGroup.getListModel().clear();
 		fTasksGroup.getListModel().addAll(items);
 		
-		if (!items.isEmpty())
+		if (!items.isEmpty()) {
 			fTasksGroup.fDefaultTask = items.get(0);
+		}
 	}
 
-	private void saveValues(Preference key) {
-		
-		if (key == PREF_TAGS) {
-			int n = fTasksGroup.getListModel().size();
-			String[] tags = new String[n];
-			TaskPriority[] prios = new TaskPriority[n];
-			for (int i = 0; i < n; i++) {
-				TaskTag item = fTasksGroup.getListModel().get(i);
-				tags[i] = item.name;
-				prios[i] = item.priority;
-			}
-			TaskTagsPreferences taskPrefs = new TaskTagsPreferences(
-					tags, prios);
-
-			setPrefValues(taskPrefs.getPreferencesMap());
+	private void saveTaskTags() {
+		int n = fTasksGroup.getListModel().size();
+		String[] tags = new String[n];
+		TaskPriority[] prios = new TaskPriority[n];
+		for (int i = 0; i < n; i++) {
+			TaskTag item = fTasksGroup.getListModel().get(i);
+			tags[i] = item.name;
+			prios[i] = item.priority;
 		}
-		
+		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(
+				tags, prios);
+
+		setPrefValues(taskPrefs.getPreferencesMap());
+
 		validateSettings();
 	}
 	
 	private IStatus validateSettings() {
-		
 		StatusInfo listStatus = new StatusInfo();
 		if (fTasksGroup.getListModel().size() == 0) {
 			listStatus.setWarning(Messages.TaskTags_warning_NoTag_message);
@@ -335,7 +310,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
-		
 		String title = Messages.TaskTags_NeedsBuild_title; 
 		String message;
 		if (workspaceSettings) {

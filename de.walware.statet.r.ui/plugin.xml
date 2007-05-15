@@ -417,11 +417,11 @@
             label="%actionSets.RToolbar.label">
          <action
                class="de.walware.statet.r.internal.debug.ui.launcher.RunRCodePulldownAction"
+               icon="icons/tool_16/run_r-script.gif"
                id="de.walware.statet.r.ui.actions.RunRCodePulldown"
                label="%actions.RunRCode.label"
                style="pulldown"
-               toolbarPath="statet.r"
-               />
+               toolbarPath="statet.r"/>
       </actionSet>
    </extension>
    <extension

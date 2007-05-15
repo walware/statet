@@ -131,6 +131,7 @@ public class LayoutUtil {
 		gl.numColumns = numColumns;
 		gl.horizontalSpacing = defaultHSpacing();
 		gl.verticalSpacing = defaultVSpacing();
+		gl.marginTop = defaultVSpacing() / 2;
 		return gl;
 	}
 	
@@ -156,7 +157,7 @@ public class LayoutUtil {
 		Label filler = new Label(composite, SWT.NONE);
 		Layout layout = composite.getLayout();
 		if (layout instanceof GridLayout) {
-			GridData gd = new GridData(SWT.LEFT, SWT.TOP, false, false);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 			gd.horizontalSpan = ((GridLayout) layout).numColumns;
 			gd.heightHint = defaultVSpacing() / 2;
 			filler.setLayoutData(gd);

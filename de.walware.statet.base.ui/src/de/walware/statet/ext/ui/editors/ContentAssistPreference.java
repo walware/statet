@@ -14,11 +14,14 @@ package de.walware.statet.ext.ui.editors;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
-import org.eclipse.jface.resource.StringConverter;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
+import de.walware.eclipsecommons.preferences.Preference.IntPref;
+import de.walware.eclipsecommons.ui.preferences.RGBPref;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -27,65 +30,64 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 public class ContentAssistPreference {
 
-	/**
-	 * Preference key for content assist auto activation
-	 */
-	public final static String AUTOACTIVATION = "AutoActivation.enable"; //$NON-NLS-1$
 	
 	/**
-	 * Preference key for content assist auto activation delay 
+	 * Preference for content assist auto activation
 	 */
-	public final static String AUTOACTIVATION_DELAY = "AutoActivation.delay"; //$NON-NLS-1$
+	public final static BooleanPref AUTOACTIVATION = new BooleanPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoActivation.enable"); //$NON-NLS-1$
 	
 	/**
-	 * Preference key for content assist auto insert 
+	 * Preference for content assist auto activation delay 
 	 */
-	public final static String AUTOINSERT = "AutoInsert.enable"; //$NON-NLS-1$
+	public final static IntPref AUTOACTIVATION_DELAY = new IntPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoActivation.delay"); //$NON-NLS-1$
+	
+	/**
+	 * Preference for content assist auto insert 
+	 */
+	public final static BooleanPref AUTOINSERT = new BooleanPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoInsert.enable"); //$NON-NLS-1$
 
 	/**
-	 * Preference key for content assist proposal color
-	 * <p>
-	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 * Preference for content assist proposal color
 	 */
-	public final static String PROPOSALS_FOREGROUND = "Proposals.foreground"; //$NON-NLS-1$
+	public final static RGBPref PROPOSALS_FOREGROUND = new RGBPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Proposals.foreground"); //$NON-NLS-1$
 	
 	/**
-	 * Preference key for content assist proposal color 
-	 * <p>
-	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 * Preference for content assist proposal color 
 	 */
-	public final static String PROPOSALS_BACKGROUND = "Proposals.background"; //$NON-NLS-1$
+	public final static RGBPref PROPOSALS_BACKGROUND = new RGBPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Proposals.background"); //$NON-NLS-1$
 	
 	/**
-	 * Preference key for content assist parameters color 
-	 * <p>
-	 * Value is of type <code>String</code>/<code>RGB</code>.
+	 * Preference for content assist parameters color 
 	 */
-	public final static String PARAMETERS_FOREGROUND = "Parameters.foreground"; //$NON-NLS-1$
+	public final static RGBPref PARAMETERS_FOREGROUND = new RGBPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Parameters.foreground"); //$NON-NLS-1$
 	
 	/** 
 	 * Preference key for content assist parameters color.
-	 * <p>
-	 * Value is of type <code>String</code>/<code>RGB</code>.
 	 */
-	public final static String PARAMETERS_BACKGROUND = "Parameters.background"; //$NON-NLS-1$
+	public final static RGBPref PARAMETERS_BACKGROUND = new RGBPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Parameters.background"); //$NON-NLS-1$
 	
 	/**
 	 * A named preference that holds the foreground color used in the code
 	 * assist selection dialog to mark replaced code.
-	 * <p>
-	 * Value is of type <code>String</code>/<code>RGB</code>.
 	 */
-	public final static String REPLACEMENT_FOREGROUND = "CompletionReplacement.foreground"; //$NON-NLS-1$
+	public final static RGBPref REPLACEMENT_FOREGROUND = new RGBPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "CompletionReplacement.foreground"); //$NON-NLS-1$
 
 	/**
 	 * A named preference that holds the background color used in the code
 	 * assist selection dialog to mark replaced code.
-	 * <p>
-	 * Value is of type <code>String</code>/<code>RGB</code>.
 	 */
-	public final static String REPLACEMENT_BACKGROUND = "CompletionReplacement.background"; //$NON-NLS-1$
+	public final static RGBPref REPLACEMENT_BACKGROUND = new RGBPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "CompletionReplacement.background"); //$NON-NLS-1$
 
+	
 	public static IEclipsePreferences getCommonPreferencesNode() {
 		return new InstanceScope().getNode(IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER);
 	}
@@ -108,40 +110,33 @@ public class ContentAssistPreference {
 //	private static final String PREFIX_COMPLETION= PreferenceConstants.CODEASSIST_PREFIX_COMPLETION;
 
 	
-	private static Color getColor(IEclipsePreferences node, String key) {
-		
-		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
-		RGB rgb = StringConverter.asRGB(node.get(key, null));
-		return manager.getColor(rgb);
-	}
-	
-	
 	public static void adaptToPreferenceChange(ContentAssistant assistant, PreferenceChangeEvent event) {
 		String p = (event != null) ? event.getKey() : null;
+		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
+		IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
 		
-		IEclipsePreferences node = getCommonPreferencesNode();
-		if (p == null || AUTOACTIVATION.equals(p)) {
-			assistant.enableAutoActivation(node.getBoolean(AUTOACTIVATION, false));
+		if (p == null || AUTOACTIVATION.getKey().equals(p)) {
+			assistant.enableAutoActivation(statet.getPreferenceValue(AUTOACTIVATION));
 		} 
-		if (p == null || AUTOACTIVATION_DELAY.equals(p)) {
-			assistant.setAutoActivationDelay(node.getInt(AUTOACTIVATION_DELAY, 200));
+		if (p == null || AUTOACTIVATION_DELAY.getKey().equals(p)) {
+			assistant.setAutoActivationDelay(statet.getPreferenceValue(AUTOACTIVATION_DELAY));
 		}
-		if (p == null || AUTOINSERT.equals(p)) {
-			assistant.enableAutoInsert(node.getBoolean(AUTOINSERT, false));
+		if (p == null || AUTOINSERT.getKey().equals(p)) {
+			assistant.enableAutoInsert(statet.getPreferenceValue(AUTOINSERT));
 		} 
-		if (p == null || PROPOSALS_FOREGROUND.equals(p)) {
-			assistant.setProposalSelectorForeground(getColor(node, PROPOSALS_FOREGROUND));
+		if (p == null || PROPOSALS_FOREGROUND.getKey().equals(p)) {
+			assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
 		} 
-		if (p == null || PROPOSALS_BACKGROUND.equals(p)) {
-			assistant.setProposalSelectorBackground(getColor(node, PROPOSALS_BACKGROUND));
+		if (p == null || PROPOSALS_BACKGROUND.getKey().equals(p)) {
+			assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
 		}
-		if (p == null || PARAMETERS_FOREGROUND.equals(p)) {
-			Color c = getColor(node, PARAMETERS_FOREGROUND);
+		if (p == null || PARAMETERS_FOREGROUND.getKey().equals(p)) {
+			Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
 			assistant.setContextInformationPopupForeground(c);
 			assistant.setContextSelectorForeground(c);
 		} 
-		if (p == null || PARAMETERS_BACKGROUND.equals(p)) {
-			Color c = getColor(node, PARAMETERS_BACKGROUND);
+		if (p == null || PARAMETERS_BACKGROUND.getKey().equals(p)) {
+			Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
 			assistant.setContextInformationPopupBackground(c);
 			assistant.setContextSelectorBackground(c);
 		}
