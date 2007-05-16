@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.beans.PropertyChangeEvent;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -18,10 +19,12 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
@@ -47,6 +50,7 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 
 	private IContextProvider fHelpContextProvider;
 	private RResourceUnit fRResourceUnit;
+	private java.beans.PropertyChangeListener fCodyStyleListener;
 	
 	
 	public REditor() {
@@ -59,6 +63,19 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		configureStatetPairMatching(new RBracketPairMatcher());
+		fCodyStyleListener = new java.beans.PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent event) {
+				String name = event.getPropertyName();
+				if (RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE.equals(name)
+						|| RCodeStyleSettings.PROP_INDENT_SPACES_COUNT.equals(name)) {
+					updateIndentPrefixes();
+				}
+				if (RCodeStyleSettings.PROP_TAB_SIZE.equals(name)) {
+					((ISourceViewerExtension2) getSourceViewer()).unconfigure();
+					getSourceViewer().configure(getSourceViewerConfiguration());
+				}
+			}
+		};
 		// help init in #createActions() to avoid default trigger
 		
 		super.initializeEditor();
@@ -76,7 +93,15 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 			config.handlePreferenceChangeEvent(event);
 		}
 	}
-
+	
+	@Override
+	protected void handlePreferenceStoreChanged(org.eclipse.jface.util.PropertyChangeEvent event) {
+		if (AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH.equals(event.getProperty())) {
+			return;
+		}
+		super.handlePreferenceStoreChanged(event);
+	}
+	
 	@Override
 	protected void setupConfiguration(RProject prevProject, RProject newProject, IEditorInput newInput) {
 		
@@ -85,8 +110,13 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 		setPreferenceStore(preferenceStore);
 		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 
 				StatetUIServices.getSharedColorManager(), preferenceStore));
+		if (fRResourceUnit != null) {
+			fRResourceUnit.getRCodeStyle().removePropertyChangeListener(fCodyStyleListener);
+			fRResourceUnit = null;
+		}
 		if (newInput != null) {
 			fRResourceUnit = new RResourceUnit((IFile) newInput.getAdapter(IFile.class));
+			fRResourceUnit.getRCodeStyle().addPropertyChangeListener(fCodyStyleListener);
 		}
 	}
 	

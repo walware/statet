@@ -18,14 +18,6 @@ package de.walware.statet.r.core;
 public class RCorePreferenceNodes {
 	
 	
-	public static final String CAT_R_CODESTYLE_QUALIFIER = RCore.PLUGIN_ID + "/codestyle/r";
-	
-	/**
-	 * Qualifier of node with preferences required to show R code corresponding the style settings.
-	 * 
-	 * It is a subset of settings in {@link #CAT_R_CODESTYLE_QUALIFIER},
-	 * compatible with Eclipse TextEditor {@link org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants}.
-	 */
-	public static final String CAT_R_CODESTYLE_PRESENTATION_QUALIFIER = CAT_R_CODESTYLE_QUALIFIER + "/presentation"; 
+	public static final String CAT_R_CODESTYLE_QUALIFIER = RCore.PLUGIN_ID + "/codestyle/r"; //$NON-NLS-1$
 
 }

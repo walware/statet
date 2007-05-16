@@ -71,7 +71,6 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		super.createContents(parent, container, preferenceStore);
 		setupPreferenceManager(container, new Preference[] {
 				RCodeStyleSettings.PREF_TAB_SIZE,
-				RCodeStyleSettings.Presentation.PREF_TAB_SIZE,
 		});
 		fModel = new RCodeStyleSettings(this);
 		

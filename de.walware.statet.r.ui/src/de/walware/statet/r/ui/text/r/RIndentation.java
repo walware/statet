@@ -29,6 +29,13 @@ import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 public class RIndentation {
 
 	
+	public static char[] repeat(char c, int n) {
+		char[] chars = new char[n];
+		Arrays.fill(chars, c);
+		return chars;
+	}
+
+	
 	public abstract class IndentEditAction {
 		
 		private int fDepth;
@@ -272,9 +279,12 @@ public class RIndentation {
 	public String createIndentationString(int depth) {
 		
 		if (fTabAsDefault) {
-			return repeat('\t', depth / fTabWidth) + repeat(' ', depth % fTabWidth); 
+			return new StringBuilder(depth)
+					.append(repeat('\t', depth / fTabWidth))
+					.append(repeat(' ', depth % fTabWidth))
+					.toString(); 
 		}
-		return repeat(' ', depth);
+		return new String(repeat(' ', depth));
 	}
 	
 	
@@ -289,12 +299,6 @@ public class RIndentation {
 		throw new BadLocationException();
 	}
 	
-	private String repeat(char c, int n) {
-		
-		char[] chars = new char[n];
-		Arrays.fill(chars, c);
-		return new String(chars);
-	}
 	
 	private String createNoIndentationCharMessage(int c) {
 		

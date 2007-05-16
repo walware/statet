@@ -39,14 +39,6 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.spaces.count"); //$NON-NLS-1$
 	public static final String PROP_INDENT_SPACES_COUNT = "indentSpacesCount"; //$NON-NLS-1$
 	
-	/**
-	 * @see RCorePreferenceNodes#CAT_R_CODESTYLE_PRESENTATION_QUALIFIER
-	 */
-	public static class Presentation {
-		public static final IntPref PREF_TAB_SIZE = new IntPref(
-				RCorePreferenceNodes.CAT_R_CODESTYLE_PRESENTATION_QUALIFIER, "tabWidth"); //$NON-NLS-1$
-	}
-	
 	
 	private int fTabSize;
 	private IndentationType fIndentationDefaultType;
@@ -57,7 +49,6 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	 * Creates an instance with default settings.
 	 */
 	public RCodeStyleSettings() {
-		
 		loadDefaults();
 		resetDirty();
 	}
@@ -66,7 +57,6 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	 * Creates an instance with settings from preferences.
 	 */
 	public RCodeStyleSettings(IPreferenceAccess prefs) {
-		
 		load(prefs);
 		resetDirty();
 	}
@@ -74,13 +64,11 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
 	@Override
 	public String[] getNodeQualifiers() {
-		
 		return new String[] { RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER };
 	}
 	
 	@Override
 	public synchronized void loadDefaults() {
-		
 		setTabSize(4);
 		setIndentDefaultType(IndentationType.SPACES);
 		setIndentSpacesCount(4);
@@ -88,7 +76,6 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
 	@Override
 	public synchronized void load(IPreferenceAccess prefs) {
-		
 		setTabSize(prefs.getPreferenceValue(PREF_TAB_SIZE));
 		setIndentDefaultType(prefs.getPreferenceValue(PREF_INDENT_DEFAULT_TYPE));
 		setIndentSpacesCount(prefs.getPreferenceValue(PREF_INDENT_SPACES_COUNT));
@@ -96,13 +83,9 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 
 	@Override
 	public synchronized Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
-		
 		map.put(PREF_TAB_SIZE, getTabSize());
 		map.put(PREF_INDENT_DEFAULT_TYPE, getIndentDefaultType());
 		map.put(PREF_INDENT_SPACES_COUNT, getIndentSpacesCount());
-
-		map.put(Presentation.PREF_TAB_SIZE, getTabSize());
-		
 		return map;
 	}
 
@@ -110,35 +93,29 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 /*-- Properties --------------------------------------------------------------*/
 	
 	public void setTabSize(int size) {
-		
 		int oldValue = fTabSize;
 		fTabSize = size;
 		firePropertyChange(PROP_TAB_SIZE, oldValue, fTabSize);
 	}
 	public int getTabSize() {
-		
 		return fTabSize;
 	}
 
 	public void setIndentDefaultType(IndentationType type) {
-		
 		IndentationType oldValue = fIndentationDefaultType;
 		fIndentationDefaultType = type;
 		firePropertyChange(PROP_INDENT_DEFAULT_TYPE, oldValue, fIndentationDefaultType);
 	}
 	public IndentationType getIndentDefaultType() {
-		
 		return fIndentationDefaultType;
 	}
 
 	public void setIndentSpacesCount(int count) {
-		
 		int oldValue = fIndentationSpacesCount;
 		fIndentationSpacesCount = count;
 		firePropertyChange(PROP_INDENT_SPACES_COUNT, oldValue, fIndentationSpacesCount);
 	}
 	public int getIndentSpacesCount() {
-		
 		return fIndentationSpacesCount;
 	}
 

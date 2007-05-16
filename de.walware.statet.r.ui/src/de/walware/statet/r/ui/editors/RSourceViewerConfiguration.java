@@ -36,13 +36,16 @@ import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
-import de.walware.statet.r.core.RCorePreferenceNodes;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RCodeScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
+import de.walware.statet.r.ui.text.r.RIndentation;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
 
 
@@ -58,8 +61,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			IPreferenceStore store, IPreferenceAccess corePrefs) {
 		return StatextSourceViewerConfiguration.createCombinedPreferenceStore(
 				store, corePrefs, new String[] { 
-					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER,
-					RCorePreferenceNodes.CAT_R_CODESTYLE_PRESENTATION_QUALIFIER });
+					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER });
 	}
 
 	public static void fetchPreferenceNodes(Set<IEclipsePreferences> list) {
@@ -75,6 +77,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	
 	private REditor fEditor;
+	private IRCoreAccess fRCoreAccess;
 
 	
 	public RSourceViewerConfiguration(REditor editor, 
@@ -82,7 +85,16 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 		super(colorManager, preferenceStore);
 		fEditor = editor;
+		fRCoreAccess = editor;
 	}
+
+	public RSourceViewerConfiguration(IRCoreAccess rCoreAccess, 
+			ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
+
+		super(colorManager, preferenceStore);
+		fRCoreAccess = rCoreAccess;
+	}
+	
 	
 	/**
 	 * Initializes the scanners.
@@ -144,11 +156,32 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 
 	@Override
+	public int getTabWidth(ISourceViewer sourceViewer) {
+		
+		return fRCoreAccess.getRCodeStyle().getTabSize();
+	}
+
+	@Override
 	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
 		
 		return new String[] { "#", "" }; //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
+	
+	@Override
+	public String[] getIndentPrefixes(ISourceViewer sourceViewer,
+			String contentType) {
+		
+		String[] prefixes = getIndentPrefixesForTab(getTabWidth(sourceViewer));
+		RCodeStyleSettings codeStyle = fRCoreAccess.getRCodeStyle();
+		if (codeStyle.getIndentDefaultType() == IndentationType.SPACES) {
+			String[] enhPrefixes = new String[prefixes.length+1];
+			enhPrefixes[0] = new String(RIndentation.repeat(' ', codeStyle.getIndentSpacesCount()));
+			System.arraycopy(prefixes, 0, enhPrefixes, 1, prefixes.length);
+			return enhPrefixes;
+		}
+		return prefixes;
+	}
+	
 	@Override
 	public boolean affectsTextPresentation(PropertyChangeEvent event) {
 		
