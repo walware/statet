@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.core.preferences.PreferenceManageListener;
 import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RSupportBuilder;
@@ -30,37 +31,48 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
 	
 	
-	public RProject() {
+	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
+		try {
+			monitor.beginTask(Messages.RProject_ConfigureTask_label, 1000);
+			
+			if (!project.hasNature(NATURE_ID)) {
+				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
+				
+				IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
+				project.setDescription(description, new SubProgressMonitor(monitor, 600));
+			} 
+		}
+		finally {
+			monitor.done();
+		}
+	}
 
-		super();
+	/**
+	 * Find the specific Java command amongst the given build spec
+	 * and return its index or -1 if not found.
+	 */
+	private static int getBuilderIndex(ICommand[] buildSpec, String id) {
+		for (int i = 0; i < buildSpec.length; ++i) {
+			if (buildSpec[i].getBuilderName().equals(id)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	
 /* IProjectNature *************************************************************/
 	
 	public void configure() throws CoreException {
-
 		addBuilders();
 
 	}
 
 	public void deconfigure() throws CoreException {
-
 		removeBuilders();
 	}
 
-	
-/* **/
-	public StatetProject getStatetProject() throws CoreException {
-		
-		return (StatetProject) fProject.getNature(StatetProject.NATURE_ID);
-	}
-	
-	
-	
-/* **/
 	public void addBuilders() throws CoreException {
-		
 		String builderId = RSupportBuilder.ID;
 		
 		IProjectDescription description = fProject.getDescription();
@@ -80,9 +92,8 @@ public class RProject extends StatextProject implements IRCoreAccess {
 			fProject.setDescription(description, null);
 		}
 	}
-	
-	public void removeBuilders() throws CoreException {
 
+	public void removeBuilders() throws CoreException {
 		String builderId = RSupportBuilder.ID;
 		
 		IProjectDescription description = getProject().getDescription();
@@ -97,42 +108,35 @@ public class RProject extends StatextProject implements IRCoreAccess {
 		}
 	}
 	
-	/**
-	 * Find the specific Java command amongst the given build spec
-	 * and return its index or -1 if not found.
-	 */
-	private int getBuilderIndex(ICommand[] buildSpec, String id) {
+/* **/
+	private RCodeStyleSettings fRCodeStyle;
+	private PreferenceManageListener fPreferenceListener;
 
-		for (int i = 0; i < buildSpec.length; ++i) {
-			if (buildSpec[i].getBuilderName().equals(id)) {
-				return i;
-			}
-		}
-		return -1;
+	public RProject() {
+		super();
 	}
 
-/* */
-
-	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
-
-		try {
-			monitor.beginTask(Messages.RProject_ConfigureTask_label, 1000);
-			
-			if (!project.hasNature(NATURE_ID)) {
-				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
-				
-				IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
-				project.setDescription(description, new SubProgressMonitor(monitor, 600));
-			} 
-		}
-		finally {
-			monitor.done();
+	@Override
+	public void setProject(IProject project) {
+		super.setProject(project);
+		fRCodeStyle = new RCodeStyleSettings();
+		fPreferenceListener = new PreferenceManageListener(fRCodeStyle, this, RCodeStyleSettings.CONTEXT_ID);
+	}
+	
+	@Override
+	protected void dispose() {
+		super.dispose();
+		if (fPreferenceListener != null) {
+			fPreferenceListener.dispose();
+			fPreferenceListener = null;
 		}
 	}
-
-
+	
+	public StatetProject getStatetProject() throws CoreException {
+		return (StatetProject) fProject.getNature(StatetProject.NATURE_ID);
+	}
+	
 	public RCodeStyleSettings getRCodeStyle() {
-		
-		return new RCodeStyleSettings(this); // TODO share/cache/monitor
+		return fRCodeStyle;
 	}
 }

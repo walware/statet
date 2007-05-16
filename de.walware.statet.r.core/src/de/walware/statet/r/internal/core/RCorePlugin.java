@@ -15,6 +15,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+
+import de.walware.statet.base.core.preferences.PreferenceManageListener;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
+
 
 /**
  * The main plugin class to be used in the desktop.
@@ -26,10 +32,39 @@ public class RCorePlugin extends Plugin {
 	private static RCorePlugin gPlugin;
 	
 	/**
+	 * Returns the shared instance.
+	 */
+	public static RCorePlugin getDefault() {
+		return gPlugin;
+	}
+
+	public static void log(IStatus status) {
+		getDefault().getLog().log(status);
+	}
+
+	
+	private class WorkspaceCoreAccess implements IRCoreAccess {
+		
+		private RCodeStyleSettings fRCodeStyle;
+		
+		private WorkspaceCoreAccess() {
+			fRCodeStyle = new RCodeStyleSettings();
+			new PreferenceManageListener(fRCodeStyle, PreferencesUtil.getInstancePrefs(), RCodeStyleSettings.CONTEXT_ID);
+		}
+		
+		public RCodeStyleSettings getRCodeStyle() {
+			return fRCodeStyle;
+		};
+	};
+
+	
+	private IRCoreAccess fWorkspaceCoreAccess;
+	
+	
+	/**
 	 * The constructor.
 	 */
 	public RCorePlugin() {
-		
 		gPlugin = this;
 	}
 
@@ -37,7 +72,6 @@ public class RCorePlugin extends Plugin {
 	 * This method is called upon plug-in activation
 	 */
 	public void start(BundleContext context) throws Exception {
-		
 		super.start(context);
 	}
 
@@ -45,22 +79,18 @@ public class RCorePlugin extends Plugin {
 	 * This method is called when the plug-in is stopped
 	 */
 	public void stop(BundleContext context) throws Exception {
-		
 		super.stop(context);
 		gPlugin = null;
 	}
 
-	/**
-	 * Returns the shared instance.
-	 */
-	public static RCorePlugin getDefault() {
-		
-		return gPlugin;
-	}
-
-	
-	public static void log(IStatus status) {
-		
-		getDefault().getLog().log(status);
+	public IRCoreAccess getWorkspaceRCoreAccess() {
+		if (fWorkspaceCoreAccess == null) {
+			synchronized (this) {
+				if (fWorkspaceCoreAccess == null) {
+					fWorkspaceCoreAccess = new WorkspaceCoreAccess();
+				}
+			}
+		}
+		return fWorkspaceCoreAccess;
 	}
 }

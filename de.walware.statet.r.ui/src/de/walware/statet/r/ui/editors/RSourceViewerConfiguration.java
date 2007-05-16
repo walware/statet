@@ -13,8 +13,6 @@ package de.walware.statet.r.ui.editors;
 
 import java.util.Set;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
@@ -64,8 +62,8 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER });
 	}
 
-	public static void fetchPreferenceNodes(Set<IEclipsePreferences> list) {
-		list.add(ContentAssistPreference.getCommonPreferencesNode());
+	public static void fetchSettingsContexts(Set<String> list) {
+		list.add(ContentAssistPreference.CONTEXT_ID);
 	}
 	
 	
@@ -190,9 +188,9 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 				|| property.equals(TaskTagsPreferences.PREF_TAGS.getKey()) );
 	}
 	
-	public void handlePreferenceChangeEvent(PreferenceChangeEvent event) {
-		if (fContentAssistant != null && event.getNode().name().equals("codeAssist")) {
-			ContentAssistPreference.adaptToPreferenceChange(fContentAssistant, event);
+	public void handleSettingsChange(Set<String> contexts) {
+		if (contexts.contains(ContentAssistPreference.CONTEXT_ID)) {
+			ContentAssistPreference.configure(fContentAssistant);
 		}
 	}
 	

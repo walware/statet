@@ -12,14 +12,11 @@
 package de.walware.statet.ext.ui.editors;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -44,6 +41,10 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
+import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.core.preferences.SettingsChangeNotifier;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
@@ -51,7 +52,8 @@ import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.ext.ui.text.PairMatcher;
 
 
-public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor {
+public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
+		implements SettingsChangeNotifier.ChangeListener {
 
 	
 	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment";
@@ -112,17 +114,14 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private class EditorAdapter implements IEditorAdapter {
 		
 		public void setStatusLineErrorMessage(String message) {
-
 			StatextEditor1.this.setStatusLineErrorMessage(message);
 		}
 		
 		public ISourceViewer getSourceViewer() {
-			
 			return StatextEditor1.this.getSourceViewer();
 		}
 		
 		public boolean isEditable(boolean validate) {
-			
 			if (validate) {
 				return StatextEditor1.this.validateEditorInputState();
 			}
@@ -140,7 +139,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		private Map<String, String[]> fPrefixesMap;
 
 		ToggleCommentAction() {
-			
 			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this);
 			setActionDefinitionId(IStatetUICommandIds.TOGGLE_COMMENT);		
 			
@@ -148,7 +146,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 
 		public void run() {
-
 			ISourceViewer sourceViewer = getSourceViewer();
 			
 			if (!validateEditorInputState())
@@ -333,8 +330,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private IEditorAdapter fEditorAdapter = new EditorAdapter();
 	private String fProjectNatureId;
 	private ProjectT fProject;
-	private Set<IEclipsePreferences> fPreferenceCollection;
-	private IEclipsePreferences.IPreferenceChangeListener fPreferenceChangeListener;
 	
 	
 /*- Contructors ------------------------------------------------------------*/
@@ -352,31 +347,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		setCompatibilityMode(false);
 		setupConfiguration(null, null, null);
 		
-		fPreferenceCollection = new HashSet<IEclipsePreferences>();
-		fetchPreferenceNodes(fPreferenceCollection);
-		if (fPreferenceCollection.isEmpty()) {
-			fPreferenceCollection = null;
-		}
-		else {
-			fPreferenceChangeListener = new IEclipsePreferences.IPreferenceChangeListener() {
-				public void preferenceChange(PreferenceChangeEvent event) {
-					handlePreferenceChangeEvent(event);
-				}
-			};
-			for (IEclipsePreferences node : fPreferenceCollection) {
-				node.addPreferenceChangeListener(fPreferenceChangeListener);
-			}
-		}
+		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 	}
 	
-	protected void fetchPreferenceNodes(Set<IEclipsePreferences> nodeCollection) {
-	}
-	
-	protected void handlePreferenceChangeEvent(PreferenceChangeEvent event) {
-	}
 	
 	protected void configureStatetProjectNatureId(String id) {
-		
 		fProjectNatureId = id;
 	}
 	
@@ -423,7 +398,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	 * Subclasses should setup the SourceViewerConfiguration.
 	 */
 	protected void setupConfiguration(ProjectT prevProject, ProjectT newProject, IEditorInput newInput) {
-		
 	}
 	
 	/**
@@ -454,27 +428,23 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	 * @return the project of current input, or <code>null</code>, if none/not supported.
 	 */
 	protected final ProjectT getProject() {
-		
 		return fProject;
 	}
 		
 
 	@Override
 	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
-		
 		if (fBracketMatcher != null) {
 			support.setCharacterPairMatcher(fBracketMatcher);
 			support.setMatchingCharacterPainterPreferenceKeys(
 					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
 					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
 		}
-
 		super.configureSourceViewerDecorationSupport(support);
 	}
 
 	@Override
 	protected void createActions() {
-		
 		super.createActions();
 		Action action;
 		
@@ -493,7 +463,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 	@Override
 	public Object getAdapter(Class adapter) {
-		
 		if (IEditorAdapter.class.equals(adapter)) {
 			return fEditorAdapter;
 		}
@@ -503,7 +472,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	@Override
 	protected boolean affectsTextPresentation(PropertyChangeEvent event) {
-		
 		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
 		if (viewerConfiguration != null && viewerConfiguration.affectsTextPresentation(event)) {
 			return true;
@@ -513,13 +481,24 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	@Override
 	protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
-		
 		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
 		if (viewerConfiguration != null) {
 			viewerConfiguration.handlePropertyChangeEvent(event);
 		}
 		super.handlePreferenceStoreChanged(event);
 	}
+	
+	public void settingsChanged(final Set<String> contexts) {
+		UIAccess.getDisplay(getEditorSite().getShell()).syncExec(new Runnable() {
+			public void run() {
+				handleSettingsChanged(contexts);
+			}
+		});
+	}
+	
+	protected void handleSettingsChanged(Set<String> contexts) {
+	}
+
 
 	@Override
 	public void dispose() {
@@ -527,14 +506,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			fBracketMatcher.dispose();
 			fBracketMatcher= null;
 		}
-		if (fPreferenceCollection != null) {
-			for (IEclipsePreferences node : fPreferenceCollection) {
-				node.removePreferenceChangeListener(fPreferenceChangeListener);
-			}
-			fPreferenceCollection = null;
-			fPreferenceChangeListener = null;
-		}
-
+		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
 		super.dispose();
 	}
 

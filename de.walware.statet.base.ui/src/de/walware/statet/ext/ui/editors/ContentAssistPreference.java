@@ -13,7 +13,6 @@ package de.walware.statet.ext.ui.editors;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.swt.graphics.Color;
 
@@ -30,6 +29,9 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 public class ContentAssistPreference {
 
+	
+	public static final String CONTEXT_ID = "statet.contentassist"; //$NON-NLS-1$
+	
 	
 	/**
 	 * Preference for content assist auto activation
@@ -110,44 +112,24 @@ public class ContentAssistPreference {
 //	private static final String PREFIX_COMPLETION= PreferenceConstants.CODEASSIST_PREFIX_COMPLETION;
 
 	
-	public static void adaptToPreferenceChange(ContentAssistant assistant, PreferenceChangeEvent event) {
-		String p = (event != null) ? event.getKey() : null;
-		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
-		IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
-		
-		if (p == null || AUTOACTIVATION.getKey().equals(p)) {
-			assistant.enableAutoActivation(statet.getPreferenceValue(AUTOACTIVATION));
-		} 
-		if (p == null || AUTOACTIVATION_DELAY.getKey().equals(p)) {
-			assistant.setAutoActivationDelay(statet.getPreferenceValue(AUTOACTIVATION_DELAY));
-		}
-		if (p == null || AUTOINSERT.getKey().equals(p)) {
-			assistant.enableAutoInsert(statet.getPreferenceValue(AUTOINSERT));
-		} 
-		if (p == null || PROPOSALS_FOREGROUND.getKey().equals(p)) {
-			assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
-		} 
-		if (p == null || PROPOSALS_BACKGROUND.getKey().equals(p)) {
-			assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
-		}
-		if (p == null || PARAMETERS_FOREGROUND.getKey().equals(p)) {
-			Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
-			assistant.setContextInformationPopupForeground(c);
-			assistant.setContextSelectorForeground(c);
-		} 
-		if (p == null || PARAMETERS_BACKGROUND.getKey().equals(p)) {
-			Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
-			assistant.setContextInformationPopupBackground(c);
-			assistant.setContextSelectorBackground(c);
-		}
-	}
-	
 	/**
 	 * Configure the given content assistant from the given store.
 	 */
 	public static void configure(ContentAssistant assistant) {
-
-		adaptToPreferenceChange(assistant, null);
+		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
+		IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
+		
+		assistant.enableAutoActivation(statet.getPreferenceValue(AUTOACTIVATION));
+		assistant.setAutoActivationDelay(statet.getPreferenceValue(AUTOACTIVATION_DELAY));
+		assistant.enableAutoInsert(statet.getPreferenceValue(AUTOINSERT));
+		assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
+		assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
+		Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
+		assistant.setContextInformationPopupForeground(c);
+		assistant.setContextSelectorForeground(c);
+		manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
+		assistant.setContextInformationPopupBackground(c);
+		assistant.setContextSelectorBackground(c);
 	}
 
 }

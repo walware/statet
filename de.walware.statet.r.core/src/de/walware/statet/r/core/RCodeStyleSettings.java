@@ -25,6 +25,8 @@ import de.walware.eclipsecommons.preferences.Preference.IntPref;
  */
 public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
+	public static final String CONTEXT_ID = "r.codestyle"; //$NON-NLS-1$
+
 	public static enum IndentationType {
 		TAB, SPACES,
 	}

@@ -73,7 +73,7 @@ public interface IStatetUIPreferenceConstants {
 	public final static String EDITOR_MATCHING_BRACKETS_COLOR = "editor.MatchingBrackets.color"; //$NON-NLS-1$
 
 	
-	public final static String CAT_CODEASSIST_QUALIFIER = StatetUIPlugin.PLUGIN_ID + "/codeAssist";
+	public final static String CAT_CODEASSIST_QUALIFIER = StatetUIPlugin.PLUGIN_ID + "/codeAssist"; //$NON-NLS-1$
 
 	
 //	/**

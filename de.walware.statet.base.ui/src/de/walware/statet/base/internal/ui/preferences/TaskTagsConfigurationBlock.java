@@ -209,7 +209,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		setupPreferenceManager(container, new Preference[] {
 				TaskTagsPreferences.PREF_TAGS,
 				TaskTagsPreferences.PREF_PRIORITIES,
-		} );
+		}, null);
 
 		layouter.addGroup(fTasksGroup);
 		

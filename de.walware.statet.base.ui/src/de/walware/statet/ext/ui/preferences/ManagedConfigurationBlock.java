@@ -27,6 +27,7 @@ import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -44,6 +45,7 @@ import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 
 import de.walware.statet.base.core.CoreUtility;
+import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
@@ -56,16 +58,13 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		private IScopeContext[] fLookupOrder;
 		protected final Preference[] fPreferenceKeys;
 		
-		private final IWorkbenchPreferenceContainer fContainer;
 		/** Manager for a working copy of the preferences */
 		private final IWorkingCopyManager fManager;
 		/** Map saving the project settings, if disabled */
 		private Map<Preference, Object> fDisabledProjectSettings;
 		
 		
-		PreferenceManager(IWorkbenchPreferenceContainer container, Preference[] keys) {
-			
-			fContainer = container;
+		PreferenceManager(Preference[] keys) {
 			fManager = fContainer.getWorkingCopyManager();
 			fPreferenceKeys = keys;
 			
@@ -106,7 +105,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		 * @return
 		 */
 		boolean hasProjectSpecificSettings(IProject project) {
-			
 			IScopeContext projectContext = new ProjectScope(project);
 			for (Preference<Object> key : fPreferenceKeys) {
 				if (getInternalValue(key, projectContext, true) != null)
@@ -116,9 +114,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}	
 
 		void setUseProjectSpecificSettings(boolean enable) {
-			
 			boolean hasProjectSpecificOption = (fDisabledProjectSettings == null);
-			
 			if (enable != hasProjectSpecificOption) {
 				if (enable) {
 					loadDisabledProjectSettings();
@@ -129,7 +125,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 		
 		private void saveDisabledProjectSettings() {
-
 			fDisabledProjectSettings = new IdentityHashMap<Preference, Object>();
 			for (Preference<Object> key : fPreferenceKeys) {
 				fDisabledProjectSettings.put(key, getValue(key));
@@ -139,7 +134,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 		
 		private void loadDisabledProjectSettings() {
-
 			for (Preference<Object> key : fPreferenceKeys) {
 				// Copy values from saved disabled settings to working store
 				setValue(key, fDisabledProjectSettings.get(key));
@@ -148,7 +142,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 
 		boolean processChanges(boolean saveStore) {
-
 			List<Preference> changedOptions = new ArrayList<Preference>();
 			boolean needsBuild = getChanges(changedOptions);
 			if (changedOptions.isEmpty()) {
@@ -181,10 +174,13 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 				if (doBuild) {
 					CoreUtility.getBuildJob(fProject).schedule();
 				}
-			} else
+			}
+			else {
 				if (doBuild) {
 					fContainer.registerUpdateJob(CoreUtility.getBuildJob(fProject));
 				}
+			}
+			scheduleChangeNotification(saveStore);
 			return true;
 		}
 		
@@ -195,7 +191,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		 * @return true, if rebuild is required.
 		 */
 		private boolean getChanges(List<Preference> changedSettings) {
-			
 			IScopeContext currContext = fLookupOrder[0];
 			boolean needsBuild = false;
 			for (Preference<Object> key : fPreferenceKeys) {
@@ -216,7 +211,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		
 		void loadDefaults() {
-
 			DefaultScope defaultScope = new DefaultScope();
 			for (Preference<Object> key : fPreferenceKeys) {
 				String defValue = getInternalValue(key, defaultScope, false);
@@ -227,7 +221,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		// DEBUG
 		private void testIfOptionsComplete() {
-			
 			for (Preference<Object> key : fPreferenceKeys) {
 				if (getInternalValue(key, false) == null) {
 					System.out.println("preference option missing: " + key + " (" + this.getClass().getName() +')');  //$NON-NLS-1$//$NON-NLS-2$
@@ -236,7 +229,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 
 		private IEclipsePreferences getNode(IScopeContext context, String qualifier, boolean useWorkingCopy) {
-			
 			IEclipsePreferences node = context.getNode(qualifier);
 			if (useWorkingCopy) {
 				return fManager.getWorkingCopy(node);
@@ -245,7 +237,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 
 		private String getInternalValue(Preference<Object> key, IScopeContext context, boolean useWorkingCopy) {
-			
 			return getNode(context, key.getQualifier(), useWorkingCopy).get(key.getKey(), null);
 		}
 		
@@ -261,7 +252,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 		
 		private void setInternalValue(Preference<Object> key, String value) {
-			
 			if (value != null) {
 				getNode(fLookupOrder[0], key.getQualifier(), true).put(key.getKey(), value);
 			} else {
@@ -271,7 +261,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		
 		private <T> void setValue(Preference<T> key, T value) {
-			
 			IEclipsePreferences node = getNode(fLookupOrder[0], key.getQualifier(), true);
 			if (value == null) {
 				node.remove(key.getKey());
@@ -303,7 +292,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		@SuppressWarnings("unchecked")
 		private <T> T getValue(Preference<T> key) {
-			
 			IEclipsePreferences node = null;
 			int lookupIndex = 0;
 			for (; lookupIndex < fLookupOrder.length; lookupIndex++) {
@@ -347,10 +335,12 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	
 	protected IProject fProject;
 	protected PreferenceManager fPreferenceManager;
+	private IWorkbenchPreferenceContainer fContainer;
 	
 	private DataBindingContext fDbc;
 	private AggregateValidationStatus fAggregateStatus;
 	private IStatusChangeListener fStatusListener;
+	private String[] fContexts;
 
 
 	protected ManagedConfigurationBlock(IProject project, IStatusChangeListener statusListener) {
@@ -363,9 +353,10 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		this(project, null);
 	}
 
-	protected void setupPreferenceManager(IWorkbenchPreferenceContainer container, Preference[] keys) {
-		
-		new PreferenceManager(container, keys);
+	protected void setupPreferenceManager(IWorkbenchPreferenceContainer container, Preference[] keys, String[] contexts) {
+		fContexts = contexts;
+		fContainer = container;
+		new PreferenceManager(keys);
 	}
 	
 	protected void createDbc() {
@@ -385,7 +376,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	protected DataBindingContext getDbc() {
-		
 		return fDbc;
 	}
 	
@@ -397,12 +387,10 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 * E.g. you can set some additional (or all) values.
 	 */
 	protected void onBeforeSave() {
-		
 	}
 	
 	@Override
 	public void performApply() {
-		
 		if (fPreferenceManager != null) {
 			onBeforeSave();
 			fPreferenceManager.processChanges(true);
@@ -410,7 +398,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	public boolean performOk() {
-		
 		if (fPreferenceManager != null) {
 			onBeforeSave();
 			return fPreferenceManager.processChanges(false);
@@ -419,7 +406,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 
 	public void performDefaults() {
-		
 		if (fPreferenceManager != null) {
 			fPreferenceManager.loadDefaults();
 			updateControls();
@@ -428,7 +414,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	
 	@Override
 	public void dispose() {
-		
 		super.dispose();
 
 		if (fAggregateStatus != null) {
@@ -451,18 +436,17 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 * @return
 	 */
 	public boolean hasProjectSpecificOptions(IProject project) {
-		
-		if (project != null && fPreferenceManager != null)
+		if (project != null && fPreferenceManager != null) {
 			return fPreferenceManager.hasProjectSpecificSettings(project);
+		}
 		return false;
 	}
 	
 	public void setUseProjectSpecificSettings(boolean enable) {
-		
 		super.setUseProjectSpecificSettings(enable);
-		
-		if (fProject != null && fPreferenceManager != null)
+		if (fProject != null && fPreferenceManager != null) {
 			fPreferenceManager.setUseProjectSpecificSettings(enable);
+		}
 	}
 	
 	protected void updateControls() {
@@ -482,7 +466,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getPreferenceValue(Preference<T> key) {
-
 		assert (fPreferenceManager != null);
 		assert (key != null);
 		
@@ -492,7 +475,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	public IEclipsePreferences[] getPreferenceNodes(String nodeQualifier) {
-		
 		assert (fPreferenceManager != null);
 		assert (nodeQualifier != null);
 		
@@ -504,7 +486,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	public IScopeContext[] getPreferenceContexts() {
-		
 		assert (fPreferenceManager != null);
 		
 		return fPreferenceManager.fLookupOrder;
@@ -538,7 +519,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	public IObservableValue createObservable(Object target) {
-		
 		final Preference pref = (Preference) target;
 		return new AbstractObservableValue() {
 			public Object getValueType() {
@@ -566,7 +546,22 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 * @return
 	 */
 	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
-		
 		return null;
+	}
+	
+	private void scheduleChangeNotification(boolean directly) {
+		if (fContexts != null) {
+			String source = (directly) ? null : fContainer.toString();
+			Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, fContexts);
+			if (job == null) {
+				return;
+			}
+			if (directly) {
+				job.schedule();
+			}
+			else {
+				fContainer.registerUpdateJob(job);
+			}
+		}
 	}
 }

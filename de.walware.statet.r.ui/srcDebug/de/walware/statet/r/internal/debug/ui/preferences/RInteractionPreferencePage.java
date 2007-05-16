@@ -82,7 +82,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
 		setupPreferenceManager(container, new Preference[] {
 				PREF_R_CONNECTOR,
-		} );
+		}, null);
 
 		String[] connectorLabels = new String[fConnectors.length];
 		for (int i = 0; i < fConnectors.length; i++) {

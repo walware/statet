@@ -35,9 +35,6 @@ import de.walware.statet.r.ui.text.rd.IRdTextTokens;
  */
 public class RUIPreferenceConstants {
 
-	private RUIPreferenceConstants() {
-	}
-
 	public interface R {
 
 		public final static String TS_ROOT = IRTextTokens.ROOT;
@@ -219,7 +216,6 @@ public class RUIPreferenceConstants {
 	}
 	
 	
-	
 	/**
 	 * Initializes the given preference store with the default values.
 	 * 
@@ -373,6 +369,9 @@ public class RUIPreferenceConstants {
 		store.setDefault(Rd.TS_BRACKETS_UNDERLINE, false);
 		store.setDefault(Rd.TS_BRACKETS_STRIKETHROUGH, false);
 		
+	}
+
+	private RUIPreferenceConstants() {
 	}
 
 }

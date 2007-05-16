@@ -19,5 +19,5 @@ public class RCorePreferenceNodes {
 	
 	
 	public static final String CAT_R_CODESTYLE_QUALIFIER = RCore.PLUGIN_ID + "/codestyle/r"; //$NON-NLS-1$
-
+	
 }

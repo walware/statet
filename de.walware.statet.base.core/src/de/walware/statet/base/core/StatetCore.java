@@ -18,11 +18,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.statet.base.core.preferences.SettingsChangeNotifier;
+import de.walware.statet.base.internal.core.BaseCorePlugin;
+
 
 public class StatetCore {
 
 	
-	public static final String PLUGIN_ID = "de.walware.statet.base.core";
+	public static final String PLUGIN_ID = "de.walware.statet.base.core"; //$NON-NLS-1$
 	
 	public static final int STATUSCATEGORY = (2 << 16);
 	
@@ -31,10 +34,8 @@ public class StatetCore {
 	
 	
 	public static Set<StatetProject> getStatetProjects() {
-		
 		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 		Set<StatetProject> collected = new HashSet<StatetProject>();
-		
 		try {
 			for (IProject project : projects) {
 				StatetProject sp = (StatetProject) project.getNature(StatetProject.NATURE_ID);
@@ -47,10 +48,12 @@ public class StatetCore {
 		return collected;
 	}
 	
+	public static SettingsChangeNotifier getSettingsChangeNotifier() {
+		return BaseCorePlugin.getDefault().getSettingsChangeNotifier();
+	}
 
+	
 	private StatetCore() {
-
-		super();
 	}
 	
 }

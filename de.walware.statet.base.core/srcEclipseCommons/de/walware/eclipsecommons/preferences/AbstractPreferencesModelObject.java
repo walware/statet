@@ -14,10 +14,6 @@ package de.walware.eclipsecommons.preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
-
 import de.walware.eclipsecommons.AbstractSettingsModelObject;
 
 
@@ -26,10 +22,6 @@ import de.walware.eclipsecommons.AbstractSettingsModelObject;
  * (e.g. load, save and listen to changes).
  */
 public abstract class AbstractPreferencesModelObject extends AbstractSettingsModelObject {
-	
-	
-	private IPreferenceAccess fPrefsListenTo;
-	private IPreferenceChangeListener fPrefChangeListener;
 	
 	
 	/**
@@ -66,51 +58,4 @@ public abstract class AbstractPreferencesModelObject extends AbstractSettingsMod
 		return deliverToPreferencesMap(new HashMap<Preference, Object>());
 	}
 	
-	/**
-	 * Loads the settings from preferences and keep them up to date.
-	 */
-	public void listen(IPreferenceAccess prefs) {
-		
-		String[] qualifiers = getNodeQualifiers();
-		// dispose existing connection
-		if (fPrefsListenTo != null) {
-			for (String qualifier : qualifiers) {
-				IEclipsePreferences[] nodes = fPrefsListenTo.getPreferenceNodes(qualifier);
-				for (IEclipsePreferences node : nodes) {
-					node.removePreferenceChangeListener(fPrefChangeListener);
-				}
-			}
-		}
-		fPrefsListenTo = prefs;
-		if (fPrefsListenTo == null) {
-			return;
-		}
-		if (fPrefChangeListener == null) {
-			fPrefChangeListener = new IPreferenceChangeListener() {
-				public void preferenceChange(PreferenceChangeEvent event) {
-					onPreferenceChange(fPrefsListenTo, event);
-				}
-			};
-		}
-		// create new connection
-		for (String qualifier : qualifiers) {
-			IEclipsePreferences[] nodes = fPrefsListenTo.getPreferenceNodes(qualifier);
-			for (IEclipsePreferences node : nodes) {
-				node.addPreferenceChangeListener(fPrefChangeListener);
-			}
-		}
-		load(fPrefsListenTo);
-	}
-	
-	protected void onPreferenceChange(IPreferenceAccess prefs, PreferenceChangeEvent event) {
-		
-		load(prefs);
-	}
-	
-	public void dispose() {
-		
-		listen(null);
-		fPrefChangeListener = null;
-	}
-		
 }

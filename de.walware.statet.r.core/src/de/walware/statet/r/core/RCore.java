@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
@@ -22,14 +22,8 @@ public class RCore {
 	
 	public static final String PLUGIN_ID = "de.walware.statet.r.core";
 
-	
-	private static IRCoreAccess WORKSPACE_ACCESS = new IRCoreAccess() {
-		public RCodeStyleSettings getRCodeStyle() {
-			return new RCodeStyleSettings(PreferencesUtil.getInstancePrefs());
-		};
-	};
-	public static IRCoreAccess getWorkbenchAccess(){
 		
-		return WORKSPACE_ACCESS;
+	public static IRCoreAccess getWorkbenchAccess(){
+		return RCorePlugin.getDefault().getWorkspaceRCoreAccess();
 	}
 }

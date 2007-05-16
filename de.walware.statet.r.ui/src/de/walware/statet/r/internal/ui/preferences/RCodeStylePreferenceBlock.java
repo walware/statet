@@ -61,17 +61,15 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 
 	
 	public RCodeStylePreferenceBlock(IProject project, IStatusChangeListener statusListener) {
-		
 		super(project, statusListener);
 	}
 	
 	@Override
 	public void createContents(Layouter parent, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
-		
 		super.createContents(parent, container, preferenceStore);
 		setupPreferenceManager(container, new Preference[] {
 				RCodeStyleSettings.PREF_TAB_SIZE,
-		});
+		}, new String[] { RCodeStyleSettings.CONTEXT_ID });
 		fModel = new RCodeStyleSettings(this);
 		
 		Composite mainComposite = new Composite(parent.composite, SWT.NONE);
@@ -97,7 +95,6 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	private void createIndentControls(Composite group) {
-
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		GridData gd;
 		Label label;
@@ -139,7 +136,6 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 
 	@Override
 	protected void addBindings(DataBindingContext dbc, Realm realm) {
-		
 		dbc.bindValue(SWTObservables.observeText(fTabSize, SWT.Modify), 
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_TAB_SIZE), 
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_TabSize_error_message)), 
@@ -160,12 +156,10 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT), 
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indentation_NumOfSpaces_error_message)), 
 				null);
-		
 	}
 	
 	@Override
 	protected void updateControls() {
-		
 		fModel.load(this);
 		fModel.resetDirty();
 		getDbc().updateTargets();  // required for invalid target values
@@ -173,7 +167,6 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void onBeforeSave() {
-		
 		if (fModel.isDirty()) {
 			fModel.resetDirty();
 			setPrefValues(fModel.toPreferencesMap());

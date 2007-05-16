@@ -11,14 +11,12 @@
 
 package de.walware.statet.r.ui.editors;
 
-import java.beans.PropertyChangeEvent;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
@@ -50,7 +48,6 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 
 	private IContextProvider fHelpContextProvider;
 	private RResourceUnit fRResourceUnit;
-	private java.beans.PropertyChangeListener fCodyStyleListener;
 	
 	
 	public REditor() {
@@ -59,39 +56,12 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 	
 	@Override
 	protected void initializeEditor() {
-		
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		configureStatetPairMatching(new RBracketPairMatcher());
-		fCodyStyleListener = new java.beans.PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
-				String name = event.getPropertyName();
-				if (RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE.equals(name)
-						|| RCodeStyleSettings.PROP_INDENT_SPACES_COUNT.equals(name)) {
-					updateIndentPrefixes();
-				}
-				if (RCodeStyleSettings.PROP_TAB_SIZE.equals(name)) {
-					((ISourceViewerExtension2) getSourceViewer()).unconfigure();
-					getSourceViewer().configure(getSourceViewerConfiguration());
-				}
-			}
-		};
 		// help init in #createActions() to avoid default trigger
 		
 		super.initializeEditor();
-	}
-	
-	@Override
-	protected void fetchPreferenceNodes(Set<IEclipsePreferences> nodeCollection) {
-		RSourceViewerConfiguration.fetchPreferenceNodes(nodeCollection);
-	}
-	
-	@Override
-	protected void handlePreferenceChangeEvent(PreferenceChangeEvent event) {
-		RSourceViewerConfiguration config = (RSourceViewerConfiguration) getSourceViewerConfiguration();
-		if (config != null) {
-			config.handlePreferenceChangeEvent(event);
-		}
 	}
 	
 	@Override
@@ -103,32 +73,44 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 	}
 	
 	@Override
+	protected void handleSettingsChanged(Set<String> contexts) {
+		super.handleSettingsChanged(contexts);
+		ISourceViewer viewer = getSourceViewer();
+		if (viewer == null) {
+			return;
+		}
+		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
+			RCodeStyleSettings settings = getRCodeStyle();
+			if (settings.isDirty()) {
+				((ISourceViewerExtension2) viewer).unconfigure();
+				viewer.configure(getSourceViewerConfiguration());
+			}
+		}
+		((RSourceViewerConfiguration) getSourceViewerConfiguration()).handleSettingsChange(contexts);
+	}
+	
+	@Override
 	protected void setupConfiguration(RProject prevProject, RProject newProject, IEditorInput newInput) {
-		
 		ICombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
 				RUIPlugin.getDefault().getPreferenceStore(), newProject);
 		setPreferenceStore(preferenceStore);
 		setSourceViewerConfiguration(new RSourceViewerConfiguration(this, 
 				StatetUIServices.getSharedColorManager(), preferenceStore));
 		if (fRResourceUnit != null) {
-			fRResourceUnit.getRCodeStyle().removePropertyChangeListener(fCodyStyleListener);
 			fRResourceUnit = null;
 		}
 		if (newInput != null) {
 			fRResourceUnit = new RResourceUnit((IFile) newInput.getAdapter(IFile.class));
-			fRResourceUnit.getRCodeStyle().addPropertyChangeListener(fCodyStyleListener);
 		}
 	}
 	
 	@Override
 	protected void initializeKeyBindingScopes() {
-		
 		setKeyBindingScopes(new String[] { "de.walware.statet.r.contexts.REditorScope" }); //$NON-NLS-1$
 	}
 	
 	@Override
 	protected String[] collectContextMenuPreferencePages() {
-		
 		String[] ids = super.collectContextMenuPreferencePages();
 		String[] more = new String[ids.length + 3];
 		more[0] = "de.walware.statet.r.preferencePages.RSyntaxColoring"; //$NON-NLS-1$
@@ -140,7 +122,6 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 	
 	@Override
 	protected void createActions() {
-
 		super.createActions();
 		
 		// Editor Help
@@ -167,13 +148,11 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
    	}
 
 	public RResourceUnit getRResourceUnit() {
-		
 		return fRResourceUnit;
 	}
 	
 	@Override
 	public Object getAdapter(Class adapter) {
-		
 		if (IContextProvider.class.equals(adapter)) {
 			return fHelpContextProvider;
 		}
@@ -182,13 +161,11 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 	
 	@Override
 	public void dispose() {
-		
 		super.dispose();
 		fRResourceUnit = null;
 	}
 
 	public RCodeStyleSettings getRCodeStyle() {
-		
 		return getRResourceUnit().getRCodeStyle();
 	}
 

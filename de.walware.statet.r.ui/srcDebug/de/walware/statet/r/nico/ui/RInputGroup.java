@@ -20,7 +20,9 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.core.preferences.PreferenceManageListener;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
@@ -40,6 +42,7 @@ class RInputGroup extends InputGroup {
 	
 	
 	private RCodeStyleSettings fRCodeStyle;
+	private PreferenceManageListener fPreferenceManageListener;
 	
 	
 	/**
@@ -49,12 +52,11 @@ class RInputGroup extends InputGroup {
 		super(page);
 
 		fRCodeStyle = new RCodeStyleSettings();
-		fRCodeStyle.listen(PreferencesUtil.getInstancePrefs());
+		fPreferenceManageListener = new PreferenceManageListener(fRCodeStyle, PreferencesUtil.getInstancePrefs(), RCodeStyleSettings.CONTEXT_ID);
 	}
 	
 	@Override
 	protected void onPromptUpdate(Prompt prompt) {
-	
 		if ((prompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
 			fDocument.setPrefix(p.previousInput);
@@ -66,13 +68,16 @@ class RInputGroup extends InputGroup {
 	
 	@Override
 	protected void createSourceViewer(IEditorConfiguration editorConfig) {
-		
 		super.createSourceViewer(editorConfig);
 		
 		fRCodeStyle.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (RCodeStyleSettings.PROP_TAB_SIZE.equals(event.getPropertyName())) {
-					getSourceViewer().setTabWidth(fRCodeStyle.getTabSize());
+					UIAccess.getDisplay().syncExec(new Runnable() {
+						public void run() {
+							getSourceViewer().setTabWidth(fRCodeStyle.getTabSize());
+						}
+					});
 				}
 			}
 		});
@@ -81,7 +86,6 @@ class RInputGroup extends InputGroup {
 	
 	@Override
 	public void configureServices(IHandlerService commands, IContextService keys) {
-
 		super.configureServices(commands, keys);
 		
 		IAction action;
@@ -91,10 +95,9 @@ class RInputGroup extends InputGroup {
 	
 	@Override
 	public void dispose() {
-		
-		if (fRCodeStyle != null) {
-			fRCodeStyle.dispose();
-			fRCodeStyle = null;
+		if (fPreferenceManageListener != null) {
+			fPreferenceManageListener.dispose();
+			fPreferenceManageListener = null;
 		}
 		super.dispose();
 	}
