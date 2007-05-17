@@ -20,7 +20,7 @@ import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
@@ -30,19 +30,21 @@ import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 public class RInputConfiguration implements IEditorConfiguration {
 
 	
-	RInputConfiguration() {
+	private IRCoreAccess fRCoreAccess;
+	
+	
+	RInputConfiguration(IRCoreAccess rCoreAccess) {
+		fRCoreAccess = rCoreAccess;
 	}
 	
 	public StatextSourceViewerConfiguration getSourceViewerConfiguration() {
-		
 		ICombinedPreferenceStore store = RSourceViewerConfiguration.createCombinedPreferenceStore(
 				RUIPlugin.getDefault().getPreferenceStore(), null);
-		return new RSourceViewerConfiguration(RCore.getWorkbenchAccess(), 
+		return new RSourceViewerConfiguration(fRCoreAccess, 
 				StatetUIServices.getSharedColorManager(), store);
 	}
 	
 	public PairMatcher getPairMatcher() {
-		
 		return new RBracketPairMatcher();
 	}
 
@@ -51,7 +53,6 @@ public class RInputConfiguration implements IEditorConfiguration {
 	}
 	
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {
-		
 		return new RDocumentSetupParticipant();
 	}
 	

@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.console;
 
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.ListenerList;
@@ -80,6 +81,8 @@ import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.core.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.ext.ui.editors.TextViewerAction;
@@ -102,7 +105,7 @@ import de.walware.statet.nico.ui.actions.ToolAction;
  */
 public class NIConsolePage implements IPageBookViewPage, 
 		IAdaptable, IShowInSource, IShowInTargetList, 
-		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport {
+		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport, ChangeListener {
 
 	
 	private class FindReplaceUpdater implements IDocumentListener {
@@ -113,7 +116,6 @@ public class NIConsolePage implements IPageBookViewPage,
 		}
 
 		public void documentChanged(DocumentEvent event) {
-			
 			boolean isEmpty = (event.fDocument.getLength() == 0);
 			if (isEmpty != wasEmpty) {
 				fMultiActionHandler.updateEnabledState();
@@ -129,7 +131,6 @@ public class NIConsolePage implements IPageBookViewPage,
 		}
 
 		public void documentChanged(DocumentEvent event) {
-
 			if (!fIsSheduled) {
 				fIsSheduled = true;
 				Display display = UIAccess.getDisplay(getSite().getShell());
@@ -196,14 +197,12 @@ public class NIConsolePage implements IPageBookViewPage,
 	 * @param view the console view the page is contained in
 	 */
 	public NIConsolePage(NIConsole console, IConsoleView view) {
-		
 		fConsole = console;
 		fConsoleView = view;
 	}
 	
 	
 	public void init(IPageSite site) throws PartInitException {
-		
 		fSite = site;
 		fInputGroup = createInputGroup();
 
@@ -235,16 +234,20 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected InputGroup createInputGroup() {
-		
 		return new InputGroup(this);
 	}
 	
 	protected InputGroup getInputGroup() {
-		
 		return fInputGroup;
+	}
+	
+	protected IOConsoleViewer getOutputViewer() {
+		return fOutputViewer;
 	}
 
 	public void createControl(Composite parent) {
+		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
+		fConsole.addPropertyChangeListener(this);
 		
 		fControl = new Composite(parent, SWT.NONE) {
 			@Override
@@ -267,8 +270,6 @@ public class NIConsolePage implements IPageBookViewPage,
 		fInputGroup.createControl(fControl, getInputEditorConfiguration());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fInputGroup.getComposite().setLayoutData(gd);
-		
-		fConsole.addPropertyChangeListener(this);
 
 		fClipboard = new Clipboard(fControl.getDisplay());
 		createActions();
@@ -288,15 +289,12 @@ public class NIConsolePage implements IPageBookViewPage,
 	 * @return the adapter
 	 */
 	protected IEditorConfiguration getInputEditorConfiguration() {
-		
 		return null;
 	}
 
 
 	private class ConsoleActivationNotifier implements Listener {
-
 		private ConsoleActivationNotifier() {
-			
 			fControl.addListener(SWT.Activate, this);
 			fControl.addListener(SWT.Dispose, this);
 			if (fControl.isVisible()) {
@@ -306,22 +304,18 @@ public class NIConsolePage implements IPageBookViewPage,
 		
 		public void handleEvent(Event event) {
 			switch (event.type) {
-			
 			case SWT.Activate:
 				NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
 				break;
-			
 			case SWT.Dispose:
 				fControl.removeListener(SWT.Activate, this);
 				fControl.removeListener(SWT.Dispose, this);
 				break;
-
 			}
 		}
 	}
 
 	protected void createActions() {
-		
 		Control outputControl = fOutputViewer.getControl();
 		SourceViewer inputViewer = fInputGroup.getSourceViewer();
 		Control inputControl = inputViewer.getControl();
@@ -403,7 +397,6 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	private void hookContextMenu() {
-		
 		String id = NIConsole.NICONSOLE_TYPE + "#OutputContextMenu"; //$NON-NLS-1$
 		fOutputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		fOutputMenuManager.setRemoveAllWhenShown(true);
@@ -432,14 +425,12 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected void hookDND() {
-		
 		DNDUtil.addDropSupport(fOutputViewer.getControl(), 
 				new SubmitDropAdapter(this), 
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
 	
 	protected void contributeToActionBars() {
-		
 		IActionBars bars = getSite().getActionBars();
 		
 		fMultiActionHandler.registerActions(bars);
@@ -455,7 +446,6 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected void fillInputContextMenu(IMenuManager manager) {
-
 		manager.add(fInputCutAction);
 		manager.add(fInputCopyAction);
 		manager.add(fInputPasteAction);
@@ -470,7 +460,6 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected void fillOutputContextMenu(IMenuManager manager) {
-
 		manager.add(fOutputCopyAction);
 		manager.add(fOutputSelectAllAction);
 		
@@ -489,8 +478,8 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 
 	public void dispose() {
-
 		fConsole.removePropertyChangeListener(this);
+		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
 		DebugPlugin debug = DebugPlugin.getDefault();
 		if (debug != null) {
 			debug.removeDebugEventListener(fDebugListener);
@@ -547,42 +536,34 @@ public class NIConsolePage implements IPageBookViewPage,
 	
 
 	public IPageSite getSite() {
-		
 		return fSite;
 	}
 	
 	public Control getControl() {
-		
 		return fControl;
 	}
 	
 	public NIConsole getConsole() {
-		
 		return fConsole;
 	}
 	
 	public Clipboard getClipboard() {
-		
 		return fClipboard;
 	}
 	
 	public ToolProcess getTool() {
-		
 		return fConsole.getProcess();
 	}
     
 	public void addToolAction(IToolAction action) {
-		
 		fToolActions.add(action);
 	}
 
 	public IMenuManager getOutputContextMenuManager() {
-		
 		return fOutputMenuManager;
 	}
 	
 	public IMenuManager getInputContextMenuManager() {
-		
 		return fInputMenuManager;
 	}
 	
@@ -592,20 +573,17 @@ public class NIConsolePage implements IPageBookViewPage,
 	 * @return
 	 */
 	public String getInput() {
-		
 		return fInputGroup.fDocument.get();
 	}
 	
 	/**
-	 * Clear the input line (e.g. after successfull submit).
+	 * Clear the input line (e.g. after successful submit).
 	 */
 	public void clearInput() {
-		
 		fInputGroup.clear();
 	}
 	
     public Object getAdapter(Class required) {
-    	
 		if (Widget.class.equals(required)) {
 			if (fOutputViewer.getControl().isFocusControl())
 				return fOutputViewer.getTextWidget();
@@ -629,7 +607,6 @@ public class NIConsolePage implements IPageBookViewPage,
     }
 
     public ShowInContext getShowInContext() {
-    	
         IProcess process = fConsole.getProcess();
         if (process == null) {
             return null;
@@ -651,24 +628,20 @@ public class NIConsolePage implements IPageBookViewPage,
     }
 
     public String[] getShowInTargetIds() {
-    	
         return new String[] { IDebugUIConstants.ID_DEBUG_VIEW };
     }
 
     
 	public void setActionBars(IActionBars actionBars) {
-		
 //		fOutputViewer.setActionBars(actionBars);
 	}
 
 	public void setFocus() {
-		
 		fInputGroup.getSourceViewer().getControl().setFocus();
 	}
 	
 	
 	protected void onToolTerminated() {
-		
 		if (fIsCreated) {
 			fTerminateAction.update();
 			for (Object action : fToolActions.getListeners()) {
@@ -687,13 +660,11 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	public void setAutoScroll(boolean enabled) {
-		
 		fOutputViewer.setAutoScroll(enabled);
 		fOutputScrollLockAction.setChecked(!enabled);
 	}
 	
     public void propertyChange(PropertyChangeEvent event) {
-    	
         if (UIAccess.isOkToUse(fControl) ) {
 			Object source = event.getSource();
 			String property = event.getProperty();
@@ -710,16 +681,28 @@ public class NIConsolePage implements IPageBookViewPage,
 			else if (property.equals(IConsoleConstants.P_STREAM_COLOR)) {
 				fOutputViewer.getTextWidget().redraw();
 			} 
-			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_TAB_SIZE)) {
-			    int tabSize = ((Integer) event.getNewValue()).intValue();
-			    fOutputViewer.setTabWidth(tabSize);
-			    fInputGroup.getSourceViewer().setTabWidth(tabSize);
-			} 
+//			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_TAB_SIZE)) {
+//			    int tabSize = ((Integer) event.getNewValue()).intValue();
+//			    fOutputViewer.setTabWidth(tabSize);
+//			    fInputGroup.getSourceViewer().setTabWidth(tabSize);
+//			} 
 			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_CONSOLE_WIDTH)) {
 				fOutputViewer.setConsoleWidth(fConsole.getConsoleWidth());
 			}
 		} 
 	}
 
+	public void settingsChanged(final Set<String> contexts) {
+		UIAccess.getDisplay(getSite().getShell()).syncExec(new Runnable() {
+			public void run() {
+				if (UIAccess.isOkToUse(fControl)) {
+					handleSettingsChanged(contexts);
+				}
+			}
+		});
+	}
 
+	protected void handleSettingsChanged(Set<String> contexts) {
+	}
+	
 }

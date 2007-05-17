@@ -80,7 +80,6 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	public RSourceViewerConfiguration(REditor editor, 
 			ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
-
 		super(colorManager, preferenceStore);
 		fEditor = editor;
 		fRCoreAccess = editor;
@@ -88,7 +87,6 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 	public RSourceViewerConfiguration(IRCoreAccess rCoreAccess, 
 			ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
-
 		super(colorManager, preferenceStore);
 		fRCoreAccess = rCoreAccess;
 	}
@@ -98,7 +96,6 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	 * Initializes the scanners.
 	 */
 	protected StatextTextScanner[] initializeScanners() {
-
 		ICombinedPreferenceStore store = getPreferences();
 		fCodeScanner = new RCodeScanner(fColorManager, store);
 		fInfixScanner = new RInfixOperatorScanner(fColorManager, store);
@@ -112,25 +109,21 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 	
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-
 		return IRDocumentPartitions.R_PARTITIONS;
 	}
 
 	@Override
 	public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
-
 		return IRDocumentPartitions.R_DOCUMENT_PARTITIONING;
 	}
 	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-
 		return fDoubleClickStrategy;
 	}
 
 	@Override
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-
 		PresentationReconciler reconciler = new PresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
@@ -155,20 +148,16 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 
 	@Override
 	public int getTabWidth(ISourceViewer sourceViewer) {
-		
 		return fRCoreAccess.getRCodeStyle().getTabSize();
 	}
 
 	@Override
 	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
-		
 		return new String[] { "#", "" }; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	@Override
-	public String[] getIndentPrefixes(ISourceViewer sourceViewer,
-			String contentType) {
-		
+	public String[] getIndentPrefixes(ISourceViewer sourceViewer, String contentType) {
 		String[] prefixes = getIndentPrefixesForTab(getTabWidth(sourceViewer));
 		RCodeStyleSettings codeStyle = fRCoreAccess.getRCodeStyle();
 		if (codeStyle.getIndentDefaultType() == IndentationType.SPACES) {

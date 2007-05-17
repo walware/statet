@@ -79,6 +79,7 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 		if (viewer == null) {
 			return;
 		}
+		((RSourceViewerConfiguration) getSourceViewerConfiguration()).handleSettingsChange(contexts);
 		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
 			RCodeStyleSettings settings = getRCodeStyle();
 			if (settings.isDirty()) {
@@ -86,7 +87,6 @@ public class REditor extends StatextEditor1<RProject> implements IRCoreAccess {
 				viewer.configure(getSourceViewerConfiguration());
 			}
 		}
-		((RSourceViewerConfiguration) getSourceViewerConfiguration()).handleSettingsChange(contexts);
 	}
 	
 	@Override

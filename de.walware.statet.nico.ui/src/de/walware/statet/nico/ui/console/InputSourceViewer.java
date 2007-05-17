@@ -28,7 +28,6 @@ public class InputSourceViewer extends SourceViewer {
 
 	
 	InputSourceViewer(Composite parent) {
-		
 		super(parent, null, null, false, SWT.SINGLE);
 		
 		initializeDragAndDrop();
@@ -37,7 +36,6 @@ public class InputSourceViewer extends SourceViewer {
 	
 
 	protected void initializeDragAndDrop() {
-		
 		DNDUtil.addDropSupport(getTextWidget(), new DNDUtil.SimpleTextDropAdapter() {
 			@Override
 			protected StyledText getTextWidget() {
@@ -48,10 +46,8 @@ public class InputSourceViewer extends SourceViewer {
 	
 	private void initTabControl() {
 		// disable traverse on TAB key event, to enable TAB char insertion.
-		
 		getTextWidget().addListener(SWT.Traverse, new Listener() {
 			public void handleEvent(Event event) {
-				
 				if (event.stateMask == SWT.NONE && event.character == SWT.TAB) {
 					event.doit = false;
 				}
@@ -59,20 +55,4 @@ public class InputSourceViewer extends SourceViewer {
 		});
 	}
 	
-    /**
-     * Sets the tab width used by this viewer.
-     * 
-     * @param tabWidth
-     *            the tab width used by this viewer
-     */
-    public void setTabWidth(int tabWidth) {
-    	
-        StyledText styledText = getTextWidget();
-        int oldWidth = styledText.getTabs();
-        if (tabWidth != oldWidth) {
-            styledText.setTabs(tabWidth);
-        }
-    }
-    
-    
 }

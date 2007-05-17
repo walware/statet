@@ -18,6 +18,7 @@ import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -70,12 +71,10 @@ public class InputGroup {
 		private boolean fMessageSetted;
 		
 		public ISourceViewer getSourceViewer() {
-			
 			return fSourceViewer;
 		}
 		
 		public void setStatusLineErrorMessage(String message) {
-			
 			IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
 			if (manager != null) {
 				fMessageSetted = true;
@@ -84,12 +83,10 @@ public class InputGroup {
 		}
 		
 		public boolean isEditable(boolean validate) {
-			
 			return true;
 		}
 		
 		protected void cleanStatusLine() {
-			
 			if (fMessageSetted) {
 				IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
 				if (manager != null) {
@@ -104,7 +101,6 @@ public class InputGroup {
 	private class ThisKeyListener implements KeyListener {
 
 		public void keyPressed(KeyEvent e) {
-
 			if (e.stateMask == SWT.NONE) {
 				if (e.keyCode == SWT.ARROW_UP) {
 					doHistoryOlder();
@@ -116,7 +112,6 @@ public class InputGroup {
 		}
 
 		public void keyReleased(KeyEvent e) {
-			
 		}
 	}
 
@@ -133,6 +128,7 @@ public class InputGroup {
 	private Button fSubmitButton;
 	
 	EditorAdapter fEditorAdapter = new EditorAdapter();
+	private StatextSourceViewerConfiguration fSourceViewerConfiguration;
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
 	private PairMatcher fPairMatcher;
 	
@@ -142,7 +138,6 @@ public class InputGroup {
 	
 
 	public InputGroup(NIConsolePage page) {
-		
 		fConsolePage = page;
 		fProcess = page.getConsole().getProcess();
 		
@@ -150,7 +145,6 @@ public class InputGroup {
 	}
 
 	public Composite createControl(Composite parent, IEditorConfiguration editorConfig) {
-		
 		fComposite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(3, false);
 		layout.marginHeight = 0;
@@ -213,11 +207,10 @@ public class InputGroup {
 	}
 	
 	protected void createSourceViewer(IEditorConfiguration editorConfig) {
-		
 		fSourceViewer = new InputSourceViewer(fComposite);
 		if (editorConfig != null) {
-			StatextSourceViewerConfiguration sourceViewerConfig = editorConfig.getSourceViewerConfiguration();
-			fSourceViewer.configure(sourceViewerConfig);
+			fSourceViewerConfiguration = editorConfig.getSourceViewerConfiguration();
+			fSourceViewer.configure(fSourceViewerConfiguration);
 			
 			fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
 					fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
@@ -231,14 +224,14 @@ public class InputGroup {
 			}
 			
 			editorConfig.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
-			fSourceViewerDecorationSupport.install(sourceViewerConfig.getPreferences());
+			fSourceViewerDecorationSupport.install(fSourceViewerConfiguration.getPreferences());
 			
 			IDocumentSetupParticipant docuSetup = editorConfig.getDocumentSetupParticipant();
 			if (docuSetup != null) {
 				docuSetup.setup(fDocument.getMasterDocument());
 			}
 			
-			new SourceViewerUpdater(fSourceViewer, sourceViewerConfig);
+			new SourceViewerUpdater(fSourceViewer, fSourceViewerConfiguration);
 		}
 		fSourceViewer.setDocument(fDocument);
 		
@@ -254,8 +247,18 @@ public class InputGroup {
 		});
 	}
 	
+	protected StatextSourceViewerConfiguration getSourceViewerConfiguration() {
+		return fSourceViewerConfiguration;
+	}
+	
+	protected void reconfigureSourceViewer() {
+		if (fSourceViewer != null && fSourceViewerConfiguration != null) {
+			((ISourceViewerExtension2) fSourceViewer).unconfigure();
+			fSourceViewer.configure(fSourceViewerConfiguration);
+		}
+	}
+	
 	public void configureServices(IHandlerService commands, IContextService keys) {
-		
 		keys.activateContext("de.walware.statet.base.contexts.TextEditor"); //$NON-NLS-1$
 		
 		IAction action;
@@ -267,7 +270,6 @@ public class InputGroup {
 	
 	
 	public void setFont(Font font) {
-		
 		fPrefix.setFont(font);
 		fSourceViewer.getControl().setFont(font);
 	}
@@ -276,7 +278,6 @@ public class InputGroup {
 	 * @param prompt new prompt or null.
 	 */
 	public void updatePrompt(final Prompt prompt) {
-		
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fPrefix)) {
@@ -293,7 +294,6 @@ public class InputGroup {
 	}
 	
 	public void doHistoryNewer() {
-		
 		if (fCurrentHistoryEntry == null)
 			return;
 		
@@ -312,7 +312,6 @@ public class InputGroup {
 	}
 	
 	public void doHistoryOlder() {
-		
 		if (fCurrentHistoryEntry != null) {
 			History.Entry next = fCurrentHistoryEntry.getOlder();
 			if (next == null)
@@ -334,7 +333,6 @@ public class InputGroup {
 	}
 	
 	public void doSubmit() {
-		
 		String content = fDocument.get();
 		ToolController controller = fProcess.getController();
 		
@@ -344,34 +342,28 @@ public class InputGroup {
 	}
 	
 	public void clear() {
-		
 		fDocument.set(""); //$NON-NLS-1$
 		fCurrentHistoryEntry = null;
 		fSourceViewer.getUndoManager().reset();
 	}
 
 	public Composite getComposite() {
-
 		return fComposite;
 	}
 	
 	public InputSourceViewer getSourceViewer() {
-		
 		return fSourceViewer;
 	}
 	
 	public Button getSubmitButton() {
-		
 		return fSubmitButton;
 	}
 	
 	protected NIConsolePage getConsolePage() {
-		
 		return fConsolePage;
 	}
 
 	public void dispose() {
-		
 		fProcess.getHistory().removeListener(fHistoryListener);
 		fHistoryListener = null;
 		fCurrentHistoryEntry = null;

@@ -38,16 +38,17 @@ public class PreferenceManageListener implements SettingsChangeNotifier.ManageLi
 		fModel = model;
 		fPrefAccess = prefs;
 		fContext = context;
-		SettingsChangeNotifier notifier = StatetCore.getSettingsChangeNotifier();
-		synchronized (notifier) {
-			notifier.addManageListener(this);
+		synchronized(fModel) {
+			StatetCore.getSettingsChangeNotifier().addManageListener(this);
 			fModel.load(fPrefAccess);
 		}
 	}
 	
 	public void beforeSettingsChangeNotification(Set<String> contexts) {
 		if (contexts.contains(fContext)) {
-			fModel.load(fPrefAccess);
+			synchronized(fModel) {
+				fModel.load(fPrefAccess);
+			}
 		}
 	}
 	

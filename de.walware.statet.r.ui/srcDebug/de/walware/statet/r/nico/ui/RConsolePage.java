@@ -11,9 +11,12 @@
 
 package de.walware.statet.r.nico.ui;
 
+import java.util.Set;
+
 import org.eclipse.help.IContextProvider;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
 
@@ -21,6 +24,7 @@ import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
+import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUIHelp;
 
@@ -32,26 +36,26 @@ public class RConsolePage extends NIConsolePage {
 
 	
 	public RConsolePage(NIConsole console, IConsoleView view) {
-		
 		super(console, view);
 	}
 
+	@Override
+	public void createControl(Composite parent) {
+		super.createControl(parent);
+	}
 	
 	@Override
 	protected IEditorConfiguration getInputEditorConfiguration() {
-		
-		return new RInputConfiguration();
+		return new RInputConfiguration((RConsole) getConsole());
 	}
 	
 	@Override
 	protected InputGroup createInputGroup() {
-		
 		return new RInputGroup(this);
 	}
 	
 	@Override
 	protected void createActions() {
-		
 		super.createActions();
 		
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(
@@ -65,11 +69,22 @@ public class RConsolePage extends NIConsolePage {
 	
 	@Override
 	public Object getAdapter(Class required) {
-		
 		if (IContextProvider.class.equals(required)) {
 			return fHelpContextProvider;
 		}
 		return super.getAdapter(required);
+	}
+	
+	@Override
+	protected void handleSettingsChanged(Set<String> contexts) {
+		super.handleSettingsChanged(contexts);
+		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
+			RCodeStyleSettings codeStyle = ((RConsole) getConsole()).getRCodeStyle();
+			if (codeStyle.isDirty()) {
+				getOutputViewer().setTabWidth(codeStyle.getTabSize());
+			}
+		}
+		((RInputGroup) getInputGroup()).handleSettingsChanged(contexts);
 	}
 	
 }

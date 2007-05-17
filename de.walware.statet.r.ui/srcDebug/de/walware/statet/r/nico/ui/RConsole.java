@@ -17,19 +17,25 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.RCore;
 
 
-public class RConsole extends NIConsole {
+public class RConsole extends NIConsole implements IRCoreAccess {
 
 	
 	public RConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
-
 		super(process, adapter);
 	}
 
 	@Override
 	public IPageBookViewPage createPage(IConsoleView view) {
-		
 		return new RConsolePage(this, view);
 	}
+
+	public RCodeStyleSettings getRCodeStyle() {
+		return RCore.getWorkbenchAccess().getRCodeStyle();
+	}
+	
 }
