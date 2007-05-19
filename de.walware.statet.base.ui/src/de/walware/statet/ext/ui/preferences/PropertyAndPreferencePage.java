@@ -20,7 +20,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -62,15 +61,12 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	protected Button fUseProjectSettings;
 	private Link fChangeWorkspaceSettings;
 	private ControlEnableState fBlockEnableState;
-	private IStatus fBlockSettingsStatus;
 	
 	private IProject fProject; // project or null
 	private Map fData; // page data
 	
 	
 	public PropertyAndPreferencePage() {
-		
-		fBlockSettingsStatus = new StatusInfo();
 		fProject = null;
 		fData = null;
 	}
@@ -136,7 +132,6 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
     }
 	
 	private Link createLink(Composite composite, String text) {
-		
 		Link link = new Link(composite, SWT.RIGHT);
 		link.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false));
 		link.setText("<A>" + text + "</A>"); //$NON-NLS-1$//$NON-NLS-2$
@@ -241,7 +236,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	
 	protected void updateStatus() {
 		if (!isProjectPreferencePage() || useProjectSettings()) {
-			updateStatus(fBlockSettingsStatus);
+			updateStatus(fBlockStatus);
 		} else {
 			updateStatus(new StatusInfo());
 		}

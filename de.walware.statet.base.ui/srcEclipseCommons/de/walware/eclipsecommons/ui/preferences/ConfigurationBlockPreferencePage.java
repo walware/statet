@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
 
 import de.walware.statet.base.ui.util.ExceptionHandler;
@@ -47,6 +48,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	 * Creates a new preference page.
 	 */
 	public ConfigurationBlockPreferencePage() {
+		fBlockStatus = new StatusInfo();
 	}
 	
 	protected abstract Block createConfigurationBlock() throws CoreException;
