@@ -27,7 +27,6 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
@@ -363,7 +362,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		// project has changed
 		ISourceViewer sourceViewer = getSourceViewer();
 		if (sourceViewer != null) {
-			((ISourceViewerExtension2) sourceViewer).unconfigure();
+			fConfigurator.unconfigureTarget();
 		}
 		
 		super.doSetInput(input);
@@ -372,7 +371,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			setupConfiguration(prevProject, fProject, input);
 		
 			if (sourceViewer != null) {
-				sourceViewer.configure(getSourceViewerConfiguration());
+				fConfigurator.configureTarget();
 			}
 		}
 	}

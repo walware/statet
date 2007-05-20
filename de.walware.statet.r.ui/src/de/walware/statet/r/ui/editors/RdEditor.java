@@ -12,6 +12,7 @@
 package de.walware.statet.r.ui.editors;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 
 import de.walware.statet.base.ui.StatetUIServices;
@@ -40,6 +41,13 @@ public class RdEditor extends StatextEditor1<RProject> {
 		fRdConfig.setConfiguration(new RdSourceViewerConfiguration(
 				fRdConfig, store, StatetUIServices.getSharedColorManager()));
 		initializeEditor(fRdConfig); // super
+	}
+	
+	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+
+		fRdConfig.setTarget(this, getSourceViewer());
 	}
 	
 	@Override

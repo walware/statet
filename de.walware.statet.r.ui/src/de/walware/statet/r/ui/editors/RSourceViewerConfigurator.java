@@ -64,19 +64,11 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		fRCodeStyleCopy.addPropertyChangeListener(this);
 		
 		setPairMatcher(new RBracketPairMatcher());
-		
-		fUpdateTabSize = false;
-		fUpdateIndent = true;
 	}
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {
 		return new RDocumentSetupParticipant();
-	}
-	
-	public void setTarget(REditor editor, ISourceViewer viewer) {
-		fEditor = editor;
-		super.setTarget(viewer);
 	}
 	
 	public void setConfiguration(RSourceViewerConfiguration config) {
@@ -94,6 +86,19 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		}
 	}
 
+	public void setTarget(REditor editor, ISourceViewer viewer) {
+		fEditor = editor;
+		fIsConfigured = true;
+		setTarget(viewer, false);
+	}
+	
+	@Override
+	public void setTarget(ISourceViewer viewer, boolean configure) {
+		fUpdateTabSize = false;
+		fUpdateIndent = true;
+		super.setTarget(viewer, configure);
+	}
+	
 	public void propertyChange(PropertyChangeEvent event) {
 		String name = event.getPropertyName();
 		if (name.equals(RCodeStyleSettings.PROP_TAB_SIZE)) {

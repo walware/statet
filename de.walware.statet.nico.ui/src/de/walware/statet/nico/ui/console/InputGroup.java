@@ -210,14 +210,11 @@ public class InputGroup implements ISettingsChangedHandler {
 	protected void createSourceViewer(SourceViewerConfigurator editorConfigurator) {
 		fConfigurator = editorConfigurator;
 		fSourceViewer = new InputSourceViewer(fComposite);
-		fConfigurator.setTarget(fSourceViewer);
-
-		fSourceViewerConfiguration = fConfigurator.getSourceViewerConfiguration();
-		fSourceViewer.configure(fSourceViewerConfiguration);
+		fConfigurator.setTarget(fSourceViewer, true);
 		
 		fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
-
+		fSourceViewerDecorationSupport.install(fConfigurator.getPreferenceStore());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
 		
 		IDocumentSetupParticipant docuSetup = fConfigurator.getDocumentSetupParticipant();

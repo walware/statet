@@ -388,8 +388,7 @@ public class EditTemplateDialog extends StatusDialog {
 		SourceViewer viewer= new SourceViewer(parent, null, null, false, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		// CHANGED
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-		viewer.configure(fConfigurator.getSourceViewerConfiguration());
-		fConfigurator.setTarget(viewer);
+		fConfigurator.setTarget(viewer, true);
 		
 		return viewer;
 	}

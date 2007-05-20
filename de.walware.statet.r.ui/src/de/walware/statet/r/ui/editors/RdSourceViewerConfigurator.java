@@ -64,6 +64,11 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 		super.setConfiguration(config);
 	}
 	
+	public void setTarget(RdEditor editor, ISourceViewer viewer) {
+		fIsConfigured = true;
+		setTarget(viewer, false);
+	}
+
 	public void setSource(IRCoreAccess newAccess) {
 		if (newAccess == null) {
 			newAccess = RCore.getWorkbenchAccess();

@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
@@ -33,6 +34,8 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 	private IPreferenceStore fPreferenceStore;
 	private StatextSourceViewerConfiguration fConfiguration;
 	private ISourceViewer fViewer;
+	
+	protected boolean fIsConfigured;
 	
 	
 	protected SourceViewerConfigurator() {
@@ -87,17 +90,41 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
 					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
 		}
-		support.install(getPreferenceStore());
 	}
 
 
-	public void setTarget(ISourceViewer viewer) {
+	public void setTarget(ISourceViewer viewer, boolean configure) {
+		assert (viewer != null);
 		fViewer = viewer;
+		if (configure) {
+			configureTarget();
+		}
 		handleSettingsChanged(null, null);
 	}
 	
 	protected ISourceViewer getSourceViewer() {
 		return fViewer;
+	}
+	
+	public void unconfigureTarget() {
+		if (fViewer != null) {
+			fIsConfigured = false;
+			((ISourceViewerExtension2) fViewer).unconfigure();
+		}
+	}
+	
+	public void configureTarget() {
+		if (fViewer != null) {
+			fIsConfigured = true;
+			fViewer.configure(fConfiguration);
+		}
+	}
+	
+	protected void reconfigureSourceViewer() {
+		if (fIsConfigured) {
+			unconfigureTarget();
+			configureTarget();
+		}
 	}
 	
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
