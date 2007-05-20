@@ -46,7 +46,6 @@ import de.walware.eclipsecommons.preferences.Preference.IntPref;
 import de.walware.eclipsecommons.ui.databinding.ColorSelectorObservableValue;
 import de.walware.eclipsecommons.ui.databinding.NumberValidator;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.preferences.RGBPref;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;

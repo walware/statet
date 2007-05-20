@@ -18,9 +18,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.texteditor.IUpdate;
+import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
@@ -51,8 +55,11 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	private RCodeStyleSettings fRCodeStyleCopy;
 	private IRCoreAccess fSourceCoreAccess;
 	
+	private boolean fUpdateCompleteConfig;
+	private boolean fUpdateTextPresentation;
 	private boolean fUpdateTabSize;
 	private boolean fUpdateIndent;
+	private boolean fUpdateQuickFix;
 	
 	
 	public RSourceViewerConfigurator(IRCoreAccess core, IPreferenceStore store) {
@@ -94,7 +101,6 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	
 	@Override
 	public void setTarget(ISourceViewer viewer, boolean configure) {
-		fUpdateTabSize = false;
 		fUpdateIndent = true;
 		super.setTarget(viewer, configure);
 	}
@@ -127,10 +133,12 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
 			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		}
-		boolean affectsPresentation = fConfig.handleSettingsChanged(contexts, viewer);
-		if (affectsPresentation) {
-			viewer.invalidateTextPresentation();
+		if (contexts.contains(REditorOptions.CONTEXT_ID) && fEditor != null) {
+			fUpdateCompleteConfig = true;
+			fUpdateQuickFix = true;
+			SpellingProblem.removeAllInActiveEditor(fEditor, null);
 		}
+		fUpdateTextPresentation = fConfig.handleSettingsChanged(contexts, viewer);
 		
 		updateSourceViewer(viewer);
 		viewer.setSelectedRange(selectedRange.x, selectedRange.y);
@@ -139,14 +147,32 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	protected void updateSourceViewer(ISourceViewer viewer) {
-		if (fUpdateTabSize) {
-			viewer.getTextWidget().setTabs(fConfig.getTabWidth(viewer));
-			fUpdateTabSize = false;
+		if (fUpdateCompleteConfig) {
+			reconfigureSourceViewer();
 		}
-		if (fUpdateIndent && fEditor != null) {
-			fEditor.updateSettings(fUpdateIndent);
-			fUpdateIndent = false;
+		else {
+			if (fUpdateTabSize) {
+				viewer.getTextWidget().setTabs(fConfig.getTabWidth(viewer));
+			}
+			if (fUpdateTextPresentation) {
+				viewer.invalidateTextPresentation();
+			}
+			if (fUpdateIndent && fEditor != null) {
+				fEditor.updateSettings(fUpdateIndent);
+			}
 		}
+		if (fUpdateQuickFix && fEditor != null) {
+			IAction quickAssistAction = fEditor.getAction(ITextEditorActionConstants.QUICK_ASSIST);
+			if (quickAssistAction instanceof IUpdate) {
+				((IUpdate) quickAssistAction).update();
+			}
+		}
+
+		fUpdateCompleteConfig = false;
+		fUpdateTextPresentation = false;
+		fUpdateTabSize = false;
+		fUpdateIndent = false;
+		fUpdateQuickFix = false;
 	}
 	
 	public RCodeStyleSettings getRCodeStyle() {

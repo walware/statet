@@ -61,6 +61,12 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
         		RCore.getWorkbenchAccess(),
         		fDialogTemplateProcessor);
     }
+    
+    @Override
+    public void setVisible(boolean visible) {
+    	super.setVisible(visible);
+    	setTitle(Messages.REditorTemplates_title);
+    }
 
     @Override
 	protected SourceViewer createViewer(Composite parent) {

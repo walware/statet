@@ -81,22 +81,6 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
-            id="de.walware.statet.r.preferencePages.RSyntaxColoring"
-            name="%preferencePages.RSyntaxColoring.name">
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
-      </page>
-      <page
-            category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage"
-            id="de.walware.statet.r.preferencePages.RdSyntaxColoring"
-            name="%preferencePages.RdSyntaxColoring.name">
-         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
-         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
-      </page>
-      <page
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage"
             id="de.walware.statet.r.preferencePages.RCodeStyle"
@@ -106,10 +90,35 @@
       </page>
       <page
             category="de.walware.statet.base.preferencePages.Editors"
+            class="de.walware.statet.r.internal.ui.preferences.REditorPreferencePage"
+            id="de.walware.statet.r.preferencePages.REditorOptions"
+            name="%preferencePages.REditorOptions.name">
+         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
+         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
+         <keywordReference id="de.walware.statet.base.keywords.Formatting"/>
+      </page>
+      <page
+            category="de.walware.statet.base.preferencePages.Editors"
+            class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
+            id="de.walware.statet.r.preferencePages.RSyntaxColoring"
+            name="%preferencePages.RSyntaxColoring.name">
+         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
+         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
+      </page>
+      <page
+            category="de.walware.statet.base.preferencePages.Editors"
             class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage"
             id="de.walware.statet.r.preferencePages.REditorTemplates"
             name="%preferencePages.REditorTemplates.name">
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
+      </page>
+      <page
+            category="de.walware.statet.base.preferencePages.Editors"
+            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage"
+            id="de.walware.statet.r.preferencePages.RdSyntaxColoring"
+            name="%preferencePages.RdSyntaxColoring.name">
+         <keywordReference id="de.walware.statet.base.keywords.Editor"/>
+         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
       </page>
    </extension>
    <extension

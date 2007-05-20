@@ -20,6 +20,8 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
+import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -172,6 +174,23 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			ContentAssistPreference.configure(fContentAssistant);
 		}
 		return fCommentScanner.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+	}
+	
+	
+	@Override
+	public IReconciler getReconciler(ISourceViewer sourceViewer) {
+		if (fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)) {
+			return super.getReconciler(sourceViewer);
+		}
+		return null;
+	}
+	
+	@Override
+	public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
+		if (fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)) {
+			return super.getQuickAssistAssistant(sourceViewer);
+		}
+		return null;
 	}
 	
 	@Override

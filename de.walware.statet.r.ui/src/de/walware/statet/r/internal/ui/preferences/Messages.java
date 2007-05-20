@@ -86,6 +86,11 @@ public class Messages extends NLS {
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_label;
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_error_message;
 	public static String RCodeStyle_Indent_Strategy_Levels_label;
+	
+	public static String REditorTemplates_title;
+
+	public static String REditorOptions_SmartInsert_label;
+	public static String REditorOptions_SpellChecking_Enable_label;
 
 
 	static {
