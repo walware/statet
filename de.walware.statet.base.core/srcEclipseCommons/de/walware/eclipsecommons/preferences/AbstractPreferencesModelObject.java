@@ -24,6 +24,10 @@ import de.walware.eclipsecommons.AbstractSettingsModelObject;
 public abstract class AbstractPreferencesModelObject extends AbstractSettingsModelObject {
 	
 	
+	protected AbstractPreferencesModelObject(boolean withLock) {
+		super(withLock);
+	}
+
 	/**
 	 * Returns the qualifier of all nodes, this model have preferences from.
 	 * @return
@@ -54,7 +58,6 @@ public abstract class AbstractPreferencesModelObject extends AbstractSettingsMod
 	 * @return new created map.
 	 */
 	public Map<Preference, Object> toPreferencesMap() {
-		
 		return deliverToPreferencesMap(new HashMap<Preference, Object>());
 	}
 	

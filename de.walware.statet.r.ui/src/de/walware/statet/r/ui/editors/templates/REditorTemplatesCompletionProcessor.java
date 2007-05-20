@@ -17,7 +17,6 @@ import java.util.List;
 
 import com.ibm.icu.text.Collator;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -34,10 +33,8 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.IEditorPart;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;
@@ -184,8 +181,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 		if (contextType != null) {
 			
 			IDocument document = contextViewer.getDocument();
-			RResourceUnit unit = new RResourceUnit((IFile) fEditor.getEditorInput().getAdapter(IFile.class));
-			return new REditorContext(contextType, document, region.getOffset(), region.getLength(), unit);
+			return new REditorContext(contextType, document, region.getOffset(), region.getLength(), fEditor);
 		}
 		return null;
 	}

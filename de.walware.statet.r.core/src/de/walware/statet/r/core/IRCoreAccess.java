@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core;
 
-import org.eclipse.core.runtime.CoreException;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
 
 /**
@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
  */
 public interface IRCoreAccess {
 
+	
+	public IPreferenceAccess getPrefs();
 	
 	public RCodeStyleSettings getRCodeStyle();
 	

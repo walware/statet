@@ -11,49 +11,19 @@
 
 package de.walware.statet.r.nico.ui;
 
-import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
-
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
-
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.IEditorConfiguration;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
-import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
-import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
+import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
 
-public class RInputConfiguration implements IEditorConfiguration {
+public class RInputConfiguration extends RSourceViewerConfigurator {
 
-	
-	private IRCoreAccess fRCoreAccess;
-	
 	
 	RInputConfiguration(IRCoreAccess rCoreAccess) {
-		fRCoreAccess = rCoreAccess;
-	}
-	
-	public StatextSourceViewerConfiguration getSourceViewerConfiguration() {
-		ICombinedPreferenceStore store = RSourceViewerConfiguration.createCombinedPreferenceStore(
-				RUIPlugin.getDefault().getPreferenceStore(), null);
-		return new RSourceViewerConfiguration(fRCoreAccess, 
-				StatetUIServices.getSharedColorManager(), store);
-	}
-	
-	public PairMatcher getPairMatcher() {
-		return new RBracketPairMatcher();
-	}
-
-	public void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
-		
-	}
-	
-	public IDocumentSetupParticipant getDocumentSetupParticipant() {
-		return new RDocumentSetupParticipant();
+		super(rCoreAccess, RUIPlugin.getDefault().getEditorPreferenceStore());
+		setConfiguration(new RSourceViewerConfiguration(this, getPreferenceStore(), StatetUIServices.getSharedColorManager()));
 	}
 	
 }

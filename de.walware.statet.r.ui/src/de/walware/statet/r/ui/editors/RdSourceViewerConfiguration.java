@@ -20,6 +20,9 @@ import static de.walware.statet.r.ui.text.rd.IRdTextTokens.COMMENT;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.PLATFORM_SPECIF;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.TASK_TAG;
 
+import java.util.Set;
+
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -27,14 +30,15 @@ import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
-import de.walware.statet.base.core.preferences.TaskTagsPreferences;
+import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.text.rd.RdCodeScanner;
 import de.walware.statet.r.ui.text.rd.RdDoubleClickStrategy;
@@ -45,7 +49,8 @@ import de.walware.statet.r.ui.text.rd.RdDoubleClickStrategy;
  * 
  * @author Stephan Wahlbrink
  */
-public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguration {
+public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguration 
+		implements ISettingsChangedHandler {
 
 
 	private RdCodeScanner fDocScanner;
@@ -54,21 +59,28 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	
 	private RdDoubleClickStrategy fDoubleClickStrategy;
 
-	
-	public RdSourceViewerConfiguration(ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
+	private IRCoreAccess fRCoreAccess;
 
-		super(colorManager, preferenceStore);
+	
+	public RdSourceViewerConfiguration(IRCoreAccess rCoreAccess, IPreferenceStore preferenceStore, ColorManager colorManager) {
+		super();
+		setup(preferenceStore, colorManager);
+		fRCoreAccess = rCoreAccess;
+		if (fRCoreAccess == null) {
+			fRCoreAccess = RCore.getWorkbenchAccess();
+		}
+		setScanners(initializeScanners());
 	}
 	
 	/**
 	 * Initializes the scanners.
 	 */
 	protected StatextTextScanner[] initializeScanners() {
-
-		ICombinedPreferenceStore store = getPreferences();
-		fDocScanner = new RdCodeScanner(fColorManager, store);
-		fCommentScanner = new CommentScanner(fColorManager, store, COMMENT, TASK_TAG);
-		fPlatformSpecifScanner = new SingleTokenScanner(fColorManager, store, PLATFORM_SPECIF);
+		IPreferenceStore store = getPreferences();
+		ColorManager colorManager = getColorManager();
+		fDocScanner = new RdCodeScanner(colorManager, store);
+		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), COMMENT, TASK_TAG);
+		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, PLATFORM_SPECIF);
 		
 		fDoubleClickStrategy = new RdDoubleClickStrategy();
 		
@@ -77,25 +89,21 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-
 		return RDOC_PARTITIONS;
 	}
 
 	@Override
 	public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
-
 		return RDOC_DOCUMENT_PARTITIONING;
 	}
 	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-
 		return fDoubleClickStrategy;
 	}
 
 	@Override
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-
 		PresentationReconciler reconciler = new PresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 
@@ -121,10 +129,12 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	
 	@Override
 	public boolean affectsTextPresentation(PropertyChangeEvent event) {
-		
 		String property = event.getProperty();
-		return (property.startsWith(RUIPreferenceConstants.Rd.TS_ROOT)
-				|| property.equals(TaskTagsPreferences.PREF_TAGS.getKey()) );
+		return (property.startsWith(RUIPreferenceConstants.Rd.TS_ROOT));
+	}
+	
+	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+		return fCommentScanner.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
 	}
 	
 }

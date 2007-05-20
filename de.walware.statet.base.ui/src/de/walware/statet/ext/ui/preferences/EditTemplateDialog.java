@@ -68,6 +68,8 @@ import org.eclipse.ui.texteditor.IUpdate;
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
+
 
 /**
  * Dialog to edit a template.
@@ -122,7 +124,7 @@ public class EditTemplateDialog extends StatusDialog {
 	private final Template fOriginalTemplate;
 	private Template fNewTemplate;
 	
-	private TemplateViewerConfigurationProvider fConfiguration;
+	private SourceViewerConfigurator fConfigurator;
 	
 	private Text fNameText;
 	private Text fDescriptionText;
@@ -152,13 +154,13 @@ public class EditTemplateDialog extends StatusDialog {
 	 * @param registry the context type registry to use
 	 */
 	public EditTemplateDialog(Shell parent, Template template, boolean edit, boolean isNameModifiable, 
-			TemplateViewerConfigurationProvider configuration,
+			SourceViewerConfigurator configuration,
 			TemplateVariableProcessor processor,
 			ContextTypeRegistry registry) {
 		
 		super(parent);
 		
-		fConfiguration = configuration;
+		fConfigurator = configuration;
 
 		setShellStyle(getShellStyle() | SWT.MAX | SWT.RESIZE);
 		String title = edit ? 
@@ -335,7 +337,7 @@ public class EditTemplateDialog extends StatusDialog {
 		SourceViewer viewer= createViewer(parent);
 
 		IDocument document= new Document(pattern);
-		fConfiguration.getDocumentSetupParticipant().setup(document);
+		fConfigurator.getDocumentSetupParticipant().setup(document);
 		viewer.setEditable(true);
 		viewer.setDocument(document);
 
@@ -386,7 +388,8 @@ public class EditTemplateDialog extends StatusDialog {
 		SourceViewer viewer= new SourceViewer(parent, null, null, false, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		// CHANGED
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-		viewer.configure(fConfiguration.getSourceViewerConfiguration());
+		viewer.configure(fConfigurator.getSourceViewerConfiguration());
+		fConfigurator.setTarget(viewer);
 		
 		return viewer;
 	}

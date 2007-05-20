@@ -14,6 +14,8 @@ package de.walware.statet.r.nico.ui;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.part.IPageBookViewPage;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
@@ -34,6 +36,10 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 		return new RConsolePage(this, view);
 	}
 
+	public IPreferenceAccess getPrefs() {
+		return RCore.getWorkbenchAccess().getPrefs();
+	}
+	
 	public RCodeStyleSettings getRCodeStyle() {
 		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}

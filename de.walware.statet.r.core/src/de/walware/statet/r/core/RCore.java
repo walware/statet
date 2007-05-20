@@ -23,7 +23,12 @@ public class RCore {
 	public static final String PLUGIN_ID = "de.walware.statet.r.core";
 
 		
-	public static IRCoreAccess getWorkbenchAccess(){
+	public static IRCoreAccess getWorkbenchAccess() {
 		return RCorePlugin.getDefault().getWorkspaceRCoreAccess();
 	}
+	
+	public static IRCoreAccess getDefaultsAccess() {
+		return RCorePlugin.getDefault().getDefaultsRCoreAccess();
+	}
+	
 }

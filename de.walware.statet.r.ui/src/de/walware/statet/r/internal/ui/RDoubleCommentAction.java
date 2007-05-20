@@ -46,7 +46,6 @@ public class RDoubleCommentAction extends Action {
 	 * 
 	 */
 	public RDoubleCommentAction(IEditorAdapter editor, IRCoreAccess core) {
-		
 		fEditor = editor; 
 		fCore = core;
 		setId(ACTION_ID);
@@ -57,13 +56,11 @@ public class RDoubleCommentAction extends Action {
 	
 	
 	public void update() {
-		
 		setEnabled(fEditor.isEditable(false));
 	}
 	
 	@Override
 	public void run() {
-		
 		if (!fEditor.isEditable(true)) {
 			return;
 		}
@@ -75,7 +72,6 @@ public class RDoubleCommentAction extends Action {
 	}
 	
 	private void addComment() throws BadLocationException {
-		
 		ISourceViewer sourceViewer = fEditor.getSourceViewer();
 		IDocument document = sourceViewer.getDocument();
 		ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();

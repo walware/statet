@@ -18,10 +18,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.base.core.preferences.PreferenceManageListener;
+import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.r.internal.core.Messages;
+import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RSupportBuilder;
 
 
@@ -30,6 +33,19 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
 	
+	
+	public static RProject getRProject(IProject project) {
+		try {
+			if (project == null || !project.hasNature(NATURE_ID)) {
+				return null;
+			}
+			return (RProject) project.getNature(NATURE_ID);
+		}
+		catch (CoreException e) {
+			RCorePlugin.log(e.getStatus());
+			return null;
+		}
+	}
 	
 	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
 		try {
@@ -110,7 +126,7 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	
 /* **/
 	private RCodeStyleSettings fRCodeStyle;
-	private PreferenceManageListener fPreferenceListener;
+	private PreferencesManageListener fPreferenceListener;
 
 	public RProject() {
 		super();
@@ -120,7 +136,7 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	public void setProject(IProject project) {
 		super.setProject(project);
 		fRCodeStyle = new RCodeStyleSettings();
-		fPreferenceListener = new PreferenceManageListener(fRCodeStyle, this, RCodeStyleSettings.CONTEXT_ID);
+		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, this, RCodeStyleSettings.CONTEXT_ID);
 	}
 	
 	@Override
@@ -136,7 +152,12 @@ public class RProject extends StatextProject implements IRCoreAccess {
 		return (StatetProject) fProject.getNature(StatetProject.NATURE_ID);
 	}
 	
+	public IPreferenceAccess getPrefs() {
+		return this;
+	}
+
 	public RCodeStyleSettings getRCodeStyle() {
 		return fRCodeStyle;
 	}
+	
 }

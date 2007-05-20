@@ -14,13 +14,13 @@ package de.walware.statet.r.ui.text.rd;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
@@ -53,7 +53,7 @@ public class RdCodeScanner extends StatextTextScanner {
 		}
 	}
 	
-	public RdCodeScanner(ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
+	public RdCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
 		super(colorManager, preferenceStore);
 		initialize();
 	}

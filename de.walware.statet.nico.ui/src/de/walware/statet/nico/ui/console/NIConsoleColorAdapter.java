@@ -17,6 +17,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleColorProvider;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -24,7 +25,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetUIServices;
@@ -47,7 +48,7 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	
 	private NIConsole fConsole;
 	
-	protected ICombinedPreferenceStore fPreferences;
+	protected IPreferenceStore fPreferences;
 	private IPropertyChangeListener fPreferenceListener;
 	
 	
@@ -56,7 +57,6 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	}
 	
 	public void connect(ToolProcess process, NIConsole console) {
-		
 		fConsole = console;
 		
 		fPreferences = createPreferenceStore();
@@ -77,7 +77,7 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 		};
 		fPreferences.addPropertyChangeListener(fPreferenceListener);
 		
-		FilterPreferences filter = new ConsolePreferences.FilterPreferences(fPreferences.getCorePreferences());
+		FilterPreferences filter = new ConsolePreferences.FilterPreferences(PreferencesUtil.getInstancePrefs());
 		ToolController controller = process.getController();
 		if (controller != null) {
 			ToolStreamProxy proxy = controller.getStreams();
@@ -93,7 +93,6 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	}
 
 	public void disconnect() {
-		
 		fPreferences.removePropertyChangeListener(fPreferenceListener);
 		fPreferenceListener = null;
 		fPreferences = null;
@@ -102,7 +101,6 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	}
 
 	public Color getColor(String streamIdentifer) {
-		
 		String colorId = getColorId(streamIdentifer);
 		if (colorId == null) {
 			return null;
@@ -112,7 +110,6 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	}
 
 	protected String getColorId(String streamId) {
-		
 		if (streamId.equals(IDebugUIConstants.ID_STANDARD_INPUT_STREAM)) {
 			return ConsolePreferences.INPUT_COLOR;
 		}
@@ -129,7 +126,6 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	}
 	
 	protected String getStreamId(String colorId) {
-		
 		if (colorId.equals(ConsolePreferences.INPUT_COLOR)) {
 			return IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
 		}
@@ -149,12 +145,10 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	 * For ProcessConsole only.
 	 */
 	public boolean isReadOnly() {
-
 		return true; 
 	}
 
-	protected ICombinedPreferenceStore createPreferenceStore() {
-		
+	protected IPreferenceStore createPreferenceStore() {
 		return ConsolePreferences.getStore();
 	}
 }

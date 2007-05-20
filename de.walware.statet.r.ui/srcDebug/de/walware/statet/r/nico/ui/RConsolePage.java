@@ -16,11 +16,9 @@ import java.util.Set;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
 
-import de.walware.statet.ext.ui.editors.IEditorConfiguration;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
@@ -40,12 +38,7 @@ public class RConsolePage extends NIConsolePage {
 	}
 
 	@Override
-	public void createControl(Composite parent) {
-		super.createControl(parent);
-	}
-	
-	@Override
-	protected IEditorConfiguration getInputEditorConfiguration() {
+	protected RInputConfiguration createInputEditorConfigurator() {
 		return new RInputConfiguration((RConsole) getConsole());
 	}
 	
@@ -84,7 +77,6 @@ public class RConsolePage extends NIConsolePage {
 				getOutputViewer().setTabWidth(codeStyle.getTabSize());
 			}
 		}
-		((RInputGroup) getInputGroup()).handleSettingsChanged(contexts);
 	}
 	
 }

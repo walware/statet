@@ -12,6 +12,7 @@
 package de.walware.statet.base.core.preferences;
 
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
@@ -24,7 +25,7 @@ import de.walware.statet.base.core.StatetCore;
  * 
  * The listener be disposed, if no longer required.
  */
-public class PreferenceManageListener implements SettingsChangeNotifier.ManageListener {
+public class PreferencesManageListener implements SettingsChangeNotifier.ManageListener {
 
 	private AbstractPreferencesModelObject fModel;
 	private IPreferenceAccess fPrefAccess;
@@ -34,20 +35,30 @@ public class PreferenceManageListener implements SettingsChangeNotifier.ManageLi
 	/**
 	 * Creates a new listener.
 	 */
-	public PreferenceManageListener(AbstractPreferencesModelObject model, IPreferenceAccess prefs, String context) {
+	public PreferencesManageListener(AbstractPreferencesModelObject model, IPreferenceAccess prefs, String context) {
 		fModel = model;
 		fPrefAccess = prefs;
 		fContext = context;
-		synchronized(fModel) {
+		Lock lock = fModel.getWriteLock();
+		lock.lock();
+		try {
 			StatetCore.getSettingsChangeNotifier().addManageListener(this);
 			fModel.load(fPrefAccess);
+		}
+		finally {
+			lock.unlock();
 		}
 	}
 	
 	public void beforeSettingsChangeNotification(Set<String> contexts) {
 		if (contexts.contains(fContext)) {
-			synchronized(fModel) {
+			Lock lock = fModel.getWriteLock();
+			lock.lock();
+			try {
 				fModel.load(fPrefAccess);
+			}
+			finally {
+				lock.unlock();
 			}
 		}
 	}

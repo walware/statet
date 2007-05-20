@@ -16,6 +16,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
@@ -39,12 +41,10 @@ public class RResourceUnit implements IRCoreAccess {
 	
 
 	public RResourceUnit(IFile file) {
-		
 		fFile = file;
 	}
 	
 	public String getElementName() {
-		
 //		if (fElementStorageName != null)
 //			return fElementStorageName;
 		if (fFile != null)
@@ -53,7 +53,6 @@ public class RResourceUnit implements IRCoreAccess {
 	}
 	
 	public RProject getRProject() {
-		
 		if (fFile != null) {
 			IProject proj =  fFile.getProject();
 			try {
@@ -68,7 +67,6 @@ public class RResourceUnit implements IRCoreAccess {
 	}
 	
 	public StatetProject getStatetProject() {
-		
 		RProject rproj = getRProject();
 		if (rproj != null) {
 			try {
@@ -80,11 +78,18 @@ public class RResourceUnit implements IRCoreAccess {
 		return null;
 	}
 	
-	public RCodeStyleSettings getRCodeStyle() {
-		
+	public IPreferenceAccess getPrefs() {
 		RProject rproj = getRProject();
 		if (rproj != null) {
-			rproj.getRCodeStyle();
+			return rproj.getPrefs();
+		}
+		return RCore.getWorkbenchAccess().getPrefs();
+	}
+
+	public RCodeStyleSettings getRCodeStyle() {
+		RProject rproj = getRProject();
+		if (rproj != null) {
+			return rproj.getRCodeStyle();
 		}
 		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}

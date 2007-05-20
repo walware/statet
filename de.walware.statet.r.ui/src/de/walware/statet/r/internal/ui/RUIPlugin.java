@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
@@ -26,6 +27,7 @@ import org.osgi.framework.BundleContext;
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.ui.RUI;
@@ -53,13 +55,24 @@ public class RUIPlugin extends AbstractUIPlugin {
 	private static final String RD_CODE_TEMPLATES_KEY = "de.walware.statet.r.ui.text.rd_code_templates"; //$NON-NLS-1$
 	private static final String R_EDITOR_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_editor_templates"; //$NON-NLS-1$
 	
-	
+
+	public static void log(IStatus status) {
+		getDefault().getLog().log(status);
+	}
+
+	public static void logError(int code, String message, Throwable e) {
+		log(new Status(IStatus.ERROR, RUI.PLUGIN_ID, code, message, e));
+	}
+
+
 	//The shared instance.
 	private static RUIPlugin gPlugin;
 
 	private RDocumentProvider fRDocumentProvider;
 	private RdDocumentProvider fRdDocumentProvider;
 
+	private IPreferenceStore fEditorPreferenceStore;
+	
 	private TemplateStore fRCodeTemplatesStore;
 	private ContextTypeRegistry fRCodeTemplatesContextTypeRegistry;
 	private TemplateStore fRdCodeTemplatesStore;
@@ -89,6 +102,15 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		try {
+			fRDocumentProvider = null;
+			fRdDocumentProvider = null;
+			fEditorPreferenceStore = null;
+			fRCodeTemplatesStore = null;
+			fRCodeTemplatesContextTypeRegistry = null;
+			fRdCodeTemplatesStore = null;
+			fRdCodeTemplatesContextTypeRegistry = null;
+			fREditorTemplatesStore = null;
+			fREditorContextTypeRegistry = null;
 		} finally {
 			gPlugin = null;
 			super.stop(context);
@@ -121,20 +143,27 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	
     public synchronized RDocumentProvider getRDocumentProvider() {
-    	
-		if (fRDocumentProvider == null)
+		if (fRDocumentProvider == null) {
 			fRDocumentProvider = new RDocumentProvider();
+		}
 		return fRDocumentProvider;
 	}
 
     public synchronized RdDocumentProvider getRdDocumentProvider() {
-    	
-		if (fRdDocumentProvider == null)
+		if (fRdDocumentProvider == null) {
 			fRdDocumentProvider = new RdDocumentProvider();
+		}
 		return fRdDocumentProvider;
 	}
     
-
+    
+    public IPreferenceStore getEditorPreferenceStore() {
+    	if (fEditorPreferenceStore == null) {
+    		fEditorPreferenceStore = StatextSourceViewerConfiguration.createCombinedPreferenceStore(
+    			RUIPlugin.getDefault().getPreferenceStore());
+    	}
+    	return fEditorPreferenceStore;
+    }
 	
 	/**
 	 * Returns the template context type registry for the code generation
@@ -143,7 +172,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * @return the template context type registry
 	 */
 	public ContextTypeRegistry getRCodeGenerationTemplateContextRegistry() {
-		
 		if (fRCodeTemplatesContextTypeRegistry != null) {
 			return fRCodeTemplatesContextTypeRegistry;
 		}
@@ -163,7 +191,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * @return the template store
 	 */
 	public TemplateStore getRCodeGenerationTemplateStore() {
-		
 		if (fRCodeTemplatesStore != null) {
 			return fRCodeTemplatesStore;
 		}
@@ -188,7 +215,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * @return the template context type registry
 	 */
 	public ContextTypeRegistry getRdCodeGenerationTemplateContextRegistry() {
-		
 		if (fRdCodeTemplatesContextTypeRegistry != null) {
 			return fRdCodeTemplatesContextTypeRegistry;
 		}
@@ -208,7 +234,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * @return the template store
 	 */
 	public TemplateStore getRdCodeGenerationTemplateStore() {
-		
 		if (fRdCodeTemplatesStore != null) {
 			return fRdCodeTemplatesStore;
 		}
@@ -234,7 +259,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * @return the template context type registry
 	 */
 	public ContextTypeRegistry getREditorTemplateContextRegistry() {
-		
 		if (fREditorContextTypeRegistry != null) {
 			return fREditorContextTypeRegistry;
 		}
@@ -254,7 +278,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * @return the template store
 	 */
 	public TemplateStore getREditorTemplateStore() {
-		
 		if (fREditorTemplatesStore != null) {
 			return fREditorTemplatesStore;
 		}
@@ -271,16 +294,5 @@ public class RUIPlugin extends AbstractUIPlugin {
 			return fREditorTemplatesStore;
 		}
 	}
-
 	
-	public static void log(IStatus status) {
-
-		getDefault().getLog().log(status);
-	}
-
-	public static void logError(int code, String message, Throwable e) {
-
-		log(new Status(IStatus.ERROR, RUI.PLUGIN_ID, code, message, e));
-	}
-
 }

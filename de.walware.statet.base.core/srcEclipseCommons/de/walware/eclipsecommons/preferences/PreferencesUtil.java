@@ -11,6 +11,8 @@
 
 package de.walware.eclipsecommons.preferences;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -28,24 +30,44 @@ public class PreferencesUtil {
 		private IScopeContext[] fContexts;
 		
 		private DefaultImpl(IScopeContext[] contexts) {
-			
 			fContexts = contexts;
 		}
 		
 		public <T> T getPreferenceValue(Preference<T> key) {
-			
 			return PreferencesUtil.getPrefValue(fContexts, key);
 		}
 		
 		public IEclipsePreferences[] getPreferenceNodes(String nodeQualifier) {
-			
 			return PreferencesUtil.getRelevantNodes(nodeQualifier, fContexts);
 		}
 		
 		public IScopeContext[] getPreferenceContexts() {
-
 			return fContexts;
 		} 
+	}
+	
+	private static class MapImpl implements IPreferenceAccess {
+
+
+		private Map<Preference, Object> fPreferencesMap;
+		
+		MapImpl(Map<Preference, Object> preferencesMap) {
+			fPreferencesMap = preferencesMap;
+		}
+		
+		public IScopeContext[] getPreferenceContexts() {
+			return new IScopeContext[0];
+		}
+
+		public IEclipsePreferences[] getPreferenceNodes(String nodeQualifier) {
+			return new IEclipsePreferences[0];
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T> T getPreferenceValue(Preference<T> key) {
+			return (T) fPreferencesMap.get(key);
+		}
+		
 	}
 
 	
@@ -54,7 +76,6 @@ public class PreferencesUtil {
 	
 	
 	public static synchronized IPreferenceAccess getInstancePrefs() {
-		
 		if (fgInstancePreferences == null)
 			fgInstancePreferences = new DefaultImpl(new IScopeContext[] {
 							new InstanceScope(),
@@ -64,7 +85,6 @@ public class PreferencesUtil {
 	}
 	
 	public static synchronized IPreferenceAccess getDefaultPrefs() {
-		
 		if (fgDefaultPreferences == null)
 			fgDefaultPreferences = new DefaultImpl(new IScopeContext[] {
 							new DefaultScope(),
@@ -72,10 +92,13 @@ public class PreferencesUtil {
 		return fgDefaultPreferences;
 	}
 	
+	public static IPreferenceAccess createAccess(Map<Preference, Object> preferencesMap) {
+		return new MapImpl(preferencesMap);
+	}
+	
 		
 	@SuppressWarnings("unchecked")
 	public static <T> T getPrefValue(IScopeContext[] contexts, Preference<T> key) {
-					
 		IPreferencesService service = Platform.getPreferencesService();
 
 		Object storedValue;
@@ -102,10 +125,49 @@ public class PreferencesUtil {
 		return key.store2Usage(storedValue);
 	}
 
-	public static <T> void setPrefValue(IScopeContext context, Preference<T> key, T value) {
-		
+	public static <T> T getPrefValue(IScopeContext context, Preference<T> key) {
 		IEclipsePreferences node = context.getNode(key.getQualifier());
+		return getPrefValue(node, key);
+	}
+
+	private static <T> T getPrefValue(IEclipsePreferences node, Preference<T> key) {
+		Object storedValue;
+		switch (key.getStoreType()) {
+		case BOOLEAN:
+			storedValue = node.getBoolean(key.getKey(), Preferences.BOOLEAN_DEFAULT_DEFAULT);
+			break;
+		case INT:
+			storedValue = node.getInt(key.getKey(), Preferences.INT_DEFAULT_DEFAULT);
+			break;
+		case LONG:
+			storedValue = node.getLong(key.getKey(), Preferences.LONG_DEFAULT_DEFAULT);
+			break;
+		case DOUBLE:
+			storedValue = node.getDouble(key.getKey(), Preferences.DOUBLE_DEFAULT_DEFAULT);
+			break;
+		case FLOAT:
+			storedValue = node.getFloat(key.getKey(), Preferences.FLOAT_DEFAULT_DEFAULT);
+			break;
+		default:
+			storedValue = node.get(key.getKey(), Preferences.STRING_DEFAULT_DEFAULT);
+			break;
+		}
+		return key.store2Usage(storedValue);
+	}
+
+	public static <T> void setPrefValue(IScopeContext context, Preference<T> key, T value) {
+		IEclipsePreferences node = context.getNode(key.getQualifier());
+		setPrefValue(node, key, value);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void setPrefValues(IScopeContext context, Map<Preference, Object> preferencesMap) {
+		for (Map.Entry<Preference, Object> pref : preferencesMap.entrySet()) {
+			setPrefValue(context, pref.getKey(), pref.getValue());
+		}
+	}
 		
+	private static <T> void setPrefValue(IEclipsePreferences node, Preference<T> key, T value) {
 		if (value == null) {
 			node.remove(key.getKey());
 			return;
@@ -135,7 +197,6 @@ public class PreferencesUtil {
 	}
 	
 	public static IEclipsePreferences[] getRelevantNodes(String nodeQualifier, IScopeContext[] contexts) {
-		
 		IEclipsePreferences[] nodes = new IEclipsePreferences[contexts.length - 1];
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = contexts[i].getNode(nodeQualifier);

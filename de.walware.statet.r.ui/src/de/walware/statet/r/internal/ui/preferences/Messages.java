@@ -71,15 +71,15 @@ public class Messages extends NLS {
 	public static String RdSyntaxColoring_Brackets_description;
 	public static String RdSyntaxColoring_TaskTag_label;
 	public static String RdSyntaxColoring_TaskTag_description;
-	
+
 	public static String RCodeStyle_TabSize_label;
 	public static String RCodeStyle_TabSize_error_message;
-	public static String RCodeStyle_Indentation_group;
-	public static String RCodeStyle_Indentation_DefaultPolicy_label;
-	public static String RCodeStyle_IndentationType_UseTabs_name;
-	public static String RCodeStyle_IndentationType_UseSpaces_name;
-	public static String RCodeStyle_Indentation_NumOfSpaces_label;
-	public static String RCodeStyle_Indentation_NumOfSpaces_error_message;
+	public static String RCodeStyle_Indent_group;
+	public static String RCodeStyle_Indent_DefaultType_label;
+	public static String RCodeStyle_Indent_Type_UseTabs_name;
+	public static String RCodeStyle_Indent_Type_UseSpaces_name;
+	public static String RCodeStyle_Indent_NumOfSpaces_label;
+	public static String RCodeStyle_Indent_NumOfSpaces_error_message;
 
 
 	static {

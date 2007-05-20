@@ -15,9 +15,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
-import de.walware.statet.base.core.preferences.PreferenceManageListener;
+import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 
@@ -43,22 +44,34 @@ public class RCorePlugin extends Plugin {
 	}
 
 	
-	private class WorkspaceCoreAccess implements IRCoreAccess {
+	private class CoreAccess implements IRCoreAccess {
 		
+		private IPreferenceAccess fPrefs;
 		private RCodeStyleSettings fRCodeStyle;
+		private PreferencesManageListener fListener;
 		
-		private WorkspaceCoreAccess() {
+		private CoreAccess(IPreferenceAccess prefs) {
+			fPrefs = prefs;
 			fRCodeStyle = new RCodeStyleSettings();
-			new PreferenceManageListener(fRCodeStyle, PreferencesUtil.getInstancePrefs(), RCodeStyleSettings.CONTEXT_ID);
+			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.CONTEXT_ID);
+		}
+		
+		public IPreferenceAccess getPrefs() {
+			return fPrefs;
 		}
 		
 		public RCodeStyleSettings getRCodeStyle() {
 			return fRCodeStyle;
 		};
+		
+		private void dispose() {
+			fListener.dispose();
+		}
 	};
 
 	
-	private IRCoreAccess fWorkspaceCoreAccess;
+	private CoreAccess fWorkspaceCoreAccess;
+	private CoreAccess fDefaultsCoreAccess;
 	
 	
 	/**
@@ -81,16 +94,38 @@ public class RCorePlugin extends Plugin {
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
 		gPlugin = null;
+
+		if (fWorkspaceCoreAccess != null) {
+			fWorkspaceCoreAccess.dispose();
+			fWorkspaceCoreAccess = null;
+		}
+		if (fDefaultsCoreAccess!= null) {
+			fDefaultsCoreAccess.dispose();
+			fDefaultsCoreAccess = null;
+		}
 	}
 
 	public IRCoreAccess getWorkspaceRCoreAccess() {
-		if (fWorkspaceCoreAccess == null) {
-			synchronized (this) {
-				if (fWorkspaceCoreAccess == null) {
-					fWorkspaceCoreAccess = new WorkspaceCoreAccess();
-				}
-			}
+		if (fWorkspaceCoreAccess != null) {
+			return fWorkspaceCoreAccess;
 		}
-		return fWorkspaceCoreAccess;
+		synchronized (this) {
+			if (fWorkspaceCoreAccess == null) {
+				fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
+			}
+			return fWorkspaceCoreAccess;
+		}
+	}
+
+	public IRCoreAccess getDefaultsRCoreAccess() {
+		if (fDefaultsCoreAccess != null) {
+			return fDefaultsCoreAccess;
+		}
+		synchronized (this) {
+			if (fDefaultsCoreAccess == null) {
+				fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
+			}
+			return fDefaultsCoreAccess;
+		}
 	}
 }

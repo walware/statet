@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.ui.console;
 
+import java.util.Set;
+
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -18,7 +20,6 @@ import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -45,11 +46,11 @@ import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IEditorConfiguration;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
@@ -63,7 +64,7 @@ import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.internal.ui.Messages;
 
 
-public class InputGroup {
+public class InputGroup implements ISettingsChangedHandler {
 
 	
 	private class EditorAdapter implements IEditorAdapter {
@@ -130,7 +131,7 @@ public class InputGroup {
 	EditorAdapter fEditorAdapter = new EditorAdapter();
 	private StatextSourceViewerConfiguration fSourceViewerConfiguration;
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
-	private PairMatcher fPairMatcher;
+	private SourceViewerConfigurator fConfigurator;
 	
 	private boolean fIsHistoryCompoundChangeOpen = false; // for undo manager
 	/** Indicates that the document is change by a history action */
@@ -144,7 +145,7 @@ public class InputGroup {
 		fDocument = new InputDocument();
 	}
 
-	public Composite createControl(Composite parent, IEditorConfiguration editorConfig) {
+	public Composite createControl(Composite parent, SourceViewerConfigurator editorConfig) {
 		fComposite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(3, false);
 		layout.marginHeight = 0;
@@ -206,35 +207,27 @@ public class InputGroup {
 		return fComposite;
 	}
 	
-	protected void createSourceViewer(IEditorConfiguration editorConfig) {
+	protected void createSourceViewer(SourceViewerConfigurator editorConfigurator) {
+		fConfigurator = editorConfigurator;
 		fSourceViewer = new InputSourceViewer(fComposite);
-		if (editorConfig != null) {
-			fSourceViewerConfiguration = editorConfig.getSourceViewerConfiguration();
-			fSourceViewer.configure(fSourceViewerConfiguration);
-			
-			fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
-					fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
+		fConfigurator.setTarget(fSourceViewer);
 
-			fPairMatcher = editorConfig.getPairMatcher();
-			if (fPairMatcher != null) {
-				fSourceViewerDecorationSupport.setCharacterPairMatcher(fPairMatcher);
-				fSourceViewerDecorationSupport.setMatchingCharacterPainterPreferenceKeys(
-						IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
-						IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
-			}
-			
-			editorConfig.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
-			fSourceViewerDecorationSupport.install(fSourceViewerConfiguration.getPreferences());
-			
-			IDocumentSetupParticipant docuSetup = editorConfig.getDocumentSetupParticipant();
-			if (docuSetup != null) {
-				docuSetup.setup(fDocument.getMasterDocument());
-			}
-			
-			new SourceViewerUpdater(fSourceViewer, fSourceViewerConfiguration);
-		}
-		fSourceViewer.setDocument(fDocument);
+		fSourceViewerConfiguration = fConfigurator.getSourceViewerConfiguration();
+		fSourceViewer.configure(fSourceViewerConfiguration);
 		
+		fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
+				fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
+
+		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+		
+		IDocumentSetupParticipant docuSetup = fConfigurator.getDocumentSetupParticipant();
+		if (docuSetup != null) {
+			docuSetup.setup(fDocument.getMasterDocument());
+		}
+		
+		new SourceViewerUpdater(fSourceViewer, fSourceViewerConfiguration);
+
+		fSourceViewer.setDocument(fDocument);
 		fSourceViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				fEditorAdapter.cleanStatusLine();
@@ -247,23 +240,18 @@ public class InputGroup {
 		});
 	}
 	
-	protected StatextSourceViewerConfiguration getSourceViewerConfiguration() {
-		return fSourceViewerConfiguration;
-	}
-	
-	protected void reconfigureSourceViewer() {
-		if (fSourceViewer != null && fSourceViewerConfiguration != null) {
-			((ISourceViewerExtension2) fSourceViewer).unconfigure();
-			fSourceViewer.configure(fSourceViewerConfiguration);
-		}
+	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+		fConfigurator.handleSettingsChanged(contexts, options);
+		return false;
 	}
 	
 	public void configureServices(IHandlerService commands, IContextService keys) {
 		keys.activateContext("de.walware.statet.base.contexts.TextEditor"); //$NON-NLS-1$
 		
 		IAction action;
-		if (fPairMatcher != null) {
-			action = new GotoMatchingBracketAction(fPairMatcher, fEditorAdapter);
+		PairMatcher matcher = fConfigurator.getPairMatcher();
+		if (matcher != null) {
+			action = new GotoMatchingBracketAction(matcher, fEditorAdapter);
 			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
 		}
 	}
@@ -371,10 +359,6 @@ public class InputGroup {
 		if (fSourceViewerDecorationSupport != null) {
 			fSourceViewerDecorationSupport.dispose();
 			fSourceViewerDecorationSupport = null;
-		}
-		if (fPairMatcher != null) {
-			fPairMatcher.dispose();
-			fPairMatcher = null;
 		}
 		fProcess = null;
 		fConsolePage = null;

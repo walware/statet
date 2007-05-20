@@ -11,17 +11,19 @@
 
 package de.walware.statet.r.internal.ui.preferences;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
-import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
-import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
+import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
 
 /**
@@ -31,7 +33,26 @@ import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory {
 
 	
+	public static class RTemplateConfigurator extends RSourceViewerConfigurator {
+
+		public RTemplateConfigurator(
+				IRCoreAccess rCoreAccess,
+				TemplateVariableProcessor processor) {
+			super(rCoreAccess, RUIPlugin.getDefault().getEditorPreferenceStore());
+			setConfiguration(new RTemplateSourceViewerConfiguration(
+					processor, 
+					this, 
+					getPreferenceStore(),
+					StatetUIServices.getSharedColorManager()));
+		}
+	}
+	
+	
 	public RCodeTemplatesProvider() {
+	}
+	
+	public String getProjectNatureId() {
+		return RProject.NATURE_ID;
 	}
 	
 	public TemplateStore getTemplateStore() {
@@ -42,16 +63,8 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 		return RUIPlugin.getDefault().getRCodeGenerationTemplateContextRegistry();
 	}
 
-	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(
-			final TemplateVariableProcessor processor, StatetProject project) {
-
-		StatextSourceViewerConfiguration configuration = 
-			new RTemplateSourceViewerConfiguration(processor, project);
-		
-		return new TemplateViewerConfigurationProvider(
-				configuration,
-				new RDocumentSetupParticipant(),
-				RUIPlugin.getDefault().getPreferenceStore() );
+	public SourceViewerConfigurator getEditTemplateDialogConfiguator(TemplateVariableProcessor processor, IProject project) {
+		return new RTemplateConfigurator(RProject.getRProject(project), processor);
 	}
 
 }

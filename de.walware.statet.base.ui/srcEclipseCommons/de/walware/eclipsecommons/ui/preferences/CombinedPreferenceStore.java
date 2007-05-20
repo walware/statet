@@ -25,44 +25,11 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
 
 /**
- *
+ * Util to create combination of preference stores.
  */
 public class CombinedPreferenceStore {
 
-	private static class ChainedCombinedStore extends ChainedPreferenceStore implements ICombinedPreferenceStore {
-		
-		private IPreferenceAccess fCorePrefs;
-		
-		ChainedCombinedStore(IPreferenceStore[] stores, IPreferenceAccess core) {
-			
-			super(stores);
-			fCorePrefs = core;
-		}
-	
-		public IPreferenceAccess getCorePreferences() {
-			
-			return fCorePrefs;
-		}
-	}
-	
-	private static class ScopedCombinedStore extends ScopedPreferenceStore implements ICombinedPreferenceStore {
-		
-		private IPreferenceAccess fCorePrefs;
-		
-		ScopedCombinedStore(IScopeContext context, String qualifier, IPreferenceAccess core) {
-			
-			super(context, qualifier);
-			fCorePrefs = core;
-		}
-	
-		public IPreferenceAccess getCorePreferences() {
-			
-			return fCorePrefs;
-		}
-	}
-
-	
-	public static ICombinedPreferenceStore createStore(
+	public static IPreferenceStore createStore(
 			IPreferenceStore[] preferenceStores, IPreferenceAccess corePrefs, String[] coreQualifier) {
 		
 		IScopeContext[] contexts = corePrefs.getPreferenceContexts();
@@ -75,7 +42,7 @@ public class CombinedPreferenceStore {
 		IScopeContext mainScope = (contexts.length > 0) ? contexts[0] : new InstanceScope();
 
 		if (preferenceStores.length == 0 && contexts.length <= 1 && coreQualifier.length == 1) {
-			return new ScopedCombinedStore(mainScope, coreQualifier[0], corePrefs);
+			return new ScopedPreferenceStore(mainScope, coreQualifier[0]);
 		}
 		
 		List<IPreferenceStore> stores = new ArrayList<IPreferenceStore>();
@@ -85,12 +52,10 @@ public class CombinedPreferenceStore {
 			stores.add(store);
 		}
 		stores.addAll(Arrays.asList(preferenceStores));
-		return new ChainedCombinedStore(stores.toArray(new IPreferenceStore[stores.size()]), corePrefs);
+		return new ChainedPreferenceStore(stores.toArray(new IPreferenceStore[stores.size()]));
 	}
 	
-	public static ICombinedPreferenceStore createStore(
-			IPreferenceAccess corePrefs, String coreQualifier) {
-		
+	public static IPreferenceStore createStore(IPreferenceAccess corePrefs, String coreQualifier) {
 		return createStore(new IPreferenceStore[0], corePrefs, new String[] { coreQualifier });
 	}
 	

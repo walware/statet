@@ -14,12 +14,12 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
@@ -31,7 +31,6 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 
 		
 	public RdSyntaxColoringPreferencePage() {
-
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 	}
 
@@ -41,7 +40,6 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 		AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
 
 			protected SyntaxNode[] createItems() {
-				
 				return new SyntaxNode[] {
 						new CategoryNode(Messages.RdSyntaxColoring_CodeCategory_label, new SyntaxNode[] {
 								new StyleNode(Messages.RdSyntaxColoring_Default_label, Messages.RdSyntaxColoring_Default_description, RUIPreferenceConstants.Rd.TS_DEFAULT_ROOT, false),
@@ -63,23 +61,18 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 								
 			@Override
 			protected String getPreviewFileName() {
-
 				return "RdSyntaxColoringPreviewCode.txt"; //$NON-NLS-1$
 			}
 
 			@Override
 			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
 					ColorManager colorManager, IPreferenceStore store) {
-				
-				return new RdSourceViewerConfiguration(colorManager, 
-						RSourceViewerConfiguration.createCombinedPreferenceStore(
-								store, PreferencesUtil.getDefaultPrefs())
-						);
+				return new RdSourceViewerConfiguration(RCore.getDefaultsAccess(),
+						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);
 			}
 			
 			@Override
 			protected IDocumentSetupParticipant getDocumentSetupParticipant() {
-				
 				return new RdDocumentSetupParticipant();
 			}
 			

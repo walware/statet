@@ -201,12 +201,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 		
 		public StyleNode(String name, String description, String rootKey, boolean allowActivation) {
-		
 			this(name, description, rootKey, allowActivation, null);
 		}
 
 		public String getDescription() {
-
 			return fDescription;
 		}
 
@@ -231,13 +229,11 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 
 		protected void gatherPreferenceKeys(List<OverlayStorePreference> keys) {
-			
 			for (Object[] pref : fPreferences) {
 				keys.add(OverlayStorePreference.create((Preference) pref[0]));
 			}
 		}
 		protected void connectPreferenceStore(IPreferenceStore store) {
-			
 			fPreferenceStore = store;
 			fBeanSupport = new PreferenceStoreBeanWrapper(store, this);
 			for (Object[] pref : fPreferences) {
@@ -249,24 +245,20 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		/*-- Bean-Support --*/
 		
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
-			
 			fBeanSupport.addPropertyChangeListener(listener);
 		}
 
 		public void addPropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
-			
 			fBeanSupport.addPropertyChangeListener(propertyName, listener);
 		}
 
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
-			
 			fBeanSupport.removePropertyChangeListener(listener);
 		}
 
 		public void removePropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
-			
 			fBeanSupport.removePropertyChangeListener(propertyName, listener);
 		}
 
@@ -496,7 +488,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		IDocument document = new Document(content);
 		getDocumentSetupParticipant().setup(document);
 		fPreviewViewer.setDocument(document);
-	
+
 		return fPreviewViewer.getControl();
 	}
 	

@@ -33,21 +33,22 @@ import org.eclipse.text.edits.TextEdit;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.IStatetContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
-import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.text.r.RIndentation;
 import de.walware.statet.r.ui.text.r.RIndentation.IndentEditAction;
 
 
 public class REditorContext extends DocumentTemplateContext implements IStatetContext {
 
-	private RResourceUnit fUnit;
+	
+	private REditor fEditor;
+	
 	
 	public REditorContext(TemplateContextType type, IDocument document,	int offset, int length,
-			RResourceUnit unit) {
-
+			REditor editor) {
 		super(type, document, offset, length);
-		fUnit = unit;
+		fEditor = editor;
 	}
 
 //	public REditorContext(TemplateContextType type, IDocument document,	Position position) {
@@ -55,12 +56,10 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 //	}
 	
 	public StatetProject getStatetProject() {
-		
-		return fUnit.getStatetProject();
+		return fEditor.getRResourceUnit().getStatetProject();
 	}
 	
 	public String getInfo(Template template) throws BadLocationException, TemplateException {
-		
 		TemplateBuffer buffer = super.evaluate(template);
 		if (buffer != null)
 			return buffer.getString();
@@ -69,7 +68,6 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 	
 	@Override
 	public TemplateBuffer evaluate(Template template) throws BadLocationException, TemplateException {
-
 		TemplateBuffer buffer = super.evaluate(template);
 		indent(buffer);
 		String selection = getVariable("selection"); //$NON-NLS-1$
@@ -82,7 +80,6 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 	}
 	
 	private void indent(TemplateBuffer buffer) throws BadLocationException {
-		
 		TemplateVariable[] variables = buffer.getVariables();
 		List<TextEdit> positions = TemplatesUtil.variablesToPositions(variables);
 		IDocument baseDoc = getDocument();
@@ -122,11 +119,10 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 	
 	@Override
 	public void setVariable(String name, String value) {
-		
 		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
 			try {
 				IDocument valueDoc = new Document(value);
-				final RIndentation indent = new RIndentation(valueDoc, fUnit.getRCodeStyle());
+				final RIndentation indent = new RIndentation(valueDoc, fEditor.getRCoreAccess().getRCodeStyle());
 				int depth = indent.getMultilineIndentationDepth(0, valueDoc.getNumberOfLines()-1);
 				if (depth > 0) {
 					IndentEditAction action = indent.new IndentEditAction(depth) {

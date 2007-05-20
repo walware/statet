@@ -11,61 +11,49 @@
 
 package de.walware.statet.r.ui.editors;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IEditorInput;
-
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
-import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.IRDocumentPartitions;
 
 
 public class RdEditor extends StatextEditor1<RProject> {
 
-	private static final char[][] BRACKETS = { {'{', '}'} };
+	
+	RdSourceViewerConfigurator fRdConfig;
 
 	
 	public RdEditor() {
 		super();
 	}
-		
+	
 	@Override
 	protected void initializeEditor() {
-
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
-		configureStatetPairMatching(new PairMatcher(BRACKETS, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, IRDocumentPartitions.R_DEFAULT, '\\'));
 		
-		super.initializeEditor();
+		IPreferenceStore store = RUIPlugin.getDefault().getEditorPreferenceStore();
+		fRdConfig = new RdSourceViewerConfigurator(null, store);
+		fRdConfig.setConfiguration(new RdSourceViewerConfiguration(
+				fRdConfig, store, StatetUIServices.getSharedColorManager()));
+		initializeEditor(fRdConfig); // super
 	}
 	
 	@Override
 	protected void setupConfiguration(RProject prevProject, RProject newProject, IEditorInput newInput) {
-		
-		ICombinedPreferenceStore preferenceStore = RSourceViewerConfiguration.createCombinedPreferenceStore(
-				RUIPlugin.getDefault().getPreferenceStore(), newProject);
-		setPreferenceStore(preferenceStore);
-		setSourceViewerConfiguration(new RdSourceViewerConfiguration( 
-				StatetUIServices.getSharedColorManager(), preferenceStore));
+		fRdConfig.setSource(newProject);
 	}
 	
 	@Override
 	protected String[] collectContextMenuPreferencePages() {
-		
 		String[] ids = super.collectContextMenuPreferencePages();
 		String[] more = new String[ids.length + 1];
 		more[0]= "de.walware.statet.r.preferencePages.RdSyntaxColoring"; //$NON-NLS-1$
 		System.arraycopy(ids, 0, more, 1, ids.length);
 		return more;
-	}
-
-	@Override
-	public void dispose() {
-		
-		super.dispose();
 	}
 
 }

@@ -52,7 +52,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 /**
  * A console to interact with controller using command-line-based interface.
  */
-public class NIConsole extends IOConsole implements IAdaptable {
+public abstract class NIConsole extends IOConsole implements IAdaptable {
 	
 	
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
@@ -171,10 +171,7 @@ public class NIConsole extends IOConsole implements IAdaptable {
 	}
 	
 	@Override
-    public IPageBookViewPage createPage(IConsoleView view) {
-		
-        return new NIConsolePage(this, view);
-    }
+    public abstract IPageBookViewPage createPage(IConsoleView view);
 
 
 	public void connect(ToolStreamMonitor streamMonitor, String streamId, EnumSet<SubmitType> filter) {

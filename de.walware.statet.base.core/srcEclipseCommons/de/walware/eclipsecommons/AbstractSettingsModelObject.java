@@ -14,6 +14,9 @@ package de.walware.eclipsecommons;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 /**
@@ -22,12 +25,14 @@ import java.beans.PropertyChangeSupport;
 public abstract class AbstractSettingsModelObject {
 
 	
+	private ReadWriteLock fLock;
 	private PropertyChangeSupport fBeanSupport;
 	private boolean fIsDirty;
 	
 	
-	protected AbstractSettingsModelObject() {
+	protected AbstractSettingsModelObject(boolean withLock) {
 		
+		fLock = new ReentrantReadWriteLock(true);
 		fBeanSupport = new PropertyChangeSupport(this);
 		fIsDirty = false;
 		fBeanSupport.addPropertyChangeListener(new PropertyChangeListener() {
@@ -35,6 +40,13 @@ public abstract class AbstractSettingsModelObject {
 				fIsDirty = true;
 			}
 		});
+	}
+	
+	public Lock getReadLock() {
+		return fLock.readLock();
+	}
+	public Lock getWriteLock() {
+		return fLock.writeLock();
 	}
 	
 	/**

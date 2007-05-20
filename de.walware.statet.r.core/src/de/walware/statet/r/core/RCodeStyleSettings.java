@@ -12,6 +12,7 @@
 package de.walware.statet.r.core;
 
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
@@ -51,18 +52,11 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	 * Creates an instance with default settings.
 	 */
 	public RCodeStyleSettings() {
+		super(false);
 		loadDefaults();
 		resetDirty();
 	}
 	
-	/**
-	 * Creates an instance with settings from preferences.
-	 */
-	public RCodeStyleSettings(IPreferenceAccess prefs) {
-		load(prefs);
-		resetDirty();
-	}
-
 	
 	@Override
 	public String[] getNodeQualifiers() {
@@ -81,6 +75,23 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		setTabSize(prefs.getPreferenceValue(PREF_TAB_SIZE));
 		setIndentDefaultType(prefs.getPreferenceValue(PREF_INDENT_DEFAULT_TYPE));
 		setIndentSpacesCount(prefs.getPreferenceValue(PREF_INDENT_SPACES_COUNT));
+	}
+
+	public void load(RCodeStyleSettings source) {
+		Lock sourceLock = source.getReadLock();
+		Lock writeLock = getWriteLock();
+		try {
+			sourceLock.lock();
+			writeLock.lock();
+			
+			setTabSize(source.fTabSize);
+			setIndentDefaultType(source.fIndentationDefaultType);
+			setIndentSpacesCount(source.fIndentationSpacesCount);
+		}
+		finally {
+			sourceLock.unlock();
+			writeLock.unlock();
+		}
 	}
 
 	@Override

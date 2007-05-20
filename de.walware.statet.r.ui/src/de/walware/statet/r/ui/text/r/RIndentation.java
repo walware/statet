@@ -12,6 +12,7 @@
 package de.walware.statet.r.ui.text.r;
 
 import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -34,6 +35,17 @@ public class RIndentation {
 		Arrays.fill(chars, c);
 		return chars;
 	}
+	
+//	public static RIndentation createSave(IDocument document, RCodeStyleSettings style) {
+//		Lock lock = style.getReadLock();
+//		lock.lock();
+//		try {
+//			return new RIndentation(document, style);
+//		}
+//		finally {
+//			lock.unlock();
+//		}
+//	}
 
 	
 	public abstract class IndentEditAction {
@@ -58,15 +70,14 @@ public class RIndentation {
 	private IDocument fDocument;
 	private int fTabWidth;
 	private boolean fTabAsDefault;
+	private int fNumOfSpaces;
 	
 	
 	public RIndentation(IDocument document, RCodeStyleSettings style) {
-		
 		fDocument = document;
-		synchronized (style) {
-			fTabAsDefault = style.getIndentDefaultType() == IndentationType.TAB; 
-			fTabWidth = style.getIndentSpacesCount();
-		}
+		fTabAsDefault = style.getIndentDefaultType() == IndentationType.TAB; 
+		fTabWidth = style.getTabSize();
+		fNumOfSpaces = style.getIndentSpacesCount();
 	}
 	
 	/**
@@ -272,24 +283,78 @@ public class RIndentation {
 	}
 	
 	/**
+	 * Computes the visual char column for the specified offset.
+	 * @param offset offset in document
+	 * @return char column of offset
+	 * @throws BadLocationException
+	 */
+	public int getColumnAtOffset(int offset) throws BadLocationException {
+		int checkOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(offset));
+		int depth = 0;
+		for (; checkOffset < offset; checkOffset++) {
+			if (fDocument.getChar(checkOffset) == '\t') {
+				depth += fTabWidth;
+			}
+			else {
+				depth ++;
+			}
+		}
+		return depth;
+	}
+	
+	/**
+	 * Returns the configured width of a default indentation.
+	 * @return number of visual char columns
+	 */
+	public int getLevelColumns() {
+		if (fTabAsDefault) {
+			return fTabWidth;
+		}
+		else {
+			return fNumOfSpaces;
+		}
+	}
+	
+	/**
+	 * Computes the indentation depth adding the specified levels to the current depth.
+	 * @param currentDepth depth in visual char columns
+	 * @param levels number of indentation levels
+	 * @return depth in visual char columns
+	 */
+	public int getNextLevelDepth(int currentDepth, int levels) {
+		int columns = getLevelColumns();
+		return ((currentDepth / columns + levels) * columns);
+	}
+	
+	/**
 	 * Creates a string for indentation of specified depth (respects the preferences).
 	 * @param depth
 	 * @return
 	 */
 	public String createIndentationString(int depth) {
-		
 		if (fTabAsDefault) {
 			return new StringBuilder(depth)
 					.append(repeat('\t', depth / fTabWidth))
 					.append(repeat(' ', depth % fTabWidth))
 					.toString(); 
 		}
-		return new String(repeat(' ', depth));
+		else {
+			return new String(repeat(' ', depth));
+		}
+	}
+	
+	public String createIndentCompletionString(int currentDepth) {
+		if (fTabAsDefault) {
+			return "\t"; //$NON-NLS-1$
+		}
+		else {
+			int rest = currentDepth % fNumOfSpaces;
+			return new String(repeat(' ', fNumOfSpaces-rest));
+		}
 	}
 	
 	
 	private int getDocumentChar(int idx) throws BadLocationException {
-		
 		if (idx >= 0 && idx < fDocument.getLength()) {
 			return fDocument.getChar(idx);
 		}
@@ -299,9 +364,7 @@ public class RIndentation {
 		throw new BadLocationException();
 	}
 	
-	
 	private String createNoIndentationCharMessage(int c) {
-		
 		return NLS.bind("No indentation char: ''{0}''.", ((char) c)); //$NON-NLS-1$
 	}
 }

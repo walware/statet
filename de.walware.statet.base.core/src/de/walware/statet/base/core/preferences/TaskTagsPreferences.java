@@ -27,6 +27,8 @@ import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
 
 public class TaskTagsPreferences {
 
+	public static final String CONTEXT_ID = "statet.task_tags"; //$NON-NLS-1$
+	
 	private static final String KEY_TAGS = "task_tags"; //$NON-NLS-1$
 	private static final String KEY_PRIORITIES = "task_tags.priority"; //$NON-NLS-1$
 	

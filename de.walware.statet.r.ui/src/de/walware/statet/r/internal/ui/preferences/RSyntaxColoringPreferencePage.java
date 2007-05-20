@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.ui.preferences;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
@@ -41,7 +40,6 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 		AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
 
 			protected SyntaxNode[] createItems() {
-				
 				return new SyntaxNode[] {
 						new CategoryNode(Messages.RSyntaxColoring_CodeCategory_label, new SyntaxNode[] {
 								new StyleNode(Messages.RSyntaxColoring_Default_label, Messages.RSyntaxColoring_Default_description, RUIPreferenceConstants.R.TS_DEFAULT_ROOT, false),
@@ -66,24 +64,18 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 			
 			@Override
 			protected String getPreviewFileName() {
-
 				return "RSyntaxColoringPreviewCode.txt"; //$NON-NLS-1$
 			}
 
 			@Override
 			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
 					ColorManager colorManager, IPreferenceStore store) {
-				
-				return new RSourceViewerConfiguration(RCore.getWorkbenchAccess(), 
-						colorManager, 
-						RSourceViewerConfiguration.createCombinedPreferenceStore(
-								store, PreferencesUtil.getDefaultPrefs())
-						);
+				return new RSourceViewerConfiguration(RCore.getDefaultsAccess(),
+						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);
 			}
 			
 			@Override
 			protected IDocumentSetupParticipant getDocumentSetupParticipant() {
-				
 				return new RDocumentSetupParticipant();
 			}
 			

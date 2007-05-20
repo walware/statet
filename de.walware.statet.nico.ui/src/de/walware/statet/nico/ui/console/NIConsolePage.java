@@ -84,7 +84,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IEditorConfiguration;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.TextViewerAction;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -103,7 +103,7 @@ import de.walware.statet.nico.ui.actions.ToolAction;
  * The page contains beside the usual output viewer 
  * a separete input field with submit button.
  */
-public class NIConsolePage implements IPageBookViewPage, 
+public abstract class NIConsolePage implements IPageBookViewPage, 
 		IAdaptable, IShowInSource, IShowInTargetList, 
 		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport, ChangeListener {
 
@@ -267,7 +267,7 @@ public class NIConsolePage implements IPageBookViewPage,
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fOutputViewer.getControl().setLayoutData(gd);
 		
-		fInputGroup.createControl(fControl, getInputEditorConfiguration());
+		fInputGroup.createControl(fControl, createInputEditorConfigurator());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fInputGroup.getComposite().setLayoutData(gd);
 
@@ -288,9 +288,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	 * 
 	 * @return the adapter
 	 */
-	protected IEditorConfiguration getInputEditorConfiguration() {
-		return null;
-	}
+	protected abstract SourceViewerConfigurator createInputEditorConfigurator();
 
 
 	private class ConsoleActivationNotifier implements Listener {
@@ -693,7 +691,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 
 	public void settingsChanged(final Set<String> contexts) {
-		UIAccess.getDisplay(getSite().getShell()).syncExec(new Runnable() {
+		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fControl)) {
 					handleSettingsChanged(contexts);
@@ -703,6 +701,7 @@ public class NIConsolePage implements IPageBookViewPage,
 	}
 
 	protected void handleSettingsChanged(Set<String> contexts) {
+		fInputGroup.handleSettingsChanged(contexts, null);
 	}
 	
 }

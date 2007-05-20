@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.ui.preferences;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -20,15 +21,14 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
-import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
-import de.walware.statet.ext.ui.preferences.TemplateViewerConfigurationProvider;
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
-import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
+import de.walware.statet.r.ui.editors.RdSourceViewerConfigurator;
 
 
 /**
@@ -38,7 +38,41 @@ import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory {
 
 	
+	public static class RdTemplateConfigurator extends RdSourceViewerConfigurator {
+
+		public RdTemplateConfigurator(
+				IRCoreAccess rCoreAccess,
+				final TemplateVariableProcessor processor) {
+			super(rCoreAccess, RUIPlugin.getDefault().getEditorPreferenceStore());
+			setConfiguration(new RdSourceViewerConfiguration(
+					this, 
+					getPreferenceStore(), 
+					StatetUIServices.getSharedColorManager()) {
+				
+				@Override
+				public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
+					return getTemplateVariableContentAssistant(sourceViewer, processor);
+				}
+				
+				@Override
+				public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {
+					return new int[] { ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK };
+				}
+
+				@Override
+				public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
+					return new TemplateVariableTextHover(processor);
+				}
+			});
+		}
+	}
+
+	
 	public RdCodeTemplatesProvider() {
+	}
+	
+	public String getProjectNatureId() {
+		return RProject.NATURE_ID;
 	}
 	
 	public TemplateStore getTemplateStore() {
@@ -49,38 +83,8 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 		return RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry();
 	}
 
-	public TemplateViewerConfigurationProvider getEditTemplateDialogConfiguation(final TemplateVariableProcessor processor, StatetProject project) {
-
-		StatextSourceViewerConfiguration configuration = new RdSourceViewerConfiguration(
-				StatetUIServices.getSharedColorManager(), 
-				RSourceViewerConfiguration.createCombinedPreferenceStore(
-						RUIPlugin.getDefault().getPreferenceStore(), project)
-				) {
-			
-			@Override
-			public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-				
-				return getTemplateVariableContentAssistant(sourceViewer, processor);
-			}	
-	
-			@Override
-			public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {
-				
-				return new int[] { ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK };
-			}
-
-			@Override
-			public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
-				
-				return new TemplateVariableTextHover(processor);
-			}
-		
-		};
-		
-		return new TemplateViewerConfigurationProvider(
-				configuration,
-				new RdDocumentSetupParticipant(),
-				RUIPlugin.getDefault().getPreferenceStore() );
+	public SourceViewerConfigurator getEditTemplateDialogConfiguator(TemplateVariableProcessor processor, IProject project) {
+		return new RdTemplateConfigurator(RProject.getRProject(project), processor);
 	}
 
 }

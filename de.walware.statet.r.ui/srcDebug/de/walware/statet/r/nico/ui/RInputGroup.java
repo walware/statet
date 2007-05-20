@@ -11,33 +11,31 @@
 
 package de.walware.statet.r.nico.ui;
 
-import java.util.Set;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
+import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IEditorConfiguration;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
-import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.nico.BasicR;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
+import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
 
 /**
  * R Console input line
  */
-class RInputGroup extends InputGroup {
+class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	
 	
-	private IRCoreAccess fRCoreAccess;
+	private RSourceViewerConfigurator fRConfig;
 	
 	
 	/**
@@ -45,7 +43,6 @@ class RInputGroup extends InputGroup {
 	 */
 	RInputGroup(RConsolePage page) {
 		super(page);
-		fRCoreAccess = (RConsole) page.getConsole();
 	}
 	
 	@Override
@@ -60,8 +57,10 @@ class RInputGroup extends InputGroup {
 	}
 	
 	@Override
-	protected void createSourceViewer(IEditorConfiguration editorConfig) {
-		super.createSourceViewer(editorConfig);
+	public Composite createControl(Composite parent, SourceViewerConfigurator editorConfig) {
+		fRConfig = (RSourceViewerConfigurator) editorConfig;
+		Composite control = super.createControl(parent, editorConfig);
+		return control;
 	}
 	
 	@Override
@@ -71,16 +70,6 @@ class RInputGroup extends InputGroup {
 		IAction action;
 		action = new InsertAssignmentAction((IEditorAdapter) getConsolePage().getAdapter(IEditorAdapter.class));
 		commands.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));
-	}
-	
-	protected void handleSettingsChanged(Set<String> contexts) {
-		((RSourceViewerConfiguration) getSourceViewerConfiguration()).handleSettingsChange(contexts);
-		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
-			RCodeStyleSettings settings = fRCoreAccess.getRCodeStyle();
-			if (settings.isDirty()) {
-				reconfigureSourceViewer();
-			}
-		}
 	}
 	
 }

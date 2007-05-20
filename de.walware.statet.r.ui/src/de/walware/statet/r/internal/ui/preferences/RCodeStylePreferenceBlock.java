@@ -70,7 +70,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		setupPreferenceManager(container, new Preference[] {
 				RCodeStyleSettings.PREF_TAB_SIZE,
 		}, new String[] { RCodeStyleSettings.CONTEXT_ID });
-		fModel = new RCodeStyleSettings(this);
+		fModel = new RCodeStyleSettings();
 		
 		Composite mainComposite = new Composite(pageComposite, SWT.NONE);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -86,7 +86,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		
 		Group group = new Group(mainComposite, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-		group.setText(Messages.RCodeStyle_Indentation_group);
+		group.setText(Messages.RCodeStyle_Indent_group);
 		createIndentControls(group);
 		
 		createDbc();
@@ -99,12 +99,12 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		Label label;
 		
 		label = new Label(group, SWT.NONE);
-		label.setText(Messages.RCodeStyle_Indentation_DefaultPolicy_label);
+		label.setText(Messages.RCodeStyle_Indent_DefaultType_label);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		fIndentPolicy = new ComboViewer(group, SWT.DROP_DOWN | SWT.READ_ONLY);
 		fIndentPolicy.setContentProvider(new ArrayContentProvider());
 		IndentationType[] items = new IndentationType[] { IndentationType.TAB, IndentationType.SPACES };
-		final String[] itemLabels = new String[] { Messages.RCodeStyle_IndentationType_UseTabs_name, Messages.RCodeStyle_IndentationType_UseSpaces_name };
+		final String[] itemLabels = new String[] { Messages.RCodeStyle_Indent_Type_UseTabs_name, Messages.RCodeStyle_Indent_Type_UseSpaces_name };
 		fIndentPolicy.setLabelProvider(new LabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -125,7 +125,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		fIndentPolicy.setSelection(new StructuredSelection(IndentationType.TAB));
 		
 		label = fIndentSpaceCountLabel = new Label(group, SWT.NONE);
-		label.setText(Messages.RCodeStyle_Indentation_NumOfSpaces_label);
+		label.setText(Messages.RCodeStyle_Indent_NumOfSpaces_label);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		fIndentSpaceCount = new Text(group, SWT.RIGHT | SWT.SINGLE | SWT.BORDER);
 		gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
@@ -153,7 +153,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fIndentSpaceCount, SWT.Modify), 
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT), 
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indentation_NumOfSpaces_error_message)), 
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indent_NumOfSpaces_error_message)), 
 				null);
 	}
 	
