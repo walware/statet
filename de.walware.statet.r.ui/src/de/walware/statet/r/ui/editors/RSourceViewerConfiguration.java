@@ -14,6 +14,7 @@ package de.walware.statet.r.ui.editors;
 import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -47,8 +48,6 @@ import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
 
 /**
  * Default Configuration for SourceViewer of R code.
- * 
- * @author Stephan Wahlbrink
  */
 public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		implements ISettingsChangedHandler {
@@ -60,6 +59,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	private SingleTokenScanner fStringScanner;
 	
 	private RDoubleClickStrategy fDoubleClickStrategy;
+	private RAutoEditStrategy fRAutoEditStrategy;
 	private ContentAssistant fContentAssistant;
 	
 	private REditor fEditor;
@@ -172,6 +172,17 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			ContentAssistPreference.configure(fContentAssistant);
 		}
 		return fCommentScanner.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+	}
+	
+	@Override
+	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+		if (!contentType.equals(IRDocumentPartitions.R_STRING)) {
+			if (fRAutoEditStrategy == null) {
+				fRAutoEditStrategy = new RAutoEditStrategy(fRCoreAccess, fEditor);
+			}
+			return new IAutoEditStrategy[] { fRAutoEditStrategy };
+		}
+		return new IAutoEditStrategy[0];
 	}
 	
 	@Override

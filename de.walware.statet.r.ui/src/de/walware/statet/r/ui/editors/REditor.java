@@ -62,6 +62,7 @@ public class REditor extends StatextEditor1<RProject> {
 		initializeEditor(fRConfig); // super
 		
 		setHelpContextId(IRUIHelpContextIds.R_EDITOR);
+		configureInsertMode(SMART_INSERT, true);
 	}
 	
 	@Override
@@ -102,6 +103,12 @@ public class REditor extends StatextEditor1<RProject> {
 	void updateSettings(boolean indentChanged) {
 		if (indentChanged) {
 			updateIndentPrefixes();
+			if (fRConfig.getRCodeStyle().getReplaceOtherTabsWithSpaces()) {
+				installTabsToSpacesConverter();
+			}
+			else {
+				uninstallTabsToSpacesConverter();
+			}
 		}
 	}
 	
@@ -110,6 +117,13 @@ public class REditor extends StatextEditor1<RProject> {
 	protected void setupConfiguration(RProject prevProject, RProject newProject, IEditorInput newInput) {
 		fRResourceUnit = new RResourceUnit((IFile) newInput.getAdapter(IFile.class));
 		fRConfig.setSource(fRResourceUnit);
+
+		if (fRConfig.getPrefs().getPreferenceValue(REditorOptions.PREF_SMARTINSERT_ASDEFAULT)) {
+			setInsertMode(SMART_INSERT);
+		}
+		else {
+			setInsertMode(INSERT);
+		}
 	}
 	
 	@Override

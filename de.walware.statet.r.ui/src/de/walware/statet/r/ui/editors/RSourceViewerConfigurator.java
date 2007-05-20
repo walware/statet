@@ -33,7 +33,7 @@ import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
 /**
- *
+ * Configurator for R code source viewers.
  */
 public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		implements IRCoreAccess, PropertyChangeListener {
@@ -102,6 +102,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 			return;
 		}
 		if (name.equals(RCodeStyleSettings.PROP_INDENT_SPACES_COUNT)
+				|| name.equals(RCodeStyleSettings.PROP_REPLACE_TABS_WITH_SPACES)
 				|| name.equals(RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE)) {
 			fUpdateIndent = true;
 			return;
