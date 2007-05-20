@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -57,6 +58,9 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	private ComboViewer fIndentPolicy;
 	private Label fIndentSpaceCountLabel;
 	private Text fIndentSpaceCount;
+	private Button fReplaceOtherTabs;
+	private Text fIndentBlockDepth;
+	private Text fIndentWrappedCommandDepth;
 
 	
 	public RCodeStylePreferenceBlock(IProject project, IStatusChangeListener statusListener) {
@@ -69,20 +73,17 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		super.createContents(pageComposite, container, preferenceStore);
 		setupPreferenceManager(container, new Preference[] {
 				RCodeStyleSettings.PREF_TAB_SIZE,
+				RCodeStyleSettings.PREF_INDENT_DEFAULT_TYPE,
+				RCodeStyleSettings.PREF_INDENT_SPACES_COUNT,
+				RCodeStyleSettings.PREF_INDENT_BLOCK_DEPTH,
+				RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH,
+				RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES,
 		}, new String[] { RCodeStyleSettings.CONTEXT_ID });
-		fModel = new RCodeStyleSettings();
+		fModel = new RCodeStyleSettings(true);
 		
 		Composite mainComposite = new Composite(pageComposite, SWT.NONE);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout((LayoutUtil.applyCompositeDefaults(new GridLayout(), 2)));
-		
-		Label label = new Label(mainComposite, SWT.NONE);
-		label.setText(Messages.RCodeStyle_TabSize_label);
-		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-		fTabSize = new Text(mainComposite, SWT.RIGHT | SWT.BORDER | SWT.SINGLE);
-		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-		gd.widthHint = LayoutUtil.hintWidth(fTabSize, 2);
-		fTabSize.setLayoutData(gd);
 		
 		Group group = new Group(mainComposite, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
@@ -124,6 +125,14 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		fIndentPolicy.getCombo().setLayoutData(gd);
 		fIndentPolicy.setSelection(new StructuredSelection(IndentationType.TAB));
 		
+		label = new Label(group, SWT.NONE);
+		label.setText(Messages.RCodeStyle_TabSize_label);
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		fTabSize = new Text(group, SWT.RIGHT | SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gd.widthHint = LayoutUtil.hintWidth(fTabSize, 2);
+		fTabSize.setLayoutData(gd);
+
 		label = fIndentSpaceCountLabel = new Label(group, SWT.NONE);
 		label.setText(Messages.RCodeStyle_Indent_NumOfSpaces_label);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
@@ -131,6 +140,32 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
 		gd.widthHint = LayoutUtil.hintWidth(fIndentSpaceCount, 2);
 		fIndentSpaceCount.setLayoutData(gd);
+		
+		fReplaceOtherTabs = new Button(group, SWT.CHECK);
+		fReplaceOtherTabs.setText(Messages.RCodeStyle_Indent_ReplaceOtherTabs_label);
+		fReplaceOtherTabs.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		
+		LayoutUtil.addSmallFiller(group);
+		
+		Composite depthComposite = new Composite(group, SWT.NONE);
+		depthComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		depthComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 3));
+		fIndentBlockDepth = createIndentDepthLine(depthComposite, Messages.RCodeStyle_Indent_IndentOfBlocks_label);
+		fIndentWrappedCommandDepth = createIndentDepthLine(depthComposite, Messages.RCodeStyle_Indent_IndentOfWrappedCommands_label);
+	}
+	
+	private Text createIndentDepthLine(Composite composite, String label) {
+		Label labelControl = new Label(composite, SWT.LEFT);
+		labelControl.setText(label);
+		labelControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		Text textControl = new Text(composite, SWT.RIGHT | SWT.SINGLE | SWT.BORDER);
+		GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gd.widthHint = LayoutUtil.hintWidth(textControl, 2);
+		textControl.setLayoutData(gd);
+		Label typeControl = new Label(composite, SWT.LEFT);
+		typeControl.setText(Messages.RCodeStyle_Indent_Strategy_Levels_label);
+		typeControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		return textControl;
 	}
 
 	@Override
@@ -147,6 +182,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				IndentationType t = (IndentationType) event.diff.getNewValue();
 				fIndentSpaceCountLabel.setEnabled(t == IndentationType.SPACES);
 				fIndentSpaceCount.setEnabled(t == IndentationType.SPACES);
+				fReplaceOtherTabs.setEnabled(t == IndentationType.SPACES);
 			}
 		});
 		dbc.bindValue(indentObservable, BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE),
@@ -155,6 +191,17 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT), 
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indent_NumOfSpaces_error_message)), 
 				null);
+		dbc.bindValue(SWTObservables.observeText(fIndentBlockDepth, SWT.Modify), 
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_BLOCK_DEPTH), 
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentOfBlocks_error_message)), 
+				null);
+		dbc.bindValue(SWTObservables.observeText(fIndentWrappedCommandDepth, SWT.Modify), 
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_WRAPPED_COMMAND_DEPTH), 
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentOfWrappedCommands_error_message)), 
+				null);
+		dbc.bindValue(SWTObservables.observeSelection(fReplaceOtherTabs), 
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_REPLACE_TABS_WITH_SPACES), 
+				null, null);
 	}
 	
 	@Override

@@ -27,14 +27,11 @@ import org.eclipse.jface.text.templates.TemplateVariableResolver;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
+import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.templates.WordFinder;
-import de.walware.eclipsecommons.ui.preferences.CombinedPreferenceStore;
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
@@ -46,52 +43,46 @@ import de.walware.statet.ext.ui.text.StatextTextScanner;
 public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
 	
-	public static ICombinedPreferenceStore createCombinedPreferenceStore(
-			IPreferenceStore store, IPreferenceAccess corePrefs, String[] coreQualifier) {
-
+	public static IPreferenceStore createCombinedPreferenceStore(IPreferenceStore store) {
 		IPreferenceStore[] stores = new IPreferenceStore[] {
 			store,
 			StatetUIPlugin.getDefault().getPreferenceStore(),
 			EditorsUI.getPreferenceStore(),
 		};
-		return CombinedPreferenceStore.createStore(
-				stores, 
-				(corePrefs != null) ? corePrefs : PreferencesUtil.getInstancePrefs(), 
-				coreQualifier
-		);
+		return new ChainedPreferenceStore(stores);
 	}
-
 	
-	protected ColorManager fColorManager;
-
+	
+	private ColorManager fColorManager;
 	private StatextTextScanner[] fScanners;
-	protected ContentAssistant fContentAssistant;
 	
 
-	public StatextSourceViewerConfiguration(
-			ColorManager colorManager, 
-			ICombinedPreferenceStore preferenceStore) {
-
-		super(preferenceStore);
-
+	public StatextSourceViewerConfiguration() {
+	}
+	
+	protected void setup(IPreferenceStore preferenceStore, ColorManager colorManager) {
+		fPreferenceStore = preferenceStore;
 		fColorManager = colorManager;
-		fScanners = initializeScanners();
 	}
 	
 	/**
 	 * Initializes the scanners.
 	 */
-	protected abstract StatextTextScanner[] initializeScanners();
+	protected void setScanners(StatextTextScanner[] scanners) {
+		fScanners = scanners;
+	}
 
 	public abstract boolean affectsTextPresentation(PropertyChangeEvent event);
 	
-	public ICombinedPreferenceStore getPreferences() {
-		
-		return (ICombinedPreferenceStore) fPreferenceStore;
+	public IPreferenceStore getPreferences() {
+		return fPreferenceStore;
+	}
+	
+	protected ColorManager getColorManager() {
+		return fColorManager;
 	}
 	
 	public void handlePropertyChangeEvent(PropertyChangeEvent event) {
-		
 		if (affectsTextPresentation(event)) {
 			for (StatextTextScanner scanner : fScanners) {
 				scanner.adaptToPreferenceChange(event);
@@ -110,7 +101,6 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		 * @param processor the template variable processor
 		 */
 		public TemplateVariableTextHover(TemplateVariableProcessor processor) {
-			
 			fProcessor = processor;
 		}
 
@@ -146,14 +136,13 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	} 
 	
 	protected IContentAssistant getTemplateVariableContentAssistant(ISourceViewer sourceViewer, TemplateVariableProcessor processor) {
-
 		ContentAssistant assistant = new ContentAssistant();
 		
 		for (String contentType : getConfiguredContentTypes(sourceViewer)) {
 			assistant.setContentAssistProcessor(processor, contentType);
 		}
 
-		ContentAssistPreference.configure(assistant);
+//		ContentAssistPreference.configure(assistant);
 		
 		assistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);

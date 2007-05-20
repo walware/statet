@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
@@ -27,7 +28,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
@@ -40,13 +40,13 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 
 	
 	protected ColorManager fColorManager;
-	protected ICombinedPreferenceStore fPreferenceStore;
+	protected IPreferenceStore fPreferenceStore;
 	protected String[] fTokenNames; 
 	
 	private Map<String, IToken> fTokenMap = new HashMap<String, IToken>();
 	
 	
-	public StatextTextScanner(ColorManager colorManager, ICombinedPreferenceStore preferenceStore) {
+	public StatextTextScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
 		super();
 		fColorManager = colorManager;
 		fPreferenceStore = preferenceStore;
@@ -79,7 +79,6 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 	}
 	
 	private IToken addToken(String key) {
-		
 		String colorKey = key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
 		RGB rgb = PreferenceConverter.getColor(fPreferenceStore, colorKey);
 		fColorManager.bindColor(colorKey, rgb);
@@ -102,7 +101,6 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 	 * @since 3.0
 	 */
 	private TextAttribute createTextAttribute(String key) {
-		
 		Color color = fColorManager.getColor(key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX);
 
 		int style = fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_BOLD_SUFFIX) ? 

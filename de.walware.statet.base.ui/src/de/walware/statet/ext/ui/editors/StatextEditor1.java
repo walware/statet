@@ -47,7 +47,6 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.preferences.SettingsChangeNotifier;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.ext.ui.text.PairMatcher;
 
@@ -221,7 +220,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 						}
 						prefixes = nonemptyPrefixes;
 					}
-
 					fPrefixesMap.put(type, prefixes);
 				}
 			}
@@ -244,9 +242,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 				return false;
 
 			IDocument document = getDocumentProvider().getDocument(getEditorInput());
-
 			try {
-
 				IRegion block = getTextBlockFromSelection(textSelection, document);
 				ITypedRegion[] regions = TextUtilities.computePartitioning(document, fDocumentPartitioning, block.getOffset(), block.getLength(), false);
 
@@ -292,7 +288,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		 *             begin of line
 		 */
 		private boolean isBlockCommented(int startLine, int endLine, String[] prefixes, IDocument document) {
-
 			try {
 				// check for occurrences of prefixes in the given lines
 				for (int i = startLine; i <= endLine; i++) {
@@ -325,9 +320,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 /*- Fields -----------------------------------------------------------------*/
 	
-	/** The editor's bracket matcher */
-	private PairMatcher fBracketMatcher;
 	private IEditorAdapter fEditorAdapter = new EditorAdapter();
+	private SourceViewerConfigurator fConfigurator;
 	private String fProjectNatureId;
 	private ProjectT fProject;
 	
@@ -341,11 +335,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 /*- Methods ----------------------------------------------------------------*/
 
-	@Override
-	protected void initializeEditor() {
+	protected void initializeEditor(SourceViewerConfigurator configurator) {
+		fConfigurator = configurator;
 		super.initializeEditor();
 		setCompatibilityMode(false);
-		setupConfiguration(null, null, null);
+		setPreferenceStore(fConfigurator.getPreferenceStore());
+		setSourceViewerConfiguration(fConfigurator.getSourceViewerConfiguration());
 		
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 	}
@@ -355,25 +350,13 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		fProjectNatureId = id;
 	}
 	
-	/**
-	 * Initialize the extensions of StatextEditor
-	 * 
-	 * @param bracketMatcher a PairMatcher finding the matching brackets, <code>null</code> is allowed. 
-	 */
-	protected void configureStatetPairMatching(PairMatcher bracketMatcher) {
-		
-		fBracketMatcher = bracketMatcher;
-	}
-	
 	@Override
 	protected void initializeKeyBindingScopes() {
-		
 		setKeyBindingScopes(new String[] { "de.walware.statet.base.contexts.TextEditor" }); //$NON-NLS-1$
 	}
 	
 	@Override
 	protected void doSetInput(IEditorInput input) throws CoreException {
-		
 		ProjectT prevProject = fProject;
 		fProject = (input != null) ? getProject(input) : null;
 		
@@ -408,7 +391,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	 */
 	@SuppressWarnings("unchecked")
 	protected ProjectT getProject(IEditorInput input) {
-		
 		if (fProjectNatureId != null) {
 			if (input != null && input instanceof IFileEditorInput) {
 				IProject project = ((IFileEditorInput)input).getFile().getProject();
@@ -434,13 +416,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 	@Override
 	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
-		if (fBracketMatcher != null) {
-			support.setCharacterPairMatcher(fBracketMatcher);
-			support.setMatchingCharacterPainterPreferenceKeys(
-					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
-					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
-		}
 		super.configureSourceViewerDecorationSupport(support);
+		fConfigurator.configureSourceViewerDecorationSupport(support);
 	}
 
 	@Override
@@ -448,8 +425,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		super.createActions();
 		Action action;
 		
-		if (fBracketMatcher != null) {
-			action = new GotoMatchingBracketAction(fBracketMatcher, fEditorAdapter);
+		PairMatcher matcher = fConfigurator.getPairMatcher();
+		if (matcher != null) {
+			action = new GotoMatchingBracketAction(matcher, fEditorAdapter);
 			setAction(GotoMatchingBracketAction.ACTION_ID, action);
 		}
 
@@ -481,6 +459,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	@Override
 	protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
+		if (getSourceViewer() == null) {
+			return;
+		}
 		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
 		if (viewerConfiguration != null) {
 			viewerConfiguration.handlePropertyChangeEvent(event);
@@ -489,23 +470,19 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	public void settingsChanged(final Set<String> contexts) {
-		UIAccess.getDisplay(getEditorSite().getShell()).syncExec(new Runnable() {
+		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				handleSettingsChanged(contexts);
 			}
 		});
 	}
-	
+
 	protected void handleSettingsChanged(Set<String> contexts) {
+		fConfigurator.handleSettingsChanged(contexts, null);
 	}
-
-
+	
 	@Override
 	public void dispose() {
-		if (fBracketMatcher != null) {
-			fBracketMatcher.dispose();
-			fBracketMatcher= null;
-		}
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
 		super.dispose();
 	}

@@ -339,11 +339,15 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
 	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>), or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int findNonWhitespaceForwardInAnyPartition(int position, int bound) {
+	public int findNonWhitespaceForward(int position, int bound) {
 		
 		return scanForward(position, bound, getNonWhitespaceCondition());
 	}
 
+	public int findNonWhitespaceBackward(int position, int bound) {
+		
+		return scanBackward(position, bound, getNonWhitespaceCondition());
+	}
 	
 	public IRegion findBlankRegion(int position) {
 		
@@ -354,7 +358,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		
 		IRegion line = fDocument.getLineInformationOfOffset(position);
 		if (line.getLength() > 0) {
-			int nonWhitespace = findNonWhitespaceForwardInAnyPartition(line.getOffset(), line.getOffset()+line.getLength());
+			int nonWhitespace = findNonWhitespaceForward(line.getOffset(), line.getOffset()+line.getLength());
 			return (nonWhitespace == NOT_FOUND);
 		}
 		return true;
@@ -433,12 +437,11 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @return the lowest position in [<code>start</code>, <code>bound</code>) for which <code>condition</code> holds, or <code>NOT_FOUND</code> if none can be found
 	 */
 	protected int scanForward(int start, int bound, StopCondition condition) {
-		Assert.isTrue(start >= 0);
-
-		if (bound == UNBOUND)
+		if (bound == UNBOUND) {
 			bound = fDocument.getLength();
-
-		Assert.isTrue(bound <= fDocument.getLength());
+		}
+		assert(bound <= fDocument.getLength());
+		assert(start >= 0);
 
 		try {
 			fPos = start;
@@ -494,20 +497,22 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @return the highest position in (<code>bound</code>, <code>start</code> for which <code>condition</code> holds, or <code>NOT_FOUND</code> if none can be found
 	 */
 	protected int scanBackward(int start, int bound, StopCondition condition) {
-		if (bound == UNBOUND)
+		if (bound == UNBOUND) {
 			bound = -1;
-
-		Assert.isTrue(bound >= -1);
-		Assert.isTrue(start < fDocument.getLength() );
+		}
+		assert(bound >= -1);
+		assert(start == 0 || start < fDocument.getLength() );
 
 		try {
-			fPos= start;
-			while (fPos > bound) {
-				fChar = fDocument.getChar(fPos);
-				if (condition.stop(false)) {
-					return fPos;
+			if (fDocument.getLength() > 0) {
+				fPos = start;
+				while (fPos > bound) {
+					fChar = fDocument.getChar(fPos);
+					if (condition.stop(false)) {
+						return fPos;
+					}
+					fPos = condition.nextPosition(fPos, false);
 				}
-				fPos = condition.nextPosition(fPos, false);
 			}
 			fPos = bound;
 		} catch (BadLocationException e) {

@@ -13,22 +13,26 @@ package de.walware.statet.ext.ui.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
-import org.eclipse.jface.util.PropertyChangeEvent;
 
-import de.walware.eclipsecommons.ui.preferences.ICombinedPreferenceStore;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.util.ColorManager;
+
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
+import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 
 
 /**
  * AbstractJavaCommentScanner.java
  */
-public class CommentScanner extends StatextTextScanner {
+public class CommentScanner extends StatextTextScanner 
+		implements ISettingsChangedHandler {
 
 	private static class TaskTagDetector implements IWordDetector {
 
@@ -44,7 +48,7 @@ public class CommentScanner extends StatextTextScanner {
 	private class TaskTagRule extends WordRule {
 
 		private IToken fToken;
-
+		
 		public TaskTagRule(IToken token, IToken defaultToken) {
 			super(new TaskTagDetector(), defaultToken);
 			fToken = token;
@@ -55,7 +59,6 @@ public class CommentScanner extends StatextTextScanner {
 		}
 	
 		public void addTaskTags(String[] tags) {
-			
 			for (String tag : tags) {
 				addWord(tag, fToken);
 			}
@@ -68,19 +71,18 @@ public class CommentScanner extends StatextTextScanner {
 	private String fCommentTokenKey;
 	private String fTaskTokenKey;
 	
-	public CommentScanner(ColorManager colorManager, ICombinedPreferenceStore preferenceStore, 
+	public CommentScanner(ColorManager colorManager, IPreferenceStore preferenceStore, IPreferenceAccess corePrefs, 
 			String commentTokenKey, String taskTokenKey) {
-		
 		super(colorManager, preferenceStore);
 
 		fCommentTokenKey = commentTokenKey;
 		fTaskTokenKey = taskTokenKey;
 		
 		initialize();
+		loadTaskTags(corePrefs);
 	}
 	
 	protected List<IRule> createRules() {
-		
 		List<IRule> list = new ArrayList<IRule>();
 		
 		IToken defaultToken = getToken(fCommentTokenKey);
@@ -89,28 +91,24 @@ public class CommentScanner extends StatextTextScanner {
 		// Add rule for Task Tags.
 		fTaskTagRule = new TaskTagRule(taskToken, defaultToken);
 		list.add(fTaskTagRule);
-		loadTaskTags();
 
 		setDefaultReturnToken(defaultToken);
 
 		return list;
 	}
 	
-	@Override
-	public void adaptToPreferenceChange(PropertyChangeEvent event) {
-		
-		super.adaptToPreferenceChange(event);
-		
-		if (event.getProperty().equals(TaskTagsPreferences.PREF_TAGS.getKey())) {
-			loadTaskTags();
+	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+		if (contexts.contains(TaskTagsPreferences.CONTEXT_ID)) {
+			IPreferenceAccess prefs = (IPreferenceAccess) options;
+			loadTaskTags(prefs);
+			return true;
 		}
+		return false;
 	}
 
-	public void loadTaskTags() {
-		
+	public void loadTaskTags(IPreferenceAccess prefs) {
 		fTaskTagRule.clearTaskTags();
-		
-		String[] tags = TaskTagsPreferences.loadTagsOnly(fPreferenceStore.getCorePreferences());
+		String[] tags = TaskTagsPreferences.loadTagsOnly(prefs);
 		if (tags != null) {
 			fTaskTagRule.addTaskTags(tags);
 		}

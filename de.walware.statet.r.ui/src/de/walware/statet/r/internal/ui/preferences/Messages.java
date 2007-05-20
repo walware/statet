@@ -80,6 +80,12 @@ public class Messages extends NLS {
 	public static String RCodeStyle_Indent_Type_UseSpaces_name;
 	public static String RCodeStyle_Indent_NumOfSpaces_label;
 	public static String RCodeStyle_Indent_NumOfSpaces_error_message;
+	public static String RCodeStyle_Indent_ReplaceOtherTabs_label;
+	public static String RCodeStyle_Indent_IndentOfBlocks_error_message;
+	public static String RCodeStyle_Indent_IndentOfBlocks_label;
+	public static String RCodeStyle_Indent_IndentOfWrappedCommands_label;
+	public static String RCodeStyle_Indent_IndentOfWrappedCommands_error_message;
+	public static String RCodeStyle_Indent_Strategy_Levels_label;
 
 
 	static {

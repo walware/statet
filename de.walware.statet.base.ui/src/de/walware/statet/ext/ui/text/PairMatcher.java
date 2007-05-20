@@ -72,50 +72,37 @@ public class PairMatcher implements ICharacterPairMatcher {
 		this(pairs, partitioning, partition, new BasicHeuristicTokenScanner(partitioning), escapeChar);
 	}
 
-	/*
-	 * @see org.eclipse.jface.text.source.ICharacterPairMatcher#match(org.eclipse.jface.text.IDocument, int)
-	 */
 	public IRegion match(IDocument document, int offset) {
-
 		fOffset = offset;
-
-		if (fOffset < 0)
+		if (fOffset < 0) {
 			return null;
+		}
 
 		fDocument = document;
 		if (document != null && matchPairsAt() && fStartPos != fEndPos) {
+			fDocument = null;
 			return new Region(fStartPos, fEndPos - fStartPos + 1);
 		}
 
+		fDocument = null;
 		return null;
 	}
 	
-	/*
-	 * @see org.eclipse.jface.text.source.ICharacterPairMatcher#getAnchor()
-	 */
 	public int getAnchor() {
 		return fAnchor;
 	}
 	
-	/*
-	 * @see org.eclipse.jface.text.source.ICharacterPairMatcher#dispose()
-	 */
 	public void dispose() {
 		clear();
 	}
 	
-	/*
-	 * @see org.eclipse.jface.text.source.ICharacterPairMatcher#clear()
-	 */
 	public void clear() {
-		fDocument = null;
 	}
 	
 	/**
 	 * Search Pairs
 	 */
 	protected boolean matchPairsAt() {
-
 		fStartPos = -1;
 		fEndPos = -1;
 
@@ -185,7 +172,6 @@ public class PairMatcher implements ICharacterPairMatcher {
 	 */
 	private int findChar(char prevChar, char thisChar) {
 		// search order 3{2 1}4
-		
 		for (int i = 0; i < fPairs.length; i++) {
 			if (thisChar == fPairs[i][CLOSING_PEER]) {
 				fEndPos = fOffset;
@@ -214,13 +200,11 @@ public class PairMatcher implements ICharacterPairMatcher {
 	}
 	
 	protected int searchForClosingPeer(int offset, char[] pair) throws BadLocationException {
-		
 		fScanner.configure(fDocument, fPartition);
 		return fScanner.findClosingPeer(offset + 1, pair, fEscapeChar);
 	}
 	
 	protected int searchForOpeningPeer(int offset, char[] pair) throws BadLocationException {
-		
 		fScanner.configure(fDocument, fPartition);
 		return fScanner.findOpeningPeer(offset - 1, pair, fEscapeChar);
 	}
