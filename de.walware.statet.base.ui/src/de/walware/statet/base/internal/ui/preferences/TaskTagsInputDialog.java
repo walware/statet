@@ -50,7 +50,6 @@ public class TaskTagsInputDialog extends StatusDialog {
 	
 	
 	public TaskTagsInputDialog(Shell parent, TaskTag task, List<TaskTag> existingEntries) {
-		
 		super(parent);
 		
 		if (task != null) {
@@ -76,14 +75,12 @@ public class TaskTagsInputDialog extends StatusDialog {
 	
 	@Override
 	protected void configureShell(Shell newShell) {
-		
 		super.configureShell(newShell);
 		// ADDHELP
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(newShell, IJavaHelpContextIds.TODO_TASK_INPUT_DIALOG);
 	}
 
 	protected Control createDialogArea(Composite parent) {
-		
 		Composite composite = (Composite) super.createDialogArea(parent);
 		
 		Layouter layouter = new Layouter(new Composite(composite, SWT.NONE), 2);
@@ -148,17 +145,16 @@ public class TaskTagsInputDialog extends StatusDialog {
 			);
 		}
 		
+		applyDialogFont(composite);
 		return composite;
 	}
 
 	public TaskTag getResult() {
-		
 		return new TaskTag(fName, fPriority);
 	}
 	
 		
 	private void doValidation() {
-		
 		StatusInfo status = new StatusInfo();
 		String newText = fNameControl.getText();
 		if (newText.length() == 0) {

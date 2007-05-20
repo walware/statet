@@ -29,6 +29,7 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
@@ -67,18 +68,18 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	public void createContents(Layouter layouter, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
-
-		super.createContents(layouter, container, preferenceStore);
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
+			IPreferenceStore preferenceStore) {
+		super.createContents(pageComposite, container, preferenceStore);
 		
-		layouter.addFiller();
-		createConnectorComponent(layouter, container);
+		LayoutUtil.addSmallFiller(pageComposite);
+		Composite group = createConnectorComponent(pageComposite, container);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		loadValues();
 	}
 
-	private void createConnectorComponent(Layouter parent, IWorkbenchPreferenceContainer container) {
-		
+	private Composite createConnectorComponent(Composite parent, IWorkbenchPreferenceContainer container) {
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
 		setupPreferenceManager(container, new Preference[] {
 				PREF_R_CONNECTOR,
@@ -89,7 +90,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			connectorLabels[i] = fConnectors[i].fName;
 		}
 
-		Group group = parent.addGroup(Messages.RInteraction_RConnector);
+		Group group = new Group(parent, SWT.NONE);
+		group.setText(Messages.RInteraction_RConnector);
 		Layouter layouter = new Layouter(group, 2);
 		
 		fConnectorsSelector = layouter.addComboControl(connectorLabels, 2);
@@ -128,6 +130,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 				}
 			};
 		});
+		
+		return group;
 	}
 	
 	private void updateDescriptionSize() {

@@ -47,12 +47,13 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
@@ -276,23 +277,26 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 /* GUI ************************************************************************/
 	
 	@Override
-	public void createContents(Layouter layouter, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, 
+			IPreferenceStore preferenceStore) {
+		super.createContents(pageComposite, container, preferenceStore);
 
-		super.createContents(layouter, container, preferenceStore);
+		Label label = new Label(pageComposite, SWT.LEFT);
+		label.setText(Messages.CodeTemplates_label);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 
-		layouter.addLabel(Messages.CodeTemplates_label);
-		layouter.addGroup(fGroup);
-		
+		fGroup.createGroup(pageComposite, 1);
 		fGroup.initFields();
 		
-		fPatternViewer = createViewer(layouter);
+		fPatternViewer = createViewer(pageComposite);
 	}
 
-	private SourceViewer createViewer(Layouter layouter) {
+	private SourceViewer createViewer(Composite parent) {
+		Label label = new Label(parent, SWT.LEFT);
+		label.setText(Messages.CodeTemplates_Preview_label);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		layouter.addLabel(Messages.CodeTemplates_Preview_label);
-		
-		SourceViewer viewer = new SourceViewer(layouter.composite, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setEditable(false);
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 
@@ -301,7 +305,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		
 		Control control = viewer.getControl();
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.horizontalSpan = layouter.fNumColumns;
 		data.heightHint = new PixelConverter(control).convertHeightInCharsToPixels(5);
 		control.setLayoutData(data);
 		
@@ -309,7 +312,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	}
 	
 	protected void updateSourceViewerInput(TemplateItem item) {
-		
 		if (fPatternViewer == null || !(UIAccess.isOkToUse(fPatternViewer.getControl())) )
 			return;
 
@@ -352,7 +354,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 /* Execute Actions ************************************************************/
 
 	public void doEdit(TemplateItem item) {
-
 		EditTemplateDialog dialog = new EditTemplateDialog(
 				getShell(), item.fData.getTemplate(), true, false, 
 				fCategoryProvider[item.getCategoryIndex()].getEditTemplateDialogConfiguation(fTemplateProcessor, fStatetProject),
@@ -367,7 +368,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	}
 	
 	public void doImport() {
-		
 		FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 		dialog.setText(Messages.CodeTemplates_Import_title); 
 		dialog.setFilterExtensions(new String[] { Messages.CodeTemplates_Import_extension }); 
@@ -402,11 +402,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		} catch (IOException e) {
 			openReadErrorDialog(e);
 		}
-		
 	}
 
 	public void doExport(TemplatePersistenceData[] templates) {
-
 		FileDialog dialog = new FileDialog(getShell(), SWT.SAVE);
 		dialog.setText(NLS.bind(Messages.CodeTemplates_Export_title, String.valueOf(templates.length))); 
 		dialog.setFilterExtensions(new String[] { Messages.CodeTemplates_Export_extension }); 
@@ -450,7 +448,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 				openWriteErrorDialog(e);
 			}
 		}
-		
 	}
 
 	private boolean confirmOverwrite(File file) {
@@ -500,7 +497,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 /* Error Dialogs **************************************************************/
 	
 	private void openReadErrorDialog(Exception e) {
-		
 		String title = Messages.CodeTemplates_error_title;
 		String message = e.getLocalizedMessage();
 		if (message != null)
@@ -511,7 +507,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	}
 	
 	private void openWriteErrorDialog(Exception e) {
-		
 		String title = Messages.CodeTemplates_error_title;
 		String message = Messages.CodeTemplates_error_Write_message;
 		MessageDialog.openError(getShell(), title, message);

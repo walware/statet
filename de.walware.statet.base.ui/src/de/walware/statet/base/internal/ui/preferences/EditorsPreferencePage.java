@@ -101,7 +101,8 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	public void createContents(Layouter layouter, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
+		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
 		fMatchingBracketsPref = new BooleanPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
 		List<AppearanceColorsItem> colors = new ArrayList<AppearanceColorsItem>();
@@ -133,10 +134,12 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 				new String[] { ContentAssistPreference.CONTEXT_ID });
 		
 		// Controls
-		addLinkHeader(layouter, Messages.Editors_link);
-		createAppearanceSection(layouter);
-		layouter.addSmallFiller();
-		createCodeAssistSection(layouter);
+		addLinkHeader(pageComposite, Messages.Editors_link);
+		Composite group = createAppearanceSection(pageComposite);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		LayoutUtil.addSmallFiller(pageComposite);
+		group = createCodeAssistSection(pageComposite);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		// Binding
 		fColorList.setInput(colors.toArray(new AppearanceColorsItem[colors.size()]));
@@ -145,8 +148,9 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		updateControls();
 	}
 	
-	private void createAppearanceSection(Layouter parent) {
-		Group group = parent.addGroup(Messages.Editors_Appearance);
+	private Composite createAppearanceSection(Composite parent) {
+		Group group = new Group(parent, SWT.NONE);
+		group.setText(Messages.Editors_Appearance);
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		Label label;
 		GridData gd;
@@ -182,10 +186,13 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		fColorEditor = new ColorSelector(colorOptions);
 		fColorEditor.getButton().setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		
+		return group;
 	}
 	
-	private void createCodeAssistSection(Layouter parent) {
-		Group group = parent.addGroup(Messages.Editors_CodeAssist);
+	private Composite createCodeAssistSection(Composite parent) {
+		Group group = new Group(parent, SWT.NONE);
+		group.setText(Messages.Editors_CodeAssist);
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		Label label;
 		GridData gd;
@@ -202,6 +209,8 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
 		gd.widthHint = LayoutUtil.hintWidth(fCodeAssistDelayControl, 4);
 		fCodeAssistDelayControl.setLayoutData(gd);
+		
+		return group;
 	}
 	
 	@Override

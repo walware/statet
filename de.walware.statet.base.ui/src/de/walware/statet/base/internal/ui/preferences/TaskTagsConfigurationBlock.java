@@ -33,6 +33,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -41,7 +42,6 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.dialogs.groups.TableOptionButtonsGroup;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
@@ -203,15 +203,16 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	public void createContents(Layouter layouter, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
-		super.createContents(layouter, container, preferenceStore);
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, 
+			IPreferenceStore preferenceStore) {
+		super.createContents(pageComposite, container, preferenceStore);
 		
 		setupPreferenceManager(container, new Preference[] {
 				TaskTagsPreferences.PREF_TAGS,
 				TaskTagsPreferences.PREF_PRIORITIES,
 		}, null);
 
-		layouter.addGroup(fTasksGroup);
+		fTasksGroup.createGroup(pageComposite, 1);
 		
 		loadValues();
 		fTasksGroup.initFields();

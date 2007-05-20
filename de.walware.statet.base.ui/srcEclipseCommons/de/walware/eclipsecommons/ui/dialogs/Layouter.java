@@ -242,7 +242,7 @@ public class Layouter {
 	
 	public void addGroup(OptionsGroup group) {
 		
-		group.createGroup(this);
+		group.createGroup(composite, fNumColumns);
 	}
 	
 	

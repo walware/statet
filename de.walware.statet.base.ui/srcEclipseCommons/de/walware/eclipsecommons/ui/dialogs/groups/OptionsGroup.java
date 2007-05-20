@@ -11,12 +11,12 @@
 
 package de.walware.eclipsecommons.ui.dialogs.groups;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import org.eclipse.swt.widgets.Composite;
 
 
 public interface OptionsGroup {
 
-	public abstract void createGroup(Layouter layouter);
+	public abstract void createGroup(Composite parent, int hSpan);
 
 	public abstract void initFields();
 

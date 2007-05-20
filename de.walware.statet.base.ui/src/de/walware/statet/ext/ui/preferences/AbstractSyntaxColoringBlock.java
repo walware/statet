@@ -87,18 +87,15 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	protected static abstract class SyntaxNode extends Node {
 		
 		private SyntaxNode(String name, SyntaxNode[] children) {
-			
 			super(name, children);
 		}
 		
 		
 		public SyntaxNode[] getChildren() {
-			
 			return (SyntaxNode[]) super.getChildren();
 		}
 		
 		public String getDescription() {
-			
 			return null;
 		}
 		
@@ -165,7 +162,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	protected static class CategoryNode extends SyntaxNode {
 		
 		public CategoryNode(String name, SyntaxNode[] children) {
-			
 			super(name, children);
 		}
 	}
@@ -374,10 +370,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 
 	@Override
-	public void createContents(Layouter block, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
-	
-		super.createContents(block, container, preferenceStore);
-		
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
+			IPreferenceStore preferenceStore) {
+		super.createContents(pageComposite, container, preferenceStore);
 		// Prepare model
 		fRootNodes = createItems();
 		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
@@ -385,11 +380,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		setupOverlayStore(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
 		connectStore(fRootNodes);
 
-		addLinkHeader(block, Messages.SyntaxColoring_link);
+		addLinkHeader(pageComposite, Messages.SyntaxColoring_link);
 
-		Layouter content = new Layouter(new Composite(block.composite, SWT.NONE), 2);
+		Layouter content = new Layouter(new Composite(pageComposite, SWT.NONE), 2);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.horizontalSpan = block.fNumColumns;
 		content.composite.setLayoutData(gd);
 		
 		// Tree / Options
@@ -457,7 +451,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	
 	public Control createTreeViewer(Layouter parent) {
-		
 		fSelectionViewer = new TreeViewer(parent.composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 
 		fSelectionViewer.setContentProvider(new TreeUtil.NodeContentProvider());
@@ -470,7 +463,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	private Control createOptionsControl(Layouter parent) {
-		
 		Layouter options = new Layouter(new Composite(parent.composite, SWT.NONE), 2);
 		fEnableCheckbox = options.addCheckBox(Messages.SyntaxColoring_Enable, 0, 2);
 		final int indent = 20;
@@ -488,7 +480,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	private Control createPreviewer(Composite parent) {
-		
 		fColorManager = new ColorManager();
 
 		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { 
@@ -538,12 +529,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	
 	public void initFields() {
-
 		fSelectionViewer.setInput(fRootNodes);
 	}
 	
 	private void initBindings() {
-	
 		Realm realm = Realm.getDefault();
 		fDbc = new DataBindingContext(realm);
 
@@ -581,7 +570,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	private void updateEnablement(IStructuredSelection selection) {
-		
 		Object obj = selection.getFirstElement();
 		boolean enableOptions;
 		if (obj != null && obj instanceof StyleNode) {
@@ -602,17 +590,14 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	@Override
 	public void dispose() {
-
 		if (fDbc != null) {
 			fDbc.dispose();
 			fDbc = null;
 		}
-		
 		if (fColorManager != null) {
 			fColorManager.dispose();
 			fColorManager = null;
 		}
-		
 		super.dispose();
 	}
 	

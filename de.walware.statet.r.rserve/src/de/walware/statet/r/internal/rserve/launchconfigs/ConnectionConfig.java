@@ -25,6 +25,7 @@ import de.walware.statet.r.rserve.RServePlugin;
 
 public class ConnectionConfig extends AbstractSettingsModelObject {
 
+	
 	public static final String PROP_SERVERADDRESS = "serverAddress";
 	private static final String DEFAULT_SERVERADDRESS = "127.0.0.1";
 	private String fServerAddress;
@@ -35,67 +36,55 @@ public class ConnectionConfig extends AbstractSettingsModelObject {
 
 	
 	public ConnectionConfig() {
-		
+		super(false);
 		fServerAddress = DEFAULT_SERVERADDRESS;
 		fServerPort = DEFAULT_SERVERPORT;
 	}
 
 	
 	public void setServerAddress(String address) {
-		
 		String oldValue = fServerAddress;
 		fServerAddress = address;
-		firePropertyChange(PROP_SERVERADDRESS, 	oldValue, address);
+		firePropertyChange(PROP_SERVERADDRESS, oldValue, address);
 	}
 
 	public String getServerAddress() {
-		
 		return fServerAddress;
 	}
 	
 	
 	public void setServerPort(int port) {
-		
 		int oldValue = fServerPort;
 		fServerPort = port;
 		firePropertyChange(PROP_SERVERPORT, oldValue, port);
 	}
 	
 	public int getServerPort() {
-		
 		return fServerPort;
 	}
 
 
 //-- ILaunchConfigurationAdapter
 	public static void writeDefaultsTo(ILaunchConfigurationWorkingCopy configuration) {
-		
 		new ConnectionConfig().save(configuration);
 	}
 	
 	public void load(ILaunchConfiguration configuration) {
-		
-		String address = read(configuration, 
-				IRServeConstants.CONFIG_CONNECTION_SERVERADDRESS, DEFAULT_SERVERADDRESS);
-		setServerAddress(address);
-		
-		int port = read(configuration, 
-				IRServeConstants.CONFIG_CONNECTION_SERVERPORT, DEFAULT_SERVERPORT);
-		setServerPort(port);
+		setServerAddress(read(configuration, 
+				IRServeConstants.CONFIG_CONNECTION_SERVERADDRESS, DEFAULT_SERVERADDRESS));
+		setServerPort(read(configuration, 
+				IRServeConstants.CONFIG_CONNECTION_SERVERPORT, DEFAULT_SERVERPORT));
 	}
 	
 	public void save(ILaunchConfigurationWorkingCopy configuration) {
-		
-		String address = getServerAddress();
-		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERADDRESS, address);
-		
-		int port = getServerPort();
-		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERPORT, port);
+		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERADDRESS, 
+				getServerAddress());
+		configuration.setAttribute(IRServeConstants.CONFIG_CONNECTION_SERVERPORT, 
+				getServerPort());
 	}
 
 	
 	protected String read(ILaunchConfiguration config, String attributeName, String defaultValue) {
-		
 		String s = defaultValue;
 		try {
 			s = config.getAttribute(attributeName, defaultValue);
@@ -106,7 +95,6 @@ public class ConnectionConfig extends AbstractSettingsModelObject {
 	}
 	
 	protected int read(ILaunchConfiguration config, String attributeName, int defaultValue) {
-		
 		int i = defaultValue;
 		try {
 			i = config.getAttribute(attributeName, i);
@@ -117,7 +105,6 @@ public class ConnectionConfig extends AbstractSettingsModelObject {
 	}
 	
 	protected void logError(String msg, CoreException ce) {
-		
 		RServePlugin.getDefault().getLog().log(new Status(
 				IStatus.ERROR, RServePlugin.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 				msg, ce));

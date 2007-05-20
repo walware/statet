@@ -38,7 +38,6 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.ui.databinding.NumberValidator;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
@@ -65,16 +64,16 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	public void createContents(Layouter parent, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
-		super.createContents(parent, container, preferenceStore);
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
+			IPreferenceStore preferenceStore) {
+		super.createContents(pageComposite, container, preferenceStore);
 		setupPreferenceManager(container, new Preference[] {
 				RCodeStyleSettings.PREF_TAB_SIZE,
 		}, new String[] { RCodeStyleSettings.CONTEXT_ID });
 		fModel = new RCodeStyleSettings(this);
 		
-		Composite mainComposite = new Composite(parent.composite, SWT.NONE);
+		Composite mainComposite = new Composite(pageComposite, SWT.NONE);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
 		mainComposite.setLayout((LayoutUtil.applyCompositeDefaults(new GridLayout(), 2)));
 		
 		Label label = new Label(mainComposite, SWT.NONE);

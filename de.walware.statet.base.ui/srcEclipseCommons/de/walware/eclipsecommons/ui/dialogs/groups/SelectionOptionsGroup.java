@@ -32,7 +32,6 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	
 	
 	public SelectionOptionsGroup(boolean grabSelectionHorizontal, boolean grabVertical) {
-		
 		fGrabSelectionHorizontal = grabSelectionHorizontal;
 		fGrabVertical = grabVertical;
 	}
@@ -43,11 +42,10 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	}
 
 
-	public void createGroup(Layouter parent) {
-		
-		Layouter layouter = new Layouter(new Composite(parent.composite, SWT.NONE), 2);
+	public void createGroup(Composite parent, int hSpan) {
+		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
 		fComposite = layouter.composite;
-		fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, fGrabVertical, parent.fNumColumns, 1));
+		fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, fGrabVertical, hSpan, 1));
 				
 		Control selectionControl = createSelectionControl(fComposite);
 		selectionControl.setLayoutData(createSelectionGridData());
@@ -59,14 +57,12 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	protected abstract Control createSelectionControl(Composite parent);
 	
 	protected GridData createSelectionGridData() {
-		
 		return new GridData(SWT.FILL, SWT.FILL, fGrabSelectionHorizontal, true);
 	}
 
 	protected abstract Control createOptionsControl(Composite parent);
 	
 	protected GridData createOptionsGridData() {
-		
 		return new GridData(SWT.FILL, SWT.FILL, !fGrabSelectionHorizontal, true);
 	}
 	
@@ -74,7 +70,6 @@ public abstract class SelectionOptionsGroup<ItemT extends Object> implements Opt
 	 * Standard-Implementierung macht nichts.
 	 */
 	public void initFields() {
-
 	}
 
 }

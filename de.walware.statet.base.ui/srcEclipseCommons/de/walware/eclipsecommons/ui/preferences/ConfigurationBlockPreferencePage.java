@@ -53,7 +53,6 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	
 
 	public void init(IWorkbench workbench) {
-		
 		try {
 			fBlock = createConfigurationBlock();
 		} catch (CoreException e) {
@@ -62,18 +61,16 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	}
 
 	public void dispose() {
-		
 		fBlock.dispose();
 
 		super.dispose();
 	}
 
 	protected Control createContents(Composite parent) {
-		
 		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 1);
 		fBlockControl = layouter.composite;
 			
-		fBlock.createContents(layouter, (IWorkbenchPreferenceContainer) getContainer(), getPreferenceStore());
+		fBlock.createContents(layouter.composite, (IWorkbenchPreferenceContainer) getContainer(), getPreferenceStore());
 		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		layouter.composite.setLayoutData(data);
 		
@@ -83,7 +80,6 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	}
 	
 	public boolean performOk() {
-
 		if (fBlock != null) {
 			if (!fBlock.performOk())
 				return false;
