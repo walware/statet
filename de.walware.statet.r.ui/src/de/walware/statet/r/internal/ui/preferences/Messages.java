@@ -91,6 +91,7 @@ public class Messages extends NLS {
 
 	public static String REditorOptions_SmartInsert_label;
 	public static String REditorOptions_SpellChecking_Enable_label;
+	public static String REditorOptions_SpellChecking_note;
 
 
 	static {

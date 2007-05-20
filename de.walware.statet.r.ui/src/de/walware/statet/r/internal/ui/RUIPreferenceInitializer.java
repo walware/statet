@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
@@ -35,7 +34,6 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		
 		DefaultScope defaultScope = new DefaultScope();
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SMARTINSERT_ASDEFAULT, true);
-		store.setValue(SpellingService.PREFERENCE_SPELLING_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
 		
 		RDebugPreferenceConstants.initializeDefaultValues(defaultScope);

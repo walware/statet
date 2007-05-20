@@ -22,11 +22,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -73,9 +75,15 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertControl.setText(Messages.REditorOptions_SmartInsert_label);
 		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
+		LayoutUtil.addSmallFiller(pageComposite);
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
 		fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
 		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		Link link = addLinkControl(pageComposite, Messages.REditorOptions_SpellChecking_note);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.widthHint = 140;
+		gd.horizontalIndent = LayoutUtil.defaultIndent();
+		link.setLayoutData(gd);
 
 		// Binding
 		createDbc();

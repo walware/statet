@@ -42,6 +42,8 @@ public class LayoutUtil {
 		
 		int defaultHSpacing;
 		int defaultVSpacing;
+		int defaultIndent;
+		int defaultSmallIndent;
 		
 		public DialogValues() {
 
@@ -52,6 +54,8 @@ public class LayoutUtil {
 			defaultHSpacing = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.HORIZONTAL_SPACING);
 			defaultVSpacing = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.VERTICAL_SPACING);
 			defaultEntryFieldWidth = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.ENTRY_FIELD_WIDTH);
+			defaultIndent = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.INDENT);
+			defaultSmallIndent = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.SMALL_INDENT);
 			
 			gc.dispose();
 		}
@@ -60,7 +64,6 @@ public class LayoutUtil {
 	private static DialogValues gDialogValues;
 	
 	private static DialogValues getDialogValues() {
-
 		if (gDialogValues == null) {
 			JFaceResources.getFontRegistry().addListener(new IPropertyChangeListener() {
 				public void propertyChange(PropertyChangeEvent event) {
@@ -80,29 +83,32 @@ public class LayoutUtil {
 	
 	
 	public static Point defaultSpacing() {
-		
 		return new Point(getDialogValues().defaultHSpacing, getDialogValues().defaultVSpacing);
 	}
 	
 	public static int defaultHSpacing() {
-		
 		return getDialogValues().defaultHSpacing;
 	}
 	
 	public static int defaultVSpacing() {
-		
 		return getDialogValues().defaultVSpacing;
 	}
 	
-	public static int hintWidth(Button button) {
+	public static int defaultIndent() {
+		return getDialogValues().defaultIndent;
+	}
+	
+	public static int defaultSmallIndent() {
+		return getDialogValues().defaultSmallIndent;
+	}
 
+	public static int hintWidth(Button button) {
 		PixelConverter converter = new PixelConverter(button);
 		int widthHint = converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
 		return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
 	}
 	
 	public static int hintWidth(Text text, int numChars) {
-	
 		if (numChars == -1) {
 			return getDialogValues().defaultEntryFieldWidth;
 		}
@@ -112,7 +118,6 @@ public class LayoutUtil {
 	}
 	
 	public static int hintWidth(Combo combo, String[] items) {
-		
 		if (items == null || items.length == 0) {
 			return getDialogValues().defaultEntryFieldWidth;
 		}
@@ -127,7 +132,6 @@ public class LayoutUtil {
 
 
 	public static GridLayout applyGroupDefaults(GridLayout gl, int numColumns) {
-		
 		gl.numColumns = numColumns;
 		gl.horizontalSpacing = defaultHSpacing();
 		gl.verticalSpacing = defaultVSpacing();
@@ -136,7 +140,6 @@ public class LayoutUtil {
 	}
 	
 	public static GridLayout applyCompositeDefaults(GridLayout gl, int numColumns) {
-		
 		gl.numColumns = numColumns;
 		gl.marginHeight = 0;
 		gl.marginWidth = 0;
@@ -146,14 +149,12 @@ public class LayoutUtil {
 	}
 		
 	public static void addGDDummy(Composite composite) {
-		
 		Label dummy = new Label(composite, SWT.NONE);
 		dummy.setVisible(false);
 		dummy.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 	}
 
 	public static void addSmallFiller(Composite composite) {
-		
 		Label filler = new Label(composite, SWT.NONE);
 		Layout layout = composite.getLayout();
 		if (layout instanceof GridLayout) {
