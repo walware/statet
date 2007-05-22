@@ -25,7 +25,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.preference.ColorSelector;
@@ -528,22 +527,21 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		Realm realm = Realm.getDefault();
 		fDbc = new DataBindingContext(realm);
 
+		IValueChangeListener updateEnableListener = new IValueChangeListener() {
+			public void handleValueChange(ValueChangeEvent event) {
+				updateEnablement((IStructuredSelection) fSelectionViewer.getSelection());
+			}
+		};
 		// Observe changes in selection.
-		IObservableValue selection = 
-			ViewersObservables.observeSingleSelection(fSelectionViewer);
+		IObservableValue selection = ViewersObservables.observeSingleSelection(fSelectionViewer);
+		selection.addValueChangeListener(updateEnableListener);
 
 		// Bind option widgets to the properties of the current selection.
-		ISWTObservableValue obs = SWTObservables.observeSelection(fEnableCheckbox);
-		fDbc.bindValue(obs, 
-				BeansObservables.observeDetailValue(realm, selection, "enabled", boolean.class),
+		IObservableValue enabled = BeansObservables.observeDetailValue(realm, selection, "enabled", boolean.class);
+		enabled.addValueChangeListener(updateEnableListener);
+		fDbc.bindValue(SWTObservables.observeSelection(fEnableCheckbox), 
+				enabled,
 				null, null);
-		obs.addValueChangeListener(
-				new IValueChangeListener() {
-					public void handleValueChange(ValueChangeEvent event) {
-						updateEnablement((IStructuredSelection) fSelectionViewer.getSelection());
-					}
-				});
-
 		fDbc.bindValue(new ColorSelectorObservableValue(fForegroundColorEditor), 
 				BeansObservables.observeDetailValue(realm, selection, "color", RGB.class), 
 				null, null);
