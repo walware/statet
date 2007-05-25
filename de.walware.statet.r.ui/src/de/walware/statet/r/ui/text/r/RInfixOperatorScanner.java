@@ -21,6 +21,7 @@ import org.eclipse.jface.text.rules.IToken;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.StatextTextScanner;
+import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
 /**
@@ -34,7 +35,7 @@ public class RInfixOperatorScanner extends StatextTextScanner {
 	 * @param preferenceStore
 	 */
 	public RInfixOperatorScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore);
+		super(colorManager, preferenceStore, RUIPreferenceConstants.R.CONTEXT_ID);
 		
 		initialize();
 	}
@@ -42,8 +43,8 @@ public class RInfixOperatorScanner extends StatextTextScanner {
 	@Override
 	protected List<IRule> createRules() {
 		List<IRule> list = new ArrayList<IRule>();
-		IToken predefinedOpToken = getToken(IRTextTokens.OTHER_OPERATORS);
-		IToken userdefinedOpToken = getToken(IRTextTokens.OTHER_OPERATORS); // TODO: add text token for user-defined operators
+		IToken predefinedOpToken = getToken(IRTextTokens.OPERATORS);
+		IToken userdefinedOpToken = getToken(IRTextTokens.OPERATORS_SUB_USERDEFINED);
 		IToken invalidOpToken = getToken(IRTextTokens.UNDEFINED);
 		list.add(new RInfixOperatorRule(userdefinedOpToken, invalidOpToken, predefinedOpToken));
 		return list;

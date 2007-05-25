@@ -34,7 +34,6 @@ public class SourceViewerUpdater {
 
 	private IPreferenceStore fPreferenceStore;
 	private IPropertyChangeListener fFontChangeListener;
-	private IPropertyChangeListener fPropertyChangeListener;
 	
 	/**
 	 * Creates a source preview updater for the given viewer, configuration and preference store from configuration.
@@ -73,17 +72,6 @@ public class SourceViewerUpdater {
 				}
 			}
 		};
-		fPropertyChangeListener= new IPropertyChangeListener() {
-			/*
-			 * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
-			 */
-			public void propertyChange(PropertyChangeEvent event) {
-				if (configuration.affectsTextPresentation(event)) {
-					configuration.handlePropertyChangeEvent(event);
-					viewer.invalidateTextPresentation();
-				}
-			}
-		};
 		viewer.getTextWidget().addDisposeListener(new DisposeListener() {
 			/*
 			 * @see org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse.swt.events.DisposeEvent)
@@ -94,17 +82,14 @@ public class SourceViewerUpdater {
 		});
 
 		JFaceResources.getFontRegistry().addListener(fFontChangeListener);
-		preferenceStore.addPropertyChangeListener(fPropertyChangeListener);
 	}
 
 	public synchronized void unregister() {
 		
 		if (fPreferenceStore != null) {
-			fPreferenceStore.removePropertyChangeListener(fPropertyChangeListener);
 			JFaceResources.getFontRegistry().removeListener(fFontChangeListener);
 		}
 		fPreferenceStore = null;
-		fPropertyChangeListener = null;
 		fFontChangeListener = null;
 	}
 	

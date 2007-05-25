@@ -1,7 +1,7 @@
-# Compute the sample median of the vector
-median = function (x, na.rm = FALSE) {
+## Compute the sample median of the vector
+median <- function (x, na.rm = FALSE) {
     if (is.factor(x) || mode(x) != "numeric") 
-        stop("need numeric data")
+        stop("need numeric data")     # TODO: Translate message
     if (na.rm) 
         x <- x[!is.na(x)]
     else if (any(is.na(x))) 

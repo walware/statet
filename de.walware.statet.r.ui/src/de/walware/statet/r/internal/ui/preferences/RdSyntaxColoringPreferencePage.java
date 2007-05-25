@@ -42,23 +42,37 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			protected SyntaxNode[] createItems() {
 				return new SyntaxNode[] {
 						new CategoryNode(Messages.RdSyntaxColoring_CodeCategory_label, new SyntaxNode[] {
-								new StyleNode(Messages.RdSyntaxColoring_Default_label, Messages.RdSyntaxColoring_Default_description, RUIPreferenceConstants.Rd.TS_DEFAULT_ROOT, false),
+								new StyleNode(Messages.RdSyntaxColoring_Default_label, Messages.RdSyntaxColoring_Default_description, 
+										RUIPreferenceConstants.Rd.TS_DEFAULT_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
 //								new StyleNode(Messages.RdSyntaxColoring_Verbatim_label, Messages.RdSyntaxColoring_Verbatim_description, RUIPreferenceConstants.Rd.TS_VERBATIM_ROOT, false),
-								new StyleNode(Messages.RdSyntaxColoring_SectionTag_label, Messages.RdSyntaxColoring_SectionTag_description, RUIPreferenceConstants.Rd.TS_SECTION_TAG_ROOT, false),
-								new StyleNode(Messages.RdSyntaxColoring_SubSectionTag_label, Messages.RdSyntaxColoring_SubSectionTag_description, RUIPreferenceConstants.Rd.TS_SUBSECTION_TAG_ROOT, false),
-								new StyleNode(Messages.RdSyntaxColoring_OtherTag_label, Messages.RdSyntaxColoring_OtherTag_description, RUIPreferenceConstants.Rd.TS_OTHER_TAG_ROOT, false),
-								new StyleNode(Messages.RdSyntaxColoring_UnlistedTag_label, Messages.RdSyntaxColoring_UnlistedTag_description, RUIPreferenceConstants.Rd.TS_UNLISTED_TAG_ROOT, false),
-								new StyleNode(Messages.RdSyntaxColoring_Brackets_label, Messages.RdSyntaxColoring_Brackets_description, RUIPreferenceConstants.Rd.TS_BRACKETS_ROOT, false),
+								new StyleNode(Messages.RdSyntaxColoring_SectionTag_label, Messages.RdSyntaxColoring_SectionTag_description, 
+										RUIPreferenceConstants.Rd.TS_SECTION_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RdSyntaxColoring_SubSectionTag_label, Messages.RdSyntaxColoring_SubSectionTag_description, 
+										RUIPreferenceConstants.Rd.TS_SUBSECTION_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RdSyntaxColoring_OtherTag_label, Messages.RdSyntaxColoring_OtherTag_description, 
+										RUIPreferenceConstants.Rd.TS_OTHER_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RdSyntaxColoring_UnlistedTag_label, Messages.RdSyntaxColoring_UnlistedTag_description, 
+										RUIPreferenceConstants.Rd.TS_UNLISTED_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RdSyntaxColoring_Brackets_label, Messages.RdSyntaxColoring_Brackets_description, 
+										RUIPreferenceConstants.Rd.TS_BRACKETS_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
 									
-								new StyleNode(Messages.RdSyntaxColoring_PlatformSpecif_label, Messages.RdSyntaxColoring_PlatformSpecif_description, RUIPreferenceConstants.Rd.TS_PLATFORM_SPECIF_ROOT, false),
+								new StyleNode(Messages.RdSyntaxColoring_PlatformSpecif_label, Messages.RdSyntaxColoring_PlatformSpecif_description, 
+										RUIPreferenceConstants.Rd.TS_PLATFORM_SPECIF_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
 						}),
 						new CategoryNode(Messages.RdSyntaxColoring_CommentsCategory_label, new SyntaxNode[] {
-								new StyleNode(Messages.RdSyntaxColoring_Comment_label, Messages.RdSyntaxColoring_Comment_description, RUIPreferenceConstants.Rd.TS_COMMENT_ROOT, false),
-								new StyleNode(Messages.RdSyntaxColoring_TaskTag_label, Messages.RdSyntaxColoring_TaskTag_description, RUIPreferenceConstants.Rd.TS_TASK_TAG_ROOT, false),
+								new StyleNode(Messages.RdSyntaxColoring_Comment_label, Messages.RdSyntaxColoring_Comment_description, 
+										RUIPreferenceConstants.Rd.TS_COMMENT_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RdSyntaxColoring_TaskTag_label, Messages.RdSyntaxColoring_TaskTag_description, 
+										RUIPreferenceConstants.Rd.TS_TASK_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
 						}),
 				};
 			}
 								
+			@Override
+			protected String[] getSettingsContexts() {
+				return new String[] { RUIPreferenceConstants.Rd.CONTEXT_ID };
+			}
+			
 			@Override
 			protected String getPreviewFileName() {
 				return "RdSyntaxColoringPreviewCode.txt"; //$NON-NLS-1$

@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Scrollable;
 public class TreeUtil {
 	
 	public static class Node {
-		
 		private String fName;
 		private Node fParent;
 		private Node[] fChildren;
@@ -58,7 +57,6 @@ public class TreeUtil {
 	
 	
 	public static class NodeContentProvider implements ITreeContentProvider {
-		
 		public Object[] getElements(Object inputElement) {
 			
 			return ((Node[]) inputElement);
@@ -89,16 +87,15 @@ public class TreeUtil {
 
 	
 	public static Point calculateTreeSizeHint(Control treeControl, Node[] rootNodes, int rows) {
-		
 		Point pixels = new Point(0,0);
 		PixelConverter tool = new PixelConverter(treeControl);
 
-		int factor = tool.convertWidthInCharsToPixels(2);
+		float factor = tool.convertWidthInCharsToPixels(2);
 		ScrollBar vBar = ((Scrollable) treeControl).getVerticalBar();
 		if (vBar != null) {
-			factor = (int) (vBar.getSize().x * 1.25); // scrollbars and tree indentation guess
+			factor = vBar.getSize().x * 1.1f; // scrollbars and tree indentation guess
 		}
-		pixels.x = measureNodes(tool, factor, rootNodes, 0) + factor * 2;
+		pixels.x = measureNodes(tool, factor, rootNodes, 1) + ((int) factor);
 
 		pixels.y = tool.convertHeightInCharsToPixels(rows);
 		
@@ -106,14 +103,13 @@ public class TreeUtil {
 	}
 	
 	/** recursive measure */
-	private static int measureNodes(PixelConverter tool, int factor, Node[] nodes, int deepth) {
-
+	private static int measureNodes(PixelConverter tool, float factor, Node[] nodes, int deepth) {
 		int maxWidth = 0;
 		for (Node node : nodes) {
-			maxWidth = Math.max(maxWidth, tool.convertWidthInCharsToPixels(node.fName.length()) + deepth * factor);
+			maxWidth = Math.max(maxWidth, tool.convertWidthInCharsToPixels(node.fName.length()) + (int) (deepth * factor));
 			Node[] children = node.getChildren();
 			if (children != null) {
-				maxWidth = Math.max(maxWidth, measureNodes(tool, factor, children, deepth+1));
+				maxWidth = Math.max(maxWidth, measureNodes(tool, factor * 0.75f , children, deepth+1));
 			}
 		}
 		return maxWidth;
@@ -121,7 +117,6 @@ public class TreeUtil {
 	
 
 	public static void addDoubleClickExpansion(final TreeViewer viewer) {
-		
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();

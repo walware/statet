@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,9 +23,7 @@ import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import de.walware.eclipsecommons.ui.util.ColorManager;
@@ -34,7 +32,7 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
 /**
- * Basis f�r CodeScanners
+ * Basis for CodeScanners
  */
 public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 
@@ -42,14 +40,17 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 	protected ColorManager fColorManager;
 	protected IPreferenceStore fPreferenceStore;
 	protected String[] fTokenNames; 
+	private String fStylesContext;
 	
-	private Map<String, IToken> fTokenMap = new HashMap<String, IToken>();
+	private Map<String, Token> fTokenMap = new HashMap<String, Token>();
 	
 	
-	public StatextTextScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
+	public StatextTextScanner(ColorManager colorManager, IPreferenceStore preferenceStore,
+			String stylesContext) {
 		super();
 		fColorManager = colorManager;
 		fPreferenceStore = preferenceStore;
+		fStylesContext = stylesContext;
 	}
 	
 	/**
@@ -70,66 +71,62 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner {
 	abstract protected List<IRule> createRules();
 
 	
+	/**
+	 * Token access for styles.
+	 * @param key id and prefix for preference keys
+	 * @return token with text style attribute
+	 */
 	public IToken getToken(String key) {
-		IToken token = fTokenMap.get(key);
+		Token token = fTokenMap.get(key);
 		if (token == null) {
-			token = addToken(key);
+			token = new Token(createTextAttribute(key));
+			fTokenMap.put(key, token);
 		}
 		return token;
 	}
 	
-	private IToken addToken(String key) {
-		String colorKey = key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
-		RGB rgb = PreferenceConverter.getColor(fPreferenceStore, colorKey);
-		fColorManager.bindColor(colorKey, rgb);
-		
-		IToken token = new Token(createTextAttribute(key));
-		fTokenMap.put(key, token);
-		return token;
+	private String resolveUsedKey(String key) {
+		String use = key;
+		while (true) {
+			String test = fPreferenceStore.getString(use+IStatetUIPreferenceConstants.TS_USE_SUFFIX);
+			if (test == null || test.equals("") || test.equals(use)) { //$NON-NLS-1$
+				return use;
+			}
+			use = test;
+		}
 	}
-
 	
 	/**
 	 * Create a text attribute based on the given color, bold, italic, strikethrough and underline preference keys.
 	 *
-	 * @param colorKey the color preference key
-	 * @param boldKey the bold preference key
-	 * @param italicKey the italic preference key
-	 * @param strikethroughKey the strikethrough preference key
-	 * @param underlineKey the italic preference key
+	 * @param key the italic preference key
 	 * @return the created text attribute
 	 * @since 3.0
 	 */
 	private TextAttribute createTextAttribute(String key) {
-		Color color = fColorManager.getColor(key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX);
-
+		key = resolveUsedKey(key);
+		
+		RGB rgb = PreferenceConverter.getColor(fPreferenceStore, key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX);
 		int style = fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_BOLD_SUFFIX) ? 
 				SWT.BOLD : SWT.NORMAL;
 		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX))
 			style |= SWT.ITALIC;
-
 		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX))
 			style |= TextAttribute.STRIKETHROUGH;
-
 		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX))
 			style |= TextAttribute.UNDERLINE;
 
-		return new TextAttribute(color, null, style);
+		return new TextAttribute(fColorManager.getColor(rgb), null, style);
 	}
 	
-	public void adaptToPreferenceChange(PropertyChangeEvent event) {
-		String p = event.getProperty();
-		for (String name : fTokenNames) {
-			if (p.startsWith(name)) {
-				Token token = (Token) fTokenMap.get(name);
-				if (p.endsWith(IStatetUIPreferenceConstants.TS_COLOR_SUFFIX)) {
-					RGB rgb = PreferenceConverter.getColor(fPreferenceStore, p);
-					fColorManager.bindColor(p, rgb);
-				}
-				token.setData(createTextAttribute(name));
-				return;
+	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+		if (contexts.contains(fStylesContext)) {
+			for (Map.Entry<String, Token> token : fTokenMap.entrySet()) {
+				token.getValue().setData(createTextAttribute(token.getKey()));
 			}
+			return true;
 		}
+		return false;
 	}
-	
+
 }

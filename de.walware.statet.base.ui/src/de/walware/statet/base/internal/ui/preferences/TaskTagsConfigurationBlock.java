@@ -210,7 +210,10 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		setupPreferenceManager(container, new Preference[] {
 				TaskTagsPreferences.PREF_TAGS,
 				TaskTagsPreferences.PREF_PRIORITIES,
-		}, new String[] { TaskTagsPreferences.CONTEXT_ID });
+		});
+		setSettingsContexts(new String[] { 
+				TaskTagsPreferences.CONTEXT_ID
+		});
 
 		fTasksGroup.createGroup(pageComposite, 1);
 		

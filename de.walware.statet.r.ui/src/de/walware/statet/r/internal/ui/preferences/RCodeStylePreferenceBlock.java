@@ -78,7 +78,10 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				RCodeStyleSettings.PREF_INDENT_BLOCK_DEPTH,
 				RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH,
 				RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES,
-		}, new String[] { RCodeStyleSettings.CONTEXT_ID });
+		});
+		setSettingsContexts(new String[] {
+				RCodeStyleSettings.CONTEXT_ID
+		});
 		fModel = new RCodeStyleSettings(true);
 		
 		Composite mainComposite = new Composite(pageComposite, SWT.NONE);

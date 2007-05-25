@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 
 
 /**
- * AbstractJavaCommentScanner.java
+ * Scanner for comments. Provides support for task tags.
  */
 public class CommentScanner extends StatextTextScanner 
 		implements ISettingsChangedHandler {
@@ -71,9 +71,10 @@ public class CommentScanner extends StatextTextScanner
 	private String fCommentTokenKey;
 	private String fTaskTokenKey;
 	
-	public CommentScanner(ColorManager colorManager, IPreferenceStore preferenceStore, IPreferenceAccess corePrefs, 
+	public CommentScanner(ColorManager colorManager, IPreferenceStore preferenceStore, IPreferenceAccess corePrefs,
+			String stylesContext,
 			String commentTokenKey, String taskTokenKey) {
-		super(colorManager, preferenceStore);
+		super(colorManager, preferenceStore, stylesContext);
 
 		fCommentTokenKey = commentTokenKey;
 		fTaskTokenKey = taskTokenKey;
@@ -98,12 +99,13 @@ public class CommentScanner extends StatextTextScanner
 	}
 	
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+		boolean affectsPresentation = super.handleSettingsChanged(contexts, options);
 		if (contexts.contains(TaskTagsPreferences.CONTEXT_ID)) {
 			IPreferenceAccess prefs = (IPreferenceAccess) options;
 			loadTaskTags(prefs);
-			return true;
+			affectsPresentation |= true;
 		}
-		return false;
+		return affectsPresentation;
 	}
 
 	public void loadTaskTags(IPreferenceAccess prefs) {

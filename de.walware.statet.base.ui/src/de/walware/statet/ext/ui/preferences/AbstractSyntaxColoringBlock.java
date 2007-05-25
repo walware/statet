@@ -16,16 +16,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.observable.IObservable;
+import org.eclipse.core.databinding.observable.Observables;
 import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.masterdetail.IObservableFactory;
+import org.eclipse.core.databinding.observable.masterdetail.MasterDetailObservables;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -36,10 +45,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
+import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
@@ -60,6 +72,7 @@ import de.walware.eclipsecommons.ui.preferences.OverlayStorePreference;
 import de.walware.eclipsecommons.ui.preferences.PreferenceStoreBeanWrapper;
 import de.walware.eclipsecommons.ui.preferences.RGBPref;
 import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.TreeUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -70,6 +83,7 @@ import de.walware.statet.base.internal.ui.preferences.Messages;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxNode.UseStyle;
 
 
 /**
@@ -84,6 +98,47 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	 * Note: getter and setters in all nodes for easy DataBinding.
 	 */
 	protected static abstract class SyntaxNode extends Node {
+		
+		public static class UseStyle {
+			
+			private String fLabel;
+			private String fRefRootKey;
+
+			public UseStyle(String refRootKey, String label) {
+				super();
+				fRefRootKey = refRootKey;
+				fLabel = label;
+			}
+
+			public String getLabel() {
+				return fLabel;
+			}
+			
+			public String getRefRootKey() {
+				return fRefRootKey;
+			}
+
+		}
+
+		public static UseStyle createUseCustomStyle() {
+			return new UseStyle("", Messages.SyntaxColoring_Use_CustomStyle_label); //$NON-NLS-1$
+		}
+		
+		public static UseStyle createUseNoExtraStyle(String parentKey) {
+			return new UseStyle(parentKey, Messages.SyntaxColoring_Use_NoExtraStyle_label);
+		}
+		
+		public static UseStyle createUseOtherStyle(String otherKey, String otherLabel) {
+			return new UseStyle(otherKey, NLS.bind(Messages.SyntaxColoring_Use_OtherStyle_label, otherLabel));
+		}
+		
+		
+		public static final String PROP_USE = "useStyle"; //$NON-NLS-1$
+		public static final String PROP_COLOR = "color"; //$NON-NLS-1$
+		public static final String PROP_BOLD = "bold"; //$NON-NLS-1$
+		public static final String PROP_ITALIC = "italic"; //$NON-NLS-1$
+		public static final String PROP_STRIKETHROUGH = "strikethrough"; //$NON-NLS-1$
+		public static final String PROP_UNDERLINE = "underline"; //$NON-NLS-1$
 		
 		private SyntaxNode(String name, SyntaxNode[] children) {
 			super(name, children);
@@ -117,17 +172,20 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		
 		/*-- Property-Access --*/
+		public UseStyle[] getAvailableUseStyles() {
+			return new UseStyle[0];
+		}
+		
+		public UseStyle getUseStyle() {
+			return null;
+		}
+		public void setUseStyle(UseStyle useStyle) {
+		}
 		
 		public RGB getColor() {
 			return null;
 		}
 		public void setColor(RGB color) {
-		}
-		
-		public boolean isEnabled() {
-			return false;
-		}
-		public void setEnabled() {
 		}
 		
 		public boolean isBold() {
@@ -170,9 +228,27 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	 */
 	protected static class StyleNode extends SyntaxNode {
 		
+		public class UseStylePref extends Preference<UseStyle> {
+			UseStylePref(String qualifier, String key) {
+				super(qualifier, key, Type.STRING);
+			}
+			@Override
+			public Class<UseStyle> getUsageType() {
+				return UseStyle.class;
+			}
+			@Override
+			public UseStyle store2Usage(Object obj) {
+				return getUseStyle((String) obj);
+			}
+			@Override
+			public Object usage2Store(UseStyle obj) {
+				return obj.getRefRootKey();
+			}
+		}
+
 		private String fDescription;
 		private String fRootKey;
-		private boolean fAllowActivation;
+		private UseStyle[] fAvailableStyles;
 		
 		/** tuple { pref : Preference, beanProperty : String } */ 
 		private Object[][] fPreferences;
@@ -180,36 +256,33 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		private PreferenceStoreBeanWrapper fBeanSupport;
 		
 		
-		public StyleNode(String name, String description, String rootKey, boolean allowActivation, SyntaxNode[] children) {
+		public StyleNode(String name, String description, String rootKey, UseStyle[] availableStyles, SyntaxNode[] children) {
 			
 			super(name, children);
 			fDescription = description;
 			fRootKey = rootKey;
+			fAvailableStyles = availableStyles;
 			
-			fAllowActivation = allowActivation;
 			List<Object[]> prefs = new ArrayList<Object[]>();
-			if (fAllowActivation) {
-				prefs.add(new Object[] { new Preference.BooleanPref(null, getEnableKey()), "enabled" }); 
+			assert (fAvailableStyles != null && fAvailableStyles.length > 0);
+			if (fAvailableStyles.length > 1) {
+				prefs.add(new Object[] { new UseStylePref(null, getUseKey()), PROP_USE }); 
 			}
-			prefs.add(new Object[] { new RGBPref(null, getColorKey()), "color" });
-			prefs.add(new Object[] { new Preference.BooleanPref(null, getBoldKey()), "bold" });
-			prefs.add(new Object[] { new Preference.BooleanPref(null, getItalicKey()), "italic" });
-			prefs.add(new Object[] { new Preference.BooleanPref(null, getUnderlineKey()), "underline" });
-			prefs.add(new Object[] { new Preference.BooleanPref(null, getStrikethroughKey()), "strikethrough" });
+			prefs.add(new Object[] { new RGBPref(null, getColorKey()), PROP_COLOR });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getBoldKey()), PROP_BOLD });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getItalicKey()), PROP_ITALIC });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getUnderlineKey()), PROP_UNDERLINE });
+			prefs.add(new Object[] { new Preference.BooleanPref(null, getStrikethroughKey()), PROP_STRIKETHROUGH });
 			fPreferences = prefs.toArray(new Object[prefs.size()][]);
 		}
 		
-		public StyleNode(String name, String description, String rootKey, boolean allowActivation) {
-			this(name, description, rootKey, allowActivation, null);
-		}
-
 		public String getDescription() {
 			return fDescription;
 		}
 
 
-		private String getEnableKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_ENABLE_SUFFIX;
+		private String getUseKey() {
+			return fRootKey + IStatetUIPreferenceConstants.TS_USE_SUFFIX;
 		}
 		private String getColorKey() {
 			return fRootKey + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
@@ -263,50 +336,69 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		
 		/*-- Property-Access --*/
-		
-		public boolean isEnabled() {
-			if (fAllowActivation) {
-				return fPreferenceStore.getBoolean(getEnableKey());
-			}
-			return true;
+		@Override
+		public UseStyle[] getAvailableUseStyles() {
+			return fAvailableStyles;
 		}
-		public void setEnabled(boolean enabled) {
-			if (fAllowActivation) {
-				fPreferenceStore.setValue(getEnableKey(), enabled);
+
+		@Override
+		public void setUseStyle(UseStyle useStyle) {
+			fPreferenceStore.setValue(getUseKey(), useStyle.getRefRootKey());
+		}
+		@Override
+		public UseStyle getUseStyle() {
+			return getUseStyle(fPreferenceStore.getString(getUseKey()));
+		}
+		private UseStyle getUseStyle(String value) {
+			for (UseStyle style : fAvailableStyles) {
+				if (style.getRefRootKey().equals(value)) {
+					return style;
+				}
 			}
+			return fAvailableStyles[0];
 		}
 		
+		@Override
 		public RGB getColor() {
 			return PreferenceConverter.getColor(fPreferenceStore, getColorKey());
 		}
+		@Override
 		public void setColor(RGB color) {
 			PreferenceConverter.setValue(fPreferenceStore, getColorKey(), color);
 		}
 		
+		@Override
 		public boolean isBold() {
 			return fPreferenceStore.getBoolean(getBoldKey());
 		}
+		@Override
 		public void setBold(boolean enabled) {
 			fPreferenceStore.setValue(getBoldKey(), enabled);
 		}
 		
+		@Override
 		public boolean isItalic() {
 			return fPreferenceStore.getBoolean(getItalicKey());
 		}
+		@Override
 		public void setItalic(boolean enabled) {
 			fPreferenceStore.setValue(getItalicKey(), enabled);
 		}
 		
+		@Override
 		public boolean isStrikethrough() {
 			return fPreferenceStore.getBoolean(getStrikethroughKey());
 		}
+		@Override
 		public void setStrikethrough(boolean enabled) {
 			fPreferenceStore.setValue(getStrikethroughKey(), enabled);
 		}
 		
+		@Override
 		public boolean isUnderline() {
 			return fPreferenceStore.getBoolean(getUnderlineKey());
 		}
+		@Override
 		public void setUnderline(boolean enabled) {
 			fPreferenceStore.setValue(getUnderlineKey(), enabled);
 		}
@@ -336,13 +428,22 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 	}
 
+	private class UseStyleLabelProvider extends LabelProvider {
+		@Override
+		public String getText(Object element) {
+			UseStyle style = (UseStyle) element;
+			return style.getLabel();
+		}
+	}
 
 	private SyntaxNode[] fRootNodes;
 	private DataBindingContext fDbc;
 	
 	private TreeViewer fSelectionViewer;
+	private StatextSourceViewerConfiguration fConfiguration;
+	private Set<String> fContexts;
 	
-	private Button fEnableCheckbox;
+	private ComboViewer fUseControl;
 	private ColorSelector fForegroundColorEditor;
 	private Button fBoldCheckbox;
 	private Button fItalicCheckbox;
@@ -358,6 +459,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 
 	protected abstract SyntaxNode[] createItems();
+	protected abstract String[] getSettingsContexts();
 	
 
 	@Override
@@ -366,6 +468,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		super.createContents(pageComposite, container, preferenceStore);
 		// Prepare model
 		fRootNodes = createItems();
+		String[] settingsContexts = getSettingsContexts();
+		setSettingsContexts(settingsContexts);
+		fContexts = new HashSet<String>();
+		fContexts.addAll(Arrays.asList(settingsContexts));
 		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
 		collectKeys(keys, fRootNodes);
 		setupOverlayStore(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
@@ -454,13 +560,20 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	private Control createOptionsControl(Layouter parent) {
+		GridData gd;
+		
 		Layouter options = new Layouter(new Composite(parent.composite, SWT.NONE), 2);
-		fEnableCheckbox = options.addCheckBox(Messages.SyntaxColoring_Enable, 0, 2);
-		final int indent = 20;
+		fUseControl = new ComboViewer(options.composite, SWT.READ_ONLY | SWT.DROP_DOWN);
+		fUseControl.setLabelProvider(new UseStyleLabelProvider());
+		gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 0);
+		gd.widthHint = LayoutUtil.hintWidth(fUseControl.getCombo(), 
+				new String[] { "XXXXXXXXXXXXXXX", Messages.SyntaxColoring_Use_CustomStyle_label, Messages.SyntaxColoring_Use_NoExtraStyle_label }); //$NON-NLS-1$
+		fUseControl.getControl().setLayoutData(gd);
+		final int indent = LayoutUtil.defaultSmallIndent();
 		options.addLabel(Messages.SyntaxColoring_Color, indent, 1);
 		fForegroundColorEditor = new ColorSelector(options.composite);
 		Button foregroundColorButton = fForegroundColorEditor.getButton();
-		GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
+		gd = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		foregroundColorButton.setLayoutData(gd);
 		fBoldCheckbox = options.addCheckBox(Messages.SyntaxColoring_Bold, indent);
 		fItalicCheckbox = options.addCheckBox(Messages.SyntaxColoring_Italic, indent);
@@ -479,9 +592,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		Font font = JFaceResources.getFont(JFaceResources.TEXT_FONT);
 		fPreviewViewer.getTextWidget().setFont(font);
 		fPreviewViewer.setEditable(false);
-		StatextSourceViewerConfiguration configuration = getSourceViewerConfiguration(fColorManager, store);
-		fPreviewViewer.configure(configuration);
-		new SourceViewerUpdater(fPreviewViewer, configuration, store);
+		fConfiguration = getSourceViewerConfiguration(fColorManager, store);
+		fPreviewViewer.configure(fConfiguration);
+		new SourceViewerUpdater(fPreviewViewer, fConfiguration, store);
 		
 		String content = loadPreviewContentFromFile(getPreviewFileName()); //$NON-NLS-1$
 		IDocument document = new Document(content);
@@ -524,51 +637,66 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	private void initBindings() {
-		Realm realm = Realm.getDefault();
+		final Realm realm = Realm.getDefault();
 		fDbc = new DataBindingContext(realm);
 
-		IValueChangeListener updateEnableListener = new IValueChangeListener() {
-			public void handleValueChange(ValueChangeEvent event) {
-				updateEnablement((IStructuredSelection) fSelectionViewer.getSelection());
-			}
-		};
 		// Observe changes in selection.
 		IObservableValue selection = ViewersObservables.observeSingleSelection(fSelectionViewer);
-		selection.addValueChangeListener(updateEnableListener);
-
-		// Bind option widgets to the properties of the current selection.
-		IObservableValue enabled = BeansObservables.observeDetailValue(realm, selection, "enabled", boolean.class);
-		enabled.addValueChangeListener(updateEnableListener);
-		fDbc.bindValue(SWTObservables.observeSelection(fEnableCheckbox), 
-				enabled,
+		selection.addValueChangeListener(new IValueChangeListener() {
+			public void handleValueChange(ValueChangeEvent event) {
+				SyntaxNode newNode = (SyntaxNode) event.diff.getNewValue();
+				if (newNode != null) {
+					updateEnablement(newNode, newNode.getUseStyle());
+				}
+			}
+		});
+		// Bind use style selection
+		IObservableList list = MasterDetailObservables.detailList(
+				BeansObservables.observeDetailValue(realm, selection, "availableUseStyles", UseStyle[].class), //$NON-NLS-1$
+				new IObservableFactory() {
+					public IObservable createObservable(Object target) {
+						return Observables.staticObservableList(realm, Arrays.asList((UseStyle[]) target));
+					}
+				}, null);
+		fUseControl.setContentProvider(new ObservableListContentProvider());
+		fUseControl.setInput(list);
+		IObservableValue useStyle = BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_USE, UseStyle.class);
+		useStyle.addValueChangeListener(new IValueChangeListener() {
+			public void handleValueChange(ValueChangeEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) fSelectionViewer.getSelection();
+				UseStyle newUse = (UseStyle) event.diff.getNewValue();
+				updateEnablement((SyntaxNode) selection.getFirstElement(), newUse);
+			}
+		});
+		fDbc.bindValue(ViewersObservables.observeSingleSelection(fUseControl), 
+				useStyle,
 				null, null);
+		// Bind option widgets to the properties of the current selection.
 		fDbc.bindValue(new ColorSelectorObservableValue(fForegroundColorEditor), 
-				BeansObservables.observeDetailValue(realm, selection, "color", RGB.class), 
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_COLOR, RGB.class), 
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fBoldCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, "bold", boolean.class), 
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_BOLD, boolean.class), 
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fItalicCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, "italic", boolean.class), 
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_ITALIC, boolean.class), 
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fStrikethroughCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, "strikethrough", boolean.class), 
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_STRIKETHROUGH, boolean.class), 
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fUnderlineCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, "underline", boolean.class), 
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_UNDERLINE, boolean.class), 
 				null, null);
 	}
 	
-	private void updateEnablement(IStructuredSelection selection) {
-		Object obj = selection.getFirstElement();
+	private void updateEnablement(SyntaxNode node, UseStyle useStyle) {
 		boolean enableOptions;
-		if (obj != null && obj instanceof StyleNode) {
-			StyleNode style = (StyleNode) obj;
-			fEnableCheckbox.setEnabled(style.fAllowActivation);
-			enableOptions = style.fAllowActivation ? style.isEnabled() : true;
+		if (node instanceof StyleNode) {
+			fUseControl.getControl().setEnabled(node.getAvailableUseStyles().length > 1);
+			enableOptions = useStyle != null && useStyle.getRefRootKey().equals(""); //$NON-NLS-1$
 		}
 		else {
-			fEnableCheckbox.setEnabled(false);
+			fUseControl.getControl().setEnabled(false);
 			enableOptions = false;
 		}
 		fForegroundColorEditor.setEnabled(enableOptions);
@@ -576,6 +704,14 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fItalicCheckbox.setEnabled(enableOptions);
 		fStrikethroughCheckbox.setEnabled(enableOptions);
 		fUnderlineCheckbox.setEnabled(enableOptions);
+	}
+	
+	@Override
+	protected void handlePropertyChange() {
+		if (UIAccess.isOkToUse(fPreviewViewer)) {
+			fConfiguration.handleSettingsChanged(fContexts, null);
+			fPreviewViewer.invalidateTextPresentation();
+		}
 	}
 	
 	@Override
@@ -589,6 +725,19 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			fColorManager = null;
 		}
 		super.dispose();
+	}
+	
+	protected String addListToTooltip(String tooltip, String[] listItems) {
+		StringBuilder description = new StringBuilder(tooltip);
+		for (String item : listItems) {
+			description.append("\n    "); //$NON-NLS-1$
+			description.append(item);
+		}
+		return description.toString();
+	}
+	
+	protected String addExtraStyleNoteToTooltip(String tooltip) {
+		return NLS.bind(tooltip, Messages.SyntaxColoring_MindExtraStyle_tooltip);
 	}
 	
 }

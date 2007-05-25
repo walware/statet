@@ -29,9 +29,9 @@ public class SingleTokenScanner extends StatextTextScanner {
 	private String fDefaultTokenKey;
 	
 	public SingleTokenScanner (ColorManager colorManager, IPreferenceStore preferenceStore, 
-			String defaultTokenKey) {
+			String stylesContext, String defaultTokenKey) {
 
-		super(colorManager, preferenceStore);
+		super(colorManager, preferenceStore, stylesContext);
 		
 		fDefaultTokenKey = defaultTokenKey;
 		initialize();

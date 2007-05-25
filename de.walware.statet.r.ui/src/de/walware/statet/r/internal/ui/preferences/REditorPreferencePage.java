@@ -67,8 +67,10 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		List<Preference> prefs = new ArrayList<Preference>();
 		prefs.add(REditorOptions.PREF_SMARTINSERT_ASDEFAULT);
 		prefs.add(REditorOptions.PREF_SPELLCHECKING_ENABLED);
-		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]),
-				new String[] { REditorOptions.CONTEXT_ID });
+		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
+		setSettingsContexts(new String[] {
+				REditorOptions.CONTEXT_ID
+		});
 		
 		// Controls
 		fSmartInsertControl = new Button(pageComposite, SWT.CHECK);

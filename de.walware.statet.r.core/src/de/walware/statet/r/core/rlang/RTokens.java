@@ -57,9 +57,14 @@ public class RTokens {
 			"<-", "->", "<<-", "->>", "=",
 	};
 	
+	public static final String[] OPERATORS_LOGICAL = {
+		"!", "&", "&&", "|", "||",
+	};
+	public static final String[] OPERATORS_RELATIONAL = {
+		">", ">=", "<", "<=", "==", "!=",
+	};
 	public static final String[] DEFAULT_OPERATORS = {
 			"+", "-", "*", "/", "^", "%%", "%/%",	// arithmetic
-			">", ">=", "<", "<=", "==", "!=", 		// relational
 			"!", "&", "&&", "|", "||",				// logical
 			"~", 									// model formulae
 			":",									// sequence

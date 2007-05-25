@@ -77,12 +77,12 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
+import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.core.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.TextViewerAction;

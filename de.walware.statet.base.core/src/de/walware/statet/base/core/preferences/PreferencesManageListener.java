@@ -16,6 +16,7 @@ import java.util.concurrent.locks.Lock;
 
 import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 
 import de.walware.statet.base.core.StatetCore;
 

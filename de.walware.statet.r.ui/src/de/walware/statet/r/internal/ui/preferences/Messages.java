@@ -21,6 +21,10 @@ public class Messages extends NLS {
 
 	public static String RSyntaxColoring_Default_label;
 	public static String RSyntaxColoring_Default_description;
+	public static String RSyntaxColoring_Identifier_Items_description;
+	public static String RSyntaxColoring_Identifier_Assignment_label;
+	public static String RSyntaxColoring_Identifier_Logical_label;
+	public static String RSyntaxColoring_Identifier_Flowcontrol_label;
 	public static String RSyntaxColoring_Undefined_label;
 	public static String RSyntaxColoring_Undefined_description;
 	public static String RSyntaxColoring_Comment_label;
@@ -39,8 +43,16 @@ public class Messages extends NLS {
 	public static String RSyntaxColoring_Separators_description;
 	public static String RSyntaxColoring_Assignment_label;
 	public static String RSyntaxColoring_Assignment_description;
-	public static String RSyntaxColoring_OtherOperators_label;
-	public static String RSyntaxColoring_OtherOperators_description;
+	public static String RSyntaxColoring_Assignment_Equalsign_label;
+	public static String RSyntaxColoring_Assignment_Equalsign_description;
+	public static String RSyntaxColoring_Operators_label;
+	public static String RSyntaxColoring_Operators_description;
+	public static String RSyntaxColoring_Operators_Logical_label;
+	public static String RSyntaxColoring_Operators_Logical_description;
+	public static String RSyntaxColoring_Operators_Relational_label;
+	public static String RSyntaxColoring_Operators_Relational_description;
+	public static String RSyntaxColoring_Operators_Userdefined_label;
+	public static String RSyntaxColoring_Operators_Userdefined_description;
 	public static String RSyntaxColoring_Grouping_label;
 	public static String RSyntaxColoring_Grouping_description;
 	public static String RSyntaxColoring_Indexing_label;

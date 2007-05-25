@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_COLOR_SU
 import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX;
 import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
 import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX;
+import static de.walware.statet.base.ui.IStatetUIPreferenceConstants.TS_USE_SUFFIX;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -36,8 +37,9 @@ import de.walware.statet.r.ui.text.rd.IRdTextTokens;
 public class RUIPreferenceConstants {
 
 	public interface R {
-
+		public final static String CONTEXT_ID = "r.editor/textstyles"; //$NON-NLS-1$
 		public final static String TS_ROOT = IRTextTokens.ROOT;
+		public final static String TS_ITEMS_SUFFIX = ".items"; //$NON-NLS-1$
 		
 		public final static String TS_DEFAULT_ROOT = IRTextTokens.DEFAULT;
 		public final static String TS_DEFAULT_COLOR = TS_DEFAULT_ROOT + TS_COLOR_SUFFIX;
@@ -45,6 +47,51 @@ public class RUIPreferenceConstants {
 		public final static String TS_DEFAULT_ITALIC = TS_DEFAULT_ROOT + TS_ITALIC_SUFFIX;
 		public final static String TS_DEFAULT_UNDERLINE = TS_DEFAULT_ROOT + TS_UNDERLINE_SUFFIX;
 		public final static String TS_DEFAULT_STRIKETHROUGH = TS_DEFAULT_ROOT + TS_STRIKETHROUGH_SUFFIX;
+
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT = IRTextTokens.IDENTIFIER_SUB_ASSIGNMENT;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_USE = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_USE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_ITEMS_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_COLOR = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_BOLD = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_ITALIC = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_UNDERLINE = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_ASSIGNMENT_STRIKETHROUGH = TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT + TS_STRIKETHROUGH_SUFFIX;
+
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_ROOT = IRTextTokens.IDENTIFIER_SUB_LOGICAL;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_USE = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_USE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_ITEMS = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_ITEMS_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_COLOR = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_BOLD = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_ITALIC = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_UNDERLINE = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_LOGICAL_STRIKETHROUGH = TS_IDENTIFIER_SUB_LOGICAL_ROOT + TS_STRIKETHROUGH_SUFFIX;
+
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT = IRTextTokens.IDENTIFIER_SUB_FLOWCONTROL;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_USE = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_USE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_ITEMS_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_COLOR = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_BOLD = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_ITALIC = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_UNDERLINE = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_FLOWCONTROL_STRIKETHROUGH = TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT + TS_STRIKETHROUGH_SUFFIX;
+
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_ROOT = IRTextTokens.IDENTIFIER_SUB_CUSTOM1;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_USE = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_USE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_ITEMS = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_ITEMS_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_COLOR = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_BOLD = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_ITALIC = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_UNDERLINE = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM1_STRIKETHROUGH = TS_IDENTIFIER_SUB_CUSTOM1_ROOT + TS_STRIKETHROUGH_SUFFIX;
+
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_ROOT = IRTextTokens.IDENTIFIER_SUB_CUSTOM2;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_USE = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_USE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_ITEMS = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_ITEMS_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_COLOR = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_BOLD = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_ITALIC = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_UNDERLINE = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_IDENTIFIER_SUB_CUSTOM2_STRIKETHROUGH = TS_IDENTIFIER_SUB_CUSTOM2_ROOT + TS_STRIKETHROUGH_SUFFIX;
 
 		public final static String TS_UNDEFINED_ROOT = IRTextTokens.UNDEFINED;
 		public final static String TS_UNDEFINED_COLOR = TS_UNDEFINED_ROOT + TS_COLOR_SUFFIX;
@@ -116,13 +163,45 @@ public class RUIPreferenceConstants {
 		public final static String TS_ASSIGNMENT_UNDERLINE = TS_ASSIGNMENT_ROOT + TS_UNDERLINE_SUFFIX;
 		public final static String TS_ASSIGNMENT_STRIKETHROUGH = TS_ASSIGNMENT_ROOT + TS_STRIKETHROUGH_SUFFIX;
 
-		public final static String TS_OTHER_OPERATORS_ROOT = IRTextTokens.OTHER_OPERATORS;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT = IRTextTokens.ASSIGNMENT_SUB_EQUALSIGN;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_USE = TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT + TS_USE_SUFFIX;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_COLOR = TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_BOLD = TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_ITALIC = TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_UNDERLINE = TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_ASSIGNMENT_SUB_EQUALSIGN_STRIKETHROUGH = TS_ASSIGNMENT_SUB_EQUALSIGN_ROOT + TS_STRIKETHROUGH_SUFFIX;
+
+		public final static String TS_OTHER_OPERATORS_ROOT = IRTextTokens.OPERATORS;
 		public final static String TS_OTHER_OPERATORS_COLOR = TS_OTHER_OPERATORS_ROOT + TS_COLOR_SUFFIX;
 		public final static String TS_OTHER_OPERATORS_BOLD = TS_OTHER_OPERATORS_ROOT + TS_BOLD_SUFFIX;
 		public final static String TS_OTHER_OPERATORS_ITALIC = TS_OTHER_OPERATORS_ROOT + TS_ITALIC_SUFFIX;
 		public final static String TS_OTHER_OPERATORS_UNDERLINE = TS_OTHER_OPERATORS_ROOT + TS_UNDERLINE_SUFFIX;
 		public final static String TS_OTHER_OPERATORS_STRIKETHROUGH = TS_OTHER_OPERATORS_ROOT + TS_STRIKETHROUGH_SUFFIX;
 
+		public final static String TS_OPERATORS_SUB_LOGICAL_ROOT = IRTextTokens.OPERATORS_SUB_LOGICAL;
+		public final static String TS_OPERATORS_SUB_LOGICAL_USE = TS_OPERATORS_SUB_LOGICAL_ROOT + TS_USE_SUFFIX;
+		public final static String TS_OPERATORS_SUB_LOGICAL_COLOR = TS_OPERATORS_SUB_LOGICAL_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_OPERATORS_SUB_LOGICAL_BOLD = TS_OPERATORS_SUB_LOGICAL_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_OPERATORS_SUB_LOGICAL_ITALIC = TS_OPERATORS_SUB_LOGICAL_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_OPERATORS_SUB_LOGICAL_UNDERLINE = TS_OPERATORS_SUB_LOGICAL_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_OPERATORS_SUB_LOGICAL_STRIKETHROUGH = TS_OPERATORS_SUB_LOGICAL_ROOT + TS_STRIKETHROUGH_SUFFIX;
+		
+		public final static String TS_OPERATORS_SUB_RELATIONAL_ROOT = IRTextTokens.OPERATORS_SUB_RELATIONAL;
+		public final static String TS_OPERATORS_SUB_RELATIONAL_USE = TS_OPERATORS_SUB_RELATIONAL_ROOT + TS_USE_SUFFIX;
+		public final static String TS_OPERATORS_SUB_RELATIONAL_COLOR = TS_OPERATORS_SUB_RELATIONAL_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_OPERATORS_SUB_RELATIONAL_BOLD = TS_OPERATORS_SUB_RELATIONAL_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_OPERATORS_SUB_RELATIONAL_ITALIC = TS_OPERATORS_SUB_RELATIONAL_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_OPERATORS_SUB_RELATIONAL_UNDERLINE = TS_OPERATORS_SUB_RELATIONAL_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_OPERATORS_SUB_RELATIONAL_STRIKETHROUGH = TS_OPERATORS_SUB_RELATIONAL_ROOT + TS_STRIKETHROUGH_SUFFIX;
+		
+		public final static String TS_OPERATORS_SUB_USERDEFINED_ROOT = IRTextTokens.OPERATORS_SUB_USERDEFINED;
+		public final static String TS_OPERATORS_SUB_USERDEFINED_USE = TS_OPERATORS_SUB_USERDEFINED_ROOT + TS_USE_SUFFIX;
+		public final static String TS_OPERATORS_SUB_USERDEFINED_COLOR = TS_OPERATORS_SUB_USERDEFINED_ROOT + TS_COLOR_SUFFIX;
+		public final static String TS_OPERATORS_SUB_USERDEFINED_BOLD = TS_OPERATORS_SUB_USERDEFINED_ROOT + TS_BOLD_SUFFIX;
+		public final static String TS_OPERATORS_SUB_USERDEFINED_ITALIC = TS_OPERATORS_SUB_USERDEFINED_ROOT + TS_ITALIC_SUFFIX;
+		public final static String TS_OPERATORS_SUB_USERDEFINED_UNDERLINE = TS_OPERATORS_SUB_USERDEFINED_ROOT + TS_UNDERLINE_SUFFIX;
+		public final static String TS_OPERATORS_SUB_USERDEFINED_STRIKETHROUGH = TS_OPERATORS_SUB_USERDEFINED_ROOT + TS_STRIKETHROUGH_SUFFIX;
+		
 		public final static String TS_GROUPING_ROOT = IRTextTokens.GROUPING;
 		public final static String TS_GROUPING_COLOR = TS_GROUPING_ROOT + TS_COLOR_SUFFIX;
 		public final static String TS_GROUPING_BOLD = TS_GROUPING_ROOT + TS_BOLD_SUFFIX;
@@ -140,7 +219,7 @@ public class RUIPreferenceConstants {
 	}
 	
 	public interface Rd {
-
+		public final static String CONTEXT_ID = "rd.editor/textstyles"; //$NON-NLS-1$
 		public final static String TS_ROOT = IRdTextTokens.ROOT;
 		
 		public final static String TS_BRACKETS_ROOT = IRdTextTokens.BRACKETS;
@@ -229,6 +308,27 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_DEFAULT_UNDERLINE, false);
 		store.setDefault(R.TS_DEFAULT_STRIKETHROUGH, false);
 
+		String[] identifierSubs = new String[] {
+				R.TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT,
+				R.TS_IDENTIFIER_SUB_LOGICAL_ROOT,
+				R.TS_IDENTIFIER_SUB_FLOWCONTROL_ROOT,
+				R.TS_IDENTIFIER_SUB_CUSTOM1_ROOT,
+				R.TS_IDENTIFIER_SUB_CUSTOM2_ROOT,
+		};
+		for (String root : identifierSubs) {
+			store.setDefault(root + TS_USE_SUFFIX, R.TS_DEFAULT_ROOT);
+			PreferenceConverter.setDefault(store, root + TS_COLOR_SUFFIX, new RGB(0, 0, 0));
+			store.setDefault(root + TS_BOLD_SUFFIX, false);
+			store.setDefault(root + TS_ITALIC_SUFFIX, false);
+			store.setDefault(root + TS_UNDERLINE_SUFFIX, false);
+			store.setDefault(root + TS_STRIKETHROUGH_SUFFIX, false);
+		}
+		store.setDefault(R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS, "assign,rm,remove,setMethod,setGeneric,setGroupGeneric,removeClass,removeGeneric,removeMethod,removeMethods,attach,detach,source"); //$NON-NLS-1$
+		store.setDefault(R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS, "xor,any,all"); //$NON-NLS-1$
+		store.setDefault(R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS, "return,switch,ifelse,stop,warning,try,tryCatch"); //$NON-NLS-1$
+		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS, ""); //$NON-NLS-1$
+		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS, ""); //$NON-NLS-1$
+
 		PreferenceConverter.setDefault(store, R.TS_UNDEFINED_COLOR, new RGB(127, 0, 0));
 		store.setDefault(R.TS_UNDEFINED_BOLD, false);
 		store.setDefault(R.TS_UNDEFINED_ITALIC, true);
@@ -284,10 +384,17 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_SEPARATORS_STRIKETHROUGH, false);
 
 		PreferenceConverter.setDefault(store, R.TS_ASSIGNMENT_COLOR, new RGB(0, 0, 0));
-		store.setDefault(R.TS_ASSIGNMENT_BOLD, false);
+		store.setDefault(R.TS_ASSIGNMENT_BOLD, true);
 		store.setDefault(R.TS_ASSIGNMENT_ITALIC, false);
 		store.setDefault(R.TS_ASSIGNMENT_UNDERLINE, false);
 		store.setDefault(R.TS_ASSIGNMENT_STRIKETHROUGH, false);
+
+		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_USE, ""); //$NON-NLS-1$
+		PreferenceConverter.setDefault(store, R.TS_ASSIGNMENT_SUB_EQUALSIGN_COLOR, new RGB(0, 0, 0));
+		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_BOLD, false);
+		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_ITALIC, false);
+		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_UNDERLINE, false);
+		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_STRIKETHROUGH, false);
 
 		PreferenceConverter.setDefault(store, R.TS_OTHER_OPERATORS_COLOR, new RGB(159, 63, 127));
 		store.setDefault(R.TS_OTHER_OPERATORS_BOLD, false);
@@ -295,6 +402,27 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_OTHER_OPERATORS_UNDERLINE, false);
 		store.setDefault(R.TS_OTHER_OPERATORS_STRIKETHROUGH, false);
 
+		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_USE, R.TS_OTHER_OPERATORS_ROOT);
+		PreferenceConverter.setDefault(store, R.TS_OPERATORS_SUB_LOGICAL_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_BOLD, false);
+		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_ITALIC, false);
+		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_UNDERLINE, false);
+		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_STRIKETHROUGH, false);
+		
+		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_USE, R.TS_OTHER_OPERATORS_ROOT);
+		PreferenceConverter.setDefault(store, R.TS_OPERATORS_SUB_RELATIONAL_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_BOLD, false);
+		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_ITALIC, false);
+		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_UNDERLINE, false);
+		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_STRIKETHROUGH, false);
+		
+		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_USE, R.TS_OTHER_OPERATORS_ROOT);
+		PreferenceConverter.setDefault(store, R.TS_OPERATORS_SUB_USERDEFINED_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_BOLD, false);
+		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_ITALIC, false);
+		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_UNDERLINE, false);
+		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_STRIKETHROUGH, false);
+		
 		PreferenceConverter.setDefault(store, R.TS_GROUPING_COLOR, new RGB(0, 0, 0));
 		store.setDefault(R.TS_GROUPING_BOLD, false);
 		store.setDefault(R.TS_GROUPING_ITALIC, false);

@@ -42,6 +42,10 @@ public class Messages extends NLS {
 
 	public static String SyntaxColoring_link;
 	public static String SyntaxColoring_List_label;
+	public static String SyntaxColoring_MindExtraStyle_tooltip;
+	public static String SyntaxColoring_Use_CustomStyle_label;
+	public static String SyntaxColoring_Use_NoExtraStyle_label;
+	public static String SyntaxColoring_Use_OtherStyle_label;
 	public static String SyntaxColoring_Enable;
 	public static String SyntaxColoring_Color;
 	public static String SyntaxColoring_Bold;
@@ -73,7 +77,6 @@ public class Messages extends NLS {
 	public static String CodeTemplates_Export_Error_CanNotWrite_message;
 	public static String CodeTemplates_Export_Exists_title;
 	public static String CodeTemplates_Export_Exists_message;
-
 
 	public static String TaskTags_title;
 	public static String TaskTags_description;

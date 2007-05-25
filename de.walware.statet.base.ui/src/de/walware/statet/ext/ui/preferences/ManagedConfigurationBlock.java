@@ -27,7 +27,6 @@ import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -45,7 +44,6 @@ import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 
 import de.walware.statet.base.core.CoreUtility;
-import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
@@ -340,7 +338,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	private DataBindingContext fDbc;
 	private AggregateValidationStatus fAggregateStatus;
 	private IStatusChangeListener fStatusListener;
-	private String[] fContexts;
 
 
 	protected ManagedConfigurationBlock(IProject project, IStatusChangeListener statusListener) {
@@ -353,8 +350,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		this(project, null);
 	}
 
-	protected void setupPreferenceManager(IWorkbenchPreferenceContainer container, Preference[] keys, String[] contexts) {
-		fContexts = contexts;
+	protected void setupPreferenceManager(IWorkbenchPreferenceContainer container, Preference[] keys) {
 		fContainer = container;
 		new PreferenceManager(keys);
 	}
@@ -549,19 +545,4 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		return null;
 	}
 	
-	private void scheduleChangeNotification(boolean directly) {
-		if (fContexts != null) {
-			String source = (directly) ? null : fContainer.toString();
-			Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, fContexts);
-			if (job == null) {
-				return;
-			}
-			if (directly) {
-				job.schedule();
-			}
-			else {
-				fContainer.registerUpdateJob(job);
-			}
-		}
-	}
 }

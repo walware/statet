@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
@@ -132,14 +134,11 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected String[] collectContextMenuPreferencePages() {
-		String[] ids = super.collectContextMenuPreferencePages();
-		String[] more = new String[ids.length + 3];
-		more[0] = "de.walware.statet.r.preferencePages.RSyntaxColoring"; //$NON-NLS-1$
-		more[1] = "de.walware.statet.r.preferencePages.REditorTemplates"; //$NON-NLS-1$
-		more[2] = "de.walware.statet.r.preferencePages.RCodeStyle"; //$NON-NLS-1$
-		System.arraycopy(ids, 0, more, 3, ids.length);
-		return more;
+	protected void collectContextMenuPreferencePages(List<String> pageIds) {
+		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RSyntaxColoring"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.REditorTemplates"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RCodeStyle"); //$NON-NLS-1$
 	}
 	
 	@Override

@@ -24,11 +24,9 @@ import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.util.PropertyChangeEvent;
 
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.editors.ContentAssistPreference;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
@@ -39,20 +37,19 @@ import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.ui.IRDocumentPartitions;
-import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
-import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.r.RCodeScanner;
+import de.walware.statet.r.ui.text.r.RCommentScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 import de.walware.statet.r.ui.text.r.RIndentation;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
+import de.walware.statet.r.ui.text.r.RStringScanner;
 
 
 /**
  * Default Configuration for SourceViewer of R code.
  */
-public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
-		implements ISettingsChangedHandler {
+public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration {
 
 	
 	private RCodeScanner fCodeScanner;
@@ -91,10 +88,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	protected StatextTextScanner[] initializeScanners() {
 		IPreferenceStore store = getPreferences();
 		ColorManager colorManager = getColorManager();
-		fCodeScanner = new RCodeScanner(colorManager, store);
+		fCodeScanner = new RCodeScanner(colorManager, store, fRCoreAccess.getPrefs());
 		fInfixScanner = new RInfixOperatorScanner(colorManager, store);
-		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), IRTextTokens.COMMENT, IRTextTokens.TASK_TAG);
-		fStringScanner = new SingleTokenScanner(colorManager, store, IRTextTokens.STRING);
+		fCommentScanner = new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs());
+		fStringScanner = new RStringScanner(colorManager, store);
 		return new StatextTextScanner[] { fCodeScanner, fInfixScanner, fCommentScanner, fStringScanner };
 	}
 
@@ -163,17 +160,11 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		return prefixes;
 	}
 	
-	@Override
-	public boolean affectsTextPresentation(PropertyChangeEvent event) {
-		String property = event.getProperty();
-		return (property.startsWith(RUIPreferenceConstants.R.TS_ROOT));
-	}
-	
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
 		if (contexts.contains(ContentAssistPreference.CONTEXT_ID)) {
 			ContentAssistPreference.configure(fContentAssistant);
 		}
-		return fCommentScanner.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+		return super.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
 	}
 	
 	

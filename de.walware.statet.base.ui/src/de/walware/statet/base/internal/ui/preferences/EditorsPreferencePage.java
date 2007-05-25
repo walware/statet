@@ -129,8 +129,10 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		}
 		prefs.add(fCodeAssistAutoPref);
 		prefs.add(fCodeAssistDelayPref);
-		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]),
-				new String[] { ContentAssistPreference.CONTEXT_ID });
+		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
+		setSettingsContexts(new String[] { 
+				ContentAssistPreference.CONTEXT_ID
+		});
 		
 		// Controls
 		addLinkHeader(pageComposite, Messages.Editors_link);

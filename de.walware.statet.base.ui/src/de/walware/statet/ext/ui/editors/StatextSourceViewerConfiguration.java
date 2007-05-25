@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
 package de.walware.statet.ext.ui.editors;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
@@ -24,7 +25,6 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
@@ -34,13 +34,15 @@ import de.walware.eclipsecommons.templates.WordFinder;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 
 /**
  * Configuration for SourceViewer...
  */
-public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration {
+public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration 
+		implements ISettingsChangedHandler {
 
 	
 	public static IPreferenceStore createCombinedPreferenceStore(IPreferenceStore store) {
@@ -72,8 +74,6 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		fScanners = scanners;
 	}
 
-	public abstract boolean affectsTextPresentation(PropertyChangeEvent event);
-	
 	public IPreferenceStore getPreferences() {
 		return fPreferenceStore;
 	}
@@ -82,14 +82,13 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		return fColorManager;
 	}
 	
-	public void handlePropertyChangeEvent(PropertyChangeEvent event) {
-		if (affectsTextPresentation(event)) {
-			for (StatextTextScanner scanner : fScanners) {
-				scanner.adaptToPreferenceChange(event);
-			}
+	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+		boolean affectsPresentation = false;
+		for (StatextTextScanner scanner : fScanners) {
+			affectsPresentation |= scanner.handleSettingsChanged(contexts, options);
 		}
+		return affectsPresentation;
 	}
-	
 	
 /* For TemplateEditors ********************************************************/
 	

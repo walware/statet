@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.core.preferences;
+package de.walware.eclipsecommons.preferences;
 
 import java.util.Arrays;
 import java.util.HashMap;

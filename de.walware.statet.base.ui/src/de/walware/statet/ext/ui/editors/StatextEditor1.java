@@ -11,7 +11,10 @@
 
 package de.walware.statet.ext.ui.editors;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +31,6 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Display;
@@ -40,10 +42,10 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
+import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.core.preferences.SettingsChangeNotifier;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.core.StatextProject;
@@ -355,6 +357,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	@Override
+	protected String[] collectContextMenuPreferencePages() {
+		List<String> list = new ArrayList<String>();
+		collectContextMenuPreferencePages(list);
+		list.addAll(Arrays.asList(super.collectContextMenuPreferencePages()));
+		return list.toArray(new String[list.size()]);
+	}
+	
+	protected void collectContextMenuPreferencePages(List<String> pageIds) {
+	}
+	
+	@Override
 	protected void doSetInput(IEditorInput input) throws CoreException {
 		ProjectT prevProject = fProject;
 		fProject = (input != null) ? getProject(input) : null;
@@ -446,27 +459,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		return super.getAdapter(adapter);
 	}
 	
-	
-	@Override
-	protected boolean affectsTextPresentation(PropertyChangeEvent event) {
-		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
-		if (viewerConfiguration != null && viewerConfiguration.affectsTextPresentation(event)) {
-			return true;
-		}
-		return super.affectsTextPresentation(event);
-	}
-	
-	@Override
-	protected void handlePreferenceStoreChanged(PropertyChangeEvent event) {
-		if (getSourceViewer() == null) {
-			return;
-		}
-		StatextSourceViewerConfiguration viewerConfiguration = (StatextSourceViewerConfiguration) getSourceViewerConfiguration();
-		if (viewerConfiguration != null) {
-			viewerConfiguration.handlePropertyChangeEvent(event);
-		}
-		super.handlePreferenceStoreChanged(event);
-	}
 	
 	public void settingsChanged(final Set<String> contexts) {
 		UIAccess.getDisplay().syncExec(new Runnable() {

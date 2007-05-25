@@ -28,7 +28,6 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.util.PropertyChangeEvent;
 
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
@@ -45,7 +44,7 @@ import de.walware.statet.r.ui.text.rd.RdDoubleClickStrategy;
 
 
 /**
- * Default Configuration for SourceViewer of R code.
+ * Default Configuration for SourceViewer of R documentations.
  * 
  * @author Stephan Wahlbrink
  */
@@ -79,8 +78,10 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 		IPreferenceStore store = getPreferences();
 		ColorManager colorManager = getColorManager();
 		fDocScanner = new RdCodeScanner(colorManager, store);
-		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), COMMENT, TASK_TAG);
-		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, PLATFORM_SPECIF);
+		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), RUIPreferenceConstants.Rd.CONTEXT_ID,
+				COMMENT, TASK_TAG);
+		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, RUIPreferenceConstants.Rd.CONTEXT_ID,
+				PLATFORM_SPECIF);
 		
 		fDoubleClickStrategy = new RdDoubleClickStrategy();
 		
@@ -127,14 +128,8 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 		return new String[] { "%", "" }; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	@Override
-	public boolean affectsTextPresentation(PropertyChangeEvent event) {
-		String property = event.getProperty();
-		return (property.startsWith(RUIPreferenceConstants.Rd.TS_ROOT));
-	}
-	
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
-		return fCommentScanner.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+		return super.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
 	}
 	
 }

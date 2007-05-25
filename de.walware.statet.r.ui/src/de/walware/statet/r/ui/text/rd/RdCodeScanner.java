@@ -27,6 +27,7 @@ import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
 import de.walware.statet.ext.ui.text.OperatorRule;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
 import de.walware.statet.r.core.rdoc.RdTags;
+import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
 /**
@@ -54,7 +55,7 @@ public class RdCodeScanner extends StatextTextScanner {
 	}
 	
 	public RdCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore);
+		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.CONTEXT_ID);
 		initialize();
 	}
 	

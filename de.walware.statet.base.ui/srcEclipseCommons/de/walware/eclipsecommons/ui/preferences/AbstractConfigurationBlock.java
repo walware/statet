@@ -11,6 +11,7 @@
 
 package de.walware.eclipsecommons.ui.preferences;
 
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -24,17 +25,22 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
+import de.walware.statet.base.core.StatetCore;
+
 
 public abstract class AbstractConfigurationBlock {
 
 	
 	private Shell fShell;
+	private IWorkbenchPreferenceContainer fContainer;
+	private String[] fContexts;
 	protected boolean fUseProjectSettings = true;
 	
 	
 	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, 
 			IPreferenceStore preferenceStore) {
 		fShell = pageComposite.getShell();
+		fContainer = container;
 	}
 	
 	public void dispose() {
@@ -53,6 +59,14 @@ public abstract class AbstractConfigurationBlock {
 
 	public void setUseProjectSpecificSettings(boolean enable) {
 		fUseProjectSettings = enable;
+	}
+	
+	protected void setSettingsContexts(String[] contexts) {
+		fContexts = contexts;
+	}
+	
+	protected String[] getSettingsContexts() {
+		return fContexts;
 	}
 	
 	protected Shell getShell() {
@@ -78,4 +92,19 @@ public abstract class AbstractConfigurationBlock {
 		return link;
 	}
 
+	protected void scheduleChangeNotification(boolean directly) {
+		if (fContexts != null) {
+			String source = (directly) ? null : fContainer.toString();
+			Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, fContexts);
+			if (job == null) {
+				return;
+			}
+			if (directly) {
+				job.schedule();
+			}
+			else {
+				fContainer.registerUpdateJob(job);
+			}
+		}
+	}
 }
