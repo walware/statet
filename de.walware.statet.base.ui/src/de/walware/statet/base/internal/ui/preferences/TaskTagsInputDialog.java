@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package de.walware.statet.base.internal.ui.preferences;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -28,15 +29,17 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.base.internal.ui.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.internal.ui.preferences.TaskTagsConfigurationBlock.TaskTag;
 
 
 /**
- * Dialog to enter a na new task tag
+ * Dialog to enter a new task tag
  */
 public class TaskTagsInputDialog extends StatusDialog {
 	
@@ -171,4 +174,8 @@ public class TaskTagsInputDialog extends StatusDialog {
 		updateStatus(status);
 	}
 
+	@Override
+	protected IDialogSettings getDialogBoundsSettings() {
+		return LayoutUtil.createDialogBoundSettings("TaskTagEditDialog", StatetUIPlugin.getDefault()); //$NON-NLS-1$
+	}
 }
