@@ -250,12 +250,14 @@
          <contextualLaunch>
             <enablement>
 	            <with variable="selection">
-	               <count value="1"/>
+	               <count value="1"/>
+
 	               <iterate>
 	               <test
 	               		property="org.eclipse.debug.ui.matchesContentType"
 	                    value="de.walware.statet.r.contentTypes.R"/>
-	               </iterate>	            </with>
+	               </iterate>
+	            </with>
             </enablement>
             <contextLabel
                   label="%launchShortcuts.RunRScriptViaSource"
