@@ -52,7 +52,6 @@ import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -107,7 +106,7 @@ public class InputGroup implements ISettingsChangedHandler {
 					doHistoryOlder();
 				} else if (e.keyCode == SWT.ARROW_DOWN)
 					doHistoryNewer();
-				else if (e.keyCode == '\r')
+				else if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
 					doSubmit();
 			}
 		}
@@ -129,7 +128,6 @@ public class InputGroup implements ISettingsChangedHandler {
 	private Button fSubmitButton;
 	
 	EditorAdapter fEditorAdapter = new EditorAdapter();
-	private StatextSourceViewerConfiguration fSourceViewerConfiguration;
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
 	private SourceViewerConfigurator fConfigurator;
 	
@@ -222,7 +220,7 @@ public class InputGroup implements ISettingsChangedHandler {
 			docuSetup.setup(fDocument.getMasterDocument());
 		}
 		
-		new SourceViewerUpdater(fSourceViewer, fSourceViewerConfiguration);
+		new SourceViewerUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
 
 		fSourceViewer.setDocument(fDocument);
 		fSourceViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
