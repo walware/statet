@@ -5,7 +5,7 @@ package org.rosuda.JRclient;
 // --- for licensing information see LICENSE file in the original JRclient distribution ---
 
 /** small class encapsulating packets from/to Rserv
-    @version $Id: Rpacket.java,v 1.10 2006/03/09 22:07:21 dmao Exp $
+    @version $Id: Rpacket.java 2071 2006-03-09 22:07:21Z dmao $
 */
 public class Rpacket {
     int cmd;

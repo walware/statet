@@ -16,7 +16,7 @@ from the client to <b>Rserve</b> server. It is used very much like
 a {@link FileOutputStream}. Currently mark and seek is not supported.
 The current implementation is also "one-shot" only, that means the file
 can be written only once.
-@version $Id: RFileOutputStream.java,v 1.2 2005/01/24 18:25:42 urbaneks Exp $
+@version $Id: RFileOutputStream.java 1330 2005-01-24 18:25:42Z urbaneks $
 */
 
 public class RFileOutputStream extends OutputStream {

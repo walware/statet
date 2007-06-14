@@ -11,7 +11,7 @@ import java.io.*;
     a {@link FileInputStream}. Currently mark and seek is not supported.
     The current implementation is also "one-shot" only, that means the file
     can be read only once.
-    @version $Id: RFileInputStream.java,v 1.5 2005/01/24 18:25:42 urbaneks Exp $
+    @version $Id: RFileInputStream.java 1330 2005-01-24 18:25:42Z urbaneks $
 */
 public class RFileInputStream extends InputStream {
     /** Rtalk class to use for communication with the Rserve */

@@ -16,7 +16,7 @@ import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 
 /**  class providing TCP/IP connection to an Rserve
-     @version $Id: Rconnection.java,v 1.22 2006/02/12 07:22:56 urbaneks Exp $
+     @version $Id: Rconnection.java 2737 2007-04-30 22:25:30Z urbanek $
 */
 public class Rconnection {
     /** last error string */
@@ -96,13 +96,13 @@ public class Rconnection {
 			// disable Nagle's algorithm since we really want immediate replies
 			s.setTcpNoDelay(true);
         } catch (Exception sce) {
-            throw new RSrvException(this,"Cannot connect: "+sce.getMessage());
+            throw new RSrvException(this,"Cannot connect: "+sce.getMessage(), sce); // StatET CHANGED
         }
         try {
             is=s.getInputStream();
             os=s.getOutputStream();
         } catch (Exception gse) {
-            throw new RSrvException(this,"Cannot get io stream: "+gse.getMessage());
+            throw new RSrvException(this,"Cannot get io stream: "+gse.getMessage(), gse); // StatET CHANGED
         }
         rt=new Rtalk(is,os);
 		if (session==null) {
@@ -111,7 +111,7 @@ public class Rconnection {
 			try {
 				n=is.read(IDs);
 			} catch (Exception sre) {
-				throw new RSrvException(this,"Error while receiving data: "+sre.getMessage());
+				throw new RSrvException(this,"Error while receiving data: "+sre.getMessage(), sre); // StatET CHANGED
 			}
 			try {
 				if (n!=32) {
@@ -123,8 +123,8 @@ public class Rconnection {
 				try {
 					rsrvVersion=Integer.parseInt(ids.substring(4,8));
 				} catch (Exception px) {}
-				// we support (knowingly) up to 102 - including long data support
-				if (rsrvVersion>102)
+				// we support (knowingly) up to 103
+				if (rsrvVersion>103)
 					throw new RSrvException(this,"Handshake failed: The server uses more recent protocol than this client.");
 				if (ids.substring(8,12).compareTo("QAP1")!=0)
 					throw new RSrvException(this,"Handshake failed: unupported transfer protocol ("+ids.substring(8,12)+"), I talk only QAP1.");
@@ -152,7 +152,7 @@ public class Rconnection {
 			try {
 				os.write(session.key,0,32);
 			} catch (Exception sre) {
-				throw new RSrvException(this,"Error while sending session key: "+sre.getMessage());
+				throw new RSrvException(this,"Error while sending session key: "+sre.getMessage(), sre); // StatET CHANGED
 			}
 			rsrvVersion = session.rsrvVersion;
 		}

@@ -6,8 +6,9 @@
 //
 //  Created by Simon Urbanek on Mon Aug 18 2003.
 //
-//  $Id: RSrvException.java,v 1.4 2006/02/10 17:57:54 urbaneks Exp $
+//  $Id: RSrvException.java 1949 2006-02-10 17:57:54Z urbaneks $
 //
+// Changes of WalWare/StatET-Project: Added cause parameter to constructors
 
 package org.rosuda.JRclient;
 
@@ -48,17 +49,21 @@ public class RSrvException extends Exception {
     }
     
     public RSrvException(Rconnection c, String msg) {
-        this(c,msg,-1);
+        this(c,msg,-1, null);
     }
 
-    public RSrvException(Rconnection c, String msg, int requestReturnCode) {
-        super(msg);
+    public RSrvException(Rconnection c, String msg, Throwable cause) {
+        this(c,msg,-1, cause);
+    }
+
+    public RSrvException(Rconnection c, String msg, int requestReturnCode, Throwable cause) {
+        super(msg, cause);
         conn=c; reqReturnCode=requestReturnCode;
 		if (c!=null) c.lastError=getMessage();
     }
-
+    
 	public RSrvException(Rconnection c, String msg, Rpacket p) {
-		this(c, msg, (p==null)?-1:p.getStat());
+		this(c, msg, (p==null)?-1:p.getStat(), null);
 	}
 	
     public int getRequestReturnCode() {

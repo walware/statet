@@ -15,7 +15,7 @@ import java.net.*;
     The current implementation supports long (0.3+/0102) data format only
     up to 32-bit and only for incoming packets.
     <p>
-    @version $Id: Rtalk.java,v 1.16 2005/09/13 22:17:58 urbaneks Exp $
+    @version $Id: Rtalk.java 1571 2005-09-13 22:17:58Z urbaneks $
 */
 public class Rtalk {
     public static final int DT_INT=1;

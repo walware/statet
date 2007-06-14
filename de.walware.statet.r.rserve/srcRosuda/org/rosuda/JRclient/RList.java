@@ -1,62 +1,77 @@
 package org.rosuda.JRclient;
 
 // JRclient library - client interface to Rserve, see http://www.rosuda.org/Rserve/
-// Copyright (C) 2004 Simon Urbanek
+// Copyright (C) 2004,2007 Simon Urbanek
 // --- for licensing information see LICENSE file in the original JRclient distribution ---
 
 import java.util.*;
 
 /** implementation of R-lists<br>
-    This is rather preliminary and may change in future since it's not really proper.
-    The point is that the parser tries to interpret lists to be of the form entry=value,
-    where entry is stored in the "head" part, and value is stored in the "body" part.
-    Then using {@link #at(String)} it is possible to fetch "body" for a specific "head".
-    The terminology used is partly from hash fields - "keys" are the elements in "head"
-    and values are in "body" (see {@link #keys}).
-    <p>
-    On the other hand, R uses lists to store complex internal structures, which are not
-    parsed according to the structure - in that case "head" and "body" have to be evaluated
-    separately according to their meaning in that context.
+    All lists (dotted-pair lists, language lists, expressions and vectors) are regarded as named generic vectors. 
+    Note: This implementation has changed radically in Rserve 0.5!
 
-    @version $Id: RList.java,v 1.5 2005/01/24 18:25:42 urbaneks Exp $
+    This class inofficially implements the Map interface. Unfortunately a conflict in the Java iterface classes Map and List doesn't allow us to implement both officially. Most prominently the Map 'remove' method had to be renamed to removeByKey.
+
+    @version $Id: RList.java 2735 2007-04-27 03:45:20Z urbanek $
 */
-public class RList extends Object {
-    /** xpressions containing head and body. 
-	The terminology is a bit misleading - head corresponds to CAR, body to CDR and finally tag is TAG. */
-    public REXP head, body, tag;
-    /** usual assumption is that both head and body are xpressions containing vectors.
-	In such case the actual content objects (Vectors) are cached for key/value access. */
-    Vector h,b;
+public class RList extends Vector implements List {
+    public Vector names;
 
     /** constructs an empty list */
-    public RList() { head=body=tag=null; }
-    
+    public RList() { super(); names=null; }
+
     /** constructs an initialized list
 	@param h head xpression
 	@param b body xpression */
-    public RList(REXP h, REXP b) { head=h; body=b; tag=null; }
-    
-    /** get head xpression (CAR)
-	@return head xpression */
-    public REXP getHead() { return head; }
-    
-    /** get body xpression (CDR)
-	@return body xpression */
-    public REXP getBody() { return body; }
+    public RList(REXP[] contents) {
+	super(contents.length);
+	int i=0;
+	while (i<contents.length)
+	    super.add(contents[i++]);
+	names=null;
+    }
 
-    /** get tag xpression
-	@return tag xpression */
-    public REXP getTag() { return tag; }
+    public RList(int initSize, boolean hasNames) {
+	super(initSize);
+	names=null;
+	if (hasNames) names=new Vector(initSize);
+    }
+    
+    public RList(Collection contents) {
+	super(contents);
+	names=null;
+    }
 
-    /** internal function that updates cached vectors
-        @return <code>true</code> if both expressions are vectors and of the same length */
-    boolean updateVec() {
-	if (head==null||body==null||
-	    head.Xt!=REXP.XT_VECTOR||body.Xt!=REXP.XT_VECTOR)
-	    return false;
-	h=(Vector)head.cont;
-	b=(Vector)body.cont;
-	return (h.size()==b.size());
+    public RList(REXP[] contents, String[] names) {
+	this(contents);
+	if (names!=null && names.length>0) {
+	    this.names=new Vector(names.length);
+	    int i = 0;
+	    while (i < names.length) this.names.add(names[i++]);
+	    while (this.names.size()<size()) this.names.add(null);
+	}
+    }
+    
+    public RList(Collection contents, String[] names) {
+	this(contents);
+	if (names!=null && names.length>0) {
+	    this.names=new Vector(names.length);
+	    int i = 0;
+	    while (i < names.length) this.names.add(names[i++]);
+	    while (this.names.size()<size()) this.names.add(null);
+	}
+    }
+
+    public RList(Collection contents, Collection names) {
+	this(contents);
+	if (names!=null && names.size()>0) {
+	    this.names=new Vector(names);
+	    while (this.names.size()<size()) this.names.add(null);
+	}
+    }
+
+    public boolean isNamed() {
+	return names!=null;
     }
 
     /** get xpression given a key
@@ -64,13 +79,10 @@ public class RList extends Object {
 	@return xpression which corresponds to the given key or
 	        <code>null</code> if list is not standartized or key not found */
     public REXP at(String v) {
-	if (!updateVec()) return null;
-	for (int i=0;i<h.size();i++) {
-	    REXP r=(REXP)h.elementAt(i);
-	    if (r!=null && r.Xt==REXP.XT_STR && ((String)r.cont).compareTo(v)==0)
-		return (REXP)b.elementAt(i);
-	}
-	return null;
+	if (names==null) return null;
+	int i = names.indexOf(v);
+	if (i < 0) return null;
+	return (REXP)elementAt(i);
     }
 
     /** get element at the specified position
@@ -78,19 +90,188 @@ public class RList extends Object {
 	@return xpression at the index or <code>null</code> if list is not standartized or
 	        if index out of bounds */
     public REXP at(int i) {
-	if (!updateVec()) return null;
-	return (i>=0 && i<b.size())?(REXP)b.elementAt(i):null;
+	return (i>=0 && i<size())?(REXP)elementAt(i):null;
+    }
+
+    public String keyAt(int i) {
+	return (names==null || i<0 || i>=names.size())?null:(String)names.get(i);
     }
 
     /** returns all keys of the list
 	@return array containing all keys or <code>null</code> if list is not standartized */
     public String[] keys() {
-	if (!updateVec()) return null;
-	String[] k=new String[h.size()];
-	for(int i=0;i<h.size();i++) {
-	    REXP r=(REXP)h.elementAt(i);
-	    k[i]=(r==null||r.Xt!=REXP.XT_STR)?null:(String)r.cont;
-	};
+	if (names==null) return null;
+	int i = 0;
+	String k[] = new String[names.size()];
+	while (i < k.length) { k[i] = keyAt(i); i++; };
 	return k;
+    }
+
+    // --- overrides that sync names
+
+    public void add(int index, Object element) {
+	super.add(index, element);
+	if (names==null) return;
+	names.add(index, null);
+    }
+
+    public boolean addAll(Collection c) {
+	boolean ch = super.addAll(c);
+	if (names==null) return ch;
+	int l = size();
+	while (names.size()<l) names.add(null);
+	return ch;
+    }
+
+    public boolean addAll(int index, Collection c) {
+	boolean ch = super.addAll(index, c);
+	if (names==null) return ch;
+	int l = c.size();
+	while (l>0) names.add(index, null);
+	return ch;
+    }
+
+    public void clear() {
+	super.clear();
+	names=null;
+    }
+
+    public Object clone() {
+	return new RList(this, names);	
+    }
+
+    public Object remove(int index) {
+	Object o = super.remove(index);
+	if (names != null) {
+	    names.remove(index);
+	    if (size()==0) names=null;
+	}
+	return o;
+    }
+
+    public boolean remove(Object elem) {
+	int i = indexOf(elem);
+	if (i<0) return false;
+	remove(i);
+	if (size()==0) names=null;
+	return true;
+    }
+
+    public boolean removeAll(Collection c) {
+	if (names==null) return super.removeAll(c);
+	boolean changed=false;
+	Iterator it = c.iterator();
+	while (it.hasNext())
+	    changed|=remove(it.next());
+	return changed;
+    }
+
+    public boolean retainAll(Collection c) {
+	if (names==null) return super.retainAll(c);
+	boolean rm[] = new boolean[size()];
+	boolean changed=false;
+	int i = 0;
+	while (i<rm.length) {
+	    changed|=rm[i]=!c.contains(get(i));
+	    i++;
+	}
+	while (i>0) {
+	    i--;
+	    if (rm[i]) remove(i);
+	}
+	return changed;
+    }
+
+    // --- old API mapping
+    public void removeAllElements() { clear(); }
+    public void insertElementAt(Object obj, int index) { add(index, obj); }
+    public void addElement(Object obj) { add(obj); }
+    public void removeElementAt(int index) { remove(index); }
+    public boolean removeElement(Object obj) { return remove(obj); }
+
+    // --- Map interface
+
+    public boolean containsKey(Object key) {
+	return (names==null)?false:names.contains(key);
+    }
+
+    public boolean containsValue(Object value) {
+	return contains(value);
+    }
+
+    /** NOTE: THIS IS UNIMPLEMENTED and always returns <code>null</code>! Due to the fact that R lists are not proper maps we canot maintain a set-view of the list */
+    public Set entrySet() {
+	return null;
+    }
+
+    public Object get(Object key) {
+	return at((String)key);
+    }
+
+    /** Note: sinde RList is not really a Map, the returned set is only an approximation as it cannot reference duplicate or null names that may exist in the list */
+    public Set keySet() {
+	if (names==null) return null;
+	return new HashSet(names);
+    }
+
+    public Object put(Object key, Object value) {
+	if (key==null) {
+	    add(value);
+	    return null;
+	}
+	if (names != null) {
+	    int p = names.indexOf(key);
+	    if (p >= 0)
+		return super.set(p, value);
+	}
+	int i = size();
+	add(value);
+	if (names==null)
+	    names = new Vector(i+1);
+	while (names.size() < i) names.add(null);
+	names.add(key);
+	return null;
+    }
+
+    public void putAll(Map t) {
+	if (t==null) return;
+	if (t instanceof RList) { // we need some more sophistication for RLists as they may have null-names which we append
+	    RList l = (RList) t;
+	    if (names==null) {
+		addAll(l);
+		return;
+	    }
+	    int n = l.size();
+	    int i = 0;
+	    while (i < n) {
+		String key = l.keyAt(i);
+		if (key==null)
+		    add(l.at(i));
+		else
+		    put(key, l.at(i));
+		i++;
+	    }
+	} else {
+	    Set ks = t.keySet();
+	    Iterator i = ks.iterator();
+	    while (i.hasNext()) {
+		Object key = i.next();
+		put(key, t.get(key));
+	    }
+	}
+    }
+
+    public Object removeByKey(Object key) {
+	if (names==null) return null;
+	int i = names.indexOf(key);
+	if (i<0) return null;
+	Object o = elementAt(i);
+	removeElementAt(i);
+	names.removeElementAt(i);
+	return o;
+    }
+
+    public Collection values() {
+	return this;
     }
 }
