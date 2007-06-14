@@ -16,8 +16,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class StatetWizardsMessages extends NLS {
 	
-	private static final String BUNDLE_NAME = StatetWizardsMessages.class.getName();
-
 
 	public static String NewElementWizard_error_DuringOperation_message;
 
@@ -30,10 +28,8 @@ public class StatetWizardsMessages extends NLS {
 	public static String ResourceGroup_error_ResourceExists;
 
 
-
-
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, StatetWizardsMessages.class);
+		NLS.initializeMessages(StatetWizardsMessages.class.getName(), StatetWizardsMessages.class);
 	}
-	
+
 }

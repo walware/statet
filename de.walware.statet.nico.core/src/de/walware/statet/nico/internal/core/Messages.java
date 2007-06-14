@@ -34,10 +34,8 @@ public class Messages extends NLS {
 	public static String Progress_Blocked_label;
 
 	
-	private static final String BUNDLE_NAME = Messages.class.getName();
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
-	private Messages() { }
 	
 }
