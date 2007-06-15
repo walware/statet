@@ -36,7 +36,6 @@ public class ConnectionConfig extends AbstractSettingsModelObject {
 
 	
 	public ConnectionConfig() {
-		super(false);
 		fServerAddress = DEFAULT_SERVERADDRESS;
 		fServerPort = DEFAULT_SERVERPORT;
 	}

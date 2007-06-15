@@ -30,9 +30,7 @@ public abstract class AbstractSettingsModelObject {
 	private boolean fIsDirty;
 	
 	
-	protected AbstractSettingsModelObject(boolean withLock) {
-		
-		fLock = new ReentrantReadWriteLock(true);
+	protected AbstractSettingsModelObject() {
 		fBeanSupport = new PropertyChangeSupport(this);
 		fIsDirty = false;
 		fBeanSupport.addPropertyChangeListener(new PropertyChangeListener() {
@@ -42,6 +40,9 @@ public abstract class AbstractSettingsModelObject {
 		});
 	}
 	
+	protected void installLock() {
+		fLock = new ReentrantReadWriteLock(true);
+	}
 	public Lock getReadLock() {
 		return fLock.readLock();
 	}
@@ -53,7 +54,6 @@ public abstract class AbstractSettingsModelObject {
 	 * @see PropertyChangeSupport#addPropertyChangeListener(PropertyChangeListener)
 	 */
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		
 		fBeanSupport.addPropertyChangeListener(listener);
 	}
 
@@ -62,7 +62,6 @@ public abstract class AbstractSettingsModelObject {
 	 */
 	public void addPropertyChangeListener(String propertyName,
 			PropertyChangeListener listener) {
-		
 		fBeanSupport.addPropertyChangeListener(propertyName, listener);
 	}
 
@@ -70,7 +69,6 @@ public abstract class AbstractSettingsModelObject {
 	 * @see PropertyChangeSupport#removePropertyChangeListener(PropertyChangeListener)
 	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		
 		fBeanSupport.removePropertyChangeListener(listener);
 	}
 
@@ -79,7 +77,6 @@ public abstract class AbstractSettingsModelObject {
 	 */
 	public void removePropertyChangeListener(String propertyName,
 			PropertyChangeListener listener) {
-		
 		fBeanSupport.removePropertyChangeListener(propertyName, listener);
 	}
 
@@ -87,18 +84,15 @@ public abstract class AbstractSettingsModelObject {
 	 * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
 	 */
 	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-		
 		fBeanSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 	
 	
 	public boolean isDirty() {
-		
 		return fIsDirty;
 	}
 	
 	public void resetDirty() {
-		
 		fIsDirty = false;
 	}
 	

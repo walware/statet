@@ -72,8 +72,10 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	 * Creates an instance with default settings.
 	 */
 	public RCodeStyleSettings(boolean editMode) {
-		super(!editMode);
 		fEditMode = editMode;
+		if (!fEditMode) {
+			installLock();
+		}
 		loadDefaults();
 		resetDirty();
 	}
@@ -92,7 +94,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public synchronized void loadDefaults() {
+	public void loadDefaults() {
 		setTabSize(4);
 		setIndentDefaultType(IndentationType.TAB);
 		setIndentSpacesCount(4);
@@ -102,7 +104,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public synchronized void load(IPreferenceAccess prefs) {
+	public void load(IPreferenceAccess prefs) {
 		setTabSize(prefs.getPreferenceValue(PREF_TAB_SIZE));
 		setIndentDefaultType(prefs.getPreferenceValue(PREF_INDENT_DEFAULT_TYPE));
 		setIndentSpacesCount(prefs.getPreferenceValue(PREF_INDENT_SPACES_COUNT));
@@ -132,7 +134,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 
 	@Override
-	public synchronized Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
+	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
 		map.put(PREF_TAB_SIZE, getTabSize());
 		map.put(PREF_INDENT_DEFAULT_TYPE, getIndentDefaultType());
 		map.put(PREF_INDENT_SPACES_COUNT, getIndentSpacesCount());

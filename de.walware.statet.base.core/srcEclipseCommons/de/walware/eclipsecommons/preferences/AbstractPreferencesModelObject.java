@@ -24,8 +24,7 @@ import de.walware.eclipsecommons.AbstractSettingsModelObject;
 public abstract class AbstractPreferencesModelObject extends AbstractSettingsModelObject {
 	
 	
-	protected AbstractPreferencesModelObject(boolean withLock) {
-		super(withLock);
+	protected AbstractPreferencesModelObject() {
 	}
 
 	/**
