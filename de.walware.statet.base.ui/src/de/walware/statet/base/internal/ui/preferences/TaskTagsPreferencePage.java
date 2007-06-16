@@ -28,37 +28,31 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 	
 	
 	public TaskTagsPreferencePage() {
-		
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 
 		// only used when page is shown programatically
 		setTitle(Messages.TaskTags_title); 
-
 		setDescription(Messages.TaskTags_description); 
 	}
 
 	@Override
 	protected String getPreferencePageID() {
-		
 		return PREF_ID;
 	}
 
 	@Override
 	protected String getPropertyPageID() {
-		
 		return PROP_ID;
 	}
 	
 	@Override
 	protected TaskTagsConfigurationBlock createConfigurationBlock() 
 			throws CoreException {
-		
 		return new TaskTagsConfigurationBlock(getProject(), createStatusChangedListener());
 	}
 	
 	@Override
 	protected boolean hasProjectSpecificSettings(IProject project) {
-		
 		return fBlock.hasProjectSpecificOptions(project);
 	}
 }

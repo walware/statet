@@ -298,6 +298,12 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		validateSettings();
 	}
 	
+	@Override
+	public void performDefaults() {
+		super.performDefaults();
+		validateSettings();
+	}
+	
 	private IStatus validateSettings() {
 		StatusInfo listStatus = new StatusInfo();
 		if (fTasksGroup.getListModel().size() == 0) {
