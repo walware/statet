@@ -171,18 +171,13 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * 
 	 * @return the template context type registry
 	 */
-	public ContextTypeRegistry getRCodeGenerationTemplateContextRegistry() {
-		if (fRCodeTemplatesContextTypeRegistry != null) {
-			return fRCodeTemplatesContextTypeRegistry;
+	public synchronized ContextTypeRegistry getRCodeGenerationTemplateContextRegistry() {
+		if (fRCodeTemplatesContextTypeRegistry == null) {
+			fRCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
+			
+			RCodeTemplatesContextType.registerContextTypes(fRCodeTemplatesContextTypeRegistry);
 		}
-		synchronized (this) {
-			if (fRCodeTemplatesContextTypeRegistry == null) {
-				fRCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
-				
-				RCodeTemplatesContextType.registerContextTypes(fRCodeTemplatesContextTypeRegistry);
-			}
-			return fRCodeTemplatesContextTypeRegistry;
-		}
+		return fRCodeTemplatesContextTypeRegistry;
 	}
 
 	/**
@@ -190,22 +185,17 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * 
 	 * @return the template store
 	 */
-	public TemplateStore getRCodeGenerationTemplateStore() {
-		if (fRCodeTemplatesStore != null) {
-			return fRCodeTemplatesStore;
-		}
-		synchronized (this) {
-			if (fRCodeTemplatesStore == null) {
-				fRCodeTemplatesStore = new ContributionTemplateStore(
-						getRCodeGenerationTemplateContextRegistry(), getPreferenceStore(), R_CODE_TEMPLATES_KEY);
-				try {
-					fRCodeTemplatesStore.load();
-				} catch (IOException e) {
-					RUIPlugin.logError(IO_ERROR, "Error occured when loading 'R code generation' template store.", e); //$NON-NLS-1$
-				}
+	public synchronized TemplateStore getRCodeGenerationTemplateStore() {
+		if (fRCodeTemplatesStore == null) {
+			fRCodeTemplatesStore = new ContributionTemplateStore(
+					getRCodeGenerationTemplateContextRegistry(), getPreferenceStore(), R_CODE_TEMPLATES_KEY);
+			try {
+				fRCodeTemplatesStore.load();
+			} catch (IOException e) {
+				RUIPlugin.logError(IO_ERROR, "Error occured when loading 'R code generation' template store.", e); //$NON-NLS-1$
 			}
-			return fRCodeTemplatesStore;
 		}
+		return fRCodeTemplatesStore;
 	}
 	
 	/**
@@ -214,18 +204,13 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * 
 	 * @return the template context type registry
 	 */
-	public ContextTypeRegistry getRdCodeGenerationTemplateContextRegistry() {
-		if (fRdCodeTemplatesContextTypeRegistry != null) {
-			return fRdCodeTemplatesContextTypeRegistry;
+	public synchronized ContextTypeRegistry getRdCodeGenerationTemplateContextRegistry() {
+		if (fRdCodeTemplatesContextTypeRegistry == null) {
+			fRdCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
+
+			RdCodeTemplatesContextType.registerContextTypes(fRdCodeTemplatesContextTypeRegistry);
 		}
-		synchronized (this) {
-			if (fRdCodeTemplatesContextTypeRegistry == null) {
-				fRdCodeTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
-	
-				RdCodeTemplatesContextType.registerContextTypes(fRdCodeTemplatesContextTypeRegistry);
-			}
-			return fRdCodeTemplatesContextTypeRegistry;
-		}
+		return fRdCodeTemplatesContextTypeRegistry;
 	}
 
 	/**
@@ -233,22 +218,17 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * 
 	 * @return the template store
 	 */
-	public TemplateStore getRdCodeGenerationTemplateStore() {
-		if (fRdCodeTemplatesStore != null) {
-			return fRdCodeTemplatesStore;
-		}
-		synchronized (this) {
-			if (fRdCodeTemplatesStore == null) {
-				fRdCodeTemplatesStore = new ContributionTemplateStore(
-						getRdCodeGenerationTemplateContextRegistry(), getPreferenceStore(), RD_CODE_TEMPLATES_KEY);
-				try {
-					fRdCodeTemplatesStore.load();
-				} catch (IOException e) {
-					RUIPlugin.logError(IO_ERROR, "Error occured when loading 'Rd code generation' template store.", e); //$NON-NLS-1$
-				}
+	public synchronized TemplateStore getRdCodeGenerationTemplateStore() {
+		if (fRdCodeTemplatesStore == null) {
+			fRdCodeTemplatesStore = new ContributionTemplateStore(
+					getRdCodeGenerationTemplateContextRegistry(), getPreferenceStore(), RD_CODE_TEMPLATES_KEY);
+			try {
+				fRdCodeTemplatesStore.load();
+			} catch (IOException e) {
+				RUIPlugin.logError(IO_ERROR, "Error occured when loading 'Rd code generation' template store.", e); //$NON-NLS-1$
 			}
-			return fRdCodeTemplatesStore;
 		}
+		return fRdCodeTemplatesStore;
 	}
 
 
@@ -258,18 +238,13 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * 
 	 * @return the template context type registry
 	 */
-	public ContextTypeRegistry getREditorTemplateContextRegistry() {
-		if (fREditorContextTypeRegistry != null) {
-			return fREditorContextTypeRegistry;
+	public synchronized ContextTypeRegistry getREditorTemplateContextRegistry() {
+		if (fREditorContextTypeRegistry == null) {
+			fREditorContextTypeRegistry = new ContributionContextTypeRegistry();
+			
+			REditorTemplatesContextType.registerContextTypes(fREditorContextTypeRegistry);
 		}
-		synchronized (this) {
-			if (fREditorContextTypeRegistry == null) {
-				fREditorContextTypeRegistry = new ContributionContextTypeRegistry();
-				
-				REditorTemplatesContextType.registerContextTypes(fREditorContextTypeRegistry);
-			}
-			return fREditorContextTypeRegistry;
-		}
+		return fREditorContextTypeRegistry;
 	}
 
 	/**
@@ -277,22 +252,17 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * 
 	 * @return the template store
 	 */
-	public TemplateStore getREditorTemplateStore() {
-		if (fREditorTemplatesStore != null) {
-			return fREditorTemplatesStore;
-		}
-		synchronized (this) {
-			if (fREditorTemplatesStore == null) {
-				fREditorTemplatesStore = new ContributionTemplateStore(
-						getREditorTemplateContextRegistry(), getPreferenceStore(), R_EDITOR_TEMPLATES_KEY);
-				try {
-					fREditorTemplatesStore.load();
-				} catch (IOException e) {
-					RUIPlugin.logError(IO_ERROR, "Error occured when loading 'R Editor' template store.", e); //$NON-NLS-1$
-				}
+	public synchronized TemplateStore getREditorTemplateStore() {
+		if (fREditorTemplatesStore == null) {
+			fREditorTemplatesStore = new ContributionTemplateStore(
+					getREditorTemplateContextRegistry(), getPreferenceStore(), R_EDITOR_TEMPLATES_KEY);
+			try {
+				fREditorTemplatesStore.load();
+			} catch (IOException e) {
+				RUIPlugin.logError(IO_ERROR, "Error occured when loading 'R Editor' template store.", e); //$NON-NLS-1$
 			}
-			return fREditorTemplatesStore;
 		}
+		return fREditorTemplatesStore;
 	}
 	
 }
