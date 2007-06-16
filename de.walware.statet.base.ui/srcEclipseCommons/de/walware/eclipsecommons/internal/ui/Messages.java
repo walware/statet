@@ -19,9 +19,6 @@ public class Messages extends NLS {
 	public static String CopyToClipboard_error_title;
 	public static String CopyToClipboard_error_message;
 
-	public static String StatusMessage_Warning_prefix;
-	public static String StatusMessage_Info_prefix;
-
 	public static String BrowseFilesystem_label;
 	public static String BrowseWorkspace_label;
 

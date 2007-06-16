@@ -17,6 +17,7 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
+import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -25,8 +26,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.osgi.util.NLS;
-
-import de.walware.eclipsecommons.internal.ui.Messages;
 
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -38,9 +37,35 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  *  - {@link #addBindings(DataBindingContext, Realm)} (add binding to the context)
  *  - {@link #doInitialize(ILaunchConfiguration)} (load values from config to the model)
  *  - {@link #doSave(ILaunchConfigurationWorkingCopy)} (save values from model to config)
+ *  
+ * Validation status with severity WARNING are handled like errors, but can be saved.
  */
 public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfigurationTab {
 	
+	
+	protected class SavableErrorValidator implements IValidator {
+		
+		private IValidator fWrappedValidator;
+		
+		public SavableErrorValidator(IValidator validator) {
+			assert (validator != null);
+			fWrappedValidator = validator;
+		}
+		
+		public IStatus validate(Object value) {
+			IStatus status = fWrappedValidator.validate(value);
+			if (status != null) {
+				switch (status.getSeverity()) {
+				case IStatus.ERROR:
+					return ValidationStatus.warning(status.getMessage());
+				case IStatus.WARNING:
+					return ValidationStatus.info(status.getMessage());
+				}
+			}
+			return status;
+		}
+	}
+
 	
 	private DataBindingContext fDbc;
 	private AggregateValidationStatus fAggregateStatus;
@@ -89,10 +114,10 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 				errorMessage = fCurrentStatus.getMessage();
 				break;
 			case IStatus.WARNING:
-				message = Messages.StatusMessage_Warning_prefix + fCurrentStatus.getMessage();
+				errorMessage = fCurrentStatus.getMessage();
 				break;
 			case IStatus.INFO:
-				message = Messages.StatusMessage_Info_prefix + fCurrentStatus.getMessage();
+				message = fCurrentStatus.getMessage();
 				break;
 			default:
 				break;
@@ -150,7 +175,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 	}
 	
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		if (!isValid(configuration)) {
+		if (!canSave()) {
 			configuration.setAttribute(getValidationErrorAttr(), true); // To enable the revert button
 			return;
 		}
@@ -166,11 +191,11 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 	
 	@Override
 	public boolean isValid(ILaunchConfiguration launchConfig) {
-		return (fCurrentStatus.getSeverity() != IStatus.ERROR);
+		return (fCurrentStatus.getSeverity() < IStatus.WARNING);
 	}
 	
 	@Override
 	public boolean canSave() {
-		return (fCurrentStatus.getSeverity() != IStatus.ERROR);
+		return (fCurrentStatus.getSeverity() < IStatus.ERROR);
 	}
 }
