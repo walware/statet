@@ -54,8 +54,8 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.internal.ui.Messages;
-import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.eclipsecommons.ui.util.MessageUtil;
 
 
 /**
@@ -147,7 +147,7 @@ public class ChooseResourceComposite extends Composite {
 		if (fLabel != null) {
 			fLabel.setText(fResourceLabel + ":"); //$NON-NLS-1$
 		}
-		fValidator.setResourceLabel(SharedMessages.removeMnemonics(label));
+		fValidator.setResourceLabel(MessageUtil.removeMnemonics(label));
 	}
 	
 	protected String getTaskLabel() {
@@ -290,7 +290,7 @@ public class ChooseResourceComposite extends Composite {
 		for (Button button : fButtons.keySet()) {
 			String label = fButtons.get(button);
 			if (!hasFocus) {
-				label = SharedMessages.removeMnemonics(label);
+				label = MessageUtil.removeMnemonics(label);
 			}
 			button.setText(label);
 		}
@@ -322,7 +322,7 @@ public class ChooseResourceComposite extends Composite {
 			}
 			wsPath = ((Path) results[0]).toString();
 			resource = ResourcesPlugin.getWorkspace().getRoot().findMember(wsPath);
-			appendPath = "";
+			appendPath = ""; //$NON-NLS-1$
 		}
 		else {
 			ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), getTaskLabel());
@@ -345,7 +345,7 @@ public class ChooseResourceComposite extends Composite {
 		}
 		
 		fValidator.setExplicit(resource);
-		setText(newVariableExpression("workspace_loc", wsPath) + appendPath);
+		setText(newVariableExpression("workspace_loc", wsPath) + appendPath); //$NON-NLS-1$
 	}
 
 	protected void handleBrowseFilesystemButton() {
@@ -360,13 +360,13 @@ public class ChooseResourceComposite extends Composite {
 		}
 		if (fForDirectory) {
 			DirectoryDialog dialog = new DirectoryDialog(getShell());
-			dialog.setText(SharedMessages.removeMnemonics(getTaskLabel()));
+			dialog.setText(MessageUtil.removeMnemonics(getTaskLabel()));
 			dialog.setFilterPath(path);
 			path = dialog.open();
 		}
 		else {
 			FileDialog dialog = new FileDialog(getShell(), (fDoOpen) ? SWT.OPEN: SWT.SAVE);
-			dialog.setText(SharedMessages.removeMnemonics(getTaskLabel()));
+			dialog.setText(MessageUtil.removeMnemonics(getTaskLabel()));
 			dialog.setFilterPath(path);
 			path = dialog.open();
 		}

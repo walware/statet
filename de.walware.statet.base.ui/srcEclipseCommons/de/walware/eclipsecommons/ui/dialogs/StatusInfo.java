@@ -18,17 +18,17 @@ import org.eclipse.core.runtime.Status;
 public class StatusInfo extends Status {
 
 	public StatusInfo() {
-		this(IStatus.OK, "");
+		this(IStatus.OK, ""); //$NON-NLS-1$
 	}
 	
 	public StatusInfo(int severity, String message) {
-		super(severity, "no supported", IStatus.OK, message, null);
+		super(severity, "no supported", IStatus.OK, message, null); //$NON-NLS-1$
 	}
 
 	public void setOK() {
 		
 		setSeverity(IStatus.OK);
-		setMessage("");
+		setMessage(""); //$NON-NLS-1$
 	}
 	
 	public void setWarning(String message) {

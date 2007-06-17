@@ -56,7 +56,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		implements SettingsChangeNotifier.ChangeListener {
 
 	
-	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment";
+	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment"; //$NON-NLS-1$
 
 
 /*- Static utility methods --------------------------------------------------*/
@@ -139,7 +139,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		private Map<String, String[]> fPrefixesMap;
 
 		ToggleCommentAction() {
-			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this);
+			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this); //$NON-NLS-1$
 			setActionDefinitionId(IStatetUICommandIds.TOGGLE_COMMENT);		
 			
 			configure();

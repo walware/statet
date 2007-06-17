@@ -121,7 +121,7 @@ public abstract class Preference<T> {
 /*-- Implementation for common types -----------------------------------------*/	
 	
 	private static final char LIST_SEPARATOR_CHAR = ',';
-	private static final Pattern LIST_SEPARATOR_PATTERN = Pattern.compile(","); 
+	private static final Pattern LIST_SEPARATOR_PATTERN = Pattern.compile(",");  //$NON-NLS-1$
 
 	
 	/**
@@ -340,7 +340,7 @@ public abstract class Preference<T> {
 		public String usage2Store(EnumSet<E> set) {
 			
 			if (set.isEmpty()) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 			
 			StringBuilder sb = new StringBuilder();
@@ -382,7 +382,7 @@ public abstract class Preference<T> {
 		@Override
 		public String usage2Store(List<E> list) {
 			if (list.isEmpty()) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 			StringBuilder sb = new StringBuilder();
 			for (E e : list) {
@@ -417,7 +417,7 @@ public abstract class Preference<T> {
 		@Override
 		public String usage2Store(String[] array) {
 			if (array.length == 0) {
-				return "";
+				return ""; //$NON-NLS-1$
 			}
 			StringBuilder sb = new StringBuilder();
 			for (String s : array) {

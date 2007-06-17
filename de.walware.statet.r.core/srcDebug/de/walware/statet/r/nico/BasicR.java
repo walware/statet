@@ -27,7 +27,7 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace;
  */
 public final class BasicR {
 
-	public static final String FEATURESET_ID = "de.walware.statet.r.basic";
+	public static final String FEATURESET_ID = "de.walware.statet.r.basic"; //$NON-NLS-1$
 	
 	
 	/**

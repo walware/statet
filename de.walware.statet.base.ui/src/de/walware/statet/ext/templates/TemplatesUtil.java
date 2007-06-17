@@ -49,7 +49,7 @@ public class TemplatesUtil {
 			return searchIndentation(lineContent);
 		} 
 		catch (BadLocationException e) {
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 	}	
 

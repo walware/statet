@@ -12,8 +12,6 @@
 package de.walware.eclipsecommons.ui;
 
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -57,16 +55,6 @@ public class SharedMessages extends NLS {
 	
 	public static String Note_label;
 	
-	
-	private static Pattern MNEMONICS_PATTERN = Pattern.compile("(\\&)[^\\&]");
-	public static String removeMnemonics(String label) {
-		Matcher match = MNEMONICS_PATTERN.matcher(label);
-		if (match.find()) {
-			return label.substring(0, match.start(0)) + label.substring(match.start(0)+1, label.length());
-		}
-		return label;
-	}
-
 	
 	private static final String BUNDLE_NAME = SharedMessages.class.getName();
 	static {

@@ -239,7 +239,7 @@ public class ResourceSelectionDialog extends SelectionStatusDialog {
     
     private void setResource(IResource resource) {
     	
-    	String path = "";
+    	String path = ""; //$NON-NLS-1$
     	if (resource != null) {
     		path = resource.getFullPath().makeRelative().toString();
     	}

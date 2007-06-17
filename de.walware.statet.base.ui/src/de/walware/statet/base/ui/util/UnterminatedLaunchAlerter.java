@@ -94,7 +94,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 		StringBuilder names = new StringBuilder(stillRunningTypes.size()*20);
 		names.append('\n');
 		for (ILaunchConfigurationType type : stillRunningTypes) {
-			names.append("- ");
+			names.append("- "); //$NON-NLS-1$
 			names.append(type.getName());
 			names.append('\n');
 		}

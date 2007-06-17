@@ -34,12 +34,10 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcut {
 	
 	public void launch(ISelection selection, String mode) {
-		
 		// not supported
 	}
 	
 	public void launch(IEditorPart editor, String mode) {
-		
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
@@ -68,7 +66,6 @@ public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcu
 	
 	
 	private int getNextLineOffset(IDocument doc, int endLine) {
-		
 		try {
 			if (endLine >= 0 && endLine+1 < doc.getNumberOfLines()) {
 				return doc.getLineOffset(endLine+1);
@@ -77,7 +74,7 @@ public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcu
 				return -1;
 			}
 		} catch (BadLocationException e) {
-			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error while find next line.", e);
+			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error while find next line.", e); //$NON-NLS-1$
 			return -1;
 		}
 	}

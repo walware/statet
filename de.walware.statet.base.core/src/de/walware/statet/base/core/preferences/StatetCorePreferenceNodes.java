@@ -27,7 +27,7 @@ public class StatetCorePreferenceNodes {
 	
 	public static final String CORE_QUALIFIER = StatetCore.PLUGIN_ID;
 	
-	public static final String CAT_MANAGMENT_QUALIFIER = CORE_QUALIFIER + "/managment";
+	public static final String CAT_MANAGMENT_QUALIFIER = CORE_QUALIFIER + "/managment"; //$NON-NLS-1$
 	
 	
 	/**

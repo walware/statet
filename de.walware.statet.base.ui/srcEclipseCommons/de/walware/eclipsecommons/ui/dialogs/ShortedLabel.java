@@ -38,7 +38,7 @@ public class ShortedLabel {
 	private String fText;
 	private String fCheckedText;
 	private Label fLabel;
-	private String fLineBreakReplacement = " ";
+	private String fLineBreakReplacement = " "; //$NON-NLS-1$
 	
 	
 	public ShortedLabel(Composite parent, int style) {
@@ -93,7 +93,7 @@ public class ShortedLabel {
 	
 	private static class Shorter {
 		
-		private static final String ELLIPSIS = " ... ";
+		private static final String ELLIPSIS = " ... "; //$NON-NLS-1$
 		private static final int DRAW_FLAGS = SWT.DRAW_TAB;
 
 		Control fControl;

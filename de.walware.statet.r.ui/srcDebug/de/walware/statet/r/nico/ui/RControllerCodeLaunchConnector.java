@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,10 +28,12 @@ import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 
+/**
+ * Connector for NICO consoles.
+ */
 public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
 	public boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException {
-		
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(page);
 		ToolProcess process = info.getProcess();
@@ -52,7 +54,6 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	}
 	
 	public void gotoConsole() throws CoreException {
-		
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(page);
 		NIConsole console = info.getConsole();
@@ -64,7 +65,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 			if (part != null) {
 				IEditorAdapter adapter = (IEditorAdapter) part.getAdapter(IEditorAdapter.class);
 				if (adapter != null) {
-					adapter.setStatusLineErrorMessage("No Console found"); // Todo External
+					adapter.setStatusLineErrorMessage("No Console found");
 				}
 			}
 			Display.getCurrent().beep();

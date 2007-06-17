@@ -20,7 +20,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public class RCore {
 
 	
-	public static final String PLUGIN_ID = "de.walware.statet.r.core";
+	public static final String PLUGIN_ID = "de.walware.statet.r.core"; //$NON-NLS-1$
 
 		
 	public static IRCoreAccess getWorkbenchAccess() {

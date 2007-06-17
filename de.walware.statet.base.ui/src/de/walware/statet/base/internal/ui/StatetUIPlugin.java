@@ -33,7 +33,7 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	 * Plugin-ID
 	 * Value: @value
 	 */
-	public static final String PLUGIN_ID = "de.walware.statet.base.ui";
+	public static final String PLUGIN_ID = "de.walware.statet.base.ui"; //$NON-NLS-1$
 	
 	/** The shared instance. */
 	private static StatetUIPlugin gPlugin;

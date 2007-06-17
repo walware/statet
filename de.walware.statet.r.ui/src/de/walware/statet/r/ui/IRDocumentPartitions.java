@@ -35,7 +35,7 @@ public interface IRDocumentPartitions {
 	 * The name of a infix operator partition in R documents.
 	 * Value: {@value}
 	 */
-	String R_INFIX_OPERATOR = "__r_op_infix";
+	String R_INFIX_OPERATOR = "__r_op_infix"; //$NON-NLS-1$
 
 	/**
 	 * The name of a string partition in R documents.

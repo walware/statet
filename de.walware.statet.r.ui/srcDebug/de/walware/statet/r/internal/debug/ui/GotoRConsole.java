@@ -23,15 +23,12 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 public class GotoRConsole implements IHandler {
 
 	public void addHandlerListener(IHandlerListener handlerListener) {
-
 	}
 
 	public void dispose() {
-
 	}
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
 		try {
 			RCodeLaunchRegistry.gotoRConsole();
 		}
@@ -42,17 +39,14 @@ public class GotoRConsole implements IHandler {
 	}
 
 	public boolean isEnabled() {
-		
 		return true;
 	}
 
 	public boolean isHandled() {
-
 		return true;
 	}
 
 	public void removeHandlerListener(IHandlerListener handlerListener) {
-
 	}
 
 }

@@ -29,7 +29,6 @@ public class LaunchShortcutUtil {
 	
 	
 	public static String[] listLines(IDocument doc, ITextSelection selection) {
-		
 		int line = selection.getStartLine();
 		int endLine = selection.getEndLine();
 		if (line < 0 || endLine < 0) {
@@ -61,13 +60,12 @@ public class LaunchShortcutUtil {
 			return lines;
 		}
 		catch (BadLocationException e) {
-			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error", e);
+			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error collecting selected text to submit.", e); //$NON-NLS-1$
 			return null;
 		}
 	}
 
 	private static int getLineLength(IDocument doc, int line) throws BadLocationException {
-		
 		int lineLength = doc.getLineLength(line);
 		String lineDelimiter = doc.getLineDelimiter(line);
 		if (lineDelimiter != null)
@@ -77,7 +75,6 @@ public class LaunchShortcutUtil {
 	}
 
 	private static int getEndLineLength(IDocument doc, ITextSelection selection) throws BadLocationException {
-		
 		int endLine = selection.getEndLine();
 		return Math.min(
 				getLineLength(doc, endLine),
@@ -86,7 +83,6 @@ public class LaunchShortcutUtil {
 
 
 	public static void handleRLaunchException(Exception e, String defaultMessage) {
-		
 		CoreException core;
 		if (e instanceof CoreException)
 			core = (CoreException) e;
@@ -99,6 +95,5 @@ public class LaunchShortcutUtil {
 					e));
 		ExceptionHandler.handle(core, RLaunchingMessages.RLaunch_error_description);
 	}
-	
 	
 }

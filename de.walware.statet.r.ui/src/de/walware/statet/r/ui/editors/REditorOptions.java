@@ -22,7 +22,7 @@ import de.walware.statet.r.ui.RUI;
 public class REditorOptions {
 	// Default values see RUIPreferenceInitializer
 
-	public static final String CONTEXT_ID = "r.editor/options";
+	public static final String CONTEXT_ID = "r.editor/options"; //$NON-NLS-1$
 	
 	
 	private static final String NODE = RUI.PLUGIN_ID + "/editor.r/options"; //$NON-NLS-1$
