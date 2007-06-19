@@ -67,6 +67,8 @@ class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	public void configureServices(IHandlerService commands, IContextService keys) {
 		super.configureServices(commands, keys);
 		
+		keys.activateContext("de.walware.statet.r.contexts.REditorScope");
+		
 		IAction action;
 		action = new InsertAssignmentAction((IEditorAdapter) getConsolePage().getAdapter(IEditorAdapter.class));
 		commands.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));

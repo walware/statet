@@ -37,6 +37,7 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.connector.RConsoleConnector;
 import de.walware.statet.r.ui.RUI;
@@ -47,13 +48,10 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	
 	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
 	
-	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
-	private static Pattern fgBackslashPattern = Pattern.compile("\\\\"); //$NON-NLS-1$
-	private static String fgBackslashReplacement = "\\\\\\\\"; //$NON-NLS-1$
-	
 	private static final IStatus STATUS_PROMPTER = new Status(IStatus.INFO, IDebugUIConstants.PLUGIN_ID, 200, "", null); //$NON-NLS-1$
 	private static final IStatus STATUS_SAVE = new Status(IStatus.INFO, DebugPlugin.getUniqueIdentifier(), 222, "", null); //$NON-NLS-1$
 	
+	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
 	
 	public static void initializeDefaultValues(IScopeContext context) {
 		
@@ -111,7 +109,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
-		String fileString = fgBackslashPattern.matcher(filePath.makeAbsolute().toOSString()).replaceAll(fgBackslashReplacement);
+		String fileString = RUtil.escapeCompletly(filePath.makeAbsolute().toOSString());
 		String cmd = fgFileNamePattern.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
 		connector.submit(new String[] { cmd }, gotoConsole);
 	}
@@ -143,7 +141,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 			fileString = filePath.toString();
 		}
 		
-		fileString = fgBackslashPattern.matcher(fileString).replaceAll(fgBackslashReplacement);
+		fileString = RUtil.escapeCompletly(fileString);
 		String cmd = fgFileNamePattern.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
 		connector.submit(new String[] { cmd }, gotoConsole);
 	}

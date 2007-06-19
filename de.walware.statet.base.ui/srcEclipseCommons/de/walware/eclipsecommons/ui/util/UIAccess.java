@@ -13,6 +13,7 @@ package de.walware.eclipsecommons.ui.util;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
@@ -106,6 +107,27 @@ public class UIAccess {
 		return colorRef.get();
 	}
 
+	
+	public static interface CheckedRunnable {
+		public void run() throws CoreException;
+	}
+	
+	public static void checkedSyncExec(final CheckedRunnable runnable) throws CoreException {
+		final AtomicReference<CoreException> error = new AtomicReference<CoreException>();
+		UIAccess.getDisplay().syncExec(new Runnable() {
+			public void run() {
+				try {
+					runnable.run();
+				} catch (CoreException e) {
+					error.set(e); 
+				}
+			}
+		});
+		if (error.get() != null) {
+			throw error.get();
+		}
+	}
+	
 	
 	/**
 	 * Tests is the control is not <code>null</code> and not disposed.

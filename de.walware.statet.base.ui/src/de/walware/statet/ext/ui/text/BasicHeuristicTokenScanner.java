@@ -549,13 +549,17 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 
 	protected IRegion findRegion(int position, StopCondition condition) {
+		return findRegion(position, condition, false);
+	}
+
+	protected IRegion findRegion(int position, StopCondition condition, boolean allowClosing) {
 		
 		int start = position;
 		int end = scanForward(position, UNBOUND, condition);
 		if (end == NOT_FOUND) {
 			end = fPos;
 		}
-		if (end > position) {
+		if (allowClosing || end > position) {
 			start = scanBackward(--start, UNBOUND, condition);
 			if (start == NOT_FOUND) {
 				start = fPos;

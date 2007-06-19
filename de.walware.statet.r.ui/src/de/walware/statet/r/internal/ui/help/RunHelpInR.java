@@ -11,20 +11,18 @@
 
 package de.walware.statet.r.internal.ui.help;
 
-import org.eclipse.osgi.util.NLS;
 
+/**
+ * Command handler for help("...")
+ */
+public class RunHelpInR extends RunHelpHandler {
 
-public class Messages extends NLS {
 	
-	public static String RHelp_category;
-	public static String RHelp_Search_RSiteSearch_label;
-	public static String RHelp_Run_Help_label;
-	public static String RHelp_Run_HelpSearch_label;
-	public static String RHelp_Run_Help_error_message;
-
-
-	static {
-		NLS.initializeMessages(Messages.class.getName(), Messages.class);
+	public static final String COMMAND_ID = "de.walware.statet.r.ui.commands.RunHelpInR"; //$NON-NLS-1$
+	
+	
+	public RunHelpInR() {
+		super("help", false); //$NON-NLS-1$
 	}
 	
 }

@@ -31,6 +31,33 @@ public class MessageUtil {
 		return label;
 	}
 
+	public static String escapeForFormText(String text) {
+		StringBuilder escaped = new StringBuilder(text.length());
+		ITERATE_CHARS : for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
+			switch (c) {
+			case '<':
+				escaped.append("&lt;"); //$NON-NLS-1$
+				continue ITERATE_CHARS;
+			case '>':
+				escaped.append("&gt;"); //$NON-NLS-1$
+				continue ITERATE_CHARS;
+			case '&':
+				escaped.append("&amp;"); //$NON-NLS-1$
+				continue ITERATE_CHARS;
+			case '"':
+				escaped.append("&quot;"); //$NON-NLS-1$
+				continue ITERATE_CHARS;
+			case '\'':
+				escaped.append("&apos;"); //$NON-NLS-1$
+				continue ITERATE_CHARS;
+			default:
+				escaped.append(c);
+				continue ITERATE_CHARS;
+			}
+		}
+		return escaped.toString();
+	}
 	
 	private MessageUtil() { 
 	}

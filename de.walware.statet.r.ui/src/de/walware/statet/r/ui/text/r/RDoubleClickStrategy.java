@@ -112,7 +112,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			}
 
 			fScanner.configure(document, null);
-			IRegion region = fScanner.findRWord(offset, true);
+			IRegion region = fScanner.findRWord(offset, true, false);
 			if (region != null) {
 				textViewer.setSelectedRange(region.getOffset(), region.getLength());
 				return;

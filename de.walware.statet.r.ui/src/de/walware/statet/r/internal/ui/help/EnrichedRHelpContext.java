@@ -11,12 +11,12 @@
 
 package de.walware.statet.r.internal.ui.help;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.help.HelpSystem;
 import org.eclipse.help.ICommandLink;
 import org.eclipse.help.IContext;
@@ -28,11 +28,15 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPart3;
 import org.eclipse.ui.editors.text.TextEditor;
 
+import de.walware.eclipsecommons.ui.util.MessageUtil;
+
+import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.text.r.RHeuristicTokenScanner;
 
@@ -43,75 +47,92 @@ import de.walware.statet.r.ui.text.r.RHeuristicTokenScanner;
 public class EnrichedRHelpContext implements IContext3 {
 	
 
+	public static String searchContextInfo(Object target) {
+		try {
+			String plaintext = null;
+			if (target instanceof TextEditor) {
+				TextEditor textEditor = (TextEditor) target;
+				plaintext = getPlaintextFromTextSelection(textEditor.getSelectionProvider());
+				if (plaintext == null) {
+					plaintext = getPlaintextFromDocument(
+							textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()),
+							textEditor.getSelectionProvider());
+				}
+			}
+			else {
+				if (target instanceof IAdaptable) {
+					IEditorAdapter editor = (IEditorAdapter) ((IAdaptable) target).getAdapter(IEditorAdapter.class);
+					if (editor != null) {
+						target = editor.getSourceViewer();
+					}
+				}
+				if (target instanceof SourceViewer) {
+					SourceViewer sourceViewer = (SourceViewer) target;
+					plaintext = getPlaintextFromTextSelection(sourceViewer.getSelectionProvider());
+					if (plaintext == null) {
+						plaintext = getPlaintextFromDocument(sourceViewer.getDocument(), sourceViewer.getSelectionProvider());
+					}
+				}
+			}
+			if (plaintext != null && 
+					plaintext.length() < 50 && 
+					plaintext.indexOf('\n') < 0 && plaintext.indexOf('\r') < 0) {
+				return plaintext;
+			}
+		}
+		catch (Exception e) {
+			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when dectecting R element", e); //$NON-NLS-1$
+		}
+		return null;
+	}
+
+	private static String getPlaintextFromTextSelection(ISelectionProvider selectionProvider) {
+		ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
+		if ( (!textSelection.isEmpty()) && textSelection.getLength() > 0) {
+			return textSelection.getText();
+		}
+		return null;
+	}
+	
+	private static String getPlaintextFromDocument(IDocument document, ISelectionProvider selectionProvider) throws BadLocationException {
+		ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
+		RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
+		scanner.configure(document, null);
+		IRegion region = scanner.findRWord(textSelection.getOffset(), false, true);
+		if (region != null) {
+			return document.get(region.getOffset(), region.getLength());
+		}
+		return null;
+	}
+
+	
 	public static class Provider implements IContextProvider {
 		
 		private IWorkbenchPart3 fPart;
 		private ISourceViewer fSourceViewer;
+		private Object fTarget;
 		private String fContextId;
 		
 		public Provider(IWorkbenchPart3 part, String contextId) {
-			
-			fPart = part;
+			fTarget = fPart = part;
 			fContextId = contextId;
 		}
 		public Provider(ISourceViewer sourceViewer, String contextId) {
-			
-			fSourceViewer = sourceViewer;
+			fTarget = fSourceViewer = sourceViewer;
 			fContextId = contextId;
 		}
 		
 		public int getContextChangeMask() {
-			
-//			return SELECTION; // we can try later
-			return NONE;
+			return SELECTION;
 		}
 		
 		public IContext getContext(Object target) {
-			
 			IContext context = HelpSystem.getContext(fContextId);
-			String plaintext = null;
-			try {
-				if (fPart instanceof TextEditor) {
-					TextEditor textEditor = (TextEditor) fPart;
-					plaintext = getPlaintextFromTextSelection(textEditor.getSelectionProvider());
-					if (plaintext == null) {
-						plaintext = getPlaintextFromDocument(
-								textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput()),
-								textEditor.getSelectionProvider());
-					}
-				}
-				else if (fSourceViewer != null) {
-					plaintext = getPlaintextFromTextSelection(fSourceViewer.getSelectionProvider());
-					if (plaintext == null) {
-						plaintext = getPlaintextFromDocument(fSourceViewer.getDocument(), fSourceViewer.getSelectionProvider());
-					}
-				}
-			}
-			catch (Exception e) {
-				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when dectecting R element", e); //$NON-NLS-1$
-				return context;
-			}
+			String plaintext = searchContextInfo(fTarget);
 			if (context instanceof IContext3 & plaintext != null) {
 				context = new EnrichedRHelpContext((IContext3) context, plaintext);
 			}
 			return context;
-		}
-		private String getPlaintextFromTextSelection(ISelectionProvider selectionProvider) {
-			ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
-			if ( (!textSelection.isEmpty()) && textSelection.getLength() > 0 && textSelection.getLength() < 50) {
-				return textSelection.getText();
-			}
-			return null;
-		}
-		private String getPlaintextFromDocument(IDocument document, ISelectionProvider selectionProvider) throws BadLocationException {
-			ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
-			RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
-			scanner.configure(document, null);
-			IRegion region = scanner.findRWord(textSelection.getOffset(), false);
-			if (region != null) {
-				return document.get(region.getOffset(), region.getLength());
-			}
-			return null;
 		}
 		
 		public String getSearchExpression(Object target) {
@@ -120,29 +141,34 @@ public class EnrichedRHelpContext implements IContext3 {
 		}
 	}
 	
-	
 	private static class RHelpResource implements IHelpResource {
 
 		private String fLabel;
 		private String fUrl;
 
 		public RHelpResource(String label, String url) {
-
 			fLabel = label;
 			fUrl = url;
 		}
 
 		public String getLabel() {
-			
 			return fLabel;
 		}
 
 		public String getHref() {
-			
 			return fUrl;
 		}
+		
 	}	
 
+	public static class RHelpCommand extends RHelpResource {
+
+		public RHelpCommand(String label, String command) {
+			super(label, "command://"+command); //$NON-NLS-1$
+		}
+		
+	}
+	
 	
 	private String fTitle;
 	private String fText;
@@ -155,7 +181,6 @@ public class EnrichedRHelpContext implements IContext3 {
 	 * 
 	 */
 	public EnrichedRHelpContext(IContext3 context, String plaintext) {
-		
 		fTitle = context.getTitle();
 		fText = context.getText();
 		fStyledText = context.getStyledText();
@@ -169,45 +194,42 @@ public class EnrichedRHelpContext implements IContext3 {
 	}
 	
 	private void enrich(String plaintext) {
-		
 		try {
-			List<IHelpResource> resources = new ArrayList<IHelpResource>(fRelatedCommands.length + 1);
-	
+			List<IHelpResource> resources = new ArrayList<IHelpResource>(fRelatedTopics.length + 1);
 			String urlText = URLEncoder.encode(plaintext, "UTF-8"); //$NON-NLS-1$
+
+			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_Help_label, plaintext), 
+					MessageUtil.escapeForFormText(RunHelpHandler.createCommandString(RunHelpInR.COMMAND_ID, plaintext))));
+			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_HelpSearch_label, plaintext), 
+					MessageUtil.escapeForFormText(RunHelpHandler.createCommandString(RunHelpSearchInR.COMMAND_ID, plaintext))));
 			resources.add(new RHelpResource(NLS.bind(Messages.RHelp_Search_RSiteSearch_label, plaintext), 
 					NLS.bind("http://search.r-project.org/cgi-bin/namazu.cgi?query={0}&amp;max=20&amp;result=normal&amp;sort=score&amp;idxname=functions&amp;idxname=docs", urlText) )); //$NON-NLS-1$
 			resources.addAll(Arrays.asList(fRelatedTopics));
-
 			fRelatedTopics = resources.toArray(new IHelpResource[resources.size()]);
 		}
-		catch (UnsupportedEncodingException e) {
+		catch (Exception e) {
 			RUIPlugin.logError(-1, "Error occured when enrich R help.", e); //$NON-NLS-1$
 		}
 	}
 	
 
 	public String getTitle() {
-		
 		return fTitle;
 	}
 	
 	public String getText() {
-		
 		return fText;
 	}
 
 	public String getStyledText() {
-
 		return fStyledText;
 	}
 	
 	public IHelpResource[] getRelatedTopics() {
-
 		return fRelatedTopics;
 	}
 
 	public String getCategory(IHelpResource topic) {
-
 		if (topic instanceof RHelpResource) {
 			return Messages.RHelp_category;
 		}
@@ -215,7 +237,6 @@ public class EnrichedRHelpContext implements IContext3 {
 	}
 
 	public ICommandLink[] getRelatedCommands() {
-		
 		return fRelatedCommands;
 	}
 		
