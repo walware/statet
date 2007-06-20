@@ -27,15 +27,13 @@ public class LoadHistoryPage extends AbstractHistoryPage {
 
 	
 	public LoadHistoryPage(ToolProcess tool) {
-		
 		super("LoadHistoryPage", Messages.LoadHistoryPage_title, tool); //$NON-NLS-1$
 		setDescription(NLS.bind(Messages.LoadHistoryPage_description, fTool.getToolLabel(false)));
 	}
 	
 	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
-		
 		return new ChooseResourceComposite(layouter.composite, 
-				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_COMBO,
+				ChooseResourceComposite.STYLE_COMBO,
 				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN, 
 				Messages.LoadSaveHistoryPage_File_label);
 	}

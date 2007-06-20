@@ -51,13 +51,12 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
 		
 		return new ChooseResourceComposite(layouter.composite, 
-				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_COMBO,
+				ChooseResourceComposite.STYLE_COMBO,
 				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_SAVE, 
 				Messages.LoadSaveHistoryPage_File_label);
 	}
 	
 	protected void addAdditionalContent1(Layouter parent) {
-		
 		Group group = parent.addGroup(Messages.SaveHistoryPage_Options_label);
 		Layouter options = new Layouter(group, 1);
 		fAppendControl = options.addCheckBox(Messages.SaveHistoryPage_AppendToFile_label);
@@ -85,7 +84,6 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	}
 	
 	protected void updateMode() {
-		
 		int severity;
 		if (fAppendToFile) {
 			severity = IStatus.INFO;
@@ -101,7 +99,6 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	}
 	
 	protected void initFields() {
-		
 		super.initFields();
 		IDialogSettings settings = getDialogSettings();
 
@@ -114,7 +111,6 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	
 	@Override
 	public void saveSettings() {
-		
 		super.saveSettings();
 		IDialogSettings settings = getDialogSettings();
 		settings.put(SETTINGS_APPEND, fAppendToFile);

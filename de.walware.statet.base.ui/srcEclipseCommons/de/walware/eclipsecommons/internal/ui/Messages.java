@@ -19,8 +19,13 @@ public class Messages extends NLS {
 	public static String CopyToClipboard_error_title;
 	public static String CopyToClipboard_error_message;
 
+	public static String SearchWorkspace_label;
 	public static String BrowseFilesystem_label;
 	public static String BrowseWorkspace_label;
+	public static String BrowseFilesystem_ForFile_label;
+	public static String BrowseWorkspace_ForFile_label;
+	public static String BrowseFilesystem_ForDir_label;
+	public static String BrowseWorkspace_ForDir_label;
 
 	public static String ChooseResource_Task_description;
 	public static String ResourceSelectionDialog_title;

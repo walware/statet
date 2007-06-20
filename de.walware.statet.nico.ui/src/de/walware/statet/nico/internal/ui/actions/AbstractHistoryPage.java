@@ -56,19 +56,16 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	
 	
 	public AbstractHistoryPage(String pageName, String title, ToolProcess tool) {
-		
-		super(pageName); //$NON-NLS-1$
+		super(pageName);
 
 		fTool = tool;
 		setTitle(title);
 	}
 	
 	public void createControl(Composite parent) {
-		
 		initializeDialogUnits(parent);
 		
     	GridLayout layout = new GridLayout();
-    	layout.marginHeight = 0;
     	Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
 		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		setControl(layouter.composite);
@@ -84,7 +81,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	}
 	
 	protected void createContents(Layouter contentLayouter) {
-		
 		fLocationGroup = createResourceComposite(contentLayouter);
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
@@ -117,7 +113,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	}
 	
 	protected void validate() {
-		
 		if (!isIntialized) {
 			return;
 		}
@@ -147,7 +142,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	}
 	
 	public Object getFile() {
-		
 		if (fResourceInWorkspace != null) {
 			return fResourceInWorkspace;
 		}
@@ -155,7 +149,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	}
 	
 	public void saveSettings() {
-		
 		IDialogSettings settings = getDialogSettings();
 		LinkedHashSet<String> history = new LinkedHashSet<String>(10);
 		history.add(fResourcePath);
