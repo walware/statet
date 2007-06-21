@@ -30,9 +30,9 @@ import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.base.core.StatetCore;
-
 import de.walware.eclipsecommons.internal.fileutil.Messages;
+
+import de.walware.statet.base.core.StatetCore;
 
 
 /**
@@ -50,7 +50,7 @@ public class FileValidator implements IValidator {
 	private IFileStore fFileStore;
 	private IStatus fStatus;
 	
-	private String fResourceLabel;
+	private String fResourceLabel = " ";
 	private int fOnEmpty;
 	private int fOnNotExisting;
 	private int fOnExisting;
@@ -63,7 +63,6 @@ public class FileValidator implements IValidator {
 	 * 
 	 */
 	public FileValidator() {
-		
 		fOnNotExisting = IStatus.OK;
 		fOnExisting = IStatus.OK;
 		fOnEmpty = IStatus.ERROR;
@@ -76,13 +75,11 @@ public class FileValidator implements IValidator {
 	 * 
 	 */
 	public FileValidator(boolean existingResource) {
-		
 		this();
 		setDefaultMode(existingResource);
 	}
 	
 	public void setDefaultMode(boolean existingResource) {
-		
 		fOnNotExisting = (existingResource) ? IStatus.ERROR : IStatus.OK;
 		fOnExisting = (existingResource) ? IStatus.OK : IStatus.WARNING;
 	}
@@ -137,8 +134,7 @@ public class FileValidator implements IValidator {
 	}
 
 	public void setResourceLabel(String label) {
-		
-		fResourceLabel = label;
+		fResourceLabel = " '" + label + "' ";
 	}
 
 	/**
@@ -148,7 +144,6 @@ public class FileValidator implements IValidator {
 	 * @param value the resource to validate or <code>null</code>.
 	 */
 	public void setExplicit(Object value) {
-		
 		fFileStore = null;
 		fWorkspaceResource = null;
 		fStatus = null;
@@ -156,7 +151,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	public IStatus validate(Object value) {
-		
 		if (!checkExplicit()) {
 			if (fStatus == null) {
 				fStatus = doValidate(value);
@@ -166,7 +160,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	private boolean checkExplicit() {
-		
 		if (fExplicitObject != null) {
 			if (fStatus == null) {
 				fStatus = doValidate(fExplicitObject);
@@ -177,7 +170,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	private IStatus doValidate(Object value) {
-		
 		fFileStore = null;
 		fWorkspaceResource = null;
 		
@@ -185,22 +177,22 @@ public class FileValidator implements IValidator {
 		if (value instanceof String) {
 			String s = (String) value;
 			if (s.trim().length() == 0) {
-				return createStatus(fOnEmpty, Messages.Resource_error_NoInput_message);
+				return createStatus(fOnEmpty, Messages.Resource_error_NoInput_message, null);
 			}
 			try {
 				s = resolveExpression(s);
 			} catch (CoreException e) {
-				return e.getStatus();
+				return createStatus(e.getStatus().getSeverity(), Messages.Resource_error_Other_message, e.getStatus().getMessage());
 			}
 			fWorkspaceResource = ResourcesPlugin.getWorkspace().getRoot().findMember(s, false);
 			if (fWorkspaceResource == null) {
 				try {
 					fFileStore = findFileStore(s);
 					if (fFileStore == null) {
-						return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message);
+						return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, null);
 					}
 				} catch (CoreException e) {
-					return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message + " " + e.getStatus().getMessage() + "."); //$NON-NLS-1$ //$NON-NLS-2$
+					return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, e.getStatus().getMessage());
 				}
 			}
 		}
@@ -224,19 +216,17 @@ public class FileValidator implements IValidator {
 	}
 	
 	protected String resolveExpression(String expression) throws CoreException {
-
 		IStringVariableManager manager = VariablesPlugin.getDefault().getStringVariableManager();
 		try {
 			return manager.performStringSubstitution(expression);
 		}
 		catch (CoreException e) {
 			manager.validateStringVariables(expression); // throws invalid variable
-			throw new CoreException(createStatus(fOnLateResolve, e.getStatus().getMessage())); // throws runtime variable
+			throw new CoreException(new Status(fOnLateResolve, e.getStatus().getPlugin(), e.getStatus().getMessage())); // throws runtime variable
 		}
 	}
 
 	private IFileStore findFileStore(String location) throws CoreException {
-		
 		try {
 			IFileStore store = FileUtil.getLocalFileStore(location);
 			if (store != null) {
@@ -259,7 +249,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	private IResource findWorkspaceResource(URI location) {
-		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource[] found = null;
 		if (fOnFile != IStatus.ERROR) {
@@ -276,8 +265,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	protected IStatus validateWorkspaceResource() {
-		
-		
 		if (fOnExisting != IStatus.OK || fOnNotExisting != IStatus.OK || fOnFile != IStatus.OK || fOnDirectory != IStatus.OK) {
 			return createExistsStatus(fWorkspaceResource.exists(), (fWorkspaceResource instanceof IContainer));
 		}
@@ -285,7 +272,6 @@ public class FileValidator implements IValidator {
 	}
 
 	protected IStatus validateFileStore() {
-		
 		if (fOnExisting != IStatus.OK || fOnNotExisting != IStatus.OK) {
 			IFileInfo info = fFileStore.fetchInfo();
 			return createExistsStatus(info.exists(), info.isDirectory());
@@ -295,31 +281,32 @@ public class FileValidator implements IValidator {
 	
 	private IStatus createExistsStatus(boolean exists, boolean isDirectory) {
 		if (exists) {
-			IStatus status = createStatus(fOnExisting, Messages.Resource_error_AlreadyExists_message);
+			IStatus status = createStatus(fOnExisting, Messages.Resource_error_AlreadyExists_message, null);
 			if (status.getSeverity() < fOnDirectory && isDirectory) {
-				status = createStatus(fOnDirectory, Messages.Resource_error_IsDirectory_message);
+				status = createStatus(fOnDirectory, Messages.Resource_error_IsDirectory_message, null);
 			}
 			if (status.getSeverity() < fOnFile && !isDirectory) {
-				status = createStatus(fOnFile, Messages.Resource_error_IsFile_message);
+				status = createStatus(fOnFile, Messages.Resource_error_IsFile_message, null);
 			}
 			return status;
 		}
 		else {
-			return createStatus(fOnNotExisting, Messages.Resource_error_DoesNotExists_message);
+			return createStatus(fOnNotExisting, Messages.Resource_error_DoesNotExists_message, null);
 		}
 	}
 	
-	protected IStatus createStatus(int severity, String message) {
-		
+	protected IStatus createStatus(int severity, String message, String detail) {
 		if (severity == IStatus.OK) {
 			return Status.OK_STATUS;
+		}
+		if (detail != null) {
+			return new Status(severity, StatetCore.PLUGIN_ID, NLS.bind(message, fResourceLabel, detail));
 		}
 		return new Status(severity, StatetCore.PLUGIN_ID, NLS.bind(message, fResourceLabel));
 	}
 	
 	
 	public IFileStore getFileStore() {
-		
 		checkExplicit();
 		if (fFileStore == null && fWorkspaceResource != null) {
 			IPath path = fWorkspaceResource.getLocation();
@@ -331,7 +318,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	public IResource getWorkspaceResource() {
-		
 		checkExplicit();
 		if (fWorkspaceResource == null && fFileStore != null) {
 			fWorkspaceResource = findWorkspaceResource(fFileStore.toURI());
@@ -340,7 +326,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	public boolean isLocalFile() {
-		
 		IFileStore fileStore = getFileStore();
 		if (fileStore != null) {
 			return fileStore.getFileSystem().equals(EFS.getLocalFileSystem());
@@ -349,7 +334,6 @@ public class FileValidator implements IValidator {
 	}
 	
 	public IStatus getStatus() {
-		
 		checkExplicit();
 		return fStatus;
 	}

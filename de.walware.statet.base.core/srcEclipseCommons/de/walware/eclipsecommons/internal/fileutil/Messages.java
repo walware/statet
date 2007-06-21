@@ -20,6 +20,7 @@ public class Messages {
 	public static String Resource_error_DoesNotExists_message;
 	public static String Resource_error_AlreadyExists_message;
 	public static String Resource_error_NoValidSpecification_message;
+	public static String Resource_error_Other_message;
 	public static String Resource_error_IsFile_message;
 	public static String Resource_error_IsDirectory_message;
 
