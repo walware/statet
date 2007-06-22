@@ -194,7 +194,7 @@
          point="org.eclipse.ui.commands">
       <command
             category="de.walware.statet.base.commandCategorys.StatetSource"
-            defaultHandler="de.walware.statet.r.internal.ui.help.RunHelpInR"
+            defaultHandler="de.walware.statet.r.internal.ui.rtools.RunHelpInR"
             description="%commands.RunHelpInR.description"
             id="de.walware.statet.r.ui.commands.RunHelpInR"
             name="%commands.RunHelpInR.name">
@@ -206,13 +206,25 @@
       </command>
       <command
             category="de.walware.statet.base.commandCategorys.StatetSource"
-            defaultHandler="de.walware.statet.r.internal.ui.help.RunHelpSearchInR"
+            defaultHandler="de.walware.statet.r.internal.ui.rtools.RunHelpSearchInR"
             description="%commands.RunHelpSearchInR.description"
             id="de.walware.statet.r.ui.commands.RunHelpSearchInR"
             name="%commands.RunHelpSearchInR.name">
          <commandParameter
-               id="topic"
-               name="Help Topic"
+               id="text"
+               name="Text to Search For"
+               optional="true">
+         </commandParameter>
+      </command>
+      <command
+            category="de.walware.statet.base.commandCategorys.StatetSource"
+            defaultHandler="de.walware.statet.r.internal.ui.rtools.RunPrintInR"
+            description="%commands.RunPrintInR.description"
+            id="de.walware.statet.r.ui.commands.RunPrintInR"
+            name="%commands.RunPrintInR.name">
+         <commandParameter
+               id="var"
+               name="Variable to Print"
                optional="true">
          </commandParameter>
       </command>
@@ -223,7 +235,19 @@
             commandId="de.walware.statet.r.ui.commands.RunHelpInR"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R F1">
+            sequence="M1+R 1">
+      </key>
+      <key
+            commandId="de.walware.statet.r.ui.commands.RunHelpSearchInR"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M2+1">
+      </key>
+      <key
+            commandId="de.walware.statet.r.ui.commands.RunPrintInR"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R P">
       </key>
    </extension>
 
@@ -527,46 +551,46 @@
          point="org.eclipse.ui.bindings">
       <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptViaSource.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R S"/>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.RScriptViaSource.run"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M2+M3+X R"/>
-      <key
+       <key
+            commandId="de.walware.statet.r.launchShortcuts.RScriptViaSource.run"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+S"/>
+     <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptViaSourceAndConsole.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M2+S"/>
+            sequence="M1+R S"/>
 
       <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptDirect.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R D"/>
+            sequence="M1+R M1+D"/>
       <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M2+D"/>
+            sequence="M1+R D"/>
 
       <key
             commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirect.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R R"/>
+            sequence="M1+R M1+R"/>
       <key
             commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndConsole.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M2+R"/>
+            sequence="M1+R R"/>
       <key
             commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndNextLine.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R E"/>
+            sequence="M1+R M1+E"/>
       <key
             commandId="de.walware.statet.r.commands.GotoRConsole"
             contextId="org.eclipse.ui.globalScope"

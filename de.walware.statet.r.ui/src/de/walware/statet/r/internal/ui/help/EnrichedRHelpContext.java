@@ -38,6 +38,8 @@ import de.walware.eclipsecommons.ui.util.MessageUtil;
 
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.internal.ui.rtools.RunHelpInR;
+import de.walware.statet.r.internal.ui.rtools.RunHelpSearchInR;
 import de.walware.statet.r.ui.text.r.RHeuristicTokenScanner;
 
 
@@ -199,9 +201,9 @@ public class EnrichedRHelpContext implements IContext3 {
 			String urlText = URLEncoder.encode(plaintext, "UTF-8"); //$NON-NLS-1$
 
 			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_Help_label, plaintext), 
-					MessageUtil.escapeForFormText(RunHelpHandler.createCommandString(RunHelpInR.COMMAND_ID, plaintext))));
+					MessageUtil.escapeForFormText(RunHelpInR.createCommandString(plaintext))));
 			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_HelpSearch_label, plaintext), 
-					MessageUtil.escapeForFormText(RunHelpHandler.createCommandString(RunHelpSearchInR.COMMAND_ID, plaintext))));
+					MessageUtil.escapeForFormText(RunHelpSearchInR.createCommandString(plaintext))));
 			resources.add(new RHelpResource(NLS.bind(Messages.RHelp_Search_RSiteSearch_label, plaintext), 
 					NLS.bind("http://search.r-project.org/cgi-bin/namazu.cgi?query={0}&amp;max=20&amp;result=normal&amp;sort=score&amp;idxname=functions&amp;idxname=docs", urlText) )); //$NON-NLS-1$
 			resources.addAll(Arrays.asList(fRelatedTopics));

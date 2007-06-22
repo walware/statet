@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public class RLaunchingMessages extends NLS {
 
 	public static String RSelectionLaunch_error_message;
 	public static String RScriptLaunch_error_message;
+	public static String RCommandLaunch_error_message;
 
 	public static String RConsoleLaunchDelegate_Running;
 	public static String RConsoleLaunchDelegate_error_ProcessHandle;

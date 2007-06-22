@@ -9,20 +9,19 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.help;
+package de.walware.statet.r.internal.ui.rtools;
+
+import org.eclipse.osgi.util.NLS;
 
 
-/**
- * Command handler for help.search("...")
- */
-public class RunHelpSearchInR extends RunHelpHandler {
+public class Messages extends NLS {
+	
+	public static String HelpCommand_name;
+	public static String PrintCommand_name;
 
-	
-	public static final String COMMAND_ID = "de.walware.statet.r.ui.commands.RunHelpSearchInR"; //$NON-NLS-1$
-	
-	
-	public RunHelpSearchInR() {
-		super("help.search", true); //$NON-NLS-1$
+
+	static {
+		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
 	
 }

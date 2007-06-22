@@ -20,7 +20,6 @@ public class Messages extends NLS {
 	public static String RHelp_Search_RSiteSearch_label;
 	public static String RHelp_Run_Help_label;
 	public static String RHelp_Run_HelpSearch_label;
-	public static String RHelp_Run_Help_error_message;
 
 
 	static {
