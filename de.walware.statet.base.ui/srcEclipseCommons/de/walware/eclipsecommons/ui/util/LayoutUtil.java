@@ -105,12 +105,17 @@ public class LayoutUtil {
 	}
 
 	public static int hintWidth(Button button) {
+		button.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 		PixelConverter converter = new PixelConverter(button);
 		int widthHint = converter.convertHorizontalDLUsToPixels(IDialogConstants.BUTTON_WIDTH);
 		return Math.max(widthHint, button.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x);
 	}
 	
 	public static int hintWidth(Text text, int numChars) {
+		return hintWidth(text, JFaceResources.DIALOG_FONT, numChars);
+	}
+	public static int hintWidth(Text text, String symbolicName, int numChars) {
+		text.setFont(JFaceResources.getFontRegistry().get(symbolicName));
 		if (numChars == -1) {
 			return getDialogValues().defaultEntryFieldWidth;
 		}
@@ -120,6 +125,7 @@ public class LayoutUtil {
 	}
 	
 	public static int hintWidth(Combo combo, String[] items) {
+		combo.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 		if (items == null || items.length == 0) {
 			return getDialogValues().defaultEntryFieldWidth;
 		}

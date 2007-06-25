@@ -18,6 +18,7 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
@@ -68,6 +69,7 @@ public class RServeClientMainTab extends LaunchConfigTabWithDbc {
 		fServerAddress = layouter.addLabeledTextControl("Server Address:");
 		fServerPort = layouter.addLabeledTextControl("Server Port:");
 
+		Dialog.applyDialogFont(parent);
 		initBindings();
 	}
 

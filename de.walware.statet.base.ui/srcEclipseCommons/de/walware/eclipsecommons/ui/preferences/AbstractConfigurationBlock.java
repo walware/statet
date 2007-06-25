@@ -31,9 +31,25 @@ import de.walware.statet.base.core.StatetCore;
 public abstract class AbstractConfigurationBlock {
 
 	
+	public static void scheduleChangeNotification(IWorkbenchPreferenceContainer container, String[] contexts, boolean directly) {
+		if (contexts != null) {
+			String source = (directly) ? null : container.toString();
+			Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, contexts);
+			if (job == null) {
+				return;
+			}
+			if (directly) {
+				job.schedule();
+			}
+			else {
+				container.registerUpdateJob(job);
+			}
+		}
+	}
+
+	
 	private Shell fShell;
 	private IWorkbenchPreferenceContainer fContainer;
-	private String[] fContexts;
 	protected boolean fUseProjectSettings = true;
 	
 	
@@ -61,12 +77,8 @@ public abstract class AbstractConfigurationBlock {
 		fUseProjectSettings = enable;
 	}
 	
-	protected void setSettingsContexts(String[] contexts) {
-		fContexts = contexts;
-	}
-	
-	protected String[] getSettingsContexts() {
-		return fContexts;
+	protected String[] getChangedContexts() {
+		return null;
 	}
 	
 	protected Shell getShell() {
@@ -93,18 +105,7 @@ public abstract class AbstractConfigurationBlock {
 	}
 
 	protected void scheduleChangeNotification(boolean directly) {
-		if (fContexts != null) {
-			String source = (directly) ? null : fContainer.toString();
-			Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, fContexts);
-			if (job == null) {
-				return;
-			}
-			if (directly) {
-				job.schedule();
-			}
-			else {
-				fContainer.registerUpdateJob(job);
-			}
-		}
+		String[] contexts = getChangedContexts();
+		scheduleChangeNotification(fContainer, contexts, directly);
 	}
 }

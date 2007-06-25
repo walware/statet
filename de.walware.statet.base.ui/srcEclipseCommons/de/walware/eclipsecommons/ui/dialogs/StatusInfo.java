@@ -13,10 +13,42 @@ package de.walware.eclipsecommons.ui.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.dialogs.IMessageProvider;
 
 
 public class StatusInfo extends Status {
 
+	/**
+	 * Applies the status to the status line of a dialog page.
+	 */
+	public static void applyToStatusLine(DialogPage page, IStatus status) {
+		String message= status.getMessage();
+		switch (status.getSeverity()) {
+			case IStatus.OK:
+				page.setMessage(null, IMessageProvider.NONE);
+				page.setErrorMessage(null);
+				break;
+			case IStatus.WARNING:
+				page.setMessage(message, IMessageProvider.WARNING);
+				page.setErrorMessage(null);
+				break;				
+			case IStatus.INFO:
+				page.setMessage(message, IMessageProvider.INFORMATION);
+				page.setErrorMessage(null);
+				break;			
+			default:
+				if (message.length() == 0) {
+					message= null;
+				}
+				page.setMessage(null);
+				page.setErrorMessage(message);
+				break;		
+		}
+	}
+
+
+	
 	public StatusInfo() {
 		this(IStatus.OK, ""); //$NON-NLS-1$
 	}

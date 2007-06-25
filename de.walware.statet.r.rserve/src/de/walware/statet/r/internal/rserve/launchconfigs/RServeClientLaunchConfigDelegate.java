@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Lesser General Public License 
  * v2.1 or newer, which accompanies this distribution, and is available at
@@ -26,8 +26,8 @@ import org.eclipse.ui.console.IConsole;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.base.ui.util.ExceptionHandler;
-import de.walware.statet.base.ui.util.UnterminatedLaunchAlerter;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;

@@ -457,10 +457,13 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	public AbstractSyntaxColoringBlock() {
 	}
 
-
 	protected abstract SyntaxNode[] createItems();
 	protected abstract String[] getSettingsContexts();
 	
+	@Override
+	protected String[] getChangedContexts() {
+		return fContexts.toArray(new String[fContexts.size()]);
+	}
 
 	@Override
 	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
@@ -469,7 +472,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		// Prepare model
 		fRootNodes = createItems();
 		String[] settingsContexts = getSettingsContexts();
-		setSettingsContexts(settingsContexts);
 		fContexts = new HashSet<String>();
 		fContexts.addAll(Arrays.asList(settingsContexts));
 		List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();

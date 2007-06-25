@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			
 			fRProject = (RProject) getProject().getNature(RProject.NATURE_ID);
 			if (fRProject == null) {
-				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "R Project Nature is missing", null));
+				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "R Project Nature is missing", null)); //$NON-NLS-1$
 			}
 			IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER);
@@ -178,7 +178,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			fStartupSuccessfull = true;
 		} catch (CoreException e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, StatetCore.STATUSCODE_BUILD_ERROR,
-					"Error occured while initizalizing the builder ("+ID+").", e));
+					NLS.bind("Error occured while initizalizing the builder (''{0}'').", ID), e)); //$NON-NLS-1$
 		}
 	}
 	

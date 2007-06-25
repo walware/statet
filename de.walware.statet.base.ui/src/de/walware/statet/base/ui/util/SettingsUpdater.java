@@ -33,11 +33,17 @@ public class SettingsUpdater implements ChangeListener {
 	private ISettingsChangedHandler fHandler;
 	private Control fControl;
 	private DisposeListener fDisposeListener;
+	private String[] fInterestingContexts;
 	
 	
 	public SettingsUpdater(ISettingsChangedHandler handler, Control control) {
+		this(handler, control, null);
+	}
+	
+	public SettingsUpdater(ISettingsChangedHandler handler, Control control, String[] contexts) {
 		fHandler = handler;
 		fControl = control;
+		setInterestingContexts(contexts);
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 		fDisposeListener = new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -47,8 +53,24 @@ public class SettingsUpdater implements ChangeListener {
 		fControl.addDisposeListener(fDisposeListener);
 	}
 
+	public void setInterestingContexts(String[] contexts) {
+		fInterestingContexts = contexts;
+	}
 	
-	public void settingsChanged(final Set<String> contexts) {
+	public void settingsChanged(Set<String> contexts) {
+		if (fInterestingContexts == null) {
+			runUpdate(contexts);
+			return;
+		}
+		for (String id : fInterestingContexts) {
+			if (contexts.contains(id)) {
+				runUpdate(contexts);
+				return;
+			}
+		}
+	}
+	
+	private void runUpdate(final Set<String> contexts) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fControl)) {

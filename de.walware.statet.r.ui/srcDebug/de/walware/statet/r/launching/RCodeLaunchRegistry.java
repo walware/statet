@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.osgi.util.NLS;
 
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.Preference.StringPref;
@@ -39,7 +40,7 @@ import de.walware.eclipsecommons.preferences.Preference.StringPref;
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
-import de.walware.statet.r.internal.debug.ui.connector.RConsoleConnector;
+import de.walware.statet.r.internal.debug.ui.TextConsoleConnector;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -54,13 +55,11 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
 	
 	public static void initializeDefaultValues(IScopeContext context) {
-		
-		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, RConsoleConnector.ID);
+		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, TextConsoleConnector.ID);
 	}
 	
 	
 	public static boolean isConfigured() {
-		
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		return (elements != null && elements.length > 0);
@@ -77,7 +76,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	 * @throws CoreException if running failed.
 	 */
 	public static void runFileUsingCommand(String command, IFile file, boolean gotoConsole) throws CoreException {
-		
 		// save before launch
 		IProject project = file.getProject();
 		if (project != null) {
@@ -106,7 +104,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	 * @throws CoreException if running failed.
 	 */
 	public static void runFileUsingCommand(String command, IPath filePath, boolean gotoConsole) throws CoreException {
-		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
 		String fileString = RUtil.escapeCompletly(filePath.makeAbsolute().toOSString());
@@ -127,7 +124,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	 * @throws CoreException if running failed.
 	 */
 	public static void runFileUsingCommand(String command, URI filePath, boolean gotoConsole) throws CoreException {
-		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 
 		String fileString = null;
@@ -147,7 +143,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 	
 	private static boolean saveBeforeLaunch(IProject[] projects) throws CoreException {
-		
 		IStatusHandler prompter = null;
 		prompter = DebugPlugin.getDefault().getStatusHandler(STATUS_PROMPTER);
 		if (prompter != null) {
@@ -158,14 +153,12 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 
 	public static boolean runRCodeDirect(String[] code, boolean gotoConsole) throws CoreException {
-		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
 		return connector.submit(code, gotoConsole);
 	}
 
 	public static void gotoRConsole() throws CoreException {
-		
 		IRCodeLaunchConnector connector = getDefault().getConnector();
 		
 		connector.gotoConsole();
@@ -181,7 +174,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	private static RCodeLaunchRegistry fgRegistry;
 	
 	private static synchronized RCodeLaunchRegistry getDefault() throws CoreException {
-	
 		if (fgRegistry == null)
 			new RCodeLaunchRegistry();
 		return fgRegistry;
@@ -205,7 +197,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 	
 	public static ConnectorConfig[] getAvailableConnectors() {
-		
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
 		ConnectorConfig[] configs = new ConnectorConfig[elements.length];
@@ -222,7 +213,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	private IRCodeLaunchConnector fConnector;
 	
 	private RCodeLaunchRegistry() throws CoreException {
-		
 		fgRegistry = this;
 		loadExtensions();
 		
@@ -230,7 +220,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 	
 	private void loadExtensions() throws CoreException {
-		
 		fConnector = null;
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, EXTENSION_POINT);
@@ -247,7 +236,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 							IStatus.ERROR,
 							RUI.PLUGIN_ID,
 							IStatetStatusConstants.LAUNCHCONFIG_ERROR,
-							"Error loading R Launch Connector '"+elements[i].getAttribute(ATT_NAME)+"'", e.getCause()
+							NLS.bind("Error loading R Launch Connector ''{0}''.", elements[i].getAttribute(ATT_NAME)), e.getCause() //$NON-NLS-1$
 							));
 				}
 			}
@@ -255,7 +244,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 	
 	private IRCodeLaunchConnector getConnector() throws CoreException {
-		
 		if (fConnector == null)
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatus.OK, "No R Launch Connector configured.", null));
 		
@@ -263,7 +251,6 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	}
 	
 	public void preferenceChange(PreferenceChangeEvent event) {
-		
 		try {
 			loadExtensions();
 		} catch (CoreException e) {

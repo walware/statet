@@ -100,6 +100,13 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
+	protected String[] getChangedContexts() {
+		return new String[] { 
+				ContentAssistPreference.CONTEXT_ID,
+		};
+	}
+	
+	@Override
 	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
@@ -130,9 +137,6 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.add(fCodeAssistAutoPref);
 		prefs.add(fCodeAssistDelayPref);
 		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
-		setSettingsContexts(new String[] { 
-				ContentAssistPreference.CONTEXT_ID
-		});
 		
 		// Controls
 		addLinkHeader(pageComposite, Messages.Editors_link);

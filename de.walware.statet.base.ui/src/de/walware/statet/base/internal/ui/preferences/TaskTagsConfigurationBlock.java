@@ -198,6 +198,13 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		fTasksGroup = new TasksGroup();
 	}
 	
+	@Override
+	protected String[] getChangedContexts() {
+		return new String[] { 
+				TaskTagsPreferences.CONTEXT_ID,
+		};
+	}
+	
 	final boolean isDefaultTask(TaskTag task) {
 		return (task == fTasksGroup.fDefaultTask);
 	}
@@ -210,9 +217,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		setupPreferenceManager(container, new Preference[] {
 				TaskTagsPreferences.PREF_TAGS,
 				TaskTagsPreferences.PREF_PRIORITIES,
-		});
-		setSettingsContexts(new String[] { 
-				TaskTagsPreferences.CONTEXT_ID
 		});
 
 		fTasksGroup.createGroup(pageComposite, 1);

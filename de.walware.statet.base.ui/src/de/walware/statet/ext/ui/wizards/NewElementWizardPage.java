@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
+
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.dialogs.ContainerSelectionComposite;
 import de.walware.statet.ext.ui.dialogs.StatetDialogsMessages;
@@ -399,7 +399,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 		}
 		Control control = getControl();
 		if (control != null && control.isVisible())
-			StatusUtil.applyToStatusLine(this, status);
+			StatusInfo.applyToStatusLine(this, status);
 	}
     
 }

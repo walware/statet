@@ -61,6 +61,13 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
+	protected String[] getChangedContexts() {
+		return new String[] {
+				REditorOptions.CONTEXT_ID,
+		};
+	}
+	
+	@Override
 	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
@@ -68,9 +75,6 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.add(REditorOptions.PREF_SMARTINSERT_ASDEFAULT);
 		prefs.add(REditorOptions.PREF_SPELLCHECKING_ENABLED);
 		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
-		setSettingsContexts(new String[] {
-				REditorOptions.CONTEXT_ID
-		});
 		
 		// Controls
 		fSmartInsertControl = new Button(pageComposite, SWT.CHECK);

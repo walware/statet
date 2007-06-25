@@ -26,7 +26,6 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.dialogs.StatusUtil;
 
 import de.walware.statet.base.ui.util.ExceptionHandler;
 
@@ -122,7 +121,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	
 	protected void updateStatus(IStatus status) {
 		setValid(!status.matches(IStatus.ERROR));
-		StatusUtil.applyToStatusLine(this, status);
+		StatusInfo.applyToStatusLine(this, status);
 	}
 
 }

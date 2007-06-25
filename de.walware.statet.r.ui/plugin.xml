@@ -256,31 +256,30 @@
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             category="org.eclipse.ui.externaltools"
-            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleLaunchConfigurationDelegate"
-            id="de.walware.statet.r.launching.RCmdConfigurationType"
+            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdLaunchDelegate"
+            id="de.walware.statet.r.launchConfigurationTypes.RCmdTool"
             modes="run"
-            name="%LaunchConfiguration_RConsole_name"
+            name="%launchConfigurations.RCmd_name"
             public="true">
       </launchConfigurationType>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            id="de.walware.statet.r.launching.RCmdConfigurationTypeImage"
-            configTypeID="de.walware.statet.r.launching.RCmdConfigurationType"
-            icon="icons/tool_16/run_r-cmd.gif">
+            id="de.walware.statet.r.images.RCmdTool"
+            configTypeID="de.walware.statet.r.launchConfigurationTypes.RCmdTool"
+            icon="icons/tool_16/r-cmd.png">
       </launchConfigurationTypeImage>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleTabGroup"
-            description="%LaunchConfiguration_RConsole_description"
+            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdToolTabGroup"
+            description="%launchConfigurations.RCmd_description"
             helpContextId="org.eclipse.ui.externaltools.launchConfigHelpContext.program"
-            id="de.walware.statet.r.launching.RConfigurationTabGroup"
-            type="de.walware.statet.r.launching.RCmdConfigurationType"/>
+            id="de.walware.statet.r.launchConfigurationTabGroups.RCmdTool"
+            type="de.walware.statet.r.launchConfigurationTypes.RCmdTool"/>
    </extension>
-
 
    <extension-point
    		id="rCodeLaunchConnector"
@@ -502,6 +501,11 @@
             class="de.walware.statet.r.internal.debug.ui.preferences.RInteractionPreferencePage"
             id="de.walware.statet.r.preferencePages.RInteraction"
             name="%preferencePages.RInteraction.name"/>
+      <page
+            category="de.walware.statet.r.preferencePages.RInteraction"
+            class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
+            id="de.walware.statet.r.preferencePages.RInteractionPreferencePage"
+            name="%preferencePages.REnvironments.name"/>
    </extension>
 
    <extension point="org.eclipse.ui.commands">
@@ -600,10 +604,10 @@
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
-            class="de.walware.statet.r.internal.debug.ui.connector.RConsoleConnector"
-            description="%rConnector_RConsoleConnector_description"
-            id="de.walware.statet.r.launching.RConsoleConnector"
-            name="%rConnector_RConsoleConnector_name"/>
+            class="de.walware.statet.r.internal.debug.ui.TextConsoleConnector"
+            description="%rConnector_EclipseTextConsole_description"
+            id="de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"
+            name="%rConnector_EclipseTextConsole_name"/>
       <connector
             class="de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector"
             id="de.walware.statet.r.launching.RNewConsoleConnector"

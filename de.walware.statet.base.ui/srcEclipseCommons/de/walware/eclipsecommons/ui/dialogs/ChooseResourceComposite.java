@@ -11,6 +11,9 @@
 
 package de.walware.eclipsecommons.ui.dialogs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
@@ -22,23 +25,22 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.IDynamicVariable;
+import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -57,7 +59,6 @@ import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.internal.ui.Messages;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
 
 
 /**
@@ -65,10 +66,13 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
  * 
  * Configurable for files and directories, new or existing resources.
  * 
- * Note: Not yet all combinations are tested! 
+ * Note: Not yet all combinations are tested!
  */
 public class ChooseResourceComposite extends Composite {
-
+	
+	
+	private static final String VAR_WORKSPACE_LOC = "workspace_loc"; //$NON-NLS-1$
+	
 	
 	private static class SearchResourceDialog extends FilteredResourcesSelectionDialog {
 
@@ -106,8 +110,8 @@ public class ChooseResourceComposite extends Composite {
 	private Combo fLocationComboField;
 	
 	private Label fLabel;
-	private Button fToolsButton;
-	private Menu fToolsMenu;
+	private WidgetToolsButton fTools;
+	private boolean fShowInsertVariable;
 	
 	
 	public ChooseResourceComposite(Composite parent, int style,
@@ -124,15 +128,6 @@ public class ChooseResourceComposite extends Composite {
 		createContent();
 	}
 	
-	@Override
-	public void dispose() {
-		if (fToolsMenu != null) {
-			fToolsMenu.dispose();
-			fToolsMenu = null;
-		}
-		super.dispose();
-	}
-
 	public void setHistory(String[] history) {
 		if (history != null && fAsCombo) {
 			fLocationComboField.setItems(history);
@@ -160,7 +155,9 @@ public class ChooseResourceComposite extends Composite {
 		
 		fDoOpen = (mode & MODE_OPEN) == MODE_OPEN;
 		fValidator.setDefaultMode(fDoOpen);
-		updateMenu();
+		if (fTools != null) {
+			fTools.resetMenu();
+		}
 	}
 
 	public void setResourceLabel(String label) {
@@ -175,6 +172,14 @@ public class ChooseResourceComposite extends Composite {
 		return NLS.bind(Messages.ChooseResource_Task_description, fResourceLabel);
 	}
 	
+	public void showInsertVariable(boolean enable) {
+		fShowInsertVariable = enable;
+		if (fTools != null) {
+			fTools.resetMenu();
+		}
+	}
+	
+	
 	public Control getTextControl() {
 		if (fAsCombo) {
 			return fLocationComboField;
@@ -184,15 +189,19 @@ public class ChooseResourceComposite extends Composite {
 		}
 	}
 	
-	protected void setText(String s) {
-		fControlledChange = true;
+	protected void setText(String s, boolean validate) {
+		if (!validate) {
+			fControlledChange = true;
+		}
 		if (fAsCombo) {
 			fLocationComboField.setText(s);
 		}
 		else {
 			fLocationTextField.setText(s);
 		}
-		fControlledChange = false;
+		if (!validate) {
+			fControlledChange = false;
+		}
 	}
 	
 	protected void insertText(String s) {
@@ -252,45 +261,13 @@ public class ChooseResourceComposite extends Composite {
 			}
 		});
 		
-		fToolsButton = new Button(content, SWT.PUSH);
-		fToolsButton.setText(""); //$NON-NLS-1$
-		fToolsButton.addSelectionListener(new SelectionAdapter() {
+		fTools = new WidgetToolsButton(inputField) {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (fToolsMenu != null) {
-					Rectangle bounds = fToolsButton.getBounds();
-					Point pos = fToolsButton.getParent().toDisplay(bounds.x, bounds.y + bounds.height);
-					fToolsMenu.setLocation(pos);
-					fToolsMenu.setVisible(true);
-				}
+			protected void fillMenu(Menu menu) {
+				ChooseResourceComposite.this.fillMenu(menu);
 			}
-		});
-		updateMenu();
-		
-		inputField.addFocusListener(new FocusListener() {
-			public void focusGained(FocusEvent e) {
-				updateLabels(true);
-			}
-			public void focusLost(FocusEvent e) {
-				updateLabels(false);
-			}
-		});
-		updateLabels(false);
-	}
-	
-	protected void updateLabels(boolean hasFocus) {
-		fToolsButton.setText(hasFocus ? "&..." : "...");
-	}
-
-	private void updateMenu() {
-		if (fToolsMenu != null) {
-			fToolsMenu.dispose();
-			fToolsMenu = null;
-		}
-		if (UIAccess.isOkToUse(fToolsButton)) {
-			fToolsMenu = new Menu(fToolsButton);
-			fillMenu(fToolsMenu);
-		}
+		};
+		fTools.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 	}
 	
 	protected void fillMenu(Menu menu) {
@@ -350,6 +327,23 @@ public class ChooseResourceComposite extends Composite {
 				}
 			});
 		}
+		
+		if (fShowInsertVariable) {
+			new MenuItem(menu, SWT.SEPARATOR);
+		}
+		
+		if (fShowInsertVariable) {
+			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			item.setText(Messages.InsertVariable_label);
+			item.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					handleVariablesButton();
+					getTextControl().setFocus();
+				}
+			});
+		}
+
 	}
 	
 	protected void handleSearchWorkspaceButton() {
@@ -390,7 +384,7 @@ public class ChooseResourceComposite extends Composite {
 		String wsPath = resource.getFullPath().toString();
 
 		fValidator.setExplicit(resource);
-		setText(newVariableExpression("workspace_loc", wsPath)); //$NON-NLS-1$
+		setText(newVariableExpression(VAR_WORKSPACE_LOC, wsPath), false); //$NON-NLS-1$
 	}
 	
 	protected void handleBrowseWorkspaceButton(int mode) {
@@ -436,7 +430,7 @@ public class ChooseResourceComposite extends Composite {
 		}
 		
 		fValidator.setExplicit(resource);
-		setText(newVariableExpression("workspace_loc", wsPath) + appendPath); //$NON-NLS-1$
+		setText(newVariableExpression(VAR_WORKSPACE_LOC, wsPath) + appendPath, false); //$NON-NLS-1$
 	}
 
 	protected void handleBrowseFilesystemButton(int mode) {
@@ -464,7 +458,37 @@ public class ChooseResourceComposite extends Composite {
 			return;
 		}
 		fValidator.setExplicit(path);
-		setText(path);
+		setText(path, false);
+	}
+	
+	protected void handleVariablesButton() {
+		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell()) {
+			@Override
+			public void setElements(Object[] elements) {
+				
+				IStringVariable[] orginals = (IStringVariable[]) elements;
+				List<IStringVariable> filteredList = new ArrayList<IStringVariable>(elements.length);
+				
+				for (IStringVariable variable : orginals) {
+					if (variable instanceof IDynamicVariable) {
+						if (excludeVariable(variable.getName())) {
+							continue;
+						}
+					}
+					filteredList.add(variable);
+				}
+				super.setElements(filteredList.toArray(new IStringVariable[filteredList.size()]));
+			}
+		};
+		
+		if (dialog.open() != Dialog.OK) {
+			return;
+		}
+		String variable = dialog.getVariableExpression();
+		if (variable == null) {
+			return;
+		}
+		insertText(variable);
 	}
 	
 
@@ -516,4 +540,20 @@ public class ChooseResourceComposite extends Composite {
 		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(varName, arg);
 	}
 
+	protected boolean excludeVariable(String variableName) {
+		return excludeJavaVariable(variableName);
+	}
+	
+	protected boolean excludeInteractiveVariable(String variableName) {
+		return (variableName.startsWith("selected_") || variableName.endsWith("_prompt")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	protected boolean excludeJavaVariable(String variableName) {
+		return (variableName.startsWith("java_") || variableName.startsWith("target_home")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	protected boolean excludeBuildVariable(String variableName) {
+		return (variableName.startsWith("build_")); //$NON-NLS-1$
+	}
+	
 }

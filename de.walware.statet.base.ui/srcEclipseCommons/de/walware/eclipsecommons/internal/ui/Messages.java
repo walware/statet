@@ -31,7 +31,9 @@ public class Messages extends NLS {
 	public static String ResourceSelectionDialog_title;
 	public static String ResourceSelectionDialog_message;
 	
+	public static String InsertVariable_label;
 
+	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}

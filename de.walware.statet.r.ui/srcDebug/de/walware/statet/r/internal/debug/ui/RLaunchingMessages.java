@@ -16,55 +16,46 @@ import org.eclipse.osgi.util.NLS;
 
 public class RLaunchingMessages extends NLS {
 	
+	public static String LaunchDelegate_Running;
+	public static String LaunchDelegate_error_StartingExec;
+	public static String LaunchDelegate_error_ProcessHandle;
 
 	public static String RLaunchPulldown_Item_label;
-
 	public static String RLaunch_error_description;
-
 	public static String RSelectionLaunch_error_message;
 	public static String RScriptLaunch_error_message;
 	public static String RCommandLaunch_error_message;
 
-	public static String RConsoleLaunchDelegate_Running;
-	public static String RConsoleLaunchDelegate_error_ProcessHandle;
+	public static String TextConsoleConnector_error_NoConsole_message;
+	public static String TextConsoleConnector_error_Other_message;
 
-	
-	public static String Tab_error_ReadingConfiguration_message;
+	public static String RCmd_MainTab_name;
+	public static String RCmd_MainTab_Cmd_label;
+	public static String RCmd_CmdBuild_name;
+	public static String RCmd_CmdCheck_name;
+	public static String RCmd_CmdInstall_name;
+	public static String RCmd_CmdOther_name;
+	public static String RCmd_CmdRd2dvi_name;
+	public static String RCmd_CmdRd2txt_name;
+	public static String RCmd_CmdRdconv_name;
+	public static String RCmd_CmdRemove_name;
+	public static String RCmd_CmdSd2Rd_name;
+	public static String RCmd_MainTab_RunHelp_label;
+	public static String RCmd_MainTab_error_CannotRunHelp_message;
+	public static String RCmd_MainTab_error_WhileRunningHelp_message;
+	public static String RCmd_Resource_Doc_label;
+	public static String RCmd_Resource_Other_label;
+	public static String RCmd_Resource_Package_label;
 
-	public static String MainTab_name;
-	public static String MainTab_Location_Browse_Workspace;
-	public static String MainTab_Location_Browse_FileSystem;
-	public static String MainTab_Location_Variables;
-	public static String MainTab_WorkingDirectory;
-	public static String MainTab_WorkingDirectory_Browse_Workspace;
-	public static String MainTab_WorkingDirectory_Browse_FileSystem;
-	public static String MainTab_WorkingDirectory_Variables;
-	public static String MainTab_SelectWorkingDirectory_message;
-	public static String MainTab_Arguments;
-	public static String MainTab_Arguments_Variables;
-	public static String MainTab_Arguments_Note;
-
-	public static String RCmdMainTab_Location;
-	public static String RCmdMainTab_ROptions;
-	public static String RCmdMainTab_SelectRExecutable;
-
-	public static String MainTab_error_LocationCannotBeEmpty_message;
-	public static String MainTab_error_LocationDoesNotExist_message;
-	public static String MainTab_error_LocationSpecifiedIsNotAFile_message;
-	public static String RCmdMainTab_info_SpecifyLocation_message;
-	public static String MainTab_error_WorkingDirectoryDoesNotExistOrIsInvalid_message;
-	public static String MainTab_error_WorkingDirectoryNotADirectory;
-
-	
-	public static String ROptionsSelectionDialog_title;
-	public static String ROptionsSelectionDialog_message;
-	public static String SelectionDialog_Argument;
-	public static String SelectionDialog_Description;
+	public static String REnv_Tab_REnvConfig_label;
+	public static String REnv_Tab_title;
+	public static String REnv_Tab_WorkingDir_label;
+	public static String REnv_Runtime_error_CouldNotFound_message;
+	public static String REnv_Runtime_error_Invalid_message;
 
 
-	private static final String BUNDLE_NAME = RLaunchingMessages.class.getName();
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, RLaunchingMessages.class);
+		NLS.initializeMessages(RLaunchingMessages.class.getName(), RLaunchingMessages.class);
 	}
-	private RLaunchingMessages() { }
+	
 }

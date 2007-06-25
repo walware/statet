@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,13 +18,15 @@ import org.osgi.framework.BundleContext;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
+import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.renv.IREnvManager;
 
 
 /**
- * The main plugin class to be used in the desktop.
+ * The main plug-in class to be used in the desktop.
  */
 public class RCorePlugin extends Plugin {
 
@@ -53,6 +55,8 @@ public class RCorePlugin extends Plugin {
 		private CoreAccess(IPreferenceAccess prefs) {
 			fPrefs = prefs;
 			fRCodeStyle = new RCodeStyleSettings();
+			fRCodeStyle.load(prefs);
+			fRCodeStyle.resetDirty();
 			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.CONTEXT_ID);
 		}
 		
@@ -72,6 +76,7 @@ public class RCorePlugin extends Plugin {
 	
 	private CoreAccess fWorkspaceCoreAccess;
 	private CoreAccess fDefaultsCoreAccess;
+	private REnvManager fREnvManager;
 	
 	
 	/**
@@ -86,6 +91,9 @@ public class RCorePlugin extends Plugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+
+		fREnvManager = new REnvManager(StatetCore.getSettingsChangeNotifier());
+		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
 	}
 
 	/**
@@ -99,33 +107,29 @@ public class RCorePlugin extends Plugin {
 			fWorkspaceCoreAccess.dispose();
 			fWorkspaceCoreAccess = null;
 		}
-		if (fDefaultsCoreAccess!= null) {
+		if (fDefaultsCoreAccess != null) {
 			fDefaultsCoreAccess.dispose();
 			fDefaultsCoreAccess = null;
 		}
+		if (fREnvManager != null) {
+			fREnvManager.dispose();
+			fREnvManager = null;
+		}
+	}
+
+	public IREnvManager getREnvManager() {
+		return fREnvManager;
 	}
 
 	public IRCoreAccess getWorkspaceRCoreAccess() {
-		if (fWorkspaceCoreAccess != null) {
-			return fWorkspaceCoreAccess;
-		}
-		synchronized (this) {
-			if (fWorkspaceCoreAccess == null) {
-				fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
-			}
-			return fWorkspaceCoreAccess;
-		}
+		return fWorkspaceCoreAccess;
 	}
 
-	public IRCoreAccess getDefaultsRCoreAccess() {
-		if (fDefaultsCoreAccess != null) {
-			return fDefaultsCoreAccess;
+	public synchronized IRCoreAccess getDefaultsRCoreAccess() {
+		if (fDefaultsCoreAccess == null) {
+			fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
 		}
-		synchronized (this) {
-			if (fDefaultsCoreAccess == null) {
-				fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
-			}
-			return fDefaultsCoreAccess;
-		}
+		return fDefaultsCoreAccess;
 	}
+
 }

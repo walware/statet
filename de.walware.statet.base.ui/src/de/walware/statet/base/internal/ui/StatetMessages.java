@@ -28,11 +28,21 @@ public class StatetMessages extends NLS {
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_message;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Cancel;
-
 	
-	private static final String BUNDLE_NAME = StatetMessages.class.getName();
+	public static String BackgroundResourceRefresher_Job_name;
+
+	public static String HelpRequestor_Close_name;
+	public static String HelpRequestor_Close_tooltip;
+	public static String HelpRequestor_Task_name;
+	public static String HelpRequestor_error_WhenRunProcess_message;
+	public static String HelpRequestor_error_WhenReadOutput_message;
+
+	public static String InsertVariable_label;
+	public static String InputArguments_label;
+	public static String InputArguments_note;
+	
+	
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, StatetMessages.class);
+		NLS.initializeMessages(StatetMessages.class.getName(), StatetMessages.class);
 	}
-	private StatetMessages() { }
 }

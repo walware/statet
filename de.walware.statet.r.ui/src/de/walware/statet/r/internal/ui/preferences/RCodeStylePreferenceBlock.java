@@ -68,6 +68,13 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
+	protected String[] getChangedContexts() {
+		return new String[] {
+				RCodeStyleSettings.CONTEXT_ID,
+		};
+	}
+	
+	@Override
 	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
 			IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
@@ -78,9 +85,6 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				RCodeStyleSettings.PREF_INDENT_BLOCK_DEPTH,
 				RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH,
 				RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES,
-		});
-		setSettingsContexts(new String[] {
-				RCodeStyleSettings.CONTEXT_ID
 		});
 		fModel = new RCodeStyleSettings(true);
 		

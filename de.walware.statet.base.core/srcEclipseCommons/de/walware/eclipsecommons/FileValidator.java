@@ -23,7 +23,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
@@ -46,6 +45,7 @@ public class FileValidator implements IValidator {
 
 	
 	private Object fExplicitObject;
+	private boolean fInCheck = false;
 	private IResource fWorkspaceResource;
 	private IFileStore fFileStore;
 	private IStatus fStatus;
@@ -57,6 +57,7 @@ public class FileValidator implements IValidator {
 	private int fOnLateResolve;
 	private int fOnFile;
 	private int fOnDirectory;
+	private int fOnNotLocal;
 
 	
 	/**
@@ -69,6 +70,7 @@ public class FileValidator implements IValidator {
 		fOnLateResolve = IStatus.ERROR;
 		fOnFile = IStatus.OK;
 		fOnDirectory = IStatus.OK;
+		fOnNotLocal = IStatus.ERROR;
 	}
 	
 	/**
@@ -133,6 +135,14 @@ public class FileValidator implements IValidator {
 		return fOnDirectory;
 	}
 
+	public void setOnNotLocal(int severity) {
+		fStatus = null;
+		fOnNotLocal = severity;
+	}
+	public int getOnNotLocal() {
+		return fOnNotLocal;
+	}
+
 	public void setResourceLabel(String label) {
 		fResourceLabel = " '" + label + "' ";
 	}
@@ -161,8 +171,10 @@ public class FileValidator implements IValidator {
 	
 	private boolean checkExplicit() {
 		if (fExplicitObject != null) {
-			if (fStatus == null) {
+			if (fStatus == null && !fInCheck) {
+				fInCheck = true;
 				fStatus = doValidate(fExplicitObject);
+				fInCheck = false;
 			}
 			return true;
 		}
@@ -235,7 +247,6 @@ public class FileValidator implements IValidator {
 			return null; 
 		}
 		catch (CoreException e) {
-			// not local
 		}
 		try {
 			URI uri = new URI(location);
@@ -265,18 +276,38 @@ public class FileValidator implements IValidator {
 	}
 	
 	protected IStatus validateWorkspaceResource() {
-		if (fOnExisting != IStatus.OK || fOnNotExisting != IStatus.OK || fOnFile != IStatus.OK || fOnDirectory != IStatus.OK) {
-			return createExistsStatus(fWorkspaceResource.exists(), (fWorkspaceResource instanceof IContainer));
+		IStatus status = Status.OK_STATUS;
+		if (fOnNotLocal != IStatus.OK) {
+			if (!isLocalFile()) {
+				status = createStatus(fOnNotLocal, Messages.Resource_error_NotLocal_message, null);
+			}
+			if (status.getSeverity() == IStatus.ERROR) {
+				return status;
+			}
 		}
-		return Status.OK_STATUS;
+		if (fOnExisting != IStatus.OK || fOnNotExisting != IStatus.OK || fOnFile != IStatus.OK || fOnDirectory != IStatus.OK) {
+			status = StatusUtil.getMoreSevere(status,
+					createExistsStatus(fWorkspaceResource.exists(), (fWorkspaceResource instanceof IContainer)) );
+		}
+		return status;
 	}
 
 	protected IStatus validateFileStore() {
+		IStatus status = Status.OK_STATUS;
+		if (fOnNotLocal != IStatus.OK) {
+			if (!isLocalFile()) {
+				status = createStatus(fOnNotLocal, Messages.Resource_error_NotLocal_message, null);
+			}
+			if (status.getSeverity() == IStatus.ERROR) {
+				return status;
+			}
+		}
 		if (fOnExisting != IStatus.OK || fOnNotExisting != IStatus.OK) {
 			IFileInfo info = fFileStore.fetchInfo();
-			return createExistsStatus(info.exists(), info.isDirectory());
+			status = StatusUtil.getMoreSevere(status,
+					createExistsStatus(info.exists(), info.isDirectory()) );
 		}
-		return Status.OK_STATUS;
+		return status;
 	}
 	
 	private IStatus createExistsStatus(boolean exists, boolean isDirectory) {
@@ -299,19 +330,19 @@ public class FileValidator implements IValidator {
 		if (severity == IStatus.OK) {
 			return Status.OK_STATUS;
 		}
-		if (detail != null) {
-			return new Status(severity, StatetCore.PLUGIN_ID, NLS.bind(message, fResourceLabel, detail));
+		if (detail == null) {
+			detail = ""; //$NON-NLS-1$
 		}
-		return new Status(severity, StatetCore.PLUGIN_ID, NLS.bind(message, fResourceLabel));
+		return new Status(severity, StatetCore.PLUGIN_ID, NLS.bind(message, fResourceLabel, detail));
 	}
 	
 	
 	public IFileStore getFileStore() {
 		checkExplicit();
 		if (fFileStore == null && fWorkspaceResource != null) {
-			IPath path = fWorkspaceResource.getLocation();
-			if (path != null) {
-				fFileStore = EFS.getLocalFileSystem().getStore(path);
+			try {
+				fFileStore = EFS.getStore(fWorkspaceResource.getLocationURI());
+			} catch (CoreException e) {
 			}
 		}
 		return fFileStore;

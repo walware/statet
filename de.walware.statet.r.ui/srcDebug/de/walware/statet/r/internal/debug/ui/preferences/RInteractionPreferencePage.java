@@ -41,14 +41,12 @@ public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage
 
 	
 	public RInteractionPreferencePage() {
-		
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 		setDescription(Messages.RInteraction_description);
 	}
 	
 	@Override
 	protected RInteractionConfigurationBlock createConfigurationBlock() {
-
 		return new RInteractionConfigurationBlock();
 	}
 	
@@ -63,7 +61,6 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	
 
 	RInteractionConfigurationBlock () {
-
 		super(null);
 	}
 	
@@ -135,7 +132,6 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	private void updateDescriptionSize() {
-
 		Composite scroller = fConnectorsDescription.getParent();
 		int widthHint = fConnectorsDescription.getParent().getClientArea().width;
 		if (!scroller.getVerticalBar().isVisible())
@@ -147,12 +143,10 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected void updateControls() {
-		
 		loadValues();
 	}
 		
 	private void loadValues() {
-
 		String selectedConnector = getPreferenceValue(PREF_R_CONNECTOR);
 
 		for (int i = 0; i < fConnectors.length; i++) {

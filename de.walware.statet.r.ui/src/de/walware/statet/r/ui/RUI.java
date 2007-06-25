@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
 package de.walware.statet.r.ui;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
@@ -24,23 +24,16 @@ public class RUI {
 
 	public static final String PLUGIN_ID = "de.walware.statet.r.ui"; //$NON-NLS-1$
 	
-	
-	public static final String IMG_RCONSOLE = RUI.PLUGIN_ID+"/img/tool/rconsole"; //$NON-NLS-1$
+
+	public static final String IMG_OBJ_R_ENVIRONMENT = RUI.PLUGIN_ID+"/image/obj/r_environment"; //$NON-NLS-1$
 
 	
 	public static ImageDescriptor getImageDescriptor(String key) {
-		
 		return RUIPlugin.getDefault().getImageRegistry().getDescriptor(key);
 	}
 	
-	/**
-	 * Image registry, if you want to reuse this registry.
-	 * 
-	 * @return image registry of this plugin.
-	 */
-	public static ImageRegistry getImageRegistry() {
-		
-		return RUIPlugin.getDefault().getImageRegistry();
+	public static Image getImage(String key) {
+		return RUIPlugin.getDefault().getImageRegistry().get(key);
 	}
 	
 }

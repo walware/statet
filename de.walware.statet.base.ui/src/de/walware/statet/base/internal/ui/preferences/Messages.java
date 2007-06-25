@@ -46,7 +46,6 @@ public class Messages extends NLS {
 	public static String SyntaxColoring_Use_CustomStyle_label;
 	public static String SyntaxColoring_Use_NoExtraStyle_label;
 	public static String SyntaxColoring_Use_OtherStyle_label;
-	public static String SyntaxColoring_Enable;
 	public static String SyntaxColoring_Color;
 	public static String SyntaxColoring_Bold;
 	public static String SyntaxColoring_Italic;
@@ -82,7 +81,6 @@ public class Messages extends NLS {
 	public static String TaskTags_description;
 	public static String TaskTags_TaskColumn_name;
 	public static String TaskTags_PriorityColumn_name;
-	public static String TaskTags_CaseSensitive_label;
 	public static String TaskTags_warning_NoTag_message;
 	public static String TaskTags_error_DefaultTast_message;
 

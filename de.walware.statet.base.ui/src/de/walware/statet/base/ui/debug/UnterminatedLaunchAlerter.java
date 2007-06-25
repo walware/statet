@@ -1,4 +1,4 @@
-package de.walware.statet.base.ui.util;
+package de.walware.statet.base.ui.debug;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,6 +25,8 @@ import de.walware.statet.base.internal.ui.StatetMessages;
 /**
  * A workbench listener that warns the user about any running tools when
  * the workbench closes. Programs are killed when the VM exits.
+ * 
+ * Register your type on launch with {@link #registerLaunchType(String)}
  */
 public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 

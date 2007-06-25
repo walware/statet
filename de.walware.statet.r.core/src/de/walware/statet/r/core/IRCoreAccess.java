@@ -24,4 +24,6 @@ public interface IRCoreAccess {
 	
 	public RCodeStyleSettings getRCodeStyle();
 	
+/*	public REnvConfiguration getREnvironment();*/
+	
 }
