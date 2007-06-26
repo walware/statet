@@ -71,12 +71,13 @@ public class History {
 	public class Entry {
 		
 		private final String fCommand;
+		private final boolean fIsEmpty;
 		private Entry fOlder;
 		private Entry fNewer;
 		
 		private Entry(Entry older, String command) {
-			
 			fCommand = command;
+			fIsEmpty = isCommandEmpty(command);
 			fOlder = older;
 			if (older != null) {
 				older.fNewer = this;
@@ -84,19 +85,20 @@ public class History {
 		}
 		
 		public String getCommand() {
-			
 			return fCommand;
 		}
 		
+		public boolean isEmpty() {
+			return fIsEmpty;
+		}
+		
 		public Entry getNewer() {
-			
 			synchronized (History.this) {
 				return fNewer;
 			}
 		}
 		
 		public Entry getOlder() {
-			
 			synchronized (History.this) {
 				return fOlder;
 			}
@@ -108,12 +110,10 @@ public class History {
 		 * @return the history.
 		 */
 		public History getHistory() {
-			
 			return History.this;
 		}
 		
 		private Entry dispose() {
-			
 			if (fNewer != null) {
 				fNewer.fOlder = null;
 			}
@@ -123,7 +123,6 @@ public class History {
 	
 	
 	public History(ToolProcess process) {
-		
 		fProcess = process;
 		
 		fStreamListener = new IStreamListener() {
@@ -147,7 +146,6 @@ public class History {
 	}
 	
 	private void checkSettings() {
-		
 		HistoryPreferences prefs = new HistoryPreferences(PreferencesUtil.getInstancePrefs());
 		if (prefs.equals(fCurrentPreferences)) {
 			return;
@@ -173,7 +171,6 @@ public class History {
 	}
 	
 	private void trimSize() {
-		
 		while (fCurrentSize > fMaxSize) {
 			fOldest = fOldest.dispose();
 			fCurrentSize--;
@@ -308,9 +305,7 @@ public class History {
 	}
 	
 	private void addCommand(String command) {
-		
-		if (command == null || isEmpty(command)) // no empty entry
-			return;
+		assert(command != null);
 		
 		Entry removedEntry = null;
 		Entry newEntry = null;
@@ -349,7 +344,6 @@ public class History {
 	 * 		or <code>null</null>, if history is empty.
 	 */
 	public synchronized Entry getNewest() {
-		
 		return fNewest;
 	}
 	
@@ -362,7 +356,6 @@ public class History {
 	 * 		or an array with length 0, if history is empty.
 	 */
 	public Entry[] toArray() {
-		
 		Entry[] array = fArrayCache;
 		if (array != null) {
 			return array;
@@ -386,7 +379,6 @@ public class History {
      * @param listener the listener
      */
 	public void addListener(IHistoryListener listener) {
-		
 		fListeners.add(listener);
 	}
 	
@@ -397,12 +389,10 @@ public class History {
      * @param listener the listener
      */
 	public void removeListener(IHistoryListener listener) {
-		
 		fListeners.remove(listener);
 	}
 	
 	private void fireCompleteChange() {
-		
 		fArrayCache = toArray();
 		for (Object obj : fListeners.getListeners()) {
 			((IHistoryListener) obj).completeChange();
@@ -413,8 +403,7 @@ public class History {
 	/** 
 	 * Checks, if this command is empty or an command
 	 */
-	private boolean isEmpty(String command) {
-		// TODO: change to filter
+	private boolean isCommandEmpty(String command) {
 		int length = command.length();
 		for (int i = 0; i < length; i++) {
 			char c = command.charAt(i);

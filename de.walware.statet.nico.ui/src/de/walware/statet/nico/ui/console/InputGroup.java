@@ -277,10 +277,14 @@ public class InputGroup implements ISettingsChangedHandler {
 	}
 	
 	public void doHistoryNewer() {
-		if (fCurrentHistoryEntry == null)
+		if (fCurrentHistoryEntry == null) {
 			return;
+		}
 		
 		fCurrentHistoryEntry = fCurrentHistoryEntry.getNewer();
+		while (fCurrentHistoryEntry != null && fCurrentHistoryEntry.isEmpty()) {
+			fCurrentHistoryEntry = fCurrentHistoryEntry.getNewer();
+		}
 
 		String text = (fCurrentHistoryEntry != null) ?
 				fCurrentHistoryEntry.getCommand() : ""; //$NON-NLS-1$
@@ -295,17 +299,26 @@ public class InputGroup implements ISettingsChangedHandler {
 	}
 	
 	public void doHistoryOlder() {
+		History.Entry next;
 		if (fCurrentHistoryEntry != null) {
-			History.Entry next = fCurrentHistoryEntry.getOlder();
-			if (next == null)
+			next = fCurrentHistoryEntry.getOlder();
+			if (next == null) {
 				return;
-			fCurrentHistoryEntry = next;
+			}
 		}
 		else {
-			fCurrentHistoryEntry = fProcess.getHistory().getNewest();
-			if (fCurrentHistoryEntry == null)
+			next = fProcess.getHistory().getNewest();
+			if (next == null) {
 				return;
+			}
 		}
+		while (next.isEmpty()) {
+			next = next.getOlder();
+			if (next == null) {
+				return;
+			}
+		}
+		fCurrentHistoryEntry = next;
 		if (!fIsHistoryCompoundChangeOpen) {
 			fIsHistoryCompoundChangeOpen = true;
 			fSourceViewer.getUndoManager().beginCompoundChange();

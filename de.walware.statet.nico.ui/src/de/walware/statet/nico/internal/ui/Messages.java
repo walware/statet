@@ -25,6 +25,9 @@ public class Messages extends NLS {
 	public static String SaveHistoryPage_Options_label;
 	public static String SaveHistoryPage_AppendToFile_label;
 	public static String SaveHistoryPage_OverwriteExisting_label;
+
+	public static String FilterEmptyAction_name;
+	public static String FilterEmptyAction_tooltip;
 	
 	public static String Console_SubmitButton_label;
 	
@@ -44,6 +47,7 @@ public class Messages extends NLS {
 	public static String TerminatingMonitor_CancelButton_label;
 	public static String TerminatingMonitor_ForceButton_label;
 	public static String TerminatingMonitor_WaitButton_label;
+
 
 	
 	static {

@@ -24,6 +24,7 @@ public class ScrollLockAction extends Action {
 	public interface Receiver {
 		
 		public void setAutoScroll(boolean enabled);
+		
 	}
 	
 	
@@ -31,7 +32,6 @@ public class ScrollLockAction extends Action {
 	
 	
 	public ScrollLockAction(Receiver view, boolean initialChecked) {
-		
 		setText(SharedMessages.ToggleScrollLockAction_name);
 		setToolTipText(SharedMessages.ToggleScrollLockAction_tooltip);
 		
@@ -42,7 +42,6 @@ public class ScrollLockAction extends Action {
 	}
 	
 	public void run() {
-	
 		fView.setAutoScroll(!isChecked());
 	}
 }
