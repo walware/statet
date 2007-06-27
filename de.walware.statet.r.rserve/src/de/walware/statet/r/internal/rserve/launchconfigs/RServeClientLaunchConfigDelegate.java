@@ -16,16 +16,14 @@ import java.util.Date;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -46,36 +44,30 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			ILaunch launch, IProgressMonitor monitor) throws CoreException {
 
 		try {
-			if (monitor == null) {
-				monitor = new NullProgressMonitor();
-			}
-//			monitor.beginTask("", 1000);
+			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 4);
 			if (monitor.isCanceled()) {
 				return;
 			}
 			
-			IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
+			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.load(configuration);
 			String name = "rserve://"+connectionConfig.getServerAddress()+":"+connectionConfig.getServerPort()
 					+" ("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")";
 			
+			monitor.worked(1);
 			if (monitor.isCanceled()) {
 				return;
 			}
+			
 			UnterminatedLaunchAlerter.registerLaunchType(IRServeConstants.ID_RSERVE_LAUNCHCONFIG);
-
-			ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, name);
+			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, name);
 			process.init(new RServeClientController(process, connectionConfig));
-			new TerminatingMonitor(process);
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
-	    	ConsolePlugin.getDefault().getConsoleManager().addConsoles(
-	    			new IConsole[] { console });
-	
+			new TerminatingMonitor(process);
+	    	NicoUITools.startConsoleLazy(console, page);
+	    	// start
 	    	new ToolRunner().runInBackgroundThread(process, new ExceptionHandler.StatusHandler());
-	
-	    	// open console
-	    	NicoUITools.showConsole(console, page, true);
 		}
 		finally {
 			monitor.done();

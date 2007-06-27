@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -149,6 +150,22 @@ public class LaunchConfigUtil {
 		}
 	}
 
+
+	public static IProgressMonitor initProgressMonitor(ILaunchConfiguration configuration,
+			IProgressMonitor monitor, int taskTotalWork) {
+		if (monitor == null) {
+			monitor = new NullProgressMonitor();
+		}
+		if (CommonTab.isLaunchInBackground(configuration)) {
+			monitor.beginTask(StatetMessages.LaunchDelegate_LaunchingTask_label, taskTotalWork);
+		}
+		else {
+			monitor.beginTask(StatetMessages.LaunchDelegate_RunningTask_label, taskTotalWork*2);
+			monitor.subTask(StatetMessages.LaunchDelegate_LaunchingTask_label);
+		}
+		return monitor;
+	}
+	
 	/**
 	 * Manages resource refresh according to the settings in launch configuration.  
 	 */

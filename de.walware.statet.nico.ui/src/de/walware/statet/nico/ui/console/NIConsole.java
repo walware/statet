@@ -13,10 +13,8 @@ package de.walware.statet.nico.ui.console;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -29,11 +27,7 @@ import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
@@ -58,23 +52,6 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
 	
 
-	public static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
-		
-		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
-		
-		IViewReference[] allReferences = page.getViewReferences();
-		for (IViewReference reference : allReferences) {
-			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
-				IViewPart view = reference.getView(false);
-				if (view != null) {
-					consoleViews.add((IConsoleView) view);
-				}
-			}
-		}
-		return consoleViews;
-	}
-
-	
 	private Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
 	private boolean fStreamsClosed;
 	
@@ -91,7 +68,6 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	 * @param name console name
 	 */
 	public NIConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
-		
 		super(process.getAttribute(IProcess.ATTR_PROCESS_LABEL),
 				NICONSOLE_TYPE, null, null, true);
 		
@@ -141,7 +117,6 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	
 	@Override
 	protected void init() {
-		
 		super.init();
 		
 		fFontListener = new IPropertyChangeListener() {
@@ -156,7 +131,6 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	
 	@Override
 	protected void dispose() {
-		
 		super.dispose();
 		
 		DebugPlugin debugPlugin = DebugPlugin.getDefault();
@@ -175,7 +149,6 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 
 
 	public void connect(ToolStreamMonitor streamMonitor, String streamId, EnumSet<SubmitType> filter) {
-		
 		synchronized (fStreams) {
 			if (fStreamsClosed) {
 				return;
@@ -202,14 +175,12 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	}
 
     public IOConsoleOutputStream getStream(String streamId) {
-		
 		synchronized (fStreams) {
 			return fStreams.get(streamId);
 		}
 	}
 
 	private void disconnect() {
-		
 		synchronized (fStreams) {
 			if (fStreamsClosed) {
 				return;
@@ -229,13 +200,11 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 		}
 	}
 
-	public ToolProcess getProcess() {
-		
+	public final ToolProcess getProcess() {
 		return fProcess;
 	}
 	
 	public Object getAdapter(Class adapter) {
-
     	if (ITool.class.equals(adapter)) {
     		return fProcess;
     	}

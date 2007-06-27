@@ -24,7 +24,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.IToolRegistryListener;
-import de.walware.statet.nico.ui.NicoUITools;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 
 
@@ -43,7 +43,7 @@ public class ToolActionDelegate implements IActionDelegate, IActionDelegate2, IT
 		
 		fAction = (ToolAction) action;
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
-		NicoUITools.getRegistry().addListener(this, page);
+		NicoUI.getToolRegistry().addListener(this, page);
 		DebugPlugin.getDefault().addDebugEventListener(this);
 	}
 

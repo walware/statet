@@ -15,6 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.ui.DebugUITools;
@@ -40,14 +43,47 @@ import de.walware.statet.nico.ui.console.NIConsole;
  */
 public class NicoUITools {
 
+
+//	public static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
+//		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
+//		
+//		IViewReference[] allReferences = page.getViewReferences();
+//		for (IViewReference reference : allReferences) {
+//			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
+//				IViewPart view = reference.getView(false);
+//				if (view != null) {
+//					consoleViews.add((IConsoleView) view);
+//				}
+//			}
+//		}
+//		return consoleViews;
+//	}
+
 	
-	public static IToolRegistry getRegistry() {
-		
-		return NicoUIPlugin.getDefault().getToolRegistry();
+	public static void startConsoleLazy(final NIConsole console, final IWorkbenchPage page) {
+    	DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
+    		public void handleDebugEvents(DebugEvent[] events) {
+    			ToolProcess process = console.getProcess();
+    			for (DebugEvent event : events) {
+					if (event.getSource() == process) {
+						switch (event.getKind()) {
+						case DebugEvent.TERMINATE:
+							DebugPlugin.getDefault().removeDebugEventListener(this);
+							break;
+						case DebugEvent.MODEL_SPECIFIC:
+							// register and open console
+							ConsolePlugin.getDefault().getConsoleManager().addConsoles(
+									new IConsole[] { console });
+							showConsole(console, page, true);
+							break;
+						}
+					}
+				}
+    		}
+    	});
 	}
 	
 	public static NIConsole getConsole(ToolProcess process) {
-		
 		IConsole[] consoles = ConsolePlugin.getDefault().getConsoleManager().getConsoles();
 		for (IConsole console : consoles) {
 			if (console instanceof NIConsole) {
@@ -62,19 +98,16 @@ public class NicoUITools {
 	
 	public static void showConsole(NIConsole console, IWorkbenchPage page,
 			boolean activate) {
-		
 		ToolRegistry registry = NicoUIPlugin.getDefault().getToolRegistry();
 		registry.showConsole(console, page, activate);
 	}
 
 	
 	public static String createSubmitMessage(ToolProcess process) {
-		
 		return NLS.bind(NicoUIMessages.SubmitTask_name, process.getToolLabel(false));
 	}
 	
 	public static void runSubmitInBackground(ToolProcess process, IRunnableWithProgress runnable, Shell shell) {
-		
 		try {
 			// would busycursor or job be better?
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
@@ -94,7 +127,6 @@ public class NicoUITools {
      * @return an image descriptor for this tool or <code>null</code>
      */
     public static ImageDescriptor getImageDescriptor(ToolProcess process) {
-    	
         ILaunchConfiguration configuration = process.getLaunch().getLaunchConfiguration();
         if (configuration != null) {
             ILaunchConfigurationType type;
@@ -114,7 +146,6 @@ public class NicoUITools {
      * @return an image descriptor for this runnable or <code>null</code>
      */
     public static ImageDescriptor getImageDescriptor(IToolRunnable runnable) {
-    	
 		IToolRunnableAdapter adapter = getRunnableAdapter(runnable);
 		if (adapter != null) {
 			return adapter.getImageDescriptor();
@@ -124,7 +155,6 @@ public class NicoUITools {
 
     
     private static IToolRunnableAdapter getRunnableAdapter(IToolRunnable runnable) {
-    	
         if (!(runnable instanceof IAdaptable)) {
             return null;
         }

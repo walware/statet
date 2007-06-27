@@ -16,7 +16,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class RLaunchingMessages extends NLS {
 	
-	public static String LaunchDelegate_Running;
 	public static String LaunchDelegate_error_StartingExec;
 	public static String LaunchDelegate_error_ProcessHandle;
 
@@ -46,6 +45,7 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_Resource_Doc_label;
 	public static String RCmd_Resource_Other_label;
 	public static String RCmd_Resource_Package_label;
+	public static String RCmd_LaunchDelegate_Running_label;
 
 	public static String REnv_Tab_REnvConfig_label;
 	public static String REnv_Tab_title;

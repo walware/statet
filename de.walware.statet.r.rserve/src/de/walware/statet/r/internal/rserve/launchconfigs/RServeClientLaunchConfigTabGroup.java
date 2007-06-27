@@ -11,13 +11,11 @@
 
 package de.walware.statet.r.internal.rserve.launchconfigs;
 
-import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
-import org.eclipse.debug.ui.CommonTab;
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+
+import de.walware.statet.nico.ui.util.CommonTabForNico;
 
 
 public class RServeClientLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup {
@@ -30,16 +28,7 @@ public class RServeClientLaunchConfigTabGroup extends AbstractLaunchConfiguratio
 
 		ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
 				new RServeClientMainTab(),
-
-				new CommonTab() {
-					@Override
-					public void setDefaults(ILaunchConfigurationWorkingCopy config) {
-						super.setDefaults(config);
-						config.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
-						config.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, false);
-					}
-				},
-				
+				new CommonTabForNico(),
 		};
 		setTabs(tabs);
 	}

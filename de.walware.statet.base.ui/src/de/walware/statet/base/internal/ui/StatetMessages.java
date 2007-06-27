@@ -29,6 +29,8 @@ public class StatetMessages extends NLS {
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue;
 	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Cancel;
 	
+	public static String LaunchDelegate_LaunchingTask_label;
+	public static String LaunchDelegate_RunningTask_label;
 	public static String BackgroundResourceRefresher_Job_name;
 
 	public static String HelpRequestor_Close_name;

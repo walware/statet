@@ -30,6 +30,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
+import org.eclipse.debug.ui.CommonTab;
 
 import de.walware.eclipsecommons.FileUtil;
 
@@ -52,7 +53,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			IProgressMonitor monitor) throws CoreException {
 		
 		try {
-			monitor.beginTask(RLaunchingMessages.LaunchDelegate_Running, 25);
+			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
 			if (monitor.isCanceled()) {
 				return;
 			}
@@ -140,6 +141,9 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
 			
 			monitor.worked(5);
+			if (!process.isTerminated() && !CommonTab.isLaunchInBackground(configuration)) {
+				monitor.subTask(RLaunchingMessages.RCmd_LaunchDelegate_Running_label);
+			}
 			
 			LaunchConfigUtil.launchResourceRefresh(configuration, process, new SubProgressMonitor(monitor, 5));
 		}

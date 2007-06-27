@@ -22,6 +22,7 @@ import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
@@ -35,7 +36,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
 	public boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException {
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(page);
+		ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
 		ToolProcess process = info.getProcess();
 		if (process != null) {
 			ToolController controller = process.getController();
@@ -55,7 +56,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
 	public void gotoConsole() throws CoreException {
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
-		ToolSessionUIData info = NicoUITools.getRegistry().getActiveToolSession(page);
+		ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
 		NIConsole console = info.getConsole();
 		if (console != null) {
 			NicoUITools.showConsole(console, page, true);

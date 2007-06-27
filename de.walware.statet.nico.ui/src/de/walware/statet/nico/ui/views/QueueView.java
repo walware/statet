@@ -51,6 +51,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.PauseAction;
@@ -404,7 +405,7 @@ public class QueueView extends ViewPart {
 		contributeToActionBars();
 		
 		// listen on console changes
-		IToolRegistry toolRegistry = NicoUITools.getRegistry();
+		IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionUIData info) {

@@ -33,7 +33,10 @@ public class NicoUI {
 	
 	
 	public static ImageDescriptor getImageDescriptor(String key) {
-		
 		return NicoUIPlugin.getDefault().getImageRegistry().getDescriptor(key);
+	}
+
+	public static IToolRegistry getToolRegistry() {
+		return NicoUIPlugin.getDefault().getToolRegistry();
 	}
 }

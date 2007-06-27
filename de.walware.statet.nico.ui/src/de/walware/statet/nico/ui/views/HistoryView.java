@@ -67,7 +67,7 @@ import de.walware.statet.nico.internal.ui.actions.HistoryDragAdapter;
 import de.walware.statet.nico.internal.ui.actions.HistorySubmitAction;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
-import de.walware.statet.nico.ui.NicoUITools;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.IToolAction;
 import de.walware.statet.nico.ui.actions.IToolActionSupport;
@@ -351,7 +351,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 				new HistoryDragAdapter(this));
 
 		// listen on console changes
-		IToolRegistry toolRegistry = NicoUITools.getRegistry();
+		IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
 			public void toolSessionActivated(ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
@@ -534,7 +534,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	@Override
 	public void dispose() {
 		if (fToolRegistryListener != null) {
-			NicoUITools.getRegistry().removeListener(fToolRegistryListener);
+			NicoUI.getToolRegistry().removeListener(fToolRegistryListener);
 			fToolRegistryListener = null;
 		}
 		fToolActions.clear();
