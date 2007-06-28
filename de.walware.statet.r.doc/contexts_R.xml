@@ -18,10 +18,8 @@
         <topic label="Workbench - Navigating the user interface using the keyboard" href="/org.eclipse.platform.doc.user/concepts/accessibility/navigation.htm" />
     </context>
     <context id="r_console">
-        <description>The R Console enables command based interaction with R.
-
-You can type commands in the bottom text field and edit R code almost like in the R Editor. Using the UP- and DOWN-key you can navigate through the history of the last inputs. Pressing ENTER or the 'Submit'-Button sends your current input to R.
-        </description>
+        <description>The R Console enables command based interaction with R.</description>
+        <topic label="New Integrated Console" href="reference/newconsole.xhtml" />
     </context>
 
 </contexts>

@@ -15,6 +15,10 @@
 
 <plugin>
    <extension
+         point="org.eclipse.help.base.luceneSearchParticipants">
+      <binding participantId="org.eclipse.help.base.xhtml"/>
+   </extension>
+   <extension
          point="org.eclipse.help.contexts">
       <contexts
             file="contexts_R.xml"
