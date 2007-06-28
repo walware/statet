@@ -23,6 +23,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -100,19 +101,120 @@ public class InputGroup implements ISettingsChangedHandler {
 	
 	private class ThisKeyListener implements KeyListener {
 
+		/**
+		 * {@link InputSourceViewer#disableSpecialBindings}
+		 */ 
 		public void keyPressed(KeyEvent e) {
-			if (e.stateMask == SWT.NONE) {
-				if (e.keyCode == SWT.ARROW_UP) {
+			if (e.stateMask == SWT.NULL) {
+				switch (e.keyCode) {
+				case SWT.ARROW_UP:
 					doHistoryOlder();
-				} else if (e.keyCode == SWT.ARROW_DOWN)
+					break;
+				case SWT.ARROW_DOWN: 
 					doHistoryNewer();
-				else if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)
+					break;
+				case SWT.CR:
+				case SWT.KEYPAD_CR:
 					doSubmit();
+					break;
+				default:
+					return;
+				}
 			}
+			else if (e.stateMask == SWT.SHIFT) {
+				switch (e.keyCode) {
+				case SWT.ARROW_UP:
+					doOutputLineUp();
+					break;
+				case SWT.ARROW_DOWN:
+					doOutputLineDown();
+					break;
+				case SWT.PAGE_UP:
+					doOutputPageUp();
+					break;
+				case SWT.PAGE_DOWN:
+					doOutputPageDown();
+					break;
+				default:
+					return;
+				}
+			}
+			else if (e.stateMask == (SWT.MOD1 | SWT.SHIFT)) {
+				switch (e.keyCode) {
+				case SWT.HOME:
+					doOutputFirstLine();
+					break;
+				case SWT.END:
+					doOutputLastLine();
+					break;
+				default:
+					return;
+				}
+			}
+			else {
+				return;
+			}
+			e.doit = false;
 		}
 
 		public void keyReleased(KeyEvent e) {
 		}
+		
+		private void doOutputLineUp() {
+			StyledText output = (StyledText) fConsolePage.getOutputViewer().getControl();
+			int next = output.getTopIndex() - 1;
+			if (next < 0) {
+				return;
+			}
+			output.setTopIndex(next);
+		}
+
+		private void doOutputLineDown() {
+			StyledText output = (StyledText) fConsolePage.getOutputViewer().getControl();
+			int next = output.getTopIndex() + 1;
+			if (next >= output.getLineCount()) {
+				return;
+			}
+			output.setTopIndex(next);
+		}
+		
+		private void doOutputPageUp() {
+			StyledText output = (StyledText) fConsolePage.getOutputViewer().getControl();
+			int current = output.getTopIndex();
+			int move = Math.max(1, (output.getClientArea().height / output.getLineHeight()) - 1);
+			int next = Math.max(0, current - move);
+			if (next == current) {
+				return;
+			}
+			output.setTopIndex(next);
+		}
+
+		private void doOutputPageDown() {
+			StyledText output = (StyledText) fConsolePage.getOutputViewer().getControl();
+			int current = output.getTopIndex();
+			int move = Math.max(1, (output.getClientArea().height / output.getLineHeight()) - 1);
+			int next = Math.min(current + move, output.getLineCount() - 1);
+			if (next == current) {
+				return;
+			}
+			output.setTopIndex(next);
+		}
+
+		private void doOutputFirstLine() {
+			StyledText output = (StyledText) fConsolePage.getOutputViewer().getControl();
+			int next = 0;
+			output.setTopIndex(next);
+		}
+
+		private void doOutputLastLine() {
+			StyledText output = (StyledText) fConsolePage.getOutputViewer().getControl();
+			int next = output.getLineCount()-1;
+			if (next < 0) {
+				return;
+			}
+			output.setTopIndex(next);
+		}
+		
 	}
 
 

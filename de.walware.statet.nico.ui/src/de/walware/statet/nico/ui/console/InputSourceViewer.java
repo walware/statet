@@ -32,6 +32,7 @@ public class InputSourceViewer extends SourceViewer {
 		
 		initializeDragAndDrop();
 		initTabControl();
+		disableSpecialBindings();
 	}
 	
 
@@ -54,5 +55,23 @@ public class InputSourceViewer extends SourceViewer {
 			}
 		});
 	}
-	
+
+	/**
+	 * {@link InputGroup.ThisKeyListener#keyPressed}
+	 */
+	protected void disableSpecialBindings() {
+		StyledText control = (StyledText) getControl();
+		
+		control.setKeyBinding(SWT.ARROW_UP, SWT.NULL);
+		control.setKeyBinding(SWT.ARROW_DOWN, SWT.NULL);
+		control.setKeyBinding(SWT.CR, SWT.NULL);
+		control.setKeyBinding(SWT.KEYPAD_CR, SWT.NULL);
+		
+		control.setKeyBinding(SWT.SHIFT | SWT.ARROW_UP, SWT.NULL);
+		control.setKeyBinding(SWT.SHIFT | SWT.ARROW_DOWN, SWT.NULL);
+		control.setKeyBinding(SWT.SHIFT | SWT.PAGE_UP, SWT.NULL);
+		control.setKeyBinding(SWT.SHIFT | SWT.PAGE_DOWN, SWT.NULL);
+		control.setKeyBinding(SWT.MOD1 | SWT.SHIFT | SWT.HOME, SWT.NULL);
+		control.setKeyBinding(SWT.MOD1 | SWT.SHIFT | SWT.END, SWT.NULL);
+	}
 }
