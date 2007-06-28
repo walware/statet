@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,6 @@ public class InputSourceViewer extends SourceViewer {
 		
 		initializeDragAndDrop();
 		initTabControl();
-		disableSpecialBindings();
 	}
 	
 
@@ -56,22 +55,9 @@ public class InputSourceViewer extends SourceViewer {
 		});
 	}
 
-	/**
-	 * {@link InputGroup.ThisKeyListener#keyPressed}
-	 */
-	protected void disableSpecialBindings() {
+	public void removeSpecialBinding(int key) {
 		StyledText control = (StyledText) getControl();
-		
-		control.setKeyBinding(SWT.ARROW_UP, SWT.NULL);
-		control.setKeyBinding(SWT.ARROW_DOWN, SWT.NULL);
-		control.setKeyBinding(SWT.CR, SWT.NULL);
-		control.setKeyBinding(SWT.KEYPAD_CR, SWT.NULL);
-		
-		control.setKeyBinding(SWT.SHIFT | SWT.ARROW_UP, SWT.NULL);
-		control.setKeyBinding(SWT.SHIFT | SWT.ARROW_DOWN, SWT.NULL);
-		control.setKeyBinding(SWT.SHIFT | SWT.PAGE_UP, SWT.NULL);
-		control.setKeyBinding(SWT.SHIFT | SWT.PAGE_DOWN, SWT.NULL);
-		control.setKeyBinding(SWT.MOD1 | SWT.SHIFT | SWT.HOME, SWT.NULL);
-		control.setKeyBinding(SWT.MOD1 | SWT.SHIFT | SWT.END, SWT.NULL);
+		control.setKeyBinding(key, SWT.NULL);
 	}
+	
 }

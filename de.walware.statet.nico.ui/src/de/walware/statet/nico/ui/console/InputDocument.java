@@ -29,6 +29,7 @@ import org.eclipse.jface.text.IDocumentPartitionerExtension2;
 import org.eclipse.jface.text.IDocumentPartitioningListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TypedRegion;
 
 import de.walware.statet.nico.internal.ui.Messages;
@@ -163,7 +164,7 @@ public class InputDocument extends AbstractDocument {
 		fMaster.addDocumentPartitioningListener(new IDocumentPartitioningListener() {
 			@SuppressWarnings("deprecation")
 			public void documentPartitioningChanged(IDocument document) {
-				fireDocumentPartitioningChanged(); // the new methods seems not work for us
+				fireDocumentPartitioningChanged(new Region(0, getLength()));
 			}
 		});
 	}

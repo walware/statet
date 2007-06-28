@@ -67,6 +67,19 @@ import de.walware.statet.nico.internal.ui.Messages;
 public class InputGroup implements ISettingsChangedHandler {
 
 	
+	final static int KEY_HIST_UP = SWT.ARROW_UP;
+	final static int KEY_HIST_DOWN = SWT.ARROW_DOWN;
+	final static int KEY_SUBMIT_DEFAULT = SWT.CR;
+	final static int KEY_SUBMIT_KEYPAD = SWT.KEYPAD_CR;
+	
+	final static int KEY_OUTPUT_LINEUP = SWT.SHIFT | SWT.ARROW_UP;
+	final static int KEY_OUTPUT_LINEDOWN = SWT.SHIFT | SWT.ARROW_DOWN;
+	final static int KEY_OUTPUT_PAGEUP = SWT.SHIFT | SWT.PAGE_UP;
+	final static int KEY_OUTPUT_PAGEDOWN = SWT.SHIFT | SWT.PAGE_DOWN;
+	final static int KEY_OUTPUT_START = SWT.MOD1 | SWT.SHIFT | SWT.HOME;
+	final static int KEY_OUTPUT_END = SWT.MOD1 | SWT.SHIFT | SWT.END;
+	
+	
 	private class EditorAdapter implements IEditorAdapter {
 
 		private boolean fMessageSetted;
@@ -101,57 +114,43 @@ public class InputGroup implements ISettingsChangedHandler {
 	
 	private class ThisKeyListener implements KeyListener {
 
-		/**
-		 * {@link InputSourceViewer#disableSpecialBindings}
-		 */ 
 		public void keyPressed(KeyEvent e) {
-			if (e.stateMask == SWT.NULL) {
-				switch (e.keyCode) {
-				case SWT.ARROW_UP:
-					doHistoryOlder();
-					break;
-				case SWT.ARROW_DOWN: 
-					doHistoryNewer();
-					break;
-				case SWT.CR:
-				case SWT.KEYPAD_CR:
-					doSubmit();
-					break;
-				default:
-					return;
-				}
-			}
-			else if (e.stateMask == SWT.SHIFT) {
-				switch (e.keyCode) {
-				case SWT.ARROW_UP:
-					doOutputLineUp();
-					break;
-				case SWT.ARROW_DOWN:
-					doOutputLineDown();
-					break;
-				case SWT.PAGE_UP:
-					doOutputPageUp();
-					break;
-				case SWT.PAGE_DOWN:
-					doOutputPageDown();
-					break;
-				default:
-					return;
-				}
-			}
-			else if (e.stateMask == (SWT.MOD1 | SWT.SHIFT)) {
-				switch (e.keyCode) {
-				case SWT.HOME:
+			int key = (e.stateMask | e.keyCode);
+			switch (key) {
+			case KEY_HIST_UP:
+				doHistoryOlder();
+				break;
+			case KEY_HIST_DOWN: 
+				doHistoryNewer();
+				break;
+			case KEY_SUBMIT_DEFAULT:
+			case KEY_SUBMIT_KEYPAD:
+				doSubmit();
+				break;
+
+			case KEY_OUTPUT_LINEUP:
+				doOutputLineUp();
+				break;
+			case KEY_OUTPUT_LINEDOWN:
+				doOutputLineDown();
+				break;
+			case KEY_OUTPUT_PAGEUP:
+				doOutputPageUp();
+				break;
+			case KEY_OUTPUT_PAGEDOWN:
+				doOutputPageDown();
+				break;
+			default:
+				// non-constant values
+				if (key == KEY_OUTPUT_START) {
 					doOutputFirstLine();
 					break;
-				case SWT.END:
+				}
+				if (key == KEY_OUTPUT_END) {
 					doOutputLastLine();
 					break;
-				default:
-					return;
 				}
-			}
-			else {
+				// no special key
 				return;
 			}
 			e.doit = false;
@@ -314,8 +313,8 @@ public class InputGroup implements ISettingsChangedHandler {
 		
 		fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
-		fSourceViewerDecorationSupport.install(fConfigurator.getPreferenceStore());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+		fSourceViewerDecorationSupport.install(fConfigurator.getPreferenceStore());
 		
 		IDocumentSetupParticipant docuSetup = fConfigurator.getDocumentSetupParticipant();
 		if (docuSetup != null) {
@@ -335,6 +334,16 @@ public class InputGroup implements ISettingsChangedHandler {
 				fEditorAdapter.cleanStatusLine();
 			}
 		});
+		fSourceViewer.removeSpecialBinding(KEY_HIST_UP);
+		fSourceViewer.removeSpecialBinding(KEY_HIST_DOWN);
+		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_DEFAULT);
+		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_KEYPAD);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEUP);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEDOWN);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEUP);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEDOWN);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_START);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
 	}
 	
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {

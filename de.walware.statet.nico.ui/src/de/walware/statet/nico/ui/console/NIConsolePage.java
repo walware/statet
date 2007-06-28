@@ -350,8 +350,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
         fTerminateAction = new TerminateToolAction(fConsole.getProcess());
         fCancelAction = new CancelAction(this);
         pageCommands.activateHandler("de.walware.statet.nico.commands.Cancel", new ActionHandler(fCancelAction));  //$NON-NLS-1$
-        pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
-
+// Conflict with binding CTRL+Z (in console EOF)
+//        pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
+        
 		fOutputCopyAction = TextViewerAction.createCopyAction(fOutputViewer);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.COPY.getId(), fOutputCopyAction);
 		fOutputPasteAction = new SubmitPasteAction(this);
