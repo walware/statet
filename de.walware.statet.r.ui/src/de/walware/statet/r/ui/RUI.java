@@ -23,7 +23,9 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class RUI {
 
 	public static final String PLUGIN_ID = "de.walware.statet.r.ui"; //$NON-NLS-1$
-	
+
+	public static final String R_EDITOR_ID = "de.walware.statet.r.editors.R"; //$NON-NLS-1$
+	public static final String RD_EDITOR_ID = "de.walware.statet.r.editors.Rd"; //$NON-NLS-1$
 
 	public static final String IMG_OBJ_R_ENVIRONMENT = RUI.PLUGIN_ID+"/image/obj/r_environment"; //$NON-NLS-1$
 

@@ -31,6 +31,9 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.debug.ui.CommonTab;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.TextConsole;
 
 import de.walware.eclipsecommons.FileUtil;
 
@@ -40,6 +43,7 @@ import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.IRLaunchConfigurationConstants;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
+import de.walware.statet.r.debug.ui.launchconfigs.RErrorLineTracker;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
 
@@ -143,6 +147,12 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			monitor.worked(5);
 			if (!process.isTerminated() && !CommonTab.isLaunchInBackground(configuration)) {
 				monitor.subTask(RLaunchingMessages.RCmd_LaunchDelegate_Running_label);
+			}
+			
+			IConsole console = DebugUITools.getConsole(process);
+			if (console instanceof TextConsole) {
+				RErrorLineTracker lineMatcher = new RErrorLineTracker(workingDirectory);
+				((TextConsole) console).addPatternMatchListener(lineMatcher);
 			}
 			
 			LaunchConfigUtil.launchResourceRefresh(configuration, process, new SubProgressMonitor(monitor, 5));

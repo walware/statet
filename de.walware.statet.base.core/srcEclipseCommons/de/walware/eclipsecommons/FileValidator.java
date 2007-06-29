@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
@@ -186,6 +187,9 @@ public class FileValidator implements IValidator {
 		fWorkspaceResource = null;
 		
 		// Resolve string
+		if (value instanceof IPath) {
+			value = ((IPath) value).toOSString();
+		}
 		if (value instanceof String) {
 			String s = (String) value;
 			if (s.trim().length() == 0) {
@@ -208,6 +212,7 @@ public class FileValidator implements IValidator {
 				}
 			}
 		}
+
 		if (value instanceof IFileStore) {
 			fFileStore = (IFileStore) value;
 		}

@@ -18,6 +18,9 @@ public class RLaunchingMessages extends NLS {
 	
 	public static String LaunchDelegate_error_StartingExec;
 	public static String LaunchDelegate_error_ProcessHandle;
+	public static String RErrorLineTracker_error_GetFile_message;
+	public static String RErrorLineTracker_error_OpeningFile_message;
+	public static String RErrorLineTracker_File_name;
 
 	public static String RLaunchPulldown_Item_label;
 	public static String RLaunch_error_description;
