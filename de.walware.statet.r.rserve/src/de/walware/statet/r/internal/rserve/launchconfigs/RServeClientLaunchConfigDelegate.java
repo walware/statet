@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.internal.rserve.launchconfigs;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
@@ -52,8 +49,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.load(configuration);
-			String name = "rserve://"+connectionConfig.getServerAddress()+":"+connectionConfig.getServerPort()
-					+" ("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")";
+			String name = "rserve://"+connectionConfig.getServerAddress()+':'+connectionConfig.getServerPort() + ' '+LaunchConfigUtil.createProcessTimestamp();
 			
 			monitor.worked(1);
 			if (monitor.isCanceled()) {
@@ -61,7 +57,8 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			}
 			
 			UnterminatedLaunchAlerter.registerLaunchType(IRServeConstants.ID_RSERVE_LAUNCHCONFIG);
-			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, name);
+			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, 
+					LaunchConfigUtil.createLaunchPrefix(configuration), name);
 			process.init(new RServeClientController(process, connectionConfig));
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 			new TerminatingMonitor(process);

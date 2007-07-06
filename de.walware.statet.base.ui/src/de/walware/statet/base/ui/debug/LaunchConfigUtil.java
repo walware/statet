@@ -11,10 +11,13 @@
 
 package de.walware.statet.base.ui.debug;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.ibm.icu.text.DateFormat;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -164,6 +167,31 @@ public class LaunchConfigUtil {
 			monitor.subTask(StatetMessages.LaunchDelegate_LaunchingTask_label);
 		}
 		return monitor;
+	}
+	
+	public static String createProcessTimestamp() {
+		return "("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public static String createLaunchPrefix(ILaunchConfiguration config) {
+		StringBuilder s = new StringBuilder();
+        if (config != null) {
+        	String type = null;
+            try {
+                type = config.getType().getName();
+            } catch (CoreException e) {
+            }
+            s.append(config.getName());
+            if (type != null) {
+                s.append(" ["); //$NON-NLS-1$
+                s.append(type);
+                s.append("]"); //$NON-NLS-1$
+            }
+        }
+        else {
+        	s.append("[-]"); //$NON-NLS-1$
+        }
+        return s.toString();
 	}
 	
 	/**

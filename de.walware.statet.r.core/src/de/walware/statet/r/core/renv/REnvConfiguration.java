@@ -13,11 +13,13 @@ package de.walware.statet.r.core.renv;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -49,9 +51,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 
 	public static final String PROP_RHOME = "RHome"; //$NON-NLS-1$
 	private static final String PREFKEY_RHOME = "env.r_home"; //$NON-NLS-1$
-
-//	public static final String PREFKEY_BIN_DIRECTORY = "bin.dir";
-//	public static final String PROP_BIN_DIRECTORY = "binDirectory";
+	
+	public static enum Exec {
+		CMD,
+		TERM;
+	}
 
 	
 	public static boolean isValidRHomeLocation(IFileStore loc) {
@@ -78,8 +82,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private String fId;
 	private StringPref fPrefRHomeDirectory;
 	private String fRHomeDirectory;
-//	private StringPref fPrefBinDirectory;
-//	private String fBinDirectory;
 	
 	
 	/**
@@ -105,7 +107,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		fPrefName = new StringPref(fNodeQualifier, PREFKEY_NAME);
 		fPrefId = new StringPref(fNodeQualifier, PREFKEY_ID);
 		fPrefRHomeDirectory = new StringPref(fNodeQualifier, PREFKEY_RHOME);
-//		fPrefBinDirectory = new StringPref(fNodeQualifier, PREFKEY_BIN_DIRECTORY);
 	}
 	
 	protected void checkExistence(IPreferenceAccess prefs) {
@@ -140,7 +141,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	public void loadDefaults() {
 		setName("R"); //$NON-NLS-1$
 		setRHome(""); //$NON-NLS-1$
-//		setBinDirectory("bin");
 	}
 	
 	public void load(REnvConfiguration from) {
@@ -166,7 +166,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		}
 		setName(prefs.getPreferenceValue(fPrefName));
 		setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
-//		setBinDirectory(prefs.getPreferenceValue(fPrefBinDirectory));
 	}
 
 	@Override
@@ -176,7 +175,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		map.put(fPrefId, getId());
 		map.put(fPrefName, getName());
 		map.put(fPrefRHomeDirectory, getRHome());
-//		map.put(fPrefBinDirectory, getBinDirectory());
 		return map;
 	}
 
@@ -236,16 +234,35 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		return fRHomeDirectory;
 	}
 
-//	public void setBinDirectory(String label) {
-//		
-//		String oldValue = fBinDirectory;
-//		fBinDirectory = label;
-//		firePropertyChange(PROP_BIN_DIRECTORY, oldValue, fBinDirectory);
-//	}
-//	public String getBinDirectory() {
-//		
-//		return fBinDirectory;
-//	}
+	
+	public String[] getExecCommand(String arg1, Set<Exec> execTypes) throws CoreException {
+		String child = null;
+		String test = (arg1 != null) ? arg1.trim().toUpperCase() : "";
+		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+			if (test.equals("CMD")) { //$NON-NLS-1$
+				if (execTypes.contains(Exec.CMD)) {
+					child = "bin\\Rcmd.exe"; //$NON-NLS-1$
+					arg1 = null;
+				}
+			}
+			else {
+				if (execTypes.contains(Exec.TERM)) {
+					child = "bin\\Rterm.exe"; //$NON-NLS-1$
+				}
+			}
+			if (child == null) {
+				child = "bin\\R.exe"; //$NON-NLS-1$
+			}
+		}
+		else {
+			child = "bin/R";
+		}
+		IPath exec = FileUtil.expandToLocalPath(getRHome(), child);
+		if (arg1 != null) {
+			return new String[] { exec.toOSString(), arg1 };
+		}
+		return new String[] { exec.toOSString() };
+	}
 	
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
 		Map<String, String> envp = new HashMap<String, String>();

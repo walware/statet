@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
@@ -25,7 +24,6 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchesListener;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
@@ -131,12 +129,12 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	protected volatile int fExitValue = 0;
 	
 	
-	public ToolProcess(ILaunch launch, String name) {
+	public ToolProcess(ILaunch launch, String prefix, String name) {
 		
 		fLaunch = launch;
 		fName = name;
 		fAttributes = new HashMap<String, String>(5);
-		fToolLabelShort = computeToolLabel();
+		fToolLabelShort = prefix;
 		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, 
 				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
 		
@@ -185,31 +183,6 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		return fFeatureSets.contains(featureSetID);
 	}
 
-	
-	private String computeToolLabel() {
-		
-		StringBuilder s = new StringBuilder();
-        ILaunchConfiguration config = getLaunch().getLaunchConfiguration();
-        if (config != null) {
-        	String type = null;
-            try {
-                type = config.getType().getName();
-            } catch (CoreException e) {
-            }
-            s.append(config.getName());
-            if (type != null) {
-                s.append(" ["); //$NON-NLS-1$
-                s.append(type);
-                s.append("]"); //$NON-NLS-1$
-            }
-            
-            return s.toString();
-        }
-        else {
-        	return "[-]"; //$NON-NLS-1$
-        }
-	}
-	
 	private String computerConsoleLabel(String statusLabel) {
 		
 		return fToolLabelShort + " " + fName + " " + statusLabel; //$NON-NLS-1$ //$NON-NLS-2$

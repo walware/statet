@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.debug.ui.launchconfigs;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,6 @@ import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.AbstractSettingsModelObject;
-import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
@@ -68,6 +67,7 @@ import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.core.renv.REnvConfiguration;
+import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 
@@ -384,13 +384,17 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			
 			// r env
 			REnvConfiguration renv = REnvTab.getREnv(fConfigCache);
-			IPath r = FileUtil.expandToLocalPath(renv.getRHome(), "bin/R"); //$NON-NLS-1$
-			cmdLine.add(r.toOSString());
-	
+			
 			String cmd = ((Cmd) fCmdValue.getValue()).getCommand().trim();
-			if (cmd.length() > 0) {
+			if (cmd.length() != 0) {
 				cmdLine.addAll(Arrays.asList(cmd.split(" "))); //$NON-NLS-1$
 			}
+			String arg1 = null;
+			if (cmdLine.size() > 0) {
+				arg1 = cmdLine.remove(0);
+			}
+			cmdLine.addAll(0, Arrays.asList(renv.getExecCommand(arg1, EnumSet.of(Exec.CMD))));
+			
 			cmdLine.add("--help"); //$NON-NLS-1$
 			HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
 			

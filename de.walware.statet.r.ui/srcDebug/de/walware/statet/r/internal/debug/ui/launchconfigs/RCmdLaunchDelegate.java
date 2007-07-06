@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.debug.ui.launchconfigs;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.r.core.renv.REnvConfiguration;
+import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.IRLaunchConfigurationConstants;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RErrorLineTracker;
@@ -52,6 +54,7 @@ import de.walware.statet.r.ui.RUI;
  *
  */
 public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
+	
 	
 	public void launch(ILaunchConfiguration configuration, String mode,	ILaunch launch, 
 			IProgressMonitor monitor) throws CoreException {
@@ -67,8 +70,16 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			// r env
 			REnvConfiguration renv = REnvTab.getREnv(configuration);
 //			renv.validate();
-			IPath r = FileUtil.expandToLocalPath(renv.getRHome(), "bin/R"); //$NON-NLS-1$
-			cmdLine.add(r.toOSString());
+			
+			String cmd = configuration.getAttribute(RCmdMainTab.ATTR_CMD, (String) "").trim(); //$NON-NLS-1$
+			if (cmd.length() != 0) {
+				cmdLine.addAll(Arrays.asList(cmd.split(" "))); //$NON-NLS-1$
+			}
+			String arg1 = null;
+			if (cmdLine.size() > 0) {
+				arg1 = cmdLine.remove(0);
+			}
+			cmdLine.addAll(0, Arrays.asList(renv.getExecCommand(arg1, EnumSet.of(Exec.CMD, Exec.TERM))));
 			
 			monitor.worked(1);
 			if (monitor.isCanceled()) {
@@ -83,16 +94,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 				return;
 			}
 			
-			monitor.worked(1);
-			if (monitor.isCanceled()) {
-				return;
-			}
-	
 			// arguments
-			String cmd = configuration.getAttribute(RCmdMainTab.ATTR_CMD, (String) "").trim(); //$NON-NLS-1$
-			if (cmd.length() != 0) {
-				cmdLine.addAll(Arrays.asList(cmd.split(" "))); //$NON-NLS-1$
-			}
 			cmdLine.addAll(Arrays.asList(
 					LaunchConfigUtil.getProcessArguments(configuration, RCmdMainTab.ATTR_OPTIONS) ));
 	
@@ -132,10 +134,11 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			// register process
 			Map<String, String> processAttributes = new HashMap<String, String>();
 			processAttributes.put(IProcess.ATTR_PROCESS_TYPE, IRLaunchConfigurationConstants.ID_R_CMD_PROCESS_TYPE);
-			String name = "R ('"+renv.getName()+"') "+cmd; //$NON-NLS-1$ //$NON-NLS-2$
+			String name = cmdLine.get(0);
 			if (resourcePath != null) {
-				name += " " + resourcePath.lastSegment(); //$NON-NLS-1$
+				name += ' ' + resourcePath.lastSegment();
 			}
+			name += ' ' + LaunchConfigUtil.createProcessTimestamp();
 			IProcess process = DebugPlugin.newProcess(launch, p, name, processAttributes);
 			if (process == null) {
 				p.destroy();
@@ -143,6 +146,8 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 						RLaunchingMessages.LaunchDelegate_error_ProcessHandle, null));
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
+			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, LaunchConfigUtil.createLaunchPrefix(configuration) + 
+					' ' + renv.getName() + " : R " + cmd + " ~ " + name); //$NON-NLS-1$ //$NON-NLS-2$
 			
 			monitor.worked(5);
 			if (!process.isTerminated() && !CommonTab.isLaunchInBackground(configuration)) {
