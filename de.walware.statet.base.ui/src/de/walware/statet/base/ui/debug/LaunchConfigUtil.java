@@ -44,20 +44,32 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  */
 public class LaunchConfigUtil {
 	
-	public static String[] getProcessArguments(ILaunchConfiguration configuration, 
+	public static String[] getProcessArguments(ILaunchConfiguration configuration,
 			String attr) throws CoreException {
 		
-		String args = configuration.getAttribute(attr, (String) ""); //$NON-NLS-1$
+		String args = configuration.getAttribute(attr, ""); //$NON-NLS-1$
 		String expanded = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(args);
 		return DebugPlugin.parseArguments(expanded);
 	}
 	
-	public static void configureEnvironment(ILaunchConfiguration configuration, Map<String, String> environment) 
+	/**
+	 * Adds environment variables specified in launch configuration to the map.
+	 * Explicit specified variables replaces values already configured, but not
+	 * appended variables from OS.
+	 * @param configuration
+	 * @param environment
+	 * @throws CoreException
+	 */
+	public static void configureEnvironment(ILaunchConfiguration configuration, Map<String, String> environment)
 			throws CoreException {
 		environment.clear();
 		if (configuration.getAttribute(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES, true)) {
-			environment.putAll(DebugPlugin.getDefault().getLaunchManager()
-					.getNativeEnvironmentCasePreserved() );
+			Map<String, String> osVariables = DebugPlugin.getDefault().getLaunchManager().getNativeEnvironmentCasePreserved();
+			for (String name: osVariables.keySet()) {
+				if (!environment.containsKey(name)) {
+					environment.put(name, osVariables.get(name));
+				}
+			}
 		}
 		Map<String, String> envpMap = configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map) null);
 		if (envpMap != null) {
@@ -89,10 +101,10 @@ public class LaunchConfigUtil {
 			return builder.substring(0, builder.length()-1);
 		}
 		return ""; //$NON-NLS-1$
-	}	
+	}
 
 	/**
-	 * Refreshes resources as specified by a launch configuration, when 
+	 * Refreshes resources as specified by a launch configuration, when
 	 * an associated process terminates.
 	 */
 	private static class BackgroundResourceRefresher implements IDebugEventSetListener  {
@@ -138,13 +150,14 @@ public class LaunchConfigUtil {
 				DebugPlugin.getDefault().removeDebugEventListener(this);
 				fProcess = null;
 				Job job = new Job(StatetMessages.BackgroundResourceRefresher_Job_name) {
+					@Override
 					public IStatus run(IProgressMonitor monitor) {
 						try {
 							RefreshTab.refreshResources(fConfiguration, monitor);
 						} catch (CoreException e) {
 							StatetUIPlugin.logUnexpectedError(e);
 							return e.getStatus();
-						}	
+						}
 						return Status.OK_STATUS;
 					}
 				};
@@ -195,15 +208,15 @@ public class LaunchConfigUtil {
 	}
 	
 	/**
-	 * Manages resource refresh according to the settings in launch configuration.  
+	 * Manages resource refresh according to the settings in launch configuration.
 	 */
-	public static void launchResourceRefresh(ILaunchConfiguration configuration, 
+	public static void launchResourceRefresh(ILaunchConfiguration configuration,
 			IProcess process, IProgressMonitor monitor) throws CoreException {
 		if (CommonTab.isLaunchInBackground(configuration)) {
 			// refresh resources after process finishes
 			if (RefreshTab.getRefreshScope(configuration) != null) {
 				new BackgroundResourceRefresher(configuration, process);
-			}				
+			}
 		} else {
 			// wait for process to exit
 			while (!process.isTerminated()) {

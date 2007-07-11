@@ -14,6 +14,7 @@ package de.walware.statet.r.nico.ui;
 import java.util.Set;
 
 import org.eclipse.help.IContextProvider;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
 import org.eclipse.ui.PlatformUI;
@@ -24,6 +25,7 @@ import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
+import de.walware.statet.r.nico.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.ui.RUIHelp;
 
 
@@ -58,6 +60,14 @@ public class RConsolePage extends NIConsolePage {
 				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
 			}
 		});
+	}
+	
+	@Override
+	protected void contributeToActionBars() {
+		super.contributeToActionBars();
+		
+		IMenuManager menuManager = getSite().getActionBars().getMenuManager();
+		menuManager.add(new ChangeWorkingDirectoryWizard.ChangeAction(this));
 	}
 	
 	@Override

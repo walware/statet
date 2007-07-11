@@ -281,6 +281,34 @@
             type="de.walware.statet.r.launchConfigurationTypes.RCmdTool"/>
    </extension>
 
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleLaunchDelegate"
+            id="de.walware.statet.r.launchConfigurationTypes.RConsole"
+            modes="run"
+            name="%launchConfigurations.RConsole_name"
+            public="true">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            id="de.walware.statet.r.images.RConsole"
+            configTypeID="de.walware.statet.r.launchConfigurationTypes.RConsole"
+            icon="icons/tool_16/r-console.png">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleTabGroup"
+            description="%launchConfigurations.RConsole_description"
+            id="de.walware.statet.r.launchConfigurationTabGroups.RConsole"
+            type="de.walware.statet.r.launchConfigurationTypes.RConsole"/>
+   </extension>
+
+
    <extension-point
    		id="rCodeLaunchConnector"
    		name="Point to register Connectors which can launch r code"
@@ -604,14 +632,15 @@
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
+            class="de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector"
+            description="%rConnector_RNewConsoleConnector_description"
+            id="de.walware.statet.r.launching.RNewConsoleConnector"
+            name="%rConnector_RNewConsoleConnector_name"/>
+      <connector
             class="de.walware.statet.r.internal.debug.ui.TextConsoleConnector"
             description="%rConnector_EclipseTextConsole_description"
             id="de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"
             name="%rConnector_EclipseTextConsole_name"/>
-      <connector
-            class="de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector"
-            id="de.walware.statet.r.launching.RNewConsoleConnector"
-            name="%rConnector_RNewConsoleConnector_name"/>
    </extension>
 
 </plugin>

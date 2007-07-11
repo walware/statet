@@ -39,7 +39,6 @@ import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -165,6 +164,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		return RLaunchingMessages.RCmd_MainTab_name;
 	}
 	
+	@Override
 	public Image getImage() {
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
@@ -173,7 +173,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		mainComposite.setLayout(GridLayoutFactory.swtDefaults().create());
+		mainComposite.setLayout(new GridLayout());
 		
 		Group group;
 		group = new Group(mainComposite, SWT.NONE);
@@ -234,18 +234,19 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			fHelpButton.setLayoutData(gd);
 		}
 
-		LayoutUtil.addSmallFiller(container);
+		LayoutUtil.addSmallFiller(container, false);
 		fArgumentsControl = new InputArgumentsComposite(container);
 		fArgumentsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 
 		fResourceControl = new ChooseResourceComposite(container,
 				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_TEXT,
-				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN, 
+				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN,
 				""); //$NON-NLS-1$
 		fResourceControl.showInsertVariable(true);
 		fResourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	
+	@Override
 	protected void addBindings(DataBindingContext dbc, Realm realm) {
 		fCmdValue = new WritableValue(realm, Cmd.class);
 		fArgumentsValue = new WritableValue(realm, String.class);
@@ -257,7 +258,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			public IStatus validate(Object value) {
 				String s = (String) value;
 				if (s == null || s.trim().length() == 0) {
-					return ValidationStatus.warning("No CMD specified.");
+					return ValidationStatus.warning(RLaunchingMessages.RCmd_MainTab_error_MissingCMD_message);
 				}
 				return ValidationStatus.ok();
 			}
@@ -271,7 +272,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		
 		fResourceControl.getValidator().setOnLateResolve(IStatus.WARNING);
 		fResourceControl.getValidator().setOnEmpty(IStatus.OK);
-		final Binding resourceBinding = dbc.bindValue(fResourceControl.createObservable(), fResourceValue, 
+		final Binding resourceBinding = dbc.bindValue(fResourceControl.createObservable(), fResourceValue,
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fResourceControl.getValidator())), null);
 		cmdSelection.addValueChangeListener(new IValueChangeListener() {
@@ -393,15 +394,15 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			if (cmdLine.size() > 0) {
 				arg1 = cmdLine.remove(0);
 			}
-			cmdLine.addAll(0, Arrays.asList(renv.getExecCommand(arg1, EnumSet.of(Exec.CMD))));
+			cmdLine.addAll(0, renv.getExecCommand(arg1, EnumSet.of(Exec.CMD)));
 			
 			cmdLine.add("--help"); //$NON-NLS-1$
 			HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
 			
 			helper.getProcessBuilder().environment();
 			Map<String, String> envp = helper.getProcessBuilder().environment();
-			LaunchConfigUtil.configureEnvironment(fConfigCache, envp);
 			envp.putAll(renv.getEnvironmentsVariables());
+			LaunchConfigUtil.configureEnvironment(fConfigCache, envp);
 
 			dialog.run(true, true, helper);
 			updateLaunchConfigurationDialog();

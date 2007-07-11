@@ -46,7 +46,7 @@ public class NicoUITools {
 
 //	public static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
 //		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
-//		
+//
 //		IViewReference[] allReferences = page.getViewReferences();
 //		for (IViewReference reference : allReferences) {
 //			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
@@ -72,6 +72,7 @@ public class NicoUITools {
 							break;
 						case DebugEvent.MODEL_SPECIFIC:
 							// register and open console
+							DebugPlugin.getDefault().removeDebugEventListener(this);
 							ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 									new IConsole[] { console });
 							showConsole(console, page, true);
@@ -83,6 +84,12 @@ public class NicoUITools {
     	});
 	}
 	
+	/**
+	 * 
+	 * Note: getting console does not affects UI.
+	 * @param process
+	 * @return the console of the process.
+	 */
 	public static NIConsole getConsole(ToolProcess process) {
 		IConsole[] consoles = ConsolePlugin.getDefault().getConsoleManager().getConsoles();
 		for (IConsole console : consoles) {
@@ -96,6 +103,14 @@ public class NicoUITools {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * Note: task is always scheduled as Job, so thread (e.g. UI thread) of
+	 * caller is irrelevant.
+	 * @param console
+	 * @param page
+	 * @param activate
+	 */
 	public static void showConsole(NIConsole console, IWorkbenchPage page,
 			boolean activate) {
 		ToolRegistry registry = NicoUIPlugin.getDefault().getToolRegistry();
@@ -112,8 +127,8 @@ public class NicoUITools {
 			// would busycursor or job be better?
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
 		} catch (InvocationTargetException e) {
-			ExceptionHandler.handle(e, shell, 
-					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)) 
+			ExceptionHandler.handle(e, shell,
+					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true))
 			);
 		} catch (InterruptedException e) {
 			// something to do?
@@ -121,7 +136,7 @@ public class NicoUITools {
 	}
 	
     /**
-     * Computes and returns the image descriptor for a tool 
+     * Computes and returns the image descriptor for a tool
      * (e.g. for console or in dialogs).
      * 
      * @return an image descriptor for this tool or <code>null</code>
@@ -141,7 +156,7 @@ public class NicoUITools {
     }
 
     /**
-     * Computes and returns the image descriptor for a runnable 
+     * Computes and returns the image descriptor for a runnable
      * 
      * @return an image descriptor for this runnable or <code>null</code>
      */

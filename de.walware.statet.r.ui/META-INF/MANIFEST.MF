@@ -26,8 +26,10 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="0.4.0",
  de.walware.statet.nico.ui,
  de.walware.statet.r.core
 Eclipse-LazyStart: true
-Export-Package: de.walware.statet.r.launching,
+Export-Package: de.walware.statet.r.debug.ui.launchconfigs,
+ de.walware.statet.r.launching,
  de.walware.statet.r.nico.ui,
+ de.walware.statet.r.nico.ui.tools,
  de.walware.statet.r.ui,
  de.walware.statet.r.ui.editors,
  de.walware.statet.r.ui.text.r,

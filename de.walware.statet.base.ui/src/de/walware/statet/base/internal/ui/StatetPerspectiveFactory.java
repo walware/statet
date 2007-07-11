@@ -11,6 +11,7 @@
 
 package de.walware.statet.base.internal.ui;
 
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -46,16 +47,14 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		
 		layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, 0.75f, editorArea);
 		
-//		layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
-//		layout.addActionSet(JavaUI.ID_ACTION_SET);
-//		layout.addActionSet(JavaUI.ID_ELEMENT_CREATION_ACTION_SET);
+		layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
 		layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 		
 		// views - search
-		layout.addShowViewShortcut(ID_SEARCH_VIEW); 
+		layout.addShowViewShortcut(ID_SEARCH_VIEW);
 		
 		// views - debugging
-		layout.addShowViewShortcut(ID_CONSOLE_VIEW); 
+		layout.addShowViewShortcut(ID_CONSOLE_VIEW);
 
 		// views - standard workbench
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);

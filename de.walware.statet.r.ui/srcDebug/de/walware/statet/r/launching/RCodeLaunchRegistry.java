@@ -40,7 +40,7 @@ import de.walware.eclipsecommons.preferences.Preference.StringPref;
 import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
-import de.walware.statet.r.internal.debug.ui.TextConsoleConnector;
+import de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -55,7 +55,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 	private static Pattern fgFileNamePattern = Pattern.compile("\\Q${file}\\E"); //$NON-NLS-1$
 	
 	public static void initializeDefaultValues(IScopeContext context) {
-		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, TextConsoleConnector.ID);
+		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, RControllerCodeLaunchConnector.ID);
 	}
 	
 	

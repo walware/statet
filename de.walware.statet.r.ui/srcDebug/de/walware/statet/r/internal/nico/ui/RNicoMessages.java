@@ -9,17 +9,25 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.debug.ui.launchconfigs;
+package de.walware.statet.r.internal.nico.ui;
+
+import org.eclipse.osgi.util.NLS;
 
 
-/**
- *
- */
-public interface IRLaunchConfigurationConstants {
+public class RNicoMessages extends NLS {
 	
-	public static final String ID_R_CMD_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RCmdTool"; //$NON-NLS-1$
-	public static final String ID_R_CMD_PROCESS_TYPE = "R.cmd"; //$NON-NLS-1$
 	
-	public static final String ID_R_CONSOLE_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RConsole"; //$NON-NLS-1$
-	public static final String ID_R_CONSOLE_PROCESS_TYPE = "R.console";
+	public static String Quit_Task_label;
+	
+	public static String ChangeWorkingDir_Task_label;
+	public static String ChangeWorkingDir_Action_label;
+	public static String ChangeWorkingDir_SelectDialog_message;
+	public static String ChangeWorkingDir_SelectDialog_title;
+	public static String ChangeWorkingDir_Resource_label;
+	
+	
+	static {
+		NLS.initializeMessages(RNicoMessages.class.getName(), RNicoMessages.class);
+	}
+
 }

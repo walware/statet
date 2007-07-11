@@ -56,9 +56,7 @@ public class RUtil {
 			char c = s.charAt(i);
 			switch (c) {
 			case '\\':
-				escaped.append('\\');
 			case '\'':
-				escaped.append('\\');
 			case '"':
 				escaped.append('\\');
 				// no break

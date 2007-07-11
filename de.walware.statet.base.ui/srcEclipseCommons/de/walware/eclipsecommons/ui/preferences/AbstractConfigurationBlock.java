@@ -53,7 +53,7 @@ public abstract class AbstractConfigurationBlock {
 	protected boolean fUseProjectSettings = true;
 	
 	
-	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, 
+	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
 			IPreferenceStore preferenceStore) {
 		fShell = pageComposite.getShell();
 		fContainer = container;
@@ -90,13 +90,14 @@ public abstract class AbstractConfigurationBlock {
 		GridData gridData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		gridData.widthHint = 150; // only expand further if anyone else requires it
 		link.setLayoutData(gridData);
-		LayoutUtil.addSmallFiller(pageComposite);
+		LayoutUtil.addSmallFiller(pageComposite, false);
 	}
 
 	protected Link addLinkControl(Composite composite, String text) {
 		Link link = new Link(composite, SWT.NONE);
 		link.setText(text);
 		link.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				PreferencesUtil.createPreferenceDialogOn(getShell(), e.text, null, null);
 			}

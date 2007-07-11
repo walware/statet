@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,13 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -21,7 +25,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
@@ -38,7 +41,7 @@ import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
  * Usage: This class is intend to be subclass. Subclasses are responsible for the
  * lifecicle of the tool (<code>startTool()</code>, <code>terminateTool()</code>.
  * Subclasses should provide an interface which can be used by IToolRunnables
- * to access the features of the tool. E.g. provide an abstract implementation of 
+ * to access the features of the tool. E.g. provide an abstract implementation of
  * IToolRunnable with the necessary methods (in protected scope).</p>
  */
 public abstract class ToolController<
@@ -49,8 +52,8 @@ public abstract class ToolController<
 	/**
 	 * Listens for changes of the status of a controller.
 	 * 
-	 * Use this only if it's really necessary, otherwise listen to 
-	 * debug events of the ToolProcess. 
+	 * Use this only if it's really necessary, otherwise listen to
+	 * debug events of the ToolProcess.
 	 */
 	public static interface IToolStatusListener {
 		
@@ -72,71 +75,68 @@ public abstract class ToolController<
 	}
 	
 
-	private static NullProgressMonitor fgProgressMonitorDummy = new NullProgressMonitor(); 
+	private static NullProgressMonitor fgProgressMonitorDummy = new NullProgressMonitor();
 	
 	
 	protected abstract class RunnableAdapter implements IToolRunnableControllerAdapter {
 		
 //		 Proxy for tool lifecycle thread
-		protected Prompt fPrompt; 
+		protected Prompt fPrompt;
 		protected Prompt fDefaultPrompt;
 		protected String fLineSeparator;
 		
 		
 		protected RunnableAdapter() {
-			
 			fPrompt = fDefaultPrompt = fWorkspaceData.getDefaultPrompt();
 			fLineSeparator = fWorkspaceData.getLineSeparator();
 		}
 		
 
 		public ToolController getController() {
-			
 			return ToolController.this;
 		}
 				
 		public ToolWorkspace getWorkspaceData() {
-			
 			return fWorkspaceData;
 		}
 		
 		public void setPrompt(Prompt prompt) {
-			
 			fPrompt = prompt;
 			fWorkspaceData.setCurrentPrompt(prompt, fStatus);
 		}
 		
 		public void setDefaultPromptText(String text) {
-			
 			fDefaultPrompt = new Prompt(text, IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
 			fWorkspaceData.setDefaultPrompt(fDefaultPrompt);
 		}
 		
 		public void setLineSeparator(String newSeparator) {
-			
 			fLineSeparator = newSeparator;
 			fWorkspaceData.setLineSeparator(newSeparator);
 		}
 		
-		public void submitToConsole(String input, IProgressMonitor monitor) 
+		public void setWorkspaceDir(IFileStore directory) {
+			fWorkspaceData.setWorkspaceDir(directory);
+		}
+		
+		public void submitToConsole(String input, IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
-			
 			doBeforeSubmit(input);
 			Prompt prompt = doSubmit(input, monitor);
 			setPrompt(prompt);
 		}
 		
 		protected void doBeforeSubmit(String input) {
-			
-			SubmitType type = fCurrentRunnable.getType();
-			fInfoStream.append(fPrompt.text, type, fPrompt.meta);
-			fInputStream.append(input, type, 
+			SubmitType type = fCurrentRunnable.getSubmitType();
+			fInfoStream.append(fPrompt.text, type,
+					fPrompt.meta);
+			fInputStream.append(input, type,
 					(fPrompt.meta & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) );
-			fInputStream.append(fWorkspaceData.getLineSeparator(), type, 
+			fInputStream.append(fWorkspaceData.getLineSeparator(), type,
 					IToolRunnableControllerAdapter.META_HISTORY_DONTADD);
 		}
 		
-		protected abstract Prompt doSubmit(String input, IProgressMonitor monitor) 
+		protected abstract Prompt doSubmit(String input, IProgressMonitor monitor)
 				throws InterruptedException, CoreException;
 	}
 	
@@ -146,15 +146,16 @@ public abstract class ToolController<
 	 * 
 	 * Usage: This class is intend to be subclassed.
 	 */
-	public static class ConsoleCommandRunnable<T extends IToolRunnableControllerAdapter> 
+	public static class ConsoleCommandRunnable<T extends IToolRunnableControllerAdapter>
 			extends PlatformObject implements IToolRunnable {
+		
+		public static final String TYPE_ID = "console.text";
 		
 		protected final String fText;
 		protected String fLabel;
 		protected final SubmitType fType;
 		
 		protected ConsoleCommandRunnable(String text, SubmitType type) {
-			
 			assert (text != null);
 			assert (type != null);
 			
@@ -162,30 +163,36 @@ public abstract class ToolController<
 			fType = type;
 		}
 
-		public void run(IToolRunnableControllerAdapter tools, IProgressMonitor monitor) 
+		public void run(IToolRunnableControllerAdapter tools, IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
-			
 			tools.submitToConsole(fText, monitor);
 		}
 		
 		public String getCommand() {
-			
 			return fText;
 		}
 		
+		public String getTypeId() {
+			return TYPE_ID;
+		}
+		
 		public String getLabel() {
-			
 			if (fLabel == null) {
 				fLabel = fText.trim();
 			}
 			return fLabel;
 		}
 		
-		public SubmitType getType() {
-			
+		public SubmitType getSubmitType() {
 			return fType;
 		}
 	}
+	
+	
+	public static final String QUIT_TYPE_ID = "common/quit"; //$NON-NLS-1$
+	
+	public static final String LOGIN_EVENT_ID = "common/login"; //$NON-NLS-1$
+	public static final String SCHEDULE_QUIT_EVENT_ID = "common/scheduleQuit"; //$NON-NLS-1$
 	
 	
 	private ToolStreamProxy fStreams;
@@ -204,18 +211,19 @@ public abstract class ToolController<
 	private ToolStatus fStatus = ToolStatus.STARTING;
 	private IToolStatusListener[] fToolStatusListeners;
 	private List<DebugEvent> fEventCollector = new LinkedList<DebugEvent>();
+	private int fInternalTask = 0;
 	private boolean fPauseRequested = false;
-	private boolean fTerminateRequested = false;
 	private boolean fTerminateForced = false;
+	private volatile boolean fIsTerminated = false;
 	private boolean fIgnoreRequests = false;
 
 	protected WorkspaceType fWorkspaceData;
 	protected RunnableAdapterType fRunnableAdapter;
 	
+	private Map<String, IToolEventHandler> fHandlers = new HashMap<String, IToolEventHandler>();
 	
 	
 	protected ToolController(ToolProcess process) {
-		
 		fProcess = process;
 		
 		fStreams = new ToolStreamProxy();
@@ -232,6 +240,14 @@ public abstract class ToolController<
 	}
 	
 	
+	public void addEventHandler(String eventId, IToolEventHandler handler) {
+		fHandlers.put(eventId, handler);
+	}
+	
+	public IToolEventHandler getEventHandler(String eventId) {
+		return fHandlers.get(eventId);
+	}
+	
 	/**
 	 * Adds a tool status listener.
 	 * 
@@ -241,7 +257,6 @@ public abstract class ToolController<
 	 * @param listener
 	 */
 	protected void addToolStatusListener(IToolStatusListener listener) {
-		
 		IToolStatusListener[] list = new IToolStatusListener[fToolStatusListeners.length+1];
 		System.arraycopy(fToolStatusListeners, 0, list, 0, fToolStatusListeners.length);
 		list[fToolStatusListeners.length] = listener;
@@ -249,33 +264,27 @@ public abstract class ToolController<
 	}
 	
 	protected Queue getQueue() {
-
 		return fQueue;
 	}
 	
 	public ToolStatus getStatus() {
-		
 		return fStatus;
 	}
 	
 	public IProgressInfo getProgressInfo() {
-		
 		return fRunnableProgressMonitor;
 	}
 	
 	protected Thread getControllerThread() {
-		
 		return fControllerThread;
 	}
 	
 	
 	public ToolStreamProxy getStreams() {
-		
 		return fStreams;
 	}
 	
 	public ToolProcess getProcess() {
-		
 		return fProcess;
 	}
 	
@@ -287,7 +296,6 @@ public abstract class ToolController<
 	 * The thread exits this method, if the tool is terminated.
 	 */
 	public void run() throws CoreException {
-		
 		assert (fStatus == ToolStatus.STARTING);
 		try {
 			fControllerThread = Thread.currentThread();
@@ -308,7 +316,7 @@ public abstract class ToolController<
 	}
 	
 	/**
-	 * Set/unsets the tool in pause mode. 
+	 * Set/unsets the tool in pause mode.
 	 * <p>
 	 * This implementation don't stop the current calculation, but no new
 	 * runnables were started.
@@ -318,7 +326,6 @@ public abstract class ToolController<
 	 * @return isPaused()
 	 */
 	public boolean pause(boolean doPause) {
-		
 		synchronized (fQueue) {
 			if (doPause) {
 				if (fStatus == ToolStatus.STARTED_PROCESSING || fStatus == ToolStatus.STARTED_IDLING) {
@@ -354,8 +361,7 @@ public abstract class ToolController<
 	 * 
 	 * @return hint about success.
 	 */
-	public boolean cancel() {
-		
+	public boolean cancelTask() {
 		synchronized (fQueue) {
 			if (fStatus != ToolStatus.STARTED_PROCESSING || fCurrentRunnable == null) {
 				return false;
@@ -372,14 +378,13 @@ public abstract class ToolController<
 	}
 	
 	/**
-	 * Checks, wether the controller is paused. 
+	 * Checks, wether the controller is paused.
 	 * Note that <code>true</code> is also returned, if a pause is requested
 	 * but a runnable is still in process.
 	 * 
 	 * @return <code>true</code> if pause is requested or in pause, otherwise <code>false</code>.
 	 */
 	public boolean isPaused() {
-		
 		synchronized (fQueue) {
 			return (fPauseRequested || fStatus == ToolStatus.STARTED_PAUSED);
 		}
@@ -391,83 +396,77 @@ public abstract class ToolController<
 	 * Same as ToolProcess.terminate()
 	 * The tool will shutdown (after the next runnable) usually.
 	 */
-	public void terminate() {
+	public void scheduleQuit() {
+		synchronized (fQueue) {
+			if (fStatus == ToolStatus.TERMINATED) {
+				return;
+			}
+			fInternalTask++;
+		}
+		
+		// ask handler
+		boolean schedule = true;
+		IToolEventHandler handler = fHandlers.get(SCHEDULE_QUIT_EVENT_ID);
+		if (handler != null) {
+			int answer = handler.handle(fRunnableAdapter, getQuitTasks());
+			if (answer != IToolEventHandler.OK) {
+				schedule = false;
+			}
+		}
 		
 		synchronized (fQueue) {
+			fInternalTask--;
 			if (fStatus != ToolStatus.TERMINATED) {
-				if (!fTerminateRequested) {
-					fTerminateRequested = true;
+				if (schedule) {
+					IToolRunnable runnable = createQuitRunnable();
+					submit(runnable);
 				}
-				statusRequested(ToolStatus.TERMINATED, true);
-				resume();
 			}
+			fQueue.notifyAll();
 		}
 	}
 	
 	/**
+	 * Creates a runnable to which can quit the tool.
+	 * The type should be QUIT_TYPE_ID.
+	 * @return
+	 */
+	protected abstract IToolRunnable createQuitRunnable();
+	
+	/**
 	 * Cancels requests to termate the controller.
 	 */
-	public void cancelTermination() {
-		
+	public void cancelQuit() {
 		synchronized(fQueue) {
 			if (fStatus != ToolStatus.TERMINATED) {
-				if (fTerminateRequested) {
-					fTerminateRequested = false;
-					if (fTerminateForced) {
-						fRunnableProgressMonitor.setCanceled(false);
-					}
-					fTerminateForced = false;
-					statusRequested(ToolStatus.TERMINATED, false);
+				IToolRunnable current = fCurrentRunnable;
+				if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
+					cancelTask();
 				}
+					
+				fQueue.removeElements(getQuitTasks());
 			}
 		}
 	}
 	
-	public void terminateForced(IProgressMonitor monitor) throws DebugException, InterruptedException {
-		
-		if (monitor.isCanceled()) {
-			throw new InterruptedException();
+	private IToolRunnable[] getQuitTasks() {
+		List<IToolRunnable> quit = new ArrayList<IToolRunnable>();
+		IToolRunnable current = fCurrentRunnable;
+		if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
+			quit.add(current);
 		}
-		fTerminateForced = true;
-		terminate();
-		cancel();
-
-		Exception exception = null;
-		try {
-			for (int i = 3; i < 10; i++) {
-
-				if (i >= 5) {
-					interruptTool(i);
-				}
-				
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					Thread.interrupted();
-				}
-				
-				if (fStatus == ToolStatus.TERMINATED) {
-					return;
-				}
-				if (!fControllerThread.isAlive()) {
-					synchronized (fQueue) {
-						terminateTool(true, new NullProgressMonitor());
-						loopChangeStatus(ToolStatus.TERMINATED, null);
-					}
-					return;
-				}
-				
-				if (!fTerminateForced || monitor.isCanceled()) {
-					throw new InterruptedException();
-				}
+		List<IToolRunnable> list = fQueue.internalGetList();
+		for (IToolRunnable runnable : list) {
+			if (runnable.getTypeId().equals(QUIT_TYPE_ID)) {
+				quit.add(runnable);
 			}
 		}
-		catch (UnsupportedOperationException e) {
-			exception = e;
-		}
-		throw new DebugException(new Status(
-				IStatus.ERROR, NicoCore.PLUGIN_ID, NicoCore.STATUSCODE_RUNTIME_ERROR, 
-				NLS.bind(Messages.Runtime_error_TerminationFailed_message, fProcess.getToolLabel(true)), exception));
+		return quit.toArray(new IToolRunnable[quit.size()]);
+	}
+	
+	public void kill(IProgressMonitor monitor) throws CoreException {
+		killTool(monitor);
+		resume();
 	}
 	
 	/**
@@ -476,7 +475,6 @@ public abstract class ToolController<
 	 * @param newStatus
 	 */
 	private void statusRequested(ToolStatus requestedStatus, boolean on) {
-		
 		if (on) {
 			for (IToolStatusListener listener : fToolStatusListeners) {
 				listener.controllerStatusRequested(fStatus, requestedStatus, fEventCollector);
@@ -501,7 +499,6 @@ public abstract class ToolController<
 	 * @param newStatus
 	 */
 	private void loopChangeStatus(ToolStatus newStatus, RunnableProgressMonitor newMonitor) {
-		
 		if (fStatus != newStatus && newMonitor == null) {
 			newMonitor = new RunnableProgressMonitor(newStatus.getMarkedLabel());
 		}
@@ -530,7 +527,7 @@ public abstract class ToolController<
 	}
 	
 //	public boolean isStarted() {
-//		
+//
 //		switch (fStatus) {
 //		case STARTED_PROCESSING:
 //		case STARTED_IDLING:
@@ -541,9 +538,9 @@ public abstract class ToolController<
 //			return false;
 //		}
 //	}
-//	
+//
 //	public boolean isTerminated() {
-//		
+//
 //		return (fStatus == ToolStatus.TERMINATED);
 //	}
 	
@@ -553,11 +550,10 @@ public abstract class ToolController<
 	 * 
 	 * @param text a single text line.
 	 * @param type type of this submittal.
-	 * @return <code>true</code>, if adding commands to queue was successful, 
-	 * 		otherwise <code>false</code>. 
+	 * @return <code>true</code>, if adding commands to queue was successful,
+	 * 		otherwise <code>false</code>.
 	 */
 	public boolean submit (String text, SubmitType type) {
-		
 		return submit(new String[] { text }, type);
 	}
 	
@@ -568,15 +564,14 @@ public abstract class ToolController<
 	 * @param text array with text lines.
 	 * @param type type of this submittal.
 	 * @param monitor a monitor for cancel, will not be changed.
-	 * @return <code>true</code>, if adding commands to queue was successful, 
-	 * 		otherwise <code>false</code>. 
+	 * @return <code>true</code>, if adding commands to queue was successful,
+	 * 		otherwise <code>false</code>.
 	 * 
 	 * @throws InterruptedException if action is interupted via monitor.
 	 */
 	public boolean submit(String[] text, SubmitType type, IProgressMonitor monitor) {
-		
 		try {
-			monitor.beginTask(NicoCoreMessages.SubmitTask_label, 3); //$NON-NLS-1$
+			monitor.beginTask(NicoCoreMessages.SubmitTask_label, 3);
 			assert (text != null);
 
 			synchronized (fQueue) {
@@ -615,19 +610,18 @@ public abstract class ToolController<
 	 * 
 	 * @param text array with text lines.
 	 * @param type type of this submittal.
-	 * @return <code>true</code>, if adding commands to queue was successful, 
-	 * 		otherwise <code>false</code>. 
+	 * @return <code>true</code>, if adding commands to queue was successful,
+	 * 		otherwise <code>false</code>.
 	 */
 	public boolean submit(String[] text, SubmitType type) {
-		
 		return submit(text, type, fgProgressMonitorDummy);
 	}
 	
 	/**
-	 * Implement this method to create a runnable for text commands 
+	 * Implement this method to create a runnable for text commands
 	 * (e.g. from console or editor).
 	 * 
-	 * The runnable should commit this commands to the tool 
+	 * The runnable should commit this commands to the tool
 	 * and print command and results to the console.
 	 * Default implementations creates a {@link ConsoleCommandRunnable}.
 	 *
@@ -636,7 +630,6 @@ public abstract class ToolController<
 	 * @return runnable for this command
 	 */
 	protected IToolRunnable createCommandRunnable(String command, SubmitType type) {
-		
 		return new ConsoleCommandRunnable(command, type);
 	}
 	
@@ -646,11 +639,10 @@ public abstract class ToolController<
 	 * The runnable will be added to the queue and will be runned, if it's its turn.
 	 * 
 	 * @param task the runnable.
-	 * @return <code>true</code>, if adding task to queue was successful, 
-	 * 		otherwise <code>false</code>. 
+	 * @return <code>true</code>, if adding task to queue was successful,
+	 * 		otherwise <code>false</code>.
 	 */
 	public boolean submit(IToolRunnable task) {
-		
 		return submit(new IToolRunnable[] { task });
 	}
 
@@ -660,11 +652,10 @@ public abstract class ToolController<
 	 * The runnables will be added en block to the queue and will be runned, if it's its turn.
 	 * 
 	 * @param tasks runnables.
-	 * @return <code>true</code>, if adding task to queue was successful, 
-	 * 		otherwise <code>false</code>. 
+	 * @return <code>true</code>, if adding task to queue was successful,
+	 * 		otherwise <code>false</code>.
 	 */
 	public boolean submit(IToolRunnable[] tasks) {
-		
 		synchronized (fQueue) {
 			if (acceptSubmit()) {
 				doSubmit(tasks);
@@ -682,11 +673,10 @@ public abstract class ToolController<
 	 * Note: The runnable is always executed asynchronious.
 	 * 
 	 * @param task the runnable
-	 * @return <code>true</code>, if adding task to queue was successful, 
-	 * 		otherwise <code>false</code>. 
+	 * @return <code>true</code>, if adding task to queue was successful,
+	 * 		otherwise <code>false</code>.
 	 */
 	public boolean runOnIdle(IToolRunnable task) {
-		
 		synchronized (fQueue) {
 			if (acceptSubmit() && fStatus == ToolStatus.STARTED_IDLING) {
 				fIgnoreRequests = true;
@@ -706,7 +696,6 @@ public abstract class ToolController<
 	 * @return if submit is allowed
 	 */
 	private boolean acceptSubmit() {
-		
 		if (fStatus == ToolStatus.TERMINATED) {
 			return false;
 		}
@@ -718,7 +707,6 @@ public abstract class ToolController<
 	 * @param task
 	 */
 	private void doSubmit(IToolRunnable[] tasks) {
-		
 		if (fStatus == ToolStatus.STARTED_IDLING) {
 			fQueue.internalAdd(tasks, true);
 			resume();
@@ -730,20 +718,19 @@ public abstract class ToolController<
 	
 	
 	private void loop() {
-		
 		while (true) {
 			while (loopRunTask()) {}
 			
 			synchronized (fQueue) {
 				fQueue.internalCheck();
 				
-				if (fTerminateRequested) {
-					fTerminateRequested = false;
-					if (loopTerminate() || fTerminateForced) { // termination can be canceled
-						loopChangeStatus(ToolStatus.TERMINATED, null);
-						return;
-					}
+				if (fInternalTask > 0) {
+					loopWait();
 					continue;
+				}
+				if (fIsTerminated) {
+					loopChangeStatus(ToolStatus.TERMINATED, null);
+					return;
 				}
 				if (fPauseRequested) {
 					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
@@ -760,15 +747,14 @@ public abstract class ToolController<
 	}
 	
 	private boolean loopRunTask() {
-		
 		synchronized (fQueue) {
-			if (fQueue.internalIsEmpty() 
-					|| (!fIgnoreRequests && (fPauseRequested || fTerminateRequested))) {
+			if (fIsTerminated || fInternalTask > 0 || fQueue.internalIsEmpty()
+					|| (!fIgnoreRequests && fPauseRequested)) {
 				return false;
 			}
 			fIgnoreRequests = false;
 			fCurrentRunnable = fQueue.internalPoll();
-			loopChangeStatus(ToolStatus.STARTED_PROCESSING, 
+			loopChangeStatus(ToolStatus.STARTED_PROCESSING,
 					new RunnableProgressMonitor(fCurrentRunnable));
 		}
 
@@ -781,7 +767,7 @@ public abstract class ToolController<
 			if (e instanceof InterruptedException) {
 				fQueue.internalFinished(fCurrentRunnable, Queue.CANCEL);
 				if (!isToolAlive()) {
-					terminate();
+					finishTool();
 				}
 			}
 			else {
@@ -790,49 +776,39 @@ public abstract class ToolController<
 					IStatus.ERROR,
 					NicoCore.PLUGIN_ID,
 					NicoPlugin.EXTERNAL_ERROR,
-					NLS.bind(Messages.ToolRunnable_error_RuntimeError_message, 
+					NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
 							new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
 					e));
 			}
 		}
 		finally {
 			fRunnableProgressMonitor.done();
-			fCurrentRunnable = null;
 		}
 		
 		return true;
-	} 
-
+	}
+	
 	private void loopWait() {
-		
 		try {
 			fQueue.wait();
-		} catch (InterruptedException e) { 
+		} catch (InterruptedException e) {
 		}
 	}
 	
-	private void resume() {
-		
+	protected void resume() {
 		synchronized (fQueue) {
 			fQueue.notifyAll();
 		}
 	}
 
-	private boolean loopTerminate() {
-		
-		loopChangeStatus(ToolStatus.STARTED_PROCESSING, 
-				new RunnableProgressMonitor(Messages.Progress_Terminating_label));
-		try {
-			return terminateTool(false, fRunnableProgressMonitor);
+	protected void markAsTerminated() {
+		if (isToolAlive()) {
+			NicoPlugin.logError(NicoCore.STATUSCODE_RUNTIME_ERROR, "Illegal state: tool marked as terminated but still alive.", null); //$NON-NLS-1$
 		}
-		finally {
-			fRunnableProgressMonitor.done();
-		}
+		fIsTerminated = true;
 	}
 	
-	
 	protected void handleRunnableError(IStatus status) {
-		
 		NicoPlugin.log(status);
 	}
 	
@@ -843,24 +819,20 @@ public abstract class ToolController<
 	 * 
 	 * @param monitor a progress monitor
 	 * 
-	 * @throws InterruptedException if start was cancelled. 
+	 * @throws InterruptedException if start was cancelled.
 	 * @throws CoreException with details, if start fails.
 	 */
-	protected abstract void startTool(IProgressMonitor monitor) 
+	protected abstract void startTool(IProgressMonitor monitor)
 			throws InterruptedException, CoreException;
 	
 	/**
-	 * Implement here special commands to terminate the tool.
+	 * Implement here special commands to kill the tool.
 	 * 
-	 * If force is <code>true</code>, the method is can be called async.
-	 * Otherwise it is called automatically in the tool lifecycle thread.
+	 * The method is can be called async.
 	 * 
-	 * @param force if <code>true</code>, try to terminate in all cases. The answer is ignored.
 	 * @param a progress monitor
-	 * 
-	 * @return <code>true</code> if successfully terminated, otherwise <code>false</code>.
 	 */
-	protected abstract boolean terminateTool(boolean forced, IProgressMonitor monitor);
+	protected abstract void killTool(IProgressMonitor monitor);
 	
 	/**
 	 * Checks if the tool is still alive.
@@ -879,19 +851,20 @@ public abstract class ToolController<
 	 * @param hardness degree of hardness
 	 */
 	protected void interruptTool(int hardness) throws UnsupportedOperationException {
-
 		getControllerThread().interrupt();
 	}
 
+	protected void finishTool() {
+	}
+	
 	/**
-	 * Implement here special commands to deallocate resources. 
+	 * Implement here special commands to deallocate resources.
 	 * 
 	 * Call super!
 	 * The method is called automatically in the tool lifecycle thread
 	 * after the tool is terminated.
 	 */
 	protected void clear() {
-		
 		fStreams.dispose();
 		fStreams = null;
 		fInputStream = null;

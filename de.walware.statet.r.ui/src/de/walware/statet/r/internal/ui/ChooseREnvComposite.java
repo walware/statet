@@ -94,7 +94,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 			if (fCurrentSetting == null) {
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_IncompleteSelection_message);
 			}
-			REnvConfiguration config = REnvSetting.resolveREnv(REnvSetting.decodeType(fCurrentSetting));
+			REnvConfiguration config = REnvSetting.resolveREnv(REnvSetting.decodeType(fCurrentSetting, true));
 			if (config == null || config.isDisposed()) {
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_InvalidSelection_message);
 			}
@@ -158,6 +158,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		fConfigurationButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
 		fWorkbenchDefaultButton.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateState(false);
 			}
@@ -175,8 +176,8 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		fConfigurationButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(getShell(), 
-						REnvPreferencePage.PREF_PAGE_ID, new String[] { REnvPreferencePage.PREF_PAGE_ID }, 
+				org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(getShell(),
+						REnvPreferencePage.PREF_PAGE_ID, new String[] { REnvPreferencePage.PREF_PAGE_ID },
 						null).open();
 			}
 		});
@@ -237,7 +238,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	}
 	
 	public void setEncodedSetting(String encodedSetting) {
-		REnvSetting setting = REnvSetting.decodeType(encodedSetting);
+		REnvSetting setting = REnvSetting.decodeType(encodedSetting, false);
 		setSetting(setting);
 	}
 	
@@ -264,7 +265,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		fWorkbenchLabel.setEnabled(type == SettingsType.WORKBENCH);
 		fSpecificCombo.setEnabled(type == SettingsType.SPECIFIC);
 		String oldSetting = fCurrentSetting;
-		fCurrentSetting = REnvSetting.encodeREnv(type, fCurrentSpecified);
+		fCurrentSetting = REnvSetting.encodeREnv(type, fCurrentSpecified, false);
 		if ((fCurrentSetting == null && oldSetting != null)
 				|| (fCurrentSetting != null && !fCurrentSetting.equals(oldSetting)) ) {
 			for (Object listener : fListeners.getListeners()) {

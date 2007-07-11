@@ -68,18 +68,22 @@ public class InputArgumentsComposite extends Composite {
 		WidgetToolsButton tools = new WidgetToolsButton(fTextControl) {
 			@Override
 			protected void fillMenu(Menu menu) {
-				MenuItem item = new MenuItem(menu, SWT.PUSH);
-				item.setText(StatetMessages.InsertVariable_label);
-				item.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						handleVariablesButton();
-						getTextControl().setFocus();
-					}
-				});
+				InputArgumentsComposite.this.fillMenu(menu);
 			}
 		};
 		tools.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+	}
+	
+	protected void fillMenu(Menu menu) {
+		MenuItem item = new MenuItem(menu, SWT.PUSH);
+		item.setText(StatetMessages.InsertVariable_label);
+		item.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				handleVariablesButton();
+				getTextControl().setFocus();
+			}
+		});
 	}
 	
 	private void handleVariablesButton() {

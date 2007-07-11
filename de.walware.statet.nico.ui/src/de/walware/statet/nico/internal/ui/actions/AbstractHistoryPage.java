@@ -11,8 +11,6 @@
 
 package de.walware.statet.nico.internal.ui.actions;
 
-import java.util.LinkedHashSet;
-
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
@@ -30,6 +28,7 @@ import org.eclipse.swt.widgets.Group;
 import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
+import de.walware.eclipsecommons.ui.util.DialogUtil;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -42,7 +41,6 @@ import de.walware.statet.nico.ui.util.ToolInfoGroup;
 public abstract class AbstractHistoryPage extends WizardPage {
 
 	private static final String SETTINGS_HISTORY = "location.history"; //$NON-NLS-1$
-	private static final int HISTORY_MAX = 10;
 
 	protected ChooseResourceComposite fLocationGroup;
 	private String fResourcePath;
@@ -96,7 +94,6 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		encoding.addLabel("Not yet implemented, UTF-8 is used, if no BOM is detected."); //$NON-NLS-1$
 		addAdditionalContent2(contentLayouter);
 
-//		contentLayouter.addSmallFiller();
 		contentLayouter.addSpaceGrabber();
 		contentLayouter.add(new ToolInfoGroup(contentLayouter.composite,
 				fTool).getControl());
@@ -119,15 +116,13 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		FileValidator validator = fLocationGroup.getValidator();
 		IStatus status = validator.getStatus();
 		if (status != null && status.getSeverity() == IStatus.ERROR) {
-			setMessage(null);
-			setErrorMessage(status.getMessage());
+			setMessage(status.getMessage(), IStatus.ERROR);
 			setPageComplete(false);
 			fResourceInWorkspace = null;
 			fResourceInEFS = null;
 			fResourcePath = null;
 		}
 		else {
-			setErrorMessage(null);
 			if (status != null && status.getSeverity() != IStatus.OK) {
 				setMessage(status.getMessage(), status.getSeverity());
 			}
@@ -150,15 +145,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	
 	public void saveSettings() {
 		IDialogSettings settings = getDialogSettings();
-		LinkedHashSet<String> history = new LinkedHashSet<String>(10);
-		history.add(fResourcePath);
-		String[] oldHistory = settings.getArray(SETTINGS_HISTORY);
-		if (oldHistory != null) {
-			for (int i = 0; i < oldHistory.length && history.size() < HISTORY_MAX; i++) {
-				history.add(oldHistory[i]);
-			}
-		}
-		settings.put(SETTINGS_HISTORY, history.toArray(new String[history.size()]));
+		DialogUtil.saveHistory(settings, SETTINGS_HISTORY, fResourcePath);
 	}
 
 }

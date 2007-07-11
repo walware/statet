@@ -37,6 +37,7 @@ public class LoadHistoryAction extends ToolAction {
 		handleToolChanged();
 	}
 	
+	@Override
 	public void run() {
 		
 		ToolProcess tool = getTool();
@@ -44,7 +45,7 @@ public class LoadHistoryAction extends ToolAction {
 			return;
 		}
 		
-		WizardDialog dialog = new WizardDialog(UIAccess.getActiveWorkbenchShell(true), 
+		WizardDialog dialog = new WizardDialog(UIAccess.getActiveWorkbenchShell(true),
 				new LoadHistoryWizard(tool));
 		dialog.open();
 	}

@@ -69,7 +69,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		
-		LayoutUtil.addSmallFiller(pageComposite);
+		LayoutUtil.addSmallFiller(pageComposite, false);
 		Composite group = createConnectorComponent(pageComposite, container);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		

@@ -34,6 +34,10 @@ import de.walware.statet.r.launching.IRCodeLaunchConnector;
  */
 public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
+	
+	public static final String ID = "de.walware.statet.r.launching.RNewConsoleConnector"; //$NON-NLS-1$
+	
+	
 	public boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException {
 		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);

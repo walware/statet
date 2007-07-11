@@ -81,7 +81,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertControl.setText(Messages.REditorOptions_SmartInsert_label);
 		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		LayoutUtil.addSmallFiller(pageComposite);
+		LayoutUtil.addSmallFiller(pageComposite, false);
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
 		fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
 		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));

@@ -56,7 +56,7 @@ import de.walware.statet.r.ui.RUI;
 public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
-	public void launch(ILaunchConfiguration configuration, String mode,	ILaunch launch, 
+	public void launch(ILaunchConfiguration configuration, String mode,	ILaunch launch,
 			IProgressMonitor monitor) throws CoreException {
 		
 		try {
@@ -71,7 +71,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			REnvConfiguration renv = REnvTab.getREnv(configuration);
 //			renv.validate();
 			
-			String cmd = configuration.getAttribute(RCmdMainTab.ATTR_CMD, (String) "").trim(); //$NON-NLS-1$
+			String cmd = configuration.getAttribute(RCmdMainTab.ATTR_CMD, "").trim(); //$NON-NLS-1$
 			if (cmd.length() != 0) {
 				cmdLine.addAll(Arrays.asList(cmd.split(" "))); //$NON-NLS-1$
 			}
@@ -79,7 +79,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			if (cmdLine.size() > 0) {
 				arg1 = cmdLine.remove(0);
 			}
-			cmdLine.addAll(0, Arrays.asList(renv.getExecCommand(arg1, EnumSet.of(Exec.CMD, Exec.TERM))));
+			cmdLine.addAll(0, renv.getExecCommand(arg1, EnumSet.of(Exec.CMD, Exec.TERM)));
 			
 			monitor.worked(1);
 			if (monitor.isCanceled()) {
@@ -111,14 +111,12 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			}
 	
 			ProcessBuilder builder = new ProcessBuilder(cmdLine);
-			if (workingDirectory != null) {
-				builder.directory(workingDirectory.toLocalFile(EFS.NONE, null));
-			}
+			builder.directory(workingDirectory.toLocalFile(EFS.NONE, null));
 			
 			// environment
 			Map<String, String> envp = builder.environment();
-			LaunchConfigUtil.configureEnvironment(configuration, envp);
 			envp.putAll(renv.getEnvironmentsVariables());
+			LaunchConfigUtil.configureEnvironment(configuration, envp);
 
 			// exec process
 			UnterminatedLaunchAlerter.registerLaunchType(IRLaunchConfigurationConstants.ID_R_CMD_CONFIGURATION_TYPE);
@@ -126,9 +124,9 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			try {
 				p = builder.start();
 			} catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR, 
+				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR,
 						RLaunchingMessages.LaunchDelegate_error_StartingExec, e));
-			}			
+			}
 			monitor.worked(10);
 			
 			// register process
@@ -146,7 +144,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 						RLaunchingMessages.LaunchDelegate_error_ProcessHandle, null));
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
-			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, LaunchConfigUtil.createLaunchPrefix(configuration) + 
+			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, LaunchConfigUtil.createLaunchPrefix(configuration) +
 					' ' + renv.getName() + " : R " + cmd + " ~ " + name); //$NON-NLS-1$ //$NON-NLS-2$
 			
 			monitor.worked(5);

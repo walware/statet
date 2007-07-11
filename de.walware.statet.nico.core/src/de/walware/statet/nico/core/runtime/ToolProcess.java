@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 /**
  * Provides <code>IProcess</code> for a <code>ToolController</code>.
  */
-public class ToolProcess<WorkspaceType extends ToolWorkspace> 
+public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		extends PlatformObject implements IProcess, ITool, IToolStatusListener {
 
 	
@@ -51,7 +51,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private static final int TERMINATE = 0x0f0;
 	
 	
-	/** 
+	/**
 	 * Constant for detail of a DebugEvent, signalising that
 	 * the process/controller started to work/calculate.
 	 * 
@@ -61,7 +61,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 */
 	public static final int STATUS_PROCESS = MASK_STATUS | PROCESS;
 
-	/** 
+	/**
 	 * Constant for detail of a DebugEvent, signalising that
 	 * the process/controller switched into idle mode.
 	 * 
@@ -71,7 +71,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 */
 	public static final int STATUS_IDLE = MASK_STATUS | IDLE;
 
-	/** 
+	/**
 	 * Constant for detail of a DebugEvent, signalising that
 	 * the process/controller was paused.
 	 * 
@@ -129,17 +129,18 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	protected volatile int fExitValue = 0;
 	
 	
-	public ToolProcess(ILaunch launch, String prefix, String name) {
+	public ToolProcess(ILaunch launch, String type, String prefix, String name) {
 		
 		fLaunch = launch;
 		fName = name;
 		fAttributes = new HashMap<String, String>(5);
 		fToolLabelShort = prefix;
-		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, 
+		doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
 				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
+		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, type);
 		
 		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
-		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
+		fCaptureOutput = !("false".equals(captureOutput));
 
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(new ILaunchesListener() {
 			public void launchesAdded(ILaunch[] launches) {
@@ -244,7 +245,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		
 		synchronized (fAttributes) {
 			String oldValue = fAttributes.put(key, value);
-			if (oldValue == value 
+			if (oldValue == value
 					|| (oldValue != null && oldValue.equals(value)) ) {
 				return null;
 			}
@@ -295,10 +296,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	}
 
 	public void terminate() throws DebugException {
-		
 		ToolController controller = fController;
 		if (controller != null) {
-			controller.terminate();
+			controller.scheduleQuit();
 		}
 	}
 
@@ -322,11 +322,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 
 		switch(requestedStatus) {
 		case STARTED_PAUSED:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE) );
 			break;
 		case TERMINATED:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE) );
 			break;
 		}
@@ -336,11 +336,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 
 		switch(requestedStatus) {
 		case STARTED_PAUSED:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, REQUEST_PAUSE_CANCELED) );
 			break;
 		case TERMINATED:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, REQUEST_TERMINATE_CANCELED) );
 			break;
 		}
@@ -353,28 +353,28 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		switch(newStatus) {
 		
 		case STARTED_PROCESSING:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, STATUS_PROCESS) );
 			break;
 		case STARTED_IDLING:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, STATUS_IDLE) );
 			break;
 		case STARTED_PAUSED:
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, STATUS_PAUSE) );
 			break;
 			
 		case TERMINATED:
 			fController = null;
-			eventCollection.add(new DebugEvent(ToolProcess.this, 
+			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.TERMINATE) );
 			break;
 		}
 		
 		synchronized (fAttributes) {
-			DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, 
-					computerConsoleLabel(newStatus.getMarkedLabel())); 
+			DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
+					computerConsoleLabel(newStatus.getMarkedLabel()));
 			if (nameEvent != null) {
 				eventCollection.add(nameEvent);
 			}

@@ -58,7 +58,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	public static REnvSetting readREnv(ILaunchConfiguration configuration) throws CoreException {
 		String setting = configuration.getAttribute(PROP_RENV_SETTING, (String) null);
-		return REnvSetting.decodeType(setting);
+		return REnvSetting.decodeType(setting, false);
 	}
 	
 	/**
@@ -67,11 +67,11 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	 * @return
 	 * @throws CoreException
 	 */
-	public static REnvConfiguration getREnv(ILaunchConfiguration configuration) 
+	public static REnvConfiguration getREnv(ILaunchConfiguration configuration)
 			throws CoreException {
 		REnvConfiguration config = REnvSetting.resolveREnv(readREnv(configuration));
 		if (config == null) {
-			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR, 
+			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_CouldNotFound_message, null));
 		}
 		IStatus status = config.validate();
@@ -95,7 +95,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	public static IFileStore getWorkingDirectory(ILaunchConfiguration configuration) throws CoreException {
 		String path = readWorkingDirectory(configuration);
 		if (path == null || path.trim().length() == 0) {
-			return null;
+			path = System.getProperty("user.dir"); //$NON-NLS-1$
 		}
 		FileValidator validator = new FileValidator(true);
 		validator.setOnDirectory(IStatus.OK);
@@ -126,6 +126,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		return RLaunchingMessages.REnv_Tab_title;
 	}
 	
+	@Override
 	public Image getImage() {
 		return RUI.getImage(RUI.IMG_OBJ_R_ENVIRONMENT);
 	}
@@ -155,13 +156,14 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		initBindings();
 	}
 	
+	@Override
 	protected void addBindings(DataBindingContext dbc, Realm realm) {
 		fREnvSettingValue = new WritableValue(realm, null, String.class);
 		fWorkingDirectoryValue = new WritableValue(realm, null, String.class);
 		
 		dbc.bindValue(fREnvControl.createObservable(realm), fREnvSettingValue,
 				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(fREnvControl.createValidator(dbc))), 
+						new SavableErrorValidator(fREnvControl.createValidator(dbc))),
 				null);
 		fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
 		dbc.bindValue(fWorkingDirectoryControl.createObservable(), fWorkingDirectoryValue,
@@ -171,15 +173,14 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	}
 
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(PROP_RENV_SETTING, REnvSetting.encodeREnv(SettingsType.WORKBENCH, null));
+		configuration.setAttribute(PROP_RENV_SETTING, REnvSetting.encodeREnv(SettingsType.WORKBENCH, null, false));
 		configuration.setAttribute(PROP_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 
 	@Override
 	public void doInitialize(ILaunchConfiguration configuration) {
 		try {
-			fREnvSettingValue.setValue(configuration.getAttribute(PROP_RENV_SETTING, 
-					REnvSetting.encodeREnv(SettingsType.WORKBENCH, null)));
+			fREnvSettingValue.setValue(configuration.getAttribute(PROP_RENV_SETTING, (String) null));
 		} catch (CoreException e) {
 			fREnvSettingValue.setValue(null);
 			logReadingError(e);

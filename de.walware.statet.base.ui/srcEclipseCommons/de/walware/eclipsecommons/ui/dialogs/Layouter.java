@@ -92,11 +92,6 @@ public class Layouter {
 		filler.setLayoutData(gd);
 	}
 
-	public void addSmallFiller() {
-		
-		LayoutUtil.addSmallFiller(composite);
-	}
-	
 	public void addSpaceGrabber() {
 		
 		Label filler = new Label(composite, SWT.NONE);
@@ -147,7 +142,7 @@ public class Layouter {
 	public Button addCheckBox(String label, int indentation) {
 		return addCheckBox(label, indentation, fNumColumns);
 	}
-	public Button addCheckBox(String label, int indentation, int horizontalSpan) {		
+	public Button addCheckBox(String label, int indentation, int horizontalSpan) {
 
 		Button checkBox = new Button(composite, SWT.CHECK);
 		checkBox.setText(label);

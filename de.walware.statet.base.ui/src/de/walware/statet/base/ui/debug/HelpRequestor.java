@@ -136,10 +136,12 @@ public class HelpRequestor implements IRunnableWithProgress {
 		private Exception fReadException;
 
 		public HelpReader() {
+			super("'--help'-Output Monitor"); //$NON-NLS-1$
 			fOutputInput = new InputStreamReader(fProcess.getInputStream());
 			fBuffer = new StringBuilder();
 		}
 		
+		@Override
 		public void run() {
 			try {
 				boolean canRead;
@@ -165,7 +167,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 						Thread.interrupted();
 					}
 				}
-			} 
+			}
 			catch (IOException e) {
 			}
 			finally {
@@ -181,7 +183,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				try {
 					join();
 					if (fReadException != null) {
-						throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1, 
+						throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
 								StatetMessages.HelpRequestor_error_WhenReadOutput_message, fReadException));
 					}
 					return fBuffer.toString();
@@ -231,7 +233,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 			}
 			catch (IOException e) {
 				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR,
-						NLS.bind(StatetMessages.HelpRequestor_error_WhenRunProcess_message, cmdInfo), e)); //$NON-NLS-2$
+						NLS.bind(StatetMessages.HelpRequestor_error_WhenRunProcess_message, cmdInfo), e));
 			}
 			fIsRunning = true;
 			fMonitor.worked(2);

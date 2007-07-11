@@ -101,7 +101,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected String[] getChangedContexts() {
-		return new String[] { 
+		return new String[] {
 				ContentAssistPreference.CONTEXT_ID,
 		};
 	}
@@ -112,19 +112,19 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		// Preferences
 		fMatchingBracketsPref = new BooleanPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
 		List<AppearanceColorsItem> colors = new ArrayList<AppearanceColorsItem>();
-		colors.add(new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor,
 				new RGBPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR)));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor,
 				ContentAssistPreference.PROPOSALS_FOREGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor,
 				ContentAssistPreference.PROPOSALS_BACKGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor,
 				ContentAssistPreference.PARAMETERS_FOREGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor,
 				ContentAssistPreference.PARAMETERS_BACKGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor,
 				ContentAssistPreference.REPLACEMENT_FOREGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor, 
+		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
 				ContentAssistPreference.REPLACEMENT_BACKGROUND));
 		fCodeAssistAutoPref = ContentAssistPreference.AUTOINSERT;
 		fCodeAssistDelayPref = ContentAssistPreference.AUTOACTIVATION_DELAY;
@@ -142,7 +142,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		addLinkHeader(pageComposite, Messages.Editors_link);
 		Composite group = createAppearanceSection(pageComposite);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		LayoutUtil.addSmallFiller(pageComposite);
+		LayoutUtil.addSmallFiller(pageComposite, false);
 		group = createCodeAssistSection(pageComposite);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
@@ -164,7 +164,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		fMatchingBracketsControl.setText(Messages.Editors_HighlightMatchingBrackets);
 		fMatchingBracketsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 
-		LayoutUtil.addSmallFiller(group);
+		LayoutUtil.addSmallFiller(group, false);
 		Composite colorComposite = new Composite(group, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		colorComposite.setLayoutData(gd);
@@ -224,13 +224,13 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 				createObservable(fMatchingBracketsPref),
 				null, null);
 		IObservableValue colorItem = ViewersObservables.observeSingleSelection(fColorList);
-		dbc.bindValue(new ColorSelectorObservableValue(fColorEditor), 
+		dbc.bindValue(new ColorSelectorObservableValue(fColorEditor),
 				MasterDetailObservables.detailValue(colorItem, new IObservableFactory() {
 					public IObservable createObservable(Object target) {
 						AppearanceColorsItem item = (AppearanceColorsItem) target;
 						return EditorsConfigurationBlock.this.createObservable(item.pref);
 					}
-				}, RGB.class),	
+				}, RGB.class),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fCodeAssistAutoControl),
 				createObservable(fCodeAssistAutoPref),

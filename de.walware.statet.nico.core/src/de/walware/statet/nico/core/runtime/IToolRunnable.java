@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,10 +16,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 
 /**
- * Runnables part which can communicate with the tool software. 
+ * Runnables part which can communicate with the tool software.
  * The are added to the queue and runned, when it is one's turn.
  *
- * A runnable depends on an adapter type. It is a good idea, if 
+ * A runnable depends on an adapter type. It is a good idea, if
  * this is an interface and not an implementation.
  */
 public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
@@ -35,8 +35,8 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	/**
 	 * This method is called by the tool controller, when it is one's turn.
 	 * <p>
-	 * This method is running in the Tool-thread and blocks the thread, 
-	 * until <code>run</code> is finished. So you have exlusive access to 
+	 * This method is running in the Tool-thread and blocks the thread,
+	 * until <code>run</code> is finished. So you have exlusive access to
 	 * the Tool inside this method.
 	 * <p>
 	 * Don't call this method on another place.
@@ -49,8 +49,15 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 * @throws InterruptedException if action was cancelled
 	 * @throws CoreException if error occured
 	 */
-	public void run(T tools, IProgressMonitor monitor) 
+	public void run(T tools, IProgressMonitor monitor)
 			throws InterruptedException, CoreException;
+	
+	/**
+	 * Unique id of the runnable type (not instance).
+	 * 
+	 * @return the id
+	 */
+	public String getTypeId();
 	
 	/**
 	 * Return a label for this runnable, used by the UI.
@@ -65,5 +72,5 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 * 
 	 * @return the type
 	 */
-	public SubmitType getType();
+	public SubmitType getSubmitType();
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,10 @@ public class Messages extends NLS {
 	public static String TerminatingMonitor_ForceButton_label;
 	public static String TerminatingMonitor_WaitButton_label;
 
+	public static String Login_Dialog_title;
+	public static String Login_Dialog_message;
+	public static String Login_Dialog_Name_label;
+	public static String Login_Dialog_Password_label;
 
 	
 	static {

@@ -82,7 +82,7 @@ public class LayoutUtil {
 		}
 		return gDialogValues;
 	}
-	
+
 	
 	public static Point defaultSpacing() {
 		return new Point(getDialogValues().defaultHSpacing, getDialogValues().defaultVSpacing);
@@ -162,11 +162,11 @@ public class LayoutUtil {
 		dummy.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 	}
 
-	public static void addSmallFiller(Composite composite) {
+	public static void addSmallFiller(Composite composite, boolean grab) {
 		Label filler = new Label(composite, SWT.NONE);
 		Layout layout = composite.getLayout();
 		if (layout instanceof GridLayout) {
-			GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, false, grab);
 			gd.horizontalSpan = ((GridLayout) layout).numColumns;
 			gd.heightHint = defaultVSpacing() / 2;
 			filler.setLayoutData(gd);
@@ -181,4 +181,9 @@ public class LayoutUtil {
 			section = settings.addNewSection(sectionName);
 		return section;
 	}
+
+
+	private LayoutUtil() {
+	}
+
 }

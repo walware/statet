@@ -11,7 +11,9 @@
 
 package de.walware.statet.r.core.renv;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,6 +55,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private static final String PREFKEY_RHOME = "env.r_home"; //$NON-NLS-1$
 	
 	public static enum Exec {
+		COMMON,
 		CMD,
 		TERM;
 	}
@@ -60,7 +63,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	
 	public static boolean isValidRHomeLocation(IFileStore loc) {
 		IFileStore binDir = loc.getChild("bin"); //$NON-NLS-1$
-		IFileStore exeFile = null; 
+		IFileStore exeFile = null;
 		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 			exeFile = binDir.getChild("R.exe"); //$NON-NLS-1$
 		}
@@ -133,7 +136,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		return new Preference[] {
 				fPrefName,
 				fPrefRHomeDirectory,
-//				fPrefBinDirectory, 
+//				fPrefBinDirectory,
 		};
 	}
 
@@ -235,33 +238,56 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	}
 
 	
-	public String[] getExecCommand(String arg1, Set<Exec> execTypes) throws CoreException {
-		String child = null;
-		String test = (arg1 != null) ? arg1.trim().toUpperCase() : "";
-		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
-			if (test.equals("CMD")) { //$NON-NLS-1$
-				if (execTypes.contains(Exec.CMD)) {
-					child = "bin\\Rcmd.exe"; //$NON-NLS-1$
-					arg1 = null;
-				}
-			}
-			else {
-				if (execTypes.contains(Exec.TERM)) {
-					child = "bin\\Rterm.exe"; //$NON-NLS-1$
-				}
-			}
-			if (child == null) {
-				child = "bin\\R.exe"; //$NON-NLS-1$
+	public List<String> getExecCommand(String arg1, Set<Exec> execTypes) throws CoreException {
+		String test = (arg1 != null) ? arg1.trim().toUpperCase() : ""; //$NON-NLS-1$
+		Exec type = Exec.COMMON;
+		if (test.equals("CMD")) { //$NON-NLS-1$
+			if (execTypes.contains(Exec.CMD)) {
+				type = Exec.CMD;
+				arg1 = null;
 			}
 		}
 		else {
+			if (execTypes.contains(Exec.TERM)) {
+				type = Exec.TERM;
+			}
+		}
+		List<String> commandLine = getExecCommand(type);
+		if (arg1 != null) {
+			commandLine.add(arg1);
+		}
+		return commandLine;
+	}
+	
+	public List<String> getExecCommand(Exec execType) throws CoreException {
+		String child = null;
+		List<String> commandLine = new ArrayList<String>(2);
+		switch (execType) {
+		case TERM:
+			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+				child = "bin\\Rterm.exe"; //$NON-NLS-1$
+			}
+			break;
+		case CMD:
+			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+				child = "bin\\Rcmd.exe"; //$NON-NLS-1$
+			}
+			else {
+				commandLine.add("CMD"); //$NON-NLS-1$
+			}
+			break;
+		default:
+			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+				child = "bin\\R.exe"; //$NON-NLS-1$
+			}
+			break;
+		}
+		if (child == null) {
 			child = "bin/R";
 		}
 		IPath exec = FileUtil.expandToLocalPath(getRHome(), child);
-		if (arg1 != null) {
-			return new String[] { exec.toOSString(), arg1 };
-		}
-		return new String[] { exec.toOSString() };
+		commandLine.add(0, exec.toOSString());
+		return commandLine;
 	}
 	
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {

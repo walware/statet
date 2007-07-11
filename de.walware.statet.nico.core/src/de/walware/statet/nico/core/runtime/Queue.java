@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import org.eclipse.debug.core.DebugPlugin;
 /**
  * Queue with IToolRunnable waiting to be processed by the tool/controller.
  * 
- * Usage: You get your queue via accessor of the ToolProcess. 
+ * Usage: You get your queue via accessor of the ToolProcess.
  * 
  * DebugEvents for a lifecycle of an entry:<pre>
  *                       CHANGE (CONTENT)
@@ -68,7 +68,7 @@ public class Queue {
 	 * data to this event. The source of the event is the ToolProcess.
 	 * <p>
 	 * Usage: Events of this type are sended by the ToolProcess/its queue.
-	 * The constant is applicable for DebugEvents of kind 
+	 * The constant is applicable for DebugEvents of kind
 	 * <code>MODEL_SPECIFIC</code>.</p>
 	 */
 	public static final int QUEUE_INFO = 1;
@@ -81,7 +81,7 @@ public class Queue {
 //	 * data to this event. The source of the event is the ToolProcess.
 //	 * <p>
 //	 * Usage: Events of this type are sended by the ToolProcess/its queue.
-//	 * The constant is applicable for DebugEvents of kind 
+//	 * The constant is applicable for DebugEvents of kind
 //	 * <code>MODEL_SPECIFIC</code>.</p>
 //	 */
 //	public static final int QUEUE_MAJOR_CHANGE = 2;
@@ -96,7 +96,7 @@ public class Queue {
 	
 	/**
 	 * Constant for type of a Delta, signalising that
-	 * one or multiple entries (IToolRunnable) was deleted 
+	 * one or multiple entries (IToolRunnable) was deleted
 	 * (normally by a user request) from the queue.
 	 */
 	public static final int ENTRIES_DELETE = 0x0121;
@@ -110,10 +110,10 @@ public class Queue {
 	
 	/**
 	 * Constant for type of a Delta, signalising that
-	 * a entry (IToolRunnable) was removed from the queue and that 
+	 * a entry (IToolRunnable) was removed from the queue and that
 	 * the process/controller started processing the entry.
 	 * <p>
-	 * The entry is not longer listed in queue. 
+	 * The entry is not longer listed in queue.
 	 */
 	public static final int ENTRY_START_PROCESSING = 0x0210;
 	
@@ -233,8 +233,13 @@ public class Queue {
 		assert (fFinishedCache == null);
 		
 		// this order is important
-		fFinishedCacheDetail = MASK_FINISHED | detail; 
+		fFinishedCacheDetail = MASK_FINISHED | detail;
 		fFinishedCache = fFinishedExpected;
+	}
+	
+	List<IToolRunnable> internalGetList() {
+		internalCheck();
+		return fList;
 	}
 	
 	void dispose() {
@@ -242,7 +247,7 @@ public class Queue {
 		checkFinishedCache();
 		checkIOCache();
 		if (!fList.isEmpty()) {
-			addDebugEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED, 
+			addDebugEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED,
 					ENTRIES_ABANDONED, fList.toArray(new IToolRunnable[fList.size()]));
 			fList.clear();
 		}

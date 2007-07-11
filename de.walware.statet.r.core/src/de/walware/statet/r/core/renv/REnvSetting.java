@@ -44,18 +44,22 @@ public class REnvSetting extends AbstractSettingsModelObject {
 		return null;
 	}
 	
-	public static String encodeREnv(SettingsType type, REnvConfiguration specified) {
+	public static String encodeREnv(SettingsType type, REnvConfiguration specified, boolean strict) {
+		boolean valid;
 		if (type != null) {
 			switch (type) {
 			case WORKBENCH:
 				return SettingsType.WORKBENCH.name();
 			case SPECIFIC:
-				if (specified != null) {
+				valid = (specified != null);
+				if (valid || !strict) {
 					StringBuilder s = new StringBuilder(SettingsType.SPECIFIC.name());
-					s.append(':');
-					s.append(specified.getId());
-					s.append(':');
-					s.append(specified.getName());
+					if (valid) {
+						s.append(':');
+						s.append(specified.getId());
+						s.append(':');
+						s.append(specified.getName());
+					}
 					return s.toString();
 				}
 				break;
@@ -64,20 +68,22 @@ public class REnvSetting extends AbstractSettingsModelObject {
 		return null;
 	}
 	
-	public static REnvSetting decodeType(String encodedSetting) {
+	public static REnvSetting decodeType(String encodedSetting, boolean strict) {
 		REnvSetting setting = new REnvSetting();
 		if (encodedSetting != null && encodedSetting.length() > 0) {
 			String[] parts = RENV_SETTINGSSPLIT_PATTERN.split(encodedSetting, 3);
 			SettingsType type = SettingsType.valueOf(parts[0]);
+			boolean valid;
 			switch (type) {
 			case WORKBENCH:
 				setting.fType = SettingsType.WORKBENCH;
 				break;
 	
 			case SPECIFIC:
-				if (parts.length == 3) {
+				valid = (parts.length == 3);
+				if (valid || !strict) {
 					setting.fType = SettingsType.SPECIFIC;
-					setting.fDetails = new String[] { parts[1], parts[2] };
+					setting.fDetails = (valid) ? new String[] { parts[1], parts[2] } : new String[] { null, null };
 				}
 				break;
 			}

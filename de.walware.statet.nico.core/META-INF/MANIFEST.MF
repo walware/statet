@@ -8,7 +8,8 @@ Bundle-Activator: de.walware.statet.nico.internal.core.NicoPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.debug.core;visibility:=reexport,
- org.eclipse.core.expressions;visibility:=reexport
+ org.eclipse.core.expressions;visibility:=reexport,
+ org.eclipse.core.filesystem
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: de.walware.statet.nico.core,

@@ -49,7 +49,7 @@ public abstract class AbstractRController<
 		public void cancelIncompletePrompt() {
 			
 			fInfoStream.append(fPrompt.text+"(Input cancelled)"+fLineSeparator, 
-					(fCurrentRunnable != null) ? fCurrentRunnable.getType() : SubmitType.TOOLS, fPrompt.meta);
+					(fCurrentRunnable != null) ? fCurrentRunnable.getSubmitType() : SubmitType.TOOLS, fPrompt.meta);
 			setPrompt(fDefaultPrompt);
 		}
 	}
@@ -64,7 +64,7 @@ public abstract class AbstractRController<
 	
 	
 	@Override
-	public boolean cancel() {
+	public boolean cancelTask() {
 		
 		synchronized (getQueue()) {
 			if ((getStatus() == ToolStatus.STARTED_IDLING || getStatus() == ToolStatus.STARTED_PAUSED) 
@@ -73,7 +73,7 @@ public abstract class AbstractRController<
 				return true;
 			}
 			else {
-				return super.cancel();
+				return super.cancelTask();
 			}
 		}
 	}

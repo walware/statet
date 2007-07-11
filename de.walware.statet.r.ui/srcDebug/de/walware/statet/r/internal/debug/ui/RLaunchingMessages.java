@@ -42,6 +42,7 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_CmdRdconv_name;
 	public static String RCmd_CmdRemove_name;
 	public static String RCmd_CmdSd2Rd_name;
+	public static String RCmd_MainTab_error_MissingCMD_message;
 	public static String RCmd_MainTab_RunHelp_label;
 	public static String RCmd_MainTab_error_CannotRunHelp_message;
 	public static String RCmd_MainTab_error_WhileRunningHelp_message;
@@ -49,6 +50,12 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_Resource_Other_label;
 	public static String RCmd_Resource_Package_label;
 	public static String RCmd_LaunchDelegate_Running_label;
+	
+	public static String RConsole_MainTab_name;
+	public static String RConsole_MainTab_LaunchType_label;
+	public static String RConsole_MainTab_RunHelp_label;
+	public static String RConsole_MainTab_error_CannotRunHelp_message;
+	public static String RConsole_MainTab_error_WhileRunningHelp_message;
 
 	public static String REnv_Tab_REnvConfig_label;
 	public static String REnv_Tab_title;

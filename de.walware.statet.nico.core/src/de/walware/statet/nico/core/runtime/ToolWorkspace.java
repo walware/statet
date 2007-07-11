@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package de.walware.statet.nico.core.runtime;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
@@ -25,7 +26,7 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
  * 
  * @author Stephan Wahlbrink
  */
-public class ToolWorkspace { 
+public class ToolWorkspace {
 	
 	protected class ControllerListener implements IToolStatusListener {
 	
@@ -71,15 +72,15 @@ public class ToolWorkspace {
 	private Prompt fDefaultPrompt;
 	private boolean fIsCurrentPromptPublished = false;
 	private EnumSet<ToolStatus> fPublishPromptStatusSet = EnumSet.of(ToolStatus.STARTED_IDLING, ToolStatus.STARTED_PAUSED);
+	
+	private IFileStore fWorkspaceDir;
 
 	
 	public ToolWorkspace(ToolController controller) {
-		
 		this(controller, null, null);
 	}
 	
 	public ToolWorkspace(ToolController controller, Prompt prompt, String lineSeparator) {
-		
 		if (prompt == null) {
 			prompt = Prompt.DEFAULT;
 		}
@@ -87,22 +88,19 @@ public class ToolWorkspace {
 		setLineSeparator(lineSeparator);
 
 		controller.addToolStatusListener(createToolStatusListener());
-	}		
+	}
 	
 	protected IToolStatusListener createToolStatusListener() {
-		
 		return new ControllerListener();
 	}
 	
 	
 	public String getLineSeparator() {
-		
 		return fLineSeparator;
 	}
 	
 	
 	public Prompt getPrompt() {
-		
 		synchronized (fPromptMutex) {
 			if (fIsCurrentPromptPublished) {
 				return fCurrentPrompt;
@@ -113,17 +111,14 @@ public class ToolWorkspace {
 	}
 	
 	public Prompt getDefaultPrompt() {
-		
 		return fDefaultPrompt;
 	}
 	
-	public Object getWorkspaceDir() {
-		
-		return null;
+	public IFileStore getWorkspaceDir() {
+		return fWorkspaceDir;
 	}
 	
 	public String getEncoding() {
-		
 		return "UTF-8"; //$NON-NLS-1$
 	}
 
@@ -132,14 +127,13 @@ public class ToolWorkspace {
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
 	void setCurrentPrompt(Prompt prompt, ToolStatus status) {
-		
 		if (prompt == fCurrentPrompt || prompt == null) {
 			return;
 		}
 		boolean firePrompt = false;
 		synchronized (fPromptMutex) {
 			fCurrentPrompt = prompt;
-			if (fPublishPromptStatusSet.contains(status) 
+			if (fPublishPromptStatusSet.contains(status)
 					&& (prompt != fDefaultPrompt || fIsCurrentPromptPublished) ) {
 				firePrompt = true;
 				fIsCurrentPromptPublished = (prompt != fDefaultPrompt);
@@ -155,7 +149,6 @@ public class ToolWorkspace {
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
 	void setDefaultPrompt(Prompt prompt) {
-		
 		if (prompt == fDefaultPrompt || prompt == null) {
 			return;
 		}
@@ -172,26 +165,27 @@ public class ToolWorkspace {
 	 * @param newSeparator the new separator, null sets the system default separator
 	 */
 	void setLineSeparator(String newSeparator) {
-		
 		String oldSeparator = fLineSeparator;
 		fLineSeparator = (newSeparator != null) ? newSeparator : System.getProperty("line.separator"); //$NON-NLS-1$
-		if (!fLineSeparator.equals(oldSeparator)) {
-			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_LINE_SEPARTOR);
-			event.setData(fLineSeparator);
-			fireEvent(event);
-		}
+//		if (!fLineSeparator.equals(oldSeparator)) {
+//			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_LINE_SEPARTOR);
+//			event.setData(fLineSeparator);
+//			fireEvent(event);
+//		}
+	}
+	
+	void setWorkspaceDir(IFileStore directory) {
+		fWorkspaceDir = directory;
 	}
 		
 	
 	private void firePrompt(Prompt prompt) {
-		
 		DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
 		event.setData(prompt);
 		fireEvent(event);
 	}
 	
 	protected void fireEvent(DebugEvent event) {
-		
 		DebugPlugin manager = DebugPlugin.getDefault();
 		if (manager != null) {
 			manager.fireDebugEventSet(new DebugEvent[] { event });

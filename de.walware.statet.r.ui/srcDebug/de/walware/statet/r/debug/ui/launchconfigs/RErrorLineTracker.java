@@ -36,6 +36,8 @@ import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.util.ExceptionHandler;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
@@ -98,12 +100,12 @@ public class RErrorLineTracker implements IPatternMatchListener {
 			}
 			catch (PartInitException e) {
 				error = e;
-			} 
+			}
 			catch (BadLocationException e) {
 				error = e;
 			}
 			if (error != null) {
-				ExceptionHandler.handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 1, 
+				ExceptionHandler.handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 1,
 						NLS.bind(RLaunchingMessages.RErrorLineTracker_error_OpeningFile_message, fFileName), error));
 			}
 		}
@@ -112,6 +114,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	
 	private TextConsole fConsole;
 	private IFileStore fWorkingDirectory;
+	private ToolProcess<ToolWorkspace> fTool;
 	
 	
 	/**
@@ -121,6 +124,11 @@ public class RErrorLineTracker implements IPatternMatchListener {
 		fWorkingDirectory = workingDirectory;
 	}
 
+	public RErrorLineTracker(ToolProcess<ToolWorkspace> tool) {
+		fTool = tool;
+	}
+
+	
 	public int getCompilerFlags() {
 		return Pattern.MULTILINE;
 	}
@@ -171,10 +179,19 @@ public class RErrorLineTracker implements IPatternMatchListener {
 			int sourceline = Integer.parseInt(number.substring(0, result));
 	//		System.out.println("offset="+event.getOffset()+",length="+event.getLength());
 	//		System.out.println("source="+event.getSource().toString());
-			fConsole.addHyperlink(new SourceLink(fWorkingDirectory, path, sourceline-1), event.getOffset(), event.getLength());
+			fConsole.addHyperlink(new SourceLink(getWorkingDirectory(), path, sourceline-1), event.getOffset(), event.getLength());
 		}
 		catch (BadLocationException e) {
 			RUIPlugin.logError(-1, "Error while searching error line informations.", e); //$NON-NLS-1$
+		}
+	}
+	
+	protected IFileStore getWorkingDirectory() {
+		if (fTool != null) {
+			return fTool.getWorkspaceData().getWorkspaceDir();
+		}
+		else {
+			return fWorkingDirectory;
 		}
 	}
 	

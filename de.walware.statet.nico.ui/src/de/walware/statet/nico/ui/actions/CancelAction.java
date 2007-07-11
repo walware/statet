@@ -46,7 +46,7 @@ public class CancelAction extends ToolAction {
 			return;
 		}
 		
-		if (!controller.cancel()) {
+		if (!controller.cancelTask()) {
 			Display.getCurrent().beep();
 		}
 	}

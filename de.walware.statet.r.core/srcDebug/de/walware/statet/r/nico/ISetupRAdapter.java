@@ -11,12 +11,14 @@
 
 package de.walware.statet.r.nico;
 
+import org.eclipse.core.filesystem.IFileStore;
+
 import de.walware.statet.nico.core.runtime.Prompt;
 
 
 /**
  *
- * Note: the methods sets the properties at java side. The caller is 
+ * Note: the methods sets the properties at java side. The caller is
  * responsible for the synchronization of the properties with R.
  */
 public interface ISetupRAdapter {
@@ -26,4 +28,5 @@ public interface ISetupRAdapter {
 	public void setPrompt(Prompt prompt);
 	
 	public void setLineSeparator(String newSeparator);
+	public void setWorkspaceDir(IFileStore directory);
 }

@@ -48,7 +48,7 @@ import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;
 public class History {
 
 	
-	private int fMaxSize = 100;
+	private int fMaxSize = 1000;
 	private int fCurrentSize = 0;
 	private boolean fIgnoreCommentLines;
 	
@@ -186,9 +186,9 @@ public class History {
 	/**
 	 * Load the history from a text file. Previous entries are removed.
 	 * 
-	 * Note: The thread can be blocked because of workspace operations. So 
+	 * Note: The thread can be blocked because of workspace operations. So
 	 * it is a good idea, that the user have the chance to cancel the action.
-	 *  
+	 * 
 	 * @param file, type must be supported by IFileUtil impl.
 	 * @param charset the charset (if not detected automatically)
 	 * @param forceCharset use always the specified charset
@@ -241,7 +241,7 @@ public class History {
 			}
 		} catch (CoreException e) {
 			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
-					NLS.bind(Messages.LoadHistory_error_message, 
+					NLS.bind(Messages.LoadHistory_error_message,
 							new Object[] { fProcess.getToolLabel(true), file.toString() }), e));
 		} finally {
 			monitor.done();
@@ -251,9 +251,9 @@ public class History {
 	/**
 	 * Save the history to a text file.
 	 * 
-	 * Note: The thread can be blocked because of workspace operations. So 
+	 * Note: The thread can be blocked because of workspace operations. So
 	 * it is a good idea, that the user have the chance to cancel the action.
-	 *  
+	 * 
 	 * @param file, type must be supported by IFileUtil impl.
 	 * @param mode allowed: EFS.OVERWRITE, EFS.APPEND
 	 * @param charset the charset (if not appended)
@@ -263,8 +263,8 @@ public class History {
 	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	public void save(Object file, int mode, String charset, boolean forceCharset, 
-			IProgressMonitor monitor) 
+	public void save(Object file, int mode, String charset, boolean forceCharset,
+			IProgressMonitor monitor)
 			throws CoreException, OperationCanceledException {
 		
 		if (monitor == null) {
@@ -297,7 +297,7 @@ public class History {
 			op.doOperation(new SubProgressMonitor(monitor, 2));
 		} catch (CoreException e) {
 			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
-					NLS.bind(Messages.SaveHistory_error_message, 
+					NLS.bind(Messages.SaveHistory_error_message,
 							new Object[] { fProcess.getLabel(), file.toString() }), e));
 		} finally {
 			monitor.done();
@@ -322,7 +322,7 @@ public class History {
 			
 			if (fCurrentSize == fMaxSize) {
 				fOldest = fOldest.dispose();
-			} 
+			}
 			else {
 				fCurrentSize++;
 			}
@@ -340,7 +340,7 @@ public class History {
 	/**
 	 * Return the newest history entry.
 	 * 
-	 * @return newest entry 
+	 * @return newest entry
 	 * 		or <code>null</null>, if history is empty.
 	 */
 	public synchronized Entry getNewest() {
@@ -352,7 +352,7 @@ public class History {
 	 * <p>
 	 * Don't use this method to frequently.
 	 * 
-	 * @return array with all entries 
+	 * @return array with all entries
 	 * 		or an array with length 0, if history is empty.
 	 */
 	public Entry[] toArray() {
@@ -362,7 +362,7 @@ public class History {
 		}
 		synchronized (this) {
 			array = new Entry[fCurrentSize];
-			Entry e = fOldest; 
+			Entry e = fOldest;
 			for (int i = 0; i < array.length; i++) {
 				array[i] = e;
 				e = e.fNewer;
@@ -373,7 +373,7 @@ public class History {
 
 	
     /**
-     * Adds the given listener to this history. 
+     * Adds the given listener to this history.
      * Has no effect if an identical listener is already registered.
      *
      * @param listener the listener
@@ -383,7 +383,7 @@ public class History {
 	}
 	
     /**
-     * Removes the given listener from this history. 
+     * Removes the given listener from this history.
      * Has no effect if an identical listener was not already registered.
      *
      * @param listener the listener
@@ -400,7 +400,7 @@ public class History {
 		fArrayCache = null;
 	}
 	
-	/** 
+	/**
 	 * Checks, if this command is empty or an command
 	 */
 	private boolean isCommandEmpty(String command) {

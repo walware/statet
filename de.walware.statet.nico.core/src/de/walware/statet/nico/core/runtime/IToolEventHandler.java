@@ -9,17 +9,23 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.debug.ui.launchconfigs;
+package de.walware.statet.nico.core.runtime;
 
 
 /**
- *
+ * Can react on tool events.
+ * 
+ * Tool events allows automation and the separation of UI.
  */
-public interface IRLaunchConfigurationConstants {
+public interface IToolEventHandler {
 	
-	public static final String ID_R_CMD_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RCmdTool"; //$NON-NLS-1$
-	public static final String ID_R_CMD_PROCESS_TYPE = "R.cmd"; //$NON-NLS-1$
 	
-	public static final String ID_R_CONSOLE_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RConsole"; //$NON-NLS-1$
-	public static final String ID_R_CONSOLE_PROCESS_TYPE = "R.console";
+	public static final int OK = 0;
+	public static final int CANCEL = -1;
+	public static final int YES = 0;
+	public static final int NO = 1;
+	
+	
+	public int handle(IToolRunnableControllerAdapter tools, Object contextData);
+	
 }
