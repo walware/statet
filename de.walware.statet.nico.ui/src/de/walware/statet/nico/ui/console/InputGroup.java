@@ -49,6 +49,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
+import de.walware.statet.ext.ui.editors.DeleteLineAction;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
@@ -360,6 +361,19 @@ public class InputGroup implements ISettingsChangedHandler {
 			action = new GotoMatchingBracketAction(matcher, fEditorAdapter);
 			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
 		}
+		
+		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.WHOLE, false);
+		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_BEGINNING, false);
+		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_END, false);
+		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.WHOLE, true);
+		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_BEGINNING, true);
+		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_END, true);
+		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
 	}
 	
 	
