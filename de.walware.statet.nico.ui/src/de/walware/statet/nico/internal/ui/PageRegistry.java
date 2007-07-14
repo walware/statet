@@ -56,7 +56,6 @@ class PageRegistry {
 	static final String SHOW_CONSOLE_JOB_NAME = "Show NIConsole"; //$NON-NLS-1$
 	
 	private static List<IConsoleView> getConsoleViews(IWorkbenchPage page) {
-		
 		List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
 		
 		IViewReference[] allReferences = page.getViewReferences();
@@ -93,22 +92,20 @@ class PageRegistry {
 		private volatile boolean fActivate;
 		
 		ShowConsoleViewJob() {
-			
 			super(SHOW_CONSOLE_JOB_NAME);
 			setSystem(true);
 			setPriority(Job.SHORT);
 		}
 		
 		void schedule(NIConsole console, boolean activate) {
-			
 			cancel();
 			fConsoleToShow = console;
 			fActivate = activate;
 			schedule(100);
 		}
 		
+		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
-
 			IWorkbenchPage page = getPage();
 			NIConsole console = fConsoleToShow;
 			if (page == null || console == null) {
@@ -140,8 +137,8 @@ class PageRegistry {
 						if (page.isPartVisible(view)) {	// already visible
 							return showInView(view, monitor);
 						}
-						else { 								// already selected 
-							preferedView[0] = view; 
+						else { 								// already selected
+							preferedView[0] = view;
 						}
 					}
 					else {									// for same type created view
@@ -172,7 +169,6 @@ class PageRegistry {
 		}
 		
 		private IStatus showInView(IConsoleView view, IProgressMonitor monitor) throws PartInitException {
-			
 			NIConsole console = fConsoleToShow;
 			boolean activate = fActivate;
 			IWorkbenchPage page = getPage();
@@ -210,7 +206,6 @@ class PageRegistry {
 		}
 		
 		void schedule(NIConsole console, IViewPart source, List<ToolProcess> exclude) {
-			
 			cancel();
 			fConsole = console;
 			fSource = source;
@@ -220,13 +215,12 @@ class PageRegistry {
 		
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
-			
 			final IWorkbenchPage page = getPage();
 			if (page == null) {
 				return Status.OK_STATUS;
 			}
 			NIConsole console = fConsole;
-			final List<ToolProcess> exclude = fExclude; 
+			final List<ToolProcess> exclude = fExclude;
 			
 			if (console == null) {
 				final AtomicReference<NIConsole> ref = new AtomicReference<NIConsole>();
@@ -257,11 +251,9 @@ class PageRegistry {
 		}
 
 		private void notifyActiveToolSessionChanged(IViewPart source) {
-			
 			ToolSessionUIData info = new ToolSessionUIData(fActiveProcess,
 					fActiveConsole, source);
-			
-			System.out.println("activated: " + info.toString());
+//			System.out.println("activated: " + info.toString());
 			
 			Object[] listeners = fListeners.getListeners();
 			for (Object obj : listeners) {
@@ -273,7 +265,6 @@ class PageRegistry {
 	private UpdateConsoleJob fConsoleUpdateJob = new UpdateConsoleJob();
 	
 	PageRegistry(IWorkbenchPage page) {
-		
 		fPage = page;
 		
 		fDebugContextListener = new IDebugContextListener() {
@@ -310,7 +301,6 @@ class PageRegistry {
 	}
 	
 	public synchronized void  dispose() {
-
 		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).removeDebugContextListener(fDebugContextListener);
 		fShowConsoleViewJob.cancel();
 		fShowConsoleViewJob = null;
@@ -323,40 +313,34 @@ class PageRegistry {
 	}
 
 	public synchronized IWorkbenchPage getPage() {
-		
 		return fPage;
 	}
 	
 	public synchronized ToolProcess getActiveProcess() {
-		
 		return fActiveProcess;
 	}
 	
 	public synchronized ToolSessionUIData createSessionInfo(IViewPart source) {
-		
-		return new ToolSessionUIData(fActiveProcess, 
+		return new ToolSessionUIData(fActiveProcess,
 				fActiveConsole, null);
 	}
 	
 	public synchronized void reactOnConsolesRemoved(List<ToolProcess> consoles) {
-		
 		if (consoles.contains(fActiveProcess)) {
-			doActiveConsoleChanged(null, null, consoles); 
+			doActiveConsoleChanged(null, null, consoles);
 		}
 	}
 	
 	public synchronized void doActiveConsoleChanged(NIConsole console, IViewPart source, List<ToolProcess> exclude) {
-		
 		fConsoleUpdateJob.schedule(console, source, exclude);
 	}
 	
 	public synchronized void showConsole(NIConsole console, boolean activate) {
-		
 		fShowConsoleViewJob.schedule(console, activate);
 	}
 
 	/**
-	 * only in UI thread 
+	 * only in UI thread
 	 */
 	private static NIConsole searchConsole(IWorkbenchPage page, List<ToolProcess> exclude) {
 		// Search NIConsole in

@@ -84,7 +84,7 @@ public class ChangeWorkingDirectoryWizard extends AbstractWizard {
 	
 	private class SelectWDDialog extends WizardPage {
 			
-		private static final String SETTINGS_HISTORY = "location.history"; //$NON-NLS-1$
+		private static final String SETTINGS_HISTORY = "statet:location.history"; //$NON-NLS-1$
 
 
 		private ChooseResourceComposite fLocationGroup;
@@ -154,7 +154,7 @@ public class ChangeWorkingDirectoryWizard extends AbstractWizard {
 		
 		public void saveSettings() {
 			IDialogSettings settings = getDialogSettings();
-			DialogUtil.saveHistory(settings, SETTINGS_HISTORY, (String) fNewLocationString.getValue());
+			DialogUtil.saveHistorySettings(settings, SETTINGS_HISTORY, (String) fNewLocationString.getValue());
 		}
 		
 		@Override
@@ -175,7 +175,7 @@ public class ChangeWorkingDirectoryWizard extends AbstractWizard {
 	public ChangeWorkingDirectoryWizard(ToolProcess tool) {
 		fTool = tool;
 		
-		setDialogSettings(RUIPlugin.getDefault(), ChangeWDRunnable.TYPE_ID);
+		setDialogSettings(RUIPlugin.getDefault(), ChangeWDRunnable.TYPE_ID+"-Wizard"); //$NON-NLS-1$
 		setWindowTitle(RNicoMessages.ChangeWorkingDir_Task_label);
 		setNeedsProgressMonitor(false);
 	}

@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.eclipsecommons.ui.util.DialogUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
@@ -69,9 +69,9 @@ public class TaskTagsInputDialog extends StatusDialog {
 		}
 		
 		if (task == null) {
-			setTitle(Messages.TaskTags_InputDialog_NewTag_title); 
+			setTitle(Messages.TaskTags_InputDialog_NewTag_title);
 		} else {
-			setTitle(Messages.TaskTags_InputDialog_EditTag_title); 
+			setTitle(Messages.TaskTags_InputDialog_EditTag_title);
 		}
 
 	}
@@ -83,13 +83,14 @@ public class TaskTagsInputDialog extends StatusDialog {
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(newShell, IJavaHelpContextIds.TODO_TASK_INPUT_DIALOG);
 	}
 
+	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		
 		Layouter layouter = new Layouter(new Composite(composite, SWT.NONE), 2);
 		
 		fNameControl = layouter.addLabeledTextControl(Messages.TaskTags_InputDialog_Name_label);
-		((GridData) fNameControl.getLayoutData()).widthHint = 
+		((GridData) fNameControl.getLayoutData()).widthHint =
 				new PixelConverter(fNameControl).convertWidthInCharsToPixels(45);
 		fNameControl.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -99,9 +100,9 @@ public class TaskTagsInputDialog extends StatusDialog {
 		});
 
 		String[] items = new String[] {
-				StatetMessages.TaskPriority_High, 
-				StatetMessages.TaskPriority_Normal, 
-				StatetMessages.TaskPriority_Low, 
+				StatetMessages.TaskPriority_High,
+				StatetMessages.TaskPriority_Normal,
+				StatetMessages.TaskPriority_Low,
 		};
 		fPriorityControl = layouter.addLabeledComboControl(Messages.TaskTags_InputDialog_Priority_label, items);
 		fPriorityControl.addModifyListener(new ModifyListener() {
@@ -115,7 +116,7 @@ public class TaskTagsInputDialog extends StatusDialog {
 					break;
 				default:
 					fPriority = TaskPriority.NORMAL;
-					break;				
+					break;
 				}
 			};
 		});
@@ -161,14 +162,14 @@ public class TaskTagsInputDialog extends StatusDialog {
 		StatusInfo status = new StatusInfo();
 		String newText = fNameControl.getText();
 		if (newText.length() == 0) {
-			status.setError(Messages.TaskTags_InputDialog_error_EnterName_message); 
+			status.setError(Messages.TaskTags_InputDialog_error_EnterName_message);
 		} else {
 			if (newText.indexOf(',') != -1) {
-				status.setError(Messages.TaskTags_InputDialog_error_Comma_message); 
+				status.setError(Messages.TaskTags_InputDialog_error_Comma_message);
 			} else if (fExistingNames.contains(newText)) {
-				status.setError(Messages.TaskTags_InputDialog_error_EntryExists_message); 
+				status.setError(Messages.TaskTags_InputDialog_error_EntryExists_message);
 			} else if (!Character.isLetterOrDigit(newText.charAt(0))) { // ||  Character.isWhitespace(newText.charAt(newText.length() - 1))) {
-				status.setError(Messages.TaskTags_InputDialog_error_ShouldStartWithLetterOrDigit_message); 
+				status.setError(Messages.TaskTags_InputDialog_error_ShouldStartWithLetterOrDigit_message);
 			}
 		}
 		updateStatus(status);
@@ -176,6 +177,6 @@ public class TaskTagsInputDialog extends StatusDialog {
 
 	@Override
 	protected IDialogSettings getDialogBoundsSettings() {
-		return LayoutUtil.createDialogBoundSettings("TaskTagEditDialog", StatetUIPlugin.getDefault()); //$NON-NLS-1$
+		return DialogUtil.getDialogSettings(StatetUIPlugin.getDefault(), "TaskTagEditDialog"); //$NON-NLS-1$
 	}
 }

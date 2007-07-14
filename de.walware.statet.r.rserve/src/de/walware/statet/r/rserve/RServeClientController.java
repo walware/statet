@@ -119,7 +119,6 @@ public class RServeClientController
 				}
 				if (result == IToolEventHandler.OK) {
 					fRconnection.login(login[0], login[1]);
-					result = IToolEventHandler.CANCEL;
 				}
 				else {
 					killTool(new NullProgressMonitor());

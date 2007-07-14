@@ -13,7 +13,6 @@ package de.walware.eclipsecommons.ui.util;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -30,7 +29,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 /**
@@ -173,16 +171,7 @@ public class LayoutUtil {
 		}
 	}
 
-	public static IDialogSettings createDialogBoundSettings(String dialogId, AbstractUIPlugin plugin) {
-		String sectionName = dialogId + "_dialogBounds"; //$NON-NLS-1$
-		IDialogSettings settings = plugin.getDialogSettings();
-		IDialogSettings section = settings.getSection(sectionName);
-		if (section == null)
-			section = settings.addNewSection(sectionName);
-		return section;
-	}
-
-
+	
 	private LayoutUtil() {
 	}
 

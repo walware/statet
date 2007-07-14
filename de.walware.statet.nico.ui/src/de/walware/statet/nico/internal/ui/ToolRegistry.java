@@ -64,14 +64,13 @@ public class ToolRegistry implements IToolRegistry {
 			}
 			
 			public synchronized void schedule(List<ToolProcess> list) {
-				
 				cancel();
 				fList.addAll(list);
 				schedule(100);
 			}
 			
+			@Override
 			public synchronized IStatus run(IProgressMonitor monitor) {
-				
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				}
@@ -96,7 +95,6 @@ public class ToolRegistry implements IToolRegistry {
 		}
 
 		public void launchesRemoved(ILaunch[] launches) {
-			
 			final List<ToolProcess> list = new ArrayList<ToolProcess>();
 			for (ILaunch launch : launches) {
 				IProcess[] processes = launch.getProcesses();
@@ -118,7 +116,6 @@ public class ToolRegistry implements IToolRegistry {
 		}
 		
 		private void removeConsoles(List<ToolProcess> processes) {
-			
 			List<IConsole> toRemove = new ArrayList<IConsole>();
 			IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
 			IConsole[] consoles = manager.getConsoles();
@@ -178,7 +175,7 @@ public class ToolRegistry implements IToolRegistry {
 			if (fOwnJobs.get() > 0
 					&& eventJob.getName().startsWith("Show Console View")) { //$NON-NLS-1$)
 				eventJob.cancel();
-				System.out.println("show job cancel");
+//				System.out.println("show job cancel");
 			}
 		}
 
@@ -201,7 +198,6 @@ public class ToolRegistry implements IToolRegistry {
 	
 	
 	public ToolRegistry() {
-		
 		fLaunchesListener = new LaunchesListener();
 		fPagesListener = new PageListener();
 		fJobListener = new JobListener();
@@ -210,7 +206,6 @@ public class ToolRegistry implements IToolRegistry {
 	}
 	
 	public void dispose() {
-		
 		synchronized (fPageRegistries) {
 			DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(fLaunchesListener);
 			fLaunchesListener = null;
@@ -226,11 +221,10 @@ public class ToolRegistry implements IToolRegistry {
 		
 		Job.getJobManager().addJobChangeListener(fJobListener);
 		fJobListener = null;
-		System.out.println("Registry closed.");
+//		System.out.println("Registry closed.");
 	}
 
 	private PageRegistry getPageRegistry(IWorkbenchPage page) {
-		
 		if (page == null) {
 			return null;
 		}
@@ -247,7 +241,6 @@ public class ToolRegistry implements IToolRegistry {
 	}
 	
 	private PageRegistry[] getPageRegistries() {
-		
 		synchronized (fPageRegistries) {
 			Collection<PageRegistry> collection = fPageRegistries.values();
 			return collection.toArray(new PageRegistry[collection.size()]);
@@ -256,7 +249,6 @@ public class ToolRegistry implements IToolRegistry {
 	
 	
 	public void addListener(IToolRegistryListener listener, IWorkbenchPage page) {
-		
 		fListeners.add(listener);
 		PageRegistry reg = getPageRegistry(page);
 		if (reg != null) {
@@ -265,7 +257,6 @@ public class ToolRegistry implements IToolRegistry {
 	}
 	
 	public void removeListener(IToolRegistryListener listener) {
-		
 		fListeners.remove(listener);
 		synchronized (fPageRegistries) {
 			for (PageRegistry reg : fPageRegistries.values()) {
@@ -275,7 +266,6 @@ public class ToolRegistry implements IToolRegistry {
 	}
 	
 	public void consoleActivated(IConsoleView consoleView, NIConsole console) {
-		
 		IWorkbenchPage page = consoleView.getViewSite().getPage();
 		PageRegistry reg = getPageRegistry(page);
 		if (reg != null) {
@@ -284,7 +274,6 @@ public class ToolRegistry implements IToolRegistry {
 	}
 	
 	public ToolSessionUIData getActiveToolSession(IWorkbenchPage page) {
-		
 		if (page == null) {
 			return null;
 		}
@@ -294,7 +283,6 @@ public class ToolRegistry implements IToolRegistry {
 	}
 	
 	public IWorkbenchPage findWorkbenchPage(ToolProcess process) {
-
 		IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(false);
 		IWorkbenchPage page = null;
 		synchronized (fPageRegistries) {
@@ -314,10 +302,8 @@ public class ToolRegistry implements IToolRegistry {
 	}
 
 	private void notifyToolSessionClosed(ToolProcess process) {
-		
 		ToolSessionUIData info = new ToolSessionUIData(process, null, null);
-		
-		System.out.println("closed: " + info.toString());
+//		System.out.println("closed: " + info.toString());
 		
 		Object[] listeners = fListeners.getListeners();
 		for (Object obj : listeners) {

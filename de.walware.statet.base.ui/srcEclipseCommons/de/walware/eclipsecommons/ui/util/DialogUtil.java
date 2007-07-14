@@ -14,6 +14,7 @@ package de.walware.eclipsecommons.ui.util;
 import java.util.LinkedHashSet;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 /**
@@ -25,7 +26,17 @@ public class DialogUtil {
 	private static final int HISTORY_MAX = 10;
 	
 	
-	public static void saveHistory(IDialogSettings settings, String key,
+	public static IDialogSettings getDialogSettings(AbstractUIPlugin plugin, String dialogId) {
+		String sectionName = dialogId;
+		IDialogSettings settings = plugin.getDialogSettings();
+		IDialogSettings section = settings.getSection(sectionName);
+		if (section == null) {
+			section = settings.addNewSection(sectionName);
+		}
+		return section;
+	}
+
+	public static void saveHistorySettings(IDialogSettings settings, String key,
 			String newValue) {
 		LinkedHashSet<String> history = new LinkedHashSet<String>(HISTORY_MAX);
 		history.add(newValue);
@@ -37,9 +48,9 @@ public class DialogUtil {
 		}
 		settings.put(key, history.toArray(new String[history.size()]));
 	}
-	
 
+	
 	private DialogUtil() {
 	}
-	
+
 }

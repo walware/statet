@@ -33,14 +33,13 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 public class LoadHistoryWizard extends AbstractWizard {
 
 	
-	static final String STORE_SECTION = "HistoryWizards"; //$NON-NLS-1$ shared with save
+	static final String STORE_SECTION = "common/tools/*History-Wizard"; //$NON-NLS-1$ shared with save
 	
 	private ToolProcess fProcess;
 	private LoadHistoryPage fPage;
 
 	
 	public LoadHistoryWizard(ToolProcess process) {
-
 		super();
 		
 		fProcess = process;
@@ -53,14 +52,12 @@ public class LoadHistoryWizard extends AbstractWizard {
 	
 	@Override
 	public void addPages() {
-		
 		fPage = new LoadHistoryPage(fProcess);
 		addPage(fPage);
 	}
 	
 	@Override
 	public boolean performFinish() {
-		
 		fPage.saveSettings();
 		
 		try {

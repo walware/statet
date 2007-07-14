@@ -40,7 +40,7 @@ import de.walware.statet.nico.ui.util.ToolInfoGroup;
  */
 public abstract class AbstractHistoryPage extends WizardPage {
 
-	private static final String SETTINGS_HISTORY = "location.history"; //$NON-NLS-1$
+	private static final String SETTINGS_HISTORY = "statet:location.history"; //$NON-NLS-1$
 
 	protected ChooseResourceComposite fLocationGroup;
 	private String fResourcePath;
@@ -145,7 +145,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	
 	public void saveSettings() {
 		IDialogSettings settings = getDialogSettings();
-		DialogUtil.saveHistory(settings, SETTINGS_HISTORY, fResourcePath);
+		DialogUtil.saveHistorySettings(settings, SETTINGS_HISTORY, fResourcePath);
 	}
 
 }

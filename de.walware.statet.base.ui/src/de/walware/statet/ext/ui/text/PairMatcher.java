@@ -109,14 +109,13 @@ public class PairMatcher implements ICharacterPairMatcher {
 		// get the chars preceding and following the start position
 		try {
 			ITypedRegion thisPartition = TextUtilities.getPartition(fDocument, fPartitioning, fOffset, false);
-			if (!fPartition.equals(thisPartition.getType())) {
-				return false;
-			}
 			ITypedRegion prevPartition = (fOffset > 0) ? TextUtilities.getPartition(fDocument, fPartitioning, fOffset-1, false) : null;
 			
-			char thisChar = (fOffset < fDocument.getLength()) ? 
-					fDocument.getChar(fOffset) : IGNORE;
+			char thisChar = IGNORE;
 			char prevChar = IGNORE;
+			if (fPartition.equals(thisPartition.getType()) && fOffset < fDocument.getLength()) {
+				thisChar = fDocument.getChar(fOffset);
+			}
 			
 			// check, if escaped
 			if (prevPartition != null && fPartition.equals(prevPartition.getType())) {
@@ -182,19 +181,19 @@ public class PairMatcher implements ICharacterPairMatcher {
 			if (prevChar == fPairs[i][OPENING_PEER]) {
 				fStartPos = fOffset-1;
 				return i;
-			} 
+			}
 		}
 		for (int i = 0; i < fPairs.length; i++) {
 			if (thisChar == fPairs[i][OPENING_PEER]) {
 				fStartPos = fOffset;
 				return i;
 			}
-		}		
+		}
 		for (int i = 0; i < fPairs.length; i++) {
 			if (prevChar == fPairs[i][CLOSING_PEER]) {
 				fEndPos = fOffset-1;
 				return i;
-			} 
+			}
 		}
 		return -1;
 	}

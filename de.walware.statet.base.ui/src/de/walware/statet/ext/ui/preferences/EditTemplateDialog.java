@@ -68,7 +68,7 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.eclipsecommons.ui.util.DialogUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
@@ -84,7 +84,7 @@ public class EditTemplateDialog extends StatusDialog {
 		private int fOperationCode = -1;
 		private ITextOperationTarget fOperationTarget;
 	
-		/** 
+		/**
 		 * Creates a new action.
 		 * 
 		 * @param viewer the viewer
@@ -116,12 +116,13 @@ public class EditTemplateDialog extends StatusDialog {
 		/**
 		 * @see Action#run()
 		 */
+		@Override
 		public void run() {
 			if (fOperationCode != -1 && fOperationTarget != null) {
 				fOperationTarget.doOperation(fOperationCode);
 			}
 		}
-	}	
+	}
 
 
 	private final Template fOriginalTemplate;
@@ -132,13 +133,13 @@ public class EditTemplateDialog extends StatusDialog {
 	private Text fNameText;
 	private Text fDescriptionText;
 	private Combo fContextCombo;
-	private SourceViewer fPatternEditor;	
+	private SourceViewer fPatternEditor;
 	private Button fInsertVariableButton;
 	private Button fAutoInsertCheckbox;
 	private boolean fIsNameModifiable;
 
 	private StatusInfo fValidationStatus;
-	private boolean fSuppressError= true; // #4354	
+	private boolean fSuppressError= true; // #4354
 	private Map<String, Action> fGlobalActions= new HashMap<String, Action>(10);
 	private List<String> fSelectionActions = new ArrayList<String>(3);
 	private String[][] fContextTypes;
@@ -156,7 +157,7 @@ public class EditTemplateDialog extends StatusDialog {
 	 * @param isNameModifiable whether the name of the template may be modified
 	 * @param registry the context type registry to use
 	 */
-	public EditTemplateDialog(Shell parent, Template template, boolean edit, boolean isNameModifiable, 
+	public EditTemplateDialog(Shell parent, Template template, boolean edit, boolean isNameModifiable,
 			SourceViewerConfigurator configuration,
 			TemplateVariableProcessor processor,
 			ContextTypeRegistry registry) {
@@ -166,8 +167,8 @@ public class EditTemplateDialog extends StatusDialog {
 		fConfigurator = configuration;
 
 		setShellStyle(getShellStyle() | SWT.MAX | SWT.RESIZE);
-		String title = edit ? 
-				Messages.EditTemplateDialog_title_Edit: Messages.EditTemplateDialog_title_New; 
+		String title = edit ?
+				Messages.EditTemplateDialog_title_Edit: Messages.EditTemplateDialog_title_New;
 		setTitle(title);
 
 		fOriginalTemplate = template;
@@ -200,6 +201,7 @@ public class EditTemplateDialog extends StatusDialog {
 		return fNewTemplate;
 	}
 
+	@Override
 	public void create() {
 		super.create();
 		// update initial OK button to be disabled for new templates
@@ -211,6 +213,7 @@ public class EditTemplateDialog extends StatusDialog {
  		}
 	}
 	
+	@Override
 	protected Control createDialogArea(Composite ancestor) {
 		Composite parent= new Composite(ancestor, SWT.NONE);
 		GridLayout layout= new GridLayout();
@@ -311,7 +314,7 @@ public class EditTemplateDialog extends StatusDialog {
 		return composite;
 	}
 
-/* GUI Methods ****************************************************************/	
+/* GUI Methods ****************************************************************/
 	
 	private static Label createLabel(Composite parent, String name) {
 		Label label= new Label(parent, SWT.NULL);
@@ -431,6 +434,7 @@ public class EditTemplateDialog extends StatusDialog {
 	/*
 	 * @since 3.1
 	 */
+	@Override
 	protected void okPressed() {
 		String name= fNameText == null ? fOriginalTemplate.getName() : fNameText.getText();
 		boolean isAutoInsertable= fAutoInsertCheckbox != null && fAutoInsertCheckbox.getSelection();
@@ -580,8 +584,9 @@ public class EditTemplateDialog extends StatusDialog {
 		return -1;
 	}
 	
+	@Override
 	protected IDialogSettings getDialogBoundsSettings() {
-		return LayoutUtil.createDialogBoundSettings("TemplateEditDialog", StatetUIPlugin.getDefault()); //$NON-NLS-1$
+		return DialogUtil.getDialogSettings(StatetUIPlugin.getDefault(), "TemplateEditDialog"); //$NON-NLS-1$
 	}
 
 }
