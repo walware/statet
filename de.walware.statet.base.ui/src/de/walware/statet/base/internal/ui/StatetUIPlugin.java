@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package de.walware.statet.base.internal.ui;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -35,6 +36,22 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	 */
 	public static final String PLUGIN_ID = "de.walware.statet.base.ui"; //$NON-NLS-1$
 	
+
+	public static void log(IStatus status) {
+		if (status != null) {
+			getDefault().getLog().log(status);
+		}
+	}
+	
+	public static void logError(int code, String message, Throwable e) {
+		log(new Status(IStatus.ERROR, PLUGIN_ID, code, message, e));
+	}
+
+	public static void logUnexpectedError(Throwable e) {
+		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatetStatusConstants.INTERNAL_ERROR, StatetMessages.InternalError_UnexpectedException, e));
+	}
+	
+	
 	/** The shared instance. */
 	private static StatetUIPlugin gPlugin;
 	
@@ -48,6 +65,7 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	
 	private ColorManager fColorManager;
 	private ImageRegistry fImageRegistry;
+	private WorkbenchLabelProvider fWorkbenchLabelProvider;
 	
 	
 	/**
@@ -60,6 +78,7 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called upon plug-in activation
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 	}
@@ -67,8 +86,8 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
-		
 		try {
 			if (fColorManager != null) {
 				fColorManager.dispose();
@@ -77,6 +96,10 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 			if (fImageRegistry != null) {
 				fImageRegistry.dispose();
 				fImageRegistry = null;
+			}
+			if (fWorkbenchLabelProvider != null) {
+				fWorkbenchLabelProvider.dispose();
+				fWorkbenchLabelProvider = null;
 			}
 		}
 		finally {
@@ -87,7 +110,6 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
-		
 		fImageRegistry = reg;
 		ImageRegistryUtil util = new ImageRegistryUtil(this);
 		util.register(StatetImages.LOCTOOL_FILTER, ImageRegistryUtil.T_LOCTOOL, "filter_view.gif"); //$NON-NLS-1$
@@ -107,24 +129,20 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	}
 	
 	public synchronized ColorManager getColorManager() {
-		
 		if (fColorManager == null)
 			fColorManager = new ColorManager();
 		
 		return fColorManager;
 	}
 	
-
-	
-	public static void log(IStatus status) {
-		
-		if (status != null) {
-			getDefault().getLog().log(status);
+	/**
+	 * To access decoration.
+	 */
+	public WorkbenchLabelProvider getWorkbenchLabelProvider() {
+		if (fWorkbenchLabelProvider == null) {
+			fWorkbenchLabelProvider = new WorkbenchLabelProvider();
 		}
+		return fWorkbenchLabelProvider;
 	}
-	public static void logUnexpectedError(Throwable e) {
-		
-		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatetStatusConstants.INTERNAL_ERROR, StatetMessages.InternalError_UnexpectedException, e)); 
-	}
-
+	
 }

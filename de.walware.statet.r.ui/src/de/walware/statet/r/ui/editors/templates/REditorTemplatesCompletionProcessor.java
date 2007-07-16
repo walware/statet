@@ -68,19 +68,20 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 		fEditor = editor;
 	}
 
+	@Override
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 
 		ITextSelection selection = (ITextSelection) viewer.getSelectionProvider().getSelection();
 
 		// adjust offset to end of normalized selection
-		if (selection.getOffset() == offset)
-			offset = selection.getOffset() + selection.getLength();
+//		if (selection.getOffset() == offset)
+//			offset = selection.getOffset() + selection.getLength();
 
 		String prefix = extractPrefix(viewer, offset);
 		IRegion region;
 		if (selection.getLength() == 0) {
 			region = new Region(offset - prefix.length(), prefix.length());
-		} else { 
+		} else {
 			region = new Region(selection.getOffset(), selection.getLength());
 		}
 		REditorContext context = createContext(viewer, region);
@@ -114,7 +115,7 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 			} catch (TemplateException e) {
 				continue;
 			}
-			if (template.getContextTypeId().equals(context.getContextType().getId()) 
+			if (template.getContextTypeId().equals(context.getContextType().getId())
 					&& template.getName().startsWith(prefix)) // Change <-> super
 				templateMatches.add(createProposal(template, context, replacementRegion, getRelevance(template, prefix)));
 		}
@@ -126,8 +127,8 @@ public class REditorTemplatesCompletionProcessor extends TemplateCompletionProce
 		// Add R keywords (allready sorted)
 		if (prefix.length() > 0) {
 			for (int i = 0; i < fgKeywords.length; i++) {
-				if (fgKeywords[i].startsWith(prefix)) 
-					matches.add(new CompletionProposal(fgKeywords[i], 
+				if (fgKeywords[i].startsWith(prefix))
+					matches.add(new CompletionProposal(fgKeywords[i],
 							replacementRegion.getOffset(), replacementRegion.getLength(), replacementRegion.getOffset()+fgKeywords[i].length()));
 			}
 		}

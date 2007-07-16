@@ -46,7 +46,8 @@ public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer
 		DefaultScope defaults = new DefaultScope();
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOACTIVATION, true);
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOACTIVATION_DELAY, 200);
-		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOINSERT, false);
+		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOINSERT_SINGLE, false);
+		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOINSERT_COMMON, false);
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.PROPOSALS_BACKGROUND, new RGB(243, 247, 255));
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.PROPOSALS_FOREGROUND, new RGB(0, 0, 0));
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.PARAMETERS_BACKGROUND, new RGB(255, 255, 255));

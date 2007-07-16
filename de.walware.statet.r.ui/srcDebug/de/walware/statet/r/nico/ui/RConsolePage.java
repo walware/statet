@@ -40,8 +40,8 @@ public class RConsolePage extends NIConsolePage {
 	}
 
 	@Override
-	protected RInputConfiguration createInputEditorConfigurator() {
-		return new RInputConfiguration((RConsole) getConsole());
+	protected RInputConfigurator createInputEditorConfigurator() {
+		return new RInputConfigurator(this);
 	}
 	
 	@Override

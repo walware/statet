@@ -89,8 +89,10 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	private ColorSelector fColorEditor;
 	private Button fMatchingBracketsControl;
 	private BooleanPref fMatchingBracketsPref;
-	private Button fCodeAssistAutoControl;
-	private BooleanPref fCodeAssistAutoPref;
+	private Button fCodeAssistAutoSingleControl;
+	private BooleanPref fCodeAssistAutoSinglePref;
+	private Button fCodeAssistAutoCommonControl;
+	private BooleanPref fCodeAssistAutoCommonPref;
 	private Text fCodeAssistDelayControl;
 	private IntPref fCodeAssistDelayPref;
 	
@@ -126,7 +128,8 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 				ContentAssistPreference.REPLACEMENT_FOREGROUND));
 		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
 				ContentAssistPreference.REPLACEMENT_BACKGROUND));
-		fCodeAssistAutoPref = ContentAssistPreference.AUTOINSERT;
+		fCodeAssistAutoSinglePref = ContentAssistPreference.AUTOINSERT_SINGLE;
+		fCodeAssistAutoCommonPref = ContentAssistPreference.AUTOINSERT_COMMON;
 		fCodeAssistDelayPref = ContentAssistPreference.AUTOACTIVATION_DELAY;
 
 		List<Preference> prefs = new ArrayList<Preference>();
@@ -134,7 +137,8 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		for (AppearanceColorsItem color : colors) {
 			prefs.add(color.pref);
 		}
-		prefs.add(fCodeAssistAutoPref);
+		prefs.add(fCodeAssistAutoSinglePref);
+		prefs.add(fCodeAssistAutoCommonPref);
 		prefs.add(fCodeAssistDelayPref);
 		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
 		
@@ -202,11 +206,16 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		Label label;
 		GridData gd;
 
-		fCodeAssistAutoControl = new Button(group, SWT.CHECK);
-		fCodeAssistAutoControl.setText(Messages.Editors_CodeAssist_AutoInsert);
+		fCodeAssistAutoSingleControl = new Button(group, SWT.CHECK);
+		fCodeAssistAutoSingleControl.setText(Messages.Editors_CodeAssist_AutoInsertSingle);
 		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
-		fCodeAssistAutoControl.setLayoutData(gd);
-		
+		fCodeAssistAutoSingleControl.setLayoutData(gd);
+
+		fCodeAssistAutoCommonControl = new Button(group, SWT.CHECK);
+		fCodeAssistAutoCommonControl.setText(Messages.Editors_CodeAssist_AutoInsertCommon);
+		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
+		fCodeAssistAutoCommonControl.setLayoutData(gd);
+
 		label = new Label(group, SWT.LEFT);
 		label.setText(Messages.Editors_CodeAssist_AutoTriggerDelay_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -232,8 +241,11 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 					}
 				}, RGB.class),
 				null, null);
-		dbc.bindValue(SWTObservables.observeSelection(fCodeAssistAutoControl),
-				createObservable(fCodeAssistAutoPref),
+		dbc.bindValue(SWTObservables.observeSelection(fCodeAssistAutoSingleControl),
+				createObservable(fCodeAssistAutoSinglePref),
+				null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fCodeAssistAutoCommonControl),
+				createObservable(fCodeAssistAutoCommonPref),
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fCodeAssistDelayControl, SWT.Modify),
 				createObservable(fCodeAssistDelayPref),

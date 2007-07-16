@@ -15,8 +15,8 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.FastPartitioner;
 
+import de.walware.statet.r.internal.ui.Partitioner;
 import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.text.rd.RdFastPartitionScanner;
 
@@ -43,7 +43,7 @@ public class RdDocumentSetupParticipant implements IDocumentSetupParticipant {
 	}
 	
 	private IDocumentPartitioner createDocumentPartitioner() {
-		return new FastPartitioner(
+		return new Partitioner(
 				new RdFastPartitionScanner(), IRDocumentPartitions.RDOC_PARTITIONS);
 	}
 }

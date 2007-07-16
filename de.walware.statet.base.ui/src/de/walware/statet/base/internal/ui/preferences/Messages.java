@@ -36,7 +36,8 @@ public class Messages extends NLS {
 	public static String Editors_CodeAssistReplacementForegroundColor;
 	public static String Editors_CodeAssistReplacementBackgroundColor;
 	public static String Editors_CodeAssist;
-	public static String Editors_CodeAssist_AutoInsert;
+	public static String Editors_CodeAssist_AutoInsertSingle;
+	public static String Editors_CodeAssist_AutoInsertCommon;
 	public static String Editors_CodeAssist_AutoTriggerDelay_label;
 	public static String Editors_CodeAssist_AutoTriggerDelay_error_message;
 

@@ -40,16 +40,22 @@ public class ContentAssistPreference {
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoActivation.enable"); //$NON-NLS-1$
 	
 	/**
-	 * Preference for content assist auto activation delay 
+	 * Preference for content assist auto activation delay
 	 */
 	public final static IntPref AUTOACTIVATION_DELAY = new IntPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoActivation.delay"); //$NON-NLS-1$
 	
 	/**
-	 * Preference for content assist auto insert 
+	 * Preference for content assist auto insert
 	 */
-	public final static BooleanPref AUTOINSERT = new BooleanPref(
-			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoInsert.enable"); //$NON-NLS-1$
+	public final static BooleanPref AUTOINSERT_SINGLE = new BooleanPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoInsert.Single.enable"); //$NON-NLS-1$
+
+	/**
+	 * Preference for content assist auto insert
+	 */
+	public final static BooleanPref AUTOINSERT_COMMON = new BooleanPref(
+			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoInsert.Common.enable"); //$NON-NLS-1$
 
 	/**
 	 * Preference for content assist proposal color
@@ -58,18 +64,18 @@ public class ContentAssistPreference {
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Proposals.foreground"); //$NON-NLS-1$
 	
 	/**
-	 * Preference for content assist proposal color 
+	 * Preference for content assist proposal color
 	 */
 	public final static RGBPref PROPOSALS_BACKGROUND = new RGBPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Proposals.background"); //$NON-NLS-1$
 	
 	/**
-	 * Preference for content assist parameters color 
+	 * Preference for content assist parameters color
 	 */
 	public final static RGBPref PARAMETERS_FOREGROUND = new RGBPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "Parameters.foreground"); //$NON-NLS-1$
 	
-	/** 
+	/**
 	 * Preference key for content assist parameters color.
 	 */
 	public final static RGBPref PARAMETERS_BACKGROUND = new RGBPref(
@@ -121,7 +127,8 @@ public class ContentAssistPreference {
 		
 		assistant.enableAutoActivation(statet.getPreferenceValue(AUTOACTIVATION));
 		assistant.setAutoActivationDelay(statet.getPreferenceValue(AUTOACTIVATION_DELAY));
-		assistant.enableAutoInsert(statet.getPreferenceValue(AUTOINSERT));
+		assistant.enableAutoInsert(statet.getPreferenceValue(AUTOINSERT_SINGLE));
+		assistant.enablePrefixCompletion(statet.getPreferenceValue(AUTOINSERT_COMMON));
 		assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
 		assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
 		Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));

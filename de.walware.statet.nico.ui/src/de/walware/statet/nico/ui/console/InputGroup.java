@@ -24,10 +24,11 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.ui.util.PixelConverter;
@@ -54,6 +56,7 @@ import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
+import de.walware.statet.ext.ui.editors.TextViewerAction;
 import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -113,15 +116,15 @@ public class InputGroup implements ISettingsChangedHandler {
 		}
 	}
 	
-	private class ThisKeyListener implements KeyListener {
+	private class ThisKeyListener implements VerifyKeyListener {
 
-		public void keyPressed(KeyEvent e) {
+		public void verifyKey(VerifyEvent e) {
 			int key = (e.stateMask | e.keyCode);
 			switch (key) {
 			case KEY_HIST_UP:
 				doHistoryOlder();
 				break;
-			case KEY_HIST_DOWN: 
+			case KEY_HIST_DOWN:
 				doHistoryNewer();
 				break;
 			case KEY_SUBMIT_DEFAULT:
@@ -263,7 +266,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		createSourceViewer(editorConfig);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fSourceViewer.getControl().setLayoutData(gd);
-		fSourceViewer.getControl().addKeyListener(new ThisKeyListener());
+		fSourceViewer.appendVerifyKeyListener(new ThisKeyListener());
 		
 		fSubmitButton = new Button(fComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
@@ -313,7 +316,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		fConfigurator.setTarget(fSourceViewer, true);
 		
 		fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
-				fSourceViewer, null, null, EditorsUI.getSharedTextColors()); 
+				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
 		fSourceViewerDecorationSupport.install(fConfigurator.getPreferenceStore());
 		
@@ -374,6 +377,9 @@ public class InputGroup implements ISettingsChangedHandler {
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
 		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_END, true);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		
+		action = new TextViewerAction(fEditorAdapter.getSourceViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
+		commands.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
 	}
 	
 	

@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.statet.ext.ui.text.PairMatcher;
@@ -27,7 +28,7 @@ import de.walware.statet.r.ui.IRDocumentPartitions;
  * Double click strategy aware of R identifier syntax rules, Comments and String (all in one).
  * <p>
  * Select content inside matching brackets or, if matching pairs found,
- * a single identifier. 
+ * a single identifier.
  */
 public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 
@@ -77,7 +78,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				int partitionEnd = partitionOffset + partition.getLength();
 				if (offset == partitionOffset || offset == partitionOffset+1
 						|| offset == partitionEnd || offset == partitionEnd-1) {
-					textViewer.setSelectedRange(partitionOffset + 1, partition.getLength() - 2);
+					selectRegion(textViewer, getStringContent(document, partition));
 				} else {
 					fScanner.configure(document, null);
 					IRegion region = fScanner.findCommonWord(offset);
@@ -102,12 +103,12 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				textViewer.setSelectedRange(partition.getOffset(), partition.getLength());
 				return;
 			}
-			// Spezialfall: End String-Partition 
-			if (partition.getOffset() == offset && offset > 0 
+			// Spezialfall: End String-Partition
+			if (partition.getOffset() == offset && offset > 0
 					&& IRDocumentPartitions.R_STRING.equals(
 							(partition = TextUtilities.getPartition(document, PARTITIONING, offset-1, true)).getType()
 					)) {
-				textViewer.setSelectedRange(partition.getOffset() + 1, partition.getLength() - 2);
+				selectRegion(textViewer, getStringContent(document, partition));
 				return;
 			}
 
@@ -127,6 +128,24 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 		}
 		// else
 		textViewer.setSelectedRange(offset, 0);
+	}
+	
+	private final void selectRegion(final ITextViewer viewer, final IRegion region) {
+		viewer.setSelectedRange(region.getOffset(), region.getLength());
+	}
+	
+	private final IRegion getStringContent(final IDocument document, final ITypedRegion partition) throws BadLocationException {
+		int partitionOffset = partition.getOffset();
+		int partitionLength = partition.getLength();
+		if (partitionLength <= 1) {
+			return new Region(partitionOffset+1, 0);
+		}
+		char c = document.getChar(partitionOffset);
+		document.getLength();
+		if (document.getChar(partitionOffset+partitionLength-1) != c) {
+			return new Region(partitionOffset+1, partitionLength-1);
+		}
+		return new Region(partitionOffset+1, partitionLength-2);
 	}
 	
 }

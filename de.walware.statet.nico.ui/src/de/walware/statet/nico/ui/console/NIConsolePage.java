@@ -100,11 +100,11 @@ import de.walware.statet.nico.ui.actions.ToolAction;
 /**
  * A page for a <code>NIConsole</code>.
  * <p>
- * The page contains beside the usual output viewer 
+ * The page contains beside the usual output viewer
  * a separete input field with submit button.
  */
-public abstract class NIConsolePage implements IPageBookViewPage, 
-		IAdaptable, IShowInSource, IShowInTargetList, 
+public abstract class NIConsolePage implements IPageBookViewPage,
+		IAdaptable, IShowInSource, IShowInTargetList,
 		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport, ChangeListener {
 
 	
@@ -221,7 +221,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 						}
 					}
 					else if (source == data) {
-						if (event.getKind() == DebugEvent.CHANGE 
+						if (event.getKind() == DebugEvent.CHANGE
 								&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT && fIsCreated) {
 							Prompt prompt = (Prompt) event.getData();
 							fInputGroup.updatePrompt(prompt);
@@ -424,8 +424,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected void hookDND() {
-		DNDUtil.addDropSupport(fOutputViewer.getControl(), 
-				new SubmitDropAdapter(this), 
+		DNDUtil.addDropSupport(fOutputViewer.getControl(),
+				new SubmitDropAdapter(this),
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
 	
@@ -492,8 +492,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				fOutputViewer.removeSelectionChangedListener(fMultiActionHandler);
 				fInputGroup.getSourceViewer().removeSelectionChangedListener(fMultiActionHandler);
 			}
-			catch (Exception e) { 
-				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, Messages.Console_error_UnexpectedException_message, e); 
+			catch (Exception e) {
+				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, Messages.Console_error_UnexpectedException_message, e);
 			}
 
 			fMultiActionHandler.dispose();
@@ -597,7 +597,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
             return this;
         }
         if (IShowInTargetList.class.equals(required)) {
-            return this; 
+            return this;
         }
         if (IEditorAdapter.class.equals(required)) {
         	return fInputGroup.fEditorAdapter;
@@ -609,7 +609,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
         IProcess process = fConsole.getProcess();
         if (process == null) {
             return null;
-        } 
+        }
         IDebugTarget target = (IDebugTarget) process.getAdapter(IDebugTarget.class);
         ISelection selection = null;
         if (target == null) {
@@ -673,22 +673,22 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				fOutputViewer.setFont(font);
 				fInputGroup.setFont(font);
 				fControl.layout();
-			} 
+			}
 			else if (IConsoleConstants.P_FONT_STYLE.equals(property)) {
 				fControl.redraw();
 			}
 			else if (property.equals(IConsoleConstants.P_STREAM_COLOR)) {
 				fOutputViewer.getTextWidget().redraw();
-			} 
+			}
 //			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_TAB_SIZE)) {
 //			    int tabSize = ((Integer) event.getNewValue()).intValue();
 //			    fOutputViewer.setTabWidth(tabSize);
 //			    fInputGroup.getSourceViewer().setTabWidth(tabSize);
-//			} 
+//			}
 			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_CONSOLE_WIDTH)) {
 				fOutputViewer.setConsoleWidth(fConsole.getConsoleWidth());
 			}
-		} 
+		}
 	}
 
 	public void settingsChanged(final Set<String> contexts) {

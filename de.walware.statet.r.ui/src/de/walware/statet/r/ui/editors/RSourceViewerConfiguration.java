@@ -59,7 +59,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fRAutoEditStrategy;
-	private ContentAssistant fContentAssistant;
+	protected ContentAssistant fContentAssistant;
 	
 	private REditor fEditor;
 	private IRCoreAccess fRCoreAccess;
@@ -96,6 +96,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 
 	
+	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
 		return IRDocumentPartitions.R_PARTITIONS;
 	}
@@ -160,6 +161,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		return prefixes;
 	}
 	
+	@Override
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
 		if (contexts.contains(ContentAssistPreference.CONTEXT_ID)) {
 			ContentAssistPreference.configure(fContentAssistant);
@@ -197,22 +199,30 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		if (fEditor != null && fContentAssistant == null) {
-			fContentAssistant = new ContentAssistant();
-			REditorTemplatesCompletionProcessor processor = new REditorTemplatesCompletionProcessor(fEditor);
-			
-			fContentAssistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-			for (String contentType : getConfiguredContentTypes(sourceViewer)) {
-				fContentAssistant.setContentAssistProcessor(processor, contentType);
+		if (fContentAssistant == null) {
+			fContentAssistant = createContentAssistant(sourceViewer);
+			if (fContentAssistant != null) {
+				ContentAssistPreference.configure(fContentAssistant);
+				fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
+				fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
+				fContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 			}
-	
-			ContentAssistPreference.configure(fContentAssistant);
-			
-			fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
-			fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
-			fContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		}
 		return fContentAssistant;
+	}
+	
+	protected ContentAssistant createContentAssistant(ISourceViewer sourceViewer) {
+		if (fEditor != null) {
+			ContentAssistant contentAssistant = new ContentAssistant();
+			REditorTemplatesCompletionProcessor processor = new REditorTemplatesCompletionProcessor(fEditor);
+			
+			contentAssistant.setDocumentPartitioning(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
+			for (String contentType : getConfiguredContentTypes(sourceViewer)) {
+				contentAssistant.setContentAssistProcessor(processor, contentType);
+			}
+			return contentAssistant;
+		}
+		return null;
 	}
 	
 }

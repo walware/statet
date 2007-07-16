@@ -14,6 +14,7 @@ package de.walware.statet.r.debug.ui.launchconfigs;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -76,7 +77,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 				fileValidator.setExplicit(filePath);
 			}
 			else {
-				fileValidator.setExplicit(fBase.getChild(filePath));
+				fileValidator.setExplicit(URIUtil.toPath(fBase.toURI()).append(filePath).makeAbsolute());
 			}
 			IStatus status = fileValidator.validate(null);
 			if (status.getSeverity() == IStatus.ERROR) {
