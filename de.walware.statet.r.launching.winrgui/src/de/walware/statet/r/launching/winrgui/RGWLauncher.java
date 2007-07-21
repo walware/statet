@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -34,6 +35,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
@@ -42,18 +45,18 @@ import de.walware.statet.r.launching.IRCodeLaunchConnector;
 public class RGWLauncher implements IRCodeLaunchConnector {
 
 	
+	private static BooleanPref PREF_SUBMIT_DIRECTLY_ENABLED = new BooleanPref(
+			WinRGuiConnectorPlugin.ID, "submit_directly.enabled"); //$NON-NLS-1$
+	
+	
 	private Clipboard fClipboard;
-	
-	private class ProcessPointer {
-		public Process fProcess;
-	}
-	
-	
+	private boolean fSubmitDirectly;
 	private String fExecutable;
 	
 	public RGWLauncher() throws CoreException {
 		
-		URL dir = WinRGuiConnectorPlugin.getDefault().getBundle().getEntry("/win32/RGWConnector.exe");
+		URL dir = WinRGuiConnectorPlugin.getDefault().getBundle().getEntry("/win32/RGWConnector.exe"); //$NON-NLS-1$
+		fSubmitDirectly = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_SUBMIT_DIRECTLY_ENABLED);
 		try {
 			String local = FileLocator.toFileURL(dir).getPath();
 			File file = new File(local);
@@ -78,7 +81,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		final SubmitType type;
 		if (rCommands.length == 0)
 			type = SubmitType.DONOTHING;
-		else if (rCommands.length == 1)
+		else if (fSubmitDirectly && rCommands.length == 1)
 			type = SubmitType.SUBMITINPUT;
 		else {
 			if (!copyToClipboard(rCommands))
@@ -105,22 +108,21 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 
 		final String[] processCmd = new String[] {
 			fExecutable, connectorCmd.toString().toLowerCase() };
-		final ProcessPointer connector = new ProcessPointer();
+		final AtomicReference<Process> process = new AtomicReference<Process>();
 		
 		IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		
 		IRunnableWithProgress runnable = new IRunnableWithProgress(){
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-				
 				try {
-					connector.fProcess = DebugPlugin.exec(processCmd, null);
-					Process process = connector.fProcess;
+					Process p = DebugPlugin.exec(processCmd, null);
+					process.set(p);
 					
 					if (writeToProcess != null) {
-						writeTextToProcess(process, writeToProcess);
+						writeTextToProcess(p, writeToProcess);
 					}
 					
-					int exitCode = process.waitFor();
+					int exitCode = p.waitFor();
 					String message = null;
 					switch (exitCode) {
 					case 0:
@@ -130,7 +132,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 					case 100: {
 						BufferedReader reader = null;
 						try {
-							reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+							reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 							message = reader.readLine();
 							if (message == null)
 								message = "Unable to detect Error";
@@ -181,9 +183,10 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 						"Unknown Error occured when running R-Gui-Connector",
 						e1));
 		} catch (InterruptedException e1) {
-			if (connector != null && connector.fProcess != null) {
+			Process p = process.get();
+			if (p != null) {
 				try {
-					connector.fProcess.destroy();
+					p.destroy();
 				} catch (Exception e) { }
 			}
 		}
