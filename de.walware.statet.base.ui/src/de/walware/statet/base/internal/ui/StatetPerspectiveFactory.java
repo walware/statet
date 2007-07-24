@@ -23,6 +23,8 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 	
 	private static final String ID_SEARCH_VIEW = "org.eclipse.search.ui.views.SearchView"; // NewSearchUI.SEARCH_VIEW_ID)  //$NON-NLS-1$
 	private static final String ID_CONSOLE_VIEW = "org.eclipse.ui.console.ConsoleView"; // IConsoleConstants.ID_CONSOLE_VIEW //$NON-NLS-1$
+	private static final String ID_PROJECT_EXPLORER = "org.eclipse.ui.navigator.ProjectExplorer"; //$NON-NLS-1$
+
 	
 	/**
 	 * Constructs a new Default layout engine.
@@ -35,11 +37,12 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
  		String editorArea = layout.getEditorArea();
 		
 		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
-		folder.addView(IPageLayout.ID_RES_NAV);
+		folder.addView(ID_PROJECT_EXPLORER);
+		folder.addPlaceholder(IPageLayout.ID_RES_NAV);
 		
 		IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.75f, editorArea); //$NON-NLS-1$
-//		outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
 		outputfolder.addView(IPageLayout.ID_TASK_LIST);
+		outputfolder.addPlaceholder(IPageLayout.ID_PROBLEM_VIEW);
 		outputfolder.addPlaceholder(ID_SEARCH_VIEW);
 		outputfolder.addPlaceholder(ID_CONSOLE_VIEW);
 		outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
