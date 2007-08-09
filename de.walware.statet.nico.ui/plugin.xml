@@ -44,25 +44,71 @@
          <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
       </factory>
    </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            description="%contexts.ConsoleEditorScope.description"
+            id="de.walware.statet.base.contexts.ConsoleEditor"
+            name="%contexts.ConsoleEditorScope.name"
+            parentId="de.walware.statet.base.contexts.TextEditor">
+      </context>
+   </extension>
    
    <extension
          point="org.eclipse.ui.commands">
       <command
+            category="de.walware.statet.base.commandCategorys.StatetSource"
             id="de.walware.statet.nico.commands.Cancel"
             name="%commands_Cancel_name"/>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            description="%commands_SearchHistoryOlder_description"
+            id="de.walware.statet.nico.commands.SearchHistoryOlder"
+            name="%commands_SearchHistoryOlder_name">
+      </command>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            description="%commands_SearchHistoryNewer_description"
+            id="de.walware.statet.nico.commands.SearchHistoryNewer"
+            name="%commands_SearchHistoryNewer_name">
+      </command>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            description="%commands_GotoHistoryNewest_description"
+            id="de.walware.statet.nico.commands.GotoHistoryNewest"
+            name="%commands_GotoHistoryNewest_name">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
             commandId="de.walware.statet.nico.commands.Cancel"
-            contextId="org.eclipse.debug.ui.console"
+            contextId="de.walware.statet.base.contexts.ConsoleEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="BREAK"/>
       <key
             commandId="de.walware.statet.nico.commands.Cancel"
-            contextId="org.eclipse.debug.ui.console"
+            contextId="de.walware.statet.base.contexts.ConsoleEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+BREAK"/>
+      <key
+            commandId="de.walware.statet.nico.commands.SearchHistoryOlder"
+            contextId="de.walware.statet.base.contexts.ConsoleEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+ARROW_UP">
+      </key>
+      <key
+            commandId="de.walware.statet.nico.commands.SearchHistoryNewer"
+            contextId="de.walware.statet.base.contexts.ConsoleEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+ARROW_DOWN">
+      </key>
+      <key
+            commandId="de.walware.statet.nico.commands.GotoHistoryNewest"
+            contextId="de.walware.statet.base.contexts.ConsoleEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+END">
+      </key>
    </extension>
 
 </plugin>

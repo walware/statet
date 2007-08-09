@@ -42,9 +42,12 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -267,6 +270,30 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fOutputViewer.getControl().setLayoutData(gd);
 		
+		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+			}
+			public void keyReleased(KeyEvent e) {
+				if (e.doit
+						&& (e.character >= 32)
+						&& (e.stateMask == SWT.NONE || e.stateMask == SWT.SHIFT)
+						&& (e.keyCode & SWT.KEYCODE_BIT) == 0) {
+					StyledText textWidget = fInputGroup.getSourceViewer().getTextWidget();
+					if (!UIAccess.isOkToUse(textWidget)) {
+						return;
+					}
+					if (textWidget.getCharCount() == 0) {
+						textWidget.replaceTextRange(0, 0, Character.toString(e.character));
+						textWidget.setCaretOffset(textWidget.getCharCount());
+					}
+					else {
+						Display.getCurrent().beep();
+					}
+					setFocus();
+				}
+			}
+		});
+		
 		fInputGroup.createControl(fControl, createInputEditorConfigurator());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fInputGroup.getComposite().setLayoutData(gd);
@@ -280,6 +307,15 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		new ConsoleActivationNotifier();
 		fIsCreated = true;
 		fInputGroup.updatePrompt(null);
+		
+		Display.getCurrent().asyncExec(new Runnable() {
+			public void run() {
+				if (UIAccess.isOkToUse(fInputGroup.getSourceViewer())
+						&& fOutputViewer.getControl().isFocusControl()) {
+					setFocus();
+				}
+			}
+		});
 	}
 	
 	/**

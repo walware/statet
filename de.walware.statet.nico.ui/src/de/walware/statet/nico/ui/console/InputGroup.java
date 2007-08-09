@@ -13,10 +13,14 @@ package de.walware.statet.nico.ui.console;
 
 import java.util.Set;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -30,12 +34,14 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -66,6 +72,7 @@ import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.internal.ui.Messages;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
 
 public class InputGroup implements ISettingsChangedHandler {
@@ -73,6 +80,8 @@ public class InputGroup implements ISettingsChangedHandler {
 	
 	final static int KEY_HIST_UP = SWT.ARROW_UP;
 	final static int KEY_HIST_DOWN = SWT.ARROW_DOWN;
+	final static int KEY_HIST_SPREFIX_UP = SWT.ALT | SWT.ARROW_UP;
+	final static int KEY_HIST_SPREFIX_DOWN = SWT.ALT | SWT.ARROW_DOWN;
 	final static int KEY_SUBMIT_DEFAULT = SWT.CR;
 	final static int KEY_SUBMIT_KEYPAD = SWT.KEYPAD_CR;
 	
@@ -82,6 +91,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	final static int KEY_OUTPUT_PAGEDOWN = SWT.SHIFT | SWT.PAGE_DOWN;
 	final static int KEY_OUTPUT_START = SWT.MOD1 | SWT.SHIFT | SWT.HOME;
 	final static int KEY_OUTPUT_END = SWT.MOD1 | SWT.SHIFT | SWT.END;
+	
 	
 	
 	private class EditorAdapter implements IEditorAdapter {
@@ -122,10 +132,10 @@ public class InputGroup implements ISettingsChangedHandler {
 			int key = (e.stateMask | e.keyCode);
 			switch (key) {
 			case KEY_HIST_UP:
-				doHistoryOlder();
+				doHistoryOlder(null);
 				break;
 			case KEY_HIST_DOWN:
-				doHistoryNewer();
+				doHistoryNewer(null);
 				break;
 			case KEY_SUBMIT_DEFAULT:
 			case KEY_SUBMIT_KEYPAD:
@@ -220,7 +230,6 @@ public class InputGroup implements ISettingsChangedHandler {
 		
 	}
 
-
 	private NIConsolePage fConsolePage;
 	private ToolProcess fProcess;
 	private History.Entry fCurrentHistoryEntry;
@@ -235,8 +244,13 @@ public class InputGroup implements ISettingsChangedHandler {
 	EditorAdapter fEditorAdapter = new EditorAdapter();
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
 	private SourceViewerConfigurator fConfigurator;
-	
-	private boolean fIsHistoryCompoundChangeOpen = false; // for undo manager
+
+	/**
+	 * Saves the selection before starting a history navigation session.
+	 * non-null value indicates in history session */
+	private Point fHistoryCompoundChange;
+	/** There are no caret listener */
+	private Point fHistoryCaretWorkaround;
 	/** Indicates that the document is change by a history action */
 	private boolean fInHistoryChange = false;
 	
@@ -257,7 +271,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		fComposite.setLayout(layout);
 		
 		fPrefix = new Label(fComposite, SWT.LEFT);
-		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
+		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, false);
 		fPrefix.setLayoutData(gd);
 		float[] hsb = fPrefix.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB().getHSB();
 		fPrefix.setBackground(StatetUIServices.getSharedColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
@@ -271,7 +285,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSubmitButton = new Button(fComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
 		gd.horizontalIndent = 3;
-		gd.heightHint = new PixelConverter(fSubmitButton).convertHeightInCharsToPixels(1);
+		gd.heightHint = new PixelConverter(fSubmitButton).convertHeightInCharsToPixels(1)+4;
 		fSubmitButton.setLayoutData(gd);
 		fSubmitButton.setText(Messages.Console_SubmitButton_label);
 		fSubmitButton.addSelectionListener(new SelectionListener() {
@@ -298,15 +312,14 @@ public class InputGroup implements ISettingsChangedHandler {
 		
 		fDocument.addPrenotifiedDocumentListener(new IDocumentListener() {
 			public void documentAboutToBeChanged(DocumentEvent event) {
-				if (fIsHistoryCompoundChangeOpen && !fInHistoryChange) {
-					fIsHistoryCompoundChangeOpen = false;
+				if (fHistoryCompoundChange != null && !fInHistoryChange) {
+					fHistoryCompoundChange = null;
 					fSourceViewer.getUndoManager().endCompoundChange();
 				}
 			}
 			public void documentChanged(DocumentEvent event) {
 			}
 		});
-		
 		return fComposite;
 	}
 	
@@ -356,7 +369,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	}
 	
 	public void configureServices(IHandlerService commands, IContextService keys) {
-		keys.activateContext("de.walware.statet.base.contexts.TextEditor"); //$NON-NLS-1$
+		keys.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
 		
 		IAction action;
 		PairMatcher matcher = fConfigurator.getPairMatcher();
@@ -377,9 +390,34 @@ public class InputGroup implements ISettingsChangedHandler {
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
 		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_END, true);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		
+
 		action = new TextViewerAction(fEditorAdapter.getSourceViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
 		commands.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
+
+		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
+			@Override
+			public Object execute(ExecutionEvent arg0)
+					throws ExecutionException {
+				doHistoryOlder(getLineStart());
+				return null;
+			}
+		});
+		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryNewer", new AbstractHandler() { //$NON-NLS-1$
+			@Override
+			public Object execute(ExecutionEvent arg0)
+					throws ExecutionException {
+				doHistoryNewer(getLineStart());
+				return null;
+			}
+		});
+		commands.activateHandler("de.walware.statet.nico.commands.GotoHistoryNewest", new AbstractHandler() { //$NON-NLS-1$
+			@Override
+			public Object execute(ExecutionEvent arg0)
+					throws ExecutionException {
+				doHistoryNewest();
+				return null;
+			}
+		});
 	}
 	
 	
@@ -407,55 +445,83 @@ public class InputGroup implements ISettingsChangedHandler {
 	protected void onPromptUpdate(Prompt prompt) {
 	}
 	
-	public void doHistoryNewer() {
+	private String getLineStart() {
+		try {
+			return fDocument.get(0, fSourceViewer.getSelectedRange().x);
+		} catch (BadLocationException e) {
+			NicoUIPlugin.logError(-1, "Error while extracting prefix for history search", e); //$NON-NLS-1$
+			return "";
+		}
+	}
+	
+	public void doHistoryNewer(String prefix) {
 		if (fCurrentHistoryEntry == null) {
 			return;
 		}
 		
-		fCurrentHistoryEntry = fCurrentHistoryEntry.getNewer();
-		while (fCurrentHistoryEntry != null && fCurrentHistoryEntry.isEmpty()) {
-			fCurrentHistoryEntry = fCurrentHistoryEntry.getNewer();
+		History.Entry next = fCurrentHistoryEntry.getNewer();
+		while (next != null
+				&& (next.isEmpty() || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
+			next = next.getNewer();
+		}
+		
+		if (next == null && prefix != null) {
+			Display.getCurrent().beep();
+			return;
 		}
 
-		String text = (fCurrentHistoryEntry != null) ?
-				fCurrentHistoryEntry.getCommand() : ""; //$NON-NLS-1$
-		
-		if (!fIsHistoryCompoundChangeOpen) {
-			fIsHistoryCompoundChangeOpen = true;
-			fSourceViewer.getUndoManager().beginCompoundChange();
-		}
-		fInHistoryChange = true;
-		fDocument.set(text);
-		fInHistoryChange = false;
+		fCurrentHistoryEntry = next;
+		setHistoryContent((fCurrentHistoryEntry != null) ?
+				fCurrentHistoryEntry.getCommand() : "");
 	}
 	
-	public void doHistoryOlder() {
+	public void doHistoryOlder(String prefix) {
 		History.Entry next;
 		if (fCurrentHistoryEntry != null) {
 			next = fCurrentHistoryEntry.getOlder();
-			if (next == null) {
-				return;
-			}
 		}
 		else {
 			next = fProcess.getHistory().getNewest();
-			if (next == null) {
-				return;
-			}
 		}
-		while (next.isEmpty()) {
+		while (next != null
+				&& (next.isEmpty() || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
 			next = next.getOlder();
-			if (next == null) {
-				return;
-			}
+		}
+		
+		if (next == null) {
+			Display.getCurrent().beep();
+			return;
+		}
+		
+		fCurrentHistoryEntry = next;
+		setHistoryContent(fCurrentHistoryEntry.getCommand());
+	}
+	
+	public void doHistoryNewest() {
+		History.Entry next = fProcess.getHistory().getNewest();
+		if (next == null) {
+			Display.getCurrent().beep();
+			return;
 		}
 		fCurrentHistoryEntry = next;
-		if (!fIsHistoryCompoundChangeOpen) {
-			fIsHistoryCompoundChangeOpen = true;
+		setHistoryContent(fCurrentHistoryEntry.getCommand());
+	}
+
+	protected void setHistoryContent(String text) {
+		if (fHistoryCompoundChange == null) {
+			fHistoryCompoundChange = fSourceViewer.getSelectedRange();
 			fSourceViewer.getUndoManager().beginCompoundChange();
 		}
+		else {
+			Point current = fSourceViewer.getSelectedRange();
+			if (!current.equals(fHistoryCaretWorkaround)) {
+				fHistoryCompoundChange = current;
+			}
+		}
 		fInHistoryChange = true;
-		fDocument.set(fCurrentHistoryEntry.getCommand());
+		fDocument.set(text);
+		fSourceViewer.setSelectedRange(fHistoryCompoundChange.x, fHistoryCompoundChange.y);
+		fHistoryCaretWorkaround = fSourceViewer.getSelectedRange();
 		fInHistoryChange = false;
 	}
 	
@@ -471,6 +537,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	public void clear() {
 		fDocument.set(""); //$NON-NLS-1$
 		fCurrentHistoryEntry = null;
+		fHistoryCompoundChange = null;
 		fSourceViewer.getUndoManager().reset();
 	}
 

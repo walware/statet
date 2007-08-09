@@ -115,6 +115,7 @@ class PageRegistry {
 				IWorkbenchPart activePart = page.getActivePart();
 				if (activePart instanceof IConsoleView) {
 					if (console == ((IConsoleView) activePart).getConsole()) {
+						((IConsoleView) activePart).setFocus();
 						return Status.OK_STATUS;
 					}
 				}
