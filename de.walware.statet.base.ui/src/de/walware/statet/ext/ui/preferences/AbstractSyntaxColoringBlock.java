@@ -74,9 +74,9 @@ import de.walware.eclipsecommons.ui.preferences.RGBPref;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.TreeUtil;
+import de.walware.eclipsecommons.ui.util.ViewerUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
-import de.walware.eclipsecommons.ui.util.TreeUtil.Node;
+import de.walware.eclipsecommons.ui.util.ViewerUtil.Node;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.internal.ui.preferences.Messages;
@@ -145,6 +145,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 		
 		
+		@Override
 		public SyntaxNode[] getChildren() {
 			return (SyntaxNode[]) super.getChildren();
 		}
@@ -250,7 +251,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		private String fRootKey;
 		private UseStyle[] fAvailableStyles;
 		
-		/** tuple { pref : Preference, beanProperty : String } */ 
+		/** tuple { pref : Preference, beanProperty : String } */
 		private Object[][] fPreferences;
 		private IPreferenceStore fPreferenceStore;
 		private PreferenceStoreBeanWrapper fBeanSupport;
@@ -266,7 +267,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			List<Object[]> prefs = new ArrayList<Object[]>();
 			assert (fAvailableStyles != null && fAvailableStyles.length > 0);
 			if (fAvailableStyles.length > 1) {
-				prefs.add(new Object[] { new UseStylePref(null, getUseKey()), PROP_USE }); 
+				prefs.add(new Object[] { new UseStylePref(null, getUseKey()), PROP_USE });
 			}
 			prefs.add(new Object[] { new RGBPref(null, getColorKey()), PROP_COLOR });
 			prefs.add(new Object[] { new Preference.BooleanPref(null, getBoldKey()), PROP_BOLD });
@@ -276,6 +277,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			fPreferences = prefs.toArray(new Object[prefs.size()][]);
 		}
 		
+		@Override
 		public String getDescription() {
 			return fDescription;
 		}
@@ -316,19 +318,23 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		/*-- Bean-Support --*/
 		
+		@Override
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
 			fBeanSupport.addPropertyChangeListener(listener);
 		}
 
+		@Override
 		public void addPropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
 			fBeanSupport.addPropertyChangeListener(propertyName, listener);
 		}
 
+		@Override
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
 			fBeanSupport.removePropertyChangeListener(listener);
 		}
 
+		@Override
 		public void removePropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
 			fBeanSupport.removePropertyChangeListener(propertyName, listener);
@@ -343,7 +349,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 
 		@Override
 		public void setUseStyle(UseStyle useStyle) {
-			fPreferenceStore.setValue(getUseKey(), useStyle.getRefRootKey());
+			if (useStyle != null) {
+				fPreferenceStore.setValue(getUseKey(), useStyle.getRefRootKey());
+			}
 		}
 		@Override
 		public UseStyle getUseStyle() {
@@ -491,7 +499,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		group.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, content.fNumColumns, 1));
 		Control selectionControl = createTreeViewer(group);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
-		Point size = TreeUtil.calculateTreeSizeHint(fSelectionViewer.getControl(), fRootNodes, 9);
+		Point size = ViewerUtil.calculateTreeSizeHint(fSelectionViewer.getControl(), fRootNodes, 9);
 		gd.widthHint = size.x;
 		gd.heightHint = size.y;
 		selectionControl.setLayoutData(gd);
@@ -552,11 +560,11 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	public Control createTreeViewer(Layouter parent) {
 		fSelectionViewer = new TreeViewer(parent.composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 
-		fSelectionViewer.setContentProvider(new TreeUtil.NodeContentProvider());
+		fSelectionViewer.setContentProvider(new ViewerUtil.NodeContentProvider());
 		fSelectionViewer.setLabelProvider(new SyntaxNodeLabelProvider());
 		ColumnViewerToolTipSupport.enableFor(fSelectionViewer);
 		
-		TreeUtil.addDoubleClickExpansion(fSelectionViewer);
+		ViewerUtil.addDoubleClickExpansion(fSelectionViewer);
 		
 		return fSelectionViewer.getControl();
 	}
@@ -568,7 +576,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fUseControl = new ComboViewer(options.composite, SWT.READ_ONLY | SWT.DROP_DOWN);
 		fUseControl.setLabelProvider(new UseStyleLabelProvider());
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 0);
-		gd.widthHint = LayoutUtil.hintWidth(fUseControl.getCombo(), 
+		gd.widthHint = LayoutUtil.hintWidth(fUseControl.getCombo(),
 				new String[] { "XXXXXXXXXXXXXXX", Messages.SyntaxColoring_Use_CustomStyle_label, Messages.SyntaxColoring_Use_NoExtraStyle_label }); //$NON-NLS-1$
 		fUseControl.getControl().setLayoutData(gd);
 		final int indent = LayoutUtil.defaultSmallIndent();
@@ -588,7 +596,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	private Control createPreviewer(Composite parent) {
 		fColorManager = new ColorManager();
 
-		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] { 
+		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
 				fOverlayStore, EditorsUI.getPreferenceStore() });
 		fPreviewViewer = new SourceViewer(parent, null, null, false, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 		Font font = JFaceResources.getFont(JFaceResources.TEXT_FONT);
@@ -598,7 +606,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fPreviewViewer.configure(fConfiguration);
 		new SourceViewerUpdater(fPreviewViewer, fConfiguration, store);
 		
-		String content = loadPreviewContentFromFile(getPreviewFileName()); //$NON-NLS-1$
+		String content = loadPreviewContentFromFile(getPreviewFileName());
 		IDocument document = new Document(content);
 		getDocumentSetupParticipant().setup(document);
 		fPreviewViewer.setDocument(document);
@@ -670,24 +678,24 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 				updateEnablement((SyntaxNode) selection.getFirstElement(), newUse);
 			}
 		});
-		fDbc.bindValue(ViewersObservables.observeSingleSelection(fUseControl), 
+		fDbc.bindValue(ViewersObservables.observeSingleSelection(fUseControl),
 				useStyle,
 				null, null);
 		// Bind option widgets to the properties of the current selection.
-		fDbc.bindValue(new ColorSelectorObservableValue(fForegroundColorEditor), 
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_COLOR, RGB.class), 
+		fDbc.bindValue(new ColorSelectorObservableValue(fForegroundColorEditor),
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_COLOR, RGB.class),
 				null, null);
-		fDbc.bindValue(SWTObservables.observeSelection(fBoldCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_BOLD, boolean.class), 
+		fDbc.bindValue(SWTObservables.observeSelection(fBoldCheckbox),
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_BOLD, boolean.class),
 				null, null);
-		fDbc.bindValue(SWTObservables.observeSelection(fItalicCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_ITALIC, boolean.class), 
+		fDbc.bindValue(SWTObservables.observeSelection(fItalicCheckbox),
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_ITALIC, boolean.class),
 				null, null);
-		fDbc.bindValue(SWTObservables.observeSelection(fStrikethroughCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_STRIKETHROUGH, boolean.class), 
+		fDbc.bindValue(SWTObservables.observeSelection(fStrikethroughCheckbox),
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_STRIKETHROUGH, boolean.class),
 				null, null);
-		fDbc.bindValue(SWTObservables.observeSelection(fUnderlineCheckbox), 
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_UNDERLINE, boolean.class), 
+		fDbc.bindValue(SWTObservables.observeSelection(fUnderlineCheckbox),
+				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_UNDERLINE, boolean.class),
 				null, null);
 	}
 	
@@ -731,10 +739,12 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	protected String addListToTooltip(String tooltip, String[] listItems) {
 		StringBuilder description = new StringBuilder(tooltip);
-		for (String item : listItems) {
+		int end = Math.min(20, listItems.length);
+		for (int i = 0; i < end; i++) {
 			description.append("\n    "); //$NON-NLS-1$
-			description.append(item);
+			description.append(listItems[i]);
 		}
+		description.append("\n["+end+"/"+listItems.length+"]");
 		return description.toString();
 	}
 	

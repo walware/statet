@@ -108,6 +108,18 @@
       </page>
       <page
             category="de.walware.statet.base.preferencePages.Editors"
+            class="de.walware.statet.r.internal.ui.preferences.RIdentifiersPreferencePage"
+            id="de.walware.statet.r.preferencePages.RIdentifierGroups"
+            name="%preferencePages.RIdentifierGroups.name">
+         <keywordReference
+               id="de.walware.statet.base.keywords.Editor">
+         </keywordReference>
+         <keywordReference
+               id="de.walware.statet.base.keywords.Appearance">
+         </keywordReference>
+      </page>
+      <page
+            category="de.walware.statet.base.preferencePages.Editors"
             class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
             id="de.walware.statet.r.preferencePages.RSyntaxColoring"
             name="%preferencePages.RSyntaxColoring.name">

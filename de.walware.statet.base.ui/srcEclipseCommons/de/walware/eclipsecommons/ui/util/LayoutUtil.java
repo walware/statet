@@ -25,10 +25,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
 
 
 /**
@@ -136,6 +140,25 @@ public class LayoutUtil {
 		return widthHint;
 	}
 
+	public static int hintHeight(List control, int rows) {
+		return hintHeightOfStructViewer(control, rows);
+	}
+	
+	public static int hintHeight(Tree control, int rows) {
+		return hintHeightOfStructViewer(control, rows);
+	}
+	
+	public static int hintHeight(Table control, int rows) {
+		return hintHeightOfStructViewer(control, rows);
+	}
+	
+	private static int hintHeightOfStructViewer(Control control, int rows) {
+		control.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+		PixelConverter converter = new PixelConverter(control);
+		int heightHint = converter.convertHeightInCharsToPixels(rows);
+		return heightHint;
+	}
+	
 
 	public static GridLayout applyGroupDefaults(GridLayout gl, int numColumns) {
 		gl.numColumns = numColumns;

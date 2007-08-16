@@ -55,7 +55,7 @@ public class RdCodeScanner extends StatextTextScanner {
 	}
 	
 	public RdCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.CONTEXT_ID);
+		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.TS_CONTEXT_ID);
 		initialize();
 	}
 	

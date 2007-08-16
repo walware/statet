@@ -27,7 +27,7 @@ import de.walware.statet.r.ui.text.rd.IRdTextTokens;
 
 /**
  * Preference constants used in the StatET-R preference store. Clients should only read the
- * RDT-UI preference store using these values. Clients are not allowed to modify the 
+ * RDT-UI preference store using these values. Clients are not allowed to modify the
  * preference store programmatically.
  * 
  * @see org.eclipse.jface.resource.StringConverter
@@ -37,7 +37,7 @@ import de.walware.statet.r.ui.text.rd.IRdTextTokens;
 public class RUIPreferenceConstants {
 
 	public interface R {
-		public final static String CONTEXT_ID = "r.editor/textstyles"; //$NON-NLS-1$
+		public final static String TS_CONTEXT_ID = "r.editor/textstyles"; //$NON-NLS-1$
 		public final static String TS_ROOT = IRTextTokens.ROOT;
 		public final static String TS_ITEMS_SUFFIX = ".items"; //$NON-NLS-1$
 		
@@ -219,7 +219,7 @@ public class RUIPreferenceConstants {
 	}
 	
 	public interface Rd {
-		public final static String CONTEXT_ID = "rd.editor/textstyles"; //$NON-NLS-1$
+		public final static String TS_CONTEXT_ID = "rd.editor/textstyles"; //$NON-NLS-1$
 		public final static String TS_ROOT = IRdTextTokens.ROOT;
 		
 		public final static String TS_BRACKETS_ROOT = IRdTextTokens.BRACKETS;

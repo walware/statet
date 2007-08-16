@@ -30,6 +30,12 @@ public class RSourceTokenLexer extends RLexer {
 		super(input);
 		fSource = source;
 	}
+
+	
+	public void reset(SourceParseInput input, CharSequence source) {
+		super.reset(input);
+		fSource = source;
+	}
 	
 	
 	public RSourceToken nextToken() {

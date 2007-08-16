@@ -41,27 +41,25 @@ public abstract class RLexer {
 	private final static char[] C_while = RTerminal.S_WHILE.toCharArray();
 	
 	
-	protected final SourceParseInput fInput;
+	protected SourceParseInput fInput;
 	
 	protected int fNextIndex;
 	protected int fNextNum;
 	private int fUnknownState = -1;
-	private StringBuilder fTempString = new StringBuilder();
+	private StringBuilder fUnknwonString = new StringBuilder();
 	
 	
 	public RLexer(SourceParseInput input) {
+		reset(input);
+	}
+	
+	protected void reset(SourceParseInput input) {
 		fInput = input;
+		fNextIndex = 0;
 		fNextNum = 0;
+		fUnknownState = -1;
 	}
 	
-	
-	private final void resetTempString() {
-		if (fTempString.length() > 40 || fTempString.capacity() > 40) {
-			fTempString.setLength(16);
-			fTempString.trimToSize();
-		}
-		fTempString.setLength(0);
-	}
 	
 	protected final void searchNext() {
 		fInput.consume(fNextNum);
@@ -502,7 +500,7 @@ public abstract class RLexer {
 		int unknownNum = 0;
 		do {
 			unknownNum += fNextNum;
-			fTempString.append(fInput.substring(1, fNextNum));
+			fUnknwonString.append(fInput.substring(1, fNextNum));
 			
 			fUnknownState = 0;
 			searchNext();
@@ -512,8 +510,13 @@ public abstract class RLexer {
 		
 		fNextIndex = unknownIndex;
 		fNextNum = unknownNum;
-		createUnknownToken(fTempString.toString());
-		resetTempString();
+		createUnknownToken(fUnknwonString.toString());
+
+		if (fUnknwonString.length() > 40 || fUnknwonString.capacity() > 40) {
+			fUnknwonString.setLength(16);
+			fUnknwonString.trimToSize();
+		}
+		fUnknwonString.setLength(0);
 		fNextNum = 0;
 		return;
 	}

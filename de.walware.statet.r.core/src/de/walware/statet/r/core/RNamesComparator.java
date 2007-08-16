@@ -9,24 +9,25 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.ui.text.r;
+package de.walware.statet.r.core;
 
-import org.eclipse.jface.preference.IPreferenceStore;
+import java.util.Comparator;
+import java.util.Locale;
 
-import de.walware.eclipsecommons.ui.util.ColorManager;
-
-import de.walware.statet.ext.ui.text.SingleTokenScanner;
-import de.walware.statet.r.ui.RUIPreferenceConstants;
+import com.ibm.icu.text.Collator;
 
 
 /**
- * Scanner for R strings
+ *
  */
-public class RStringScanner extends SingleTokenScanner {
+public class RNamesComparator implements Comparator<String> {
+	
+	
+	protected static final Collator gCollator = Collator.getInstance(Locale.ENGLISH);
 
-	public RStringScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, 
-				RUIPreferenceConstants.R.TS_CONTEXT_ID, IRTextTokens.STRING);
+	
+	public int compare(String name1, String name2) {
+		return gCollator.compare(name1, name2);
 	}
-
+	
 }

@@ -39,7 +39,7 @@ public class RWordRule implements IRule {
 	private static final int S_FINISHED_VALID = 2100;
 	private static final int S_FINISHED_INVALID = 2200;
 	
-	private IToken fDefaultToken; 
+	private IToken fDefaultToken;
 	private IToken fInvalidIdentifierToken;
 	private Map<String, IToken> fSpecialWords;
 	
@@ -60,6 +60,9 @@ public class RWordRule implements IRule {
 	}
 	public void addSpecialWord(String word, IToken token) {
 		fSpecialWords.put(word, token);
+	}
+	public void resetSpecialWords() {
+		fSpecialWords.clear();
 	}
 	
 

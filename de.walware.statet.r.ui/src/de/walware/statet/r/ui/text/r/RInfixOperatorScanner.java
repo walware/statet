@@ -35,7 +35,7 @@ public class RInfixOperatorScanner extends StatextTextScanner {
 	 * @param preferenceStore
 	 */
 	public RInfixOperatorScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, RUIPreferenceConstants.R.CONTEXT_ID);
+		super(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_CONTEXT_ID);
 		
 		initialize();
 	}

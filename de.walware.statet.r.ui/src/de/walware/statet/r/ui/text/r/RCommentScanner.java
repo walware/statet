@@ -27,7 +27,7 @@ public class RCommentScanner extends CommentScanner {
 
 	public RCommentScanner(ColorManager colorManager, IPreferenceStore preferenceStore, IPreferenceAccess corePrefs) {
 		super(colorManager, preferenceStore, corePrefs, 
-				RUIPreferenceConstants.R.CONTEXT_ID,
+				RUIPreferenceConstants.R.TS_CONTEXT_ID,
 				IRTextTokens.COMMENT, IRTextTokens.TASK_TAG);
 	}
 	

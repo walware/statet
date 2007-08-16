@@ -16,6 +16,16 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	
+	public static String RIdentifiers_GroupsList_label;
+	public static String RIdentifiers_IdentifiersList_label;
+	public static String RIdentifiers_AddAction_label;
+	public static String RIdentifiers_EditAction_label;
+	public static String RIdentifiers_RemoveAction_label;
+	public static String RIdentifiers_Identifier_error_AlreadyExistingInSameGroup_message;
+	public static String RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message;
+	public static String RIdentifiers_Identifier_error_Empty_message;
+	public static String RIdentifiers_Identifier_error_Invalid_message;
+
 	public static String RSyntaxColoring_CodeCategory_label;
 	public static String RSyntaxColoring_CommentsCategory_label;
 
@@ -25,6 +35,8 @@ public class Messages extends NLS {
 	public static String RSyntaxColoring_Identifier_Assignment_label;
 	public static String RSyntaxColoring_Identifier_Logical_label;
 	public static String RSyntaxColoring_Identifier_Flowcontrol_label;
+	public static String RSyntaxColoring_Identifier_Custom1_label;
+	public static String RSyntaxColoring_Identifier_Custom2_label;
 	public static String RSyntaxColoring_Undefined_label;
 	public static String RSyntaxColoring_Undefined_description;
 	public static String RSyntaxColoring_Comment_label;

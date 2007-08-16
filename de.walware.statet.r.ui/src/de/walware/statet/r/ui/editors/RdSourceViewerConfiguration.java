@@ -78,9 +78,9 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 		IPreferenceStore store = getPreferences();
 		ColorManager colorManager = getColorManager();
 		fDocScanner = new RdCodeScanner(colorManager, store);
-		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), RUIPreferenceConstants.Rd.CONTEXT_ID,
+		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), RUIPreferenceConstants.Rd.TS_CONTEXT_ID,
 				COMMENT, TASK_TAG);
-		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, RUIPreferenceConstants.Rd.CONTEXT_ID,
+		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, RUIPreferenceConstants.Rd.TS_CONTEXT_ID,
 				PLATFORM_SPECIF);
 		
 		fDoubleClickStrategy = new RdDoubleClickStrategy();

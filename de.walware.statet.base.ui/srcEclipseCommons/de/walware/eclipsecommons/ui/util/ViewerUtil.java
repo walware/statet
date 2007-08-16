@@ -11,22 +11,27 @@
 
 package de.walware.eclipsecommons.ui.util;
 
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
+import org.eclipse.swt.widgets.Table;
 
 
 /**
  *
  */
-public class TreeUtil {
+public class ViewerUtil {
 	
 	public static class Node {
 		private String fName;
@@ -132,4 +137,21 @@ public class TreeUtil {
 		});
 	}
 	
+	
+	public static class TableComposite extends Composite {
+		
+		public TableViewer viewer;
+		public Table table;
+		public TableColumnLayout layout;
+		
+		public TableComposite(Composite parent, int tableStyle) {
+			super(parent, SWT.NONE);
+			
+			layout = new TableColumnLayout();
+			setLayout(layout);
+			table = new Table(this, tableStyle);
+			viewer = new TableViewer(table);
+		}
+	}
+
 }

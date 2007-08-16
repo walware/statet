@@ -24,6 +24,7 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetUIServices;
@@ -73,6 +74,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 
 	private IPreferenceStore fEditorPreferenceStore;
 	
+	private RIdentifierGroups fIdentifierGroups;
+	
 	private TemplateStore fRCodeTemplatesStore;
 	private ContextTypeRegistry fRCodeTemplatesContextTypeRegistry;
 	private TemplateStore fRdCodeTemplatesStore;
@@ -92,6 +95,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called upon plug-in activation
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		
 		super.start(context);
@@ -100,6 +104,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		try {
 			fRDocumentProvider = null;
@@ -166,6 +171,13 @@ public class RUIPlugin extends AbstractUIPlugin {
     	return fEditorPreferenceStore;
     }
 	
+	public synchronized RIdentifierGroups getRIdentifierGroups() {
+		if (fIdentifierGroups == null) {
+			fIdentifierGroups = new RIdentifierGroups(PreferencesUtil.getInstancePrefs());
+		}
+		return fIdentifierGroups;
+	}
+
 	/**
 	 * Returns the template context type registry for the code generation
 	 * templates.

@@ -70,7 +70,7 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 								
 			@Override
 			protected String[] getSettingsContexts() {
-				return new String[] { RUIPreferenceConstants.Rd.CONTEXT_ID };
+				return new String[] { RUIPreferenceConstants.Rd.TS_CONTEXT_ID };
 			}
 			
 			@Override
