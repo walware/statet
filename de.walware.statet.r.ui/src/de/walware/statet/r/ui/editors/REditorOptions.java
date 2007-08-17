@@ -26,8 +26,12 @@ public class REditorOptions {
 	
 	
 	private static final String NODE = RUI.PLUGIN_ID + "/editor.r/options"; //$NON-NLS-1$
-	public static final BooleanPref PREF_SMARTINSERT_ASDEFAULT = new BooleanPref(
+
+	public static final BooleanPref PREF_SMARTINSERT_ENABLEDASDEFAULT = new BooleanPref(
 			NODE, "smartinsert.as_default.enabled"); //$NON-NLS-1$
+
+	public static final BooleanPref PREF_FOLDING_ENABLEDASDEFAULT = new BooleanPref(
+			NODE, "folding.enable_as_default.enabled"); //$NON-NLS-1$
 
 	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
 			NODE, "spellcheck.enabled"); //$NON-NLS-1$

@@ -26,6 +26,8 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
@@ -75,14 +77,16 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-		fRConfig.setTarget(this, getSourceViewer());
+		final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
+		fRConfig.setTarget(this, viewer);
 
-        ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
-		viewer.doOperation(ProjectionViewer.TOGGLE);
+		if (PreferencesUtil.getInstancePrefs().getPreferenceValue(REditorOptions.PREF_FOLDING_ENABLEDASDEFAULT)) {
+			viewer.doOperation(ProjectionViewer.TOGGLE);
+		}
 		
 		// Editor Help:
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(this, IRUIHelpContextIds.R_EDITOR);
-		getSourceViewer().getTextWidget().addHelpListener(new HelpListener() {
+		viewer.getTextWidget().addHelpListener(new HelpListener() {
 			public void helpRequested(HelpEvent e) {
 				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
 			}
@@ -134,7 +138,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 		fRResourceUnit = ((RDocumentProvider) getDocumentProvider()).getWorkingCopy(newInput);
 		fRConfig.setSource(fRResourceUnit);
 
-		if (fRConfig.getPrefs().getPreferenceValue(REditorOptions.PREF_SMARTINSERT_ASDEFAULT)) {
+		if (fRConfig.getPrefs().getPreferenceValue(REditorOptions.PREF_SMARTINSERT_ENABLEDASDEFAULT)) {
 			setInsertMode(SMART_INSERT);
 		}
 		else {

@@ -54,6 +54,7 @@ public class REditorPreferencePage extends ConfigurationBlockPreferencePage<REdi
 class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private Button fSmartInsertControl;
+	private Button fFoldingEnableControl;
 	private Button fSpellEnableControl;
 	
 	public REditorConfigurationBlock(IStatusChangeListener statusListener) {
@@ -72,7 +73,8 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
 		List<Preference> prefs = new ArrayList<Preference>();
-		prefs.add(REditorOptions.PREF_SMARTINSERT_ASDEFAULT);
+		prefs.add(REditorOptions.PREF_SMARTINSERT_ENABLEDASDEFAULT);
+		prefs.add(REditorOptions.PREF_FOLDING_ENABLEDASDEFAULT);
 		prefs.add(REditorOptions.PREF_SPELLCHECKING_ENABLED);
 		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
 		
@@ -80,6 +82,11 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertControl = new Button(pageComposite, SWT.CHECK);
 		fSmartInsertControl.setText(Messages.REditorOptions_SmartInsert_label);
 		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		// Controls
+		fFoldingEnableControl = new Button(pageComposite, SWT.CHECK);
+		fFoldingEnableControl.setText(Messages.REditorOptions_Folding_Enable_label);
+		fFoldingEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
@@ -99,7 +106,10 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void addBindings(DataBindingContext dbc, Realm realm) {
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertControl),
-				createObservable(REditorOptions.PREF_SMARTINSERT_ASDEFAULT),
+				createObservable(REditorOptions.PREF_SMARTINSERT_ENABLEDASDEFAULT),
+				null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fFoldingEnableControl),
+				createObservable(REditorOptions.PREF_FOLDING_ENABLEDASDEFAULT),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),
 				createObservable(REditorOptions.PREF_SPELLCHECKING_ENABLED),

@@ -26,6 +26,7 @@ import de.walware.statet.r.ui.editors.REditorOptions;
 public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 
 
+	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = RUIPlugin.getDefault().getPreferenceStore();
 		EditorsUI.useAnnotationsPreferencePage(store);
@@ -33,7 +34,8 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		RUIPreferenceConstants.initializeDefaultValues(store);
 		
 		DefaultScope defaultScope = new DefaultScope();
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SMARTINSERT_ASDEFAULT, true);
+		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SMARTINSERT_ENABLEDASDEFAULT, true);
+		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_FOLDING_ENABLEDASDEFAULT, true);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
 		
 		RDebugPreferenceConstants.initializeDefaultValues(defaultScope);
