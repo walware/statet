@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui;
+package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
@@ -20,20 +20,22 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.text.edits.TextEdit;
+import org.eclipse.ui.texteditor.IUpdate;
+
+import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.ui.text.r.RHeuristicTokenScanner;
-import de.walware.statet.r.ui.text.r.RIndentation;
-import de.walware.statet.r.ui.text.r.RIndentation.IndentEditAction;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.rsource.RIndentUtil;
+import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 /**
  * Add '## '-prefix to the current selection.
  */
-public class RDoubleCommentAction extends Action {
+public class RDoubleCommentAction extends Action implements IUpdate {
 
 	public static final String ACTION_ID = "de.walware.statet.r.actions.AddDoubleComment"; //$NON-NLS-1$
 
@@ -46,7 +48,7 @@ public class RDoubleCommentAction extends Action {
 	 * 
 	 */
 	public RDoubleCommentAction(IEditorAdapter editor, IRCoreAccess core) {
-		fEditor = editor; 
+		fEditor = editor;
 		fCore = core;
 		setId(ACTION_ID);
 		setActionDefinitionId(IStatetUICommandIds.ADD_DOC_COMMENT);
@@ -73,7 +75,7 @@ public class RDoubleCommentAction extends Action {
 	
 	private void addComment() throws BadLocationException {
 		ISourceViewer sourceViewer = fEditor.getSourceViewer();
-		IDocument document = sourceViewer.getDocument();
+		final IDocument document = sourceViewer.getDocument();
 		ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
 		int offset = selection.getOffset();
 		
@@ -87,7 +89,7 @@ public class RDoubleCommentAction extends Action {
 		}
 		
 		IRegion textBlock = scanner.getTextBlock(selection.getOffset(), selection.getOffset()+selection.getLength());
-		RIndentation indent = new RIndentation(document, fCore.getRCodeStyle());
+		final RIndentUtil util = new RIndentUtil(document, fCore.getRCodeStyle());
 		IDocumentExtension4 doc4 = null;
 		DocumentRewriteSession rewriteSession = null;
 		try {
@@ -95,19 +97,19 @@ public class RDoubleCommentAction extends Action {
 				doc4 = (IDocumentExtension4) document;
 				rewriteSession = doc4.startRewriteSession(DocumentRewriteSessionType.SEQUENTIAL);
 			}
-			int startLine = scanner.getFirstLineOfRegion(textBlock);
-			int endLine = scanner.getLastLineOfRegion(textBlock);
-			int depth = indent.getMultilineIndentationDepth(startLine, endLine);
-			IndentEditAction action = indent.new IndentEditAction(depth) {
-				public TextEdit createEdit(int offset, int length, StringBuilder text) throws BadLocationException {
-					getDocument().replace(offset, length, text.toString());
-					return null;
+			final int firstLine = scanner.getFirstLineOfRegion(textBlock);
+			final int lastLine = scanner.getLastLineOfRegion(textBlock);
+			final int column = util.getMultilineIndentColumn(firstLine, lastLine);
+			IndentEditAction action = new IndentEditAction(column) {
+				@Override
+				public void doEdit(int line, int offset, int length, StringBuilder text) throws BadLocationException {
+					if (text != null) {
+						document.replace(offset, length, text.toString());
+					}
+					document.replace(util.getIndentedOffsetAt(line, column), 0, "## "); //$NON-NLS-1$
 				}
 			};
-			for (int line = startLine; line <= endLine; line++) {
-				indent.edit(line, action);
-				document.replace(indent.getIndentedOffset(line, depth), 0, "## "); //$NON-NLS-1$
-			}
+			util.editInIndent(firstLine, lastLine, action);
 		}
 		finally {
 			if (doc4 != null) {

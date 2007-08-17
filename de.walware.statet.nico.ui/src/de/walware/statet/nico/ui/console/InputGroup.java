@@ -24,6 +24,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -98,7 +99,7 @@ public class InputGroup implements ISettingsChangedHandler {
 
 		private boolean fMessageSetted;
 		
-		public ISourceViewer getSourceViewer() {
+		public SourceViewer getSourceViewer() {
 			return fSourceViewer;
 		}
 		

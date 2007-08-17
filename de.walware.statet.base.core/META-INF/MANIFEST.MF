@@ -11,10 +11,14 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reex
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
  org.eclipse.core.variables;visibility:=reexport,
- org.eclipse.core.databinding;visibility:=reexport
+ org.eclipse.core.databinding;visibility:=reexport,
+ org.eclipse.core.filebuffers;visibility:=reexport,
+ org.eclipse.text;visibility:=reexport
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: de.walware.eclipsecommons,
+ de.walware.eclipsecommons.ltk,
+ de.walware.eclipsecommons.ltk.text,
  de.walware.eclipsecommons.preferences,
  de.walware.statet.base.core,
  de.walware.statet.base.core.preferences,

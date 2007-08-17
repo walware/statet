@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.ui;
+package de.walware.statet.r.core.rsource;
 
 import org.eclipse.jface.text.IDocument;
 

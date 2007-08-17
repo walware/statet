@@ -11,8 +11,8 @@
 
 package de.walware.statet.ext.ui.text;
 
-import static de.walware.statet.ext.ui.text.ITokenScanner.CLOSING_PEER;
-import static de.walware.statet.ext.ui.text.ITokenScanner.OPENING_PEER;
+import static de.walware.eclipsecommons.ltk.text.ITokenScanner.CLOSING_PEER;
+import static de.walware.eclipsecommons.ltk.text.ITokenScanner.OPENING_PEER;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -21,6 +21,9 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
+
+import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
+import de.walware.eclipsecommons.ltk.text.ITokenScanner;
 
 
 /**

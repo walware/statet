@@ -26,10 +26,10 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
+import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.ext.ui.text.BasicHeuristicTokenScanner;
 
 /**
  * An action to delete a whole line, the fraction of the line that is left from the cursor

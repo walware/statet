@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ext.ui.text;
+package de.walware.eclipsecommons.ltk.text;
 
 import java.util.Arrays;
 
@@ -23,6 +23,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.TypedRegion;
+
 
 
 /**
@@ -66,7 +67,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		public abstract boolean matches(String partitionId);
 	}
 	
-	protected static class SinglePartitionMatcher extends PartitionMatcher {		
+	protected static class SinglePartitionMatcher extends PartitionMatcher {
 		
 		private String fPartitionId;
 		
@@ -82,6 +83,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	
 	protected static final PartitionMatcher ALL_PARTITIONS_MATCHER = new PartitionMatcher() {
 		
+		@Override
 		public boolean matches(String partitionId) {
 			return true;
 		}
@@ -113,10 +115,12 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			Arrays.sort(chars);
 		}
 
+		@Override
 		public boolean stop(boolean forward) {
 			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType(fPos))) );
 		}
 		
+		@Override
 		public int nextPosition(int position, boolean forward) {
 			ITypedRegion partition = getPartition(position);
 			if (fPartition.matches(partition.getType()))
@@ -145,11 +149,12 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			fEscapeChar = escapeChar;
 		}
 
+		@Override
 		public boolean stop(boolean forward) {
 			if (fPos == fLastEscapeOffset+1)
 				return false;
 			if (fChar == fEscapeChar) {
-				fLastEscapeOffset = fPos; 
+				fLastEscapeOffset = fPos;
 				return false;
 			}
 			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType(fPos))) );
@@ -174,7 +179,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	/** the most recently read line of position (only if used). */
 	private int fLine;
 	
-	private StopCondition fNonWhitespaceCondition;
+	private StopCondition fNonWSCondition;
+	private StopCondition fNonWSorLRCondition;
 
 
 	/**
@@ -188,17 +194,29 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		fPartitioning = partitioning;
 	}
 	
-	protected StopCondition getNonWhitespaceCondition() {
-		
-		if (fNonWhitespaceCondition == null) {
-			fNonWhitespaceCondition = new StopCondition() {
+	protected StopCondition getNonWSCondition() {
+		if (fNonWSCondition == null) {
+			fNonWSCondition = new StopCondition() {
 				@Override
 				public boolean stop(boolean forward) {
 					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t');
 				}
 			};
 		}
-		return fNonWhitespaceCondition;
+		return fNonWSCondition;
+	}
+	
+	protected StopCondition getNonWSorLRCondition() {
+		if (fNonWSorLRCondition == null) {
+			fNonWSorLRCondition = new StopCondition() {
+				@Override
+				public boolean stop(boolean forward) {
+					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t'
+						&& fChar != '\r' && fChar != '\n');
+				}
+			};
+		}
+		return fNonWSorLRCondition;
 	}
 	
 	/**
@@ -227,14 +245,14 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		return fPos;
 	}
 
-	/* 
+	/*
 	 * @see de.walware.statet.ext.ui.text.ITokenScanner#findClosingPeer(int, char[])
 	 */
 	public int findClosingPeer(int start, char[] pair) {
 		return findClosingPeer(start, pair, (char)0);
 	}
 
-	/* 
+	/*
 	 * @see de.walware.statet.ext.ui.text.ITokenScanner#findClosingPeer(int, char[], char)
 	 */
 	public int findClosingPeer(int start, char[] pair, char escapeChar) {
@@ -242,7 +260,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		Assert.isNotNull(fDocument);
 		Assert.isTrue(start >= 0);
 		
-		StopCondition cond = (escapeChar == (char)0) ? 
+		StopCondition cond = (escapeChar == (char)0) ?
 				new CharacterMatchCondition(pair) : new ExtCharacterMatchCondition(pair, escapeChar);
 
 		try {
@@ -271,10 +289,11 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @see de.walware.statet.ext.ui.text.ITokenScanner#findOpeningPeer(int, char[])
 	 */
 	public int findOpeningPeer(int start, char[] pair) {
-		Assert.isTrue(start < fDocument.getLength());
-
 		StopCondition cond = new CharacterMatchCondition(pair);
 
+		if (start >= fDocument.getLength()) {
+			start = fDocument.getLength()-1;
+		}
 		try {
 			int depth= 1;
 			start += 1;
@@ -307,7 +326,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		try {
 			int depth= 1;
 			start += 1;
-			fLine = fDocument.getLineOfOffset(start);			
+			fLine = fDocument.getLineOfOffset(start);
 			while (true) {
 				int[] list = preScanBackward(start - 1, UNBOUND, cond);
 				if (list == null)
@@ -339,26 +358,29 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
 	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>), or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int findNonWhitespaceForward(int position, int bound) {
+	public int findNonBlankForward(int position, int bound, boolean linebreakIsBlank) {
 		
-		return scanForward(position, bound, getNonWhitespaceCondition());
+		return scanForward(position, bound, linebreakIsBlank ?
+				getNonWSorLRCondition() : getNonWSCondition());
 	}
 
-	public int findNonWhitespaceBackward(int position, int bound) {
+	public int findNonBlankBackward(int position, int bound, boolean linebreakIsBlank) {
 		
-		return scanBackward(position, bound, getNonWhitespaceCondition());
+		return scanBackward(position, bound, linebreakIsBlank ?
+				getNonWSorLRCondition() : getNonWSCondition());
 	}
 	
-	public IRegion findBlankRegion(int position) {
+	public IRegion findBlankRegion(int position, boolean linebreakIsBlank) {
 		
-		return findRegion(position, getNonWhitespaceCondition());
+		return findRegion(position, linebreakIsBlank ?
+				getNonWSorLRCondition() : getNonWSCondition());
 	}
 		
 	public boolean isBlankLine(int position) throws BadLocationException {
 		
 		IRegion line = fDocument.getLineInformationOfOffset(position);
 		if (line.getLength() > 0) {
-			int nonWhitespace = findNonWhitespaceForward(line.getOffset(), line.getOffset()+line.getLength());
+			int nonWhitespace = findNonBlankForward(line.getOffset(), line.getOffset()+line.getLength(), false);
 			return (nonWhitespace == NOT_FOUND);
 		}
 		return true;

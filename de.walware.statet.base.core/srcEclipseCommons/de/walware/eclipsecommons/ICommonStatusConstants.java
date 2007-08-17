@@ -9,10 +9,10 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base;
+package de.walware.eclipsecommons;
 
 
-public interface IStatetStatusConstants {
+public interface ICommonStatusConstants {
 
 	
 	int INTERNAL_ERROR = 100;
@@ -21,4 +21,6 @@ public interface IStatetStatusConstants {
 	
 	/** Code for errors when handle LaunchConfigurations */
 	int LAUNCHCONFIG_ERROR = 20110;
+	
+	int IO_ERROR = 30100;
 }

@@ -18,7 +18,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 
-import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.eclipsecommons.ICommonStatusConstants;
+
 import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -82,7 +83,7 @@ public class LaunchShortcutUtil {
 	}
 
 
-	public static void handleRLaunchException(Exception e, String defaultMessage) {
+	public static void handleRLaunchException(Throwable e, String defaultMessage) {
 		CoreException core;
 		if (e instanceof CoreException)
 			core = (CoreException) e;
@@ -90,7 +91,7 @@ public class LaunchShortcutUtil {
 			core = new CoreException(new Status(
 					IStatus.ERROR,
 					RUI.PLUGIN_ID,
-					IStatetStatusConstants.LAUNCHING_ERROR,
+					ICommonStatusConstants.LAUNCHING_ERROR,
 					defaultMessage,
 					e));
 		ExceptionHandler.handle(core, RLaunchingMessages.RLaunch_error_description);

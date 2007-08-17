@@ -110,5 +110,14 @@
             sequence="M1+M3+END">
       </key>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="de.walware.statet.base.perspectives.StatetPerspective">
+         <viewShortcut
+               id="de.walware.statet.nico.views.HistoryView">
+         </viewShortcut>
+      </perspectiveExtension>
+   </extension>
 
 </plugin>

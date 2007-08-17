@@ -18,8 +18,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import de.walware.eclipsecommons.AbstractSettingsModelObject;
+import de.walware.eclipsecommons.ICommonStatusConstants;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.rserve.RServePlugin;
 
 
@@ -105,7 +105,7 @@ public class ConnectionConfig extends AbstractSettingsModelObject {
 	
 	protected void logError(String msg, CoreException ce) {
 		RServePlugin.getDefault().getLog().log(new Status(
-				IStatus.ERROR, RServePlugin.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+				IStatus.ERROR, RServePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 				msg, ce));
 	}
 	

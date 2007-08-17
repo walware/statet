@@ -26,7 +26,11 @@ public class RLaunchingMessages extends NLS {
 	public static String RLaunch_error_description;
 	public static String RSelectionLaunch_error_message;
 	public static String RScriptLaunch_error_message;
+	public static String RFunctionLaunch_error_message;
 	public static String RCommandLaunch_error_message;
+	public static String RSpecifiedLaunch_error_message;
+	public static String RCodeLaunch_SubmitCode_task;
+	public static String RCodeLaunch_UpdateStructure_task;
 
 	public static String TextConsoleConnector_error_NoConsole_message;
 	public static String TextConsoleConnector_error_Other_message;

@@ -19,8 +19,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import de.walware.eclipsecommons.ltk.text.ITokenScanner;
+
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.ext.ui.text.ITokenScanner;
 import de.walware.statet.ext.ui.text.PairMatcher;
 
 
@@ -50,6 +51,7 @@ public class GotoMatchingBracketAction extends Action {
 		setEnabled(true);
 	}
 	
+	@Override
 	public void run() {
 		
 		gotoMatchingBracket();
@@ -90,16 +92,16 @@ public class GotoMatchingBracketAction extends Action {
 		}
 		
 		if (selectionLength > 0) {
-			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_InvalidSelection);		
+			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_InvalidSelection);
 			sourceViewer.getTextWidget().getDisplay().beep();
 			return;
 		}
 
 		IRegion region = fPairMatcher.match(document, offset);
 		if (region == null) {
-			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket);		
+			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket);
 			sourceViewer.getTextWidget().getDisplay().beep();
-			return;		
+			return;
 		}
 		
 		int matchingOffset = region.getOffset();
@@ -120,7 +122,7 @@ public class GotoMatchingBracketAction extends Action {
 		}
 		
 		if (!visible) {
-			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement);		
+			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement);
 			sourceViewer.getTextWidget().getDisplay().beep();
 			return;
 		}

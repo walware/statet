@@ -42,10 +42,10 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -232,7 +232,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				fProcess = fBuilder.start();
 			}
 			catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR,
+				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
 						NLS.bind(StatetMessages.HelpRequestor_error_WhenRunProcess_message, cmdInfo), e));
 			}
 			fIsRunning = true;

@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.ui.text.rd;
 
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_COMMENT;
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_PLATFORM_SPECIF;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_COMMENT;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_PLATFORM_SPECIF;
 
 import java.util.EnumMap;
 import java.util.Map;

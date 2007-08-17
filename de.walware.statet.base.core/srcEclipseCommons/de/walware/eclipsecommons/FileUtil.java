@@ -106,24 +106,19 @@ public class FileUtil {
 /*-- File Operations --*/
 	public static abstract class AbstractFileOperation {
 		
-		protected String fPluginID;
 		protected int fMode = EFS.NONE;
 		
 		protected String fCharset = UTF_8;
 		protected boolean fForceCharset = false;
 		
-		protected AbstractFileOperation(String pluginID) {
-			
-			fPluginID = pluginID;
+		protected AbstractFileOperation() {
 		}
 		
 		public void setFileOperationMode(int mode) {
-			
 			fMode = mode;
 		}
 		
 		public void setCharset(String charset, boolean forceCharset) {
-			
 			fCharset = charset;
 			fForceCharset = forceCharset;
 		}
@@ -131,14 +126,12 @@ public class FileUtil {
 		protected abstract String getFileLabel();
 		
 		public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-			
 			runInEnv(monitor);
 		}
 		
 		protected abstract void runInEnv(IProgressMonitor monitor) throws CoreException, OperationCanceledException;
 
 		protected void runAsWorkspaceRunnable(IProgressMonitor monitor, IResource scope) throws CoreException, OperationCanceledException {
-			
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			ISchedulingRule rule = workspace.getRuleFactory().createRule(scope);
 			IWorkspaceRunnable workspaceRunner = new IWorkspaceRunnable() {
@@ -152,16 +145,14 @@ public class FileUtil {
 	
 	public static abstract class WriteTextFileOperation extends AbstractFileOperation {
 		
-		protected WriteTextFileOperation(String pluginID) {
-			
-			super(pluginID);
+		protected WriteTextFileOperation() {
+			super();
 		}
 
 		protected abstract void writeImpl(IProgressMonitor monitor) throws CoreException, UnsupportedEncodingException, IOException;
 
 		@Override
 		protected void runInEnv(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-			
 			try {
 				monitor.beginTask("Writing to "+getFileLabel(), 100);
 				if (monitor.isCanceled()) {
@@ -171,11 +162,11 @@ public class FileUtil {
 				writeImpl(monitor);
 			}
 			catch (UnsupportedEncodingException e) {
-				throw new CoreException(new Status(IStatus.ERROR, fPluginID, 0,
+				throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"The selected charset is unsupported on your system.", e));
 			}
 			catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, fPluginID, 0,
+				throw new CoreException(new Status(Status.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"Error while writing to file.", e));
 			}
 			finally {
@@ -184,18 +175,17 @@ public class FileUtil {
 		}
 	}
 	
-	public static WriteTextFileOperation createWriteTextFileOp(String content, Object file, String pluginID) {
-		
+	public static WriteTextFileOperation createWriteTextFileOp(String content, Object file) {
 		if (file instanceof IFile) {
-			return WORKSPACE_UTIL.createWriteTextFileOp(content, (IFile) file, pluginID); 
+			return WORKSPACE_UTIL.createWrite(content, (IFile) file);
 		}
 		else if (file instanceof IFileStore) {
 			IFileStore efsFile = (IFileStore) file;
 			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
 			if (iFile != null) {
-				return WORKSPACE_UTIL.createWriteTextFileOp(content, iFile, pluginID);
+				return WORKSPACE_UTIL.createWrite(content, iFile);
 			}
-			return EFS_UTIL.createWriteTextFileOp(content, (IFileStore) file, pluginID);
+			return EFS_UTIL.createWrite(content, efsFile);
 		}
 		throw new IllegalArgumentException("Unknown file object.");
 	}
@@ -204,6 +194,7 @@ public class FileUtil {
 	public static interface ReaderAction {
 		
 		void run(BufferedReader reader, IProgressMonitor monitor) throws IOException;
+		
 	}
 	
 	public static abstract class ReadTextFileOperation extends AbstractFileOperation {
@@ -211,14 +202,12 @@ public class FileUtil {
 		protected abstract FileInput getInput(IProgressMonitor monitor) throws CoreException, IOException;
 		protected abstract ReaderAction getAction();
 		
-		public ReadTextFileOperation(String pluginID) {
-			
-			super(pluginID);
+		public ReadTextFileOperation() {
+			super();
 		}
 
 		@Override
 		protected void runInEnv(IProgressMonitor monitor) throws CoreException {
-			
 			FileInput fi = null;
 			BufferedReader reader = null;
 			try {
@@ -237,10 +226,10 @@ public class FileUtil {
 				monitor.subTask("Reading "+fileLabel+"...");
 				getAction().run(reader, new SubProgressMonitor(monitor, 80));
 			} catch (UnsupportedEncodingException e) {
-				throw new CoreException(new Status(IStatus.ERROR, fPluginID, 0,
+				throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"The selected charset is unsupported on your system.", e));
 			} catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, fPluginID, 0,
+				throw new CoreException(new Status(Status.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"Error while reading the file.", e));
 			}
 			finally {
@@ -254,21 +243,19 @@ public class FileUtil {
 	/**
 	 * @param file
 	 * @return
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
-	public static ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file, 
-			String pluginID) { 
-		
+	public static ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
 		if (file instanceof IFile) {
-			return WORKSPACE_UTIL.createReadTextFileOp(action, (IFile) file, pluginID); 
+			return WORKSPACE_UTIL.createRead(action, (IFile) file);
 		}
 		else if (file instanceof IFileStore) {
 			IFileStore efsFile = (IFileStore) file;
 			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
 			if (iFile != null) {
-				return WORKSPACE_UTIL.createReadTextFileOp(action, iFile, pluginID);
+				return WORKSPACE_UTIL.createRead(action, iFile);
 			}
-			return EFS_UTIL.createReadTextFileOp(action, efsFile, pluginID);
+			return EFS_UTIL.createRead(action, efsFile);
 		}
 		throw new IllegalArgumentException("Unknown file object.");
 	}
@@ -281,7 +268,6 @@ public class FileUtil {
 		private InputStream fStream;
 		
 		public FileInput(InputStream input, String expliciteCharsetHint) throws IOException, CoreException {
-			
 			fStream = input;
 			if (expliciteCharsetHint != null) {
 				fDefaultEncoding = expliciteCharsetHint;
@@ -312,7 +298,7 @@ public class FileUtil {
 				}
 				else if (startsWith(bytes, IContentDescription.BOM_UTF_16LE)) {
 					next = IContentDescription.BOM_UTF_16LE.length;
-					fDefaultEncoding = FileUtil.UTF_16_LE; 
+					fDefaultEncoding = FileUtil.UTF_16_LE;
 				}
 				if (readed-next > 0) {
 					fStream = new SequenceInputStream(new ByteArrayInputStream(
@@ -326,7 +312,6 @@ public class FileUtil {
 		}
 		
 		private boolean startsWith(byte[] array, byte[] start) {
-			
 			for (int i = 0; i < start.length; i++) {
 				if (array[i] != start[i]) {
 					return false;
@@ -336,7 +321,6 @@ public class FileUtil {
 		}
 		
 		public void setEncoding(String encoding, boolean force) {
-			
 			if (encoding == null && fDefaultEncoding != null) {
 				fEncoding = fDefaultEncoding;
 			}
@@ -346,19 +330,16 @@ public class FileUtil {
 		}
 		
 		public void close() throws IOException {
-			
 			if (fStream != null) {
 				fStream.close();
 			}
 		}
 		
 		public String getDefaultCharset() {
-			
 			return fDefaultEncoding;
 		}
 		
 		public Reader getReader() throws UnsupportedEncodingException {
-			
 			return new InputStreamReader(fStream, fEncoding);
 		}
 
@@ -366,7 +347,6 @@ public class FileUtil {
 	}
 	
 	protected static void saveClose(Closeable stream) {
-		
 		if (stream != null) {
 			try {
 				stream.close();

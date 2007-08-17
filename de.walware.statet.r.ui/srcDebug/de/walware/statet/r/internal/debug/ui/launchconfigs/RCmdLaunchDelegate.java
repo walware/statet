@@ -37,8 +37,8 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.TextConsole;
 
 import de.walware.eclipsecommons.FileUtil;
+import de.walware.eclipsecommons.ICommonStatusConstants;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -124,7 +124,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			try {
 				p = builder.start();
 			} catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR,
+				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
 						RLaunchingMessages.LaunchDelegate_error_StartingExec, e));
 			}
 			monitor.worked(10);
@@ -140,7 +140,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			IProcess process = DebugPlugin.newProcess(launch, p, name, processAttributes);
 			if (process == null) {
 				p.destroy();
-				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR,
+				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
 						RLaunchingMessages.LaunchDelegate_error_ProcessHandle, null));
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));

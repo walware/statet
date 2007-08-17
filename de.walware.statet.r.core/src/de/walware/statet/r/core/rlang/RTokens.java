@@ -13,78 +13,107 @@ package de.walware.statet.r.core.rlang;
 
 import java.util.Arrays;
 
+
 /**
  * Provides definition and util-method for tokens of the R-language.
  * 'Tokes' means tokens according to R-language definition, they defines not
- * directly <code>Token</code>, implementions of <code>IToken</code>.  
+ * directly <code>Token</code>, implementions of <code>IToken</code>.
  *
  * @author Stephan Wahlbrink
  */
 public class RTokens {
 
-	public static final char COMMENT_CHAR = '#';
-	
-	// Reserved Words ---------------------------------------------------------
-	
-	// Special Constants
-	public static final String NULL = "NULL";
-	public static final String NA = "NA";
-	public static final String Inf = "Inf";
-	public static final String NaN = "NaN";
-	public static final String[] SPECIAL_CONSTANTS = {
-			NULL, NA, Inf, NaN,
+	public static final String[] SPECIAL_CONSTANTS = new String[] {
+			RTerminal.S_NULL,
+			RTerminal.S_NA,
+			RTerminal.S_NA_REAL,
+			RTerminal.S_NA_INT,
+			RTerminal.S_NA_CPLX,
+			RTerminal.S_NA_CHAR,
+			RTerminal.S_INF,
+			RTerminal.S_NAN,
 	};
 	
-	// Logical Constants
-	public static final String TRUE = "TRUE";
-	public static final String FALSE = "FALSE";
-	public static final String[] LOGICAL_CONSTANTS = { 
-			TRUE, FALSE,
+	public static final String[] LOGICAL_CONSTANTS = new String[] {
+			RTerminal.S_TRUE,
+			RTerminal.S_FALSE,
 	};
 	
-	// 
-	public static final String[] FLOWCONTROL_RESERVED_WORDS = {
-			"if", "else", "repeat", "while", "function", "for", "in", "next", "break",
+	public static final String[] FLOWCONTROL_RESERVED_WORDS = new String[] {
+			RTerminal.S_IF,
+			RTerminal.S_ELSE,
+			RTerminal.S_FOR,
+			RTerminal.S_IN,
+			RTerminal.S_WHILE,
+			RTerminal.S_REPEAT,
+			RTerminal.S_NEXT,
+			RTerminal.S_BREAK,
+			RTerminal.S_FUNCTION,
 	};
 	
-	// Operators --------------------------------------------------------------
-	
-	public static final String[] SEPARATORS = {
-			";", ",",
+	public static final String[] SEPARATORS = new String[] {
+			RTerminal.S_COMMA,
+			RTerminal.S_SEMI,
 	};
 	
-	public static final String[] ASSIGNMENT_OPERATORS = {
-			"<-", "->", "<<-", "->>", "=",
+	public static final String[] ASSIGNMENT_OPERATORS = new String[] {
+			RTerminal.S_ASSIGN_LEFT,
+			RTerminal.S_ASSIGN_LEFT_D,
+			RTerminal.S_ASSIGN_RIGHT,
+			RTerminal.S_ASSIGN_RIGHT_D,
+			RTerminal.S_EQUAL,
 	};
 	
-	public static final String[] OPERATORS_LOGICAL = {
-		"!", "&", "&&", "|", "||",
+	public static final String[] OPERATORS_LOGICAL = new String[] {
+			RTerminal.S_NOT,
+			RTerminal.S_AND,
+			RTerminal.S_AND_D,
+			RTerminal.S_OR,
+			RTerminal.S_OR_D,
 	};
-	public static final String[] OPERATORS_RELATIONAL = {
-		">", ">=", "<", "<=", "==", "!=",
+	
+	public static final String[] OPERATORS_RELATIONAL = new String[] {
+			RTerminal.S_REL_EQ,
+			RTerminal.S_REL_GT,
+			RTerminal.S_REL_GE,
+			RTerminal.S_REL_LE,
+			RTerminal.S_REL_LT,
+			RTerminal.S_REL_NE,
 	};
-	public static final String[] DEFAULT_OPERATORS = {
-			"+", "-", "*", "/", "^", "%%", "%/%",	// arithmetic
-			"!", "&", "&&", "|", "||",				// logical
-			"~", 									// model formulae
-			":",									// sequence
+	
+	public static final String[] DEFAULT_OPERATORS = new String[] {
+			RTerminal.S_PLUS,
+			RTerminal.S_MINUS,
+			RTerminal.S_MULT,
+			RTerminal.S_DIV,
+			RTerminal.S_POWER,
+			RTerminal.S_SEQ,
+			RTerminal.S_MODEL,
 	};
 	
 	public static final String[] PREDIFINED_INFIX_OPERATORS = {
-			"%%", 
+			"%%",
 			"%*%", "%/%", "%in%", "%o%", "%x%",
 	};
 	
-	public static final String[] GROUPING = {
-			"{", "}", "(", ")",
+	public static final String[] GROUPING = new String[] {
+			RTerminal.S_BLOCK_OPEN,
+			RTerminal.S_BLOCK_CLOSE,
+			RTerminal.S_GROUP_OPEN,
+			RTerminal.S_GROUP_CLOSE,
 	};
 	
-	public static final String[] SUBELEMENT_ACCESS = {
-			"[", "]", "$", "@"
+	public static final String[] SUBELEMENT_ACCESS = new String[] {
+			RTerminal.S_SUB_INDEXED_S_OPEN,
+			RTerminal.S_SUB_INDEXED_D_OPEN,
+			RTerminal.S_SUB_INDEXED_CLOSE,
+			RTerminal.S_SUB_NAMED,
+			RTerminal.S_SUB_AT,
 	};
 	
-	public static final String[] NAMESPACE_ACCESS = {
-			"::", ":::",
+	public static final String[] NAMESPACE_ACCESS = new String[] {
+			RTerminal.S_NS_GET,
+			RTerminal.S_NS_GET_INT,
 	};
 
 	
@@ -92,9 +121,9 @@ public class RTokens {
 	
 	public static final char[] SEPARATOR_CHARS = {
 			'!', '$', '%', '&', '(', ')',
-			'*', '+', ',', '-', '/', 
-			':', ';' , '<', '=', '>', 
-			'[', ']', '^', '{', '|', '}', '~', 
+			'*', '+', ',', '-', '/',
+			':', ';' , '<', '=', '>',
+			'[', ']', '^', '{', '|', '}', '~',
 			'@',
 	};
 	
@@ -146,6 +175,4 @@ public class RTokens {
 		return (c == WHITESPACE_CHARS[0] || c == WHITESPACE_CHARS[1]);
 	}
 
-	public static int PERIOD = 46;
-	
 }

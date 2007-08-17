@@ -34,10 +34,9 @@ public class WorkspaceUtilImpl extends FileUtil {
 	private static InputStream EMPTY_INPUT = new ByteArrayInputStream(new byte[0]);
 
 	
-	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, final IFile file, 
-			String pluginID) {
+	public ReadTextFileOperation createRead(final ReaderAction action, final IFile file) {
 		
-		return new ReadTextFileOperation(pluginID) {
+		return new ReadTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
 				return WorkspaceUtilImpl.this.getFileLabel(file);
@@ -61,13 +60,13 @@ public class WorkspaceUtilImpl extends FileUtil {
 			@Override
 			public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 				runAsWorkspaceRunnable(monitor, file);
-			}			
+			}
 		};
 	}
 
-	public WriteTextFileOperation createWriteTextFileOp(final String content, final IFile file, String pluginID) {
+	public WriteTextFileOperation createWrite(final String content, final IFile file) {
 		
-		return new WriteTextFileOperation(pluginID) {
+		return new WriteTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
 				return WorkspaceUtilImpl.this.getFileLabel(file);
@@ -89,13 +88,13 @@ public class WorkspaceUtilImpl extends FileUtil {
 						monitor.worked(20);
 					}
 						
-					file.appendContents(new ByteArrayInputStream(content.getBytes(fCharset)), 
-							(IFile.FORCE | IFile.KEEP_HISTORY), 
+					file.appendContents(new ByteArrayInputStream(content.getBytes(fCharset)),
+							(IFile.FORCE | IFile.KEEP_HISTORY),
 							new SubProgressMonitor(monitor, 80));
 				}
 				else {
 					if (exists && ((fMode & EFS.OVERWRITE) != 0)) {
-						file.setContents(EMPTY_INPUT, IFile.FORCE | IFile.KEEP_HISTORY, 
+						file.setContents(EMPTY_INPUT, IFile.FORCE | IFile.KEEP_HISTORY,
 								new SubProgressMonitor(monitor, 15));
 					}
 					else {
@@ -106,7 +105,7 @@ public class WorkspaceUtilImpl extends FileUtil {
 					} else {
 						monitor.worked(5);
 					}
-					file.setContents(new ByteArrayInputStream(content.getBytes(fCharset)), 
+					file.setContents(new ByteArrayInputStream(content.getBytes(fCharset)),
 							IFile.NONE, new SubProgressMonitor(monitor, 80));
 				}
 			}
@@ -114,7 +113,6 @@ public class WorkspaceUtilImpl extends FileUtil {
 	}
 
 	private String getFileLabel(IFile ifile) {
-		
 		return "'"+ifile.getFullPath().makeRelative().toString()+"' (workspace)";
 	}
 

@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.nico.ui;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
@@ -38,24 +40,31 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	public static final String ID = "de.walware.statet.r.launching.RNewConsoleConnector"; //$NON-NLS-1$
 	
 	
-	public boolean submit(String[] rCommands, boolean gotoConsole) throws CoreException {
-		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-		ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
-		ToolProcess process = info.getProcess();
-		if (process != null) {
-			ToolController controller = process.getController();
-			if (controller != null) {
-				controller.submit(rCommands, SubmitType.EDITOR);
-				NIConsole console = info.getConsole();
-				if (console != null) {
-					NicoUITools.showConsole(console, page, gotoConsole);
+	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
+		final AtomicReference<Boolean> success = new AtomicReference<Boolean>(Boolean.FALSE);
+		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
+			public void run() throws CoreException {
+				IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
+				ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
+				ToolProcess process = info.getProcess();
+				if (process != null) {
+					ToolController controller = process.getController();
+					if (controller != null) {
+						controller.submit(rCommands, SubmitType.EDITOR);
+						NIConsole console = info.getConsole();
+						if (console != null) {
+							NicoUITools.showConsole(console, page, gotoConsole);
+						}
+						success.set(Boolean.TRUE);
+						return;
+					}
 				}
-				return true;
+				
+				// error
+				UIAccess.getDisplay().beep();
 			}
-		}
-		
-		UIAccess.getDisplay().beep();
-		return false;
+		});
+		return success.get().booleanValue();
 	}
 	
 	public void gotoConsole() throws CoreException {
@@ -64,6 +73,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 		NIConsole console = info.getConsole();
 		if (console != null) {
 			NicoUITools.showConsole(console, page, true);
+			return;
 		}
 		else {
 			IWorkbenchPart part = page.getActivePart();

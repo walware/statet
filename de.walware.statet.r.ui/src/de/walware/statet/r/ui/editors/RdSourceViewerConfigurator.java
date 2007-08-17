@@ -28,7 +28,7 @@ import de.walware.statet.ext.ui.text.PairMatcher;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**

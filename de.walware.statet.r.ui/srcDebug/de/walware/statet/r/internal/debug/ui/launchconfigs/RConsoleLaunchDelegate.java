@@ -32,9 +32,9 @@ import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.base.ui.util.ExceptionHandler;
@@ -79,7 +79,7 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 
 			String type = configuration.getAttribute(RConsoleMainTab.ATTR_TYPE, "").trim(); //$NON-NLS-1$
 			if (!type.equals("rterm")) { //$NON-NLS-1$
-				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						NLS.bind("R Console launch type ''{0}'' is not available.", type), null));
 			}
 
@@ -122,7 +122,7 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 					charset = Charset.defaultCharset();
 				}
 			} catch (Exception e) {
-				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						NLS.bind("Invalid or unsupported console encoding ''{0}''.", encoding), e));
 			}
 

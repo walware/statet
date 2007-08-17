@@ -28,7 +28,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.eclipsecommons.ICommonStatusConstants;
+
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -131,10 +132,16 @@ public class RTermController
 								streamLock.lock();
 								locked = true;
 							}
-							fDefaultOutputStream.append(new String(b, 0, n), SubmitType.CONSOLE, 0);
+							String s = new String(b, 0, n);
+							fDefaultOutputStream.append(s, SubmitType.CONSOLE, 0);
+							n = s.length();
+							if (n >= 2 && s.charAt(--n) == ' ' && (s.charAt(--n) == '>' || s.charAt(n) == '+')) {
+								hasNoOutput++;
+								getControllerThread().interrupt();
+							}
 							continue;
 						}
-						if (n < 0) {
+						else if (n < 0) {
 							onRTerminated();
 							return;
 						}
@@ -212,7 +219,7 @@ public class RTermController
 				} catch (IOException e1) {
 				}
 			}
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHING_ERROR,
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
 				"An error occured while starting Rterm process.", e));
 		}
 		

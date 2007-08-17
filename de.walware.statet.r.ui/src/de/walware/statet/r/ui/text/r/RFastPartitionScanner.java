@@ -22,7 +22,7 @@ import org.eclipse.jface.text.rules.Token;
 
 import de.walware.eclipsecommons.ui.text.BufferedDocumentScanner;
 
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**

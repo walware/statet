@@ -30,13 +30,14 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
+
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.IStatetContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
+import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;
-import de.walware.statet.r.ui.text.r.RIndentation;
-import de.walware.statet.r.ui.text.r.RIndentation.IndentEditAction;
 
 
 public class REditorContext extends DocumentTemplateContext implements IStatetContext {
@@ -121,29 +122,28 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 	public void setVariable(String name, String value) {
 		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
 			try {
-				IDocument valueDoc = new Document(value);
-				final RIndentation indent = new RIndentation(valueDoc, fEditor.getRCoreAccess().getRCodeStyle());
-				int depth = indent.getMultilineIndentationDepth(0, valueDoc.getNumberOfLines()-1);
-				if (depth > 0) {
-					IndentEditAction action = indent.new IndentEditAction(depth) {
+				final IDocument valueDoc = new Document(value);
+				final RIndentUtil util = new RIndentUtil(valueDoc, fEditor.getRCoreAccess().getRCodeStyle());
+				final int column = util.getMultilineIndentColumn(0, valueDoc.getNumberOfLines()-1);
+				if (column > 0) {
+					IndentEditAction action = new IndentEditAction(column) {
 						@Override
-						public TextEdit createEdit(int offset, int length, StringBuilder text) throws BadLocationException {
-							int position = indent.getIndentedIndex(text, getDepth());
-							return new ReplaceEdit(offset, length, text.substring(position, text.length()));
-						}
-						@Override
-						public TextEdit createEdit(int offset) throws BadLocationException {
-							int end = indent.getIndentedOffset(getDocument().getLineOfOffset(offset), getDepth());
-							return new DeleteEdit(offset, end-offset);
-						}
-					};
-					for (int line = 0; line < valueDoc.getNumberOfLines(); line++) {
-						TextEdit edit = indent.edit(line, action);
-						if (edit != null) {
+						public void doEdit(int line, int offset, int length, StringBuilder text)
+								throws BadLocationException {
+							TextEdit edit;
+							if (text != null) {
+								int position = util.getIndentedIndex(text, column);
+								edit = new ReplaceEdit(offset, length, text.substring(position, text.length()));
+							}
+							else {
+								int end = util.getIndentedOffsetAt(line, column);
+								edit = new DeleteEdit(offset, end-offset);
+							}
 							edit.apply(valueDoc, 0);
 						}
-					}
-					setVariable("indentation", indent.createIndentationString(depth)); //$NON-NLS-1$
+					};
+					util.editInIndent(0, valueDoc.getNumberOfLines()-1, action);
+					setVariable("indentation", util.createIndentString(column)); //$NON-NLS-1$
 					value = valueDoc.get();
 				}
 			}

@@ -25,7 +25,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
+import de.walware.statet.base.core.StatetCore;
+
 import de.walware.eclipsecommons.FileUtil;
+import de.walware.eclipsecommons.ICommonStatusConstants;
 
 
 /**
@@ -33,10 +36,9 @@ import de.walware.eclipsecommons.FileUtil;
  */
 public class EFSUtilImpl extends FileUtil {
 
-	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, final IFileStore file,
-			String pluginID) { 
+	public ReadTextFileOperation createRead(final ReaderAction action, final IFileStore file) {
 		
-		return new ReadTextFileOperation(pluginID) {
+		return new ReadTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
 				return EFSUtilImpl.this.getFileLabel(file);
@@ -59,9 +61,9 @@ public class EFSUtilImpl extends FileUtil {
 		};
 	}
 
-	public WriteTextFileOperation createWriteTextFileOp(final String content, final IFileStore file, final String pluginID) {
+	public WriteTextFileOperation createWrite(final String content, final IFileStore file) {
 		
-		return new WriteTextFileOperation(pluginID) {
+		return new WriteTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
 				return EFSUtilImpl.this.getFileLabel(file);
@@ -73,7 +75,7 @@ public class EFSUtilImpl extends FileUtil {
 				try {
 					boolean exists = file.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
 					if (exists && (fMode & (EFS.OVERWRITE | EFS.APPEND)) == 0) {
-						throw new CoreException(new Status(IStatus.ERROR, pluginID, 0,
+						throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 								"The file already exists.", null));
 					}
 					if (exists && (fMode & EFS.APPEND) != 0 && !fForceCharset) {
@@ -99,7 +101,7 @@ public class EFSUtilImpl extends FileUtil {
 					out.write(content);
 					monitor.worked(75);
 					out.flush();
-				} 
+				}
 				finally {
 					saveClose(out);
 				}

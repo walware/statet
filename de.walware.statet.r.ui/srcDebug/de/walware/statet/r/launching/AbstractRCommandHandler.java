@@ -75,7 +75,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 		try {
 			RCodeLaunchRegistry.runRCodeDirect(new String[] { cmd }, gotoConsole);
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, NLS.bind(RLaunchingMessages.RCommandLaunch_error_message, fName));
+			ExceptionHandler.handle(e, NLS.bind(RLaunchingMessages.RSpecifiedLaunch_error_message, fName));
 		}
 	}
 	

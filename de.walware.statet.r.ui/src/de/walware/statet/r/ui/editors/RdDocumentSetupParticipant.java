@@ -16,8 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.Partitioner;
-import de.walware.statet.r.ui.IRDocumentPartitions;
 import de.walware.statet.r.ui.text.rd.RdFastPartitionScanner;
 
 

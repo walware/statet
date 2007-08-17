@@ -36,23 +36,24 @@
             parentId="org.eclipse.ui.textEditorScope"/>
    </extension>
    <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution locationURI="menu:edit">
-         <command
-               commandId="de.walware.statet.base.commands.ToggleComment"
-               label="%menuCommand.ToggleComment.label"
-               style="push">
-            <visibleWhen checkEnabled="true"/>
-         </command>
-      </menuContribution>
-      <menuContribution locationURI="menu:goTo">
-         <command
-               commandId="de.walware.statet.base.commands.GotoMatchingBracket"
-               label="%menuCommand.GotoMatchingBracket.label"
-               style="push">
-            <visibleWhen checkEnabled="true"/>
-         </command>
-      </menuContribution>
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="de.walware.statet.base.contexts.EditSourceActionSet"
+            label="StatET Source Editing">
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.walware.statet.base.expressions.EditSourceActionSet">
+              <with variable="activeContexts">
+                 <iterate
+                       operator="or">
+                    <equals value="de.walware.statet.base.contexts.EditSourceActionSet">
+                    </equals>
+                 </iterate>
+              </with>
+      </definition>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -80,6 +81,12 @@
             description="%commands.AddDocComment.description"
             id="de.walware.statet.base.commands.AddDocComment"
             name="%commands.AddDocComment.name"/>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            description="%commands.CorrectIndent.description"
+            id="de.walware.statet.base.commands.CorrectIndent"
+            name="%commands.CorrectIndent.name">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -113,6 +120,11 @@
             contextId="de.walware.statet.base.contexts.TextEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M2+/"/>
+      <key
+            commandId="de.walware.statet.base.commands.CorrectIndent"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+I"/>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -213,6 +225,70 @@
       <category
             id="de.walware.statet.base.views.StatetCategory"
             name="StatET"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=edit">
+         <menu
+               id="de.walware.statet.base.menus.MainStatSource"
+               label="Source"
+               mnemonic="S">
+            <separator
+                  name="comment"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="de.walware.statet.base.commands.ToggleComment"
+                  label="%commands.ToggleComment.name"
+                  mnemonic="%menus.Source_ToggleComment.mnemonic">
+            </command>
+            <command
+                  commandId="de.walware.statet.base.commands.AddDocComment"
+                  label="%commands.AddDocComment.name"
+                  mnemonic="%menus.Source_AddDocComment.mnemonic">
+            </command>
+            <separator
+                  name="format"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="org.eclipse.ui.edit.text.shiftRight"
+                  mnemonic="%menus.Source_ShiftRight.mnemonic">
+            </command>
+            <command
+                  commandId="org.eclipse.ui.edit.text.shiftLeft"
+                  mnemonic="%menus.Source_ShiftLeft.mnemonic">
+            </command>
+            <command
+                  commandId="de.walware.statet.base.commands.CorrectIndent"
+                  label="%commands.CorrectIndent.name"
+                  mnemonic="%menus.Source_CorrectIndent.mnemonic">
+            </command>
+            <separator
+                  name="additions"
+                  visible="false">
+            </separator>
+            <visibleWhen>
+               <reference
+                     definitionId="de.walware.statet.base.expressions.EditSourceActionSet">
+               </reference>
+           </visibleWhen>
+         </menu>
+      </menuContribution>
+      <menuContribution locationURI="menu:goTo">
+         <command
+               commandId="de.walware.statet.base.commands.GotoMatchingBracket"
+               label="%menuCommand.GotoMatchingBracket.label"
+               mnemonic="%menus.Nav_GoTo_GotoMatchingBracket.mnemonic"
+               style="push">
+            <visibleWhen>
+               <reference
+                     definitionId="de.walware.statet.base.expressions.EditSourceActionSet">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
 
 </plugin>

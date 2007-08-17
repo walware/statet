@@ -30,6 +30,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -41,6 +42,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -52,7 +54,7 @@ import de.walware.statet.ext.core.StatextProject;
 import de.walware.statet.ext.ui.text.PairMatcher;
 
 
-public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
+public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT extends IContentOutlinePage> extends TextEditor
 		implements SettingsChangeNotifier.ChangeListener {
 
 	
@@ -73,10 +75,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 		try {
 			IRegion line = document.getLineInformationOfOffset(selection.getOffset());
-			int length = (selection.getLength() == 0) ? 
+			int length = (selection.getLength() == 0) ?
 					line.getLength() : selection.getLength() + (selection.getOffset() - line.getOffset());
 			return new Region(line.getOffset(), length);
-		} 
+		}
 		catch (BadLocationException x) {
 			StatetUIPlugin.logUnexpectedError(x);					// should not happen
 		}
@@ -117,8 +119,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			StatextEditor1.this.setStatusLineErrorMessage(message);
 		}
 		
-		public ISourceViewer getSourceViewer() {
-			return StatextEditor1.this.getSourceViewer();
+		public SourceViewer getSourceViewer() {
+			return (SourceViewer) StatextEditor1.this.getSourceViewer();
 		}
 		
 		public boolean isEditable(boolean validate) {
@@ -140,11 +142,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 		ToggleCommentAction() {
 			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this); //$NON-NLS-1$
-			setActionDefinitionId(IStatetUICommandIds.TOGGLE_COMMENT);		
+			setActionDefinitionId(IStatetUICommandIds.TOGGLE_COMMENT);
 			
 			configure();
 		}
 
+		@Override
 		public void run() {
 			ISourceViewer sourceViewer = getSourceViewer();
 			
@@ -178,6 +181,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		 * <code>ITextOperationTarget</code> adapter, and sets the enabled state
 		 * accordingly.
 		 */
+		@Override
 		public void update() {
 			super.update();
 
@@ -190,8 +194,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			if (fOperationTarget == null && editor != null)
 				fOperationTarget = (ITextOperationTarget) editor.getAdapter(ITextOperationTarget.class);
 
-			setEnabled(fOperationTarget != null 
-					&& fOperationTarget.canDoOperation(ITextOperationTarget.PREFIX) 
+			setEnabled(fOperationTarget != null
+					&& fOperationTarget.canDoOperation(ITextOperationTarget.PREFIX)
 					&& fOperationTarget.canDoOperation(ITextOperationTarget.STRIP_PREFIX) );
 		}
 		
@@ -263,7 +267,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 				// Perform the check
 				for (int i = 0, j = 0; i < regions.length; i++, j+=2) {
-					String[] prefixes = (String[]) fPrefixesMap.get(regions[i].getType());
+					String[] prefixes = fPrefixesMap.get(regions[i].getType());
 					if (prefixes != null && prefixes.length > 0 && lines[j] >= 0 && lines[j + 1] >= 0)
 						if (!isBlockCommented(lines[j], lines[j + 1], prefixes, document))
 							return false;
@@ -325,6 +329,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private SourceViewerConfigurator fConfigurator;
 	private String fProjectNatureId;
 	private ProjectT fProject;
+
+	/** The outline page */
+	private OutlineT fOutlinePage;
 	
 	
 /*- Contructors ------------------------------------------------------------*/
@@ -382,7 +389,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 
 		if (input != null) {
 			setupConfiguration(prevProject, fProject, input);
-		
+			if (fOutlinePage != null) {
+				updateOutlinePageInput(fOutlinePage);
+			}
 			if (sourceViewer != null) {
 				fConfigurator.configureTarget();
 			}
@@ -444,9 +453,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 
 		action = new ToggleCommentAction();
-		setAction(ACTION_ID_TOGGLE_COMMENT, action); //$NON-NLS-1$
-		markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true); //$NON-NLS-1$
-		
+		setAction(ACTION_ID_TOGGLE_COMMENT, action);
+		markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true);
+
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}
 
@@ -455,6 +464,15 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	public Object getAdapter(Class adapter) {
 		if (IEditorAdapter.class.equals(adapter)) {
 			return fEditorAdapter;
+		}
+		if (IContentOutlinePage.class.equals(adapter)) {
+			if (fOutlinePage == null) {
+				fOutlinePage = createOutlinePage();
+				if (fOutlinePage != null) {
+					updateOutlinePageInput(fOutlinePage);
+				}
+			}
+			return fOutlinePage;
 		}
 		return super.getAdapter(adapter);
 	}
@@ -471,6 +489,25 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	protected void handleSettingsChanged(Set<String> contexts) {
 		fConfigurator.handleSettingsChanged(contexts, null);
 	}
+	
+
+	protected OutlineT createOutlinePage() {
+		return null;
+	}
+	
+	protected void updateOutlinePageInput(OutlineT page) {
+	}
+	
+	void handleOutlinePageClosed() {
+		if (fOutlinePage != null) {
+			fOutlinePage = null;
+			resetHighlightRange();
+		}
+	}
+
+	
+	
+	
 	
 	@Override
 	public void dispose() {

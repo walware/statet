@@ -22,9 +22,14 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
+import org.eclipse.ui.texteditor.spelling.SpellingService;
 
+import de.walware.eclipsecommons.ui.text.EcoReconciler;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.editors.ContentAssistPreference;
@@ -36,12 +41,13 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.RIndentUtil;
+import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.RCodeScanner;
 import de.walware.statet.r.ui.text.r.RCommentScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
-import de.walware.statet.r.ui.text.r.RIndentation;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
 import de.walware.statet.r.ui.text.r.RStringScanner;
 
@@ -156,7 +162,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			for (int i = prefixes.length-2; i > 0; i--) {
 				prefixes[i] = prefixes[i-1];
 			}
-			prefixes[0] = new String(RIndentation.repeat(' ', codeStyle.getIndentSpacesCount()));
+			prefixes[0] = new String(RIndentUtil.repeat(' ', codeStyle.getIndentSpacesCount()));
 		}
 		return prefixes;
 	}
@@ -172,10 +178,31 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	@Override
 	public IReconciler getReconciler(ISourceViewer sourceViewer) {
-		if (fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)) {
-			return super.getReconciler(sourceViewer);
+		if (fEditor == null) { // at moment only for editors
+			return null;
 		}
-		return null;
+		EcoReconciler reconciler = new EcoReconciler(fEditor);
+		reconciler.setDelay(333);
+		reconciler.addReconcilingStrategy(new RReconcilingStrategy());
+		
+		IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
+		if (spellingStrategy != null) {
+			reconciler.addReconcilingStrategy(spellingStrategy);
+		}
+		
+		return reconciler;
+	}
+	
+	protected IReconcilingStrategy getSpellingStrategy(ISourceViewer sourceViewer) {
+		if (!(fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)
+				&& fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) ) {
+			return null;
+		}
+		SpellingService spellingService = EditorsUI.getSpellingService();
+		if (spellingService.getActiveSpellingEngineDescriptor(fPreferenceStore) == null) {
+			return null;
+		}
+		return new SpellingReconcileStrategy(sourceViewer, spellingService);
 	}
 	
 	@Override
@@ -188,13 +215,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
-		if (!contentType.equals(IRDocumentPartitions.R_STRING)) {
-			if (fRAutoEditStrategy == null) {
-				fRAutoEditStrategy = new RAutoEditStrategy(fRCoreAccess, fEditor);
-			}
-			return new IAutoEditStrategy[] { fRAutoEditStrategy };
+		if (fRAutoEditStrategy == null) {
+			fRAutoEditStrategy = new RAutoEditStrategy(fRCoreAccess, fEditor);
 		}
-		return new IAutoEditStrategy[0];
+		return new IAutoEditStrategy[] { fRAutoEditStrategy };
 	}
 	
 	@Override

@@ -11,8 +11,15 @@
 
 package de.walware.statet.r.core;
 
+import org.eclipse.core.resources.IFile;
+
+import de.walware.eclipsecommons.ltk.IElementChangedListener;
+import de.walware.eclipsecommons.ltk.WorkingContext;
+
 import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.core.rmodel.RSourceUnit;
 
 
 /**
@@ -22,6 +29,9 @@ public class RCore {
 
 	
 	public static final String PLUGIN_ID = "de.walware.statet.r.core"; //$NON-NLS-1$
+
+	public static final WorkingContext PERSISTENCE_CONTEXT = RCorePlugin.getDefault().createContext(0);
+	public static final WorkingContext PRIMARY_WORKING_CONTEXT = RCorePlugin.getDefault().createContext(1);
 
 
 	/**
@@ -45,4 +55,27 @@ public class RCore {
 		return RCorePlugin.getDefault().getREnvManager();
 	}
 	
+	public static void addRElementChangedListener(IElementChangedListener listener, WorkingContext context) {
+		RCorePlugin.getDefault().getRModelManager().addElementChangedListener(listener, context);
+	}
+	
+	public static void removeRElementChangedListener(IElementChangedListener listener, WorkingContext context) {
+		RCorePlugin.getDefault().getRModelManager().removeElementChangedListener(listener, context);
+	}
+	
+	public static IRSourceUnit getUnit(IFile file) {
+		String id = RSourceUnit.createResourceId(file);
+		if (id == null) {
+			return null;
+		}
+		synchronized (RCore.PERSISTENCE_CONTEXT) {
+			IRSourceUnit u = RCorePlugin.getDefault().getRModelManager().getWorkingCopy(id, RCore.PERSISTENCE_CONTEXT);
+			if (u == null) {
+				u = new RSourceUnit(file);
+			}
+			u.connect();
+			return u;
+		}
+	}
+
 }

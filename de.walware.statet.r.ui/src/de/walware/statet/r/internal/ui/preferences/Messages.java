@@ -90,11 +90,14 @@ public class Messages extends NLS {
 	public static String RCodeStyle_Indent_DefaultType_label;
 	public static String RCodeStyle_Indent_Type_UseTabs_name;
 	public static String RCodeStyle_Indent_Type_UseSpaces_name;
+	public static String RCodeStyle_Indent_ConserveExisting_label;
 	public static String RCodeStyle_Indent_NumOfSpaces_label;
 	public static String RCodeStyle_Indent_NumOfSpaces_error_message;
 	public static String RCodeStyle_Indent_ReplaceOtherTabs_label;
-	public static String RCodeStyle_Indent_IndentOfBlocks_error_message;
-	public static String RCodeStyle_Indent_IndentOfBlocks_label;
+	public static String RCodeStyle_Indent_IndentInBlocks_label;
+	public static String RCodeStyle_Indent_IndentInBlocks_error_message;
+	public static String RCodeStyle_Indent_IndentInGroups_label;
+	public static String RCodeStyle_Indent_IndentInGroups_error_message;
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_label;
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_error_message;
 	public static String RCodeStyle_Indent_Strategy_Levels_label;

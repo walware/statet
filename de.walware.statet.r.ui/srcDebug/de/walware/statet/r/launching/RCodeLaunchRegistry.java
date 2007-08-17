@@ -34,10 +34,10 @@ import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.Preference.StringPref;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector;
@@ -235,7 +235,7 @@ public class RCodeLaunchRegistry implements IPreferenceChangeListener {
 					throw new CoreException(new Status(
 							IStatus.ERROR,
 							RUI.PLUGIN_ID,
-							IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+							ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 							NLS.bind("Error loading R Launch Connector ''{0}''.", elements[i].getAttribute(ATT_NAME)), e.getCause() //$NON-NLS-1$
 							));
 				}

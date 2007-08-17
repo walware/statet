@@ -11,11 +11,11 @@
 
 package de.walware.statet.r.ui.editors;
 
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_COMMENT;
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_DEFAULT;
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING;
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_PARTITIONS;
-import static de.walware.statet.r.ui.IRDocumentPartitions.RDOC_PLATFORM_SPECIF;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_COMMENT;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_DEFAULT;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_PARTITIONS;
+import static de.walware.statet.r.core.rsource.IRDocumentPartitions.RDOC_PLATFORM_SPECIF;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.COMMENT;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.PLATFORM_SPECIF;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.TASK_TAG;

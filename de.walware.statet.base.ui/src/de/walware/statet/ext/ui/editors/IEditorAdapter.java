@@ -11,7 +11,7 @@
 
 package de.walware.statet.ext.ui.editors;
 
-import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 
 
 public interface IEditorAdapter {
@@ -21,7 +21,7 @@ public interface IEditorAdapter {
 	 * 
 	 * @return the source viewer of the editor.
 	 */
-	public ISourceViewer getSourceViewer();
+	public SourceViewer getSourceViewer();
 	
 	/**
 	 * Shows the message to the status line, if possible.

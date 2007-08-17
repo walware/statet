@@ -49,4 +49,13 @@ public interface IStatetUICommandIds {
 	 * Value: @value
 	 */
 	public static final String ADD_DOC_COMMENT =        "de.walware.statet.base.commands.AddDocComment"; //$NON-NLS-1$
+	
+	/**
+	 * Action definition ID of the 'correct indentation' action
+	 * 
+	 * Value: @value
+	 */
+	public static final String CORRECT_INDENT =        "de.walware.statet.base.commands.CorrectIndent"; //$NON-NLS-1$
+	
+	
 }

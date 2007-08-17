@@ -21,7 +21,8 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 
 
 /**
@@ -118,7 +119,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				textViewer.setSelectedRange(region.getOffset(), region.getLength());
 				return;
 			}
-			region = fScanner.findBlankRegion(offset);
+			region = fScanner.findBlankRegion(offset, false);
 			if (region != null) {
 				textViewer.setSelectedRange(region.getOffset(), region.getLength());
 				return;

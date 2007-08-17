@@ -41,4 +41,5 @@ public class RCorePreferenceInitializer extends AbstractPreferenceInitializer {
 		}
 	}
 
+
 }

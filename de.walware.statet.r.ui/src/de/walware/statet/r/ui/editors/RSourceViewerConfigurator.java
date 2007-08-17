@@ -44,7 +44,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 
 	
 	private static final Set<String> INPUT_CHANGE_CONTEXTS = new HashSet<String>(Arrays.asList(new String[] {
-			RCodeStyleSettings.CONTEXT_ID, 
+			RCodeStyleSettings.CONTEXT_ID,
 			TaskTagsPreferences.CONTEXT_ID,
 	}));
 	
@@ -120,6 +120,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		}
 	}
 	
+	@Override
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
 		ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
@@ -147,6 +148,9 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	protected void updateSourceViewer(ISourceViewer viewer) {
+		if (!fIsConfigured) {
+			return;
+		}
 		if (fUpdateCompleteConfig) {
 			reconfigureSourceViewer();
 		}

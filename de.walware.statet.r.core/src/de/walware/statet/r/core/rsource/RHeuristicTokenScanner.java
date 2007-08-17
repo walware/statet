@@ -9,13 +9,13 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.ui.text.r;
+package de.walware.statet.r.core.rsource;
 
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.statet.ext.ui.text.BasicHeuristicTokenScanner;
+import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
+
 import de.walware.statet.r.core.rlang.RTokens;
-import de.walware.statet.r.ui.IRDocumentPartitions;
 
 
 /**

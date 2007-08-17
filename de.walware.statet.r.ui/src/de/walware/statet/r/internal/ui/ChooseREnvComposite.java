@@ -218,17 +218,18 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	
 	public void setSetting(REnvSetting setting) {
 		SettingsType type = (setting != null) ? setting.getType() : null;
-		switch (type) {
-		case SPECIFIC:
+		if (type == SettingsType.SPECIFIC) {
 			fWorkbenchDefaultButton.setSelection(false);
 			fSpecificButton.setSelection(true);
 			setSpecified(RCore.getREnvManager().get(setting.getDetails()[0], setting.getDetails()[1]));
-			break;
-		case WORKBENCH:
-		default:
+		}
+		else if (type == SettingsType.WORKBENCH) {
 			fWorkbenchDefaultButton.setSelection(true);
 			fSpecificButton.setSelection(false);
-			break;
+		}
+		else {
+			fWorkbenchDefaultButton.setSelection(false);
+			fSpecificButton.setSelection(false);
 		}
 		updateState(false);
 	}

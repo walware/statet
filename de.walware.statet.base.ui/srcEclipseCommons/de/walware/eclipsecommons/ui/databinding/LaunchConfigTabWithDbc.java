@@ -27,7 +27,8 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.statet.base.IStatetStatusConstants;
+import de.walware.eclipsecommons.ICommonStatusConstants;
+
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
@@ -149,7 +150,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 	}
 	
 	protected void logReadingError(CoreException e) {
-		StatetUIPlugin.log(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+		StatetUIPlugin.log(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 				NLS.bind("An error occurred while reading launch configuration (name: ''{0}'', id: ''{1}'')", getName(), getId()), e)); //$NON-NLS-1$
 	}
 	

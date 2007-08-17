@@ -71,6 +71,15 @@
       </editor>
    </extension>
    <extension
+         point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation
+            targetID="de.walware.statet.base.contexts.EditSourceActionSet">
+         <part
+               id="de.walware.statet.r.editors.R">
+         </part>
+      </actionSetPartAssociation>
+   </extension>
+   <extension
          point="org.eclipse.ui.contexts">
       <context
             description="%categorys.RSource.description"
@@ -468,7 +477,7 @@
             class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectAndConsoleLaunchShortcut"
             icon="icons/tool_16/run_r-selection.gif"
             id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndConsole"
-            label="%launchShortcuts.RunRSelectionDirect"
+            label="%launchShortcuts.RunRSelectionDirectAndGotoConsole"
             modes="run"
             path="statet/r">
          <enablement>
@@ -491,6 +500,90 @@
             icon="icons/tool_16/run_r-selection.gif"
             id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndNextLine"
             label="%launchShortcuts.RunRSelectionDirectAndGotoNextLine"
+            modes="run"
+            path="statet/r">
+         <enablement>
+            <with variable="selection">
+               <count value="1"/>
+               <iterate>
+                  <and>
+                  <test
+                        property="org.eclipse.debug.ui.matchesContentType"
+                        value="org.eclipse.core.runtime.text"/>
+                  <instanceof value="org.eclipse.ui.IEditorInput"/>
+                  </and>
+               </iterate>
+            </with>
+         </enablement>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.other"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RFunctionDirectLaunchShortcut"
+            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirect"
+            label="%launchShortcuts.RunRFunctionDirect"
+            modes="run"
+            path="statet/r">
+         <enablement>
+            <with variable="selection">
+               <count value="1"/>
+               <iterate>
+                  <and>
+                  <test
+                        property="org.eclipse.debug.ui.matchesContentType"
+                        value="org.eclipse.core.runtime.text"/>
+                  <instanceof value="org.eclipse.ui.IEditorInput"/>
+                  </and>
+               </iterate>
+            </with>
+         </enablement>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.other"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RFunctionDirectAndConsoleLaunchShortcut"
+            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirectAndConsole"
+            label="%launchShortcuts.RunRFunctionDirectAndGotoConsole"
+            modes="run"
+            path="statet/r">
+         <enablement>
+            <with variable="selection">
+               <count value="1"/>
+               <iterate>
+                  <and>
+                  <test
+                        property="org.eclipse.debug.ui.matchesContentType"
+                        value="org.eclipse.core.runtime.text"/>
+                  <instanceof value="org.eclipse.ui.IEditorInput"/>
+                  </and>
+               </iterate>
+            </with>
+         </enablement>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.other"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RCommandDirectLaunchShortcut"
+            id="de.walware.statet.r.launchShortcuts.REditorCommandDirect"
+            label="%launchShortcuts.RunRCommandDirect"
+            modes="run"
+            path="statet/r">
+         <enablement>
+            <with variable="selection">
+               <count value="1"/>
+               <iterate>
+                  <and>
+                  <test
+                        property="org.eclipse.debug.ui.matchesContentType"
+                        value="org.eclipse.core.runtime.text"/>
+                  <instanceof value="org.eclipse.ui.IEditorInput"/>
+                  </and>
+               </iterate>
+            </with>
+         </enablement>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.other"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RCommandDirectAndConsoleLaunchShortcut"
+            id="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndConsole"
+            label="%launchShortcuts.RunRCommandDirectAndGotoConsole"
             modes="run"
             path="statet/r">
          <enablement>
@@ -574,6 +667,26 @@
       </command>
       <command
             categoryId="org.eclipse.debug.ui.category.run"
+            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirect.run"
+            name="%commands.RunRFunctionDirect.name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirectAndConsole.run"
+            name="%commands.RunRFunctionDirectAndGotoConsole.name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="de.walware.statet.r.launchShortcuts.REditorCommandDirect.run"
+            name="%commands.RunRCommandDirect.name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndConsole.run"
+            name="%commands.RunRCommandDirectAndGotoConsole.name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
             defaultHandler="de.walware.statet.r.internal.debug.ui.GotoRConsole"
             id="de.walware.statet.r.commands.GotoRConsole"
             name="%commands.GotoRConsole"/>
@@ -622,12 +735,32 @@
             commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndNextLine.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+E"/>
+            sequence="M1+R M1+4"/>
       <key
             commandId="de.walware.statet.r.commands.GotoRConsole"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R C"/>
+      <key
+            commandId="de.walware.statet.r.launchShortcuts.REditorFunctionDirect.run"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+F"/>
+      <key
+            commandId="de.walware.statet.r.launchShortcuts.REditorFunctionDirectAndConsole.run"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R F"/>
+      <key
+            commandId="de.walware.statet.r.launchShortcuts.REditorCommandDirect.run"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+E"/>
+      <key
+            commandId="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndConsole.run"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R E"/>
    </extension>
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
@@ -641,6 +774,13 @@
             description="%rConnector_EclipseTextConsole_description"
             id="de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"
             name="%rConnector_EclipseTextConsole_name"/>
+   </extension>
+   <extension
+         point="de.walware.statet.r.workingContexts">
+      <context
+            class="de.walware.eclipsecommons.ui.WorkbenchDefaultContext"
+            primary="true">
+      </context>
    </extension>
 
 </plugin>

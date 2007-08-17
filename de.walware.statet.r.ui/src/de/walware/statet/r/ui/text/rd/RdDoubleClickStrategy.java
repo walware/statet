@@ -21,7 +21,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**

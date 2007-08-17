@@ -14,6 +14,7 @@ package de.walware.statet.r.ui.editors;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
@@ -21,7 +22,7 @@ import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class RdEditor extends StatextEditor1<RProject> {
+public class RdEditor extends StatextEditor1<RProject, IContentOutlinePage> {
 
 	
 	RdSourceViewerConfigurator fRdConfig;

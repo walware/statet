@@ -42,7 +42,7 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.RResourceUnit;
+import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.core.builder.MarkerHandler;
 import de.walware.statet.r.internal.core.builder.RParser;
 import de.walware.statet.r.internal.core.builder.RdParser;
@@ -186,7 +186,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		
 		if (!fStartupSuccessfull)
 			throw new CoreException(new Status(
-					IStatus.ERROR, RCore.PLUGIN_ID,	StatetCore.STATUSCODE_BUILD_ERROR, 
+					IStatus.ERROR, RCore.PLUGIN_ID,	StatetCore.STATUSCODE_BUILD_ERROR,
 					Messages.Builder_error_OnStartup_message, null));
 		
 		fExceptions = new ExceptionCollector();
@@ -204,7 +204,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 
 		if (kind == IncrementalProjectBuilder.FULL_BUILD) {
 			doFullBuild(monitor);
-		} 
+		}
 		else {
 			IResourceDelta delta = getDelta(getProject());
 			if (delta == null) {
@@ -217,7 +217,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 
-	protected void doFullBuild(IProgressMonitor monitor) 
+	protected void doFullBuild(IProgressMonitor monitor)
 			throws CoreException {
 		
 		fExceptions.reset();
@@ -228,7 +228,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		fExceptions.checkException();
 	}
 	
-	protected void doIncrementalBuild(IResourceDelta delta, IProgressMonitor monitor) 
+	protected void doIncrementalBuild(IResourceDelta delta, IProgressMonitor monitor)
 			throws CoreException {
 		
 		fExceptions.reset();
@@ -264,10 +264,10 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			if (type == null)
 				return;
 			
-			if (RResourceUnit.R_CONTENT.equals(type.getId()))
+			if (IRSourceUnit.R_CONTENT.equals(type.getId()))
 				doParseR(file);
-			else 
-			if (RResourceUnit.RD_CONTENT.equals(type.getId()))
+			else
+			if (IRSourceUnit.RD_CONTENT.equals(type.getId()))
 				doParseRd(file);
 		}
 	}

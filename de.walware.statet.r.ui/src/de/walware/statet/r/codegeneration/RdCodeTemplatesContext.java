@@ -23,16 +23,16 @@ public class RdCodeTemplatesContext extends StatextCodeTemplatesContext {
 	public RdCodeTemplatesContext(String contextTypeName, StatetProject project, String lineDelim) {
 		
 		super(
-				RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry().getContextType(contextTypeName), 
-				project, 
+				RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry().getContextType(contextTypeName),
+				project,
 				lineDelim);
 	}
 	
 
-	public void setCodeUnitVariables(RResourceUnit cu) {
-		setVariable(RCodeTemplatesContextType.FILENAME, cu.getElementName());
-//		setVariable(RCodeTemplatesContextType.PACKAGENAME, cu.getParent().getElementName());
-//		setVariable(RCodeTemplatesContextType.PROJECTNAME, cu.getRProject().getElementName());
+	public void setCodeUnitVariables(RResourceUnit u) {
+		setVariable(RCodeTemplatesContextType.FILENAME, u.getElementName());
+//		setVariable(RCodeTemplatesContextType.PACKAGENAME, u.getParent().getElementName());
+//		setVariable(RCodeTemplatesContextType.PROJECTNAME, u.getRProject().getElementName());
 	}
 
 }

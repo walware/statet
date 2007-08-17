@@ -56,10 +56,12 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	private Text fTabSize;
 	private ComboViewer fIndentPolicy;
+	private Button fConserveIndent;
 	private Label fIndentSpaceCountLabel;
 	private Text fIndentSpaceCount;
 	private Button fReplaceOtherTabs;
 	private Text fIndentBlockDepth;
+	private Text fIndentGroupDepth;
 	private Text fIndentWrappedCommandDepth;
 
 	
@@ -83,8 +85,10 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 				RCodeStyleSettings.PREF_INDENT_DEFAULT_TYPE,
 				RCodeStyleSettings.PREF_INDENT_SPACES_COUNT,
 				RCodeStyleSettings.PREF_INDENT_BLOCK_DEPTH,
+				RCodeStyleSettings.PREF_INDENT_GROUP_DEPTH,
 				RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH,
 				RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES,
+				RCodeStyleSettings.PREF_REPLACE_CONVERSATIVE,
 		});
 		fModel = new RCodeStyleSettings(true);
 		
@@ -132,6 +136,10 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		fIndentPolicy.getCombo().setLayoutData(gd);
 		fIndentPolicy.setSelection(new StructuredSelection(IndentationType.TAB));
 		
+		fConserveIndent = new Button(group, SWT.CHECK);
+		fConserveIndent.setText(Messages.RCodeStyle_Indent_ConserveExisting_label);
+		fConserveIndent.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		
 		label = new Label(group, SWT.NONE);
 		label.setText(Messages.RCodeStyle_TabSize_label);
 		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
@@ -157,7 +165,8 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		Composite depthComposite = new Composite(group, SWT.NONE);
 		depthComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
 		depthComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 3));
-		fIndentBlockDepth = createIndentDepthLine(depthComposite, Messages.RCodeStyle_Indent_IndentOfBlocks_label);
+		fIndentBlockDepth = createIndentDepthLine(depthComposite, Messages.RCodeStyle_Indent_IndentInBlocks_label);
+		fIndentGroupDepth = createIndentDepthLine(depthComposite, Messages.RCodeStyle_Indent_IndentInGroups_label);
 		fIndentWrappedCommandDepth = createIndentDepthLine(depthComposite, Messages.RCodeStyle_Indent_IndentOfWrappedCommands_label);
 	}
 	
@@ -194,13 +203,20 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		});
 		dbc.bindValue(indentObservable, BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_DEFAULT_TYPE),
 				null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fConserveIndent),
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_REPLACE_CONVERSATIVE),
+				null, null);
 		dbc.bindValue(SWTObservables.observeText(fIndentSpaceCount, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_SPACES_COUNT),
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 32, Messages.RCodeStyle_Indent_NumOfSpaces_error_message)),
 				null);
 		dbc.bindValue(SWTObservables.observeText(fIndentBlockDepth, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_BLOCK_DEPTH),
-				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentOfBlocks_error_message)),
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentInBlocks_error_message)),
+				null);
+		dbc.bindValue(SWTObservables.observeText(fIndentGroupDepth, SWT.Modify),
+				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_GROUP_DEPTH),
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 10, Messages.RCodeStyle_Indent_IndentInGroups_error_message)),
 				null);
 		dbc.bindValue(SWTObservables.observeText(fIndentWrappedCommandDepth, SWT.Modify),
 				BeansObservables.observeValue(realm, fModel, RCodeStyleSettings.PROP_INDENT_WRAPPED_COMMAND_DEPTH),

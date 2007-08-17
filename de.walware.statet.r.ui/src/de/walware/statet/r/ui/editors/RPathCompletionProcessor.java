@@ -23,7 +23,7 @@ import de.walware.statet.ext.ui.editors.PathCompletionProcessor;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.RUtil;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**

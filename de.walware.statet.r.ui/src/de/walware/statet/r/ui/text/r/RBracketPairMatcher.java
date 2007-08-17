@@ -12,7 +12,8 @@
 package de.walware.statet.r.ui.text.r;
 
 import de.walware.statet.ext.ui.text.PairMatcher;
-import de.walware.statet.r.ui.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 
 
 public class RBracketPairMatcher extends PairMatcher {

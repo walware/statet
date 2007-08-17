@@ -18,10 +18,10 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.base.ui.StatetImages;
 
 
@@ -48,7 +48,7 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	}
 
 	public static void logUnexpectedError(Throwable e) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatetStatusConstants.INTERNAL_ERROR, StatetMessages.InternalError_UnexpectedException, e));
+		log(new Status(IStatus.ERROR, PLUGIN_ID, ICommonStatusConstants.INTERNAL_ERROR, StatetMessages.InternalError_UnexpectedException, e));
 	}
 	
 	

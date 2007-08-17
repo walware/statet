@@ -11,10 +11,15 @@
 
 package de.walware.statet.r.internal.core;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
@@ -22,7 +27,9 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.internal.core.rmodel.RModelManager;
 
 
 /**
@@ -41,8 +48,12 @@ public class RCorePlugin extends Plugin {
 		return gPlugin;
 	}
 
-	public static void log(IStatus status) {
+	public static final void log(IStatus status) {
 		getDefault().getLog().log(status);
+	}
+	
+	public static final void logError(int code, String message, Throwable e) {
+		getDefault().getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, code, message, e));
 	}
 
 	
@@ -77,6 +88,7 @@ public class RCorePlugin extends Plugin {
 	private CoreAccess fWorkspaceCoreAccess;
 	private CoreAccess fDefaultsCoreAccess;
 	private REnvManager fREnvManager;
+	private RModelManager fRModelManager;
 	
 	
 	/**
@@ -89,16 +101,19 @@ public class RCorePlugin extends Plugin {
 	/**
 	 * This method is called upon plug-in activation
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 
 		fREnvManager = new REnvManager(StatetCore.getSettingsChangeNotifier());
 		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
+		fRModelManager = new RModelManager();
 	}
 
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
 		gPlugin = null;
@@ -119,6 +134,33 @@ public class RCorePlugin extends Plugin {
 
 	public IREnvManager getREnvManager() {
 		return fREnvManager;
+	}
+
+	public RModelManager getRModelManager() {
+		return fRModelManager;
+	}
+	
+	public WorkingContext createContext(int i) {
+		switch (i) {
+		case 0: // PERSISTENCE_CONTEXT
+			return new WorkingContext();
+		case 1: // PRIMARY_WORKING_CONTEXT
+			IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor("de.walware.statet.r.workingContexts");
+			for (IConfigurationElement element : elements) {
+				if (element.isValid()) {
+					try {
+						boolean isPrimary = Boolean.parseBoolean(element.getAttribute("primary"));
+						if (isPrimary) {
+							WorkingContext context = (WorkingContext) element.createExecutableExtension("class");
+							return context;
+						}
+					} catch (CoreException e) {
+					}
+				}
+			}
+		default:
+			return null;
+		}
 	}
 
 	public IRCoreAccess getWorkspaceRCoreAccess() {

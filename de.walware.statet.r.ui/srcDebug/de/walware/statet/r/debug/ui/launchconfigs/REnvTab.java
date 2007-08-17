@@ -31,12 +31,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 import de.walware.eclipsecommons.FileValidator;
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvSetting;
 import de.walware.statet.r.core.renv.REnvSetting.SettingsType;
@@ -71,12 +71,12 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 			throws CoreException {
 		REnvConfiguration config = REnvSetting.resolveREnv(readREnv(configuration));
 		if (config == null) {
-			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_CouldNotFound_message, null));
 		}
 		IStatus status = config.validate();
 		if (status.getSeverity() == IStatus.ERROR) {
-			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, IStatetStatusConstants.LAUNCHCONFIG_ERROR,
+			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_Invalid_message+' '+status.getMessage(), null));
 		}
 		return config;

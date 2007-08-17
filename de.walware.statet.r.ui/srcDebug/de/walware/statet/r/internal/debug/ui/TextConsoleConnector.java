@@ -24,9 +24,9 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.IStatetStatusConstants;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 import de.walware.statet.r.ui.RUI;
 
@@ -67,7 +67,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 						throw new CoreException(new Status(
 								IStatus.ERROR,
 								RUI.PLUGIN_ID,
-								IStatetStatusConstants.LAUNCHING_ERROR,
+								ICommonStatusConstants.LAUNCHING_ERROR,
 								RLaunchingMessages.TextConsoleConnector_error_Other_message,
 								e));
 					}
@@ -97,7 +97,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 		throw new CoreException(new Status(
 				IStatus.WARNING,
 				RUI.PLUGIN_ID,
-				IStatetStatusConstants.LAUNCHING_ERROR,
+				ICommonStatusConstants.LAUNCHING_ERROR,
 				RLaunchingMessages.TextConsoleConnector_error_NoConsole_message,
 				null));
 	}

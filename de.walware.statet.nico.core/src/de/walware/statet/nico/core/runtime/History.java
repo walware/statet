@@ -225,7 +225,7 @@ public class History {
 					monitor.done();
 				}
 			};
-			ReadTextFileOperation op = FileUtil.createReadTextFileOp(action, file, NicoCore.PLUGIN_ID);
+			ReadTextFileOperation op = FileUtil.createReadTextFileOp(action, file);
 			op.setCharset(charset, forceCharset);
 			op.doOperation(new SubProgressMonitor(monitor, 90));
 			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getToolLabel(false)));
@@ -291,7 +291,7 @@ public class History {
 			}
 			monitor.worked(1);
 			
-			WriteTextFileOperation op = FileUtil.createWriteTextFileOp(content, file, NicoCore.PLUGIN_ID);
+			WriteTextFileOperation op = FileUtil.createWriteTextFileOp(content, file);
 			op.setCharset(charset, forceCharset);
 			op.setFileOperationMode(mode);
 			op.doOperation(new SubProgressMonitor(monitor, 2));
