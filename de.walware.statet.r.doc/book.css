@@ -1,2 +1,5 @@
 @import "../PRODUCT_PLUGIN/book.css";table th, table td {	text-align: left;}table.style1 {	border-collapse: collapse;	border-spacing: 0;	border: 1px solid black;	border-top: 2px solid black;	border-bottom: 2px solid black;}table.style1 td, table.style1 th {	padding: 2px 5px;	border: 1px solid black;
-	vertical-align: text-top;}table.style1 th {	border-top: 2px solid black;}
+	vertical-align: baseline;}table.style1 th {	border-top: 2px solid black;}
+sup {
+	font-size: 75%;
+}
