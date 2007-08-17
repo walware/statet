@@ -21,6 +21,8 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -30,16 +32,22 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.jface.text.source.projection.IProjectionListener;
+import org.eclipse.jface.text.source.projection.ProjectionSupport;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -333,6 +341,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	/** The outline page */
 	private OutlineT fOutlinePage;
 	
+	private boolean fEnableFoldingSupport;
+	private ProjectionSupport fFoldingSupport;
+	private IFoldingStructureProvider fFoldingProvider;
+	private FoldingActionGroup fFoldingActionGroup ;
+
 	
 /*- Contructors ------------------------------------------------------------*/
 
@@ -353,6 +366,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 	}
 	
+	
+	protected void enableFoldingSupport() {
+		fEnableFoldingSupport = true;
+	}
 	
 	protected void configureStatetProjectNatureId(String id) {
 		fProjectNatureId = id;
@@ -389,6 +406,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 
 		if (input != null) {
 			setupConfiguration(prevProject, fProject, input);
+			if (fFoldingProvider != null) {
+				fFoldingProvider.setEditorInput(input);
+			}
 			if (fOutlinePage != null) {
 				updateOutlinePageInput(fOutlinePage);
 			}
@@ -436,6 +456,63 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		
 
 	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+		
+		if (fEnableFoldingSupport) {
+	        ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
+	        
+	        fFoldingSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
+			fFoldingSupport.install();
+			viewer.addProjectionListener(new IProjectionListener() {
+				public void projectionEnabled() {
+					installFoldingSupport();
+				}
+				public void projectionDisabled() {
+					uninstallFoldingSupport();
+				}
+			});
+		}
+	}
+	
+	@Override
+	protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
+		fAnnotationAccess = getAnnotationAccess();
+		fOverviewRuler = createOverviewRuler(getSharedColors());
+
+		ISourceViewer viewer = fEnableFoldingSupport ?
+				new ProjectionViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles) :
+					new SourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles);
+		// ensure decoration support has been created and configured.
+		getSourceViewerDecorationSupport(viewer);
+
+		return viewer;
+	}
+
+	protected void installFoldingSupport() {
+		fFoldingProvider = createFoldingStructureProvider();
+		if (fFoldingProvider != null) {
+			fFoldingProvider.install(StatextEditor1.this, (ProjectionViewer) getSourceViewer());
+			fFoldingProvider.setEditorInput(getEditorInput());
+		}
+	}
+	
+	protected void uninstallFoldingSupport() {
+		if (fFoldingProvider != null) {
+			fFoldingProvider.uninstall();
+			fFoldingProvider = null;
+		}
+	}
+	
+	protected IFoldingStructureProvider createFoldingStructureProvider() {
+		return null;
+	}
+	
+	protected FoldingActionGroup createFoldingActionGroup() {
+		return new FoldingActionGroup(this, (ProjectionViewer) getSourceViewer());
+	}
+
+	@Override
 	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
 		super.configureSourceViewerDecorationSupport(support);
 		fConfigurator.configureSourceViewerDecorationSupport(support);
@@ -456,16 +533,30 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		setAction(ACTION_ID_TOGGLE_COMMENT, action);
 		markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true);
 
+		if (fEnableFoldingSupport) {
+			fFoldingActionGroup = createFoldingActionGroup();
+		}
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}
 
+	@Override
+	protected void rulerContextMenuAboutToShow(IMenuManager menu) {
+		super.rulerContextMenuAboutToShow(menu);
+		if (fFoldingActionGroup != null) {
+			IMenuManager foldingMenu = new MenuManager(EditorMessages.FoldingMenu_label, "projection"); //$NON-NLS-1$
+			menu.appendToGroup(ITextEditorActionConstants.GROUP_RULERS, foldingMenu);
+			
+			fFoldingActionGroup.fillMenu(foldingMenu);
+		}
+	}
+	
 
 	@Override
-	public Object getAdapter(Class adapter) {
-		if (IEditorAdapter.class.equals(adapter)) {
+	public Object getAdapter(Class required) {
+		if (IEditorAdapter.class.equals(required)) {
 			return fEditorAdapter;
 		}
-		if (IContentOutlinePage.class.equals(adapter)) {
+		if (IContentOutlinePage.class.equals(required)) {
 			if (fOutlinePage == null) {
 				fOutlinePage = createOutlinePage();
 				if (fOutlinePage != null) {
@@ -474,7 +565,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 			}
 			return fOutlinePage;
 		}
-		return super.getAdapter(adapter);
+		if (fFoldingSupport != null) {
+			Object adapter = fFoldingSupport.getAdapter(getSourceViewer(), required);
+			if (adapter != null)
+				return adapter;
+		}
+		return super.getAdapter(required);
 	}
 	
 	

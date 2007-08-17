@@ -12,6 +12,7 @@
 package de.walware.eclipsecommons.ui.util;
 
 import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -26,6 +27,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Tree;
 
 
 /**
@@ -154,4 +156,20 @@ public class ViewerUtil {
 		}
 	}
 
+	public static class TreeComposite extends Composite {
+		
+		public TreeViewer viewer;
+		public Tree tree;
+		public TreeColumnLayout layout;
+		
+		public TreeComposite(Composite parent, int tableStyle) {
+			super(parent, SWT.NONE);
+			
+			layout = new TreeColumnLayout();
+			setLayout(layout);
+			tree = new Tree(this, tableStyle);
+			viewer = new TreeViewer(tree);
+		}
+	}
+	
 }

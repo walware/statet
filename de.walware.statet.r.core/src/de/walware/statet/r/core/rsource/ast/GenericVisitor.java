@@ -19,9 +19,7 @@ public class GenericVisitor extends RAstVisitor {
 	
 	
 	public void visitNode(RAstNode node) {
-	}
-	
-	public void endVisitNode(RAstNode node) {
+		node.acceptInChildren(this);
 	}
 	
 	

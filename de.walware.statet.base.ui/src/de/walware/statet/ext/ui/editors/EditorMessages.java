@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,8 @@ public class EditorMessages extends NLS {
 	public static String GotoMatchingBracketAction_error_NoMatchingBracket;
 
 	public static String ToggleCommentAction_error;
+
+	public static String FoldingMenu_label;
 
 	
 	private static final String BUNDLE_NAME = EditorMessages.class.getName();

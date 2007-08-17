@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.widgets.Composite;
@@ -28,12 +29,14 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.ext.ui.editors.IFoldingStructureProvider;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.internal.ui.editors.RCorrectIndentAction;
 import de.walware.statet.r.internal.ui.editors.RDoubleCommentAction;
 import de.walware.statet.r.internal.ui.editors.ROutlinePage;
@@ -47,7 +50,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	private RSourceViewerConfigurator fRConfig;
 	private IRSourceUnit fRResourceUnit;
 	private IContextProvider fHelpContextProvider;
-	
+
 	
 	public REditor() {
 		super();
@@ -55,6 +58,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	
 	@Override
 	protected void initializeEditor() {
+		enableFoldingSupport();
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 
@@ -71,8 +75,11 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-
 		fRConfig.setTarget(this, getSourceViewer());
+
+        ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
+		viewer.doOperation(ProjectionViewer.TOGGLE);
+		
 		// Editor Help:
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(this, IRUIHelpContextIds.R_EDITOR);
 		getSourceViewer().getTextWidget().addHelpListener(new HelpListener() {
@@ -83,9 +90,15 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	}
 	
 	@Override
+	protected IFoldingStructureProvider createFoldingStructureProvider() {
+		return new DefaultRFoldingProvider();
+	}
+	
+	@Override
 	public void dispose() {
 		super.dispose();
 		fRResourceUnit = null;
+		uninstallFoldingSupport();
 	}
 
 	
@@ -162,8 +175,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
         action = new RCorrectIndentAction(this);
         setAction(action.getId(), action);
         markAsContentDependentAction(action.getId(), true);
-        
-   	}
+	}
 
 	public IRSourceUnit getRResourceUnit() {
 		return fRResourceUnit;
@@ -174,11 +186,11 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	}
 	
 	@Override
-	public Object getAdapter(Class adapter) {
-		if (IContextProvider.class.equals(adapter)) {
+	public Object getAdapter(Class required) {
+		if (IContextProvider.class.equals(required)) {
 			return fHelpContextProvider;
 		}
-		return super.getAdapter(adapter);
+		return super.getAdapter(required);
 	}
 	
 	

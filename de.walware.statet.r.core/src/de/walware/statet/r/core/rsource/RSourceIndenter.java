@@ -24,6 +24,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.eclipsecommons.ltk.AstAbortVisitException;
 import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
 import de.walware.eclipsecommons.ltk.WorkingContext;
@@ -53,20 +54,6 @@ import de.walware.statet.r.core.rsource.ast.SubIndexed;
 public class RSourceIndenter {
 	
 
-	public static class AbortIndentException extends RuntimeException  {
-		
-		private static final long serialVersionUID = -798710732388685774L;
-
-		public AbortIndentException() {
-		}
-		
-		public AbortIndentException(Throwable cause) {
-			super(cause);
-		}
-		
-	}
-	
-	
 	private RIndentUtil fUtil;
 	private RHeuristicTokenScanner fScanner;
 	private ComputeIndentVisitor fComputeVisitor;
@@ -100,7 +87,7 @@ public class RSourceIndenter {
 				fAst.root.accept(this);
 			}
 			catch (BadLocationException e) {
-				throw new AbortIndentException(e);
+				throw new AstAbortVisitException(e);
 			}
 		}
 		
@@ -690,7 +677,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIX_STRAT, 0);
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -716,7 +703,7 @@ class ScopeFactory {
 			
 			initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.getIndent(line));
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -725,7 +712,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line));
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -734,7 +721,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line+1)+fStyle.getIndentGroupDepth()*fLevelMult);
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -751,7 +738,7 @@ class ScopeFactory {
 				fScope.baseColumn = fScope.parent.getIndent(line+1);
 			}
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -760,7 +747,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line));
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -769,7 +756,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line)+fBlockCol);
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -781,7 +768,7 @@ class ScopeFactory {
 				fScope.baseColumn = fScope.parent.getIndent(line+1);
 			}
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -790,7 +777,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -799,7 +786,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -808,7 +795,7 @@ class ScopeFactory {
 			final int line = fDoc.getLineOfOffset(offset);
 			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
@@ -874,7 +861,7 @@ class ScopeFactory {
 				fScope.baseColumn = fScope.parent.baseColumn;
 			}
 		} catch (BadLocationException e) {
-			throw new RSourceIndenter.AbortIndentException(e);
+			throw new AstAbortVisitException(e);
 		}
 	}
 	
