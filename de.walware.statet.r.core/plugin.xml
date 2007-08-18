@@ -30,6 +30,19 @@
       <builder id="de.walware.statet.r.builders.RSupport"/>
    </extension>
    <extension
+         id="de.walware.statet.r.RPackageNature"
+         name="R-Package Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="de.walware.statet.r.core.RPackageProject">
+         </run>
+      </runtime>
+      <requires-nature
+            id="de.walware.statet.r.core.RProject">
+      </requires-nature>
+   </extension>
+   <extension
          point="org.eclipse.core.runtime.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"

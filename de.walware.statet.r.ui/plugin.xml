@@ -190,6 +190,40 @@
       </wizard>
    </extension>
    <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <commonWizard
+            menuGroupId="de.walware.statet"
+            type="new"
+            wizardId="de.walware.statet.r.newWizards.RFileCreation">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.eclipse.core.resources.IProject">
+                  <test
+                        property="org.eclipse.core.resources.projectNature"
+                        value="de.walware.statet.r.RNature">
+                  </test>
+               </adapt>
+            </or></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="de.walware.statet"
+            type="new"
+            wizardId="de.walware.statet.r.newWizards.RdFileCreation">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.eclipse.core.resources.IProject">
+                  <test
+                        property="org.eclipse.core.resources.projectNature"
+                        value="de.walware.statet.r.core.RPackageProject">
+                  </test>
+               </adapt>
+            </or>
+         </enablement>
+      </commonWizard>
+   </extension>
+   <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="de.walware.statet.base.perspectives.StatetPerspective">
          <newWizardShortcut id="de.walware.statet.r.newWizards.RFileCreation"/>
