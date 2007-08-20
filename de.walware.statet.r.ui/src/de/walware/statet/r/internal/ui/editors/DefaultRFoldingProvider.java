@@ -83,9 +83,12 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 	private class ElementChangeListener implements IElementChangedListener {
 		public void elementChanged(ElementChangedEvent event) {
 			Input input = fInput;
-			if (event.delta.getModelElement() == input.fUnit) {
-				synchronized (input) {
-					update(input);
+			if (input != null && event.delta.getModelElement() == input.fUnit) {
+				AstInfo<?> astInfo = event.delta.getNewAst();
+				if (astInfo != null) {
+					synchronized (input) {
+						update(input, astInfo.stamp);
+					}
 				}
 			}
 		}
@@ -120,10 +123,12 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 	private class Input {
 		private final IRSourceUnit fUnit;
 		private boolean fInitilized;
+		private long fUpdateStamp;
 		
 		Input(IRSourceUnit unit) {
 			fUnit = unit;
 			fInitilized = false;
+			fUpdateStamp = Long.MIN_VALUE;
 		}
 	}
 	
@@ -143,7 +148,7 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 		Input input = new Input(fEditor.getSourceUnit());
 		synchronized (input) {
 			fInput = input;
-			update(input);
+			update(input, 0);
 		}
 	}
 	
@@ -155,7 +160,7 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 		fEditor = null;
 	}
 	
-	protected FoldingStructureComputationContext createCtx(Input input) {
+	protected FoldingStructureComputationContext createCtx(final Input input) {
 		ProjectionAnnotationModel model = (ProjectionAnnotationModel) fEditor.getAdapter(ProjectionAnnotationModel.class);
 		if (input.fUnit == null || model == null) {
 			return null;
@@ -168,7 +173,11 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 		return new FoldingStructureComputationContext(document, ast, model, !input.fInitilized);
 	}
 	
-	private void update(Input input) {
+	private void update(final Input input, final long stamp) {
+		if (input.fUnit == null
+				|| input.fUpdateStamp == stamp) { // already uptodate
+			return;
+		}
 		FoldingStructureComputationContext ctx;
 		input.fUnit.connect();
 		try {
@@ -196,10 +205,10 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 			input.fInitilized = true;
 		}
 		else {
-			Iterator iter = ctx.fModel.getAnnotationIterator();
+			Iterator<ProjectionAnnotation> iter = ctx.fModel.getAnnotationIterator();
 			List<ProjectionAnnotation> del = new ArrayList<ProjectionAnnotation>();
 			while (iter.hasNext()) {
-				ProjectionAnnotation ann = (ProjectionAnnotation) iter.next();
+				ProjectionAnnotation ann = iter.next();
 				Position position = ctx.fModel.getPosition(ann);
 				if (ctx.fTable.remove(position) == null) {
 					del.add(ann);
@@ -217,6 +226,7 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 			additions.put(next.getValue(), next.getKey());
 		}
 		ctx.fModel.modifyAnnotations(deletions, additions, null);
+		input.fUpdateStamp = ctx.fAst.stamp;
 	}
 
 }
