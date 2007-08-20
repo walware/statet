@@ -39,6 +39,7 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
+import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -156,20 +157,20 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy {
 		
 		int shift = 0;
 		if (c.offset > 2500) {
-			shift = fDocument.getLineOfOffset(c.offset-2000);
+			shift = fDocument.getLineOfOffset(c.offset-2500);
 			ITypedRegion partition = ((IDocumentExtension3) fDocument).getPartition(IRDocumentPartitions.R_DOCUMENT_PARTITIONING, shift, true);
 			if (partition.getType().equals(IRDocumentPartitions.R_STRING)) {
 				shift = partition.getOffset();
 			}
 		}
-		tempEnd = cEnd+1000;
+		tempEnd = cEnd+1500;
 		if (fDocument.getLength() <= tempEnd) {
 			tempEnd = fDocument.getLength();
 		}
 		String text = fDocument.get(shift, c.offset-shift)
 				+ c.text + append + fDocument.get(cEnd, tempEnd-cEnd);
 
-		AstInfo<RAstNode> ast = new AstInfo<RAstNode>(0, 0);
+		AstInfo<RAstNode> ast = new AstInfo<RAstNode>(RAst.LEVEL_MINIMAL, 0);
 		RScanner scanner = new RScanner(new StringParseInput(text), ast);
 		int dummyCoffset = c.offset-shift;
 		int dummyCend = dummyCoffset+c.text.length();

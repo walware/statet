@@ -14,6 +14,9 @@ package de.walware.statet.r.core.rsource.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 /**
  * Comma separated list
@@ -45,7 +48,7 @@ abstract class SpecList extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		for (int i = fSpecs.size()-1; i >= 0; i--) {
 			if (fSpecs.get(i) == child) {
 				return i;
@@ -56,6 +59,10 @@ abstract class SpecList extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		acceptChildren(visitor, fSpecs);
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 		acceptChildren(visitor, fSpecs);
 	}
 

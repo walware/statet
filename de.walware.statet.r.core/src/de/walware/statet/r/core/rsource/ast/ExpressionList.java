@@ -14,6 +14,9 @@ package de.walware.statet.r.core.rsource.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 import de.walware.statet.r.core.rsource.RSourceToken;
 
 
@@ -43,7 +46,7 @@ public abstract class ExpressionList extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		for (int i = fExpressions.size()-1; i >= 0; i--) {
 			if (fExpressions.get(i).node == child) {
 				return i;
@@ -67,6 +70,11 @@ public abstract class ExpressionList extends RAstNode {
 		acceptChildrenExpr(visitor, fExpressions);
 	}
 
+	public final void acceptInChildren(CommonAstVisitor visitor) {
+		acceptChildrenExpr(visitor, fExpressions);
+	}
+
+	
 	@Override
 	final Expression getExpr(RAstNode child) {
 		for (int i = fExpressions.size()-1; i >= 0; i--) {

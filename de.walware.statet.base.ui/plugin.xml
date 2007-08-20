@@ -61,6 +61,32 @@
             description="%categorys.StatetSource.description"
             id="de.walware.statet.base.commandCategorys.StatetSource"
             name="%categorys.StatetSource.name"/>
+      <!-- edit -->
+      <command
+      		id="de.walware.statet.base.commands.SelectExpandEnclosing"
+            name="%commands.SelectEnclosing.name"
+            description="%commands.SelectEnclosing.description"
+            categoryId="org.eclipse.ui.category.edit">
+      </command>
+      <command
+      		id="de.walware.statet.base.commands.SelectExpandNext"
+            name="%commands.SelectNext.name"
+            description="%commands.SelectNext.description"
+            categoryId="org.eclipse.ui.category.edit">
+      </command>
+      <command
+      		id="de.walware.statet.base.commands.SelectExpandPrevious"
+            name="%commands.SelectPrevious.name"
+            description="%commands.SelectPrevious.description"
+            categoryId="org.eclipse.ui.category.edit">
+      </command>
+      <command
+      		id="de.walware.statet.base.commands.SelectLast"
+            name="%commands.SelectLast.name"
+            description="%commands.SelectLast.description"
+            categoryId="org.eclipse.ui.category.edit">
+      </command>
+      <!-- navigate -->
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="%commands.GotoMatchingBracket.description"
@@ -90,11 +116,34 @@
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
+         
+      <key
+            commandId="de.walware.statet.base.commands.SelectExpandEnclosing"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+ARROW_UP"/>
+      <key
+            commandId="de.walware.statet.base.commands.SelectExpandNext"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+ARROW_RIGHT"/>
+      <key
+            commandId="de.walware.statet.base.commands.SelectExpandPrevious"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+ARROW_LEFT"/>
+      <key
+            commandId="de.walware.statet.base.commands.SelectLast"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+ARROW_DOWN"/>
+
       <key
             commandId="de.walware.statet.base.commands.GotoMatchingBracket"
             contextId="de.walware.statet.base.contexts.TextEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M2+P"/>
+            
       <key
             commandId="de.walware.statet.base.commands.ToggleComment"
             contextId="de.walware.statet.base.contexts.TextEditor"
@@ -228,6 +277,38 @@
    </extension>
    <extension
          point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:edit?after=selectAll">
+         <menu
+               label="%menus.Edit_ExpandSelectionTo.label"
+               mnemonic="%menus.Edit_ExpandSelectionTo.mnemonic">
+            <command
+                  commandId="de.walware.statet.base.commands.SelectExpandEnclosing"
+                  label="%commands.SelectEnclosing.name"
+                  mnemonic="%menus.Edit_ExpandSelectionTo_Enclosing.mnemonic">
+            </command>
+            <command
+                  commandId="de.walware.statet.base.commands.SelectExpandNext"
+                  label="%commands.SelectNext.name"
+                  mnemonic="%menus.Edit_ExpandSelectionTo_Next.mnemonic">
+            </command>
+            <command
+                  commandId="de.walware.statet.base.commands.SelectExpandPrevious"
+                  label="%commands.SelectPrevious.name"
+                  mnemonic="%menus.Edit_ExpandSelectionTo_Previous.mnemonic">
+            </command>
+            <command
+                  commandId="de.walware.statet.base.commands.SelectLast"
+                  label="%commands.SelectLast.name"
+                  mnemonic="%menus.Edit_ExpandSelectionTo_Last.mnemonic">
+            </command>
+            <visibleWhen>
+               <reference
+                     definitionId="de.walware.statet.base.expressions.EditSourceActionSet">
+               </reference>
+            </visibleWhen>
+         </menu>
+      </menuContribution>
       <menuContribution
             locationURI="menu:org.eclipse.ui.main.menu?after=edit">
          <menu

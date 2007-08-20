@@ -13,6 +13,9 @@ package de.walware.statet.r.core.rsource.ast;
 
 import org.eclipse.core.runtime.IStatus;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 public abstract class Dummy extends RAstNode {
@@ -51,7 +54,7 @@ public abstract class Dummy extends RAstNode {
 		}
 
 		@Override
-		public final int getIndex(RAstNode child) {
+		public final int getChildIndex(IAstNode child) {
 			return -1;
 		}
 
@@ -82,6 +85,9 @@ public abstract class Dummy extends RAstNode {
 		
 		@Override
 		public final void acceptInChildren(RAstVisitor visitor) {
+		}
+
+		public final void acceptInChildren(CommonAstVisitor visitor) {
 		}
 		
 	}
@@ -132,7 +138,7 @@ public abstract class Dummy extends RAstNode {
 		}
 
 		@Override
-		public final int getIndex(RAstNode child) {
+		public final int getChildIndex(IAstNode child) {
 			if (fLeftExpr.node == child) {
 				return 0;
 			}
@@ -181,6 +187,12 @@ public abstract class Dummy extends RAstNode {
 			fRightExpr.node.accept(visitor);
 		}
 		
+		public final void acceptInChildren(CommonAstVisitor visitor) {
+			if (fLeftExpr.node != null) {
+				fLeftExpr.node.accept(visitor);
+			}
+			fRightExpr.node.accept(visitor);
+		}
 	}
 	
 	String fText;

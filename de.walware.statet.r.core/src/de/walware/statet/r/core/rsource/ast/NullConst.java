@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -45,7 +48,7 @@ public class NullConst extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		return -1;
 	}
 	
@@ -56,6 +59,9 @@ public class NullConst extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 	}
 	
 

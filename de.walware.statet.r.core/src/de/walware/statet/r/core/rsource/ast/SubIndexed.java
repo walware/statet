@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -151,7 +154,7 @@ public abstract class SubIndexed extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fExpr.node == child) {
 			return 0;
 		}
@@ -168,6 +171,11 @@ public abstract class SubIndexed extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		fExpr.node.accept(visitor);
+		fSublist.accept(visitor);
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 		fExpr.node.accept(visitor);
 		fSublist.accept(visitor);
 	}

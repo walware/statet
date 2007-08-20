@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -61,7 +64,7 @@ public class CForLoop extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fVarSymbol == child) {
 			return 0;
 		}
@@ -127,6 +130,13 @@ public class CForLoop extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		fVarSymbol.accept(visitor);
+		fCondExpr.node.accept(visitor);
+		fLoopExpr.node.accept(visitor);
+	}
+	
+	public final void acceptInChildren(CommonAstVisitor visitor) {
+		fVarSymbol.accept(visitor);
 		fCondExpr.node.accept(visitor);
 		fLoopExpr.node.accept(visitor);
 	}

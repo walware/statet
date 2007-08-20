@@ -20,7 +20,7 @@ import de.walware.statet.r.core.rsource.RLexer;
 
 
 
-final class RScannerLexer extends RLexer {
+class RScannerLexer extends RLexer {
 	
 	
 	final class ScannerToken {
@@ -32,7 +32,7 @@ final class RScannerLexer extends RLexer {
 	}
 	
 	
-	private final ScannerToken fNextToken;
+	protected final ScannerToken fNextToken;
 	
 	
 	public RScannerLexer(SourceParseInput input) {
@@ -74,7 +74,7 @@ final class RScannerLexer extends RLexer {
 		fNextToken.type = RTerminal.SYMBOL;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
-		fNextToken.text = fInput.substring(1, fNextNum);
+		fNextToken.text = null;
 		fNextToken.status = STATUS_OK;
 	}
 	

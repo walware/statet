@@ -60,7 +60,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	
 	@Override
 	protected void initializeEditor() {
-		enableFoldingSupport();
+		enableStructureSupport();
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 
@@ -181,7 +181,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
         markAsContentDependentAction(action.getId(), true);
 	}
 
-	public IRSourceUnit getRResourceUnit() {
+	public IRSourceUnit getSourceUnit() {
 		return fRResourceUnit;
 	}
 	

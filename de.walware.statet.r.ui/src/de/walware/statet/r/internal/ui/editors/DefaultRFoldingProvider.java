@@ -140,7 +140,7 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 	}
 	
 	public void setEditorInput(IEditorInput editorInput) {
-		Input input = new Input(fEditor.getRResourceUnit());
+		Input input = new Input(fEditor.getSourceUnit());
 		synchronized (input) {
 			fInput = input;
 			update(input);

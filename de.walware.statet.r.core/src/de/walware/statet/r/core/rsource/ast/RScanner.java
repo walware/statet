@@ -63,7 +63,12 @@ public class RScanner {
 	/**
 	 */
 	public RScanner(SourceParseInput input, AstInfo ast) {
-		fLexer = new RScannerLexer(input);
+		if (ast.level == 1) {
+			fLexer = new RScannerLexer(input);
+		}
+		else {
+			fLexer = new RScannerDefaultLexer(input);
+		}
 		fNext = fLexer.getToken();
 		fAst = ast;
 	}

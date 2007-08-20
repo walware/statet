@@ -18,6 +18,7 @@ Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: de.walware.eclipsecommons,
  de.walware.eclipsecommons.ltk,
+ de.walware.eclipsecommons.ltk.ast,
  de.walware.eclipsecommons.ltk.text,
  de.walware.eclipsecommons.preferences,
  de.walware.statet.base.core,

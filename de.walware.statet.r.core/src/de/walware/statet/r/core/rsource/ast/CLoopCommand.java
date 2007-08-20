@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -70,7 +73,7 @@ abstract class CLoopCommand extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		return -1;
 	}
 
@@ -96,6 +99,9 @@ abstract class CLoopCommand extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 	}
 
 	@Override

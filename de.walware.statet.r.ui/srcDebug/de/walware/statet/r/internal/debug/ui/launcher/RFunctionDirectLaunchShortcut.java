@@ -31,7 +31,6 @@ import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
-import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -106,7 +105,7 @@ public class RFunctionDirectLaunchShortcut implements ILaunchShortcut {
 		if (monitor.isCanceled()) {
 			return;
 		}
-		Assignment node = RAst.findLowestFDefAssignment(astInfo.root, selection.getOffset());
+		RAstNode node = RAst.findLowestFDefAssignment(astInfo.root, selection.getOffset());
 		if (node == null) {
 			return;
 		}

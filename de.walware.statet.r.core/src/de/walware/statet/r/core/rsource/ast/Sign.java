@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
@@ -102,7 +105,7 @@ public abstract class Sign extends RAstNode {
 	}
 
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fRightExpr.node == child) {
 			return 0;
 		}
@@ -123,6 +126,10 @@ public abstract class Sign extends RAstNode {
 		fRightExpr.node.accept(visitor);
 	}
 
+	public final void acceptInChildren(CommonAstVisitor visitor) {
+		fRightExpr.node.accept(visitor);
+	}
+	
 	
 	@Override
 	final Expression getExpr(RAstNode child) {

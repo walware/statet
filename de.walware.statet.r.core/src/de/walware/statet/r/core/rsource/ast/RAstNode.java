@@ -15,6 +15,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
@@ -22,7 +25,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  *
  */
-public abstract class RAstNode {
+public abstract class RAstNode implements IAstNode {
 	
 	
 	interface Assoc {
@@ -72,7 +75,7 @@ public abstract class RAstNode {
 		return fStopOffset;
 	}
 	
-	public abstract int getIndex(RAstNode element);
+	public abstract int getChildIndex(IAstNode child);
 	
 	int getEqualsIndex(RAstNode element) {
 		RAstNode[] children = getChildren();
@@ -149,7 +152,7 @@ public abstract class RAstNode {
 		if (parent != null) {
 			if (parent instanceof FlatMulti) {
 				FlatMulti multi = (FlatMulti) parent;
-				RTerminal operator = multi.getOperator(multi.getIndex(this));
+				RTerminal operator = multi.getOperator(multi.getChildIndex(this));
 				s.append(operator != null ? operator.text : "•");
 				s.append("  ");
 			}
@@ -161,7 +164,9 @@ public abstract class RAstNode {
 		return s.toString();
 	}
 	
-	
+	public void accept(CommonAstVisitor visitor) {
+		visitor.visit(this);
+	}
 	public abstract void accept(RAstVisitor visitor);
 	public abstract void acceptInChildren(RAstVisitor visitor);
 	
@@ -171,7 +176,19 @@ public abstract class RAstNode {
 		}
 	}
 
+	protected final void acceptChildren(CommonAstVisitor visitor, List<? extends RAstNode> children) {
+		for (RAstNode child : children) {
+			child.accept(visitor);
+		}
+	}
+
 	protected final void acceptChildrenExpr(RAstVisitor visitor, List<Expression> children) {
+		for (Expression expr : children) {
+			expr.node.accept(visitor);
+		}
+	}
+	
+	protected final void acceptChildrenExpr(CommonAstVisitor visitor, List<Expression> children) {
 		for (Expression expr : children) {
 			expr.node.accept(visitor);
 		}

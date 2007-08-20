@@ -43,7 +43,7 @@ public class StatetMessages extends NLS {
 	public static String InputArguments_label;
 	public static String InputArguments_note;
 	
-	
+
 	static {
 		NLS.initializeMessages(StatetMessages.class.getName(), StatetMessages.class);
 	}

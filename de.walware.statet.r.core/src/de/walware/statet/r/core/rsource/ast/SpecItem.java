@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -32,10 +35,18 @@ abstract class SpecItem extends RAstNode {
 	@Override
 	public final int getChildCount() {
 		int count = (fArgName != null) ? 1 : 0;
-		if (fValueExpr != null) {
+		if (fValueExpr.node != null) {
 			count++;
 		}
 		return count;
+	}
+	
+	public final RAstNode getNameChild() {
+		return fArgName;
+	}
+	
+	public final RAstNode getValueChild() {
+		return fValueExpr.node;
 	}
 	
 	@Override
@@ -81,11 +92,11 @@ abstract class SpecItem extends RAstNode {
 	}
 	
 	@Override
-	public int getIndex(RAstNode element) {
-		if (fArgName == element) {
+	public int getChildIndex(IAstNode child) {
+		if (fArgName == child) {
 			return 0;
 		}
-		if (fValueExpr.node == element) {
+		if (fValueExpr.node == child) {
 			return 1;
 		}
 		return -1;
@@ -93,6 +104,15 @@ abstract class SpecItem extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		if (fArgName != null) {
+			fArgName.accept(visitor);
+		}
+		if (fValueExpr.node != null) {
+			fValueExpr.node.accept(visitor);
+		}
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 		if (fArgName != null) {
 			fArgName.accept(visitor);
 		}

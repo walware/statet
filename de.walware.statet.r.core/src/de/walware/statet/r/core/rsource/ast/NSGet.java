@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -80,7 +83,7 @@ public abstract class NSGet extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fNamespace == child) {
 			return 0;
 		}
@@ -105,6 +108,11 @@ public abstract class NSGet extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		fNamespace.accept(visitor);
+		fElement.accept(visitor);
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 		fNamespace.accept(visitor);
 		fElement.accept(visitor);
 	}

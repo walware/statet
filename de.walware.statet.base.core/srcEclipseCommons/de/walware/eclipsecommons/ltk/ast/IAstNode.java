@@ -9,26 +9,28 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.eclipsecommons.ltk;
+package de.walware.eclipsecommons.ltk.ast;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
 
 
 
 /**
  *
  */
-public class AstInfo<NodeT extends IAstNode> {
+public interface IAstNode {
 	
+	public int getStartOffset();
+	public int getStopOffset();
 	
-	public final int level;
-	public final long stamp;
-	public NodeT root;
+	public void accept(CommonAstVisitor visitor);
+	public void acceptInChildren(CommonAstVisitor visitor);
 	
-	
-	public AstInfo(int level, long stamp) {
-		this.level = level;
-		this.stamp = stamp;
-	}
+	public IAstNode getParent();
+	public IAstNode getRoot();
+	public boolean hasChildren();
+	public int getChildCount();
+	public IAstNode getChild(int index);
+	public IAstNode[] getChildren();
+	public int getChildIndex(IAstNode element);
 	
 }

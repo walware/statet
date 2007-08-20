@@ -15,9 +15,11 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 
+import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.SourceContent;
@@ -129,6 +131,11 @@ public class RResourceUnit implements ISourceUnit {
 	public AbstractDocument getDocument() {
 		return null;
 	}
+	
+	public AstInfo<?> getAstInfo(boolean ensureSync, IProgressMonitor monitor) {
+		return null;
+	}
+	
 	public SourceContent getContent() {
 		return RCore.PERSISTENCE_CONTEXT.createWorkingBuffer(this).getContent();
 	}

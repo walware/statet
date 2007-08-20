@@ -13,7 +13,10 @@ package de.walware.eclipsecommons.ltk;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
+
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
 
 
 /**
@@ -31,6 +34,8 @@ public interface ISourceUnit extends IModelElement {
 	
 	public AbstractDocument getDocument();
 	public SourceContent getContent();
+
+	public AstInfo<? extends IAstNode> getAstInfo(boolean ensureSync, IProgressMonitor monitor);
 
 	public void connect();
 	public void disconnect();

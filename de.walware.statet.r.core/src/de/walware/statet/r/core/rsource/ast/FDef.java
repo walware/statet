@@ -14,6 +14,9 @@ package de.walware.statet.r.core.rsource.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 import de.walware.statet.r.core.rsource.RSourceToken;
 
 
@@ -60,7 +63,7 @@ public class FDef extends RAstNode {
 		}
 		
 		@Override
-		public final int getIndex(RAstNode child) {
+		public final int getChildIndex(IAstNode child) {
 			for (int i = fSpecs.size()-1; i >= 0; i--) {
 				if (fSpecs.get(i) == child) {
 					return i;
@@ -99,6 +102,10 @@ public class FDef extends RAstNode {
 			acceptChildren(visitor, fSpecs);
 		}
 
+		public final void acceptInChildren(CommonAstVisitor visitor) {
+			acceptChildren(visitor, fSpecs);
+		}
+		
 		@Override
 		final void updateStopOffset() {
 		}
@@ -159,7 +166,7 @@ public class FDef extends RAstNode {
 		}
 
 		@Override
-		public final int getIndex(RAstNode child) {
+		public final int getChildIndex(IAstNode child) {
 			if (fArgName == child) {
 				return 0;
 			}
@@ -204,6 +211,13 @@ public class FDef extends RAstNode {
 		
 		@Override
 		public final void acceptInChildren(RAstVisitor visitor) {
+			fArgName.accept(visitor);
+			if (fWithDefault) {
+				fDefaultExpr.node.accept(visitor);
+			}
+		}
+
+		public final void acceptInChildren(CommonAstVisitor visitor) {
 			fArgName.accept(visitor);
 			if (fWithDefault) {
 				fDefaultExpr.node.accept(visitor);
@@ -266,7 +280,7 @@ public class FDef extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fArgs == child) {
 			return 0;
 		}
@@ -299,6 +313,11 @@ public class FDef extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		fArgs.accept(visitor);
+		fExpr.node.accept(visitor);
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 		fArgs.accept(visitor);
 		fExpr.node.accept(visitor);
 	}

@@ -57,7 +57,7 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 //	}
 	
 	public StatetProject getStatetProject() {
-		return fEditor.getRResourceUnit().getStatetProject();
+		return fEditor.getSourceUnit().getStatetProject();
 	}
 	
 	public String getInfo(Template template) throws BadLocationException, TemplateException {

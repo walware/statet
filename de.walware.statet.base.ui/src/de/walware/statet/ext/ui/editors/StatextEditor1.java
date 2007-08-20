@@ -48,10 +48,12 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
+import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
@@ -341,10 +343,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	/** The outline page */
 	private OutlineT fOutlinePage;
 	
-	private boolean fEnableFoldingSupport;
+	private boolean fEnableStructureSupport;
+	private SelectionHistory fSelectionHistory;
 	private ProjectionSupport fFoldingSupport;
 	private IFoldingStructureProvider fFoldingProvider;
-	private FoldingActionGroup fFoldingActionGroup ;
+	private FoldingActionGroup fFoldingActionGroup;
 
 	
 /*- Contructors ------------------------------------------------------------*/
@@ -367,8 +370,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	}
 	
 	
-	protected void enableFoldingSupport() {
-		fEnableFoldingSupport = true;
+	protected void enableStructureSupport() {
+		fEnableStructureSupport = true;
 	}
 	
 	protected void configureStatetProjectNatureId(String id) {
@@ -453,13 +456,16 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	protected final ProjectT getProject() {
 		return fProject;
 	}
-		
+	
+	public ISourceUnit getSourceUnit() {
+		return null;
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		
-		if (fEnableFoldingSupport) {
+		if (fEnableStructureSupport) {
 	        ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 	        
 	        fFoldingSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
@@ -480,7 +486,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		fAnnotationAccess = getAnnotationAccess();
 		fOverviewRuler = createOverviewRuler(getSharedColors());
 
-		ISourceViewer viewer = fEnableFoldingSupport ?
+		ISourceViewer viewer = fEnableStructureSupport ?
 				new ProjectionViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles) :
 					new SourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles);
 		// ensure decoration support has been created and configured.
@@ -490,6 +496,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	}
 
 	protected void installFoldingSupport() {
+		uninstallFoldingSupport();
 		fFoldingProvider = createFoldingStructureProvider();
 		if (fFoldingProvider != null) {
 			fFoldingProvider.install(StatextEditor1.this, (ProjectionViewer) getSourceViewer());
@@ -533,8 +540,19 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		setAction(ACTION_ID_TOGGLE_COMMENT, action);
 		markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true);
 
-		if (fEnableFoldingSupport) {
+		if (fEnableStructureSupport) {
 			fFoldingActionGroup = createFoldingActionGroup();
+			
+			fSelectionHistory = new SelectionHistory(this);
+			action = new StructureSelectAction.Enclosing(this, fSelectionHistory);
+			setAction(action.getId(), action);
+			action = new StructureSelectAction.Next(this, fSelectionHistory);
+			setAction(action.getId(), action);
+			action = new StructureSelectAction.Previous(this, fSelectionHistory);
+			setAction(action.getId(), action);
+			action = new SelectionHistoryBackAction(this, fSelectionHistory);
+			setAction(action.getId(), action);
+			fSelectionHistory.addUpdateListener((IUpdate) action);
 		}
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}
@@ -545,7 +563,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		if (fFoldingActionGroup != null) {
 			IMenuManager foldingMenu = new MenuManager(EditorMessages.FoldingMenu_label, "projection"); //$NON-NLS-1$
 			menu.appendToGroup(ITextEditorActionConstants.GROUP_RULERS, foldingMenu);
-			
 			fFoldingActionGroup.fillMenu(foldingMenu);
 		}
 	}

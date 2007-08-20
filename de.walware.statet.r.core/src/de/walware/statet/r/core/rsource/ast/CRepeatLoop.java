@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 /**
@@ -53,7 +56,7 @@ public class CRepeatLoop extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fLoopExpr.node == child) {
 			return 0;
 		}
@@ -71,6 +74,10 @@ public class CRepeatLoop extends RAstNode {
 	
 	@Override
 	public final void acceptInChildren(RAstVisitor visitor) {
+		fLoopExpr.node.accept(visitor);
+	}
+
+	public final void acceptInChildren(CommonAstVisitor visitor) {
 		fLoopExpr.node.accept(visitor);
 	}
 	

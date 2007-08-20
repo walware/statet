@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 
 
 
@@ -114,7 +117,7 @@ public class FCall extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		if (fRefExpr.node == child) {
 			return 0;
 		}
@@ -151,6 +154,11 @@ public class FCall extends RAstNode {
 		fArgs.accept(visitor);
 	}
 
+	public final void acceptInChildren(CommonAstVisitor visitor) {
+		fRefExpr.node.accept(visitor);
+		fArgs.accept(visitor);
+	}
+	
 	
 	@Override
 	final Expression getExpr(RAstNode child) {

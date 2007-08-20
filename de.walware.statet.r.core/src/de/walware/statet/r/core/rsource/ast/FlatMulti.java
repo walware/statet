@@ -14,6 +14,9 @@ package de.walware.statet.r.core.rsource.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
@@ -52,7 +55,7 @@ abstract class FlatMulti extends RAstNode {
 	}
 	
 	@Override
-	public final int getIndex(RAstNode child) {
+	public final int getChildIndex(IAstNode child) {
 		for (int i = fMultExpr.size()-1; i >= 0; i--) {
 			if (fMultExpr.get(i).node == child) {
 				return i+1;
@@ -79,6 +82,11 @@ abstract class FlatMulti extends RAstNode {
 	
 	@Override
 	public void acceptInChildren(RAstVisitor visitor) {
+		fLeftExpr.node.accept(visitor);
+		acceptChildrenExpr(visitor, fMultExpr);
+	}
+	
+	public void acceptInChildren(CommonAstVisitor visitor) {
 		fLeftExpr.node.accept(visitor);
 		acceptChildrenExpr(visitor, fMultExpr);
 	}
