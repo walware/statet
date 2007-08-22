@@ -11,6 +11,13 @@
 
 package de.walware.statet.nico.core;
 
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+
 
 
 /**
@@ -31,5 +38,12 @@ public class NicoCore {
 
 	public static final int EXITVALUE_CORE_EXCEPTION = STATUSCODE_RUNTIME_ERROR | 1;
 	public static final int EXITVALUE_RUNTIME_EXCEPTION = STATUSCODE_RUNTIME_ERROR | 2;
+
 	
+	private static IPreferenceAccess CONSOLE_PREFS = PreferencesUtil.createAccess(new IScopeContext[] {
+			new ConsoleScope(), new InstanceScope(), new DefaultScope() });
+
+	public static IPreferenceAccess getDefaultConsolePreferences() {
+		return CONSOLE_PREFS;
+	}
 }

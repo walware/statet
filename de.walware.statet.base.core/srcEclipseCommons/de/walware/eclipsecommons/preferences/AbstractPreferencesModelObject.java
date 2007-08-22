@@ -34,7 +34,7 @@ public abstract class AbstractPreferencesModelObject extends AbstractSettingsMod
 	public abstract String[] getNodeQualifiers();
 	
 	/**
-	 * Loads the default settings. 
+	 * Loads the default settings.
 	 */
 	public abstract void loadDefaults();
 	

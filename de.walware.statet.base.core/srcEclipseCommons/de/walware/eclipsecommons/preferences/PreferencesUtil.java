@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,11 +13,9 @@ package de.walware.eclipsecommons.preferences;
 
 import java.util.Map;
 
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
@@ -43,7 +41,7 @@ public class PreferencesUtil {
 		
 		public IScopeContext[] getPreferenceContexts() {
 			return fContexts;
-		} 
+		}
 	}
 	
 	private static class MapImpl implements IPreferenceAccess {
@@ -71,60 +69,65 @@ public class PreferencesUtil {
 	}
 
 	
-	private static DefaultImpl fgDefaultPreferences;
-	private static DefaultImpl fgInstancePreferences;
+	private final static DefaultImpl DEFAULT_PREFS = new DefaultImpl(new IScopeContext[] {
+			new DefaultScope() });
+	private final static DefaultImpl INSTANCE_PREFS = new DefaultImpl(new IScopeContext[] {
+			new InstanceScope(), new DefaultScope() });
 	
 	
-	public static synchronized IPreferenceAccess getInstancePrefs() {
-		if (fgInstancePreferences == null)
-			fgInstancePreferences = new DefaultImpl(new IScopeContext[] {
-							new InstanceScope(),
-							new DefaultScope(),
-			});
-		return fgInstancePreferences;
+	public final static IPreferenceAccess getInstancePrefs() {
+		return INSTANCE_PREFS;
 	}
 	
-	public static synchronized IPreferenceAccess getDefaultPrefs() {
-		if (fgDefaultPreferences == null)
-			fgDefaultPreferences = new DefaultImpl(new IScopeContext[] {
-							new DefaultScope(),
-			});
-		return fgDefaultPreferences;
+	public final static IPreferenceAccess getDefaultPrefs() {
+		return DEFAULT_PREFS;
 	}
 	
 	public static IPreferenceAccess createAccess(Map<Preference, Object> preferencesMap) {
 		return new MapImpl(preferencesMap);
 	}
 	
+	public static IPreferenceAccess createAccess(IScopeContext[] contexts) {
+		return new DefaultImpl(contexts);
+	}
+	
 		
 	@SuppressWarnings("unchecked")
 	public static <T> T getPrefValue(IScopeContext[] contexts, Preference<T> key) {
-		IPreferencesService service = Platform.getPreferencesService();
+		Object storedValue = null;
+		for (int i = 0; i < contexts.length && storedValue == null; i++) {
+			try {
+				storedValue = contexts[i].getNode(key.getQualifier()).get(key.getKey(), null);
+			}
+			catch (IllegalStateException e) {
+			}
+		}
 
-		Object storedValue;
-		switch (key.getStoreType()) {
-		case BOOLEAN:
-			storedValue = Boolean.valueOf(service.getBoolean(key.getQualifier(), key.getKey(), Preferences.BOOLEAN_DEFAULT_DEFAULT, contexts));
-			break;
-		case INT:
-			storedValue = Integer.valueOf(service.getInt(key.getQualifier(), key.getKey(), Preferences.INT_DEFAULT_DEFAULT, contexts));
-			break;
-		case LONG:
-			storedValue = Long.valueOf(service.getLong(key.getQualifier(), key.getKey(), Preferences.LONG_DEFAULT_DEFAULT, contexts));
-			break;
-		case DOUBLE:
-			storedValue = Double.valueOf(service.getDouble(key.getQualifier(), key.getKey(), Preferences.DOUBLE_DEFAULT_DEFAULT, contexts));
-			break;
-		case FLOAT:
-			storedValue = Float.valueOf(service.getFloat(key.getQualifier(), key.getKey(), Preferences.FLOAT_DEFAULT_DEFAULT, contexts));
-			break;
-		default:
-			storedValue = service.getString(key.getQualifier(), key.getKey(), Preferences.STRING_DEFAULT_DEFAULT, contexts);
-			break;
+		if (storedValue == null) {
+			switch (key.getStoreType()) {
+			case BOOLEAN:
+				storedValue = Preferences.BOOLEAN_DEFAULT_DEFAULT;
+				break;
+			case INT:
+				storedValue = Preferences.INT_DEFAULT_DEFAULT;
+				break;
+			case LONG:
+				storedValue = Preferences.LONG_DEFAULT_DEFAULT;
+				break;
+			case DOUBLE:
+				storedValue = Preferences.DOUBLE_DEFAULT_DEFAULT;
+				break;
+			case FLOAT:
+				storedValue = Preferences.FLOAT_DEFAULT_DEFAULT;
+				break;
+			default:
+				storedValue = Preferences.STRING_DEFAULT_DEFAULT;
+				break;
+			}
 		}
 		return key.store2Usage(storedValue);
 	}
-
+	
 	public static <T> T getPrefValue(IScopeContext context, Preference<T> key) {
 		IEclipsePreferences node = context.getNode(key.getQualifier());
 		return getPrefValue(node, key);
