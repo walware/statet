@@ -192,6 +192,7 @@ public class RModelManager {
 		
 	}
 	void fireDelta(final IModelElementDelta delta, final WorkingContext context) {
+		// TODO we should fire in a separate job/thread
 		ElementChangedEvent event = new ElementChangedEvent(delta, context);
 		SafeRunnable runnable = new SafeRunnable(event);
 		ContextItem item = getContextItem(context, true);

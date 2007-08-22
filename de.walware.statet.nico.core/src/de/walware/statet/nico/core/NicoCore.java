@@ -41,9 +41,10 @@ public class NicoCore {
 
 	
 	private static IPreferenceAccess CONSOLE_PREFS = PreferencesUtil.createAccess(new IScopeContext[] {
-			new ConsoleScope(), new InstanceScope(), new DefaultScope() });
+			new ConsoleInstanceScope(), new ConsoleDefaultScope(), new InstanceScope(), new DefaultScope() });
 
 	public static IPreferenceAccess getDefaultConsolePreferences() {
 		return CONSOLE_PREFS;
 	}
+	
 }

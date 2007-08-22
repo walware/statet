@@ -12,15 +12,13 @@
 package de.walware.statet.r.internal.ui;
 
 import java.util.Arrays;
-import java.util.Set;
+import java.util.Map;
 
-import de.walware.eclipsecommons.AbstractSettingsModelObject;
+import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
-import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ManageListener;
 
-import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.r.core.RNamesComparator;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
@@ -29,7 +27,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 /**
  *
  */
-public class RIdentifierGroups extends AbstractSettingsModelObject {
+public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	
 	
 	public final static String CONTEXT_ID = "r.editor/identifiergroups"; //$NON-NLS-1$
@@ -41,47 +39,38 @@ public class RIdentifierGroups extends AbstractSettingsModelObject {
 	private String[] fIdentifiersItemsCustom1;
 	private String[] fIdentifiersItemsCustom2;
 	
-	private IPreferenceAccess fPrefs;
 	
-	
-	public RIdentifierGroups(IPreferenceAccess prefs) {
+	public RIdentifierGroups() {
 		installLock();
-
-		fPrefs = prefs;
-		StatetCore.getSettingsChangeNotifier().addManageListener(new ManageListener() {
-			public void beforeSettingsChangeNotification(Set<String> contexts) {
-				if (contexts.contains(CONTEXT_ID)) {
-					checkItems();
-				}
-			}
-			public void afterSettingsChangeNotification(Set<String> contexts) {
-				if (contexts.contains(CONTEXT_ID)) {
-					resetDirty();
-				}
-			}
-		});
-		checkItems();
 	}
 	
+	@Override
+	public String[] getNodeQualifiers() {
+		return new String[0];
+	}
+
+	@Override
+	public void loadDefaults() {
+	}
 	
-	private void checkItems() {
-		getWriteLock().lock();
-		try {
-			RNamesComparator comparator = new RNamesComparator();
-			fIdentifiersItemsAssignment = loadValues(fPrefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS);
-			Arrays.sort(fIdentifiersItemsAssignment, comparator);
-			fIdentifiersItemsLogical = loadValues(fPrefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS);
-			Arrays.sort(fIdentifiersItemsLogical, comparator);
-			fIdentifiersItemsFlowcontrol = loadValues(fPrefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS);
-			Arrays.sort(fIdentifiersItemsFlowcontrol, comparator);
-			fIdentifiersItemsCustom1 = loadValues(fPrefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS);
-			Arrays.sort(fIdentifiersItemsCustom1, comparator);
-			fIdentifiersItemsCustom2 = loadValues(fPrefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS);
-			Arrays.sort(fIdentifiersItemsCustom2, comparator);
-		}
-		finally {
-			getWriteLock().unlock();
-		}
+	@Override
+	public void load(IPreferenceAccess prefs) {
+		RNamesComparator comparator = new RNamesComparator();
+		fIdentifiersItemsAssignment = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS);
+		Arrays.sort(fIdentifiersItemsAssignment, comparator);
+		fIdentifiersItemsLogical = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS);
+		Arrays.sort(fIdentifiersItemsLogical, comparator);
+		fIdentifiersItemsFlowcontrol = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS);
+		Arrays.sort(fIdentifiersItemsFlowcontrol, comparator);
+		fIdentifiersItemsCustom1 = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS);
+		Arrays.sort(fIdentifiersItemsCustom1, comparator);
+		fIdentifiersItemsCustom2 = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS);
+		Arrays.sort(fIdentifiersItemsCustom2, comparator);
+	}
+	
+	@Override
+	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
+		return map;
 	}
 
 	private final String[] loadValues(IPreferenceAccess prefs, String key) {
@@ -90,7 +79,8 @@ public class RIdentifierGroups extends AbstractSettingsModelObject {
 	}
 	
 
-
+	
+	
 	public String[] getAssignmentIdentifiers() {
 		return fIdentifiersItemsAssignment;
 	}

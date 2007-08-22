@@ -429,15 +429,23 @@ public class RSourceIndenter {
 		try {
 			setup(document, ast, access);
 			computeIndent(firstLine, lastLine);
-			TextEdit edit = createEdits();
-			if (edit.getChildrenSize() >= 1) {
-				return edit;
-			}
-			return null;
+			return createEdits();
 		}
 		catch (BadLocationException e) {
 			throw createFailedException(e);
 		}
+	}
+
+	/**
+	 * Release resources from last computation.
+	 * After clear, you can not longer call the <code>get...(...)</code> methods.
+	 */
+	public void clear() {
+		fDocument = null;
+		fAst = null;
+		fCodeStyle = null;
+		fUtil = null;
+		fLineLevels = null;
 	}
 
 	protected void setup(final AbstractDocument document, final AstInfo<RAstNode> ast, final IRCoreAccess access) {

@@ -12,9 +12,14 @@
 package de.walware.statet.r.internal.ui;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
@@ -24,15 +29,20 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
+import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.nico.core.ConsoleInstanceScope;
+import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.RDocumentProvider;
+import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 
@@ -75,6 +85,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	private IPreferenceStore fEditorPreferenceStore;
 	
 	private RIdentifierGroups fIdentifierGroups;
+	private REditorOptions fEditorSettings;
+	private REditorOptions fConsoleSettings;
+	private List<PreferencesManageListener> fPrefUpdaters = new ArrayList<PreferencesManageListener>();
 	
 	private TemplateStore fRCodeTemplatesStore;
 	private ContextTypeRegistry fRCodeTemplatesContextTypeRegistry;
@@ -97,7 +110,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 */
 	@Override
 	public void start(BundleContext context) throws Exception {
-		
 		super.start(context);
 	}
 
@@ -116,6 +128,11 @@ public class RUIPlugin extends AbstractUIPlugin {
 			fRdCodeTemplatesContextTypeRegistry = null;
 			fREditorTemplatesStore = null;
 			fREditorContextTypeRegistry = null;
+			Iterator<PreferencesManageListener> iter = fPrefUpdaters.iterator();
+			while (iter.hasNext()) {
+				iter.next().dispose();
+			}
+			fPrefUpdaters.clear();
 		} finally {
 			gPlugin = null;
 			super.stop(context);
@@ -126,19 +143,16 @@ public class RUIPlugin extends AbstractUIPlugin {
 	 * Returns the shared instance.
 	 */
 	public static RUIPlugin getDefault() {
-		
 		return gPlugin;
 	}
 
 	@Override
 	protected ImageRegistry createImageRegistry() {
-		
 		return StatetUIServices.getSharedImageRegistry();
 	}
 	
 	@Override
 	protected void initializeImageRegistry(ImageRegistry reg) {
-
 		ImageRegistryUtil util = new ImageRegistryUtil(this);
 		util.register(IMG_WIZBAN_NEWRPROJECT, ImageRegistryUtil.T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
 		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png"); //$NON-NLS-1$
@@ -173,9 +187,34 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized RIdentifierGroups getRIdentifierGroups() {
 		if (fIdentifierGroups == null) {
-			fIdentifierGroups = new RIdentifierGroups(PreferencesUtil.getInstancePrefs());
+			fIdentifierGroups = new RIdentifierGroups();
+			fPrefUpdaters.add(new PreferencesManageListener(
+					fIdentifierGroups, PreferencesUtil.getInstancePrefs(), RIdentifierGroups.CONTEXT_ID));
 		}
 		return fIdentifierGroups;
+	}
+
+	public synchronized REditorOptions getREditorSettings(IPreferenceAccess prefs) {
+		IScopeContext[] contexts = prefs.getPreferenceContexts();
+		for (int i = 0; i < contexts.length; i++) {
+			if (contexts[i].getName().equals(ConsoleInstanceScope.SCOPE)) {
+				if (fConsoleSettings== null) {
+					fConsoleSettings = new REditorOptions(1);
+					fPrefUpdaters.add(new PreferencesManageListener(
+							fConsoleSettings, NicoCore.getDefaultConsolePreferences(), REditorOptions.CONTEXT_ID));
+				}
+				return fConsoleSettings;
+			}
+			if (contexts[i].getName().equals(InstanceScope.SCOPE)) {
+				if (fEditorSettings == null) {
+					fEditorSettings = new REditorOptions(1);
+					fPrefUpdaters.add(new PreferencesManageListener(
+							fEditorSettings, PreferencesUtil.getInstancePrefs(), REditorOptions.CONTEXT_ID));
+				}
+				return fEditorSettings;
+			}
+		}
+		return null;
 	}
 
 	/**

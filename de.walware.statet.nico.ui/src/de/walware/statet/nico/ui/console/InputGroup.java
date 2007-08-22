@@ -61,6 +61,7 @@ import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.editors.DeleteLineAction;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.ext.ui.editors.IEditorInstallable;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.TextViewerAction;
@@ -243,6 +244,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	private Button fSubmitButton;
 	
 	EditorAdapter fEditorAdapter = new EditorAdapter();
+	IEditorInstallable[] fInstalledModules;
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
 	private SourceViewerConfigurator fConfigurator;
 
@@ -362,6 +364,11 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEDOWN);
 		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_START);
 		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
+		
+		fInstalledModules = fConfigurator.getSourceViewerConfiguration().getInstallables();
+		for (int i = 0; i < fInstalledModules.length; i++) {
+			fInstalledModules[i].install(fEditorAdapter);
+		}
 	}
 	
 	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
@@ -563,6 +570,13 @@ public class InputGroup implements ISettingsChangedHandler {
 		fHistoryListener = null;
 		fCurrentHistoryEntry = null;
 		
+		if (fInstalledModules != null) {
+			for (int i = 0; i < fInstalledModules.length; i++) {
+				fInstalledModules[i].uninstall();
+			}
+			fInstalledModules = null;
+		}
+
 		if (fSourceViewerDecorationSupport != null) {
 			fSourceViewerDecorationSupport.dispose();
 			fSourceViewerDecorationSupport = null;

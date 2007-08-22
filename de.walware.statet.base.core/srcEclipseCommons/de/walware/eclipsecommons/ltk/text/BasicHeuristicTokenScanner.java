@@ -36,32 +36,6 @@ import org.eclipse.jface.text.TypedRegion;
 public class BasicHeuristicTokenScanner implements ITokenScanner {
 	
 	
-	/**
-	 * Specifies the stop condition, upon which the <code>scan...</code> methods will decide whether
-	 * to keep scanning or not. This interface may implemented by clients.
-	 */
-	protected static abstract class StopCondition {
-		/**
-		 * Instructs the scanner to return the current position.
-		 *
-		 * @param ch the char at the current position
-		 * @param position the current position
-		 * @param forward the iteration direction
-		 * @return <code>true</code> if the stop condition is met.
-		 */
-		public abstract boolean stop(boolean forward);
-		
-		/**
-		 * Asks the condition to return the next position to query. The default
-		 * is to return the next/previous position.
-		 *
-		 * @return the next position to scan
-		 */
-		public int nextPosition(int position, boolean forward) {
-			return forward ? position + 1 : position - 1;
-		}
-	}
-	
 	protected static abstract class PartitionMatcher {
 		
 		public abstract boolean matches(String partitionId);
@@ -90,10 +64,96 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	};
 	
 	/**
+	 * Specifies the stop condition, upon which the <code>scan...</code> methods will decide whether
+	 * to keep scanning or not. This interface may implemented by clients.
+	 */
+	protected abstract class StopCondition {
+		/**
+		 * Instructs the scanner to return the current position.
+		 *
+		 * @param ch the char at the current position
+		 * @param position the current position
+		 * @param forward the iteration direction
+		 * @return <code>true</code> if the stop condition is met.
+		 */
+		public abstract boolean stop();
+		
+		/**
+		 * Asks the condition to return the next position to query. The default
+		 * is to return the next/previous position.
+		 *
+		 * @return the next position to scan
+		 */
+		public int nextPositionForward() {
+			return fPos + 1;
+		}
+
+		public int nextPositionBackward() {
+			return fPos - 1;
+		}
+	}
+	
+	/**
 	 * Stops upon a character in the default partition that matches the given character list.
 	 */
-	protected class CharacterMatchCondition extends StopCondition {
+	protected abstract class PartitionBasedCondition extends StopCondition {
 
+		private ITypedRegion fCurrentPartition;
+		private boolean fCurrentPartitionMatched;
+		private int fCurrentPartitionStart;
+		private int fCurrentPartitionEnd;
+
+		public PartitionBasedCondition() {
+			fCurrentPartitionMatched = false;
+		}
+		
+		@Override
+		public boolean stop() {
+			if (fCurrentPartitionMatched && fCurrentPartitionStart <= fPos && fPos < fCurrentPartitionEnd) {
+				return matchesChar(fChar);
+			}
+			fCurrentPartition = getPartition();
+			fCurrentPartitionStart = fCurrentPartition.getOffset();
+			fCurrentPartitionEnd = fCurrentPartitionStart+fCurrentPartition.getLength();
+			if (fPartition.matches(fCurrentPartition.getType())) {
+				fCurrentPartitionMatched = true;
+				return matchesChar(fChar);
+			}
+			else {
+				fCurrentPartitionMatched = false;
+				return false;
+			}
+		}
+		
+		protected abstract boolean matchesChar(char c);
+		
+		@Override
+		public int nextPositionForward() {
+			if (fCurrentPartitionMatched) {
+				return fPos + 1;
+			}
+			if (fPos < fCurrentPartitionEnd) {
+				return fCurrentPartitionEnd;
+			}
+			return fPos + 1;
+		}
+
+		@Override
+		public int nextPositionBackward() {
+			if (fCurrentPartitionMatched) {
+				return fPos - 1;
+			}
+			if (fPos >= fCurrentPartitionStart) {
+				return fCurrentPartitionStart - 1;
+			}
+			return fPos - 1;
+		}
+	}
+
+	
+	
+	protected class CharacterMatchCondition extends PartitionBasedCondition {
+		
 		protected final char[] fChars;
 
 		/**
@@ -101,7 +161,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		 * @param ch the single character to match
 		 */
 		public CharacterMatchCondition(char ch) {
-			this(new char[] {ch});
+			this(new char[] { ch });
 		}
 
 		/**
@@ -109,36 +169,22 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		 * @param chars the chars to match.
 		 */
 		public CharacterMatchCondition(char[] chars) {
-			Assert.isNotNull(chars);
-			Assert.isTrue(chars.length > 0);
+			assert (chars != null);
 			fChars = chars;
-			Arrays.sort(chars);
 		}
 
 		@Override
-		public boolean stop(boolean forward) {
-			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType(fPos))) );
-		}
-		
-		@Override
-		public int nextPosition(int position, boolean forward) {
-			ITypedRegion partition = getPartition(position);
-			if (fPartition.matches(partition.getType()))
-				return super.nextPosition(position, forward);
-
-			if (forward) {
-				int end = partition.getOffset() + partition.getLength();
-				if (position < end)
-					return end;
-			} else {
-				int offset = partition.getOffset();
-				if (position > offset)
-					return offset - 1;
+		protected boolean matchesChar(char c) {
+			for (int i = 0; i < fChars.length; i++) {
+				if (fChars[i] == fChar) {
+					return true;
+				}
 			}
-			return super.nextPosition(position, forward);
+			return false;
 		}
 	}
-
+	
+	
 	protected class ExtCharacterMatchCondition extends CharacterMatchCondition {
 		
 		private final char fEscapeChar;
@@ -147,24 +193,25 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		ExtCharacterMatchCondition(char[] chars, char escapeChar) {
 			super(chars);
 			fEscapeChar = escapeChar;
+			Arrays.sort(chars);
 		}
 
 		@Override
-		public boolean stop(boolean forward) {
+		public boolean stop() {
 			if (fPos == fLastEscapeOffset+1)
 				return false;
 			if (fChar == fEscapeChar) {
 				fLastEscapeOffset = fPos;
 				return false;
 			}
-			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType(fPos))) );
+			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType())) );
 		}
 		
 	}
 	
 	
 	/** The document being scanned. */
-	private IDocument fDocument;
+	protected IDocument fDocument;
 	/** The partitioning being used for scanning. */
 	private String fPartitioning;
 	/** The partition to scan in. */
@@ -194,11 +241,15 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		fPartitioning = partitioning;
 	}
 	
+	public final char getChar() {
+		return fChar;
+	}
+
 	protected StopCondition getNonWSCondition() {
 		if (fNonWSCondition == null) {
 			fNonWSCondition = new StopCondition() {
 				@Override
-				public boolean stop(boolean forward) {
+				public boolean stop() {
 					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t');
 				}
 			};
@@ -210,7 +261,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		if (fNonWSorLRCondition == null) {
 			fNonWSorLRCondition = new StopCondition() {
 				@Override
-				public boolean stop(boolean forward) {
+				public boolean stop() {
 					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t'
 						&& fChar != '\r' && fChar != '\n');
 				}
@@ -386,18 +437,17 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		return true;
 	}
 	
-	public IRegion findCommonWord(int position) {
-		
+	public final IRegion findCommonWord(int position) {
 		return findRegion(position, new StopCondition() {
 			@Override
-			public boolean stop(boolean forward) {
+			public boolean stop() {
 				return (!Character.isLetterOrDigit(fChar));
 			}
 		});
 	}
 	
-	public IRegion getTextBlock(int position1, int position2) throws BadLocationException {
-		
+
+	public final IRegion getTextBlock(int position1, int position2) throws BadLocationException {
 		int line1 = fDocument.getLineOfOffset(position1);
 		int line2 = fDocument.getLineOfOffset(position2);
 		if (line1 < line2 && fDocument.getLineOffset(line2) == position2) {
@@ -408,13 +458,11 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		return new Region(start, length);
 	}
 	
-	public int getFirstLineOfRegion(IRegion region) throws BadLocationException {
-
+	public final int getFirstLineOfRegion(IRegion region) throws BadLocationException {
 		return fDocument.getLineOfOffset(region.getOffset());
 	}
 	
-	public int getLastLineOfRegion(IRegion region) throws BadLocationException {
-		
+	public final int getLastLineOfRegion(IRegion region) throws BadLocationException {
 		if (region.getLength() == 0) {
 			return fDocument.getLineOfOffset(region.getOffset());
 		}
@@ -422,8 +470,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 	
 
-	private int[] preScanBackward(int start, int bound, StopCondition condition) throws BadLocationException {
-
+	private final int[] preScanBackward(int start, int bound, StopCondition condition) throws BadLocationException {
 		IntList list = new ArrayIntList();
 		int scanEnd = start;
 
@@ -458,7 +505,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param condition the <code>StopCondition</code> to check
 	 * @return the lowest position in [<code>start</code>, <code>bound</code>) for which <code>condition</code> holds, or <code>NOT_FOUND</code> if none can be found
 	 */
-	protected int scanForward(int start, int bound, StopCondition condition) {
+	protected final int scanForward(int start, int bound, StopCondition condition) {
 		if (bound == UNBOUND) {
 			bound = fDocument.getLength();
 		}
@@ -469,10 +516,10 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			fPos = start;
 			while (fPos < bound) {
 				fChar = fDocument.getChar(fPos);
-				if (condition.stop(true)) {
+				if (condition.stop()) {
 					return fPos;
 				}
-				fPos = condition.nextPosition(fPos, true);
+				fPos = condition.nextPositionForward();
 			}
 			fPos = bound;
 		} catch (BadLocationException e) {
@@ -491,7 +538,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param ch the <code>char</code> to search for
 	 * @return the lowest position of <code>ch</code> in (<code>bound</code>, <code>position</code>] that resides in a Java partition, or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int scanForward(int position, int bound, char ch) {
+	public final int scanForward(int position, int bound, char ch) {
 		return scanForward(position, bound, new CharacterMatchCondition(ch));
 	}
 
@@ -505,7 +552,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param chars an array of <code>char</code> to search for
 	 * @return the lowest position of a non-whitespace character in [<code>position</code>, <code>bound</code>) that resides in a Java partition, or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int scanForward(int position, int bound, char[] chars) {
+	public final int scanForward(int position, int bound, char[] chars) {
 		return scanForward(position, bound, new CharacterMatchCondition(chars));
 	}
 
@@ -518,22 +565,22 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param condition the <code>StopCondition</code> to check
 	 * @return the highest position in (<code>bound</code>, <code>start</code> for which <code>condition</code> holds, or <code>NOT_FOUND</code> if none can be found
 	 */
-	protected int scanBackward(int start, int bound, StopCondition condition) {
+	protected final int scanBackward(int start, int bound, StopCondition condition) {
 		if (bound == UNBOUND) {
 			bound = -1;
 		}
 		assert(bound >= -1);
-		assert(start == 0 || start < fDocument.getLength() );
+//		assert(start == 0 || start < fDocument.getLength() );
 
 		try {
 			if (fDocument.getLength() > 0) {
 				fPos = start;
 				while (fPos > bound) {
 					fChar = fDocument.getChar(fPos);
-					if (condition.stop(false)) {
+					if (condition.stop()) {
 						return fPos;
 					}
-					fPos = condition.nextPosition(fPos, false);
+					fPos = condition.nextPositionBackward();
 				}
 			}
 			fPos = bound;
@@ -552,7 +599,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param ch the <code>char</code> to search for
 	 * @return the highest position of one element in <code>chars</code> in (<code>bound</code>, <code>position</code>] that resides in a Java partition, or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int scanBackward(int position, int bound, char ch) {
+	public final int scanBackward(int position, int bound, char ch) {
 		return scanBackward(position, bound, new CharacterMatchCondition(ch));
 	}
 
@@ -566,16 +613,27 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param chars an array of <code>char</code> to search for
 	 * @return the highest position of one element in <code>chars</code> in (<code>bound</code>, <code>position</code>] that resides in a Java partition, or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int scanBackward(int position, int bound, char[] chars) {
+	public final int scanBackward(int position, int bound, char[] chars) {
 		return scanBackward(position, bound, new CharacterMatchCondition(chars));
 	}
-
-	protected IRegion findRegion(int position, StopCondition condition) {
+	
+	
+	public final int count(int start, final int stop, final char c) {
+		int count = 0;
+		CharacterMatchCondition condition = new CharacterMatchCondition(c);
+		while (start < stop && (start = scanForward(start, stop, condition)) != NOT_FOUND) {
+			count++;
+			start++;
+		}
+		return count;
+	}
+	
+	
+	protected final IRegion findRegion(int position, StopCondition condition) {
 		return findRegion(position, condition, false);
 	}
 
-	protected IRegion findRegion(int position, StopCondition condition, boolean allowClosing) {
-		
+	protected final IRegion findRegion(int position, StopCondition condition, boolean allowClosing) {
 		int start = position;
 		int end = scanForward(position, UNBOUND, condition);
 		if (end == NOT_FOUND) {
@@ -601,9 +659,9 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @return the content type at <code>position</code> or a dummy zero-length
 	 *         partition if accessing the document fails
 	 */
-	private String getContentType(int position) {
+	protected final String getContentType() {
 		try {
-			return TextUtilities.getContentType(fDocument, fPartitioning, position, false);
+			return TextUtilities.getContentType(fDocument, fPartitioning, fPos, false);
 		} catch (BadLocationException e) {
 			return null; // ?
 		}
@@ -616,11 +674,11 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @return the partition at <code>position</code> or a dummy zero-length
 	 *         partition if accessing the document fails
 	 */
-	private ITypedRegion getPartition(int position) {
+	protected final ITypedRegion getPartition() {
 		try {
-			return TextUtilities.getPartition(fDocument, fPartitioning, position, false);
+			return TextUtilities.getPartition(fDocument, fPartitioning, fPos, false);
 		} catch (BadLocationException e) {
-			return new TypedRegion(position, 0, "__no_partition_at_all"); //$NON-NLS-1$
+			return new TypedRegion(fPos, 0, "__no_partition_at_all"); //$NON-NLS-1$
 		}
 	}
 

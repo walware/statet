@@ -65,7 +65,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 	}
 	
 	/**
-	 * PairMatcher used for pairmatching decoration and 
+	 * PairMatcher used for pairmatching decoration and
 	 * goto matching bracket action.
 	 * 
 	 * @return the pair matcher of <code>null</code>.
@@ -87,7 +87,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 		if (fPairMatcher != null) {
 			support.setCharacterPairMatcher(fPairMatcher);
 			support.setMatchingCharacterPainterPreferenceKeys(
-					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, 
+					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS,
 					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
 		}
 	}
@@ -109,6 +109,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 	public void unconfigureTarget() {
 		if (fViewer != null) {
 			fIsConfigured = false;
+			fConfiguration.getInstallables();
 			((ISourceViewerExtension2) fViewer).unconfigure();
 		}
 	}

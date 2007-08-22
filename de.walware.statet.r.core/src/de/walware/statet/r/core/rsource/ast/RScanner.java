@@ -40,12 +40,13 @@ public class RScanner {
 			this.eatLines = eatLines;
 		}
 		
-		void setOpenExpr(Expression expr) {
-			if (expr != null && expr.node != null) {
-				openExpr = null;
+		void update(RAstNode lastNode, Expression openExpr) {
+			this.lastNode = lastNode;
+			if (openExpr != null && openExpr.node != null) {
+				this.openExpr = null;
 			}
 			else {
-				openExpr = expr;
+				this.openExpr = openExpr;
 			}
 		}
 	}
@@ -461,8 +462,7 @@ public class RScanner {
 				node.fNamespace = (SingleValue) context.lastNode;
 				final RAstNode base = context.lastNode.getParent();
 				node.fNamespace.fParent = node;
-				context.lastNode = base;
-				context.openExpr = base.getExpr(node.fNamespace);
+				context.update(base, base.getExpr(node.fNamespace));
 				context.openExpr.node = null;
 				break;
 			}
@@ -855,8 +855,7 @@ public class RScanner {
 					arg.fArgName = null;
 
 					ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
-					valueContext.lastNode = arg.fValueExpr.node;
-					valueContext.openExpr = null;
+					valueContext.update(arg.fValueExpr.node, null);
 					scanInExpression(valueContext);
 					checkExpression(valueContext);
 				}
@@ -905,15 +904,14 @@ public class RScanner {
 			error.fRightExpr.node = newNode;
 			context.rootExpr.node = error;
 		}
-		context.lastNode = newNode;
-		context.setOpenExpr(newNode.getRightExpr());
+		context.update(newNode, newNode.getRightExpr());
 		return;
 	}
 	
 	final void appendOp(final ExprContext context, final RAstNode newNode) {
 		if (context.openExpr != null) {
 			context.openExpr.node = errorNonExistExpression(context.lastNode, fNext.offset, RAst.STATUS_MISSING_EXPR);
-			context.openExpr = null;
+			context.update(context.openExpr.node, null);
 		}
 		
 		int newP = newNode.getNodeType().opPrec;
@@ -949,8 +947,7 @@ public class RScanner {
 			if (left.getNodeType().opAssoc == Assoc.LEFTMULTI) {
 				FlatMulti leftMulti = (FlatMulti) left;
 				FlatMulti newMulti = (FlatMulti) newNode;
-				context.lastNode = leftMulti;
-				context.setOpenExpr(leftMulti.appendComponent(newMulti.getStopOffset(), newMulti.getOperator(1)));
+				context.update(leftMulti, leftMulti.appendComponent(newMulti.getStopOffset(), newMulti.getOperator(1)));
 				return;
 			}
 		}
@@ -960,8 +957,7 @@ public class RScanner {
 		baseExpr.node = newNode;
 		newNode.fParent = baseNode;
 		
-		context.lastNode = newNode;
-		context.setOpenExpr(newNode.getRightExpr());
+		context.update(newNode, newNode.getRightExpr());
 		return;
 	}
 	

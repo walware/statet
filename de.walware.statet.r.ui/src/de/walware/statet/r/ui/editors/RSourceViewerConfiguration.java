@@ -25,6 +25,7 @@ import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
@@ -86,6 +87,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		fEditor = editor;
 		setup(preferenceStore, colorManager);
 		setScanners(initializeScanners());
+	}
+	
+	protected IRCoreAccess getRCoreAccess() {
+		return fRCoreAccess;
 	}
 	
 	/**
@@ -214,11 +219,16 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+	public final IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
 		if (fRAutoEditStrategy == null) {
-			fRAutoEditStrategy = new RAutoEditStrategy(fRCoreAccess, fEditor);
+			fRAutoEditStrategy = createAutoEditStrategy(sourceViewer);
+			fInstallableModules.add(fRAutoEditStrategy);
 		}
 		return new IAutoEditStrategy[] { fRAutoEditStrategy };
+	}
+	
+	protected RAutoEditStrategy createAutoEditStrategy(ISourceViewer sourceViewer) {
+		return new RAutoEditStrategy(fRCoreAccess, (SourceViewer) sourceViewer, fEditor);
 	}
 	
 	@Override

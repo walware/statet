@@ -165,6 +165,7 @@ public class LayoutUtil {
 		gl.horizontalSpacing = defaultHSpacing();
 		gl.verticalSpacing = defaultVSpacing();
 		gl.marginTop = defaultVSpacing() / 2;
+		gl.marginBottom = defaultVSpacing() / 2;
 		return gl;
 	}
 	

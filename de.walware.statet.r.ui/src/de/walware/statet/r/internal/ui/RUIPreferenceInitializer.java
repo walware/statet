@@ -11,13 +11,19 @@
 
 package de.walware.statet.r.internal.ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
+import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
 
+import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -26,6 +32,19 @@ import de.walware.statet.r.ui.editors.REditorOptions;
 public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 
 
+	private static final String CONSOLE_NODE = NicoPreferenceNodes.createScopeQualifier(REditorOptions.NODE);
+	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED = new BooleanPref(
+			CONSOLE_NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$
+	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED = new BooleanPref(
+			CONSOLE_NODE, "smartinsert.close_roundbrackets.enabled"); //$NON-NLS-1$
+	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED = new BooleanPref(
+			CONSOLE_NODE, "smartinsert.close_squarebrackets.enabled"); //$NON-NLS-1$
+	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED = new BooleanPref(
+			CONSOLE_NODE, "smartinsert.close_specialpercent.enabled"); //$NON-NLS-1$
+	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED = new BooleanPref(
+			CONSOLE_NODE, "smartinsert.close_strings.enabled"); //$NON-NLS-1$
+
+	
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = RUIPlugin.getDefault().getPreferenceStore();
@@ -34,8 +53,17 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		RUIPreferenceConstants.initializeDefaultValues(store);
 		
 		DefaultScope defaultScope = new DefaultScope();
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SMARTINSERT_ENABLEDASDEFAULT, true);
-		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_FOLDING_ENABLEDASDEFAULT, true);
+		Map<Preference, Object> defaults = new HashMap<Preference, Object>();
+		new REditorOptions(0).deliverToPreferencesMap(defaults);
+		PreferencesUtil.setPrefValues(defaultScope, defaults);
+		
+		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, false);
+		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, true);
+		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, true);
+		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, true);
+		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, false);
+		
+		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_FOLDING_ASDEFAULT_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
 		
 		RDebugPreferenceConstants.initializeDefaultValues(defaultScope);

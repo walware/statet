@@ -348,6 +348,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	private ProjectionSupport fFoldingSupport;
 	private IFoldingStructureProvider fFoldingProvider;
 	private FoldingActionGroup fFoldingActionGroup;
+	private IEditorInstallable[] fInstalledModules;
 
 	
 /*- Contructors ------------------------------------------------------------*/
@@ -478,6 +479,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 					uninstallFoldingSupport();
 				}
 			});
+		}
+
+		fInstalledModules = ((StatextSourceViewerConfiguration) getSourceViewerConfiguration()).getInstallables();
+		for (int i = 0; i < fInstalledModules.length; i++) {
+			fInstalledModules[i].install(fEditorAdapter);
 		}
 	}
 	
@@ -619,12 +625,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	}
 
 	
-	
-	
-	
 	@Override
 	public void dispose() {
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		
+		if (fInstalledModules != null) {
+			for (int i = 0; i < fInstalledModules.length; i++) {
+				fInstalledModules[i].uninstall();
+			}
+			fInstalledModules = null;
+		}
+		
 		super.dispose();
 	}
 

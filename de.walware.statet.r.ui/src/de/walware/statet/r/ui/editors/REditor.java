@@ -52,6 +52,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	private RSourceViewerConfigurator fRConfig;
 	private IRSourceUnit fRResourceUnit;
 	private IContextProvider fHelpContextProvider;
+	private REditorOptions fOptions;
 
 	
 	public REditor() {
@@ -64,8 +65,10 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 
+		IRCoreAccess basicContext = RCore.getWorkbenchAccess();
+		fOptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
 		IPreferenceStore store = RUIPlugin.getDefault().getEditorPreferenceStore();
-		fRConfig = new RSourceViewerConfigurator(RCore.getWorkbenchAccess(), store);
+		fRConfig = new RSourceViewerConfigurator(basicContext, store);
 		fRConfig.setConfiguration(new RSourceViewerConfiguration(this,
 				fRConfig, store, StatetUIServices.getSharedColorManager()));
 		initializeEditor(fRConfig); // super
@@ -80,7 +83,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 		final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 		fRConfig.setTarget(this, viewer);
 
-		if (PreferencesUtil.getInstancePrefs().getPreferenceValue(REditorOptions.PREF_FOLDING_ENABLEDASDEFAULT)) {
+		if (PreferencesUtil.getInstancePrefs().getPreferenceValue(REditorOptions.PREF_FOLDING_ASDEFAULT_ENABLED)) {
 			viewer.doOperation(ProjectionViewer.TOGGLE);
 		}
 		
@@ -138,7 +141,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 		fRResourceUnit = ((RDocumentProvider) getDocumentProvider()).getWorkingCopy(newInput);
 		fRConfig.setSource(fRResourceUnit);
 
-		if (fRConfig.getPrefs().getPreferenceValue(REditorOptions.PREF_SMARTINSERT_ENABLEDASDEFAULT)) {
+		if (fOptions.isSmartModeByDefaultEnabled()) {
 			setInsertMode(SMART_INSERT);
 		}
 		else {
@@ -181,6 +184,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
         markAsContentDependentAction(action.getId(), true);
 	}
 
+	@Override
 	public IRSourceUnit getSourceUnit() {
 		return fRResourceUnit;
 	}

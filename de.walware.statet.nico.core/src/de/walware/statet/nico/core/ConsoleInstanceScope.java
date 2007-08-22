@@ -20,17 +20,14 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 /**
  * Dummy scope to overlay instance preferences with special values for consoles.
  */
-public class ConsoleScope implements IScopeContext {
+public final class ConsoleInstanceScope implements IScopeContext {
 	
 	
-	public static final String SCOPE = "nico"; //$NON-NLS-1$
-	public static final String QUALIFIER = "de.walware.statet.nico.core.Scope"; //$NON-NLS-1$
-
-	
+	public static final String SCOPE = "nico.instance"; //$NON-NLS-1$
 	private InstanceScope fBaseScope;
 	
 	
-	public ConsoleScope() {
+	public ConsoleInstanceScope() {
 		fBaseScope = new InstanceScope();
 	}
 	
@@ -43,7 +40,18 @@ public class ConsoleScope implements IScopeContext {
 	}
 	
 	public IEclipsePreferences getNode(String qualifier) {
-		return (IEclipsePreferences) fBaseScope.getNode(QUALIFIER).node(qualifier);
+		int idx = qualifier.indexOf('/');
+		if (idx < 0) {
+			return (IEclipsePreferences) fBaseScope
+					.getNode(NicoPreferenceNodes.SCOPE_QUALIFIER)
+					.node(qualifier);
+		}
+		else {
+			return (IEclipsePreferences) fBaseScope
+					.getNode(qualifier.substring(0, idx))
+					.node(NicoPreferenceNodes.SCOPE_QUALIFIER)
+					.node(qualifier.substring(idx+1));
+		}
 	}
 	
 }

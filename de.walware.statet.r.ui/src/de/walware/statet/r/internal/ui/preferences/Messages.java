@@ -117,6 +117,17 @@ public class Messages extends NLS {
 	public static String REditorTemplates_title;
 
 	public static String REditorOptions_SmartInsert_label;
+	public static String REditorOptions_SmartInsert_description;
+	public static String REditorOptions_SmartInsert_AsDefault_label;
+	public static String REditorOptions_SmartInsert_OnPaste_label;
+	public static String REditorOptions_SmartInsert_ForEditor_header;
+	public static String REditorOptions_SmartInsert_ForConsole_header;
+	public static String REditorOptions_SmartInsert_CloseAuto_label;
+	public static String REditorOptions_SmartInsert_CloseCurly_label;
+	public static String REditorOptions_SmartInsert_CloseRound_label;
+	public static String REditorOptions_SmartInsert_CloseSquare_label;
+	public static String REditorOptions_SmartInsert_ClosePercent_label;
+	public static String REditorOptions_SmartInsert_CloseString_label;
 	public static String REditorOptions_SpellChecking_Enable_label;
 	public static String REditorOptions_SpellChecking_note;
 	public static String REditorOptions_Folding_Enable_label;

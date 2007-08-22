@@ -29,6 +29,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
+import de.walware.eclipsecommons.FastList;
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.templates.WordFinder;
 import de.walware.eclipsecommons.ui.util.ColorManager;
@@ -41,7 +42,7 @@ import de.walware.statet.ext.ui.text.StatextTextScanner;
 /**
  * Configuration for SourceViewer...
  */
-public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration 
+public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration
 		implements ISettingsChangedHandler {
 
 	
@@ -57,6 +58,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	
 	private ColorManager fColorManager;
 	private StatextTextScanner[] fScanners;
+	protected final FastList<IEditorInstallable> fInstallableModules = new FastList<IEditorInstallable>(IEditorInstallable.class);
 	
 
 	public StatextSourceViewerConfiguration() {
@@ -119,7 +121,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 							}
 						}
 					}
-				}				
+				}
 			} catch (BadLocationException e) {
 			}
 			return null;
@@ -129,10 +131,10 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			if (textViewer != null) {
 				return WordFinder.findWord(textViewer.getDocument(), offset);
 			}
-			return null;	
+			return null;
 		}
 		
-	} 
+	}
 	
 	protected IContentAssistant getTemplateVariableContentAssistant(ISourceViewer sourceViewer, TemplateVariableProcessor processor) {
 		ContentAssistant assistant = new ContentAssistant();
@@ -148,6 +150,10 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 
 		return assistant;
-	}	
+	}
+
+	public IEditorInstallable[] getInstallables() {
+		return fInstallableModules.toArray();
+	}
 	
 }
