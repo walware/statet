@@ -14,9 +14,8 @@ package de.walware.statet.r.nico.ui;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
-import de.walware.eclipsecommons.ui.util.ColorManager;
-
 import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.PathCompletionProcessor;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -31,8 +30,12 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	private class RConsoleConfiguration extends RSourceViewerConfiguration {
 
-		public RConsoleConfiguration(ColorManager colorManager) {
-			super(RInputConfigurator.this, RInputConfigurator.this.getPreferenceStore(), colorManager);
+		public RConsoleConfiguration() {
+			super((IEditorAdapter) fPage.getAdapter(IEditorAdapter.class),
+					RInputConfigurator.this,
+					RInputConfigurator.this.getPreferenceStore(),
+					StatetUIServices.getSharedColorManager()
+					);
 		}
 		
 		@Override
@@ -54,7 +57,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	RInputConfigurator(NIConsolePage page) {
 		super((RConsole) page.getConsole(), RUIPlugin.getDefault().getEditorPreferenceStore());
 		fPage = page;
-		setConfiguration(new RConsoleConfiguration(StatetUIServices.getSharedColorManager()));
+		setConfiguration(new RConsoleConfiguration());
 	}
 	
 }

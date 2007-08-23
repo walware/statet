@@ -25,7 +25,6 @@ import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
@@ -34,6 +33,7 @@ import de.walware.eclipsecommons.ui.text.EcoReconciler;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.editors.ContentAssistPreference;
+import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
@@ -69,25 +69,39 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	protected ContentAssistant fContentAssistant;
 	
 	private REditor fEditor;
+	private IEditorAdapter fEditorAdapter;
 	private IRCoreAccess fRCoreAccess;
 
 	
-	public RSourceViewerConfiguration(IRCoreAccess rCoreAccess, IPreferenceStore store,
-			ColorManager colorManager) {
-		this(null, rCoreAccess, store, colorManager);
+	public RSourceViewerConfiguration(
+			IRCoreAccess rCoreAccess, IPreferenceStore store, ColorManager colorManager) {
+		this(null, null, rCoreAccess, store, colorManager);
 	}
 	
-	public RSourceViewerConfiguration(REditor editor, IRCoreAccess rCoreAccess,
-			IPreferenceStore preferenceStore, ColorManager colorManager) {
+	public RSourceViewerConfiguration(IEditorAdapter editor,
+			IRCoreAccess rCoreAccess, IPreferenceStore store, ColorManager colorManager) {
+		this(null, editor, rCoreAccess, store, colorManager);
+	}
+	
+	public RSourceViewerConfiguration(REditor editor,
+			IRCoreAccess rCoreAccess, IPreferenceStore preferenceStore, ColorManager colorManager) {
+		this(editor, (IEditorAdapter) editor.getAdapter(IEditorAdapter.class),
+				rCoreAccess, preferenceStore, colorManager);
+	}
+	
+	protected RSourceViewerConfiguration(REditor editor, IEditorAdapter adapter,
+			IRCoreAccess rCoreAccess, IPreferenceStore preferenceStore, ColorManager colorManager) {
 		super();
 		fRCoreAccess = rCoreAccess;
 		if (fRCoreAccess == null) {
 			fRCoreAccess = RCore.getWorkbenchAccess();
 		}
 		fEditor = editor;
+		fEditorAdapter = adapter;
 		setup(preferenceStore, colorManager);
 		setScanners(initializeScanners());
 	}
+	
 	
 	protected IRCoreAccess getRCoreAccess() {
 		return fRCoreAccess;
@@ -219,16 +233,15 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public final IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+		if (fEditorAdapter == null) {
+			return super.getAutoEditStrategies(sourceViewer, contentType);
+		}
 		if (fRAutoEditStrategy == null) {
-			fRAutoEditStrategy = createAutoEditStrategy(sourceViewer);
+			fRAutoEditStrategy = new RAutoEditStrategy(fRCoreAccess, fEditorAdapter, fEditor);
 			fInstallableModules.add(fRAutoEditStrategy);
 		}
 		return new IAutoEditStrategy[] { fRAutoEditStrategy };
-	}
-	
-	protected RAutoEditStrategy createAutoEditStrategy(ISourceViewer sourceViewer) {
-		return new RAutoEditStrategy(fRCoreAccess, (SourceViewer) sourceViewer, fEditor);
 	}
 	
 	@Override

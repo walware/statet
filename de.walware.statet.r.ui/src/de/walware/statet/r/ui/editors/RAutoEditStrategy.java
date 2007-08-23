@@ -41,6 +41,7 @@ import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.text.ITokenScanner;
 import de.walware.eclipsecommons.ltk.text.StringParseInput;
 import de.walware.eclipsecommons.ltk.text.TextUtil;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IEditorInstallable;
@@ -102,6 +103,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	
 	private final RealTypeListener fMyListener;
+	private IEditorAdapter fEditor;
 	private ITextEditorExtension3 fEditor3;
 	private SourceViewer fViewer;
 	private IRCoreAccess fRCoreAccess;
@@ -112,13 +114,19 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private RCodeStyleSettings fRCodeStyle;
 	private IDocument fDocument;
 	private boolean fIgnoreCommands = false;
-	private REditorOptions fREditorOptions;
+	private REditorOptions fOptions;
 	
 	
-	public RAutoEditStrategy(IRCoreAccess rCoreAccess, SourceViewer viewer, REditor editor) {
+	public RAutoEditStrategy(IRCoreAccess rCoreAccess, IEditorAdapter adapter, REditor editor) {
 		fRCoreAccess = rCoreAccess;
-		fREditorOptions = RUIPlugin.getDefault().getREditorSettings(rCoreAccess.getPrefs());
-		fViewer = viewer;
+		fOptions = RUIPlugin.getDefault().getREditorSettings(rCoreAccess.getPrefs());
+		fEditor = adapter;
+
+		assert (fRCoreAccess != null);
+		assert (fEditor != null);
+		assert (fOptions != null);
+		
+		fViewer = fEditor.getSourceViewer();
 		if (editor instanceof ITextEditorExtension3) {
 			// note: at moment, (fEditor3 == null) indicates "console mode"
 			fEditor3 = editor;
@@ -152,7 +160,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 
 	private final boolean isSmartInsertEnabled() {
-		return ((fEditor3 == null && fREditorOptions.isSmartModeByDefaultEnabled())
+		return ((fEditor3 == null && fOptions.isSmartModeByDefaultEnabled())
 				|| (fEditor3 != null && fEditor3.getInsertMode() == ITextEditorExtension3.SMART_INSERT)
 				);
 	}
@@ -222,7 +230,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			if (c.length == 0 && TextUtilities.equals(d.getLegalLineDelimiters(), c.text) != -1) {
 				smartIndentOnNewLine(c);
 			}
-			else if (c.text.length() > 1 && fREditorOptions.isSmartPasteEnabled()) {
+			else if (c.text.length() > 1 && fOptions.isSmartPasteEnabled()) {
 				smartPaste(c);
 			}
 		}
@@ -235,12 +243,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 
 	/**
-	 * Second main entry mehthod for real single key presses.
+	 * Second main entry method for real single key presses.
 	 * 
 	 * @return <code>true</code>, if key was processed by method
 	 */
 	private boolean customizeKeyPressed(char c) {
-		if (!isSmartInsertEnabled()) {
+		if (!isSmartInsertEnabled() || !UIAccess.isOkToUse(fViewer)) {
 			return false;
 		}
 		fIgnoreCommands = true;
@@ -273,7 +281,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					break;
 				case '{':
 					command.text = "{"; //$NON-NLS-1$
-					if (fREditorOptions.isSmartCurlyBracketsEnabled()) {
+					if (fOptions.isSmartCurlyBracketsEnabled()) {
 						if (!isClosedBracket(command.offset, cEnd, 0)) {
 							command.text = "{}"; //$NON-NLS-1$
 							createLinkedMode = 1;
@@ -286,7 +294,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					break;
 				case '(':
 					command.text = "("; //$NON-NLS-1$
-					if (fREditorOptions.isSmartRoundBracketsEnabled()) {
+					if (fOptions.isSmartRoundBracketsEnabled()) {
 						if (!isClosedBracket(command.offset, cEnd, 1)) {
 							command.text = "()"; //$NON-NLS-1$
 							createLinkedMode = 1;
@@ -302,7 +310,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					break;
 				case '[':
 					command.text = "["; //$NON-NLS-1$
-					if (fREditorOptions.isSmartSquareBracketsEnabled()) {
+					if (fOptions.isSmartSquareBracketsEnabled()) {
 						if (!isClosedBracket(command.offset, cEnd, 2)) {
 							command.text = "[]"; //$NON-NLS-1$
 							if (countBackward('[', command.offset) % 2 == 1) {
@@ -318,7 +326,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					}
 					break;
 				case '%':
-					if (fREditorOptions.isSmartSpecialPercentEnabled()) {
+					if (fOptions.isSmartSpecialPercentEnabled()) {
 						IRegion line = fDocument.getLineInformationOfOffset(cEnd);
 						fScanner.configure(fDocument, IRDocumentPartitions.R_INFIX_OPERATOR);
 						if (fScanner.count(cEnd, line.getOffset()+line.getLength(), '%') % 2 == 0) {
@@ -330,7 +338,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					return false;
 				case '\"':
 				case '\'':
-					if (fREditorOptions.isSmartStringsEnabled()) {
+					if (fOptions.isSmartStringsEnabled()) {
 						IRegion line = fDocument.getLineInformationOfOffset(cEnd);
 						if (!isClosedString(cEnd, line.getOffset()+line.getLength(), false, c)) {
 							command.text = new String(new char[] { c, c });
@@ -345,14 +353,20 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					break;
 				}
 
-				if (command.text.length() > 0) {
-					fDocument.replace(command.offset, command.length, command.text);
-					selection = new TextSelection(fDocument, (command.caretOffset >= 0) ?
-							command.caretOffset : command.offset+command.text.length(), 0);
-					fViewer.setSelection(selection, true);
-					
-					if (createLinkedMode >= 0) {
-						createLinkedMode(command.offset, c, createLinkedMode);
+				if (command.text.length() > 0 && fEditor.isEditable(true)) {
+					fViewer.getTextWidget().setRedraw(false);
+					try {
+						fDocument.replace(command.offset, command.length, command.text);
+						selection = new TextSelection(fDocument, (command.caretOffset >= 0) ?
+								command.caretOffset : command.offset+command.text.length(), 0);
+						fViewer.setSelection(selection, true);
+						
+						if (createLinkedMode >= 0) {
+							createLinkedMode(command.offset, c, createLinkedMode);
+						}
+					}
+					finally {
+						fViewer.getTextWidget().setRedraw(true);
 					}
 				}
 				return true;

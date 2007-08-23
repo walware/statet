@@ -32,6 +32,7 @@ import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.ui.editors.EditorMessages;
 import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.IFoldingStructureProvider;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -61,6 +62,14 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 	
 	@Override
 	protected void initializeEditor() {
+		super.initializeEditor();
+		
+		setHelpContextId(IRUIHelpContextIds.R_EDITOR);
+		configureInsertMode(SMART_INSERT, true);
+	}
+	
+	@Override
+	protected SourceViewerConfigurator createConfiguration() {
 		enableStructureSupport();
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
@@ -71,10 +80,7 @@ public class REditor extends StatextEditor1<RProject, ROutlinePage> {
 		fRConfig = new RSourceViewerConfigurator(basicContext, store);
 		fRConfig.setConfiguration(new RSourceViewerConfiguration(this,
 				fRConfig, store, StatetUIServices.getSharedColorManager()));
-		initializeEditor(fRConfig); // super
-		
-		setHelpContextId(IRUIHelpContextIds.R_EDITOR);
-		configureInsertMode(SMART_INSERT, true);
+		return fRConfig;
 	}
 	
 	@Override

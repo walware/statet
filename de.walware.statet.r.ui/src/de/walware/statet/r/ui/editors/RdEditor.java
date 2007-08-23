@@ -17,6 +17,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.StatextEditor1;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -33,7 +34,7 @@ public class RdEditor extends StatextEditor1<RProject, IContentOutlinePage> {
 	}
 	
 	@Override
-	protected void initializeEditor() {
+	protected SourceViewerConfigurator createConfiguration() {
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
 		
@@ -41,7 +42,7 @@ public class RdEditor extends StatextEditor1<RProject, IContentOutlinePage> {
 		fRdConfig = new RdSourceViewerConfigurator(null, store);
 		fRdConfig.setConfiguration(new RdSourceViewerConfiguration(
 				fRdConfig, store, StatetUIServices.getSharedColorManager()));
-		initializeEditor(fRdConfig); // super
+		return fRdConfig;
 	}
 	
 	@Override

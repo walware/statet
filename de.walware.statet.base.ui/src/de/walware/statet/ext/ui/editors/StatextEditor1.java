@@ -335,7 +335,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 
 /*- Fields -----------------------------------------------------------------*/
 	
-	private IEditorAdapter fEditorAdapter = new EditorAdapter();
+	private IEditorAdapter fEditorAdapter;
 	private SourceViewerConfigurator fConfigurator;
 	private String fProjectNatureId;
 	private ProjectT fProject;
@@ -360,8 +360,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 
 /*- Methods ----------------------------------------------------------------*/
 
-	protected void initializeEditor(SourceViewerConfigurator configurator) {
-		fConfigurator = configurator;
+	@Override
+	protected void initializeEditor() {
+		fEditorAdapter = new EditorAdapter();
+		
+		fConfigurator = createConfiguration();
 		super.initializeEditor();
 		setCompatibilityMode(false);
 		setPreferenceStore(fConfigurator.getPreferenceStore());
@@ -369,6 +372,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 	}
+	
+	protected abstract SourceViewerConfigurator createConfiguration();
 	
 	
 	protected void enableStructureSupport() {
