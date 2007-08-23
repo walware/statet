@@ -15,7 +15,11 @@ import java.util.Date;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -37,7 +41,6 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -57,6 +60,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -111,7 +115,6 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	
 	private static class TableLabelProvider extends CellLabelProvider {
 		
-		
 		private DateFormat fFormat = DateFormat.getDateTimeInstance();
 
 		@Override
@@ -144,34 +147,71 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	}
 
 	
+	private class ViewJob extends Job {
+		
+		ViewJob() {
+			super("Update History View"); //$NON-NLS-1$
+			setPriority(SHORT);
+			setUser(false);
+		}
+		
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			ToolProcess process = fProcess;
+			if (process == null || monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+			final History history = process.getHistory();
+			history.getReadLock().lock();
+			final Entry[] entries;
+			try {
+				entries = history.toArray();
+			}
+			finally {
+				history.getReadLock().unlock();
+			}
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+			UIAccess.getDisplay().syncExec(new Runnable() {
+				public void run() {
+					if (fProcess == null || fProcess.getHistory() != history || !UIAccess.isOkToUse(fTableViewer)) {
+						return;
+					}
+					fNewEntrys = entries;
+					fTableViewer.refresh(false);
+					fNewEntrys = null;
+					fReloadScheduled = false;
+				}
+			});
+			return Status.OK_STATUS;
+		}
+	}
+	
 	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
 		
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-			if (oldInput != null) {
-				((History) oldInput).removeListener(this);
-			}
-			if (newInput != null) {
-				((History) newInput).addListener(this);
-			}
 		}
 		
 		public Object[] getElements(Object parent) {
-			if (fProcess == null) {
-				return new History.Entry[0];
+			if (fNewEntrys != null) {
+				return fNewEntrys;
 			}
-			return fProcess.getHistory().toArray();
+			if (fProcess != null) {
+				scheduleRefresh(false);
+			}
+			return new History.Entry[0];
 		}
 
 		public void dispose() {
 		}
 
 		
-		public void entryAdded(final Entry e) {
+		public void entryAdded(final History source, final Entry e) {
 			// history event
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					if (fProcess.getHistory() != e.getHistory()
-							|| !UIAccess.isOkToUse(fTableViewer)) {
+					if (fReloadScheduled || fProcess == null || fProcess.getHistory() != source || !UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
 					
@@ -189,11 +229,11 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			});
 		}
 
-		public void entryRemoved(final Entry e) {
+		public void entryRemoved(final History source, final Entry e) {
 			// history event.
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					if (!UIAccess.isOkToUse(fTableViewer)) {
+					if (fReloadScheduled || fProcess == null || fProcess.getHistory() != source || !UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
 					fTableViewer.remove(e);
@@ -201,14 +241,16 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			});
 		}
 
-		public void completeChange() {
+		public void completeChange(final History source, final Entry[] es) {
 			// history event
-			UIAccess.getDisplay().syncExec(new Runnable() {
+			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
-					if (!UIAccess.isOkToUse(fTableViewer)) {
+					if (fReloadScheduled || fProcess == null || fProcess.getHistory() != source || !UIAccess.isOkToUse(fTableViewer)) {
 						return;
 					}
-					fTableViewer.refresh(true);
+					fNewEntrys = es;
+					fTableViewer.refresh(false);
+					fNewEntrys = null;
 					//			packTable(); //???
 				}
 			});
@@ -269,8 +311,9 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	}
 	
 
-	private ToolProcess fProcess;
+	private volatile ToolProcess fProcess;
 	private IToolRegistryListener fToolRegistryListener;
+	private ViewContentProvider fContentProvider;
 
 	private TableViewer fTableViewer;
 	private Clipboard fClipboard;
@@ -282,7 +325,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	private static final String M_FILTER_EMPTY = "HistoryView.FilterEmpty"; //$NON-NLS-1$
 	private boolean fDoFilterEmpty;
 	private Action fFilterEmptyAction;
-
+	
 	private static final String M_AUTOSCROLL = "HistoryView.Autoscroll"; //$NON-NLS-1$
 	private boolean fDoAutoscroll;
 	private Action fScrollLockAction;
@@ -296,11 +339,17 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	private LoadHistoryAction fLoadHistoryAction;
 	private SaveHistoryAction fSaveHistoryAction;
 
+	private ToolProcess fNewProcess;
+	private final ViewJob fReloadJob;
+	private volatile boolean fReloadScheduled;
+	private Entry[] fNewEntrys;
 	
 	/**
 	 * The constructor.
 	 */
 	public HistoryView() {
+		fReloadJob = new ViewJob();
+		fContentProvider = new ViewContentProvider();
 	}
 	
 	@Override
@@ -340,7 +389,27 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
+		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION) {
+			// we avoid refresh if no entries are available (e.g. switching sorting/filtering)
+			@Override
+			public void refresh() {
+				if (fProcess == null || fNewEntrys != null) {
+					super.refresh();
+				}
+				else {
+					scheduleRefresh(false);
+				}
+			}
+			@Override
+			public void refresh(boolean updateLabels) {
+				if (fProcess == null || fNewEntrys != null) {
+					super.refresh(updateLabels);
+				}
+				else {
+					scheduleRefresh(false);
+				}
+			}
+		};
 		fTableViewer.getTable().setLinesVisible(false);
 		fTableViewer.getTable().setHeaderVisible(false);
 		fTableViewer.setUseHashlookup(true);
@@ -359,6 +428,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		});
 		
 		fTableViewer.setContentProvider(new ViewContentProvider());
+		fTableViewer.setInput(new Object());
 		createActions();
 		hookContextMenu();
 		hookDoubleClickAction();
@@ -493,20 +563,37 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	
 	/** Should only be called inside UI Thread */
 	public void connect(final ToolProcess process) {
-		Runnable runnable = new Runnable() {
-			public void run() {
-				if (!UIAccess.isOkToUse(fTableViewer)) {
-					return;
-				}
-				fProcess = process;
-				fTableViewer.setInput((fProcess != null) ?
-						fProcess.getHistory() : null);
-				for (Object action : fToolActions.getListeners()) {
-					((IToolAction) action).setTool(fProcess);
-				}
-			}
-		};
-		BusyIndicator.showWhile(getSite().getShell().getDisplay(), runnable);
+		if (fProcess == process) {
+			return;
+		}
+		if (fProcess != null) {
+			fProcess.getHistory().removeListener(fContentProvider);
+		}
+		fProcess = process;
+		if (fProcess != null) {
+			fProcess.getHistory().addListener(fContentProvider);
+		}
+		if (fProcess != null) {
+			scheduleRefresh(true);
+		}
+		else {
+			fTableViewer.refresh();
+		}
+		for (Object action : fToolActions.getListeners()) {
+			((IToolAction) action).setTool(fProcess);
+		}
+	}
+	
+	private void scheduleRefresh(boolean change) {
+		IWorkbenchSiteProgressService context = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
+		fReloadScheduled = true;
+		if (change) {
+			fReloadJob.cancel();
+			context.schedule(fReloadJob, 200);
+		}
+		else {
+			context.schedule(fReloadJob, 0);
+		}
 	}
 	
 	public void addToolAction(IToolAction action) {
@@ -557,7 +644,13 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			NicoUI.getToolRegistry().removeListener(fToolRegistryListener);
 			fToolRegistryListener = null;
 		}
+		fReloadJob.cancel();
+		ToolProcess process = fProcess;
+		if (process != null) {
+			process.getHistory().removeListener(fContentProvider);
+		}
 		fToolActions.clear();
+		fProcess = null;
 		fCopyAction = null;
 		fSubmitAction = null;
 		fLoadHistoryAction = null;

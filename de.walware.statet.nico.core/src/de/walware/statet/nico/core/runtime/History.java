@@ -14,6 +14,8 @@ package de.walware.statet.nico.core.runtime;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,10 +54,11 @@ public class History {
 	private int fCurrentSize = 0;
 	private boolean fIgnoreCommentLines;
 	
-	private Entry fNewest;
-	private Entry fOldest;
+	private volatile Entry fNewest;
+	private volatile Entry fOldest;
 	
-	private ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
+	private final ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
+	private final ReentrantReadWriteLock fLock = new ReentrantReadWriteLock();
 	
 	private ToolProcess fProcess;
 	private IPreferenceChangeListener fPreferenceListener;
@@ -73,8 +76,8 @@ public class History {
 		private final String fCommand;
 		private final long fTimeStamp;
 		private final boolean fIsEmpty;
-		private Entry fOlder;
-		private Entry fNewer;
+		private volatile Entry fOlder;
+		private volatile Entry fNewer;
 		
 		private Entry(Entry older, String command, long stamp) {
 			fCommand = command;
@@ -99,15 +102,11 @@ public class History {
 		}
 		
 		public Entry getNewer() {
-			synchronized (History.this) {
-				return fNewer;
-			}
+			return fNewer;
 		}
 		
 		public Entry getOlder() {
-			synchronized (History.this) {
-				return fOlder;
-			}
+			return fOlder;
 		}
 		
 		/**
@@ -151,6 +150,10 @@ public class History {
 		checkSettings();
 	}
 	
+	public Lock getReadLock() {
+		return fLock.readLock();
+	}
+	
 	private void checkSettings() {
 		HistoryPreferences prefs = new HistoryPreferences(PreferencesUtil.getInstancePrefs());
 		if (prefs.equals(fCurrentPreferences)) {
@@ -165,14 +168,16 @@ public class History {
 			streams.getInputStreamMonitor().addListener(fStreamListener, types);
 		}
 
-		synchronized (this) {
+		fLock.writeLock().lock();
+		try {
 			fMaxSize = prefs.getLimitCount();
 			if (fCurrentSize > fMaxSize) {
 				trimSize();
-				for (Object obj : fListeners.getListeners()) {
-					((IHistoryListener) obj).completeChange();
-				}
+				fireCompleteChange();
 			}
+		}
+		finally {
+			fLock.writeLock().unlock();
 		}
 	}
 	
@@ -240,7 +245,8 @@ public class History {
 			op.doOperation(new SubProgressMonitor(monitor, 90));
 			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getToolLabel(false)));
 
-			synchronized (this) {
+			fLock.writeLock().lock();
+			try {
 				fOldest = exch.oldest;
 				fNewest = exch.newest;
 				fCurrentSize = exch.size;
@@ -248,6 +254,9 @@ public class History {
 					trimSize();
 				}
 				fireCompleteChange();
+			}
+			finally {
+				fLock.writeLock().unlock();
 			}
 		} catch (CoreException e) {
 			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
@@ -284,7 +293,8 @@ public class History {
 		try {
 			String newLine = fProcess.getWorkspaceData().getLineSeparator();
 			StringBuilder buffer;
-			synchronized (this) {
+			fLock.readLock().lock();
+			try {
 				buffer = new StringBuilder(fCurrentSize * 10);
 				Entry e = fOldest;
 				while (e != null) {
@@ -292,6 +302,9 @@ public class History {
 					buffer.append(newLine);
 					e = e.fNewer;
 				}
+			}
+			finally {
+				fLock.readLock().unlock();
 			}
 			final String content = buffer.toString();
 			buffer = null;
@@ -321,7 +334,8 @@ public class History {
 		Entry removedEntry = null;
 		Entry newEntry = null;
 		
-		synchronized (this) {
+		fLock.writeLock().lock();
+		try {
 			newEntry = new Entry(fNewest, command, stamp);
 			if (fNewest != null) {
 				fNewest.fNewer = newEntry;
@@ -342,9 +356,12 @@ public class History {
 			for (Object obj : listeners) {
 				IHistoryListener listener = (IHistoryListener) obj;
 				if (removedEntry != null)
-					listener.entryRemoved(removedEntry);
-				listener.entryAdded(newEntry);
+					listener.entryRemoved(this, removedEntry);
+				listener.entryAdded(this, newEntry);
 			}
+		}
+		finally {
+			fLock.writeLock().unlock();
 		}
 	}
 	
@@ -354,14 +371,14 @@ public class History {
 	 * @return newest entry
 	 * 		or <code>null</null>, if history is empty.
 	 */
-	public synchronized Entry getNewest() {
+	public Entry getNewest() {
 		return fNewest;
 	}
 	
 	/**
 	 * Return an array with all entries.
 	 * <p>
-	 * Don't use this method to frequently.
+	 * Make shure, that you have a read lock.
 	 * 
 	 * @return array with all entries
 	 * 		or an array with length 0, if history is empty.
@@ -371,13 +388,11 @@ public class History {
 		if (array != null) {
 			return array;
 		}
-		synchronized (this) {
-			array = new Entry[fCurrentSize];
-			Entry e = fOldest;
-			for (int i = 0; i < array.length; i++) {
-				array[i] = e;
-				e = e.fNewer;
-			}
+		array = new Entry[fCurrentSize];
+		Entry e = fOldest;
+		for (int i = 0; i < array.length; i++) {
+			array[i] = e;
+			e = e.fNewer;
 		}
 		return array;
 	}
@@ -406,7 +421,7 @@ public class History {
 	private void fireCompleteChange() {
 		fArrayCache = toArray();
 		for (Object obj : fListeners.getListeners()) {
-			((IHistoryListener) obj).completeChange();
+			((IHistoryListener) obj).completeChange(this, fArrayCache);
 		}
 		fArrayCache = null;
 	}

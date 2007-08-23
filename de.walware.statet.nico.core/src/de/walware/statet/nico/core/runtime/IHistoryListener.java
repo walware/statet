@@ -16,8 +16,8 @@ import de.walware.statet.nico.core.runtime.History.Entry;
 
 public interface IHistoryListener {
 
-	void entryAdded(Entry e);
-	void entryRemoved(Entry e);
+	void entryAdded(History source, Entry e);
+	void entryRemoved(History source, Entry e);
 	
-	void completeChange();
+	void completeChange(History source, Entry[] es);
 }

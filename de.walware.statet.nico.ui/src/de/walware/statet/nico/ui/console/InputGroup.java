@@ -303,11 +303,11 @@ public class InputGroup implements ISettingsChangedHandler {
 		setFont(fConsolePage.getConsole().getFont());
 		
 		fHistoryListener = new IHistoryListener() {
-			public void entryAdded(Entry e) {
+			public void entryAdded(History source, Entry e) {
 			}
-			public void entryRemoved(Entry e) {
+			public void entryRemoved(History source, Entry e) {
 			}
-			public void completeChange() {
+			public void completeChange(History source, Entry[] es) {
 				fCurrentHistoryEntry = null;
 			}
 		};
