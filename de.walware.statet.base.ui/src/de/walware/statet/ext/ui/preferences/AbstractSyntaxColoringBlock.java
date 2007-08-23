@@ -415,9 +415,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	private class SyntaxNodeLabelProvider extends CellLabelProvider {
 
-		public String getText(Object element) {
-			return ((Node) element).getName();
-		}
 		@Override
 		public boolean useNativeToolTip(Object object) {
 			return true;
@@ -432,7 +429,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		@Override
 		public void update(ViewerCell cell) {
-			cell.setText(getText(cell.getElement()));
+			cell.setText(((Node) cell.getElement()).getName());
 		}
 	}
 

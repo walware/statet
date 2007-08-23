@@ -41,7 +41,6 @@ public class WorkspaceUtilImpl extends FileUtil {
 			protected String getFileLabel() {
 				return WorkspaceUtilImpl.this.getFileLabel(file);
 			}
-	
 			@Override
 			protected FileInput getInput(IProgressMonitor monitor) throws CoreException, IOException {
 				try {
@@ -112,6 +111,10 @@ public class WorkspaceUtilImpl extends FileUtil {
 		};
 	}
 
+	public long getTimeStamp0(final IFile file) {
+		return file.getLocalTimeStamp();
+	}
+	
 	private String getFileLabel(IFile ifile) {
 		return "'"+ifile.getFullPath().makeRelative().toString()+"' (workspace)";
 	}

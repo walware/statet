@@ -25,10 +25,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.walware.statet.base.core.StatetCore;
-
 import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.ICommonStatusConstants;
+
+import de.walware.statet.base.core.StatetCore;
 
 
 /**
@@ -117,6 +117,10 @@ public class EFSUtilImpl extends FileUtil {
 		}
 		return "'"+file.toURI().toString()+"'";
 	
+	}
+
+	public long getTimeStamp0(IFileStore file, IProgressMonitor monitor) throws CoreException {
+		return file.fetchInfo(EFS.NONE, monitor).getLastModified();
 	}
 	
 }

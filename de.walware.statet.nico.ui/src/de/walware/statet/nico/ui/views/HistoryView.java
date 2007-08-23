@@ -11,6 +11,10 @@
 
 package de.walware.statet.nico.ui.views;
 
+import java.util.Date;
+
+import com.ibm.icu.text.DateFormat;
+
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -18,16 +22,18 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
@@ -38,7 +44,6 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -87,7 +92,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	
 	/**
 	 * Converts the selection of this view/viewer into a commmand text block.
-	 *  
+	 * 
 	 * @param selection a selection with history entries.
 	 * @return command block.
 	 */
@@ -104,18 +109,29 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	}
 	
 	
-	private static class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
+	private static class TableLabelProvider extends CellLabelProvider {
 		
-		public String getColumnText(Object obj, int index) {
-			Entry e = (Entry) obj;
-			return e.getCommand();
+		
+		private DateFormat fFormat = DateFormat.getDateTimeInstance();
+
+		@Override
+		public void update(ViewerCell cell) {
+			cell.setImage(StatetImages.getImage(StatetImages.OBJ_COMMAND));
+			cell.setText(((Entry) cell.getElement()).getCommand());
 		}
 		
-		public Image getColumnImage(Object obj, int index) {
-			if (index != 0) {
-				return null;
+		@Override
+		public boolean useNativeToolTip(Object object) {
+			return true;
+		}
+		
+		@Override
+		public String getToolTipText(Object element) {
+			Entry entry = (Entry) element;
+			if (entry.getTimeStamp() < 0) {
+				return " - | "+entry.getCommand();
 			}
-			return StatetImages.getImage(StatetImages.OBJ_COMMAND);
+			return fFormat.format(new Date(entry.getTimeStamp())) + " | " + entry.getCommand();
 		}
 	}
 	
@@ -174,7 +190,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		}
 
 		public void entryRemoved(final Entry e) {
-			// history event. 
+			// history event.
 			Display.getDefault().syncExec(new Runnable() {
 				public void run() {
 					if (!UIAccess.isOkToUse(fTableViewer)) {
@@ -185,7 +201,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			});
 		}
 
-		public void completeChange() { 
+		public void completeChange() {
 			// history event
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
@@ -322,32 +338,35 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		memento.putString(M_FILTER_EMPTY, (fDoFilterEmpty) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void createPartControl(Composite parent) {
 		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		fTableViewer.getTable().setLinesVisible(false);
 		fTableViewer.getTable().setHeaderVisible(false);
-		new TableColumn(fTableViewer.getTable(), SWT.DEFAULT);
+		fTableViewer.setUseHashlookup(true);
+		ColumnViewerToolTipSupport.enableFor(fTableViewer);
+		TableViewerColumn column = new TableViewerColumn(fTableViewer, SWT.DEFAULT);
+		column.setLabelProvider(new TableLabelProvider());
 		fTableViewer.getTable().addControlListener(new ControlAdapter() {
+			@Override
 			public void controlResized(ControlEvent e) {
-				// adapt the column width to the width of the table 
+				// adapt the column width to the width of the table
 				Table table = fTableViewer.getTable();
 				Rectangle area = table.getClientArea();
 				TableColumn column = table.getColumn(0);
-				column.setWidth(area.width-3); // it looks better with a small gap
+				column.setWidth(area.width);
 			}
 		});
 		
 		fTableViewer.setContentProvider(new ViewContentProvider());
-		fTableViewer.setLabelProvider(new TableLabelProvider());
-		
 		createActions();
 		hookContextMenu();
 		hookDoubleClickAction();
 		contributeToActionBars();
 
 		fTableViewer.addDragSupport(
-				DND.DROP_COPY, 
-				new Transfer[] { TextTransfer.getInstance() }, 
+				DND.DROP_COPY,
+				new Transfer[] { TextTransfer.getInstance() },
 				new HistoryDragAdapter(this));
 
 		// listen on console changes
@@ -361,7 +380,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) { 
+			public void toolSessionClosed(ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
@@ -385,6 +404,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			}
 		}, !fDoAutoscroll);
 		fSelectAllAction = new Action() {
+			@Override
 			public void run() {
 				fTableViewer.getTable().selectAll();
 			}
@@ -399,7 +419,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection != null && !selection.isEmpty()) {
 					enabledSelectionActions(true);
-				} 
+				}
 				else {
 					enabledSelectionActions(false);
 				}
@@ -479,7 +499,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 					return;
 				}
 				fProcess = process;
-				fTableViewer.setInput((fProcess != null) ? 
+				fTableViewer.setInput((fProcess != null) ?
 						fProcess.getHistory() : null);
 				for (Object action : fToolActions.getListeners()) {
 					((IToolAction) action).setTool(fProcess);

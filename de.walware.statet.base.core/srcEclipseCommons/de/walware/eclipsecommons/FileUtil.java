@@ -43,10 +43,10 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 
-import de.walware.statet.base.core.StatetCore;
-
 import de.walware.eclipsecommons.internal.fileutil.EFSUtilImpl;
 import de.walware.eclipsecommons.internal.fileutil.WorkspaceUtilImpl;
+
+import de.walware.statet.base.core.StatetCore;
 
 
 /**
@@ -193,7 +193,7 @@ public class FileUtil {
 
 	public static interface ReaderAction {
 		
-		void run(BufferedReader reader, IProgressMonitor monitor) throws IOException;
+		void run(BufferedReader reader, IProgressMonitor monitor) throws IOException, CoreException;
 		
 	}
 	
@@ -345,6 +345,16 @@ public class FileUtil {
 
 		
 	}
+
+	public static long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
+		if (file instanceof IFile) {
+			return WORKSPACE_UTIL.getTimeStamp0((IFile) file);
+		}
+		else if (file instanceof IFileStore) {
+			return EFS_UTIL.getTimeStamp0((IFileStore) file, monitor);
+		}
+		throw new IllegalArgumentException("Unknown file object.");
+	}
 	
 	protected static void saveClose(Closeable stream) {
 		if (stream != null) {
@@ -356,4 +366,5 @@ public class FileUtil {
 			}
 		}
 	}
+	
 }

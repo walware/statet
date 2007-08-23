@@ -68,16 +68,18 @@ public class History {
 	/**
 	 * An entry of this history.
 	 */
-	public class Entry {
+	public final class Entry {
 		
 		private final String fCommand;
+		private final long fTimeStamp;
 		private final boolean fIsEmpty;
 		private Entry fOlder;
 		private Entry fNewer;
 		
-		private Entry(Entry older, String command) {
+		private Entry(Entry older, String command, long stamp) {
 			fCommand = command;
 			fIsEmpty = isCommandEmpty(command);
+			fTimeStamp = stamp;
 			fOlder = older;
 			if (older != null) {
 				older.fNewer = this;
@@ -86,6 +88,10 @@ public class History {
 		
 		public String getCommand() {
 			return fCommand;
+		}
+		
+		public long getTimeStamp() {
+			return fTimeStamp;
 		}
 		
 		public boolean isEmpty() {
@@ -197,7 +203,7 @@ public class History {
 	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	public void load(Object file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
+	public void load(final Object file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -206,14 +212,18 @@ public class History {
 		try {
 			final HistoryData exch = new HistoryData();
 			ReaderAction action = new ReaderAction() {
-				public void run(BufferedReader reader, IProgressMonitor monitor) throws IOException {
+				public void run(BufferedReader reader, IProgressMonitor monitor) throws IOException, CoreException {
+					long timeStamp = FileUtil.getTimeStamp(file, new SubProgressMonitor(monitor, 1));
+					if (timeStamp < 0) {
+						timeStamp = System.currentTimeMillis();
+					}
 					if (reader.ready()) {
-						exch.oldest = new Entry(null, reader.readLine());
+						exch.oldest = new Entry(null, reader.readLine(), timeStamp);
 						exch.newest = exch.oldest;
 						exch.size = 1;
 						int maxSize = fMaxSize;
 						while (reader.ready()) {
-							exch.newest = new Entry(exch.newest, reader.readLine());
+							exch.newest = new Entry(exch.newest, reader.readLine(), timeStamp);
 							if (exch.size < maxSize) {
 								exch.size++;
 							}
@@ -306,12 +316,13 @@ public class History {
 	
 	private void addCommand(String command) {
 		assert(command != null);
+		long stamp = System.currentTimeMillis();
 		
 		Entry removedEntry = null;
 		Entry newEntry = null;
 		
 		synchronized (this) {
-			newEntry = new Entry(fNewest, command);
+			newEntry = new Entry(fNewest, command, stamp);
 			if (fNewest != null) {
 				fNewest.fNewer = newEntry;
 			}

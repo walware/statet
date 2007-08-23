@@ -21,3 +21,4 @@ Export-Package: de.walware.statet.nico.ui,
  de.walware.statet.nico.ui.console,
  de.walware.statet.nico.ui.util,
  de.walware.statet.nico.ui.views
+Import-Package: com.ibm.icu.text;version="3.6.1"
