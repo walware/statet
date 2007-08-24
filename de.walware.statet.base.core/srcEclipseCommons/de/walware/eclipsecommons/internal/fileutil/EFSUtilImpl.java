@@ -25,8 +25,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.FileUtil.ReadTextFileOperation;
+import de.walware.eclipsecommons.FileUtil.ReaderAction;
+import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -34,20 +36,21 @@ import de.walware.statet.base.core.StatetCore;
 /**
  *
  */
-public class EFSUtilImpl extends FileUtil {
+public class EFSUtilImpl extends FileUtilProvider {
 
-	public ReadTextFileOperation createRead(final ReaderAction action, final IFileStore file) {
-		
+	@Override
+	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
+		final IFileStore fileStore = (IFileStore) file;
 		return new ReadTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
-				return EFSUtilImpl.this.getFileLabel(file);
+				return EFSUtilImpl.this.getFileLabel0(fileStore);
 			}
 			
 			@Override
 			protected FileInput getInput(IProgressMonitor monitor) throws CoreException, IOException {
 				try {
-					InputStream raw = file.openInputStream(EFS.NONE, monitor);
+					InputStream raw = fileStore.openInputStream(EFS.NONE, monitor);
 					return new FileInput(raw, null);
 				}
 				finally {
@@ -61,26 +64,27 @@ public class EFSUtilImpl extends FileUtil {
 		};
 	}
 
-	public WriteTextFileOperation createWrite(final String content, final IFileStore file) {
-		
+	@Override
+	public WriteTextFileOperation createWriteTextFileOp(final String content, Object file) {
+		final IFileStore fileStore = (IFileStore) file;
 		return new WriteTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
-				return EFSUtilImpl.this.getFileLabel(file);
+				return EFSUtilImpl.this.getFileLabel0(fileStore);
 			}
 	
 			@Override
 			protected void writeImpl(IProgressMonitor monitor) throws CoreException, IOException {
 				Writer out = null;
 				try {
-					boolean exists = file.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
+					boolean exists = fileStore.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
 					if (exists && (fMode & (EFS.OVERWRITE | EFS.APPEND)) == 0) {
 						throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 								"The file already exists.", null));
 					}
 					if (exists && (fMode & EFS.APPEND) != 0 && !fForceCharset) {
 						try {
-							InputStream raw = file.openInputStream(EFS.NONE, new SubProgressMonitor(monitor, 5));
+							InputStream raw = fileStore.openInputStream(EFS.NONE, new SubProgressMonitor(monitor, 5));
 							FileInput fi = new FileInput(raw, null);
 							fi.close();
 							String defaultCharset = fi.getDefaultCharset();
@@ -96,7 +100,7 @@ public class EFSUtilImpl extends FileUtil {
 					else {
 						monitor.worked(10);
 					}
-					out = new OutputStreamWriter(file.openOutputStream(fMode, new SubProgressMonitor(monitor, 5)), fCharset);
+					out = new OutputStreamWriter(fileStore.openOutputStream(fMode, new SubProgressMonitor(monitor, 5)), fCharset);
 	
 					out.write(content);
 					monitor.worked(75);
@@ -109,8 +113,7 @@ public class EFSUtilImpl extends FileUtil {
 		};
 	}
 
-	private String getFileLabel(IFileStore file) {
-		
+	private String getFileLabel0(IFileStore file) {
 		IFileSystem system = file.getFileSystem();
 		if (system.equals(EFS.getLocalFileSystem())) {
 			return "'"+file.toString()+"' (local file)";
@@ -119,8 +122,10 @@ public class EFSUtilImpl extends FileUtil {
 	
 	}
 
-	public long getTimeStamp0(IFileStore file, IProgressMonitor monitor) throws CoreException {
-		return file.fetchInfo(EFS.NONE, monitor).getLastModified();
+	@Override
+	public long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
+		final IFileStore fileStore = (IFileStore) file;
+		return fileStore.fetchInfo(EFS.NONE, monitor).getLastModified();
 	}
 	
 }

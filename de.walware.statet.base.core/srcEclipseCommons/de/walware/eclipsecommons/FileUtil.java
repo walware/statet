@@ -12,13 +12,7 @@
 package de.walware.eclipsecommons;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.filesystem.EFS;
@@ -38,13 +32,14 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 
 import de.walware.eclipsecommons.internal.fileutil.EFSUtilImpl;
+import de.walware.eclipsecommons.internal.fileutil.FileUtilProvider;
 import de.walware.eclipsecommons.internal.fileutil.WorkspaceUtilImpl;
+import de.walware.eclipsecommons.internal.fileutil.FileUtilProvider.FileInput;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -177,15 +172,15 @@ public class FileUtil {
 	
 	public static WriteTextFileOperation createWriteTextFileOp(String content, Object file) {
 		if (file instanceof IFile) {
-			return WORKSPACE_UTIL.createWrite(content, (IFile) file);
+			return WORKSPACE_UTIL.createWriteTextFileOp(content, file);
 		}
 		else if (file instanceof IFileStore) {
 			IFileStore efsFile = (IFileStore) file;
 			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
 			if (iFile != null) {
-				return WORKSPACE_UTIL.createWrite(content, iFile);
+				return WORKSPACE_UTIL.createWriteTextFileOp(content, iFile);
 			}
-			return EFS_UTIL.createWrite(content, efsFile);
+			return EFS_UTIL.createWriteTextFileOp(content, efsFile);
 		}
 		throw new IllegalArgumentException("Unknown file object.");
 	}
@@ -233,8 +228,8 @@ public class FileUtil {
 						"Error while reading the file.", e));
 			}
 			finally {
-				saveClose(reader);
-				saveClose(fi);
+				FileUtilProvider.saveClose(reader);
+				FileUtilProvider.saveClose(fi);
 				monitor.done();
 			}
 		}
@@ -247,124 +242,28 @@ public class FileUtil {
 	 */
 	public static ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
 		if (file instanceof IFile) {
-			return WORKSPACE_UTIL.createRead(action, (IFile) file);
+			return WORKSPACE_UTIL.createReadTextFileOp(action, file);
 		}
 		else if (file instanceof IFileStore) {
 			IFileStore efsFile = (IFileStore) file;
 			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
 			if (iFile != null) {
-				return WORKSPACE_UTIL.createRead(action, iFile);
+				return WORKSPACE_UTIL.createReadTextFileOp(action, iFile);
 			}
-			return EFS_UTIL.createRead(action, efsFile);
+			return EFS_UTIL.createReadTextFileOp(action, efsFile);
 		}
 		throw new IllegalArgumentException("Unknown file object.");
 	}
 	
 	
-	protected static class FileInput implements Closeable {
-		
-		private String fEncoding;
-		private String fDefaultEncoding;
-		private InputStream fStream;
-		
-		public FileInput(InputStream input, String expliciteCharsetHint) throws IOException, CoreException {
-			fStream = input;
-			if (expliciteCharsetHint != null) {
-				fDefaultEncoding = expliciteCharsetHint;
-			}
-			else {
-				read(input);
-			}
-			fEncoding = (fDefaultEncoding != null) ? fDefaultEncoding : FileUtil.UTF_8;
-		}
-		
-		void read(InputStream input) throws IOException {
-			
-			try {
-				int n = 3;
-				byte[] bytes = new byte[n];
-				int readed = input.read(bytes, 0, n);
-				if (readed == 0) {
-					return;
-				}
-				int next = 0;
-				if (startsWith(bytes, IContentDescription.BOM_UTF_8)) {
-					next = IContentDescription.BOM_UTF_8.length;
-					fDefaultEncoding = FileUtil.UTF_8;
-				}
-				else if (startsWith(bytes, IContentDescription.BOM_UTF_16BE)) {
-					next = IContentDescription.BOM_UTF_16BE.length;
-					fDefaultEncoding = FileUtil.UTF_16_BE;
-				}
-				else if (startsWith(bytes, IContentDescription.BOM_UTF_16LE)) {
-					next = IContentDescription.BOM_UTF_16LE.length;
-					fDefaultEncoding = FileUtil.UTF_16_LE;
-				}
-				if (readed-next > 0) {
-					fStream = new SequenceInputStream(new ByteArrayInputStream(
-							bytes, next, readed-next), input);
-				}
-			}
-			catch (IOException e) {
-				saveClose(input);
-				throw e;
-			}
-		}
-		
-		private boolean startsWith(byte[] array, byte[] start) {
-			for (int i = 0; i < start.length; i++) {
-				if (array[i] != start[i]) {
-					return false;
-				}
-			}
-			return true;
-		}
-		
-		public void setEncoding(String encoding, boolean force) {
-			if (encoding == null && fDefaultEncoding != null) {
-				fEncoding = fDefaultEncoding;
-			}
-			if (force || fDefaultEncoding == null) {
-				fEncoding = encoding;
-			}
-		}
-		
-		public void close() throws IOException {
-			if (fStream != null) {
-				fStream.close();
-			}
-		}
-		
-		public String getDefaultCharset() {
-			return fDefaultEncoding;
-		}
-		
-		public Reader getReader() throws UnsupportedEncodingException {
-			return new InputStreamReader(fStream, fEncoding);
-		}
-
-		
-	}
-
 	public static long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
 		if (file instanceof IFile) {
-			return WORKSPACE_UTIL.getTimeStamp0((IFile) file);
+			return WORKSPACE_UTIL.getTimeStamp(file, monitor);
 		}
 		else if (file instanceof IFileStore) {
-			return EFS_UTIL.getTimeStamp0((IFileStore) file, monitor);
+			return EFS_UTIL.getTimeStamp(file, monitor);
 		}
 		throw new IllegalArgumentException("Unknown file object.");
-	}
-	
-	protected static void saveClose(Closeable stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			}
-			catch (IOException e) {
-				;
-			}
-		}
 	}
 	
 }

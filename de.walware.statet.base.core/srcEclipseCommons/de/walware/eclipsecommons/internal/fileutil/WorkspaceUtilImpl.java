@@ -23,29 +23,31 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.walware.eclipsecommons.FileUtil;
+import de.walware.eclipsecommons.FileUtil.ReadTextFileOperation;
+import de.walware.eclipsecommons.FileUtil.ReaderAction;
+import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
 
 
 /**
  *
  */
-public class WorkspaceUtilImpl extends FileUtil {
+public class WorkspaceUtilImpl extends FileUtilProvider {
 
 	private static InputStream EMPTY_INPUT = new ByteArrayInputStream(new byte[0]);
 
-	
-	public ReadTextFileOperation createRead(final ReaderAction action, final IFile file) {
-		
+	@Override
+	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
+		final IFile wsFile = (IFile) file;
 		return new ReadTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
-				return WorkspaceUtilImpl.this.getFileLabel(file);
+				return WorkspaceUtilImpl.this.getFileLabel0(wsFile);
 			}
 			@Override
 			protected FileInput getInput(IProgressMonitor monitor) throws CoreException, IOException {
 				try {
-					InputStream raw = file.getContents(true);
-					return new FileInput(raw, file.getCharset(false));
+					InputStream raw = wsFile.getContents(true);
+					return new FileInput(raw, wsFile.getCharset(false));
 				}
 				finally {
 					monitor.done();
@@ -58,64 +60,69 @@ public class WorkspaceUtilImpl extends FileUtil {
 	
 			@Override
 			public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-				runAsWorkspaceRunnable(monitor, file);
+				runAsWorkspaceRunnable(monitor, wsFile);
 			}
 		};
 	}
 
-	public WriteTextFileOperation createWrite(final String content, final IFile file) {
-		
+	@Override
+	public WriteTextFileOperation createWriteTextFileOp(final String content, Object file) {
+		final IFile wsFile = (IFile) file;
 		return new WriteTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
-				return WorkspaceUtilImpl.this.getFileLabel(file);
+				return WorkspaceUtilImpl.this.getFileLabel0(wsFile);
 			}
 	
 			@Override
 			public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-				runAsWorkspaceRunnable(monitor, file);
+				runAsWorkspaceRunnable(monitor, wsFile);
 			}
 			@Override
 			protected void writeImpl(IProgressMonitor monitor) throws CoreException, UnsupportedEncodingException {
-				boolean exists = file.exists();
+				boolean exists = wsFile.exists();
 				if (exists && ((fMode & EFS.APPEND) != 0)) {
 					if (fForceCharset) {
-						file.setCharset(fCharset, new SubProgressMonitor(monitor, 20));
+						wsFile.setCharset(fCharset, new SubProgressMonitor(monitor, 20));
 					}
 					else {
-						fCharset = file.getCharset();
+						fCharset = wsFile.getCharset();
 						monitor.worked(20);
 					}
 						
-					file.appendContents(new ByteArrayInputStream(content.getBytes(fCharset)),
+					wsFile.appendContents(new ByteArrayInputStream(content.getBytes(fCharset)),
 							(IFile.FORCE | IFile.KEEP_HISTORY),
 							new SubProgressMonitor(monitor, 80));
 				}
 				else {
 					if (exists && ((fMode & EFS.OVERWRITE) != 0)) {
-						file.setContents(EMPTY_INPUT, IFile.FORCE | IFile.KEEP_HISTORY,
+						wsFile.setContents(EMPTY_INPUT, IFile.FORCE | IFile.KEEP_HISTORY,
 								new SubProgressMonitor(monitor, 15));
 					}
 					else {
-						file.create(EMPTY_INPUT, IFile.FORCE, new SubProgressMonitor(monitor, 15));
+						wsFile.create(EMPTY_INPUT, IFile.FORCE, new SubProgressMonitor(monitor, 15));
 					}
-					if (fForceCharset || !fCharset.equals(file.getCharset(true))) {
-						file.setCharset(fCharset, new SubProgressMonitor(monitor, 5));
+					if (fForceCharset || !fCharset.equals(wsFile.getCharset(true))) {
+						wsFile.setCharset(fCharset, new SubProgressMonitor(monitor, 5));
 					} else {
 						monitor.worked(5);
 					}
-					file.setContents(new ByteArrayInputStream(content.getBytes(fCharset)),
+					wsFile.setContents(new ByteArrayInputStream(content.getBytes(fCharset)),
 							IFile.NONE, new SubProgressMonitor(monitor, 80));
 				}
 			}
 		};
 	}
 
-	public long getTimeStamp0(final IFile file) {
-		return file.getLocalTimeStamp();
+	@Override
+	public long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
+		final IFile wsFile = (IFile) file;
+		final long stamp = wsFile.getLocalTimeStamp();
+		monitor.done();
+		return stamp;
 	}
 	
-	private String getFileLabel(IFile ifile) {
+	private String getFileLabel0(IFile ifile) {
 		return "'"+ifile.getFullPath().makeRelative().toString()+"' (workspace)";
 	}
 
