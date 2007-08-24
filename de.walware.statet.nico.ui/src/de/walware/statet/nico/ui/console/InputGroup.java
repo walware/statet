@@ -527,8 +527,18 @@ public class InputGroup implements ISettingsChangedHandler {
 			}
 		}
 		fInHistoryChange = true;
-		fDocument.set(text);
-		fSourceViewer.setSelectedRange(fHistoryCompoundChange.x, fHistoryCompoundChange.y);
+
+		StyledText widget = fSourceViewer.getTextWidget();
+		if (UIAccess.isOkToUse(widget)) {
+			widget.setRedraw(false);
+			fDocument.set(text);
+			fSourceViewer.setSelectedRange(fHistoryCompoundChange.x, fHistoryCompoundChange.y);
+			widget.setRedraw(true);
+		}
+		else {
+			fDocument.set(text);
+		}
+		
 		fHistoryCaretWorkaround = fSourceViewer.getSelectedRange();
 		fInHistoryChange = false;
 	}
