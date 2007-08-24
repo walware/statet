@@ -22,6 +22,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
@@ -31,6 +32,7 @@ import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -73,7 +75,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		Composite group = createConnectorComponent(pageComposite, container);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
-		loadValues();
+		updateControls();
 	}
 
 	private Composite createConnectorComponent(Composite parent, IWorkbenchPreferenceContainer container) {
@@ -118,17 +120,21 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 				int idx = fConnectorsSelector.getSelectionIndex();
 				if (idx >= 0) {
 					setPrefValue(PREF_R_CONNECTOR, fConnectors[idx].fId);
-					String description = fConnectors[idx].fDescription;
-					if (description == null) {
-						description = ""; //$NON-NLS-1$
-					}
-					fConnectorsDescription.setText(description);
-					updateDescriptionSize();
+					updateDescription(idx);
 				}
 			};
 		});
 		
 		return group;
+	}
+	
+	private void updateDescription(int idx) {
+		String description = fConnectors[idx].fDescription;
+		if (description == null) {
+			description = ""; //$NON-NLS-1$
+		}
+		fConnectorsDescription.setText(description);
+		updateDescriptionSize();
 	}
 	
 	private void updateDescriptionSize() {
@@ -144,6 +150,14 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void updateControls() {
 		loadValues();
+		UIAccess.getDisplay(getShell()).asyncExec(new Runnable() {
+			public void run() {
+				int idx = fConnectorsSelector.getSelectionIndex();
+				if (idx >= 0) {
+					updateDescription(idx);
+				}
+			}
+		});
 	}
 		
 	private void loadValues() {
