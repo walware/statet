@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -96,6 +97,68 @@ public class InputGroup implements ISettingsChangedHandler {
 	
 	
 	
+	private final class ScrollControl implements Listener {
+		
+		private static final int MAX = 150;
+		private static final int SPECIAL = 80;
+		private final Slider fSlider;
+		private int fLastPos = 0;
+		
+		private ScrollControl(Slider slider) {
+			fSlider = slider;
+			fSlider.setMaximum(MAX);
+			fSlider.addListener(SWT.Selection, this);
+		}
+		
+		public void handleEvent(Event event) {
+			final int selection = fSlider.getSelection();
+			int newIndex;
+			StyledText output = fConsolePage.getOutputViewer().getTextWidget();
+			StyledText input = fSourceViewer.getTextWidget();
+			int current = Math.max(output.getHorizontalIndex(), input.getHorizontalIndex());
+			if (event.detail == SWT.DRAG) {
+				if (fLastPos < 0) {
+					fLastPos = current;
+				}
+				if (current > SPECIAL || fLastPos > SPECIAL) {
+					current = fLastPos;
+					double diff = selection-SPECIAL;
+					newIndex = current + (int) (
+							Math.signum(diff) * Math.max(Math.exp(Math.abs(diff)/7.5)-1.0, 0.0) * 2.0 );
+					if (newIndex < selection) {
+						newIndex = selection;
+					}
+				}
+				else {
+					newIndex = selection;
+				}
+			}
+			else {
+				if (current > SPECIAL) {
+					newIndex = current + selection-SPECIAL;
+				}
+				else {
+					newIndex = selection;
+				}
+			}
+			output.setHorizontalIndex(newIndex);
+			input.setHorizontalIndex(newIndex);
+			// System.out.println(newIndex);
+			current = Math.max(output.getHorizontalIndex(), input.getHorizontalIndex());
+			if (event.detail != SWT.DRAG) {
+				fSlider.setSelection(current > 80 ? 80 : current);
+				fLastPos = -1;
+			}
+		}
+		
+		public void reset() {
+			fSlider.setSelection(0);
+			StyledText output = fConsolePage.getOutputViewer().getTextWidget();
+			output.setHorizontalIndex(0);
+			fLastPos = -1;
+		}
+	}
+
 	private class EditorAdapter implements IEditorAdapter {
 
 		private boolean fMessageSetted;
@@ -242,6 +305,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	private InputSourceViewer fSourceViewer;
 	protected InputDocument fDocument;
 	private Button fSubmitButton;
+	private ScrollControl fScroller;
 	
 	EditorAdapter fEditorAdapter = new EditorAdapter();
 	IEditorInstallable[] fInstalledModules;
@@ -271,24 +335,28 @@ public class InputGroup implements ISettingsChangedHandler {
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = 0;
 		layout.marginWidth = 0;
+		layout.verticalSpacing = 3;
 		fComposite.setLayout(layout);
 		
 		fPrefix = new Label(fComposite, SWT.LEFT);
-		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, false);
+		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
+		gd.verticalIndent = 1;
 		fPrefix.setLayoutData(gd);
 		float[] hsb = fPrefix.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB().getHSB();
 		fPrefix.setBackground(StatetUIServices.getSharedColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
 		fPrefix.setText("> "); //$NON-NLS-1$
 		
 		createSourceViewer(editorConfig);
-		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.verticalIndent = 1;
 		fSourceViewer.getControl().setLayoutData(gd);
 		fSourceViewer.appendVerifyKeyListener(new ThisKeyListener());
 		
 		fSubmitButton = new Button(fComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.FILL, false, false);
-		gd.horizontalIndent = 3;
+		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
+		gd.horizontalIndent = layout.verticalSpacing;
 		gd.heightHint = new PixelConverter(fSubmitButton).convertHeightInCharsToPixels(1)+4;
+		gd.verticalSpan = 2;
 		fSubmitButton.setLayoutData(gd);
 		fSubmitButton.setText(Messages.Console_SubmitButton_label);
 		fSubmitButton.addSelectionListener(new SelectionListener() {
@@ -299,6 +367,10 @@ public class InputGroup implements ISettingsChangedHandler {
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
+		
+		Slider slider = new Slider(fComposite, SWT.HORIZONTAL);
+		slider.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+		fScroller = new ScrollControl(slider);
 		
 		setFont(fConsolePage.getConsole().getFont());
 		
@@ -429,7 +501,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	}
 	
 	
-	public void setFont(Font font) {
+	void setFont(Font font) {
 		fPrefix.setFont(font);
 		fSourceViewer.getControl().setFont(font);
 	}
@@ -557,6 +629,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		fCurrentHistoryEntry = null;
 		fHistoryCompoundChange = null;
 		fSourceViewer.getUndoManager().reset();
+		fScroller.reset();
 	}
 
 	public Composite getComposite() {

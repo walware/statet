@@ -28,9 +28,8 @@ public class InputSourceViewer extends SourceViewer {
 
 	
 	InputSourceViewer(Composite parent) {
-		super(parent, null, null, false, SWT.SINGLE | SWT.H_SCROLL);
+		super(parent, null, null, false, SWT.SINGLE);
 		
-		getTextWidget().setLineSpacing(2);
 		initializeDragAndDrop();
 		initTabControl();
 	}
@@ -55,7 +54,6 @@ public class InputSourceViewer extends SourceViewer {
 			}
 		});
 	}
-	
 	
 
 	public void removeSpecialBinding(int key) {

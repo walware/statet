@@ -32,6 +32,7 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IFindReplaceTarget;
@@ -49,6 +50,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -58,6 +60,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Sash;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -83,6 +87,8 @@ import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
+import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
@@ -111,6 +117,10 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport, ChangeListener {
 
 	
+	private static final String DIALOG_ID = "Console"; //$NON-NLS-1$
+	private static final String SETTING_INPUTHEIGHT = "InputHeight"; //$NON-NLS-1$
+	
+
 	private class FindReplaceUpdater implements IDocumentListener {
 		
 		private boolean wasEmpty = true;
@@ -147,6 +157,79 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			fMultiActionHandler.updateEnabledState();
 		}
 	}
+	
+	private class SizeControl implements Listener {
+		private final Sash fSash;
+		private final GridData fOutputGD;
+		private final GridData fInputGD;
+		private int fLastExplicit;
+		
+		public SizeControl(Sash sash, GridData outputGD, GridData inputGD) {
+			fSash = sash;
+			fOutputGD = outputGD;
+			fInputGD = inputGD;
+			fLastExplicit = -1;
+		}
+		
+		public void handleEvent(Event event) {
+			if (event.widget == fSash) {
+				if (event.type == SWT.Selection && event.detail != SWT.DRAG) {
+					Rectangle bounds = fControl.getClientArea();
+	//				System.out.println(bounds.height);
+	//				Rectangle bounds2 = fInputGroup.getComposite().getBounds();
+	//				System.out.println(bounds2.y+bounds2.height);
+					
+					setNewInputHeight(bounds.height - event.y - fSash.getSize().y, true);
+				}
+				return;
+			}
+			if (event.widget == fControl) {
+				if (event.type == SWT.Resize) {
+					setNewInputHeight(fInputGD.heightHint, false);
+				}
+			}
+		}
+		
+		private void setNewInputHeight(int height, boolean explicit) {
+			if (!explicit) {
+				height = fLastExplicit;
+			}
+			if (height == -1) {
+				return;
+			}
+			Rectangle bounds = fControl.getClientArea();
+			int max = bounds.height - fOutputGD.minimumHeight - fSash.getSize().y;
+			if (height > max) {
+				height = max;
+			}
+			if (height < fInputGD.minimumHeight) {
+				height = -1;
+			}
+			if (explicit) {
+				fLastExplicit = height;
+			}
+			
+			if (fInputGD.heightHint == height) {
+				return;
+			}
+			fInputGD.heightHint = height;
+			fControl.layout(new Control[] { fInputGroup.getComposite() });
+		}
+		
+		private void fontChanged() {
+			fOutputGD.minimumHeight = LayoutUtil.hintHeight(fOutputViewer.getTextWidget(), 4);
+			ScrollBar bar = fOutputViewer.getTextWidget().getHorizontalBar();
+			if (bar.isVisible()) {
+				fOutputGD.minimumHeight += bar.getSize().y;
+			}
+			fInputGD.minimumHeight = fInputGroup.getComposite().computeSize(800, -1).y;
+			if (fInputGD.heightHint != -1
+					&& fInputGD.minimumHeight > fInputGD.heightHint) {
+				fInputGD.heightHint = -1;
+			}
+		}
+	}
+
 
 	private NIConsole fConsole;
 	private IConsoleView fConsoleView;
@@ -156,6 +239,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	private IOConsoleViewer fOutputViewer;
 	private InputGroup fInputGroup;
+	private SizeControl fResizer;
 	private MenuManager fOutputMenuManager;
 	private MenuManager fInputMenuManager;
 	
@@ -260,15 +344,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		};
 		GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
-		layout.verticalSpacing = 3;
+		layout.verticalSpacing = 0;
 		layout.marginWidth = 0;
-		layout.marginBottom = 3;
 		fControl.setLayout(layout);
 		
 		fOutputViewer = new IOConsoleViewer(fControl, fConsole);
 		fOutputViewer.setReadOnly();
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		fOutputViewer.getControl().setLayoutData(gd);
+		final GridData outputGD = new GridData(SWT.FILL, SWT.FILL, true, true);
+		fOutputViewer.getControl().setLayoutData(outputGD);
 		
 		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
 			public void keyPressed(KeyEvent e) {
@@ -294,10 +377,19 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		});
 		
+		Sash sash = new Sash(fControl, SWT.HORIZONTAL);
+		sash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
 		fInputGroup.createControl(fControl, createInputEditorConfigurator());
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		fInputGroup.getComposite().setLayoutData(gd);
+		final GridData inputGD = new GridData(SWT.FILL, SWT.FILL, true, false);
+		fInputGroup.getComposite().setLayoutData(inputGD);
 
+		fOutputViewer.getTextWidget().getHorizontalBar().setVisible(false);
+		
+		fResizer = new SizeControl(sash, outputGD, inputGD);
+		sash.addListener(SWT.Selection, fResizer);
+		fControl.addListener(SWT.Resize, fResizer);
+		
 		fClipboard = new Clipboard(fControl.getDisplay());
 		createActions();
 		hookContextMenu();
@@ -307,6 +399,18 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		new ConsoleActivationNotifier();
 		fIsCreated = true;
 		fInputGroup.updatePrompt(null);
+		
+		IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
+		try {
+			int height = dialogSettings.getInt(SETTING_INPUTHEIGHT);
+			if (height > 0) {
+				fResizer.fLastExplicit = height;
+			}
+		}
+		catch (NumberFormatException e) {
+			// missing value
+		}
+		fResizer.fontChanged();
 		
 		Display.getCurrent().asyncExec(new Runnable() {
 			public void run() {
@@ -691,6 +795,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 					}
 				}
 			});
+			IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
+			dialogSettings.put(SETTING_INPUTHEIGHT, fResizer.fLastExplicit);
 		}
 	}
 	
@@ -708,6 +814,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				Font font = fConsole.getFont();
 				fOutputViewer.setFont(font);
 				fInputGroup.setFont(font);
+				fResizer.fontChanged();
 				fControl.layout();
 			}
 			else if (IConsoleConstants.P_FONT_STYLE.equals(property)) {

@@ -17,6 +17,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -157,6 +158,11 @@ public class LayoutUtil {
 		PixelConverter converter = new PixelConverter(control);
 		int heightHint = converter.convertHeightInCharsToPixels(rows);
 		return heightHint;
+	}
+	
+	public static int hintHeight(StyledText control, int lines) {
+		PixelConverter converter = new PixelConverter(control);
+		return converter.convertHeightInCharsToPixels(lines);
 	}
 	
 
