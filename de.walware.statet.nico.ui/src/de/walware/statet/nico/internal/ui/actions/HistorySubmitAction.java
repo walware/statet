@@ -67,7 +67,7 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 					String[] commands = createCommandArray(selection);
 					monitor.worked(200);
 					
-					controller.submit(commands, SubmitType.OTHER, 
+					controller.submit(commands, SubmitType.EDITOR,
 							new SubProgressMonitor(monitor, 800));
 				}
 				finally {
@@ -81,7 +81,7 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 	
 // Lifecycle with view
 //	public void dispose() {
-//		
+//
 //		fView.getTableViewer().removeSelectionChangedListener(this);
 //		fView = null;
 //	}

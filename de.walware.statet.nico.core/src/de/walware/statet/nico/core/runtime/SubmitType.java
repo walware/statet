@@ -18,7 +18,7 @@ public enum SubmitType {
 	
 	/** Console interaction by user */
 	CONSOLE,
-	/** Submit from editor */
+	/** Submit from editor and other code based views */
 	EDITOR,
 	/** Submit from tools (GUI etc.) */
 	TOOLS,
