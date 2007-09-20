@@ -57,7 +57,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            category="de.walware.statet.base.commandCategorys.StatetSource"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
             id="de.walware.statet.nico.commands.Cancel"
             name="%commands_Cancel_name"/>
       <command
