@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 
@@ -49,7 +50,7 @@ public class NewRProjectWizard extends NewElementWizard {
     public void addPages() {
     	
         super.addPages();
-        fFirstPage = new NewRProjectWizardPage();
+        fFirstPage = new NewRProjectWizardPage(getSelection());
         addPage(fFirstPage);
         
         // only add page if there are already projects in the workspace
@@ -71,7 +72,14 @@ public class NewRProjectWizard extends NewElementWizard {
     	fNewRProject = new ProjectCreator(
     			fFirstPage.getProjectName(),
     			(fFirstPage.useDefaults()) ? null : fFirstPage.getLocationPath(),
-    			(fReferencePage != null) ? fReferencePage.getReferencedProjects() : null );
+    			(fReferencePage != null) ? fReferencePage.getReferencedProjects() : null,
+    			fFirstPage.getSelectedWorkingSets()
+    			) {
+    		@Override
+    		protected void doConfigProject(IProject project, IProgressMonitor monitor) throws CoreException {
+    			RProject.addNature(fNewRProject.getProjectHandle(), monitor);
+    		}
+    	};
 
     	boolean result = super.performFinish();
 
@@ -87,11 +95,8 @@ public class NewRProjectWizard extends NewElementWizard {
 	protected void doFinish(IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
     
 		try {
-			monitor.beginTask("Create new project...", 1000); //$NON-NLS-1$
-	
-			fNewRProject.createProject(new SubProgressMonitor(monitor, 500) );
-			
-			RProject.addNature(fNewRProject.getProjectHandle(), new SubProgressMonitor(monitor, 500));
+			monitor.beginTask("Create new R project...", 1000); //$NON-NLS-1$
+			fNewRProject.createProject(new SubProgressMonitor(monitor, 1000) );
 //		fFirstPage.saveSettings();
 		}
 		finally {

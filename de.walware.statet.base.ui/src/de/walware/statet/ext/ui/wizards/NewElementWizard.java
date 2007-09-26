@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.ContainerGenerator;
@@ -207,7 +208,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		}
 	}
 	
-	protected static class ProjectCreator {
+	protected class ProjectCreator {
 		
 		/** Name of project */
 		protected String fProjectName;
@@ -216,13 +217,13 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		
 		private IProject fCachedProjectHandle;
 		private IProject[] fRefProjects;
+		private IWorkingSet[] fWorkingSets;
 		
-		
-	    public ProjectCreator(String name, IPath path, IProject[] projects) {
-
+	    public ProjectCreator(String name, IPath path, IProject[] projects, IWorkingSet[] workingSets) {
 			fProjectName = name;
 			fNewPath = path;
 			fRefProjects = projects;
+			fWorkingSets = workingSets;
 		}
 
 		/**
@@ -235,7 +236,6 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	     * @return the project resource handle
 	     */
 	    public IProject getProjectHandle() {
-	    	
 	    	if (fCachedProjectHandle == null)
 	    		fCachedProjectHandle = ResourcesPlugin.getWorkspace().getRoot().getProject(fProjectName);
 	    	
@@ -249,12 +249,13 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	     * on the wizard; the enablement of the Finish button implies that all
 	     * controls on the pages currently contain valid values.
 	     * </p>
+	     * @return 
 	     * 
 	     * @return the created project resource, or <code>null</code> if the
 	     *         project was not created
 	     * @throws CoreException 
 	     */
-	    public void createProject(IProgressMonitor monitor) 
+	    public IProject createProject(IProgressMonitor monitor) 
 	    		throws InvocationTargetException, InterruptedException, CoreException {
 	    	
 	    	IProject projectHandle = getProjectHandle();
@@ -271,40 +272,53 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	    	try {
 	    		Assert.isNotNull(projectHandle);
 	    		
-	    		doCreateProject(projectHandle, description, monitor);
+	    		monitor.beginTask("Create New Project", 2500);
+	            if (monitor.isCanceled()) {
+	            	throw new OperationCanceledException();
+	            }
+	    		doCreateProject(projectHandle, description, new SubProgressMonitor(monitor, 1000));
+	    		doConfigProject(projectHandle, new SubProgressMonitor(monitor, 1000));
+	    		doAddtoWorkingSets(projectHandle, new SubProgressMonitor(monitor, 500));
+	    		return projectHandle;
 	    	}
 	    	finally {
 	    		monitor.done();
 	    	}
 	    }
 	    
-	    private static void doCreateProject(IProject projectHandle, IProjectDescription description, IProgressMonitor monitor) 
+	    private void doCreateProject(IProject project, IProjectDescription description, IProgressMonitor monitor) 
 	    		throws CoreException {
-	    	
 	        // run the new project creation operation
-	        try {
-                monitor.beginTask("Create Project", 1000); //$NON-NLS-1$
+	    	monitor.beginTask("Install Project", 1000); //$NON-NLS-1$
 
-                projectHandle.create(description, new SubProgressMonitor(monitor, 500));
-                if (monitor.isCanceled()) {
-                	throw new OperationCanceledException();
-                }
-                projectHandle.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(monitor, 1000));
-                if (monitor.isCanceled()) {
-                	throw new OperationCanceledException();
-                }
-	        }
-	        finally {
-	        	monitor.done();
-	        }
+            project.create(description, new SubProgressMonitor(monitor, 500));
+            if (monitor.isCanceled()) {
+            	throw new OperationCanceledException();
+            }
+            project.open(new SubProgressMonitor(monitor, 500));
+            if (monitor.isCanceled()) {
+            	throw new OperationCanceledException();
+            }
+	    }
+	    
+	    protected void doConfigProject(IProject project, IProgressMonitor monitor) throws CoreException {
+	    }
+	    
+	    private void doAddtoWorkingSets(IProject project, IProgressMonitor monitor) {
+	    	if (fWorkingSets != null && fWorkingSets.length > 0) {
+	    		monitor.beginTask("Add Project to Working Sets", 1);
+	    		getWorkbench().getWorkingSetManager().addToWorkingSets(project, fWorkingSets);
+	    	}
+	    	monitor.done();
 	    }
 	}
 	
+
 	private IWorkbench fWorkbench;
 	private IStructuredSelection fSelection;
 	
+	
 	public NewElementWizard() {
-		
         setDialogSettings(StatetUIPlugin.getDefault().getDialogSettings());
 		setNeedsProgressMonitor(true);
 	}

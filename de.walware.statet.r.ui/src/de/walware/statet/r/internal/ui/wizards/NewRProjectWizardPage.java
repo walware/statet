@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.ui.wizards;
 
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 
 
@@ -23,14 +25,28 @@ import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 public class NewRProjectWizardPage extends WizardNewProjectCreationPage {
 
 	
+	private IStructuredSelection fSelection;
+	
+	
 	/**
 	 * Constructor.
 	 */
-	public NewRProjectWizardPage() {
+	public NewRProjectWizardPage(IStructuredSelection selection) {
 		super("NewRProjectWizardPage"); //$NON-NLS-1$
+		fSelection = selection;
 		
 		setTitle(Messages.NewRProjectWizardPage_title);
 		setDescription(Messages.NewRProjectWizardPage_description);
 	}
 
+	
+	@Override
+	public void createControl(Composite parent) {
+		super.createControl(parent);
+		Composite composite = (Composite) getControl();
+		createWorkingSetGroup(composite, fSelection, new String[] {
+				"org.eclipse.ui.resourceWorkingSetPage", //$NON-NLS-1$
+				});
+	}
+	
 }
