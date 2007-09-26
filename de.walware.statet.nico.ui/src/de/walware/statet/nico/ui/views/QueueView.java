@@ -72,7 +72,6 @@ public class QueueView extends ViewPart {
 		private IToolRunnable[] fRefreshData;
 		
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			
 			if (oldInput != null && newInput == null) {
 				unregister();
 				fPauseAction.setTool(null);
@@ -90,7 +89,6 @@ public class QueueView extends ViewPart {
 		}
 
 		public Object[] getElements(Object inputElement) {
-
 			IToolRunnable[] elements;
 			if (fRefreshData != null) {
 				elements = fRefreshData;
@@ -108,7 +106,6 @@ public class QueueView extends ViewPart {
 		}
 		
 		private void unregister() {
-			
 			DebugPlugin manager = DebugPlugin.getDefault();
 			if (manager != null) {
 				manager.removeDebugEventListener(this);
@@ -116,12 +113,10 @@ public class QueueView extends ViewPart {
 		}
 
 		public void dispose() {
-			
 			unregister();
 		}
 		
 		private void setElements(final IToolRunnable[] elements) {
-			
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
 					if (!UIAccess.isOkToUse(fTableViewer)) {
@@ -134,7 +129,6 @@ public class QueueView extends ViewPart {
 		}
 		
 		public void handleDebugEvents(DebugEvent[] events) {
-			
 			ToolProcess process = fProcess;
 			if (process == null) {
 				return;
@@ -239,7 +233,6 @@ public class QueueView extends ViewPart {
 	private class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
-			
 			if (columnIndex == 0) {
 				return getImage(element);
 			}
@@ -248,7 +241,6 @@ public class QueueView extends ViewPart {
 		
 		@Override
 		public Image getImage(Object element) {
-			
 			ImageDescriptor descriptor = NicoUITools.getImageDescriptor((IToolRunnable) element);
 			if (descriptor != null) {
 				return StatetImages.getCachedImage(descriptor);
@@ -257,15 +249,14 @@ public class QueueView extends ViewPart {
 		}
 
 		public String getColumnText(Object element, int columnIndex) {
-
 			if (columnIndex == 0) {
 				return getText(element);
 			}
 			return ""; //$NON-NLS-1$
 		}
 		
+		@Override
 		public String getText(Object element) {
-			
 			IToolRunnable runnable = (IToolRunnable) element;
 			return runnable.getLabel();
 		}
@@ -274,7 +265,6 @@ public class QueueView extends ViewPart {
 	private class ShowDescriptionAction extends Action {
 		
 		public ShowDescriptionAction() {
-			
 			setText(Messages.ShowToolDescription_name);
 			setToolTipText(Messages.ShowToolDescription_tooltip);
 			setChecked(fShowDescription);
@@ -282,7 +272,6 @@ public class QueueView extends ViewPart {
 		
 		@Override
 		public void run() {
-			
 			fShowDescription = isChecked();
 			updateContentDescription(fProcess);
 		}
@@ -291,7 +280,6 @@ public class QueueView extends ViewPart {
 	private class ShowProgressAction extends Action {
 		
 		public ShowProgressAction() {
-			
 			setText(Messages.ShowProgress_name);
 			setToolTipText(Messages.ShowProgress_tooltip);
 			setChecked(fShowProgress);
@@ -299,7 +287,6 @@ public class QueueView extends ViewPart {
 		
 		@Override
 		public void run() {
-			
 			fShowProgress = isChecked();
 			if (fShowProgress) {
 				createProgressControl();
@@ -340,7 +327,6 @@ public class QueueView extends ViewPart {
 	
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
-		
 		super.init(site, memento);
 		
 		String showDescription = (memento != null) ? memento.getString(M_SHOW_DESCRIPTION) : null;
@@ -360,7 +346,6 @@ public class QueueView extends ViewPart {
 	
 	@Override
 	public void saveState(IMemento memento) {
-		
 		super.saveState(memento);
 		
 		memento.putString(M_SHOW_DESCRIPTION, (fShowDescription) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -369,7 +354,6 @@ public class QueueView extends ViewPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		
 		updateContentDescription(null);
 		
 		fComposite = parent;
@@ -389,8 +373,9 @@ public class QueueView extends ViewPart {
 		fTableViewer.getTable().setHeaderVisible(false);
 		new TableColumn(fTableViewer.getTable(), SWT.DEFAULT);
 		fTableViewer.getTable().addControlListener(new ControlAdapter() {
+			@Override
 			public void controlResized(ControlEvent e) {
-				// adapt the column width to the width of the table 
+				// adapt the column width to the width of the table
 				Table table = fTableViewer.getTable();
 				Rectangle area = table.getClientArea();
 				TableColumn column = table.getColumn(0);
@@ -416,7 +401,7 @@ public class QueueView extends ViewPart {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) { 
+			public void toolSessionClosed(ToolSessionUIData info) {
 				disconnect(info.getProcess());
 			}
 		};
@@ -425,14 +410,12 @@ public class QueueView extends ViewPart {
 	
 	
 	private void createProgressControl() {
-		
 		fProgressControl = new ToolProgressGroup(fComposite);
 		fProgressControl.getControl().setLayoutData(
 				new GridData(SWT.FILL, SWT.FILL, true, false));
 	}
 	
 	protected void updateContentDescription(ToolProcess process) {
-		
 		if (fShowDescription) {
 			setContentDescription(process != null ? process.getToolLabel(false) : " "); //$NON-NLS-1$
 		}
@@ -442,18 +425,19 @@ public class QueueView extends ViewPart {
 	}
 	
 	private void createActions() {
-		
 		fPauseAction = new PauseAction();
 		
 		fShowDescriptionAction = new ShowDescriptionAction();
 		fShowProgressAction = new ShowProgressAction();
 		
 		fSelectAllAction = new Action() {
+			@Override
 			public void run() {
 				fTableViewer.getTable().selectAll();
 			}
 		};
 		fDeleteAction = new Action() {
+			@Override
 			public void run() {
 				Queue queue = getQueue();
 				if (queue != null) {
@@ -466,7 +450,6 @@ public class QueueView extends ViewPart {
 	}
 
 	private void contributeToActionBars() {
-		
 		IActionBars bars = getViewSite().getActionBars();
 		
 		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), fSelectAllAction);
@@ -477,18 +460,15 @@ public class QueueView extends ViewPart {
 	}
 
 	private void fillLocalPullDown(IMenuManager manager) {
-		
 		manager.add(fShowDescriptionAction);
 		manager.add(fShowProgressAction);
 	}
 
 	private void fillLocalToolBar(IToolBarManager manager) {
-		
 		manager.add(fPauseAction);
 	}
 	
 	private void disconnect(final ToolProcess process) {
-		
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (fProcess != null && fProcess == process) {
@@ -500,7 +480,6 @@ public class QueueView extends ViewPart {
 
 	/** Should only be called inside UI Thread */
 	public void connect(final ToolProcess process) {
-		
 		Runnable runnable = new Runnable() {
 			public void run() {
 				if (!UIAccess.isOkToUse(fTableViewer)) {
@@ -524,12 +503,10 @@ public class QueueView extends ViewPart {
 	 * @return a tool process or <code>null</code>, if no process is connected.
 	 */
 	public ToolProcess getProcess() {
-		
 		return fProcess;
 	}
 	
 	public Queue getQueue() {
-		
 		if (fProcess != null) {
 			return fProcess.getQueue();
 		}
@@ -540,13 +517,11 @@ public class QueueView extends ViewPart {
 	@Override
 	public void setFocus() {
 		// Passing the focus request to the viewer's control.
-
 		fTableViewer.getControl().setFocus();
 	}
 	
 	@Override
 	public void dispose() {
-		
 		fPauseAction.dispose();
 		fPauseAction = null;
 		

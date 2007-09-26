@@ -31,10 +31,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
@@ -57,7 +63,6 @@ import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.editors.DeleteLineAction;
 import de.walware.statet.ext.ui.editors.GotoMatchingBracketAction;
@@ -295,6 +300,9 @@ public class InputGroup implements ISettingsChangedHandler {
 		
 	}
 
+	
+	private static PaletteData fgPaletteData;
+
 	private NIConsolePage fConsolePage;
 	private ToolProcess fProcess;
 	private History.Entry fCurrentHistoryEntry;
@@ -302,6 +310,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	
 	private Composite fComposite;
 	private Label fPrefix;
+	private Image fPrefixBackground;
 	private InputSourceViewer fSourceViewer;
 	protected InputDocument fDocument;
 	private Button fSubmitButton;
@@ -339,12 +348,20 @@ public class InputGroup implements ISettingsChangedHandler {
 		fComposite.setLayout(layout);
 		
 		fPrefix = new Label(fComposite, SWT.LEFT);
-		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
+		GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, false);
 		gd.verticalIndent = 1;
 		fPrefix.setLayoutData(gd);
-		float[] hsb = fPrefix.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND).getRGB().getHSB();
-		fPrefix.setBackground(StatetUIServices.getSharedColorManager().getColor(new RGB(hsb[0], hsb[1], 0.925f)));
-		fPrefix.setText("> "); //$NON-NLS-1$
+		fPrefixBackground = createImage(Display.getCurrent());
+		fPrefix.setBackgroundImage(fPrefixBackground);
+		fPrefix.setText("> ");
+		fPrefix.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (UIAccess.isOkToUse(fSourceViewer)) {
+					fSourceViewer.doOperation(SourceViewer.SELECT_ALL);
+				}
+			}
+		});
 		
 		createSourceViewer(editorConfig);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -666,6 +683,67 @@ public class InputGroup implements ISettingsChangedHandler {
 		}
 		fProcess = null;
 		fConsolePage = null;
+		
+		if (fPrefixBackground != null) {
+			fPrefixBackground.dispose();
+			fPrefixBackground = null;
+		}
+	}
+	
+	
+	
+	/**
+	 * Creates and returns a new SWT image with the given size on
+	 * the given display which is used as this range indicator's image.
+	 *
+	 * @see org.eclipse.ui.texteditor.DefaultRangeIndicator
+	 *
+	 * @param display the display on which to create the image
+	 * @param size the image size
+	 * @return a new image
+ 	 */
+	private static Image createImage(Display display) {
+		Point size = new Point(8, 8);
+		int width = size.x;
+		int height = size.y;
+
+		if (fgPaletteData == null)
+			fgPaletteData = createPalette(display);
+
+		ImageData imageData = new ImageData(width, height, 1, fgPaletteData);
+
+		for (int y= 0; y < height; y++)
+			for (int x= 0; x < width; x++)
+				imageData.setPixel(x, y, (x + y) % 2);
+
+		return new Image(display, imageData);
+	}
+
+	/**
+	 * Creates and returns a new color palette data.
+	 *
+	 * @param display
+	 * @return the new color palette data
+	 */
+	private static PaletteData createPalette(Display display) {
+		Color c1;
+		Color c2;
+
+		if (true) {
+			// range lighter
+			c1= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+			c2= display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+		} else {
+			// range darker
+			c1= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+			c2= display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+		}
+
+		RGB rgbs[] = new RGB[] {
+			new RGB(c1.getRed(), c1.getGreen(), c1.getBlue()),
+			new RGB(c2.getRed(), c2.getGreen(), c2.getBlue())};
+
+		return new PaletteData(rgbs);
 	}
 	
 }

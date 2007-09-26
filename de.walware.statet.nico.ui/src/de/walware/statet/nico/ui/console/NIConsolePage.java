@@ -378,6 +378,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		});
 		
 		Sash sash = new Sash(fControl, SWT.HORIZONTAL);
+//		sash.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
 		sash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		fInputGroup.createControl(fControl, createInputEditorConfigurator());
