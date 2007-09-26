@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R-XTerm Connector
-Bundle-SymbolicName: de.walware.statet.r.xterm;singleton:=true
+Bundle-SymbolicName: de.walware.statet.r.xterm; singleton:=true
 Bundle-Version: 0.4.0.qualifier
 Bundle-Localization: plugin
-Require-Bundle: de.walware.statet.base.ui;bundle-version="0.4.0",
+Require-Bundle: de.walware.statet.base.ui; bundle-version="0.4.0",
  de.walware.statet.r.ui
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
