@@ -21,6 +21,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
@@ -204,10 +206,17 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 		return fProcess;
 	}
 	
-	public Object getAdapter(Class adapter) {
-    	if (ITool.class.equals(adapter)) {
+	public Object getAdapter(Class required) {
+    	if (ITool.class.equals(required)) {
     		return fProcess;
     	}
+        if(ILaunchConfiguration.class.equals(required)) {
+        	ILaunch launch = getProcess().getLaunch();
+        	if(launch != null) {
+        		return launch.getLaunchConfiguration();
+        	}
+        	return null;
+        }
 		return null;
 	}
 	

@@ -743,7 +743,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
         if (IEditorAdapter.class.equals(required)) {
         	return fInputGroup.fEditorAdapter;
         }
-        return null;
+        return fConsole.getAdapter(required);
     }
 
     public ShowInContext getShowInContext() {
