@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
@@ -50,7 +51,6 @@ import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -333,7 +333,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			return true;
 		}
 		catch (CoreException e) {
-			ExceptionHandler.handle(e.getStatus());
+			StatusManager.getManager().handle(e.getStatus(), StatusManager.LOG | StatusManager.SHOW);
 			return false;
 		}
 	}

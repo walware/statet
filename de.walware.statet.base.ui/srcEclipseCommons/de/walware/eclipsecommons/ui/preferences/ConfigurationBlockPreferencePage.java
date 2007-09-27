@@ -13,6 +13,7 @@ package de.walware.eclipsecommons.ui.preferences;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -22,19 +23,20 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 
-import de.walware.statet.base.ui.util.ExceptionHandler;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
  * Abstract preference page which is used to wrap a
  * Configuration Block
  */
-public abstract class ConfigurationBlockPreferencePage<Block extends AbstractConfigurationBlock> extends PreferencePage 
+public abstract class ConfigurationBlockPreferencePage<Block extends AbstractConfigurationBlock> extends PreferencePage
 		implements IWorkbenchPreferencePage {
 	
 	
@@ -57,16 +59,20 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		try {
 			fBlock = createConfigurationBlock();
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, getShell(), "Error occured when initializing the configuration block for '" + getTitle() + "').");
+			StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+					"Error occured when initializing the configuration block for '" + getTitle() + "').", e),
+					StatusManager.LOG | StatusManager.SHOW);
 		}
 	}
 
+	@Override
 	public void dispose() {
 		fBlock.dispose();
 
 		super.dispose();
 	}
 
+	@Override
 	protected Control createContents(Composite parent) {
 		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 1);
 		fBlockControl = layouter.composite;
@@ -80,6 +86,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		return layouter.composite;
 	}
 	
+	@Override
 	public boolean performOk() {
 		if (fBlock != null) {
 			if (!fBlock.performOk())
@@ -88,12 +95,14 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		return super.performOk();
 	}
 	
+	@Override
 	public void performApply() {
 		if (fBlock != null) {
 			fBlock.performApply();
 		}
 	}
 
+	@Override
 	public void performDefaults() {
 		
 		if (fBlock != null) {
@@ -112,7 +121,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 				fBlockStatus = status;
 				updateStatus();
 			}
-		};		
+		};
 	}
 
 	protected void updateStatus() {

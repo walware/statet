@@ -23,7 +23,7 @@ public class RLaunchingMessages extends NLS {
 	public static String RErrorLineTracker_File_name;
 
 	public static String RLaunchPulldown_Item_label;
-	public static String RLaunch_error_description;
+//	public static String RLaunch_error_description;
 	public static String RSelectionLaunch_error_message;
 	public static String RScriptLaunch_error_message;
 	public static String RFunctionLaunch_error_message;

@@ -19,16 +19,18 @@ import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.help.EnrichedRHelpContext;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -46,7 +48,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 		for (int i = 0; i < parameters.length; i++) {
 			par[i] = new Parameterization(base.getParameter(parameters[i][0]), parameters[i][1]);
 		}
-		ParameterizedCommand configured = new ParameterizedCommand(base, par); 
+		ParameterizedCommand configured = new ParameterizedCommand(base, par);
 		return configured.serialize();
 	}
 
@@ -75,7 +77,9 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 		try {
 			RCodeLaunchRegistry.runRCodeDirect(new String[] { cmd }, gotoConsole);
 		} catch (CoreException e) {
-			ExceptionHandler.handle(e, NLS.bind(RLaunchingMessages.RSpecifiedLaunch_error_message, fName));
+			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+					-1, NLS.bind(RLaunchingMessages.RSpecifiedLaunch_error_message, fName), e),
+					StatusManager.LOG | StatusManager.SHOW);
 		}
 	}
 	

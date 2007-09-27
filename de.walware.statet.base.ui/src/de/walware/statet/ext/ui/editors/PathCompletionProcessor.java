@@ -49,9 +49,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.util.ExceptionHandler;
 
 
 /**
@@ -165,8 +165,8 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 			try {
 				document.replace(fTarget.getOffset(), fTarget.getLength(), fCompletion);
 			} catch (BadLocationException e) {
-				ExceptionHandler.handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
-						"An error occurred while inserting the path completion.", e));
+				StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+						"An error occurred while inserting the path completion.", e), StatusManager.SHOW | StatusManager.LOG);
 			}
 		}
 		

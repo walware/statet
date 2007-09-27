@@ -31,6 +31,7 @@ import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
@@ -53,6 +54,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.AbstractSettingsModelObject;
 import de.walware.eclipsecommons.ui.SharedMessages;
@@ -64,11 +66,11 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.debug.HelpRequestor;
 import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -408,9 +410,13 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			updateLaunchConfigurationDialog();
 		}
 		catch(CoreException e) {
-			ExceptionHandler.handle(e, RLaunchingMessages.RCmd_MainTab_error_CannotRunHelp_message);
+			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+					-1, RLaunchingMessages.RCmd_MainTab_error_CannotRunHelp_message, e),
+					StatusManager.LOG | StatusManager.SHOW);
 		} catch (InvocationTargetException e) {
-			ExceptionHandler.handle(e, getShell(), RLaunchingMessages.RCmd_MainTab_error_WhileRunningHelp_message);
+			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+					-1, RLaunchingMessages.RCmd_MainTab_error_WhileRunningHelp_message, e.getTargetException()),
+					StatusManager.LOG | StatusManager.SHOW);
 		} catch (InterruptedException e) {
 			Thread.interrupted();
 		}

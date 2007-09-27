@@ -21,6 +21,7 @@ import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
@@ -43,6 +44,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
@@ -52,11 +54,11 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.debug.HelpRequestor;
 import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -286,9 +288,13 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			updateLaunchConfigurationDialog();
 		}
 		catch(CoreException e) {
-			ExceptionHandler.handle(e, RLaunchingMessages.RConsole_MainTab_error_CannotRunHelp_message);
+			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+					-1, RLaunchingMessages.RConsole_MainTab_error_CannotRunHelp_message, e),
+					StatusManager.LOG | StatusManager.SHOW);
 		} catch (InvocationTargetException e) {
-			ExceptionHandler.handle(e, getShell(), RLaunchingMessages.RConsole_MainTab_error_WhileRunningHelp_message);
+			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+					-1, RLaunchingMessages.RConsole_MainTab_error_WhileRunningHelp_message, e.getTargetException()),
+					StatusManager.LOG | StatusManager.SHOW);
 		} catch (InterruptedException e) {
 			Thread.interrupted();
 		}

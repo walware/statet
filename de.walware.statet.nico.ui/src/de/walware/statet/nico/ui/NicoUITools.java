@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -29,8 +30,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
@@ -127,9 +128,9 @@ public class NicoUITools {
 			// would busycursor or job be better?
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
 		} catch (InvocationTargetException e) {
-			ExceptionHandler.handle(e, shell,
-					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true))
-			);
+			StatusManager.getManager().handle(new Status(Status.ERROR, NicoUI.PLUGIN_ID, -1,
+					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)), e),
+					StatusManager.LOG | StatusManager.SHOW);
 		} catch (InterruptedException e) {
 			// something to do?
 		}

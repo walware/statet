@@ -19,10 +19,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
@@ -65,8 +65,8 @@ public class QuitHandler implements IToolEventHandler {
 					Thread.interrupted();
 				}
 				catch (InvocationTargetException e) {
-					CoreException ce = (CoreException) e.getTargetException();
-					ExceptionHandler.handle(ce.getStatus());
+					StatusManager.getManager().handle(((CoreException) e.getTargetException()).getStatus(),
+							StatusManager.LOG | StatusManager.SHOW);
 				}
 			}
 		}

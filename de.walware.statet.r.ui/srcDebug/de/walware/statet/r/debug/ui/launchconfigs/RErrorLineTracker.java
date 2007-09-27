@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -31,12 +32,12 @@ import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.PatternMatchEvent;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -81,7 +82,10 @@ public class RErrorLineTracker implements IPatternMatchListener {
 			}
 			IStatus status = fileValidator.validate(null);
 			if (status.getSeverity() == IStatus.ERROR) {
-				ExceptionHandler.handle(status, NLS.bind(RLaunchingMessages.RErrorLineTracker_error_GetFile_message, fFileName));
+				StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+						-1, NLS.bind(RLaunchingMessages.RErrorLineTracker_error_GetFile_message, fFileName),
+						new CoreException(status)),
+						StatusManager.LOG | StatusManager.SHOW);
 				return;
 			}
 			IFile wsFile = (IFile) fileValidator.getWorkspaceResource();
@@ -106,8 +110,9 @@ public class RErrorLineTracker implements IPatternMatchListener {
 				error = e;
 			}
 			if (error != null) {
-				ExceptionHandler.handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 1,
-						NLS.bind(RLaunchingMessages.RErrorLineTracker_error_OpeningFile_message, fFileName), error));
+				StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+						-1, NLS.bind(RLaunchingMessages.RErrorLineTracker_error_OpeningFile_message, fFileName), error),
+						StatusManager.LOG | StatusManager.SHOW);
 			}
 		}
 

@@ -37,7 +37,6 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
-import de.walware.statet.base.ui.util.ExceptionHandler;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
@@ -45,6 +44,7 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.QuitHandler;
+import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.IRLaunchConfigurationConstants;
@@ -150,7 +150,7 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 	    	NicoUITools.startConsoleLazy(console, page);
 	    	// start
-	    	new ToolRunner().runInBackgroundThread(process, new ExceptionHandler.StatusHandler());
+	    	new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		}
 		finally {
 			monitor.done();

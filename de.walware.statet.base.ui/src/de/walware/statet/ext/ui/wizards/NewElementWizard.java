@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -45,13 +46,13 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.ContainerGenerator;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.util.ExceptionHandler;
 
 
 public abstract class NewElementWizard extends Wizard implements INewWizard {
@@ -105,7 +106,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	     * the container resources already exist.
 	     * <p>
 	     * In normal usage, this method is invoked after the user has pressed Finish on
-	     * the wizard; the enablement of the Finish button implies that all controls on 
+	     * the wizard; the enablement of the Finish button implies that all controls on
 	     * on this page currently contain valid values.
 	     * </p>
 	     * <p>
@@ -120,11 +121,11 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	     *
 	     * @return the created file resource, or <code>null</code> if the file
 	     *    was not created
-	     * @throws InterruptedException 
-	     * @throws InvocationTargetException 
-	     * @throws CoreException 
+	     * @throws InterruptedException
+	     * @throws InvocationTargetException
+	     * @throws CoreException
 	     */
-	    public void createFile(final IProgressMonitor monitor) 
+	    public void createFile(final IProgressMonitor monitor)
 	    		throws InvocationTargetException, InterruptedException, CoreException {
 	    	
 	    	IPath containerPath = fContainerPath;
@@ -139,7 +140,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		        ContainerGenerator generator = new ContainerGenerator(containerPath);
 		        generator.generateContainer(new SubProgressMonitor(monitor, 500));
 		        doCreateFile(newFileHandle, initialContents, new SubProgressMonitor(monitor, 500));
-	        } 
+	        }
 	        finally {
 	            monitor.done();
 	        }
@@ -155,7 +156,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	     * @exception CoreException if the operation fails
 	     * @exception OperationCanceledException if the operation is canceled
 	     */
-	    protected static void doCreateFile(IFile fileHandle, InputStream contents, IProgressMonitor monitor) 
+	    protected static void doCreateFile(IFile fileHandle, InputStream contents, IProgressMonitor monitor)
 	    		throws CoreException {
 	    	
 	        if (contents == null)
@@ -184,7 +185,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
                 fileHandle.create(contents, false, new SubProgressMonitor(monitor, 500));
     	        if (monitor.isCanceled())
     	            throw new OperationCanceledException();
-	        } 
+	        }
 	        catch (CoreException e) {
 	            // If the file already existed locally, just refresh to get contents
 	            if (e.getStatus().getCode() == IResourceStatus.PATH_OCCUPIED)
@@ -229,7 +230,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		/**
 	     * Returns a project resource handle for the current project name field value.
 	     * <p>
-	     * Note: Handle is cached. This method does not create the project resource; 
+	     * Note: Handle is cached. This method does not create the project resource;
 	     * this is the responsibility of <code>IProject::create</code>.
 	     * </p>
 	     *
@@ -249,13 +250,13 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	     * on the wizard; the enablement of the Finish button implies that all
 	     * controls on the pages currently contain valid values.
 	     * </p>
-	     * @return 
+	     * @return
 	     * 
 	     * @return the created project resource, or <code>null</code> if the
 	     *         project was not created
-	     * @throws CoreException 
+	     * @throws CoreException
 	     */
-	    public IProject createProject(IProgressMonitor monitor) 
+	    public IProject createProject(IProgressMonitor monitor)
 	    		throws InvocationTargetException, InterruptedException, CoreException {
 	    	
 	    	IProject projectHandle = getProjectHandle();
@@ -286,7 +287,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	    	}
 	    }
 	    
-	    private void doCreateProject(IProject project, IProjectDescription description, IProgressMonitor monitor) 
+	    private void doCreateProject(IProject project, IProjectDescription description, IProgressMonitor monitor)
 	    		throws CoreException {
 	        // run the new project creation operation
 	    	monitor.beginTask("Install Project", 1000); //$NON-NLS-1$
@@ -329,7 +330,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	 * @param monitor
 	 * @throws InterruptedException
 	 * @throws CoreException
-	 * @throws InvocationTargetException 
+	 * @throws InvocationTargetException
 	 */
 	protected abstract void doFinish(IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException;
 	
@@ -357,22 +358,24 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		fSelection = currentSelection;
 	}
 
+	@Override
 	public boolean performFinish() {
 
         WorkspaceModifyOperation op = new WorkspaceModifyOperation(getSchedulingRule()) {
-        	protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
+        	@Override
+			protected void execute(IProgressMonitor monitor) throws CoreException, InvocationTargetException, InterruptedException {
 				try {
 					if (monitor == null) {
 						monitor = new NullProgressMonitor();
 					}
 					doFinish(monitor);
-				} 
+				}
 				catch (InterruptedException e) {
 					throw new OperationCanceledException(e.getMessage());
-				} 
+				}
 				catch (CoreException e) {
 					throw new InvocationTargetException(e);
-				} 
+				}
 				finally {
 					monitor.done();
 				}
@@ -390,9 +393,9 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	}
 
 	protected void handleFinishException(Shell shell, InvocationTargetException e) {
-		
-		ExceptionHandler.handle(e, shell, 
-				StatetWizardsMessages.NewElementWizard_error_DuringOperation_message);
+		StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+				StatetWizardsMessages.NewElementWizard_error_DuringOperation_message, e),
+				StatusManager.LOG | StatusManager.SHOW);
 	}
 	
 	
@@ -406,7 +409,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 
 
 	
-/* Helper methods for subclasses **********************************************/	
+/* Helper methods for subclasses **********************************************/
 	
     /**
      * Returns the scheduling rule to use when creating the resource at
@@ -453,7 +456,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	
 	protected void updatePerspective(IConfigurationElement config) {
 		
-		BasicNewProjectResourceWizard.updatePerspective(config);		
+		BasicNewProjectResourceWizard.updatePerspective(config);
 	}
 
 }

@@ -24,9 +24,8 @@ import org.eclipse.debug.internal.ui.IInternalDebugUIConstants;
 import org.eclipse.debug.internal.ui.views.console.ConsoleMessages;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IUpdate;
-
-import de.walware.statet.base.ui.util.ExceptionHandler;
 
 
 public class TerminateToolAction extends Action implements IUpdate {
@@ -35,14 +34,13 @@ public class TerminateToolAction extends Action implements IUpdate {
 	private IProcess fProcess;
 
 	/**
-	 * Creates a terminate action for the console 
+	 * Creates a terminate action for the console
 	 */
 	public TerminateToolAction(IProcess process) {
-		
-		super(ConsoleMessages.ConsoleTerminateAction_0); 
+		super(ConsoleMessages.ConsoleTerminateAction_0);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IDebugHelpContextIds.CONSOLE_TERMINATE_ACTION);
 		fProcess = process;
-		setToolTipText(ConsoleMessages.ConsoleTerminateAction_1); 
+		setToolTipText(ConsoleMessages.ConsoleTerminateAction_1);
 		setImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_LCL_TERMINATE));
 		setDisabledImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_DLCL_TERMINATE));
 		setHoverImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_LCL_TERMINATE));
@@ -50,22 +48,20 @@ public class TerminateToolAction extends Action implements IUpdate {
 	}
 
 	public void update() {
-		
 		setEnabled(fProcess.canTerminate());
 	}
 	
+	@Override
 	public void run() {
-		
 		try {
             killTargets(fProcess);
             fProcess.terminate();
 		} catch (DebugException e) {
-			ExceptionHandler.handle(e.getStatus());
+			StatusManager.getManager().handle(e.getStatus(), StatusManager.LOG | StatusManager.SHOW);
 		}
 	}
 	
 	private void killTargets(IProcess process) throws DebugException {
-		
         ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
         ILaunch[] launches = launchManager.getLaunches();
 
@@ -89,7 +85,6 @@ public class TerminateToolAction extends Action implements IUpdate {
     }
 
     public void dispose() {
-    	
 	    fProcess = null;
 	}
 

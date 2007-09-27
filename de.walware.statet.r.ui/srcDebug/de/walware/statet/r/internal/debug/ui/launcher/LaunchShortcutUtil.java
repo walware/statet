@@ -11,17 +11,14 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
 
-import de.walware.statet.base.ui.util.ExceptionHandler;
-import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
@@ -84,17 +81,18 @@ public class LaunchShortcutUtil {
 
 
 	public static void handleRLaunchException(Throwable e, String defaultMessage) {
-		CoreException core;
-		if (e instanceof CoreException)
-			core = (CoreException) e;
-		else
-			core = new CoreException(new Status(
-					IStatus.ERROR,
-					RUI.PLUGIN_ID,
-					ICommonStatusConstants.LAUNCHING_ERROR,
-					defaultMessage,
-					e));
-		ExceptionHandler.handle(core, RLaunchingMessages.RLaunch_error_description);
+//		CoreException core;
+//		if (e instanceof CoreException)
+//			core = (CoreException) e;
+//		else
+//			core = new CoreException(new Status(
+//					IStatus.ERROR,
+//					RUI.PLUGIN_ID,
+//					ICommonStatusConstants.LAUNCHING_ERROR,
+//					defaultMessage,
+//					e));
+		StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+				ICommonStatusConstants.LAUNCHING_ERROR, defaultMessage, e));
 	}
 	
 }
