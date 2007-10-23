@@ -38,8 +38,8 @@ public class RAst {
 	public static final IStatus STATUS_PARSE_ERROR = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 10000, "Parse error", null);
 	
 	
-	public static final int LEVEL_DEFAULT = 0;
 	public static final int LEVEL_MINIMAL = 1;
+	public static final int LEVEL_MODEL_DEFAULT = 2;
 	
 	
 	public static RAstNode findLowestFDefAssignment(final RAstNode root, final int offset) {
@@ -136,10 +136,10 @@ public class RAst {
 		public static final Object GLOBAL = new Object();
 		public static final Object LOCAL = new Object();
 
-		final Object environment;
-		final RAstNode assignNode;
-		final RAstNode targetNode;
-		final RAstNode valueNode;
+		public final Object environment;
+		public final RAstNode assignNode;
+		public final RAstNode targetNode;
+		public final RAstNode valueNode;
 
 		public AssignExpr(RAstNode assign, Object env, RAstNode target, RAstNode source) {
 			this.assignNode = assign;
@@ -245,5 +245,6 @@ public class RAst {
 			return null;
 		}
 	}
+	
 	
 }

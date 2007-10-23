@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 
@@ -45,6 +45,7 @@ public abstract class RAstNode implements IAstNode {
 	int fStartOffset;
 	int fStopOffset;
 	IStatus fStatus;
+	private Object[] fAttachment;
 
 	
 	public abstract NodeType getNodeType();
@@ -73,6 +74,14 @@ public abstract class RAstNode implements IAstNode {
 	
 	public final int getStopOffset() {
 		return fStopOffset;
+	}
+	
+	public final int getLength() {
+		return fStopOffset-fStartOffset;
+	}
+	
+	public final IStatus getStatus() {
+		return fStatus;
 	}
 	
 	public abstract int getChildIndex(IAstNode child);
@@ -196,4 +205,18 @@ public abstract class RAstNode implements IAstNode {
 	
 	abstract void updateStopOffset();
 
+	
+	public void setAttachment(int i, Object data) {
+		if (fAttachment == null) {
+			fAttachment = new Object[2];
+		}
+		fAttachment[i] = data;
+	}
+	
+	public Object getAttachment(int i) {
+		if (fAttachment != null) {
+			return fAttachment[i];
+		}
+		return null;
+	}
 }

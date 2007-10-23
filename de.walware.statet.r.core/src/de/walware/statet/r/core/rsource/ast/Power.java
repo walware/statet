@@ -14,7 +14,7 @@ package de.walware.statet.r.core.rsource.ast;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-class Power extends StdBinary {
+public class Power extends StdBinary {
 	
 	
 	@Override
