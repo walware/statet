@@ -42,7 +42,7 @@ public class RScanner {
 		
 		void update(RAstNode lastNode, Expression openExpr) {
 			this.lastNode = lastNode;
-			if (openExpr != null && openExpr.node != null) {
+			if (openExpr == null || openExpr.node != null) {
 				this.openExpr = null;
 			}
 			else {
@@ -180,7 +180,6 @@ public class RScanner {
 				continue ITER_TOKEN;
 				
 			case SYMBOL:
-			case ELLIPSIS:
 				if (fWasLinebreak && context.openExpr == null) {
 					break ITER_TOKEN;
 				}
@@ -462,15 +461,17 @@ public class RScanner {
 				node.fNamespace = (SingleValue) context.lastNode;
 				final RAstNode base = context.lastNode.getParent();
 				node.fNamespace.fParent = node;
-				context.update(base, base.getExpr(node.fNamespace));
-				context.openExpr.node = null;
+				final Expression expr = base.getExpr(node.fNamespace);
+				if (expr != null) {
+					expr.node = null;
+				}
+				context.update(base, expr);
+				node.fStartOffset = node.fNamespace.fStartOffset;
 				break;
 			}
 		default:
-			{
-				node.fNamespace = errorNonExistingSymbol(node, node.fStartOffset);
-				break;
-			}
+			node.fNamespace = errorNonExistingSymbol(node, node.fStartOffset);
+			break;
 		}
 
 		// element
@@ -774,7 +775,6 @@ public class RScanner {
 			FDef.Arg arg = new FDef.Arg(args);
 			switch(fNextType) {
 			case SYMBOL:
-			case ELLIPSIS:
 				arg.fArgName = createSymbol(arg);
 				readLines();
 				break;
@@ -992,6 +992,15 @@ public class RScanner {
 		final Symbol symbol = new Symbol();
 		symbol.fParent = parent;
 		setupFromSourceToken(symbol);
+		consumeToken();
+		return symbol;
+	}
+	
+	protected Symbol createEllipsis(final RAstNode parent) { // TODO replace with own type?
+		final Symbol symbol = new Symbol();
+		symbol.fParent = parent;
+		setupFromSourceToken(symbol);
+		symbol.fText = "...";
 		consumeToken();
 		return symbol;
 	}

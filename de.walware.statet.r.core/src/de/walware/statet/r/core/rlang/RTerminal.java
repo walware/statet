@@ -74,7 +74,6 @@ public enum RTerminal {
 	NEXT ("next"),
 	BREAK ("break"),
 	FUNCTION ("function"),
-	ELLIPSIS ("..."),
 	
 	STRING_S ("\'"),
 	STRING_D ("\""),

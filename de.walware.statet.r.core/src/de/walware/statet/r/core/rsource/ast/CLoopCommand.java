@@ -20,7 +20,7 @@ import de.walware.eclipsecommons.ltk.ast.IAstNode;
  * next
  * break
  */
-abstract class CLoopCommand extends RAstNode {
+public abstract class CLoopCommand extends RAstNode {
 	
 	
 	static class Break extends CLoopCommand {

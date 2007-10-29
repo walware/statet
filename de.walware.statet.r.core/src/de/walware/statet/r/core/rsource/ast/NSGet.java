@@ -93,11 +93,11 @@ public abstract class NSGet extends RAstNode {
 		return -1;
 	}
 
-	public final RAstNode getNamespaceNode() {
+	public final RAstNode getNamespaceChild() {
 		return fNamespace;
 	}
 	
-	public final RAstNode getElementNode() {
+	public final RAstNode getElementChild() {
 		return fElement;
 	}
 
@@ -139,7 +139,7 @@ public abstract class NSGet extends RAstNode {
 	
 	@Override
 	final void updateStopOffset() {
-		fStopOffset = getElementNode().fStopOffset;
+		fStopOffset = getElementChild().fStopOffset;
 	}
 
 }

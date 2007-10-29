@@ -104,7 +104,7 @@ public abstract class SubIndexed extends RAstNode {
 
 	
 	final Expression fExpr = new Expression();
-	final SpecList fSublist = new Sublist(this);
+	final Sublist fSublist = new Sublist(this);
 	int fOpenOffset = Integer.MIN_VALUE;
 	int fCloseOffset = Integer.MIN_VALUE;
 	int fClose2Offset = Integer.MIN_VALUE;
@@ -141,7 +141,7 @@ public abstract class SubIndexed extends RAstNode {
 		return fExpr.node;
 	}
 	
-	public final RAstNode getSublistChild() {
+	public final Sublist getSublistChild() {
 		return fSublist;
 	}
 
@@ -205,6 +205,10 @@ public abstract class SubIndexed extends RAstNode {
 				);
 	}
 
+	final void updateStartOffset() {
+		fStartOffset = fExpr.node.fStartOffset;
+	}
+	
 	@Override
 	final void updateStopOffset() {
 		if (fClose2Offset >= 0) {

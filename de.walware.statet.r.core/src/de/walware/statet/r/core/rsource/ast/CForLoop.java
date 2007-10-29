@@ -21,7 +21,7 @@ import de.walware.eclipsecommons.ltk.ast.IAstNode;
  */
 public class CForLoop extends RAstNode {
 	
-	SingleValue fVarSymbol;
+	Symbol fVarSymbol;
 	int fCondOpenOffset = Integer.MIN_VALUE;
 	int fInOffset = Integer.MIN_VALUE;
 	final Expression fCondExpr = new Expression();
@@ -79,6 +79,10 @@ public class CForLoop extends RAstNode {
 
 	public final int getCondOpenOffset() {
 		return fCondOpenOffset;
+	}
+	
+	public final Symbol getVarChild() {
+		return fVarSymbol;
 	}
 	
 	public final RAstNode getCondChild() {

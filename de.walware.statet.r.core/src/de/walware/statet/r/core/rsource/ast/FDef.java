@@ -58,8 +58,8 @@ public class FDef extends RAstNode {
 		}
 		
 		@Override
-		public final RAstNode[] getChildren() {
-			return fSpecs.toArray(new RAstNode[fSpecs.size()]);
+		public final Arg[] getChildren() {
+			return fSpecs.toArray(new Arg[fSpecs.size()]);
 		}
 		
 		@Override
@@ -118,7 +118,7 @@ public class FDef extends RAstNode {
 		
 		SingleValue fArgName;
 		boolean fWithDefault;
-		Expression fDefaultExpr;
+		final Expression fDefaultExpr = new Expression();
 		
 		
 		Arg(FDef.Args parent) {
@@ -176,6 +176,19 @@ public class FDef extends RAstNode {
 			return -1;
 		}
 		
+		public final RAstNode getNameChild() {
+			return fArgName;
+		}
+		
+		public final boolean hasDefaultValue() {
+			return fWithDefault;
+		}
+		
+		public final RAstNode getDefaultChild() {
+			return fDefaultExpr.node;
+		}
+		
+		
 		@Override
 		final Expression getExpr(RAstNode child) {
 			if (fDefaultExpr.node == child) {
@@ -196,7 +209,7 @@ public class FDef extends RAstNode {
 		
 		Expression addDefault() {
 			fWithDefault = true;
-			return fDefaultExpr = new Expression();
+			return fDefaultExpr;
 		}
 		
 		@Override
@@ -230,7 +243,7 @@ public class FDef extends RAstNode {
 		
 		@Override
 		final void updateStopOffset() {
-			if (fDefaultExpr != null) {
+			if (fDefaultExpr.node != null) {
 				fStopOffset = fDefaultExpr.node.fStopOffset;
 			}
 			else {

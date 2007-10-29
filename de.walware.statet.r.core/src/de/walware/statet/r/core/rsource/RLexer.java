@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
@@ -24,11 +25,11 @@ public abstract class RLexer {
 
 	
 	protected final static IStatus STATUS_OK = Status.OK_STATUS;
-	private static IStatus STATUS_STRING_S_NOT_CLOSED;
-	private static IStatus STATUS_STRING_D_NOT_CLOSED;
-	private static IStatus STATUS_NUM_FLOAT_L;
-	private static IStatus STATUS_SPECIAL_NOT_CLOSED;
-	private static IStatus STATUS_EXPONENT_INVALID;
+	protected final static IStatus STATUS_STRING_S_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
+	protected final static IStatus STATUS_STRING_D_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
+	protected final static IStatus STATUS_NUM_FLOAT_L = new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1, "Float with L.", null);
+	protected final static IStatus STATUS_SPECIAL_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Special not closed.", null);
+	protected final static IStatus STATUS_EXPONENT_INVALID = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Invalid exponent.", null);
 	
 	private final static char[] C_FALSE = RTerminal.S_FALSE.toCharArray();
 	private final static char[] C_NA_real_ = RTerminal.S_NA_REAL.toCharArray();
@@ -166,13 +167,6 @@ public abstract class RLexer {
 				return;
 			default:
 				scanIdentifier();
-				switch(fNextNum) {
-				case 3:
-					if (fInput.subequals(2, '.', '.')) {
-						createFix(RTerminal.ELLIPSIS);
-						return;
-					}
-				}
 				createSymbolToken();
 				return;
 			}
@@ -242,7 +236,7 @@ public abstract class RLexer {
 			createFix(RTerminal.EQUAL);
 			return;
 		case '>':
-			if (fInput.get(2) == '>') {
+			if (fInput.get(2) == '=') {
 				fNextNum++;
 				createFix(RTerminal.REL_GE);
 				return;

@@ -149,6 +149,7 @@ package de.walware.statet.r.core.rsource.ast;
 	@Override
 	public void visit(SubIndexed node) {
 		node.acceptInChildren(this);
+		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
