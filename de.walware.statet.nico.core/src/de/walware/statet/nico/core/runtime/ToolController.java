@@ -437,15 +437,14 @@ public abstract class ToolController<
 	 * Cancels requests to termate the controller.
 	 */
 	public void cancelQuit() {
-		synchronized(fQueue) {
-			if (fStatus != ToolStatus.TERMINATED) {
-				IToolRunnable current = fCurrentRunnable;
-				if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
-					cancelTask();
-				}
-					
-				fQueue.removeElements(getQuitTasks());
+		if (fStatus != ToolStatus.TERMINATED) {
+			IToolRunnable current = fCurrentRunnable;
+			if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
+				cancelTask();
 			}
+		}		
+		synchronized(fQueue) {
+			fQueue.removeElements(getQuitTasks());
 		}
 	}
 	

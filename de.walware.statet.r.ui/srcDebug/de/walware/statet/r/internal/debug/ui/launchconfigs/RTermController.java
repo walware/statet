@@ -12,21 +12,31 @@
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.IProgressService;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
 
@@ -35,6 +45,8 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolStatus;
+import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.BasicR;
@@ -81,7 +93,7 @@ public class RTermController
 				fProcessInputWriter.flush();
 			}
 			catch (IOException e) {
-				RUIPlugin.logError(-1, "Rterm IO error", e);
+				RUIPlugin.logError(-1, "Rterm IO error", e); //$NON-NLS-1$
 				if (!isToolAlive()) {
 					markAsTerminated();
 					return Prompt.NONE;
@@ -220,7 +232,7 @@ public class RTermController
 				}
 			}
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
-				"An error occured while starting Rterm process.", e));
+				RLaunchingMessages.RTerm_error_Starting_message, e));
 		}
 		
 	}
@@ -231,7 +243,14 @@ public class RTermController
 	}
 	
 	@Override
+	public boolean cancelTask() {
+		// Rterm is stupid, ignore status
+		return runSendCtrlC();
+	}
+	
+	@Override
 	protected void interruptTool(int hardness) {
+		runSendCtrlC();
 		if (hardness == 0) {
 			return;
 		}
@@ -267,6 +286,77 @@ public class RTermController
 		fProcess = null;
 		// save history
 		super.finishTool();
+	}
+	
+	
+	private boolean runSendCtrlC() {
+		if (!Platform.getOS().startsWith("win") //$NON-NLS-1$
+				|| getStatus() == ToolStatus.TERMINATED) { 
+			return false;
+		}
+		
+		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+				URL dir = RUIPlugin.getDefault().getBundle().getEntry("/win32/SendSignal.exe"); //$NON-NLS-1$
+				try {
+					monitor.beginTask(RLaunchingMessages.RTerm_CancelTask_label, 10);
+					String local = FileLocator.toFileURL(dir).getPath();
+					File file = new File(local);
+					if (!file.exists())
+						throw new IOException("Missing File '"+file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+					monitor.worked(1);
+					String[] cmd = new String[] {
+							"cmd", "/S", "/C",  									//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							"\"FOR /F \"tokens=2\" %I IN ('TASKLIST /FI \"IMAGENAME eq Rterm.exe\" /NH') " + //$NON-NLS-1$
+							// does not work in all languages: /FI \"STATUS eq running\"
+							"DO \"" + file.getCanonicalPath() + "\" %I \"" , 		//$NON-NLS-1$ //$NON-NLS-2$
+							">", "NULL" }; 										//$NON-NLS-1$ //$NON-NLS-2$
+					Process process = Runtime.getRuntime().exec(cmd);
+					monitor.worked(1);
+					while (true) {
+						try {
+							int code = process.exitValue();
+							if (code != 0) {
+								throw new IOException("Command failed: " + Arrays.toString(cmd));
+							}
+							break;
+						}
+						catch (IllegalThreadStateException e) {
+						}
+						if (monitor.isCanceled()) {
+							process.destroy();
+							StatusManager.getManager().handle(new Status(
+									IStatus.WARNING, RUI.PLUGIN_ID, -1, "Sending CTRL+C to R process canceled, command: " + Arrays.toString(cmd), null)); //$NON-NLS-1$
+							break;
+						}
+						try {
+							Thread.sleep(50);
+						}
+						catch (InterruptedException e) {
+							Thread.interrupted();
+						}
+					}
+					runOnIdle(createCommandRunnable("", SubmitType.OTHER)); //$NON-NLS-1$
+				} 
+				catch (IOException e) {
+					StatusManager.getManager().handle(new Status(
+							IStatus.ERROR, RUI.PLUGIN_ID, -1, "Error Sending CTRL+C to R process.", e)); //$NON-NLS-1$
+					throw new InvocationTargetException(null);
+				}
+				finally {
+					monitor.done();
+				}
+			}
+		};
+
+		IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
+		try {
+			progressService.busyCursorWhile(runnable);
+			return true;
+		} catch (InvocationTargetException e) {
+		} catch (InterruptedException e) {
+		}
+		return false;
 	}
 	
 }

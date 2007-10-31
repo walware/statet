@@ -16,12 +16,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class RLaunchingMessages extends NLS {
 	
-	public static String LaunchDelegate_error_StartingExec;
-	public static String LaunchDelegate_error_ProcessHandle;
-	public static String RErrorLineTracker_error_GetFile_message;
-	public static String RErrorLineTracker_error_OpeningFile_message;
-	public static String RErrorLineTracker_File_name;
-
+	// Launch shortcuts
 	public static String RLaunchPulldown_Item_label;
 //	public static String RLaunch_error_description;
 	public static String RSelectionLaunch_error_message;
@@ -31,9 +26,22 @@ public class RLaunchingMessages extends NLS {
 	public static String RSpecifiedLaunch_error_message;
 	public static String RCodeLaunch_SubmitCode_task;
 	public static String RCodeLaunch_UpdateStructure_task;
+	
+	// Launch configurations (dialogs/delegates)
+	public static String LaunchDelegate_error_StartingExec;
+	public static String LaunchDelegate_error_ProcessHandle;
+	
+	public static String REnv_Tab_REnvConfig_label;
+	public static String REnv_Tab_title;
+	public static String REnv_Tab_WorkingDir_label;
+	public static String REnv_Runtime_error_CouldNotFound_message;
+	public static String REnv_Runtime_error_Invalid_message;
 
-	public static String TextConsoleConnector_error_NoConsole_message;
-	public static String TextConsoleConnector_error_Other_message;
+	public static String RConsole_MainTab_name;
+	public static String RConsole_MainTab_LaunchType_label;
+	public static String RConsole_MainTab_RunHelp_label;
+	public static String RConsole_MainTab_error_CannotRunHelp_message;
+	public static String RConsole_MainTab_error_WhileRunningHelp_message;
 
 	public static String RCmd_MainTab_name;
 	public static String RCmd_MainTab_Cmd_label;
@@ -54,18 +62,17 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_Resource_Other_label;
 	public static String RCmd_Resource_Package_label;
 	public static String RCmd_LaunchDelegate_Running_label;
-	
-	public static String RConsole_MainTab_name;
-	public static String RConsole_MainTab_LaunchType_label;
-	public static String RConsole_MainTab_RunHelp_label;
-	public static String RConsole_MainTab_error_CannotRunHelp_message;
-	public static String RConsole_MainTab_error_WhileRunningHelp_message;
 
-	public static String REnv_Tab_REnvConfig_label;
-	public static String REnv_Tab_title;
-	public static String REnv_Tab_WorkingDir_label;
-	public static String REnv_Runtime_error_CouldNotFound_message;
-	public static String REnv_Runtime_error_Invalid_message;
+	// Console
+	public static String TextConsoleConnector_error_NoConsole_message;
+	public static String TextConsoleConnector_error_Other_message;
+
+	public static String RTerm_CancelTask_label;
+	public static String RTerm_error_Starting_message;
+
+	public static String RErrorLineTracker_error_GetFile_message;
+	public static String RErrorLineTracker_error_OpeningFile_message;
+	public static String RErrorLineTracker_File_name;
 
 
 	static {

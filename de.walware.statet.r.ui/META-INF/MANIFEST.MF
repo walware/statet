@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R UI
 Bundle-SymbolicName: de.walware.statet.r.ui; singleton:=true
-Bundle-Version: 0.4.0.qualifier
+Bundle-Version: 0.4.1.qualifier
 Bundle-Activator: de.walware.statet.r.internal.ui.RUIPlugin
 Bundle-Localization: plugin
 Require-Bundle: de.walware.statet.base.ui;bundle-version="0.4.0",
