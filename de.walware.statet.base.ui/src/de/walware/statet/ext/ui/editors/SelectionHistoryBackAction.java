@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -18,29 +18,32 @@ import org.eclipse.ui.texteditor.IUpdate;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 
 
+/**
+ * Action to restore last selection;
+ */
 public class SelectionHistoryBackAction extends Action implements IUpdate {
 	
-	private StatextEditor1<?, ?> fEditor;
+	private StatextEditor1<?> fEditor;
 	private SelectionHistory fHistory;
-
-	public SelectionHistoryBackAction(StatextEditor1<?, ?>editor, SelectionHistory history) {
+	
+	public SelectionHistoryBackAction(final StatextEditor1<?>editor, final SelectionHistory history) {
 		super();
 		assert (editor != null);
 		assert (history != null);
 		fEditor = editor;
 		fHistory = history;
-		setId("RestoreLastSelection");
+		setId("RestoreLastSelection"); //$NON-NLS-1$
 		setActionDefinitionId(IStatetUICommandIds.SELECT_LAST);
 		update();
 	}
-
+	
 	public void update() {
 		setEnabled(!fHistory.isEmpty());
 	}
-
+	
 	@Override
 	public void run() {
-		IRegion old = fHistory.getLast();
+		final IRegion old = fHistory.getLast();
 		if (old != null) {
 			try {
 				fHistory.ignoreSelectionChanges();

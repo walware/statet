@@ -43,9 +43,9 @@ public class RInfixOperatorScanner extends StatextTextScanner {
 	@Override
 	protected List<IRule> createRules() {
 		List<IRule> list = new ArrayList<IRule>();
-		IToken predefinedOpToken = getToken(IRTextTokens.OPERATORS);
-		IToken userdefinedOpToken = getToken(IRTextTokens.OPERATORS_SUB_USERDEFINED);
-		IToken invalidOpToken = getToken(IRTextTokens.UNDEFINED);
+		IToken predefinedOpToken = getToken(IRTextTokens.OP_KEY);
+		IToken userdefinedOpToken = getToken(IRTextTokens.OP_SUB_USERDEFINED_KEY);
+		IToken invalidOpToken = getToken(IRTextTokens.UNDEFINED_KEY);
 		list.add(new RInfixOperatorRule(userdefinedOpToken, invalidOpToken, predefinedOpToken));
 		return list;
 	}

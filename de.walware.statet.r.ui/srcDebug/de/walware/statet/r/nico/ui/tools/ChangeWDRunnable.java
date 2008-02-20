@@ -25,7 +25,7 @@ import de.walware.statet.r.nico.ISetupRAdapter;
 
 
 /**
- *
+ * ToolRunnable to change the working directory of R.
  */
 public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
 
@@ -40,6 +40,9 @@ public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
 	}
 	
 	
+	public void changed(int event) {
+	}
+
 	public String getTypeId() {
 		return TYPE_ID;
 	}

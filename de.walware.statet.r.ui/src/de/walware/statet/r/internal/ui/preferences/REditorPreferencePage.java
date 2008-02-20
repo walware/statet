@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.preferences;
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -26,15 +27,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.ui.databinding.NumberValidator;
 import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
+import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 
@@ -42,7 +46,7 @@ import de.walware.statet.r.ui.editors.REditorOptions;
  * Preference page for 'R Editor Options'
  */
 public class REditorPreferencePage extends ConfigurationBlockPreferencePage<REditorConfigurationBlock> {
-
+	
 	
 	public REditorPreferencePage() {
 	}
@@ -57,7 +61,7 @@ public class REditorPreferencePage extends ConfigurationBlockPreferencePage<REdi
 
 class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	
-
+	
 	private Button fSmartInsertControl;
 	private Button[] fSmartInsertOnPasteControl;
 	private Button[] fSmartInsertCloseCurlyBracketsControl;
@@ -66,10 +70,12 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	private Button[] fSmartInsertCloseSpecialControl;
 	private Button[] fSmartInsertCloseStringsControl;
 	private Button fFoldingEnableControl;
+	private Button fFoldingDefaultAllBlocksControl;
+	private Text fFoldingDefaultMinLines;
 	private Button fSpellEnableControl;
 	
 	
-	public REditorConfigurationBlock(IStatusChangeListener statusListener) {
+	public REditorConfigurationBlock(final IStatusChangeListener statusListener) {
 		super(null, statusListener);
 	}
 	
@@ -81,10 +87,10 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, IPreferenceStore preferenceStore) {
+	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
-		List<Preference> prefs = new ArrayList<Preference>();
+		final List<Preference> prefs = new ArrayList<Preference>();
 		prefs.add(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED);
 		prefs.add(REditorOptions.PREF_SMARTINSERT_ONPASTE_ENABLED);
 		prefs.add(REditorOptions.PREF_SMARTINSERT_CLOSECURLY_ENABLED);
@@ -99,9 +105,12 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED);
 		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED);
 		
-		prefs.add(REditorOptions.PREF_FOLDING_ASDEFAULT_ENABLED);
+		prefs.add(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED);
+		prefs.add(DefaultRFoldingProvider.PREF_OTHERBLOCKS_ENABLED);
+		prefs.add(DefaultRFoldingProvider.PREF_MINLINES_NUM);
+		prefs.add(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED);
+		
 		prefs.add(REditorOptions.PREF_SPELLCHECKING_ENABLED);
-
 		
 		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
 		
@@ -124,7 +133,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false, n, 1);
 		gd.widthHint = 140;
 		link.setLayoutData(gd);
-
+		
 		LayoutUtil.addGDDummy(group);
 		LayoutUtil.addGDDummy(group);
 		label = new Label(group, SWT.CENTER);
@@ -133,7 +142,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		label = new Label(group, SWT.CENTER);
 		label.setText(Messages.REditorOptions_SmartInsert_ForConsole_header);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		Label dummy = new Label(group, SWT.NONE);
+		final Label dummy = new Label(group, SWT.NONE);
 		dummy.setVisible(false);
 		dummy.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 7));
 		
@@ -143,12 +152,27 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertCloseSquareBracketsControl = createOption(group, null, Messages.REditorOptions_SmartInsert_CloseSquare_label, true);
 		fSmartInsertCloseSpecialControl = createOption(group, null, Messages.REditorOptions_SmartInsert_ClosePercent_label, true);
 		fSmartInsertCloseStringsControl = createOption(group, null, Messages.REditorOptions_SmartInsert_CloseString_label, true);
-
+		
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		fFoldingEnableControl = new Button(pageComposite, SWT.CHECK);
 		fFoldingEnableControl.setText(Messages.REditorOptions_Folding_Enable_label);
 		fFoldingEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
+		final Composite foldingOptions = new Composite(pageComposite, SWT.NONE);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalIndent = LayoutUtil.defaultIndent();
+		foldingOptions.setLayoutData(gd);
+		foldingOptions.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+		fFoldingDefaultAllBlocksControl = new Button(foldingOptions, SWT.CHECK);
+		fFoldingDefaultAllBlocksControl.setText(Messages.REditorOptions_Folding_EnableForAllBlocks_label);
+		fFoldingDefaultAllBlocksControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		label = new Label(foldingOptions, SWT.LEFT);
+		label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		fFoldingDefaultMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
+		gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gd.widthHint = LayoutUtil.hintWidth(fFoldingDefaultMinLines, 2);
+		fFoldingDefaultMinLines.setLayoutData(gd);
+		
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
 		fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
@@ -158,16 +182,16 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		gd.widthHint = 140;
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
 		link.setLayoutData(gd);
-
+		
 		// Binding
-		createDbc();
+		initBindings();
 		updateControls();
 	}
 	
-	private Button[] createOption(Composite composite, String text1, String text2, boolean console) {
+	private Button[] createOption(final Composite composite, final String text1, final String text2, final boolean console) {
 		GridData gd;
 		if (text1 != null) {
-			Label label = new Label(composite, SWT.NONE);
+			final Label label = new Label(composite, SWT.NONE);
 			if (text2 == null) {
 				label.setText(text1+':');
 				gd = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
@@ -182,16 +206,16 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 			LayoutUtil.addGDDummy(composite);
 		}
 		if (text2 != null) {
-			Label label = new Label(composite, SWT.NONE);
+			final Label label = new Label(composite, SWT.NONE);
 			label.setText(text2+':');
 			gd = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 			label.setLayoutData(gd);
 		}
-		Button button0 = new Button(composite, SWT.CHECK);
+		final Button button0 = new Button(composite, SWT.CHECK);
 		gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
 		button0.setLayoutData(gd);
 		
-		Button button1 = new Button(composite, SWT.CHECK);
+		final Button button1 = new Button(composite, SWT.CHECK);
 		gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
 		button1.setLayoutData(gd);
 		if (!console) {
@@ -201,7 +225,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void addBindings(DataBindingContext dbc, Realm realm) {
+	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertControl),
 				createObservable(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED),
 				null, null);
@@ -239,13 +263,20 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		dbc.bindValue(SWTObservables.observeSelection(fSmartInsertCloseStringsControl[1]),
 				createObservable(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED),
 				null, null);
-
+		
 		dbc.bindValue(SWTObservables.observeSelection(fFoldingEnableControl),
-				createObservable(REditorOptions.PREF_FOLDING_ASDEFAULT_ENABLED),
+				createObservable(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED),
 				null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultAllBlocksControl),
+				createObservable(DefaultRFoldingProvider.PREF_OTHERBLOCKS_ENABLED),
+				null, null);
+		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
+				createObservable(DefaultRFoldingProvider.PREF_MINLINES_NUM),
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
+		
 		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),
 				createObservable(REditorOptions.PREF_SPELLCHECKING_ENABLED),
 				null, null);
 	}
-
+	
 }

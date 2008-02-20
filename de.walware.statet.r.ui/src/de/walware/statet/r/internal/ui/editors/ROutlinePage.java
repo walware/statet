@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.editors;
@@ -29,6 +29,7 @@ import de.walware.eclipsecommons.ltk.IElementChangedListener;
 import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
+import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.ext.ui.editors.StatextOutlinePage;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
@@ -44,7 +45,7 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 	
 	
 	private class ChangeListener implements IElementChangedListener {
-
+		
 		public void elementChanged(final ElementChangedEvent event) {
 			if (event.context != fContext || event.delta.getModelElement() != fInputUnit) {
 				return;
@@ -77,42 +78,42 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 	}
 	
 	public class ContentProvider implements ITreeContentProvider {
-
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		
+		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
-
-		public Object[] getElements(Object inputElement) {
+		
+		public Object[] getElements(final Object inputElement) {
 			if (inputElement instanceof IRSourceUnit) {
-				AstInfo info = ((IRSourceUnit) inputElement).getAstInfo(false, null);
+				final AstInfo info = ((IRSourceUnit) inputElement).getAstInfo("r", false, null); //$NON-NLS-1$
 				if (info != null) {
 					return new Object[] { info.root };
 				}
 			}
 			return new Object[0];
 		}
-
+		
 		public void dispose() {
 		}
-
-		public Object getParent(Object element) {
-			RAstNode o = (RAstNode) element;
+		
+		public Object getParent(final Object element) {
+			final RAstNode o = (RAstNode) element;
 			return o.getParent();
 		}
-
-		public boolean hasChildren(Object element) {
-			RAstNode o = (RAstNode) element;
+		
+		public boolean hasChildren(final Object element) {
+			final RAstNode o = (RAstNode) element;
 			return o.hasChildren();
 		}
-
-		public Object[] getChildren(Object parentElement) {
-			RAstNode o = (RAstNode) parentElement;
+		
+		public Object[] getChildren(final Object parentElement) {
+			final RAstNode o = (RAstNode) parentElement;
 			return o.getChildren();
 		}
 	}
 	
 	private class PostSelectionChangeListener implements ISelectionChangedListener {
-
-		public void selectionChanged(SelectionChangedEvent event) {
+		
+		public void selectionChanged(final SelectionChangedEvent event) {
 			firePostSelectionChange(event);
 		}
 		
@@ -122,19 +123,19 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 		
 		final SelectionChangedEvent fEvent;
 		ISelectionChangedListener fListener;
-	
-		public PostSelectionChangeRunner(SelectionChangedEvent event) {
+		
+		public PostSelectionChangeRunner(final SelectionChangedEvent event) {
 			fEvent = event;
 		}
 		
 		public void run() {
 			fListener.selectionChanged(fEvent);
 		}
-
+		
 	}
 	
 	private ChangeListener fListener;
-	private final WorkingContext fContext = RCore.PRIMARY_WORKING_CONTEXT;
+	private final WorkingContext fContext = StatetCore.EDITOR_CONTEXT;
 	private ContentProvider fContentProvider;
 	
 	private ISelectionChangedListener fPostSelectionListener = new PostSelectionChangeListener();
@@ -144,15 +145,15 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 	private IRSourceUnit fInputUnit;
 	
 	
-	public ROutlinePage(REditor editor) {
+	public ROutlinePage(final REditor editor) {
 		fEditor = editor;
 	}
 	
 	
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		super.createControl(parent);
-		TreeViewer viewer = getTreeViewer();
+		final TreeViewer viewer = getTreeViewer();
 		viewer.setUseHashlookup(true);
 		viewer.setLabelProvider(new RLabelProvider());
 		fContentProvider = new ContentProvider();
@@ -162,18 +163,18 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 		initActions();
 		
 		fListener = new ChangeListener();
-		RCore.addRElementChangedListener(fListener, fContext);
+		RCore.getRModelManger().addElementChangedListener(fListener, fContext);
 		viewer.setInput(fInputUnit);
 	}
 	
 	private void initActions() {
-		TreeViewer viewer = getTreeViewer();
+		final TreeViewer viewer = getTreeViewer();
 		viewer.addPostSelectionChangedListener(fPostSelectionListener);
 	}
 	
-	public void setInput(IRSourceUnit unit) {
+	public void setInput(final IRSourceUnit unit) {
 		fInputUnit = unit;
-		TreeViewer viewer = getTreeViewer();
+		final TreeViewer viewer = getTreeViewer();
 		if (UIAccess.isOkToUse(viewer)) {
 			viewer.setInput(fInputUnit);
 		}
@@ -184,18 +185,18 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 	}
 	
 	protected void firePostSelectionChange(final SelectionChangedEvent event) {
-		ISelectionChangedListener[] listeners = fPostSelectionListeners.toArray();
-		PostSelectionChangeRunner runner = new PostSelectionChangeRunner(event);
+		final ISelectionChangedListener[] listeners = fPostSelectionListeners.toArray();
+		final PostSelectionChangeRunner runner = new PostSelectionChangeRunner(event);
 		for (int i = 0; i < listeners.length; i++) {
 			runner.fListener = listeners[i];
 			SafeRunner.run(runner);
 		}
 		
-		IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+		final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 		if (!selection.isEmpty()) {
-			Object first = selection.getFirstElement();
+			final Object first = selection.getFirstElement();
 			if (first instanceof RAstNode) {
-				RAstNode node = (RAstNode) first;
+				final RAstNode node = (RAstNode) first;
 				fEditor.selectAndReveal(node.getStartOffset(), node.getStopOffset()-node.getStartOffset());
 			}
 		}
@@ -204,9 +205,10 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 	@Override
 	public void dispose() {
 		if (fListener != null) {
-			RCore.removeRElementChangedListener(fListener, fContext);
+			RCore.getRModelManger().removeElementChangedListener(fListener, fContext);
 			fListener = null;
 		}
 		super.dispose();
 	}
+	
 }

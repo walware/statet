@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -16,24 +16,28 @@ import java.util.Set;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.ISourceViewerExtension2;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
+
+import de.walware.eclipsecommons.FastList;
+import de.walware.eclipsecommons.ui.text.PairMatcher;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
-import de.walware.statet.ext.ui.text.PairMatcher;
 
 
 /**
  *
  */
 public abstract class SourceViewerConfigurator implements ISettingsChangedHandler {
-
+	
 	
 	private PairMatcher fPairMatcher;
 	private IPreferenceStore fPreferenceStore;
 	private StatextSourceViewerConfiguration fConfiguration;
-	private ISourceViewer fViewer;
+	private IEditorAdapter fEditor;
+	private final FastList<IEditorInstallable> fInstallables = new FastList<IEditorInstallable>(IEditorInstallable.class);
 	
 	protected boolean fIsConfigured;
 	
@@ -49,7 +53,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 	 */
 	public abstract IDocumentSetupParticipant getDocumentSetupParticipant();
 	
-	protected void setPreferenceStore(IPreferenceStore store) {
+	protected void setPreferenceStore(final IPreferenceStore store) {
 		fPreferenceStore = store;
 	}
 	
@@ -60,7 +64,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 		return fPreferenceStore;
 	}
 	
-	protected void setPairMatcher(PairMatcher pairMatcher) {
+	protected void setPairMatcher(final PairMatcher pairMatcher) {
 		fPairMatcher = pairMatcher;
 	}
 	
@@ -75,7 +79,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 	}
 	
 	
-	protected void setConfiguration(StatextSourceViewerConfiguration config) {
+	protected void setConfiguration(final StatextSourceViewerConfiguration config) {
 		fConfiguration = config;
 	}
 	
@@ -83,7 +87,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 		return fConfiguration;
 	}
 	
-	public void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
+	public void configureSourceViewerDecorationSupport(final SourceViewerDecorationSupport support) {
 		if (fPairMatcher != null) {
 			support.setCharacterPairMatcher(fPairMatcher);
 			support.setMatchingCharacterPainterPreferenceKeys(
@@ -91,44 +95,81 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 					IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR);
 		}
 	}
-
-
-	public void setTarget(ISourceViewer viewer, boolean configure) {
-		assert (viewer != null);
-		fViewer = viewer;
+	
+	
+	public void setTarget(final IEditorAdapter editor, final boolean configure) {
+		assert (editor != null);
+		fEditor = editor;
 		if (configure) {
+			fEditor.getSourceViewer().getControl().addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(final DisposeEvent e) {
+					if (fIsConfigured) {
+						uninstallCurrentModules();
+					}
+				}
+			});
 			configureTarget();
+		}
+		else {
+			installCurrentModules();
 		}
 		handleSettingsChanged(null, null);
 	}
 	
 	protected ISourceViewer getSourceViewer() {
-		return fViewer;
+		if (fEditor != null) {
+			return fEditor.getSourceViewer();
+		}
+		return null;
 	}
 	
-	public void unconfigureTarget() {
-		if (fViewer != null) {
+	public final void unconfigureTarget() {
+		if (fEditor != null) {
 			fIsConfigured = false;
-			fConfiguration.getInstallables();
-			((ISourceViewerExtension2) fViewer).unconfigure();
+			uninstallCurrentModules();
+			fEditor.getSourceViewer().unconfigure();
 		}
 	}
 	
-	public void configureTarget() {
-		if (fViewer != null) {
+	public final void configureTarget() {
+		if (fEditor != null) {
 			fIsConfigured = true;
-			fViewer.configure(fConfiguration);
+			fEditor.getSourceViewer().configure(fConfiguration);
+			installCurrentModules();
 		}
 	}
 	
-	protected void reconfigureSourceViewer() {
+	private void installCurrentModules() {
+		final IEditorInstallable[] installables = fInstallables.toArray();
+		for (int i = 0; i < installables.length; i++) {
+			installables[i].install(fEditor);
+		}
+	}
+	
+	private void uninstallCurrentModules() {
+		final IEditorInstallable[] installables = fInstallables.toArray();
+		for (int i = 0; i < installables.length; i++) {
+			installables[i].uninstall();
+		}
+	}
+	
+	public final void installModul(final IEditorInstallable installable) {
+		fInstallables.add(installable);
 		if (fIsConfigured) {
-			unconfigureTarget();
-			configureTarget();
+			installable.install(fEditor);
 		}
 	}
 	
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+	protected final void reconfigureSourceViewer() {
+		if (fIsConfigured) {
+			fIsConfigured = false;
+			fEditor.getSourceViewer().unconfigure();
+			fIsConfigured = true;
+			fEditor.getSourceViewer().configure(fConfiguration);
+		}
+	}
+	
+	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
 		return false;
 	}
 	

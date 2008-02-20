@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -36,7 +36,6 @@ import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
-import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 
 /**
@@ -44,27 +43,34 @@ import de.walware.statet.ext.ui.text.StatextTextScanner;
  */
 public abstract class StatextSourceViewerConfiguration extends TextSourceViewerConfiguration
 		implements ISettingsChangedHandler {
-
 	
-	public static IPreferenceStore createCombinedPreferenceStore(IPreferenceStore store) {
-		IPreferenceStore[] stores = new IPreferenceStore[] {
-			store,
-			StatetUIPlugin.getDefault().getPreferenceStore(),
-			EditorsUI.getPreferenceStore(),
-		};
-		return new ChainedPreferenceStore(stores);
+	
+	public static IPreferenceStore createCombinedPreferenceStore(final IPreferenceStore store) {
+		return createCombinedPreferenceStore(new IPreferenceStore[] { store });
 	}
 	
+	public static IPreferenceStore createCombinedPreferenceStore(final IPreferenceStore[] stores) {
+		final IPreferenceStore[] all = new IPreferenceStore[stores.length+2];
+		int i = stores.length;
+		System.arraycopy(stores, 0, all, 0, i);
+		all[i++] = StatetUIPlugin.getDefault().getPreferenceStore();
+		all[i++] = EditorsUI.getPreferenceStore();
+		return new ChainedPreferenceStore(all);
+	}
+	
+	
+	protected final IEditorAdapter fEditorAdapter;
 	
 	private ColorManager fColorManager;
-	private StatextTextScanner[] fScanners;
-	protected final FastList<IEditorInstallable> fInstallableModules = new FastList<IEditorInstallable>(IEditorInstallable.class);
+	private FastList<ISettingsChangedHandler> fSettingsHandler = new FastList<ISettingsChangedHandler>(ISettingsChangedHandler.class);
+	private ContentAssistant fContentAssistant;
 	
-
-	public StatextSourceViewerConfiguration() {
+	
+	public StatextSourceViewerConfiguration(final IEditorAdapter editorAdapter) {
+		fEditorAdapter = editorAdapter;
 	}
 	
-	protected void setup(IPreferenceStore preferenceStore, ColorManager colorManager) {
+	protected void setup(final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 		fPreferenceStore = preferenceStore;
 		fColorManager = colorManager;
 	}
@@ -72,10 +78,14 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	/**
 	 * Initializes the scanners.
 	 */
-	protected void setScanners(StatextTextScanner[] scanners) {
-		fScanners = scanners;
+	protected void setScanners(final org.eclipse.jface.text.rules.ITokenScanner[] scanners) {
+		for (int i = 0; i < scanners.length; i++) {
+			if (scanners[i] instanceof ISettingsChangedHandler) {
+				fSettingsHandler.add((ISettingsChangedHandler) scanners[i]);
+			}
+		}
 	}
-
+	
 	public IPreferenceStore getPreferences() {
 		return fPreferenceStore;
 	}
@@ -84,10 +94,13 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		return fColorManager;
 	}
 	
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
 		boolean affectsPresentation = false;
-		for (StatextTextScanner scanner : fScanners) {
-			affectsPresentation |= scanner.handleSettingsChanged(contexts, options);
+		if (contexts.contains(ContentAssistPreference.CONTEXT_ID) && fContentAssistant != null) {
+			ContentAssistPreference.configure(fContentAssistant);
+		}
+		for (final ISettingsChangedHandler handler : fSettingsHandler.toArray()) {
+			affectsPresentation |= handler.handleSettingsChanged(contexts, options);
 		}
 		return affectsPresentation;
 	}
@@ -95,39 +108,39 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 /* For TemplateEditors ********************************************************/
 	
 	protected static class TemplateVariableTextHover implements ITextHover {
-
+		
 		private TemplateVariableProcessor fProcessor;
-
+		
 		/**
 		 * @param processor the template variable processor
 		 */
-		public TemplateVariableTextHover(TemplateVariableProcessor processor) {
+		public TemplateVariableTextHover(final TemplateVariableProcessor processor) {
 			fProcessor = processor;
 		}
-
-		public String getHoverInfo(ITextViewer textViewer, IRegion subject) {
+		
+		public String getHoverInfo(final ITextViewer textViewer, final IRegion subject) {
 			try {
-				IDocument doc= textViewer.getDocument();
-				int offset= subject.getOffset();
+				final IDocument doc= textViewer.getDocument();
+				final int offset= subject.getOffset();
 				if (offset >= 2 && "${".equals(doc.get(offset-2, 2))) { //$NON-NLS-1$
-					String varName= doc.get(offset, subject.getLength());
-					TemplateContextType contextType= fProcessor.getContextType();
+					final String varName= doc.get(offset, subject.getLength());
+					final TemplateContextType contextType= fProcessor.getContextType();
 					if (contextType != null) {
-						Iterator iter= contextType.resolvers();
+						final Iterator iter= contextType.resolvers();
 						while (iter.hasNext()) {
-							TemplateVariableResolver var= (TemplateVariableResolver) iter.next();
+							final TemplateVariableResolver var= (TemplateVariableResolver) iter.next();
 							if (varName.equals(var.getType())) {
 								return var.getDescription();
 							}
 						}
 					}
 				}
-			} catch (BadLocationException e) {
+			} catch (final BadLocationException e) {
 			}
 			return null;
 		}
-
-		public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
+		
+		public IRegion getHoverRegion(final ITextViewer textViewer, final int offset) {
 			if (textViewer != null) {
 				return WordFinder.findWord(textViewer.getDocument(), offset);
 			}
@@ -136,24 +149,33 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		
 	}
 	
-	protected IContentAssistant getTemplateVariableContentAssistant(ISourceViewer sourceViewer, TemplateVariableProcessor processor) {
-		ContentAssistant assistant = new ContentAssistant();
+	
+	@Override
+	public IContentAssistant getContentAssistant(final ISourceViewer sourceViewer) {
+		if (fContentAssistant == null) {
+			fContentAssistant = createContentAssistant(sourceViewer);
+			if (fContentAssistant != null) {
+				ContentAssistPreference.configure(fContentAssistant);
+				fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
+				fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
+				fContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+			}
+		}
+		return fContentAssistant;
+	}
+	
+	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
+		return null;
+	}
+	
+	protected ContentAssistant createTemplateVariableContentAssistant(final ISourceViewer sourceViewer, final TemplateVariableProcessor processor) {
+		final ContentAssistant assistant = new ContentAssistant();
+		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		
-		for (String contentType : getConfiguredContentTypes(sourceViewer)) {
+		for (final String contentType : getConfiguredContentTypes(sourceViewer)) {
 			assistant.setContentAssistProcessor(processor, contentType);
 		}
-
-//		ContentAssistPreference.configure(assistant);
-		
-		assistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
-		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
-		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
-
 		return assistant;
-	}
-
-	public IEditorInstallable[] getInstallables() {
-		return fInstallableModules.toArray();
 	}
 	
 }

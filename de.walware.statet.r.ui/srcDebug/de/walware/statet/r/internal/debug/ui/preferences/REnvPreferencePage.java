@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.preferences;
@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -67,23 +68,23 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	
 	
 	static class REnvConfig extends REnvConfiguration {
-
+		
 		public REnvConfig() {
 			loadDefaults();
 		}
 		
-		public REnvConfig(REnvConfiguration config) {
+		public REnvConfig(final REnvConfiguration config) {
 			setId(config.getId());
 			load(config);
 		}
 		
 		@Override
-		public void setName(String label) {
+		public void setName(final String label) {
 			super.setName(label);
 		}
 		
 		@Override
-		public void setRHome(String label) {
+		public void setRHome(final String label) {
 			super.setRHome(label);
 		}
 	}
@@ -95,7 +96,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		private static final int IDX_EDIT = 2;
 		private static final int IDX_REMOVE = 3;
 		private static final int IDX_DEFAULT = 5;
-
+		
 		REnvTableGroup() {
 			super(new String[] {
 					SharedMessages.CollectionEditing_AddItem_label,
@@ -110,7 +111,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		}
 		
 		@Override
-		protected void createTableColumns(TableViewer viewer, Table table, TableLayout layout) {
+		protected void createTableColumns(final TableViewer viewer, final Table table, final TableLayout layout) {
 //			PixelConverter conv = new PixelConverter(table);
 			TableViewerColumn col;
 			
@@ -118,32 +119,28 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			col.getColumn().setText(Messages.REnv_NameColumn_name);
 			col.setLabelProvider(new ColumnLabelProvider() {
 				@Override
-				public Image getImage(Object element) {
-					REnvConfiguration config = (REnvConfiguration) element;
-					Image baseImage = RUI.getImage(RUI.IMG_OBJ_R_ENVIRONMENT);
-					ImageDescriptor defaultOverlay = (isDefaultREnv(config)) ? StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER) : null;
-					return new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
-								null, null, null, defaultOverlay, null},
-								new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+				public Image getImage(final Object element) {
+					final REnvConfiguration config = (REnvConfiguration) element;
+					return (config == fDefaultREnv) ? fEnvDefaultIcon : fEnvIcon;
 				}
 				@Override
-				public String getText(Object element) {
-					REnvConfiguration config = (REnvConfiguration) element;
+				public String getText(final Object element) {
+					final REnvConfiguration config = (REnvConfiguration) element;
 					return config.getName();
 				}
 			});
 			layout.addColumnData(new ColumnWeightData(1));
-
+			
 			col = new TableViewerColumn(viewer, SWT.LEFT);
 			col.getColumn().setText(Messages.REnv_LocationColumn_name);
 			col.setLabelProvider(new ColumnLabelProvider() {
 				@Override
-				public Image getImage(Object element) {
+				public Image getImage(final Object element) {
 					return super.getImage(element);
 				}
 				@Override
-				public String getText(Object element) {
-					REnvConfiguration config = (REnvConfiguration) element;
+				public String getText(final Object element) {
+					final REnvConfiguration config = (REnvConfiguration) element;
 					return config.getRHome();
 				}
 			});
@@ -153,15 +150,15 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			viewer.setComparator(new ViewerComparator() {
 				@SuppressWarnings("unchecked")
 				@Override
-				public int compare(Viewer viewer, Object e1, Object e2) {
+				public int compare(final Viewer viewer, final Object e1, final Object e2) {
 					return getComparator().compare(((REnvConfig) e1).getName(), ((REnvConfig) e2).getName());
 				}
 			});
 		}
 		
-
+		
 		@Override
-		protected void handleSelection(REnvConfig config, IStructuredSelection rawSelection) {
+		protected void handleSelection(final REnvConfig config, final IStructuredSelection rawSelection) {
 			fButtonGroup.enableButton(IDX_DUBLICATE, (config != null) );
 			fButtonGroup.enableButton(IDX_EDIT, (config != null) );
 			fButtonGroup.enableButton(IDX_DEFAULT, (config != null) && !isDefaultREnv(config));
@@ -169,12 +166,12 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void handleButtonPressed(int buttonIdx, REnvConfig config, IStructuredSelection rawSelection) {
+		public void handleButtonPressed(final int buttonIdx, final REnvConfig config, final IStructuredSelection rawSelection) {
 			switch (buttonIdx) {
 			case IDX_ADD:
 				doEdit(true, null);
 				break;
-
+			
 			case IDX_DUBLICATE:
 				if (config != null) {
 					doEdit(true, config);
@@ -202,12 +199,15 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		}
 		
 	}
-
+	
 	
 	private REnvTableGroup fEnvTableGroup;
 	
 	private boolean fIsDirty;
 	private REnvConfiguration fDefaultREnv;
+	
+	private Image fEnvIcon;
+	private Image fEnvDefaultIcon;
 	
 	
 	/**
@@ -216,15 +216,17 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	public REnvPreferencePage() {
 	}
 	
-	public void init(IWorkbench workbench) {
+	public void init(final IWorkbench workbench) {
 		fEnvTableGroup = new REnvTableGroup();
 	}
 	
 	@Override
-	protected Control createContents(Composite parent) {
-		Composite page = new Composite(parent, SWT.NONE);
+	protected Control createContents(final Composite parent) {
+		createImages();
+		
+		final Composite page = new Composite(parent, SWT.NONE);
 		page.setLayout(new GridLayout());
-		Label label = new Label(page, SWT.LEFT);
+		final Label label = new Label(page, SWT.LEFT);
 		label.setText(Messages.REnv_REnvList_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
@@ -232,18 +234,41 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		
 		UIAccess.getDisplay(getShell()).asyncExec(new Runnable() {
 			public void run() {
-				Button defaultButton = getDefaultsButton();
+				final Button defaultButton = getDefaultsButton();
 				if (UIAccess.isOkToUse(defaultButton)) {
 					defaultButton.setEnabled(false);
 				}
 			}
 		});
-
+		
 		loadValues(PreferencesUtil.getInstancePrefs());
 		fEnvTableGroup.initFields();
-
+		
 		applyDialogFont(page);
 		return page;
+	}
+	
+	private void createImages() {
+		final Image baseImage = RUI.getImage(RUI.IMG_OBJ_R_ENVIRONMENT);
+		fEnvIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
+				null, null, null, null, null},
+				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+		fEnvDefaultIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
+				null, null, null, StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER), null},
+				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+	}
+	
+	@Override
+	public void dispose() {
+		if (fEnvIcon != null) {
+			fEnvIcon.dispose();
+			fEnvIcon = null;
+		}
+		if (fEnvDefaultIcon != null) {
+			fEnvDefaultIcon.dispose();
+			fEnvDefaultIcon = null;
+		}
+		super.dispose();
 	}
 	
 	@Override
@@ -264,20 +289,20 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	}
 	
 	
-	private boolean isDefaultREnv(REnvConfiguration config) {
+	private boolean isDefaultREnv(final REnvConfiguration config) {
 		return (fDefaultREnv == config);
 	}
-
-	private void doSetDefault(REnvConfig config) {
+	
+	private void doSetDefault(final REnvConfig config) {
 		fIsDirty = true;
 		fDefaultREnv = config;
-
+		
 		fEnvTableGroup.refresh();
 	}
 	
-	private void doEdit(boolean newConfig, REnvConfig config) {
+	private void doEdit(final boolean newConfig, final REnvConfig config) {
 		REnvConfig editConfig;
-		List<REnvConfiguration> existingConfigs = new ArrayList<REnvConfiguration>(fEnvTableGroup.getListModel());
+		final List<REnvConfiguration> existingConfigs = new ArrayList<REnvConfiguration>(fEnvTableGroup.getListModel());
 		if (newConfig) {
 			editConfig = new REnvConfig();
 			if (config != null) { // copy...
@@ -288,7 +313,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			editConfig = new REnvConfig(config);
 			existingConfigs.remove(config);
 		}
-		REnvConfigDialog dialog = new REnvConfigDialog(getShell(),
+		final REnvConfigDialog dialog = new REnvConfigDialog(getShell(),
 				editConfig, newConfig, existingConfigs);
 		if (dialog.open() == Dialog.OK && editConfig.isDirty()) {
 			fIsDirty = true;
@@ -304,8 +329,8 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			}
 		}
 	}
-
-	private void doRemove(List<REnvConfig> configs) {
+	
+	private void doRemove(final List<REnvConfig> configs) {
 		fIsDirty = true;
 		if (fDefaultREnv != null && configs.contains(fDefaultREnv)) {
 			fDefaultREnv = null;
@@ -321,37 +346,40 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		setMessage(null);
 	}
 	
-	private boolean saveValues(boolean saveStore) {
+	private boolean saveValues(final boolean saveStore) {
 		try {
-			List<REnvConfig> configs = fEnvTableGroup.getListModel();
-			String defaultConfigName = (fDefaultREnv != null) ? fDefaultREnv.getName() : null;
-			String[] contexts = RCore.getREnvManager().set(configs.toArray(new REnvConfig[configs.size()]), defaultConfigName);
+			final List<REnvConfig> configs = fEnvTableGroup.getListModel();
+			final String defaultConfigName = (fDefaultREnv != null) ? fDefaultREnv.getName() : null;
+			final String[] contexts = RCore.getREnvManager().set(configs.toArray(new REnvConfig[configs.size()]), defaultConfigName);
 			if (contexts != null) {
 				AbstractConfigurationBlock.scheduleChangeNotification(
 						(IWorkbenchPreferenceContainer) getContainer(), contexts, saveStore);
 			}
 			return true;
 		}
-		catch (CoreException e) {
-			StatusManager.getManager().handle(e.getStatus(), StatusManager.LOG | StatusManager.SHOW);
+		catch (final CoreException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
+					-1, Messages.REnv_error_Saving_message, e),
+					StatusManager.LOG | StatusManager.SHOW);
 			return false;
 		}
 	}
 	
-	private void loadValues(IPreferenceAccess prefs) {
+	private void loadValues(final IPreferenceAccess prefs) {
 		fEnvTableGroup.getListModel().clear();
 		fDefaultREnv = null;
 		
-		IREnvManager manager = RCore.getREnvManager();
-		String[] names = manager.getNames();
-		REnvConfiguration defaultConfig = manager.getDefault();
-		String defaultConfigName = (defaultConfig != null) ? defaultConfig.getName() : null;
-		for (String name : names) {
-			REnvConfig config = new REnvConfig(manager.get(null, name));
+		final IREnvManager manager = RCore.getREnvManager();
+		final String[] names = manager.getNames();
+		final REnvConfiguration defaultConfig = manager.getDefault();
+		final String defaultConfigName = (defaultConfig != null) ? defaultConfig.getName() : null;
+		for (final String name : names) {
+			final REnvConfig config = new REnvConfig(manager.get(null, name));
 			fEnvTableGroup.getListModel().add(config);
 			if (config.getName().equals(defaultConfigName)) {
 				fDefaultREnv = config;
 			}
 		}
 	}
+	
 }

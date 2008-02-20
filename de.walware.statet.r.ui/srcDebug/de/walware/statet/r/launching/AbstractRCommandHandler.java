@@ -34,7 +34,7 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- *
+ * Abstract handler to submit a simple command to R.
  */
 public abstract class AbstractRCommandHandler extends AbstractHandler {
 

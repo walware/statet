@@ -1,27 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import java.lang.reflect.InvocationTargetException;
 
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**
  *
  */
 abstract class SpecItem extends RAstNode {
-
-
+	
+	
 	RAstNode fArgName;
 	int fEqualsOffset = Integer.MIN_VALUE;
 	final Expression fValueExpr = new Expression();
@@ -41,8 +42,16 @@ abstract class SpecItem extends RAstNode {
 		return count;
 	}
 	
+	public boolean hasName() {
+		return (fArgName != null);
+	}
+	
 	public final RAstNode getNameChild() {
 		return fArgName;
+	}
+	
+	public boolean hasValue() {
+		return (fValueExpr.node != null);
 	}
 	
 	public final RAstNode getValueChild() {
@@ -50,7 +59,7 @@ abstract class SpecItem extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		if (fArgName != null) {
 			switch (index) {
 			case 0:
@@ -92,7 +101,7 @@ abstract class SpecItem extends RAstNode {
 	}
 	
 	@Override
-	public int getChildIndex(IAstNode child) {
+	public int getChildIndex(final IAstNode child) {
 		if (fArgName == child) {
 			return 0;
 		}
@@ -103,16 +112,16 @@ abstract class SpecItem extends RAstNode {
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
 		if (fArgName != null) {
-			fArgName.accept(visitor);
+			fArgName.acceptInR(visitor);
 		}
 		if (fValueExpr.node != null) {
-			fValueExpr.node.accept(visitor);
+			fValueExpr.node.acceptInR(visitor);
 		}
 	}
-
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		if (fArgName != null) {
 			fArgName.accept(visitor);
 		}
@@ -121,15 +130,15 @@ abstract class SpecItem extends RAstNode {
 		}
 	}
 	
-
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		if (fValueExpr.node == child) {
 			return fValueExpr;
 		}
 		return null;
 	}
-
+	
 	@Override
 	final Expression getLeftExpr() {
 		return null;
@@ -155,5 +164,5 @@ abstract class SpecItem extends RAstNode {
 			fStopOffset = fStartOffset;
 		}
 	}
-
+	
 }

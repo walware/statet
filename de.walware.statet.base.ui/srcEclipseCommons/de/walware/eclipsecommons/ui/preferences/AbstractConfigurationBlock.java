@@ -1,16 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.preferences;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -22,19 +24,22 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
+import org.eclipse.ui.statushandlers.StatusManager;
+import org.osgi.service.prefs.BackingStoreException;
 
+import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.core.StatetCore;
 
 
 public abstract class AbstractConfigurationBlock {
-
 	
-	public static void scheduleChangeNotification(IWorkbenchPreferenceContainer container, String[] contexts, boolean directly) {
+	
+	public static void scheduleChangeNotification(final IWorkbenchPreferenceContainer container, final String[] contexts, final boolean directly) {
 		if (contexts != null) {
-			String source = (directly) ? null : container.toString();
-			Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, contexts);
+			final String source = (directly) ? null : container.toString();
+			final Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, contexts);
 			if (job == null) {
 				return;
 			}
@@ -46,22 +51,22 @@ public abstract class AbstractConfigurationBlock {
 			}
 		}
 	}
-
+	
 	
 	private Shell fShell;
 	private IWorkbenchPreferenceContainer fContainer;
 	protected boolean fUseProjectSettings = true;
 	
 	
-	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
-			IPreferenceStore preferenceStore) {
+	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
+			final IPreferenceStore preferenceStore) {
 		fShell = pageComposite.getShell();
 		fContainer = container;
 	}
 	
 	public void dispose() {
 	}
-
+	
 	public void performApply() {
 		performOk();
 	}
@@ -72,8 +77,8 @@ public abstract class AbstractConfigurationBlock {
 	
 	public void performCancel() {
 	}
-
-	public void setUseProjectSpecificSettings(boolean enable) {
+	
+	public void setUseProjectSpecificSettings(final boolean enable) {
 		fUseProjectSettings = enable;
 	}
 	
@@ -84,29 +89,36 @@ public abstract class AbstractConfigurationBlock {
 	protected Shell getShell() {
 		return fShell;
 	}
-
-	protected void addLinkHeader(Composite pageComposite, String text) {
-		Link link = addLinkControl(pageComposite, text);
-		GridData gridData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+	
+	protected void addLinkHeader(final Composite pageComposite, final String text) {
+		final Link link = addLinkControl(pageComposite, text);
+		final GridData gridData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		gridData.widthHint = 150; // only expand further if anyone else requires it
 		link.setLayoutData(gridData);
 		LayoutUtil.addSmallFiller(pageComposite, false);
 	}
-
-	protected Link addLinkControl(Composite composite, String text) {
-		Link link = new Link(composite, SWT.NONE);
+	
+	protected Link addLinkControl(final Composite composite, final String text) {
+		final Link link = new Link(composite, SWT.NONE);
 		link.setText(text);
 		link.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				PreferencesUtil.createPreferenceDialogOn(getShell(), e.text, null, null);
 			}
 		});
 		return link;
 	}
-
-	protected void scheduleChangeNotification(boolean directly) {
-		String[] contexts = getChangedContexts();
+	
+	protected void scheduleChangeNotification(final boolean directly) {
+		final String[] contexts = getChangedContexts();
 		scheduleChangeNotification(fContainer, contexts, directly);
 	}
+	
+	protected void logSaveError(final BackingStoreException e) {
+		StatusManager.getManager().handle(new Status(IStatus.ERROR,
+				"org.osgi.service.prefs", ICommonStatusConstants.INTERNAL_PREF_PERSISTENCE, //$NON-NLS-1$
+				"An error occurred when saving preferences to backing store.", e)); //$NON-NLS-1$
+	}
+	
 }

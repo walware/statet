@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.renv;
@@ -50,7 +50,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	
 	public static final String PROP_ID = "id"; //$NON-NLS-1$
 	private static final String PREFKEY_ID = "id"; //$NON-NLS-1$
-
+	
 	public static final String PROP_RHOME = "RHome"; //$NON-NLS-1$
 	private static final String PREFKEY_RHOME = "env.r_home"; //$NON-NLS-1$
 	
@@ -59,7 +59,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		CMD,
 		TERM;
 	}
-
+	
 	
 	public static boolean isValidRHomeLocation(IFileStore loc) {
 		IFileStore binDir = loc.getChild("bin"); //$NON-NLS-1$
@@ -78,7 +78,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private String fNodeQualifier;
 	private String fCheckName;
 	private boolean fIsDisposed;
-
+	
 	private StringPref fPrefName;
 	private String fName;
 	private StringPref fPrefId;
@@ -139,7 +139,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 //				fPrefBinDirectory,
 		};
 	}
-
+	
 	@Override
 	public void loadDefaults() {
 		setName("R"); //$NON-NLS-1$
@@ -156,7 +156,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		setName(from.getName());
 		setRHome(from.getRHome());
 	}
-
+	
 	@Override
 	public void load(IPreferenceAccess prefs) {
 		load(prefs, false);
@@ -170,7 +170,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		setName(prefs.getPreferenceValue(fPrefName));
 		setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
 	}
-
+	
 	@Override
 	public Map<Preference, Object> deliverToPreferencesMap(
 			Map<Preference, Object> map) {
@@ -180,7 +180,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		map.put(fPrefRHomeDirectory, getRHome());
 		return map;
 	}
-
+	
 	
 /*-- Properties --------------------------------------------------------------*/
 	
@@ -236,7 +236,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	public String getRHome() {
 		return fRHomeDirectory;
 	}
-
+	
 	
 	public List<String> getExecCommand(String arg1, Set<Exec> execTypes) throws CoreException {
 		String test = (arg1 != null) ? arg1.trim().toUpperCase() : ""; //$NON-NLS-1$
@@ -283,7 +283,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 			break;
 		}
 		if (child == null) {
-			child = "bin/R";
+			child = "bin/R"; //$NON-NLS-1$
 		}
 		IPath exec = FileUtil.expandToLocalPath(getRHome(), child);
 		commandLine.add(0, exec.toOSString());
@@ -295,4 +295,5 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		envp.put("R_HOME", FileUtil.expandToLocalPath(getRHome(), null).toOSString()); //$NON-NLS-1$
 		return envp;
 	}
+	
 }

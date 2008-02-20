@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.launcher;
@@ -32,37 +32,43 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 public class RSelectionDirectLaunchShortcut implements ILaunchShortcut {
 	
 	
-	protected boolean fGotoConsole = false;
+	protected boolean fGotoConsole;
 	
 	
-	public void launch(ISelection selection, String mode) {
-		
-		// not supported
+	public RSelectionDirectLaunchShortcut() {
+		this(false);
+	}
+	
+	public RSelectionDirectLaunchShortcut(final boolean gotoConsole) {
+		fGotoConsole = gotoConsole;
 	}
 
-	public void launch(IEditorPart editor, String mode) {
+	public void launch(final ISelection selection, final String mode) {
+		// not supported
+	}
+	
+	public void launch(final IEditorPart editor, final String mode) {
 		
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
-			AbstractTextEditor redt = (AbstractTextEditor) editor;
-			IDocument doc = redt.getDocumentProvider().getDocument(editor.getEditorInput() );
-			ITextSelection selection = (ITextSelection) redt.getSelectionProvider().getSelection();
+			final AbstractTextEditor redt = (AbstractTextEditor) editor;
+			final IDocument doc = redt.getDocumentProvider().getDocument(editor.getEditorInput() );
+			final ITextSelection selection = (ITextSelection) redt.getSelectionProvider().getSelection();
 			
-			String[] lines = LaunchShortcutUtil.listLines(doc, selection);
-
+			final String[] lines = LaunchShortcutUtil.listLines(doc, selection);
+			
 			if (lines == null) {
 				return;
 			}
 			
 			RCodeLaunchRegistry.runRCodeDirect(lines, fGotoConsole);
 		}
-		catch (CoreException e) {
+		catch (final CoreException e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RSelectionLaunch_error_message);
 		}
 	}
-	
 	
 //	private void reportError(AbstractTextEditor editor, String msg) {
 //

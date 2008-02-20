@@ -2,23 +2,24 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico UI
-Bundle-SymbolicName: de.walware.statet.nico.ui; singleton:=true
-Bundle-Version: 0.4.0.qualifier
+Bundle-SymbolicName: de.walware.statet.nico.ui;singleton:=true
+Bundle-Version: 0.5.0.qualifier
 Bundle-Activator: de.walware.statet.nico.internal.ui.NicoUIPlugin
 Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.jface.text,
  org.eclipse.ui,
+ org.eclipse.jface.databinding,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.console;visibility:=reexport,
  org.eclipse.debug.ui;visibility:=reexport,
- de.walware.statet.nico.core;bundle-version="0.4.0",
- de.walware.statet.base.ui
-Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ de.walware.statet.nico.core;bundle-version="[0.5.0,0.6.0)";visibility:=reexport,
+ de.walware.statet.base.ui;bundle-version="[0.5.0,0.6.0)"
+Import-Package: com.ibm.icu.text;version="3.6.1"
 Export-Package: de.walware.statet.nico.ui,
  de.walware.statet.nico.ui.actions,
  de.walware.statet.nico.ui.console,
  de.walware.statet.nico.ui.util,
  de.walware.statet.nico.ui.views
-Import-Package: com.ibm.icu.text;version="3.6.1"

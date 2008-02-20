@@ -15,56 +15,55 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.util.IToolProvider;
+import de.walware.statet.nico.core.util.IToolRetargetable;
+import de.walware.statet.nico.core.util.ToolRetargetableHandler;
 
 
 /**
  * Can be used for actions for tools.
+ * <p>
+ * Same as {@link ToolRetargetableHandler} for actions
  */
-public class ToolAction extends Action implements IToolAction {
+public class ToolAction extends Action implements IToolRetargetable {
 
 	
 	private ToolProcess fTool;
 	private boolean fDisableOnTermination;
 	
 	
-	public ToolAction(IToolActionSupport support, boolean disableOnTermination) {
-		
+	public ToolAction(final IToolProvider support, final boolean disableOnTermination) {
 		this(support, SWT.NONE, disableOnTermination);
 	}
 	
-	public ToolAction(IToolActionSupport support, int style, boolean disableOnTermination) {
-		
+	public ToolAction(final IToolProvider support, final int style, final boolean disableOnTermination) {
 		super(null, style);
 		
-		support.addToolAction(this);
+		support.addToolRetargetable(this);
 		fTool = support.getTool();
 		fDisableOnTermination = disableOnTermination;
 	}
 	
-	public void setTool(ToolProcess tool) {
-		
+	public void setTool(final ToolProcess tool) {
 		fTool = tool;
 		handleToolChanged();
 	}
 	
 	public void handleToolChanged() {
-		
 		update();
 	}
 	
 	public void handleToolTerminated() {
-		
 		update();
 	}
 	
 	public void update() {
-		
-		setEnabled(fTool != null 
+		setEnabled(fTool != null
 				&& (!fDisableOnTermination || !fTool.isTerminated()));
 	}
 	
 	public ToolProcess getTool() {
-		
 		return fTool;
 	}
+	
 }

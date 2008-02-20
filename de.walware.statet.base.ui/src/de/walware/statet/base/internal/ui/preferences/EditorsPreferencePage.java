@@ -153,7 +153,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		// Binding
 		fColorList.setInput(colors.toArray(new AppearanceColorsItem[colors.size()]));
 		fColorList.setSelection(new StructuredSelection(colors.get(0)));
-		createDbc();
+		initBindings();
 		updateControls();
 	}
 	

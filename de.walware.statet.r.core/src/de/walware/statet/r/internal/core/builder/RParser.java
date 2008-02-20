@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core.builder;
@@ -22,12 +22,12 @@ public class RParser {
 		
 		IntList fList = new ArrayIntList();
 		
-		public void addLine(int startOffset) {
+		public void addLine(final int startOffset) {
 			
 			fList.add(startOffset);
 		}
 		
-		public int getLineOfOffset(int offset) {
+		public int getLineOfOffset(final int offset) {
 			
 			for (int i = 0; i < fList.size(); i++) {
 				if (fList.get(i) > offset)
@@ -48,32 +48,30 @@ public class RParser {
 	private Last fLastChar = Last.NONE;
 	private LineManager fLineStructure;
 	
-
-	public RParser(char[] content, MarkerHandler markers) {
-
+	
+	public RParser(final char[] content, final MarkerHandler markers) {
+		
 		fContent = content;
 		fMarkers = markers;
 		fLineStructure = new LineManager();
 	}
 	
 	public void check() throws CoreException {
-		
 		READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
-			
 			if (checkNewLine()) {
 				continue READ;
 			}
-
+			
 			if (checkBackslash()) {
 				continue READ;
 			}
 				
-			char current = fContent[fCurrentOffset];
+			final char current = fContent[fCurrentOffset];
 			switch (current) {
 			case '#':
 				readComment();
 				continue READ;
-
+			
 			case '"':
 			case '\'':
 				readString(current);
@@ -82,16 +80,14 @@ public class RParser {
 		}
 	}
 	
-	private void readString(char b) {
-		
-		int start = fCurrentOffset;
+	private void readString(final char b) {
+		final int start = fCurrentOffset;
 		int end = -1;
 		
 		READ: for (fCurrentOffset++; fCurrentOffset < fContent.length; fCurrentOffset++) {
-			
 			if (checkNewLine())
 				continue READ;
-
+			
 			if (checkBackslash())
 				continue READ;
 				
@@ -103,10 +99,9 @@ public class RParser {
 		if (end == -1)
 			end = fCurrentOffset-1;
 	}
-
+	
 	private void readComment() throws CoreException {
-		
-		int start = fCurrentOffset;
+		final int start = fCurrentOffset;
 		int end = fCurrentOffset;
 		
 		READ: for (fCurrentOffset++; fCurrentOffset < fContent.length; fCurrentOffset++) {
@@ -119,10 +114,9 @@ public class RParser {
 		}
 		fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
 	}
-
+	
 	private boolean checkNewLine() {
-
-		char current = fContent[fCurrentOffset];
+		final char current = fContent[fCurrentOffset];
 		if (current == '\r' || current == '\n') {
 			
 			if (current == '\r' && fCurrentOffset+1 < fContent.length && fContent[fCurrentOffset+1] == '\n') {
@@ -137,7 +131,6 @@ public class RParser {
 	}
 	
 	private boolean checkBackslash() {
-		
 		if (fContent[fCurrentOffset] == '\\') {
 			fLastChar = Last.BACKSLASH;
 			return true;

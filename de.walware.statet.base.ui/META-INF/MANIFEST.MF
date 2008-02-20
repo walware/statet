@@ -3,23 +3,26 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Base UI
 Bundle-SymbolicName: de.walware.statet.base.ui;singleton:=true
-Bundle-Version: 0.4.0.qualifier
+Bundle-Version: 0.5.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.ui.StatetUIPlugin
 Bundle-Localization: plugin
-Require-Bundle: de.walware.statet.base.core;bundle-version="0.4.0";visibility:=reexport,
- org.eclipse.jface.text,
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-LazyStart: true
+Require-Bundle: de.walware.statet.base.core;bundle-version="[0.5.0,0.6.0)";visibility:=reexport,
+ org.eclipse.jface.text;visibility:=reexport,
  org.eclipse.core.databinding.beans,
  org.eclipse.jface.databinding,
- org.eclipse.ui,
+ org.eclipse.ui;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.views,
  org.eclipse.ui.forms,
+ org.eclipse.ui.navigator.resources,
  org.eclipse.ui.ide,
- org.eclipse.debug.core,
  org.eclipse.debug.ui
-Eclipse-LazyStart: true
-Export-Package: de.walware.eclipsecommons.templates,
+Import-Package: com.ibm.icu.text;version="3.6.1"
+Export-Package: de.walware.eclipsecommons.ltk.ui,
+ de.walware.eclipsecommons.templates,
  de.walware.eclipsecommons.ui,
  de.walware.eclipsecommons.ui.databinding,
  de.walware.eclipsecommons.ui.dialogs,
@@ -35,6 +38,5 @@ Export-Package: de.walware.eclipsecommons.templates,
  de.walware.statet.ext.ui.editors,
  de.walware.statet.ext.ui.preferences,
  de.walware.statet.ext.ui.text,
- de.walware.statet.ext.ui.wizards
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Import-Package: com.ibm.icu.text
+ de.walware.statet.ext.ui.wizards,
+ org.eclipse.ui.menus

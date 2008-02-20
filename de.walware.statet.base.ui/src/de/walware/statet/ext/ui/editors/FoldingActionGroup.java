@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000-2006 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Wahlbrink - adapted to StatET
@@ -50,9 +50,8 @@ public class FoldingActionGroup extends ActionGroup {
 	private final TextOperationAction fCollapseAll;
 //	private final FoldingAction fCollapseMembers;
 //	private final FoldingAction fCollapseComments;
-
-
-
+	
+	
 	/**
 	 * Creates a new projection action group for <code>editor</code>. If the
 	 * supplied viewer is not an instance of <code>ProjectionViewer</code>, the
@@ -70,7 +69,7 @@ public class FoldingActionGroup extends ActionGroup {
 				update();
 				fToggle.setChecked(fViewer.isProjectionMode());
 			}
-
+			
 			public void projectionDisabled() {
 				update();
 				fToggle.setChecked(fViewer.isProjectionMode());
@@ -78,7 +77,7 @@ public class FoldingActionGroup extends ActionGroup {
 		};
 		fViewer.addProjectionListener(fProjectionListener);
 		
-		fToggle = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.Toggle.", editor, ProjectionViewer.TOGGLE);
+		fToggle = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.Toggle.", editor, ProjectionViewer.TOGGLE); //$NON-NLS-1$
 		fToggle.setChecked(fViewer.isProjectionMode());
 		fToggle.setActionDefinitionId(IFoldingCommandIds.FOLDING_TOGGLE);
 		editor.setAction("FoldingToggle", fToggle); //$NON-NLS-1$

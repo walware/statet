@@ -4,9 +4,9 @@
  * are made available under the terms of the GNU Lesser General Public License
  * v2.1 or newer, which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/lgpl.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.rserve.launchconfigs;
@@ -22,7 +22,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
-import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -31,18 +31,18 @@ import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.LoginHandler;
 import de.walware.statet.nico.ui.util.QuitHandler;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
-import de.walware.statet.r.debug.ui.launchconfigs.IRLaunchConfigurationConstants;
+import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
 
 
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {
-
+	
 	
 	public void launch(ILaunchConfiguration configuration, String mode,
 			ILaunch launch, IProgressMonitor monitor) throws CoreException {
-
+		
 		try {
 			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 4);
@@ -61,18 +61,18 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			
 			UnterminatedLaunchAlerter.registerLaunchType(IRServeConstants.ID_RSERVE_LAUNCHCONFIG);
 			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch,
-					IRLaunchConfigurationConstants.ID_R_CONSOLE_PROCESS_TYPE,
+					RLaunchConfigurations.ID_R_CONSOLE_PROCESS_TYPE,
 					LaunchConfigUtil.createLaunchPrefix(configuration), name);
-
+			
 			RServeClientController controller = new RServeClientController(process, connectionConfig);
 			process.init(controller);
-			controller.addEventHandler(ToolController.LOGIN_EVENT_ID, new LoginHandler());
-			controller.addEventHandler(ToolController.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
-
+			controller.addEventHandler(IToolEventHandler.LOGIN_EVENT_ID, new LoginHandler());
+			controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
+			
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
-	    	NicoUITools.startConsoleLazy(console, page);
-	    	// start
-	    	new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
+			NicoUITools.startConsoleLazy(console, page);
+			// start
+			new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		}
 		finally {
 			monitor.done();

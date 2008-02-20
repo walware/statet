@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.preferences;
@@ -16,11 +16,11 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	
-
+	
 	public static String RInteraction_description;
 	public static String RInteraction_RConnector;
 	public static String RInteraction_RConnector_Description_label;
-
+	
 	public static String REnv_REnvList_label;
 	public static String REnv_LocationColumn_name;
 	public static String REnv_NameColumn_name;
@@ -36,7 +36,8 @@ public class Messages extends NLS {
 	public static String REnv_Detail_Location_error_NoRHome_message;
 	public static String REnv_Detail_FindAuto_label;
 	public static String REnv_Detail_FindAuto_Failed_message;
-
+	public static String REnv_error_Saving_message;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

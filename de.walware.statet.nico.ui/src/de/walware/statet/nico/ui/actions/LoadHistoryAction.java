@@ -16,6 +16,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.ui.NicoUIMessages;
 
 
@@ -25,7 +26,7 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 public class LoadHistoryAction extends ToolAction {
 	
 	
-	public LoadHistoryAction(IToolActionSupport support) {
+	public LoadHistoryAction(IToolProvider support) {
 		
 		super(support, false);
 		

@@ -101,7 +101,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		group.setText(Messages.RCodeStyle_Indent_group);
 		createIndentControls(group);
 		
-		createDbc();
+		initBindings();
 		updateControls();
 	}
 	

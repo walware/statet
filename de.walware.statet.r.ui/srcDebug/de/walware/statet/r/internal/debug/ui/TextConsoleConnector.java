@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui;
@@ -48,13 +48,13 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 			public void run() throws CoreException {
 				IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 				IWorkbenchPart activePart = page.getActivePart();
-		
+				
 				try {
 					TextConsole console = getAndShowConsole();
 					if (console == null) {
 						handleNoConsole();
 					}
-
+					
 					IDocument doc = console.getDocument();
 					try {
 						for (int i = 0; i < rCommands.length; i++) {
@@ -67,7 +67,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 						throw new CoreException(new Status(
 								IStatus.ERROR,
 								RUI.PLUGIN_ID,
-								ICommonStatusConstants.LAUNCHING_ERROR,
+								ICommonStatusConstants.LAUNCHING,
 								RLaunchingMessages.TextConsoleConnector_error_Other_message,
 								e));
 					}
@@ -97,7 +97,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 		throw new CoreException(new Status(
 				IStatus.WARNING,
 				RUI.PLUGIN_ID,
-				ICommonStatusConstants.LAUNCHING_ERROR,
+				ICommonStatusConstants.LAUNCHING,
 				RLaunchingMessages.TextConsoleConnector_error_NoConsole_message,
 				null));
 	}

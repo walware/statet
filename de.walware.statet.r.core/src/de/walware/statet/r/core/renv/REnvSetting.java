@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.renv;
@@ -27,12 +27,11 @@ public class REnvSetting extends AbstractSettingsModelObject {
 	public static enum SettingsType {
 		WORKBENCH, SPECIFIC,
 	}
-
 	
-	private static Pattern RENV_SETTINGSSPLIT_PATTERN = Pattern.compile("\\:");
-
-	public static REnvConfiguration resolveREnv(REnvSetting setting) {
-		
+	
+	private static Pattern RENV_SETTINGSSPLIT_PATTERN = Pattern.compile("\\:"); //$NON-NLS-1$
+	
+	public static REnvConfiguration resolveREnv(final REnvSetting setting) {
 		if (setting != null && setting.fType != null) {
 			switch (setting.fType) {
 			case WORKBENCH:
@@ -44,7 +43,7 @@ public class REnvSetting extends AbstractSettingsModelObject {
 		return null;
 	}
 	
-	public static String encodeREnv(SettingsType type, REnvConfiguration specified, boolean strict) {
+	public static String encodeREnv(final SettingsType type, final REnvConfiguration specified, final boolean strict) {
 		boolean valid;
 		if (type != null) {
 			switch (type) {
@@ -53,7 +52,7 @@ public class REnvSetting extends AbstractSettingsModelObject {
 			case SPECIFIC:
 				valid = (specified != null);
 				if (valid || !strict) {
-					StringBuilder s = new StringBuilder(SettingsType.SPECIFIC.name());
+					final StringBuilder s = new StringBuilder(SettingsType.SPECIFIC.name());
 					if (valid) {
 						s.append(':');
 						s.append(specified.getId());
@@ -68,17 +67,17 @@ public class REnvSetting extends AbstractSettingsModelObject {
 		return null;
 	}
 	
-	public static REnvSetting decodeType(String encodedSetting, boolean strict) {
-		REnvSetting setting = new REnvSetting();
+	public static REnvSetting decodeType(final String encodedSetting, final boolean strict) {
+		final REnvSetting setting = new REnvSetting();
 		if (encodedSetting != null && encodedSetting.length() > 0) {
-			String[] parts = RENV_SETTINGSSPLIT_PATTERN.split(encodedSetting, 3);
-			SettingsType type = SettingsType.valueOf(parts[0]);
+			final String[] parts = RENV_SETTINGSSPLIT_PATTERN.split(encodedSetting, 3);
+			final SettingsType type = SettingsType.valueOf(parts[0]);
 			boolean valid;
 			switch (type) {
 			case WORKBENCH:
 				setting.fType = SettingsType.WORKBENCH;
 				break;
-	
+			
 			case SPECIFIC:
 				valid = (parts.length == 3);
 				if (valid || !strict) {

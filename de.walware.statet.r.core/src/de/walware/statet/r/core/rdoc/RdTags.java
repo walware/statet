@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rdoc;
@@ -20,28 +20,28 @@ package de.walware.statet.r.core.rdoc;
  * @author Stephan Wahlbrink
  */
 public class RdTags {
-
+	
 	//---- main-section-tags --------------------------------------------------
-	public static final String NAME = "\\name";
-	public static final String DOCTYPE = "\\docType";  // dataset
-	public static final String ALIAS = "\\alias";
-	public static final String TITLE = "\\title";
-	public static final String DESCRIPTION = "\\description";
-	public static final String SYNOPSIS = "\\synopsis";
-	public static final String USAGE = "\\usage";
-	public static final String ARGUMENTS = "\\arguments";
-	public static final String DETAILS = "\\details";
-	public static final String VALUE = "\\value";
-	public static final String FORMAT = "\\format";  // dataset
-	public static final String SOURCE = "\\source";  // dataset
-	public static final String REFERENCES = "\\references";
-	public static final String NOTE = "\\note";
-	public static final String AUTHOR = "\\author";
-	public static final String SEEALSO = "\\seealso";
-	public static final String EXAMPLES = "\\examples";
-	public static final String KEYWORD = "\\keyword";
-	public static final String USER_SECTION = "\\section";
-	public static final String CONCEPT = "\\concept";
+	public static final String NAME = "\\name"; //$NON-NLS-1$
+	public static final String DOCTYPE = "\\docType";  // dataset //$NON-NLS-1$
+	public static final String ALIAS = "\\alias"; //$NON-NLS-1$
+	public static final String TITLE = "\\title"; //$NON-NLS-1$
+	public static final String DESCRIPTION = "\\description"; //$NON-NLS-1$
+	public static final String SYNOPSIS = "\\synopsis"; //$NON-NLS-1$
+	public static final String USAGE = "\\usage"; //$NON-NLS-1$
+	public static final String ARGUMENTS = "\\arguments"; //$NON-NLS-1$
+	public static final String DETAILS = "\\details"; //$NON-NLS-1$
+	public static final String VALUE = "\\value"; //$NON-NLS-1$
+	public static final String FORMAT = "\\format";  // dataset //$NON-NLS-1$
+	public static final String SOURCE = "\\source";  // dataset //$NON-NLS-1$
+	public static final String REFERENCES = "\\references"; //$NON-NLS-1$
+	public static final String NOTE = "\\note"; //$NON-NLS-1$
+	public static final String AUTHOR = "\\author"; //$NON-NLS-1$
+	public static final String SEEALSO = "\\seealso"; //$NON-NLS-1$
+	public static final String EXAMPLES = "\\examples"; //$NON-NLS-1$
+	public static final String KEYWORD = "\\keyword"; //$NON-NLS-1$
+	public static final String USER_SECTION = "\\section"; //$NON-NLS-1$
+	public static final String CONCEPT = "\\concept"; //$NON-NLS-1$
 	
 	public static final String[] MAIN_SECTIONS = {
 		NAME, DOCTYPE, ALIAS, TITLE, DESCRIPTION, 
@@ -58,44 +58,44 @@ public class RdTags {
 //	public static final String EMAIL = "\\email";
 	
 	public static final String[] TEXT_MARKUP_TAGs = new String[] {
-			"\\emph", "\\strong", "\\bold", "\\sQuote", "\\dQuote",
-			"\\code", "\\preformatted", "\\kbd", "\\samp", 
-			"\\pkg", "\\file", "\\email", "\\url",
-			"\\var", "\\env", "\\option", "\\comand", 
-			"\\dfn", "\\dfn", "\\cite", "\\acronym",
+			"\\emph", "\\strong", "\\bold", "\\sQuote", "\\dQuote", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+			"\\code", "\\preformatted", "\\kbd", "\\samp",  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"\\pkg", "\\file", "\\email", "\\url", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"\\var", "\\env", "\\option", "\\comand",  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"\\dfn", "\\dfn", "\\cite", "\\acronym", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	};
 	public static final String[] LIST_TABLE_TAGS = new String[] {
-			"\\itemize", "\\enumerate", "\\describe",
+			"\\itemize", "\\enumerate", "\\describe", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			//"\\item",
-			"\\tabular", "\\tab",
+			"\\tabular", "\\tab", //$NON-NLS-1$ //$NON-NLS-2$
 	};
 	public static final String[] MATH_TAGS = new String[] {
-			"\\eqn", "\\deqn" 
+			"\\eqn", "\\deqn"  //$NON-NLS-1$ //$NON-NLS-2$
 	};
 	public static final String[] INSERTIONS = new String[] {
-			"\\R", "\\dot", "\\ldot", "\\cr"
+			"\\R", "\\dot", "\\ldot", "\\cr" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	};
 	public static final String[] ESCAPED_CHARS = new String[] {
-			"\\\\", "\\%", "\\{", "\\}", "\\&", "\\$", "\\#", "\\_", 
+			"\\\\", "\\%", "\\{", "\\}", "\\&", "\\$", "\\#", "\\_",  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 	};
 	public static final String[] ESCAPED_CHARS_INVERBATIM = new String[] {
-			"\\\\", "\\%", "\\{", "\\}",
+			"\\\\", "\\%", "\\{", "\\}", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	};
 	
 	//---- sub-section-tags
 	// usage
-	public static final String USAGE_METHOD = "\\method";
+	public static final String USAGE_METHOD = "\\method"; //$NON-NLS-1$
 	// arguments, value
-	public static final String ITEM = "\\item";
+	public static final String ITEM = "\\item"; //$NON-NLS-1$
 	// 
-	public static final String EXAMPLES_DONTRUN = "\\dontrun";
-	public static final String EXAMPLES_DONTSHOW = "\\dontshow";
+	public static final String EXAMPLES_DONTRUN = "\\dontrun"; //$NON-NLS-1$
+	public static final String EXAMPLES_DONTSHOW = "\\dontshow"; //$NON-NLS-1$
 	
 	public static final String[] SUB_SECTIONS = { 
 			USAGE_METHOD, ITEM };
 	public static final String[] SUB_SECTIONS_INVERBATIM = { 
 			EXAMPLES_DONTRUN, EXAMPLES_DONTSHOW	};
 	
-	public static final String[] BRACKETS = { "{", "}" };
+	public static final String[] BRACKETS = { "{", "}" }; //$NON-NLS-1$ //$NON-NLS-2$
 	
 }

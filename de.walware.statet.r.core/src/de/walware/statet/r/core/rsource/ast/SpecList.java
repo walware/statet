@@ -1,21 +1,22 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**
@@ -26,7 +27,7 @@ abstract class SpecList extends RAstNode {
 	
 	List<SpecItem> fSpecs = new ArrayList<SpecItem>(0);
 	
-
+	
 	@Override
 	public final boolean hasChildren() {
 		return (!fSpecs.isEmpty());
@@ -38,7 +39,7 @@ abstract class SpecList extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		return fSpecs.get(index);
 	}
 	
@@ -48,7 +49,7 @@ abstract class SpecList extends RAstNode {
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		for (int i = fSpecs.size()-1; i >= 0; i--) {
 			if (fSpecs.get(i) == child) {
 				return i;
@@ -58,20 +59,20 @@ abstract class SpecList extends RAstNode {
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
 		acceptChildren(visitor, fSpecs);
 	}
-
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		acceptChildren(visitor, fSpecs);
 	}
-
-
+	
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		return null;
 	}
-
+	
 	@Override
 	final Expression getLeftExpr() {
 		return null;
@@ -85,11 +86,11 @@ abstract class SpecList extends RAstNode {
 	@Override
 	final void updateStopOffset() {
 	}
-
 	
 	abstract SpecItem createItem();
 	
-	void appendItem(SpecItem item) {
+	void appendItem(final SpecItem item) {
 		fSpecs.add(item);
 	}
+	
 }

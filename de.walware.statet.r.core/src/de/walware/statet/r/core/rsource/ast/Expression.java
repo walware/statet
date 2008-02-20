@@ -12,10 +12,6 @@
 package de.walware.statet.r.core.rsource.ast;
 
 
-
-/**
- *
- */
 class Expression {
 	
 	RAstNode node;

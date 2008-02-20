@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.text.r;
@@ -20,7 +20,8 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.statet.ext.ui.text.PairMatcher;
+import de.walware.eclipsecommons.ui.text.PairMatcher;
+
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 
@@ -33,56 +34,58 @@ import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
  */
 public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 
-	private static final String PARTITIONING = IRDocumentPartitions.R_DOCUMENT_PARTITIONING;
 
-	
+	private final String fPartitioning;
 	private PairMatcher fPairMatcher;
 	private RHeuristicTokenScanner fScanner;
 	
 	
 	public RDoubleClickStrategy() {
+		this(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
+	}
+	
+	public RDoubleClickStrategy(final String partitioning) {
 		super();
 		fScanner = new RHeuristicTokenScanner();
 		fPairMatcher = new RBracketPairMatcher(fScanner);
+		fPartitioning = partitioning;
 	}
 	
-	/**
-	 * @see ITextDoubleClickStrategy#doubleClicked
-	 */
-	public void doubleClicked(ITextViewer textViewer) {
+	
+	public void doubleClicked(final ITextViewer textViewer) {
 		
-		int offset = textViewer.getSelectedRange().x;
+		final int offset = textViewer.getSelectedRange().x;
 		
 		if (offset < 0)
 			return;
 		
-		IDocument document = textViewer.getDocument();
+		final IDocument document = textViewer.getDocument();
 		try {
-			ITypedRegion partition = TextUtilities.getPartition(document, PARTITIONING, offset, true);
+			ITypedRegion partition = TextUtilities.getPartition(document, fPartitioning, offset, true);
 			String type = partition.getType();
 			
 			// Bracket-Pair-Matching in Code-Partitions
-			if (IRDocumentPartitions.R_DEFAULT.equals(type)) {
-				IRegion region = fPairMatcher.match(document, offset);
+			if (IRDocumentPartitions.R_DEFAULT.equals(type) || IRDocumentPartitions.R_DEFAULT_EXPL.equals(type)) {
+				final IRegion region = fPairMatcher.match(document, offset);
 				if (region != null && region.getLength() >= 2) {
 					textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
 					return;
 				}
 			}
-
-			// For other partitions, use prefere new partitions (instead opend)
-			partition = TextUtilities.getPartition(document, PARTITIONING, offset, false);
+			
+			// For other partitions, use prefere new partitions (instead opened)
+			partition = TextUtilities.getPartition(document, fPartitioning, offset, false);
 			type = partition.getType();
 			// Start or End in String-Partitions
 			if (IRDocumentPartitions.R_STRING.equals(type)) {
-				int partitionOffset = partition.getOffset();
-				int partitionEnd = partitionOffset + partition.getLength();
+				final int partitionOffset = partition.getOffset();
+				final int partitionEnd = partitionOffset + partition.getLength();
 				if (offset == partitionOffset || offset == partitionOffset+1
 						|| offset == partitionEnd || offset == partitionEnd-1) {
 					selectRegion(textViewer, getStringContent(document, partition));
 				} else {
 					fScanner.configure(document, null);
-					IRegion region = fScanner.findCommonWord(offset);
+					final IRegion region = fScanner.findCommonWord(offset);
 					if (region != null) {
 						textViewer.setSelectedRange(region.getOffset(), region.getLength());
 					}
@@ -94,7 +97,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			}
 			// Start in Comment-Partitions
 			if (IRDocumentPartitions.R_COMMENT.equals(type)) {
-				int partitionOffset = partition.getOffset();
+				final int partitionOffset = partition.getOffset();
 				if (offset == partitionOffset || offset == partitionOffset+1) {
 					textViewer.setSelectedRange(partitionOffset, partition.getLength());
 					return;
@@ -107,12 +110,12 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			// Spezialfall: End String-Partition
 			if (partition.getOffset() == offset && offset > 0
 					&& IRDocumentPartitions.R_STRING.equals(
-							(partition = TextUtilities.getPartition(document, PARTITIONING, offset-1, true)).getType()
+							(partition = TextUtilities.getPartition(document, fPartitioning, offset-1, true)).getType()
 					)) {
 				selectRegion(textViewer, getStringContent(document, partition));
 				return;
 			}
-
+			
 			fScanner.configure(document, null);
 			IRegion region = fScanner.findRWord(offset, true, false);
 			if (region != null) {
@@ -124,8 +127,8 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				textViewer.setSelectedRange(region.getOffset(), region.getLength());
 				return;
 			}
-		} catch (BadLocationException e) {
-		} catch (NullPointerException e) {
+		} catch (final BadLocationException e) {
+		} catch (final NullPointerException e) {
 		}
 		// else
 		textViewer.setSelectedRange(offset, 0);
@@ -136,12 +139,12 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 	}
 	
 	private final IRegion getStringContent(final IDocument document, final ITypedRegion partition) throws BadLocationException {
-		int partitionOffset = partition.getOffset();
-		int partitionLength = partition.getLength();
+		final int partitionOffset = partition.getOffset();
+		final int partitionLength = partition.getLength();
 		if (partitionLength <= 1) {
 			return new Region(partitionOffset+1, 0);
 		}
-		char c = document.getChar(partitionOffset);
+		final char c = document.getChar(partitionOffset);
 		document.getLength();
 		if (document.getChar(partitionOffset+partitionLength-1) != c) {
 			return new Region(partitionOffset+1, partitionLength-1);

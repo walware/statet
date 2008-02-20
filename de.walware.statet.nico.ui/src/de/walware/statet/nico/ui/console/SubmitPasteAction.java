@@ -1,19 +1,22 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -29,15 +32,14 @@ import de.walware.statet.nico.ui.NicoUITools;
 
 
 class SubmitPasteAction extends Action {
-
+	
 	
 	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
 	private NIConsolePage fView;
 	
-	public SubmitPasteAction(NIConsolePage consolePage) {
-		
+	public SubmitPasteAction(final NIConsolePage consolePage) {
 		super(NicoUIMessages.PasteSubmitAction_name);
 		
 		setId(ActionFactory.PASTE.getId());
@@ -48,34 +50,37 @@ class SubmitPasteAction extends Action {
 	
 	@Override
 	public void run() {
-		
-		Transfer transfer = TextTransfer.getInstance();
-		String text = (String) fView.getClipboard().getContents(transfer);
-		ToolController controller = fView.getConsole().getProcess().getController();
+		final Transfer transfer = TextTransfer.getInstance();
+		final String text = (String) fView.getClipboard().getContents(transfer);
+		final ToolController controller = fView.getConsole().getProcess().getController();
 		
 		if (text == null || controller == null)
 			return;
 		
 		NicoUITools.runSubmitInBackground(
 				controller.getProcess(),
-				createRunnable(controller, text), 
+				createRunnable(controller, text),
 				fView.getSite().getShell());
 	}
 	
 	
 	static IRunnableWithProgress createRunnable(final ToolController controller, final String text) {
-		
 		return new IRunnableWithProgress () {
-			public void run(IProgressMonitor monitor) throws InterruptedException {
-
+			public void run(final IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getProcess()), 1000);
 					
-					String[] lines = splitString(text);
+					final String[] lines = splitString(text);
 					monitor.worked(200);
 					
-					controller.submit(lines, SubmitType.CONSOLE, 
+					final IStatus status = controller.submit(lines, SubmitType.CONSOLE,
 							new SubProgressMonitor(monitor, 800));
+					if (status.getSeverity() >= IStatus.ERROR) {
+						throw new CoreException(status);
+					}
+				}
+				catch (final CoreException e) {
+					throw new InvocationTargetException(e);
 				}
 				finally {
 					monitor.done();
@@ -84,9 +89,9 @@ class SubmitPasteAction extends Action {
 		};
 	}
 	
-	static String[] splitString(String text) {
-		
-		String[] lines = gLineSeparatorPattern.split(text);
+	static String[] splitString(final String text) {
+		final String[] lines = gLineSeparatorPattern.split(text);
 		return lines;
 	}
+	
 }

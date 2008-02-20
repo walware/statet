@@ -3,9 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Base Core
 Bundle-SymbolicName: de.walware.statet.base.core;singleton:=true
-Bundle-Version: 0.4.0.qualifier
+Bundle-Version: 0.5.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.core.BaseCorePlugin
 Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.core.filesystem;visibility:=reexport,
@@ -13,9 +15,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reex
  org.eclipse.core.variables;visibility:=reexport,
  org.eclipse.core.databinding;visibility:=reexport,
  org.eclipse.core.filebuffers;visibility:=reexport,
- org.eclipse.text;visibility:=reexport
-Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ org.eclipse.text;visibility:=reexport,
+ org.eclipse.core.commands;resolution:=optional
 Export-Package: de.walware.eclipsecommons,
  de.walware.eclipsecommons.ltk,
  de.walware.eclipsecommons.ltk.ast,

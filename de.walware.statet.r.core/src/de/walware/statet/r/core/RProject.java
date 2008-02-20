@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core;
@@ -29,45 +29,45 @@ import de.walware.statet.r.internal.core.RSupportBuilder;
 
 
 public class RProject extends StatextProject implements IRCoreAccess {
-
+	
 	
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
 	
 	
-	public static RProject getRProject(IProject project) {
+	public static RProject getRProject(final IProject project) {
 		try {
 			if (project == null || !project.hasNature(NATURE_ID)) {
 				return null;
 			}
 			return (RProject) project.getNature(NATURE_ID);
 		}
-		catch (CoreException e) {
+		catch (final CoreException e) {
 			RCorePlugin.log(e.getStatus());
 			return null;
 		}
 	}
 	
-	public static void addNature(IProject project, IProgressMonitor monitor) throws CoreException {
+	public static void addNature(final IProject project, final IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor.beginTask(Messages.RProject_ConfigureTask_label, 1000);
 			
 			if (!project.hasNature(NATURE_ID)) {
 				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
 				
-				IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
+				final IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
 				project.setDescription(description, new SubProgressMonitor(monitor, 600));
-			} 
+			}
 		}
 		finally {
 			monitor.done();
 		}
 	}
-
+	
 	/**
 	 * Find the specific Java command amongst the given build spec
 	 * and return its index or -1 if not found.
 	 */
-	private static int getBuilderIndex(ICommand[] buildSpec, String id) {
+	private static int getBuilderIndex(final ICommand[] buildSpec, final String id) {
 		for (int i = 0; i < buildSpec.length; ++i) {
 			if (buildSpec[i].getBuilderName().equals(id)) {
 				return i;
@@ -75,32 +75,33 @@ public class RProject extends StatextProject implements IRCoreAccess {
 		}
 		return -1;
 	}
-
+	
 	
 /* IProjectNature *************************************************************/
 	
+	@Override
 	public void configure() throws CoreException {
 		addBuilders();
-
 	}
-
+	
+	@Override
 	public void deconfigure() throws CoreException {
 		removeBuilders();
 	}
-
+	
 	public void addBuilders() throws CoreException {
-		String builderId = RSupportBuilder.ID;
+		final String builderId = RSupportBuilder.ID;
 		
-		IProjectDescription description = fProject.getDescription();
-		ICommand[] existingCommands = description.getBuildSpec();
-		int builderIndex = getBuilderIndex(existingCommands, builderId);
+		final IProjectDescription description = fProject.getDescription();
+		final ICommand[] existingCommands = description.getBuildSpec();
+		final int builderIndex = getBuilderIndex(existingCommands, builderId);
 		
 		if (builderIndex == -1) {
 			// Add new builder
-			ICommand newCommand = description.newCommand();
+			final ICommand newCommand = description.newCommand();
 			newCommand.setBuilderName(builderId);
 			
-			ICommand[] newCommands = new ICommand[existingCommands.length+1];
+			final ICommand[] newCommands = new ICommand[existingCommands.length+1];
 			System.arraycopy(existingCommands, 0, newCommands, 0, existingCommands.length);
 			newCommands[existingCommands.length] = newCommand;
 			
@@ -108,16 +109,16 @@ public class RProject extends StatextProject implements IRCoreAccess {
 			fProject.setDescription(description, null);
 		}
 	}
-
+	
 	public void removeBuilders() throws CoreException {
-		String builderId = RSupportBuilder.ID;
+		final String builderId = RSupportBuilder.ID;
 		
-		IProjectDescription description = getProject().getDescription();
-		ICommand[] existingCommands = description.getBuildSpec();
-		int builderIndex = getBuilderIndex(existingCommands, builderId);
+		final IProjectDescription description = getProject().getDescription();
+		final ICommand[] existingCommands = description.getBuildSpec();
+		final int builderIndex = getBuilderIndex(existingCommands, builderId);
 		
 		if (builderIndex >= 0) {
-			ICommand[] newCommands = new ICommand[existingCommands.length - 1];
+			final ICommand[] newCommands = new ICommand[existingCommands.length - 1];
 			System.arraycopy(existingCommands, 0, newCommands, 0, builderIndex);
 			System.arraycopy(existingCommands, builderIndex+1, newCommands, builderIndex, newCommands.length-builderIndex);
 			description.setBuildSpec(newCommands);
@@ -127,13 +128,13 @@ public class RProject extends StatextProject implements IRCoreAccess {
 /* **/
 	private RCodeStyleSettings fRCodeStyle;
 	private PreferencesManageListener fPreferenceListener;
-
+	
 	public RProject() {
 		super();
 	}
-
+	
 	@Override
-	public void setProject(IProject project) {
+	public void setProject(final IProject project) {
 		super.setProject(project);
 		fRCodeStyle = new RCodeStyleSettings();
 		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, this, RCodeStyleSettings.CONTEXT_ID);
@@ -155,7 +156,7 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	public IPreferenceAccess getPrefs() {
 		return this;
 	}
-
+	
 	public RCodeStyleSettings getRCodeStyle() {
 		return fRCodeStyle;
 	}

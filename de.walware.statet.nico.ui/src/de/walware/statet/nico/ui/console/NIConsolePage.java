@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -31,7 +31,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
@@ -76,6 +75,8 @@ import org.eclipse.ui.internal.console.IOConsoleViewer;
 import org.eclipse.ui.internal.contexts.NestableContextService;
 import org.eclipse.ui.internal.handlers.NestableHandlerService;
 import org.eclipse.ui.internal.services.ServiceLocator;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInSource;
@@ -85,6 +86,7 @@ import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.eclipsecommons.ui.HandlerContributionItem;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
@@ -96,14 +98,15 @@ import de.walware.statet.ext.ui.editors.IEditorAdapter;
 import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.editors.TextViewerAction;
 import de.walware.statet.nico.core.runtime.Prompt;
+import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
+import de.walware.statet.nico.core.util.IToolProvider;
+import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
-import de.walware.statet.nico.ui.actions.CancelAction;
-import de.walware.statet.nico.ui.actions.IToolAction;
-import de.walware.statet.nico.ui.actions.IToolActionSupport;
-import de.walware.statet.nico.ui.actions.ToolAction;
+import de.walware.statet.nico.ui.NicoUI;
+import de.walware.statet.nico.ui.actions.CancelHandler;
 
 
 /**
@@ -114,22 +117,21 @@ import de.walware.statet.nico.ui.actions.ToolAction;
  */
 public abstract class NIConsolePage implements IPageBookViewPage,
 		IAdaptable, IShowInSource, IShowInTargetList,
-		IPropertyChangeListener, ScrollLockAction.Receiver, IToolActionSupport, ChangeListener {
-
+		IPropertyChangeListener, ScrollLockAction.Receiver, IToolProvider, ChangeListener {
 	
 	private static final String DIALOG_ID = "Console"; //$NON-NLS-1$
 	private static final String SETTING_INPUTHEIGHT = "InputHeight"; //$NON-NLS-1$
 	
-
+	
 	private class FindReplaceUpdater implements IDocumentListener {
 		
 		private boolean wasEmpty = true;
 		
-		public void documentAboutToBeChanged(DocumentEvent event) {
+		public void documentAboutToBeChanged(final DocumentEvent event) {
 		}
-
-		public void documentChanged(DocumentEvent event) {
-			boolean isEmpty = (event.fDocument.getLength() == 0);
+		
+		public void documentChanged(final DocumentEvent event) {
+			final boolean isEmpty = (event.fDocument.getLength() == 0);
 			if (isEmpty != wasEmpty) {
 				fMultiActionHandler.updateEnabledState();
 				wasEmpty = isEmpty;
@@ -140,17 +142,17 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		private volatile boolean fIsSheduled = false;
 		
-		public void documentAboutToBeChanged(DocumentEvent event) {
+		public void documentAboutToBeChanged(final DocumentEvent event) {
 		}
-
-		public void documentChanged(DocumentEvent event) {
+		
+		public void documentChanged(final DocumentEvent event) {
 			if (!fIsSheduled) {
 				fIsSheduled = true;
-				Display display = UIAccess.getDisplay(getSite().getShell());
+				final Display display = UIAccess.getDisplay(getSite().getShell());
 				display.asyncExec(this);
 			}
 		}
-
+		
 		public void run() {
 			// post change run
 			fIsSheduled = false;
@@ -164,17 +166,17 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		private final GridData fInputGD;
 		private int fLastExplicit;
 		
-		public SizeControl(Sash sash, GridData outputGD, GridData inputGD) {
+		public SizeControl(final Sash sash, final GridData outputGD, final GridData inputGD) {
 			fSash = sash;
 			fOutputGD = outputGD;
 			fInputGD = inputGD;
 			fLastExplicit = -1;
 		}
 		
-		public void handleEvent(Event event) {
+		public void handleEvent(final Event event) {
 			if (event.widget == fSash) {
 				if (event.type == SWT.Selection && event.detail != SWT.DRAG) {
-					Rectangle bounds = fControl.getClientArea();
+					final Rectangle bounds = fControl.getClientArea();
 	//				System.out.println(bounds.height);
 	//				Rectangle bounds2 = fInputGroup.getComposite().getBounds();
 	//				System.out.println(bounds2.y+bounds2.height);
@@ -190,15 +192,15 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 		
-		private void setNewInputHeight(int height, boolean explicit) {
+		private void setNewInputHeight(int height, final boolean explicit) {
 			if (!explicit) {
 				height = fLastExplicit;
 			}
 			if (height == -1) {
 				return;
 			}
-			Rectangle bounds = fControl.getClientArea();
-			int max = bounds.height - fOutputGD.minimumHeight - fSash.getSize().y;
+			final Rectangle bounds = fControl.getClientArea();
+			final int max = bounds.height - fOutputGD.minimumHeight - fSash.getSize().y;
 			if (height > max) {
 				height = max;
 			}
@@ -218,7 +220,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		private void fontChanged() {
 			fOutputGD.minimumHeight = LayoutUtil.hintHeight(fOutputViewer.getTextWidget(), 4);
-			ScrollBar bar = fOutputViewer.getTextWidget().getHorizontalBar();
+			final ScrollBar bar = fOutputViewer.getTextWidget().getHorizontalBar();
 			if (bar.isVisible()) {
 				fOutputGD.minimumHeight += bar.getSize().y;
 			}
@@ -229,10 +231,10 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 	}
-
-
-	private NIConsole fConsole;
-	private IConsoleView fConsoleView;
+	
+	
+	private final NIConsole fConsole;
+	private final IConsoleView fConsoleView;
 	private IPageSite fSite;
 	private Composite fControl;
 	private Clipboard fClipboard;
@@ -247,7 +249,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
-	private ListenerList fToolActions = new ListenerList();
+	private final ListenerList fToolActions = new ListenerList();
 	private ServiceLocator fInputServices;
 	
 	private FindReplaceUpdater fFindReplaceUpdater;
@@ -274,31 +276,34 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private ConsoleRemoveLaunchAction fRemoveAction;
 	private ConsoleRemoveAllTerminatedAction fRemoveAllAction;
 	private TerminateToolAction fTerminateAction;
-	private CancelAction fCancelAction;
-
-
+	
+	private CancelHandler fCancelCurrentHandler;
+	private CancelHandler fCancelAllHandler;
+	private CancelHandler fCancelPauseHandler;
+	
+	
 	/**
 	 * Constructs a console page for the given console in the given view.
 	 * 
 	 * @param console the console
 	 * @param view the console view the page is contained in
 	 */
-	public NIConsolePage(NIConsole console, IConsoleView view) {
+	public NIConsolePage(final NIConsole console, final IConsoleView view) {
 		fConsole = console;
 		fConsoleView = view;
 	}
 	
 	
-	public void init(IPageSite site) throws PartInitException {
+	public void init(final IPageSite site) throws PartInitException {
 		fSite = site;
 		fInputGroup = createInputGroup();
-
+		
 		fDebugListener = new IDebugEventSetListener() {
-			public void handleDebugEvents(DebugEvent[] events) {
-				ToolProcess process = getConsole().getProcess();
-				ToolWorkspace data = process.getWorkspaceData();
-				for (DebugEvent event : events) {
-					Object source = event.getSource();
+			public void handleDebugEvents(final DebugEvent[] events) {
+				final ToolProcess process = getConsole().getProcess();
+				final ToolWorkspace data = process.getWorkspaceData();
+				for (final DebugEvent event : events) {
+					final Object source = event.getSource();
 					
 					if (source == process) {
 						switch (event.getKind()) {
@@ -310,7 +315,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 					else if (source == data) {
 						if (event.getKind() == DebugEvent.CHANGE
 								&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT && fIsCreated) {
-							Prompt prompt = (Prompt) event.getData();
+							final Prompt prompt = (Prompt) event.getData();
 							fInputGroup.updatePrompt(prompt);
 						}
 					}
@@ -331,8 +336,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	protected IOConsoleViewer getOutputViewer() {
 		return fOutputViewer;
 	}
-
-	public void createControl(Composite parent) {
+	
+	public void createControl(final Composite parent) {
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 		fConsole.addPropertyChangeListener(this);
 		
@@ -342,7 +347,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				return false; // our page handles focus
 			}
 		};
-		GridLayout layout = new GridLayout(1, false);
+		final GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
 		layout.verticalSpacing = 0;
 		layout.marginWidth = 0;
@@ -354,14 +359,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputViewer.getControl().setLayoutData(outputGD);
 		
 		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(final KeyEvent e) {
 			}
-			public void keyReleased(KeyEvent e) {
+			public void keyReleased(final KeyEvent e) {
 				if (e.doit
 						&& (e.character >= 32)
 						&& (e.stateMask == SWT.NONE || e.stateMask == SWT.SHIFT)
 						&& (e.keyCode & SWT.KEYCODE_BIT) == 0) {
-					StyledText textWidget = fInputGroup.getSourceViewer().getTextWidget();
+					final StyledText textWidget = fInputGroup.getSourceViewer().getTextWidget();
 					if (!UIAccess.isOkToUse(textWidget)) {
 						return;
 					}
@@ -377,14 +382,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		});
 		
-		Sash sash = new Sash(fControl, SWT.HORIZONTAL);
+		final Sash sash = new Sash(fControl, SWT.HORIZONTAL);
 //		sash.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
 		sash.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		fInputGroup.createControl(fControl, createInputEditorConfigurator());
 		final GridData inputGD = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fInputGroup.getComposite().setLayoutData(inputGD);
-
+		
 		fOutputViewer.getTextWidget().getHorizontalBar().setVisible(false);
 		
 		fResizer = new SizeControl(sash, outputGD, inputGD);
@@ -401,14 +406,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fIsCreated = true;
 		fInputGroup.updatePrompt(null);
 		
-		IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
+		final IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
 		try {
-			int height = dialogSettings.getInt(SETTING_INPUTHEIGHT);
+			final int height = dialogSettings.getInt(SETTING_INPUTHEIGHT);
 			if (height > 0) {
 				fResizer.fLastExplicit = height;
 			}
 		}
-		catch (NumberFormatException e) {
+		catch (final NumberFormatException e) {
 			// missing value
 		}
 		fResizer.fontChanged();
@@ -430,8 +435,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	 * @return the adapter
 	 */
 	protected abstract SourceViewerConfigurator createInputEditorConfigurator();
-
-
+	
+	
 	private class ConsoleActivationNotifier implements Listener {
 		private ConsoleActivationNotifier() {
 			fControl.addListener(SWT.Activate, this);
@@ -441,7 +446,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 		
-		public void handleEvent(Event event) {
+		public void handleEvent(final Event event) {
 			switch (event.type) {
 			case SWT.Activate:
 				NicoUIPlugin.getDefault().getToolRegistry().consoleActivated(fConsoleView, fConsole);
@@ -453,47 +458,51 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		}
 	}
-
+	
 	protected void createActions() {
-		Control outputControl = fOutputViewer.getControl();
-		SourceViewer inputViewer = fInputGroup.getSourceViewer();
-		Control inputControl = inputViewer.getControl();
+		final Control outputControl = fOutputViewer.getControl();
+		final SourceViewer inputViewer = fInputGroup.getSourceViewer();
+		final Control inputControl = inputViewer.getControl();
 		
-        fInputServices = new ServiceLocator(getSite());
-        IHandlerService pageCommands = (IHandlerService) getSite().getService(IHandlerService.class);
-        IHandlerService inputCommands = new NestableHandlerService(pageCommands, null);
-        fInputServices.registerService(IHandlerService.class, inputCommands);
-        IContextService pageKeys = (IContextService) getSite().getService(IContextService.class);
-        IContextService inputKeys = new NestableContextService(pageKeys, null);
-        fInputServices.registerService(IContextService.class, inputKeys);
-        
-        inputControl.addListener(SWT.FocusIn, new Listener() {
-        	public void handleEvent(Event event) {
-        		if (fInputServices != null) {
-        			fInputServices.activate();
-        			getSite().getActionBars().updateActionBars();
-        		}
-        	}
-        });
-        inputControl.addListener(SWT.FocusOut, new Listener() {
-        	public void handleEvent(Event event) {
-        		if (fInputServices != null) {
-        			fInputServices.deactivate();
-        			getSite().getActionBars().updateActionBars();
-        		}
-        	}
-        });
-
-        fMultiActionHandler = new MultiActionHandler();
-        
+		fInputServices = new ServiceLocator(getSite());
+		final IHandlerService pageCommands = (IHandlerService) getSite().getService(IHandlerService.class);
+		final IHandlerService inputCommands = new NestableHandlerService(pageCommands, null);
+		fInputServices.registerService(IHandlerService.class, inputCommands);
+		final IContextService pageKeys = (IContextService) getSite().getService(IContextService.class);
+		final IContextService inputKeys = new NestableContextService(pageKeys, null);
+		fInputServices.registerService(IContextService.class, inputKeys);
+		
+		inputControl.addListener(SWT.FocusIn, new Listener() {
+			public void handleEvent(final Event event) {
+				if (fInputServices != null) {
+					fInputServices.activate();
+					getSite().getActionBars().updateActionBars();
+				}
+			}
+		});
+		inputControl.addListener(SWT.FocusOut, new Listener() {
+			public void handleEvent(final Event event) {
+				if (fInputServices != null) {
+					fInputServices.deactivate();
+					getSite().getActionBars().updateActionBars();
+				}
+			}
+		});
+		
+		fMultiActionHandler = new MultiActionHandler();
+		
 		fRemoveAction = new ConsoleRemoveLaunchAction(fConsole.getProcess().getLaunch());
 		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
-        fTerminateAction = new TerminateToolAction(fConsole.getProcess());
-        fCancelAction = new CancelAction(this);
-        pageCommands.activateHandler("de.walware.statet.nico.commands.Cancel", new ActionHandler(fCancelAction));  //$NON-NLS-1$
+		fTerminateAction = new TerminateToolAction(fConsole.getProcess());
+		fCancelCurrentHandler = new CancelHandler(this, ToolController.CANCEL_CURRENT);
+		pageCommands.activateHandler(CancelHandler.COMMAND_CURRENT, fCancelCurrentHandler);
+		fCancelAllHandler = new CancelHandler(this, ToolController.CANCEL_ALL);
+		pageCommands.activateHandler(CancelHandler.COMMAND_ALL, fCancelAllHandler);
+		fCancelPauseHandler = new CancelHandler(this, ToolController.CANCEL_CURRENT | ToolController.CANCEL_PAUSE);
+		pageCommands.activateHandler(CancelHandler.COMMAND_CURRENTPAUSE, fCancelPauseHandler);
 // Conflict with binding CTRL+Z (in console EOF)
 //        pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
-        
+		
 		fOutputCopyAction = TextViewerAction.createCopyAction(fOutputViewer);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.COPY.getId(), fOutputCopyAction);
 		fOutputPasteAction = new SubmitPasteAction(this);
@@ -520,8 +529,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.UNDO.getId(), fInputUndoAction);
 		fInputRedoAction = TextViewerAction.createRedoAction(inputViewer);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.REDO.getId(), fInputRedoAction);
-
-        ResourceBundle bundle = SharedMessages.getCompatibilityBundle();
+		
+		final ResourceBundle bundle = SharedMessages.getCompatibilityBundle();
 		fFindReplaceAction = new FindReplaceAction(bundle, "FindReplaceAction_", fConsoleView); //$NON-NLS-1$
 		fFindReplaceAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.FIND_REPLACE);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
@@ -529,9 +538,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fFindReplaceUpdater = new FindReplaceUpdater();
 		fConsole.getDocument().addDocumentListener(fFindReplaceUpdater);
 		inputViewer.getDocument().addDocumentListener(new PostUpdater());
-
+		
 		fInputGroup.configureServices(inputCommands, inputKeys);
-
+		
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);
 		fOutputViewer.addSelectionChangedListener(fMultiActionHandler);
 	}
@@ -541,7 +550,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		fOutputMenuManager.setRemoveAllWhenShown(true);
 		fOutputMenuManager.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
+			public void menuAboutToShow(final IMenuManager manager) {
 				fillOutputContextMenu(manager);
 			}
 		});
@@ -554,7 +563,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fInputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
 		fInputMenuManager.setRemoveAllWhenShown(true);
 		fInputMenuManager.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
+			public void menuAboutToShow(final IMenuManager manager) {
 				fillInputContextMenu(manager);
 			}
 		});
@@ -571,42 +580,47 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	protected void contributeToActionBars() {
-		IActionBars bars = getSite().getActionBars();
+		final IActionBars bars = getSite().getActionBars();
 		
 		fMultiActionHandler.registerActions(bars);
 		
-		IToolBarManager toolBar = bars.getToolBarManager();
+		final IToolBarManager toolBar = bars.getToolBarManager();
 		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputClearAllAction);
 		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputScrollLockAction);
-
-		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fCancelAction);
+		
+		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, new HandlerContributionItem(
+				new CommandContributionItemParameter(getSite(), CancelHandler.MENU_ID,
+						CancelHandler.COMMAND_CURRENT, null,
+						NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOL_CANCEL), NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOLD_CANCEL), null,
+						Messages.CancelAction_name, null, Messages.CancelAction_tooltip,
+						CommandContributionItem.STYLE_PULLDOWN, null), fCancelCurrentHandler));
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAllAction);
 	}
 	
-	protected void fillInputContextMenu(IMenuManager manager) {
+	protected void fillInputContextMenu(final IMenuManager manager) {
 		manager.add(fInputCutAction);
 		manager.add(fInputCopyAction);
 		manager.add(fInputPasteAction);
-        manager.add(new GroupMarker(IWorkbenchActionConstants.CUT_EXT));
-
+		manager.add(new GroupMarker(IWorkbenchActionConstants.CUT_EXT));
+		
 		manager.add(new Separator());
 		manager.add(fInputUndoAction);
 		manager.add(fInputRedoAction);
-        manager.add(new GroupMarker(IWorkbenchActionConstants.UNDO_EXT));
+		manager.add(new GroupMarker(IWorkbenchActionConstants.UNDO_EXT));
 		
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
-	protected void fillOutputContextMenu(IMenuManager manager) {
+	protected void fillOutputContextMenu(final IMenuManager manager) {
 		manager.add(fOutputCopyAction);
 		manager.add(fOutputSelectAllAction);
 		
 		manager.add(new Separator("more")); //$NON-NLS-1$
 		manager.add(fFindReplaceAction);
 //		manager.add(new FollowHyperlinkAction(fViewer));
-
+		
 		manager.add(new Separator("submit")); //$NON-NLS-1$
 		manager.add(fOutputPasteAction);
 		
@@ -616,27 +630,30 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-
+	
 	public void dispose() {
 		fConsole.removePropertyChangeListener(this);
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
-		DebugPlugin debug = DebugPlugin.getDefault();
-		if (debug != null) {
-			debug.removeDebugEventListener(fDebugListener);
+		if (fDebugListener != null) {
+			final DebugPlugin debug = DebugPlugin.getDefault();
+			if (debug != null) {
+				debug.removeDebugEventListener(fDebugListener);
+			}
+			fDebugListener = null;
 		}
 		
 		if (fIsCreated) { // control created
 			fIsCreated = false;
-
+			
 			try {
 				fConsole.getDocument().removeDocumentListener(fFindReplaceUpdater);
 				fOutputViewer.removeSelectionChangedListener(fMultiActionHandler);
 				fInputGroup.getSourceViewer().removeSelectionChangedListener(fMultiActionHandler);
 			}
-			catch (Exception e) {
+			catch (final Exception e) {
 				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, Messages.Console_error_UnexpectedException_message, e);
 			}
-
+			
 			fMultiActionHandler.dispose();
 			fMultiActionHandler = null;
 			fInputServices.dispose();
@@ -663,7 +680,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			fRemoveAllAction = null;
 			fTerminateAction.dispose();
 			fTerminateAction = null;
-
+			
 			fOutputViewer = null;
 		}
 		
@@ -672,11 +689,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			fInputGroup = null;
 		}
 	}
-
 	
-
+	
 	public IPageSite getSite() {
 		return fSite;
+	}
+	
+	public IConsoleView getView() {
+		return fConsoleView;
 	}
 	
 	public Control getControl() {
@@ -694,11 +714,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	public ToolProcess getTool() {
 		return fConsole.getProcess();
 	}
-    
-	public void addToolAction(IToolAction action) {
+	
+	public void addToolRetargetable(final IToolRetargetable action) {
 		fToolActions.add(action);
 	}
-
+	
 	public IMenuManager getOutputContextMenuManager() {
 		return fOutputMenuManager;
 	}
@@ -723,59 +743,59 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fInputGroup.clear();
 	}
 	
-    public Object getAdapter(Class required) {
+	public Object getAdapter(final Class required) {
 		if (Widget.class.equals(required)) {
 			if (fOutputViewer.getControl().isFocusControl())
 				return fOutputViewer.getTextWidget();
 			return fInputGroup.getSourceViewer().getTextWidget();
 		}
-   		if (IFindReplaceTarget.class.equals(required)) {
-    		if (fInputGroup.getSourceViewer().getControl().isFocusControl())
-    			return fInputGroup.getSourceViewer().getFindReplaceTarget();
-   			return fOutputViewer.getFindReplaceTarget();
-   		}
-        if (IShowInSource.class.equals(required)) {
-            return this;
-        }
-        if (IShowInTargetList.class.equals(required)) {
-            return this;
-        }
-        if (IEditorAdapter.class.equals(required)) {
-        	return fInputGroup.fEditorAdapter;
-        }
-        return fConsole.getAdapter(required);
-    }
-
-    public ShowInContext getShowInContext() {
-        IProcess process = fConsole.getProcess();
-        if (process == null) {
-            return null;
-        }
-        IDebugTarget target = (IDebugTarget) process.getAdapter(IDebugTarget.class);
-        ISelection selection = null;
-        if (target == null) {
-            selection = new TreeSelection(new TreePath(new Object[]{
-            		DebugPlugin.getDefault().getLaunchManager(),
-            		process.getLaunch(),
-            		process}));
-        } else {
-        	selection = new TreeSelection(new TreePath(new Object[]{
-            		DebugPlugin.getDefault().getLaunchManager(),
-            		target.getLaunch(),
-            		target}));
-        }
-        return new ShowInContext(null, selection);
-    }
-
-    public String[] getShowInTargetIds() {
-        return new String[] { IDebugUIConstants.ID_DEBUG_VIEW };
-    }
-
-    
-	public void setActionBars(IActionBars actionBars) {
+		if (IFindReplaceTarget.class.equals(required)) {
+			if (fInputGroup.getSourceViewer().getControl().isFocusControl())
+				return fInputGroup.getSourceViewer().getFindReplaceTarget();
+			return fOutputViewer.getFindReplaceTarget();
+		}
+		if (IShowInSource.class.equals(required)) {
+			return this;
+		}
+		if (IShowInTargetList.class.equals(required)) {
+			return this;
+		}
+		if (IEditorAdapter.class.equals(required)) {
+			return fInputGroup.fEditorAdapter;
+		}
+		return fConsole.getAdapter(required);
+	}
+	
+	public ShowInContext getShowInContext() {
+		final IProcess process = fConsole.getProcess();
+		if (process == null) {
+			return null;
+		}
+		final IDebugTarget target = (IDebugTarget) process.getAdapter(IDebugTarget.class);
+		ISelection selection = null;
+		if (target == null) {
+			selection = new TreeSelection(new TreePath(new Object[]{
+					DebugPlugin.getDefault().getLaunchManager(),
+					process.getLaunch(),
+					process}));
+		} else {
+			selection = new TreeSelection(new TreePath(new Object[]{
+					DebugPlugin.getDefault().getLaunchManager(),
+					target.getLaunch(),
+					target}));
+		}
+		return new ShowInContext(null, selection);
+	}
+	
+	public String[] getShowInTargetIds() {
+		return new String[] { IDebugUIConstants.ID_DEBUG_VIEW };
+	}
+	
+	
+	public void setActionBars(final IActionBars actionBars) {
 //		fOutputViewer.setActionBars(actionBars);
 	}
-
+	
 	public void setFocus() {
 		fInputGroup.getSourceViewer().getControl().setFocus();
 	}
@@ -784,8 +804,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	protected void onToolTerminated() {
 		if (fIsCreated) {
 			fTerminateAction.update();
-			for (Object action : fToolActions.getListeners()) {
-				((ToolAction) action).handleToolTerminated();
+			for (final Object action : fToolActions.getListeners()) {
+				((IToolRetargetable) action).handleToolTerminated();
 			}
 			fOutputPasteAction.setEnabled(false);
 			final Button button = fInputGroup.getSubmitButton();
@@ -796,23 +816,23 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 					}
 				}
 			});
-			IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
+			final IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
 			dialogSettings.put(SETTING_INPUTHEIGHT, fResizer.fLastExplicit);
 		}
 	}
 	
-	public void setAutoScroll(boolean enabled) {
+	public void setAutoScroll(final boolean enabled) {
 		fOutputViewer.setAutoScroll(enabled);
 		fOutputScrollLockAction.setChecked(!enabled);
 	}
 	
-    public void propertyChange(PropertyChangeEvent event) {
-        if (UIAccess.isOkToUse(fControl) ) {
-			Object source = event.getSource();
-			String property = event.getProperty();
+	public void propertyChange(final PropertyChangeEvent event) {
+		if (UIAccess.isOkToUse(fControl) ) {
+			final Object source = event.getSource();
+			final String property = event.getProperty();
 			
 			if (source.equals(fConsole) && IConsoleConstants.P_FONT.equals(property)) {
-				Font font = fConsole.getFont();
+				final Font font = fConsole.getFont();
 				fOutputViewer.setFont(font);
 				fInputGroup.setFont(font);
 				fResizer.fontChanged();
@@ -825,16 +845,16 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				fOutputViewer.getTextWidget().redraw();
 			}
 //			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_TAB_SIZE)) {
-//			    int tabSize = ((Integer) event.getNewValue()).intValue();
-//			    fOutputViewer.setTabWidth(tabSize);
-//			    fInputGroup.getSourceViewer().setTabWidth(tabSize);
+//				int tabSize = ((Integer) event.getNewValue()).intValue();
+//				fOutputViewer.setTabWidth(tabSize);
+//				fInputGroup.getSourceViewer().setTabWidth(tabSize);
 //			}
 			else if (source.equals(fConsole) && property.equals(IConsoleConstants.P_CONSOLE_WIDTH)) {
 				fOutputViewer.setConsoleWidth(fConsole.getConsoleWidth());
 			}
 		}
 	}
-
+	
 	public void settingsChanged(final Set<String> contexts) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -844,8 +864,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		});
 	}
-
-	protected void handleSettingsChanged(Set<String> contexts) {
+	
+	protected void handleSettingsChanged(final Set<String> contexts) {
 		fInputGroup.handleSettingsChanged(contexts, null);
 	}
 	

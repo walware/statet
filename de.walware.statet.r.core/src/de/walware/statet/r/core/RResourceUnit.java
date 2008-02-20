@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core;
+
+import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -23,10 +25,12 @@ import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.SourceContent;
+import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
+import de.walware.eclipsecommons.ltk.WorkingBuffer;
 import de.walware.eclipsecommons.ltk.WorkingContext;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
-import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
@@ -34,13 +38,13 @@ import de.walware.statet.r.internal.core.RCorePlugin;
  * 
  */
 public class RResourceUnit implements ISourceUnit {
-
 	
-	public static String createResourceId(IResource file) {
+	
+	public static String createResourceId(final IResource file) {
 		if (file != null) {
-			IPath path = file.getFullPath();
+			final IPath path = file.getFullPath();
 			if (path != null) {
-				return "wr:"+path.toPortableString();
+				return "wr:"+path.toPortableString(); //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -51,31 +55,35 @@ public class RResourceUnit implements ISourceUnit {
 	private String fName;
 	protected int fCounter;
 	
-
-	public RResourceUnit(IResource file) {
+	
+	public RResourceUnit(final IResource file) {
 		fFile = file;
-		fName = (fFile != null) ? fFile.getName() : "<no file info>";
+		fName = (fFile != null) ? fFile.getName() : "<no file info>"; //$NON-NLS-1$
 		fId = createResourceId(fFile);
 		if (fId == null) {
-			fId = "xx:"+fName;
+			fId = "xx:"+fName; //$NON-NLS-1$
 		}
 	}
 		
 	protected void init() {
 	}
-
+	
 	protected void dispose() {
+	}
+	
+	public String getTypeId() {
+		return "r"; //$NON-NLS-1$
 	}
 	
 	public String getId() {
 		return fId;
 	}
-
+	
 	
 	public WorkingContext getWorkingContext() {
-		return RCore.PERSISTENCE_CONTEXT;
+		return StatetCore.PERSISTENCE_CONTEXT;
 	}
-
+	
 	public synchronized final void connect() {
 		fCounter++;
 		if (fCounter == 1) {
@@ -89,10 +97,6 @@ public class RResourceUnit implements ISourceUnit {
 			dispose();
 		}
 	}
-
-	public ISourceUnit getWorkingCopy(WorkingContext context, boolean create) {
-		throw new UnsupportedOperationException();
-	}
 	
 	public ISourceUnit getSourceUnit() {
 		return this;
@@ -102,20 +106,20 @@ public class RResourceUnit implements ISourceUnit {
 		return null;
 	}
 	
-
+	
 	public IModelElement getParent() {
 		return null; // directory
 	}
 	
-	public boolean hasChildren(Object filter) {
+	public boolean hasChildren(final Object filter) {
 		return true;
 	}
-
-	public IModelElement[] getChildren(Object filter) {
+	
+	public IModelElement[] getChildren(final Object filter) {
 		return new IModelElement[0];
 	}
 	
-
+	
 	public String getElementName() {
 		return fName;
 	}
@@ -123,7 +127,7 @@ public class RResourceUnit implements ISourceUnit {
 	public IResource getResource() {
 		return fFile;
 	}
-
+	
 	public IPath getPath() {
 		return fFile.getFullPath();
 	}
@@ -132,54 +136,60 @@ public class RResourceUnit implements ISourceUnit {
 		return null;
 	}
 	
-	public AstInfo<?> getAstInfo(boolean ensureSync, IProgressMonitor monitor) {
-		return null;
+	public SourceContent getContent() {
+		return new WorkingBuffer(this).getContent();
 	}
 	
-	public SourceContent getContent() {
-		return RCore.PERSISTENCE_CONTEXT.createWorkingBuffer(this).getContent();
+	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {
+		throw new UnsupportedOperationException();
 	}
 	
 	public RProject getRProject() {
 		if (fFile != null) {
-			IProject proj =  fFile.getProject();
+			final IProject proj =  fFile.getProject();
 			try {
 				if (proj.hasNature(RProject.NATURE_ID)) {
 					return (RProject) proj.getNature(RProject.NATURE_ID);
 				}
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				RCorePlugin.log(new Status(Status.ERROR, RCore.PLUGIN_ID, -1, "An error occurred while access R project nature.", e));
 			}
 		}
 		return null;
 	}
 	
-	public StatetProject getStatetProject() {
-		RProject rproj = getRProject();
-		if (rproj != null) {
-			try {
-				return rproj.getStatetProject();
-			} catch (CoreException e) {
-				RCorePlugin.log(new Status(Status.ERROR, RCore.PLUGIN_ID, -1, "An error occurred while access Statet project nature.", e));
+	public Object getAdapter(final Class required) {
+		if (required.equals(IRCoreAccess.class)) {
+			final RProject rproj = getRProject();
+			if (rproj != null) {
+				return rproj;
 			}
+			return RCore.getWorkbenchAccess();
 		}
 		return null;
 	}
 	
-	public IPreferenceAccess getPrefs() {
-		RProject rproj = getRProject();
-		if (rproj != null) {
-			return rproj.getPrefs();
+	
+	protected final void register() {
+		if (getTypeId().equals("r")) { //$NON-NLS-1$
+			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
 		}
-		return RCore.getWorkbenchAccess().getPrefs();
+		else {
+			RCorePlugin.getDefault().getRModelManager().registerWorksheetCopy(this);
+		}
 	}
-
-	public RCodeStyleSettings getRCodeStyle() {
-		RProject rproj = getRProject();
-		if (rproj != null) {
-			return rproj.getRCodeStyle();
+	
+	protected final void unregister() {
+		if (getTypeId().equals("r")) { //$NON-NLS-1$
+			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
 		}
-		return RCore.getWorkbenchAccess().getRCodeStyle();
+		else {
+			RCorePlugin.getDefault().getRModelManager().removeWorksheetCopy(this);
+		}
+	}
+	
+	public AstInfo<?> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+		return null;
 	}
 	
 }

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -39,7 +39,7 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
  */
 public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		extends PlatformObject implements IProcess, ITool, IToolStatusListener {
-
+	
 	
 	public static final int MASK_STATUS = 0x001000;
 	public static final int MASK_REQUEST = 0x002000;
@@ -60,7 +60,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
 	public static final int STATUS_PROCESS = MASK_STATUS | PROCESS;
-
+	
 	/**
 	 * Constant for detail of a DebugEvent, signalising that
 	 * the process/controller switched into idle mode.
@@ -70,7 +70,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
 	public static final int STATUS_IDLE = MASK_STATUS | IDLE;
-
+	
 	/**
 	 * Constant for detail of a DebugEvent, signalising that
 	 * the process/controller was paused.
@@ -88,8 +88,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE | 0x1;
 	public static final int REQUEST_TERMINATE_CANCELED = MASK_REQUEST | TERMINATE | 0x2;
 	
-	public static ToolStatus getChangedToolStatus(DebugEvent event) {
-		
+	public static ToolStatus getChangedToolStatus(final DebugEvent event) {
 		switch (event.getKind()) {
 		case DebugEvent.CREATE:
 			return ToolStatus.STARTING;
@@ -117,20 +116,19 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private final String fName;
 	private String fToolLabelShort;
 	
-	private ToolController<?, WorkspaceType> fController;
+	private ToolController<WorkspaceType> fController;
 	private Queue fQueue;
 	private History fHistory;
 	private WorkspaceType fWorkspaceData;
 	
 	private final Map<String, String> fAttributes;
 	private final boolean fCaptureOutput;
-
+	
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
 	protected volatile int fExitValue = 0;
 	
 	
-	public ToolProcess(ILaunch launch, String type, String prefix, String name) {
-		
+	public ToolProcess(final ILaunch launch, final String type, final String prefix, final String name) {
 		fLaunch = launch;
 		fName = name;
 		fAttributes = new HashMap<String, String>(5);
@@ -139,18 +137,18 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
 		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, type);
 		
-		String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
-		fCaptureOutput = !("false".equals(captureOutput));
-
+		final String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
+		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
+		
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(new ILaunchesListener() {
-			public void launchesAdded(ILaunch[] launches) {
+			public void launchesAdded(final ILaunch[] launches) {
 			}
-			public void launchesChanged(ILaunch[] launches) {
+			public void launchesChanged(final ILaunch[] launches) {
 			}
-			public void launchesRemoved(ILaunch[] launches) {
-				for (ILaunch launch : launches) {
+			public void launchesRemoved(final ILaunch[] launches) {
+				for (final ILaunch launch : launches) {
 					if (fLaunch == launch) {
-						DebugPlugin plugin = DebugPlugin.getDefault();
+						final DebugPlugin plugin = DebugPlugin.getDefault();
 						if (plugin != null) {
 							plugin.getLaunchManager().removeLaunchListener(this);
 							dispose();
@@ -162,40 +160,34 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		});
 	}
 	
-	public void init(ToolController<?, WorkspaceType> controller) {
-		
+	public void init(final ToolController<WorkspaceType> controller) {
 		fController = controller;
 		fHistory = new History(this);
 		fQueue = fController.getQueue();
 		fWorkspaceData = fController.fWorkspaceData;
-
+		
 		fLaunch.addProcess(this);
 		fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CREATE));
 	}
 	
 	
-	public void registerFeatureSet(String featureSetID) {
-		
+	public void registerFeatureSet(final String featureSetID) {
 		fFeatureSets.add(featureSetID);
 	}
-
-	public boolean isProvidingFeatureSet(String featureSetID) {
-		
+	
+	public boolean isProvidingFeatureSet(final String featureSetID) {
 		return fFeatureSets.contains(featureSetID);
 	}
-
-	private String computerConsoleLabel(String statusLabel) {
-		
+	
+	private String computerConsoleLabel(final String statusLabel) {
 		return fToolLabelShort + " " + fName + " " + statusLabel; //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
+	
 	public String getLabel() {
-		
 		return fName;
 	}
 	
-	public String getToolLabel(boolean longLabel) {
-		
+	public String getToolLabel(final boolean longLabel) {
 		if (longLabel) {
 			return fToolLabelShort + ' ' + fName;
 		}
@@ -203,79 +195,68 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	}
 	
 	public ILaunch getLaunch() {
-		
 		return fLaunch;
 	}
 	
 	public ToolController getController() {
-		
 		return fController;
 	}
 	
 	public History getHistory() {
-		
 		return fHistory;
 	}
 	
 	public Queue getQueue() {
-		
 		return fQueue;
 	}
 	
 	public IStreamsProxy getStreamsProxy() {
-		
 		return (fCaptureOutput && fController != null) ? fController.getStreams() : null;
 	}
-
+	
 	
 	public WorkspaceType getWorkspaceData() {
-
 		return fWorkspaceData;
 	}
-
-	public void setAttribute(String key, String value) {
-		
-		DebugEvent event = doSetAttribute(key, value);
+	
+	public void setAttribute(final String key, final String value) {
+		final DebugEvent event = doSetAttribute(key, value);
 		if (event != null) {
 			fireEvent(event);
 		}
 	}
 	
-	private DebugEvent doSetAttribute(String key, String value) {
-		
+	private DebugEvent doSetAttribute(final String key, final String value) {
 		synchronized (fAttributes) {
-			String oldValue = fAttributes.put(key, value);
+			final String oldValue = fAttributes.put(key, value);
 			if (oldValue == value
 					|| (oldValue != null && oldValue.equals(value)) ) {
 				return null;
 			}
-			DebugEvent event = new DebugEvent(ToolProcess.this, DebugEvent.CHANGE);
+			final DebugEvent event = new DebugEvent(ToolProcess.this, DebugEvent.CHANGE);
 			event.setData(new String[] { key, oldValue, value });
 			return event;
 		}
 	}
-
-	public String getAttribute(String key) {
-		
+	
+	public String getAttribute(final String key) {
 		synchronized (fAttributes) {
 			return fAttributes.get(key);
 		}
 	}
-
+	
 	public ToolStatus getToolStatus() {
-		
 		return fStatus;
 	}
-
+	
 	@Override
-	public Object getAdapter(Class adapter) {
-
+	public Object getAdapter(final Class adapter) {
 		if (adapter.equals(IProcess.class)) {
 			return this;
 		}
 		if (adapter.equals(IDebugTarget.class)) {
-			ILaunch launch = getLaunch();
-			IDebugTarget[] targets = launch.getDebugTargets();
+			final ILaunch launch = getLaunch();
+			final IDebugTarget[] targets = launch.getDebugTargets();
 			for (int i = 0; i < targets.length; i++) {
 				if (this.equals(targets[i].getProcess())) {
 					return targets[i];
@@ -288,27 +269,24 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 		return super.getAdapter(adapter);
 	}
-
-
+	
+	
 	public boolean canTerminate() {
-
 		return (!isTerminated());
 	}
-
+	
 	public void terminate() throws DebugException {
-		ToolController controller = fController;
+		final ToolController controller = fController;
 		if (controller != null) {
 			controller.scheduleQuit();
 		}
 	}
-
+	
 	public boolean isTerminated() {
-		
 		return fStatus == ToolStatus.TERMINATED;
 	}
 	
 	public int getExitValue() throws DebugException {
-		
 		if (!isTerminated()) {
 			throw new DebugException(new Status(
 					IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
@@ -317,9 +295,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 		return fExitValue;
 	}
-
-	public void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
-
+	
+	public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		switch(requestedStatus) {
 		case STARTED_PAUSED:
 			eventCollection.add(new DebugEvent(ToolProcess.this,
@@ -332,8 +309,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
-	public void controllerStatusRequestCanceled(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
-
+	public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		switch(requestedStatus) {
 		case STARTED_PAUSED:
 			eventCollection.add(new DebugEvent(ToolProcess.this,
@@ -347,8 +323,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	}
 	
 	/** Called by Controller */
-	public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
-
+	public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 		fStatus = newStatus;
 		switch(newStatus) {
 		
@@ -373,16 +348,15 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 		
 		synchronized (fAttributes) {
-			DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
+			final DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
 					computerConsoleLabel(newStatus.getMarkedLabel()));
 			if (nameEvent != null) {
 				eventCollection.add(nameEvent);
 			}
 		}
 	}
-
+	
 	protected void dispose() {
-		
 		if (fQueue != null) {
 			fQueue.dispose();
 		}
@@ -393,12 +367,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * 
 	 * @param event array with debug events to fire
 	 */
-	protected void fireEvent(DebugEvent event) {
-				
-		DebugPlugin manager = DebugPlugin.getDefault();
+	protected void fireEvent(final DebugEvent event) {
+		final DebugPlugin manager = DebugPlugin.getDefault();
 		if (manager != null) {
 			manager.fireDebugEventSet(new DebugEvent[] { event });
 		}
 	}
-
+	
 }

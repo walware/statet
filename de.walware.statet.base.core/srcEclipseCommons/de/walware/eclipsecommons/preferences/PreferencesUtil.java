@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -21,21 +21,21 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 
 
 public class PreferencesUtil {
-
-
+	
+	
 	private static class DefaultImpl implements IPreferenceAccess {
 		
-		private IScopeContext[] fContexts;
+		private final IScopeContext[] fContexts;
 		
-		private DefaultImpl(IScopeContext[] contexts) {
+		private DefaultImpl(final IScopeContext[] contexts) {
 			fContexts = contexts;
 		}
 		
-		public <T> T getPreferenceValue(Preference<T> key) {
+		public <T> T getPreferenceValue(final Preference<T> key) {
 			return PreferencesUtil.getPrefValue(fContexts, key);
 		}
 		
-		public IEclipsePreferences[] getPreferenceNodes(String nodeQualifier) {
+		public IEclipsePreferences[] getPreferenceNodes(final String nodeQualifier) {
 			return PreferencesUtil.getRelevantNodes(nodeQualifier, fContexts);
 		}
 		
@@ -45,29 +45,29 @@ public class PreferencesUtil {
 	}
 	
 	private static class MapImpl implements IPreferenceAccess {
-
-
+		
+		
 		private Map<Preference, Object> fPreferencesMap;
 		
-		MapImpl(Map<Preference, Object> preferencesMap) {
+		MapImpl(final Map<Preference, Object> preferencesMap) {
 			fPreferencesMap = preferencesMap;
 		}
 		
 		public IScopeContext[] getPreferenceContexts() {
 			return new IScopeContext[0];
 		}
-
-		public IEclipsePreferences[] getPreferenceNodes(String nodeQualifier) {
+		
+		public IEclipsePreferences[] getPreferenceNodes(final String nodeQualifier) {
 			return new IEclipsePreferences[0];
 		}
-
+		
 		@SuppressWarnings("unchecked")
-		public <T> T getPreferenceValue(Preference<T> key) {
+		public <T> T getPreferenceValue(final Preference<T> key) {
 			return (T) fPreferencesMap.get(key);
 		}
 		
 	}
-
+	
 	
 	private final static DefaultImpl DEFAULT_PREFS = new DefaultImpl(new IScopeContext[] {
 			new DefaultScope() });
@@ -83,26 +83,26 @@ public class PreferencesUtil {
 		return DEFAULT_PREFS;
 	}
 	
-	public static IPreferenceAccess createAccess(Map<Preference, Object> preferencesMap) {
+	public static IPreferenceAccess createAccess(final Map<Preference, Object> preferencesMap) {
 		return new MapImpl(preferencesMap);
 	}
 	
-	public static IPreferenceAccess createAccess(IScopeContext[] contexts) {
+	public static IPreferenceAccess createAccess(final IScopeContext[] contexts) {
 		return new DefaultImpl(contexts);
 	}
 	
-		
+	
 	@SuppressWarnings("unchecked")
-	public static <T> T getPrefValue(IScopeContext[] contexts, Preference<T> key) {
+	public static <T> T getPrefValue(final IScopeContext[] contexts, final Preference<T> key) {
 		Object storedValue = null;
 		for (int i = 0; i < contexts.length && storedValue == null; i++) {
 			try {
 				storedValue = contexts[i].getNode(key.getQualifier()).get(key.getKey(), null);
 			}
-			catch (IllegalStateException e) {
+			catch (final IllegalStateException e) {
 			}
 		}
-
+		
 		if (storedValue == null) {
 			switch (key.getStoreType()) {
 			case BOOLEAN:
@@ -128,12 +128,12 @@ public class PreferencesUtil {
 		return key.store2Usage(storedValue);
 	}
 	
-	public static <T> T getPrefValue(IScopeContext context, Preference<T> key) {
-		IEclipsePreferences node = context.getNode(key.getQualifier());
+	public static <T> T getPrefValue(final IScopeContext context, final Preference<T> key) {
+		final IEclipsePreferences node = context.getNode(key.getQualifier());
 		return getPrefValue(node, key);
 	}
-
-	private static <T> T getPrefValue(IEclipsePreferences node, Preference<T> key) {
+	
+	private static <T> T getPrefValue(final IEclipsePreferences node, final Preference<T> key) {
 		Object storedValue;
 		switch (key.getStoreType()) {
 		case BOOLEAN:
@@ -157,26 +157,26 @@ public class PreferencesUtil {
 		}
 		return key.store2Usage(storedValue);
 	}
-
-	public static <T> void setPrefValue(IScopeContext context, Preference<T> key, T value) {
-		IEclipsePreferences node = context.getNode(key.getQualifier());
+	
+	public static <T> void setPrefValue(final IScopeContext context, final Preference<T> key, final T value) {
+		final IEclipsePreferences node = context.getNode(key.getQualifier());
 		setPrefValue(node, key, value);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void setPrefValues(IScopeContext context, Map<Preference, Object> preferencesMap) {
-		for (Map.Entry<Preference, Object> pref : preferencesMap.entrySet()) {
+	public static void setPrefValues(final IScopeContext context, final Map<Preference, Object> preferencesMap) {
+		for (final Map.Entry<Preference, Object> pref : preferencesMap.entrySet()) {
 			setPrefValue(context, pref.getKey(), pref.getValue());
 		}
 	}
 		
-	private static <T> void setPrefValue(IEclipsePreferences node, Preference<T> key, T value) {
+	private static <T> void setPrefValue(final IEclipsePreferences node, final Preference<T> key, final T value) {
 		if (value == null) {
 			node.remove(key.getKey());
 			return;
 		}
 		
-		Object valueToStore = key.usage2Store(value);
+		final Object valueToStore = key.usage2Store(value);
 		switch (key.getStoreType()) {
 		case BOOLEAN:
 			node.putBoolean(key.getKey(), (Boolean) valueToStore);
@@ -199,12 +199,12 @@ public class PreferencesUtil {
 		}
 	}
 	
-	public static IEclipsePreferences[] getRelevantNodes(String nodeQualifier, IScopeContext[] contexts) {
-		IEclipsePreferences[] nodes = new IEclipsePreferences[contexts.length - 1];
+	public static IEclipsePreferences[] getRelevantNodes(final String nodeQualifier, final IScopeContext[] contexts) {
+		final IEclipsePreferences[] nodes = new IEclipsePreferences[contexts.length - 1];
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = contexts[i].getNode(nodeQualifier);
 		}
 		return nodes;
 	}
-
+	
 }

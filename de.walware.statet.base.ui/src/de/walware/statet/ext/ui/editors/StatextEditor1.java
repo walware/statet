@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -18,9 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.text.BadLocationException;
@@ -45,6 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
@@ -54,23 +56,24 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
+import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.core.StatextProject;
-import de.walware.statet.ext.ui.text.PairMatcher;
 
 
-public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT extends IContentOutlinePage> extends TextEditor
+public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
 		implements SettingsChangeNotifier.ChangeListener {
-
+	
 	
 	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment"; //$NON-NLS-1$
-
-
+	
+	
 /*- Static utility methods --------------------------------------------------*/
 	
 	/**
@@ -81,20 +84,24 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	 * @param document The document
 	 * @return the region describing the text block comprising the given selection
 	 */
-	protected static IRegion getTextBlockFromSelection(ITextSelection selection, IDocument document) {
-
+	protected static IRegion getTextBlockFromSelection(final ITextSelection selection, final IDocument document) {
 		try {
-			IRegion line = document.getLineInformationOfOffset(selection.getOffset());
-			int length = (selection.getLength() == 0) ?
-					line.getLength() : selection.getLength() + (selection.getOffset() - line.getOffset());
-			return new Region(line.getOffset(), length);
+			final int firstLine = document.getLineOfOffset(selection.getOffset());
+			int lastLine = document.getLineOfOffset(selection.getOffset()+selection.getLength());
+			final int offset = document.getLineOffset(firstLine);
+			int lastLineOffset = document.getLineOffset(lastLine);
+			if (firstLine != lastLine && lastLineOffset == selection.getOffset()+selection.getLength()) {
+				lastLine--;
+				lastLineOffset = document.getLineOffset(lastLine);
+			}
+			return new Region(offset, lastLineOffset+document.getLineLength(lastLine)-offset);
 		}
-		catch (BadLocationException x) {
+		catch (final BadLocationException x) {
 			StatetUIPlugin.logUnexpectedError(x);					// should not happen
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns the index of the first line whose start offset is in the given text range.
 	 *
@@ -102,46 +109,57 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	 * @param document The document
 	 * @return the first line whose start index is in the given range, -1 if there is no such line
 	 */
-	protected static int getFirstCompleteLineOfRegion(IRegion region, IDocument document) {
-
+	protected static int getFirstCompleteLineOfRegion(final IRegion region, final IDocument document) {
 		try {
-			int startLine = document.getLineOfOffset(region.getOffset());
-
+			final int startLine = document.getLineOfOffset(region.getOffset());
+			
 			int offset = document.getLineOffset(startLine);
-			if (offset >= region.getOffset())
+			if (offset >= region.getOffset()) {
 				return startLine;
-
+			}
 			offset = document.getLineOffset(startLine + 1);
 			return (offset > region.getOffset() + region.getLength() ? -1 : startLine + 1);
-
-		} catch (BadLocationException x) {
+		} catch (final BadLocationException x) {
 			StatetUIPlugin.logUnexpectedError(x);	// should not happen
 		}
 		return -1;
 	}
-
+	
 	
 /*- Inner classes -----------------------------------------------------------*/
 	
 	private class EditorAdapter implements IEditorAdapter {
 		
-		public void setStatusLineErrorMessage(String message) {
-			StatextEditor1.this.setStatusLineErrorMessage(message);
+		public IWorkbenchPart getWorkbenchPart() {
+			return StatextEditor1.this;
 		}
 		
 		public SourceViewer getSourceViewer() {
 			return (SourceViewer) StatextEditor1.this.getSourceViewer();
 		}
 		
-		public boolean isEditable(boolean validate) {
+		public void install(final IEditorInstallable installable) {
+			fConfigurator.installModul(installable);
+		}
+		
+		public boolean isEditable(final boolean validate) {
 			if (validate) {
 				return StatextEditor1.this.validateEditorInputState();
 			}
 			return StatextEditor1.this.isEditorInputModifiable();
 		}
+		
+		public void setStatusLineErrorMessage(final String message) {
+			StatextEditor1.this.setStatusLineErrorMessage(message);
+		}
+		
+		public Object getAdapter(final Class required) {
+			return StatextEditor1.this.getAdapter(required);
+		}
+		
 	}
 	
-	private final class ToggleCommentAction extends TextEditorAction {
+	protected class ToggleCommentAction extends TextEditorAction {
 		
 		/** The text operation target */
 		private ITextOperationTarget fOperationTarget;
@@ -149,17 +167,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		private String fDocumentPartitioning;
 		/** The comment prefixes */
 		private Map<String, String[]> fPrefixesMap;
-
-		ToggleCommentAction() {
+		
+		public ToggleCommentAction() {
 			super(EditorMessages.getCompatibilityBundle(), "ToggleCommentAction_", StatextEditor1.this); //$NON-NLS-1$
 			setActionDefinitionId(IStatetUICommandIds.TOGGLE_COMMENT);
 			
 			configure();
 		}
-
+		
 		@Override
 		public void run() {
-			ISourceViewer sourceViewer = getSourceViewer();
+			final ISourceViewer sourceViewer = getSourceViewer();
 			
 			if (!validateEditorInputState())
 				return;
@@ -167,7 +185,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 			final int operationCode = (isSelectionCommented(getSelectionProvider().getSelection())) ?
 				ITextOperationTarget.STRIP_PREFIX : ITextOperationTarget.PREFIX;
 			
-			Shell shell = getSite().getShell();
+			final Shell shell = getSite().getShell();
 			if (!fOperationTarget.canDoOperation(operationCode)) {
 				setStatusLineErrorMessage(EditorMessages.ToggleCommentAction_error);
 				sourceViewer.getTextWidget().getDisplay().beep();
@@ -177,14 +195,14 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 			Display display = null;
 			if (shell != null && !shell.isDisposed())
 				display = shell.getDisplay();
-
+			
 			BusyIndicator.showWhile(display, new Runnable() {
 				public void run() {
 					fOperationTarget.doOperation(operationCode);
 				}
 			});
 		}
-
+		
 		/**
 		 * Implementation of the <code>IUpdate</code> prototype method discovers
 		 * the operation through the current editor's
@@ -194,40 +212,40 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		@Override
 		public void update() {
 			super.update();
-
+			
 			if (!canModifyEditor()) {
 				setEnabled(false);
 				return;
 			}
-
-			ITextEditor editor = getTextEditor();
+			
+			final ITextEditor editor = getTextEditor();
 			if (fOperationTarget == null && editor != null)
 				fOperationTarget = (ITextOperationTarget) editor.getAdapter(ITextOperationTarget.class);
-
+			
 			setEnabled(fOperationTarget != null
 					&& fOperationTarget.canDoOperation(ITextOperationTarget.PREFIX)
 					&& fOperationTarget.canDoOperation(ITextOperationTarget.STRIP_PREFIX) );
 		}
 		
 		private void configure() {
-			SourceViewerConfiguration configuration = getSourceViewerConfiguration();
-			ISourceViewer sourceViewer = getSourceViewer();
+			final SourceViewerConfiguration configuration = getSourceViewerConfiguration();
+			final ISourceViewer sourceViewer = getSourceViewer();
 			
-			String[] types = configuration.getConfiguredContentTypes(sourceViewer);
+			final String[] types = configuration.getConfiguredContentTypes(sourceViewer);
 			fPrefixesMap = new HashMap<String, String[]>(types.length);
 			for (int i= 0; i < types.length; i++) {
-				String type = types[i];
+				final String type = types[i];
 				String[] prefixes = configuration.getDefaultPrefixes(sourceViewer, type);
 				if (prefixes != null && prefixes.length > 0) {
 					int emptyPrefixes = 0;
 					for (int j= 0; j < prefixes.length; j++)
 						if (prefixes[j].length() == 0)
 							emptyPrefixes++;
-
+					
 					if (emptyPrefixes > 0) {
-						String[] nonemptyPrefixes = new String[prefixes.length - emptyPrefixes];
+						final String[] nonemptyPrefixes = new String[prefixes.length - emptyPrefixes];
 						for (int j = 0, k = 0; j < prefixes.length; j++) {
-							String prefix= prefixes[j];
+							final String prefix = prefixes[j];
 							if (prefix.length() != 0) {
 								nonemptyPrefixes[k]= prefix;
 								k++;
@@ -238,7 +256,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 					fPrefixesMap.put(type, prefixes);
 				}
 			}
-
+			
 			fDocumentPartitioning = configuration.getConfiguredDocumentPartitioning(sourceViewer);
 		}
 		
@@ -248,48 +266,47 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		 * @param selection Selection to check
 		 * @return <code>true</code> iff all selected lines are commented
 		 */
-		private boolean isSelectionCommented(ISelection selection) {
+		private boolean isSelectionCommented(final ISelection selection) {
 			if (!(selection instanceof ITextSelection))
 				return false;
-
-			ITextSelection textSelection = (ITextSelection) selection;
+			
+			final ITextSelection textSelection = (ITextSelection) selection;
 			if (textSelection.getStartLine() < 0 || textSelection.getEndLine() < 0)
 				return false;
-
-			IDocument document = getDocumentProvider().getDocument(getEditorInput());
+			
+			final IDocument document = getDocumentProvider().getDocument(getEditorInput());
 			try {
-				IRegion block = getTextBlockFromSelection(textSelection, document);
-				ITypedRegion[] regions = TextUtilities.computePartitioning(document, fDocumentPartitioning, block.getOffset(), block.getLength(), false);
-
-				int lineCount = 0;
-				int[] lines = new int[regions.length * 2]; // [startline, endline, startline, endline, ...]
+				final IRegion block = getTextBlockFromSelection(textSelection, document);
+				final ITypedRegion[] regions = TextUtilities.computePartitioning(document, fDocumentPartitioning, block.getOffset(), block.getLength(), false);
+				
+				final int[] lines = new int[regions.length * 2]; // [startline, endline, startline, endline, ...]
 				for (int i = 0, j = 0; i < regions.length; i++, j+= 2) {
 					// start line of region
 					lines[j] = getFirstCompleteLineOfRegion(regions[i], document);
 					// end line of region
-					int length = regions[i].getLength();
+					final int length = regions[i].getLength();
 					int offset = regions[i].getOffset() + length;
-					if (length > 0)
+					if (length > 0) {
 						offset--;
-					lines[j + 1]= (lines[j] == -1 ? -1 : document.getLineOfOffset(offset));
-					lineCount += lines[j + 1] - lines[j] + 1;
+					}
+					lines[j+1]= (lines[j] == -1) ? -1 : document.getLineOfOffset(offset);
 				}
-
+				
 				// Perform the check
 				for (int i = 0, j = 0; i < regions.length; i++, j+=2) {
-					String[] prefixes = fPrefixesMap.get(regions[i].getType());
+					final String[] prefixes = fPrefixesMap.get(regions[i].getType());
 					if (prefixes != null && prefixes.length > 0 && lines[j] >= 0 && lines[j + 1] >= 0)
 						if (!isBlockCommented(lines[j], lines[j + 1], prefixes, document))
 							return false;
 				}
 				return true;
-
-			} catch (BadLocationException x) {
+				
+			} catch (final BadLocationException x) {
 				StatetUIPlugin.logUnexpectedError(x);		// should not happen
 			}
 			return false;
 		}
-
+		
 		/**
 		 * Determines whether each line is prefixed by one of the prefixes.
 		 *
@@ -302,20 +319,20 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		 *             of the <code>prefixes</code>, ignoring whitespace at the
 		 *             begin of line
 		 */
-		private boolean isBlockCommented(int startLine, int endLine, String[] prefixes, IDocument document) {
+		private boolean isBlockCommented(final int startLine, final int endLine, final String[] prefixes, final IDocument document) {
 			try {
 				// check for occurrences of prefixes in the given lines
 				for (int i = startLine; i <= endLine; i++) {
-
-					IRegion line = document.getLineInformation(i);
-					String text = document.get(line.getOffset(), line.getLength());
-
-					int[] found = TextUtilities.indexOf(prefixes, text, 0);
-
+					
+					final IRegion line = document.getLineInformation(i);
+					final String text = document.get(line.getOffset(), line.getLength());
+					
+					final int[] found = TextUtilities.indexOf(prefixes, text, 0);
+					
 					if (found[0] == -1)
 						// found a line which is not commented
 						return false;
-
+					
 					String s = document.get(line.getOffset(), found[0]);
 					s = s.trim();
 					if (s.length() != 0)
@@ -323,8 +340,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 						return false;
 				}
 				return true;
-
-			} catch (BadLocationException x) {
+				
+			} catch (final BadLocationException x) {
 				StatetUIPlugin.logUnexpectedError(x);		// should not happen
 			}
 			return false;
@@ -332,34 +349,37 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		
 	}
 	
-
+	
 /*- Fields -----------------------------------------------------------------*/
 	
 	private IEditorAdapter fEditorAdapter;
 	private SourceViewerConfigurator fConfigurator;
+	private boolean fLazySetup;
 	private String fProjectNatureId;
 	private ProjectT fProject;
-
+	private IModelElementInputProvider fModelProvider;
+	
 	/** The outline page */
-	private OutlineT fOutlinePage;
+	private StatextOutlinePage fOutlinePage;
 	
 	private boolean fEnableStructureSupport;
 	private SelectionHistory fSelectionHistory;
 	private ProjectionSupport fFoldingSupport;
 	private IFoldingStructureProvider fFoldingProvider;
 	private FoldingActionGroup fFoldingActionGroup;
-	private IEditorInstallable[] fInstalledModules;
-
+	
+	private List<IUpdate> fUpdateables = new ArrayList<IUpdate>();
+	
 	
 /*- Contructors ------------------------------------------------------------*/
-
+	
 	public StatextEditor1() {
 		super();
 	}
 	
-
+	
 /*- Methods ----------------------------------------------------------------*/
-
+	
 	@Override
 	protected void initializeEditor() {
 		fEditorAdapter = new EditorAdapter();
@@ -376,11 +396,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	protected abstract SourceViewerConfigurator createConfiguration();
 	
 	
-	protected void enableStructureSupport() {
+	protected void enableStructureSupport(final IModelElementInputProvider provider) {
+		fModelProvider = provider;
 		fEnableStructureSupport = true;
 	}
 	
-	protected void configureStatetProjectNatureId(String id) {
+	protected void configureStatetProjectNatureId(final String id) {
 		fProjectNatureId = id;
 	}
 	
@@ -391,38 +412,40 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	
 	@Override
 	protected String[] collectContextMenuPreferencePages() {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		collectContextMenuPreferencePages(list);
 		list.addAll(Arrays.asList(super.collectContextMenuPreferencePages()));
 		return list.toArray(new String[list.size()]);
 	}
 	
-	protected void collectContextMenuPreferencePages(List<String> pageIds) {
+	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 	}
 	
+	
 	@Override
-	protected void doSetInput(IEditorInput input) throws CoreException {
-		ProjectT prevProject = fProject;
+	protected void doSetInput(final IEditorInput input) throws CoreException {
+		final ProjectT prevProject = fProject;
 		fProject = (input != null) ? getProject(input) : null;
 		
 		// project has changed
-		ISourceViewer sourceViewer = getSourceViewer();
+		final ISourceViewer sourceViewer = getSourceViewer();
 		if (sourceViewer != null) {
 			fConfigurator.unconfigureTarget();
 		}
 		
 		super.doSetInput(input);
-
+		
 		if (input != null) {
 			setupConfiguration(prevProject, fProject, input);
-			if (fFoldingProvider != null) {
-				fFoldingProvider.setEditorInput(input);
+			if (sourceViewer != null) {
+				setupConfiguration(prevProject, fProject, input, sourceViewer);
+				fConfigurator.configureTarget();
+			}
+			else {
+				fLazySetup = true;
 			}
 			if (fOutlinePage != null) {
 				updateOutlinePageInput(fOutlinePage);
-			}
-			if (sourceViewer != null) {
-				fConfigurator.configureTarget();
 			}
 		}
 	}
@@ -430,7 +453,14 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	/**
 	 * Subclasses should setup the SourceViewerConfiguration.
 	 */
-	protected void setupConfiguration(ProjectT prevProject, ProjectT newProject, IEditorInput newInput) {
+	protected void setupConfiguration(final ProjectT prevProject, final ProjectT newProject, final IEditorInput newInput) {
+	}
+	
+	/**
+	 * Subclasses should setup the SourceViewerConfiguration.
+	 */
+	protected void setupConfiguration(final ProjectT prevProject, final ProjectT newProject, final IEditorInput newInput,
+			final ISourceViewer sourceViewer) {
 	}
 	
 	/**
@@ -440,15 +470,15 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	 * @return the project, the input is associated to, or <code>null</code>.
 	 */
 	@SuppressWarnings("unchecked")
-	protected ProjectT getProject(IEditorInput input) {
+	protected ProjectT getProject(final IEditorInput input) {
 		if (fProjectNatureId != null) {
 			if (input != null && input instanceof IFileEditorInput) {
-				IProject project = ((IFileEditorInput)input).getFile().getProject();
+				final IProject project = ((IFileEditorInput)input).getFile().getProject();
 				try {
 					if (project != null & project.hasNature(fProjectNatureId)) {
 						return (ProjectT) project.getNature(fProjectNatureId);
 					}
-				} catch (CoreException e) {
+				} catch (final CoreException e) {
 					// pech gehabt
 				}
 			}
@@ -466,15 +496,20 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	public ISourceUnit getSourceUnit() {
 		return null;
 	}
-
+	
+	public IModelElementInputProvider getModelInputProvider() {
+		return fModelProvider;
+	}
+	
+	
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(final Composite parent) {
 		super.createPartControl(parent);
 		
 		if (fEnableStructureSupport) {
-	        ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
-	        
-	        fFoldingSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
+			final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
+			
+			fFoldingSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
 			fFoldingSupport.install();
 			viewer.addProjectionListener(new IProjectionListener() {
 				public void projectionEnabled() {
@@ -485,33 +520,32 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 				}
 			});
 		}
-
-		fInstalledModules = ((StatextSourceViewerConfiguration) getSourceViewerConfiguration()).getInstallables();
-		for (int i = 0; i < fInstalledModules.length; i++) {
-			fInstalledModules[i].install(fEditorAdapter);
+		
+		if (fLazySetup) {
+			fLazySetup = false;
+			setupConfiguration(null, fProject, getEditorInput(), getSourceViewer());
 		}
 	}
 	
 	@Override
-	protected ISourceViewer createSourceViewer(Composite parent, IVerticalRuler ruler, int styles) {
+	protected ISourceViewer createSourceViewer(final Composite parent, final IVerticalRuler ruler, final int styles) {
 		fAnnotationAccess = getAnnotationAccess();
 		fOverviewRuler = createOverviewRuler(getSharedColors());
-
-		ISourceViewer viewer = fEnableStructureSupport ?
+		
+		final ISourceViewer viewer = fEnableStructureSupport ?
 				new ProjectionViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles) :
 					new SourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles);
 		// ensure decoration support has been created and configured.
 		getSourceViewerDecorationSupport(viewer);
-
+		
 		return viewer;
 	}
-
+	
 	protected void installFoldingSupport() {
 		uninstallFoldingSupport();
 		fFoldingProvider = createFoldingStructureProvider();
 		if (fFoldingProvider != null) {
 			fFoldingProvider.install(StatextEditor1.this, (ProjectionViewer) getSourceViewer());
-			fFoldingProvider.setEditorInput(getEditorInput());
 		}
 	}
 	
@@ -529,28 +563,36 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 	protected FoldingActionGroup createFoldingActionGroup() {
 		return new FoldingActionGroup(this, (ProjectionViewer) getSourceViewer());
 	}
-
+	
 	@Override
-	protected void configureSourceViewerDecorationSupport(SourceViewerDecorationSupport support) {
+	protected void configureSourceViewerDecorationSupport(final SourceViewerDecorationSupport support) {
 		super.configureSourceViewerDecorationSupport(support);
 		fConfigurator.configureSourceViewerDecorationSupport(support);
 	}
-
+	
 	@Override
 	protected void createActions() {
 		super.createActions();
-		Action action;
+		IAction action;
 		
-		PairMatcher matcher = fConfigurator.getPairMatcher();
+		final PairMatcher matcher = fConfigurator.getPairMatcher();
 		if (matcher != null) {
 			action = new GotoMatchingBracketAction(matcher, fEditorAdapter);
 			setAction(GotoMatchingBracketAction.ACTION_ID, action);
 		}
-
-		action = new ToggleCommentAction();
-		setAction(ACTION_ID_TOGGLE_COMMENT, action);
-		markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true);
-
+		
+		action = createToggleCommentAction();
+		if (action != null) {
+			setAction(ACTION_ID_TOGGLE_COMMENT, action);
+			markAsStateDependentAction(ACTION_ID_TOGGLE_COMMENT, true);
+		}
+		
+		action = createCorrectIndentAction();
+		if (action != null) {
+			setAction(action.getId(), action);
+			markAsContentDependentAction(action.getId(), true);
+		}
+		
 		if (fEnableStructureSupport) {
 			fFoldingActionGroup = createFoldingActionGroup();
 			
@@ -567,20 +609,48 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 		}
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}
-
+	
+	protected IAction createToggleCommentAction() {
+		return new ToggleCommentAction();
+	}
+	
+	protected IAction createCorrectIndentAction() {
+		return null;
+	}
+	
+	protected void markAsContentDependentHandler(final IHandler handler, final boolean update) {
+		if (update) {
+			if (handler instanceof IUpdate) {
+				fUpdateables.add((IUpdate) handler);
+			}
+		}
+		else {
+			fUpdateables.remove(handler);
+		}
+	}
+	
 	@Override
-	protected void rulerContextMenuAboutToShow(IMenuManager menu) {
+	protected void updateContentDependentActions() {
+		super.updateContentDependentActions();
+		for (final IUpdate o : fUpdateables) {
+			o.update();
+		}
+	}
+	
+	
+	@Override
+	protected void rulerContextMenuAboutToShow(final IMenuManager menu) {
 		super.rulerContextMenuAboutToShow(menu);
 		if (fFoldingActionGroup != null) {
-			IMenuManager foldingMenu = new MenuManager(EditorMessages.FoldingMenu_label, "projection"); //$NON-NLS-1$
+			final IMenuManager foldingMenu = new MenuManager(EditorMessages.FoldingMenu_label, "projection"); //$NON-NLS-1$
 			menu.appendToGroup(ITextEditorActionConstants.GROUP_RULERS, foldingMenu);
 			fFoldingActionGroup.fillMenu(foldingMenu);
 		}
 	}
 	
-
+	
 	@Override
-	public Object getAdapter(Class required) {
+	public Object getAdapter(final Class required) {
 		if (IEditorAdapter.class.equals(required)) {
 			return fEditorAdapter;
 		}
@@ -593,8 +663,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 			}
 			return fOutlinePage;
 		}
+		if (ISourceViewer.class.equals(required)) {
+			return getSourceViewer();
+		}
 		if (fFoldingSupport != null) {
-			Object adapter = fFoldingSupport.getAdapter(getSourceViewer(), required);
+			final Object adapter = fFoldingSupport.getAdapter(getSourceViewer(), required);
 			if (adapter != null)
 				return adapter;
 		}
@@ -609,17 +682,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 			}
 		});
 	}
-
-	protected void handleSettingsChanged(Set<String> contexts) {
+	
+	protected void handleSettingsChanged(final Set<String> contexts) {
 		fConfigurator.handleSettingsChanged(contexts, null);
 	}
 	
-
-	protected OutlineT createOutlinePage() {
+	
+	protected StatextOutlinePage createOutlinePage() {
 		return null;
 	}
 	
-	protected void updateOutlinePageInput(OutlineT page) {
+	protected void updateOutlinePageInput(final StatextOutlinePage page) {
 	}
 	
 	void handleOutlinePageClosed() {
@@ -628,20 +701,14 @@ public abstract class StatextEditor1<ProjectT extends StatextProject, OutlineT e
 			resetHighlightRange();
 		}
 	}
-
+	
 	
 	@Override
 	public void dispose() {
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
-		
-		if (fInstalledModules != null) {
-			for (int i = 0; i < fInstalledModules.length; i++) {
-				fInstalledModules[i].uninstall();
-			}
-			fInstalledModules = null;
-		}
+		uninstallFoldingSupport();
 		
 		super.dispose();
 	}
-
+	
 }

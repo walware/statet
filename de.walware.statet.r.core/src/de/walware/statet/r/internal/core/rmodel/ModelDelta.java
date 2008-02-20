@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core.rmodel;
@@ -17,7 +17,7 @@ import de.walware.eclipsecommons.ltk.IModelElementDelta;
 
 
 public class ModelDelta implements IModelElementDelta {
-
+	
 	private final IModelElement fElement;
 	private final AstInfo fOldAst;
 	private final AstInfo fNewAst;
@@ -29,11 +29,11 @@ public class ModelDelta implements IModelElementDelta {
 		fOldAst = oldAst;
 		fNewAst = newAst;
 	}
-
+	
 	public IModelElement getModelElement() {
 		return fElement;
 	}
-
+	
 	public AstInfo getOldAst() {
 		return fOldAst;
 	}
@@ -41,5 +41,5 @@ public class ModelDelta implements IModelElementDelta {
 	public AstInfo getNewAst() {
 		return fNewAst;
 	}
-
+	
 }

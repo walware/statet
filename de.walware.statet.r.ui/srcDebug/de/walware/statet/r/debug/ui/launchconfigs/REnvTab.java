@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.debug.ui.launchconfigs;
@@ -51,13 +51,11 @@ import de.walware.statet.r.ui.RUI;
 public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	
-	private static final String ATTR_ROOT = "de.walware.statet.r.debug/REnv/"; //$NON-NLS-1$
-	private static final String PROP_RENV_SETTING = ATTR_ROOT+"REnvSetting"; //$NON-NLS-1$
-	private static final String PROP_WORKING_DIRECTORY = ATTR_ROOT+"workingDirectory"; //$NON-NLS-1$
+	public static final String NS = "de.walware.statet.r.debug/REnv/"; //$NON-NLS-1$
+	private static final String NEW_RENV_ID = NS + "code";
 	
-	
-	public static REnvSetting readREnv(ILaunchConfiguration configuration) throws CoreException {
-		String setting = configuration.getAttribute(PROP_RENV_SETTING, (String) null);
+	public static REnvSetting readREnv(final ILaunchConfiguration configuration) throws CoreException {
+		final String setting = configuration.getAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, (String) null);
 		return REnvSetting.decodeType(setting, false);
 	}
 	
@@ -67,14 +65,14 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	 * @return
 	 * @throws CoreException
 	 */
-	public static REnvConfiguration getREnv(ILaunchConfiguration configuration)
+	public static REnvConfiguration getREnv(final ILaunchConfiguration configuration)
 			throws CoreException {
-		REnvConfiguration config = REnvSetting.resolveREnv(readREnv(configuration));
+		final REnvConfiguration config = REnvSetting.resolveREnv(readREnv(configuration));
 		if (config == null) {
 			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_CouldNotFound_message, null));
 		}
-		IStatus status = config.validate();
+		final IStatus status = config.validate();
 		if (status.getSeverity() == IStatus.ERROR) {
 			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_Invalid_message+' '+status.getMessage(), null));
@@ -82,8 +80,8 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		return config;
 	}
 	
-	public static String readWorkingDirectory(ILaunchConfiguration configuration) throws CoreException {
-		return configuration.getAttribute(PROP_WORKING_DIRECTORY, ""); //$NON-NLS-1$
+	public static String readWorkingDirectory(final ILaunchConfiguration configuration) throws CoreException {
+		return configuration.getAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 	
 	/**
@@ -92,19 +90,23 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	 * @return
 	 * @throws CoreException
 	 */
-	public static IFileStore getWorkingDirectory(ILaunchConfiguration configuration) throws CoreException {
+	public static IFileStore getWorkingDirectory(final ILaunchConfiguration configuration) throws CoreException {
+		return getWorkingDirectoryValidator(configuration, true).getFileStore();
+	}
+
+	public static FileValidator getWorkingDirectoryValidator(final ILaunchConfiguration configuration, final boolean validate) throws CoreException {
 		String path = readWorkingDirectory(configuration);
 		if (path == null || path.trim().length() == 0) {
 			path = System.getProperty("user.dir"); //$NON-NLS-1$
 		}
-		FileValidator validator = new FileValidator(true);
+		final FileValidator validator = new FileValidator(true);
 		validator.setOnDirectory(IStatus.OK);
 		validator.setOnFile(IStatus.ERROR);
 		validator.setResourceLabel(MessageUtil.removeMnemonics(RLaunchingMessages.REnv_Tab_WorkingDir_label));
-		if (validator.validate(path).getSeverity() == IStatus.ERROR) {
+		if (validate && validator.validate(path).getSeverity() == IStatus.ERROR) {
 			throw new CoreException(validator.getStatus());
 		}
-		return validator.getFileStore();
+		return validator;
 	}
 	
 	
@@ -131,8 +133,8 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		return RUI.getImage(RUI.IMG_OBJ_R_ENVIRONMENT);
 	}
 	
-	public void createControl(Composite parent) {
-		Composite mainComposite = new Composite(parent, SWT.NONE);
+	public void createControl(final Composite parent) {
+		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(GridLayoutFactory.swtDefaults().create());
@@ -151,13 +153,13 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 				RLaunchingMessages.REnv_Tab_WorkingDir_label);
 		fWorkingDirectoryControl.showInsertVariable(true);
 		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
+		
 		Dialog.applyDialogFont(parent);
 		initBindings();
 	}
 	
 	@Override
-	protected void addBindings(DataBindingContext dbc, Realm realm) {
+	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		fREnvSettingValue = new WritableValue(realm, null, String.class);
 		fWorkingDirectoryValue = new WritableValue(realm, null, String.class);
 		
@@ -171,33 +173,37 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 						new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
 				null);
 	}
-
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(PROP_RENV_SETTING, REnvSetting.encodeREnv(SettingsType.WORKBENCH, null, false));
-		configuration.setAttribute(PROP_WORKING_DIRECTORY, ""); //$NON-NLS-1$
+	
+	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
+		final String code = REnvSetting.encodeREnv(SettingsType.WORKBENCH, null, false);
+		configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, code);
+		configuration.setAttribute(NEW_RENV_ID, code);
+		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "");
 	}
-
+	
 	@Override
-	public void doInitialize(ILaunchConfiguration configuration) {
+	protected void doInitialize(final ILaunchConfiguration configuration) {
 		try {
-			fREnvSettingValue.setValue(configuration.getAttribute(PROP_RENV_SETTING, (String) null));
-		} catch (CoreException e) {
+			fREnvSettingValue.setValue(configuration.getAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, (String) null));
+		} catch (final CoreException e) {
 			fREnvSettingValue.setValue(null);
 			logReadingError(e);
 		}
 		
 		try {
-			fWorkingDirectoryValue.setValue(configuration.getAttribute(PROP_WORKING_DIRECTORY, "")); //$NON-NLS-1$
-		} catch (CoreException e) {
+			fWorkingDirectoryValue.setValue(configuration.getAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$
+		} catch (final CoreException e) {
 			fWorkingDirectoryValue.setValue(null);
 			logReadingError(e);
 		}
 	}
 	
 	@Override
-	public void doSave(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(PROP_RENV_SETTING, (String) fREnvSettingValue.getValue());
-		configuration.setAttribute(PROP_WORKING_DIRECTORY, (String) fWorkingDirectoryValue.getValue());
+	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
+		final String code = (String) fREnvSettingValue.getValue();
+		configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, code);
+		configuration.setAttribute(NEW_RENV_ID, code);
+		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, (String) fWorkingDirectoryValue.getValue());
 	}
 	
 }

@@ -17,8 +17,6 @@ import org.eclipse.osgi.util.NLS;
 public class RNicoMessages extends NLS {
 	
 	
-	public static String Quit_Task_label;
-	
 	public static String ChangeWorkingDir_Task_label;
 	public static String ChangeWorkingDir_Action_label;
 	public static String ChangeWorkingDir_SelectDialog_message;

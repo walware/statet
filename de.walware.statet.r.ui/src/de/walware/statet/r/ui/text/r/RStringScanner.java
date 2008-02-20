@@ -26,7 +26,7 @@ public class RStringScanner extends SingleTokenScanner {
 
 	public RStringScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
 		super(colorManager, preferenceStore, 
-				RUIPreferenceConstants.R.TS_CONTEXT_ID, IRTextTokens.STRING);
+				RUIPreferenceConstants.R.TS_CONTEXT_ID, IRTextTokens.STRING_KEY);
 	}
 
 }

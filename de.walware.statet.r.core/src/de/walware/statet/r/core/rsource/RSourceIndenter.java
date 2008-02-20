@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource;
@@ -18,16 +18,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentRewriteSessionType;
-import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.eclipsecommons.ltk.AstAbortVisitException;
 import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
-import de.walware.eclipsecommons.ltk.WorkingContext;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -46,6 +43,7 @@ import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
+import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
@@ -53,13 +51,13 @@ import de.walware.statet.r.core.rsource.ast.SubIndexed;
  */
 public class RSourceIndenter {
 	
-
+	
 	private RIndentUtil fUtil;
 	private RHeuristicTokenScanner fScanner;
 	private ComputeIndentVisitor fComputeVisitor;
-
+	
 	private AbstractDocument fDocument;
-	private AstInfo<RAstNode> fAst;
+	private AstInfo<?> fAst;
 	private RCodeStyleSettings fCodeStyle;
 	
 	private int fRefLine;
@@ -68,31 +66,32 @@ public class RSourceIndenter {
 	
 	private int[] fLineOffsets;
 	private int[] fLineLevels;
-
-	private ScopeFactory fFactory;
-
 	
-	private class ComputeIndentVisitor extends GenericVisitor {
+	private ScopeFactory fFactory;
+	
+	
+	private class ComputeIndentVisitor extends GenericVisitor implements ICommonAstVisitor {
+		
 		
 		private int fStartOffset;
 		private int fStopOffset;
 		private int fCurrentLine;
 		
 		
-		void computeIndent() throws AstAbortVisitException {
+		void computeIndent() throws InvocationTargetException {
 			try {
 				fCurrentLine = (fRefLine >= 0) ? fRefLine : fFirstLine;
 				fStartOffset = fDocument.getLineOffset(fCurrentLine);
 				fStopOffset = fDocument.getLineOffset(fLastLine)+fDocument.getLineLength(fLastLine);
 				fAst.root.accept(this);
 			}
-			catch (BadLocationException e) {
-				throw new AstAbortVisitException(e);
+			catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
 		}
 		
 		
-		private final boolean checkOffset(int offset) {
+		private final boolean checkOffset(final int offset) {
 			if (offset >= fLineOffsets[fCurrentLine]) { // offset is first char in line
 				do {
 					fLineLevels[fCurrentLine] = fFactory.getIndent(fCurrentLine);
@@ -104,14 +103,14 @@ public class RSourceIndenter {
 		
 		private void checkBeforeOffset(final int offset) {
 			if (offset >= fLineOffsets[fCurrentLine+1]) { // offset is first char in line
-				int level = fFactory.getIndent(fCurrentLine);
+				final int level = fFactory.getIndent(fCurrentLine);
 				do {
 					fLineLevels[fCurrentLine++] = level;
 				} while (offset >= fLineOffsets[fCurrentLine+1]);
 			}
 		}
 		
-		private boolean checkNode(RAstNode node) {
+		private boolean checkNode(final RAstNode node) throws InvocationTargetException {
 			final int offset = node.getStartOffset();
 			if (checkOffset(offset)) {
 				return (node.getStopOffset() >= fLineOffsets[fCurrentLine]);
@@ -123,236 +122,310 @@ public class RSourceIndenter {
 			// not interesting
 			return false;
 		}
-
 		
-		private final void checkExprListChilds(RAstNode node) {
-			final int count = node.getChildCount();
-			for (int i = 0; i < count; i++) {
-				final RAstNode child = node.getChild(i);
-				fFactory.createCommonExprScope(child.getStartOffset(), child);
-				child.accept(this);
-				fFactory.leaveScope();
-			}
-		}
 		
-		@Override
-		public void visit(SourceComponent node) {
-			fFactory.createSourceScope(0, node);
-			if (node.getStopOffset() >= fStartOffset && node.getStartOffset() <= fStopOffset) {
-				checkExprListChilds(node);
-			}
-			checkOffset(Integer.MAX_VALUE-2);
-			fFactory.leaveScope();
-		}
-
-		@Override
-		public void visit(Block node) {
-			fFactory.createBlockScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				fFactory.updateEnterBrackets();
-				checkExprListChilds(node);
-				checkBeforeOffset(node.getStopOffset());
-				fFactory.updateLeaveBrackets();
-				checkOffset(node.getStopOffset());
-			}
-			fFactory.leaveScope();
-		}
-		
-		@Override
-		public void visit(Group node) {
-			if (checkNode(node)) {
-				fFactory.createGroupContScope(node.getStartOffset()+1, node.getExprChild());
-				node.getExprChild().accept(this);
-				checkBeforeOffset(node.getStopOffset());
-				
-				checkOffset(node.getStopOffset());
-				fFactory.leaveScope();
-			}
-
-		}
-
-		private final void checkControlCondChild(final int open, final RAstNode child, final int close) {
-			if (open >= 0) {
-				checkOffset(open);
-				fFactory.createControlCondScope(open+1, child);
-				child.accept(this);
-				checkBeforeOffset(close);
-	
-				checkOffset(close);
-				fFactory.leaveScope();
-			}
-		}
-		
-		private final void checkControlContChild(RAstNode child) {
-			fFactory.createControlContScope(child.getStartOffset(), child);
-			child.accept(this);
-			fFactory.leaveScope();
-		}
-		
-		@Override
-		public void visit(CIfElse node) {
-			boolean inElseIf = false;
-			if (node.getParent().getNodeType() == NodeType.C_IF
-					&& ((CIfElse) node.getParent()).getElseChild() == node) {
-				fFactory.leaveScope();
-				inElseIf = true;
-			}
-			else {
-				fFactory.createControlScope(node.getStartOffset(), node);
-			}
-			if (checkNode(node)) {
-				checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
-				checkControlContChild(node.getThenChild());
-				if (node.hasElse()) {
-					checkOffset(node.getElseOffset());
-					checkControlContChild(node.getElseChild());
+		private final void checkExprListChilds(final RAstNode node) throws InvocationTargetException {
+			try {
+				final int count = node.getChildCount();
+				for (int i = 0; i < count; i++) {
+					final RAstNode child = node.getChild(i);
+					fFactory.createCommonExprScope(child.getStartOffset(), child);
+					child.acceptInR(this);
+					fFactory.leaveScope();
 				}
-				checkOffset(node.getStopOffset());
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			if (inElseIf) {
-				fFactory.createDummy();
-			}
-			else {
-				fFactory.leaveScope();
+		}
+		
+		public void visit(final IAstNode node) throws InvocationTargetException {
+			if (node.getStopOffset() >= fStartOffset && node.getStartOffset() <= fStopOffset) {
+				if (node instanceof RAstNode) {
+					((RAstNode) node).acceptInR(this);
+				}
+				else {
+					node.acceptInChildren(this);
+				}
 			}
 		}
 		
 		@Override
-		public void visit(CForLoop node) {
-			fFactory.createControlScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
-				checkControlContChild(node.getContChild());
-				checkOffset(node.getStopOffset());
+		public void visit(final SourceComponent node) throws InvocationTargetException {
+			try {
+				fFactory.createSourceScope(0, node);
+				if (node.getStopOffset() >= fStartOffset && node.getStartOffset() <= fStopOffset) {
+					checkExprListChilds(node);
+				}
+				checkOffset(Integer.MAX_VALUE-2);
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
-
+		
 		@Override
-		public void visit(CWhileLoop node) {
-			fFactory.createControlScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
-				checkControlContChild(node.getContChild());
-				checkOffset(node.getStopOffset());
+		public void visit(final Block node) throws InvocationTargetException {
+			try {
+				fFactory.createBlockScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					fFactory.updateEnterBrackets();
+					checkExprListChilds(node);
+					checkBeforeOffset(node.getStopOffset());
+					fFactory.updateLeaveBrackets();
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
-
+		
 		@Override
-		public void visit(CRepeatLoop node) {
-			fFactory.createControlScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				checkControlContChild(node.getContChild());
-				checkOffset(node.getStopOffset());
+		public void visit(final Group node) throws InvocationTargetException {
+			try {
+				if (checkNode(node)) {
+					fFactory.createGroupContScope(node.getStartOffset()+1, node.getExprChild());
+					node.getExprChild().acceptInR(this);
+					checkBeforeOffset(node.getStopOffset());
+					
+					checkOffset(node.getStopOffset());
+					fFactory.leaveScope();
+				}
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
-
-		private final void checkArglist(final RAstNode node) {
-			fFactory.createArglistScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				node.acceptInChildren(this);
-	//			checkBeforeOffset(node.getStopOffset());
-				checkOffset(node.getStopOffset());
+		
+		private final void checkControlCondChild(final int open, final RAstNode child, final int close) throws InvocationTargetException {
+			try {
+				if (open >= 0) {
+					checkOffset(open);
+					fFactory.createControlCondScope(open+1, child);
+					child.acceptInR(this);
+					checkBeforeOffset(close);
+					
+					checkOffset(close);
+					fFactory.leaveScope();
+				}
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
-
-		private final void checkFDeflist(final RAstNode node) {
-			fFactory.createFDeflistScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				node.acceptInChildren(this);
-	//			checkBeforeOffset(node.getStopOffset());
-				checkOffset(node.getStopOffset());
+		
+		private final void checkControlContChild(final RAstNode child) throws InvocationTargetException {
+			try {
+				fFactory.createControlContScope(child.getStartOffset(), child);
+				child.acceptInR(this);
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
-
-		private final void checkArg(final RAstNode node) {
-			fFactory.createCommonExprScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				node.acceptInChildren(this);
-				checkOffset(node.getStopOffset());
-			}
-			fFactory.leaveScope();
-		}
-
+		
 		@Override
-		public void visit(FDef node) {
-			fFactory.createFDefScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				node.getArgsChild().accept(this);
-				fFactory.updateEnterFDefBody();
-				checkControlContChild(node.getContChild());
-				checkOffset(node.getStopOffset());
+		public void visit(final CIfElse node) throws InvocationTargetException {
+			try {
+				boolean inElseIf = false;
+				if (node.getParent().getNodeType() == NodeType.C_IF
+						&& ((CIfElse) node.getParent()).getElseChild() == node) {
+					fFactory.leaveScope();
+					inElseIf = true;
+				}
+				else {
+					fFactory.createControlScope(node.getStartOffset(), node);
+				}
+				if (checkNode(node)) {
+					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
+					checkControlContChild(node.getThenChild());
+					if (node.hasElse()) {
+						checkOffset(node.getElseOffset());
+						checkControlContChild(node.getElseChild());
+					}
+					checkOffset(node.getStopOffset());
+				}
+				if (inElseIf) {
+					fFactory.createDummy();
+				}
+				else {
+					fFactory.leaveScope();
+				}
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
-
+		
 		@Override
-		public void visit(FDef.Args node) {
+		public void visit(final CForLoop node) throws InvocationTargetException {
+			try {
+				fFactory.createControlScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
+					checkControlContChild(node.getContChild());
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		@Override
+		public void visit(final CWhileLoop node) throws InvocationTargetException {
+			try {
+				fFactory.createControlScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
+					checkControlContChild(node.getContChild());
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		@Override
+		public void visit(final CRepeatLoop node) throws InvocationTargetException {
+			try {
+				fFactory.createControlScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					checkControlContChild(node.getContChild());
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		private final void checkArglist(final RAstNode node) throws InvocationTargetException {
+			try {
+				fFactory.createArglistScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					node.acceptInRChildren(this);
+		//			checkBeforeOffset(node.getStopOffset());
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		private final void checkFDeflist(final RAstNode node) throws InvocationTargetException {
+			try {
+				fFactory.createFDeflistScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					node.acceptInRChildren(this);
+		//			checkBeforeOffset(node.getStopOffset());
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		private final void checkArg(final RAstNode node) throws InvocationTargetException {
+			try {
+				fFactory.createCommonExprScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					node.acceptInRChildren(this);
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		@Override
+		public void visit(final FDef node) throws InvocationTargetException {
+			try {
+				fFactory.createFDefScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					node.getArgsChild().acceptInR(this);
+					fFactory.updateEnterFDefBody();
+					checkControlContChild(node.getContChild());
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		@Override
+		public void visit(final FDef.Args node) throws InvocationTargetException {
 			checkFDeflist(node);
 		}
 		
 		@Override
-		public void visit(FDef.Arg node) {
+		public void visit(final FDef.Arg node) throws InvocationTargetException {
 			checkArg(node);
 		}
 		
 		@Override
-		public void visit(FCall node) {
-			fFactory.createFCallScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				node.getRefChild().accept(this);
-				node.getArgsChild().accept(this);
-				checkOffset(node.getStopOffset());
+		public void visit(final FCall node) throws InvocationTargetException {
+			try {
+				fFactory.createFCallScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					node.getRefChild().acceptInR(this);
+					node.getArgsChild().acceptInR(this);
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
 		
 		@Override
-		public void visit(FCall.Args node) {
+		public void visit(final FCall.Args node) throws InvocationTargetException {
 			checkArglist(node);
 		}
 		
 		@Override
-		public void visit(FCall.Arg node) {
+		public void visit(final FCall.Arg node) throws InvocationTargetException {
 			checkArg(node);
 		}
 		
 		@Override
-		public void visit(SubIndexed node) {
-			fFactory.createControlScope(node.getStartOffset(), node);
-			if (checkNode(node)) {
-				node.getRefChild().accept(this);
-				node.getSublistChild().accept(this);
-				checkOffset(node.getStopOffset());
+		public void visit(final SubIndexed node) throws InvocationTargetException {
+			try {
+				fFactory.createControlScope(node.getStartOffset(), node);
+				if (checkNode(node)) {
+					node.getRefChild().acceptInR(this);
+					node.getArgsChild().acceptInR(this);
+					checkOffset(node.getStopOffset());
+				}
+				fFactory.leaveScope();
+			} catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
 			}
-			fFactory.leaveScope();
 		}
 		
 		@Override
-		public void visit(SubIndexed.Sublist node) {
+		public void visit(final SubIndexed.Args node) throws InvocationTargetException {
 			checkArglist(node);
 		}
 		
 		@Override
-		public void visit(SubIndexed.Arg node) {
+		public void visit(final SubIndexed.Arg node) throws InvocationTargetException {
 			checkArg(node);
 		}
 		
 		@Override
-		public void visitNode(RAstNode node) {
+		public void visitNode(final RAstNode node) throws InvocationTargetException {
 			if (checkNode(node)) {
-				node.acceptInChildren(this);
+				node.acceptInRChildren(this);
 				checkOffset(node.getStopOffset());
 			}
 		}
 		
 	}
-
-
+	
+	
 	/**
 	 * 
 	 */
@@ -361,53 +434,53 @@ public class RSourceIndenter {
 		fComputeVisitor = new ComputeIndentVisitor();
 	}
 	
-	public int getNewIndentColumn(int line) throws BadLocationException {
+	public int getNewIndentColumn(final int line) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(line);
 		if (getDocumentChar(lineOffset) == '#' && getDocumentChar(lineOffset+1) != '#') {
 			return 0;
 		}
 		return fLineLevels[line];
 	}
-
-	public int getNewIndentOffset(int line) {
+	
+	public int getNewIndentOffset(final int line) {
 		try {
 			return fUtil.getIndentedOffsetAt(line, fLineLevels[line]);
-		} catch (BadLocationException e) {
+		} catch (final BadLocationException e) {
 			return -1;
 		}
 	}
 	
-	public void indent(final AbstractDocument document, final AstInfo<RAstNode> ast, final int firstLine, final int lastLine,
-			final IRCoreAccess access, WorkingContext context) throws CoreException {
-		try {
-			setup(document, ast, access);
-			computeIndent(firstLine, lastLine);
-			final MultiTextEdit edits = createEdits();
-			if (edits != null && edits.getChildrenSize() > 0) {
-				context.syncExec(new SourceDocumentRunnable(fDocument, fAst.stamp,
-						(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
-					@Override
-					public void run(AbstractDocument document) throws InvocationTargetException {
-						try {
-							edits.apply(document);
-						}
-						catch (MalformedTreeException e) {
-							throw new InvocationTargetException(e);
-						}
-						catch (BadLocationException e) {
-							throw new InvocationTargetException(e);
-						}
-					}
-				});
-			}
-		}
-		catch (InvocationTargetException e) {
-			throw createFailedException(e);
-		}
-		catch (BadLocationException e) {
-			throw createFailedException(e);
-		}
-	}
+//	public void indent(final AbstractDocument document, final AstInfo<RAstNode> ast, final int firstLine, final int lastLine,
+//			final IRCoreAccess access, final WorkingContext context) throws CoreException {
+//		try {
+//			setup(document, ast, access);
+//			computeIndent(firstLine, lastLine);
+//			final MultiTextEdit edits = createEdits();
+//			if (edits != null && edits.getChildrenSize() > 0) {
+//				context.syncExec(new SourceDocumentRunnable(fDocument, fAst.stamp,
+//						(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
+//					@Override
+//					public void run(final AbstractDocument document) throws InvocationTargetException {
+//						try {
+//							edits.apply(document, TextEdit.NONE);
+//						}
+//						catch (final MalformedTreeException e) {
+//							throw new InvocationTargetException(e);
+//						}
+//						catch (final BadLocationException e) {
+//							throw new InvocationTargetException(e);
+//						}
+//					}
+//				});
+//			}
+//		}
+//		catch (final InvocationTargetException e) {
+//			throw createFailedException(e);
+//		}
+//		catch (final BadLocationException e) {
+//			throw createFailedException(e);
+//		}
+//	}
 	
 //	public void indentLine(final AbstractDocument document, final AstInfo<RAstNode> ast, final int line,
 //			final IRCoreAccess access) throws CoreException {
@@ -423,19 +496,19 @@ public class RSourceIndenter {
 //			throw createFailedException(e);
 //		}
 //	}
-
-	public TextEdit getIndentEdits(final AbstractDocument document, final AstInfo<RAstNode> ast, final int firstLine, final int lastLine,
+	
+	public TextEdit getIndentEdits(final AbstractDocument document, final AstInfo<RAstNode> ast, final int codeOffset, final int firstLine, final int lastLine,
 			final IRCoreAccess access) throws CoreException {
 		try {
 			setup(document, ast, access);
-			computeIndent(firstLine, lastLine);
+			computeIndent(codeOffset, firstLine, lastLine);
 			return createEdits();
 		}
-		catch (BadLocationException e) {
+		catch (final BadLocationException e) {
 			throw createFailedException(e);
 		}
 	}
-
+	
 	/**
 	 * Release resources from last computation.
 	 * After clear, you can not longer call the <code>get...(...)</code> methods.
@@ -447,14 +520,14 @@ public class RSourceIndenter {
 		fUtil = null;
 		fLineLevels = null;
 	}
-
+	
 	protected void setup(final AbstractDocument document, final AstInfo<RAstNode> ast, final IRCoreAccess access) {
 		fCodeStyle = access.getRCodeStyle();
 		fDocument = document;
 		fAst = ast;
 	}
 	
-	protected void computeIndent(final int firstLine, final int lastLine) throws BadLocationException {
+	protected void computeIndent(final int codeOffset, final int firstLine, final int lastLine) throws BadLocationException {
 		try {
 			fCodeStyle.getReadLock().lock();
 			fUtil = new RIndentUtil(fDocument, fCodeStyle);
@@ -462,12 +535,12 @@ public class RSourceIndenter {
 			fLastLine = lastLine;
 			
 			fScanner.configure(fDocument, null);
-	
+			
 			fRefLine = -1;
 			int cand = fFirstLine;
 			SEARCH_REF_LINE : while (cand > 0) {
 				int refOffset = fScanner.findNonBlankBackward(fDocument.getLineOffset(cand)-1, RHeuristicTokenScanner.UNBOUND, true);
-				if (refOffset >= 0) { // line found
+				if (refOffset >= codeOffset) { // line found
 					cand = fDocument.getLineOfOffset(refOffset);
 					refOffset = fScanner.findNonBlankForward(fDocument.getLineOffset(cand), refOffset+1, true);
 					if (fDocument.getChar(refOffset) != '#' || fDocument.getChar(refOffset+1) == '#') {
@@ -490,10 +563,18 @@ public class RSourceIndenter {
 			fLineOffsets[count] = Integer.MAX_VALUE;
 			fLineOffsets[count+1] = Integer.MAX_VALUE;
 			fLineOffsets[count+2] = Integer.MAX_VALUE;
-		
+			
 			fFactory = new ScopeFactory(fUtil, fCodeStyle, fDocument);
 			fComputeVisitor.computeIndent();
 			correctLevels();
+		} catch (final InvocationTargetException e) {
+			final Throwable targetException = e.getTargetException();
+			if (targetException instanceof BadLocationException) {
+				throw (BadLocationException) targetException;
+			}
+			else {
+				RCorePlugin.logError(-1, "Unexpected error while indent sources", e); //$NON-NLS-1$
+			}
 		}
 		finally {
 			if (fCodeStyle != null) {
@@ -507,7 +588,7 @@ public class RSourceIndenter {
 	
 	protected void correctLevels() throws BadLocationException {
 		int shift = 0;
-		if (fRefLine > 0) {
+		if (fRefLine >= 0) {
 			fLineLevels[fRefLine] = fLineLevels[fRefLine];
 			shift = fUtil.getLineIndent(fRefLine, false)[RIndentUtil.COLUMN_IDX]-fLineLevels[fRefLine];
 			fLineLevels[fRefLine] += shift;
@@ -515,7 +596,7 @@ public class RSourceIndenter {
 		else {
 			shift = 0;
 		}
-
+		
 //		System.out.println("SHIFT="+shift);
 //		if (fRefLine > 0) {
 //			System.out.println("REF="+" "+(fRefLine+1)+" ("+fLineOffsets[fRefLine]+" ): "+fLineLevels[fRefLine]);
@@ -527,7 +608,7 @@ public class RSourceIndenter {
 //			System.out.println(" "+(i+1)+" ("+fLineOffsets[i]+" ): "+fLineLevels[i]);
 //		}
 //		System.out.println();
-
+		
 		fLineLevels[fFirstLine] += + shift;
 		if (fLineLevels[fFirstLine] < 0) {
 			shift -= fLineLevels[fFirstLine];
@@ -543,16 +624,16 @@ public class RSourceIndenter {
 	
 	protected MultiTextEdit createEdits() throws BadLocationException, CoreException {
 		final MultiTextEdit edits = new MultiTextEdit();
-		IndentEditAction action = new IndentEditAction() {
+		final IndentEditAction action = new IndentEditAction() {
 			@Override
-			public int getIndentColumn(int line, int lineOffset) throws BadLocationException {
+			public int getIndentColumn(final int line, final int lineOffset) throws BadLocationException {
 				if (getDocumentChar(lineOffset) == '#' && getDocumentChar(lineOffset+1) != '#') {
 					return -1;
 				}
 				return fLineLevels[line];
 			}
 			@Override
-			public void doEdit(int line, int offset, int length, StringBuilder text)
+			public void doEdit(final int line, final int offset, final int length, final StringBuilder text)
 					throws BadLocationException {
 				if (text != null) {
 					edits.addChild(new ReplaceEdit(offset, length, text.toString()));
@@ -563,14 +644,14 @@ public class RSourceIndenter {
 		return edits;
 	}
 	
-	protected final int getDocumentChar(int idx) throws BadLocationException {
+	protected final int getDocumentChar(final int idx) throws BadLocationException {
 		if (idx >= 0 && idx < fDocument.getLength()) {
 			return fDocument.getChar(idx);
 		}
 		return -1;
 	}
 	
-	protected CoreException createFailedException(Throwable e) {
+	protected CoreException createFailedException(final Throwable e) {
 		return new CoreException(new Status(Status.ERROR, RCore.PLUGIN_ID, -1, "Indentation failed", e));
 	}
 }
@@ -598,7 +679,7 @@ class ScopeFactory {
 		}
 	
 	}
-
+	
 	
 	private static final int POOL_SIZE = 50;
 	private final int fLevelMult;
@@ -611,9 +692,9 @@ class ScopeFactory {
 	private RIndentUtil fUtil;
 	private RCodeStyleSettings fStyle;
 	private AbstractDocument fDoc;
-
 	
-	public ScopeFactory(RIndentUtil util, RCodeStyleSettings style, AbstractDocument doc) {
+	
+	public ScopeFactory(final RIndentUtil util, final RCodeStyleSettings style, final AbstractDocument doc) {
 		fUtil = util;
 		fStyle = style;
 		fDoc = doc;
@@ -623,7 +704,7 @@ class ScopeFactory {
 	}
 	
 	private class FirstLineStrategy implements IndentStrategy {
-		public int getIndent(Scope scope, int line) {
+		public int getIndent(final Scope scope, final int line) {
 			if (line <= scope.startLine) {
 				return scope.baseColumn;
 			}
@@ -633,17 +714,17 @@ class ScopeFactory {
 		}
 	}
 	private class FixStrategy implements IndentStrategy {
-		public int getIndent(Scope scope, int line) {
+		public int getIndent(final Scope scope, final int line) {
 			return scope.baseColumn;
 		}
 	}
-
+	
 	
 	private final IndentStrategy FIX_STRAT = new FixStrategy();
 	private final IndentStrategy FIRSTLINE_STRAT = new FirstLineStrategy();
 	
 	
-	private final void initNew(int offset, int line, RAstNode node, IndentStrategy strat, int baseColumn) {
+	private final void initNew(final int offset, final int line, final RAstNode node, final IndentStrategy strat, final int baseColumn) {
 		Scope scope;
 		if (fPoolPointer < POOL_SIZE) {
 			if (fPool[fPoolPointer] == null) {
@@ -664,7 +745,7 @@ class ScopeFactory {
 		fScope = scope;
 	}
 	
-
+	
 //	private final void updateCommandLine(final int offset, final RAstNode node) {
 //		if (fScope.commandDepth <= 1) {
 //			while (offset >= fLineOffsets[fCommandStartLine+1]) {
@@ -674,137 +755,93 @@ class ScopeFactory {
 //			fScope.commandStartLine = fCommandStartLine;
 //		}
 //	}
-
+	
 	public final Scope createDummy() {
 		initNew(0, 0, null, null, 0);
 		return fScope;
 	}
 	
-	public final void createSourceScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, 0);
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
+	public final void createSourceScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, 0);
 	}
 	
-	public final void createBlockScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			switch (node.getParent().getNodeType()) {
-			case C_IF:
-			case C_FOR:
-			case C_WHILE:
-			case F_DEF:
-				if (node.getParent().getChild(0) == node) {
-					// first are conditions
-					break;
-				}
-			case C_REPEAT:
-				// use control level instead of cont level
-				initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.parent.baseColumn);
-				return;
-			default:
+	public final void createBlockScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		switch (node.getParent().getNodeType()) {
+		case C_IF:
+		case C_FOR:
+		case C_WHILE:
+		case F_DEF:
+			if (node.getParent().getChild(0) == node) {
+				// first are conditions
 				break;
 			}
-			
-			initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.getIndent(line));
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
+		case C_REPEAT:
+			// use control level instead of cont level
+			initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.parent.baseColumn);
+			return;
+		default:
+			break;
+		}
+		
+		initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.getIndent(line));
+	}
+	
+	public final void createCommonExprScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line));
+	}
+	
+	public final void createGroupContScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line+1)+fStyle.getIndentGroupDepth()*fLevelMult);
+	}
+	
+	public final void createControlScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
+		boolean compact = true;
+		if (compact && node.getNodeType() == NodeType.C_IF
+				&& ((CIfElse) node).hasElse()) {
+			compact = false;
+		}
+		if (!useParent(compact, false, node)) {
+			fScope.baseColumn = fScope.parent.getIndent(line+1);
 		}
 	}
 	
-	public final void createCommonExprScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line));
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
+	public final void createControlCondScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line));
+	}
+	
+	public final void createControlContScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line)+fBlockCol);
+	}
+	
+	public final void createFCallScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
+		if (!useParent(true, false, node)) {
+			fScope.baseColumn = fScope.parent.getIndent(line+1);
 		}
 	}
 	
-	public final void createGroupContScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line+1)+fStyle.getIndentGroupDepth()*fLevelMult);
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
+	public final void createFDefScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
 	}
 	
-	public final void createControlScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
-			boolean compact = true;
-			if (compact && node.getNodeType() == NodeType.C_IF
-					&& ((CIfElse) node).hasElse()) {
-				compact = false;
-			}
-			if (!useParent(compact, false, node)) {
-				fScope.baseColumn = fScope.parent.getIndent(line+1);
-			}
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
+	public final void createFDeflistScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
 	}
 	
-	public final void createControlCondScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line));
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
-	}
-	
-	public final void createControlContScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIRSTLINE_STRAT, fScope.getIndent(line)+fBlockCol);
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
-	}
-	
-	public final void createFCallScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
-			if (!useParent(true, false, node)) {
-				fScope.baseColumn = fScope.parent.getIndent(line+1);
-			}
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
-	}
-	
-	public final void createFDefScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
-	}
-	
-	public final void createFDeflistScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
-	}
-	
-	public final void createArglistScope(int offset, RAstNode node) {
-		try {
-			final int line = fDoc.getLineOfOffset(offset);
-			initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
-		}
+	public final void createArglistScope(final int offset, final RAstNode node) throws BadLocationException {
+		final int line = fDoc.getLineOfOffset(offset);
+		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
 	}
 	
 	public final void leaveScope() {
@@ -812,7 +849,7 @@ class ScopeFactory {
 		fPoolPointer--;
 	}
 	
-	private final boolean useParent(boolean compact, boolean onlyAssignments, RAstNode node) throws BadLocationException {
+	private final boolean useParent(final boolean compact, final boolean onlyAssignments, RAstNode node) throws BadLocationException {
 		if (fScope.parent.commandNode == node) {
 			return true;
 		}
@@ -850,31 +887,28 @@ class ScopeFactory {
 		return false;
 	}
 	
-	private final boolean sameLine(int offset1, int offset2) throws BadLocationException {
+	private final boolean sameLine(final int offset1, final int offset2) throws BadLocationException {
 		return (offset1 == offset2
 				|| fDoc.getLineOfOffset(offset1) == fDoc.getLineOfOffset(offset2));
 	}
-
+	
 	public final void updateEnterBrackets() {
 		fScope.baseColumn += fBlockCol;
 	}
-
+	
 	public final void updateLeaveBrackets() {
 		fScope.baseColumn -= fBlockCol;
 	}
 	
-	public final void updateEnterFDefBody() {
-		try {
-			if (useParent(true, true, fScope.commandNode)) {
-				fScope.baseColumn = fScope.parent.baseColumn;
-			}
-		} catch (BadLocationException e) {
-			throw new AstAbortVisitException(e);
+	public final void updateEnterFDefBody() throws BadLocationException {
+		if (useParent(true, true, fScope.commandNode)) {
+			fScope.baseColumn = fScope.parent.baseColumn;
 		}
 	}
 	
 	public final int getIndent(final int line) {
 		return fScope.getIndent(line);
 	}
+	
 }
 

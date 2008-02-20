@@ -4,12 +4,16 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
+
+import static de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations.ATTR_R_CMD_COMMAND;
+import static de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations.ATTR_R_CMD_OPTIONS;
+import static de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations.ATTR_R_CMD_RESOURCE;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -68,21 +72,18 @@ import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
+import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
 
 
 /**
- *
+ * Main tab to configure R CMD tool launch configs.
  */
 public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	
-	private static final String ATTR_ROOT = "de.walware.statet.r.debug/RCmd/"; //$NON-NLS-1$
-	public static final String ATTR_CMD = ATTR_ROOT+"arguments.cmd"; //$NON-NLS-1$
-	public static final String ATTR_OPTIONS = ATTR_ROOT+"arguments.options"; //$NON-NLS-1$
-	public static final String ATTR_RESOURCE = ATTR_ROOT+"arguments.resource"; //$NON-NLS-1$
-
+	public static final String NS = "de.walware.statet.r.debug/RCmd/"; //$NON-NLS-1$
 	
 	private static class Cmd extends AbstractSettingsModelObject {
 		
@@ -94,21 +95,21 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		private String fCommand;
 		private int fType;
 		
-		public Cmd(String name, String command, int type) {
+		public Cmd(final String name, final String command, final int type) {
 			fName = name;
 			fCommand = command;
 			fType = type;
 		}
-
+		
 		public String getName() {
 			return fName;
 		}
-
+		
 		public int getType() {
 			return fType;
 		}
 		
-		public void setCommand(String command) {
+		public void setCommand(final String command) {
 			fCommand = command.trim();
 		}
 		
@@ -117,7 +118,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		}
 	}
 	
-
+	
 	private Cmd[] fCommands;
 	private Cmd fCustomCommand;
 	
@@ -142,7 +143,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	private void createCommands() {
-		List<Cmd> commands = new ArrayList<Cmd>();
+		final List<Cmd> commands = new ArrayList<Cmd>();
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdCheck_name, "CMD check", Cmd.PACKAGE)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdBuild_name, "CMD build", Cmd.PACKAGE)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdInstall_name, "CMD INSTALL", Cmd.PACKAGE)); //$NON-NLS-1$
@@ -151,6 +152,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRd2dvi_name, "CMD Rd2dvi", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRd2txt_name, "CMD Rd2txt", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdSd2Rd_name, "CMD Sd2Rd", Cmd.DOC)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdSweave_name, "CMD Sweave", Cmd.DOC)); //$NON-NLS-1$
 		fCustomCommand = new Cmd(RLaunchingMessages.RCmd_CmdOther_name, "", Cmd.CUSTOM); //$NON-NLS-1$
 		commands.add(fCustomCommand);
 		
@@ -171,8 +173,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 	
-	public void createControl(Composite parent) {
-		Composite mainComposite = new Composite(parent, SWT.NONE);
+	public void createControl(final Composite parent) {
+		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(new GridLayout());
@@ -182,27 +184,27 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		group.setText(RLaunchingMessages.RCmd_MainTab_Cmd_label);
 		createCommandControls(group);
-
-		Label note = new Label(mainComposite, SWT.WRAP);
+		
+		final Label note = new Label(mainComposite, SWT.WRAP);
 		note.setText(SharedMessages.Note_label + ": " + fArgumentsControl.getNoteText()); //$NON-NLS-1$
 		note.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true));
-
+		
 		Dialog.applyDialogFont(parent);
 		initBindings();
 	}
-		
-	private void createCommandControls(Composite container) {
-		for (ILaunchConfigurationTab tab : getLaunchConfigurationDialog().getTabs()) {
+	
+	private void createCommandControls(final Composite container) {
+		for (final ILaunchConfigurationTab tab : getLaunchConfigurationDialog().getTabs()) {
 			if (tab instanceof REnvTab) {
 				fREnvTab = tab;
 				break;
 			}
 		}
 		fWithHelp = (fREnvTab != null) && (getLaunchConfigurationDialog() instanceof TrayDialog);
-
+		
 		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 3));
-
-		String[] names = new String[fCommands.length];
+		
+		final String[] names = new String[fCommands.length];
 		for (int i = 0; i < fCommands.length; i++) {
 			names[i] = fCommands[i].getName();
 		}
@@ -210,8 +212,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		fCmdCombo.setContentProvider(new ArrayContentProvider());
 		fCmdCombo.setLabelProvider(new LabelProvider() {
 			@Override
-			public String getText(Object element) {
-				Cmd cmd = (Cmd) element;
+			public String getText(final Object element) {
+				final Cmd cmd = (Cmd) element;
 				return cmd.getName();
 			}
 		});
@@ -221,25 +223,25 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		
 		fCmdText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		fCmdText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, fWithHelp ? 1 : 2, 1));
-
+		
 		if (fWithHelp) {
 			fHelpButton = new Button(container, SWT.PUSH);
 			fHelpButton.setText(RLaunchingMessages.RCmd_MainTab_RunHelp_label);
 			fHelpButton.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					queryHelp();
 				}
 			});
-			GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
 			gd.widthHint = LayoutUtil.hintWidth(fHelpButton);
 			fHelpButton.setLayoutData(gd);
 		}
-
+		
 		LayoutUtil.addSmallFiller(container, false);
 		fArgumentsControl = new InputArgumentsComposite(container);
 		fArgumentsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
-
+		
 		fResourceControl = new ChooseResourceComposite(container,
 				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_TEXT,
 				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN,
@@ -249,14 +251,14 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	@Override
-	protected void addBindings(DataBindingContext dbc, Realm realm) {
+	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		fCmdValue = new WritableValue(realm, Cmd.class);
 		fArgumentsValue = new WritableValue(realm, String.class);
 		fResourceValue = new WritableValue(realm, String.class);
-
-		IObservableValue cmdSelection = ViewersObservables.observeSingleSelection(fCmdCombo);
+		
+		final IObservableValue cmdSelection = ViewersObservables.observeSingleSelection(fCmdCombo);
 		dbc.bindValue(cmdSelection, fCmdValue, null, null);
-		IValidator cmdValidator = new IValidator() {
+		final IValidator cmdValidator = new IValidator() {
 			public IStatus validate(Object value) {
 				String s = (String) value;
 				if (s == null || s.trim().length() == 0) {
@@ -278,8 +280,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fResourceControl.getValidator())), null);
 		cmdSelection.addValueChangeListener(new IValueChangeListener() {
-			public void handleValueChange(ValueChangeEvent event) {
-				Cmd cmd = (Cmd) event.diff.getNewValue();
+			public void handleValueChange(final ValueChangeEvent event) {
+				final Cmd cmd = (Cmd) event.diff.getNewValue();
 				if (cmd != null) {
 					fCmdText.setEditable(cmd.getType() == Cmd.CUSTOM);
 					String label;
@@ -307,19 +309,19 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(ATTR_CMD, fCommands[0].getCommand());
-		configuration.setAttribute(ATTR_OPTIONS, ""); //$NON-NLS-1$
-		configuration.setAttribute(ATTR_RESOURCE, "${resource_loc}"); //$NON-NLS-1$
+	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
+		configuration.setAttribute(ATTR_R_CMD_COMMAND, fCommands[0].getCommand());
+		configuration.setAttribute(ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$
+		configuration.setAttribute(ATTR_R_CMD_RESOURCE, "${resource_loc}"); //$NON-NLS-1$
 	}
-
+	
 	@Override
-	public void doInitialize(ILaunchConfiguration configuration) {
+	protected void doInitialize(final ILaunchConfiguration configuration) {
 		resetCommands();
 		Cmd cmd = null;
 		try {
-			String command = configuration.getAttribute(ATTR_CMD, ""); //$NON-NLS-1$
-			for (Cmd candidate : fCommands) {
+			final String command = configuration.getAttribute(ATTR_R_CMD_COMMAND, ""); //$NON-NLS-1$
+			for (final Cmd candidate : fCommands) {
 				if (candidate.getCommand().equals(command)) {
 					cmd = candidate;
 					break;
@@ -329,7 +331,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				fCustomCommand.setCommand(command);
 				cmd = fCustomCommand;
 			}
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			cmd = fCommands[0];
 			logReadingError(e);
 		}
@@ -337,9 +339,9 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		
 		String options = null;
 		try {
-			options = configuration.getAttribute(ATTR_OPTIONS, ""); //$NON-NLS-1$
+			options = configuration.getAttribute(RLaunchConfigurations.ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$
 			
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			options = ""; //$NON-NLS-1$
 			logReadingError(e);
 		}
@@ -347,8 +349,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		
 		String resource = null;
 		try {
-			resource = configuration.getAttribute(ATTR_RESOURCE, ""); //$NON-NLS-1$
-		} catch (CoreException e) {
+			resource = configuration.getAttribute(ATTR_R_CMD_RESOURCE, ""); //$NON-NLS-1$
+		} catch (final CoreException e) {
 			resource = ""; //$NON-NLS-1$
 		}
 		fResourceValue.setValue(resource);
@@ -357,12 +359,12 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	@Override
-	public void activated(ILaunchConfigurationWorkingCopy workingCopy) {
+	public void activated(final ILaunchConfigurationWorkingCopy workingCopy) {
 		checkHelp(workingCopy);
 		super.activated(workingCopy);
 	}
 	
-	private void checkHelp(ILaunchConfiguration configuration) {
+	private void checkHelp(final ILaunchConfiguration configuration) {
 		fConfigCache = configuration;
 		if (fWithHelp) {
 			fHelpButton.setEnabled(fREnvTab.isValid(fConfigCache));
@@ -370,10 +372,10 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	@Override
-	public void doSave(ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(ATTR_CMD, ((Cmd) fCmdValue.getValue()).getCommand());
-		configuration.setAttribute(ATTR_OPTIONS, (String) fArgumentsValue.getValue());
-		configuration.setAttribute(ATTR_RESOURCE, (String) fResourceValue.getValue());
+	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
+		configuration.setAttribute(ATTR_R_CMD_COMMAND, ((Cmd) fCmdValue.getValue()).getCommand());
+		configuration.setAttribute(ATTR_R_CMD_OPTIONS, (String) fArgumentsValue.getValue());
+		configuration.setAttribute(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, (String) fResourceValue.getValue());
 	}
 	
 	
@@ -382,13 +384,13 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			return;
 		}
 		try {
-			List<String> cmdLine = new ArrayList<String>();
-			ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
+			final List<String> cmdLine = new ArrayList<String>();
+			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
-			REnvConfiguration renv = REnvTab.getREnv(fConfigCache);
+			final REnvConfiguration renv = REnvTab.getREnv(fConfigCache);
 			
-			String cmd = ((Cmd) fCmdValue.getValue()).getCommand().trim();
+			final String cmd = ((Cmd) fCmdValue.getValue()).getCommand().trim();
 			if (cmd.length() != 0) {
 				cmdLine.addAll(Arrays.asList(cmd.split(" "))); //$NON-NLS-1$
 			}
@@ -399,25 +401,23 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			cmdLine.addAll(0, renv.getExecCommand(arg1, EnumSet.of(Exec.CMD)));
 			
 			cmdLine.add("--help"); //$NON-NLS-1$
-			HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
+			final HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
 			
-			helper.getProcessBuilder().environment();
-			Map<String, String> envp = helper.getProcessBuilder().environment();
-			envp.putAll(renv.getEnvironmentsVariables());
-			LaunchConfigUtil.configureEnvironment(fConfigCache, envp);
-
+			final Map<String, String> envp = helper.getProcessBuilder().environment();
+			LaunchConfigUtil.configureEnvironment(envp, fConfigCache, renv.getEnvironmentsVariables());
+			
 			dialog.run(true, true, helper);
 			updateLaunchConfigurationDialog();
 		}
-		catch(CoreException e) {
+		catch(final CoreException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RCmd_MainTab_error_CannotRunHelp_message, e),
 					StatusManager.LOG | StatusManager.SHOW);
-		} catch (InvocationTargetException e) {
+		} catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RCmd_MainTab_error_WhileRunningHelp_message, e.getTargetException()),
 					StatusManager.LOG | StatusManager.SHOW);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			Thread.interrupted();
 		}
 	}
@@ -429,4 +429,5 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		}
 		super.dispose();
 	}
+	
 }

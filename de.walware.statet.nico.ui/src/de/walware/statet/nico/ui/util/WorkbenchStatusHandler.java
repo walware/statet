@@ -18,7 +18,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 
 /**
- *
+ * Interface Core <-> UI for status handler.
  */
 public class WorkbenchStatusHandler implements IStatusHandler {
 

@@ -4,14 +4,18 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui.actions;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,12 +31,12 @@ import de.walware.statet.nico.ui.views.HistoryView;
 
 
 public class HistorySubmitAction extends BaseSelectionListenerAction {
-
+	
 	
 	private HistoryView fView;
 	
 	
-	public HistorySubmitAction(HistoryView view) {
+	public HistorySubmitAction(final HistoryView view) {
 		
 		super(NicoUIMessages.SubmitAction_name);
 		
@@ -43,32 +47,34 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 	}
 	
 	@Override
-	protected boolean updateSelection(IStructuredSelection selection) {
-		
+	protected boolean updateSelection(final IStructuredSelection selection) {
 		return (selection.size() > 0);
 	}
 	
 	@Override
 	public void run() {
-		
 		final IStructuredSelection selection = getStructuredSelection();
-		ToolProcess process = fView.getTool();
+		final ToolProcess process = fView.getTool();
 		final ToolController controller = (process != null) ? process.getController() : null;
 		if (selection == null || controller == null)
 			return;
 		
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-
-			public void run(IProgressMonitor monitor) throws InterruptedException {
-				
+		final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getProcess()), 1000);
 					
 					String[] commands = createCommandArray(selection);
 					monitor.worked(200);
 					
-					controller.submit(commands, SubmitType.EDITOR,
+					IStatus status = controller.submit(commands, SubmitType.EDITOR,
 							new SubProgressMonitor(monitor, 800));
+					if (status.getSeverity() >= IStatus.ERROR) {
+						throw new CoreException(status);
+					}
+				}
+				catch (CoreException e) {
+					throw new InvocationTargetException(e);
 				}
 				finally {
 					monitor.done();
@@ -86,14 +92,14 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 //		fView = null;
 //	}
 	
-	static String[] createCommandArray(IStructuredSelection selection) {
-		
-		Object[] elements = selection.toArray();
-		String[] commands = new String[elements.length];
+	static String[] createCommandArray(final IStructuredSelection selection) {
+		final Object[] elements = selection.toArray();
+		final String[] commands = new String[elements.length];
 		for (int i = 0; i < commands.length; i++) {
 			commands[i] = ((Entry) elements[i]).getCommand();
 		}
 		
 		return commands;
 	}
+	
 }

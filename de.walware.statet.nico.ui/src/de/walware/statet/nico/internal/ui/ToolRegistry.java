@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui;
@@ -48,13 +48,15 @@ import de.walware.statet.nico.ui.console.NIConsole;
 
 /**
  * 
- * TODO: remove debug messages, also in PageRegistry
  */
 public class ToolRegistry implements IToolRegistry {
-
+	
+	
+	static boolean DEBUG = false;
+	
 	
 	private class LaunchesListener implements ILaunchesListener {
-
+		
 		private class RemoveToolsJob extends Job {
 			
 			private List<ToolProcess> fList = new ArrayList<ToolProcess>();
@@ -63,23 +65,23 @@ public class ToolRegistry implements IToolRegistry {
 				super("Remove Tools"); //$NON-NLS-1$
 			}
 			
-			public synchronized void schedule(List<ToolProcess> list) {
+			public synchronized void schedule(final List<ToolProcess> list) {
 				cancel();
 				fList.addAll(list);
 				schedule(100);
 			}
 			
 			@Override
-			public synchronized IStatus run(IProgressMonitor monitor) {
+			public synchronized IStatus run(final IProgressMonitor monitor) {
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				}
 				
-				PageRegistry[] regs = getPageRegistries();
-				for (PageRegistry reg : regs) {
+				final PageRegistry[] regs = getPageRegistries();
+				for (final PageRegistry reg : regs) {
 					reg.reactOnConsolesRemoved(fList);
 				}
-				for (ToolProcess process : fList) {
+				for (final ToolProcess process : fList) {
 					notifyToolSessionClosed(process);
 				}
 				fList.clear();
@@ -88,17 +90,17 @@ public class ToolRegistry implements IToolRegistry {
 		};
 		
 		RemoveToolsJob fRemoveJob = new RemoveToolsJob();
-
-		public void launchesAdded(ILaunch[] launches) {
+		
+		public void launchesAdded(final ILaunch[] launches) {
 		}
-		public void launchesChanged(ILaunch[] launches) {
+		public void launchesChanged(final ILaunch[] launches) {
 		}
-
-		public void launchesRemoved(ILaunch[] launches) {
+		
+		public void launchesRemoved(final ILaunch[] launches) {
 			final List<ToolProcess> list = new ArrayList<ToolProcess>();
-			for (ILaunch launch : launches) {
-				IProcess[] processes = launch.getProcesses();
-				for (IProcess process : processes) {
+			for (final ILaunch launch : launches) {
+				final IProcess[] processes = launch.getProcesses();
+				for (final IProcess process : processes) {
 					if (process instanceof ToolProcess) {
 						list.add((ToolProcess) process);
 					}
@@ -111,15 +113,15 @@ public class ToolRegistry implements IToolRegistry {
 			
 			// Because debug plugin removes only ProcessConsoles, we have to do...
 			removeConsoles(list);
-
+			
 			fRemoveJob.schedule(list);
 		}
 		
-		private void removeConsoles(List<ToolProcess> processes) {
-			List<IConsole> toRemove = new ArrayList<IConsole>();
-			IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
-			IConsole[] consoles = manager.getConsoles();
-			for (IConsole console : consoles) {
+		private void removeConsoles(final List<ToolProcess> processes) {
+			final List<IConsole> toRemove = new ArrayList<IConsole>();
+			final IConsoleManager manager = ConsolePlugin.getDefault().getConsoleManager();
+			final IConsole[] consoles = manager.getConsoles();
+			for (final IConsole console : consoles) {
 				if ((console instanceof NIConsole) &&
 						processes.contains(((NIConsole) console).getProcess()) ) {
 					toRemove.add(console);
@@ -127,35 +129,34 @@ public class ToolRegistry implements IToolRegistry {
 			}
 			manager.removeConsoles(toRemove.toArray(new IConsole[toRemove.size()]));
 		}
-
+		
 	}
 	
 	private class PageListener implements IPageListener {
 		
-		public void pageOpened(IWorkbenchPage page) {
+		public void pageOpened(final IWorkbenchPage page) {
 		}
-		public void pageActivated(IWorkbenchPage page) {
+		public void pageActivated(final IWorkbenchPage page) {
 		}
 		
-		public void pageClosed(IWorkbenchPage page) {
-
+		public void pageClosed(final IWorkbenchPage page) {
 			PageRegistry reg;
 			synchronized (fPageRegistries) {
 				page.getWorkbenchWindow().removePageListener(this);
 				reg = fPageRegistries.remove(page);
 			}
-			for (Object obj : reg.fListeners.getListeners()) {
+			for (final Object obj : reg.fListeners.getListeners()) {
 				fListeners.remove(obj);
 			}
 			reg.dispose();
 		}
 	};
-
+	
 	private class JobListener implements IJobChangeListener {
 		
 		private AtomicInteger fOwnJobs = new AtomicInteger(0);
-
-		public void scheduled(IJobChangeEvent event) {
+		
+		public void scheduled(final IJobChangeEvent event) {
 			if (event.getJob().getName() == PageRegistry.SHOW_CONSOLE_JOB_NAME) {
 				fOwnJobs.incrementAndGet();
 			}
@@ -163,27 +164,29 @@ public class ToolRegistry implements IToolRegistry {
 				checkJob(event.getJob());
 			}
 		}
-		public void aboutToRun(IJobChangeEvent event) {
+		public void aboutToRun(final IJobChangeEvent event) {
 			checkJob(event.getJob());
 		}
-		public void done(IJobChangeEvent event) {
+		public void done(final IJobChangeEvent event) {
 			if (event.getJob().getName() == PageRegistry.SHOW_CONSOLE_JOB_NAME) {
 				fOwnJobs.decrementAndGet();
 			}
 		}
-		private void checkJob(Job eventJob) {
+		private void checkJob(final Job eventJob) {
 			if (fOwnJobs.get() > 0
 					&& eventJob.getName().startsWith("Show Console View")) { //$NON-NLS-1$)
 				eventJob.cancel();
-//				System.out.println("show job cancel");
+				if (DEBUG) {
+					System.out.println("[tool registry] show job cancel"); //$NON-NLS-1$
+				}
 			}
 		}
-
-		public void sleeping(IJobChangeEvent event) {
+		
+		public void sleeping(final IJobChangeEvent event) {
 		}
-		public void awake(IJobChangeEvent event) {
+		public void awake(final IJobChangeEvent event) {
 		}
-		public void running(IJobChangeEvent event) {
+		public void running(final IJobChangeEvent event) {
 		}
 	}
 	
@@ -210,9 +213,9 @@ public class ToolRegistry implements IToolRegistry {
 			DebugPlugin.getDefault().getLaunchManager().removeLaunchListener(fLaunchesListener);
 			fLaunchesListener = null;
 			
-			for (IWorkbenchPage page : fPageRegistries.keySet()) {
+			for (final IWorkbenchPage page : fPageRegistries.keySet()) {
 				page.getWorkbenchWindow().removePageListener(fPagesListener);
-				PageRegistry reg = fPageRegistries.get(page);
+				final PageRegistry reg = fPageRegistries.get(page);
 				reg.dispose();
 			}
 			fPageRegistries.clear();
@@ -221,10 +224,12 @@ public class ToolRegistry implements IToolRegistry {
 		
 		Job.getJobManager().addJobChangeListener(fJobListener);
 		fJobListener = null;
-//		System.out.println("Registry closed.");
+		if (DEBUG) {
+			System.out.println("[tool registry] registry closed."); //$NON-NLS-1$
+		}
 	}
-
-	private PageRegistry getPageRegistry(IWorkbenchPage page) {
+	
+	private PageRegistry getPageRegistry(final IWorkbenchPage page) {
 		if (page == null) {
 			return null;
 		}
@@ -242,51 +247,51 @@ public class ToolRegistry implements IToolRegistry {
 	
 	private PageRegistry[] getPageRegistries() {
 		synchronized (fPageRegistries) {
-			Collection<PageRegistry> collection = fPageRegistries.values();
+			final Collection<PageRegistry> collection = fPageRegistries.values();
 			return collection.toArray(new PageRegistry[collection.size()]);
 		}
 	}
 	
 	
-	public void addListener(IToolRegistryListener listener, IWorkbenchPage page) {
+	public void addListener(final IToolRegistryListener listener, final IWorkbenchPage page) {
 		fListeners.add(listener);
-		PageRegistry reg = getPageRegistry(page);
+		final PageRegistry reg = getPageRegistry(page);
 		if (reg != null) {
 			reg.fListeners.add(listener);
 		}
 	}
 	
-	public void removeListener(IToolRegistryListener listener) {
+	public void removeListener(final IToolRegistryListener listener) {
 		fListeners.remove(listener);
 		synchronized (fPageRegistries) {
-			for (PageRegistry reg : fPageRegistries.values()) {
+			for (final PageRegistry reg : fPageRegistries.values()) {
 				reg.fListeners.remove(listener);
 			}
 		}
 	}
 	
-	public void consoleActivated(IConsoleView consoleView, NIConsole console) {
-		IWorkbenchPage page = consoleView.getViewSite().getPage();
-		PageRegistry reg = getPageRegistry(page);
+	public void consoleActivated(final IConsoleView consoleView, final NIConsole console) {
+		final IWorkbenchPage page = consoleView.getViewSite().getPage();
+		final PageRegistry reg = getPageRegistry(page);
 		if (reg != null) {
 			reg.doActiveConsoleChanged(console, consoleView, Collections.EMPTY_LIST);
 		}
 	}
 	
-	public ToolSessionUIData getActiveToolSession(IWorkbenchPage page) {
+	public ToolSessionUIData getActiveToolSession(final IWorkbenchPage page) {
 		if (page == null) {
 			return null;
 		}
 		
-		PageRegistry reg = getPageRegistry(page);
+		final PageRegistry reg = getPageRegistry(page);
 		return reg.createSessionInfo(null);
 	}
 	
-	public IWorkbenchPage findWorkbenchPage(ToolProcess process) {
-		IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(false);
+	public IWorkbenchPage findWorkbenchPage(final ToolProcess process) {
+		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(false);
 		IWorkbenchPage page = null;
 		synchronized (fPageRegistries) {
-			for (PageRegistry reg : fPageRegistries.values()) {
+			for (final PageRegistry reg : fPageRegistries.values()) {
 				if (reg.getActiveProcess() == process) {
 					page = reg.getPage();
 					if (page == activePage) {
@@ -300,22 +305,24 @@ public class ToolRegistry implements IToolRegistry {
 		}
 		return activePage;
 	}
-
-	private void notifyToolSessionClosed(ToolProcess process) {
-		ToolSessionUIData info = new ToolSessionUIData(process, null, null);
-//		System.out.println("closed: " + info.toString());
+	
+	private void notifyToolSessionClosed(final ToolProcess process) {
+		final ToolSessionUIData info = new ToolSessionUIData(process, null, null);
 		
-		Object[] listeners = fListeners.getListeners();
-		for (Object obj : listeners) {
+		if (DEBUG) {
+			System.out.println("[tool registry] session closed: " + info.toString()); //$NON-NLS-1$
+		}
+		final Object[] listeners = fListeners.getListeners();
+		for (final Object obj : listeners) {
 			((IToolRegistryListener) obj).toolSessionClosed(info);
 		}
 	}
 	
 	
-	public void showConsole(NIConsole console, IWorkbenchPage page,
-			boolean activate) {
-		
-		PageRegistry reg = getPageRegistry(page);
+	public void showConsole(final NIConsole console, final IWorkbenchPage page,
+			final boolean activate) {
+		final PageRegistry reg = getPageRegistry(page);
 		reg.showConsole(console, activate);
 	}
+	
 }

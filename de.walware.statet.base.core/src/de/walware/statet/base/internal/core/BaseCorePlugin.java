@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -18,15 +18,16 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 
+import de.walware.statet.base.core.IExtContentTypeManager;
 import de.walware.statet.base.core.StatetCore;
 
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class BaseCorePlugin extends Plugin {
-
-
+public final class BaseCorePlugin extends Plugin {
+	
+	
 	/** The shared instance. */
 	private static BaseCorePlugin gPlugin;
 	
@@ -38,17 +39,18 @@ public class BaseCorePlugin extends Plugin {
 	public static BaseCorePlugin getDefault() {
 		return gPlugin;
 	}
-
-	public static void log(IStatus status) {
+	
+	public static void log(final IStatus status) {
 		getDefault().getLog().log(status);
 	}
 	
-	public static void logError(int code, String message, Throwable e) {
-		log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e)); 
+	public static void logError(final int code, final String message, final Throwable e) {
+		log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e));
 	}
-
+	
 	
 	private SettingsChangeNotifier fSettingsNotifier;
+	private ExtContentTypeServices fContentTypeServices;
 	
 	
 	/**
@@ -57,13 +59,16 @@ public class BaseCorePlugin extends Plugin {
 	public BaseCorePlugin() {
 		gPlugin = this;
 	}
-
-	public void start(BundleContext context) throws Exception {
+	
+	@Override
+	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 		fSettingsNotifier = new SettingsChangeNotifier();
+		fContentTypeServices = new ExtContentTypeServices();
 	}
-
-	public void stop(BundleContext context) throws Exception {
+	
+	@Override
+	public void stop(final BundleContext context) throws Exception {
 		gPlugin = null;
 		super.stop(context);
 		
@@ -71,11 +76,19 @@ public class BaseCorePlugin extends Plugin {
 			fSettingsNotifier.dispose();
 			fSettingsNotifier = null;
 		}
+		if (fContentTypeServices != null) {
+			fContentTypeServices.dispose();
+			fContentTypeServices = null;
+		}
 	}
 	
 	
 	public SettingsChangeNotifier getSettingsChangeNotifier() {
 		return fSettingsNotifier;
 	}
-
+	
+	public IExtContentTypeManager getContentTypeServices() {
+		return fContentTypeServices;
+	}
+	
 }

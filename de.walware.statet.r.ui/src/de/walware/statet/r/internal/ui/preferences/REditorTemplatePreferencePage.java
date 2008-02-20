@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.preferences;
@@ -32,13 +32,14 @@ import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
 import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
 
 
 /**
  * @see org.eclipse.jface.preference.PreferencePage
  */
 public class REditorTemplatePreferencePage extends TemplatePreferencePage {
-
+	
 //	private FormattingPreferences fFormattingPreferences= new FormattingPreferences();
 	SourceViewerConfigurator fViewerConfigurator;
 	TemplateVariableProcessor fTemplateProcessor;
@@ -46,31 +47,31 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	TemplateVariableProcessor fDialogTemplateProcessor;
 	
 	
-    public REditorTemplatePreferencePage() {
-        setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
-        setTemplateStore(RUIPlugin.getDefault().getREditorTemplateStore());
-        setContextTypeRegistry(RUIPlugin.getDefault().getREditorTemplateContextRegistry());
-        
-        fTemplateProcessor = new TemplateVariableProcessor();
-        fViewerConfigurator = new RCodeTemplatesProvider.RTemplateConfigurator(
-        		RCore.getWorkbenchAccess(),
-        		fTemplateProcessor);
-
-        fDialogTemplateProcessor = new TemplateVariableProcessor();
-        fDialogViewerConfigurator = new RCodeTemplatesProvider.RTemplateConfigurator(
-        		RCore.getWorkbenchAccess(),
-        		fDialogTemplateProcessor);
-    }
-    
-    @Override
-    public void setVisible(boolean visible) {
-    	super.setVisible(visible);
-    	setTitle(Messages.REditorTemplates_title);
-    }
-
-    @Override
+	public REditorTemplatePreferencePage() {
+		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
+		setTemplateStore(RUIPlugin.getDefault().getREditorTemplateStore());
+		setContextTypeRegistry(RUIPlugin.getDefault().getREditorTemplateContextRegistry());
+		
+		fTemplateProcessor = new TemplateVariableProcessor();
+		fViewerConfigurator = new RTemplateSourceViewerConfigurator(
+				RCore.getWorkbenchAccess(),
+				fTemplateProcessor);
+		
+		fDialogTemplateProcessor = new TemplateVariableProcessor();
+		fDialogViewerConfigurator = new RTemplateSourceViewerConfigurator(
+				RCore.getWorkbenchAccess(),
+				fDialogTemplateProcessor);
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		setTitle(Messages.REditorTemplates_title);
+	}
+	
+	@Override
 	protected SourceViewer createViewer(Composite parent) {
-    	SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setEditable(false);	
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 		
@@ -79,20 +80,20 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		// updater
 		new SettingsUpdater(fViewerConfigurator, viewer.getControl());
 		new SourceViewerUpdater(viewer, configuration, fViewerConfigurator.getPreferenceStore());
-
+		
 		IDocument document = new Document();
 		fViewerConfigurator.getDocumentSetupParticipant().setup(document);
 		viewer.setDocument(document);
 		
 		return viewer;
-    }
-    
-    @Override
-    protected void updateViewerInput() {
-    	super.updateViewerInput();
-    	
+	}
+	
+	@Override
+	protected void updateViewerInput() {
+		super.updateViewerInput();
+		
 		IStructuredSelection selection = (IStructuredSelection) getTableViewer().getSelection();
-
+		
 		if (selection.size() == 1) {
 			TemplatePersistenceData data = (TemplatePersistenceData) selection.getFirstElement();
 			Template template = data.getTemplate();
@@ -102,27 +103,27 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		} else {
 //			fPatternViewer.getDocument().set(""); //$NON-NLS-1$
 		}
-    }
-    
-    @Override
-    protected Template editTemplate(Template template, boolean edit, boolean isNameModifiable) {
-    	de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
-    			getShell(), template, edit, isNameModifiable, 
+	}
+	
+	@Override
+	protected Template editTemplate(Template template, boolean edit, boolean isNameModifiable) {
+		de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
+				getShell(), template, edit, isNameModifiable, 
 				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry());
 		if (dialog.open() == Dialog.OK) {
 			return dialog.getTemplate();
 		}
 		return null;
-    }
-
+	}
+	
 	@Override
 	protected boolean isShowFormatterSetting() {
 		return false;
 	}
-
+	
 	@Override
-    protected String getFormatterPreferenceKey() {
+	protected String getFormatterPreferenceKey() {
 		return null;
 	}
-
+	
 }

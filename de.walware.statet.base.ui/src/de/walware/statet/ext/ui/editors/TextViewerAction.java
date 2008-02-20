@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000-2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,11 +30,11 @@ import de.walware.eclipsecommons.ui.SharedMessages;
  * @since 3.0
  */
 public class TextViewerAction extends Action implements IUpdate {
-
 	
-	private int fOperationCode = -1;
+	
+	private int fOperationCode;
 	private ITextOperationTarget fOperationTarget;
-
+	
 	
 	/**
 	 * Constructs a new action in the given text viewer with
@@ -43,8 +43,7 @@ public class TextViewerAction extends Action implements IUpdate {
 	 * @param viewer
 	 * @param operationCode
 	 */
-	public TextViewerAction(ITextViewer viewer, int operationCode) {
-		
+	public TextViewerAction(final ITextViewer viewer, final int operationCode) {
 		assert (viewer != null);
 		assert (operationCode != -1);
 		
@@ -52,49 +51,42 @@ public class TextViewerAction extends Action implements IUpdate {
 		fOperationTarget = viewer.getTextOperationTarget();
 		update();
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.texteditor.IUpdate#update()
-	 * 
-	 * Updates the enabled state of the action.
-	 * Fires a property change if the enabled state changes.
-	 * 
-	 * @see org.eclipse.jface.action.Action#firePropertyChange(String, Object, Object)
-	 */
+	
 	public void update() {
-
-		setEnabled(fOperationTarget.canDoOperation(fOperationCode));
+		setEnabled(fOperationTarget != null && fOperationTarget.canDoOperation(fOperationCode));
 	}
 	
+	@Override
 	public void run() {
-			
-		fOperationTarget.doOperation(fOperationCode);
+		if (isEnabled()) {
+			fOperationTarget.doOperation(fOperationCode);
+		}
 	}
 	
 	
-	public static TextViewerAction createDeleteAction(ITextViewer viewer) {
+	public static TextViewerAction createDeleteAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.DELETE);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.DELETE);
 		action.setId(ActionFactory.DELETE.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.DELETE);
 		action.setText(SharedMessages.DeleteAction_name);
 		action.setToolTipText(SharedMessages.DeleteAction_tooltip);
 		return action;
 	}
-
-	public static TextViewerAction createCutAction(ITextViewer viewer) {
+	
+	public static TextViewerAction createCutAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.CUT);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.CUT);
 		action.setId(ActionFactory.CUT.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.CUT);
 		action.setText(SharedMessages.CutAction_name);
 		action.setToolTipText(SharedMessages.CutAction_tooltip);
 		return action;
 	}
-
-	public static TextViewerAction createCopyAction(ITextViewer viewer) {
+	
+	public static TextViewerAction createCopyAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.COPY);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.COPY);
 		action.setId(ActionFactory.COPY.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.COPY);
 		action.setText(SharedMessages.CopyAction_name);
@@ -102,9 +94,9 @@ public class TextViewerAction extends Action implements IUpdate {
 		return action;
 	}
 	
-	public static TextViewerAction createPasteAction(ITextViewer viewer) {
+	public static TextViewerAction createPasteAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.PASTE);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.PASTE);
 		action.setId(ActionFactory.PASTE.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);
 		action.setText(SharedMessages.PasteAction_name);
@@ -112,9 +104,9 @@ public class TextViewerAction extends Action implements IUpdate {
 		return action;
 	}
 	
-	public static TextViewerAction createSelectAllAction(ITextViewer viewer) {
+	public static TextViewerAction createSelectAllAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.SELECT_ALL);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.SELECT_ALL);
 		action.setId(ActionFactory.SELECT_ALL.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.SELECT_ALL);
 		action.setText(SharedMessages.SelectAllAction_name);
@@ -122,23 +114,24 @@ public class TextViewerAction extends Action implements IUpdate {
 		return action;
 	}
 	
-	public static TextViewerAction createUndoAction(ITextViewer viewer) {
+	public static TextViewerAction createUndoAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.UNDO);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.UNDO);
 		action.setId(ActionFactory.UNDO.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.UNDO);
 		action.setText(SharedMessages.UndoAction_name);
 		action.setToolTipText(SharedMessages.UndoAction_tooltip);
 		return action;
 	}
-
-	public static TextViewerAction createRedoAction(ITextViewer viewer) {
+	
+	public static TextViewerAction createRedoAction(final ITextViewer viewer) {
 		
-		TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.REDO);
+		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.REDO);
 		action.setId(ActionFactory.REDO.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.REDO);
 		action.setText(SharedMessages.RedoAction_name);
 		action.setToolTipText(SharedMessages.RedoAction_tooltip);
 		return action;
 	}
+	
 }

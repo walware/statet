@@ -33,6 +33,30 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	
 	
 	/**
+	 * Unique id of the runnable type (not instance).
+	 * 
+	 * @return the id
+	 */
+	public String getTypeId();
+	
+	/**
+	 * Return the submit type of this entry. The same runnable should
+	 * always return the same type.
+	 * 
+	 * @return the type
+	 */
+	public SubmitType getSubmitType();
+
+	/**
+	 * Return a label for this runnable, used by the UI.
+	 * 
+	 * @return the label
+	 */
+	public String getLabel();
+	
+	public void changed(int event);
+	
+	/**
 	 * This method is called by the tool controller, when it is one's turn.
 	 * <p>
 	 * This method is running in the Tool-thread and blocks the thread,
@@ -52,25 +76,4 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	public void run(T tools, IProgressMonitor monitor)
 			throws InterruptedException, CoreException;
 	
-	/**
-	 * Unique id of the runnable type (not instance).
-	 * 
-	 * @return the id
-	 */
-	public String getTypeId();
-	
-	/**
-	 * Return a label for this runnable, used by the UI.
-	 * 
-	 * @return the label
-	 */
-	public String getLabel();
-	
-	/**
-	 * Return the submit type of this entry. The same runnable should
-	 * always return the same type.
-	 * 
-	 * @return the type
-	 */
-	public SubmitType getSubmitType();
 }

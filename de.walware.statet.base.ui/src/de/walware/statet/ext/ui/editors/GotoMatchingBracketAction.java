@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -20,20 +20,20 @@ import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.eclipsecommons.ltk.text.ITokenScanner;
+import de.walware.eclipsecommons.ui.text.PairMatcher;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.ext.ui.text.PairMatcher;
 
 
 public class GotoMatchingBracketAction extends Action {
 	
 	
 	public static final String ACTION_ID = "de.walware.statet.ui.actions.GotoMatchingBracket"; //$NON-NLS-1$
-
+	
 	
 	private PairMatcher fPairMatcher;
 	private IEditorAdapter fEditor;
-
+	
 	
 	public GotoMatchingBracketAction(PairMatcher pairMatcher, IEditorAdapter editor) {
 		
@@ -47,7 +47,7 @@ public class GotoMatchingBracketAction extends Action {
 		setDescription(EditorMessages.GotoMatchingBracketAction_description);
 		setId(ACTION_ID);
 		setActionDefinitionId(IStatetUICommandIds.GOTO_MATCHING_BRACKET);
-
+		
 		setEnabled(true);
 	}
 	
@@ -56,7 +56,7 @@ public class GotoMatchingBracketAction extends Action {
 		
 		gotoMatchingBracket();
 	}
-
+	
 	/**
 	 * Jumps to the matching bracket.
 	 */
@@ -72,7 +72,7 @@ public class GotoMatchingBracketAction extends Action {
 		int offset = selection.getOffset();
 		int selectionLength = selection.getLength();
 		char[][] brackets = fPairMatcher.getPairs();
-
+		
 		if (selectionLength == 1) {
 			try {
 				char c = document.getChar(offset);
@@ -96,7 +96,7 @@ public class GotoMatchingBracketAction extends Action {
 			sourceViewer.getTextWidget().getDisplay().beep();
 			return;
 		}
-
+		
 		IRegion region = fPairMatcher.match(document, offset);
 		if (region == null) {
 			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket);
@@ -130,4 +130,5 @@ public class GotoMatchingBracketAction extends Action {
 		sourceViewer.setSelectedRange(targetOffset, 0);
 		sourceViewer.revealRange(targetOffset, 0);
 	}
+	
 }

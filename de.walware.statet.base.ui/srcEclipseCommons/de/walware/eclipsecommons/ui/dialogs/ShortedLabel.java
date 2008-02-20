@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.Listener;
  *  - Hover text.
  */
 public class ShortedLabel {
-
-	private static final Pattern fLineBreakPattern = Pattern.compile("\\r[\\n]?|\\n");
+	
+	private static final Pattern fLineBreakPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
 	private String fText;
@@ -42,7 +42,6 @@ public class ShortedLabel {
 	
 	
 	public ShortedLabel(Composite parent, int style) {
-		
 		fLabel = new Label(parent, style);
 		fLabel.addListener(SWT.Resize, new Listener() {
 			public void handleEvent(Event event) {
@@ -52,12 +51,10 @@ public class ShortedLabel {
 	}
 	
 	public Label getControl() {
-		
 		return fLabel;
 	}
 	
 	public void setText(String label) {
-		
 		assert (label != null);
 		
 		if (label.equals(fText)) {
@@ -69,7 +66,6 @@ public class ShortedLabel {
 	}
 	
 	public void setLineBreakReplacement(String s) {
-		
 		assert (s != null);
 		
 		fLineBreakReplacement = s;
@@ -79,12 +75,10 @@ public class ShortedLabel {
 	}
 	
 	private void updateChecking() {
-		
 		fCheckedText = fLineBreakPattern.matcher(fText).replaceAll(fLineBreakReplacement);
 	}
 	
 	private void updateShortening() {
-		
 		String text = new Shorter(fLabel).shorten(fCheckedText);
 		fLabel.setText(text);
 		fLabel.setToolTipText((text == fCheckedText) ? null : fText);
@@ -95,21 +89,19 @@ public class ShortedLabel {
 		
 		private static final String ELLIPSIS = " ... "; //$NON-NLS-1$
 		private static final int DRAW_FLAGS = SWT.DRAW_TAB;
-
+		
 		Control fControl;
 		GC fGC;
 		int fMaxWidth;
 		
 		String fText;
-
+		
 		
 		public Shorter(Control control) {
-			
 			fControl = control;
 		}
 		
 		public String shorten(final String text) {
-			
 			if (text == null || text.length() == 0) {
 				return text;
 			}
@@ -132,9 +124,9 @@ public class ShortedLabel {
 			
 			int avgCharWidth = fGC.getFontMetrics().getAverageCharWidth();
 			int textLength = fText.length();
-
+			
 			int ellipsisWidth = fGC.textExtent(ELLIPSIS, DRAW_FLAGS).x;
-
+			
 			int max2 = (fMaxWidth-ellipsisWidth) * 42 / 100;
 			if (max2 < avgCharWidth*3) {
 				max2 = 0;
@@ -173,19 +165,18 @@ public class ShortedLabel {
 					break;
 				}
 			}
-
+			
 			return fText.substring(0, s)+ELLIPSIS+fText.substring(e, textLength);
 		}
-
+		
 		private int measurePart1(int end) {
-			
 			return fGC.textExtent(fText.substring(0, end), DRAW_FLAGS).x; 
 		}
 		
 		private int measurePart2(int start) {
-			
 			return fGC.textExtent(fText.substring(start), DRAW_FLAGS).x;
 		}
 	}
+	
 }
 

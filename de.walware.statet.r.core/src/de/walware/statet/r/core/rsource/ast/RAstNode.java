@@ -1,29 +1,30 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-
 /**
- *
+ * A node of a R AST
  */
 public abstract class RAstNode implements IAstNode {
 	
@@ -41,19 +42,28 @@ public abstract class RAstNode implements IAstNode {
 	static final RAstNode[] NO_CHILDREN = new RAstNode[0];
 	
 	
-	RAstNode fParent;
+	RAstNode fRParent;
 	int fStartOffset;
 	int fStopOffset;
 	IStatus fStatus;
 	private Object[] fAttachment;
-
+	
+	
+	protected RAstNode() {
+		fStatus = Status.OK_STATUS;
+	}
+	
+	protected RAstNode(final IStatus status) {
+		fStatus = status;
+	}
+	
 	
 	public abstract NodeType getNodeType();
 	
 	public final RAstNode getParent() {
-		return fParent;
+		return fRParent;
 	}
-
+	
 	public final RAstNode getRoot() {
 		RAstNode candidate = this;
 		RAstNode p;
@@ -86,10 +96,10 @@ public abstract class RAstNode implements IAstNode {
 	
 	public abstract int getChildIndex(IAstNode child);
 	
-	int getEqualsIndex(RAstNode element) {
-		RAstNode[] children = getChildren();
+	int getEqualsIndex(final RAstNode element) {
+		final RAstNode[] children = getChildren();
 		int index = 0;
-		for (RAstNode child : children) {
+		for (final RAstNode child : children) {
 			if (child == element) {
 				return index;
 			}
@@ -103,9 +113,9 @@ public abstract class RAstNode implements IAstNode {
 	abstract Expression getExpr(RAstNode child);
 	abstract Expression getLeftExpr();
 	abstract Expression getRightExpr();
-
+	
 	@Override
-	public final boolean equals(Object obj) {
+	public final boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -116,23 +126,23 @@ public abstract class RAstNode implements IAstNode {
 		RAstNode me = this;
 		RAstNode other = (RAstNode) obj;
 		while (me != other) {
-			if (me.fParent == null || other.fParent == null) {
-				return (me.fParent == null && other.fParent == null);
+			if (me.fRParent == null || other.fRParent == null) {
+				return (me.fRParent == null && other.fRParent == null);
 			}
-			if ((!me.fParent.equalsSingle(other.fParent))
-					|| (me.fParent.getEqualsIndex(me) != other.fParent.getEqualsIndex(other))
+			if ((!me.fRParent.equalsSingle(other.fRParent))
+					|| (me.fRParent.getEqualsIndex(me) != other.fRParent.getEqualsIndex(other))
 					) {
 				return false;
 			}
-			me = me.fParent;
-			other = other.fParent;
+			me = me.fRParent;
+			other = other.fRParent;
 		}
 		return true;
 	}
 	
 	public abstract boolean equalsSingle(RAstNode element);
-
-	void appendPathElement(StringBuilder s) {
+	
+	void appendPathElement(final StringBuilder s) {
 //		if (fParent != null) {
 //			s.append(fParent.getEqualsIndex(this));
 //		}
@@ -142,13 +152,13 @@ public abstract class RAstNode implements IAstNode {
 	
 	@Override
 	public int hashCode() {
-		StringBuilder path = new StringBuilder();
-		if (fParent != null) {
-			if (fParent.fParent != null) {
-				path.append(fParent.fParent.getNodeType().ordinal());
+		final StringBuilder path = new StringBuilder();
+		if (fRParent != null) {
+			if (fRParent.fRParent != null) {
+				path.append(fRParent.fRParent.getNodeType().ordinal());
 			}
 			path.append('$');
-			path.append(fParent.getNodeType().ordinal());
+			path.append(fRParent.getNodeType().ordinal());
 		}
 		appendPathElement(path);
 		return path.toString().hashCode();
@@ -156,14 +166,14 @@ public abstract class RAstNode implements IAstNode {
 	
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder();
-		RAstNode parent = getParent();
+		final StringBuilder s = new StringBuilder();
+		final RAstNode parent = getParent();
 		if (parent != null) {
 			if (parent instanceof FlatMulti) {
-				FlatMulti multi = (FlatMulti) parent;
-				RTerminal operator = multi.getOperator(multi.getChildIndex(this));
-				s.append(operator != null ? operator.text : "•");
-				s.append("  ");
+				final FlatMulti multi = (FlatMulti) parent;
+				final RTerminal operator = multi.getOperator(multi.getChildIndex(this));
+				s.append(operator != null ? operator.text : "•"); //$NON-NLS-1$
+				s.append("  "); //$NON-NLS-1$
 			}
 		}
 //		s.append("«");
@@ -173,50 +183,51 @@ public abstract class RAstNode implements IAstNode {
 		return s.toString();
 	}
 	
-	public void accept(CommonAstVisitor visitor) {
+	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
-	public abstract void accept(RAstVisitor visitor);
-	public abstract void acceptInChildren(RAstVisitor visitor);
+	public abstract void acceptInR(RAstVisitor visitor) throws InvocationTargetException;
+	public abstract void acceptInRChildren(RAstVisitor visitor) throws InvocationTargetException;
 	
-	protected final void acceptChildren(RAstVisitor visitor, List<? extends RAstNode> children) {
-		for (RAstNode child : children) {
-			child.accept(visitor);
-		}
-	}
-
-	protected final void acceptChildren(CommonAstVisitor visitor, List<? extends RAstNode> children) {
-		for (RAstNode child : children) {
-			child.accept(visitor);
-		}
-	}
-
-	protected final void acceptChildrenExpr(RAstVisitor visitor, List<Expression> children) {
-		for (Expression expr : children) {
-			expr.node.accept(visitor);
+	protected final void acceptChildren(final RAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
+		for (final RAstNode child : children) {
+			child.acceptInR(visitor);
 		}
 	}
 	
-	protected final void acceptChildrenExpr(CommonAstVisitor visitor, List<Expression> children) {
-		for (Expression expr : children) {
+	protected final void acceptChildren(final ICommonAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
+		for (final RAstNode child : children) {
+			child.accept(visitor);
+		}
+	}
+	
+	protected final void acceptChildrenExpr(final RAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
+		for (final Expression expr : children) {
+			expr.node.acceptInR(visitor);
+		}
+	}
+	
+	protected final void acceptChildrenExpr(final ICommonAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
+		for (final Expression expr : children) {
 			expr.node.accept(visitor);
 		}
 	}
 	
 	abstract void updateStopOffset();
-
 	
-	public void setAttachment(int i, Object data) {
+	
+	public void setAttachment(final int i, final Object data) {
 		if (fAttachment == null) {
 			fAttachment = new Object[2];
 		}
 		fAttachment[i] = data;
 	}
 	
-	public Object getAttachment(int i) {
+	public Object getAttachment(final int i) {
 		if (fAttachment != null) {
 			return fAttachment[i];
 		}
 		return null;
 	}
+	
 }

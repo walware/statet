@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource;
@@ -20,9 +20,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-
 public abstract class RLexer {
-
 	
 	protected final static IStatus STATUS_OK = Status.OK_STATUS;
 	protected final static IStatus STATUS_STRING_S_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
@@ -50,11 +48,11 @@ public abstract class RLexer {
 	private StringBuilder fUnknwonString = new StringBuilder();
 	
 	
-	public RLexer(SourceParseInput input) {
+	public RLexer(final SourceParseInput input) {
 		reset(input);
 	}
 	
-	protected void reset(SourceParseInput input) {
+	protected void reset(final SourceParseInput input) {
 		fInput = input;
 		fNextIndex = 0;
 		fNextNum = 0;
@@ -62,12 +60,26 @@ public abstract class RLexer {
 	}
 	
 	
+	public void setFull() {
+		fInput.init();
+		reset(fInput);
+	}
+	
+	public void setRange(final int offset, final int length) {
+		fInput.init(offset, offset+length);
+		reset(fInput);
+	}
+	
 	protected final void searchNext() {
 		fInput.consume(fNextNum);
 		fNextIndex = fInput.getIndex();
 		fNextNum = 1;
 		final int c1 = fInput.get(1);
-
+		
+		searchNext1(c1);
+	}
+	
+	protected void searchNext1(final int c1) {
 		switch(c1) { // tableswitch for ascii chars
 		case SourceParseInput.EOF:
 			createFix(RTerminal.EOF);
@@ -416,7 +428,7 @@ public abstract class RLexer {
 			scanIdentifier();
 			if (fNextNum == 4
 					&& fInput.subequals(2, 'e', 'x', 't')) {
-				createFix(RTerminal.REPEAT);
+				createFix(RTerminal.NEXT);
 				return;
 			}
 			createSymbolToken();
@@ -481,7 +493,7 @@ public abstract class RLexer {
 			}
 			break;
 		}
-
+		
 		if (fUnknownState == 0) {
 			fUnknownState = 1;
 			return;
@@ -490,7 +502,7 @@ public abstract class RLexer {
 	}
 	
 	private final void consumeUnknown() {
-		int unknownIndex = fNextIndex;
+		final int unknownIndex = fNextIndex;
 		int unknownNum = 0;
 		do {
 			unknownNum += fNextNum;
@@ -505,7 +517,7 @@ public abstract class RLexer {
 		fNextIndex = unknownIndex;
 		fNextNum = unknownNum;
 		createUnknownToken(fUnknwonString.toString());
-
+		
 		if (fUnknwonString.length() > 40 || fUnknwonString.capacity() > 40) {
 			fUnknwonString.setLength(16);
 			fUnknwonString.trimToSize();
@@ -545,7 +557,7 @@ public abstract class RLexer {
 			}
 		}
 	}
-
+	
 	private final void consumeStringDoubleQuote() {
 		// 1 == '\"'
 		LOOP : while (true) {
@@ -648,7 +660,7 @@ public abstract class RLexer {
 			}
 		}
 	}
-
+	
 	private final void consumeNumberInDec() {
 		// only dec digits
 		IStatus status = STATUS_OK;
@@ -728,7 +740,7 @@ public abstract class RLexer {
 			return STATUS_OK;
 		}
 	}
-
+	
 	private final void scanIdentifier() {
 		// after legal start
 		LOOP : while (true) {
@@ -770,7 +782,7 @@ public abstract class RLexer {
 			}
 		}
 	}
-
+	
 	
 	protected abstract void createFix(RTerminal type);
 	protected abstract void createSpecialToken(IStatus status);
@@ -784,5 +796,5 @@ public abstract class RLexer {
 		
 	protected void handleNewLine() {
 	}
-
+	
 }

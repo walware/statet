@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
@@ -19,7 +19,9 @@ import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;
 
 
-
+/**
+ * Lexer for RScanner.
+ */
 class RScannerLexer extends RLexer {
 	
 	
@@ -49,7 +51,7 @@ class RScannerLexer extends RLexer {
 			searchNext();
 		} while (fNextToken.type == null);
 	}
-
+	
 	
 	@Override
 	protected void createFix(RTerminal type) {
@@ -61,12 +63,12 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createSpecialToken(IStatus status) {
+	protected void createSpecialToken(final IStatus status) {
 		fNextToken.type = RTerminal.SPECIAL;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
 		fNextToken.text = null;
-		fNextToken.status = STATUS_OK;
+		fNextToken.status = status;
 	}
 	
 	@Override
@@ -79,16 +81,16 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createStringToken(RTerminal type, IStatus status) {
+	protected void createStringToken(final RTerminal type, final IStatus status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
 		fNextToken.text = null;
 		fNextToken.status = status;
 	}
-
+	
 	@Override
-	protected void createNumberToken(RTerminal type, IStatus status) {
+	protected void createNumberToken(final RTerminal type, final IStatus status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
@@ -109,9 +111,9 @@ class RScannerLexer extends RLexer {
 		fNextToken.text = null;
 		fNextToken.status = STATUS_OK;
 	}
-
+	
 	@Override
-	protected void createLinebreakToken(String text) {
+	protected void createLinebreakToken(final String text) {
 		fNextToken.type = RTerminal.LINEBREAK;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
@@ -120,12 +122,12 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createUnknownToken(String text) {
+	protected void createUnknownToken(final String text) {
 		fNextToken.type = RTerminal.UNKNOWN;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
 		fNextToken.text = text;
 		fNextToken.status = STATUS_OK;
 	}
-		
+	
 }

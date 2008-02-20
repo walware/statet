@@ -45,7 +45,7 @@ public class LoginHandler implements IToolEventHandler {
 		
 		private Text fNameField;
 		private Text fPassField;
-		private String[] fData;
+		private LoginEventData fData;
 		private ToolProcess fProcess;
 		
 		public LoginDialog(Shell shell) {
@@ -74,14 +74,14 @@ public class LoginHandler implements IToolEventHandler {
 			GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(fNameField, 25);
 			fNameField.setLayoutData(gd);
-			fNameField.setText(fData[0]);
+			fNameField.setText(fData.name);
 			
 			label = new Label(inputComposite, SWT.LEFT);
 			label.setText(Messages.Login_Dialog_Password_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			fPassField = new Text(inputComposite, SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
 			fPassField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			fPassField.setText(fData[1]);
+			fPassField.setText(fData.password);
 			
 			return parent;
 		}
@@ -99,15 +99,15 @@ public class LoginHandler implements IToolEventHandler {
 		
 		@Override
 		protected void okPressed() {
-			fData[0] = fNameField.getText();
-			fData[1] = fPassField.getText();
+			fData.name = fNameField.getText();
+			fData.password = fPassField.getText();
 			super.okPressed();
 		}
 	}
 	
 	
 	public int handle(IToolRunnableControllerAdapter tools, Object contextData) {
-		final String[] loginData = (String[]) contextData;
+		final LoginEventData loginData = (LoginEventData) contextData;
 		final AtomicInteger result = new AtomicInteger(CANCEL);
 		final ToolProcess process = tools.getController().getProcess();
 		UIAccess.getDisplay().syncExec(new Runnable() {

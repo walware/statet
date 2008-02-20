@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Wahlbrink - adaptions for StatET-usage and IEditorAdapter
@@ -36,12 +36,12 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * or the fraction that is right from the cursor.
  */
 public class DeleteLineAction extends Action {
-
+	
 	/**
 	 * Delete the whole line.
 	 */
 	public static final int WHOLE = org.eclipse.ui.texteditor.DeleteLineAction.WHOLE;
-
+	
 	/**
 	 * Delete to the beginning of line.
 	 */
@@ -51,7 +51,7 @@ public class DeleteLineAction extends Action {
 	 * Delete to the end of line.
 	 */
 	public static final int TO_END = org.eclipse.ui.texteditor.DeleteLineAction.TO_END;
-
+	
 	
 	/**
 	 * The type of deletion.
@@ -67,7 +67,7 @@ public class DeleteLineAction extends Action {
 	 */
 	
 	private IEditorAdapter fEditor;
-
+	
 	
 	/**
 	 * Creates a line deletion action.
@@ -89,7 +89,7 @@ public class DeleteLineAction extends Action {
 		
 		update();
 	}
-
+	
 	protected void checkCommand() {
 		if (fCopyToClipboard) {
 			switch (fType) {
@@ -137,16 +137,16 @@ public class DeleteLineAction extends Action {
 			StatetUIPlugin.logUnexpectedError(e);
 		}
 	}
-
+	
 	private void deleteLine() throws BadLocationException {
 		ISourceViewer sourceViewer = fEditor.getSourceViewer();
 		IDocument document = sourceViewer.getDocument();
 		Point selection = sourceViewer.getSelectedRange();
-
+		
 		if (document == null || selection == null) {
 			return;
 		}
-
+		
 		IRegion deleteRegion = getDeleteRegion(document, selection.x, selection.y, fType);
 		if (fCopyToClipboard) {
 			String text = document.get(deleteRegion.getOffset(), deleteRegion.getLength());
@@ -162,29 +162,29 @@ public class DeleteLineAction extends Action {
 		}
 		document.replace(deleteRegion.getOffset(), deleteRegion.getLength(), ""); //$NON-NLS-1$
 	}
-
+	
 	
 	private static IRegion getDeleteRegion(IDocument document, int offset, int length, int type) throws BadLocationException {
 		int line = document.getLineOfOffset(offset);
 		int temp;
-
+		
 		switch  (type) {
 		case DeleteLineAction.WHOLE:
-			BasicHeuristicTokenScanner scanner = new BasicHeuristicTokenScanner("");
+			BasicHeuristicTokenScanner scanner = new BasicHeuristicTokenScanner(""); //$NON-NLS-1$
 			scanner.configure(document, null);
 			return scanner.getTextBlock(offset, offset+length);
-
+		
 		case DeleteLineAction.TO_BEGINNING:
 			temp = document.getLineOffset(line);
 			return new Region(temp, offset-temp);
-
+		
 		case DeleteLineAction.TO_END:
 			temp = document.getLineOffset(line)+document.getLineLength(line);
 			return new Region(offset, temp-offset);
-
+		
 		default:
 			throw new IllegalArgumentException();
 		}
 	}
-
+	
 }

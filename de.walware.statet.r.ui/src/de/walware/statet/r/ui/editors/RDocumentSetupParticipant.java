@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -16,8 +16,9 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 
+import de.walware.eclipsecommons.ui.text.Partitioner;
+
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.internal.ui.Partitioner;
 import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
 
 
@@ -25,17 +26,17 @@ import de.walware.statet.r.ui.text.r.RFastPartitionScanner;
  * The document setup participant for R.
  */
 public class RDocumentSetupParticipant implements IDocumentSetupParticipant {
-
-
+	
+	
 	public RDocumentSetupParticipant() {
 	}
 	
-
-	public void setup(IDocument document) {
+	
+	public void setup(final IDocument document) {
 		if (document instanceof IDocumentExtension3) {
 			// Setup the document scanner
-			IDocumentPartitioner partitioner = createDocumentPartitioner();
-			IDocumentExtension3 extension3 = (IDocumentExtension3) document;
+			final IDocumentPartitioner partitioner = createDocumentPartitioner();
+			final IDocumentExtension3 extension3 = (IDocumentExtension3) document;
 			extension3.setDocumentPartitioner(IRDocumentPartitions.R_DOCUMENT_PARTITIONING, partitioner);
 			partitioner.connect(document);
 		}
@@ -45,4 +46,5 @@ public class RDocumentSetupParticipant implements IDocumentSetupParticipant {
 		return new Partitioner(
 				new RFastPartitionScanner(), IRDocumentPartitions.R_PARTITIONS);
 	}
+	
 }

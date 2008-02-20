@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core.builder;
@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 
 
 public class RdParser {
-
+	
 	private static class LineManager implements ILineResolver {
 		
 		IntList fList = new ArrayIntList();
@@ -39,8 +39,8 @@ public class RdParser {
 	
 	
 	private static final char[][] PLATFORM_KEYWORDS = {			// without '#'
-		"ifdef".toCharArray(), "ifndef".toCharArray(), "endif".toCharArray() };
-
+		"ifdef".toCharArray(), "ifndef".toCharArray(), "endif".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	
 	private enum Last { NONE, NEWLINE, BACKSLASH };
 	
 	private MarkerHandler fMarkers;
@@ -51,9 +51,9 @@ public class RdParser {
 	private Last fLastChar = Last.NONE;
 	private LineManager fLineStructure;
 	
-
+	
 	public RdParser(char[] content, MarkerHandler markers) {
-
+		
 		fContent = content;
 		fMarkers = markers;
 		fLineStructure = new LineManager();
@@ -65,7 +65,7 @@ public class RdParser {
 				
 			if (checkNewLine())
 				continue READ;
-	
+			
 			if (checkBackslash())
 				continue READ;
 					
@@ -74,7 +74,7 @@ public class RdParser {
 			case '%':
 				readComment();
 				continue READ;
-
+			
 			case '#':
 				if (fLastChar == Last.NEWLINE) {
 					CHECK_KEYS: for (int i = 0; i < PLATFORM_KEYWORDS.length; i++) {
@@ -104,7 +104,7 @@ public class RdParser {
 				break READ;
 		}
 	}
-
+	
 	private void readComment() throws CoreException {
 		
 		int start = fCurrentOffset;
@@ -120,9 +120,9 @@ public class RdParser {
 		}
 		fMarkers.checkForTasks(new String(fContent, start, end-start+1), start, fLineStructure);
 	}
-
+	
 	private boolean checkNewLine() {
-
+		
 		char current = fContent[fCurrentOffset];
 		if (current == '\r' || current == '\n') {
 			
@@ -149,5 +149,5 @@ public class RdParser {
 		}
 		return false;
 	}
-
+	
 }

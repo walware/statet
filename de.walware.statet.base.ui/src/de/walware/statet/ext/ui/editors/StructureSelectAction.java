@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -26,35 +26,35 @@ import de.walware.statet.base.ui.IStatetUICommandIds;
 
 
 public abstract class StructureSelectAction extends Action {
-
+	
 	
 	public static class Enclosing extends StructureSelectAction {
-
-		public Enclosing(StatextEditor1<?, ?> editor, SelectionHistory history) {
+		
+		public Enclosing(final StatextEditor1<?> editor, final SelectionHistory history) {
 			super(editor, history);
 			setId("SelectEnclosingElement"); //$NON-NLS-1$
 			setActionDefinitionId(IStatetUICommandIds.SELECT_ENCLOSING);
 		}
-
+		
 		@Override
-		IRegion concreteNewSelectionRange(AstSelection selection) {
-			IAstNode covering = selection.getCovering();
+		IRegion concreteNewSelectionRange(final AstSelection selection) {
+			final IAstNode covering = selection.getCovering();
 			return createRegion(covering.getStartOffset(), covering.getStopOffset());
 		}
 		
 	}
-
+	
 	public static class Next extends StructureSelectAction {
-
-		public Next(StatextEditor1<?, ?> editor, SelectionHistory history) {
+		
+		public Next(final StatextEditor1<?> editor, final SelectionHistory history) {
 			super(editor, history);
 			setId("SelectNextElement"); //$NON-NLS-1$
 			setActionDefinitionId(IStatetUICommandIds.SELECT_NEXT);
 		}
-
+		
 		@Override
-		IRegion concreteNewSelectionRange(AstSelection selection) {
-			IAstNode covering = selection.getCovering();
+		IRegion concreteNewSelectionRange(final AstSelection selection) {
+			final IAstNode covering = selection.getCovering();
 			IAstNode child = selection.getChildLastTouching();
 			if (child == null || selection.getStopOffset() >= child.getStopOffset()) {
 				child = selection.getChildAfter();
@@ -66,18 +66,18 @@ public abstract class StructureSelectAction extends Action {
 		}
 		
 	}
-
+	
 	public static class Previous extends StructureSelectAction {
-
-		public Previous(StatextEditor1<?, ?> editor, SelectionHistory history) {
+		
+		public Previous(final StatextEditor1<?> editor, final SelectionHistory history) {
 			super(editor, history);
 			setId("RestoreLastSelection"); //$NON-NLS-1$
 			setActionDefinitionId(IStatetUICommandIds.SELECT_PREVIOUS);
 		}
-
+		
 		@Override
-		IRegion concreteNewSelectionRange(AstSelection selection) {
-			IAstNode covering = selection.getCovering();
+		IRegion concreteNewSelectionRange(final AstSelection selection) {
+			final IAstNode covering = selection.getCovering();
 			IAstNode child = selection.getChildFirstTouching();
 			if (child == null || selection.getStartOffset() <= child.getStartOffset()) {
 				child = selection.getChildBefore();
@@ -89,32 +89,32 @@ public abstract class StructureSelectAction extends Action {
 		}
 		
 	}
-
-
-	private StatextEditor1<?, ?> fEditor;
+	
+	
+	private StatextEditor1<?> fEditor;
 	private SelectionHistory fSelectionHistory;
-
-	protected StructureSelectAction(StatextEditor1<?, ?> editor, SelectionHistory history) {
+	
+	protected StructureSelectAction(final StatextEditor1<?> editor, final SelectionHistory history) {
 		super();
 		assert (editor != null);
 		assert (history != null);
 		fEditor = editor;
 		fSelectionHistory = history;
 	}
-
+	
 	@Override
 	public final  void run() {
-		ISourceUnit inputElement = fEditor.getSourceUnit();
+		final ISourceUnit inputElement = fEditor.getSourceUnit();
 		if (inputElement == null) {
 			return;
 		}
-		AstInfo<? extends IAstNode> astInfo = inputElement.getAstInfo(true, new NullProgressMonitor());
+		final AstInfo<? extends IAstNode> astInfo = inputElement.getAstInfo(null, true, new NullProgressMonitor());
 		if (astInfo == null) {
 			return;
 		}
-
-		ITextSelection selection = getTextSelection();
-		IRegion newRange = getNewSelectionRange(selection.getOffset(), selection.getOffset()+selection.getLength(), astInfo);
+		
+		final ITextSelection selection = getTextSelection();
+		final IRegion newRange = getNewSelectionRange(selection.getOffset(), selection.getOffset()+selection.getLength(), astInfo);
 		if (newRange == null) {
 			return;
 		}
@@ -126,10 +126,10 @@ public abstract class StructureSelectAction extends Action {
 			fSelectionHistory.listenToSelectionChanges();
 		}
 	}
-
+	
 	public final IRegion getNewSelectionRange(final int oldStart, final int oldStop, final AstInfo<? extends IAstNode> ast) {
 //		try {
-			AstSelection selection = AstSelection.search(ast.root, oldStart, oldStop, AstSelection.MODE_COVERING_GREATER);
+			final AstSelection selection = AstSelection.search(ast.root, oldStart, oldStop, AstSelection.MODE_COVERING_GREATER);
 			if (selection.getCovering() == null) {
 				return null;
 			}
@@ -144,7 +144,7 @@ public abstract class StructureSelectAction extends Action {
 	 * Subclasses determine the actual new selection.
 	 */
 	abstract IRegion concreteNewSelectionRange(AstSelection selection);
-
+	
 	protected final ITextSelection getTextSelection() {
 		return (ITextSelection)fEditor.getSelectionProvider().getSelection();
 	}
@@ -152,5 +152,5 @@ public abstract class StructureSelectAction extends Action {
 	protected final IRegion createRegion(final int start, final int stop) {
 		return new Region(start, stop-start);
 	}
-
+	
 }

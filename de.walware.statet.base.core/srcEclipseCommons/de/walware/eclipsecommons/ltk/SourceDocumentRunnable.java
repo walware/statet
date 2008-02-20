@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -21,20 +21,20 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
  *
  */
 public abstract class SourceDocumentRunnable {
-
+	
 	
 	private AbstractDocument fDocument;
 	private long fStamp;
 	private DocumentRewriteSessionType fRewriteSessionType;
-
+	
 	
 	public SourceDocumentRunnable(final AbstractDocument document, final long assertedStamp, final DocumentRewriteSessionType rewriteSessionType) {
 		fDocument = document;
 		fStamp = assertedStamp;
 		fRewriteSessionType = rewriteSessionType;
 	}
-
-
+	
+	
 	public final DocumentRewriteSessionType getRewriteSessionType() {
 		return fRewriteSessionType;
 	}
@@ -52,8 +52,8 @@ public abstract class SourceDocumentRunnable {
 		return fStamp;
 	}
 	
-
+	
 	public abstract void run(AbstractDocument document) throws InvocationTargetException;
-
-
+	
+	
 }

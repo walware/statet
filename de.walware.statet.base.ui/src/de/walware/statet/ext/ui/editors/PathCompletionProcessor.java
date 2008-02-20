@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -58,13 +58,13 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * Content assist processor for completion of path for local file system resources.
  */
 public abstract class PathCompletionProcessor implements IContentAssistProcessor {
-
+	
 	
 	private static final String[] DEFAULT_BOUNDS = new String[] { "\"", "\'" }; //$NON-NLS-1$ //$NON-NLS-2$
 	
 	
 	private class ResourceProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension3 {
-
+		
 		private IFileStore fFileStore;
 		private boolean fIsDirectory;
 		private String fName;
@@ -114,7 +114,7 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 				}
 			}
 		}
-
+		
 		
 		public Image getImage() {
 			return fImage;
@@ -123,29 +123,29 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		public String getDisplayString() {
 			return fName;
 		}
-
+		
 		public void selected(ITextViewer viewer, boolean smartToggle) {
 		}
-
+		
 		public void unselected(ITextViewer viewer) {
 		}
-
+		
 		public String getAdditionalProposalInfo() {
 			return null;
 		}
-
+		
 		public IContextInformation getContextInformation() {
 			return null;
 		}
-
+		
 		public IInformationControlCreator getInformationControlCreator() {
 			return null;
 		}
-
+		
 		public boolean validate(IDocument document, int offset, DocumentEvent event) {
 			return false;
 		}
-
+		
 		public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
 			apply(viewer.getDocument());
 			if (fIsDirectory && viewer instanceof ITextOperationTarget) {
@@ -159,7 +159,7 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 				});
 			}
 		}
-
+		
 		public void apply(IDocument document) {
 			createCompletion(document);
 			try {
@@ -173,22 +173,17 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		public Point getSelection(IDocument document) {
 			return new Point(fTarget.getOffset()+fCompletion.length(), 0);
 		}
-
+		
 		public int getPrefixCompletionStart(IDocument document, int completionOffset) {
 			return fTarget.getOffset();
 		}
-
+		
 		public CharSequence getPrefixCompletionText(IDocument document, int completionOffset) {
 			createCompletion(document);
 			return fCompletion;
 		}
-
+		
 	}
-//	private REditor fEditor;
-	
-//	public RTemplateComparator(REditor editor) {
-//		fEditor = editor;
-//	}
 	
 	
 	private String fPathSeparator;
@@ -203,11 +198,11 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 	public char[] getCompletionProposalAutoActivationCharacters() {
 		return new char[] { '/', '\\', ':' };
 	}
-
+	
 	public char[] getContextInformationAutoActivationCharacters() {
 		return null;
 	}
-
+	
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		try {
 			IDocument document = viewer.getDocument();
@@ -235,7 +230,7 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 					else {
 						path = new Path(prefix.substring(0, prefix.length()-2));
 					}
-					start = ".";
+					start = "."; //$NON-NLS-1$
 					separatorAtEnd = true;
 				}
 				else if (lastChar == ':' && prefix.length() == 2) {
@@ -286,10 +281,10 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 			}
 			// Separator type
 			updatePathSeparator(prefix);
-	
+			
 			List<ICompletionProposal> matches = new ArrayList<ICompletionProposal>();
 			doAdd(matches, baseStore, start, (!separatorAtEnd) ? fPathSeparator : null, start.length(), region);
-			if (start != null && start.length() > 0 && !start.equals(".")) {
+			if (start != null && start.length() > 0 && !start.equals(".")) { //$NON-NLS-1$
 				baseStore = baseStore.getChild(start);
 				if (baseStore.fetchInfo().exists()) {
 					StringBuilder fullPrefix = new StringBuilder(baseStore.getName());
@@ -361,11 +356,11 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 	public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
 		return null;
 	}
-
+	
 	public IContextInformationValidator getContextInformationValidator() {
 		return null;
 	}
-
+	
 	public String getErrorMessage() {
 		return null;
 	}

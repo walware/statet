@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -14,6 +14,7 @@ package de.walware.eclipsecommons;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -48,7 +49,7 @@ import de.walware.statet.base.core.StatetCore;
  * Utilities to work with files.
  */
 public class FileUtil {
-
+	
 	
 	public static String UTF_8 = "UTF-8"; //$NON-NLS-1$
 	public static String UTF_16_BE = "UTF-16BE"; //$NON-NLS-1$
@@ -56,22 +57,22 @@ public class FileUtil {
 	
 	private static EFSUtilImpl EFS_UTIL = new EFSUtilImpl();
 	private static WorkspaceUtilImpl WORKSPACE_UTIL = new WorkspaceUtilImpl();
-
+	
 	
 /*-- Local files --*/
-	public static IFileStore getLocalFileStore(String s) throws CoreException {
+	public static IFileStore getLocalFileStore(final String s) throws CoreException {
 		
 		if (s.length() > 0) {
-			IFileSystem localFS = EFS.getLocalFileSystem();
+			final IFileSystem localFS = EFS.getLocalFileSystem();
 			if (s.startsWith(EFS.SCHEME_FILE)) {
-				return localFS.getStore(URIUtil.toURI(s.substring(localFS.getScheme().length())));
+				return localFS.getStore(URI.create(s));
 			}
-			IPath path = Path.fromOSString(s);
+			final IPath path = Path.fromOSString(s);
 			if (path.isUNC()) {
 				return localFS.getStore(URIUtil.toURI(path));
 			}
 			if (path.isAbsolute()) {
-				String device = path.getDevice();
+				final String device = path.getDevice();
 				if (device == null || device.length() <= 2) {
 					return localFS.getStore(URIUtil.toURI(path));
 				}
@@ -80,20 +81,20 @@ public class FileUtil {
 		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No local filesystem resource."));
 	}
 	
-	public static IFileStore expandToLocalFileStore(String location, String child) throws CoreException {
+	public static IFileStore expandToLocalFileStore(final String location, final String child) throws CoreException {
 		
-		IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
-		String expanded = variables.performStringSubstitution(location);
-		IFileStore localFileStore = getLocalFileStore(expanded);
+		final IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
+		final String expanded = variables.performStringSubstitution(location);
+		final IFileStore localFileStore = getLocalFileStore(expanded);
 		if (child != null) {
 			return localFileStore.getChild(child);
 		}
 		return localFileStore;
 	}
 	
-	public static IPath expandToLocalPath(String location, String child) throws CoreException {
+	public static IPath expandToLocalPath(final String location, final String child) throws CoreException {
 		
-		IFileStore fileStore = expandToLocalFileStore(location, child);
+		final IFileStore fileStore = expandToLocalFileStore(location, child);
 		return URIUtil.toPath(fileStore.toURI());
 	}
 	
@@ -109,27 +110,27 @@ public class FileUtil {
 		protected AbstractFileOperation() {
 		}
 		
-		public void setFileOperationMode(int mode) {
+		public void setFileOperationMode(final int mode) {
 			fMode = mode;
 		}
 		
-		public void setCharset(String charset, boolean forceCharset) {
+		public void setCharset(final String charset, final boolean forceCharset) {
 			fCharset = charset;
 			fForceCharset = forceCharset;
 		}
 		
 		protected abstract String getFileLabel();
 		
-		public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		public void doOperation(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 			runInEnv(monitor);
 		}
 		
 		protected abstract void runInEnv(IProgressMonitor monitor) throws CoreException, OperationCanceledException;
-
-		protected void runAsWorkspaceRunnable(IProgressMonitor monitor, IResource scope) throws CoreException, OperationCanceledException {
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			ISchedulingRule rule = workspace.getRuleFactory().createRule(scope);
-			IWorkspaceRunnable workspaceRunner = new IWorkspaceRunnable() {
+		
+		protected void runAsWorkspaceRunnable(final IProgressMonitor monitor, final IResource scope) throws CoreException, OperationCanceledException {
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			final ISchedulingRule rule = workspace.getRuleFactory().createRule(scope);
+			final IWorkspaceRunnable workspaceRunner = new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					runInEnv(monitor);
 				}
@@ -143,24 +144,24 @@ public class FileUtil {
 		protected WriteTextFileOperation() {
 			super();
 		}
-
+		
 		protected abstract void writeImpl(IProgressMonitor monitor) throws CoreException, UnsupportedEncodingException, IOException;
-
+		
 		@Override
-		protected void runInEnv(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+		protected void runInEnv(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 			try {
 				monitor.beginTask("Writing to "+getFileLabel(), 100);
 				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
 				}
-
+				
 				writeImpl(monitor);
 			}
-			catch (UnsupportedEncodingException e) {
+			catch (final UnsupportedEncodingException e) {
 				throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"The selected charset is unsupported on your system.", e));
 			}
-			catch (IOException e) {
+			catch (final IOException e) {
 				throw new CoreException(new Status(Status.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"Error while writing to file.", e));
 			}
@@ -170,13 +171,13 @@ public class FileUtil {
 		}
 	}
 	
-	public static WriteTextFileOperation createWriteTextFileOp(String content, Object file) {
+	public static WriteTextFileOperation createWriteTextFileOp(final String content, final Object file) {
 		if (file instanceof IFile) {
 			return WORKSPACE_UTIL.createWriteTextFileOp(content, file);
 		}
 		else if (file instanceof IFileStore) {
-			IFileStore efsFile = (IFileStore) file;
-			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
+			final IFileStore efsFile = (IFileStore) file;
+			final IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
 			if (iFile != null) {
 				return WORKSPACE_UTIL.createWriteTextFileOp(content, iFile);
 			}
@@ -184,8 +185,8 @@ public class FileUtil {
 		}
 		throw new IllegalArgumentException("Unknown file object.");
 	}
-
-
+	
+	
 	public static interface ReaderAction {
 		
 		void run(BufferedReader reader, IProgressMonitor monitor) throws IOException, CoreException;
@@ -200,30 +201,30 @@ public class FileUtil {
 		public ReadTextFileOperation() {
 			super();
 		}
-
+		
 		@Override
-		protected void runInEnv(IProgressMonitor monitor) throws CoreException {
+		protected void runInEnv(final IProgressMonitor monitor) throws CoreException {
 			FileInput fi = null;
 			BufferedReader reader = null;
 			try {
 				monitor.beginTask(null, 100);
-				String fileLabel = getFileLabel();
+				final String fileLabel = getFileLabel();
 				monitor.subTask("Opening "+fileLabel+"...");
 				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
 				}
-			
+				
 				fi = getInput(new SubProgressMonitor(monitor, 10));
 				fi.setEncoding(fCharset, fForceCharset);
-
+				
 				reader = new BufferedReader(fi.getReader());
 				monitor.worked(5);
 				monitor.subTask("Reading "+fileLabel+"...");
 				getAction().run(reader, new SubProgressMonitor(monitor, 80));
-			} catch (UnsupportedEncodingException e) {
+			} catch (final UnsupportedEncodingException e) {
 				throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"The selected charset is unsupported on your system.", e));
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new CoreException(new Status(Status.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 						"Error while reading the file.", e));
 			}
@@ -240,13 +241,13 @@ public class FileUtil {
 	 * @return
 	 * @throws CoreException
 	 */
-	public static ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
+	public static ReadTextFileOperation createReadTextFileOp(final ReaderAction action, final Object file) {
 		if (file instanceof IFile) {
 			return WORKSPACE_UTIL.createReadTextFileOp(action, file);
 		}
 		else if (file instanceof IFileStore) {
-			IFileStore efsFile = (IFileStore) file;
-			IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
+			final IFileStore efsFile = (IFileStore) file;
+			final IFile iFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(efsFile.toURI().getPath()));
 			if (iFile != null) {
 				return WORKSPACE_UTIL.createReadTextFileOp(action, iFile);
 			}
@@ -256,7 +257,7 @@ public class FileUtil {
 	}
 	
 	
-	public static long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
+	public static long getTimeStamp(final Object file, final IProgressMonitor monitor) throws CoreException {
 		if (file instanceof IFile) {
 			return WORKSPACE_UTIL.getTimeStamp(file, monitor);
 		}

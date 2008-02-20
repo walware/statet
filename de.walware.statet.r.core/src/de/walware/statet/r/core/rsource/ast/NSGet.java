@@ -1,52 +1,65 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import java.lang.reflect.InvocationTargetException;
 
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * <code>§namespace§ :: §element§</code>
+ * <code>§namespace§ ::: §element§</code>
  */
 public abstract class NSGet extends RAstNode {
 	
-	public static class Std extends NSGet {
+	static class Std extends NSGet {
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.NS_GET;
 		}
-
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final RTerminal getOperator() {
+			return RTerminal.NS_GET;
+		}
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.NS_GET);
 		}
-
+		
 	}
-
-	public static class Internal extends NSGet {
+	
+	static class Internal extends NSGet {
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.NS_GET_INT;
 		}
-
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final RTerminal getOperator() {
+			return RTerminal.NS_GET_INT;
+		}
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.NS_GET_INT);
 		}
-
 		
 	}
 	
@@ -66,7 +79,7 @@ public abstract class NSGet extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		switch (index) {
 		case 0:
 			return fNamespace;
@@ -76,14 +89,14 @@ public abstract class NSGet extends RAstNode {
 			throw new IndexOutOfBoundsException();
 		}
 	}
-
+	
 	@Override
 	public final RAstNode[] getChildren() {
 		return new RAstNode[] { fNamespace, fElement };
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fNamespace == child) {
 			return 0;
 		}
@@ -92,34 +105,36 @@ public abstract class NSGet extends RAstNode {
 		}
 		return -1;
 	}
-
+	
 	public final RAstNode getNamespaceChild() {
 		return fNamespace;
 	}
 	
+	public abstract RTerminal getOperator();
+	
 	public final RAstNode getElementChild() {
 		return fElement;
 	}
-
+	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-		fNamespace.accept(visitor);
-		fElement.accept(visitor);
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fNamespace.acceptInR(visitor);
+		fElement.acceptInR(visitor);
 	}
-
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fNamespace.accept(visitor);
 		fElement.accept(visitor);
 	}
 	
-
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		return null;
 	}
 	
@@ -133,13 +148,14 @@ public abstract class NSGet extends RAstNode {
 		return null;
 	}
 	
+	
 	final void updateStartOffset() {
 		fStartOffset = fNamespace.fStartOffset;
 	}
 	
 	@Override
 	final void updateStopOffset() {
-		fStopOffset = getElementChild().fStopOffset;
+		fStopOffset = fElement.fStopOffset;
 	}
-
+	
 }

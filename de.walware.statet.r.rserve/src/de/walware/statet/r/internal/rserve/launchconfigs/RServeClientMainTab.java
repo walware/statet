@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Lesser General Public License 
+ * are made available under the terms of the GNU Lesser General Public License
  * v2.1 or newer, which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/lgpl.html
  *
@@ -55,6 +55,7 @@ public class RServeClientMainTab extends LaunchConfigTabWithDbc {
 		return "&Main";
 	}
 	
+	@Override
 	public Image getImage() {
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
@@ -75,10 +76,10 @@ public class RServeClientMainTab extends LaunchConfigTabWithDbc {
 
 	@Override
 	protected void addBindings(DataBindingContext dbc, Realm realm) {
-		dbc.bindValue(SWTObservables.observeText(fServerAddress, SWT.Modify), 
-				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERADDRESS), 
+		dbc.bindValue(SWTObservables.observeText(fServerAddress, SWT.Modify),
+				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERADDRESS),
 				null, null);
-		dbc.bindValue(SWTObservables.observeText(fServerPort, SWT.Modify), 
+		dbc.bindValue(SWTObservables.observeText(fServerPort, SWT.Modify),
 				BeansObservables.observeValue(fConnectionConfig, ConnectionConfig.PROP_SERVERPORT),
 				new UpdateValueStrategy(UpdateValueStrategy.POLICY_UPDATE)
 						.setAfterGetValidator(new NumberValidator(0, 65535, "The valid port range is 0-65535.")),
@@ -91,11 +92,12 @@ public class RServeClientMainTab extends LaunchConfigTabWithDbc {
 	}
 
 	@Override
-	public void doInitialize(ILaunchConfiguration configuration) {
+	protected void doInitialize(ILaunchConfiguration configuration) {
 		fConnectionConfig.load(configuration);
 	}
 
-	public void doSave(ILaunchConfigurationWorkingCopy configuration) {
+	@Override
+	protected void doSave(ILaunchConfigurationWorkingCopy configuration) {
 		fConnectionConfig.save(configuration);
 	}
 

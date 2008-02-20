@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors.templates;
@@ -32,6 +32,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
+import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.IStatetContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
@@ -41,60 +42,60 @@ import de.walware.statet.r.ui.editors.REditor;
 
 
 public class REditorContext extends DocumentTemplateContext implements IStatetContext {
-
+	
 	
 	private REditor fEditor;
 	
 	
-	public REditorContext(TemplateContextType type, IDocument document,	int offset, int length,
-			REditor editor) {
+	public REditorContext(final TemplateContextType type, final IDocument document,	final int offset, final int length,
+			final REditor editor) {
 		super(type, document, offset, length);
 		fEditor = editor;
 	}
-
+	
 //	public REditorContext(TemplateContextType type, IDocument document,	Position position) {
 //		super(type, document, position);
 //	}
 	
 	public StatetProject getStatetProject() {
-		return fEditor.getSourceUnit().getStatetProject();
+		return StatetCore.getStatetProject(fEditor.getSourceUnit());
 	}
 	
-	public String getInfo(Template template) throws BadLocationException, TemplateException {
-		TemplateBuffer buffer = super.evaluate(template);
+	public String evaluateInfo(final Template template) throws BadLocationException, TemplateException {
+		final TemplateBuffer buffer = super.evaluate(template);
 		if (buffer != null)
 			return buffer.getString();
 		return null;
 	}
 	
 	@Override
-	public TemplateBuffer evaluate(Template template) throws BadLocationException, TemplateException {
-		TemplateBuffer buffer = super.evaluate(template);
+	public TemplateBuffer evaluate(final Template template) throws BadLocationException, TemplateException {
+		final TemplateBuffer buffer = super.evaluate(template);
 		indent(buffer);
-		String selection = getVariable("selection"); //$NON-NLS-1$
+		final String selection = getVariable("selection"); //$NON-NLS-1$
 		if (selection != null && TextUtilities.indexOf(getDocument().getLegalLineDelimiters(), selection, 0)[0] != -1) {
-			String ln = TextUtilities.getDefaultLineDelimiter(getDocument());
+			final String ln = TextUtilities.getDefaultLineDelimiter(getDocument());
 			buffer.setContent(buffer.getString()+ln, buffer.getVariables());
 		}
 		
 		return buffer;
 	}
 	
-	private void indent(TemplateBuffer buffer) throws BadLocationException {
-		TemplateVariable[] variables = buffer.getVariables();
-		List<TextEdit> positions = TemplatesUtil.variablesToPositions(variables);
-		IDocument baseDoc = getDocument();
-
-		IDocument templateDoc = new Document(buffer.getString());
-		MultiTextEdit root = new MultiTextEdit(0, templateDoc.getLength());
+	private void indent(final TemplateBuffer buffer) throws BadLocationException {
+		final TemplateVariable[] variables = buffer.getVariables();
+		final List<TextEdit> positions = TemplatesUtil.variablesToPositions(variables);
+		final IDocument baseDoc = getDocument();
+		
+		final IDocument templateDoc = new Document(buffer.getString());
+		final MultiTextEdit root = new MultiTextEdit(0, templateDoc.getLength());
 		root.addChildren(positions.toArray(new TextEdit[positions.size()]));
-
+		
 		String indentation = getVariable("indentation"); //$NON-NLS-1$
-
+		
 		// first line
 		int offset = templateDoc.getLineOffset(0);
 		if (indentation != null) {
-			TextEdit edit = new InsertEdit(offset, indentation);
+			final TextEdit edit = new InsertEdit(offset, indentation);
 			root.addChild(edit);
 			root.apply(templateDoc, TextEdit.UPDATE_REGIONS);
 			root.removeChild(edit);
@@ -104,39 +105,39 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 		}
 		
 		// following lines
-	    for (int line = 1; line < templateDoc.getNumberOfLines(); line++) {
-			IRegion region = templateDoc.getLineInformation(line);
+		for (int line = 1; line < templateDoc.getNumberOfLines(); line++) {
+			final IRegion region = templateDoc.getLineInformation(line);
 			offset = region.getOffset();
-	    		
-			TextEdit edit = new InsertEdit(offset, indentation);
+			
+			final TextEdit edit = new InsertEdit(offset, indentation);
 			root.addChild(edit);
 			root.apply(templateDoc, TextEdit.UPDATE_REGIONS);
 			root.removeChild(edit);
-	    }
-	    
+		}
+		
 		TemplatesUtil.positionsToVariables(positions, variables);
 		buffer.setContent(templateDoc.get(), variables);
 	}
 	
 	@Override
-	public void setVariable(String name, String value) {
+	public void setVariable(final String name, String value) {
 		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
 			try {
 				final IDocument valueDoc = new Document(value);
 				final RIndentUtil util = new RIndentUtil(valueDoc, fEditor.getRCoreAccess().getRCodeStyle());
 				final int column = util.getMultilineIndentColumn(0, valueDoc.getNumberOfLines()-1);
 				if (column > 0) {
-					IndentEditAction action = new IndentEditAction(column) {
+					final IndentEditAction action = new IndentEditAction(column) {
 						@Override
-						public void doEdit(int line, int offset, int length, StringBuilder text)
+						public void doEdit(final int line, final int offset, final int length, final StringBuilder text)
 								throws BadLocationException {
 							TextEdit edit;
 							if (text != null) {
-								int position = util.getIndentedIndex(text, column);
+								final int position = util.getIndentedIndex(text, column);
 								edit = new ReplaceEdit(offset, length, text.substring(position, text.length()));
 							}
 							else {
-								int end = util.getIndentedOffsetAt(line, column);
+								final int end = util.getIndentedOffsetAt(line, column);
 								edit = new DeleteEdit(offset, end-offset);
 							}
 							edit.apply(valueDoc, 0);
@@ -147,7 +148,7 @@ public class REditorContext extends DocumentTemplateContext implements IStatetCo
 					value = valueDoc.get();
 				}
 			}
-			catch (BadLocationException e) {
+			catch (final BadLocationException e) {
 				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while computing indentation variable for R editor templates.", e); //$NON-NLS-1$
 			}
 		}

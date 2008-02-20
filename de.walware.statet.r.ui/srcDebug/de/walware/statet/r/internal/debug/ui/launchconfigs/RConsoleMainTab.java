@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
@@ -62,42 +62,42 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- *
+ * Main tab for R Console launch config.
  */
 public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	private static final String ATTR_ROOT = "de.walware.statet.r.debug/RConsole/"; //$NON-NLS-1$
 	public static final String ATTR_TYPE = ATTR_ROOT+"type"; //$NON-NLS-1$
 	public static final String ATTR_OPTIONS = ATTR_ROOT+"arguments.options"; //$NON-NLS-1$
-
 	
-	private class ConsoleType {
+	
+	protected class ConsoleType {
 		
 		private String fName;
 		private String fId;
 		
-		public ConsoleType(String name, String id) {
+		public ConsoleType(final String name, final String id) {
 			fName = name;
 			fId = id;
 		}
-
+		
 		public String getName() {
 			return fName;
 		}
-
+		
 		public String getId() {
 			return fId;
 		}
 	}
 	
 	private class RArgumentsComposite extends InputArgumentsComposite {
-
-		public RArgumentsComposite(Composite parent) {
+		
+		public RArgumentsComposite(final Composite parent) {
 			super(parent);
 		}
 		
 		@Override
-		protected void fillMenu(Menu menu) {
+		protected void fillMenu(final Menu menu) {
 			super.fillMenu(menu);
 			
 			if (fWithHelp) {
@@ -105,7 +105,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 				fHelpItem.setText(RLaunchingMessages.RConsole_MainTab_RunHelp_label);
 				fHelpItem.addSelectionListener(new SelectionAdapter() {
 					@Override
-					public void widgetSelected(SelectionEvent e) {
+					public void widgetSelected(final SelectionEvent e) {
 						queryHelp();
 						getTextControl().setFocus();
 					}
@@ -132,13 +132,13 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	public RConsoleMainTab() {
 		super();
-		loadTypes();
+		fTypes = loadTypes();
 	}
 	
-	private void loadTypes() {
-		List<ConsoleType> types = new ArrayList<ConsoleType>();
+	protected ConsoleType[] loadTypes() {
+		final List<ConsoleType> types = new ArrayList<ConsoleType>();
 		types.add(new ConsoleType("Rterm", "rterm")); //$NON-NLS-1$ //$NON-NLS-2$
-		fTypes = types.toArray(new ConsoleType[types.size()]);
+		return types.toArray(new ConsoleType[types.size()]);
 	}
 	
 	public String getName() {
@@ -150,8 +150,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		return StatetImages.getImage(StatetImages.LAUNCHCONFIG_MAIN);
 	}
 	
-	public void createControl(Composite parent) {
-		Composite mainComposite = new Composite(parent, SWT.NONE);
+	public void createControl(final Composite parent) {
+		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(new GridLayout());
@@ -161,31 +161,31 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 //		group.setText("Launch configuration:");
 		createCommandControls(group);
-
-		Label note = new Label(mainComposite, SWT.WRAP);
+		
+		final Label note = new Label(mainComposite, SWT.WRAP);
 		note.setText(SharedMessages.Note_label + ": " + fArgumentsControl.getNoteText()); //$NON-NLS-1$
 		note.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true));
-
+		
 		Dialog.applyDialogFont(parent);
 		initBindings();
 	}
 		
-	private void createCommandControls(Composite container) {
-		for (ILaunchConfigurationTab tab : getLaunchConfigurationDialog().getTabs()) {
+	private void createCommandControls(final Composite container) {
+		for (final ILaunchConfigurationTab tab : getLaunchConfigurationDialog().getTabs()) {
 			if (tab instanceof REnvTab) {
 				fREnvTab = tab;
 				break;
 			}
 		}
 		fWithHelp = (fREnvTab != null) && (getLaunchConfigurationDialog() instanceof TrayDialog);
-
+		
 		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 3));
-
-		Label label = new Label(container, SWT.LEFT);
+		
+		final Label label = new Label(container, SWT.LEFT);
 		label.setText(RLaunchingMessages.RConsole_MainTab_LaunchType_label+':');
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		
-		String[] names = new String[fTypes.length];
+		final String[] names = new String[fTypes.length];
 		for (int i = 0; i < fTypes.length; i++) {
 			names[i] = fTypes[i].getName();
 		}
@@ -193,28 +193,33 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		fTypesCombo.setContentProvider(new ArrayContentProvider());
 		fTypesCombo.setLabelProvider(new LabelProvider() {
 			@Override
-			public String getText(Object element) {
-				ConsoleType type = (ConsoleType) element;
+			public String getText(final Object element) {
+				final ConsoleType type = (ConsoleType) element;
 				return type.getName();
 			}
 		});
 		fTypesCombo.setInput(fTypes);
 		fTypesCombo.getCombo().setVisibleItemCount(names.length);
 		fTypesCombo.getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
 		fTypesCombo.getControl().setEnabled(false);
+		LayoutUtil.addGDDummy(container);
+		
+		createTypeDetails(container);
 		
 		LayoutUtil.addSmallFiller(container, false);
 		fArgumentsControl = new RArgumentsComposite(container);
 		fArgumentsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	
+	protected void createTypeDetails(final Composite container) {
+	}
+	
 	@Override
-	protected void addBindings(DataBindingContext dbc, Realm realm) {
+	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		fTypeValue = new WritableValue(realm, ConsoleType.class);
 		fArgumentsValue = new WritableValue(realm, String.class);
-
-		IObservableValue typeSelection = ViewersObservables.observeSingleSelection(fTypesCombo);
+		
+		final IObservableValue typeSelection = ViewersObservables.observeSingleSelection(fTypesCombo);
 		dbc.bindValue(typeSelection, fTypeValue, null, null);
 		
 		dbc.bindValue(SWTObservables.observeText(fArgumentsControl.getTextControl(), SWT.Modify),
@@ -222,20 +227,20 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
-	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_TYPE, fTypes[0].getId()); //s
 		configuration.setAttribute(ATTR_OPTIONS, ""); //$NON-NLS-1$
 	}
-
+	
 	@Override
-	public void doInitialize(ILaunchConfiguration configuration) {
+	protected void doInitialize(final ILaunchConfiguration configuration) {
 		fTypeValue.setValue(fTypes[0]);
 		
 		String options = null;
 		try {
 			options = configuration.getAttribute(ATTR_OPTIONS, ""); //$NON-NLS-1$
 			
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			options = ""; //$NON-NLS-1$
 			logReadingError(e);
 		}
@@ -245,18 +250,18 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	}
 	
 	@Override
-	public void activated(ILaunchConfigurationWorkingCopy workingCopy) {
+	public void activated(final ILaunchConfigurationWorkingCopy workingCopy) {
 		checkHelp(workingCopy);
 		super.activated(workingCopy);
 	}
 	
 	@Override
-	public void doSave(ILaunchConfigurationWorkingCopy configuration) {
+	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_TYPE, ((ConsoleType) fTypeValue.getValue()).getId());
 		configuration.setAttribute(ATTR_OPTIONS, (String) fArgumentsValue.getValue());
 	}
-
-	private void checkHelp(ILaunchConfiguration configuration) {
+	
+	private void checkHelp(final ILaunchConfiguration configuration) {
 		fConfigCache = configuration;
 		if (fWithHelp && fHelpItem != null) {
 			fHelpItem.setEnabled(fREnvTab.isValid(fConfigCache));
@@ -268,34 +273,33 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			return;
 		}
 		try {
-			List<String> cmdLine = new ArrayList<String>();
-			ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
+			final List<String> cmdLine = new ArrayList<String>();
+			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
-			REnvConfiguration renv = REnvTab.getREnv(fConfigCache);
+			final REnvConfiguration renv = REnvTab.getREnv(fConfigCache);
 			
 			cmdLine.addAll(0, renv.getExecCommand(Exec.TERM));
 			
 			cmdLine.add("--help"); //$NON-NLS-1$
-			HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
+			final HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
 			
 			helper.getProcessBuilder().environment();
-			Map<String, String> envp = helper.getProcessBuilder().environment();
-			envp.putAll(renv.getEnvironmentsVariables());
-			LaunchConfigUtil.configureEnvironment(fConfigCache, envp);
-
+			final Map<String, String> envp = helper.getProcessBuilder().environment();
+			LaunchConfigUtil.configureEnvironment(envp, fConfigCache, renv.getEnvironmentsVariables());
+			
 			dialog.run(true, true, helper);
 			updateLaunchConfigurationDialog();
 		}
-		catch(CoreException e) {
+		catch(final CoreException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RConsole_MainTab_error_CannotRunHelp_message, e),
 					StatusManager.LOG | StatusManager.SHOW);
-		} catch (InvocationTargetException e) {
+		} catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RConsole_MainTab_error_WhileRunningHelp_message, e.getTargetException()),
 					StatusManager.LOG | StatusManager.SHOW);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			Thread.interrupted();
 		}
 	}
@@ -307,4 +311,5 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		}
 		super.dispose();
 	}
+	
 }

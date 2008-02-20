@@ -4,22 +4,18 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
-import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
@@ -36,7 +32,7 @@ import de.walware.statet.r.internal.core.rmodel.RModelManager;
  * The main plug-in class to be used in the desktop.
  */
 public class RCorePlugin extends Plugin {
-
+	
 	
 	//The shared instance.
 	private static RCorePlugin gPlugin;
@@ -47,15 +43,15 @@ public class RCorePlugin extends Plugin {
 	public static RCorePlugin getDefault() {
 		return gPlugin;
 	}
-
-	public static final void log(IStatus status) {
+	
+	public static final void log(final IStatus status) {
 		getDefault().getLog().log(status);
 	}
 	
-	public static final void logError(int code, String message, Throwable e) {
+	public static final void logError(final int code, final String message, final Throwable e) {
 		getDefault().getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, code, message, e));
 	}
-
+	
 	
 	private class CoreAccess implements IRCoreAccess {
 		
@@ -63,7 +59,7 @@ public class RCorePlugin extends Plugin {
 		private RCodeStyleSettings fRCodeStyle;
 		private PreferencesManageListener fListener;
 		
-		private CoreAccess(IPreferenceAccess prefs) {
+		private CoreAccess(final IPreferenceAccess prefs) {
 			fPrefs = prefs;
 			fRCodeStyle = new RCodeStyleSettings();
 			fRCodeStyle.load(prefs);
@@ -83,7 +79,7 @@ public class RCorePlugin extends Plugin {
 			fListener.dispose();
 		}
 	};
-
+	
 	
 	private CoreAccess fWorkspaceCoreAccess;
 	private CoreAccess fDefaultsCoreAccess;
@@ -97,27 +93,27 @@ public class RCorePlugin extends Plugin {
 	public RCorePlugin() {
 		gPlugin = this;
 	}
-
+	
 	/**
 	 * This method is called upon plug-in activation
 	 */
 	@Override
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-
+		
 		fREnvManager = new REnvManager(StatetCore.getSettingsChangeNotifier());
 		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
 		fRModelManager = new RModelManager();
 	}
-
+	
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
 	@Override
-	public void stop(BundleContext context) throws Exception {
+	public void stop(final BundleContext context) throws Exception {
 		super.stop(context);
 		gPlugin = null;
-
+		
 		if (fWorkspaceCoreAccess != null) {
 			fWorkspaceCoreAccess.dispose();
 			fWorkspaceCoreAccess = null;
@@ -131,47 +127,24 @@ public class RCorePlugin extends Plugin {
 			fREnvManager = null;
 		}
 	}
-
+	
 	public IREnvManager getREnvManager() {
 		return fREnvManager;
 	}
-
+	
 	public RModelManager getRModelManager() {
 		return fRModelManager;
 	}
 	
-	public WorkingContext createContext(int i) {
-		switch (i) {
-		case 0: // PERSISTENCE_CONTEXT
-			return new WorkingContext();
-		case 1: // PRIMARY_WORKING_CONTEXT
-			IConfigurationElement[] elements = Platform.getExtensionRegistry().getConfigurationElementsFor("de.walware.statet.r.workingContexts");
-			for (IConfigurationElement element : elements) {
-				if (element.isValid()) {
-					try {
-						boolean isPrimary = Boolean.parseBoolean(element.getAttribute("primary"));
-						if (isPrimary) {
-							WorkingContext context = (WorkingContext) element.createExecutableExtension("class");
-							return context;
-						}
-					} catch (CoreException e) {
-					}
-				}
-			}
-		default:
-			return null;
-		}
-	}
-
 	public IRCoreAccess getWorkspaceRCoreAccess() {
 		return fWorkspaceCoreAccess;
 	}
-
+	
 	public synchronized IRCoreAccess getDefaultsRCoreAccess() {
 		if (fDefaultsCoreAccess == null) {
 			fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
 		}
 		return fDefaultsCoreAccess;
 	}
-
+	
 }

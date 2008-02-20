@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -28,15 +28,22 @@ import de.walware.statet.base.internal.core.Messages;
 
 
 public class SettingsChangeNotifier implements ISchedulingRule {
-
+	
 	
 	public static interface ChangeListener {
-
+		
+		/**
+		 * Is called inside a job. So, a bit longer tasks are allowed directly,
+		 * but not UI tasks.
+		 * 
+		 * @param contexts set of ids of changed contexts
+		 */
 		public void settingsChanged(Set<String> contexts);
+		
 	}
 	
 	public static interface ManageListener {
-
+		
 		public void beforeSettingsChangeNotification(Set<String> contexts);
 		
 		public void afterSettingsChangeNotification(Set<String> contexts);
@@ -48,19 +55,19 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 		private String fSource;
 		private Set<String> fChangeContexts = new HashSet<String>();
 		
-		public NotifyJob(String source) {
+		public NotifyJob(final String source) {
 			super(Messages.SettingsChangeNotifier_Job_title);
 			setPriority(Job.SHORT);
 			setRule(SettingsChangeNotifier.this);
 			fSource = source;
 		}
 		
-		public void addContexts(String[] contexts) {
+		public void addContexts(final String[] contexts) {
 			fChangeContexts.addAll(Arrays.asList(contexts));
 		}
 		
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
+		protected IStatus run(final IProgressMonitor monitor) {
 			Object[] managers;
 			Object[] listeners;
 			synchronized (SettingsChangeNotifier.this) {
@@ -69,28 +76,28 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 				fPendingJobs.remove(fSource);
 			}
 			monitor.beginTask(Messages.SettingsChangeNotifier_Task_name, managers.length*5+listeners.length*5);
-			for (Object obj : managers) {
+			for (final Object obj : managers) {
 				((ManageListener) obj).beforeSettingsChangeNotification(fChangeContexts);
 				monitor.worked(3);
 			}
-			for (Object obj : listeners) {
+			for (final Object obj : listeners) {
 				((ChangeListener) obj).settingsChanged(fChangeContexts);
 				monitor.worked(5);
 			}
-			for (Object obj : managers) {
+			for (final Object obj : managers) {
 				((ManageListener) obj).afterSettingsChangeNotification(fChangeContexts);
 				monitor.worked(2);
 			}
 			return Status.OK_STATUS;
 		}
 	}
-
+	
 	private ListenerList fManagers = new ListenerList();
 	private ListenerList fListeners = new ListenerList();
 	private Map<String, NotifyJob> fPendingJobs = new HashMap<String, NotifyJob>();
 	
 	
-	public Job getNotifyJob(String source, String[] changeContext) {
+	public Job getNotifyJob(String source, final String[] changeContext) {
 		if (source == null) {
 			source = "direct"; //$NON-NLS-1$
 		}
@@ -107,26 +114,26 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 		}
 	}
 	
-	public boolean contains(ISchedulingRule rule) {
+	public boolean contains(final ISchedulingRule rule) {
 		return (rule == this);
 	}
-	public boolean isConflicting(ISchedulingRule rule) {
+	public boolean isConflicting(final ISchedulingRule rule) {
 		return (rule == this);
 	}
-
-	public void addChangeListener(ChangeListener listener) {
+	
+	public void addChangeListener(final ChangeListener listener) {
 		fListeners.add(listener);
 	}
 	
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(final ChangeListener listener) {
 		fListeners.remove(listener);
 	}
 	
-	public void addManageListener(ManageListener listener) {
+	public void addManageListener(final ManageListener listener) {
 		fManagers.add(listener);
 	}
 	
-	public void removeManageListener(ManageListener listener) {
+	public void removeManageListener(final ManageListener listener) {
 		fManagers.remove(listener);
 	}
 	

@@ -1,28 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import java.lang.reflect.InvocationTargetException;
+
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
-
-
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**
- *
+ * <code>while ( §cond§ ) §cont§</code>
  */
 public class CWhileLoop extends RAstNode {
 	
-
+	
 	int fCondOpenOffset = Integer.MIN_VALUE;
 	final Expression fCondExpr = new Expression();
 	int fCondCloseOffset = Integer.MIN_VALUE;
@@ -45,7 +45,7 @@ public class CWhileLoop extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		switch (index) {
 		case 0:
 			return fCondExpr.node;
@@ -62,15 +62,15 @@ public class CWhileLoop extends RAstNode {
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fCondExpr.node == child) {
 			return 0;
 		}
 		return -1;
 	}
-
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		if (fLoopExpr.node == child) {
 			return fLoopExpr;
 		}
@@ -95,19 +95,19 @@ public class CWhileLoop extends RAstNode {
 	public final RAstNode getContChild() {
 		return fLoopExpr.node;
 	}
-
+	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-		fCondExpr.node.accept(visitor);
-		fLoopExpr.node.accept(visitor);
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fCondExpr.node.acceptInR(visitor);
+		fLoopExpr.node.acceptInR(visitor);
 	}
 	
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fCondExpr.node.accept(visitor);
 		fLoopExpr.node.accept(visitor);
 	}
@@ -124,7 +124,7 @@ public class CWhileLoop extends RAstNode {
 	}
 	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.C_WHILE);
 	}
 	

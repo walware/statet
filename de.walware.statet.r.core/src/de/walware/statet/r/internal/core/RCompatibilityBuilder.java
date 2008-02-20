@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core;
@@ -27,7 +27,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.statet.base.core.StatetCore;
+import de.walware.eclipsecommons.ICommonStatusConstants;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 
@@ -56,20 +57,20 @@ public class RCompatibilityBuilder extends IncrementalProjectBuilder {
 		super.startupOnInitialize();
 		
 		try {
-			IProject project = getProject();
-			if (fAutoMigrate && project.hasNature(OLD_NATURE_ID) ) {  //$NON-NLS-1$
+			final IProject project = getProject();
+			if (fAutoMigrate && project.hasNature(OLD_NATURE_ID) ) {  
 				if (!project.hasNature(RProject.NATURE_ID)) {
 					RProject.addNature(project, new NullProgressMonitor());
 				}
 				if (fRemoveOldIds) {
-					IProjectDescription description = project.getDescription();
-					List<String> natures = new ArrayList<String>(Arrays.asList(description.getNatureIds()));
+					final IProjectDescription description = project.getDescription();
+					final List<String> natures = new ArrayList<String>(Arrays.asList(description.getNatureIds()));
 					natures.remove(OLD_NATURE_ID);
 					description.setNatureIds(natures.toArray(new String[natures.size()]));
-					List<ICommand> builders = new ArrayList<ICommand>(Arrays.asList(description.getBuildSpec()));
-					Iterator<ICommand> iter = builders.iterator();
+					final List<ICommand> builders = new ArrayList<ICommand>(Arrays.asList(description.getBuildSpec()));
+					final Iterator<ICommand> iter = builders.iterator();
 					while(iter.hasNext()) {
-						ICommand command = iter.next();
+						final ICommand command = iter.next();
 						if (OLD_BUILDER_ID.equals(command.getBuilderName())) {
 							iter.remove();
 						}
@@ -79,17 +80,17 @@ public class RCompatibilityBuilder extends IncrementalProjectBuilder {
 				}
 			}
 		}
-		catch (CoreException e) {
-			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, StatetCore.STATUSCODE_BUILD_ERROR, 
+		catch (final CoreException e) {
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR, 
 					"Error occured when migrating R project nature and builder.", e)); //$NON-NLS-1$
 		}
 	}
 	
 	@Override
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
+	protected IProject[] build(final int kind, final Map args, final IProgressMonitor monitor)
 			throws CoreException {
-
+		
 		return null;
 	}
-
+	
 }

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.wizards;
@@ -23,7 +23,7 @@ import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
  * with the extension that matches the expected one (r).
  */
 public class NewRProjectWizardPage extends WizardNewProjectCreationPage {
-
+	
 	
 	private IStructuredSelection fSelection;
 	
@@ -31,22 +31,19 @@ public class NewRProjectWizardPage extends WizardNewProjectCreationPage {
 	/**
 	 * Constructor.
 	 */
-	public NewRProjectWizardPage(IStructuredSelection selection) {
+	public NewRProjectWizardPage(final IStructuredSelection selection) {
 		super("NewRProjectWizardPage"); //$NON-NLS-1$
 		fSelection = selection;
 		
 		setTitle(Messages.NewRProjectWizardPage_title);
 		setDescription(Messages.NewRProjectWizardPage_description);
 	}
-
+	
 	
 	@Override
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 		super.createControl(parent);
-		Composite composite = (Composite) getControl();
-		createWorkingSetGroup(composite, fSelection, new String[] {
-				"org.eclipse.ui.resourceWorkingSetPage", //$NON-NLS-1$
-				});
+		final Composite composite = (Composite) getControl();
 	}
 	
 }

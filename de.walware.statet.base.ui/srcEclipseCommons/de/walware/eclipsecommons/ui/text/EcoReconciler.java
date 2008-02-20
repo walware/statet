@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -43,7 +43,7 @@ import de.walware.eclipsecommons.FastList;
  * Reconciler using Eclipse Job API.
  */
 public class EcoReconciler implements IReconciler {
-
+	
 	
 	protected static class StrategyEntry {
 		
@@ -51,7 +51,7 @@ public class EcoReconciler implements IReconciler {
 		final IReconcilingStrategyExtension strategyExtension;
 		final IEditorInputAcceptor editorAcceptor;
 		boolean initialed;
-
+		
 		StrategyEntry(IReconcilingStrategy strategy) {
 			this.strategy = strategy;
 			this.strategyExtension = (strategy instanceof IReconcilingStrategyExtension) ?
@@ -70,17 +70,17 @@ public class EcoReconciler implements IReconciler {
 		}
 	}
 	
-
+	
 	private class ReconcileJob extends Job implements ISchedulingRule {
 		
 		ReconcileJob(String name) {
 			super("Reconciler '"+name+"'"); //$NON-NLS-1$ //$NON-NLS-2$
 			setPriority(Job.SHORT);
 			setRule(this);
-			setUser(false);
 			setSystem(true);
+			setUser(false);
 		}
-
+		
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			if (!monitor.isCanceled()) {
@@ -88,16 +88,16 @@ public class EcoReconciler implements IReconciler {
 			}
 			return Status.OK_STATUS;
 		}
-
+		
 		public boolean contains(ISchedulingRule rule) {
 			return rule == this;
 		}
-
+		
 		public boolean isConflicting(ISchedulingRule rule) {
 			return rule == this;
 		}
 	}
-
+	
 	
 	private class VisibleListener implements Listener {
 		public void handleEvent(Event event) {
@@ -116,25 +116,25 @@ public class EcoReconciler implements IReconciler {
 	 * Internal document listener and text input listener.
 	 */
 	private class DocumentListener implements IDocumentListener, ITextInputListener {
-
+		
 		public void documentAboutToBeChanged(DocumentEvent e) {
 		}
-
+		
 		public void documentChanged(DocumentEvent e) {
 			scheduleReconcile();
 		}
-
+		
 		public void inputDocumentAboutToBeChanged(IDocument oldInput, IDocument newInput) {
 			if (fDocument != null && oldInput == fDocument && newInput != fDocument) {
 				disconnectDocument();
 			}
 		}
-
+		
 		public void inputDocumentChanged(IDocument oldInput, IDocument newInput) {
 			connectDocument();
 		}
 	}
-
+	
 	/** Internal document and text input listener. */
 	private DocumentListener fDocumentListener = new DocumentListener();
 	private VisibleListener fVisibleListener;
@@ -142,7 +142,7 @@ public class EcoReconciler implements IReconciler {
 	private ReconcileJob fJob;
 	/** The background thread delay. */
 	private int fDelay = 500;
-
+	
 	/** The text viewer's document. */
 	private IDocument fDocument;
 	/** The text viewer */
@@ -153,9 +153,9 @@ public class EcoReconciler implements IReconciler {
 	
 	/** Tells whether this reconciler's editor is active. */
 	private volatile boolean fIsEditorVisible;
-
+	
 	private FastList<StrategyEntry> fStrategies = new FastList<StrategyEntry>(StrategyEntry.class, ListenerList.EQUALITY);
-
+	
 	
 	/**
 	 * Creates a new reconciler without configuring it.
@@ -163,7 +163,7 @@ public class EcoReconciler implements IReconciler {
 	public EcoReconciler() {
 		super();
 	}
-
+	
 	/**
 	 * Creates a new reconciler without configuring it.
 	 */
@@ -171,7 +171,7 @@ public class EcoReconciler implements IReconciler {
 		super();
 		fEditor = editor;
 	}
-
+	
 	/**
 	 * Tells the reconciler how long it should wait for further text changes before
 	 * activating the appropriate reconciling strategies.
@@ -181,7 +181,7 @@ public class EcoReconciler implements IReconciler {
 	public void setDelay(int delay) {
 		fDelay = delay;
 	}
-
+	
 	/**
 	 * Returns the input document of the text viewer this reconciler is installed on.
 	 *
@@ -194,7 +194,7 @@ public class EcoReconciler implements IReconciler {
 	protected IEditorInput getEditorInput() {
 		return fEditorInput;
 	}
-
+	
 	/**
 	 * Returns the text viewer this reconciler is installed on.
 	 *
@@ -212,8 +212,8 @@ public class EcoReconciler implements IReconciler {
 	protected boolean isEditorVisible() {
 		return fIsEditorVisible;
 	}
-
-
+	
+	
 	public void install(ITextViewer textViewer) {
 		Assert.isNotNull(textViewer);
 		fViewer = textViewer;
@@ -223,11 +223,11 @@ public class EcoReconciler implements IReconciler {
 		textWidget.addListener(SWT.Show, fVisibleListener);
 		textWidget.addListener(SWT.Hide, fVisibleListener);
 		fIsEditorVisible = textWidget.isVisible();
-
+		
 		fViewer.addTextInputListener(fDocumentListener);
 		connectDocument();
 	}
-
+	
 	public void uninstall() {
 		if (fViewer != null) {
 			disconnectDocument();
@@ -244,10 +244,10 @@ public class EcoReconciler implements IReconciler {
 		fDocument = document;
 		fEditorInput = (fEditor != null) ? fEditor.getEditorInput() : null;
 		reconcilerDocumentChanged(fDocument);
-
+		
 		fJob = new ReconcileJob(getInputName());
 		fDocument.addDocumentListener(fDocumentListener);
-
+		
 		scheduleReconcile();
 	}
 	
@@ -255,9 +255,9 @@ public class EcoReconciler implements IReconciler {
 		if (fEditorInput != null) {
 			return fEditorInput.getName();
 		}
-		return "-";
+		return "-"; //$NON-NLS-1$
 	}
-
+	
 	/**
 	 * Hook called when the document whose contents should be reconciled
 	 * has been changed, i.e., the input document of the text viewer this
@@ -280,7 +280,7 @@ public class EcoReconciler implements IReconciler {
 			fJob = null;
 		}
 	}
-
+	
 	private synchronized void scheduleReconcile() {
 		if ((fJob.getState() & (Job.SLEEPING | Job.WAITING)) == 0) {
 			aboutToBeReconciled();
@@ -297,7 +297,7 @@ public class EcoReconciler implements IReconciler {
 	 */
 	protected void aboutToBeReconciled() {
 	}
-
+	
 	protected void processReconcile(IProgressMonitor monitor) {
 		final IDocument document = getDocument();
 		final IEditorInput input = getEditorInput();
@@ -348,4 +348,5 @@ public class EcoReconciler implements IReconciler {
 	public IReconcilingStrategy getReconcilingStrategy(String contentType) {
 		return null;
 	}
+	
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,13 +11,15 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import java.lang.reflect.InvocationTargetException;
 
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**
- *
+ * <code>if ( §cond§ ) §then§</code>
+ * <code>if ( §cond§ ) §then§ else §else§</code>
  */
 public class CIfElse extends RAstNode {
 	
@@ -35,7 +37,7 @@ public class CIfElse extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.C_IF;
 	}
-
+	
 	public final boolean hasElse() {
 		return fWithElse;
 	}
@@ -51,7 +53,7 @@ public class CIfElse extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		switch (index) {
 		case 0:
 			return fCondExpr.node;
@@ -77,7 +79,7 @@ public class CIfElse extends RAstNode {
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fCondExpr.node == child) {
 			return 0;
 		}
@@ -114,9 +116,9 @@ public class CIfElse extends RAstNode {
 		return fElseExpr.node;
 	}
 	
-
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		if (fThenExpr.node == child) {
 			return fThenExpr;
 		}
@@ -143,25 +145,25 @@ public class CIfElse extends RAstNode {
 	}
 	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.C_IF);
 	}
 	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-		fCondExpr.node.accept(visitor);
-		fThenExpr.node.accept(visitor);
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fCondExpr.node.acceptInR(visitor);
+		fThenExpr.node.acceptInR(visitor);
 		if (fWithElse) {
-			fElseExpr.node.accept(visitor);
+			fElseExpr.node.acceptInR(visitor);
 		}
 	}
 	
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fCondExpr.node.accept(visitor);
 		fThenExpr.node.accept(visitor);
 		if (fWithElse) {
@@ -194,5 +196,5 @@ public class CIfElse extends RAstNode {
 			fStopOffset = fStartOffset+2;
 		}
 	}
-
+	
 }

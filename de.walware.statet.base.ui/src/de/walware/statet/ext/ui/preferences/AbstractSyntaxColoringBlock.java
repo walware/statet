@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -73,9 +73,10 @@ import de.walware.eclipsecommons.ui.preferences.PreferenceStoreBeanWrapper;
 import de.walware.eclipsecommons.ui.preferences.RGBPref;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.eclipsecommons.ui.util.MessageUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.ViewerUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.util.ViewerUtil;
 import de.walware.eclipsecommons.ui.util.ViewerUtil.Node;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -90,7 +91,7 @@ import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxNo
  * Common UI to configure the style of syntax tokens (tree, options, preview).
  */
 public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurationBlock {
-
+	
 	
 	/**
 	 * Generic node of the tree.
@@ -103,13 +104,13 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			
 			private String fLabel;
 			private String fRefRootKey;
-
+			
 			public UseStyle(String refRootKey, String label) {
 				super();
 				fRefRootKey = refRootKey;
 				fLabel = label;
 			}
-
+			
 			public String getLabel() {
 				return fLabel;
 			}
@@ -117,9 +118,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			public String getRefRootKey() {
 				return fRefRootKey;
 			}
-
+			
 		}
-
+		
 		public static UseStyle createUseCustomStyle() {
 			return new UseStyle("", Messages.SyntaxColoring_Use_CustomStyle_label); //$NON-NLS-1$
 		}
@@ -159,18 +160,18 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
 		}
-
+		
 		public void addPropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
 		}
-
+		
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
 		}
-
+		
 		public void removePropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
 		}
-
+		
 		
 		/*-- Property-Access --*/
 		public UseStyle[] getAvailableUseStyles() {
@@ -213,7 +214,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		public void setUnderline(boolean enabled) {
 		}
 	}
-
+	
 	/**
 	 * Category Node without syntax style.
 	 */
@@ -246,7 +247,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 				return obj.getRefRootKey();
 			}
 		}
-
+		
 		private String fDescription;
 		private String fRootKey;
 		private UseStyle[] fAvailableStyles;
@@ -281,8 +282,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		public String getDescription() {
 			return fDescription;
 		}
-
-
+		
+		
 		private String getUseKey() {
 			return fRootKey + IStatetUIPreferenceConstants.TS_USE_SUFFIX;
 		}
@@ -301,7 +302,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		private String getStrikethroughKey() {
 			return fRootKey + IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
 		}
-
+		
 		protected void gatherPreferenceKeys(List<OverlayStorePreference> keys) {
 			for (Object[] pref : fPreferences) {
 				keys.add(OverlayStorePreference.create((Preference) pref[0]));
@@ -314,7 +315,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 				fBeanSupport.addPreference((String) pref[1], (Preference) pref[0]);
 			}
 		}
-
+		
 		
 		/*-- Bean-Support --*/
 		
@@ -322,31 +323,31 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		public void addPropertyChangeListener(PropertyChangeListener listener) {
 			fBeanSupport.addPropertyChangeListener(listener);
 		}
-
+		
 		@Override
 		public void addPropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
 			fBeanSupport.addPropertyChangeListener(propertyName, listener);
 		}
-
+		
 		@Override
 		public void removePropertyChangeListener(PropertyChangeListener listener) {
 			fBeanSupport.removePropertyChangeListener(listener);
 		}
-
+		
 		@Override
 		public void removePropertyChangeListener(String propertyName,
 				PropertyChangeListener listener) {
 			fBeanSupport.removePropertyChangeListener(propertyName, listener);
 		}
-
+		
 		
 		/*-- Property-Access --*/
 		@Override
 		public UseStyle[] getAvailableUseStyles() {
 			return fAvailableStyles;
 		}
-
+		
 		@Override
 		public void setUseStyle(UseStyle useStyle) {
 			if (useStyle != null) {
@@ -414,7 +415,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	
 	private class SyntaxNodeLabelProvider extends CellLabelProvider {
-
+		
 		@Override
 		public boolean useNativeToolTip(Object object) {
 			return true;
@@ -432,7 +433,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			cell.setText(((Node) cell.getElement()).getName());
 		}
 	}
-
+	
 	private class UseStyleLabelProvider extends LabelProvider {
 		@Override
 		public String getText(Object element) {
@@ -440,7 +441,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			return style.getLabel();
 		}
 	}
-
+	
 	private SyntaxNode[] fRootNodes;
 	private DataBindingContext fDbc;
 	
@@ -461,7 +462,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	public AbstractSyntaxColoringBlock() {
 	}
-
+	
 	protected abstract SyntaxNode[] createItems();
 	protected abstract String[] getSettingsContexts();
 	
@@ -469,7 +470,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	protected String[] getChangedContexts() {
 		return fContexts.toArray(new String[fContexts.size()]);
 	}
-
+	
 	@Override
 	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container,
 			IPreferenceStore preferenceStore) {
@@ -483,9 +484,9 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		collectKeys(keys, fRootNodes);
 		setupOverlayStore(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
 		connectStore(fRootNodes);
-
+		
 		addLinkHeader(pageComposite, Messages.SyntaxColoring_link);
-
+		
 		Layouter content = new Layouter(new Composite(pageComposite, SWT.NONE), 2);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		content.composite.setLayoutData(gd);
@@ -505,7 +506,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalIndent = 5;
 		optionControl.setLayoutData(gd);
-
+		
 		// Previewer
 		content.addLabel(Messages.SyntaxColoring_Preview);
 		Control previewerControl = createPreviewer(content.composite);
@@ -518,7 +519,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		initFields();
 		initBindings();
-
+		
 		UIAccess.getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fSelectionViewer)) {
@@ -526,7 +527,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 				}
 			}
 		});
-
+		
 	}
 	
 	private void collectKeys(List<OverlayStorePreference> keys, SyntaxNode[] nodes) {
@@ -556,7 +557,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	public Control createTreeViewer(Layouter parent) {
 		fSelectionViewer = new TreeViewer(parent.composite, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-
+		
 		fSelectionViewer.setContentProvider(new ViewerUtil.NodeContentProvider());
 		fSelectionViewer.setLabelProvider(new SyntaxNodeLabelProvider());
 		ColumnViewerToolTipSupport.enableFor(fSelectionViewer);
@@ -592,7 +593,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	
 	private Control createPreviewer(Composite parent) {
 		fColorManager = new ColorManager();
-
+		
 		IPreferenceStore store = new ChainedPreferenceStore(new IPreferenceStore[] {
 				fOverlayStore, EditorsUI.getPreferenceStore() });
 		fPreviewViewer = new SourceViewer(parent, null, null, false, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
@@ -607,7 +608,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		IDocument document = new Document(content);
 		getDocumentSetupParticipant().setup(document);
 		fPreviewViewer.setDocument(document);
-
+		
 		return fPreviewViewer.getControl();
 	}
 	
@@ -616,7 +617,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	protected abstract StatextSourceViewerConfiguration getSourceViewerConfiguration(ColorManager colorManager, IPreferenceStore store);
 	
 	protected abstract IDocumentSetupParticipant getDocumentSetupParticipant();
-
+	
 	private String loadPreviewContentFromFile(String filename) {
 		String line;
 		String separator = System.getProperty("line.separator"); //$NON-NLS-1$
@@ -646,7 +647,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	private void initBindings() {
 		final Realm realm = Realm.getDefault();
 		fDbc = new DataBindingContext(realm);
-
+		
 		// Observe changes in selection.
 		IObservableValue selection = ViewersObservables.observeSingleSelection(fSelectionViewer);
 		selection.addValueChangeListener(new IValueChangeListener() {
@@ -741,8 +742,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 			description.append("\n    "); //$NON-NLS-1$
 			description.append(listItems[i]);
 		}
-		description.append("\n["+end+"/"+listItems.length+"]");
-		return description.toString();
+		description.append("\n["+end+"/"+listItems.length+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return MessageUtil.escapeForTooltip(description);
 	}
 	
 	protected String addExtraStyleNoteToTooltip(String tooltip) {

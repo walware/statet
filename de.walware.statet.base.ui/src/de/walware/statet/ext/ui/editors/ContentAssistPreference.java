@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -28,7 +28,7 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
 public class ContentAssistPreference {
-
+	
 	
 	public static final String CONTEXT_ID = "statet.contentassist"; //$NON-NLS-1$
 	
@@ -50,13 +50,13 @@ public class ContentAssistPreference {
 	 */
 	public final static BooleanPref AUTOINSERT_SINGLE = new BooleanPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoInsert.Single.enable"); //$NON-NLS-1$
-
+	
 	/**
 	 * Preference for content assist auto insert
 	 */
 	public final static BooleanPref AUTOINSERT_COMMON = new BooleanPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "AutoInsert.Common.enable"); //$NON-NLS-1$
-
+	
 	/**
 	 * Preference for content assist proposal color
 	 */
@@ -87,24 +87,24 @@ public class ContentAssistPreference {
 	 */
 	public final static RGBPref REPLACEMENT_FOREGROUND = new RGBPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "CompletionReplacement.foreground"); //$NON-NLS-1$
-
+	
 	/**
 	 * A named preference that holds the background color used in the code
 	 * assist selection dialog to mark replaced code.
 	 */
 	public final static RGBPref REPLACEMENT_BACKGROUND = new RGBPref(
 			IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER, "CompletionReplacement.background"); //$NON-NLS-1$
-
+	
 	
 	public static IEclipsePreferences getCommonPreferencesNode() {
 		return new InstanceScope().getNode(IStatetUIPreferenceConstants.CAT_CODEASSIST_QUALIFIER);
 	}
-
+	
 //	/** Preference key for java content assist auto activation triggers */
 //	private final static String AUTOACTIVATION_TRIGGERS_JAVA= PreferenceConstants.CODEASSIST_AUTOACTIVATION_TRIGGERS_JAVA;
 //	/** Preference key for javadoc content assist auto activation triggers */
 //	private final static String AUTOACTIVATION_TRIGGERS_JAVADOC= PreferenceConstants.CODEASSIST_AUTOACTIVATION_TRIGGERS_JAVADOC;
-
+	
 //	/** Preference key for visibility of proposals */
 //	private final static String SHOW_VISIBLE_PROPOSALS= PreferenceConstants.CODEASSIST_SHOW_VISIBLE_PROPOSALS;
 //	/** Preference key for alphabetic ordering of proposals */
@@ -116,14 +116,14 @@ public class ContentAssistPreference {
 //	private static final String FILL_METHOD_ARGUMENTS= PreferenceConstants.CODEASSIST_FILL_ARGUMENT_NAMES;
 //	/** Preference key for prefix completion. */
 //	private static final String PREFIX_COMPLETION= PreferenceConstants.CODEASSIST_PREFIX_COMPLETION;
-
+	
 	
 	/**
 	 * Configure the given content assistant from the given store.
 	 */
-	public static void configure(ContentAssistant assistant) {
-		ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
-		IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
+	public static void configure(final ContentAssistant assistant) {
+		final ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
+		final IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
 		
 		assistant.enableAutoActivation(statet.getPreferenceValue(AUTOACTIVATION));
 		assistant.setAutoActivationDelay(statet.getPreferenceValue(AUTOACTIVATION_DELAY));
@@ -131,12 +131,12 @@ public class ContentAssistPreference {
 		assistant.enablePrefixCompletion(statet.getPreferenceValue(AUTOINSERT_COMMON));
 		assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
 		assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
-		Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
+		final Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
 		assistant.setContextInformationPopupForeground(c);
 		assistant.setContextSelectorForeground(c);
 		manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
 		assistant.setContextInformationPopupBackground(c);
 		assistant.setContextSelectorBackground(c);
 	}
-
+	
 }

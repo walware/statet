@@ -23,7 +23,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 public class DialogUtil {
 	
 	
-	private static final int HISTORY_MAX = 10;
+	private static final int HISTORY_MAX = 25;
 	
 	
 	public static IDialogSettings getDialogSettings(AbstractUIPlugin plugin, String dialogId) {

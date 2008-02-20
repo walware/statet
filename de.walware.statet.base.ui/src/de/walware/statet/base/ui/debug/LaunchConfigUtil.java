@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -12,6 +12,7 @@
 package de.walware.statet.base.ui.debug;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -19,10 +20,13 @@ import java.util.regex.Pattern;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -44,12 +48,18 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  */
 public class LaunchConfigUtil {
 	
-	public static String[] getProcessArguments(ILaunchConfiguration configuration,
-			String attr) throws CoreException {
+	public static String[] getProcessArguments(final ILaunchConfiguration configuration,
+			final String attr) throws CoreException {
 		
-		String args = configuration.getAttribute(attr, ""); //$NON-NLS-1$
-		String expanded = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(args);
+		final String args = configuration.getAttribute(attr, ""); //$NON-NLS-1$
+		final String expanded = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(args);
 		return DebugPlugin.parseArguments(expanded);
+	}
+	
+	public static void configureEnvironment(final Map<String, String> env, final ILaunchConfiguration configuration, final Map<String, String> add)
+			throws CoreException {
+		env.clear();
+		env.putAll(createEnvironment(configuration, new Map[] { add }));
 	}
 	
 	/**
@@ -60,21 +70,31 @@ public class LaunchConfigUtil {
 	 * @param environment
 	 * @throws CoreException
 	 */
-	public static void configureEnvironment(ILaunchConfiguration configuration, Map<String, String> environment)
+	public static Map<String, String> createEnvironment(final ILaunchConfiguration configuration, final Map<String, String>[] add)
 			throws CoreException {
-		environment.clear();
-		if (configuration.getAttribute(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES, true)) {
-			Map<String, String> osVariables = DebugPlugin.getDefault().getLaunchManager().getNativeEnvironmentCasePreserved();
-			for (String name: osVariables.keySet()) {
-				if (!environment.containsKey(name)) {
-					environment.put(name, osVariables.get(name));
+		final Map<String, String> envp = (Platform.getOS().startsWith("win")) ? new WinEnvpMap() : new HashMap<String, String>(); //$NON-NLS-1$
+		if (configuration == null || configuration.getAttribute(ILaunchManager.ATTR_APPEND_ENVIRONMENT_VARIABLES, true)) {
+			envp.putAll(DebugPlugin.getDefault().getLaunchManager().getNativeEnvironmentCasePreserved());
+		}
+		
+		Map<String, String> custom = (configuration != null) ? configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map) null) : null;
+		if (add != null) {
+			for (int i = 0; i < add.length; i++) {
+				if (add[i] != null) {
+					envp.putAll(add[i]);
+				}
+				else if (custom != null) {
+					envp.putAll(custom);
+					custom = null;
 				}
 			}
 		}
-		Map<String, String> envpMap = configuration.getAttribute(ILaunchManager.ATTR_ENVIRONMENT_VARIABLES, (Map) null);
-		if (envpMap != null) {
-			environment.putAll(envpMap);
+		if (custom != null) {
+			envp.putAll(custom);
+			custom = null;
 		}
+		
+		return envp;
 	}
 	
 	
@@ -84,9 +104,9 @@ public class LaunchConfigUtil {
 	/**
 	 * Creates UI presentation of command line (command string for shell).
 	 */
-	public static String generateCommandLine(List<String> commandLine) {
-		StringBuilder builder = new StringBuilder();
-		for (String arg : commandLine) {
+	public static String generateCommandLine(final List<String> commandLine) {
+		final StringBuilder builder = new StringBuilder();
+		for (final String arg : commandLine) {
 			DOUBLE_QUOTE_PATTERN.matcher(arg).replaceAll(DOUBLE_QUOTE_REPLACEMENT);
 			if (arg.indexOf(' ') >= 0) {
 				builder.append('\"');
@@ -102,19 +122,19 @@ public class LaunchConfigUtil {
 		}
 		return ""; //$NON-NLS-1$
 	}
-
+	
 	/**
 	 * Refreshes resources as specified by a launch configuration, when
 	 * an associated process terminates.
 	 */
 	private static class BackgroundResourceRefresher implements IDebugEventSetListener  {
-
+		
 		
 		private ILaunchConfiguration fConfiguration;
 		private IProcess fProcess;
 		
 		
-		public BackgroundResourceRefresher(ILaunchConfiguration configuration, IProcess process) {
+		public BackgroundResourceRefresher(final ILaunchConfiguration configuration, final IProcess process) {
 			fConfiguration = configuration;
 			fProcess = process;
 			
@@ -132,9 +152,9 @@ public class LaunchConfigUtil {
 			}
 		}
 		
-		public void handleDebugEvents(DebugEvent[] events) {
+		public void handleDebugEvents(final DebugEvent[] events) {
 			for (int i = 0; i < events.length; i++) {
-				DebugEvent event = events[i];
+				final DebugEvent event = events[i];
 				if (event.getSource() == fProcess && event.getKind() == DebugEvent.TERMINATE) {
 					sheduleRefresh();
 					return;
@@ -149,7 +169,7 @@ public class LaunchConfigUtil {
 			if (fProcess != null) {
 				DebugPlugin.getDefault().removeDebugEventListener(this);
 				fProcess = null;
-				Job job = new Job(StatetMessages.BackgroundResourceRefresher_Job_name) {
+				final Job job = new Job(StatetMessages.BackgroundResourceRefresher_Job_name) {
 					@Override
 					public IStatus run(IProgressMonitor monitor) {
 						try {
@@ -165,10 +185,10 @@ public class LaunchConfigUtil {
 			}
 		}
 	}
-
-
-	public static IProgressMonitor initProgressMonitor(ILaunchConfiguration configuration,
-			IProgressMonitor monitor, int taskTotalWork) {
+	
+	
+	public static IProgressMonitor initProgressMonitor(final ILaunchConfiguration configuration,
+			IProgressMonitor monitor, final int taskTotalWork) {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -186,32 +206,31 @@ public class LaunchConfigUtil {
 		return "("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	public static String createLaunchPrefix(ILaunchConfiguration config) {
-		StringBuilder s = new StringBuilder();
-        if (config != null) {
-        	String type = null;
-            try {
-                type = config.getType().getName();
-            } catch (CoreException e) {
-            }
-            s.append(config.getName());
-            if (type != null) {
-                s.append(" ["); //$NON-NLS-1$
-                s.append(type);
-                s.append("]"); //$NON-NLS-1$
-            }
-        }
-        else {
-        	s.append("[-]"); //$NON-NLS-1$
-        }
-        return s.toString();
+	public static String createLaunchPrefix(final ILaunchConfiguration config) {
+		final StringBuilder s = new StringBuilder();
+		if (config != null) {
+			String type = null;
+			try {
+				type = config.getType().getName();
+			} catch (final CoreException e) {}
+			s.append(config.getName());
+			if (type != null) {
+				s.append(" ["); //$NON-NLS-1$
+				s.append(type);
+				s.append("]"); //$NON-NLS-1$
+			}
+		}
+		else {
+			s.append("[-]"); //$NON-NLS-1$
+		}
+		return s.toString();
 	}
 	
 	/**
 	 * Manages resource refresh according to the settings in launch configuration.
 	 */
-	public static void launchResourceRefresh(ILaunchConfiguration configuration,
-			IProcess process, IProgressMonitor monitor) throws CoreException {
+	public static void launchResourceRefresh(final ILaunchConfiguration configuration,
+			final IProcess process, final IProgressMonitor monitor) throws CoreException {
 		if (CommonTab.isLaunchInBackground(configuration)) {
 			// refresh resources after process finishes
 			if (RefreshTab.getRefreshScope(configuration) != null) {
@@ -226,7 +245,7 @@ public class LaunchConfigUtil {
 						break;
 					}
 					Thread.sleep(50);
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					Thread.interrupted();
 				}
 			}
@@ -234,6 +253,22 @@ public class LaunchConfigUtil {
 			// refresh resources
 			RefreshTab.refreshResources(configuration, monitor);
 		}
+	}
+	
+	public static IProject[] getProjectList(final IResource resource) {
+		try {
+			final IProject project = resource.getProject();
+			if (project != null) {
+				final IProject[] referencedProjects = project.getReferencedProjects();
+				final IProject[] allProjects = new IProject[referencedProjects.length+1];
+				allProjects[0] = project;
+				System.arraycopy(referencedProjects, 0, allProjects, 1, referencedProjects.length);
+				return allProjects;
+			}
+		}
+		catch (final CoreException e) {
+		}
+		return new IProject[0];
 	}
 	
 }

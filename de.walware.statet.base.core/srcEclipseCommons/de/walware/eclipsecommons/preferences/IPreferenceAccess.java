@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -21,12 +21,12 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
  * In most cases, you can take the Objects from <code>PreferencesUtil</code>.
  */
 public interface IPreferenceAccess {
-
+	
 	/**
 	 * Returns the preference value of the specified <code>Preference</code>
 	 * @param <T> type for which the <code>Preference</code> is designed.
-	 * @param key 
-	 * @return 
+	 * @param key
+	 * @return value
 	 */
 	<T> T getPreferenceValue(Preference<T> key);
 	
@@ -43,4 +43,5 @@ public interface IPreferenceAccess {
 	 * @return
 	 */
 	IScopeContext[] getPreferenceContexts();
+	
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -54,7 +54,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * Shows the help for a command line tool in a dialog tray.
  */
 public class HelpRequestor implements IRunnableWithProgress {
-
+	
 	
 	private static class InfoTray extends DialogTray{
 		
@@ -79,7 +79,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				}
 			});
 			container.setLayout(new FillLayout(SWT.VERTICAL));
-
+			
 			Form form = toolkit.createForm(container);
 			toolkit.decorateFormHeading(form);
 			form.setText("'--help'"); //$NON-NLS-1$
@@ -127,14 +127,14 @@ public class HelpRequestor implements IRunnableWithProgress {
 			dialog.closeTray();
 		}
 	}
-
+	
 	
 	private class HelpReader extends Thread {
 		
 		private InputStreamReader fOutputInput;
 		private StringBuilder fBuffer;
 		private Exception fReadException;
-
+		
 		public HelpReader() {
 			super("'--help'-Output Monitor"); //$NON-NLS-1$
 			fOutputInput = new InputStreamReader(fProcess.getInputStream());
@@ -194,7 +194,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 		}
 	}
 	
-
+	
 	private TrayDialog fDialog;
 	private IProgressMonitor fMonitor;
 	private ProcessBuilder fBuilder;
@@ -205,17 +205,17 @@ public class HelpRequestor implements IRunnableWithProgress {
 	
 	
 	public HelpRequestor(List<String> cmdLine, TrayDialog dialog) {
-
+		
 		fCmdLine = cmdLine;
 		fBuilder = new ProcessBuilder(cmdLine);
 		fDialog = dialog;
 	}
-
+	
 	public ProcessBuilder getProcessBuilder() {
 		
 		return fBuilder;
 	}
-
+	
 	public void run(IProgressMonitor monitor) throws InvocationTargetException,
 			InterruptedException {
 		
@@ -232,7 +232,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				fProcess = fBuilder.start();
 			}
 			catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
+				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 						NLS.bind(StatetMessages.HelpRequestor_error_WhenRunProcess_message, cmdInfo), e));
 			}
 			fIsRunning = true;
@@ -251,7 +251,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				}
 			}
 			fMonitor.worked(2);
-
+			
 			final String helpText = reader.getText();
 			fMonitor.worked(2);
 			

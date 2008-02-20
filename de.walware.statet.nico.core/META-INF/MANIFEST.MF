@@ -3,16 +3,18 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico Core
 Bundle-SymbolicName: de.walware.statet.nico.core;singleton:=true
-Bundle-Version: 0.4.0.qualifier
+Bundle-Version: 0.5.0.qualifier
 Bundle-Activator: de.walware.statet.nico.internal.core.NicoPlugin
 Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.3.0";visibility:=reexport,
  org.eclipse.debug.core;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
- org.eclipse.core.filesystem
-Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: de.walware.statet.nico.core,
- de.walware.statet.nico.core.runtime
+ org.eclipse.core.filesystem,
+ org.eclipse.core.commands;resolution:=optional
 Import-Package: de.walware.eclipsecommons,
  de.walware.eclipsecommons.preferences
+Export-Package: de.walware.statet.nico.core,
+ de.walware.statet.nico.core.runtime,
+ de.walware.statet.nico.core.util

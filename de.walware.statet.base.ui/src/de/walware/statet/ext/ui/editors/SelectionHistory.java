@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *    Stephan Wahlbrink - initial API and implementation
+ *******************************************************************************/
+
 package de.walware.statet.ext.ui.editors;
 
 import java.util.ArrayList;
@@ -11,19 +22,22 @@ import org.eclipse.ui.texteditor.IUpdate;
 import de.walware.eclipsecommons.FastList;
 
 
+/**
+ * History of selections.
+ */
 public class SelectionHistory {
-
+	
 	private List<IRegion> fHistory;
-	private StatextEditor1<?, ?> fEditor;
+	private StatextEditor1<?> fEditor;
 	private ISelectionChangedListener fSelectionListener;
 	private int fSelectionChangeListenerCounter;
 	private FastList<IUpdate> fUpdateActions = new FastList<IUpdate>(IUpdate.class);
-
-	public SelectionHistory(StatextEditor1<?, ?> editor) {
+	
+	public SelectionHistory(final StatextEditor1<?> editor) {
 		fEditor = editor;
 		fHistory = new ArrayList<IRegion>();
 		fSelectionListener = new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
+			public void selectionChanged(final SelectionChangedEvent event) {
 				if (fSelectionChangeListenerCounter == 0) {
 					flush();
 				}
@@ -31,23 +45,23 @@ public class SelectionHistory {
 		};
 		fEditor.getSelectionProvider().addSelectionChangedListener(fSelectionListener);
 	}
-
-	public void addUpdateListener(IUpdate action) {
+	
+	public void addUpdateListener(final IUpdate action) {
 		fUpdateActions.add(action);
 	}
-
+	
 	private final void updateState() {
 		final IUpdate[] actions = fUpdateActions.toArray();
 		for (int i = 0; i < actions.length; i++) {
 			actions[i].update();
 		}
 	}
-
+	
 	public boolean isEmpty() {
 		return fHistory.isEmpty();
 	}
-
-	public void remember(IRegion range) {
+	
+	public void remember(final IRegion range) {
 		fHistory.add(range);
 		updateState();
 	}
@@ -55,11 +69,11 @@ public class SelectionHistory {
 	public IRegion getLast() {
 		if (isEmpty())
 			return null;
-		IRegion result = fHistory.remove(fHistory.size() - 1);
+		final IRegion result = fHistory.remove(fHistory.size() - 1);
 		updateState();
 		return result;
 	}
-
+	
 	public void flush() {
 		if (fHistory.isEmpty()) {
 			return;
@@ -67,16 +81,17 @@ public class SelectionHistory {
 		fHistory.clear();
 		updateState();
 	}
-
+	
 	public void ignoreSelectionChanges() {
 		fSelectionChangeListenerCounter++;
 	}
-
+	
 	public void listenToSelectionChanges() {
 		fSelectionChangeListenerCounter--;
 	}
-
+	
 	public void dispose() {
 		fEditor.getSelectionProvider().removeSelectionChangedListener(fSelectionListener);
 	}
+	
 }

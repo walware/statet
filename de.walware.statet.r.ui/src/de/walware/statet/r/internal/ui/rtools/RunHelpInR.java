@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.rtools;
@@ -23,7 +23,7 @@ import de.walware.statet.r.launching.AbstractRCommandHandler;
  * Command handler for help("...")
  */
 public class RunHelpInR extends AbstractRCommandHandler {
-
+	
 	
 	public static final String COMMAND_ID = "de.walware.statet.r.ui.commands.RunHelpInR"; //$NON-NLS-1$
 	private static final String PAR_TOPIC = "topic"; //$NON-NLS-1$
@@ -37,7 +37,7 @@ public class RunHelpInR extends AbstractRCommandHandler {
 	public RunHelpInR() {
 		super(Messages.HelpCommand_name);
 	}
-
+	
 	
 	@Override
 	public Object execute(ExecutionEvent arg) throws ExecutionException {
@@ -48,8 +48,8 @@ public class RunHelpInR extends AbstractRCommandHandler {
 				return null;
 			}
 		}
-		runCommand("help(\""+RUtil.escapeDoubleQuote(topic)+"\")", false);
+		runCommand("help(\""+RUtil.escapeDoubleQuote(topic)+"\")", false); //$NON-NLS-1$ //$NON-NLS-2$
 		return null;
 	}
-
+	
 }

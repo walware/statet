@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -30,7 +30,7 @@ import org.eclipse.ui.PlatformUI;
  * Access to UI resources from other threads.
  */
 public class UIAccess {
-
+	
 	
 	/**
 	 * Returns the display for this workbench.
@@ -38,7 +38,6 @@ public class UIAccess {
 	 * @return a display.
 	 */
 	public static Display getDisplay() {
-		
 		return PlatformUI.getWorkbench().getDisplay();
 	}
 	
@@ -46,13 +45,12 @@ public class UIAccess {
 	 * Searches a appropriate display.
 	 * <p>
 	 * Order for search: display of specified shell,
-	 * display for the workbench. 
+	 * display for the workbench.
 	 * 
 	 * @param shell optional shell
 	 * @return display
 	 */
-	public static Display getDisplay(Shell shell) {
-		
+	public static Display getDisplay(final Shell shell) {
 		Display display = null;
 		if (shell != null) {
 			display = shell.getDisplay();
@@ -62,9 +60,8 @@ public class UIAccess {
 		}
 		return display;
 	}
-
-	public static IWorkbenchWindow getActiveWorkbenchWindow(boolean inUIThread) {
-		
+	
+	public static IWorkbenchWindow getActiveWorkbenchWindow(final boolean inUIThread) {
 		if (inUIThread) {
 			return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		}
@@ -78,26 +75,23 @@ public class UIAccess {
 		return windowRef.get();
 	}
 	
-	public static IWorkbenchPage getActiveWorkbenchPage(boolean inUIThread) {
-		
-		IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
+	public static IWorkbenchPage getActiveWorkbenchPage(final boolean inUIThread) {
+		final IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
 		if (window != null) {
 			return window.getActivePage();
 		}
 		return null;
 	}
 
-	public static Shell getActiveWorkbenchShell(boolean inUIThread) {
-		
-		 IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
+	public static Shell getActiveWorkbenchShell(final boolean inUIThread) {
+		 final IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
 		 if (window != null) {
 		 	return window.getShell();
 		 }
 		 return null;
 	}
-
+	
 	public static Color getColor(final ColorManager colorManager, final RGB rgb) {
-		
 		final AtomicReference<Color> colorRef = new AtomicReference<Color>();
 		getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -106,7 +100,7 @@ public class UIAccess {
 		});
 		return colorRef.get();
 	}
-
+	
 	
 	public static interface CheckedRunnable {
 		public void run() throws CoreException;
@@ -118,8 +112,8 @@ public class UIAccess {
 			public void run() {
 				try {
 					runnable.run();
-				} catch (CoreException e) {
-					error.set(e); 
+				} catch (final CoreException e) {
+					error.set(e);
 				}
 			}
 		});
@@ -132,21 +126,19 @@ public class UIAccess {
 	/**
 	 * Tests is the control is not <code>null</code> and not disposed.
 	*/
-	public static final boolean isOkToUse(Control control) {
-		
+	public static final boolean isOkToUse(final Control control) {
 		return (control != null) && (Display.getCurrent() != null) && !control.isDisposed();
 	}
-
+	
 	/**
 	 * Tests is the viewer is not <code>null</code> and its control is not disposed.
 	*/
-	public static final boolean isOkToUse(Viewer viewer) {
-		
+	public static final boolean isOkToUse(final Viewer viewer) {
 		Control control;
 		return ((viewer != null) 
 				&& ((control = viewer.getControl()) != null) 
-				&& !control.isDisposed()
-				&& (Display.getCurrent() != null) 
+				&& !control.isDisposed() 
+				&& (Display.getCurrent() != null)
 		);
 	}
 

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico.ui;
@@ -67,7 +67,7 @@ class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	public void configureServices(IHandlerService commands, IContextService keys) {
 		super.configureServices(commands, keys);
 		
-		keys.activateContext("de.walware.statet.r.contexts.REditorScope");
+		keys.activateContext("de.walware.statet.r.contexts.REditorScope"); //$NON-NLS-1$
 		
 		IAction action;
 		action = new InsertAssignmentAction((IEditorAdapter) getConsolePage().getAdapter(IEditorAdapter.class));

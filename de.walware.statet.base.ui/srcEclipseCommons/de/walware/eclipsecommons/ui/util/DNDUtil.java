@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,28 +35,27 @@ public class DNDUtil {
 		
 		protected abstract StyledText getTextWidget();
 
+		@Override
 		public void dragEnter(DropTargetEvent e) {
-			
-			if (e.detail == DND.DROP_DEFAULT) {
+			if (e.detail == DND.DROP_DEFAULT && (e.operations & DND.DROP_COPY) != 0) {
 				e.detail = DND.DROP_COPY;
 			}
 		}
 		
+		@Override
 		public void dragOperationChanged(DropTargetEvent e) {
-			
-			if (e.detail == DND.DROP_DEFAULT) {
+			if (e.detail == DND.DROP_DEFAULT && (e.operations & DND.DROP_COPY) != 0) {
 				e.detail = DND.DROP_COPY;
 			}
 		}
 		
 		@Override
 		public void dragOver(DropTargetEvent event) {
-
 			event.feedback = DND.FEEDBACK_SCROLL | DND.FEEDBACK_SELECT;
 		}
 		
+		@Override
 		public void drop(DropTargetEvent e) {
-			
 			getTextWidget().insert((String)e.data);
 		}
 	}
@@ -74,7 +73,7 @@ public class DNDUtil {
 					throw e;
 	
 				if (!MessageDialog.openQuestion(
-						UIAccess.getActiveWorkbenchShell(true), 
+						UIAccess.getActiveWorkbenchShell(true),
 						Messages.CopyToClipboard_error_title,
 						Messages.CopyToClipboard_error_message))
 					return false;
@@ -83,7 +82,7 @@ public class DNDUtil {
 	}
 	
 	/**
-	 * for common options (DEFAULT, MOVE, COPY).  
+	 * for common options (DEFAULT, MOVE, COPY).
 	 * @param viewer
 	 * @param listener
 	 * @param transferTypes
@@ -91,8 +90,8 @@ public class DNDUtil {
 	public static void addDropSupport(Control control, DropTargetListener listener,
 			Transfer[] transferTypes) {
 		
-		addDropSupport(control, new DropTargetListener[] { listener }, 
-				DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY, 
+		addDropSupport(control, new DropTargetListener[] { listener },
+				DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY,
 				transferTypes);
 	}
 	

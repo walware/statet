@@ -1,0 +1,58 @@
+/*******************************************************************************
+ * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Stephan Wahlbrink - initial API and implementation
+ *******************************************************************************/
+
+package de.walware.statet.r.core.rmodel;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+
+import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.eclipsecommons.ltk.GenericSourceUnitWorkingCopy;
+import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
+import de.walware.statet.r.internal.core.RCorePlugin;
+
+
+/**
+ *
+ */
+public abstract class RWorkingCopy extends GenericSourceUnitWorkingCopy {
+	
+	
+	protected RWorkingCopy(final ISourceUnit from) {
+		super(from);
+	}
+	
+	@Override
+	protected final void register() {
+		if (getTypeId().equals("r")) { //$NON-NLS-1$
+			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
+		}
+		else {
+			RCorePlugin.getDefault().getRModelManager().registerWorksheetCopy(this);
+		}
+	}
+	
+	@Override
+	protected final void unregister() {
+		if (getTypeId().equals("r")) { //$NON-NLS-1$
+			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
+		}
+		else {
+			RCorePlugin.getDefault().getRModelManager().removeWorksheetCopy(this);
+		}
+	}
+	
+	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+		return null;
+	}
+	
+}

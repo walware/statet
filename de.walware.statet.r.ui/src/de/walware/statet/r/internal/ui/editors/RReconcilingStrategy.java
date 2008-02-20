@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.editors;
@@ -41,32 +41,33 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 	public void initialReconcile() {
 		reconcile();
 	}
-
-	public void setDocument(IDocument document) {
+	
+	public void setDocument(final IDocument document) {
 	}
 	
-	public void setEditorInput(IEditorInput input) {
+	public void setEditorInput(final IEditorInput input) {
 		fEditorInput = input;
 	}
-
-	public void reconcile(IRegion partition) {
+	
+	public void reconcile(final IRegion partition) {
 		reconcile();
 	}
 	
-	public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
+	public void reconcile(final DirtyRegion dirtyRegion, final IRegion subRegion) {
 		reconcile();
 	}
 	
-	public void setProgressMonitor(IProgressMonitor monitor) {
+	public void setProgressMonitor(final IProgressMonitor monitor) {
 		fMonitor = monitor;
 	}
 	
 	
 	protected void reconcile() {
-		IRSourceUnit u = fDocumentProvider.getWorkingCopy(fEditorInput);
+		final IRSourceUnit u = fDocumentProvider.getWorkingCopy(fEditorInput);
 		if (u == null || fMonitor.isCanceled()) {
 			return;
 		}
 		u.reconcile(0, fMonitor);
 	}
+	
 }

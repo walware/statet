@@ -1,21 +1,26 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
+
+import java.lang.reflect.InvocationTargetException;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * <code>§target§ &lt;- §source§</code>
+ * <code>§target§ &lt;&lt;- §source§</code>
+ * <code>§source§ -&gt; §target§</code>
+ * <code>§source§ -&gt;&gt; §target§</code>
  */
 public abstract class Assignment extends StdBinary {
 	
@@ -36,7 +41,7 @@ public abstract class Assignment extends StdBinary {
 		public final RAstNode getSourceChild() {
 			return fRightExpr.node;
 		}
-
+		
 		@Override
 		final Expression getTargetExpr() {
 			return fLeftExpr;
@@ -47,12 +52,13 @@ public abstract class Assignment extends StdBinary {
 			return fRightExpr;
 		}
 		
+		@Override
 		public final RTerminal getOperator() {
 			return RTerminal.ARROW_LEFT_S;
 		}
-
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			switch (element.getNodeType()) {
 			case A_LEFT_S:
 			case A_RIGHT_S:
@@ -64,14 +70,14 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 	}
-
+	
 	static class LeftD extends Assignment {
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.A_LEFT_D;
 		}
-
+		
 		@Override
 		public final RAstNode getTargetChild() {
 			return fLeftExpr.node;
@@ -81,7 +87,7 @@ public abstract class Assignment extends StdBinary {
 		public final RAstNode getSourceChild() {
 			return fRightExpr.node;
 		}
-
+		
 		@Override
 		final Expression getTargetExpr() {
 			return fLeftExpr;
@@ -92,12 +98,13 @@ public abstract class Assignment extends StdBinary {
 			return fRightExpr;
 		}
 		
+		@Override
 		public final RTerminal getOperator() {
 			return RTerminal.ARROW_LEFT_S;
 		}
 		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			switch (element.getNodeType()) {
 			case A_LEFT_D:
 			case A_RIGHT_D:
@@ -108,14 +115,14 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 	}
-
+	
 	static class LeftE extends Assignment {
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.A_LEFT_E;
 		}
-
+		
 		@Override
 		public final RAstNode getTargetChild() {
 			return fLeftExpr.node;
@@ -125,7 +132,7 @@ public abstract class Assignment extends StdBinary {
 		public final RAstNode getSourceChild() {
 			return fRightExpr.node;
 		}
-
+		
 		@Override
 		final Expression getTargetExpr() {
 			return fLeftExpr;
@@ -136,12 +143,13 @@ public abstract class Assignment extends StdBinary {
 			return fRightExpr;
 		}
 		
+		@Override
 		public final RTerminal getOperator() {
 			return RTerminal.EQUAL;
 		}
 		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			switch (element.getNodeType()) {
 			case A_LEFT_S:
 			case A_RIGHT_S:
@@ -170,7 +178,7 @@ public abstract class Assignment extends StdBinary {
 		public final RAstNode getSourceChild() {
 			return fLeftExpr.node;
 		}
-
+		
 		@Override
 		final Expression getTargetExpr() {
 			return fRightExpr;
@@ -181,12 +189,13 @@ public abstract class Assignment extends StdBinary {
 			return fRightExpr;
 		}
 		
+		@Override
 		public final RTerminal getOperator() {
 			return RTerminal.ARROW_RIGHT_S;
 		}
 		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			switch (element.getNodeType()) {
 			case A_LEFT_S:
 			case A_RIGHT_S:
@@ -205,7 +214,7 @@ public abstract class Assignment extends StdBinary {
 		public final NodeType getNodeType() {
 			return NodeType.A_RIGHT_D;
 		}
-
+		
 		@Override
 		public final RAstNode getTargetChild() {
 			return fRightExpr.node;
@@ -226,12 +235,13 @@ public abstract class Assignment extends StdBinary {
 			return fRightExpr;
 		}
 		
+		@Override
 		public final RTerminal getOperator() {
 			return RTerminal.ARROW_RIGHT_D;
 		}
 		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			switch (element.getNodeType()) {
 			case A_LEFT_D:
 			case A_RIGHT_D:
@@ -245,19 +255,20 @@ public abstract class Assignment extends StdBinary {
 	
 	
 	public abstract RAstNode getTargetChild();
+	public abstract RTerminal getOperator();
 	public abstract RAstNode getSourceChild();
-
+	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	abstract Expression getTargetExpr();
 	abstract Expression getSourceExpr();
-
+	
 	
 	@Override
-	public boolean equalsSingle(RAstNode element) {
+	public boolean equalsSingle(final RAstNode element) {
 		RAstNode thisTarget = getTargetExpr().node;
 		RAstNode otherTarget = ((Assignment) element).getTargetExpr().node;
 		return (	((thisTarget == otherTarget)

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000-2006 IBM Corporation and others.
+ * Copyright (c) 2000-2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Wahlbrink
@@ -30,8 +30,8 @@ import org.eclipse.swt.graphics.Font;
  * It disposes itself automatically.
  */
 public class SourceViewerUpdater {
-
-
+	
+	
 	private IPreferenceStore fPreferenceStore;
 	private IPropertyChangeListener fFontChangeListener;
 	
@@ -41,11 +41,10 @@ public class SourceViewerUpdater {
 	 * @param viewer the viewer
 	 * @param configuration the configuration
 	 */
-	public SourceViewerUpdater(SourceViewer viewer, StatextSourceViewerConfiguration configuration) {
-		
+	public SourceViewerUpdater(final SourceViewer viewer, final StatextSourceViewerConfiguration configuration) {
 		this(viewer, configuration, configuration.getPreferences());
 	}
-
+	
 	/**
 	 * Creates a source preview updater for the given viewer, configuration and preference store.
 	 *
@@ -54,7 +53,12 @@ public class SourceViewerUpdater {
 	 * @param preferenceStore the preference store
 	 */
 	public SourceViewerUpdater(final SourceViewer viewer, final StatextSourceViewerConfiguration configuration, final IPreferenceStore preferenceStore) {
-		
+		this(viewer, configuration, preferenceStore, JFaceResources.TEXT_FONT);
+	}
+	
+	
+	public SourceViewerUpdater(final SourceViewer viewer, final StatextSourceViewerConfiguration configuration, final IPreferenceStore preferenceStore,
+			final String symbolicFontName) {
 		assert (viewer != null);
 		assert (configuration != null);
 		assert (preferenceStore != null);
@@ -62,30 +66,30 @@ public class SourceViewerUpdater {
 		fPreferenceStore = preferenceStore;
 		
 		fFontChangeListener = new IPropertyChangeListener() {
-			/*
-			 * @see org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.jface.util.PropertyChangeEvent)
-			 */
-			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(JFaceResources.TEXT_FONT)) {
-					Font font = JFaceResources.getFont(JFaceResources.TEXT_FONT);
-					viewer.getTextWidget().setFont(font);
+			public void propertyChange(final PropertyChangeEvent event) {
+				if (event.getProperty().equals(symbolicFontName)) {
+					final Font font = JFaceResources.getFont(symbolicFontName);
+					if (font != null) {
+						updateFont(viewer, font);
+					}
 				}
 			}
 		};
 		viewer.getTextWidget().addDisposeListener(new DisposeListener() {
-			/*
-			 * @see org.eclipse.swt.events.DisposeListener#widgetDisposed(org.eclipse.swt.events.DisposeEvent)
-			 */
-			public void widgetDisposed(DisposeEvent e) {
+			public void widgetDisposed(final DisposeEvent e) {
 				unregister();
 			}
 		});
-
+		
 		JFaceResources.getFontRegistry().addListener(fFontChangeListener);
 	}
-
+	
+	protected void updateFont(final SourceViewer viewer, final Font font) {
+		viewer.getTextWidget().setFont(font);
+	}
+	
+	
 	public synchronized void unregister() {
-		
 		if (fPreferenceStore != null) {
 			JFaceResources.getFontRegistry().removeListener(fFontChangeListener);
 		}

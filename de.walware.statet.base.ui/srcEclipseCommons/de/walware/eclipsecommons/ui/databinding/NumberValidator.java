@@ -41,15 +41,17 @@ public class NumberValidator implements IValidator {
 	}
 
 	public IStatus validate(Object value) {
-		String s = ((String) value).trim();
-		ParsePosition result = new ParsePosition(0);
-		Number number = fFormatter.parse(s, result);
-		if (result.getIndex() == s.length() && result.getErrorIndex() < 0) {
-			int n = number.intValue();
-			if (n >= fMin && n <= fMax) {
-				return Status.OK_STATUS;
+		if (value instanceof String) {
+			String s = ((String) value).trim();
+			ParsePosition result = new ParsePosition(0);
+			Number number = fFormatter.parse(s, result);
+			if (result.getIndex() == s.length() && result.getErrorIndex() < 0) {
+				int n = number.intValue();
+				if (n >= fMin && n <= fMax) {
+					return Status.OK_STATUS;
+				}
+				// return range message
 			}
-			// return range message
 		}
 		return ValidationStatus.error(fMessage);
 	}

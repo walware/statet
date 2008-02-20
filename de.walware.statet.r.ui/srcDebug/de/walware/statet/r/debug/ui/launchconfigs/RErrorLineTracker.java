@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.debug.ui.launchconfigs;
@@ -49,38 +49,38 @@ import de.walware.statet.r.ui.RUI;
  *
  */
 public class RErrorLineTracker implements IPatternMatchListener {
-
+	
 	
 	private static class SourceLink implements IHyperlink {
-
+		
 		private IFileStore fBase;
 		private String fFileName;
 		private int fLine;
 		
-		public SourceLink(IFileStore base, String path, int line) {
+		public SourceLink(final IFileStore base, final String path, final int line) {
 			fBase = base;
 			fFileName = path;
 			fLine = line;
 		}
-
+		
 		public void linkEntered() {
 		}
-
+		
 		public void linkExited() {
 		}
-
+		
 		public void linkActivated() {
-			FileValidator fileValidator = new FileValidator(true);
+			final FileValidator fileValidator = new FileValidator(true);
 			fileValidator.setOnDirectory(IStatus.ERROR);
 			fileValidator.setResourceLabel(RLaunchingMessages.RErrorLineTracker_File_name);
-			IPath filePath = new Path(fFileName);
+			final IPath filePath = new Path(fFileName);
 			if (filePath.isAbsolute()) {
 				fileValidator.setExplicit(filePath);
 			}
 			else {
 				fileValidator.setExplicit(URIUtil.toPath(fBase.toURI()).append(filePath).makeAbsolute());
 			}
-			IStatus status = fileValidator.validate(null);
+			final IStatus status = fileValidator.validate(null);
 			if (status.getSeverity() == IStatus.ERROR) {
 				StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 						-1, NLS.bind(RLaunchingMessages.RErrorLineTracker_error_GetFile_message, fFileName),
@@ -88,7 +88,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 						StatusManager.LOG | StatusManager.SHOW);
 				return;
 			}
-			IFile wsFile = (IFile) fileValidator.getWorkspaceResource();
+			final IFile wsFile = (IFile) fileValidator.getWorkspaceResource();
 			Exception error = null;
 			try {
 				IEditorPart editor;
@@ -98,15 +98,15 @@ public class RErrorLineTracker implements IPatternMatchListener {
 				else {
 					editor = IDE.openEditor(UIAccess.getActiveWorkbenchPage(true), fileValidator.getFileStore().toURI(), RUI.R_EDITOR_ID, true);
 				}
-				AbstractTextEditor textEditor = (AbstractTextEditor) editor;
-				IDocument doc = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-				IRegion lineInfo = doc.getLineInformation(fLine);
+				final AbstractTextEditor textEditor = (AbstractTextEditor) editor;
+				final IDocument doc = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
+				final IRegion lineInfo = doc.getLineInformation(fLine);
 				textEditor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
 			}
-			catch (PartInitException e) {
+			catch (final PartInitException e) {
 				error = e;
 			}
-			catch (BadLocationException e) {
+			catch (final BadLocationException e) {
 				error = e;
 			}
 			if (error != null) {
@@ -115,8 +115,12 @@ public class RErrorLineTracker implements IPatternMatchListener {
 						StatusManager.LOG | StatusManager.SHOW);
 			}
 		}
-
+		
 	}
+	
+	private static final String NUM_LINE_REGEX = "^\\d+\\Q: \\E.*"; //$NON-NLS-1$
+	private static final Pattern NUM_LINE_PATTERN = Pattern.compile(NUM_LINE_REGEX);
+	
 	
 	private TextConsole fConsole;
 	private IFileStore fWorkingDirectory;
@@ -126,14 +130,14 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	/**
 	 * @param working directory
 	 */
-	public RErrorLineTracker(IFileStore workingDirectory) {
+	public RErrorLineTracker(final IFileStore workingDirectory) {
 		fWorkingDirectory = workingDirectory;
 	}
-
-	public RErrorLineTracker(ToolProcess<ToolWorkspace> tool) {
+	
+	public RErrorLineTracker(final ToolProcess<ToolWorkspace> tool) {
 		fTool = tool;
 	}
-
+	
 	
 	public int getCompilerFlags() {
 		return Pattern.MULTILINE;
@@ -144,10 +148,10 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	}
 	
 	public String getPattern() {
-		return "^\\d+\\Q: \\E.*"; //$NON-NLS-1$
+		return NUM_LINE_REGEX;
 	}
 	
-	public void connect(TextConsole console) {
+	public void connect(final TextConsole console) {
 		fConsole = console;
 	}
 	
@@ -155,9 +159,9 @@ public class RErrorLineTracker implements IPatternMatchListener {
 		fConsole = null;
 	}
 	
-	public void matchFound(PatternMatchEvent event) {
+	public void matchFound(final PatternMatchEvent event) {
 		try {
-			IDocument document = fConsole.getDocument();
+			final IDocument document = fConsole.getDocument();
 			int line = document.getLineOfOffset(event.getOffset());
 			IRegion lineInfo;
 			int result;
@@ -176,18 +180,18 @@ public class RErrorLineTracker implements IPatternMatchListener {
 					break LINE_BACK;
 				}
 			}
-			String path = document.get(lineInfo.getOffset(), result-lineInfo.getOffset()).trim();
-			String number = document.get(event.getOffset(), Math.min(event.getLength(), 10));
+			final String path = document.get(lineInfo.getOffset(), result-lineInfo.getOffset()).trim();
+			final String number = document.get(event.getOffset(), Math.min(event.getLength(), 10));
 			result = number.indexOf(':');
 			if (result < 0) {
 				return;
 			}
-			int sourceline = Integer.parseInt(number.substring(0, result));
+			final int sourceline = Integer.parseInt(number.substring(0, result));
 	//		System.out.println("offset="+event.getOffset()+",length="+event.getLength());
 	//		System.out.println("source="+event.getSource().toString());
 			fConsole.addHyperlink(new SourceLink(getWorkingDirectory(), path, sourceline-1), event.getOffset(), event.getLength());
 		}
-		catch (BadLocationException e) {
+		catch (final BadLocationException e) {
 			RUIPlugin.logError(-1, "Error while searching error line informations.", e); //$NON-NLS-1$
 		}
 	}
@@ -205,56 +209,48 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	 * @return
 	 * 		-2 wrong
 	 * 		-1 number line
-	 * 		>=0 index of ": syntax error"
+	 * 		>=0 index of ": "
 	 */
-	private int checkLine(IDocument doc, IRegion lineInfo) throws BadLocationException {
-		int offset = lineInfo.getOffset();
-		int end = offset + Math.min(lineInfo.getLength(), 500);
-		int state = -1;
-		ITER_CHARS: while (offset < end) {
-			char c = doc.getChar(offset++);
-			switch (state) {
-			case -1:
-				if (c >= 48 && c <= 57) {
-					state = 10;
-					continue ITER_CHARS;
-				}
-				state = 20;
-				continue ITER_CHARS;
-			case 10:
-				if (c >= 48 && c <= 57) {
-					continue ITER_CHARS;
-				}
-				if (c == ':') {
-					state = 11;
-					continue ITER_CHARS;
-				}
-				return -2;
-			case 11:
-				if (c == ' ') {
-					return -1;
-				}
-				return -2;
-			case 20:
-				if (c == ':') {
-					state = 21;
-				}
-				continue ITER_CHARS;
-			case 21:
-				if (c == ' ') {
-					state = 22;
-					continue ITER_CHARS;
-				}
-				state = 20;
-				continue ITER_CHARS;
-			case 22:
-				if (c == 's') {
-					"yntax error".equals(doc.get(offset, 11)); //$NON-NLS-1$
-					return offset-3;
-				}
-				state = 20;
-				continue ITER_CHARS;
+	private int checkLine(final IDocument doc, final IRegion lineInfo) throws BadLocationException {
+		final int offset = lineInfo.getOffset();
+		final int end = offset + Math.min(lineInfo.getLength(), 500);
+		if (end-offset <= 2) {
+			return -2;
+		}
+		final char char0 = doc.getChar(offset);
+		if (char0 >= 48 && char0 <= 57) {
+			final String s = doc.get(offset, Math.min(end-offset, 10));
+			if (NUM_LINE_PATTERN.matcher(s).matches()) {
+				return -1;
 			}
+			return -2;
+		}
+		if (offset >= 5) {
+			final IRegion prevLineInfo = doc.getLineInformationOfOffset(offset-1);
+			final int prevLineEnd = prevLineInfo.getOffset()+prevLineInfo.getLength();
+			// Line starts with Error, but can be translated, so test only the end
+			if (!doc.get(prevLineEnd-3, 3).equals(" : ")) { //$NON-NLS-1$
+				return -2;
+			}
+		}
+		if (char0 == ' ') {
+			final String s = doc.get(offset, end-offset);
+			if (s.charAt(1) != ' ') {
+				return -2;
+			}
+			final int found = s.indexOf(": ", 4); //$NON-NLS-1$
+			if (found >= 0) {
+				return offset+found;
+			}
+			return -2;
+		}
+		if (char0 == '\t') {
+			final String s = doc.get(offset, end-offset);
+			final int found = s.indexOf(": ", 3); //$NON-NLS-1$
+			if (found >= 0) {
+				return offset+found;
+			}
+			return -2;
 		}
 		return -2;
 	}

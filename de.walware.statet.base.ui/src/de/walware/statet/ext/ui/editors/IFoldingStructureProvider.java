@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -12,15 +12,12 @@
 package de.walware.statet.ext.ui.editors;
 
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
-import org.eclipse.ui.texteditor.ITextEditor;
-
-import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
 
 
 /**
  *
  */
-public interface IFoldingStructureProvider extends IEditorInputAcceptor {
+public interface IFoldingStructureProvider {
 	
 	/**
 	 * Installs this structure provider on the given editor and viewer.
@@ -32,12 +29,12 @@ public interface IFoldingStructureProvider extends IEditorInputAcceptor {
 	 * @param viewer the projection viewer that displays the annotations created
 	 *        by this structure provider
 	 */
-	public abstract void install(ITextEditor editor, ProjectionViewer viewer);
-
+	public abstract void install(StatextEditor1 editor, ProjectionViewer viewer);
+	
 	/**
 	 * Uninstalls this structure provider. Any references to editors or viewers
 	 * should be cleared.
 	 */
 	public abstract void uninstall();
-
+	
 }
