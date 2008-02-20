@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Tobias Verbeke - initial implementation
+ ###############################################################################
+-->
+<cheatsheet title="Configure and Launch R Console">
+   <intro>
+      <description>
+         This cheat sheet shows you how to configure StatET to connect to and launch an R console from within Eclipse.
+      </description>
+   </intro>
+   <item title="Specify Connector" dialog="true" skip="false">
+      <description>
+         Go to <b>Window &gt; Preferences... &gt; StatET &gt; R Interaction</b> and choose the R interaction mode of your choice: 
+<br/><br/>
+<b>New Console inside Eclipse</b> allows to run a Console inside Eclipse,
+<br/><br/>
+<b>R-GUI (Windows)</b> allows interaction with the traditional R Gui on Windows and
+<br/><br/>
+<b>Classic Console inside Eclipse</b> allows to run an ancient version of the Console inside Eclipse.
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.ui.window.preferences(preferencePageId=de.walware.statet.r.preferencePages.RInteraction)"/>
+   </item>
+   <item title="Add R Environment" dialog="true" skip="false">
+      <description>
+         Unfold the <b>R Interaction</b> node and click on R Environments.
+<br/><br/>
+Click on the <b>Add...</b> button to specify the path to the R version you would like to use.
+<br/><br/>
+Indicate a name you would like to give to the configuration and specify the directory to which the chosen version of R was installed.
+      </description>
+   </item>
+   <item title="R Console Launch Configuration" dialog="true" skip="false">
+      <description>
+         Go to <b>Run &gt; Open Run Dialog...</b> and double-click on <b>R Console</b> to create a new configuration.
+<br/><br/>
+Specify a <b>Name</b> and edit all tabs of the new launch configuration.
+<br/><br/>
+      </description>
+      <subitem label="Add suitable Options in the Main tab if desired, such as --no-save, --no-restore or --silent, to be used when invoking R." skip="true">
+         <command
+               required="false"
+               serialization="org.eclipse.debug.ui.commands.OpenRunConfigurations"/>
+      </subitem>
+      <subitem label="Specify the R Environment to be used in the R Config tab. This can be the default R Environment or any other R Environment that has been defined." skip="false">
+      </subitem>
+      <subitem label="Optionally check the box in the Common tab to list this R Launch configuration in the Favorites menu" skip="true">
+      </subitem>
+      <subitem label="Click on Apply to save the R Launch Configuration" skip="false">
+      </subitem>
+   </item>
+   <item title="Launch the R console" dialog="true" skip="false">
+      <description>
+         Click on <b>Run</b> in the Run Dialog for the R Launch configuration you created.
+<br/><br/>
+The R Console will be launched and ready for use from within Eclipse.
+      </description>
+   </item>
+</cheatsheet>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Tobias Verbeke - initial implementation
+ ###############################################################################
+-->
+<cheatsheet title="Configure and Use the R Package Builder">
+   <intro>
+      <description>
+         This cheat sheet shows how to configure an universal launch configuration to build an R package from within Eclipse.
+      </description>
+   </intro>
+   <item title="Open Configuration Dialog" dialog="true" skip="false">
+      <description>
+         Go to <b>Run &gt; External Tools &gt; Open External Tools Dialog...</b> and select
+<b>R CMD Tools</b>.
+<br/><br/>
+Create a new launch configuration by double-clicking on the selected node or by clicking on the <b>New launch configuration</b> icon.
+<br/><br/>
+Fill in a <b>Name</b> for this launch configuration.
+      </description>
+      <command
+            confirm="false"
+            required="false"
+            serialization="org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations">
+      </command>
+   </item>
+   <item title="1) Main Tab" dialog="true" skip="false">
+      <description>
+         Choose <b>Add-on Packages: Build</b> from the drop-down menu of commands.
+<br/><br/>
+If you want to use this configuration to build binary packages, you can add <b>--binary</b> as an option in the <b>Options/Arguments</b> text field. To see other options that might be specified, click on the <b>Run &apos;--help&apos;</b> button.
+      </description>
+   </item>
+   <item title="2) R Config Tab" dialog="true" skip="false">
+      <description>
+         Choose an <b>R Environment</b> you previously configured to be used as R package builder.
+ <br/><br/>
+ This can either be the R Environment that was set as default for use in the workbench (<b>Workbench Default</b>) or an other R Environment of your choice (<b>Selected Configuration</b>). 
+ <br/><br/>
+ If you would like to configure a new R environment for the R package builder, you can do so by pushing the <b>Configure...</b> button.
+      </description>
+   </item>
+   <item title="3) Common Tab" dialog="true" skip="true">
+      <description>
+         If you would like the R package builder to be listed in the External Tools favorites menu on the workbench toolbar, you can check the External Tools box in the <b>Display in favorites</b> menu.
+      </description>
+   </item>
+   <item title="Use an R Package Builder" dialog="true" skip="false">
+      <description>
+         In order to use an R package builder you configured, you need
+to first <b>select the package root folder</b> in the Project explorer view, because the target was configured as &apos;${resource_loc}&apos; (variable for location of currently selected resource in the active view).
+<br/><br/>
+If you configured an R package builder, you can make use of
+it via <b>Run &gt; External Tools</b> or via the External Tools button on the workbench toolbar. If during configuration you specified to display the R package builder within the favorites, it will be visible directly under the External Tools. To run the given R package builder, click on its name. 
+<br/><br/>
+ If you did not add it to the favorites during configuration, you need to select <b>Open External Tools Dialog...</b> and click on the configuration you would like to run. Next, click on the <b>Run</b> button to launch the R package builder on your package folder and create your package.
+      </description>
+      <command
+            confirm="false"
+            required="false"
+            serialization="org.eclipse.ui.externalTools.commands.OpenExternalToolsConfigurations">
+      </command>
+   </item>
+</cheatsheet>
