@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.wizards;
@@ -30,78 +30,72 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
 
-
 public class NewRProjectWizard extends NewElementWizard {
-    
+	
 	
 	private WizardNewProjectCreationPage fFirstPage;
 	private WizardNewProjectReferencePage fReferencePage;
-
+	
 	private ProjectCreator fNewRProject;
-
+	
 	private IConfigurationElement fPerspConfig;
 	
-    public NewRProjectWizard() {
-    	
-        setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEWRPROJECT));
-        setWindowTitle(Messages.NewRProjectWizard_title); 
-    }
-  
-    public void addPages() {
-    	
-        super.addPages();
-        fFirstPage = new NewRProjectWizardPage(getSelection());
-        addPage(fFirstPage);
-        
-        // only add page if there are already projects in the workspace
-        if (ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0) {
-            fReferencePage = new WizardNewProjectReferencePage("BasicProjectReferencePage"); //$NON-NLS-1$
-            fReferencePage.setTitle(StatetWizardsMessages.NewProjectReferencePage_title);
-            fReferencePage.setDescription(StatetWizardsMessages.NewProjectReferencePage_description);
-            addPage(fReferencePage);
-        }
-        
-    }
-    
-//    protected ISchedulingRule getSchedulingRule() { // root-rule required to change project description
-    
-    @Override
-    public boolean performFinish() {
-
-    	// befor super, because eclipse-pages access ui
-    	fNewRProject = new ProjectCreator(
-    			fFirstPage.getProjectName(),
-    			(fFirstPage.useDefaults()) ? null : fFirstPage.getLocationPath(),
-    			(fReferencePage != null) ? fReferencePage.getReferencedProjects() : null,
-    			fFirstPage.getSelectedWorkingSets()
-    			) {
-    		@Override
-    		protected void doConfigProject(IProject project, IProgressMonitor monitor) throws CoreException {
-    			RProject.addNature(fNewRProject.getProjectHandle(), monitor);
-    		}
-    	};
-
-    	boolean result = super.performFinish();
-
-    	IProject newProject = null;
-        if (result && newProject != null) {
-        	updatePerspective(fPerspConfig);
-        	selectAndReveal(newProject);
-        }
-    	
-    	return result;
-    }
-    
-	protected void doFinish(IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
-    
+	public NewRProjectWizard() {
+		setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEWRPROJECT));
+		setWindowTitle(Messages.NewRProjectWizard_title);
+	}
+	
+	public void addPages() {
+		super.addPages();
+		fFirstPage = new NewRProjectWizardPage(getSelection());
+		addPage(fFirstPage);
+		
+		// only add page if there are already projects in the workspace
+		if (ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0) {
+			fReferencePage = new WizardNewProjectReferencePage("BasicProjectReferencePage"); //$NON-NLS-1$
+			fReferencePage.setTitle(StatetWizardsMessages.NewProjectReferencePage_title);
+			fReferencePage.setDescription(StatetWizardsMessages.NewProjectReferencePage_description);
+			addPage(fReferencePage);
+		}
+		
+	}
+	
+//	protected ISchedulingRule getSchedulingRule() { // root-rule required to change project description
+	
+	@Override
+	public boolean performFinish() {
+		fNewRProject = new ProjectCreator(
+				fFirstPage.getProjectName(),
+				(fFirstPage.useDefaults()) ? null : fFirstPage.getLocationPath(),
+				(fReferencePage != null) ? fReferencePage.getReferencedProjects() : null,
+				fFirstPage.getSelectedWorkingSets()
+				) {
+			@Override
+			protected void doConfigProject(final IProject project, final IProgressMonitor monitor) throws CoreException {
+				RProject.addNature(fNewRProject.getProjectHandle(), monitor);
+			}
+		};
+		
+		final boolean result = super.performFinish();
+		
+		if (result && fNewRProject.getProjectHandle() != null) {
+			updatePerspective(fPerspConfig);
+			selectAndReveal(fNewRProject.getProjectHandle());
+		}
+		
+		return result;
+	}
+	
+	@Override
+	protected void doFinish(final IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
 		try {
 			monitor.beginTask("Create new R project...", 1000); //$NON-NLS-1$
 			fNewRProject.createProject(new SubProgressMonitor(monitor, 1000) );
-//		fFirstPage.saveSettings();
+//			fFirstPage.saveSettings();
 		}
 		finally {
 			monitor.done();
 		}
 	}
-    
+	
 }
