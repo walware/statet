@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.ui;
@@ -160,11 +160,7 @@ public class ElementInfoController implements IModelElementInputProvider {
 	}
 	
 	private IModelElementInputListener[] checkNewListeners() {
-		if (fNewListenerList.isEmpty()) {
-			return null;
-		}
-		final IModelElementInputListener[] listeners = fNewListenerList.toArray();
-		fNewListenerList.clear();
+		final IModelElementInputListener[] listeners = fNewListenerList.clear();
 		for (int i = 0; i < listeners.length; i++) {
 			fListenerList.add(listeners[i]);
 		}

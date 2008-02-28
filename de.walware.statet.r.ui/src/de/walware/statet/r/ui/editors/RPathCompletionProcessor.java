@@ -39,26 +39,26 @@ public class RPathCompletionProcessor extends PathCompletionProcessor {
 	/**
 	 * 
 	 */
-	public RPathCompletionProcessor(NIConsolePage page) {
+	public RPathCompletionProcessor(final NIConsolePage page) {
 		fPage = page;
 	}
 	
 	
 	@Override
-	protected IRegion getContentRange(IDocument document, int offset) throws BadLocationException {
-		ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, true);
+	protected IRegion getContentRange(final IDocument document, final int offset) throws BadLocationException {
+		final ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, true);
 		int start = partition.getOffset();
 		int end = partition.getOffset() + partition.getLength();
 		if (start == end) {
 			return null;
 		}
 		
-		char bound = document.getChar(start);
+		final char bound = document.getChar(start);
 		if (bound == '\"' || bound == '\'') {
 			start++;
 		}
 		else {
-			bound = 0;
+			return null;
 		}
 		if (start > offset) {
 			return null;
@@ -80,7 +80,7 @@ public class RPathCompletionProcessor extends PathCompletionProcessor {
 	}
 	
 	@Override
-	protected String checkPathCompletion(String completion) {
+	protected String checkPathCompletion(final String completion) {
 		return RUtil.escapeCompletly(completion);
 	}
 	
