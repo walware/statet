@@ -149,6 +149,30 @@
          <newWizardShortcut id="de.walware.statet.r.newWizards.RweaveTexCreation"/>
       </perspectiveExtension>
    </extension>
+
+   <extension
+         point="org.eclipse.compare.contentViewers">
+      <viewer
+            class="de.walware.statet.r.internal.sweave.editors.RweaveTexTextViewerCreator"
+            id="de.walware.statet.r.compareContentViewer.RweaveTex">
+      </viewer>
+      <contentTypeBinding
+            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
+            contentViewerId="de.walware.statet.r.compareContentViewer.RweaveTex">
+      </contentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <viewer
+            class="de.walware.statet.r.internal.sweave.editors.RweaveTexMergeViewerCreator"
+            id="de.walware.statet.r.compareContentMergeViewer.RweaveTex">
+      </viewer>
+      <contentTypeBinding
+            contentMergeViewerId="de.walware.statet.r.compareContentMergeViewer.RweaveTex"
+            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex">
+      </contentTypeBinding>
+   </extension>
+
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchContentHandler">
       <contentHandler

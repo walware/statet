@@ -11,10 +11,8 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
-import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentExtension3;
-import org.eclipse.jface.text.IDocumentPartitioner;
+import de.walware.eclipsecommons.ui.text.Partitioner;
+import de.walware.eclipsecommons.ui.text.PartitionerDocumentSetupParticipant;
 
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.sweave.text.CatPartitioner;
@@ -26,7 +24,7 @@ import de.walware.statet.r.sweave.text.TexChunkPartitionScanner;
 /**
  * The document setup participant for Sweave (LaTeX).
  */
-public class RweaveTexDocumentSetupParticipant implements IDocumentSetupParticipant {
+public class RweaveTexDocumentSetupParticipant extends PartitionerDocumentSetupParticipant {
 	
 	
 	private boolean fTemplateMode;
@@ -41,17 +39,13 @@ public class RweaveTexDocumentSetupParticipant implements IDocumentSetupParticip
 	}
 	
 	
-	public void setup(final IDocument document) {
-		if (document instanceof IDocumentExtension3) {
-			// Setup the document scanner
-			final IDocumentPartitioner partitioner = createDocumentPartitioner();
-			final IDocumentExtension3 extension3 = (IDocumentExtension3) document;
-			extension3.setDocumentPartitioner(Rweave.R_TEX_PARTITIONING, partitioner);
-			partitioner.connect(document);
-		}
+	@Override
+	protected String getPartitioningId() {
+		return Rweave.R_TEX_PARTITIONING;
 	}
 	
-	private IDocumentPartitioner createDocumentPartitioner() {
+	@Override
+	protected Partitioner createDocumentPartitioner() {
 		return new CatPartitioner(new MultiCatPartitionScanner(Rweave.R_TEX_PARTITIONING,
 				new TexChunkPartitionScanner(fTemplateMode), new RweaveChunkPartitionScanner()),
 				Rweave.R_TEX_PARTITIONS);

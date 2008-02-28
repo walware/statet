@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.text;
+
+import java.util.Arrays;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -60,6 +62,17 @@ public class Partitioner extends FastPartitioner {
 			}
 		}
 		return region;
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		if (!(obj instanceof Partitioner) || fScanner == null) {
+			return false;
+		}
+		final Partitioner other = (Partitioner) obj;
+		return (fScanner.getClass() == other.fScanner.getClass()
+				&& fDocument == other.fDocument
+				&& Arrays.equals(fLegalContentTypes, other.fLegalContentTypes));
 	}
 	
 }

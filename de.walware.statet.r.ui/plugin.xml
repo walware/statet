@@ -48,16 +48,6 @@
    </extension>
 
    <extension
-         point="org.eclipse.ui.editors.templates">
-      <include
-            file="templates/default-code-templates.xml"
-            translations="templates/default-templates.properties">
-      </include>
-      <include
-            file="templates/default-reditor-templates.xml"
-            translations="templates/default-templates.properties"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors">
       <editor
             class="de.walware.statet.r.ui.editors.REditor"
@@ -78,6 +68,18 @@
          <contentTypeBinding contentTypeId="de.walware.statet.r.contentTypes.Rd"/>
       </editor>
    </extension>
+
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <include
+            file="templates/default-code-templates.xml"
+            translations="templates/default-templates.properties">
+      </include>
+      <include
+            file="templates/default-reditor-templates.xml"
+            translations="templates/default-templates.properties"/>
+   </extension>
+
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
       <actionSetPartAssociation
@@ -256,6 +258,46 @@
          <actionSet id="de.walware.statet.r.actionSets.RToolbarSet"/>
       </perspectiveExtension>
    </extension>
+
+   <extension
+         point="org.eclipse.compare.contentViewers">
+      <viewer
+            class="de.walware.statet.r.internal.ui.compare.RTextViewerCreator"
+            id="de.walware.statet.r.compareContentViewer.R">
+      </viewer>
+      <contentTypeBinding
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            contentViewerId="de.walware.statet.r.compareContentViewer.R">
+      </contentTypeBinding>
+      <viewer
+            class="de.walware.statet.r.internal.ui.compare.RdTextViewerCreator"
+            id="de.walware.statet.r.compareContentViewer.Rd">
+      </viewer>
+      <contentTypeBinding
+            contentTypeId="de.walware.statet.r.contentTypes.Rd"
+            contentViewerId="de.walware.statet.r.compareContentViewer.Rd">
+      </contentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <viewer
+            class="de.walware.statet.r.internal.ui.compare.RMergeViewerCreator"
+            id="de.walware.statet.r.compareContentMergeViewer.R">
+      </viewer>
+      <contentTypeBinding
+            contentMergeViewerId="de.walware.statet.r.compareContentMergeViewer.R"
+            contentTypeId="de.walware.statet.r.contentTypes.R">
+      </contentTypeBinding>
+      <viewer
+            class="de.walware.statet.r.internal.ui.compare.RdMergeViewerCreator"
+            id="de.walware.statet.r.compareContentMergeViewer.Rd">
+      </viewer>
+      <contentTypeBinding
+            contentMergeViewerId="de.walware.statet.r.compareContentMergeViewer.Rd"
+            contentTypeId="de.walware.statet.r.contentTypes.Rd">
+      </contentTypeBinding>
+   </extension>
+
    <extension
          point="org.eclipse.help.ui.searchEngine">
       <engine
