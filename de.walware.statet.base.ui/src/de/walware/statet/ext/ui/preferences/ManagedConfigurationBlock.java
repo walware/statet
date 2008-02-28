@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -528,6 +529,23 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			setPrefValue(unit, map.get(unit));
 		}
 	}
+	
+	/**
+	 * Not (yet) supported
+	 * @throws UnsupportedOperationException
+	 */
+	public void addPreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * Not (yet) supported
+	 * @throws UnsupportedOperationException
+	 */
+	public void removePreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+		throw new UnsupportedOperationException();
+	}
+	
 	
 	public IObservableValue createObservable(final Object target) {
 		final Preference pref = (Preference) target;

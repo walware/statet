@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
@@ -47,6 +48,8 @@ public abstract class StatextProject implements IProjectNature, IPreferenceAcces
 	
 	protected IProject fProject;
 	
+	protected IScopeContext[] fContexts;
+	
 	
 	public StatextProject() {
 		super();
@@ -63,6 +66,7 @@ public abstract class StatextProject implements IProjectNature, IPreferenceAcces
 	
 	public void setProject(final IProject project) {
 		fProject = project;
+		fContexts = createPrefContexts(true);
 		project.getWorkspace().addResourceChangeListener(new IResourceChangeListener() {
 			public void resourceChanged(final IResourceChangeEvent event) {
 				if (event.getResource() == fProject) {
@@ -78,13 +82,15 @@ public abstract class StatextProject implements IProjectNature, IPreferenceAcces
 	}
 	
 	protected void dispose() {
+		fProject = null;
+		fContexts = null;
 	}
 	
 	
 /*-- IPreferenceAccess -------------------------------------------------------*/
 	
-	private IScopeContext[] getPrefContexts(final boolean inheritInstanceSettings) {
-		return (inheritInstanceSettings) ? 
+	private IScopeContext[] createPrefContexts(final boolean inheritInstanceSettings) {
+		return (inheritInstanceSettings) ?
 				new IScopeContext[] {
 					new ProjectScope(getProject()),
 					new InstanceScope(),
@@ -97,19 +103,35 @@ public abstract class StatextProject implements IProjectNature, IPreferenceAcces
 	}
 	
 	public <T> T getPreferenceValue(final Preference<T> key) {
-		return getPrefValue(key, true);
-	}
-	
-	public <T> T getPrefValue(final Preference<T> key, final boolean inheritInstanceSettings) {
-		return PreferencesUtil.getPrefValue(getPrefContexts(inheritInstanceSettings), key);
+		return PreferencesUtil.getPrefValue(fContexts, key);
 	}
 	
 	public IEclipsePreferences[] getPreferenceNodes(final String nodeQualifier) {
-		return PreferencesUtil.getRelevantNodes(nodeQualifier, getPrefContexts(true));
+		return PreferencesUtil.getRelevantNodes(nodeQualifier, fContexts);
 	}
 	
 	public IScopeContext[] getPreferenceContexts() {
-		return getPrefContexts(true);
+		return fContexts;
+	}
+	
+	public void addPreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+		int i = fContexts.length-2;
+		while (i >= 0) {
+			final IEclipsePreferences node = fContexts[i--].getNode(nodeQualifier);
+			if (node != null) {
+				node.addPreferenceChangeListener(listener);
+			}
+		}
+	}
+	
+	public void removePreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+		int i = fContexts.length-2;
+		while (i >= 0) {
+			final IEclipsePreferences node = fContexts[i--].getNode(nodeQualifier);
+			if (node != null) {
+				node.removePreferenceChangeListener(listener);
+			}
+		}
 	}
 	
 }

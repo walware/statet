@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 
 
 public class PreferencesUtil {
@@ -36,12 +37,47 @@ public class PreferencesUtil {
 		}
 		
 		public IEclipsePreferences[] getPreferenceNodes(final String nodeQualifier) {
-			return PreferencesUtil.getRelevantNodes(nodeQualifier, fContexts);
+			final IEclipsePreferences[] nodes = new IEclipsePreferences[fContexts.length - 1];
+			for (int i = 0; i < nodes.length; i++) {
+				nodes[i] = fContexts[i].getNode(nodeQualifier);
+			}
+			return nodes;
 		}
 		
 		public IScopeContext[] getPreferenceContexts() {
 			return fContexts;
 		}
+		
+		public void addPreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+			int i = fContexts.length-1;
+			if (fContexts.length >= 0) {
+				if ((fContexts[i] instanceof DefaultScope)) {
+					i--;
+				}
+				while (i >= 0) {
+					final IEclipsePreferences node = fContexts[i--].getNode(nodeQualifier);
+					if (node != null) {
+						node.addPreferenceChangeListener(listener);
+					}
+				}
+			}
+		}
+		
+		public void removePreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+			int i = fContexts.length-1;
+			if (fContexts.length >= 0) {
+				if ((fContexts[i] instanceof DefaultScope)) {
+					i--;
+				}
+				while (i >= 0) {
+					final IEclipsePreferences node = fContexts[i--].getNode(nodeQualifier);
+					if (node != null) {
+						node.removePreferenceChangeListener(listener);
+					}
+				}
+			}
+		}
+		
 	}
 	
 	private static class MapImpl implements IPreferenceAccess {
@@ -64,6 +100,22 @@ public class PreferencesUtil {
 		@SuppressWarnings("unchecked")
 		public <T> T getPreferenceValue(final Preference<T> key) {
 			return (T) fPreferencesMap.get(key);
+		}
+		
+		/**
+		 * Not (yet) supported
+		 * @throws UnsupportedOperationException
+		 */
+		public void addPreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+			throw new UnsupportedOperationException();
+		}
+		
+		/**
+		 * Not (yet) supported
+		 * @throws UnsupportedOperationException
+		 */
+		public void removePreferenceNodeListener(final String nodeQualifier, final IPreferenceChangeListener listener) {
+			throw new UnsupportedOperationException();
 		}
 		
 	}
