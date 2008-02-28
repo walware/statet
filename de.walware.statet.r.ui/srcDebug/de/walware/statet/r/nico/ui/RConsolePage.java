@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico.ui;
@@ -30,15 +30,16 @@ import de.walware.statet.r.ui.RUIHelp;
 
 
 public class RConsolePage extends NIConsolePage {
-
+	
 	
 	private IContextProvider fHelpContextProvider;
-
 	
-	public RConsolePage(NIConsole console, IConsoleView view) {
+	
+	public RConsolePage(final NIConsole console, final IConsoleView view) {
 		super(console, view);
 	}
-
+	
+	
 	@Override
 	protected RInputConfigurator createInputEditorConfigurator() {
 		return new RInputConfigurator(this);
@@ -56,7 +57,7 @@ public class RConsolePage extends NIConsolePage {
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(
 				getInputGroup().getSourceViewer(), IRUIHelpContextIds.R_CONSOLE);
 		getInputGroup().getSourceViewer().getTextWidget().addHelpListener(new HelpListener() {
-			public void helpRequested(HelpEvent e) {
+			public void helpRequested(final HelpEvent e) {
 				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
 			}
 		});
@@ -66,12 +67,12 @@ public class RConsolePage extends NIConsolePage {
 	protected void contributeToActionBars() {
 		super.contributeToActionBars();
 		
-		IMenuManager menuManager = getSite().getActionBars().getMenuManager();
+		final IMenuManager menuManager = getSite().getActionBars().getMenuManager();
 		menuManager.add(new ChangeWorkingDirectoryWizard.ChangeAction(this));
 	}
 	
 	@Override
-	public Object getAdapter(Class required) {
+	public Object getAdapter(final Class required) {
 		if (IContextProvider.class.equals(required)) {
 			return fHelpContextProvider;
 		}
@@ -79,10 +80,10 @@ public class RConsolePage extends NIConsolePage {
 	}
 	
 	@Override
-	protected void handleSettingsChanged(Set<String> contexts) {
-		super.handleSettingsChanged(contexts);
-		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
-			RCodeStyleSettings codeStyle = ((RConsole) getConsole()).getRCodeStyle();
+	protected void handleSettingsChanged(final Set<String> groupIds) {
+		super.handleSettingsChanged(groupIds);
+		if (groupIds.contains(RCodeStyleSettings.GROUP_ID)) {
+			final RCodeStyleSettings codeStyle = ((RConsole) getConsole()).getRCodeStyle();
 			if (codeStyle.isDirty()) {
 				getOutputViewer().setTabWidth(codeStyle.getTabSize());
 			}

@@ -38,13 +38,11 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 	
 	
 	public RSyntaxColoringPreferencePage() {
-		
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 	}
 	
 	@Override
 	protected AbstractSyntaxColoringBlock createConfigurationBlock() {
-		
 		AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
 			
 			@Override
@@ -153,8 +151,8 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 			}
 			
 			@Override
-			protected String[] getSettingsContexts() {
-				return new String[] { RUIPreferenceConstants.R.TS_CONTEXT_ID };
+			protected String[] getSettingsGroups() {
+				return new String[] { RUIPreferenceConstants.R.TS_GROUP_ID };
 			}
 			
 			@Override

@@ -79,10 +79,11 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		super(null, statusListener);
 	}
 	
+	
 	@Override
-	protected String[] getChangedContexts() {
+	protected String[] getChangedGroups() {
 		return new String[] {
-				REditorOptions.CONTEXT_ID,
+				REditorOptions.GROUP_ID,
 		};
 	}
 	

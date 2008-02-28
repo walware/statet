@@ -45,9 +45,9 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		implements IRCoreAccess, PropertyChangeListener {
 	
 	
-	private static final Set<String> INPUT_CHANGE_CONTEXTS = new HashSet<String>(Arrays.asList(new String[] {
-			RCodeStyleSettings.CONTEXT_ID,
-			TaskTagsPreferences.CONTEXT_ID,
+	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(Arrays.asList(new String[] {
+			RCodeStyleSettings.GROUP_ID,
+			TaskTagsPreferences.GROUP_ID,
 	}));
 	
 	
@@ -78,6 +78,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	protected void initialize() {
 		setPairMatcher(new RBracketPairMatcher());
 	}
+	
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {
@@ -128,25 +129,25 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(Set<String> contexts, final Object options) {
+	public boolean handleSettingsChanged(Set<String> groupIds, final Object options) {
 		final ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
 			return false;
 		}
-		if (contexts == null) {
-			contexts = INPUT_CHANGE_CONTEXTS;
+		if (groupIds == null) {
+			groupIds = INPUT_CHANGE_GROUPS;
 		}
 		final Point selectedRange = viewer.getSelectedRange();
 		
-		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
+		if (groupIds.contains(RCodeStyleSettings.GROUP_ID)) {
 			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		}
-		if (contexts.contains(REditorOptions.CONTEXT_ID) && fEditor != null) {
+		if (groupIds.contains(REditorOptions.GROUP_ID) && fEditor != null) {
 			fUpdateCompleteConfig = true;
 			fUpdateQuickFix = true;
 			SpellingProblem.removeAllInActiveEditor(fEditor, null);
 		}
-		fUpdateTextPresentation = fConfig.handleSettingsChanged(contexts, viewer);
+		fUpdateTextPresentation = fConfig.handleSettingsChanged(groupIds, viewer);
 		
 		updateSourceViewer(viewer);
 		viewer.setSelectedRange(selectedRange.x, selectedRange.y);

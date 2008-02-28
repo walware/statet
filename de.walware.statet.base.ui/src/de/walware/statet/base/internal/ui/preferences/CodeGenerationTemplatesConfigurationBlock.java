@@ -300,9 +300,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		control.setLayoutData(data);
 		
 		new SettingsUpdater(new ISettingsChangedHandler() {
-			public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
+			public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
 				if (fPatternConfigurator != null) {
-					fPatternConfigurator.handleSettingsChanged(contexts, null);
+					fPatternConfigurator.handleSettingsChanged(groupIds, null);
 				}
 				return false;
 			}

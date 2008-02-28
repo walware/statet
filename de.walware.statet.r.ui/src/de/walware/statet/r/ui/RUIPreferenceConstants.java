@@ -32,12 +32,11 @@ import de.walware.statet.r.ui.text.rd.IRdTextTokens;
  * 
  * @see org.eclipse.jface.resource.StringConverter
  * @see org.eclipse.jface.preference.PreferenceConverter
- *
  */
 public class RUIPreferenceConstants {
 	
 	public interface R {
-		public final static String TS_CONTEXT_ID = "r.editor/textstyles"; //$NON-NLS-1$
+		public final static String TS_GROUP_ID = "r.editor/textstyles"; //$NON-NLS-1$
 		public final static String TS_ROOT = IRTextTokens.ROOT;
 		public final static String TS_ITEMS_SUFFIX = ".items"; //$NON-NLS-1$
 		
@@ -235,7 +234,7 @@ public class RUIPreferenceConstants {
 	}
 	
 	public interface Rd {
-		public final static String TS_CONTEXT_ID = "rd.editor/textstyles"; //$NON-NLS-1$
+		public final static String TS_GROUP_ID = "rd.editor/textstyles"; //$NON-NLS-1$
 		public final static String TS_ROOT = IRdTextTokens.ROOT;
 		
 		public final static String TS_BRACKETS_ROOT = IRdTextTokens.BRACKETS;

@@ -40,8 +40,8 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 	
 	private static final char[][] BRACKETS = { {'{', '}'} };
 	
-	private static final Set<String> INPUT_CHANGE_CONTEXTS = new HashSet<String>(Arrays.asList(new String[] {
-			TaskTagsPreferences.CONTEXT_ID,
+	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(Arrays.asList(new String[] {
+			TaskTagsPreferences.GROUP_ID,
 	}));
 	
 	
@@ -82,17 +82,17 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(Set<String> contexts, final Object options) {
+	public boolean handleSettingsChanged(Set<String> groupIds, final Object options) {
 		final ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
 			return false;
 		}
-		if (contexts == null) {
-			contexts = INPUT_CHANGE_CONTEXTS;
+		if (groupIds == null) {
+			groupIds = INPUT_CHANGE_GROUPS;
 		}
 		final Point selectedRange = viewer.getSelectedRange();
 		
-		final boolean affectsPresentation = fConfig.handleSettingsChanged(contexts, viewer);
+		final boolean affectsPresentation = fConfig.handleSettingsChanged(groupIds, viewer);
 		if (affectsPresentation) {
 			viewer.invalidateTextPresentation();
 		}

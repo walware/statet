@@ -198,7 +198,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		if (fIdentifierGroups == null) {
 			fIdentifierGroups = new RIdentifierGroups();
 			fPrefUpdaters.add(new PreferencesManageListener(
-					fIdentifierGroups, PreferencesUtil.getInstancePrefs(), RIdentifierGroups.CONTEXT_ID));
+					fIdentifierGroups, PreferencesUtil.getInstancePrefs(), RIdentifierGroups.GROUP_ID));
 		}
 		return fIdentifierGroups;
 	}
@@ -210,7 +210,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				if (fConsoleSettings== null) {
 					fConsoleSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
-							fConsoleSettings, NicoCore.getDefaultConsolePreferences(), REditorOptions.CONTEXT_ID));
+							fConsoleSettings, NicoCore.getDefaultConsolePreferences(), REditorOptions.GROUP_ID));
 				}
 				return fConsoleSettings;
 			}
@@ -218,7 +218,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				if (fEditorSettings == null) {
 					fEditorSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
-							fEditorSettings, PreferencesUtil.getInstancePrefs(), REditorOptions.CONTEXT_ID));
+							fEditorSettings, PreferencesUtil.getInstancePrefs(), REditorOptions.GROUP_ID));
 				}
 				return fEditorSettings;
 			}

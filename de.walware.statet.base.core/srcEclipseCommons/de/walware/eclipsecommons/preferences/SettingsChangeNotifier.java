@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.preferences;
@@ -36,24 +36,25 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 		 * Is called inside a job. So, a bit longer tasks are allowed directly,
 		 * but not UI tasks.
 		 * 
-		 * @param contexts set of ids of changed contexts
+		 * @param groupIds set of ids of changed preference groups
 		 */
-		public void settingsChanged(Set<String> contexts);
+		public void settingsChanged(Set<String> groupIds);
 		
 	}
 	
 	public static interface ManageListener {
 		
-		public void beforeSettingsChangeNotification(Set<String> contexts);
+		public void beforeSettingsChangeNotification(Set<String> groupIds);
 		
-		public void afterSettingsChangeNotification(Set<String> contexts);
+		public void afterSettingsChangeNotification(Set<String> groupIds);
+		
 	}
 	
 	
 	private class NotifyJob extends Job {
 		
 		private String fSource;
-		private Set<String> fChangeContexts = new HashSet<String>();
+		private Set<String> fChangedGroupIds = new HashSet<String>();
 		
 		public NotifyJob(final String source) {
 			super(Messages.SettingsChangeNotifier_Job_title);
@@ -62,8 +63,8 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 			fSource = source;
 		}
 		
-		public void addContexts(final String[] contexts) {
-			fChangeContexts.addAll(Arrays.asList(contexts));
+		public void addGroups(final String[] groupIds) {
+			fChangedGroupIds.addAll(Arrays.asList(groupIds));
 		}
 		
 		@Override
@@ -77,15 +78,15 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 			}
 			monitor.beginTask(Messages.SettingsChangeNotifier_Task_name, managers.length*5+listeners.length*5);
 			for (final Object obj : managers) {
-				((ManageListener) obj).beforeSettingsChangeNotification(fChangeContexts);
+				((ManageListener) obj).beforeSettingsChangeNotification(fChangedGroupIds);
 				monitor.worked(3);
 			}
 			for (final Object obj : listeners) {
-				((ChangeListener) obj).settingsChanged(fChangeContexts);
+				((ChangeListener) obj).settingsChanged(fChangedGroupIds);
 				monitor.worked(5);
 			}
 			for (final Object obj : managers) {
-				((ManageListener) obj).afterSettingsChangeNotification(fChangeContexts);
+				((ManageListener) obj).afterSettingsChangeNotification(fChangedGroupIds);
 				monitor.worked(2);
 			}
 			return Status.OK_STATUS;
@@ -97,19 +98,19 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 	private Map<String, NotifyJob> fPendingJobs = new HashMap<String, NotifyJob>();
 	
 	
-	public Job getNotifyJob(String source, final String[] changeContext) {
+	public Job getNotifyJob(String source, final String[] groupIds) {
 		if (source == null) {
 			source = "direct"; //$NON-NLS-1$
 		}
 		synchronized (SettingsChangeNotifier.this) {
 			NotifyJob job = fPendingJobs.get(source);
 			if (job != null) {
-				job.addContexts(changeContext);
+				job.addGroups(groupIds);
 				return null;
 			}
 			job = new NotifyJob(source);
 			fPendingJobs.put(source, job);
-			job.addContexts(changeContext);
+			job.addGroups(groupIds);
 			return job;
 		}
 	}

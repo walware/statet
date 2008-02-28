@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core;
@@ -27,8 +27,8 @@ import de.walware.eclipsecommons.preferences.Preference.IntPref;
  */
 public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
-	public static final String CONTEXT_ID = "r.codestyle"; //$NON-NLS-1$
-
+	public static final String GROUP_ID = "r.codestyle"; //$NON-NLS-1$
+	
 	public static enum IndentationType {
 		TAB, SPACES,
 	}
@@ -44,15 +44,15 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public static final IntPref PREF_INDENT_SPACES_COUNT = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.spaces.count"); //$NON-NLS-1$
 	public static final String PROP_INDENT_SPACES_COUNT = "indentSpacesCount"; //$NON-NLS-1$
-
+	
 	public static final BooleanPref PREF_REPLACE_TABS_WITH_SPACES = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.replace_tabs.enable"); //$NON-NLS-1$
 	public static final String PROP_REPLACE_TABS_WITH_SPACES = "replaceOtherTabsWithSpaces"; //$NON-NLS-1$
-
+	
 	public static final BooleanPref PREF_REPLACE_CONVERSATIVE = new BooleanPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.replace_strategy"); //$NON-NLS-1$
 	public static final String PROP_REPLACE_CONVERSATIVE = "replaceConservative"; //$NON-NLS-1$
-
+	
 	public static final IntPref PREF_INDENT_BLOCK_DEPTH = new IntPref(
 			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "indent.block.depth"); //$NON-NLS-1$
 	public static final String PROP_INDENT_BLOCK_DEPTH = "indentBlockDepth"; //$NON-NLS-1$
@@ -76,7 +76,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	private int fIndentWrappedCommandDepth;
 	private boolean fReplaceOtherTabsWithSpaces;
 	private boolean fReplaceConservative;
-
+	
 	
 	/**
 	 * Creates an instance with default settings.
@@ -126,7 +126,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		setIndentWrappedCommandDepth(prefs.getPreferenceValue(PREF_INDENT_WRAPPED_COMMAND_DEPTH));
 		setReplaceConservative(prefs.getPreferenceValue(PREF_REPLACE_CONVERSATIVE));
 	}
-
+	
 	public void load(RCodeStyleSettings source) {
 		Lock writeLock = getWriteLock();
 		Lock sourceLock = source.getReadLock();
@@ -148,7 +148,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 			writeLock.unlock();
 		}
 	}
-
+	
 	@Override
 	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
 		map.put(PREF_TAB_SIZE, getTabSize());
@@ -161,7 +161,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		map.put(PREF_REPLACE_CONVERSATIVE, getReplaceConservative());
 		return map;
 	}
-
+	
 	
 /*-- Properties --------------------------------------------------------------*/
 	
@@ -173,7 +173,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public int getTabSize() {
 		return fTabSize;
 	}
-
+	
 	public void setIndentDefaultType(IndentationType type) {
 		IndentationType oldValue = fIndentDefaultType;
 		fIndentDefaultType = type;
@@ -182,7 +182,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public IndentationType getIndentDefaultType() {
 		return fIndentDefaultType;
 	}
-
+	
 	public void setIndentSpacesCount(int count) {
 		int oldValue = fIndentSpacesCount;
 		fIndentSpacesCount = count;
@@ -191,7 +191,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public int getIndentSpacesCount() {
 		return fIndentSpacesCount;
 	}
-
+	
 	public final void setIndentBlockDepth(int depth) {
 		int oldValue = fIndentBlockDepth;
 		fIndentBlockDepth = depth;
@@ -200,7 +200,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public final int getIndentBlockDepth() {
 		return fIndentBlockDepth;
 	}
-
+	
 	public final void setIndentGroupDepth(int depth) {
 		int oldValue = fIndentGroupDepth;
 		fIndentGroupDepth = depth;
@@ -209,7 +209,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public final int getIndentGroupDepth() {
 		return fIndentGroupDepth;
 	}
-
+	
 	public final void setIndentWrappedCommandDepth(int depth) {
 		int oldValue = fIndentWrappedCommandDepth;
 		fIndentWrappedCommandDepth = depth;
@@ -230,7 +230,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		}
 		return (fIndentDefaultType == IndentationType.SPACES) && fReplaceOtherTabsWithSpaces;
 	}
-
+	
 	public void setReplaceConservative(boolean enable) {
 		boolean oldValue = fReplaceConservative;
 		fReplaceConservative = enable;
@@ -239,5 +239,5 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public boolean getReplaceConservative() {
 		return fReplaceConservative;
 	}
-
+	
 }

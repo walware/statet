@@ -675,16 +675,16 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	
-	public void settingsChanged(final Set<String> contexts) {
+	public void settingsChanged(final Set<String> groupIds) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
-				handleSettingsChanged(contexts);
+				handleSettingsChanged(groupIds);
 			}
 		});
 	}
 	
-	protected void handleSettingsChanged(final Set<String> contexts) {
-		fConfigurator.handleSettingsChanged(contexts, null);
+	protected void handleSettingsChanged(final Set<String> groupIds) {
+		fConfigurator.handleSettingsChanged(groupIds, null);
 	}
 	
 	

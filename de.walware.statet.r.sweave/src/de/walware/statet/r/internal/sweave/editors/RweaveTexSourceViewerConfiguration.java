@@ -278,9 +278,9 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
-		fRConfig.handleSettingsChanged(contexts, options);
-		return super.handleSettingsChanged(contexts, options);
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		fRConfig.handleSettingsChanged(groupIds, options);
+		return super.handleSettingsChanged(groupIds, options);
 	}
 	
 	

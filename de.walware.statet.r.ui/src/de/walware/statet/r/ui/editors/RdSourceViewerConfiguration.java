@@ -45,8 +45,6 @@ import de.walware.statet.r.ui.text.rd.RdDoubleClickStrategy;
 
 /**
  * Default Configuration for SourceViewer of R documentations.
- * 
- * @author Stephan Wahlbrink
  */
 public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		implements ISettingsChangedHandler {
@@ -78,9 +76,9 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 		final IPreferenceStore store = getPreferences();
 		final ColorManager colorManager = getColorManager();
 		fDocScanner = new RdCodeScanner(colorManager, store);
-		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), RUIPreferenceConstants.Rd.TS_CONTEXT_ID,
+		fCommentScanner = new CommentScanner(colorManager, store, fRCoreAccess.getPrefs(), RUIPreferenceConstants.Rd.TS_GROUP_ID,
 				COMMENT, TASK_TAG);
-		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, RUIPreferenceConstants.Rd.TS_CONTEXT_ID,
+		fPlatformSpecifScanner = new SingleTokenScanner(colorManager, store, RUIPreferenceConstants.Rd.TS_GROUP_ID,
 				PLATFORM_SPECIF);
 		
 		fDoubleClickStrategy = new RdDoubleClickStrategy();
@@ -129,8 +127,8 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
-		return super.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		return super.handleSettingsChanged(groupIds, fRCoreAccess.getPrefs());
 	}
 	
 }

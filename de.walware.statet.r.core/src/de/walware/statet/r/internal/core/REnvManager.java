@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core;
@@ -49,16 +49,16 @@ import de.walware.statet.r.core.renv.REnvConfiguration;
 
 
 /**
- * Impl of IREnvManager
+ * Implementation of IREnvManager
  */
 public class REnvManager implements IREnvManager, ManageListener {
 	
 	private static final StringPref PREF_DEFAULT_CONFIGURATION_NAME = new StringPref(
 			RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER, "default_configuration.name"); //$NON-NLS-1$
-
+	
 	private class ManagedConfig extends REnvConfiguration {
 		
-		ManagedConfig(String id) {
+		ManagedConfig(final String id) {
 			super();
 			setId(id);
 		}
@@ -68,7 +68,7 @@ public class REnvManager implements IREnvManager, ManageListener {
 		 * @param name
 		 * @param prefs
 		 */
-		ManagedConfig(String name, IPreferenceAccess prefs) {
+		ManagedConfig(final String name, final IPreferenceAccess prefs) {
 			super(null);
 			setName(name);
 			load(prefs, true);
@@ -91,25 +91,25 @@ public class REnvManager implements IREnvManager, ManageListener {
 		}
 		
 		@Override
-		public void load(IPreferenceAccess prefs) {
+		public void load(final IPreferenceAccess prefs) {
 			throw new UnsupportedOperationException();
 		}
 		
 		@Override
-		public void load(REnvConfiguration from) {
+		public void load(final REnvConfiguration from) {
 			throw new UnsupportedOperationException();
 		}
 		
 		
-		void updateReassign(REnvConfiguration config) {
+		void updateReassign(final REnvConfiguration config) {
 			super.load(config, true);
 		}
 		
-		void updateFrom(REnvConfiguration config) {
+		void updateFrom(final REnvConfiguration config) {
 			super.load(config, false);
 		}
 		
-		void updateDispose(boolean dispose) {
+		void updateDispose(final boolean dispose) {
 			if (fDefaultConfig == ManagedConfig.this) {
 				if (dispose) {
 					setName((fNames.size() > 0) ?
@@ -122,17 +122,17 @@ public class REnvManager implements IREnvManager, ManageListener {
 		}
 	}
 	
-
+	
 	private volatile int fState;
 	private ReadWriteLock fLock;
 	private SettingsChangeNotifier fNotifier;
-
+	
 	private Set<String> fNames;
 	private Map<String, ManagedConfig> fNameMap;
 	private Map<String, ManagedConfig> fIdMap;
 	private ManagedConfig fDefaultConfig;
 	
-	public REnvManager(SettingsChangeNotifier notifier) {
+	public REnvManager(final SettingsChangeNotifier notifier) {
 		fState = 0;
 		fNotifier = notifier;
 		fLock = new ReentrantReadWriteLock(true);
@@ -164,7 +164,7 @@ public class REnvManager implements IREnvManager, ManageListener {
 		}
 	}
 	
-	private void checkAndLock(boolean writeLock) {
+	private void checkAndLock(final boolean writeLock) {
 		// check, if lazy loading is required
 		if (fState < 1) {
 			synchronized (this) {
@@ -175,7 +175,7 @@ public class REnvManager implements IREnvManager, ManageListener {
 						fState = 1;
 					}
 				}
-				catch (BackingStoreException e) {
+				catch (final BackingStoreException e) {
 					fState = 101;
 					RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, Messages.REnvManager_error_Accessing_message, e));
 				}
@@ -194,25 +194,25 @@ public class REnvManager implements IREnvManager, ManageListener {
 		}
 	}
 	
-	private boolean update(REnvConfiguration[] configs, String defaultConfigName) {
-		Set<String> newIds = new HashSet<String>();
-		for (REnvConfiguration config : configs) {
+	private boolean update(final REnvConfiguration[] configs, final String defaultConfigName) {
+		final Set<String> newIds = new HashSet<String>();
+		for (final REnvConfiguration config : configs) {
 			newIds.add(config.getId());
 		}
-		Set<String> managedNames = new HashSet<String>();
+		final Set<String> managedNames = new HashSet<String>();
 		
 		// update or add configurations
-		for (REnvConfiguration config : configs) {
+		for (final REnvConfiguration config : configs) {
 			ManagedConfig managedConfig = fIdMap.get(config.getId());
 			if (managedConfig == null) {
-				ManagedConfig potentialConfig = fNameMap.get(config.getName());
+				final ManagedConfig potentialConfig = fNameMap.get(config.getName());
 				if (potentialConfig != null && !newIds.contains(potentialConfig.getId())) {
 					managedConfig = potentialConfig;
 				}
 			}
 			if (managedConfig != null) {
-				String oldName = managedConfig.getName();
-				String oldId = managedConfig.getId();
+				final String oldName = managedConfig.getName();
+				final String oldId = managedConfig.getId();
 				managedConfig.updateReassign(config);
 				if (!oldId.equals(managedConfig.getId())) {
 					fIdMap.put(managedConfig.getId(), managedConfig);
@@ -233,10 +233,10 @@ public class REnvManager implements IREnvManager, ManageListener {
 			managedNames.add(managedConfig.getName());
 		}
 		// remove old configurations
-		Set<String> diffIds = new HashSet<String>(fIdMap.keySet());
+		final Set<String> diffIds = new HashSet<String>(fIdMap.keySet());
 		diffIds.removeAll(newIds);
-		for (String id : diffIds) {
-			ManagedConfig oldConfig = fIdMap.remove(id);
+		for (final String id : diffIds) {
+			final ManagedConfig oldConfig = fIdMap.remove(id);
 			oldConfig.updateDispose(true);
 			if (!managedNames.contains(oldConfig.getName())) {
 				fNameMap.remove(oldConfig.getName());
@@ -256,26 +256,26 @@ public class REnvManager implements IREnvManager, ManageListener {
 		if (!diffIds.isEmpty() || fDefaultConfig.isDirty()) {
 			return true;
 		}
-		for (ManagedConfig config : fIdMap.values()) {
+		for (final ManagedConfig config : fIdMap.values()) {
 			if (config.isDirty()) {
 				return true;
 			}
 		}
 		return false;
-
+		
 	}
 	
-	private void add(ManagedConfig config) {
+	private void add(final ManagedConfig config) {
 		fNameMap.put(config.getName(), config);
 		fIdMap.put(config.getId(), config);
 		fNames.add(config.getName());
 	}
 	
-	public void beforeSettingsChangeNotification(Set<String> contexts) {
+	public void beforeSettingsChangeNotification(final Set<String> groupIds) {
 	}
-
-	public void afterSettingsChangeNotification(Set<String> contexts) {
-		for (ManagedConfig config : fIdMap.values()) {
+	
+	public void afterSettingsChangeNotification(final Set<String> groupIds) {
+		for (final ManagedConfig config : fIdMap.values()) {
 			config.resetDirty();
 		}
 		fDefaultConfig.resetDirty();
@@ -286,20 +286,20 @@ public class REnvManager implements IREnvManager, ManageListener {
 		fNameMap = new HashMap<String, ManagedConfig>();
 		fIdMap = new HashMap<String, ManagedConfig>();
 		fNames = new TreeSet<String>(Collator.getInstance());
-		IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
-		List<ManagedConfig>configs = new ArrayList<ManagedConfig>();
-		IEclipsePreferences[] scopes = prefs.getPreferenceNodes(CAT_R_ENVIRONMENTS_QUALIFIER);
+		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
+		final List<ManagedConfig>configs = new ArrayList<ManagedConfig>();
+		final IEclipsePreferences[] scopes = prefs.getPreferenceNodes(CAT_R_ENVIRONMENTS_QUALIFIER);
 		int i = 0;
 		while (configs.isEmpty() && i < scopes.length) {
-			String[] names = scopes[i].childrenNames();
-			for (String name : names) {
+			final String[] names = scopes[i].childrenNames();
+			for (final String name : names) {
 				add(new ManagedConfig(name, prefs));
 			}
 			i++;
 		}
-
+		
 		// init default config
-		String defaultConfigName = prefs.getPreferenceValue(PREF_DEFAULT_CONFIGURATION_NAME);
+		final String defaultConfigName = prefs.getPreferenceValue(PREF_DEFAULT_CONFIGURATION_NAME);
 		ManagedConfig defaultConfigOrg = null;
 		if (defaultConfigName != null || defaultConfigName.length() != 0) {
 			defaultConfigOrg = fNameMap.get(defaultConfigName);
@@ -314,17 +314,17 @@ public class REnvManager implements IREnvManager, ManageListener {
 	}
 	
 	private void saveToWorkspace() throws BackingStoreException {
-		IScopeContext context = PreferencesUtil.getInstancePrefs().getPreferenceContexts()[0];
-		IEclipsePreferences node = context.getNode(RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER);
-		List<String> oldNames = new ArrayList<String>(Arrays.asList(node.childrenNames()));
+		final IScopeContext context = PreferencesUtil.getInstancePrefs().getPreferenceContexts()[0];
+		final IEclipsePreferences node = context.getNode(RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER);
+		final List<String> oldNames = new ArrayList<String>(Arrays.asList(node.childrenNames()));
 		oldNames.removeAll(fNames);
-		for (String name : oldNames) {
+		for (final String name : oldNames) {
 			if (node.nodeExists(name)) {
 				node.node(name).removeNode();
 			}
 		}
-		Map<Preference, Object>map = new HashMap<Preference, Object>();
-		for (REnvConfiguration config : fIdMap.values()) {
+		final Map<Preference, Object>map = new HashMap<Preference, Object>();
+		for (final REnvConfiguration config : fIdMap.values()) {
 			config.deliverToPreferencesMap(map);
 		}
 		map.put(PREF_DEFAULT_CONFIGURATION_NAME, (!fDefaultConfig.isDisposed()) ? fDefaultConfig.getName() : null);
@@ -334,17 +334,17 @@ public class REnvManager implements IREnvManager, ManageListener {
 	}
 	
 	
-	public String[] set(REnvConfiguration[] configs, String defaultConfigName) throws CoreException {
+	public String[] set(final REnvConfiguration[] configs, final String defaultConfigName) throws CoreException {
 		try {
 			checkAndLock(true);
-			boolean changed = update(configs, defaultConfigName);
+			final boolean changed = update(configs, defaultConfigName);
 			if (!changed) {
 				return null;
 			}
 			saveToWorkspace();
-			return new String[] { CONTEXT_ID };
+			return new String[] { SETTINGS_GROUP_ID };
 		}
-		catch (BackingStoreException e) {
+		catch (final BackingStoreException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, Messages.REnvManager_error_Saving_message, e));
 		}
 		finally {
@@ -362,7 +362,7 @@ public class REnvManager implements IREnvManager, ManageListener {
 		}
 	}
 	
-	public synchronized REnvConfiguration get(String id, String name) {
+	public synchronized REnvConfiguration get(final String id, final String name) {
 		try {
 			checkAndLock(false);
 			REnvConfiguration config = null;
@@ -388,5 +388,5 @@ public class REnvManager implements IREnvManager, ManageListener {
 			fLock.readLock().unlock();
 		}
 	}
-
+	
 }

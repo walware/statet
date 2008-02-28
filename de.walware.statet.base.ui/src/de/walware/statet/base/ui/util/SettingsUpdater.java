@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui.util;
@@ -33,48 +33,49 @@ public class SettingsUpdater implements ChangeListener {
 	private ISettingsChangedHandler fHandler;
 	private Control fControl;
 	private DisposeListener fDisposeListener;
-	private String[] fInterestingContexts;
+	private String[] fInterestingGroupIds;
 	
 	
-	public SettingsUpdater(ISettingsChangedHandler handler, Control control) {
+	public SettingsUpdater(final ISettingsChangedHandler handler, final Control control) {
 		this(handler, control, null);
 	}
 	
-	public SettingsUpdater(ISettingsChangedHandler handler, Control control, String[] contexts) {
+	public SettingsUpdater(final ISettingsChangedHandler handler, final Control control, final String[] groupIds) {
 		fHandler = handler;
 		fControl = control;
-		setInterestingContexts(contexts);
+		setInterestingGroups(groupIds);
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 		fDisposeListener = new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
+			public void widgetDisposed(final DisposeEvent e) {
 				dispose();
 			}
 		};
 		fControl.addDisposeListener(fDisposeListener);
 	}
-
-	public void setInterestingContexts(String[] contexts) {
-		fInterestingContexts = contexts;
+	
+	
+	public void setInterestingGroups(final String[] groupIds) {
+		fInterestingGroupIds = groupIds;
 	}
 	
-	public void settingsChanged(Set<String> contexts) {
-		if (fInterestingContexts == null) {
-			runUpdate(contexts);
+	public void settingsChanged(final Set<String> groupIds) {
+		if (fInterestingGroupIds == null) {
+			runUpdate(groupIds);
 			return;
 		}
-		for (String id : fInterestingContexts) {
-			if (contexts.contains(id)) {
-				runUpdate(contexts);
+		for (final String id : fInterestingGroupIds) {
+			if (groupIds.contains(id)) {
+				runUpdate(groupIds);
 				return;
 			}
 		}
 	}
 	
-	private void runUpdate(final Set<String> contexts) {
+	private void runUpdate(final Set<String> groupIds) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fControl)) {
-					fHandler.handleSettingsChanged(contexts, null);
+					fHandler.handleSettingsChanged(groupIds, null);
 				}
 			}
 		});
@@ -84,4 +85,5 @@ public class SettingsUpdater implements ChangeListener {
 		fControl.removeDisposeListener(fDisposeListener);
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
 	}
+	
 }

@@ -200,8 +200,8 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
-		return super.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		return super.handleSettingsChanged(groupIds, fRCoreAccess.getPrefs());
 	}
 	
 	

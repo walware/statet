@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui;
@@ -30,7 +30,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	
 	
-	public final static String CONTEXT_ID = "r.editor/identifiergroups"; //$NON-NLS-1$
+	public final static String GROUP_ID = "r.editor/identifiergroups"; //$NON-NLS-1$
 	
 	
 	private String[] fIdentifiersItemsAssignment;
@@ -48,7 +48,7 @@ public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	public String[] getNodeQualifiers() {
 		return new String[0];
 	}
-
+	
 	@Override
 	public void loadDefaults() {
 	}
@@ -72,34 +72,31 @@ public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
 		return map;
 	}
-
+	
 	private final String[] loadValues(IPreferenceAccess prefs, String key) {
 		Preference<String[]> pref = new StringArrayPref(RUI.PLUGIN_ID, key);
 		return prefs.getPreferenceValue(pref);
 	}
 	
-
-	
 	
 	public String[] getAssignmentIdentifiers() {
 		return fIdentifiersItemsAssignment;
 	}
-
+	
 	public String[] getLogicalIdentifiers() {
 		return fIdentifiersItemsLogical;
 	}
-
+	
 	public String[] getFlowcontrolIdentifiers() {
 		return fIdentifiersItemsFlowcontrol;
 	}
-
+	
 	public String[] getCustom1Identifiers() {
 		return fIdentifiersItemsCustom1;
 	}
-
+	
 	public String[] getCustom2Identifiers() {
 		return fIdentifiersItemsCustom2;
 	}
-	
 	
 }

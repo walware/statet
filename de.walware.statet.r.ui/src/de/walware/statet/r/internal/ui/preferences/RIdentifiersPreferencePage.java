@@ -216,11 +216,12 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		fStatusListener = statusListener;
 	}
 	
+	
 	@Override
-	protected String[] getChangedContexts() {
+	protected String[] getChangedGroups() {
 		return new String[] {
-				RIdentifierGroups.CONTEXT_ID,
-				RUIPreferenceConstants.R.TS_CONTEXT_ID,
+				RIdentifierGroups.GROUP_ID,
+				RUIPreferenceConstants.R.TS_GROUP_ID,
 		};
 	}
 	

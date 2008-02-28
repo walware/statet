@@ -27,7 +27,7 @@ import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 public class REditorOptions extends AbstractPreferencesModelObject {
 	// Default values see RUIPreferenceInitializer
 	
-	public static final String CONTEXT_ID = "r.editor/options"; //$NON-NLS-1$
+	public static final String GROUP_ID = "r.editor/options"; //$NON-NLS-1$
 	
 	
 	public static final BooleanPref PREF_SMARTINSERT_BYDEFAULT_ENABLED = new BooleanPref(
@@ -49,7 +49,6 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 	
 	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
 			RUIPreferenceInitializer.REDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
-	
 	
 	
 	private boolean fIsSmartByDefaultEnabled;

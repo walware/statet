@@ -36,9 +36,9 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 	
 	@Override
 	protected AbstractSyntaxColoringBlock createConfigurationBlock() {
-		
-		AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
+		final AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
 			
+			@Override
 			protected SyntaxNode[] createItems() {
 				return new SyntaxNode[] {
 						new CategoryNode(Messages.RdSyntaxColoring_CodeCategory_label, new SyntaxNode[] {
@@ -69,8 +69,8 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			}
 			
 			@Override
-			protected String[] getSettingsContexts() {
-				return new String[] { RUIPreferenceConstants.Rd.TS_CONTEXT_ID };
+			protected String[] getSettingsGroups() {
+				return new String[] { RUIPreferenceConstants.Rd.TS_GROUP_ID };
 			}
 			
 			@Override
@@ -80,7 +80,7 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			
 			@Override
 			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
-					ColorManager colorManager, IPreferenceStore store) {
+					final ColorManager colorManager, final IPreferenceStore store) {
 				return new RdSourceViewerConfiguration(RCore.getDefaultsAccess(),
 						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);
 			}

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation in JDT
  *     Stephan Wahlbrink - adaptations to StatET
@@ -54,16 +54,17 @@ import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 
 /**
-  */
+ * 
+ */
 public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
-
+	
 	static class TaskTag {
 		
 		String name;
 		TaskPriority priority;
 		
-		public TaskTag(String name, TaskPriority priority) {
+		public TaskTag(final String name, final TaskPriority priority) {
 			this.name = name;
 			this.priority = priority;
 		}
@@ -94,25 +95,25 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		}
 		
 		@Override
-		protected void createTableColumns(TableViewer viewer, Table table, TableLayout layout) {
-			PixelConverter conv = new PixelConverter(table);
+		protected void createTableColumns(final TableViewer viewer, final Table table, final TableLayout layout) {
+			final PixelConverter conv = new PixelConverter(table);
 			TableViewerColumn col;
 			
 			col = new TableViewerColumn(viewer, SWT.LEFT);
 			col.getColumn().setText(Messages.TaskTags_TaskColumn_name);
 			col.setLabelProvider(new ColumnLabelProvider() {
 				@Override
-				public Image getImage(Object element) {
-					TaskTag tag = (TaskTag) element;
-					Image baseImage = PlatformUI.getWorkbench().getSharedImages().getImage(IDE.SharedImages.IMG_OBJS_TASK_TSK);
-					ImageDescriptor defaultOverlay = (isDefaultTask(tag)) ? StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER) : null;
+				public Image getImage(final Object element) {
+					final TaskTag tag = (TaskTag) element;
+					final Image baseImage = PlatformUI.getWorkbench().getSharedImages().getImage(IDE.SharedImages.IMG_OBJS_TASK_TSK);
+					final ImageDescriptor defaultOverlay = (isDefaultTask(tag)) ? StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER) : null;
 					return new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
 								null, null, null, defaultOverlay, null}, 
 								new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
 				}
 				@Override
-				public String getText(Object element) {
-					TaskTag tag = (TaskTag) element;
+				public String getText(final Object element) {
+					final TaskTag tag = (TaskTag) element;
 					return tag.name;
 				}
 			});
@@ -122,8 +123,8 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			col.getColumn().setText(Messages.TaskTags_PriorityColumn_name);
 			col.setLabelProvider(new ColumnLabelProvider() {
 				@Override
-				public String getText(Object element) {
-					TaskTag task = (TaskTag) element;
+				public String getText(final Object element) {
+					final TaskTag task = (TaskTag) element;
 					switch (task.priority) {
 					case HIGH:
 						return StatetMessages.TaskPriority_High; 
@@ -146,7 +147,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			viewer.setComparator(new ViewerComparator() {
 				@SuppressWarnings("unchecked")
 				@Override
-				public int compare(Viewer viewer, Object e1, Object e2) {
+				public int compare(final Viewer viewer, final Object e1, final Object e2) {
 					return getComparator().compare(((TaskTag) e1).name, ((TaskTag) e2).name);
 				}
 			});
@@ -154,19 +155,19 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		
 		
 		@Override
-		public void handleSelection(TaskTag item, IStructuredSelection rawSelection) {
+		public void handleSelection(final TaskTag item, final IStructuredSelection rawSelection) {
 			fButtonGroup.enableButton(IDX_EDIT, (item != null) );
 			fButtonGroup.enableButton(IDX_DEFAULT, (item != null) && !isDefaultTask(item));
 		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
-		public void handleButtonPressed(int buttonIdx, TaskTag item, IStructuredSelection rawSelection) {
+		public void handleButtonPressed(final int buttonIdx, final TaskTag item, final IStructuredSelection rawSelection) {
 			switch (buttonIdx) {
 			case IDX_ADD:
 				doEdit(null);
 				break;
-
+			
 			case IDX_EDIT:
 				if (item != null)
 					doEdit(item);
@@ -186,49 +187,49 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		
 	}
 	
-
-	private TasksGroup fTasksGroup;
-
-	private IStatusChangeListener fStatusListener;
-
 	
-	public TaskTagsConfigurationBlock(IProject project, IStatusChangeListener statusListener) {
+	private TasksGroup fTasksGroup;
+	
+	private IStatusChangeListener fStatusListener;
+	
+	
+	public TaskTagsConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
 		super(project);
 		fStatusListener = statusListener;
 		fTasksGroup = new TasksGroup();
 	}
 	
 	@Override
-	protected String[] getChangedContexts() {
+	protected String[] getChangedGroups() {
 		return new String[] { 
-				TaskTagsPreferences.CONTEXT_ID,
+				TaskTagsPreferences.GROUP_ID,
 		};
 	}
 	
-	final boolean isDefaultTask(TaskTag task) {
+	final boolean isDefaultTask(final TaskTag task) {
 		return (task == fTasksGroup.fDefaultTask);
 	}
 	
 	@Override
-	public void createContents(Composite pageComposite, IWorkbenchPreferenceContainer container, 
-			IPreferenceStore preferenceStore) {
+	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, 
+			final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		
 		setupPreferenceManager(container, new Preference[] {
 				TaskTagsPreferences.PREF_TAGS,
 				TaskTagsPreferences.PREF_PRIORITIES,
 		});
-
+		
 		fTasksGroup.createGroup(pageComposite, 1);
 		
 		loadValues();
 		fTasksGroup.initFields();
 	}
 	
-	private void doEdit(TaskTag item) {
-		TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, fTasksGroup.getListModel());
+	private void doEdit(final TaskTag item) {
+		final TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, fTasksGroup.getListModel());
 		if (dialog.open() == Window.OK) {
-			TaskTag newItem = dialog.getResult();
+			final TaskTag newItem = dialog.getResult();
 			if (item != null) {
 				if (item == fTasksGroup.fDefaultTask)
 					fTasksGroup.fDefaultTask = newItem;
@@ -241,7 +242,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		}
 	}
 	
-	private void doRemove(List<TaskTag> selection) {
+	private void doRemove(final List<TaskTag> selection) {
 		if (selection.contains(fTasksGroup.fDefaultTask)) {
 			fTasksGroup.fDefaultTask = null;
 		}
@@ -250,7 +251,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		saveTaskTags();
 	}
 	
-	private void doSetDefault(TaskTag item) {
+	private void doSetDefault(final TaskTag item) {
 		fTasksGroup.fDefaultTask = item;
 		if (fTasksGroup.getListModel().indexOf(item) != 0) {
 			fTasksGroup.getListModel().remove(item);
@@ -261,19 +262,19 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		
 		saveTaskTags();
 	}
-
+	
 	@Override
 	protected void updateControls() {
 		loadValues();
 		fTasksGroup.getStructuredViewer().refresh();
 	}
-		
+	
 	private void loadValues() {
-		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(this);
-		String[] tags = taskPrefs.getTags();
-		TaskPriority[] prios = taskPrefs.getPriorities();
+		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(this);
+		final String[] tags = taskPrefs.getTags();
+		final TaskPriority[] prios = taskPrefs.getPriorities();
 		
-		List<TaskTag> items = new ArrayList<TaskTag>(tags.length);
+		final List<TaskTag> items = new ArrayList<TaskTag>(tags.length);
 		for (int i = 0; i < tags.length; i++) {
 			items.add(new TaskTag(tags[i], prios[i]));
 		}
@@ -284,21 +285,21 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			fTasksGroup.fDefaultTask = items.get(0);
 		}
 	}
-
+	
 	private void saveTaskTags() {
-		int n = fTasksGroup.getListModel().size();
-		String[] tags = new String[n];
-		TaskPriority[] prios = new TaskPriority[n];
+		final int n = fTasksGroup.getListModel().size();
+		final String[] tags = new String[n];
+		final TaskPriority[] prios = new TaskPriority[n];
 		for (int i = 0; i < n; i++) {
-			TaskTag item = fTasksGroup.getListModel().get(i);
+			final TaskTag item = fTasksGroup.getListModel().get(i);
 			tags[i] = item.name;
 			prios[i] = item.priority;
 		}
-		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(
+		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(
 				tags, prios);
-
+		
 		setPrefValues(taskPrefs.getPreferencesMap());
-
+		
 		validateSettings();
 	}
 	
@@ -309,22 +310,23 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	private IStatus validateSettings() {
-		StatusInfo listStatus = new StatusInfo();
+		final StatusInfo listStatus = new StatusInfo();
 		if (fTasksGroup.getListModel().size() == 0) {
 			listStatus.setWarning(Messages.TaskTags_warning_NoTag_message);
 		} 
 		else if (fTasksGroup.fDefaultTask == null) {
 			listStatus.setError(Messages.TaskTags_error_DefaultTast_message);
 		}
-
-		IStatus status = listStatus; 		// StatusUtil.getMostSevere(new IStatus[] { ... });
+		
+		final IStatus status = listStatus; 		// StatusUtil.getMostSevere(new IStatus[] { ... });
 		fStatusListener.statusChanged(status);
 		return status;
 	}
 	
 	
-	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
-		String title = Messages.TaskTags_NeedsBuild_title; 
+	@Override
+	protected String[] getFullBuildDialogStrings(final boolean workspaceSettings) {
+		final String title = Messages.TaskTags_NeedsBuild_title; 
 		String message;
 		if (workspaceSettings) {
 			message = Messages.TaskTags_NeedsFullBuild_message; 
@@ -333,5 +335,5 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		}	
 		return new String[] { title, message };
 	}	
-
+	
 }

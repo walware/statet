@@ -471,8 +471,8 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
-		fConfigurator.handleSettingsChanged(contexts, options);
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		fConfigurator.handleSettingsChanged(groupIds, options);
 		return false;
 	}
 	
@@ -709,7 +709,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	 * @param display the display on which to create the image
 	 * @param size the image size
 	 * @return a new image
- 	 */
+	 */
 	private static Image createImage(final Display display) {
 		final Point size = new Point(8, 8);
 		final int width = size.x;

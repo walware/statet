@@ -169,7 +169,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 		}
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
 		return false;
 	}
 	

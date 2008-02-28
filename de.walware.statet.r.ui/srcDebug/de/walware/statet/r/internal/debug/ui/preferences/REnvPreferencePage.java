@@ -220,6 +220,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		fEnvTableGroup = new REnvTableGroup();
 	}
 	
+	
 	@Override
 	protected Control createContents(final Composite parent) {
 		createImages();
@@ -350,10 +351,10 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		try {
 			final List<REnvConfig> configs = fEnvTableGroup.getListModel();
 			final String defaultConfigName = (fDefaultREnv != null) ? fDefaultREnv.getName() : null;
-			final String[] contexts = RCore.getREnvManager().set(configs.toArray(new REnvConfig[configs.size()]), defaultConfigName);
-			if (contexts != null) {
+			final String[] groupIds = RCore.getREnvManager().set(configs.toArray(new REnvConfig[configs.size()]), defaultConfigName);
+			if (groupIds != null) {
 				AbstractConfigurationBlock.scheduleChangeNotification(
-						(IWorkbenchPreferenceContainer) getContainer(), contexts, saveStore);
+						(IWorkbenchPreferenceContainer) getContainer(), groupIds, saveStore);
 			}
 			return true;
 		}

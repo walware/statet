@@ -25,9 +25,10 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
  */
 public class RCommentScanner extends CommentScanner {
 	
+	
 	public RCommentScanner(ColorManager colorManager, IPreferenceStore preferenceStore, IPreferenceAccess corePrefs) {
 		super(colorManager, preferenceStore, corePrefs, 
-				RUIPreferenceConstants.R.TS_CONTEXT_ID,
+				RUIPreferenceConstants.R.TS_GROUP_ID,
 				IRTextTokens.COMMENT_KEY, IRTextTokens.TASK_TAG_KEY);
 	}
 	

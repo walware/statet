@@ -30,7 +30,7 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 public class ContentAssistPreference {
 	
 	
-	public static final String CONTEXT_ID = "statet.contentassist"; //$NON-NLS-1$
+	public static final String GROUP_ID = "statet.contentassist"; //$NON-NLS-1$
 	
 	
 	/**

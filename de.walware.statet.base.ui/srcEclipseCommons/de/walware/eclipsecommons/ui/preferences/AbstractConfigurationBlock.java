@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.preferences;
@@ -36,10 +36,10 @@ import de.walware.statet.base.core.StatetCore;
 public abstract class AbstractConfigurationBlock {
 	
 	
-	public static void scheduleChangeNotification(final IWorkbenchPreferenceContainer container, final String[] contexts, final boolean directly) {
-		if (contexts != null) {
+	public static void scheduleChangeNotification(final IWorkbenchPreferenceContainer container, final String[] groupIds, final boolean directly) {
+		if (groupIds != null) {
 			final String source = (directly) ? null : container.toString();
-			final Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, contexts);
+			final Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, groupIds);
 			if (job == null) {
 				return;
 			}
@@ -82,7 +82,7 @@ public abstract class AbstractConfigurationBlock {
 		fUseProjectSettings = enable;
 	}
 	
-	protected String[] getChangedContexts() {
+	protected String[] getChangedGroups() {
 		return null;
 	}
 	
@@ -111,8 +111,8 @@ public abstract class AbstractConfigurationBlock {
 	}
 	
 	protected void scheduleChangeNotification(final boolean directly) {
-		final String[] contexts = getChangedContexts();
-		scheduleChangeNotification(fContainer, contexts, directly);
+		final String[] groupIds = getChangedGroups();
+		scheduleChangeNotification(fContainer, groupIds, directly);
 	}
 	
 	protected void logSaveError(final BackingStoreException e) {

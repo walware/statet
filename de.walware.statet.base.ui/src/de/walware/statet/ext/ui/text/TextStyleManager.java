@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.text;
@@ -29,34 +29,35 @@ import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 
 
 /**
- * Manages text style tokens for a highlithing scanner.
+ * Manages text style tokens for a highlighting scanner.
  */
 public class TextStyleManager {
-
+	
 	
 	protected ColorManager fColorManager;
 	protected IPreferenceStore fPreferenceStore;
 	protected String[] fTokenNames;
-	private String fStylesContext;
+	private String fStylesGroupId;
 	
 	private Map<String, Token> fTokenMap = new HashMap<String, Token>();
-
 	
-	public TextStyleManager(ColorManager colorManager, IPreferenceStore preferenceStore,
-			String stylesContext) {
+	
+	public TextStyleManager(final ColorManager colorManager, final IPreferenceStore preferenceStore,
+			final String stylesGroupId) {
 		super();
 		fColorManager = colorManager;
 		fPreferenceStore = preferenceStore;
-		fStylesContext = stylesContext;
+		fStylesGroupId = stylesGroupId;
 	}
-
+	
 	
 	/**
 	 * Token access for styles.
+	 * 
 	 * @param key id and prefix for preference keys
 	 * @return token with text style attribute
 	 */
-	public IToken getToken(String key) {
+	public IToken getToken(final String key) {
 		Token token = fTokenMap.get(key);
 		if (token == null) {
 			token = new Token(createTextAttribute(key));
@@ -65,10 +66,10 @@ public class TextStyleManager {
 		return token;
 	}
 	
-	private String resolveUsedKey(String key) {
+	private String resolveUsedKey(final String key) {
 		String use = key;
 		while (true) {
-			String test = fPreferenceStore.getString(use+IStatetUIPreferenceConstants.TS_USE_SUFFIX);
+			final String test = fPreferenceStore.getString(use+IStatetUIPreferenceConstants.TS_USE_SUFFIX);
 			if (test == null || test.equals("") || test.equals(use)) { //$NON-NLS-1$
 				return use;
 			}
@@ -78,7 +79,7 @@ public class TextStyleManager {
 	
 	/**
 	 * Create a text attribute based on the given color, bold, italic, strikethrough and underline preference keys.
-	 *
+	 * 
 	 * @param key the italic preference key
 	 * @return the created text attribute
 	 * @since 3.0
@@ -86,7 +87,7 @@ public class TextStyleManager {
 	private TextAttribute createTextAttribute(String key) {
 		key = resolveUsedKey(key);
 		
-		RGB rgb = PreferenceConverter.getColor(fPreferenceStore, key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX);
+		final RGB rgb = PreferenceConverter.getColor(fPreferenceStore, key + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX);
 		int style = fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_BOLD_SUFFIX) ?
 				SWT.BOLD : SWT.NORMAL;
 		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX))
@@ -95,13 +96,13 @@ public class TextStyleManager {
 			style |= TextAttribute.STRIKETHROUGH;
 		if (fPreferenceStore.getBoolean(key + IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX))
 			style |= TextAttribute.UNDERLINE;
-
+		
 		return new TextAttribute(fColorManager.getColor(rgb), null, style);
 	}
 	
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
-		if (contexts.contains(fStylesContext)) {
-			for (Map.Entry<String, Token> token : fTokenMap.entrySet()) {
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		if (groupIds.contains(fStylesGroupId)) {
+			for (final Map.Entry<String, Token> token : fTokenMap.entrySet()) {
 				token.getValue().setData(createTextAttribute(token.getKey()));
 			}
 			return true;

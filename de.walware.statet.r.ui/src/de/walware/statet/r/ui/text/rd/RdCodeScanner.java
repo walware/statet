@@ -32,8 +32,6 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 /**
  * Scanner for common Rd code (in no verbatim-like sections).
- * 
- * @author Stephan Wahlbrink
  */
 public class RdCodeScanner extends StatextTextScanner {
 	
@@ -55,7 +53,7 @@ public class RdCodeScanner extends StatextTextScanner {
 	}
 	
 	public RdCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.TS_CONTEXT_ID);
+		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.TS_GROUP_ID);
 		initialize();
 	}
 	

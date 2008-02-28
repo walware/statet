@@ -855,18 +855,18 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		}
 	}
 	
-	public void settingsChanged(final Set<String> contexts) {
+	public void settingsChanged(final Set<String> groupIds) {
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fControl)) {
-					handleSettingsChanged(contexts);
+					handleSettingsChanged(groupIds);
 				}
 			}
 		});
 	}
 	
-	protected void handleSettingsChanged(final Set<String> contexts) {
-		fInputGroup.handleSettingsChanged(contexts, null);
+	protected void handleSettingsChanged(final Set<String> groupIds) {
+		fInputGroup.handleSettingsChanged(groupIds, null);
 	}
 	
 }

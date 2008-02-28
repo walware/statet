@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -241,16 +241,10 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	
 /* PropertyPage Implementation ************************************************/
 	
-	/*
-	 * @see org.eclipse.ui.IWorkbenchPropertyPage#getElement()
-	 */
 	public IAdaptable getElement() {
 		return fProject;
 	}
 	
-	/*
-	 * @see org.eclipse.ui.IWorkbenchPropertyPage#setElement(org.eclipse.core.runtime.IAdaptable)
-	 */
 	public void setElement(final IAdaptable element) {
 		fProject = (IProject) element.getAdapter(IResource.class);
 	}
@@ -263,7 +257,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 //
 //		fBlock = createConfigurationBlock(getProject());
 //	}
-
+	
 	@Override
 	public void applyData(final Object data) {
 		if (data instanceof Map) {
@@ -275,7 +269,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 				fParentComposite.layout(true, true);
 			}
 		}
- 	}
+	}
 	
 	protected Map getData() {
 		return fData;

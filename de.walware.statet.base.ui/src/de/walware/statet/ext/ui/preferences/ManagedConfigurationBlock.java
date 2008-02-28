@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -56,14 +56,14 @@ import de.walware.statet.base.core.CoreUtility;
  *   <li>override {@link #addBindings(DataBindingContext, Realm)}) to register bindings</li>
  * </ul></li>
  * <li>optional project scope</li>
- * <li>change context ({@link SettingsChangeNotifier})<ul>
- *   <li>override {@link #getChangedContexts()}</li>
+ * <li>change settings groups ({@link SettingsChangeNotifier})<ul>
+ *   <li>override {@link #getChangedGroups()}</li>
  * </ul></li>
  * </ul>
  */
 public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		implements IPreferenceAccess, IObservableFactory {
-
+	
 	
 	protected class PreferenceManager {
 		
@@ -103,7 +103,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			} else {
 				saveDisabledProjectSettings();
 			}
-		
 		}
 		
 		
@@ -362,6 +361,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	protected ManagedConfigurationBlock(final IProject project) {
 		this(project, null);
 	}
+	
 	
 	protected void setupPreferenceManager(final IWorkbenchPreferenceContainer container, final Preference[] keys) {
 		fContainer = container;

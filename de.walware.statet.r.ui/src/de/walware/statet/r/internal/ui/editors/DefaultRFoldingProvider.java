@@ -56,7 +56,7 @@ import de.walware.statet.r.ui.editors.REditorOptions;
 
 
 /**
- *
+ * 
  */
 public class DefaultRFoldingProvider implements IFoldingStructureProvider, IModelElementInputListener, ChangeListener {
 	
@@ -252,8 +252,8 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider, IMode
 		}
 	}
 	
-	public void settingsChanged(final Set<String> contexts) {
-		if (contexts.contains(REditorOptions.CONTEXT_ID)) {
+	public void settingsChanged(final Set<String> groupIds) {
+		if (groupIds.contains(REditorOptions.GROUP_ID)) {
 			updateConfig();
 			final Input input = fInput;
 			if (input != null) {

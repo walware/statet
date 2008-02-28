@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.core.preferences;
@@ -26,8 +26,8 @@ import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
 
 
 public class TaskTagsPreferences {
-
-	public static final String CONTEXT_ID = "statet.task_tags"; //$NON-NLS-1$
+	
+	public static final String GROUP_ID = "statet.task_tags"; //$NON-NLS-1$
 	
 	private static final String KEY_TAGS = "task_tags"; //$NON-NLS-1$
 	private static final String KEY_PRIORITIES = "task_tags.priority"; //$NON-NLS-1$
@@ -36,14 +36,14 @@ public class TaskTagsPreferences {
 			StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER, KEY_TAGS);
 	public static final EnumListPref<TaskPriority> PREF_PRIORITIES = new EnumListPref<TaskPriority>(
 			StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER, KEY_PRIORITIES, TaskPriority.class);
-
+	
 	
 	public static enum TaskPriority {
 		
 		HIGH (IMarker.PRIORITY_HIGH), 
 		NORMAL (IMarker.PRIORITY_NORMAL), 
 		LOW (IMarker.PRIORITY_LOW);
-	
+		
 		private int fPriority;
 		
 		TaskPriority(int priority) {
@@ -54,10 +54,9 @@ public class TaskTagsPreferences {
 			return fPriority;
 		}
 	};
-
-		
+	
+	
 	public static String[] loadTagsOnly(IPreferenceAccess prefs) {
-		
 		return prefs.getPreferenceValue(PREF_TAGS);
 	}
 	
@@ -73,7 +72,6 @@ public class TaskTagsPreferences {
 	 * @param priorities
 	 */
 	public TaskTagsPreferences(String[] tags, TaskPriority[] priorities) {
-		
 		setup(tags, priorities);
 	}
 	
@@ -81,7 +79,6 @@ public class TaskTagsPreferences {
 	 * Creates preferences with default values.
 	 */
 	public TaskTagsPreferences() {
-		
 		setup(	new String[] { "TODO", "FIXME" }, //$NON-NLS-1$ //$NON-NLS-2$
 				new TaskPriority[] { TaskPriority.NORMAL, TaskPriority.NORMAL }
 		);
@@ -92,15 +89,14 @@ public class TaskTagsPreferences {
 	 * 
 	 * @param prefs
 	 */
-	public TaskTagsPreferences(IPreferenceAccess prefs) {
-		
+	public TaskTagsPreferences(final IPreferenceAccess prefs) {
 		String[] tags = loadTagsOnly(prefs);
 		List<TaskPriority> prios = prefs.getPreferenceValue(PREF_PRIORITIES);
 		
 		setup(tags, prios.toArray(new TaskPriority[prios.size()]));
 	}
 	
-	private void setup(String[] tags, TaskPriority[] priorities) {
+	private void setup(final String[] tags, final TaskPriority[] priorities) {
 		
 		Assert.isLegal(tags.length == priorities.length, "Invalid preference values for task tags.");  //$NON-NLS-1$
 		fTags = tags;
@@ -109,23 +105,20 @@ public class TaskTagsPreferences {
 	
 	
 	public String[] getTags() {
-		
 		return fTags;
 	}
 	
 	public TaskPriority[] getPriorities() {
-		
 		return fPrios;
 	}
-
+	
 	
 	/**
 	 * Allows to save the preferences. 
 	 * 
 	 * <p>Note: Intended to usage in preference/property page only.</p>
 	 */
-	public Map<Preference, Object> addPreferencesToMap(Map<Preference, Object> map) {
-		
+	public Map<Preference, Object> addPreferencesToMap(final Map<Preference, Object> map) {
 		map.put(PREF_TAGS, fTags);
 		map.put(PREF_PRIORITIES, Arrays.asList(fPrios));
 		return map;
@@ -137,8 +130,7 @@ public class TaskTagsPreferences {
 	 * <p>Note: Intended to usage in preference/property page only.</p>
 	 */
 	public Map<Preference, Object> getPreferencesMap() {
-		
 		return addPreferencesToMap(new HashMap<Preference, Object>(2));
 	}
-
+	
 }

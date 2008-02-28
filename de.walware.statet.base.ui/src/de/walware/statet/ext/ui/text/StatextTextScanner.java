@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.text;
@@ -33,17 +33,18 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner implem
 	private TextStyleManager fTextStyles;
 	
 	
-	public StatextTextScanner(ColorManager colorManager, IPreferenceStore preferenceStore,
-			String stylesContext) {
+	public StatextTextScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore,
+			final String stylesGroupId) {
 		super();
-		fTextStyles = new TextStyleManager(colorManager, preferenceStore, stylesContext);
+		fTextStyles = new TextStyleManager(colorManager, preferenceStore, stylesGroupId);
 	}
+	
 	
 	/**
 	 * Must be called after the constructor has been called.
 	 */
 	protected void initialize() {
-		List<IRule> rules = createRules();
+		final List<IRule> rules = createRules();
 		if (rules != null)
 			setRules(rules.toArray(new IRule[rules.size()]));
 	}
@@ -54,12 +55,12 @@ public abstract class StatextTextScanner extends BufferedRuleBasedScanner implem
 	abstract protected List<IRule> createRules();
 	
 	
-	protected IToken getToken(String key) {
+	protected IToken getToken(final String key) {
 		return fTextStyles.getToken(key);
 	}
 	
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
-		return fTextStyles.handleSettingsChanged(contexts, options);
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		return fTextStyles.handleSettingsChanged(groupIds, options);
 	}
 	
 }

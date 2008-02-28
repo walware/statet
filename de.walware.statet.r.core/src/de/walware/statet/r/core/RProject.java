@@ -137,7 +137,7 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	public void setProject(final IProject project) {
 		super.setProject(project);
 		fRCodeStyle = new RCodeStyleSettings();
-		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, this, RCodeStyleSettings.CONTEXT_ID);
+		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, this, RCodeStyleSettings.GROUP_ID);
 	}
 	
 	@Override

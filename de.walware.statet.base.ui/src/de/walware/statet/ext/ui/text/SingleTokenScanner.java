@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.text;
@@ -25,22 +25,25 @@ import de.walware.eclipsecommons.ui.util.ColorManager;
  * Single token scanner.
  */
 public class SingleTokenScanner extends StatextTextScanner {
-
+	
+	
 	private String fDefaultTokenKey;
 	
-	public SingleTokenScanner (ColorManager colorManager, IPreferenceStore preferenceStore, 
-			String stylesContext, String defaultTokenKey) {
-
-		super(colorManager, preferenceStore, stylesContext);
+	
+	public SingleTokenScanner (final ColorManager colorManager, final IPreferenceStore preferenceStore, 
+			final String stylesGroupId, final String defaultTokenKey) {
+		super(colorManager, preferenceStore, stylesGroupId);
 		
 		fDefaultTokenKey = defaultTokenKey;
 		initialize();
 	}
-
+	
+	
 	@Override
 	protected List<IRule> createRules() {
-		IToken defaultToken = getToken(fDefaultTokenKey);
+		final IToken defaultToken = getToken(fDefaultTokenKey);
 		setDefaultReturnToken(defaultToken);
 		return null;
 	}
+	
 }

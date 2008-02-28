@@ -94,13 +94,13 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		return fColorManager;
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
 		boolean affectsPresentation = false;
-		if (contexts.contains(ContentAssistPreference.CONTEXT_ID) && fContentAssistant != null) {
+		if (groupIds.contains(ContentAssistPreference.GROUP_ID) && fContentAssistant != null) {
 			ContentAssistPreference.configure(fContentAssistant);
 		}
 		for (final ISettingsChangedHandler handler : fSettingsHandler.toArray()) {
-			affectsPresentation |= handler.handleSettingsChanged(contexts, options);
+			affectsPresentation |= handler.handleSettingsChanged(groupIds, options);
 		}
 		return affectsPresentation;
 	}

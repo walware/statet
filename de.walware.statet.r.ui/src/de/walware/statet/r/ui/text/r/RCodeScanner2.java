@@ -39,7 +39,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 /**
  * Text token scanner for R code.
  * Mainly for R default partitions, but also works for other partitions (without special styles).
- *
+ * 
  * Version 2 uses RLexer instead of rules to parse the sources.
  */
 public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenScanner, ISettingsChangedHandler {
@@ -155,7 +155,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		fTokens = new EnumMap<RTerminal, IToken>(RTerminal.class);
 		fSpecialSymbols = new HashMap<String, IToken>();
 		fLexer = createLexer();
-		fTextStyles = new TextStyleManager(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_CONTEXT_ID);
+		fTextStyles = new TextStyleManager(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID);
 		
 		fTokens.put(RTerminal.EOF, Token.EOF);
 		registerTokens();
@@ -175,6 +175,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 			}
 		}
 	}
+	
 	
 	@Override
 	public void setRange(final IDocument document, final int offset, final int length) {
@@ -252,8 +253,8 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		return fTextStyles.getToken(key);
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> contexts, final Object options) {
-		return fTextStyles.handleSettingsChanged(contexts, options);
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		return fTextStyles.handleSettingsChanged(groupIds, options);
 	}
 	
 	

@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 public interface IREnvManager {
 	
 	
-	public static final String CONTEXT_ID = "r.envs"; //$NON-NLS-1$
+	public static final String SETTINGS_GROUP_ID = "r.envs"; //$NON-NLS-1$
 	
 	
 	public String[] set(REnvConfiguration[] configs, String defaultConfigName) throws CoreException;
