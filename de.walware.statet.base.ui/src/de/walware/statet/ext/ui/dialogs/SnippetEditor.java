@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.dialogs;
@@ -35,12 +35,12 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
 
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
+import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
 import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IEditorInstallable;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
-import de.walware.statet.ext.ui.editors.TextViewerAction;
 
 
 /**

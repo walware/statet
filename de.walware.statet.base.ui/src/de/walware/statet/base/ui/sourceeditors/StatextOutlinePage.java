@@ -4,20 +4,31 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ext.ui.editors;
+package de.walware.statet.base.ui.sourceeditors;
+
+import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 
 
 /**
  *
  */
-public interface IEditorInstallable {
+public class StatextOutlinePage<EditorT extends StatextEditor1> extends ContentOutlinePage {
 	
-	public void install(IEditorAdapter editor);
-	public void uninstall();
+	
+	protected EditorT fEditor;
+	
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		if (fEditor != null) {
+			fEditor.handleOutlinePageClosed();
+		}
+	}
 	
 }

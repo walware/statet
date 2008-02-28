@@ -24,8 +24,8 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;

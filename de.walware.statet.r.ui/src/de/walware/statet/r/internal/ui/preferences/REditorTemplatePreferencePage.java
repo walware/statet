@@ -26,10 +26,10 @@ import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;

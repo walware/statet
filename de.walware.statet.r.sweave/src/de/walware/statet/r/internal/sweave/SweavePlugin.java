@@ -31,7 +31,7 @@ import org.osgi.framework.BundleContext;
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.internal.sweave.processing.SweaveCreation;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.Sweave;

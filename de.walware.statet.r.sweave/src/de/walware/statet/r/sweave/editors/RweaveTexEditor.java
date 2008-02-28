@@ -35,7 +35,7 @@ import org.eclipse.ui.IEditorInput;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;

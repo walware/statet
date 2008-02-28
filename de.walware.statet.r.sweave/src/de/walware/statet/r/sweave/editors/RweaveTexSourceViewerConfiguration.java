@@ -45,8 +45,8 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import de.walware.eclipsecommons.ui.text.EcoReconciler;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;

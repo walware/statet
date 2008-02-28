@@ -19,13 +19,12 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.sweave.editors.RweaveTexDocumentSetupParticipant;
 import de.walware.statet.r.sweave.editors.RweaveTexSourceViewerConfigurator;
-
 
 
 /**

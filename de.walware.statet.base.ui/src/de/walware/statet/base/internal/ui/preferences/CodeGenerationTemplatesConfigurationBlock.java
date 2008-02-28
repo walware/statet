@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui.preferences;
@@ -63,11 +63,11 @@ import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 

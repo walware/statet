@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -72,10 +72,10 @@ import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IEditorInstallable;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.editors.TextViewerAction;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
 
 
 /**
@@ -196,7 +196,7 @@ public class EditTemplateDialog extends StatusDialog {
 			final StatusInfo status = new StatusInfo();
 			status.setError(Messages.EditTemplateDialog_error_NoName);
 			updateButtonsEnableState(status);
- 		}
+		}
 	}
 	
 	@Override
@@ -454,9 +454,9 @@ public class EditTemplateDialog extends StatusDialog {
 			if (!fSuppressError) {
 				status.setError(Messages.EditTemplateDialog_error_NoName);
 			}
- 		} else {
- 			status= fValidationStatus;
- 		}
+		} else {
+			status= fValidationStatus;
+		}
 		updateStatus(status);
 	}
 	

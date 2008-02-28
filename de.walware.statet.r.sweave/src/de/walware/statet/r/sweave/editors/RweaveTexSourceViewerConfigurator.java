@@ -14,7 +14,7 @@ package de.walware.statet.r.sweave.editors;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.sweave.text.RweaveTexBracketPairMatcher;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
@@ -45,5 +45,5 @@ public class RweaveTexSourceViewerConfigurator extends RSourceViewerConfigurator
 	public void setConfiguration(final StatextSourceViewerConfiguration config) {
 		super.setConfiguration(config);
 	}
-
+	
 }

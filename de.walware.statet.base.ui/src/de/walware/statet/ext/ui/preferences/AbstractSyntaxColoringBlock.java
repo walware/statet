@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -82,8 +82,8 @@ import de.walware.eclipsecommons.ui.util.ViewerUtil.Node;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.internal.ui.preferences.Messages;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
-import de.walware.statet.ext.ui.editors.SourceViewerUpdater;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxNode.UseStyle;
 
 

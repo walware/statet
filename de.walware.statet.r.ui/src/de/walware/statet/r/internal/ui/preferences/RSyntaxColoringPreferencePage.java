@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.preferences;
@@ -23,7 +23,7 @@ import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
 import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -35,18 +35,18 @@ import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 
 public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferencePage<AbstractSyntaxColoringBlock> {
-
-		
+	
+	
 	public RSyntaxColoringPreferencePage() {
-
+		
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());
 	}
-
+	
 	@Override
 	protected AbstractSyntaxColoringBlock createConfigurationBlock() {
-
+		
 		AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
-
+			
 			@Override
 			protected SyntaxNode[] createItems() {
 				List<StyleNode> identifierChilds = new ArrayList<StyleNode>(5);
@@ -161,7 +161,7 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 			protected String getPreviewFileName() {
 				return "RSyntaxColoringPreviewCode.txt"; //$NON-NLS-1$
 			}
-
+			
 			@Override
 			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
 					ColorManager colorManager, IPreferenceStore store) {
@@ -173,15 +173,14 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 			protected IDocumentSetupParticipant getDocumentSetupParticipant() {
 				return new RDocumentSetupParticipant();
 			}
-
+			
 			protected String addListToTooltip(String tooltip, RTerminal[] listItems) {
 				return addListToTooltip(tooltip, RTerminal.textArray(listItems));
 			}
 			
 		};
-
+		
 		return syntaxBlock;
 	}
-	
 	
 }

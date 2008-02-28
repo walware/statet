@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui.preferences;
@@ -52,12 +52,12 @@ import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
-import de.walware.statet.ext.ui.editors.ContentAssistPreference;
+import de.walware.statet.base.ui.sourceeditors.ContentAssistPreference;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 
 public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<EditorsConfigurationBlock> {
-
+	
 	
 	public EditorsPreferencePage() {
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
@@ -131,7 +131,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		fCodeAssistAutoSinglePref = ContentAssistPreference.AUTOINSERT_SINGLE;
 		fCodeAssistAutoCommonPref = ContentAssistPreference.AUTOINSERT_COMMON;
 		fCodeAssistDelayPref = ContentAssistPreference.AUTOACTIVATION_DELAY;
-
+		
 		List<Preference> prefs = new ArrayList<Preference>();
 		prefs.add(fMatchingBracketsPref);
 		for (AppearanceColorsItem color : colors) {
@@ -149,7 +149,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		group = createCodeAssistSection(pageComposite);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
+		
 		// Binding
 		fColorList.setInput(colors.toArray(new AppearanceColorsItem[colors.size()]));
 		fColorList.setSelection(new StructuredSelection(colors.get(0)));
@@ -167,7 +167,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		fMatchingBracketsControl = new Button(group, SWT.CHECK | SWT.LEFT);
 		fMatchingBracketsControl.setText(Messages.Editors_HighlightMatchingBrackets);
 		fMatchingBracketsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-
+		
 		LayoutUtil.addSmallFiller(group, false);
 		Composite colorComposite = new Composite(group, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
@@ -205,17 +205,17 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		Label label;
 		GridData gd;
-
+		
 		fCodeAssistAutoSingleControl = new Button(group, SWT.CHECK);
 		fCodeAssistAutoSingleControl.setText(Messages.Editors_CodeAssist_AutoInsertSingle);
 		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
 		fCodeAssistAutoSingleControl.setLayoutData(gd);
-
+		
 		fCodeAssistAutoCommonControl = new Button(group, SWT.CHECK);
 		fCodeAssistAutoCommonControl.setText(Messages.Editors_CodeAssist_AutoInsertCommon);
 		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1);
 		fCodeAssistAutoCommonControl.setLayoutData(gd);
-
+		
 		label = new Label(group, SWT.LEFT);
 		label.setText(Messages.Editors_CodeAssist_AutoTriggerDelay_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
@@ -251,5 +251,5 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 				createObservable(fCodeAssistDelayPref),
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(10, 2000, Messages.Editors_CodeAssist_AutoTriggerDelay_error_message)), null);
 	}
-
+	
 }

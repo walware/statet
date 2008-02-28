@@ -36,7 +36,7 @@ import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -17,14 +17,14 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 
 
 /**
  * @author Stephan Wahlbrink
  */
 public interface ICodeGenerationTemplatesCategory {
-
+	
 	public String getProjectNatureId();
 	
 	public TemplateStore getTemplateStore();

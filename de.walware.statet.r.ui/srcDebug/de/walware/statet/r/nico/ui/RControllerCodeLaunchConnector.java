@@ -21,7 +21,7 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.ui.NicoUI;

@@ -11,7 +11,7 @@
  *******************************************************************************/
 
 
-package de.walware.statet.ext.ui.editors;
+package de.walware.statet.base.ui.sourceeditors;
 
 
 import org.eclipse.jface.action.Action;

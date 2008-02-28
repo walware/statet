@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico.ui;
@@ -15,8 +15,8 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.PathCompletionProcessor;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.PathCompletionProcessor;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -26,10 +26,10 @@ import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
 
 public class RInputConfigurator extends RSourceViewerConfigurator {
-
+	
 	
 	private class RConsoleConfiguration extends RSourceViewerConfiguration {
-
+		
 		public RConsoleConfiguration() {
 			super((IEditorAdapter) fPage.getAdapter(IEditorAdapter.class),
 					RInputConfigurator.this,
@@ -47,12 +47,12 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 			
 			return contentAssistant;
 		}
-
+		
 	}
-
+	
 	
 	private NIConsolePage fPage;
-
+	
 	
 	RInputConfigurator(NIConsolePage page) {
 		super((RConsole) page.getConsole(), RUIPlugin.getDefault().getEditorPreferenceStore());

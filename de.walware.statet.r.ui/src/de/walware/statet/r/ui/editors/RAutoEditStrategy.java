@@ -45,8 +45,8 @@ import de.walware.eclipsecommons.ltk.text.StringParseInput;
 import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IEditorInstallable;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui;
@@ -20,19 +20,19 @@ import org.eclipse.swt.graphics.RGB;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
-import de.walware.statet.ext.ui.editors.ContentAssistPreference;
+import de.walware.statet.base.ui.sourceeditors.ContentAssistPreference;
 
 
 public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer {
-
-
+	
+	
 	@Override
 	public void initializeDefaultPreferences() {
-
+		
 		IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
 		initializeTextEditiongPreferences(store);
 	}
-
+	
 	
 	private static void initializeTextEditiongPreferences(IPreferenceStore store) {
 //		// set the default values from ExtendedTextEditor
@@ -42,7 +42,7 @@ public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer
 		store.setDefault(IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS, true);
 		PreferenceConverter.setDefault(store, IStatetUIPreferenceConstants.
 				EDITOR_MATCHING_BRACKETS_COLOR, new RGB(192, 192, 192));
-
+		
 		DefaultScope defaults = new DefaultScope();
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOACTIVATION, true);
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOACTIVATION_DELAY, 200);

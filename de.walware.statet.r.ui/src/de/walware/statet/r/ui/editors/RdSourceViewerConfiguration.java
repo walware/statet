@@ -31,8 +31,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
 import de.walware.statet.ext.ui.text.StatextTextScanner;

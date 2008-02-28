@@ -16,8 +16,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.editors.StatextEditor1;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 

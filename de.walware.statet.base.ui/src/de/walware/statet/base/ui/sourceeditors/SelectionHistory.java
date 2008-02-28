@@ -9,7 +9,7 @@
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.ext.ui.editors;
+package de.walware.statet.base.ui.sourceeditors;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -34,7 +34,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;

@@ -39,8 +39,8 @@ import de.walware.eclipsecommons.preferences.Preference.IntPref;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
 
 import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.ext.ui.editors.IFoldingStructureProvider;
-import de.walware.statet.ext.ui.editors.StatextEditor1;
+import de.walware.statet.base.ui.sourceeditors.IFoldingStructureProvider;
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.CForLoop;

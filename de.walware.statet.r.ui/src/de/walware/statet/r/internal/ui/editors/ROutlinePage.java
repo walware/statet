@@ -30,7 +30,7 @@ import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.ext.ui.editors.StatextOutlinePage;
+import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.RAstNode;

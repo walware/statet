@@ -37,11 +37,11 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.ext.ui.editors.EditorMessages;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.IFoldingStructureProvider;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.editors.StatextEditor1;
+import de.walware.statet.base.ui.sourceeditors.EditorMessages;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IFoldingStructureProvider;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
@@ -245,22 +245,4 @@ public class REditor extends StatextEditor1<RProject> {
 		return super.getAdapter(required);
 	}
 	
-	
-//	/**
-//	 * Creates the outline page used with this editor.
-//	 *
-//	 * @return the created R outline page
-//	 */
-//	@Override
-//	protected StatextOutlinePage<REditor> createOutlinePage() {
-//		final ROutlinePage page = new ROutlinePage(this);
-////		fOutlineSelectionChangedListener.install(page);
-//		return page;
-//	}
-//
-//	@Override
-//	protected void updateOutlinePageInput(final StatextOutlinePage page) {
-//		((ROutlinePage) page).setInput(fRUnit);
-//	}
-
 }

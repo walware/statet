@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -19,7 +19,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.statet.ext.ui.editors.PathCompletionProcessor;
+import de.walware.statet.base.ui.sourceeditors.PathCompletionProcessor;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.RUtil;
@@ -30,11 +30,11 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
  *
  */
 public class RPathCompletionProcessor extends PathCompletionProcessor {
-
+	
 	
 	private NIConsolePage fPage;
 	private ToolWorkspace fCurrentWorkspace;
-
+	
 	
 	/**
 	 * 

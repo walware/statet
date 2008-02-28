@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.editors;
@@ -25,7 +25,7 @@ import org.eclipse.ui.texteditor.IUpdate;
 import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.RIndentUtil;
@@ -36,9 +36,9 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
  * Add '## '-prefix to the current selection.
  */
 public class RDoubleCommentAction extends Action implements IUpdate {
-
+	
 	public static final String ACTION_ID = "de.walware.statet.r.actions.AddDoubleComment"; //$NON-NLS-1$
-
+	
 	
 	private IEditorAdapter fEditor;
 	private IRCoreAccess fCore;
@@ -117,4 +117,5 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 			}
 		}
 	}
+	
 }

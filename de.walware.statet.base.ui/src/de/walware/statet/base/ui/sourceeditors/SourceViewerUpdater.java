@@ -12,7 +12,7 @@
 
 // Org: org.eclipse.jdt.internal.ui.preferences.JavaSourcePreviewerUpdater
 
-package de.walware.statet.ext.ui.editors;
+package de.walware.statet.base.ui.sourceeditors;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
