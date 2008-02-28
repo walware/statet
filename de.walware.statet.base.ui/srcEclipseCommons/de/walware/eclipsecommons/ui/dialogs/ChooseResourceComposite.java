@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.dialogs;
@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.variables.IDynamicVariable;
@@ -66,7 +65,7 @@ import de.walware.eclipsecommons.ui.util.MessageUtil;
  * 
  * Configurable for files and directories, new or existing resources.
  * 
- * Note: Not yet all combinations are tested!
+ * XXX: Not yet all combinations are tested!
  */
 public class ChooseResourceComposite extends Composite {
 	
@@ -75,9 +74,9 @@ public class ChooseResourceComposite extends Composite {
 	
 	
 	private static class SearchResourceDialog extends FilteredResourcesSelectionDialog {
-
-		public SearchResourceDialog(Shell shell, boolean multi,
-				IContainer container, int typesMask) {
+		
+		public SearchResourceDialog(final Shell shell, final boolean multi,
+				final IContainer container, final int typesMask) {
 			super(shell, multi, container, typesMask);
 			setTitle(Messages.ResourceSelectionDialog_title);
 		}
@@ -114,8 +113,8 @@ public class ChooseResourceComposite extends Composite {
 	private boolean fShowInsertVariable;
 	
 	
-	public ChooseResourceComposite(Composite parent, int style,
-			int mode, String resourceLabel) {
+	public ChooseResourceComposite(final Composite parent, final int style,
+			final int mode, final String resourceLabel) {
 		super(parent, SWT.NONE);
 		
 		fValidator = new FileValidator();
@@ -128,14 +127,15 @@ public class ChooseResourceComposite extends Composite {
 		createContent();
 	}
 	
-	public void setHistory(String[] history) {
+	
+	public void setHistory(final String[] history) {
 		if (history != null && fAsCombo) {
 			fLocationComboField.setItems(history);
 		}
 	}
 	
-	public void setMode(int mode) {
-		Assert.isTrue((mode & (MODE_DIRECTORY | MODE_FILE)) != 0);
+	public void setMode(final int mode) {
+		assert ((mode & (MODE_DIRECTORY | MODE_FILE)) != 0);
 		if ((mode & MODE_DIRECTORY) == MODE_DIRECTORY) {
 			fForDirectory = true;
 			fValidator.setOnDirectory(IStatus.OK);
@@ -159,8 +159,8 @@ public class ChooseResourceComposite extends Composite {
 			fTools.resetMenu();
 		}
 	}
-
-	public void setResourceLabel(String label) {
+	
+	public void setResourceLabel(final String label) {
 		fResourceLabel = label;
 		if (fLabel != null) {
 			fLabel.setText(fResourceLabel + ':');
@@ -172,7 +172,7 @@ public class ChooseResourceComposite extends Composite {
 		return NLS.bind(Messages.ChooseResource_Task_description, fResourceLabel);
 	}
 	
-	public void showInsertVariable(boolean enable) {
+	public void showInsertVariable(final boolean enable) {
 		fShowInsertVariable = enable;
 		if (fTools != null) {
 			fTools.resetMenu();
@@ -189,7 +189,7 @@ public class ChooseResourceComposite extends Composite {
 		}
 	}
 	
-	protected void setText(String s, boolean validate) {
+	protected void setText(final String s, final boolean validate) {
 		if (!validate) {
 			fControlledChange = true;
 		}
@@ -204,7 +204,7 @@ public class ChooseResourceComposite extends Composite {
 		}
 	}
 	
-	protected void insertText(String s) {
+	protected void insertText(final String s) {
 		if (fAsCombo) {
 			//
 		}
@@ -212,7 +212,7 @@ public class ChooseResourceComposite extends Composite {
 			fLocationTextField.insert(s);
 		}
 	}
-
+	
 	protected String getText() {
 		if (fAsCombo) {
 			return fLocationComboField.getText();
@@ -224,10 +224,10 @@ public class ChooseResourceComposite extends Composite {
 	
 	private void createContent() {
 		Composite content;
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		if ((fStyle & STYLE_GROUP) == STYLE_GROUP) {
 			this.setLayout(new FillLayout());
-			Group group = new Group(this, SWT.NONE);
+			final Group group = new Group(this, SWT.NONE);
 			group.setText(fResourceLabel + ':');
 			content = group;
 			LayoutUtil.applyGroupDefaults(layout, 2);
@@ -238,23 +238,23 @@ public class ChooseResourceComposite extends Composite {
 		}
 		layout.horizontalSpacing = 0;
 		content.setLayout(layout);
-
+		
 		if ((fStyle & STYLE_LABEL) != 0) {
 			fLabel = new Label(content, SWT.LEFT);
 			fLabel.setText(fResourceLabel + ':');
 			fLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
 		}
-
+		
 		if (fAsCombo) {
 			fLocationComboField = new Combo(content, SWT.DROP_DOWN);
 		}
 		else {
 			fLocationTextField = new Text(content, SWT.BORDER | SWT.SINGLE);
 		}
-		Control inputField = getTextControl();
+		final Control inputField = getTextControl();
 		inputField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(final ModifyEvent e) {
 				if (!fControlledChange) {
 					fValidator.setExplicit(getText());
 				}
@@ -263,65 +263,65 @@ public class ChooseResourceComposite extends Composite {
 		
 		fTools = new WidgetToolsButton(inputField) {
 			@Override
-			protected void fillMenu(Menu menu) {
+			protected void fillMenu(final Menu menu) {
 				ChooseResourceComposite.this.fillMenu(menu);
 			}
 		};
 		fTools.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
 	}
 	
-	protected void fillMenu(Menu menu) {
-		boolean both = (fForFile && fForDirectory);
+	protected void fillMenu(final Menu menu) {
+		final boolean both = (fForFile && fForDirectory);
 		{
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(Messages.SearchWorkspace_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					handleSearchWorkspaceButton();
 					getTextControl().setFocus();
 				}
 			});
 		}
 		if (fForFile) {
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(both ? Messages.BrowseWorkspace_ForFile_label : Messages.BrowseWorkspace_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					handleBrowseWorkspaceButton(MODE_FILE);
 					getTextControl().setFocus();
 				}
 			});
 		}
 		if (fForDirectory) {
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(both ? Messages.BrowseWorkspace_ForDir_label : Messages.BrowseWorkspace_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					handleBrowseWorkspaceButton(MODE_DIRECTORY);
 					getTextControl().setFocus();
 				}
 			});
 		}	
 		if (fForFile) {
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(both ? Messages.BrowseFilesystem_ForFile_label : Messages.BrowseFilesystem_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					handleBrowseFilesystemButton(MODE_FILE);
 					getTextControl().setFocus();
 				}
 			});
 		}
 		if (fForDirectory) {
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(both ? Messages.BrowseFilesystem_ForDir_label : Messages.BrowseFilesystem_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					handleBrowseFilesystemButton(MODE_DIRECTORY);
 					getTextControl().setFocus();
 				}
@@ -333,17 +333,17 @@ public class ChooseResourceComposite extends Composite {
 		}
 		
 		if (fShowInsertVariable) {
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(Messages.InsertVariable_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					handleVariablesButton();
 					getTextControl().setFocus();
 				}
 			});
 		}
-
+		
 	}
 	
 	protected void handleSearchWorkspaceButton() {
@@ -354,16 +354,16 @@ public class ChooseResourceComposite extends Composite {
 		if (fForDirectory ) {
 			resourceMode |= IResource.FOLDER;
 		}
-		IWorkspaceRoot container = ResourcesPlugin.getWorkspace().getRoot();
-		SearchResourceDialog dialog = new SearchResourceDialog(getShell(), false, container, resourceMode);
+		final IWorkspaceRoot container = ResourcesPlugin.getWorkspace().getRoot();
+		final SearchResourceDialog dialog = new SearchResourceDialog(getShell(), false, container, resourceMode);
 		String initial = ""; //$NON-NLS-1$
-		IFileStore store = fValidator.getFileStore();
+		final IFileStore store = fValidator.getFileStore();
 		if (store != null) {
 			initial = store.getName();
 		}
 		else {
-			String current = getText();
-			int idx = current.lastIndexOf('/');
+			final String current = getText();
+			final int idx = current.lastIndexOf('/');
 			if (idx >= 0) {
 				initial = current.substring(idx+1);
 			}
@@ -373,7 +373,7 @@ public class ChooseResourceComposite extends Composite {
 		}
 		dialog.setInitialPattern(initial);
 		dialog.open();
-		Object[] results = dialog.getResult();
+		final Object[] results = dialog.getResult();
 		if (results == null || results.length < 1) {
 			return;
 		}
@@ -381,13 +381,13 @@ public class ChooseResourceComposite extends Composite {
 		if (!fForFile && resource.getType() == IResource.FILE) {
 			resource = resource.getParent();
 		}
-		String wsPath = resource.getFullPath().toString();
-
+		final String wsPath = resource.getFullPath().toString();
+		
 		fValidator.setExplicit(resource);
-		setText(newVariableExpression(VAR_WORKSPACE_LOC, wsPath), false); //$NON-NLS-1$
+		setText(newVariableExpression(VAR_WORKSPACE_LOC, wsPath), false); 
 	}
 	
-	protected void handleBrowseWorkspaceButton(int mode) {
+	protected void handleBrowseWorkspaceButton(final int mode) {
 		IResource res = fValidator.getWorkspaceResource();
 		if (res == null) {
 			res = ResourcesPlugin.getWorkspace().getRoot();
@@ -398,7 +398,7 @@ public class ChooseResourceComposite extends Composite {
 		String appendPath;
 		IResource resource = null;
 		if (mode == MODE_DIRECTORY) { 
-			ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), 
+			final ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), 
 					(IContainer) res, (fValidator.getOnNotExisting() != IStatus.ERROR), getTaskLabel());
 			dialog.open();
 			results = dialog.getResult();
@@ -410,7 +410,7 @@ public class ChooseResourceComposite extends Composite {
 			appendPath = ""; //$NON-NLS-1$
 		}
 		else {
-			ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), getTaskLabel());
+			final ResourceSelectionDialog dialog = new ResourceSelectionDialog(getShell(), getTaskLabel());
 			dialog.setInitialSelections(new IResource[] { res });
 			dialog.setAllowNewResources(fValidator.getOnNotExisting() != IStatus.ERROR);
 			dialog.open();
@@ -420,7 +420,7 @@ public class ChooseResourceComposite extends Composite {
 			}
 			resource = (IFile) results[0];
 			res = resource.getParent();
-			StringBuilder path = new StringBuilder('/'+resource.getName());
+			final StringBuilder path = new StringBuilder('/'+resource.getName());
 			while (!res.exists()) {
 				res = res.getParent();
 				path.insert(0, '/'+res.getName());
@@ -430,26 +430,26 @@ public class ChooseResourceComposite extends Composite {
 		}
 		
 		fValidator.setExplicit(resource);
-		setText(newVariableExpression(VAR_WORKSPACE_LOC, wsPath) + appendPath, false); //$NON-NLS-1$
+		setText(newVariableExpression(VAR_WORKSPACE_LOC, wsPath) + appendPath, false); 
 	}
-
-	protected void handleBrowseFilesystemButton(int mode) {
+	
+	protected void handleBrowseFilesystemButton(final int mode) {
 		String path = null;
 		try {
 			if (fValidator.isLocalFile()) {
 				path = URIUtil.toPath(fValidator.getFileStore().toURI()).toOSString();
 			}
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 		}
 		if (mode == MODE_DIRECTORY) {
-			DirectoryDialog dialog = new DirectoryDialog(getShell());
+			final DirectoryDialog dialog = new DirectoryDialog(getShell());
 			dialog.setText(MessageUtil.removeMnemonics(getTaskLabel()));
 			dialog.setFilterPath(path);
 			path = dialog.open();
 		}
 		else {
-			FileDialog dialog = new FileDialog(getShell(), (fDoOpen) ? SWT.OPEN: SWT.SAVE);
+			final FileDialog dialog = new FileDialog(getShell(), (fDoOpen) ? SWT.OPEN: SWT.SAVE);
 			dialog.setText(MessageUtil.removeMnemonics(getTaskLabel()));
 			dialog.setFilterPath(path);
 			path = dialog.open();
@@ -462,14 +462,14 @@ public class ChooseResourceComposite extends Composite {
 	}
 	
 	protected void handleVariablesButton() {
-		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell()) {
+		final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell()) {
 			@Override
-			public void setElements(Object[] elements) {
+			public void setElements(final Object[] elements) {
 				
-				IStringVariable[] orginals = (IStringVariable[]) elements;
-				List<IStringVariable> filteredList = new ArrayList<IStringVariable>(elements.length);
+				final IStringVariable[] orginals = (IStringVariable[]) elements;
+				final List<IStringVariable> filteredList = new ArrayList<IStringVariable>(elements.length);
 				
-				for (IStringVariable variable : orginals) {
+				for (final IStringVariable variable : orginals) {
 					if (variable instanceof IDynamicVariable) {
 						if (excludeVariable(variable.getName())) {
 							continue;
@@ -484,20 +484,20 @@ public class ChooseResourceComposite extends Composite {
 		if (dialog.open() != Dialog.OK) {
 			return;
 		}
-		String variable = dialog.getVariableExpression();
+		final String variable = dialog.getVariableExpression();
 		if (variable == null) {
 			return;
 		}
 		insertText(variable);
 	}
 	
-
+	
 	public String getResourceString() {
 		return getText();
 	}
 	
 	
-	public void addModifyListener(ModifyListener listener) {
+	public void addModifyListener(final ModifyListener listener) {
 		if (fAsCombo) {
 			fLocationComboField.addModifyListener(listener);
 		}
@@ -525,34 +525,34 @@ public class ChooseResourceComposite extends Composite {
 			return SWTObservables.observeText(fLocationTextField, SWT.Modify);
 		}
 	}
-
+	
 	public FileValidator getValidator() {
 		return fValidator;
 	}
-
+	
 	/**
 	 * Returns a new variable expression with the given variable and the given
 	 * argument.
 	 * 
 	 * @see IStringVariableManager#generateVariableExpression(String, String)
 	 */
-	protected String newVariableExpression(String varName, String arg) {
+	protected String newVariableExpression(final String varName, final String arg) {
 		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(varName, arg);
 	}
-
-	protected boolean excludeVariable(String variableName) {
+	
+	protected boolean excludeVariable(final String variableName) {
 		return excludeJavaVariable(variableName);
 	}
 	
-	protected boolean excludeInteractiveVariable(String variableName) {
+	protected boolean excludeInteractiveVariable(final String variableName) {
 		return (variableName.startsWith("selected_") || variableName.endsWith("_prompt")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	protected boolean excludeJavaVariable(String variableName) {
+	protected boolean excludeJavaVariable(final String variableName) {
 		return (variableName.startsWith("java_") || variableName.startsWith("target_home")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	protected boolean excludeBuildVariable(String variableName) {
+	protected boolean excludeBuildVariable(final String variableName) {
 		return (variableName.startsWith("build_")); //$NON-NLS-1$
 	}
 	

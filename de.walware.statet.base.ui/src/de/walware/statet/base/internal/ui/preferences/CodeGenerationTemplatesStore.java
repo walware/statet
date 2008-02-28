@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000-2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation in JDT
  *     Stephan Wahlbrink - adaptations to StatET
@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
@@ -39,13 +38,12 @@ public final class CodeGenerationTemplatesStore {
 	
 	
 	public static final String KEY = "de.walware.statet.base.ui.text.custom_code_templates"; //$NON-NLS-1$
-
+	
 	private final TemplateStore[] fInstanceStores;
 	private final TemplateStore fProjectStore;
-
 	
-	public CodeGenerationTemplatesStore(IProject project, TemplateStore[] pluginStores) {
-		
+	
+	public CodeGenerationTemplatesStore(final IProject project, final TemplateStore[] pluginStores) {
 		fInstanceStores = pluginStores;
 		
 		if (project == null) {
@@ -57,15 +55,17 @@ public final class CodeGenerationTemplatesStore {
 				 * Make sure we keep the id of added code templates - add removes
 				 * it in the usual add() method
 				 */
-				public void add(TemplatePersistenceData data) {
+				@Override
+				public void add(final TemplatePersistenceData data) {
 					
 					internalAdd(data);
 				}
 				
+				@Override
 				public void save() throws IOException {
 					
-					StringWriter output = new StringWriter();
-					TemplateReaderWriter writer = new TemplateReaderWriter();
+					final StringWriter output = new StringWriter();
+					final TemplateReaderWriter writer = new TemplateReaderWriter();
 					writer.save(getTemplateData(false), output);
 					
 					projectSettings.setValue(KEY, output.toString());
@@ -74,18 +74,18 @@ public final class CodeGenerationTemplatesStore {
 		}
 	}
 	
+	
 	public TemplatePersistenceData[] getAllTemplateData() {
-		
 		if (fProjectStore != null) {
 			return fProjectStore.getTemplateData(true);
 		} else {
 			int length = 0;
-			TemplatePersistenceData[][] datas = new TemplatePersistenceData[fInstanceStores.length][];
+			final TemplatePersistenceData[][] datas = new TemplatePersistenceData[fInstanceStores.length][];
 			for (int i = 0; i < fInstanceStores.length; i++) {
 				datas[i] = fInstanceStores[i].getTemplateData(true);
 				length += datas[i].length;
 			}
-			TemplatePersistenceData[] allData = new TemplatePersistenceData[length];
+			final TemplatePersistenceData[] allData = new TemplatePersistenceData[length];
 			
 			for (int i = 0, k = 0; i < datas.length; k += datas[i].length, i++)
 				System.arraycopy(datas[i], 0, allData, 0, datas[i].length);
@@ -93,12 +93,11 @@ public final class CodeGenerationTemplatesStore {
 			return allData;
 		}
 	}
-
-	public TemplatePersistenceData[] getTemplateData(int categoryIndex) {
-		
+	
+	public TemplatePersistenceData[] getTemplateData(final int categoryIndex) {
 		if (fProjectStore != null) {
-			TemplatePersistenceData[] data = fInstanceStores[categoryIndex].getTemplateData(true);
-			TemplatePersistenceData[] allProjectData = fProjectStore.getTemplateData(true);
+			final TemplatePersistenceData[] data = fInstanceStores[categoryIndex].getTemplateData(true);
+			final TemplatePersistenceData[] allProjectData = fProjectStore.getTemplateData(true);
 			
 			for (int i = 0; i < data.length; i++) {
 				SEARCH_IN_PROJECT: for (int j = 0; j < allProjectData.length; j++) {
@@ -114,8 +113,7 @@ public final class CodeGenerationTemplatesStore {
 		}
 	}
 	
-	public Template findTemplateById(String id) {
-		
+	public Template findTemplateById(final String id) {
 		Template template = null;
 		if (fProjectStore != null) {
 			template = fProjectStore.findTemplateById(id);
@@ -126,8 +124,7 @@ public final class CodeGenerationTemplatesStore {
 		return template;
 	}
 	
-	public TemplatePersistenceData getTemplateData(String id) {
-		
+	public TemplatePersistenceData getTemplateData(final String id) {
 		TemplatePersistenceData data = null;
 		if (fProjectStore != null) {
 			data = fProjectStore.getTemplateData(id);
@@ -138,8 +135,7 @@ public final class CodeGenerationTemplatesStore {
 		return data;
 	}
 	
-	public TemplatePersistenceData getTemplateData(int categoryIndex, String id) {
-		
+	public TemplatePersistenceData getTemplateData(final int categoryIndex, final String id) {
 		TemplatePersistenceData data = null;
 		if (fProjectStore != null) {
 			data = fProjectStore.getTemplateData(id);
@@ -149,13 +145,12 @@ public final class CodeGenerationTemplatesStore {
 		}
 		return data;
 	}
-
+	
 	public void load() throws IOException {
-		
 		if (fProjectStore != null) {
 			fProjectStore.load();
 			
-			Set<String> collectedDatas = new HashSet<String>();
+			final Set<String> collectedDatas = new HashSet<String>();
 			TemplatePersistenceData[] datas = fProjectStore.getTemplateData(false);
 			for (int i= 0; i < datas.length; i++) {
 				collectedDatas.add(datas[i].getId());
@@ -165,9 +160,9 @@ public final class CodeGenerationTemplatesStore {
 				datas = fInstanceStores[i].getTemplateData(false);
 				
 				for (int j = 0; j < datas.length; j++) {
-					TemplatePersistenceData orig = datas[j];
+					final TemplatePersistenceData orig = datas[j];
 					if (!collectedDatas.contains(orig.getId())) {
-						TemplatePersistenceData copy = new TemplatePersistenceData(new Template(orig.getTemplate()), orig.isEnabled(), orig.getId());
+						final TemplatePersistenceData copy = new TemplatePersistenceData(new Template(orig.getTemplate()), orig.isEnabled(), orig.getId());
 						fProjectStore.add(copy);
 						copy.setDeleted(true);
 					}
@@ -176,8 +171,7 @@ public final class CodeGenerationTemplatesStore {
 		}
 	}
 	
-	public boolean isProjectSpecific(String id) {
-		
+	public boolean isProjectSpecific(final String id) {
 		if (id == null) {
 			return false;
 		}
@@ -188,20 +182,18 @@ public final class CodeGenerationTemplatesStore {
 		return fProjectStore.findTemplateById(id) != null;
 	}
 	
-	public void setProjectSpecific(String id, boolean projectSpecific) {
+	public void setProjectSpecific(final String id, final boolean projectSpecific) {
+		assert (fProjectStore != null);
 		
-		Assert.isNotNull(fProjectStore);
-		
-		TemplatePersistenceData data = fProjectStore.getTemplateData(id);
+		final TemplatePersistenceData data = fProjectStore.getTemplateData(id);
 		if (data == null) {
 			return; // does not exist
 		} else {
 			data.setDeleted(!projectSpecific);
 		}
 	}
-
+	
 	public void restoreDefaults() {
-		
 		if (fProjectStore == null) {
 			for (int i = 0; i < fInstanceStores.length; i++)
 				fInstanceStores[i].restoreDefaults();
@@ -211,7 +203,6 @@ public final class CodeGenerationTemplatesStore {
 	}
 	
 	public void save() throws IOException {
-		
 		if (fProjectStore == null) {
 			for (int i = 0; i < fInstanceStores.length; i++)
 				fInstanceStores[i].save();
@@ -221,7 +212,6 @@ public final class CodeGenerationTemplatesStore {
 	}
 	
 	public void revertChanges() throws IOException {
-		
 		if (fProjectStore != null) {
 			// nothing to do
 		} else {
@@ -231,17 +221,16 @@ public final class CodeGenerationTemplatesStore {
 	}
 	
 	
-	public static boolean hasProjectSpecificTempates(IProject project) {
-		
-		String pref = new ProjectScope(project).getNode(StatetUIPlugin.PLUGIN_ID).get(KEY, null);
+	public static boolean hasProjectSpecificTempates(final IProject project) {
+		final String pref = new ProjectScope(project).getNode(StatetUIPlugin.PLUGIN_ID).get(KEY, null);
 		if (pref != null && pref.trim().length() > 0) {
-			Reader input = new StringReader(pref);
-			TemplateReaderWriter reader= new TemplateReaderWriter();
+			final Reader input = new StringReader(pref);
+			final TemplateReaderWriter reader= new TemplateReaderWriter();
 			TemplatePersistenceData[] datas;
 			try {
 				datas= reader.read(input);
 				return datas.length > 0;
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				// ignore
 			}
 		}

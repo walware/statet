@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.preferences;
@@ -26,7 +26,8 @@ public abstract class AbstractPreferencesModelObject extends AbstractSettingsMod
 	
 	protected AbstractPreferencesModelObject() {
 	}
-
+	
+	
 	/**
 	 * Returns the qualifier of all nodes, this model have preferences from.
 	 * @return
@@ -50,7 +51,7 @@ public abstract class AbstractPreferencesModelObject extends AbstractSettingsMod
 	 * @return the same map.
 	 */
 	public abstract Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map);
-
+	
 	/**
 	 * Return map with all preferences (definition and settings)
 	 * 

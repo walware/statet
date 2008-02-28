@@ -40,7 +40,7 @@ import de.walware.statet.r.internal.core.Messages;
 
 
 /**
- *
+ * 
  */
 public class REnvConfiguration extends AbstractPreferencesModelObject {
 	

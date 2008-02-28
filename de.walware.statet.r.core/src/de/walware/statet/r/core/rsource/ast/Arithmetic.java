@@ -25,9 +25,11 @@ public abstract class Arithmetic extends FlatMulti {
 	
 	static class Add extends Arithmetic {
 		
+		
 		public Add(final RTerminal firstOperator) {
 			super(firstOperator);
 		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -43,9 +45,11 @@ public abstract class Arithmetic extends FlatMulti {
 	
 	static class Mult extends Arithmetic {
 		
+		
 		public Mult(final RTerminal firstOperator) {
 			super(firstOperator);
 		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {

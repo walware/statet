@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui;
@@ -23,7 +23,7 @@ import de.walware.statet.nico.ui.IToolRunnableAdapter;
  * Factory for IToolRunnableAdapter for {@link ToolController.SimpleRunnable }.
  */
 public class CommandRunnableAdapterFactory implements IAdapterFactory {
-
+	
 	
 	private static final Class[] ADAPTERS = new Class[] { IToolRunnableAdapter.class };
 	
@@ -34,26 +34,24 @@ public class CommandRunnableAdapterFactory implements IAdapterFactory {
 		}
 		
 		public ImageDescriptor getImageDescriptor() {
-			
 			return StatetImages.getDescriptor(StatetImages.OBJ_COMMAND);
 		}
+		
 	}
 	
 	
 	private Adapter fAdapter = new Adapter(); // adapter can be reused
-
 	
-	public Object getAdapter(Object adaptableObject, Class adapterType) {
-		
+	
+	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
 		if (IToolRunnableAdapter.class.equals(adapterType)) {
 			return fAdapter;
 		}
 		return null;
 	}
-
+	
 	public Class[] getAdapterList() {
-		
 		return ADAPTERS;
 	}
-
+	
 }

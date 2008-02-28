@@ -119,6 +119,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		IAdaptable, IShowInSource, IShowInTargetList,
 		IPropertyChangeListener, ScrollLockAction.Receiver, IToolProvider, ChangeListener {
 	
+	
 	private static final String DIALOG_ID = "Console"; //$NON-NLS-1$
 	private static final String SETTING_INPUTHEIGHT = "InputHeight"; //$NON-NLS-1$
 	
@@ -137,7 +138,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				wasEmpty = isEmpty;
 			}
 		}
+		
 	}
+	
 	private class PostUpdater implements IDocumentListener, Runnable {
 		
 		private volatile boolean fIsSheduled = false;
@@ -158,9 +161,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			fIsSheduled = false;
 			fMultiActionHandler.updateEnabledState();
 		}
+		
 	}
 	
 	private class SizeControl implements Listener {
+		
 		private final Sash fSash;
 		private final GridData fOutputGD;
 		private final GridData fInputGD;
@@ -230,6 +235,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				fInputGD.heightHint = -1;
 			}
 		}
+		
 	}
 	
 	

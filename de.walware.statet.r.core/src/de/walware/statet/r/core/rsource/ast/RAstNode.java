@@ -114,6 +114,38 @@ public abstract class RAstNode implements IAstNode {
 		return -1;
 	}
 	
+	
+	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	public abstract void acceptInR(RAstVisitor visitor) throws InvocationTargetException;
+	public abstract void acceptInRChildren(RAstVisitor visitor) throws InvocationTargetException;
+	
+	protected final void acceptChildren(final RAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
+		for (final RAstNode child : children) {
+			child.acceptInR(visitor);
+		}
+	}
+	
+	protected final void acceptChildren(final ICommonAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
+		for (final RAstNode child : children) {
+			child.accept(visitor);
+		}
+	}
+	
+	protected final void acceptChildrenExpr(final RAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
+		for (final Expression expr : children) {
+			expr.node.acceptInR(visitor);
+		}
+	}
+	
+	protected final void acceptChildrenExpr(final ICommonAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
+		for (final Expression expr : children) {
+			expr.node.accept(visitor);
+		}
+	}
+	
+	
 	abstract Expression getExpr(RAstNode child);
 	abstract Expression getLeftExpr();
 	abstract Expression getRightExpr();
@@ -145,6 +177,7 @@ public abstract class RAstNode implements IAstNode {
 	}
 	
 	public abstract boolean equalsSingle(RAstNode element);
+	
 	
 	void appendPathElement(final StringBuilder s) {
 //		if (fParent != null) {
@@ -187,35 +220,6 @@ public abstract class RAstNode implements IAstNode {
 		return s.toString();
 	}
 	
-	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(this);
-	}
-	public abstract void acceptInR(RAstVisitor visitor) throws InvocationTargetException;
-	public abstract void acceptInRChildren(RAstVisitor visitor) throws InvocationTargetException;
-	
-	protected final void acceptChildren(final RAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
-		for (final RAstNode child : children) {
-			child.acceptInR(visitor);
-		}
-	}
-	
-	protected final void acceptChildren(final ICommonAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
-		for (final RAstNode child : children) {
-			child.accept(visitor);
-		}
-	}
-	
-	protected final void acceptChildrenExpr(final RAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
-		for (final Expression expr : children) {
-			expr.node.acceptInR(visitor);
-		}
-	}
-	
-	protected final void acceptChildrenExpr(final ICommonAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
-		for (final Expression expr : children) {
-			expr.node.accept(visitor);
-		}
-	}
 	
 	abstract void updateStopOffset();
 	

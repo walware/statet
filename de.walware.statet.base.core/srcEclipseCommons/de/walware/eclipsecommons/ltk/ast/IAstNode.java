@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.ast;
@@ -15,9 +15,10 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- *
+ * 
  */
 public interface IAstNode {
+	
 	
 	public int getStartOffset();
 	public int getStopOffset();

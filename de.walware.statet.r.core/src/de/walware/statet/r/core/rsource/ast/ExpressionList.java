@@ -31,6 +31,10 @@ public abstract class ExpressionList extends RAstNode {
 	List<RSourceToken> fSeparators;
 	
 	
+	ExpressionList() {
+	}
+	
+	
 	@Override
 	public final boolean hasChildren() {
 		return (fExpressions.size() > 0);

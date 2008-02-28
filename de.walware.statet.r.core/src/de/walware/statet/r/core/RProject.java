@@ -126,12 +126,15 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	}
 	
 /* **/
+	
 	private RCodeStyleSettings fRCodeStyle;
 	private PreferencesManageListener fPreferenceListener;
+	
 	
 	public RProject() {
 		super();
 	}
+	
 	
 	@Override
 	public void setProject(final IProject project) {

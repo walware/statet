@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.internal.fileutil;
@@ -29,14 +29,14 @@ import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
 
 
 /**
- *
+ * 
  */
 public class WorkspaceUtilImpl extends FileUtilProvider {
-
+	
 	private static InputStream EMPTY_INPUT = new ByteArrayInputStream(new byte[0]);
-
+	
 	@Override
-	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
+	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, final Object file) {
 		final IFile wsFile = (IFile) file;
 		return new ReadTextFileOperation() {
 			@Override
@@ -44,9 +44,9 @@ public class WorkspaceUtilImpl extends FileUtilProvider {
 				return WorkspaceUtilImpl.this.getFileLabel0(wsFile);
 			}
 			@Override
-			protected FileInput getInput(IProgressMonitor monitor) throws CoreException, IOException {
+			protected FileInput getInput(final IProgressMonitor monitor) throws CoreException, IOException {
 				try {
-					InputStream raw = wsFile.getContents(true);
+					final InputStream raw = wsFile.getContents(true);
 					return new FileInput(raw, wsFile.getCharset(false));
 				}
 				finally {
@@ -57,30 +57,30 @@ public class WorkspaceUtilImpl extends FileUtilProvider {
 			protected ReaderAction getAction() {
 				return action;
 			}
-	
+			
 			@Override
-			public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+			public void doOperation(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 				runAsWorkspaceRunnable(monitor, wsFile);
 			}
 		};
 	}
-
+	
 	@Override
-	public WriteTextFileOperation createWriteTextFileOp(final String content, Object file) {
+	public WriteTextFileOperation createWriteTextFileOp(final String content, final Object file) {
 		final IFile wsFile = (IFile) file;
 		return new WriteTextFileOperation() {
 			@Override
 			protected String getFileLabel() {
 				return WorkspaceUtilImpl.this.getFileLabel0(wsFile);
 			}
-	
+			
 			@Override
-			public void doOperation(IProgressMonitor monitor) throws CoreException, OperationCanceledException {
+			public void doOperation(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 				runAsWorkspaceRunnable(monitor, wsFile);
 			}
 			@Override
-			protected void writeImpl(IProgressMonitor monitor) throws CoreException, UnsupportedEncodingException {
-				boolean exists = wsFile.exists();
+			protected void writeImpl(final IProgressMonitor monitor) throws CoreException, UnsupportedEncodingException {
+				final boolean exists = wsFile.exists();
 				if (exists && ((fMode & EFS.APPEND) != 0)) {
 					if (fForceCharset) {
 						wsFile.setCharset(fCharset, new SubProgressMonitor(monitor, 20));
@@ -113,17 +113,17 @@ public class WorkspaceUtilImpl extends FileUtilProvider {
 			}
 		};
 	}
-
+	
 	@Override
-	public long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
+	public long getTimeStamp(final Object file, final IProgressMonitor monitor) throws CoreException {
 		final IFile wsFile = (IFile) file;
 		final long stamp = wsFile.getLocalTimeStamp();
 		monitor.done();
 		return stamp;
 	}
 	
-	private String getFileLabel0(IFile ifile) {
+	private String getFileLabel0(final IFile ifile) {
 		return "'"+ifile.getFullPath().makeRelative().toString()+"' (workspace)";
 	}
-
+	
 }

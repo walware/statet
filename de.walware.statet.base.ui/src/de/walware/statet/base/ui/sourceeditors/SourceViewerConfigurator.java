@@ -28,7 +28,7 @@ import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 
 
 /**
- *
+ * 
  */
 public abstract class SourceViewerConfigurator implements ISettingsChangedHandler {
 	

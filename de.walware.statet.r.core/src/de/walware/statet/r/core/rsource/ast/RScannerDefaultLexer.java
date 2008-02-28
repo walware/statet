@@ -20,7 +20,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * 
  */
 public final class RScannerDefaultLexer extends RScannerLexer {
 	

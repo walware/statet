@@ -18,13 +18,17 @@ import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**
- *
+ * 
  */
 abstract class StdBinary extends RAstNode {
 	
 	
 	final Expression fLeftExpr = new Expression();
 	final Expression fRightExpr = new Expression();
+	
+	
+	StdBinary() {
+	}
 	
 	
 	@Override
@@ -105,6 +109,7 @@ abstract class StdBinary extends RAstNode {
 	final Expression getRightExpr() {
 		return fRightExpr;
 	}
+	
 	
 	final void updateStartOffset() {
 		fStartOffset = fLeftExpr.node.fStartOffset;

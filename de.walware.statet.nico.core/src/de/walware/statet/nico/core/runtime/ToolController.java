@@ -40,7 +40,7 @@ import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
  * Controller for a long running tight integrated tool.
  * <p>
  * Usage: This class is intend to be subclass. Subclasses are responsible for the
- * lifecicle of the tool (<code>startTool()</code>, <code>terminateTool()</code>.
+ * life cycle of the tool (<code>startTool()</code>, <code>terminateTool()</code>.
  * Subclasses should provide an interface which can be used by IToolRunnables
  * to access the features of the tool. E.g. provide an abstract implementation of
  * IToolRunnable with the necessary methods (in protected scope).</p>
@@ -153,7 +153,6 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 				throws InterruptedException, CoreException {
 		}
 	};
-	
 	
 	
 	public static final String START_TYPE_ID = "common/start"; //$NON-NLS-1$
@@ -626,7 +625,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * The runnable should commit this commands to the tool
 	 * and print command and results to the console.
 	 * Default implementations creates a {@link ConsoleCommandRunnable}.
-	 *
+	 * 
 	 * @param command text command
 	 * @param type type of this submission
 	 * @return runnable for this command

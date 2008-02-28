@@ -177,9 +177,10 @@ public class EditTemplateDialog extends StatusDialog {
 		
 	}
 	
+	
 	/**
 	 * Returns the created template.
-	 *
+	 * 
 	 * @return the created template
 	 * @since 3.1
 	 */
@@ -370,7 +371,7 @@ public class EditTemplateDialog extends StatusDialog {
 	
 	/**
 	 * Creates the viewer to be used to display the pattern. Subclasses may override.
-	 *
+	 * 
 	 * @param parent the parent composite of the viewer
 	 * @return a configured <code>SourceViewer</code>
 	 */

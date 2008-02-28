@@ -17,11 +17,13 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
 /**
- *
+ * 
  */
 public interface IManagableRUnit extends IRSourceUnit {
 	
+	
 	public Object getModelLockObject();
+	
 	public void setRAst(AstInfo ast);
 	public AstInfo<RAstNode> getCurrentRAst();
 	

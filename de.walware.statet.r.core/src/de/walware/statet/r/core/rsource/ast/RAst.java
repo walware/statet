@@ -28,7 +28,7 @@ import de.walware.statet.r.core.RCore;
 
 
 /**
- *
+ * 
  */
 public class RAst {
 	
@@ -202,6 +202,7 @@ public class RAst {
 	}
 	
 	public static class AssignExpr {
+		
 		public static final Object GLOBAL = new Object();
 		public static final Object LOCAL = new Object();
 		
@@ -216,6 +217,7 @@ public class RAst {
 			this.targetNode = target;
 			this.valueNode = source;
 		}
+		
 	}
 	
 	private static final String F_ASSIGN_NAME = "assign";

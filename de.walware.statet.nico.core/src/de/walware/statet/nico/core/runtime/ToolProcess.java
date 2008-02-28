@@ -88,6 +88,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE | 0x1;
 	public static final int REQUEST_TERMINATE_CANCELED = MASK_REQUEST | TERMINATE | 0x2;
 	
+	
 	public static ToolStatus getChangedToolStatus(final DebugEvent event) {
 		switch (event.getKind()) {
 		case DebugEvent.CREATE:

@@ -43,7 +43,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- *
+ * 
  */
 public class RModelManager implements IModelManager {
 	
@@ -204,6 +204,7 @@ public class RModelManager implements IModelManager {
 			}
 		}
 	}
+	
 	
 	private class SafeRunnable implements ISafeRunnable {
 		

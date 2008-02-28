@@ -15,12 +15,16 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- *
+ * 
  */
 public class Symbol extends SingleValue {
 	
 	
 	static class G extends Symbol {
+		
+		
+		G() {
+		}
 		
 	}
 	
@@ -29,6 +33,13 @@ public class Symbol extends SingleValue {
 	public final NodeType getNodeType() {
 		return NodeType.SYMBOL;
 	}
+	
+	
+	@Override
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	
 	
 	@Override
 	public final boolean equalsSingle(final RAstNode element) {
@@ -48,12 +59,6 @@ public class Symbol extends SingleValue {
 //		}
 		s.append('$');
 		s.append(fText);
-	}
-	
-	
-	@Override
-	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(this);
 	}
 	
 }

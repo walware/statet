@@ -14,16 +14,16 @@ package de.walware.statet.nico.core;
 import de.walware.eclipsecommons.preferences.Preference.IntPref;
 
 
-
 /**
- *
+ * 
  */
 public class NicoPreferenceNodes {
 	
+	
 	public static final String SCOPE_QUALIFIER = "de.walware.nico.scope"; //$NON-NLS-1$
 	
-	public static final String createScopeQualifier(String qualifier) {
-		int idx = qualifier.indexOf('/');
+	public static final String createScopeQualifier(final String qualifier) {
+		final int idx = qualifier.indexOf('/');
 		if (idx < 0) {
 			return SCOPE_QUALIFIER+'/'+qualifier;
 		}

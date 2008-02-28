@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.text;
@@ -27,9 +27,9 @@ import org.eclipse.jface.text.TypedRegion;
 
 /**
  * Utility methods for heuristic based R manipulations in an incomplete source file.
- *
+ * 
  * <p>An instance holds some internal position in the document and is therefore not threadsafe.</p>
- *
+ * 
  * @since 0.2
  */
 public class BasicHeuristicTokenScanner implements ITokenScanner {
@@ -38,6 +38,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	protected static abstract class PartitionMatcher {
 		
 		public abstract boolean matches(String partitionId);
+		
 	}
 	
 	protected static class SinglePartitionMatcher extends PartitionMatcher {
@@ -52,14 +53,16 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		public boolean matches(final String partitionId) {
 			return fPartitionId.equals(partitionId);
 		}
+		
 	}
 	
 	protected static final PartitionMatcher ALL_PARTITIONS_MATCHER = new PartitionMatcher() {
 		
 		@Override
-		public boolean matches(String partitionId) {
+		public boolean matches(final String partitionId) {
 			return true;
 		}
+		
 	};
 	
 	/**
@@ -70,7 +73,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		
 		/**
 		 * Instructs the scanner to return the current position.
-		 *
+		 * 
 		 * @return <code>true</code> if the stop condition is met.
 		 */
 		public abstract boolean stop();
@@ -78,7 +81,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		/**
 		 * Asks the condition to return the next position to query. The default
 		 * is to return the next/previous position.
-		 *
+		 * 
 		 * @return the next position to scan
 		 */
 		public int nextPositionForward() {
@@ -88,6 +91,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		public int nextPositionBackward() {
 			return fPos - 1;
 		}
+		
 	}
 	
 	/**
@@ -120,6 +124,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				fCurrentPartitionMatched = false;
 				return false;
 			}
+			
 		}
 		
 		protected abstract boolean matchesChar(char c);
@@ -145,6 +150,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			}
 			return fPos - 1;
 		}
+		
 	}
 	
 	
@@ -178,6 +184,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			}
 			return false;
 		}
+		
 	}
 	
 	
@@ -237,6 +244,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		fPartitioning = partitioning;
 	}
 	
+	
 	public String getPartitioning() {
 		return fPartitioning;
 	}
@@ -293,7 +301,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	
 	/**
 	 * Returns the most recent internal scan position.
-	 *
+	 * 
 	 * @return the most recent internal scan position.
 	 */
 	public int getPosition() {
@@ -415,7 +423,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	/**
 	 * Finds the smallest position in <code>fDocument</code> such that the position is &gt;= <code>position</code>
 	 * and &lt; <code>bound</code> and <code>Character.isWhitespace(fDocument.getChar(pos))</code> evaluates to <code>false</code>.
-	 *
+	 * 
 	 * @param position the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
 	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>), or <code>NOT_FOUND</code> if none can be found
@@ -507,7 +515,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	/**
 	 * Finds the lowest position <code>p</code> in <code>fDocument</code> such that <code>start</code> &lt;= p &lt;
 	 * <code>bound</code> and <code>condition.stop(fDocument.getChar(p), p)</code> evaluates to <code>true</code>.
-	 *
+	 * 
 	 * @param start the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>start</code>, or <code>UNBOUND</code>
 	 * @param condition the <code>StopCondition</code> to check
@@ -540,7 +548,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * Finds the lowest position in <code>fDocument</code> such that the position is &gt;= <code>position</code>
 	 * and &lt; <code>bound</code> and <code>fDocument.getChar(position) == ch</code> evaluates to <code>true</code>
 	 * and the position is in the default partition.
-	 *
+	 * 
 	 * @param position the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
 	 * @param ch the <code>char</code> to search for
@@ -554,7 +562,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * Finds the lowest position in <code>fDocument</code> such that the position is &gt;= <code>position</code>
 	 * and &lt; <code>bound</code> and <code>fDocument.getChar(position) == ch</code> evaluates to <code>true</code> for at least one
 	 * ch in <code>chars</code> and the position is in the default partition.
-	 *
+	 * 
 	 * @param position the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
 	 * @param chars an array of <code>char</code> to search for
@@ -567,7 +575,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	/**
 	 * Finds the highest position <code>p</code> in <code>fDocument</code> such that <code>bound</code> &lt; <code>p</code> &lt;= <code>start</code>
 	 * and <code>condition.stop(fDocument.getChar(p), p)</code> evaluates to <code>true</code>.
-	 *
+	 * 
 	 * @param start the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &lt; <code>start</code>, or <code>UNBOUND</code>
 	 * @param condition the <code>StopCondition</code> to check
@@ -601,7 +609,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * Finds the highest position in <code>fDocument</code> such that the position is &lt;= <code>position</code>
 	 * and &gt; <code>bound</code> and <code>fDocument.getChar(position) == ch</code> evaluates to <code>true</code> for at least one
 	 * ch in <code>chars</code> and the position is in the default partition.
-	 *
+	 * 
 	 * @param position the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &lt; <code>position</code>, or <code>UNBOUND</code>
 	 * @param ch the <code>char</code> to search for
@@ -615,7 +623,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * Finds the highest position in <code>fDocument</code> such that the position is &lt;= <code>position</code>
 	 * and &gt; <code>bound</code> and <code>fDocument.getChar(position) == ch</code> evaluates to <code>true</code> for at least one
 	 * ch in <code>chars</code> and the position is in the default partition.
-	 *
+	 * 
 	 * @param position the first character position in <code>fDocument</code> to be considered
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &lt; <code>position</code>, or <code>UNBOUND</code>
 	 * @param chars an array of <code>char</code> to search for
@@ -662,10 +670,10 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	
 	/**
 	 * Returns the partition at <code>position</code>.
-	 *
+	 * 
 	 * @param position the position to get the partition for
 	 * @return the content type at <code>position</code> or a dummy zero-length
-	 *         partition if accessing the document fails
+	 *     partition if accessing the document fails
 	 */
 	protected final String getContentType() {
 		try {
@@ -677,10 +685,10 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	
 	/**
 	 * Returns the partition at <code>position</code>.
-	 *
+	 * 
 	 * @param position the position to get the partition for
 	 * @return the partition at <code>position</code> or a dummy zero-length
-	 *         partition if accessing the document fails
+	 *     partition if accessing the document fails
 	 */
 	protected final ITypedRegion getPartition() {
 		try {

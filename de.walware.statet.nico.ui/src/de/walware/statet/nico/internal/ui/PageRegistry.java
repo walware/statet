@@ -266,6 +266,7 @@ class PageRegistry {
 	}
 	private UpdateConsoleJob fConsoleUpdateJob = new UpdateConsoleJob();
 	
+	
 	PageRegistry(final IWorkbenchPage page) {
 		fPage = page;
 		
@@ -301,6 +302,7 @@ class PageRegistry {
 		};
 		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).addDebugContextListener(fDebugContextListener);
 	}
+	
 	
 	public synchronized void  dispose() {
 		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).removeDebugContextListener(fDebugContextListener);
@@ -349,7 +351,6 @@ class PageRegistry {
 		// 1. active part
 		// 2. visible part
 		// 3. all
-		
 		NIConsole nico = null;
 		final IWorkbenchPart part = page.getActivePart();
 		if (part instanceof IConsoleView) {

@@ -31,7 +31,7 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 
 
 /**
- *
+ * 
  */
 public class SaveHistoryWizard extends Wizard {
 	
@@ -52,6 +52,7 @@ public class SaveHistoryWizard extends Wizard {
 //		setDefaultPageImageDescriptor();
 		setNeedsProgressMonitor(true);
 	}
+	
 	
 	@Override
 	public void addPages() {

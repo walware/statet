@@ -25,9 +25,11 @@ public abstract class Logical extends FlatMulti {
 	
 	static class Or extends Logical {
 		
-		public Or(final RTerminal firstOperator) {
+		
+		Or(final RTerminal firstOperator) {
 			super(firstOperator);
 		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -43,9 +45,11 @@ public abstract class Logical extends FlatMulti {
 	
 	static class And extends Logical {
 		
-		public And(final RTerminal firstOperator) {
+		
+		And(final RTerminal firstOperator) {
 			super(firstOperator);
 		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {

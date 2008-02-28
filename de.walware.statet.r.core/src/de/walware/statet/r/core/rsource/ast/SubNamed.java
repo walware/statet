@@ -27,6 +27,11 @@ public abstract class SubNamed extends RAstNode {
 	
 	static class Named extends SubNamed {
 		
+		
+		Named() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SUB_NAMED;
@@ -35,6 +40,7 @@ public abstract class SubNamed extends RAstNode {
 		public final RTerminal getOperator() {
 			return RTerminal.SUB_NAMED;
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -45,6 +51,11 @@ public abstract class SubNamed extends RAstNode {
 	
 	static class Slot extends SubNamed {
 		
+		
+		Slot() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SUB_SLOT;
@@ -53,6 +64,7 @@ public abstract class SubNamed extends RAstNode {
 		public final RTerminal getOperator() {
 			return RTerminal.SUB_AT;
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -65,6 +77,10 @@ public abstract class SubNamed extends RAstNode {
 	final Expression fExpr = new Expression();
 	SingleValue fSubname;
 	int fOperatorOffset = Integer.MIN_VALUE;
+	
+	
+	protected SubNamed() {
+	}
 	
 	
 	@Override
@@ -157,6 +173,7 @@ public abstract class SubNamed extends RAstNode {
 						|| (this.fSubname != null && other.fSubname != null && this.fSubname.equalsSingle(other.fSubname)) )
 				);
 	}
+	
 	
 	final void updateStartOffset() {
 		fStartOffset = fExpr.node.fStartOffset;

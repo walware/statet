@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.core;
@@ -49,27 +49,27 @@ public class ActivatedContentTypeTester extends PropertyTester {
 			}
 		}
 //			IPathEditorInput editorInput = (IPathEditorInput) ((IAdaptable) receiver).getAdapter(IPathEditorInput.class);
-//
-//				        if (editorInput != null) {
-//				            IPath path= editorInput.getPath();
-//				            File file= path.toFile();
-//				            if (file.exists()) {
-//				                try {
-//				                    FileReader reader= new FileReader(file);
-//				                    IContentType contentType= Platform.getContentTypeManager().getContentType((String)expectedValue);
-//				                    IContentDescription description= contentType.getDescriptionFor(reader, IContentDescription.ALL);
-//				                    reader.close();
-//				                    if (description != null) {
-//				                    	return matchesContentType(description.getContentType(), (String)expectedValue);
-//				                    }
-//				                } catch (FileNotFoundException e) {
-//				                    return false;
-//				                } catch (IOException e) {
-//				                    return false;
-//				                }
-//				            }
-//				        }
-//		        	}
+//			
+//						if (editorInput != null) {
+//							IPath path= editorInput.getPath();
+//							File file= path.toFile();
+//							if (file.exists()) {
+//								try {
+//									FileReader reader= new FileReader(file);
+//									IContentType contentType= Platform.getContentTypeManager().getContentType((String)expectedValue);
+//									IContentDescription description= contentType.getDescriptionFor(reader, IContentDescription.ALL);
+//									reader.close();
+//									if (description != null) {
+//										return matchesContentType(description.getContentType(), (String)expectedValue);
+//									}
+//								} catch (FileNotFoundException e) {
+//									return false;
+//								} catch (IOException e) {
+//									return false;
+//								}
+//							}
+//						}
+//					}
 		
 		if (property.equals(MATCH_ACTIVATEC_TYPE)) {
 			if (file != null) {
@@ -89,5 +89,5 @@ public class ActivatedContentTypeTester extends PropertyTester {
 		}
 		return false;
 	}
-
+	
 }

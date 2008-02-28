@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.preferences;
@@ -34,9 +34,8 @@ public class PreferenceStoreBeanWrapper {
 		
 		final String beanProperty;
 		final Preference converter;
-
+		
 		public PrefData(final String beanProperty, final Preference converter) {
-
 			this.beanProperty = beanProperty;
 			this.converter = converter;
 		}
@@ -50,15 +49,14 @@ public class PreferenceStoreBeanWrapper {
 	/**
 	 * 
 	 */
-	public PreferenceStoreBeanWrapper(IPreferenceStore store, Object bean) {
-		
+	public PreferenceStoreBeanWrapper(final IPreferenceStore store, final Object bean) {
 		fStore = store;
 		fBeanSupport = new PropertyChangeSupport(bean);
 		
 		fStore.addPropertyChangeListener(new IPropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
-				String storeKey = event.getProperty();
-				PrefData pref = fPreferenceMap.get(storeKey);
+			public void propertyChange(final PropertyChangeEvent event) {
+				final String storeKey = event.getProperty();
+				final PrefData pref = fPreferenceMap.get(storeKey);
 				if (pref != null) {
 					Object oldValue = event.getOldValue();
 					Object newValue = event.getNewValue();
@@ -83,30 +81,25 @@ public class PreferenceStoreBeanWrapper {
 	 * @param beanProperty name of bean property
 	 * @param preference identifier for preference store (qualifier not necessary, because not supported by PreferenceStore)
 	 */
-	public void addPreference(String beanProperty, Preference preference) {
-		
+	public void addPreference(final String beanProperty, final Preference preference) {
 		fPreferenceMap.put(preference.getKey(), new PrefData(beanProperty, preference));
 	}
 	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		
+	public void addPropertyChangeListener(final PropertyChangeListener listener) {
 		fBeanSupport.addPropertyChangeListener(listener);
 	}
-
-	public void addPropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		
+	
+	public void addPropertyChangeListener(final String propertyName,
+			final PropertyChangeListener listener) {
 		fBeanSupport.addPropertyChangeListener(propertyName, listener);
 	}
-
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		
+	
+	public void removePropertyChangeListener(final PropertyChangeListener listener) {
 		fBeanSupport.removePropertyChangeListener(listener);
 	}
-
-	public void removePropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		
+	
+	public void removePropertyChangeListener(final String propertyName,
+			final PropertyChangeListener listener) {
 		fBeanSupport.removePropertyChangeListener(propertyName, listener);
 	}
 	

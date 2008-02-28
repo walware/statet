@@ -72,6 +72,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 		fData = null;
 	}
 	
+	
 	protected abstract String getPreferencePageID();
 	protected abstract String getPropertyPageID();
 	

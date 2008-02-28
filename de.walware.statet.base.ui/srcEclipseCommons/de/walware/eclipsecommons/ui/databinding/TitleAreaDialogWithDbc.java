@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.databinding;
@@ -31,7 +31,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 /**
  * Dialog with connected databinding context.
  * <p><ul>
- * 	 <li>use {@link #initBindings()} to create the context</li>
+ *   <li>use {@link #initBindings()} to create the context</li>
  *   <li>overwrite {@link #addBindings(DataBindingContext, Realm)} to register the bindings</li>
  * </ul>
  */
@@ -49,6 +49,7 @@ public abstract class TitleAreaDialogWithDbc extends TitleAreaDialog {
 	public TitleAreaDialogWithDbc(final Shell shell) {
 		super(shell);
 	}
+	
 	
 	protected void setDialogSettings(final IDialogSettings settings) {
 		fDialogSettings = settings;
@@ -79,7 +80,7 @@ public abstract class TitleAreaDialogWithDbc extends TitleAreaDialog {
 			}
 		}
 	}
-
+	
 	protected void initBindings() {
 		final Realm realm = Realm.getDefault();
 		fDbc = new DataBindingContext(realm);
@@ -104,13 +105,13 @@ public abstract class TitleAreaDialogWithDbc extends TitleAreaDialog {
 //			}
 //		};
 	}
-
+	
 	/**
 	 * @param dbc
 	 * @param realm
 	 */
 	protected abstract void addBindings(DataBindingContext dbc, Realm realm);
-
+	
 	@Override
 	public boolean close() {
 		try {

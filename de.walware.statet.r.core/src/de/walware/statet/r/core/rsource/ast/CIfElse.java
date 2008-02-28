@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
@@ -31,6 +31,10 @@ public class CIfElse extends RAstNode {
 	final Expression fThenExpr = new Expression();
 	int fElseOffset = Integer.MIN_VALUE;
 	final Expression fElseExpr = new Expression();
+	
+	
+	CIfElse() {
+	}
 	
 	
 	@Override
@@ -116,6 +120,28 @@ public class CIfElse extends RAstNode {
 		return fElseExpr.node;
 	}
 	
+	@Override
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	
+	@Override
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fCondExpr.node.acceptInR(visitor);
+		fThenExpr.node.acceptInR(visitor);
+		if (fWithElse) {
+			fElseExpr.node.acceptInR(visitor);
+		}
+	}
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+		fCondExpr.node.accept(visitor);
+		fThenExpr.node.accept(visitor);
+		if (fWithElse) {
+			fElseExpr.node.accept(visitor);
+		}
+	}
+	
 	
 	@Override
 	final Expression getExpr(final RAstNode child) {
@@ -147,28 +173,6 @@ public class CIfElse extends RAstNode {
 	@Override
 	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.C_IF);
-	}
-	
-	@Override
-	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(this);
-	}
-	
-	@Override
-	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
-		fCondExpr.node.acceptInR(visitor);
-		fThenExpr.node.acceptInR(visitor);
-		if (fWithElse) {
-			fElseExpr.node.acceptInR(visitor);
-		}
-	}
-	
-	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fCondExpr.node.accept(visitor);
-		fThenExpr.node.accept(visitor);
-		if (fWithElse) {
-			fElseExpr.node.accept(visitor);
-		}
 	}
 	
 	

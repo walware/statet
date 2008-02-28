@@ -26,6 +26,7 @@ public interface IRSourceUnit extends ISourceUnit {
 	public static final String R_CONTENT = "de.walware.statet.r.contentTypes.R"; //$NON-NLS-1$
 	public static final String RD_CONTENT = "de.walware.statet.r.contentTypes.Rd"; //$NON-NLS-1$
 	
+	
 	public RProject getRProject();
 //	public IPreferenceAccess getPrefs();
 //	public RCodeStyleSettings getRCodeStyle();

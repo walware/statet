@@ -30,6 +30,10 @@ public class Help extends RAstNode {
 	final Expression fRightExpr = new Expression();
 	
 	
+	Help() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.HELP;
@@ -144,6 +148,7 @@ public class Help extends RAstNode {
 	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.HELP);
 	}
+	
 	
 	@Override
 	final void updateStopOffset() {

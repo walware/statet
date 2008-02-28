@@ -45,6 +45,11 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	}
 	
 	
+	public static void logError(final int code, final String message, final Throwable e) {
+		StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, code, message, e));
+	}
+	
+	
 	private ToolRegistry fToolRegistry;
 	
 	
@@ -54,6 +59,7 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	public NicoUIPlugin() {
 		gPlugin = this;
 	}
+	
 	
 	@Override
 	public void start(final BundleContext context) throws Exception {
@@ -91,11 +97,6 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	
 	public ToolRegistry getToolRegistry() {
 		return fToolRegistry;
-	}
-	
-	
-	public static void logError(final int code, final String message, final Throwable e) {
-		StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, code, message, e));
 	}
 	
 }

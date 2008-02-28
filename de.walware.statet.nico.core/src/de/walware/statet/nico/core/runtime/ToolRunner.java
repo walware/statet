@@ -28,24 +28,27 @@ import de.walware.statet.nico.internal.core.NicoPlugin;
 public class ToolRunner {
 	
 	
-	private Object run(ToolProcess process) throws CoreException {
-		
-		ToolController controller = process.getController();
+	public ToolRunner() {
+	}
+	
+	
+	private Object run(final ToolProcess process) throws CoreException {
+		final ToolController controller = process.getController();
 		controller.run();
 		
 		return null;
 	}
 	
 	public <WorkspaceType extends ToolWorkspace> void runInBackgroundThread(final ToolProcess<WorkspaceType> process, final IStatusHandler handler) {
-		Thread background = new Thread() {
+		final Thread background = new Thread() {
 			@Override
 			public void run() {
 				try {
 					ToolRunner.this.run(process);
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;
-					IStatus status = new Status(
+					final IStatus status = new Status(
 							IStatus.ERROR,
 							NicoCore.PLUGIN_ID,
 							NicoCore.STATUSCODE_RUNTIME_ERROR,
@@ -54,15 +57,15 @@ public class ToolRunner {
 							e);
 					try {
 						handler.handleStatus(status, null);
-					} catch (CoreException e1) {
+					} catch (final CoreException e1) {
 						NicoPlugin.log(status);
 						NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 					}
 				}
-				catch (Throwable e) {
+				catch (final Throwable e) {
 					// We had some problems with Thread#setUncaughtExceptionHandler, so we catch simply all Throwables
 					process.fExitValue = NicoCore.EXITVALUE_RUNTIME_EXCEPTION;
-					IStatus status = new Status(
+					final IStatus status = new Status(
 							IStatus.ERROR,
 							NicoCore.PLUGIN_ID,
 							NicoCore.STATUSCODE_RUNTIME_ERROR,
@@ -70,7 +73,7 @@ public class ToolRunner {
 							e);
 					try {
 						handler.handleStatus(status, null);
-					} catch (CoreException e1) {
+					} catch (final CoreException e1) {
 						NicoPlugin.log(status);
 						NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 					}

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
@@ -18,12 +18,14 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.services.IServiceLocator;
 
+
 /**
  * A help class for the various parameters that can be used with command
  * contributions. Mandatory parameters are in the constructor, and public fields
  * can be set to fill in other parameters.
  * 
  * for Eclipse 3.3 compatibility in StatET 0.5.0
+ * TODO E-3.4 remove
  */
 public class CommandContributionItemParameter {
 	/**
@@ -33,69 +35,69 @@ public class CommandContributionItemParameter {
 	 * <code>null</code>.
 	 */
 	public IServiceLocator serviceLocator;
-
+	
 	/**
 	 * The id for this item. May be <code>null</code>. Items without an id
 	 * cannot be referenced later.
 	 */
 	public String id;
-
+	
 	/**
 	 * A command id for a defined command. Must not be <code>null</code>.
 	 */
 	public String commandId;
-
+	
 	/**
 	 * A map of strings to strings which represent parameter names to values.
 	 * The parameter names must match those in the command definition. May be
 	 * <code>null</code>
 	 */
 	public Map parameters;
-
+	
 	/**
 	 * An icon for this item. May be <code>null</code>.
 	 */
 	public ImageDescriptor icon;
-
+	
 	/**
 	 * A disabled icon for this item. May be <code>null</code>.
 	 */
 	public ImageDescriptor disabledIcon;
-
+	
 	/**
 	 * A hover icon for this item. May be <code>null</code>.
 	 */
 	public ImageDescriptor hoverIcon;
-
+	
 	/**
 	 * A label for this item. May be <code>null</code>.
 	 */
 	public String label;
-
+	
 	/**
 	 * A mnemonic for this item to be applied to the label. May be
 	 * <code>null</code>.
 	 */
 	public String mnemonic;
-
+	
 	/**
 	 * A tooltip for this item. May be <code>null</code>. Tooltips are
 	 * currently only valid for toolbar contributions.
 	 */
 	public String tooltip;
-
+	
 	/**
 	 * The style of this menu contribution. See the CommandContributionItem
 	 * STYLE_* contants.
 	 */
 	public int style;
-
+	
 	/**
 	 * The help context id to be applied to this contribution. May be
 	 * <code>null</code>
 	 */
 	public String helpContextId;
-
+	
 	/**
 	 * Create the parameter object. Nullable attributes can be set directly.
 	 * 
@@ -113,14 +115,14 @@ public class CommandContributionItemParameter {
 	 * @param style
 	 *            The style of this menu contribution. See the STYLE_* contants.
 	 */
-	public CommandContributionItemParameter(IServiceLocator serviceLocator,
-			String id, String commandId, int style) {
+	public CommandContributionItemParameter(final IServiceLocator serviceLocator,
+			final String id, final String commandId, final int style) {
 		this.serviceLocator = serviceLocator;
 		this.id = id;
 		this.commandId = commandId;
 		this.style = style;
 	}
-
+	
 	/**
 	 * Build the parameter object.
 	 * <p>
@@ -162,11 +164,11 @@ public class CommandContributionItemParameter {
 	 *            the help context id to be applied to this contribution. May be
 	 *            <code>null</code>
 	 */
-	public CommandContributionItemParameter(IServiceLocator serviceLocator,
-			String id, String commandId, Map parameters, ImageDescriptor icon,
-			ImageDescriptor disabledIcon, ImageDescriptor hoverIcon,
-			String label, String mnemonic, String tooltip, int style,
-			String helpContextId) {
+	public CommandContributionItemParameter(final IServiceLocator serviceLocator,
+			final String id, final String commandId, final Map parameters, final ImageDescriptor icon,
+			final ImageDescriptor disabledIcon, final ImageDescriptor hoverIcon,
+			final String label, final String mnemonic, final String tooltip, final int style,
+			final String helpContextId) {
 		this.serviceLocator = serviceLocator;
 		this.id = id;
 		this.commandId = commandId;
@@ -180,4 +182,5 @@ public class CommandContributionItemParameter {
 		this.style = style;
 		this.helpContextId = helpContextId;
 	}
+	
 }

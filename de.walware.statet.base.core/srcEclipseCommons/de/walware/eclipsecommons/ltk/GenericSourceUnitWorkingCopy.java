@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
@@ -17,7 +17,7 @@ import org.eclipse.jface.text.AbstractDocument;
 
 
 /**
- *
+ * 
  */
 public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	
@@ -31,6 +31,7 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	public GenericSourceUnitWorkingCopy(final ISourceUnit from) {
 		fFrom = from;
 	}
+	
 	
 	public ISourceUnit getUnderlyingUnit() {
 		return fFrom;

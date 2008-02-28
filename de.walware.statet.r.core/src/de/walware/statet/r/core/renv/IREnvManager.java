@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 
 
 /**
- *
+ * 
  */
 public interface IREnvManager {
 	

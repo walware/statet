@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui;
@@ -74,6 +74,7 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	public StatetUIPlugin() {
 		gPlugin = this;
 	}
+	
 	
 	/**
 	 * This method is called upon plug-in activation

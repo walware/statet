@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.preferences;
@@ -22,28 +22,31 @@ import de.walware.eclipsecommons.preferences.Preference;
  */
 public class RGBPref extends Preference<RGB> {
 	
-	public RGBPref(String qualifier, String key) {
+	
+	public RGBPref(final String qualifier, final String key) {
 		super(qualifier, key, Type.STRING);
 	}
-
+	
+	
 	@Override
 	public Class<RGB> getUsageType() {
 		return RGB.class;
 	}
 	
 	@Override
-	public RGB store2Usage(Object obj) {
+	public RGB store2Usage(final Object obj) {
 		if (obj != null) {
 			return StringConverter.asRGB((String) obj);
 		}
 		return null;
 	}
-
+	
 	@Override
-	public Object usage2Store(RGB obj) {
+	public Object usage2Store(final RGB obj) {
 		if (obj != null && obj instanceof RGB) {
 			return StringConverter.asString(obj);
 		}
 		return null;
 	}
+	
 }

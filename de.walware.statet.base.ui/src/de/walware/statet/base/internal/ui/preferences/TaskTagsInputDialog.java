@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui.preferences;
@@ -52,7 +52,7 @@ public class TaskTagsInputDialog extends StatusDialog {
 	private List<String> fExistingNames;
 	
 	
-	public TaskTagsInputDialog(Shell parent, TaskTag task, List<TaskTag> existingEntries) {
+	public TaskTagsInputDialog(final Shell parent, final TaskTag task, final List<TaskTag> existingEntries) {
 		super(parent);
 		
 		if (task != null) {
@@ -62,7 +62,7 @@ public class TaskTagsInputDialog extends StatusDialog {
 			
 		fExistingNames = new ArrayList<String>(existingEntries.size());
 		for (int i = 0; i < existingEntries.size(); i++) {
-			TaskTag curr = (TaskTag) existingEntries.get(i);
+			final TaskTag curr = existingEntries.get(i);
 			if (!curr.equals(task)) {
 				fExistingNames.add(curr.name);
 			}
@@ -73,40 +73,41 @@ public class TaskTagsInputDialog extends StatusDialog {
 		} else {
 			setTitle(Messages.TaskTags_InputDialog_EditTag_title);
 		}
-
+		
 	}
 	
+	
 	@Override
-	protected void configureShell(Shell newShell) {
+	protected void configureShell(final Shell newShell) {
 		super.configureShell(newShell);
 		// ADDHELP
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(newShell, IJavaHelpContextIds.TODO_TASK_INPUT_DIALOG);
 	}
-
+	
 	@Override
-	protected Control createDialogArea(Composite parent) {
-		Composite composite = (Composite) super.createDialogArea(parent);
+	protected Control createDialogArea(final Composite parent) {
+		final Composite composite = (Composite) super.createDialogArea(parent);
 		
-		Layouter layouter = new Layouter(new Composite(composite, SWT.NONE), 2);
+		final Layouter layouter = new Layouter(new Composite(composite, SWT.NONE), 2);
 		
 		fNameControl = layouter.addLabeledTextControl(Messages.TaskTags_InputDialog_Name_label);
 		((GridData) fNameControl.getLayoutData()).widthHint =
 				new PixelConverter(fNameControl).convertWidthInCharsToPixels(45);
 		fNameControl.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(final ModifyEvent e) {
 				fName = fNameControl.getText();
 				doValidation();
 			};
 		});
-
-		String[] items = new String[] {
+		
+		final String[] items = new String[] {
 				StatetMessages.TaskPriority_High,
 				StatetMessages.TaskPriority_Normal,
 				StatetMessages.TaskPriority_Low,
 		};
 		fPriorityControl = layouter.addLabeledComboControl(Messages.TaskTags_InputDialog_Priority_label, items);
 		fPriorityControl.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(final ModifyEvent e) {
 				switch (fPriorityControl.getSelectionIndex()) {
 				case 0:
 					fPriority = TaskPriority.HIGH;
@@ -120,7 +121,7 @@ public class TaskTagsInputDialog extends StatusDialog {
 				}
 			};
 		});
-
+		
 		// Init Fields
 		if (fName != null) {
 			fNameControl.setText(fName);
@@ -138,7 +139,7 @@ public class TaskTagsInputDialog extends StatusDialog {
 		} else {
 			fPriorityControl.select(1);
 		}
-		Display display = parent.getDisplay();
+		final Display display = parent.getDisplay();
 		if (display != null) {
 			display.asyncExec(
 				new Runnable() {
@@ -152,15 +153,15 @@ public class TaskTagsInputDialog extends StatusDialog {
 		applyDialogFont(composite);
 		return composite;
 	}
-
+	
 	public TaskTag getResult() {
 		return new TaskTag(fName, fPriority);
 	}
 	
 		
 	private void doValidation() {
-		StatusInfo status = new StatusInfo();
-		String newText = fNameControl.getText();
+		final StatusInfo status = new StatusInfo();
+		final String newText = fNameControl.getText();
 		if (newText.length() == 0) {
 			status.setError(Messages.TaskTags_InputDialog_error_EnterName_message);
 		} else {
@@ -174,9 +175,10 @@ public class TaskTagsInputDialog extends StatusDialog {
 		}
 		updateStatus(status);
 	}
-
+	
 	@Override
 	protected IDialogSettings getDialogBoundsSettings() {
 		return DialogUtil.getDialogSettings(StatetUIPlugin.getDefault(), "TaskTagEditDialog"); //$NON-NLS-1$
 	}
+	
 }

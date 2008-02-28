@@ -18,7 +18,7 @@ import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**
- *
+ * 
  */
 abstract class SpecItem extends RAstNode {
 	
@@ -26,6 +26,10 @@ abstract class SpecItem extends RAstNode {
 	RAstNode fArgName;
 	int fEqualsOffset = Integer.MIN_VALUE;
 	final Expression fValueExpr = new Expression();
+	
+	
+	protected SpecItem() {
+	}
 	
 	
 	@Override
@@ -148,6 +152,7 @@ abstract class SpecItem extends RAstNode {
 	final Expression getRightExpr() {
 		return fValueExpr;
 	}
+	
 	
 	@Override
 	final void updateStopOffset() {

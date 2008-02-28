@@ -37,7 +37,7 @@ public class SourceViewerUpdater {
 	
 	/**
 	 * Creates a source preview updater for the given viewer, configuration and preference store from configuration.
-	 *
+	 * 
 	 * @param viewer the viewer
 	 * @param configuration the configuration
 	 */
@@ -47,7 +47,7 @@ public class SourceViewerUpdater {
 	
 	/**
 	 * Creates a source preview updater for the given viewer, configuration and preference store.
-	 *
+	 * 
 	 * @param viewer the viewer
 	 * @param configuration the configuration
 	 * @param preferenceStore the preference store

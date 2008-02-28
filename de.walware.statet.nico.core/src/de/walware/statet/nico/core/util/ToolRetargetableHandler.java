@@ -39,6 +39,7 @@ public abstract class ToolRetargetableHandler extends UpdateableHandler implemen
 		handleToolChanged();
 	}
 	
+	
 	public void setTool(final ToolProcess tool) {
 		fTool = tool;
 		handleToolChanged();

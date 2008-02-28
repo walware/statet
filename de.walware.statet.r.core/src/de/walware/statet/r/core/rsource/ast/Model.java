@@ -29,6 +29,10 @@ public class Model extends RAstNode {
 	final Expression fRightExpr = new Expression();
 	
 	
+	Model() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.MODEL;
@@ -144,6 +148,8 @@ public class Model extends RAstNode {
 		return (element.getNodeType() == NodeType.MODEL);
 		
 	}
+	
+	
 	final void updateStartOffset() {
 		if (fLeftExpr.node != null) {
 			fStartOffset = fLeftExpr.node.fStartOffset;

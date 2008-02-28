@@ -6,16 +6,17 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
 
 
 /**
- *
+ * 
  */
 public interface IModelManager {
+	
 	
 	public void addElementChangedListener(IElementChangedListener listener, WorkingContext context);
 	public void removeElementChangedListener(IElementChangedListener listener, WorkingContext context);

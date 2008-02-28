@@ -18,6 +18,7 @@ import de.walware.eclipsecommons.ltk.IModelElementDelta;
 
 public class ModelDelta implements IModelElementDelta {
 	
+	
 	private final IModelElement fElement;
 	private final AstInfo fOldAst;
 	private final AstInfo fNewAst;
@@ -29,6 +30,7 @@ public class ModelDelta implements IModelElementDelta {
 		fOldAst = oldAst;
 		fNewAst = newAst;
 	}
+	
 	
 	public IModelElement getModelElement() {
 		return fElement;

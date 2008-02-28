@@ -47,7 +47,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- *
+ * 
  */
 public class RSourceIndenter {
 	
@@ -911,4 +911,3 @@ class ScopeFactory {
 	}
 	
 }
-

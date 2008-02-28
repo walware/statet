@@ -27,6 +27,11 @@ public abstract class NSGet extends RAstNode {
 	
 	static class Std extends NSGet {
 		
+		
+		Std() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.NS_GET;
@@ -46,6 +51,11 @@ public abstract class NSGet extends RAstNode {
 	
 	static class Internal extends NSGet {
 		
+		
+		Internal() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.NS_GET_INT;
@@ -62,6 +72,7 @@ public abstract class NSGet extends RAstNode {
 		}
 		
 	}
+	
 	
 	SingleValue fNamespace;
 	int fOperatorOffset;

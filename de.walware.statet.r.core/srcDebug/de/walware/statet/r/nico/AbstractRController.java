@@ -11,22 +11,11 @@
 
 package de.walware.statet.r.nico;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
-import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 public abstract class AbstractRController
@@ -38,13 +27,13 @@ public abstract class AbstractRController
 	protected String fDefaultPromptText;
 	
 	
-	public AbstractRController(ToolProcess process) {
+	public AbstractRController(final ToolProcess process) {
 		super(process);
 		process.registerFeatureSet(BasicR.FEATURESET_ID);
 	}
 	
 	@Override
-	protected void postCancelTask(int options) {
+	protected void postCancelTask(final int options) {
 		if ((getStatus() == ToolStatus.STARTED_IDLING || getStatus() == ToolStatus.STARTED_PAUSED)
 				&& (fWorkspaceData.getPrompt().meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			cancelIncompletePrompt();
@@ -59,14 +48,14 @@ public abstract class AbstractRController
 		fIncompletePromptText = "+ ".intern(); //$NON-NLS-1$
 	}
 	
-	public Object getAdapter(Class adapter) {
+	public Object getAdapter(final Class adapter) {
 		if (ISetupRAdapter.class.equals(adapter)) {
 			return this;
 		}
 		return null;
 	}
 	
-	public void setIncompletePromptText(String text) {
+	public void setIncompletePromptText(final String text) {
 		fIncompletePromptText = text.intern();
 	}
 	
@@ -74,7 +63,7 @@ public abstract class AbstractRController
 		return new IncompleteInputPrompt(fCurrentPrompt, fCurrentInput+fLineSeparator, fIncompletePromptText);
 	}
 	
-	protected final void setCurrentPrompt(String text) {
+	protected final void setCurrentPrompt(final String text) {
 		if (fDefaultPromptText.equals(text)) {
 			setCurrentPrompt(Prompt.DEFAULT);
 		}

@@ -98,7 +98,7 @@ public abstract class CompareMergeTextViewer extends TextMergeViewer {
 	public CompareMergeTextViewer(final Composite parent, final CompareConfiguration configuration) {
 		super(parent, SWT.LEFT_TO_RIGHT, configuration);
 		
-		// CHECK Eclipse bug #219757
+		// TOCHECK Eclipse bug #219757
 		final Font font = JFaceResources.getFont(SYMBOLIC_FONT_NAME);
 		if (fTextViewers != null) {
 			for (final TextViewer viewer : fTextViewers) {
@@ -106,6 +106,7 @@ public abstract class CompareMergeTextViewer extends TextMergeViewer {
 			}
 		}
 	}
+	
 	
 	@Override
 	protected void setupDocument(final IDocument document) {

@@ -23,6 +23,10 @@ import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 public class NullConst extends RAstNode {
 	
 	
+	NullConst() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.NULL_CONST;

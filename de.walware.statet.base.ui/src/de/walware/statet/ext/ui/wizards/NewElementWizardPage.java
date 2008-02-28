@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.wizards;
@@ -187,7 +187,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 //        /**
 //         * Sets the value of this page's container name field, or stores
 //         * it for future use if this page's controls do not exist yet.
-//         *
+//         * 
 //         * @param path the full path to the container
 //         */
 //        public void setContainerFullPath(IPath path) {
@@ -201,7 +201,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 //        /**
 //         * Sets the value of this page's file name field, or stores
 //         * it for future use if this page's controls do not exist yet.
-//         *
+//         * 
 //         * @param value new file name
 //         */
 //        public void setFileName(String value) {
@@ -215,7 +215,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 		/**
 		 * Returns the current full path of the containing resource as entered or 
 		 * selected by the user, or its anticipated initial value.
-		 *
+		 * 
 		 * @return the container's full path, anticipated initial value, 
 		 *   or <code>null</code> if no path is known
 		 */
@@ -227,7 +227,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 		/**
 		 * Returns the current file name as entered by the user, or its anticipated
 		 * initial value.
-		 *
+		 * 
 		 * @return the file name, its anticipated initial value, or <code>null</code>
 		 *   if no file name is known
 		 */
@@ -293,7 +293,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 * path represents a valid new resource in the workbench.  An error message
 		 * is stored for future reference if the path  does not represent a valid
 		 * new resource path.
-		 *
+		 * 
 		 * @param resourcePath the path to validate
 		 * @return IStatus indicating validity of the resource path
 		 */
@@ -328,7 +328,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 	 * Creates a new file creation wizard page. If the initial resource selection 
 	 * contains exactly one container resource then it will be used as the default
 	 * container resource.
-	 *
+	 * 
 	 * @param pageName the name of the page
 	 * @param selection the current resource selection
 	 */
@@ -375,7 +375,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 	/**
 	 * Returns whether this page's controls currently all contain valid 
 	 * values.
-	 *
+	 * 
 	 * @return <code>true</code> if all controls are valid, and
 	 *   <code>false</code> if at least one is invalid
 	 */

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.core;
@@ -16,10 +16,11 @@ package de.walware.statet.base.core;
  * Allows multiple content types in addition to the primary content type.
  */
 public interface IExtContentTypeManager {
-
-	public abstract String[] getSecondaryContentTypes(final String primaryContentType);
-	public abstract String[] getPrimaryContentTypes(final String secondaryContentType);
-
-	public abstract boolean matchesActivatedContentType(final String primaryContentType, final String secondaryContentType, boolean self);
-
+	
+	
+	public String[] getSecondaryContentTypes(String primaryContentType);
+	public String[] getPrimaryContentTypes(String secondaryContentType);
+	
+	public boolean matchesActivatedContentType(String primaryContentType, String secondaryContentType, boolean self);
+	
 }

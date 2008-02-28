@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.actions;
@@ -32,39 +32,42 @@ import de.walware.statet.nico.ui.ToolSessionUIData;
  * TODO: Implementation not finished!
  */
 public class ToolActionDelegate implements IActionDelegate, IActionDelegate2, IToolRegistryListener, IDebugEventSetListener {
-
-
+	
+	
 	private ToolAction fAction;
 	
 	
-	public void init(IAction action) {
-
+	protected ToolActionDelegate() {
+	}
+	
+	
+	public void init(final IAction action) {
 		assert (action != null);
 		
 		fAction = (ToolAction) action;
-		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
+		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 		NicoUI.getToolRegistry().addListener(this, page);
 		DebugPlugin.getDefault().addDebugEventListener(this);
 	}
-
-	public void selectionChanged(IAction action, ISelection selection) {
+	
+	public void selectionChanged(final IAction action, final ISelection selection) {
 	}
-
+	
 	public void dispose() {
 	}
-
-
-	public synchronized void toolSessionActivated(ToolSessionUIData informations) {
+	
+	
+	public synchronized void toolSessionActivated(final ToolSessionUIData informations) {
 		
 		fAction.setTool(informations.getProcess());
 	}
 	
-	public void toolSessionClosed(ToolSessionUIData informations) {
+	public void toolSessionClosed(final ToolSessionUIData informations) {
 	}
 	
-	public void handleDebugEvents(DebugEvent[] events) {
+	public void handleDebugEvents(final DebugEvent[] events) {
 		
-		for (DebugEvent event : events) {
+		for (final DebugEvent event : events) {
 			if (event.getKind() == DebugEvent.TERMINATE) {
 				synchronized (this) {
 					if (event.getSource() == fAction.getTool()) {
@@ -76,10 +79,10 @@ public class ToolActionDelegate implements IActionDelegate, IActionDelegate2, IT
 	}
 	
 	
-	public void run(IAction action) {
+	public void run(final IAction action) {
 	}
-
-	public void runWithEvent(IAction action, Event event) {
+	
+	public void runWithEvent(final IAction action, final Event event) {
 	}
-
+	
 }

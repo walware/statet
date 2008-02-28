@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.core;
@@ -91,8 +91,8 @@ public abstract class StatextProject implements IProjectNature, IPreferenceAcces
 					new DefaultScope(),
 				} :
 				new IScopeContext[] {
-				  	new ProjectScope(getProject()),
-				  	new DefaultScope(),
+					new ProjectScope(getProject()),
+					new DefaultScope(),
 				};
 	}
 	

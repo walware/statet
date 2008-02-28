@@ -21,7 +21,7 @@ import de.walware.statet.r.core.rmodel.IRSourceUnit;
 
 
 /**
- *
+ * 
  */
 public class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.templates;
@@ -38,6 +38,7 @@ public class StatextTemplateProposal extends TemplateProposal {
 			}
 			return fgCollator.compare(arg0.getDisplayString(), arg1.getDisplayString());
 		}
+		
 	}
 	
 	

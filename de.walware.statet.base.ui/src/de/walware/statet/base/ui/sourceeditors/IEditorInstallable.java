@@ -13,9 +13,10 @@ package de.walware.statet.base.ui.sourceeditors;
 
 
 /**
- *
+ * 
  */
 public interface IEditorInstallable {
+	
 	
 	public void install(IEditorAdapter editor);
 	public void uninstall();

@@ -46,6 +46,7 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 		view.getTableViewer().addSelectionChangedListener(this);
 	}
 	
+	
 	@Override
 	protected boolean updateSelection(final IStructuredSelection selection) {
 		return (selection.size() > 0);
@@ -60,20 +61,20 @@ public class HistorySubmitAction extends BaseSelectionListenerAction {
 			return;
 		
 		final IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
+			public void run(final IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 				try {
 					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getProcess()), 1000);
 					
-					String[] commands = createCommandArray(selection);
+					final String[] commands = createCommandArray(selection);
 					monitor.worked(200);
 					
-					IStatus status = controller.submit(commands, SubmitType.EDITOR,
+					final IStatus status = controller.submit(commands, SubmitType.EDITOR,
 							new SubProgressMonitor(monitor, 800));
 					if (status.getSeverity() >= IStatus.ERROR) {
 						throw new CoreException(status);
 					}
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					throw new InvocationTargetException(e);
 				}
 				finally {

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.wizards;
@@ -33,5 +33,6 @@ public class StatetWizardsMessages extends NLS {
 	static {
 		NLS.initializeMessages(StatetWizardsMessages.class.getName(), StatetWizardsMessages.class);
 	}
+	private StatetWizardsMessages() {}
 	
 }

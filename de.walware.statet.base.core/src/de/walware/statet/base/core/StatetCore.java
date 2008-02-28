@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.core;
@@ -18,6 +18,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.WorkingContext;
@@ -72,6 +74,7 @@ public class StatetCore {
 	}
 	
 	private static void logError(final CoreException e) {
+		BaseCorePlugin.log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
 	}
 	
 	public static SettingsChangeNotifier getSettingsChangeNotifier() {

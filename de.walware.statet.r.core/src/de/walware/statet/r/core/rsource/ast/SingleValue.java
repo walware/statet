@@ -24,8 +24,12 @@ abstract class SingleValue extends RAstNode {
 	String fText;
 	
 	
+	protected SingleValue() {
+	}
+	
+	
 	@Override
-	public String getText() {
+	public final String getText() {
 		return fText;
 	}
 	
@@ -76,6 +80,7 @@ abstract class SingleValue extends RAstNode {
 	final Expression getRightExpr() {
 		return null;
 	}
+	
 	
 	@Override
 	public String toString() {

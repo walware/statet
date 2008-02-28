@@ -37,6 +37,10 @@ import de.walware.statet.r.nico.IBasicRAdapter;
 class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 	
 	
+	RTermCancelRunnable() {
+	}
+	
+	
 	public String getLabel() {
 		return RNicoMessages.RTerm_CancelTask_label;
 	}

@@ -457,7 +457,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	}
 	
 	
-	
 /* IConfigurationBlock ********************************************************/
 	
 	@Override

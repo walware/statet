@@ -1,5 +1,6 @@
 /*******************************************************************************
- * Copyright (c) 2000-2006 IBM Corporation and others.
+ * Copyright (c) 2000-2007 WalWare/StatET-Project (www.walware.de/goto/statet)
+ * and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,21 +23,22 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextOperationAction;
 
 
+
 /**
  * Groups the folding actions.
  */
 public class FoldingActionGroup extends ActionGroup {
 	
 //	private class FoldingAction extends ResourceAction implements IUpdate {
-//
+//		
 //		FoldingAction(ResourceBundle bundle, String prefix) {
 //			super(bundle, prefix, IAction.AS_PUSH_BUTTON);
 //		}
-//
+//		
 //		public void update() {
 //			setEnabled(FoldingActionGroup.this.isEnabled() && fViewer.isProjectionMode());
 //		}
-//
+//		
 //	}
 	
 	private ProjectionViewer fViewer;
@@ -60,7 +62,7 @@ public class FoldingActionGroup extends ActionGroup {
 	 * @param editor the text editor to operate on
 	 * @param viewer the viewer of the editor
 	 */
-	public FoldingActionGroup(final ITextEditor editor, ProjectionViewer viewer) {
+	public FoldingActionGroup(final ITextEditor editor, final ProjectionViewer viewer) {
 		
 		fViewer = viewer;
 		
@@ -138,7 +140,7 @@ public class FoldingActionGroup extends ActionGroup {
 	 * 
 	 * @param manager the menu manager for the folding submenu
 	 */
-	public void fillMenu(IMenuManager manager) {
+	public void fillMenu(final IMenuManager manager) {
 		if (isEnabled()) {
 			update();
 			manager.add(fToggle);

@@ -27,6 +27,11 @@ public abstract class Assignment extends StdBinary {
 	
 	static class LeftS extends Assignment {
 		
+		
+		LeftS() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.A_LEFT_S;
@@ -71,7 +76,13 @@ public abstract class Assignment extends StdBinary {
 		
 	}
 	
+	
 	static class LeftD extends Assignment {
+		
+		
+		LeftD() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -116,7 +127,13 @@ public abstract class Assignment extends StdBinary {
 		
 	}
 	
+	
 	static class LeftE extends Assignment {
+		
+		
+		LeftE() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -162,7 +179,13 @@ public abstract class Assignment extends StdBinary {
 		
 	}
 	
+	
 	static class RightS extends Assignment {
+		
+		
+		RightS() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -208,7 +231,13 @@ public abstract class Assignment extends StdBinary {
 		
 	}
 	
+	
 	static class RightD extends Assignment {
+		
+		
+		RightD() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -255,7 +284,9 @@ public abstract class Assignment extends StdBinary {
 	
 	
 	public abstract RAstNode getTargetChild();
+	
 	public abstract RTerminal getOperator();
+	
 	public abstract RAstNode getSourceChild();
 	
 	@Override
@@ -263,14 +294,15 @@ public abstract class Assignment extends StdBinary {
 		visitor.visit(this);
 	}
 	
-	abstract Expression getTargetExpr();
-	abstract Expression getSourceExpr();
 	
+	abstract Expression getTargetExpr();
+	
+	abstract Expression getSourceExpr();
 	
 	@Override
 	public boolean equalsSingle(final RAstNode element) {
-		RAstNode thisTarget = getTargetExpr().node;
-		RAstNode otherTarget = ((Assignment) element).getTargetExpr().node;
+		final RAstNode thisTarget = getTargetExpr().node;
+		final RAstNode otherTarget = ((Assignment) element).getTargetExpr().node;
 		return (	((thisTarget == otherTarget)
 						|| (thisTarget != null && otherTarget != null && thisTarget.equalsSingle(otherTarget)) )
 				);

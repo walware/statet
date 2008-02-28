@@ -100,11 +100,11 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	 * @param selection a selection with history entries.
 	 * @return command block.
 	 */
-	public static String createTextBlock(IStructuredSelection selection) {
-		Object[] elements = selection.toArray();
-		StringBuilder text = new StringBuilder(elements.length * 8);
-		for (Object obj : elements) {
-			Entry e = (Entry) obj;
+	public static String createTextBlock(final IStructuredSelection selection) {
+		final Object[] elements = selection.toArray();
+		final StringBuilder text = new StringBuilder(elements.length * 8);
+		for (final Object obj : elements) {
+			final Entry e = (Entry) obj;
 			text.append(e.getCommand());
 			text.append('\n');
 		}
@@ -118,19 +118,19 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		private DateFormat fFormat = DateFormat.getDateTimeInstance();
 		
 		@Override
-		public void update(ViewerCell cell) {
+		public void update(final ViewerCell cell) {
 			cell.setImage(StatetImages.getImage(StatetImages.OBJ_COMMAND));
 			cell.setText(((Entry) cell.getElement()).getCommand());
 		}
 		
 		@Override
-		public boolean useNativeToolTip(Object object) {
+		public boolean useNativeToolTip(final Object object) {
 			return true;
 		}
 		
 		@Override
-		public String getToolTipText(Object element) {
-			Entry entry = (Entry) element;
+		public String getToolTipText(final Object element) {
+			final Entry entry = (Entry) element;
 			if (entry.getTimeStamp() < 0) {
 				return " - | "+entry.getCommand(); //$NON-NLS-1$
 			}
@@ -141,7 +141,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private static class EntryComparator extends ViewerComparator {
 		@SuppressWarnings("unchecked")
 		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
+		public int compare(final Viewer viewer, final Object e1, final Object e2) {
 			return getComparator().compare(((Entry) e1).getCommand(), ((Entry) e2).getCommand());
 		}
 	}
@@ -156,8 +156,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		}
 		
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			ToolProcess process = fProcess;
+		protected IStatus run(final IProgressMonitor monitor) {
+			final ToolProcess process = fProcess;
 			if (process == null || monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
@@ -190,10 +190,10 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
 		
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+		public void inputChanged(final Viewer v, final Object oldInput, final Object newInput) {
 		}
 		
-		public Object[] getElements(Object parent) {
+		public Object[] getElements(final Object parent) {
 			if (fNewEntrys != null) {
 				return fNewEntrys;
 			}
@@ -216,7 +216,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 					}
 					
 					fTableViewer.add(e);
-
+					
 					if (fDoAutoscroll)
 						fTableViewer.reveal(e);
 					else {
@@ -270,7 +270,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		@Override
 		public void run() {
-			boolean switchOn = isChecked();
+			final boolean switchOn = isChecked();
 			fDoSortAlpha = switchOn;
 			if (switchOn)
 				fTableViewer.setComparator(fEntryComparator);
@@ -292,12 +292,12 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		@Override
 		public void run() {
-			boolean switchOn = isChecked();
+			final boolean switchOn = isChecked();
 			fDoFilterEmpty = switchOn;
 			if (switchOn) {
-				ViewerFilter emptyFilter = new ViewerFilter() {
+				final ViewerFilter emptyFilter = new ViewerFilter() {
 					@Override
-					public boolean select(Viewer viewer, Object parentElement, Object element) {
+					public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
 						return !((History.Entry) element).isEmpty();
 					}
 				};
@@ -344,6 +344,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private volatile boolean fReloadScheduled;
 	private Entry[] fNewEntrys;
 	
+	
 	/**
 	 * The constructor.
 	 */
@@ -352,25 +353,26 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fContentProvider = new ViewContentProvider();
 	}
 	
+	
 	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
+	public void init(final IViewSite site, final IMemento memento) throws PartInitException {
 		super.init(site, memento);
 		
-		String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
+		final String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
 		if (autoscroll == null || autoscroll.equals("on")) { // default  //$NON-NLS-1$
 			fDoAutoscroll = true;
 		} else {
 			fDoAutoscroll = false;
 		}
 		
-		String sortAlpha = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
+		final String sortAlpha = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
 		if (sortAlpha == null || sortAlpha.equals("off")) { // default  //$NON-NLS-1$
 			fDoSortAlpha = false;
 		} else {
 			fDoSortAlpha = true;
 		}
 		
-		String filterEmpty = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
+		final String filterEmpty = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
 		if (filterEmpty == null || filterEmpty.equals("off")) { // default  //$NON-NLS-1$
 			fDoFilterEmpty = false;
 		} else {
@@ -379,7 +381,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	@Override
-	public void saveState(IMemento memento) {
+	public void saveState(final IMemento memento) {
 		super.saveState(memento);
 		
 		memento.putString(M_AUTOSCROLL, (fDoAutoscroll) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -388,7 +390,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(final Composite parent) {
 		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION) {
 			// we avoid refresh if no entries are available (e.g. switching sorting/filtering)
 			@Override
@@ -401,7 +403,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 				}
 			}
 			@Override
-			public void refresh(boolean updateLabels) {
+			public void refresh(final boolean updateLabels) {
 				if (fProcess == null || fNewEntrys != null) {
 					super.refresh(updateLabels);
 				}
@@ -414,15 +416,15 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fTableViewer.getTable().setHeaderVisible(false);
 		fTableViewer.setUseHashlookup(true);
 		ColumnViewerToolTipSupport.enableFor(fTableViewer);
-		TableViewerColumn column = new TableViewerColumn(fTableViewer, SWT.DEFAULT);
+		final TableViewerColumn column = new TableViewerColumn(fTableViewer, SWT.DEFAULT);
 		column.setLabelProvider(new TableLabelProvider());
 		fTableViewer.getTable().addControlListener(new ControlAdapter() {
 			@Override
-			public void controlResized(ControlEvent e) {
+			public void controlResized(final ControlEvent e) {
 				// adapt the column width to the width of the table
-				Table table = fTableViewer.getTable();
-				Rectangle area = table.getClientArea();
-				TableColumn column = table.getColumn(0);
+				final Table table = fTableViewer.getTable();
+				final Rectangle area = table.getClientArea();
+				final TableColumn column = table.getColumn(0);
 				column.setWidth(area.width);
 			}
 		});
@@ -440,9 +442,9 @@ public class HistoryView extends ViewPart implements IToolProvider {
 				new HistoryDragAdapter(this));
 		
 		// listen on console changes
-		IToolRegistry toolRegistry = NicoUI.getToolRegistry();
+		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
-			public void toolSessionActivated(ToolSessionUIData info) {
+			public void toolSessionActivated(final ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
@@ -450,7 +452,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) {
+			public void toolSessionClosed(final ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
@@ -469,7 +471,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fToggleSortAction = new ToggleSortAction();
 		fFilterEmptyAction = new FilterEmptyAction();
 		fScrollLockAction = new ScrollLockAction(new Receiver() {
-			public void setAutoScroll(boolean enabled) {
+			public void setAutoScroll(final boolean enabled) {
 				fDoAutoscroll = enabled;
 			}
 		}, !fDoAutoscroll);
@@ -485,8 +487,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		enabledSelectionActions(false);
 		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+			public void selectionChanged(final SelectionChangedEvent event) {
+				final IStructuredSelection selection = (IStructuredSelection) event.getSelection();
 				if (selection != null && !selection.isEmpty()) {
 					enabledSelectionActions(true);
 				}
@@ -500,7 +502,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fSaveHistoryAction = new SaveHistoryAction(this);
 	}
 	
-	protected void enabledSelectionActions(boolean enable) {
+	protected void enabledSelectionActions(final boolean enable) {
 		
 		fCopyAction.setEnabled(enable);
 		fSubmitAction.setEnabled(enable);
@@ -508,20 +510,20 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	
 	private void hookContextMenu() {
-		MenuManager menuMgr = new MenuManager("ContextMenu"); //$NON-NLS-1$
+		final MenuManager menuMgr = new MenuManager("ContextMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
+			public void menuAboutToShow(final IMenuManager manager) {
 				HistoryView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(fTableViewer.getControl());
+		final Menu menu = menuMgr.createContextMenu(fTableViewer.getControl());
 		fTableViewer.getControl().setMenu(menu);
 		getSite().registerContextMenu(menuMgr, fTableViewer);
 	}
 	
 	private void contributeToActionBars() {
-		IActionBars bars = getViewSite().getActionBars();
+		final IActionBars bars = getViewSite().getActionBars();
 		
 		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), fSelectAllAction);
 		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), fCopyAction);
@@ -530,7 +532,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fillLocalToolBar(bars.getToolBarManager());
 	}
 	
-	private void fillLocalPullDown(IMenuManager manager) {
+	private void fillLocalPullDown(final IMenuManager manager) {
 		manager.add(fLoadHistoryAction);
 		manager.add(fSaveHistoryAction);
 		manager.add(new Separator());
@@ -540,7 +542,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		manager.add(new Separator());
 	}
 	
-	private void fillContextMenu(IMenuManager manager) {
+	private void fillContextMenu(final IMenuManager manager) {
 		manager.add(fCopyAction);
 		manager.add(fSubmitAction);
 		
@@ -548,14 +550,14 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
-	private void fillLocalToolBar(IToolBarManager manager) {
+	private void fillLocalToolBar(final IToolBarManager manager) {
 		manager.add(fToggleSortAction);
 		manager.add(fScrollLockAction);
 	}
 	
 	private void hookDoubleClickAction() {
 		fTableViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
+			public void doubleClick(final DoubleClickEvent event) {
 				fSubmitAction.run();
 			}
 		});
@@ -579,13 +581,13 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		else {
 			fTableViewer.refresh();
 		}
-		for (Object action : fToolActions.getListeners()) {
+		for (final Object action : fToolActions.getListeners()) {
 			((IToolRetargetable) action).setTool(fProcess);
 		}
 	}
 	
-	private void scheduleRefresh(boolean change) {
-		IWorkbenchSiteProgressService context = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
+	private void scheduleRefresh(final boolean change) {
+		final IWorkbenchSiteProgressService context = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
 		fReloadScheduled = true;
 		if (change) {
 			fReloadJob.cancel();
@@ -596,7 +598,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		}
 	}
 	
-	public void addToolRetargetable(IToolRetargetable action) {
+	public void addToolRetargetable(final IToolRetargetable action) {
 		fToolActions.add(action);
 	}
 	
@@ -645,7 +647,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			fToolRegistryListener = null;
 		}
 		fReloadJob.cancel();
-		ToolProcess process = fProcess;
+		final ToolProcess process = fProcess;
 		if (process != null) {
 			process.getHistory().removeListener(fContentProvider);
 		}

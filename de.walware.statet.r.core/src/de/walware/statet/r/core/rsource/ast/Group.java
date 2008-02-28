@@ -27,6 +27,10 @@ public class Group extends RAstNode {
 	int fGroupCloseOffset = Integer.MIN_VALUE;
 	
 	
+	Group() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.GROUP;
@@ -110,6 +114,7 @@ public class Group extends RAstNode {
 	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.GROUP);
 	}
+	
 	
 	@Override
 	final void updateStopOffset() {

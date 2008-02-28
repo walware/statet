@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.util;
@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 
 
 /**
@@ -82,7 +81,7 @@ public class UIAccess {
 		}
 		return null;
 	}
-
+	
 	public static Shell getActiveWorkbenchShell(final boolean inUIThread) {
 		 final IWorkbenchWindow window = getActiveWorkbenchWindow(inUIThread);
 		 if (window != null) {
@@ -141,5 +140,8 @@ public class UIAccess {
 				&& (Display.getCurrent() != null)
 		);
 	}
-
+	
+	
+	private UIAccess() {}
+	
 }

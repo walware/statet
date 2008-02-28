@@ -21,7 +21,7 @@
 	name="r_NewRScriptFile" 
 	description="%r_NewRScriptFile_description" 
 	># ${todo}: %r_NewRScriptFile_content2
-#
+# 
 # %r_NewRScriptFile_content3 ${user}
 ###############################################################################
 
@@ -37,7 +37,7 @@ ${selection_begin}
 	description="%rd_NewRDocFile_description" 
 	>%rd_C 
 %rd_C ${todo}: %rd_NewRDocFile_content2 
-%rd_C
+%rd_C 
 
 ${selection_begin}
 </template>

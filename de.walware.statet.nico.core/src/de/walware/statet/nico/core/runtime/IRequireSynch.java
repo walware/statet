@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public interface IRequireSynch {
 	
+	
 	public String synch(IProgressMonitor monitor) throws InterruptedException, CoreException;
 	
 }

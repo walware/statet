@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.util;
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 
 /**
- *
+ * 
  */
 public class MessageUtil {
 	

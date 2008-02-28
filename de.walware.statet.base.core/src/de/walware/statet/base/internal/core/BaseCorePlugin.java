@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.core;
@@ -33,7 +33,7 @@ public final class BaseCorePlugin extends Plugin {
 	
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static BaseCorePlugin getDefault() {
@@ -59,6 +59,7 @@ public final class BaseCorePlugin extends Plugin {
 	public BaseCorePlugin() {
 		gPlugin = this;
 	}
+	
 	
 	@Override
 	public void start(final BundleContext context) throws Exception {

@@ -53,6 +53,7 @@ public abstract class RLexer {
 		reset(input);
 	}
 	
+	
 	protected void reset(final SourceParseInput input) {
 		fInput = input;
 		fNextIndex = 0;

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
@@ -14,9 +14,8 @@ package de.walware.eclipsecommons.ltk;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 
 
-
 /**
- *
+ * 
  */
 public class AstInfo<NodeT extends IAstNode> {
 	
@@ -26,7 +25,7 @@ public class AstInfo<NodeT extends IAstNode> {
 	public NodeT root;
 	
 	
-	public AstInfo(int level, long stamp) {
+	public AstInfo(final int level, final long stamp) {
 		this.level = level;
 		this.stamp = stamp;
 	}

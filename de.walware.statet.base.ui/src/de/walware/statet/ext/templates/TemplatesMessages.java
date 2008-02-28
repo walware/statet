@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.templates;
@@ -15,6 +15,7 @@ import org.eclipse.osgi.util.NLS;
 
 
 public class TemplatesMessages extends NLS {
+	
 	
 	public static String Templates_Variable_ToDo_description;
 	
@@ -29,5 +30,6 @@ public class TemplatesMessages extends NLS {
 	static {
 		NLS.initializeMessages(TemplatesMessages.class.getName(), TemplatesMessages.class);
 	}
+	private TemplatesMessages() {}
 	
 }

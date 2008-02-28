@@ -58,6 +58,10 @@ public abstract class AbstractConfigurationBlock {
 	protected boolean fUseProjectSettings = true;
 	
 	
+	protected AbstractConfigurationBlock() {
+	}
+	
+	
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
 			final IPreferenceStore preferenceStore) {
 		fShell = pageComposite.getShell();

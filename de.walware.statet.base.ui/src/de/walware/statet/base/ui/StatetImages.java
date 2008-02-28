@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui;
@@ -62,5 +62,8 @@ public class StatetImages {
 		}
 		return image;
 	}
+	
+	
+	private StatetImages() {}
 	
 }

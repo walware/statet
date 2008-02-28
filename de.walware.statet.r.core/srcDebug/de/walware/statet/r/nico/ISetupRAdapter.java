@@ -15,11 +15,12 @@ import org.eclipse.core.filesystem.IFileStore;
 
 
 /**
- *
+ * 
  * Note: the methods sets the properties at java side. The caller is
  * responsible for the synchronization of the properties with R.
  */
 public interface ISetupRAdapter {
+	
 	
 	public void setDefaultPromptText(String text);
 	public void setIncompletePromptText(String text);

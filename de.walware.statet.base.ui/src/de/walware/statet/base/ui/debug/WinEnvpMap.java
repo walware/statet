@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui.debug;
@@ -25,6 +25,10 @@ public class WinEnvpMap implements Map<String, String> {
 	
 	private Map<String, String> fIdNameMap = new HashMap<String, String>();
 	private Map<String, String> fNameValueMap = new HashMap<String, String>();
+	
+	
+	public WinEnvpMap() {
+	}
 	
 	
 	public void clear() {

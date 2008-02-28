@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -42,7 +42,7 @@ import de.walware.statet.nico.ui.NicoUI;
  * Connects a console to the streams of a tool process/controller.
  */
 public class NIConsoleColorAdapter implements IConsoleColorProvider {
-
+	
 	
 	public static final String ID_INFO_STREAM = NicoUI.PLUGIN_ID+".InfoStream"; //$NON-NLS-1$
 	
@@ -52,24 +52,28 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	private IPropertyChangeListener fPreferenceListener;
 	
 	
-	public void connect(IProcess process, IConsole console) {
+	public NIConsoleColorAdapter() {
+	}
+	
+	
+	public void connect(final IProcess process, final IConsole console) {
 		// not yet implemented
 	}
 	
-	public void connect(ToolProcess process, NIConsole console) {
+	public void connect(final ToolProcess process, final NIConsole console) {
 		fConsole = console;
 		
 		fPreferences = createPreferenceStore();
 		fPreferenceListener = new IPropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
-			    final String streamId = getStreamId(event.getProperty());
+			public void propertyChange(final PropertyChangeEvent event) {
+				final String streamId = getStreamId(event.getProperty());
 				if (streamId != null) {
 					UIAccess.getDisplay().asyncExec(new Runnable() {
 						public void run() {
-						    IOConsoleOutputStream stream = fConsole.getStream(streamId);
-						    if (stream != null) {
-						        stream.setColor(getColor(streamId));
-						    }
+							final IOConsoleOutputStream stream = fConsole.getStream(streamId);
+							if (stream != null) {
+								stream.setColor(getColor(streamId));
+							}
 						}
 					});
 				}
@@ -77,10 +81,10 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 		};
 		fPreferences.addPropertyChangeListener(fPreferenceListener);
 		
-		FilterPreferences filter = new ConsolePreferences.FilterPreferences(PreferencesUtil.getInstancePrefs());
-		ToolController controller = process.getController();
+		final FilterPreferences filter = new ConsolePreferences.FilterPreferences(PreferencesUtil.getInstancePrefs());
+		final ToolController controller = process.getController();
 		if (controller != null) {
-			ToolStreamProxy proxy = controller.getStreams();
+			final ToolStreamProxy proxy = controller.getStreams();
 			console.connect(proxy.getErrorStreamMonitor(), IDebugUIConstants.ID_STANDARD_ERROR_STREAM, 
 					filter.showAllErrors() ? EnumSet.allOf(SubmitType.class) : filter.getSelectedTypes());
 			console.connect(proxy.getOutputStreamMonitor(), IDebugUIConstants.ID_STANDARD_OUTPUT_STREAM, 
@@ -91,7 +95,7 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 					filter.getSelectedTypes());
 		}
 	}
-
+	
 	public void disconnect() {
 		fPreferences.removePropertyChangeListener(fPreferenceListener);
 		fPreferenceListener = null;
@@ -99,17 +103,18 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 		
 		fConsole = null;
 	}
-
-	public Color getColor(String streamIdentifer) {
-		String colorId = getColorId(streamIdentifer);
+	
+	
+	public Color getColor(final String streamIdentifer) {
+		final String colorId = getColorId(streamIdentifer);
 		if (colorId == null) {
 			return null;
 		}
-		RGB rgb = PreferenceConverter.getColor(fPreferences, colorId);
+		final RGB rgb = PreferenceConverter.getColor(fPreferences, colorId);
 		return UIAccess.getColor(StatetUIServices.getSharedColorManager(), rgb);
 	}
-
-	protected String getColorId(String streamId) {
+	
+	protected String getColorId(final String streamId) {
 		if (streamId.equals(IDebugUIConstants.ID_STANDARD_INPUT_STREAM)) {
 			return ConsolePreferences.INPUT_COLOR;
 		}
@@ -125,7 +130,7 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 		return null;
 	}
 	
-	protected String getStreamId(String colorId) {
+	protected String getStreamId(final String colorId) {
 		if (colorId.equals(ConsolePreferences.INPUT_COLOR)) {
 			return IDebugUIConstants.ID_STANDARD_INPUT_STREAM;
 		}
@@ -147,8 +152,9 @@ public class NIConsoleColorAdapter implements IConsoleColorProvider {
 	public boolean isReadOnly() {
 		return true; 
 	}
-
+	
 	protected IPreferenceStore createPreferenceStore() {
 		return ConsolePreferences.getStore();
 	}
+	
 }

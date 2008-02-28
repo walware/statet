@@ -1342,7 +1342,7 @@ public class RScanner {
 		}
 		return state;
 	}
-		
+	
 	private final void readLines() {
 		while (fNextType == RTerminal.LINEBREAK) {
 			consumeToken();

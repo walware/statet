@@ -66,7 +66,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 				fExceptionList.trimToSize();
 		}
 		
-		private void add(CoreException e) {
+		private void add(final CoreException e) {
 			
 			fExceptionList.add(e);
 		}
@@ -74,12 +74,12 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		void checkException() throws CoreException {
 			
 			if (fExceptionList != null && fExceptionList.size() > 0) {
-				IStatus[] allStatus = new IStatus[fExceptionList.size()];
+				final IStatus[] allStatus = new IStatus[fExceptionList.size()];
 				for (int i = 0; i < allStatus.length; i++) {
 					allStatus[i] = fExceptionList.get(i).getStatus();
 				}
 				
-				IStatus status = new MultiStatus(
+				final IStatus status = new MultiStatus(
 						RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,	allStatus,
 						NLS.bind(Messages.Builder_error_MultipleErrors_message, Integer.toString(allStatus.length)),
 						null);
@@ -91,10 +91,10 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	class RResourceVisitor implements IResourceVisitor {
 		
-		public boolean visit(IResource resource) {
+		public boolean visit(final IResource resource) {
 			try {
 				check(resource);
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				fExceptions.add(e);
 			}
 			//return true to continue visiting children.
@@ -104,9 +104,9 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	class RResourceDeltaVisitor implements IResourceDeltaVisitor {
 		
-		public boolean visit(IResourceDelta delta) throws CoreException {
+		public boolean visit(final IResourceDelta delta) throws CoreException {
 			try {
-				IResource resource = delta.getResource();
+				final IResource resource = delta.getResource();
 				switch (delta.getKind()) {
 				
 				case IResourceDelta.ADDED:
@@ -120,7 +120,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 					// markers are automatically removed
 					break;
 				}
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				fExceptions.add(e);
 			}
 			//return true to continue visiting children.
@@ -130,7 +130,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	private class SettingsListener implements IEclipsePreferences.IPreferenceChangeListener {
 		
-		public void preferenceChange(PreferenceChangeEvent event) {
+		public void preferenceChange(final PreferenceChangeEvent event) {
 			
 			fInitialized = false;
 		}
@@ -152,7 +152,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	}
 	
 	@Override
-	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
+	public void setInitializationData(final IConfigurationElement config, final String propertyName, final Object data) throws CoreException {
 		
 		super.setInitializationData(config, propertyName, data);
 	}
@@ -171,13 +171,13 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			if (fRProject == null) {
 				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "R Project Nature is missing", null)); //$NON-NLS-1$
 			}
-			IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
+			final IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
 					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER);
-			for (IEclipsePreferences node : nodes) {
+			for (final IEclipsePreferences node : nodes) {
 				node.addPreferenceChangeListener(fSettingsListener);
 			}
 			fStartupSuccessfull = true;
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind("Error occured while initizalizing the builder (''{0}'').", ID), e)); //$NON-NLS-1$
 		}
@@ -197,7 +197,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	}
 	
 	@Override
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
+	protected IProject[] build(final int kind, final Map args, final IProgressMonitor monitor)
 			throws CoreException {
 		
 		if (!fInitialized)
@@ -207,7 +207,7 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			doFullBuild(monitor);
 		}
 		else {
-			IResourceDelta delta = getDelta(getProject());
+			final IResourceDelta delta = getDelta(getProject());
 			if (delta == null) {
 				doFullBuild(monitor);
 			} else {
@@ -218,18 +218,18 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 	
-	protected void doFullBuild(IProgressMonitor monitor)
+	protected void doFullBuild(final IProgressMonitor monitor)
 			throws CoreException {
 		
 		fExceptions.reset();
 		
-		RResourceVisitor visitor = new RResourceVisitor();
+		final RResourceVisitor visitor = new RResourceVisitor();
 		getProject().accept(visitor);
 		
 		fExceptions.checkException();
 	}
 	
-	protected void doIncrementalBuild(IResourceDelta delta, IProgressMonitor monitor)
+	protected void doIncrementalBuild(final IResourceDelta delta, final IProgressMonitor monitor)
 			throws CoreException {
 		
 		fExceptions.reset();
@@ -240,8 +240,8 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	}
 	
 	@Override
-	protected void clean(IProgressMonitor monitor) throws CoreException {
-
+	protected void clean(final IProgressMonitor monitor) throws CoreException {
+		
 //		if (!fInitialized)
 		init();
 		
@@ -249,19 +249,19 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		fResourceMarkers.clean();
 	}
 	
-	protected void check(IResource resource) throws CoreException {
+	protected void check(final IResource resource) throws CoreException {
 		
 		fResourceMarkers.setup(resource);
 		
 		if (resource instanceof IFile) {
 			
-			IFile file = (IFile) resource;
+			final IFile file = (IFile) resource;
 			fResourceMarkers.clean();
 				
-			IContentDescription description = file.getContentDescription();
+			final IContentDescription description = file.getContentDescription();
 			if (description == null)
 				return;
-			IContentType type = description.getContentType();
+			final IContentType type = description.getContentType();
 			if (type == null)
 				return;
 			
@@ -278,41 +278,41 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	
 	
-	protected void doParseR(IFile file) throws CoreException {
+	protected void doParseR(final IFile file) throws CoreException {
 		
 		new RParser(readFile(file), fResourceMarkers).check();
 	}
 	
-	protected void doParseRd(IFile file) throws CoreException {
+	protected void doParseRd(final IFile file) throws CoreException {
 		
 		new RdParser(readFile(file), fResourceMarkers).check();
 	}
 	
-	protected char[] readFile(IFile file) throws CoreException {
+	protected char[] readFile(final IFile file) throws CoreException {
 		
 		String charset = null;
 		try {
-			InputStream input = file.getContents();
+			final InputStream input = file.getContents();
 			charset = file.getCharset();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
 			
-			StringBuilder text = new StringBuilder(1000);
-			char[] readBuffer = new char[2048];
+			final StringBuilder text = new StringBuilder(1000);
+			final char[] readBuffer = new char[2048];
 			int n;
 			while ((n = reader.read(readBuffer)) > 0) {
 				text.append(readBuffer, 0, n);
 			}
 			
-			char[] chars = new char[text.length()];
+			final char[] chars = new char[text.length()];
 			text.getChars(0, chars.length, chars, 0);
 			return chars;
 			
-		} catch (UnsupportedEncodingException e) {
+		} catch (final UnsupportedEncodingException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind(Messages.Builder_error_UnsupportedEncoding_message, new String[] {
 							charset, file.getName() } ), e));
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind(Messages.Builder_error_IOReadingFile_message, file.getName() ), e));

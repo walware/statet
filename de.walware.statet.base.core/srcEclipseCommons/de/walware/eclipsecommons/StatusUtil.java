@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -18,29 +18,29 @@ import org.eclipse.core.runtime.IStatus;
  * A utility class to work with IStatus.
  */
 public class StatusUtil {
-
+	
 	/**
 	 * Compares two instances of <code>IStatus</code>. The more severe is returned:
 	 * An error is more severe than a warning, and a warning is more severe
 	 * than ok. If the two stati have the same severity, the second is returned.
 	 */
-	public static IStatus getMoreSevere(IStatus s1, IStatus s2) {
+	public static IStatus getMoreSevere(final IStatus s1, final IStatus s2) {
 		if (s1.getSeverity() > s2.getSeverity()) {
 			return s1;
 		} else {
 			return s2;
 		}
 	}
-
+	
 	/**
 	 * Finds the most severe status from a array of stati.
 	 * An error is more severe than a warning, and a warning is more severe
 	 * than ok.
 	 */
-	public static IStatus getMostSevere(IStatus[] status) {
+	public static IStatus getMostSevere(final IStatus[] status) {
 		IStatus max= null;
 		for (int i= 0; i < status.length; i++) {
-			IStatus curr= status[i];
+			final IStatus curr= status[i];
 			if (curr.matches(IStatus.ERROR)) {
 				return curr;
 			}

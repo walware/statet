@@ -63,6 +63,7 @@ public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<Edit
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 	}
 	
+	
 	@Override
 	protected EditorsConfigurationBlock createConfigurationBlock() {
 		return new EditorsConfigurationBlock(createStatusChangedListener());
@@ -82,6 +83,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 			this.name = label;
 			this.pref = pref;
 		}
+		
 	}
 	
 	
@@ -100,6 +102,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	public EditorsConfigurationBlock(final IStatusChangeListener statusListener) {
 		super(null, statusListener);
 	}
+	
 	
 	@Override
 	protected String[] getChangedGroups() {

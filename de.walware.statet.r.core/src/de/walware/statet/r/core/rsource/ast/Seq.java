@@ -22,6 +22,10 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class Seq extends StdBinary {
 	
 	
+	Seq() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.SEQ;
@@ -35,6 +39,7 @@ public class Seq extends StdBinary {
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
+	
 	
 	@Override
 	public final boolean equalsSingle(final RAstNode element) {

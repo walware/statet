@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.util;
@@ -19,10 +19,11 @@ import org.eclipse.swt.widgets.Shell;
 
 public class NicoWizardDialog extends WizardDialog {
 	
-	public NicoWizardDialog(Shell parentShell, IWizard newWizard) {
+	
+	public NicoWizardDialog(final Shell parentShell, final IWizard newWizard) {
 		super(parentShell, newWizard);
 		
 		setShellStyle(SWT.CLOSE | SWT.TITLE | SWT.BORDER | SWT.MODELESS | SWT.RESIZE | getDefaultOrientation());
 	}
-
+	
 }

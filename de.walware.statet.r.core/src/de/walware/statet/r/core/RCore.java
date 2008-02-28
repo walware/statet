@@ -25,6 +25,7 @@ public class RCore {
 	
 	public static final String PLUGIN_ID = "de.walware.statet.r.core"; //$NON-NLS-1$
 	
+	
 	/**
 	 * Usually used, if no other context (e.g. project) specified.
 	 */

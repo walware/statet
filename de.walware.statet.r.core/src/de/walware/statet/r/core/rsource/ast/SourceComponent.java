@@ -15,9 +15,13 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- *
+ * 
  */
 public class SourceComponent extends ExpressionList {
+	
+	
+	SourceComponent() {
+	}
 	
 	
 	@Override
@@ -26,14 +30,16 @@ public class SourceComponent extends ExpressionList {
 	}
 	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
-		return (element.getNodeType() == NodeType.SOURCELINES);
-	}
-	
-	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
+	
+	
+	@Override
+	public final boolean equalsSingle(final RAstNode element) {
+		return (element.getNodeType() == NodeType.SOURCELINES);
+	}
+	
 	
 	final void updateStartOffset() {
 		if (getChildCount() > 0) {

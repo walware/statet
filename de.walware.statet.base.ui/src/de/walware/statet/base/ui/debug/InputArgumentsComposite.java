@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui.debug;
@@ -36,13 +36,13 @@ import de.walware.statet.base.internal.ui.StatetMessages;
  * Composite usually used in launch configuration dialogs.
  */
 public class InputArgumentsComposite extends Composite {
-
+	
 	
 	private Text fTextControl;
 	private Button fVariablesButton;
 	
 	
-	public InputArgumentsComposite(Composite parent) {
+	public InputArgumentsComposite(final Composite parent) {
 		super(parent, SWT.NONE);
 		
 		createControls();
@@ -50,36 +50,36 @@ public class InputArgumentsComposite extends Composite {
 	
 	
 	private void createControls() {
-		Composite container = this;
-		GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
+		final Composite container = this;
+		final GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
 		layout.horizontalSpacing = 0;
 		container.setLayout(layout);
 		
-		Label label = new Label(container, SWT.LEFT);
+		final Label label = new Label(container, SWT.LEFT);
 		label.setText(StatetMessages.InputArguments_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 		
 		fTextControl = new Text(container, SWT.LEFT | SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = LayoutUtil.hintWidth(fTextControl, SWT.DEFAULT);
 		gd.heightHint = new PixelConverter(fTextControl).convertHeightInCharsToPixels(4);
 		fTextControl.setLayoutData(gd);
 		
-		WidgetToolsButton tools = new WidgetToolsButton(fTextControl) {
+		final WidgetToolsButton tools = new WidgetToolsButton(fTextControl) {
 			@Override
-			protected void fillMenu(Menu menu) {
+			protected void fillMenu(final Menu menu) {
 				InputArgumentsComposite.this.fillMenu(menu);
 			}
 		};
 		tools.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 	}
 	
-	protected void fillMenu(Menu menu) {
-		MenuItem item = new MenuItem(menu, SWT.PUSH);
+	protected void fillMenu(final Menu menu) {
+		final MenuItem item = new MenuItem(menu, SWT.PUSH);
 		item.setText(StatetMessages.InsertVariable_label);
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				handleVariablesButton();
 				getTextControl().setFocus();
 			}
@@ -87,18 +87,18 @@ public class InputArgumentsComposite extends Composite {
 	}
 	
 	private void handleVariablesButton() {
-		StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+		final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
 		if (dialog.open() != Dialog.OK) {
 			return;
 		}
-		String variable = dialog.getVariableExpression();
+		final String variable = dialog.getVariableExpression();
 		if (variable == null) {
 			return;
 		}
 		fTextControl.insert(variable);
 	}
-
-
+	
+	
 	public Text getTextControl() {
 		return fTextControl;
 	}
@@ -106,5 +106,5 @@ public class InputArgumentsComposite extends Composite {
 	public String getNoteText() {
 		return StatetMessages.InputArguments_note;
 	}
-
+	
 }

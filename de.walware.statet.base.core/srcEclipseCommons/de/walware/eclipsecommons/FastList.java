@@ -132,7 +132,7 @@ public class FastList<T> {
 	 * the notification itself.
 	 * <p>
 	 * Note: Callers of this method <b>must not</b> modify the returned array.
-	 *
+	 * 
 	 * @return the list of registered listeners
 	 */
 	public T[] toArray() {
@@ -141,7 +141,7 @@ public class FastList<T> {
 	
 	/**
 	 * Returns whether this listener list is empty.
-	 *
+	 * 
 	 * @return <code>true</code> if there are no registered listeners, and
 	 *   <code>false</code> otherwise
 	 */
@@ -152,7 +152,7 @@ public class FastList<T> {
 	/**
 	 * Removes a listener from this list. Has no effect if the <a href="#same">same</a>
 	 * listener was not already registered.
-	 *
+	 * 
 	 * @param listener the non-<code>null</code> listener to remove
 	 */
 	public synchronized void remove(final T listener) {
@@ -181,7 +181,7 @@ public class FastList<T> {
 	
 	/**
 	 * Returns the number of registered listeners.
-	 *
+	 * 
 	 * @return the number of registered listeners
 	 */
 	public int size() {

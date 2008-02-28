@@ -27,7 +27,8 @@ public abstract class Dummy extends RAstNode {
 	
 	static class Terminal extends Dummy {
 		
-		public Terminal(final IStatus status) {
+		
+		Terminal(final IStatus status) {
 			super(status);
 		}
 		
@@ -63,6 +64,19 @@ public abstract class Dummy extends RAstNode {
 		}
 		
 		@Override
+		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+			visitor.visit(this);
+		}
+		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) {
+		}
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) {
+		}
+		
+		
+		@Override
 		final Expression getExpr(final RAstNode child) {
 			return null;
 		}
@@ -80,18 +94,6 @@ public abstract class Dummy extends RAstNode {
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.ERROR_TERM);
-		}
-		
-		@Override
-		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-			visitor.visit(this);
-		}
-		
-		@Override
-		public final void acceptInRChildren(final RAstVisitor visitor) {
-		}
-		
-		public final void acceptInChildren(final ICommonAstVisitor visitor) {
 		}
 		
 	}
@@ -153,6 +155,27 @@ public abstract class Dummy extends RAstNode {
 		}
 		
 		@Override
+		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+			visitor.visit(this);
+		}
+		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+			if (fLeftExpr.node != null) {
+				fLeftExpr.node.acceptInR(visitor);
+			}
+			fRightExpr.node.acceptInR(visitor);
+		}
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+			if (fLeftExpr.node != null) {
+				fLeftExpr.node.accept(visitor);
+			}
+			fRightExpr.node.accept(visitor);
+		}
+		
+		
+		@Override
 		final Expression getExpr(final RAstNode child) {
 			if (fRightExpr.node == child) {
 				return fRightExpr;
@@ -178,26 +201,6 @@ public abstract class Dummy extends RAstNode {
 			return (element.getNodeType() == NodeType.ERROR);
 		}
 		
-		@Override
-		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-			visitor.visit(this);
-		}
-		
-		@Override
-		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
-			if (fLeftExpr.node != null) {
-				fLeftExpr.node.acceptInR(visitor);
-			}
-			fRightExpr.node.acceptInR(visitor);
-		}
-		
-		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-			if (fLeftExpr.node != null) {
-				fLeftExpr.node.accept(visitor);
-			}
-			fRightExpr.node.accept(visitor);
-		}
-		
 	}
 	
 	
@@ -207,6 +210,7 @@ public abstract class Dummy extends RAstNode {
 	Dummy(final IStatus status) {
 		super(status);
 	}
+	
 	
 	final void updateStartOffset() {
 		final Expression left = getLeftExpr();

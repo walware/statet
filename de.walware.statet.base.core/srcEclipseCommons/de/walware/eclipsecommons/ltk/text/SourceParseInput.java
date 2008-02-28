@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.text;
@@ -15,7 +15,7 @@ package de.walware.eclipsecommons.ltk.text;
 /**
  * Generic API for input of lexers etc.
  * Subclasses have to fill and update the buffer.
- *
+ * 
  * Note:
  * All public methods have 1-based index (args called num).
  * Internal methods uses 0-based index (args call index).

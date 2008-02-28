@@ -23,9 +23,10 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- *
+ * 
  */
 public abstract class AbstractRUnitFactory implements ISourceUnitFactory {
+	
 	
 	public ISourceUnit getUnit(final Object from, final String typeId, final WorkingContext context, final boolean create) {
 		if (context == StatetCore.PERSISTENCE_CONTEXT) {
@@ -68,6 +69,7 @@ public abstract class AbstractRUnitFactory implements ISourceUnitFactory {
 	}
 	
 	protected abstract ISourceUnit createNew(final IFile file, WorkingContext context);
+	
 	protected abstract ISourceUnit createNew(final ISourceUnit unit, WorkingContext context);
 	
 }

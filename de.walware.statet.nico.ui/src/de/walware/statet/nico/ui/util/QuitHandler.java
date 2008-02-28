@@ -74,6 +74,7 @@ public class QuitHandler implements IToolEventHandler {
 				}
 			}
 		}
+		
 	}
 	
 	public int handle(final IToolRunnableControllerAdapter tools, final Object contextData) {

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.util;
@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Tree;
 
 
 /**
- *
+ * 
  */
 public class LayoutUtil {
 	
@@ -51,7 +51,6 @@ public class LayoutUtil {
 		int defaultSmallIndent;
 		
 		public DialogValues() {
-			
 			final GC gc = new GC(Display.getCurrent());
 			gc.setFont(JFaceResources.getDialogFont());
 			final FontMetrics fontMetrics = gc.getFontMetrics();
@@ -213,7 +212,6 @@ public class LayoutUtil {
 	}
 	
 	
-	private LayoutUtil() {
-	}
+	private LayoutUtil() {}
 	
 }

@@ -150,6 +150,7 @@ public class History {
 		checkSettings();
 	}
 	
+	
 	public Lock getReadLock() {
 		return fLock.readLock();
 	}
@@ -402,7 +403,7 @@ public class History {
 	/**
 	 * Adds the given listener to this history.
 	 * Has no effect if an identical listener is already registered.
-	 *
+	 * 
 	 * @param listener the listener
 	 */
 	public void addListener(final IHistoryListener listener) {
@@ -412,7 +413,7 @@ public class History {
 	/**
 	 * Removes the given listener from this history.
 	 * Has no effect if an identical listener was not already registered.
-	 *
+	 * 
 	 * @param listener the listener
 	 */
 	public void removeListener(final IHistoryListener listener) {

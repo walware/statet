@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.internal.fileutil;
@@ -31,17 +31,17 @@ import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
 
 
 /**
- *
+ * 
  */
 public abstract class FileUtilProvider {
-
+	
 	public static class FileInput implements Closeable {
 		
 		private String fEncoding;
 		private String fDefaultEncoding;
 		private InputStream fStream;
 		
-		public FileInput(InputStream input, String expliciteCharsetHint) throws IOException, CoreException {
+		public FileInput(final InputStream input, final String expliciteCharsetHint) throws IOException, CoreException {
 			fStream = input;
 			if (expliciteCharsetHint != null) {
 				fDefaultEncoding = expliciteCharsetHint;
@@ -52,12 +52,12 @@ public abstract class FileUtilProvider {
 			fEncoding = (fDefaultEncoding != null) ? fDefaultEncoding : FileUtil.UTF_8;
 		}
 		
-		void read(InputStream input) throws IOException {
+		void read(final InputStream input) throws IOException {
 			
 			try {
-				int n = 3;
-				byte[] bytes = new byte[n];
-				int readed = input.read(bytes, 0, n);
+				final int n = 3;
+				final byte[] bytes = new byte[n];
+				final int readed = input.read(bytes, 0, n);
 				if (readed == 0) {
 					return;
 				}
@@ -79,13 +79,13 @@ public abstract class FileUtilProvider {
 							bytes, next, readed-next), input);
 				}
 			}
-			catch (IOException e) {
+			catch (final IOException e) {
 				saveClose(input);
 				throw e;
 			}
 		}
 		
-		private boolean startsWith(byte[] array, byte[] start) {
+		private boolean startsWith(final byte[] array, final byte[] start) {
 			for (int i = 0; i < start.length; i++) {
 				if (array[i] != start[i]) {
 					return false;
@@ -94,7 +94,7 @@ public abstract class FileUtilProvider {
 			return true;
 		}
 		
-		public void setEncoding(String encoding, boolean force) {
+		public void setEncoding(final String encoding, final boolean force) {
 			if (encoding == null && fDefaultEncoding != null) {
 				fEncoding = fDefaultEncoding;
 			}
@@ -116,24 +116,20 @@ public abstract class FileUtilProvider {
 		public Reader getReader() throws UnsupportedEncodingException {
 			return new InputStreamReader(fStream, fEncoding);
 		}
-	
 		
 	}
-
+	
 	
 	public abstract long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException;
 	public abstract ReadTextFileOperation createReadTextFileOp(ReaderAction action, Object file);
 	public abstract WriteTextFileOperation createWriteTextFileOp(String content, Object file);
 	
 	
-	public static void saveClose(Closeable stream) {
+	public static void saveClose(final Closeable stream) {
 		if (stream != null) {
 			try {
 				stream.close();
-			}
-			catch (IOException e) {
-				;
-			}
+			} catch (final IOException e) {}
 		}
 	}
 	

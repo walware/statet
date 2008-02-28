@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.preferences;
@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
  * In most cases, you can take the Objects from <code>PreferencesUtil</code>.
  */
 public interface IPreferenceAccess {
+	
 	
 	/**
 	 * Returns the preference value of the specified <code>Preference</code>

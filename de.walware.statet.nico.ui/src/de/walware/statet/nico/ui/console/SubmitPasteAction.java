@@ -39,6 +39,7 @@ class SubmitPasteAction extends Action {
 	
 	private NIConsolePage fView;
 	
+	
 	public SubmitPasteAction(final NIConsolePage consolePage) {
 		super(NicoUIMessages.PasteSubmitAction_name);
 		
@@ -47,6 +48,7 @@ class SubmitPasteAction extends Action {
 		
 		fView = consolePage;
 	}
+	
 	
 	@Override
 	public void run() {

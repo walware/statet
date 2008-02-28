@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.templates;
@@ -34,6 +34,7 @@ import de.walware.statet.base.core.StatetProject;
 
 public class StatextCodeTemplatesContext extends TemplateContext implements IStatetContext {
 	
+	
 	private String fLineDelimiter;
 	private StatetProject fProject;
 	Position fSelectionStart;
@@ -48,6 +49,7 @@ public class StatextCodeTemplatesContext extends TemplateContext implements ISta
 		fLineDelimiter = lineDelim;
 		fProject = project;
 	}
+	
 	
 	public StatetProject getStatetProject() {
 		return fProject;

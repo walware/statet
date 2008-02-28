@@ -26,10 +26,16 @@ public abstract class SubIndexed extends RAstNode {
 	
 	static class S extends SubIndexed {
 		
+		
+		S() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SUB_INDEXED_S;
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -40,10 +46,16 @@ public abstract class SubIndexed extends RAstNode {
 	
 	static class D extends SubIndexed {
 		
+		
+		D() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SUB_INDEXED_D;
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -54,6 +66,11 @@ public abstract class SubIndexed extends RAstNode {
 	
 	public static class Args extends SpecList {
 		
+		
+		Args() {
+		}
+		
+		
 		Args(final SubIndexed parent) {
 			fRParent = parent;
 		}
@@ -63,10 +80,12 @@ public abstract class SubIndexed extends RAstNode {
 			return NodeType.SUB_INDEXED_ARGS;
 		}
 		
+		
 		@Override
 		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 			visitor.visit(this);
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -92,14 +111,16 @@ public abstract class SubIndexed extends RAstNode {
 			return NodeType.SUB_INDEXED_ARG;
 		}
 		
-		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			return (element.getNodeType() == NodeType.SUB_INDEXED_ARG);
-		}
 		
 		@Override
 		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 			visitor.visit(this);
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.SUB_INDEXED_ARG);
 		}
 		
 	}
@@ -110,6 +131,10 @@ public abstract class SubIndexed extends RAstNode {
 	int fOpenOffset = Integer.MIN_VALUE;
 	int fCloseOffset = Integer.MIN_VALUE;
 	int fClose2Offset = Integer.MIN_VALUE;
+	
+	
+	protected SubIndexed() {
+	}
 	
 	
 	@Override
@@ -181,6 +206,7 @@ public abstract class SubIndexed extends RAstNode {
 		fExpr.node.accept(visitor);
 		fSublist.accept(visitor);
 	}
+	
 	
 	@Override
 	final Expression getExpr(final RAstNode child) {

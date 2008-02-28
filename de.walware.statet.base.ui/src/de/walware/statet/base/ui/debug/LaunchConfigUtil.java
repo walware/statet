@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui.debug;
@@ -44,7 +44,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
- *
+ * 
  */
 public class LaunchConfigUtil {
 	
@@ -66,6 +66,7 @@ public class LaunchConfigUtil {
 	 * Adds environment variables specified in launch configuration to the map.
 	 * Explicit specified variables replaces values already configured, but not
 	 * appended variables from OS.
+	 * 
 	 * @param configuration
 	 * @param environment
 	 * @throws CoreException
@@ -171,10 +172,10 @@ public class LaunchConfigUtil {
 				fProcess = null;
 				final Job job = new Job(StatetMessages.BackgroundResourceRefresher_Job_name) {
 					@Override
-					public IStatus run(IProgressMonitor monitor) {
+					public IStatus run(final IProgressMonitor monitor) {
 						try {
 							RefreshTab.refreshResources(fConfiguration, monitor);
-						} catch (CoreException e) {
+						} catch (final CoreException e) {
 							StatetUIPlugin.logUnexpectedError(e);
 							return e.getStatus();
 						}
@@ -270,5 +271,8 @@ public class LaunchConfigUtil {
 		}
 		return new IProject[0];
 	}
+	
+	
+	private LaunchConfigUtil() {}
 	
 }

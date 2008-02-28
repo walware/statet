@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.views;
@@ -60,35 +60,35 @@ import de.walware.statet.nico.ui.util.ToolProgressGroup;
 
 /**
  * A view for the queue of a tool process.
- *
+ * 
  * Usage: This class is not intended to be subclassed.
  */
 public class QueueView extends ViewPart {
-
+	
 	
 	private class ViewContentProvider implements IStructuredContentProvider, IDebugEventSetListener {
-
+		
 		private volatile boolean fExpectInfoEvent = false;
 		private IToolRunnable[] fRefreshData;
 		
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			if (oldInput != null && newInput == null) {
 				unregister();
 				fPauseAction.setTool(null);
 			}
 			if (newInput != null) {
-				ToolProcess newProcess = (ToolProcess) newInput;
-
+				final ToolProcess newProcess = (ToolProcess) newInput;
+				
 				fPauseAction.setTool(newProcess);
 				
-				DebugPlugin manager = DebugPlugin.getDefault();
+				final DebugPlugin manager = DebugPlugin.getDefault();
 				if (manager != null) {
 					manager.addDebugEventListener(this);
 				}
 			}
 		}
-
-		public Object[] getElements(Object inputElement) {
+		
+		public Object[] getElements(final Object inputElement) {
 			IToolRunnable[] elements;
 			if (fRefreshData != null) {
 				elements = fRefreshData;
@@ -96,7 +96,7 @@ public class QueueView extends ViewPart {
 			}
 			else {
 				elements = new IToolRunnable[0];
-				Queue queue = getQueue();
+				final Queue queue = getQueue();
 				if (queue != null) {
 					fExpectInfoEvent = true;
 					queue.sendElements();
@@ -106,12 +106,12 @@ public class QueueView extends ViewPart {
 		}
 		
 		private void unregister() {
-			DebugPlugin manager = DebugPlugin.getDefault();
+			final DebugPlugin manager = DebugPlugin.getDefault();
 			if (manager != null) {
 				manager.removeDebugEventListener(this);
 			}
 		}
-
+		
 		public void dispose() {
 			unregister();
 		}
@@ -128,16 +128,16 @@ public class QueueView extends ViewPart {
 			});
 		}
 		
-		public void handleDebugEvents(DebugEvent[] events) {
-			ToolProcess process = fProcess;
+		public void handleDebugEvents(final DebugEvent[] events) {
+			final ToolProcess process = fProcess;
 			if (process == null) {
 				return;
 			}
 			boolean updateProgress = false;
-			Queue queue = process.getQueue();
+			final Queue queue = process.getQueue();
 			EVENT: for (int i = 0; i < events.length; i++) {
-				DebugEvent event = events[i];
-				Object source = event.getSource();
+				final DebugEvent event = events[i];
+				final Object source = event.getSource();
 				if (source == process) {
 					if (event.getKind() == DebugEvent.TERMINATE) {
 						fPauseAction.setTool(null);
@@ -157,11 +157,11 @@ public class QueueView extends ViewPart {
 							if (!fExpectInfoEvent) {
 								if (events.length > i+1 && delta.data.length == 1) {
 									// Added and removed in same set
-									DebugEvent next = events[i+1];
+									final DebugEvent next = events[i+1];
 									if (next.getSource() == queue
 											&& next.getKind() == DebugEvent.CHANGE
 											&& next.getDetail() == DebugEvent.CONTENT) {
-										Queue.Delta nextDelta = (Queue.Delta) next.getData();
+										final Queue.Delta nextDelta = (Queue.Delta) next.getData();
 										if (nextDelta.type == Queue.ENTRY_START_PROCESSING
 												&& delta.data[0] == nextDelta.data[0]) {
 											updateProgress = true;
@@ -222,7 +222,7 @@ public class QueueView extends ViewPart {
 				}
 			}
 			if (updateProgress && fShowProgress) {
-				ToolProgressGroup progress = fProgressControl;
+				final ToolProgressGroup progress = fProgressControl;
 				if (progress != null) {
 					progress.refresh(false);
 				}
@@ -231,8 +231,8 @@ public class QueueView extends ViewPart {
 	}
 	
 	private class TableLabelProvider extends LabelProvider implements ITableLabelProvider {
-
-		public Image getColumnImage(Object element, int columnIndex) {
+		
+		public Image getColumnImage(final Object element, final int columnIndex) {
 			if (columnIndex == 0) {
 				return getImage(element);
 			}
@@ -240,15 +240,15 @@ public class QueueView extends ViewPart {
 		}
 		
 		@Override
-		public Image getImage(Object element) {
-			ImageDescriptor descriptor = NicoUITools.getImageDescriptor((IToolRunnable) element);
+		public Image getImage(final Object element) {
+			final ImageDescriptor descriptor = NicoUITools.getImageDescriptor((IToolRunnable) element);
 			if (descriptor != null) {
 				return StatetImages.getCachedImage(descriptor);
 			}
 			return null;
 		}
-
-		public String getColumnText(Object element, int columnIndex) {
+		
+		public String getColumnText(final Object element, final int columnIndex) {
 			if (columnIndex == 0) {
 				return getText(element);
 			}
@@ -256,8 +256,8 @@ public class QueueView extends ViewPart {
 		}
 		
 		@Override
-		public String getText(Object element) {
-			IToolRunnable runnable = (IToolRunnable) element;
+		public String getText(final Object element) {
+			final IToolRunnable runnable = (IToolRunnable) element;
 			return runnable.getLabel();
 		}
 	}
@@ -320,23 +320,27 @@ public class QueueView extends ViewPart {
 	private static final String M_SHOW_PROGRESS = "QueueView.ShowProgress"; //$NON-NLS-1$
 	private boolean fShowProgress;
 	private Action fShowProgressAction;
-
+	
 	private Action fSelectAllAction;
 	private Action fDeleteAction;
 	
 	
+	public QueueView() {
+	}
+	
+	
 	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
+	public void init(final IViewSite site, final IMemento memento) throws PartInitException {
 		super.init(site, memento);
 		
-		String showDescription = (memento != null) ? memento.getString(M_SHOW_DESCRIPTION) : null;
+		final String showDescription = (memento != null) ? memento.getString(M_SHOW_DESCRIPTION) : null;
 		if (showDescription == null || showDescription.equals("off")) { // default  //$NON-NLS-1$
 			fShowDescription = false;
 		} else {
 			fShowDescription = true;
 		}
-
-		String showProgress = (memento != null) ? memento.getString(M_SHOW_PROGRESS) : null;
+		
+		final String showProgress = (memento != null) ? memento.getString(M_SHOW_PROGRESS) : null;
 		if (showProgress== null || showProgress.equals("on")) { // default  //$NON-NLS-1$
 			fShowProgress = true;
 		} else {
@@ -345,7 +349,7 @@ public class QueueView extends ViewPart {
 	}
 	
 	@Override
-	public void saveState(IMemento memento) {
+	public void saveState(final IMemento memento) {
 		super.saveState(memento);
 		
 		memento.putString(M_SHOW_DESCRIPTION, (fShowDescription) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -353,16 +357,16 @@ public class QueueView extends ViewPart {
 	}
 	
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(final Composite parent) {
 		updateContentDescription(null);
 		
 		fComposite = parent;
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		layout.verticalSpacing = 0;
 		parent.setLayout(layout);
-
+		
 		if (fShowProgress) {
 			createProgressControl();
 		}
@@ -374,15 +378,15 @@ public class QueueView extends ViewPart {
 		new TableColumn(fTableViewer.getTable(), SWT.DEFAULT);
 		fTableViewer.getTable().addControlListener(new ControlAdapter() {
 			@Override
-			public void controlResized(ControlEvent e) {
+			public void controlResized(final ControlEvent e) {
 				// adapt the column width to the width of the table
-				Table table = fTableViewer.getTable();
-				Rectangle area = table.getClientArea();
-				TableColumn column = table.getColumn(0);
+				final Table table = fTableViewer.getTable();
+				final Rectangle area = table.getClientArea();
+				final TableColumn column = table.getColumn(0);
 				column.setWidth(area.width-3); // it looks better with a small gap
 			}
 		});
-
+		
 		fTableViewer.setContentProvider(new ViewContentProvider());
 		fTableViewer.setLabelProvider(new TableLabelProvider());
 		
@@ -390,10 +394,10 @@ public class QueueView extends ViewPart {
 		contributeToActionBars();
 		
 		// listen on console changes
-		IToolRegistry toolRegistry = NicoUI.getToolRegistry();
+		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
-			public void toolSessionActivated(ToolSessionUIData info) {
+			public void toolSessionActivated(final ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
@@ -401,7 +405,7 @@ public class QueueView extends ViewPart {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) {
+			public void toolSessionClosed(final ToolSessionUIData info) {
 				disconnect(info.getProcess());
 			}
 		};
@@ -415,7 +419,7 @@ public class QueueView extends ViewPart {
 				new GridData(SWT.FILL, SWT.FILL, true, false));
 	}
 	
-	protected void updateContentDescription(ToolProcess process) {
+	protected void updateContentDescription(final ToolProcess process) {
 		if (fShowDescription) {
 			setContentDescription(process != null ? process.getToolLabel(false) : " "); //$NON-NLS-1$
 		}
@@ -439,18 +443,18 @@ public class QueueView extends ViewPart {
 		fDeleteAction = new Action() {
 			@Override
 			public void run() {
-				Queue queue = getQueue();
+				final Queue queue = getQueue();
 				if (queue != null) {
-					IStructuredSelection selection = (IStructuredSelection) fTableViewer.getSelection();
-					Object[] elements = selection.toArray();
+					final IStructuredSelection selection = (IStructuredSelection) fTableViewer.getSelection();
+					final Object[] elements = selection.toArray();
 					queue.removeElements(elements);
 				}
 			}
 		};
 	}
-
+	
 	private void contributeToActionBars() {
-		IActionBars bars = getViewSite().getActionBars();
+		final IActionBars bars = getViewSite().getActionBars();
 		
 		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), fSelectAllAction);
 		bars.setGlobalActionHandler(ActionFactory.DELETE.getId(), fDeleteAction);
@@ -458,13 +462,13 @@ public class QueueView extends ViewPart {
 		fillLocalPullDown(bars.getMenuManager());
 		fillLocalToolBar(bars.getToolBarManager());
 	}
-
-	private void fillLocalPullDown(IMenuManager manager) {
+	
+	private void fillLocalPullDown(final IMenuManager manager) {
 		manager.add(fShowDescriptionAction);
 		manager.add(fShowProgressAction);
 	}
-
-	private void fillLocalToolBar(IToolBarManager manager) {
+	
+	private void fillLocalToolBar(final IToolBarManager manager) {
 		manager.add(fPauseAction);
 	}
 	
@@ -477,10 +481,10 @@ public class QueueView extends ViewPart {
 			}
 		});
 	}
-
+	
 	/** Should only be called inside UI Thread */
 	public void connect(final ToolProcess process) {
-		Runnable runnable = new Runnable() {
+		final Runnable runnable = new Runnable() {
 			public void run() {
 				if (!UIAccess.isOkToUse(fTableViewer)) {
 					return;

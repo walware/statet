@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -19,7 +19,7 @@ import de.walware.statet.base.ui.StatetImages;
 
 
 public class ScrollLockAction extends Action {
-
+	
 	
 	public interface Receiver {
 		
@@ -31,7 +31,7 @@ public class ScrollLockAction extends Action {
 	private Receiver fView;
 	
 	
-	public ScrollLockAction(Receiver view, boolean initialChecked) {
+	public ScrollLockAction(final Receiver view, final boolean initialChecked) {
 		setText(SharedMessages.ToggleScrollLockAction_name);
 		setToolTipText(SharedMessages.ToggleScrollLockAction_tooltip);
 		
@@ -41,7 +41,10 @@ public class ScrollLockAction extends Action {
 		setChecked(initialChecked);
 	}
 	
+	
+	@Override
 	public void run() {
 		fView.setAutoScroll(!isChecked());
 	}
+	
 }

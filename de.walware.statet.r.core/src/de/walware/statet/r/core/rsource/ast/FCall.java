@@ -41,6 +41,7 @@ public class FCall extends RAstNode {
 			visitor.visit(this);
 		}
 		
+		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.F_CALL_ARGS);
@@ -50,6 +51,7 @@ public class FCall extends RAstNode {
 		final SpecItem createItem() {
 			return new FCall.Arg(this);
 		}
+		
 	}
 	
 	public static class Arg extends SpecItem {
@@ -70,11 +72,12 @@ public class FCall extends RAstNode {
 			visitor.visit(this);
 		}
 		
+		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.F_CALL_ARG);
 		}
-	
+		
 	}
 	
 	
@@ -82,6 +85,10 @@ public class FCall extends RAstNode {
 	int fArgsOpenOffset = Integer.MIN_VALUE;
 	final Args fArgs = new Args(this);
 	int fArgsCloseOffset = Integer.MIN_VALUE;
+	
+	
+	FCall() {
+	}
 	
 	
 	@Override
@@ -185,7 +192,7 @@ public class FCall extends RAstNode {
 		}
 		final RAstNode otherExprNode = ((FCall) element).fRefExpr.node;
 		return ((fRefExpr.node == otherExprNode
-					|| fRefExpr.node != null && fRefExpr.node.equalsSingle(otherExprNode)) );
+				|| fRefExpr.node != null && fRefExpr.node.equalsSingle(otherExprNode)) );
 	}
 	
 	

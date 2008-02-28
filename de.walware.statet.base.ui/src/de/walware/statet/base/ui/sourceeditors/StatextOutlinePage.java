@@ -15,7 +15,7 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 
 
 /**
- *
+ * 
  */
 public class StatextOutlinePage<EditorT extends StatextEditor1> extends ContentOutlinePage {
 	

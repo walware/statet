@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui;
@@ -20,7 +20,7 @@ package de.walware.statet.base.ui;
  * </p>.
  */
 public interface IStatetUICommandIds {
-
+	
 	
 	/**
 	 * Action definition ID of the edit -> select enclosing action
@@ -49,7 +49,7 @@ public interface IStatetUICommandIds {
 	 * Value: @value
 	 */
 	public static final String SELECT_LAST = 			"de.walware.statet.base.commands.SelectLast"; //$NON-NLS-1$
-
+	
 	/**
 	 * Action definition ID of the 'navigate' &gt; 'go to matching bracket' action
 	 * 
@@ -84,6 +84,5 @@ public interface IStatetUICommandIds {
 	 * Value: @value
 	 */
 	public static final String CORRECT_INDENT =        "de.walware.statet.base.commands.CorrectIndent"; //$NON-NLS-1$
-	
 	
 }

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.text;
@@ -28,7 +28,6 @@ import de.walware.eclipsecommons.ltk.text.ITokenScanner;
 
 /**
  * Helper class for match pairs of characters.
- *
  */
 public class PairMatcher implements ICharacterPairMatcher {
 	

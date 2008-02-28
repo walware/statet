@@ -26,6 +26,10 @@ public class CRepeatLoop extends RAstNode {
 	final Expression fLoopExpr = new Expression();
 	
 	
+	CRepeatLoop() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.C_REPEAT;
@@ -81,6 +85,7 @@ public class CRepeatLoop extends RAstNode {
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fLoopExpr.node.accept(visitor);
 	}
+	
 	
 	@Override
 	final Expression getExpr(final RAstNode child) {

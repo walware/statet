@@ -28,6 +28,11 @@ public abstract class CLoopCommand extends RAstNode {
 	
 	static class Break extends CLoopCommand {
 		
+		
+		Break() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.C_BREAK;
@@ -42,9 +47,15 @@ public abstract class CLoopCommand extends RAstNode {
 		public final RTerminal getTerminal() {
 			return RTerminal.BREAK;
 		}
+		
 	}
 	
 	static class Next extends CLoopCommand {
+		
+		
+		Next() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -60,6 +71,7 @@ public abstract class CLoopCommand extends RAstNode {
 		public final RTerminal getTerminal() {
 			return RTerminal.NEXT;
 		}
+		
 	}
 	
 	
@@ -90,6 +102,18 @@ public abstract class CLoopCommand extends RAstNode {
 	
 	public abstract RTerminal getTerminal();
 	
+	@Override
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	
+	@Override
+	public final void acceptInRChildren(final RAstVisitor visitor) {
+	}
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) {
+	}
+	
 	
 	@Override
 	final Expression getExpr(final RAstNode child) {
@@ -104,18 +128,6 @@ public abstract class CLoopCommand extends RAstNode {
 	@Override
 	final Expression getRightExpr() {
 		return null;
-	}
-	
-	@Override
-	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(this);
-	}
-	
-	@Override
-	public final void acceptInRChildren(final RAstVisitor visitor) {
-	}
-	
-	public final void acceptInChildren(final ICommonAstVisitor visitor) {
 	}
 	
 	

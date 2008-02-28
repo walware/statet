@@ -19,7 +19,9 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
  */
 public interface IToolRetargetable {
 	
+	
 	void setTool(ToolProcess tool);
+	
 	void handleToolTerminated();
 	
 }

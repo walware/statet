@@ -15,9 +15,13 @@ import java.lang.reflect.InvocationTargetException;
 
 
 /**
- *
+ * 
  */
 public class NumberConst extends SingleValue {
+	
+	
+	NumberConst() {
+	}
 	
 	
 	@Override
@@ -29,6 +33,7 @@ public class NumberConst extends SingleValue {
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
+	
 	
 	@Override
 	public final boolean equalsSingle(final RAstNode element) {

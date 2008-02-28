@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.internal.ui;
@@ -15,6 +15,7 @@ import org.eclipse.osgi.util.NLS;
 
 
 public class Messages extends NLS {
+	
 	
 	public static String CopyToClipboard_error_title;
 	public static String CopyToClipboard_error_message;
@@ -39,4 +40,6 @@ public class Messages extends NLS {
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
+	
 }

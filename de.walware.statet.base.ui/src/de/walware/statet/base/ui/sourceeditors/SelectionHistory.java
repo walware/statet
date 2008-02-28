@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui.sourceeditors;
@@ -27,11 +27,13 @@ import de.walware.eclipsecommons.FastList;
  */
 public class SelectionHistory {
 	
+	
 	private List<IRegion> fHistory;
 	private StatextEditor1<?> fEditor;
 	private ISelectionChangedListener fSelectionListener;
 	private int fSelectionChangeListenerCounter;
 	private FastList<IUpdate> fUpdateActions = new FastList<IUpdate>(IUpdate.class);
+	
 	
 	public SelectionHistory(final StatextEditor1<?> editor) {
 		fEditor = editor;
@@ -45,6 +47,7 @@ public class SelectionHistory {
 		};
 		fEditor.getSelectionProvider().addSelectionChangedListener(fSelectionListener);
 	}
+	
 	
 	public void addUpdateListener(final IUpdate action) {
 		fUpdateActions.add(action);

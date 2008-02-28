@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui.preferences;
@@ -19,7 +19,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class StatetBasePreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-
+	
 	
 	public StatetBasePreferencePage() {
 		
@@ -28,33 +28,28 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 		setDescription(Messages.StatetBase_description);
 	}
-
 	
-	/*
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
-	 */
-	public void init(IWorkbench workbench) {
+	
+	public void init(final IWorkbench workbench) {
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
-	 */
+	@Override
 	public void createFieldEditors() {
 //		addField(new DirectoryFieldEditor(PreferenceConstants.R_DIRECTORY, 
 //				NicoMessages.getString(I.RES, "RootPage.rDirectory"), getFieldEditorParent()));
-//
+//		
 //		Label label = new Label(getFieldEditorParent(), SWT.LEFT);
 //		label.setText(NicoMessages.getString(I.RES, "RootPage.rDirectory.info"));
 //		GridData gd = new GridData();
 //		gd.horizontalSpan = 2;
 //		label.setLayoutData(gd);
-
+		
 //		addField(
 //			new BooleanFieldEditor(
 //				P_BOOLEAN,
 //				"&An example of a boolean preference",
 //				getFieldEditorParent()));
-//
+//		
 //		addField(new RadioGroupFieldEditor(
 //			P_CHOICE,
 //			"An example of a multiple-choice preference",

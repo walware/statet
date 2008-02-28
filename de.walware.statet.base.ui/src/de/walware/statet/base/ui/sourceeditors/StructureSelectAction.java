@@ -94,6 +94,7 @@ public abstract class StructureSelectAction extends Action {
 	private StatextEditor1<?> fEditor;
 	private SelectionHistory fSelectionHistory;
 	
+	
 	protected StructureSelectAction(final StatextEditor1<?> editor, final SelectionHistory history) {
 		super();
 		assert (editor != null);
@@ -101,6 +102,7 @@ public abstract class StructureSelectAction extends Action {
 		fEditor = editor;
 		fSelectionHistory = history;
 	}
+	
 	
 	@Override
 	public final  void run() {

@@ -16,6 +16,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	
+	
 	public static String LoadSaveHistoryPage_File_label;
 	public static String LoadSaveHistoryPage_Encoding_label;
 	public static String LoadHistoryPage_title;
@@ -61,5 +62,6 @@ public class Messages extends NLS {
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

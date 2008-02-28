@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 
 
 public class RParser {
-
+	
 	private static class LineManager implements ILineResolver {
 		
 		IntList fList = new ArrayIntList();

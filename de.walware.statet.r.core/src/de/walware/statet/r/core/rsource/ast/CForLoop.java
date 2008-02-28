@@ -22,12 +22,17 @@ import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
  */
 public class CForLoop extends RAstNode {
 	
+	
 	Symbol fVarSymbol;
 	int fCondOpenOffset = Integer.MIN_VALUE;
 	int fInOffset = Integer.MIN_VALUE;
 	final Expression fCondExpr = new Expression();
 	int fCondCloseOffset = Integer.MIN_VALUE;
 	final Expression fLoopExpr = new Expression();
+	
+	
+	CForLoop() {
+	}
 	
 	
 	@Override
@@ -99,6 +104,25 @@ public class CForLoop extends RAstNode {
 	}
 	
 	@Override
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	
+	@Override
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fVarSymbol.acceptInR(visitor);
+		fCondExpr.node.acceptInR(visitor);
+		fLoopExpr.node.acceptInR(visitor);
+	}
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+		fVarSymbol.accept(visitor);
+		fCondExpr.node.accept(visitor);
+		fLoopExpr.node.accept(visitor);
+	}
+	
+	
+	@Override
 	final Expression getExpr(final RAstNode child) {
 		if (fLoopExpr.node == child) {
 			return fLoopExpr;
@@ -124,25 +148,7 @@ public class CForLoop extends RAstNode {
 		return (element.getNodeType() == NodeType.C_FOR);
 	}
 	
-	@Override
-	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-		visitor.visit(this);
-	}
 	
-	@Override
-	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
-		fVarSymbol.acceptInR(visitor);
-		fCondExpr.node.acceptInR(visitor);
-		fLoopExpr.node.acceptInR(visitor);
-	}
-	
-	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fVarSymbol.accept(visitor);
-		fCondExpr.node.accept(visitor);
-		fLoopExpr.node.accept(visitor);
-	}
-	
-		
 	@Override
 	final void updateStopOffset() {
 		if (fLoopExpr.node != null) {

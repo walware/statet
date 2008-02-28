@@ -79,7 +79,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	/**
 	 * Creates a region describing the text block (something that starts at
 	 * the beginning of a line) completely containing the current selection.
-	 *
+	 * 
 	 * @param selection The selection to use
 	 * @param document The document
 	 * @return the region describing the text block comprising the given selection
@@ -104,7 +104,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	/**
 	 * Returns the index of the first line whose start offset is in the given text range.
-	 *
+	 * 
 	 * @param region the text range in characters where to find the line
 	 * @param document The document
 	 * @return the first line whose start index is in the given range, -1 if there is no such line
@@ -262,7 +262,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 		/**
 		 * Is the given selection single-line commented?
-		 *
+		 * 
 		 * @param selection Selection to check
 		 * @return <code>true</code> iff all selected lines are commented
 		 */
@@ -309,7 +309,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 		/**
 		 * Determines whether each line is prefixed by one of the prefixes.
-		 *
+		 * 
 		 * @param startLine Start line in document
 		 * @param endLine End line in document
 		 * @param prefixes Possible comment prefixes

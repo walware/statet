@@ -22,6 +22,10 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class Power extends StdBinary {
 	
 	
+	Power() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.POWER;
@@ -43,6 +47,7 @@ public class Power extends StdBinary {
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
+	
 	
 	@Override
 	public final boolean equalsSingle(final RAstNode element) {

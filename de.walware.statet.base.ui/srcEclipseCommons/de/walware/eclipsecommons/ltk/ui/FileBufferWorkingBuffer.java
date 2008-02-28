@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.ui;
@@ -85,11 +85,13 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 	}
 	
 	
-	ITextFileBuffer fBuffer;
+	private ITextFileBuffer fBuffer;
+	
 	
 	public FileBufferWorkingBuffer(final ISourceUnit unit) {
 		super(unit);
 	}
+	
 	
 	@Override
 	protected AbstractDocument createDocument() {

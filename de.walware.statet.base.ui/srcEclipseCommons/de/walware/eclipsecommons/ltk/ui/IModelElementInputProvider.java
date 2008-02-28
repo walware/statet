@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.ui;
@@ -15,9 +15,10 @@ import de.walware.eclipsecommons.ltk.ISourceUnit;
 
 
 /**
- *
+ * 
  */
 public interface IModelElementInputProvider {
+	
 	
 	public abstract ISourceUnit getInput();
 	

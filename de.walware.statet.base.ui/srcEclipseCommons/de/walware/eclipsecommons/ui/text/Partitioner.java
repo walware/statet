@@ -22,7 +22,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 
 /**
- *
+ * Extended {@link FastPartitioner}
  */
 public class Partitioner extends FastPartitioner {
 	

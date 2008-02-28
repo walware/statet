@@ -50,6 +50,7 @@ public class RResourceUnit implements ISourceUnit {
 		return null;
 	}
 	
+	
 	private IResource fFile;
 	private String fId;
 	private String fName;
@@ -64,7 +65,8 @@ public class RResourceUnit implements ISourceUnit {
 			fId = "xx:"+fName; //$NON-NLS-1$
 		}
 	}
-		
+	
+	
 	protected void init() {
 	}
 	

@@ -30,12 +30,13 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 
 
 /**
- *
+ * 
  */
 public class LoadHistoryWizard extends Wizard {
 	
 	
 	static final String STORE_SECTION = "common/tools/*History-Wizard"; //$NON-NLS-1$ shared with save
+	
 	
 	private ToolProcess fProcess;
 	private LoadHistoryPage fPage;
@@ -51,6 +52,7 @@ public class LoadHistoryWizard extends Wizard {
 //		setDefaultPageImageDescriptor();
 		setNeedsProgressMonitor(true);
 	}
+	
 	
 	@Override
 	public void addPages() {

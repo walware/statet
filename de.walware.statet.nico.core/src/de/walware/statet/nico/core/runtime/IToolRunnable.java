@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -18,12 +18,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 /**
  * Runnables part which can communicate with the tool software.
  * The are added to the queue and runned, when it is one's turn.
- *
+ * 
  * A runnable depends on an adapter type. It is a good idea, if
  * this is an interface and not an implementation.
  */
 public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
-
+	
 	
 	/**
 	 * Total work of progress monitors.
@@ -46,7 +46,7 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 * @return the type
 	 */
 	public SubmitType getSubmitType();
-
+	
 	/**
 	 * Return a label for this runnable, used by the UI.
 	 * 

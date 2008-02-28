@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.templates;
@@ -39,75 +39,70 @@ import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
 
 public class TemplatesUtil {
-
-
-	public static String searchIndentation(IDocument document, int offset) {
-		
+	
+	
+	public static String searchIndentation(final IDocument document, final int offset) {
 		try {
-			IRegion region = document.getLineInformationOfOffset(offset);
-			String lineContent = document.get(region.getOffset(), region.getLength());
+			final IRegion region = document.getLineInformationOfOffset(offset);
+			final String lineContent = document.get(region.getOffset(), region.getLength());
 			return searchIndentation(lineContent);
 		} 
-		catch (BadLocationException e) {
+		catch (final BadLocationException e) {
 			return ""; //$NON-NLS-1$
 		}
 	}	
-
-	private static String searchIndentation(String text) throws BadLocationException {
-		
+	
+	private static String searchIndentation(final String text) throws BadLocationException {
 		int i = 0;
 		for (; i < text.length(); i++) {
-			char c = text.charAt(i);
+			final char c = text.charAt(i);
 			if (!(c == ' ' || c == '\t'))
 				break;
 		}
 		return text.substring(0, i);
 	}
 	
-	public static void positionsToVariables(List<TextEdit> positions, TemplateVariable[] variables) {
-
-		Iterator iterator = positions.iterator();
+	public static void positionsToVariables(final List<TextEdit> positions, final TemplateVariable[] variables) {
+		final Iterator iterator = positions.iterator();
 		
 		for (int i= 0; i != variables.length; i++) {
-		    TemplateVariable variable = variables[i];
-		    
-			int[] offsets= new int[variable.getOffsets().length];
+			final TemplateVariable variable = variables[i];
+			
+			final int[] offsets= new int[variable.getOffsets().length];
 			for (int j= 0; j != offsets.length; j++)
 				offsets[j]= ((TextEdit) iterator.next()).getOffset();
 			
-		 	variable.setOffsets(offsets);   
+			variable.setOffsets(offsets);
 		}
-	}	
-
-	public static List<TextEdit> variablesToPositions(TemplateVariable[] variables) {
-		
-   		List<TextEdit> positions = new ArrayList<TextEdit>(5);
-		for (int i= 0; i != variables.length; i++) {
-		    int[] offsets= variables[i].getOffsets();
-		    
-		    // trim positions off whitespace
-		    String value = variables[i].getDefaultValue();
-		    int wsStart = 0;
-		    while (wsStart < value.length() && Character.isWhitespace(value.charAt(wsStart)) && !isLineDelimiterChar(value.charAt(wsStart)))
-		    	wsStart++;
-		    
-		    variables[i].getValues()[0]= value.substring(wsStart);
-		    
-		    for (int j= 0; j != offsets.length; j++) {
-		    	offsets[j] += wsStart;
-				positions.add(new RangeMarker(offsets[j], 0));
-		    }
-		}
-		return positions;	    
 	}
-
 	
-	public static String getLineSeparator(IProject project) {
-		
+	public static List<TextEdit> variablesToPositions(final TemplateVariable[] variables) {
+		final List<TextEdit> positions = new ArrayList<TextEdit>(5);
+		for (int i= 0; i != variables.length; i++) {
+			final int[] offsets= variables[i].getOffsets();
+			
+			// trim positions off whitespace
+			final String value = variables[i].getDefaultValue();
+			int wsStart = 0;
+			while (wsStart < value.length() && Character.isWhitespace(value.charAt(wsStart)) && !isLineDelimiterChar(value.charAt(wsStart)))
+				wsStart++;
+			
+			variables[i].getValues()[0]= value.substring(wsStart);
+			
+			for (int j= 0; j != offsets.length; j++) {
+				offsets[j] += wsStart;
+				positions.add(new RangeMarker(offsets[j], 0));
+			}
+		}
+		return positions;
+	}
+	
+	
+	public static String getLineSeparator(final IProject project) {
 		IScopeContext[] scopeContext;
 		if (project != null) {
 			scopeContext = new IScopeContext[] { new ProjectScope(project.getProject()), new InstanceScope() };
-			String lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+			final String lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
 			if (lineSeparator != null)
 				return lineSeparator;
 		}
@@ -115,41 +110,38 @@ public class TemplatesUtil {
 		return System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	public static String evaluateTemplate(StatextCodeTemplatesContext context, Template template) throws CoreException {
-
+	public static String evaluateTemplate(final StatextCodeTemplatesContext context, final Template template) throws CoreException {
 		TemplateBuffer buffer;
 		try {
 			buffer = context.evaluate(template);
-		} catch (BadLocationException e) {
+		} catch (final BadLocationException e) {
 			throw new CoreException(Status.CANCEL_STATUS);
-		} catch (TemplateException e) {
+		} catch (final TemplateException e) {
 			throw new CoreException(Status.CANCEL_STATUS);
 		}
 		if (buffer == null)
 			return null;
-		String str = buffer.getString();
+		final String str = buffer.getString();
 //		if (Strings.containsOnlyWhitespaces(str)) {
 //			return null;
 //		}
 		return str;
 	}
-
-	public static String getTodoTaskTag(StatetProject project) {
-		
-		TaskTagsPreferences taskPrefs = (project != null) ?
+	
+	public static String getTodoTaskTag(final StatetProject project) {
+		final TaskTagsPreferences taskPrefs = (project != null) ?
 				new TaskTagsPreferences(project) :
 				new TaskTagsPreferences(PreferencesUtil.getInstancePrefs());
 		
-		String[] markers = taskPrefs.getTags();
+		final String[] markers = taskPrefs.getTags();
 		
 		if (markers == null || markers.length == 0)
 			return null;
 		return markers[0];
 	}
-
 	
-	private static boolean isLineDelimiterChar(char c) {
-		
+	
+	private static boolean isLineDelimiterChar(final char c) {
 		return (c == '\r' || c == '\n');
 	}
 	

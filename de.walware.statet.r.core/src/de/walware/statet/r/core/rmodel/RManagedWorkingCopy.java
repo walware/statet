@@ -22,7 +22,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- *
+ * 
  */
 public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSourceUnit, IManagableRUnit {
 	
@@ -34,6 +34,7 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	public RManagedWorkingCopy(final IRSourceUnit from) {
 		super(from);
 	}
+	
 	
 	public RProject getRProject() {
 		return ((IRSourceUnit) fFrom).getRProject();

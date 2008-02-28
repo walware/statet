@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -42,14 +42,14 @@ import org.eclipse.debug.core.DebugPlugin;
  * The events of this type are sended by the queue (source element).
  * 
  */
-public class Queue {
-
+public final class Queue {
+	
 	public static class Delta {
 		
 		public final int type;
 		public final IToolRunnable[] data;
 		
-		private Delta(int pType, IToolRunnable[] pData) {
+		private Delta(final int pType, final IToolRunnable[] pData) {
 			
 			type = pType;
 			data = pData;
@@ -85,7 +85,7 @@ public class Queue {
 //	 * <code>MODEL_SPECIFIC</code>.</p>
 //	 */
 //	public static final int QUEUE_MAJOR_CHANGE = 2;
-
+	
 	/**
 	 * Constant for type of a Delta, signalising that
 	 * one or multiple entries (IToolRunnable) was added to the queue.
@@ -119,7 +119,7 @@ public class Queue {
 	public static final int ENTRY_START_PROCESSING = 0x0210;
 	
 	public static final int MASK_FINISHED = 0x0220;
-
+	
 	/**
 	 * Constant for type of a Delta, signalising that
 	 * a entry (IToolRunnable) has finished normally.
@@ -131,13 +131,13 @@ public class Queue {
 	 * a entry (IToolRunnable) has finished with handeled cancelation.
 	 */
 	public static final int ENTRY_FINISH_PROCESSING_CANCEL = MASK_FINISHED | CANCEL;
-
+	
 	/**
 	 * Constant for type of a Delta, signalising that
 	 * a entry (IToolRunnable) has finished with an error (exception).
 	 */
 	public static final int ENTRY_FINISH_PROCESSING_ERROR = MASK_FINISHED | ERROR;
-
+	
 	
 	private LinkedList<IToolRunnable> fList = new LinkedList<IToolRunnable>();
 	private IToolRunnable[] fSingleIOCache = null;
@@ -145,7 +145,7 @@ public class Queue {
 	private IToolRunnable[] fFinishedCache = null;
 	private int fFinishedCacheDetail = -1;
 	private List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
-
+	
 	
 	Queue() {
 	}
@@ -154,25 +154,25 @@ public class Queue {
 	public synchronized void sendElements() {
 		checkFinishedCache();
 		checkIOCache();
-		IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
-		DebugEvent event = new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, QUEUE_INFO);
+		final IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
+		final DebugEvent event = new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, QUEUE_INFO);
 		event.setData(queueElements);
 		fEventList.add(event);
 		fireEvents();
 	}
 	
-	public synchronized void removeElements(Object[] elements) {
+	public synchronized void removeElements(final Object[] elements) {
 		checkFinishedCache();
 		checkIOCache();
-		List<IToolRunnable> removed = new ArrayList<IToolRunnable>(elements.length);
-		for (Object runnable : elements) {
+		final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(elements.length);
+		for (final Object runnable : elements) {
 			if (fList.remove(runnable)) {
 				removed.add((IToolRunnable) runnable);
 			}
 		}
 //		IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
 //		addDebugEvent(COMPLETE_CHANGE, queueElements);
-		IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
+		final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
 		for (int i = 0; i < array.length; i++) {
 			array[i].changed(ENTRIES_DELETE);
 		}
@@ -181,7 +181,7 @@ public class Queue {
 	}
 	
 	
-	void internalAdd(IToolRunnable[] runnables, boolean allowCache) {
+	void internalAdd(final IToolRunnable[] runnables, final boolean allowCache) {
 		if (allowCache && internalIsEmpty() && runnables.length == 1) {
 			fSingleIOCache = runnables;
 			return;
@@ -206,7 +206,7 @@ public class Queue {
 	
 	IToolRunnable internalPoll() {
 		checkFinishedCache();
-
+		
 		IToolRunnable[] runnable;
 		if (fSingleIOCache != null) {
 			runnable = fSingleIOCache;
@@ -226,7 +226,7 @@ public class Queue {
 	/**
 	 * Not necessary in synchronized block
 	 */
-	void internalFinished(IToolRunnable runnable, int detail) {
+	void internalFinished(final IToolRunnable runnable, final int detail) {
 		assert (runnable == fFinishedExpected[0]);
 		assert (fFinishedCache == null);
 		
@@ -244,7 +244,7 @@ public class Queue {
 		checkFinishedCache();
 		checkIOCache();
 		if (!fList.isEmpty()) {
-			IToolRunnable[] array = fList.toArray(new IToolRunnable[fList.size()]);
+			final IToolRunnable[] array = fList.toArray(new IToolRunnable[fList.size()]);
 			for (int i = 0; i < array.length; i++) {
 				array[i].changed(ENTRIES_ABANDONED);
 			}
@@ -254,7 +254,7 @@ public class Queue {
 		}
 		fireEvents();
 	}
-
+	
 	
 	private void checkFinishedCache() {
 		if (fFinishedCache != null) {
@@ -271,24 +271,25 @@ public class Queue {
 		}
 	}
 	
-	private void addChangeEvent(int deltaType, IToolRunnable[] deltaData) {
+	private void addChangeEvent(final int deltaType, final IToolRunnable[] deltaData) {
 		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT, deltaType, deltaData);
 	}
 	
-	private void addDebugEvent(int code, int detail, int deltaType, IToolRunnable[] deltaData) {
-		DebugEvent event = new DebugEvent(this, code, detail);
+	private void addDebugEvent(final int code, final int detail, final int deltaType, final IToolRunnable[] deltaData) {
+		final DebugEvent event = new DebugEvent(this, code, detail);
 		event.setData(new Delta(deltaType, deltaData));
 		fEventList.add(event);
 	}
-
+	
 	private void fireEvents() {
 		if (fEventList.isEmpty()) {
 			return;
 		}
-		DebugPlugin manager = DebugPlugin.getDefault();
+		final DebugPlugin manager = DebugPlugin.getDefault();
 		if (manager != null) {
 			manager.fireDebugEventSet(fEventList.toArray(new DebugEvent[fEventList.size()]));
 		}
 		fEventList.clear();
 	}
+	
 }

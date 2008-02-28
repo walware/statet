@@ -141,6 +141,11 @@ public class ElementInfoController implements IModelElementInputProvider {
 		fModelProvider.addElementChangedListener(fElementChangeListener, fModelContext);
 	}
 	
+	public void dispose() {
+		fModelProvider.removeElementChangedListener(fElementChangeListener, fModelContext);
+	}
+	
+	
 	public void setInput(final ISourceUnit input) {
 		synchronized (fInputLock) {
 			fInput = null;
@@ -153,11 +158,6 @@ public class ElementInfoController implements IModelElementInputProvider {
 		
 		fNewInputJob.schedule(NEWINPUT_DELAY);
 	}
-	
-	public void dispose() {
-		fModelProvider.removeElementChangedListener(fElementChangeListener, fModelContext);
-	}
-	
 	
 	private IModelElementInputListener[] checkNewListeners() {
 		if (fNewListenerList.isEmpty()) {

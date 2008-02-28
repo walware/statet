@@ -16,6 +16,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class RNicoMessages extends NLS {
 	
+	
 	public static String Quit_Task_label;
 	
 	public static String Rterm_StartTask_label;
@@ -27,5 +28,6 @@ public class RNicoMessages extends NLS {
 	static {
 		NLS.initializeMessages(RNicoMessages.class.getName(), RNicoMessages.class);
 	}
+	private RNicoMessages() {}
 	
 }

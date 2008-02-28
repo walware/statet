@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui.actions;
@@ -25,12 +25,12 @@ import de.walware.statet.nico.ui.views.HistoryView;
 
 
 public class HistoryCopyAction extends BaseSelectionListenerAction {
-
+	
 	
 	private HistoryView fView;
 	
 	
-	public HistoryCopyAction(HistoryView view) {
+	public HistoryCopyAction(final HistoryView view) {
 		
 		super(SharedMessages.CopyAction_name);
 		setToolTipText(SharedMessages.CopyAction_tooltip);
@@ -43,7 +43,7 @@ public class HistoryCopyAction extends BaseSelectionListenerAction {
 	}
 	
 	@Override
-	protected boolean updateSelection(IStructuredSelection selection) {
+	protected boolean updateSelection(final IStructuredSelection selection) {
 		
 		return (selection.size() > 0);
 	}
@@ -51,16 +51,17 @@ public class HistoryCopyAction extends BaseSelectionListenerAction {
 	@Override
 	public void run() {
 		
-		String text = HistoryView.createTextBlock(getStructuredSelection());
+		final String text = HistoryView.createTextBlock(getStructuredSelection());
 		DNDUtil.setContent(fView.getClipboard(), 
 				new String[] { text }, 
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
-
+	
 // Lifecycle with view
 //	public void dispose() {
 //		
 //		fView.getTableViewer().removeSelectionChangedListener(this);
 //		fView = null;
 //	}
+	
 }

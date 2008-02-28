@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico.impl;
@@ -25,25 +25,30 @@ import de.walware.statet.r.nico.IBasicRAdapter;
  * Default impl to quit R.
  */
 public class RQuitRunnable implements IToolRunnable<IBasicRAdapter> {
-
+	
+	
+	public RQuitRunnable() {
+	}
+	
+	
 	public String getTypeId() {
 		return ToolController.QUIT_TYPE_ID;
 	}
-
+	
 	public String getLabel() {
 		return RNicoMessages.Quit_Task_label;
 	}
-
+	
 	public SubmitType getSubmitType() {
 		return SubmitType.TOOLS;
 	}
-
-	public void changed(int event) {
+	
+	public void changed(final int event) {
 	}
 	
-	public void run(IBasicRAdapter tools, IProgressMonitor monitor)
+	public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
 			throws InterruptedException, CoreException {
-		String command = "q()"; //$NON-NLS-1$
+		final String command = "q()"; //$NON-NLS-1$
 		tools.submitToConsole(command, monitor);
 	}
 	

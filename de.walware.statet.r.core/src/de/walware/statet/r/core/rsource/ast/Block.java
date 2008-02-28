@@ -23,14 +23,13 @@ public class Block extends ExpressionList {
 	int fBlockCloseOffset = Integer.MIN_VALUE;
 	
 	
+	Block() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.BLOCK;
-	}
-	
-	@Override
-	public final boolean equalsSingle(final RAstNode element) {
-		return (element.getNodeType() == NodeType.BLOCK);
 	}
 	
 	@Override
@@ -38,13 +37,20 @@ public class Block extends ExpressionList {
 		visitor.visit(this);
 	}
 	
+	
+	@Override
+	public final boolean equalsSingle(final RAstNode element) {
+		return (element.getNodeType() == NodeType.BLOCK);
+	}
+	
+	
 	@Override
 	final void updateStopOffset() {
 		if (fBlockCloseOffset >= 0) {
 			fStopOffset = fBlockCloseOffset+1;
 		}
 		else {
-			int count = getChildCount();
+			final int count = getChildCount();
 			if (count > 0) {
 				fStopOffset = getChild(count-1).fStopOffset;
 			}

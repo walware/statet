@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core;
@@ -24,7 +24,7 @@ public final class ConsoleDefaultScope implements IScopeContext {
 	
 	
 	public static final String SCOPE = "nico.default"; //$NON-NLS-1$
-
+	
 	
 	private IScopeContext fBaseScope;
 	
@@ -32,6 +32,7 @@ public final class ConsoleDefaultScope implements IScopeContext {
 	public ConsoleDefaultScope() {
 		fBaseScope = new DefaultScope();
 	}
+	
 	
 	public IPath getLocation() {
 		return fBaseScope.getLocation();
@@ -41,8 +42,8 @@ public final class ConsoleDefaultScope implements IScopeContext {
 		return SCOPE;
 	}
 	
-	public IEclipsePreferences getNode(String qualifier) {
-		int idx = qualifier.indexOf('/');
+	public IEclipsePreferences getNode(final String qualifier) {
+		final int idx = qualifier.indexOf('/');
 		if (idx < 0) {
 			return (IEclipsePreferences) fBaseScope
 					.getNode(NicoPreferenceNodes.SCOPE_QUALIFIER)

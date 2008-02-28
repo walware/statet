@@ -37,5 +37,6 @@ public class Messages extends NLS {
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

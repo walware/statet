@@ -28,6 +28,10 @@ abstract class SpecList extends RAstNode {
 	List<SpecItem> fSpecs = new ArrayList<SpecItem>(0);
 	
 	
+	protected SpecList() {
+	}
+	
+	
 	@Override
 	public final boolean hasChildren() {
 		return (!fSpecs.isEmpty());

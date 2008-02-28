@@ -23,6 +23,7 @@ public class Special extends StdBinary {
 	Special() {
 	}
 	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.SPECIAL;
@@ -34,8 +35,9 @@ public class Special extends StdBinary {
 		visitor.visit(this);
 	}
 	
+	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.SPECIAL);
 	}
 	

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
@@ -18,7 +18,7 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 
 
 /**
- *
+ * 
  */
 public abstract class SourceDocumentRunnable {
 	
@@ -54,6 +54,5 @@ public abstract class SourceDocumentRunnable {
 	
 	
 	public abstract void run(AbstractDocument document) throws InvocationTargetException;
-	
 	
 }

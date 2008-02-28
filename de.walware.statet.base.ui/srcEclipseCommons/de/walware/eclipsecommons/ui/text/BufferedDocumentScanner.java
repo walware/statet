@@ -44,7 +44,7 @@ public final class BufferedDocumentScanner implements ICharacterScanner {
 	/**
 	 * Creates a new buffered document scanner.
 	 * The buffer size is set to the given number of characters.
-	 *
+	 * 
 	 * @param size the buffer size
 	 */
 	public BufferedDocumentScanner(final int size) {
@@ -54,7 +54,7 @@ public final class BufferedDocumentScanner implements ICharacterScanner {
 	
 	/**
 	 * Fills the buffer with the contens of the document starting at the given offset.
-	 *
+	 * 
 	 * @param offset the document offset at which the buffer starts
 	 */
 	private final void updateBuffer(final int offset) {
@@ -74,7 +74,7 @@ public final class BufferedDocumentScanner implements ICharacterScanner {
 	
 	/**
 	 * Configures the scanner by providing access to the document range over which to scan.
-	 *
+	 * 
 	 * @param document the document to scan
 	 * @param offset the offset of the document range to scan
 	 * @param length the length of the document range to scan

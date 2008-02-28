@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -35,7 +35,7 @@ import org.eclipse.ui.texteditor.IUpdate;
  * For compatibility with old action framework.
  */
 public class MultiActionHandler implements Listener, ISelectionChangedListener {
-
+	
 	
 	private class ActionWrapper extends Action {
 		
@@ -45,11 +45,9 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 		
 		public void update() {
-			
 			boolean enabled = false;
-			
 			if (fActiveWidget != null) {
-				IAction action = fWidgetActionMap.get(fActiveWidget);
+				final IAction action = fWidgetActionMap.get(fActiveWidget);
 				if (action != null) {
 					if (action instanceof IUpdate) {
 						((IUpdate) action).update();
@@ -57,15 +55,13 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 					enabled = action.isEnabled();
 				}
 			}
-			
 			setEnabled(enabled);
 		}
 		
 		@Override
-		public void runWithEvent(Event event) {
-			
+		public void runWithEvent(final Event event) {
 			if (fActiveWidget != null) {
-				IAction action = fWidgetActionMap.get(fActiveWidget);
+				final IAction action = fWidgetActionMap.get(fActiveWidget);
 				if (action != null) {
 					action.runWithEvent(event);
 				}
@@ -73,18 +69,17 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
+	
 	private Widget fActiveWidget;
 	private List<Widget> fKnownWidgets = new ArrayList<Widget>();
 	private Map<String, ActionWrapper> fActions = new HashMap<String, ActionWrapper>();
 	
 	
 	MultiActionHandler() {
-		
 	}
 	
 	
-	private ActionWrapper getActionWrapper(String id) {
-		
+	private ActionWrapper getActionWrapper(final String id) {
 		ActionWrapper wrapper = fActions.get(id);
 		if (wrapper == null) {
 			wrapper = new ActionWrapper();
@@ -93,20 +88,16 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		return wrapper;
 	}
 	
-	public void addGlobalAction(Widget widget, String globalId, IAction action) {
-		
-		ActionWrapper wrapper = getActionWrapper(globalId);
+	public void addGlobalAction(final Widget widget, final String globalId, final IAction action) {
+		final ActionWrapper wrapper = getActionWrapper(globalId);
 		wrapper.fWidgetActionMap.put(widget, action);
 		
 		addWidget(widget);
 	}
-	public void addCommandAction(Widget widget, String commandId, IAction action) {
-		
-		
+	public void addCommandAction(final Widget widget, final String commandId, final IAction action) {
 	}
-		
-	private void addWidget(Widget widget) {
-		
+	
+	private void addWidget(final Widget widget) {
 		if (!fKnownWidgets.contains(widget)) {
 			widget.addListener(SWT.FocusIn, this);
 			widget.addListener(SWT.FocusOut, this);
@@ -114,21 +105,18 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 		}
 	}
 	
-	public void registerActions(IActionBars bars) {
-		
-		for (String id : fActions.keySet()) {
+	public void registerActions(final IActionBars bars) {
+		for (final String id : fActions.keySet()) {
 			bars.setGlobalActionHandler(id, fActions.get(id));
 		}
 	}
-
-	public void handleEvent(Event event) {
-		
+	
+	public void handleEvent(final Event event) {
 		switch (event.type) {
 		case SWT.FocusIn:
 			fActiveWidget = event.widget;
 			updateEnabledState();
 			break;
-
 		case SWT.FocusOut:
 			fActiveWidget = null;
 			updateEnabledState();
@@ -138,24 +126,20 @@ public class MultiActionHandler implements Listener, ISelectionChangedListener {
 			break;
 		}
 	}
-
-	public void selectionChanged(SelectionChangedEvent event) {
-
+	
+	public void selectionChanged(final SelectionChangedEvent event) {
 		updateEnabledState(); 
 	}
 	
 	void updateEnabledState() {
-		
-		for (ActionWrapper wrapper : fActions.values()) {
+		for (final ActionWrapper wrapper : fActions.values()) {
 			wrapper.update();
 		}
 	}
-
 	public void dispose() {
-		
 		fActiveWidget = null;
 		fActions.clear();
 		fKnownWidgets.clear();
 	}
-
+	
 }

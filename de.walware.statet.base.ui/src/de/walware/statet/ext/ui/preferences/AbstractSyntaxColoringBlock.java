@@ -463,6 +463,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	public AbstractSyntaxColoringBlock() {
 	}
 	
+	
 	protected abstract SyntaxNode[] createItems();
 	protected abstract String[] getSettingsGroups();
 	

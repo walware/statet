@@ -28,6 +28,11 @@ public abstract class Sign extends RAstNode {
 	
 	static class PlusSign extends Sign {
 		
+		
+		PlusSign() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SIGN;
@@ -47,6 +52,11 @@ public abstract class Sign extends RAstNode {
 	
 	static class MinusSign extends Sign {
 		
+		
+		MinusSign() {
+		}
+		
+		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SIGN;
@@ -56,6 +66,7 @@ public abstract class Sign extends RAstNode {
 		public final RTerminal getOperator() {
 			return RTerminal.MINUS;
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -76,6 +87,7 @@ public abstract class Sign extends RAstNode {
 			return RTerminal.NOT;
 		}
 		
+		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.NOT);
@@ -85,6 +97,10 @@ public abstract class Sign extends RAstNode {
 	
 	
 	final Expression fRightExpr = new Expression();
+	
+	
+	protected Sign() {
+	}
 	
 	
 	@Override

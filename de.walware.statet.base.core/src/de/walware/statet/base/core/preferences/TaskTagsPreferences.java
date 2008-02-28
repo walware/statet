@@ -46,7 +46,7 @@ public class TaskTagsPreferences {
 		
 		private int fPriority;
 		
-		TaskPriority(int priority) {
+		TaskPriority(final int priority) {
 			fPriority = priority;
 		}
 		
@@ -56,7 +56,7 @@ public class TaskTagsPreferences {
 	};
 	
 	
-	public static String[] loadTagsOnly(IPreferenceAccess prefs) {
+	public static String[] loadTagsOnly(final IPreferenceAccess prefs) {
 		return prefs.getPreferenceValue(PREF_TAGS);
 	}
 	
@@ -71,7 +71,7 @@ public class TaskTagsPreferences {
 	 * @param tags
 	 * @param priorities
 	 */
-	public TaskTagsPreferences(String[] tags, TaskPriority[] priorities) {
+	public TaskTagsPreferences(final String[] tags, final TaskPriority[] priorities) {
 		setup(tags, priorities);
 	}
 	
@@ -90,8 +90,8 @@ public class TaskTagsPreferences {
 	 * @param prefs
 	 */
 	public TaskTagsPreferences(final IPreferenceAccess prefs) {
-		String[] tags = loadTagsOnly(prefs);
-		List<TaskPriority> prios = prefs.getPreferenceValue(PREF_PRIORITIES);
+		final String[] tags = loadTagsOnly(prefs);
+		final List<TaskPriority> prios = prefs.getPreferenceValue(PREF_PRIORITIES);
 		
 		setup(tags, prios.toArray(new TaskPriority[prios.size()]));
 	}

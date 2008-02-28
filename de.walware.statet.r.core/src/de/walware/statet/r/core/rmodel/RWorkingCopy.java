@@ -22,7 +22,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- *
+ * 
  */
 public abstract class RWorkingCopy extends GenericSourceUnitWorkingCopy {
 	
@@ -30,6 +30,7 @@ public abstract class RWorkingCopy extends GenericSourceUnitWorkingCopy {
 	protected RWorkingCopy(final ISourceUnit from) {
 		super(from);
 	}
+	
 	
 	@Override
 	protected final void register() {

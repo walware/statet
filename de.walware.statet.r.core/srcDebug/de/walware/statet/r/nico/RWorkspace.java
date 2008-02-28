@@ -16,7 +16,7 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 
 /**
- *
+ * 
  */
 public class RWorkspace extends ToolWorkspace {
 	

@@ -385,7 +385,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 		
 		String value = null;
 		try {
-			value = configuration.getAttribute(ATTR_VIEWER_CODE, "");
+			value = configuration.getAttribute(ATTR_VIEWER_CODE, ""); //$NON-NLS-1$
 		} catch (final CoreException e) {
 			logReadingError(e);
 		}

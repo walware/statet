@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.core.builder;
@@ -26,42 +26,39 @@ import de.walware.statet.r.core.RProject;
 
 
 public class MarkerHandler {
-
+	
 	
 	public static final String TASK_MARKER_ID = "de.walware.statet.r.markers.Tasks"; //$NON-NLS-1$
-
+	
 	
 	private RProject fProject;
 	
 	private Pattern fTaskTagPattern;
 	private Map<String, TaskPriority> fTaskTagMap;
-
+	
 	private IResource fResource;
 	
 	
-	public MarkerHandler(RProject project) throws CoreException {
-		
+	public MarkerHandler(final RProject project) throws CoreException {
 		fProject = project;
 		loadTaskPattern();
 	}
 	
-	public void setup(IResource resource) {
+	public void setup(final IResource resource) {
 		
 		fResource = resource;
 	}
 	
 	public void clean() throws CoreException {
-		
 		removeTaskMarkers();
 	}
 	
-	public void addTaskMarker(String message, int offset, int lineNumber, String match) 
-	
+	public void addTaskMarker(final String message, final int offset, int lineNumber, final String match) 
 		throws CoreException {
-
-		TaskPriority prio = fTaskTagMap.get(match);
 		
-		IMarker marker = fResource.createMarker(TASK_MARKER_ID);
+		final TaskPriority prio = fTaskTagMap.get(match);
+		
+		final IMarker marker = fResource.createMarker(TASK_MARKER_ID);
 		
 		marker.setAttribute(IMarker.MESSAGE, message);
 		marker.setAttribute(IMarker.PRIORITY, prio.getMarkerPriority());
@@ -75,49 +72,47 @@ public class MarkerHandler {
 		}		
 		marker.setAttribute(IMarker.USER_EDITABLE, false);
 	}
-
+	
 	public void removeTaskMarkers() throws CoreException {
-		
 		fResource.deleteMarkers(TASK_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
-
+	
 	private void loadTaskPattern() throws CoreException {
-		
 		fTaskTagPattern = null;
 		fTaskTagMap = null;
 		
-		TaskTagsPreferences taskPrefs = new TaskTagsPreferences(fProject);
-		String[] tags = taskPrefs.getTags();
-		TaskPriority[] prios = taskPrefs.getPriorities();
+		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(fProject);
+		final String[] tags = taskPrefs.getTags();
+		final TaskPriority[] prios = taskPrefs.getPriorities();
 		
 		if (tags.length == 0)
 			return;
-
+		
 		fTaskTagMap = new HashMap<String, TaskPriority>(tags.length);
-		String separatorRegex = "[^\\p{L}\\p{N}]"; //$NON-NLS-1$
-		StringBuilder regex = new StringBuilder(separatorRegex);
-		regex.append('('); //$NON-NLS-1$
+		final String separatorRegex = "[^\\p{L}\\p{N}]"; //$NON-NLS-1$
+		final StringBuilder regex = new StringBuilder(separatorRegex);
+		regex.append('('); 
 		for (int i = 0; i < tags.length; i++) {
-			String tagName = tags[i];
+			final String tagName = tags[i];
 			regex.append(Pattern.quote(tagName));
-			regex.append('|'); //$NON-NLS-1$
+			regex.append('|'); 
 			fTaskTagMap.put(tagName, prios[i]);
 		}
-		regex.setCharAt(regex.length()-1, ')'); //$NON-NLS-1$
+		regex.setCharAt(regex.length()-1, ')'); 
 		regex.append("(?:\\z|").append(separatorRegex).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
 		fTaskTagPattern = Pattern.compile(regex.toString());
 	}
 	
 	
-	public void checkForTasks(String content, int offset, ILineResolver lines) throws CoreException {
-
+	public void checkForTasks(final String content, final int offset, final ILineResolver lines) throws CoreException {
 		if (fTaskTagPattern != null) {
-			Matcher matcher = fTaskTagPattern.matcher(content);
+			final Matcher matcher = fTaskTagPattern.matcher(content);
 			if (matcher.find()) {
-				int start = matcher.start(1);
-				String text = content.substring(start);
+				final int start = matcher.start(1);
+				final String text = content.substring(start);
 				addTaskMarker(text, offset+start, lines.getLineOfOffset(offset)+1, matcher.group(1));
 			}
 		}
 	}
+	
 }

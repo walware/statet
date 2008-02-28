@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.wizards;
@@ -98,7 +98,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Creates a file resource handle for the file with the given workspace path.
 		 * This method does not create the file resource; this is the responsibility
 		 * of <code>createFile</code>.
-		 *
+		 * 
 		 * @param filePath the path of the file resource to create a handle for
 		 * @return the new file resource handle
 		 * @see #createFile
@@ -125,7 +125,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * This method should be called within a workspace modify operation since
 		 * it creates resources.
 		 * </p>
-		 *
+		 * 
 		 * @return the created file resource, or <code>null</code> if the file
 		 *    was not created
 		 * @throws InterruptedException
@@ -154,7 +154,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		
 		/**
 		 * Creates a file resource given the file handle and contents.
-		 *
+		 * 
 		 * @param fileHandle the file handle to create a file resource with
 		 * @param contents the initial contents of the new file resource, or
 		 *   <code>null</code> if none (equivalent to an empty stream)
@@ -204,7 +204,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Returns a stream containing the initial contents to be given to new file resource
 		 * instances.  <b>Subclasses</b> may wish to override.  This default implementation
 		 * provides no initial contents.
-		 *
+		 * 
 		 * @return initial contents to be given to new file resource instances
 		 */
 		protected InputStream getInitialFileContentStream(final IFile newFileHandle) {
@@ -241,7 +241,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Returns a stream containing the initial contents to be given to new file resource
 		 * instances.  <b>Subclasses</b> may wish to override.  This default implementation
 		 * provides no initial contents.
-		 *
+		 * 
 		 * @return initial contents to be given to new file resource instances
 		 */
 		protected String getInitialFileContent(final IFile newFileHandle) {
@@ -280,7 +280,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Note: Handle is cached. This method does not create the project resource;
 		 * this is the responsibility of <code>IProject::create</code>.
 		 * </p>
-		 *
+		 * 
 		 * @return the project resource handle
 		 */
 		public IProject getProjectHandle() {

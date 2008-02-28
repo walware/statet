@@ -31,17 +31,15 @@ public class EditorMessages extends NLS {
 	public static String FoldingMenu_label;
 	
 	
-	private static final String BUNDLE_NAME = EditorMessages.class.getName();
-	
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, EditorMessages.class);
+		NLS.initializeMessages(EditorMessages.class.getName(), EditorMessages.class);
 	}
 	
-	
-	private static ResourceBundle fgCompatibilityBundle = ResourceBundle.getBundle(BUNDLE_NAME);
-	
+	private static ResourceBundle fgCompatibilityBundle = ResourceBundle.getBundle(EditorMessages.class.getName());
 	public static ResourceBundle getCompatibilityBundle() {
 		return fgCompatibilityBundle;
 	}
+	
+	private EditorMessages() {}
 	
 }

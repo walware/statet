@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -15,6 +15,7 @@ import org.eclipse.osgi.util.NLS;
 
 
 public class Messages extends NLS {
+	
 	
 	public static String EditTemplateDialog_title_Edit;
 	public static String EditTemplateDialog_title_New;
@@ -36,5 +37,6 @@ public class Messages extends NLS {
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

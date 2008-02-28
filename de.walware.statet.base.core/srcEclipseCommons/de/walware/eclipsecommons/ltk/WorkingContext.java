@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
@@ -97,7 +97,7 @@ public final class WorkingContext {
 				}
 			}
 			catch (final Exception e) {
-				BaseCorePlugin.logError(-1, "Error loading working context contributions", e);
+				BaseCorePlugin.logError(-1, "Error loading working context contributions", e); //$NON-NLS-1$
 			}
 		}
 		return factory;

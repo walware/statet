@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 
 /**
- *
+ * 
  */
 public class RUtil {
 	
@@ -87,5 +87,5 @@ public class RUtil {
 		}
 		return escaped.toString();
 	}
-
+	
 }

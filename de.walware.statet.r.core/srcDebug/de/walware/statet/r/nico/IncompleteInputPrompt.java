@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico;
@@ -29,7 +29,7 @@ public class IncompleteInputPrompt extends Prompt {
 	public final String previousInput;
 	
 	
-	IncompleteInputPrompt(Prompt previousPrompt, String lastInput, String promptText) {
+	IncompleteInputPrompt(final Prompt previousPrompt, String lastInput, final String promptText) {
 		
 		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT);
 		if ((previousPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
@@ -37,9 +37,9 @@ public class IncompleteInputPrompt extends Prompt {
 		}
 		previousInput = lastInput;
 	}
-
 	
-	IncompleteInputPrompt(String allInput, String promptText) {
+	
+	IncompleteInputPrompt(final String allInput, final String promptText) {
 		
 		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT);
 		previousInput = allInput;

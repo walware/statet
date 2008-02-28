@@ -44,6 +44,7 @@ public class TerminateToolAction extends Action implements IUpdate {
 	
 	private IProcess fProcess;
 	
+	
 	/**
 	 * Creates a terminate action for the console
 	 */
@@ -57,6 +58,7 @@ public class TerminateToolAction extends Action implements IUpdate {
 		setHoverImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_LCL_TERMINATE));
 		update();
 	}
+	
 	
 	public void update() {
 		setEnabled(fProcess.canTerminate());

@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
@@ -23,9 +23,10 @@ import de.walware.eclipsecommons.ltk.ast.IAstNode;
 
 
 /**
- *
+ * 
  */
 public interface ISourceUnit extends IModelElement, IAdaptable {
+	
 	
 	public WorkingContext getWorkingContext();
 	public ISourceUnit getUnderlyingUnit();

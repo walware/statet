@@ -22,9 +22,17 @@ public class StringConst extends SingleValue {
 	
 	static class S extends StringConst {
 		
+		
+		S() {
+		}
+		
 	}
 	
 	static class D extends StringConst {
+		
+		
+		D() {
+		}
 		
 	}
 	
@@ -38,10 +46,12 @@ public class StringConst extends SingleValue {
 		return NodeType.STRING_CONST;
 	}
 	
+	
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
+	
 	
 	@Override
 	public final boolean equalsSingle(final RAstNode element) {

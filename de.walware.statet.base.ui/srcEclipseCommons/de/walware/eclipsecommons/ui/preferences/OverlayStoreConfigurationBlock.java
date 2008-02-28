@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.preferences;
@@ -17,7 +17,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 
 
 public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
-
+	
 	
 	protected OverlayPreferenceStore fOverlayStore;
 	private boolean fIsDirty;
@@ -27,13 +27,14 @@ public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 	public OverlayStoreConfigurationBlock() {
 		super();
 	}
-
-	protected void setupOverlayStore(IPreferenceStore store, OverlayStorePreference[] keys) {
+	
+	
+	protected void setupOverlayStore(final IPreferenceStore store, final OverlayStorePreference[] keys) {
 		fOverlayStore = new OverlayPreferenceStore(store, keys);
 		fOverlayStore.load();
 		fOverlayStore.start();
 		fOverlayStore.addPropertyChangeListener(new IPropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
+			public void propertyChange(final PropertyChangeEvent event) {
 				if (!fInLoading) {
 					fIsDirty = true;
 					handlePropertyChange();
@@ -75,7 +76,8 @@ public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 		}
 		return true;
 	}
-
+	
+	@Override
 	public void performDefaults() {
 		if (fOverlayStore != null) {
 			fInLoading = true;

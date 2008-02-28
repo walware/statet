@@ -34,10 +34,10 @@ import de.walware.statet.r.core.RProject;
 
 
 /**
- * Control migration and backward compatiblity with pre 0.4 R nature and builder
+ * Control migration and backward compatibility with pre 0.4 R nature and builder
  */
 public class RCompatibilityBuilder extends IncrementalProjectBuilder {
-
+	
 	private static final String OLD_NATURE_ID = "de.walware.statet.r.core.RNature"; //$NON-NLS-1$
 	private static final String OLD_BUILDER_ID = "de.walware.statet.r.core.RInternalBuilder"; //$NON-NLS-1$
 	
@@ -46,7 +46,6 @@ public class RCompatibilityBuilder extends IncrementalProjectBuilder {
 	
 	
 	public RCompatibilityBuilder() {
-		
 		super();
 	}
 	

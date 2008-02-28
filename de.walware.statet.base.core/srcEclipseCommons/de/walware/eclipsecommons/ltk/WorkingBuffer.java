@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk;
@@ -33,12 +33,12 @@ import de.walware.statet.base.internal.core.BaseCorePlugin;
 
 
 public class WorkingBuffer implements IWorkingBuffer {
-
+	
 	protected final ISourceUnit fUnit;
 	private AbstractDocument fDocument;
 	
 	
-	public WorkingBuffer(ISourceUnit unit) {
+	public WorkingBuffer(final ISourceUnit unit) {
 		fUnit = unit;
 	}
 	
@@ -50,7 +50,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 		}
 		return fDocument;
 	}
-
+	
 	public SourceContent getContent() {
 		final IDocument doc = fDocument;
 		if (doc != null) {
@@ -58,25 +58,25 @@ public class WorkingBuffer implements IWorkingBuffer {
 		}
 		return createContent();
 	}
-
+	
 	public void saveDocument() {
 	}
-
+	
 	public void releaseDocument() {
 		fDocument = null;
 	}
 	
-
+	
 	protected AbstractDocument createDocument() {
 		final IDocument fileDoc = FileBuffers.getTextFileBufferManager().createEmptyDocument(null, null);
 		if (!(fileDoc instanceof AbstractDocument)) {
 			return null;
 		}
-		AbstractDocument document = (AbstractDocument) fileDoc;
-
+		final AbstractDocument document = (AbstractDocument) fileDoc;
+		
 		final ISourceUnit underlyingUnit = fUnit.getUnderlyingUnit();
 		if (underlyingUnit != null) {
-			SourceContent underlyingContent = underlyingUnit.getContent();
+			final SourceContent underlyingContent = underlyingUnit.getContent();
 			if (document instanceof IDocumentExtension4) {
 				((IDocumentExtension4) document).set(underlyingContent.text, underlyingContent.stamp);
 			}
@@ -85,20 +85,20 @@ public class WorkingBuffer implements IWorkingBuffer {
 			}
 		}
 		else {
-			IResource resource = fUnit.getResource();
+			final IResource resource = fUnit.getResource();
 			if (resource instanceof IFile) {
 				loadDocumentFromFile((IFile) resource, document);
 			}
 		}
 		return document;
 	}
-
+	
 	protected void loadDocumentFromFile(final IFile file, final AbstractDocument document) {
 		try {
 			FileUtil.createReadTextFileOp(new FileUtil.ReaderAction() {
-				public void run(BufferedReader reader, IProgressMonitor monitor) throws IOException {
-					StringBuilder buffer = new StringBuilder();
-					char[] readBuffer = new char[2048];
+				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException {
+					final StringBuilder buffer = new StringBuilder();
+					final char[] readBuffer = new char[2048];
 					int n;
 					while ((n = reader.read(readBuffer)) > 0) {
 						buffer.append(readBuffer, 0, n);
@@ -111,12 +111,12 @@ public class WorkingBuffer implements IWorkingBuffer {
 					}
 				}
 			}, file).doOperation(new NullProgressMonitor());
-		} catch (OperationCanceledException e) {
-		} catch (CoreException e) {
+		} catch (final OperationCanceledException e) {
+		} catch (final CoreException e) {
 			BaseCorePlugin.log(e.getStatus());
 		}
 	}
-
+	
 	protected SourceContent createContent() {
 		final ISourceUnit underlyingUnit = fUnit.getUnderlyingUnit();
 		if (underlyingUnit != null) {
@@ -124,15 +124,15 @@ public class WorkingBuffer implements IWorkingBuffer {
 		}
 		else {
 			final AtomicReference<SourceContent> content = new AtomicReference<SourceContent>();
-			IResource resource = fUnit.getResource();
+			final IResource resource = fUnit.getResource();
 			if (resource instanceof IFile) {
 				loadContentFromFile((IFile) resource, content);
 			}
 			return content.get();
 		}
 	}
-
-	protected SourceContent createContentFromDocument(IDocument doc) {
+	
+	protected SourceContent createContentFromDocument(final IDocument doc) {
 		Object lock = null;
 		if (doc instanceof ISynchronizable) {
 			lock = ((ISynchronizable) doc).getLockObject();
@@ -148,13 +148,13 @@ public class WorkingBuffer implements IWorkingBuffer {
 			return new SourceContent(System.currentTimeMillis(), doc.get());
 		}
 	}
-
+	
 	protected void loadContentFromFile(final IFile file, final AtomicReference<SourceContent> content) {
 		try {
 			FileUtil.createReadTextFileOp(new FileUtil.ReaderAction() {
-				public void run(BufferedReader reader, IProgressMonitor monitor) throws IOException {
-					StringBuilder buffer = new StringBuilder();
-					char[] readBuffer = new char[2048];
+				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException {
+					final StringBuilder buffer = new StringBuilder();
+					final char[] readBuffer = new char[2048];
 					int n;
 					while ((n = reader.read(readBuffer)) > 0) {
 						buffer.append(readBuffer, 0, n);
@@ -162,10 +162,10 @@ public class WorkingBuffer implements IWorkingBuffer {
 					content.set(new SourceContent(file.getModificationStamp(), buffer.toString()));
 				}
 			}, file).doOperation(new NullProgressMonitor());
-		} catch (OperationCanceledException e) {
-		} catch (CoreException e) {
+		} catch (final OperationCanceledException e) {
+		} catch (final CoreException e) {
 			BaseCorePlugin.log(e.getStatus());
 		}
 	}
-
+	
 }

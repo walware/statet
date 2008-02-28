@@ -16,8 +16,6 @@ package de.walware.statet.r.core.rdoc;
  * Provides definition and util-method for tokens of the R-documentations.
  * 'Tokes' means tokens according to R-documentation definition, they defines not
  * directly <code>Token</code>, implementions of <code>IToken</code>.  
- *
- * @author Stephan Wahlbrink
  */
 public class RdTags {
 	

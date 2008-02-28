@@ -29,6 +29,7 @@ public class FDef extends RAstNode {
 	
 	public static class Args extends RAstNode {
 		
+		
 		List<Arg> fSpecs = new ArrayList<Arg>(0);
 		List<RSourceToken> fSeparatorSources;
 		
@@ -74,6 +75,21 @@ public class FDef extends RAstNode {
 		}
 		
 		@Override
+		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+			visitor.visit(this);
+		}
+		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fSpecs);
+		}
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fSpecs);
+		}
+		
+		
+		@Override
 		final Expression getExpr(final RAstNode child) {
 			return null;
 		}
@@ -93,19 +109,6 @@ public class FDef extends RAstNode {
 			return (element.getNodeType() == NodeType.F_DEF_ARGS);
 		}
 		
-		@Override
-		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-			visitor.visit(this);
-		}
-		
-		@Override
-		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
-			acceptChildren(visitor, fSpecs);
-		}
-		
-		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-			acceptChildren(visitor, fSpecs);
-		}
 		
 		@Override
 		final void updateStopOffset() {
@@ -189,6 +192,26 @@ public class FDef extends RAstNode {
 			return fDefaultExpr.node;
 		}
 		
+		@Override
+		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+			visitor.visit(this);
+		}
+		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+			fArgName.acceptInR(visitor);
+			if (fWithDefault) {
+				fDefaultExpr.node.acceptInR(visitor);
+			}
+		}
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+			fArgName.accept(visitor);
+			if (fWithDefault) {
+				fDefaultExpr.node.accept(visitor);
+			}
+		}
+		
 		
 		@Override
 		final Expression getExpr(final RAstNode child) {
@@ -218,25 +241,6 @@ public class FDef extends RAstNode {
 			return (element.getNodeType() == NodeType.F_DEF_ARG);
 		}
 		
-		@Override
-		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-			visitor.visit(this);
-		}
-		
-		@Override
-		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
-			fArgName.acceptInR(visitor);
-			if (fWithDefault) {
-				fDefaultExpr.node.acceptInR(visitor);
-			}
-		}
-		
-		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-			fArgName.accept(visitor);
-			if (fWithDefault) {
-				fDefaultExpr.node.accept(visitor);
-			}
-		}
 		
 		final void updateStartOffset() {
 			fStartOffset = fArgName.fStartOffset;
@@ -259,6 +263,10 @@ public class FDef extends RAstNode {
 	Args fArgs = new Args(this);
 	int fArgsCloseOffset = Integer.MIN_VALUE;
 	final Expression fExpr = new Expression();
+	
+	
+	FDef() {
+	}
 	
 	
 	@Override
@@ -359,6 +367,7 @@ public class FDef extends RAstNode {
 	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.F_DEF);
 	}
+	
 	
 	@Override
 	final void updateStopOffset() {

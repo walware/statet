@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.text;
@@ -52,7 +52,7 @@ public class EcoReconciler implements IReconciler {
 		final IEditorInputAcceptor editorAcceptor;
 		boolean initialed;
 		
-		StrategyEntry(IReconcilingStrategy strategy) {
+		StrategyEntry(final IReconcilingStrategy strategy) {
 			this.strategy = strategy;
 			this.strategyExtension = (strategy instanceof IReconcilingStrategyExtension) ?
 					(IReconcilingStrategyExtension) strategy : null;
@@ -62,7 +62,7 @@ public class EcoReconciler implements IReconciler {
 		}
 		
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(final Object obj) {
 			if (obj instanceof StrategyEntry) {
 				return ( ((StrategyEntry) obj).strategy == strategy);
 			}
@@ -73,7 +73,7 @@ public class EcoReconciler implements IReconciler {
 	
 	private class ReconcileJob extends Job implements ISchedulingRule {
 		
-		ReconcileJob(String name) {
+		ReconcileJob(final String name) {
 			super("Reconciler '"+name+"'"); //$NON-NLS-1$ //$NON-NLS-2$
 			setPriority(Job.SHORT);
 			setRule(this);
@@ -82,25 +82,25 @@ public class EcoReconciler implements IReconciler {
 		}
 		
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
+		protected IStatus run(final IProgressMonitor monitor) {
 			if (!monitor.isCanceled()) {
 				processReconcile(monitor);
 			}
 			return Status.OK_STATUS;
 		}
 		
-		public boolean contains(ISchedulingRule rule) {
+		public boolean contains(final ISchedulingRule rule) {
 			return rule == this;
 		}
 		
-		public boolean isConflicting(ISchedulingRule rule) {
+		public boolean isConflicting(final ISchedulingRule rule) {
 			return rule == this;
 		}
 	}
 	
 	
 	private class VisibleListener implements Listener {
-		public void handleEvent(Event event) {
+		public void handleEvent(final Event event) {
 			switch (event.type) {
 			case SWT.Show:
 				fIsEditorVisible = true;
@@ -117,20 +117,20 @@ public class EcoReconciler implements IReconciler {
 	 */
 	private class DocumentListener implements IDocumentListener, ITextInputListener {
 		
-		public void documentAboutToBeChanged(DocumentEvent e) {
+		public void documentAboutToBeChanged(final DocumentEvent e) {
 		}
 		
-		public void documentChanged(DocumentEvent e) {
+		public void documentChanged(final DocumentEvent e) {
 			scheduleReconcile();
 		}
 		
-		public void inputDocumentAboutToBeChanged(IDocument oldInput, IDocument newInput) {
+		public void inputDocumentAboutToBeChanged(final IDocument oldInput, final IDocument newInput) {
 			if (fDocument != null && oldInput == fDocument && newInput != fDocument) {
 				disconnectDocument();
 			}
 		}
 		
-		public void inputDocumentChanged(IDocument oldInput, IDocument newInput) {
+		public void inputDocumentChanged(final IDocument oldInput, final IDocument newInput) {
 			connectDocument();
 		}
 	}
@@ -167,24 +167,25 @@ public class EcoReconciler implements IReconciler {
 	/**
 	 * Creates a new reconciler without configuring it.
 	 */
-	public EcoReconciler(ITextEditor editor) {
+	public EcoReconciler(final ITextEditor editor) {
 		super();
 		fEditor = editor;
 	}
 	
+	
 	/**
 	 * Tells the reconciler how long it should wait for further text changes before
 	 * activating the appropriate reconciling strategies.
-	 *
+	 * 
 	 * @param delay the duration in milliseconds of a change collection period.
 	 */
-	public void setDelay(int delay) {
+	public void setDelay(final int delay) {
 		fDelay = delay;
 	}
 	
 	/**
 	 * Returns the input document of the text viewer this reconciler is installed on.
-	 *
+	 * 
 	 * @return the reconciler document
 	 */
 	protected IDocument getDocument() {
@@ -197,7 +198,7 @@ public class EcoReconciler implements IReconciler {
 	
 	/**
 	 * Returns the text viewer this reconciler is installed on.
-	 *
+	 * 
 	 * @return the text viewer this reconciler is installed on
 	 */
 	protected ITextViewer getTextViewer() {
@@ -206,7 +207,7 @@ public class EcoReconciler implements IReconciler {
 	
 	/**
 	 * Tells whether this reconciler's editor is active.
-	 *
+	 * 
 	 * @return <code>true</code> if the editor is active
 	 */
 	protected boolean isEditorVisible() {
@@ -214,12 +215,12 @@ public class EcoReconciler implements IReconciler {
 	}
 	
 	
-	public void install(ITextViewer textViewer) {
+	public void install(final ITextViewer textViewer) {
 		Assert.isNotNull(textViewer);
 		fViewer = textViewer;
 		
 		fVisibleListener = new VisibleListener();
-		StyledText textWidget = fViewer.getTextWidget();
+		final StyledText textWidget = fViewer.getTextWidget();
 		textWidget.addListener(SWT.Show, fVisibleListener);
 		textWidget.addListener(SWT.Hide, fVisibleListener);
 		fIsEditorVisible = textWidget.isVisible();
@@ -263,10 +264,10 @@ public class EcoReconciler implements IReconciler {
 	 * has been changed, i.e., the input document of the text viewer this
 	 * reconciler is installed on. Usually, subclasses use this hook to
 	 * inform all their reconciling strategies about the change.
-	 *
+	 * 
 	 * @param newDocument the new reconciler document
 	 */
-	protected void reconcilerDocumentChanged(IDocument newDocument) {
+	protected void reconcilerDocumentChanged(final IDocument newDocument) {
 	}
 	
 	protected void disconnectDocument() {
@@ -298,15 +299,15 @@ public class EcoReconciler implements IReconciler {
 	protected void aboutToBeReconciled() {
 	}
 	
-	protected void processReconcile(IProgressMonitor monitor) {
+	protected void processReconcile(final IProgressMonitor monitor) {
 		final IDocument document = getDocument();
 		final IEditorInput input = getEditorInput();
 		if (document == null || (fEditor != null && input == null)) {
 			return;
 		}
-		IRegion region = new Region(0, document.getLength());
-		StrategyEntry[] reconcilingStrategies = getReconcilingStrategies();
-		for (StrategyEntry s : reconcilingStrategies) {
+		final IRegion region = new Region(0, document.getLength());
+		final StrategyEntry[] reconcilingStrategies = getReconcilingStrategies();
+		for (final StrategyEntry s : reconcilingStrategies) {
 			synchronized (s.strategy) {
 				if (s.editorAcceptor != null && input != null) {
 					s.editorAcceptor.setEditorInput(input);
@@ -333,11 +334,11 @@ public class EcoReconciler implements IReconciler {
 		}
 	}
 	
-	protected boolean prepareStrategyReconcile(StrategyEntry s) {
+	protected boolean prepareStrategyReconcile(final StrategyEntry s) {
 		return true;
 	}
 	
-	public void addReconcilingStrategy(IReconcilingStrategy strategy) {
+	public void addReconcilingStrategy(final IReconcilingStrategy strategy) {
 		fStrategies.add(new StrategyEntry(strategy));
 	}
 	
@@ -345,7 +346,7 @@ public class EcoReconciler implements IReconciler {
 		return fStrategies.toArray();
 	}
 	
-	public IReconcilingStrategy getReconcilingStrategy(String contentType) {
+	public IReconcilingStrategy getReconcilingStrategy(final String contentType) {
 		return null;
 	}
 	

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.util;
@@ -32,30 +32,29 @@ import de.walware.statet.nico.ui.NicoUITools;
  * Control group showing information about a NICO tool.
  */
 public class ToolInfoGroup {
-
+	
 	
 	private ToolProcess fProcess;
 	private ViewForm fForm;
-
 	
-	public ToolInfoGroup(Composite parent, ToolProcess process) {
-		
+	
+	public ToolInfoGroup(final Composite parent, final ToolProcess process) {
 		fProcess = process;
 		createControls(parent);
 	}
 	
-	private void createControls(Composite parent) {
-		
+	
+	private void createControls(final Composite parent) {
 		fForm = new ViewForm(parent, SWT.BORDER | SWT.FLAT);
-		Composite info = new Composite(fForm, SWT.NONE);
-		GridLayout layout = new GridLayout();
+		final Composite info = new Composite(fForm, SWT.NONE);
+		final GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.verticalSpacing = 2;
 		info.setLayout(layout);
 		fForm.setContent(info);
-
-		Label text = new Label(info, SWT.NONE);
-		ImageDescriptor imageDescr = NicoUITools.getImageDescriptor(fProcess);
+		
+		final Label text = new Label(info, SWT.NONE);
+		final ImageDescriptor imageDescr = NicoUITools.getImageDescriptor(fProcess);
 		Image image = null;
 		if (imageDescr != null) {
 			image = StatetImages.getCachedImage(imageDescr);
@@ -64,7 +63,7 @@ public class ToolInfoGroup {
 		else {
 			text.setText("(i)"); //$NON-NLS-1$
 		}
-		GridData gd = new GridData(SWT.TOP, SWT.LEFT, false, false);
+		final GridData gd = new GridData(SWT.TOP, SWT.LEFT, false, false);
 		gd.horizontalSpan = 1;
 		gd.verticalSpan = 2;
 		text.setLayoutData(gd);
@@ -79,7 +78,7 @@ public class ToolInfoGroup {
 	}
 	
 	public Control getControl() {
-		
 		return fForm;
 	}
+	
 }

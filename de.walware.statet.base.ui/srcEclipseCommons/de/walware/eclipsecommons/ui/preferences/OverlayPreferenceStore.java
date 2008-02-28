@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000-2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,8 +29,8 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 		/*
 		 * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
 		 */
-		public void propertyChange(PropertyChangeEvent event) {
-			OverlayStorePreference key= findPreferenceKey(event.getProperty());
+		public void propertyChange(final PropertyChangeEvent event) {
+			final OverlayStorePreference key= findPreferenceKey(event.getProperty());
 			if (key != null)
 				propagateProperty(fParent, key, fStore); 
 		}
@@ -45,13 +45,14 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 	private boolean fLoaded;
 	
 	
-	public OverlayPreferenceStore(IPreferenceStore parent, OverlayStorePreference[] PreferenceKeys) {
+	public OverlayPreferenceStore(final IPreferenceStore parent, final OverlayStorePreference[] PreferenceKeys) {
 		fParent= parent;
 		fPreferenceKeys= PreferenceKeys;
 		fStore= new PreferenceStore();
 	}
 	
-	private OverlayStorePreference findPreferenceKey(String key) {
+	
+	private OverlayStorePreference findPreferenceKey(final String key) {
 		for (int i= 0; i < fPreferenceKeys.length; i++) {
 			if (fPreferenceKeys[i].fKey.equals(key))
 				return fPreferenceKeys[i];
@@ -59,11 +60,11 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 		return null;
 	}
 	
-	private boolean covers(String key) {
+	private boolean covers(final String key) {
 		return (findPreferenceKey(key) != null);
 	}
 	
-	private void propagateProperty(IPreferenceStore orgin, OverlayStorePreference key, IPreferenceStore target) {
+	private void propagateProperty(final IPreferenceStore orgin, final OverlayStorePreference key, final IPreferenceStore target) {
 		
 		if (orgin.isDefault(key.fKey)) {
 			if (!target.isDefault(key.fKey))
@@ -71,47 +72,47 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 			return;
 		}
 		
-		Type type = key.fType;
+		final Type type = key.fType;
 		switch (type) {
-
+		
 		case BOOLEAN: {
-			boolean originValue= orgin.getBoolean(key.fKey);
-			boolean targetValue= target.getBoolean(key.fKey);
+			final boolean originValue= orgin.getBoolean(key.fKey);
+			final boolean targetValue= target.getBoolean(key.fKey);
 			if (targetValue != originValue)
 				target.setValue(key.fKey, originValue);
 			break; }
 				
 		case DOUBLE: {
-			double originValue= orgin.getDouble(key.fKey);
-			double targetValue= target.getDouble(key.fKey);
+			final double originValue= orgin.getDouble(key.fKey);
+			final double targetValue= target.getDouble(key.fKey);
 			if (targetValue != originValue)
 				target.setValue(key.fKey, originValue);
 			break; }
 		
 		case FLOAT: {
-			float originValue= orgin.getFloat(key.fKey);
-			float targetValue= target.getFloat(key.fKey);
+			final float originValue= orgin.getFloat(key.fKey);
+			final float targetValue= target.getFloat(key.fKey);
 			if (targetValue != originValue)
 				target.setValue(key.fKey, originValue);
 			break; }
 		
 		case INT: {
-			int originValue= orgin.getInt(key.fKey);
-			int targetValue= target.getInt(key.fKey);
+			final int originValue= orgin.getInt(key.fKey);
+			final int targetValue= target.getInt(key.fKey);
 			if (targetValue != originValue)
 				target.setValue(key.fKey, originValue);
 			break; }
-
+		
 		case LONG: {
-			long originValue= orgin.getLong(key.fKey);
-			long targetValue= target.getLong(key.fKey);
+			final long originValue= orgin.getLong(key.fKey);
+			final long targetValue= target.getLong(key.fKey);
 			if (targetValue != originValue)
 				target.setValue(key.fKey, originValue);
 			break; }
-
+		
 		case STRING: {
-			String originValue= orgin.getString(key.fKey);
-			String targetValue= target.getString(key.fKey);
+			final String originValue= orgin.getString(key.fKey);
+			final String targetValue= target.getString(key.fKey);
 			if (targetValue != null && originValue != null && !targetValue.equals(originValue))
 				target.setValue(key.fKey, originValue);
 			break; }
@@ -123,9 +124,9 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 			propagateProperty(fStore, fPreferenceKeys[i], fParent);
 	}
 	
-	private void loadProperty(IPreferenceStore orgin, OverlayStorePreference key, IPreferenceStore target, boolean forceInitialization) {
+	private void loadProperty(final IPreferenceStore orgin, final OverlayStorePreference key, final IPreferenceStore target, final boolean forceInitialization) {
 		
-		Type type = key.fType;
+		final Type type = key.fType;
 		switch (type) {
 		
 		case BOOLEAN: {
@@ -199,243 +200,148 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 		}
 	}
 	
-	/*
-	 * @see IPreferenceStore#addPropertyChangeListener(IPropertyChangeListener)
-	 */
-	public void addPropertyChangeListener(IPropertyChangeListener listener) {
+	
+	public void addPropertyChangeListener(final IPropertyChangeListener listener) {
 		fStore.addPropertyChangeListener(listener);
 	}
 	
-	/*
-	 * @see IPreferenceStore#removePropertyChangeListener(IPropertyChangeListener)
-	 */
-	public void removePropertyChangeListener(IPropertyChangeListener listener) {
+	public void removePropertyChangeListener(final IPropertyChangeListener listener) {
 		fStore.removePropertyChangeListener(listener);
 	}
 	
-	/*
-	 * @see IPreferenceStore#firePropertyChangeEvent(String, Object, Object)
-	 */
-	public void firePropertyChangeEvent(String name, Object oldValue, Object newValue) {
+	public void firePropertyChangeEvent(final String name, final Object oldValue, final Object newValue) {
 		fStore.firePropertyChangeEvent(name, oldValue, newValue);
 	}
-
-	/*
-	 * @see IPreferenceStore#contains(String)
-	 */
-	public boolean contains(String name) {
+	
+	public boolean contains(final String name) {
 		return fStore.contains(name);
 	}
 	
-	/*
-	 * @see IPreferenceStore#getBoolean(String)
-	 */
-	public boolean getBoolean(String name) {
+	public boolean getBoolean(final String name) {
 		return fStore.getBoolean(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDefaultBoolean(String)
-	 */
-	public boolean getDefaultBoolean(String name) {
+	
+	public boolean getDefaultBoolean(final String name) {
 		return fStore.getDefaultBoolean(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDefaultDouble(String)
-	 */
-	public double getDefaultDouble(String name) {
+	
+	public double getDefaultDouble(final String name) {
 		return fStore.getDefaultDouble(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDefaultFloat(String)
-	 */
-	public float getDefaultFloat(String name) {
+	
+	public float getDefaultFloat(final String name) {
 		return fStore.getDefaultFloat(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDefaultInt(String)
-	 */
-	public int getDefaultInt(String name) {
+	
+	public int getDefaultInt(final String name) {
 		return fStore.getDefaultInt(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDefaultLong(String)
-	 */
-	public long getDefaultLong(String name) {
+	
+	public long getDefaultLong(final String name) {
 		return fStore.getDefaultLong(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDefaultString(String)
-	 */
-	public String getDefaultString(String name) {
+	
+	public String getDefaultString(final String name) {
 		return fStore.getDefaultString(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getDouble(String)
-	 */
-	public double getDouble(String name) {
+	
+	public double getDouble(final String name) {
 		return fStore.getDouble(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getFloat(String)
-	 */
-	public float getFloat(String name) {
+	
+	public float getFloat(final String name) {
 		return fStore.getFloat(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getInt(String)
-	 */
-	public int getInt(String name) {
+	
+	public int getInt(final String name) {
 		return fStore.getInt(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getLong(String)
-	 */
-	public long getLong(String name) {
+	
+	public long getLong(final String name) {
 		return fStore.getLong(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#getString(String)
-	 */
-	public String getString(String name) {
+	
+	public String getString(final String name) {
 		return fStore.getString(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#isDefault(String)
-	 */
-	public boolean isDefault(String name) {
+	
+	public boolean isDefault(final String name) {
 		return fStore.isDefault(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#needsSaving()
-	 */
+	
 	public boolean needsSaving() {
 		return fStore.needsSaving();
 	}
-
-	/*
-	 * @see IPreferenceStore#putValue(String, String)
-	 */
-	public void putValue(String name, String value) {
+	
+	public void putValue(final String name, final String value) {
 		if (covers(name))
 			fStore.putValue(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setDefault(String, double)
-	 */
-	public void setDefault(String name, double value) {
+	
+	public void setDefault(final String name, final double value) {
 		if (covers(name))
 			fStore.setDefault(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setDefault(String, float)
-	 */
-	public void setDefault(String name, float value) {
+	
+	public void setDefault(final String name, final float value) {
 		if (covers(name))
 			fStore.setDefault(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setDefault(String, int)
-	 */
-	public void setDefault(String name, int value) {
+	
+	public void setDefault(final String name, final int value) {
 		if (covers(name))
 			fStore.setDefault(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setDefault(String, long)
-	 */
-	public void setDefault(String name, long value) {
+	
+	public void setDefault(final String name, final long value) {
 		if (covers(name))
 			fStore.setDefault(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setDefault(String, String)
-	 */
-	public void setDefault(String name, String value) {
+	
+	public void setDefault(final String name, final String value) {
 		if (covers(name))
 			fStore.setDefault(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setDefault(String, boolean)
-	 */
-	public void setDefault(String name, boolean value) {
+	
+	public void setDefault(final String name, final boolean value) {
 		if (covers(name))
 			fStore.setDefault(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setToDefault(String)
-	 */
-	public void setToDefault(String name) {
+	
+	public void setToDefault(final String name) {
 		fStore.setToDefault(name);
 	}
-
-	/*
-	 * @see IPreferenceStore#setValue(String, double)
-	 */
-	public void setValue(String name, double value) {
+	
+	public void setValue(final String name, final double value) {
 		if (covers(name))
 			fStore.setValue(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setValue(String, float)
-	 */
-	public void setValue(String name, float value) {
+	
+	public void setValue(final String name, final float value) {
 		if (covers(name))
 			fStore.setValue(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setValue(String, int)
-	 */
-	public void setValue(String name, int value) {
+	
+	public void setValue(final String name, final int value) {
 		if (covers(name))
 			fStore.setValue(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setValue(String, long)
-	 */
-	public void setValue(String name, long value) {
+	
+	public void setValue(final String name, final long value) {
 		if (covers(name))
 			fStore.setValue(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setValue(String, String)
-	 */
-	public void setValue(String name, String value) {
+	
+	public void setValue(final String name, final String value) {
 		if (covers(name))
 			fStore.setValue(name, value);
 	}
-
-	/*
-	 * @see IPreferenceStore#setValue(String, boolean)
-	 */
-	public void setValue(String name, boolean value) {
+	
+	public void setValue(final String name, final boolean value) {
 		if (covers(name))
 			fStore.setValue(name, value);
 	}
-
+	
 	/**
 	 * The keys to add to the list of overlay keys.
 	 * <p>
@@ -445,13 +351,13 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 	 * @param keys
 	 * @since 3.0
 	 */
-	public void addKeys(OverlayStorePreference[] keys) {
+	public void addKeys(final OverlayStorePreference[] keys) {
 		assert (!fLoaded);
 		assert (keys != null);
 		
-		int PreferenceKeysLength= fPreferenceKeys.length;
-		OverlayStorePreference[] result= new OverlayStorePreference[keys.length + PreferenceKeysLength];
-
+		final int PreferenceKeysLength= fPreferenceKeys.length;
+		final OverlayStorePreference[] result= new OverlayStorePreference[keys.length + PreferenceKeysLength];
+		
 		for (int i= 0, length= PreferenceKeysLength; i < length; i++)
 			result[i]= fPreferenceKeys[i];
 		
@@ -463,4 +369,5 @@ public class OverlayPreferenceStore implements IPreferenceStore {
 		if (fLoaded)
 			load();
 	}
+	
 }

@@ -29,6 +29,10 @@ public class CWhileLoop extends RAstNode {
 	final Expression fLoopExpr = new Expression();
 	
 	
+	CWhileLoop() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.C_WHILE;

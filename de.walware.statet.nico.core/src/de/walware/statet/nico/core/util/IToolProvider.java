@@ -19,7 +19,9 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
  */
 public interface IToolProvider {
 	
+	
 	public ToolProcess getTool();
+	
 	public void addToolRetargetable(IToolRetargetable action);
-
+	
 }

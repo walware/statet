@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons;
@@ -23,7 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 
  */
 public abstract class AbstractSettingsModelObject {
-
+	
 	
 	private ReadWriteLock fLock;
 	private PropertyChangeSupport fBeanSupport;
@@ -34,11 +34,12 @@ public abstract class AbstractSettingsModelObject {
 		fBeanSupport = new PropertyChangeSupport(this);
 		fIsDirty = false;
 		fBeanSupport.addPropertyChangeListener(new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent evt) {
+			public void propertyChange(final PropertyChangeEvent evt) {
 				fIsDirty = true;
 			}
 		});
 	}
+	
 	
 	protected void installLock() {
 		fLock = new ReentrantReadWriteLock(true);
@@ -53,37 +54,37 @@ public abstract class AbstractSettingsModelObject {
 	/**
 	 * @see PropertyChangeSupport#addPropertyChangeListener(PropertyChangeListener)
 	 */
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
+	public void addPropertyChangeListener(final PropertyChangeListener listener) {
 		fBeanSupport.addPropertyChangeListener(listener);
 	}
-
+	
 	/**
 	 * @see PropertyChangeSupport#addPropertyChangeListener(String, PropertyChangeListener)
 	 */
-	public void addPropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
+	public void addPropertyChangeListener(final String propertyName,
+			final PropertyChangeListener listener) {
 		fBeanSupport.addPropertyChangeListener(propertyName, listener);
 	}
-
+	
 	/**
 	 * @see PropertyChangeSupport#removePropertyChangeListener(PropertyChangeListener)
 	 */
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
+	public void removePropertyChangeListener(final PropertyChangeListener listener) {
 		fBeanSupport.removePropertyChangeListener(listener);
 	}
-
+	
 	/**
 	 * @see PropertyChangeSupport#removePropertyChangeListener(String, PropertyChangeListener)
 	 */
-	public void removePropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
+	public void removePropertyChangeListener(final String propertyName,
+			final PropertyChangeListener listener) {
 		fBeanSupport.removePropertyChangeListener(propertyName, listener);
 	}
-
+	
 	/**
 	 * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
 	 */
-	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+	protected void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
 		fBeanSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 	

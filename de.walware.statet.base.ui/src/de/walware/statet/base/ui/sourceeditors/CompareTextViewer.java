@@ -74,6 +74,7 @@ public class CompareTextViewer extends Viewer {
 		fSourceViewer.setEditable(false);
 	}
 	
+	
 	protected void initSourceViewer() {
 		fConfigurator.setTarget(new ViewerEditorAdapter(), true);
 		new SourceViewerUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration(), fConfigurator.getPreferenceStore());

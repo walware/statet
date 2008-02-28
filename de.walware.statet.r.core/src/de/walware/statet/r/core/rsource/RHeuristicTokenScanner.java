@@ -19,7 +19,7 @@ import de.walware.statet.r.core.rlang.RTokens;
 
 
 /**
- *
+ * 
  */
 public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 	
@@ -34,6 +34,7 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 	protected RHeuristicTokenScanner(final String partitioning) {
 		super(partitioning);
 	}
+	
 	
 	@Override
 	public boolean isDefaultPartition(final String contentType) {

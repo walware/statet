@@ -69,6 +69,7 @@ import org.eclipse.ui.services.IServiceLocator;
  * </p>
  */
 public final class HandlerContributionItem extends ContributionItem {
+	
 	/**
 	 * A push button tool item or menu item.
 	 */
@@ -131,6 +132,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	private IWorkbenchHelpSystem workbenchHelpSystem;
 	
 	private String helpContextId;
+	
 	
 	/**
 	 * Create a CommandContributionItem to place in a ContributionManager.

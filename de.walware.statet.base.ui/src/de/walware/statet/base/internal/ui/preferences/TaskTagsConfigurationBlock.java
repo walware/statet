@@ -199,6 +199,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		fTasksGroup = new TasksGroup();
 	}
 	
+	
 	@Override
 	protected String[] getChangedGroups() {
 		return new String[] { 

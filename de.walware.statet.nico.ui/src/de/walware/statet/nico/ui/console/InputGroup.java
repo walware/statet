@@ -106,6 +106,61 @@ public class InputGroup implements ISettingsChangedHandler {
 	final static int KEY_OUTPUT_END = SWT.MOD1 | SWT.SHIFT | SWT.END;
 	
 	
+	/**
+	 * Creates and returns a new SWT image with the given size on
+	 * the given display which is used as this range indicator's image.
+	 * 
+	 * @see org.eclipse.ui.texteditor.DefaultRangeIndicator
+	 * 
+	 * @param display the display on which to create the image
+	 * @param size the image size
+	 * @return a new image
+	 */
+	private static Image createImage(final Display display) {
+		final Point size = new Point(8, 8);
+		final int width = size.x;
+		final int height = size.y;
+		
+		if (fgPaletteData == null)
+			fgPaletteData = createPalette(display);
+		
+		final ImageData imageData = new ImageData(width, height, 1, fgPaletteData);
+		
+		for (int y= 0; y < height; y++)
+			for (int x= 0; x < width; x++)
+				imageData.setPixel(x, y, (x + y) % 2);
+		
+		return new Image(display, imageData);
+	}
+	
+	/**
+	 * Creates and returns a new color palette data.
+	 * 
+	 * @param display
+	 * @return the new color palette data
+	 */
+	private static PaletteData createPalette(final Display display) {
+		Color c1;
+		Color c2;
+		
+		if (true) {
+			// range lighter
+			c1= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+			c2= display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+		} else {
+			// range darker
+			c1= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+			c2= display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+		}
+		
+		final RGB rgbs[] = new RGB[] {
+			new RGB(c1.getRed(), c1.getGreen(), c1.getBlue()),
+			new RGB(c2.getRed(), c2.getGreen(), c2.getBlue())};
+		
+		return new PaletteData(rgbs);
+	}
+	
+	
 	private final class ScrollControl implements Listener {
 		
 		private static final int MAX = 150;
@@ -353,6 +408,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		fDocument = new InputDocument();
 	}
 	
+	
 	public Composite createControl(final Composite parent, final SourceViewerConfigurator editorConfig) {
 		fComposite = new Composite(parent, SWT.NONE);
 		final GridLayout layout = new GridLayout(3, false);
@@ -562,6 +618,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		}
 	}
 	
+	
 	public void doHistoryNewer(final String prefix) {
 		if (fCurrentHistoryEntry == null) {
 			return;
@@ -697,61 +754,6 @@ public class InputGroup implements ISettingsChangedHandler {
 			fPrefixBackground.dispose();
 			fPrefixBackground = null;
 		}
-	}
-	
-	
-	/**
-	 * Creates and returns a new SWT image with the given size on
-	 * the given display which is used as this range indicator's image.
-	 *
-	 * @see org.eclipse.ui.texteditor.DefaultRangeIndicator
-	 *
-	 * @param display the display on which to create the image
-	 * @param size the image size
-	 * @return a new image
-	 */
-	private static Image createImage(final Display display) {
-		final Point size = new Point(8, 8);
-		final int width = size.x;
-		final int height = size.y;
-		
-		if (fgPaletteData == null)
-			fgPaletteData = createPalette(display);
-		
-		final ImageData imageData = new ImageData(width, height, 1, fgPaletteData);
-		
-		for (int y= 0; y < height; y++)
-			for (int x= 0; x < width; x++)
-				imageData.setPixel(x, y, (x + y) % 2);
-		
-		return new Image(display, imageData);
-	}
-	
-	/**
-	 * Creates and returns a new color palette data.
-	 *
-	 * @param display
-	 * @return the new color palette data
-	 */
-	private static PaletteData createPalette(final Display display) {
-		Color c1;
-		Color c2;
-		
-		if (true) {
-			// range lighter
-			c1= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
-			c2= display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
-		} else {
-			// range darker
-			c1= display.getSystemColor(SWT.COLOR_LIST_SELECTION);
-			c2= display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-		}
-		
-		final RGB rgbs[] = new RGB[] {
-			new RGB(c1.getRed(), c1.getGreen(), c1.getBlue()),
-			new RGB(c2.getRed(), c2.getGreen(), c2.getBlue())};
-		
-		return new PaletteData(rgbs);
 	}
 	
 }

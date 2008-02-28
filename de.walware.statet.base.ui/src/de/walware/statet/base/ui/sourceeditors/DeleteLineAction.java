@@ -71,16 +71,16 @@ public class DeleteLineAction extends Action {
 	
 	/**
 	 * Creates a line deletion action.
-	 *
+	 * 
 	 * @param bundle the resource bundle for UI strings
 	 * @param prefix the prefix for the property keys into <code>bundle</code>
 	 * @param editor the editor
 	 * @param type the line deletion type, must be one of
-	 * 	<code>WHOLE_LINE</code>, <code>TO_BEGINNING</code> or <code>TO_END</code>
+	 *     <code>WHOLE_LINE</code>, <code>TO_BEGINNING</code> or <code>TO_END</code>
 	 * @param copyToClipboard if <code>true</code>, the contents of the deleted line are copied to the clipboard
 	 * @since 2.1
 	 */
-	public DeleteLineAction(IEditorAdapter editor, int type, boolean copyToClipboard) {
+	public DeleteLineAction(final IEditorAdapter editor, final int type, final boolean copyToClipboard) {
 		super();
 		fEditor = editor;
 		fType = type;
@@ -127,30 +127,31 @@ public class DeleteLineAction extends Action {
 		setEnabled(fEditor.isEditable(false));
 	}
 	
+	@Override
 	public void run() {
 		if (!fEditor.isEditable(true)) {
 			return;
 		}
 		try {
 			deleteLine();
-		} catch (BadLocationException e) {
+		} catch (final BadLocationException e) {
 			StatetUIPlugin.logUnexpectedError(e);
 		}
 	}
 	
 	private void deleteLine() throws BadLocationException {
-		ISourceViewer sourceViewer = fEditor.getSourceViewer();
-		IDocument document = sourceViewer.getDocument();
-		Point selection = sourceViewer.getSelectedRange();
+		final ISourceViewer sourceViewer = fEditor.getSourceViewer();
+		final IDocument document = sourceViewer.getDocument();
+		final Point selection = sourceViewer.getSelectedRange();
 		
 		if (document == null || selection == null) {
 			return;
 		}
 		
-		IRegion deleteRegion = getDeleteRegion(document, selection.x, selection.y, fType);
+		final IRegion deleteRegion = getDeleteRegion(document, selection.x, selection.y, fType);
 		if (fCopyToClipboard) {
-			String text = document.get(deleteRegion.getOffset(), deleteRegion.getLength());
-			Clipboard clipboard = new Clipboard(sourceViewer.getTextWidget().getDisplay());
+			final String text = document.get(deleteRegion.getOffset(), deleteRegion.getLength());
+			final Clipboard clipboard = new Clipboard(sourceViewer.getTextWidget().getDisplay());
 			try {
 				DNDUtil.setContent(clipboard, 
 						new String[] { text }, 
@@ -164,13 +165,13 @@ public class DeleteLineAction extends Action {
 	}
 	
 	
-	private static IRegion getDeleteRegion(IDocument document, int offset, int length, int type) throws BadLocationException {
-		int line = document.getLineOfOffset(offset);
+	private static IRegion getDeleteRegion(final IDocument document, final int offset, final int length, final int type) throws BadLocationException {
+		final int line = document.getLineOfOffset(offset);
 		int temp;
 		
 		switch  (type) {
 		case DeleteLineAction.WHOLE:
-			BasicHeuristicTokenScanner scanner = new BasicHeuristicTokenScanner(""); //$NON-NLS-1$
+			final BasicHeuristicTokenScanner scanner = new BasicHeuristicTokenScanner(""); //$NON-NLS-1$
 			scanner.configure(document, null);
 			return scanner.getTextBlock(offset, offset+length);
 		

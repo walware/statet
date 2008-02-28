@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui;
@@ -27,10 +27,10 @@ import de.walware.statet.nico.internal.ui.actions.AbstractHistoryPage;
 
 
 /**
- *
+ * 
  */
 public class SaveHistoryPage extends AbstractHistoryPage {
-
+	
 	
 	private static final String SETTINGS_APPEND = "save.append"; //$NON-NLS-1$
 	private static final String SETTINGS_OVERWRITE = "save.overwrite"; //$NON-NLS-1$
@@ -42,26 +42,27 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	private Button fOverwriteControl;
 	
 	
-	public SaveHistoryPage(ToolProcess tool) {
-		
+	public SaveHistoryPage(final ToolProcess tool) {
 		super("SaveHistoryPage", Messages.SaveHistoryPage_title, tool); //$NON-NLS-1$
 		setDescription(NLS.bind(Messages.SaveHistoryPage_description, fTool.getToolLabel(false)));
 	}
 	
-	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
-		
+	@Override
+	protected ChooseResourceComposite createResourceComposite(final Layouter layouter) {
 		return new ChooseResourceComposite(layouter.composite, 
 				ChooseResourceComposite.STYLE_COMBO,
 				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_SAVE, 
 				Messages.LoadSaveHistoryPage_File_label);
 	}
 	
-	protected void addAdditionalContent1(Layouter parent) {
-		Group group = parent.addGroup(Messages.SaveHistoryPage_Options_label);
-		Layouter options = new Layouter(group, 1);
+	@Override
+	protected void addAdditionalContent1(final Layouter parent) {
+		final Group group = parent.addGroup(Messages.SaveHistoryPage_Options_label);
+		final Layouter options = new Layouter(group, 1);
 		fAppendControl = options.addCheckBox(Messages.SaveHistoryPage_AppendToFile_label);
 		fAppendControl.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
 				fAppendToFile = fAppendControl.getSelection();
 				if (fAppendToFile) {
 					fOverwriteFile = false;
@@ -72,7 +73,8 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 		});
 		fOverwriteControl = options.addCheckBox(Messages.SaveHistoryPage_OverwriteExisting_label);
 		fOverwriteControl.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
 				fOverwriteFile = fOverwriteControl.getSelection();
 				if (fOverwriteFile) {
 					fAppendToFile = false;
@@ -98,10 +100,11 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 		validate();
 	}
 	
+	@Override
 	protected void initFields() {
 		super.initFields();
-		IDialogSettings settings = getDialogSettings();
-
+		final IDialogSettings settings = getDialogSettings();
+		
 		fAppendToFile = settings.getBoolean(SETTINGS_APPEND);
 		fAppendControl.setSelection(fAppendToFile);
 		fOverwriteFile = settings.getBoolean(SETTINGS_OVERWRITE);
@@ -112,8 +115,9 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	@Override
 	public void saveSettings() {
 		super.saveSettings();
-		IDialogSettings settings = getDialogSettings();
+		final IDialogSettings settings = getDialogSettings();
 		settings.put(SETTINGS_APPEND, fAppendToFile);
 		settings.put(SETTINGS_OVERWRITE, fOverwriteFile);
 	}
+	
 }

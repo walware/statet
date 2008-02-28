@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -23,18 +23,17 @@ import org.eclipse.swt.widgets.Listener;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 
 
-
 public class InputSourceViewer extends SourceViewer {
-
 	
-	InputSourceViewer(Composite parent) {
+	
+	InputSourceViewer(final Composite parent) {
 		super(parent, null, null, false, SWT.SINGLE);
 		
 		initializeDragAndDrop();
 		initTabControl();
 	}
 	
-
+	
 	protected void initializeDragAndDrop() {
 		DNDUtil.addDropSupport(getTextWidget(), new DNDUtil.SimpleTextDropAdapter() {
 			@Override
@@ -47,7 +46,7 @@ public class InputSourceViewer extends SourceViewer {
 	private void initTabControl() {
 		// disable traverse on TAB key event, to enable TAB char insertion.
 		getTextWidget().addListener(SWT.Traverse, new Listener() {
-			public void handleEvent(Event event) {
+			public void handleEvent(final Event event) {
 				if (event.stateMask == SWT.NONE && event.character == SWT.TAB) {
 					event.doit = false;
 				}
@@ -55,9 +54,9 @@ public class InputSourceViewer extends SourceViewer {
 		});
 	}
 	
-
-	public void removeSpecialBinding(int key) {
-		StyledText control = (StyledText) getControl();
+	
+	public void removeSpecialBinding(final int key) {
+		final StyledText control = (StyledText) getControl();
 		control.setKeyBinding(key, SWT.NULL);
 	}
 	

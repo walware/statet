@@ -27,7 +27,6 @@ import de.walware.statet.base.ui.IStatetUICommandIds;
 
 public class GotoMatchingBracketAction extends Action {
 	
-	
 	public static final String ACTION_ID = "de.walware.statet.ui.actions.GotoMatchingBracket"; //$NON-NLS-1$
 	
 	
@@ -35,7 +34,7 @@ public class GotoMatchingBracketAction extends Action {
 	private IEditorAdapter fEditor;
 	
 	
-	public GotoMatchingBracketAction(PairMatcher pairMatcher, IEditorAdapter editor) {
+	public GotoMatchingBracketAction(final PairMatcher pairMatcher, final IEditorAdapter editor) {
 		
 		assert (pairMatcher != null);
 		assert (editor != null);
@@ -51,9 +50,9 @@ public class GotoMatchingBracketAction extends Action {
 		setEnabled(true);
 	}
 	
+	
 	@Override
 	public void run() {
-		
 		gotoMatchingBracket();
 	}
 	
@@ -61,21 +60,20 @@ public class GotoMatchingBracketAction extends Action {
 	 * Jumps to the matching bracket.
 	 */
 	public void gotoMatchingBracket() {
-		
-		ISourceViewer sourceViewer = fEditor.getSourceViewer();
+		final ISourceViewer sourceViewer = fEditor.getSourceViewer();
 		if (sourceViewer == null) {
 			return;
 		}
-		IDocument document = sourceViewer.getDocument();
+		final IDocument document = sourceViewer.getDocument();
 		
-		ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
+		final ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
 		int offset = selection.getOffset();
 		int selectionLength = selection.getLength();
-		char[][] brackets = fPairMatcher.getPairs();
+		final char[][] brackets = fPairMatcher.getPairs();
 		
 		if (selectionLength == 1) {
 			try {
-				char c = document.getChar(offset);
+				final char c = document.getChar(offset);
 				for (int i = 0; i < brackets.length; i++) {
 					if (c == brackets[i][ITokenScanner.OPENING_PEER]) {
 						offset++;
@@ -87,7 +85,7 @@ public class GotoMatchingBracketAction extends Action {
 						break;
 					}
 				}
-			} catch (BadLocationException e) {
+			} catch (final BadLocationException e) {
 			}
 		}
 		
@@ -97,27 +95,27 @@ public class GotoMatchingBracketAction extends Action {
 			return;
 		}
 		
-		IRegion region = fPairMatcher.match(document, offset);
+		final IRegion region = fPairMatcher.match(document, offset);
 		if (region == null) {
 			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket);
 			sourceViewer.getTextWidget().getDisplay().beep();
 			return;
 		}
 		
-		int matchingOffset = region.getOffset();
-		int matchingLength = region.getLength();
+		final int matchingOffset = region.getOffset();
+		final int matchingLength = region.getLength();
 		
 		if (matchingLength < 1)
 			return;
 			
-		int targetOffset = (fPairMatcher.getAnchor() == PairMatcher.RIGHT) ? matchingOffset+1 : matchingOffset+matchingLength-1;
+		final int targetOffset = (fPairMatcher.getAnchor() == PairMatcher.RIGHT) ? matchingOffset+1 : matchingOffset+matchingLength-1;
 		
 		boolean visible = false;
 		if (sourceViewer instanceof ITextViewerExtension5) {
-			ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
+			final ITextViewerExtension5 extension = (ITextViewerExtension5) sourceViewer;
 			visible = (extension.modelOffset2WidgetOffset(targetOffset) > -1);
 		} else {
-			IRegion visibleRegion = sourceViewer.getVisibleRegion();
+			final IRegion visibleRegion = sourceViewer.getVisibleRegion();
 			visible = (targetOffset >= visibleRegion.getOffset() && targetOffset <= visibleRegion.getOffset() + visibleRegion.getLength());
 		}
 		

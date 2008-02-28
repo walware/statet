@@ -54,8 +54,8 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 		fBlockStatus = new StatusInfo();
 	}
 	
-	protected abstract Block createConfigurationBlock() throws CoreException;
 	
+	protected abstract Block createConfigurationBlock() throws CoreException;
 	
 	public void init(final IWorkbench workbench) {
 		try {

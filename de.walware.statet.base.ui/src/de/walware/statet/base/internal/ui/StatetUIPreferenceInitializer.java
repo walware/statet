@@ -29,12 +29,12 @@ public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer
 	@Override
 	public void initializeDefaultPreferences() {
 		
-		IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
+		final IPreferenceStore store = StatetUIPlugin.getDefault().getPreferenceStore();
 		initializeTextEditiongPreferences(store);
 	}
 	
 	
-	private static void initializeTextEditiongPreferences(IPreferenceStore store) {
+	private static void initializeTextEditiongPreferences(final IPreferenceStore store) {
 //		// set the default values from ExtendedTextEditor
 //		store.setValue(AbstractDecoratedTextEditorPreferenceConstants.USE_QUICK_DIFF_PREFERENCE_PAGE, true);
 		
@@ -43,7 +43,7 @@ public class StatetUIPreferenceInitializer extends AbstractPreferenceInitializer
 		PreferenceConverter.setDefault(store, IStatetUIPreferenceConstants.
 				EDITOR_MATCHING_BRACKETS_COLOR, new RGB(192, 192, 192));
 		
-		DefaultScope defaults = new DefaultScope();
+		final DefaultScope defaults = new DefaultScope();
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOACTIVATION, true);
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOACTIVATION_DELAY, 200);
 		PreferencesUtil.setPrefValue(defaults, ContentAssistPreference.AUTOINSERT_SINGLE, false);

@@ -27,7 +27,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- *
+ * 
  */
 public class RModelJob extends Job {
 	
@@ -118,4 +118,5 @@ public class RModelJob extends Job {
 		final ModelDelta delta = new ModelDelta(task.u, task.oldAst, task.newAst);
 		fManager.fireDelta(delta, task.u.getWorkingContext());
 	}
+	
 }

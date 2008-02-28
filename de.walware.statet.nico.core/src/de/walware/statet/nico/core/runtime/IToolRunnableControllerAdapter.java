@@ -29,11 +29,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public interface IToolRunnableControllerAdapter {
 	
+	
 	public static final int META_NONE = 0;
 	public static final int META_HISTORY_DONTADD = 1 << 0;
 	public static final int META_PROMPT_DEFAULT = 1 << 1;
 	
+	
 	public ToolController getController();
+	
 	public ToolWorkspace getWorkspaceData();
 	
 	public void submitToConsole(String input, IProgressMonitor monitor)

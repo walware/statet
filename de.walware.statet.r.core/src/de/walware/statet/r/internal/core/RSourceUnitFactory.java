@@ -24,7 +24,7 @@ import de.walware.statet.r.internal.core.rmodel.RSourceUnit;
 
 
 /**
- *
+ * 
  */
 public class RSourceUnitFactory implements ISourceUnitFactory {
 	

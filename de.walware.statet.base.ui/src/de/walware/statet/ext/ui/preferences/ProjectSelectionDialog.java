@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -44,14 +44,14 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extends SelectionStatusDialog {
-
-
+	
+	
 	private static class ContentProvider implements IStructuredContentProvider {
 		
-		public Object[] getElements(Object inputElement) {
+		public Object[] getElements(final Object inputElement) {
 			return ((Set) inputElement).toArray();
 		}
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 		public void dispose() {
 		}
@@ -60,7 +60,7 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 	private static class ProjectLabelProvider extends LabelProvider {
 		
 		@Override
-		public String getText(Object element) {
+		public String getText(final Object element) {
 			if (element instanceof IProjectNature)
 				return ((IProjectNature) element).getProject().getName();
 			return super.getText(element);
@@ -68,10 +68,10 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 	}
 	
 	private static class ProjectComparator extends ViewerComparator {
-
+		
 		@SuppressWarnings("unchecked")
 		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
+		public int compare(final Viewer viewer, final Object e1, final Object e2) {
 			
 			return getComparator().compare( ((IProjectNature) e1).getProject().getName(), ((IProjectNature) e2).getProject().getName() );
 		}
@@ -80,7 +80,7 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 	
 	private Set<ProjectNature> fAllItems;
 	private Set<ProjectNature> fFilteredItems;
-
+	
 	// the visual selection widget group
 	private TableViewer fTableViewer;
 	// sizing constants
@@ -89,10 +89,9 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 	
 	private ViewerFilter fFilter;
 	private final static String DIALOG_SETTINGS_SHOW_ALL = "ProjectSelectionDialog.show_all"; //$NON-NLS-1$
-
-
-	public ProjectSelectionDialog(Shell parentShell, Set<ProjectNature> all, Set<ProjectNature> filtered) {
-		
+	
+	
+	public ProjectSelectionDialog(final Shell parentShell, final Set<ProjectNature> all, final Set<ProjectNature> filtered) {
 		super(parentShell);
 		setTitle(Messages.ProjectSelectionDialog_title);  
 		setMessage(Messages.ProjectSelectionDialog_desciption);
@@ -100,65 +99,62 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 		fAllItems = all;
 		fFilteredItems = filtered;
 		
-        int shellStyle = getShellStyle();
-        setShellStyle(shellStyle | SWT.MAX | SWT.RESIZE);
+		final int shellStyle = getShellStyle();
+		setShellStyle(shellStyle | SWT.MAX | SWT.RESIZE);
 		
 		fFilter = new ViewerFilter() {
-			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				for (Object object : fFilteredItems) {
+			@Override
+			public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+				for (final Object object : fFilteredItems) {
 					if (element == object)
 						return true;
 				}
 				return false;
 			}
 		};
-		
 	}
-
-	/*
-	 * Method declared on Dialog.
-	 */
-	protected Control createDialogArea(Composite parent) {
-		
+	
+	
+	@Override
+	protected Control createDialogArea(final Composite parent) {
 		// page group
-		Composite composite = (Composite) super.createDialogArea(parent);
-
+		final Composite composite = (Composite) super.createDialogArea(parent);
+		
 		createMessageArea(composite);
-
+		
 		fTableViewer = new TableViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
+			public void selectionChanged(final SelectionChangedEvent event) {
 				doSelectionChanged(((IStructuredSelection) event.getSelection()).toArray());
 			}
 		});
 		fTableViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-                okPressed();
+			public void doubleClick(final DoubleClickEvent event) {
+				okPressed();
 			}
 		});
-		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		final GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.heightHint = SIZING_SELECTION_WIDGET_HEIGHT;
 		data.widthHint = SIZING_SELECTION_WIDGET_WIDTH;
 		fTableViewer.getTable().setLayoutData(data);
-
 		
 		fTableViewer.setContentProvider(new ContentProvider());
 		fTableViewer.setLabelProvider(new ProjectLabelProvider());
 		fTableViewer.setComparator((new ProjectComparator()));
-
-		Button checkbox = new Button(composite, SWT.CHECK);
+		
+		final Button checkbox = new Button(composite, SWT.CHECK);
 		checkbox.setText(Messages.ProjectSelectionDialog_filter); 
 		checkbox.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false));
 		checkbox.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				updateFilter(((Button) e.widget).getSelection());
 			}
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 				updateFilter(((Button) e.widget).getSelection());
 			}
 		});
-		IDialogSettings dialogSettings = StatetUIPlugin.getDefault().getDialogSettings();
-		boolean doFilter = !dialogSettings.getBoolean(DIALOG_SETTINGS_SHOW_ALL) && !fFilteredItems.isEmpty();
+		final IDialogSettings dialogSettings = StatetUIPlugin.getDefault().getDialogSettings();
+		final boolean doFilter = !dialogSettings.getBoolean(DIALOG_SETTINGS_SHOW_ALL) && !fFilteredItems.isEmpty();
 		checkbox.setSelection(doFilter);
 		updateFilter(doFilter);
 		
@@ -169,7 +165,7 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 		return composite;
 	}
 	
-	protected void updateFilter(boolean selected) {
+	protected void updateFilter(final boolean selected) {
 		if (selected) {
 			fTableViewer.addFilter(fFilter);
 		} else {
@@ -177,20 +173,19 @@ public class ProjectSelectionDialog<ProjectNature extends IProjectNature> extend
 		}
 		StatetUIPlugin.getDefault().getDialogSettings().put(DIALOG_SETTINGS_SHOW_ALL, !selected);
 	}
-
-	private void doSelectionChanged(Object[] objects) {
+	
+	private void doSelectionChanged(final Object[] objects) {
 		if (objects.length != 1) {
 			updateStatus(new StatusInfo(IStatus.ERROR, "")); //$NON-NLS-1$
 			setSelectionResult(null);
 		} else {
-			updateStatus(new StatusInfo()); //$NON-NLS-1$
+			updateStatus(new StatusInfo()); 
 			setSelectionResult(objects);
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.dialogs.SelectionStatusDialog#computeResult()
-	 */
+	
+	@Override
 	protected void computeResult() {
 	}
+	
 }
