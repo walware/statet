@@ -32,10 +32,10 @@ import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.internal.sweave.processing.SweaveCreation;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.Sweave;
-import de.walware.statet.r.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.ui.RUI;
 
 

@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Stephan Wahlbrink - initial API and implementation
+ *******************************************************************************/
+
 package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -11,8 +22,8 @@ import org.eclipse.ui.IEditorInput;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
 
+import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.internal.sweave.model.RweaveTexEditorWorkingCopy;
-import de.walware.statet.r.sweave.editors.RweaveTexDocumentProvider;
 
 
 public class RweaveTexReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension, IEditorInputAcceptor {

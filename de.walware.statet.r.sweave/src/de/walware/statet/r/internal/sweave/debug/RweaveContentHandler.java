@@ -22,8 +22,8 @@ import org.eclipse.jface.text.ITypedRegion;
 import de.walware.eclipsecommons.ltk.text.TextUtil;
 
 import de.walware.statet.r.internal.sweave.Rweave;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
-import de.walware.statet.r.sweave.editors.RweaveTexDocumentSetupParticipant;
 
 
 public class RweaveContentHandler implements ICodeLaunchContentHandler {

@@ -21,7 +21,7 @@ import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.sweave.editors.RweaveTexSourceViewerConfiguration;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexSourceViewerConfiguration;
 
 
 class RweaveTexTemplatesSourceViewerConfiguration extends RweaveTexSourceViewerConfiguration {

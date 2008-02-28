@@ -41,8 +41,8 @@ import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.launching.RCodeLaunchRegistry;
-import de.walware.statet.r.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.ui.RUI;
 
 

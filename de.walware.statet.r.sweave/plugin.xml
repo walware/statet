@@ -60,14 +60,14 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="de.walware.statet.r.sweave.editors.RweaveTexDocumentSetupParticipant"
+            class="de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant"
             contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"/>
    </extension>
 
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="de.walware.statet.r.sweave.editors.RweaveTexEditor"
+            class="de.walware.statet.r.internal.sweave.editors.RweaveTexEditor"
             contributorClass="net.sourceforge.texlipse.editor.TexEditorActionContributor"
             default="true"
             icon="icons/obj_16/texsweave-file.png"
@@ -76,6 +76,15 @@
          <contentTypeBinding contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"/>
       </editor>
    </extension>
+
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <include
+            file="templates/default-doc-templates.xml"
+            translations="templates/default-templates.properties">
+      </include>
+   </extension>
+
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
       <actionSetPartAssociation
@@ -95,13 +104,6 @@
       </context>
    </extension>
 
-   <extension
-         point="org.eclipse.ui.editors.templates">
-      <include
-      		file="templates/default-doc-templates.xml"
-      		translations="templates/default-templates.properties">
-      </include>
-   </extension>
    <extension
          point="de.walware.statet.base.ui.codeGenerationTemplatesCategory">
       <category

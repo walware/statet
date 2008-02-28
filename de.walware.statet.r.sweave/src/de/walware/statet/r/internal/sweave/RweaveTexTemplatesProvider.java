@@ -23,8 +23,8 @@ import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.sweave.editors.RweaveTexDocumentSetupParticipant;
-import de.walware.statet.r.sweave.editors.RweaveTexSourceViewerConfigurator;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexSourceViewerConfigurator;
 
 
 /**
