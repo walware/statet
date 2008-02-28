@@ -268,7 +268,7 @@ public class RAst {
 				defaults.add(child.getValueChild());
 			}
 			else {
-				final int idx = names.indexOf(getElementName(nameNode));
+				final int idx = names.indexOf(nameNode.getText());
 				if (idx >= 0) {
 					values[idx] = child.getValueChild();
 				}
@@ -289,30 +289,6 @@ public class RAst {
 			break ITER_ARGS;
 		}
 		return values;
-	}
-	
-	public static String getElementName(final RAstNode node) {
-		switch (node.getNodeType()) {
-		case SYMBOL:
-			return ((Symbol) node).fText;
-		case STRING_CONST:
-		{
-			final String text = ((StringConst) node).fText;
-			final int length = text.length();
-			if (length <= 1) {
-				return "";
-			}
-			final char c = text.charAt(0);
-			if (text.charAt(length-1) == c) {
-				return text.substring(1, length-1);
-			}
-			else {
-				return text.substring(1, length);
-			}
-		}
-		default:
-			return null;
-		}
 	}
 	
 }

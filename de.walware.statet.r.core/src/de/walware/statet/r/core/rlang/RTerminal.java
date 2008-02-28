@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,6 +81,7 @@ public enum RTerminal {
 	NUM_COMPLEX (""), //$NON-NLS-1$
 	NUM_NUM (""), //$NON-NLS-1$
 	SYMBOL (""), //$NON-NLS-1$
+	SYMBOL_G ("`"), //$NON-NLS-1$
 	
 	TRUE ("TRUE"), //$NON-NLS-1$
 	FALSE ("FALSE"), //$NON-NLS-1$

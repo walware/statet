@@ -89,8 +89,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			case ')':
 			case '[':
 			case '%':
-			case '\"':
+			case '"':
 			case '\'':
+			case '`':
 				event.doit = !customizeKeyPressed(event.character);
 				return;
 			case 0x0A:
@@ -357,8 +358,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 						}
 					}
 					return false;
-				case '\"':
+				case '"':
 				case '\'':
+				case '`':
 					if (fOptions.isSmartStringsEnabled()) {
 						final IRegion line = fDocument.getLineInformationOfOffset(cEnd);
 						if (!isClosedString(cEnd, line.getOffset()+line.getLength(), false, c)) {

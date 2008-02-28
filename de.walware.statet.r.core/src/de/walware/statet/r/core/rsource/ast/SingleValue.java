@@ -25,6 +25,11 @@ abstract class SingleValue extends RAstNode {
 	
 	
 	@Override
+	public String getText() {
+		return fText;
+	}
+	
+	@Override
 	public final boolean hasChildren() {
 		return false;
 	}

@@ -23,6 +23,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class RLexer {
 	
 	protected final static IStatus STATUS_OK = Status.OK_STATUS;
+	protected final static IStatus STATUS_SYMBOL_G_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Quoted symbol not closed.", null);
 	protected final static IStatus STATUS_STRING_S_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
 	protected final static IStatus STATUS_STRING_D_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
 	protected final static IStatus STATUS_NUM_FLOAT_L = new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1, "Float with L.", null);
@@ -88,16 +89,16 @@ public abstract class RLexer {
 			if (fInput.get(2) == '\n') {
 				fNextNum++;
 				handleNewLine();
-				createLinebreakToken("\r\n");								 	//$NON-NLS-1$
+				createLinebreakToken("\r\n");  //$NON-NLS-1$
 				return;
 			}
 			handleNewLine();
-			createLinebreakToken("\r"); 										//$NON-NLS-1$
+			createLinebreakToken("\r");  //$NON-NLS-1$
 			return;
 		case '\n':
 		case '\f':
 			handleNewLine();
-			createLinebreakToken("\n");								 			//$NON-NLS-1$
+			createLinebreakToken("\n");  //$NON-NLS-1$
 			return;
 		case ' ':
 		case '\t':
@@ -485,6 +486,9 @@ public abstract class RLexer {
 		case '~':
 			createFix(RTerminal.TILDE);
 			return;
+		case '`':
+			consumeSymbolGraveQuote();
+			return;
 		default:
 			if (Character.isLetterOrDigit(c1)) {
 				scanIdentifier();
@@ -613,6 +617,37 @@ public abstract class RLexer {
 			case SourceParseInput.EOF:
 				fNextNum--;
 				createStringToken(RTerminal.STRING_S, STATUS_STRING_S_NOT_CLOSED);
+				return;
+			default:
+				continue LOOP;
+			}
+		}
+	}
+	
+	private final void consumeSymbolGraveQuote() {
+		// 1 == '`'
+		LOOP : while (true) {
+			switch (fInput.get(++fNextNum)) {
+			case '\\':
+				if (fInput.get(++fNextNum) == SourceParseInput.EOF) {
+					fNextNum--;
+				}
+				continue LOOP;
+			case '`':
+				createQuotedSymbolToken(RTerminal.SYMBOL_G, STATUS_OK);
+				return;
+			case '\r':
+				if (fInput.get(++fNextNum) != '\n') {
+					fNextNum--;
+				}
+				handleNewLine();
+				continue LOOP;
+			case '\n':
+				handleNewLine();
+				continue LOOP;
+			case SourceParseInput.EOF:
+				fNextNum--;
+				createQuotedSymbolToken(RTerminal.SYMBOL_G, STATUS_SYMBOL_G_NOT_CLOSED);
 				return;
 			default:
 				continue LOOP;
@@ -787,6 +822,7 @@ public abstract class RLexer {
 	protected abstract void createFix(RTerminal type);
 	protected abstract void createSpecialToken(IStatus status);
 	protected abstract void createSymbolToken();
+	protected abstract void createQuotedSymbolToken(RTerminal type, IStatus status);
 	protected abstract void createStringToken(RTerminal type, IStatus status);
 	protected abstract void createNumberToken(RTerminal type, IStatus status);
 	protected abstract void createWhitespaceToken();

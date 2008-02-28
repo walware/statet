@@ -20,6 +20,19 @@ import java.lang.reflect.InvocationTargetException;
 public class StringConst extends SingleValue {
 	
 	
+	static class S extends StringConst {
+		
+	}
+	
+	static class D extends StringConst {
+		
+	}
+	
+	
+	protected StringConst() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.STRING_CONST;

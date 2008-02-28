@@ -99,6 +99,13 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		}
 		
 		@Override
+		protected final void createQuotedSymbolToken(final RTerminal type, final IStatus status) {
+			fNextToken.type = type;
+			fNextToken.offset = fNextIndex;
+			fNextToken.length = fNextNum;
+		}
+		
+		@Override
 		protected final void createStringToken(final RTerminal type, final IStatus status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
@@ -283,6 +290,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		
 		// usually not in default partition
 		registerTerminals(IRTextTokens.STRING, getToken(IRTextTokens.STRING_KEY));
+		registerTerminal(RTerminal.SYMBOL_G, getToken(IRTextTokens.STRING_KEY));
 		registerTerminal(RTerminal.SPECIAL, getToken(IRTextTokens.OP_KEY));
 		registerTerminals(IRTextTokens.COMMENT, getToken(IRTextTokens.COMMENT_KEY));
 	}

@@ -37,7 +37,7 @@ class RScannerLexer extends RLexer {
 	protected final ScannerToken fNextToken;
 	
 	
-	public RScannerLexer(SourceParseInput input) {
+	public RScannerLexer(final SourceParseInput input) {
 		super(input);
 		fNextToken = new ScannerToken();
 	}
@@ -54,7 +54,7 @@ class RScannerLexer extends RLexer {
 	
 	
 	@Override
-	protected void createFix(RTerminal type) {
+	protected void createFix(final RTerminal type) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
@@ -78,6 +78,15 @@ class RScannerLexer extends RLexer {
 		fNextToken.length = fNextNum;
 		fNextToken.text = null;
 		fNextToken.status = STATUS_OK;
+	}
+	
+	@Override
+	protected void createQuotedSymbolToken(final RTerminal type, final IStatus status) {
+		fNextToken.type = type;
+		fNextToken.offset = fNextIndex;
+		fNextToken.length = fNextNum;
+		fNextToken.text = null;
+		fNextToken.status = status;
 	}
 	
 	@Override

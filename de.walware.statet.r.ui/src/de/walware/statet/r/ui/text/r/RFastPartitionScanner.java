@@ -206,6 +206,10 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 				fEndChar = '\'';
 				newState(S_STRING, 1);
 				return;
+			case '`':
+				fEndChar = '`';
+				newState(S_STRING, 1);
+				return;
 			case '#':
 				newState(S_COMMENT, 1);
 				return;

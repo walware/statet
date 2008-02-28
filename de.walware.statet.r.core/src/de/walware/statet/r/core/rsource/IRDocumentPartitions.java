@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,8 @@ public interface IRDocumentPartitions {
 	String R_INFIX_OPERATOR = "__r_op_infix"; //$NON-NLS-1$
 	
 	/**
-	 * The name of a string partition in R documents.
+	 * The name of a string partition in R documents, more exactly for all quoted text
+	 * including quoted symbols.
 	 * Value: {@value}
 	 */
 	String R_STRING = "__r_string"; //$NON-NLS-1$

@@ -204,6 +204,7 @@ public class RScanner {
 				continue ITER_TOKEN;
 				
 			case SYMBOL:
+			case SYMBOL_G:
 				if (fWasLinebreak && context.openExpr == null) {
 					break ITER_TOKEN;
 				}
@@ -510,6 +511,7 @@ public class RScanner {
 			node.fStopOffset = node.fElement.fStopOffset;
 			break;
 		case SYMBOL:
+		case SYMBOL_G:
 			node.fElement = createSymbol(node);
 			node.fStopOffset = node.fElement.fStopOffset;
 			break;
@@ -544,6 +546,7 @@ public class RScanner {
 			node.fStopOffset = node.fSubname.fStopOffset;
 			break;
 		case SYMBOL:
+		case SYMBOL_G:
 			node.fSubname = createSymbol(node);
 			node.fStopOffset = node.fSubname.fStopOffset;
 			break;
@@ -681,13 +684,16 @@ public class RScanner {
 			readLines();
 			
 			// condition
-			if (fNextType == RTerminal.SYMBOL) {
+			switch (fNextType) {
+			case SYMBOL:
+			case SYMBOL_G:
 				node.fVarSymbol = createSymbol(node);
 				readLines();
-			}
-			else {
-				ok--;
+				break;
+			default:
 				node.fVarSymbol = errorNonExistingSymbol(node, node.fCondOpenOffset+1, RAst.STATUS_MISSING_SYMBOL);
+				ok--;
+				break;
 			}
 			
 			if (fNextType == RTerminal.IN) {
@@ -848,6 +854,7 @@ public class RScanner {
 			final FDef.Arg arg = new FDef.Arg(args);
 			switch(fNextType) {
 			case SYMBOL:
+			case SYMBOL_G:
 				arg.fArgName = createSymbol(arg);
 				arg.fStartOffset = arg.fArgName.fStartOffset;
 				arg.fStopOffset = arg.fArgName.fStopOffset;
@@ -975,7 +982,7 @@ public class RScanner {
 	
 	final boolean recoverCCont() {
 		return !fWasLinebreak
-			&& (fNextType == RTerminal.SYMBOL || fNextType == RTerminal.BLOCK_OPEN);
+			&& (fNextType == RTerminal.SYMBOL || fNextType == RTerminal.SYMBOL_G || fNextType == RTerminal.BLOCK_OPEN);
 	}
 	
 	final void appendNonOp(final ExprContext context, final RAstNode newNode) {
@@ -1081,7 +1088,17 @@ public class RScanner {
 	}
 	
 	protected Symbol createSymbol(final RAstNode parent) {
-		final Symbol symbol = new Symbol();
+		final Symbol symbol;
+		switch (fNextType) {
+		case SYMBOL_G:
+			symbol = new Symbol.G();
+			break;
+		case SYMBOL:
+			symbol = new Symbol();
+			break;
+		default:
+			throw new IllegalStateException();
+		}
 		symbol.fRParent = parent;
 		setupFromSourceToken(symbol);
 		consumeToken();
@@ -1114,7 +1131,17 @@ public class RScanner {
 	}
 	
 	protected StringConst createStringConst(final RAstNode parent) {
-		final StringConst str = new StringConst();
+		final StringConst str;
+		switch (fNextType) {
+		case STRING_D:
+			str = new StringConst.D();
+			break;
+		case STRING_S:
+			str = new StringConst.S();
+			break;
+		default:
+			throw new IllegalStateException();
+		}
 		str.fRParent = parent;
 		setupFromSourceToken(str);
 		consumeToken();
@@ -1140,7 +1167,7 @@ public class RScanner {
 			node = new Assignment.LeftE();
 			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
 		consumeToken();
@@ -1164,7 +1191,7 @@ public class RScanner {
 			node = new CLoopCommand.Break();
 			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
 		consumeToken();
@@ -1184,7 +1211,7 @@ public class RScanner {
 			node = new Sign.Not();
 			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
 		consumeToken();
@@ -1203,7 +1230,7 @@ public class RScanner {
 			node = new Arithmetic.Mult(fNextType);
 			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
 		consumeToken();
@@ -1254,7 +1281,7 @@ public class RScanner {
 			node = new Relational.NE();
 			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
 		consumeToken();
@@ -1273,7 +1300,7 @@ public class RScanner {
 			node = new Logical.Or(fNextType);
 			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
 		consumeToken();

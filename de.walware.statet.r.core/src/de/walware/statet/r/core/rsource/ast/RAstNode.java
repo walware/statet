@@ -94,6 +94,10 @@ public abstract class RAstNode implements IAstNode {
 		return fStatus;
 	}
 	
+	public String getText() {
+		return null;
+	}
+	
 	public abstract int getChildIndex(IAstNode child);
 	
 	int getEqualsIndex(final RAstNode element) {

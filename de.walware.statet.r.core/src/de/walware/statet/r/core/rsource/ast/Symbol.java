@@ -20,24 +20,29 @@ import java.lang.reflect.InvocationTargetException;
 public class Symbol extends SingleValue {
 	
 	
+	static class G extends Symbol {
+		
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.SYMBOL;
 	}
 	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		if (element.getNodeType() != NodeType.SYMBOL) {
 			return false;
 		}
-		Symbol other = (Symbol) element;
+		final Symbol other = (Symbol) element;
 		return (	(this.fText == other.fText
 						|| (this.fText != null && other.fText != null && this.fText.equals(other.fText)) )
 				);
 	}
 	
 	@Override
-	void appendPathElement(StringBuilder s) {
+	void appendPathElement(final StringBuilder s) {
 //		if (fParent != null) {
 //			s.append(fParent.getEqualsIndex(this));
 //		}
@@ -47,7 +52,7 @@ public class Symbol extends SingleValue {
 	
 	
 	@Override
-	public final void acceptInR(RAstVisitor visitor) throws InvocationTargetException {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
