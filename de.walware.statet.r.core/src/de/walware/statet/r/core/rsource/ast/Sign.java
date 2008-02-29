@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
@@ -39,7 +41,7 @@ public abstract class Sign extends RAstNode {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.PLUS;
 		}
 		
@@ -63,7 +65,7 @@ public abstract class Sign extends RAstNode {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.MINUS;
 		}
 		
@@ -83,7 +85,7 @@ public abstract class Sign extends RAstNode {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.NOT;
 		}
 		
@@ -134,8 +136,6 @@ public abstract class Sign extends RAstNode {
 		return -1;
 	}
 	
-	public abstract RTerminal getOperator();
-	
 	public final RAstNode getRightChild() {
 		return fRightExpr.node;
 	}
@@ -173,6 +173,14 @@ public abstract class Sign extends RAstNode {
 		return fRightExpr;
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fRightExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

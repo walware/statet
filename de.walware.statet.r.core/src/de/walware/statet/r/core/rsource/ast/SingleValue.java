@@ -118,6 +118,11 @@ abstract class SingleValue extends RAstNode {
 	
 	
 	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		throw new IllegalArgumentException();
+	}
+	
+	@Override
 	void updateStopOffset() {
 		if (fText != null) {
 			fStopOffset = fStartOffset+fText.length();

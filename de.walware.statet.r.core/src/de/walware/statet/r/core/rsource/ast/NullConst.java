@@ -16,6 +16,8 @@ import java.lang.reflect.InvocationTargetException;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
+import de.walware.statet.r.core.rlang.RTerminal;
+
 
 /**
  * <code>NULL</code>
@@ -31,6 +33,12 @@ public class NullConst extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.NULL_CONST;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -90,6 +98,11 @@ public class NullConst extends RAstNode {
 		return (element.getNodeType() == NodeType.NULL_CONST);
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	void updateStopOffset() {

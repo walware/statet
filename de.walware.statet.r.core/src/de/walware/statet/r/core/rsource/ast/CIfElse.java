@@ -11,10 +11,17 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_BODY_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_ELSE;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_IF;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -41,6 +48,12 @@ public class CIfElse extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.C_IF;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null;
+	}
+	
 	
 	public final boolean hasElse() {
 		return fWithElse;
@@ -175,6 +188,20 @@ public class CIfElse extends RAstNode {
 		return (element.getNodeType() == NodeType.C_IF);
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fCondExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUS3_IF);
+		}
+		if (fThenExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUS3_IF);
+		}
+		if (fWithElse && fElseExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUS3_ELSE);
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

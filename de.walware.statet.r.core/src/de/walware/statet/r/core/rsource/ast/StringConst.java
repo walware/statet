@@ -13,11 +13,13 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
+import de.walware.statet.r.core.rlang.RTerminal;
+
 
 /**
  * 
  */
-public class StringConst extends SingleValue {
+public abstract class StringConst extends SingleValue {
 	
 	
 	static class S extends StringConst {
@@ -26,12 +28,24 @@ public class StringConst extends SingleValue {
 		S() {
 		}
 		
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.STRING_S;
+		}
+		
 	}
 	
 	static class D extends StringConst {
 		
 		
 		D() {
+		}
+		
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.STRING_D;
 		}
 		
 	}

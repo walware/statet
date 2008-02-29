@@ -11,10 +11,14 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -95,6 +99,12 @@ public class FCall extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.F_CALL;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -195,6 +205,14 @@ public class FCall extends RAstNode {
 				|| fRefExpr.node != null && fRefExpr.node.equalsSingle(otherExprNode)) );
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (expr == fRefExpr) {
+			return STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	final void updateStartOffset() {
 		fStartOffset = fRefExpr.node.fStartOffset;

@@ -13,6 +13,8 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
+import de.walware.statet.r.core.rlang.RTerminal;
+
 
 /**
  * 
@@ -28,6 +30,12 @@ public class NumberConst extends SingleValue {
 	public final NodeType getNodeType() {
 		return NodeType.NUM_CONST;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null; // we can add float/integer here
+	}
+	
 	
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {

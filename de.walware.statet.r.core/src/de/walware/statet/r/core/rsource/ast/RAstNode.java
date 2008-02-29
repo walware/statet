@@ -11,11 +11,10 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
@@ -45,20 +44,31 @@ public abstract class RAstNode implements IAstNode {
 	RAstNode fRParent;
 	int fStartOffset;
 	int fStopOffset;
-	IStatus fStatus;
+	int fStatus;
 	private Object[] fAttachment;
 	
 	
 	protected RAstNode() {
-		fStatus = Status.OK_STATUS;
+		fStatus = STATUS_OK;
 	}
 	
-	protected RAstNode(final IStatus status) {
+	protected RAstNode(final int status) {
 		fStatus = status;
 	}
 	
 	
 	public abstract NodeType getNodeType();
+	
+	public abstract RTerminal getOperator(final int index);
+	
+	public final int getStatusCode() {
+		return fStatus;
+	}
+	
+	public String getText() {
+		return null;
+	}
+	
 	
 	public final RAstNode getParent() {
 		return fRParent;
@@ -77,6 +87,8 @@ public abstract class RAstNode implements IAstNode {
 	public abstract int getChildCount();
 	public abstract RAstNode getChild(int index);
 	public abstract RAstNode[] getChildren();
+	public abstract int getChildIndex(IAstNode child);
+	
 	
 	public final int getStartOffset() {
 		return fStartOffset;
@@ -90,15 +102,6 @@ public abstract class RAstNode implements IAstNode {
 		return fStopOffset-fStartOffset;
 	}
 	
-	public final IStatus getStatus() {
-		return fStatus;
-	}
-	
-	public String getText() {
-		return null;
-	}
-	
-	public abstract int getChildIndex(IAstNode child);
 	
 	int getEqualsIndex(final RAstNode element) {
 		final RAstNode[] children = getChildren();
@@ -220,6 +223,8 @@ public abstract class RAstNode implements IAstNode {
 		return s.toString();
 	}
 	
+	
+	abstract int getMissingExprStatus(Expression expr);
 	
 	abstract void updateStopOffset();
 	

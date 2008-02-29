@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_ARGVALUE_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_BODY_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FDEF;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.List;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
+import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RSourceToken;
 
 
@@ -43,6 +48,12 @@ public class FDef extends RAstNode {
 		public final NodeType getNodeType() {
 			return NodeType.F_DEF_ARGS;
 		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
 		
 		@Override
 		public final boolean hasChildren() {
@@ -111,6 +122,11 @@ public class FDef extends RAstNode {
 		
 		
 		@Override
+		final int getMissingExprStatus(final Expression expr) {
+			throw new IllegalArgumentException();
+		}
+		
+		@Override
 		final void updateStopOffset() {
 		}
 		
@@ -134,6 +150,12 @@ public class FDef extends RAstNode {
 		public final NodeType getNodeType() {
 			return NodeType.F_DEF_ARG;
 		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
 		
 		@Override
 		public final boolean hasChildren() {
@@ -242,6 +264,14 @@ public class FDef extends RAstNode {
 		}
 		
 		
+		@Override
+		final int getMissingExprStatus(final Expression expr) {
+			if (fWithDefault && fDefaultExpr == expr) {
+				return (STATUS2_SYNTAX_EXPR_AS_ARGVALUE_MISSING | STATUS3_FDEF);
+			}
+			throw new IllegalArgumentException();
+		}
+		
 		final void updateStartOffset() {
 			fStartOffset = fArgName.fStartOffset;
 		}
@@ -273,6 +303,12 @@ public class FDef extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.F_DEF;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.FUNCTION;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -368,6 +404,13 @@ public class FDef extends RAstNode {
 		return (element.getNodeType() == NodeType.F_DEF);
 	}
 	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (expr == fExpr) {
+			return (STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUS3_FDEF);
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

@@ -11,8 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
@@ -22,7 +23,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 /**
  * 
  */
-public final class RScannerDefaultLexer extends RScannerLexer {
+final class RScannerDefaultLexer extends RScannerLexer {
 	
 	
 	public RScannerDefaultLexer(final SourceParseInput input) {
@@ -39,31 +40,31 @@ public final class RScannerDefaultLexer extends RScannerLexer {
 	}
 	
 	@Override
-	protected void createQuotedSymbolToken(final RTerminal type, final IStatus status) {
+	protected void createQuotedSymbolToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
-		fNextToken.text = (status == Status.OK_STATUS) ?
-				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
-		fNextToken.status = STATUS_OK;
-	}
-	
-	@Override
-	protected void createStringToken(final RTerminal type, final IStatus status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
-		fNextToken.text = (status == Status.OK_STATUS) ?
+		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
 		fNextToken.status = status;
 	}
 	
 	@Override
-	protected void createSpecialToken(final IStatus status) {
+	protected void createStringToken(final RTerminal type, final int status) {
+		fNextToken.type = type;
+		fNextToken.offset = fNextIndex;
+		fNextToken.length = fNextNum;
+		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+		fNextToken.status = status;
+	}
+	
+	@Override
+	protected void createSpecialToken(final int status) {
 		fNextToken.type = RTerminal.SPECIAL;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
-		fNextToken.text = (status == Status.OK_STATUS) ?
+		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
 		fNextToken.status = status;
 	}

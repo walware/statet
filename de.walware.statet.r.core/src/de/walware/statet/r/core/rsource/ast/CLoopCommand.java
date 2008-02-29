@@ -39,6 +39,12 @@ public abstract class CLoopCommand extends RAstNode {
 		}
 		
 		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.BREAK;
+		}
+		
+		
+		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.C_BREAK);
 		}
@@ -61,6 +67,12 @@ public abstract class CLoopCommand extends RAstNode {
 		public final NodeType getNodeType() {
 			return NodeType.C_NEXT;
 		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.NEXT;
+		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -130,6 +142,11 @@ public abstract class CLoopCommand extends RAstNode {
 		return null;
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

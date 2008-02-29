@@ -17,29 +17,16 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Status;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
-
-import de.walware.statet.r.core.RCore;
 
 
 /**
  * 
  */
 public class RAst {
-	
-	
-	public static final IStatus STATUS_MISSING_EXPR = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 20001, "Missing token", null);
-	public static final IStatus STATUS_SKIPPED_EXPR = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 20002, "Missing token", null);
-	public static final IStatus STATUS_MISSING_SYMBOL = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 20011, "Missing token", null);
-	public static final IStatus STATUS_MISSING_OPERATOR = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 20021, "Missing token", null);
-	public static final IStatus STATUS_UNEXEPTEC_TOKEN = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 21001, "Unexepted token", null);
-	public static final IStatus STATUS_UNKNOWN_TOKEN = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 21002, "Unknown/Invalid token", null);
-	public static final IStatus STATUS_PARSE_ERROR = new Status(IStatus.ERROR, RCore.PLUGIN_ID, 10000, "Parse error", null);
 	
 	
 	public static final int LEVEL_MINIMAL = 1;

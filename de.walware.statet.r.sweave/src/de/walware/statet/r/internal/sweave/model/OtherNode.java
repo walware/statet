@@ -31,8 +31,13 @@ public class OtherNode implements IAstNode {
 	int fStopOffset;
 	
 	
-	public OtherNode(final IAstNode parent) {
+	OtherNode(final IAstNode parent) {
 		fParent = parent;
+	}
+	
+	
+	public int getStatusCode() {
+		return 0;
 	}
 	
 	

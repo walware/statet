@@ -13,6 +13,8 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
+import de.walware.statet.r.core.rlang.RTerminal;
+
 
 /**
  * <code>{ ... }</code>
@@ -31,6 +33,12 @@ public class Block extends ExpressionList {
 	public final NodeType getNodeType() {
 		return NodeType.BLOCK;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.BLOCK_OPEN;
+	}
+	
 	
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {

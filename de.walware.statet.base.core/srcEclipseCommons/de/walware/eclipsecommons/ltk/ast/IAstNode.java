@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 public interface IAstNode {
 	
 	
+	public int getStatusCode();
+	
 	public int getStartOffset();
 	public int getStopOffset();
 	public int getLength();

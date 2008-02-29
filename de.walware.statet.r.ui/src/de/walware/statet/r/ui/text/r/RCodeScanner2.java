@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.IToken;
@@ -82,7 +81,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		}
 		
 		@Override
-		protected final void createSpecialToken(final IStatus status) {
+		protected final void createSpecialToken(final int status) {
 			fNextToken.type = RTerminal.SPECIAL;
 			fNextToken.offset = fNextIndex;
 			fNextToken.length = fNextNum;
@@ -99,21 +98,21 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		}
 		
 		@Override
-		protected final void createQuotedSymbolToken(final RTerminal type, final IStatus status) {
+		protected final void createQuotedSymbolToken(final RTerminal type, final int status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
 			fNextToken.length = fNextNum;
 		}
 		
 		@Override
-		protected final void createStringToken(final RTerminal type, final IStatus status) {
+		protected final void createStringToken(final RTerminal type, final int status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
 			fNextToken.length = fNextNum;
 		}
 		
 		@Override
-		protected final void createNumberToken(final RTerminal type, final IStatus status) {
+		protected final void createNumberToken(final RTerminal type, final int status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
 			fNextToken.length = fNextNum;

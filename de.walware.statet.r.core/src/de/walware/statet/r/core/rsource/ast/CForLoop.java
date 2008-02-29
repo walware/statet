@@ -11,10 +11,16 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_BODY_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FOR;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -39,6 +45,12 @@ public class CForLoop extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.C_FOR;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.FOR;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -148,6 +160,17 @@ public class CForLoop extends RAstNode {
 		return (element.getNodeType() == NodeType.C_FOR);
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fCondExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING | STATUS3_FOR);
+		}
+		if (fLoopExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUS3_FOR);
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

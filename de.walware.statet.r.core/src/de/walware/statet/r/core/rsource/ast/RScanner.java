@@ -11,10 +11,32 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import java.lang.reflect.InvocationTargetException;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_CC_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_CONDITION_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_CONDITION_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_ELEMENTNAME_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_BODY_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FCALL_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FDEF_ARGS_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_IF_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_IN_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_OPERATOR_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_SYMBOL_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_UNEXPECTED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_UNKNOWN;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FDEF;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FOR;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_IF;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_WHILE;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_SUBSEQUENT;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_ERROR;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.OperationCanceledException;
+import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
@@ -88,7 +110,7 @@ public class RScanner {
 		catch (final Exception e) {
 			RCorePlugin.logError(-1, "Error occured while parsing R code", e);
 			final SourceComponent dummy = new SourceComponent();
-			dummy.fStatus = RAst.STATUS_PARSE_ERROR;
+			dummy.fStatus = STATUS_RUNTIME_ERROR;
 			return dummy;
 		}
 	}
@@ -103,7 +125,7 @@ public class RScanner {
 		catch (final Exception e) {
 			RCorePlugin.logError(-1, "Error occured while parsing R code", e);
 			final SourceComponent dummy = new SourceComponent();
-			dummy.fStatus = RAst.STATUS_PARSE_ERROR;
+			dummy.fStatus = STATUS_RUNTIME_ERROR;
 			return dummy;
 		}
 	}
@@ -438,12 +460,13 @@ public class RScanner {
 			node.fGroupCloseOffset = fNext.offset;
 			node.fStopOffset = node.fGroupCloseOffset+1;
 			consumeToken();
+			return node;
 		}
 		else {
 			node.fStopOffset = fNext.offset;
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+			node.fStatus = STATUS2_SYNTAX_CC_NOT_CLOSED;
+			return node;
 		}
-		return node;
 	}
 	
 	final Block scanBlock() {
@@ -455,12 +478,13 @@ public class RScanner {
 			node.fBlockCloseOffset = fNext.offset;
 			node.fStopOffset = node.fBlockCloseOffset+1;
 			consumeToken();
+			return node;
 		}
 		else {
 			node.fStopOffset = fNext.offset;
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+			node.fStatus = STATUS2_SYNTAX_CC_NOT_CLOSED;
+			return node;
 		}
-		return node;
 	}
 	
 	final NSGet scanNSGet(final ExprContext context) {
@@ -499,7 +523,7 @@ public class RScanner {
 				break;
 			}
 		default:
-			node.fNamespace = errorNonExistingSymbol(node, node.fStartOffset, RAst.STATUS_MISSING_SYMBOL);
+			node.fNamespace = errorNonExistingSymbol(node, node.fStartOffset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
 			break;
 		}
 		
@@ -509,17 +533,16 @@ public class RScanner {
 		case STRING_D:
 			node.fElement = createStringConst(node);
 			node.fStopOffset = node.fElement.fStopOffset;
-			break;
+			return node;
 		case SYMBOL:
 		case SYMBOL_G:
 			node.fElement = createSymbol(node);
 			node.fStopOffset = node.fElement.fStopOffset;
-			break;
+			return node;
 		default:
-			node.fElement = errorNonExistingSymbol(node, node.fStopOffset, RAst.STATUS_MISSING_SYMBOL);
-			break;
+			node.fElement = errorNonExistingSymbol(node, node.fStopOffset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
+			return node;
 		}
-		return node;
 	}
 	
 	final SubNamed scanSubNamed(final ExprContext context) {
@@ -544,17 +567,16 @@ public class RScanner {
 		case STRING_D:
 			node.fSubname = createStringConst(node);
 			node.fStopOffset = node.fSubname.fStopOffset;
-			break;
+			return node;
 		case SYMBOL:
 		case SYMBOL_G:
 			node.fSubname = createSymbol(node);
 			node.fStopOffset = node.fSubname.fStopOffset;
-			break;
+			return node;
 		default:
-			node.fSubname = errorNonExistingSymbol(node, node.fStopOffset, RAst.STATUS_MISSING_SYMBOL);
-			break;
+			node.fSubname = errorNonExistingSymbol(node, node.fStopOffset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
+			return node;
 		}
-		return node;
 	}
 	
 	final SubIndexed scanSubIndexed(final ExprContext context) {
@@ -585,22 +607,24 @@ public class RScanner {
 					node.fClose2Offset = fNext.offset;
 					node.fStopOffset = node.fClose2Offset+1;
 					consumeToken();
+					return node;
 				}
 				else {
 					node.fStopOffset = node.fCloseOffset+1;
-					node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+					node.fStatus = STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
+					return node;
 				}
 			}
 			else {
 				node.fStopOffset = node.fCloseOffset+1;
-				node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+				return node;
 			}
 		}
 		else {
 			node.fStopOffset = node.fSublist.fStopOffset;
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+			node.fStatus = STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
+			return node;
 		}
-		return node;
 	}
 	
 	final CIfElse scanCIf(final ExprContext context) {
@@ -617,7 +641,7 @@ public class RScanner {
 			readLines();
 			
 			// condition
-			scanInGroup(node, node.fCondExpr);
+			ok += scanInGroup(node, node.fCondExpr);
 			
 			if (fNextType == RTerminal.GROUP_CLOSE) {
 				node.fCondCloseOffset = fNext.offset;
@@ -628,12 +652,13 @@ public class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fCondExpr.node.fStopOffset;
-				node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+				node.fStatus = STATUS2_SYNTAX_CONDITION_NOT_CLOSED;
 			}
 		}
 		else {
-			node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+			node.fStatus = STATUS2_SYNTAX_CONDITION_MISSING;
+			node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_IF));
 		}
 		
 		// then
@@ -645,7 +670,8 @@ public class RScanner {
 			readLines();
 		}
 		else {
-			node.fThenExpr.node = errorNonExistExpression(node, node.fCondExpr.node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+			node.fThenExpr.node = errorNonExistExpression(node, node.fCondExpr.node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_IF));
 		}
 		
 		// else
@@ -653,6 +679,7 @@ public class RScanner {
 			node.fWithElse = true;
 			node.fElseOffset = fNext.offset;
 			consumeToken();
+			// else body is added via common expression procession
 		}
 		
 		return node;
@@ -661,11 +688,13 @@ public class RScanner {
 	final CIfElse scanCElse(final ExprContext context) { // else without if
 		final CIfElse node = new CIfElse();
 		setupFromSourceToken(node);
-		node.fCondExpr.node = errorNonExistExpression(node, node.fStartOffset, RAst.STATUS_SKIPPED_EXPR);
-		node.fThenExpr.node = errorNonExistExpression(node, node.fStartOffset, RAst.STATUS_SKIPPED_EXPR);
+		node.fStatus = STATUS2_SYNTAX_IF_MISSING;
+		node.fCondExpr.node = errorNonExistExpression(node, node.fStartOffset,
+				(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_IF));
+		node.fThenExpr.node = errorNonExistExpression(node, node.fStartOffset,
+				(STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_IF));
 		node.fElseOffset = fNext.offset;
 		node.fWithElse = true;
-		node.fStatus = RAst.STATUS_MISSING_OPERATOR;
 		consumeToken();
 		
 		return node;
@@ -691,7 +720,7 @@ public class RScanner {
 				readLines();
 				break;
 			default:
-				node.fVarSymbol = errorNonExistingSymbol(node, node.fCondOpenOffset+1, RAst.STATUS_MISSING_SYMBOL);
+				node.fVarSymbol = errorNonExistingSymbol(node, node.fCondOpenOffset+1, STATUS2_SYNTAX_SYMBOL_MISSING);
 				ok--;
 				break;
 			}
@@ -706,8 +735,10 @@ public class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fVarSymbol.fStopOffset;
-				node.fStatus = (ok < 0) ? RAst.STATUS_MISSING_OPERATOR : RAst.STATUS_MISSING_OPERATOR;
-				node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+				node.fStatus = (ok >= 0) ? STATUS2_SYNTAX_IN_MISSING :
+						(STATUS2_SYNTAX_IN_MISSING | STATUSFLAG_SUBSEQUENT);
+				node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset,
+						(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT));
 			}
 			
 			if (fNextType == RTerminal.GROUP_CLOSE) {
@@ -719,18 +750,24 @@ public class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fCondExpr.node.fStopOffset;
-				node.fStatus = (ok < 0) ? RAst.STATUS_MISSING_OPERATOR : RAst.STATUS_MISSING_OPERATOR;
+				if (node.fStatus == STATUS_OK) {
+					node.fStatus = (ok >= 0) ? STATUS2_SYNTAX_CONDITION_NOT_CLOSED :
+							(STATUS2_SYNTAX_CONDITION_NOT_CLOSED | STATUSFLAG_SUBSEQUENT);
+				}
 			}
 		}
 		else { // missing GROUP_OPEN
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
-			node.fVarSymbol = errorNonExistingSymbol(node, node.fStopOffset, RAst.STATUS_MISSING_SYMBOL);
-			node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+			node.fStatus = STATUS2_SYNTAX_CONDITION_MISSING;
+			node.fVarSymbol = errorNonExistingSymbol(node, node.fStopOffset,
+					STATUS2_SYNTAX_SYMBOL_MISSING | STATUSFLAG_SUBSEQUENT);
+			node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_FOR));
 		}
 		
 		// loop
 		if (ok <= 0 && !recoverCCont()) {
-			node.fLoopExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+			node.fLoopExpr.node = errorNonExistExpression(node, node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_FOR));
 		}
 		
 		return node;
@@ -761,17 +798,20 @@ public class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fCondExpr.node.fStopOffset;
-				node.fStatus = (ok < 0) ? RAst.STATUS_MISSING_OPERATOR : RAst.STATUS_MISSING_OPERATOR;
+				node.fStatus = (ok >= 0) ? STATUS2_SYNTAX_CONDITION_NOT_CLOSED :
+						(STATUS2_SYNTAX_CONDITION_NOT_CLOSED | STATUSFLAG_SUBSEQUENT);
 			}
 		}
 		else {
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
-			node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+			node.fStatus = STATUS2_SYNTAX_CONDITION_MISSING;
+			node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_WHILE));
 		}
 		
 		// loop
 		if (ok <= 0 && !recoverCCont()) {
-			node.fLoopExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+			node.fLoopExpr.node = errorNonExistExpression(node, node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_WHILE));
 		}
 		
 		return node;
@@ -810,17 +850,18 @@ public class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fArgs.fStopOffset;
-				node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+				node.fStatus = STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED;
 			}
 		}
 		else {
 			node.fArgs.fStartOffset = node.fArgs.fStopOffset = node.fStopOffset;
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+			node.fStatus = STATUS2_SYNTAX_FDEF_ARGS_MISSING;
 		}
 		
-		// content
+		// body
 		if (ok <= 0 && !recoverCCont()) {
-			node.fExpr.node = errorNonExistExpression(node, node.fStopOffset, RAst.STATUS_SKIPPED_EXPR);
+			node.fExpr.node = errorNonExistExpression(node, node.fStopOffset,
+					(STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_FDEF));
 		}
 		
 		return node;
@@ -828,8 +869,9 @@ public class RScanner {
 	
 	final FCall scanFCall() {
 		final FCall node = new FCall();
-		node.fArgsOpenOffset = fNext.offset;
+		
 		setupFromSourceToken(node);
+		node.fArgsOpenOffset = fNext.offset;
 		consumeToken();
 		readLines();
 		
@@ -842,7 +884,7 @@ public class RScanner {
 		}
 		else {
 			node.fStopOffset = node.fArgs.fStopOffset;
-			node.fStatus = RAst.STATUS_MISSING_OPERATOR;
+			node.fStatus = STATUS2_SYNTAX_FCALL_NOT_CLOSED;
 		}
 		
 		return node;
@@ -873,7 +915,7 @@ public class RScanner {
 			}
 			
 			if (arg.fArgName == null) {
-				arg.fArgName = errorNonExistingSymbol(arg, arg.fStopOffset, RAst.STATUS_MISSING_SYMBOL);
+				arg.fArgName = errorNonExistingSymbol(arg, arg.fStopOffset, STATUS2_SYNTAX_SYMBOL_MISSING);
 			}
 			
 			if (fNextType == RTerminal.EQUAL) {
@@ -920,7 +962,7 @@ public class RScanner {
 				readLines();
 				break;
 			case EQUAL:
-				arg.fArgName = errorNonExistingSymbol(arg, fNext.offset, RAst.STATUS_MISSING_SYMBOL);
+				arg.fArgName = errorNonExistingSymbol(arg, fNext.offset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
 				break;
 			default:
 				break;
@@ -992,7 +1034,7 @@ public class RScanner {
 		}
 		else {
 			// setup missing op
-			final Dummy.Operator error = new Dummy.Operator(RAst.STATUS_MISSING_OPERATOR);
+			final Dummy.Operator error = new Dummy.Operator(STATUS2_SYNTAX_OPERATOR_MISSING);
 			error.fRParent = context.rootNode;
 			error.fLeftExpr.node = context.rootExpr.node;
 			error.fStartOffset = error.fStopOffset = newNode.fStartOffset;
@@ -1008,7 +1050,7 @@ public class RScanner {
 	
 	final void appendOp(final ExprContext context, final RAstNode newNode) {
 		if (context.openExpr != null) {
-			context.openExpr.node = errorNonExistExpression(context.lastNode, newNode.fStartOffset, RAst.STATUS_MISSING_OPERATOR);
+			context.openExpr.node = errorNonExistExpression(context.lastNode, newNode.fStartOffset, STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING);
 			context.update(context.openExpr.node, null);
 		}
 		
@@ -1059,7 +1101,7 @@ public class RScanner {
 		return;
 	}
 	
-	Dummy.Terminal errorNonExistExpression(final RAstNode parent, final int stopHint, final IStatus status) {
+	Dummy.Terminal errorNonExistExpression(final RAstNode parent, final int stopHint, final int status) {
 		final Dummy.Terminal error = new Dummy.Terminal(status);
 		error.fRParent = parent;
 		error.fStartOffset = error.fStopOffset = (stopHint >= 0) ? stopHint : parent.fStopOffset;
@@ -1069,7 +1111,7 @@ public class RScanner {
 	
 	Dummy.Terminal errorFromNext(final RAstNode parent) {
 		final Dummy.Terminal error = new Dummy.Terminal((fNextType == RTerminal.UNKNOWN) ?
-				RAst.STATUS_UNKNOWN_TOKEN : RAst.STATUS_UNEXEPTEC_TOKEN);
+				STATUS2_SYNTAX_TOKEN_UNKNOWN : STATUS2_SYNTAX_TOKEN_UNEXPECTED);
 		error.fRParent = parent;
 		error.fStartOffset = fNext.offset;
 		error.fStopOffset = fNext.offset+fNext.length;
@@ -1078,8 +1120,8 @@ public class RScanner {
 		return error;
 	}
 	
-	Symbol errorNonExistingSymbol(final RAstNode parent, final int offset, final IStatus status) {
-		final Symbol error = new Symbol();
+	Symbol errorNonExistingSymbol(final RAstNode parent, final int offset, final int status) {
+		final Symbol error = new Symbol.Std();
 		error.fRParent = parent;
 		error.fStartOffset = error.fStopOffset = offset;
 		error.fText = ""; //$NON-NLS-1$
@@ -1094,7 +1136,7 @@ public class RScanner {
 			symbol = new Symbol.G();
 			break;
 		case SYMBOL:
-			symbol = new Symbol();
+			symbol = new Symbol.Std();
 			break;
 		default:
 			throw new IllegalStateException();
@@ -1106,7 +1148,7 @@ public class RScanner {
 	}
 	
 	protected Symbol createEllipsis(final RAstNode parent) { // TODO replace with own type?
-		final Symbol symbol = new Symbol();
+		final Symbol symbol = new Symbol.Std();
 		symbol.fRParent = parent;
 		setupFromSourceToken(symbol);
 		symbol.fText = "..."; //$NON-NLS-1$
@@ -1314,29 +1356,28 @@ public class RScanner {
 		return node;
 	}
 	
-	protected void setupFromSourceToken(final RAstNode node) {
+	private final void setupFromSourceToken(final RAstNode node) {
 		node.fStartOffset = fNext.offset;
 		node.fStopOffset = fNext.offset+fNext.length;
 		node.fStatus = fNext.status;
 	}
 	
-	protected void setupFromSourceToken(final SingleValue node) {
+	private final void setupFromSourceToken(final SingleValue node) {
 		node.fStartOffset = fNext.offset;
 		node.fStopOffset = fNext.offset+fNext.length;
 		node.fText = fNext.text;
 		node.fStatus = fNext.status;
 	}
 	
-	int checkExpression(final ExprContext context) {
+	private final int checkExpression(final ExprContext context) {
 		int state = 0;
 		if (context.openExpr != null && context.openExpr.node == null) {
-			context.openExpr.node = errorNonExistExpression(context.lastNode, context.lastNode.fStopOffset, RAst.STATUS_MISSING_EXPR);
+			context.openExpr.node = errorNonExistExpression(context.lastNode, context.lastNode.fStopOffset,
+					context.lastNode.getMissingExprStatus(context.openExpr));
 			state = -1;
 		}
 		try {
 			context.rootExpr.node.acceptInR(fPostVisitor);
-		}
-		catch (final OperationCanceledException e) {
 		}
 		catch (final InvocationTargetException e) {
 		}

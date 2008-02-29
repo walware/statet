@@ -11,10 +11,14 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -36,6 +40,11 @@ public abstract class SubIndexed extends RAstNode {
 			return NodeType.SUB_INDEXED_S;
 		}
 		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.SUB_INDEXED_S_OPEN;
+		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
@@ -54,6 +63,11 @@ public abstract class SubIndexed extends RAstNode {
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SUB_INDEXED_D;
+		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.SUB_INDEXED_D_OPEN;
 		}
 		
 		
@@ -180,6 +194,10 @@ public abstract class SubIndexed extends RAstNode {
 		return fCloseOffset;
 	}
 	
+	public final int getSublistClose2Offset() {
+		return fCloseOffset;
+	}
+	
 	@Override
 	public final int getChildIndex(final IAstNode child) {
 		if (fExpr.node == child) {
@@ -233,6 +251,14 @@ public abstract class SubIndexed extends RAstNode {
 				);
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	final void updateStartOffset() {
 		fStartOffset = fExpr.node.fStartOffset;

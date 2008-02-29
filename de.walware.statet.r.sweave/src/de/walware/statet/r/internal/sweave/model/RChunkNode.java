@@ -34,8 +34,13 @@ public class RChunkNode implements IAstNode {
 	int fStopOffset;
 	
 	
-	public RChunkNode(final SweaveDocElement parent) {
+	RChunkNode(final SweaveDocElement parent) {
 		fParent = parent;
+	}
+	
+	
+	public int getStatusCode() {
+		return 0;
 	}
 	
 	

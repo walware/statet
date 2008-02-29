@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import org.eclipse.core.runtime.IStatus;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
@@ -30,7 +30,7 @@ class RScannerLexer extends RLexer {
 		int offset;
 		int length;
 		String text;
-		IStatus status;
+		int status;
 	}
 	
 	
@@ -63,7 +63,7 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createSpecialToken(final IStatus status) {
+	protected void createSpecialToken(final int status) {
 		fNextToken.type = RTerminal.SPECIAL;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
@@ -81,7 +81,7 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createQuotedSymbolToken(final RTerminal type, final IStatus status) {
+	protected void createQuotedSymbolToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
@@ -90,7 +90,7 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createStringToken(final RTerminal type, final IStatus status) {
+	protected void createStringToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
@@ -99,7 +99,7 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createNumberToken(final RTerminal type, final IStatus status) {
+	protected void createNumberToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;

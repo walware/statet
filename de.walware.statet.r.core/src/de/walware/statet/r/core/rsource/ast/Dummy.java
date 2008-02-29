@@ -11,12 +11,15 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import java.lang.reflect.InvocationTargetException;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
 
-import org.eclipse.core.runtime.IStatus;
+import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -28,7 +31,7 @@ public abstract class Dummy extends RAstNode {
 	static class Terminal extends Dummy {
 		
 		
-		Terminal(final IStatus status) {
+		Terminal(final int status) {
 			super(status);
 		}
 		
@@ -96,6 +99,12 @@ public abstract class Dummy extends RAstNode {
 			return (element.getNodeType() == NodeType.ERROR_TERM);
 		}
 		
+		
+		@Override
+		final int getMissingExprStatus(final Expression expr) {
+			throw new IllegalArgumentException();
+		}
+		
 	}
 	
 	
@@ -106,7 +115,7 @@ public abstract class Dummy extends RAstNode {
 		final Expression fRightExpr = new Expression();
 		
 		
-		Operator(final IStatus status) {
+		Operator(final int status) {
 			super(status);
 		}
 		
@@ -201,14 +210,32 @@ public abstract class Dummy extends RAstNode {
 			return (element.getNodeType() == NodeType.ERROR);
 		}
 		
+		
+		@Override
+		final int getMissingExprStatus(final Expression expr) {
+			if (expr == fLeftExpr) {
+				return STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
+			}
+			if (expr == fRightExpr) {
+				return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+			}
+			throw new IllegalArgumentException();
+		}
+		
 	}
 	
 	
 	String fText;
 	
 	
-	Dummy(final IStatus status) {
+	Dummy(final int status) {
 		super(status);
+	}
+	
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null;
 	}
 	
 	

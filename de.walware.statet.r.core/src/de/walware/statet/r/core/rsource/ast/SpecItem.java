@@ -11,10 +11,14 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -29,6 +33,12 @@ abstract class SpecItem extends RAstNode {
 	
 	
 	protected SpecItem() {
+	}
+	
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null;
 	}
 	
 	
@@ -153,6 +163,14 @@ abstract class SpecItem extends RAstNode {
 		return fValueExpr;
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fValueExpr == expr) {
+			return STATUS_OK;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

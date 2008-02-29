@@ -58,7 +58,7 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.ARROW_LEFT_S;
 		}
 		
@@ -110,7 +110,7 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.ARROW_LEFT_S;
 		}
 		
@@ -161,7 +161,7 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.EQUAL;
 		}
 		
@@ -213,7 +213,7 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.ARROW_RIGHT_S;
 		}
 		
@@ -265,7 +265,7 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.ARROW_RIGHT_D;
 		}
 		
@@ -284,8 +284,6 @@ public abstract class Assignment extends StdBinary {
 	
 	
 	public abstract RAstNode getTargetChild();
-	
-	public abstract RTerminal getOperator();
 	
 	public abstract RAstNode getSourceChild();
 	

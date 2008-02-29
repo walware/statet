@@ -33,6 +33,15 @@ public class SweaveDocElement implements IAstNode {
 	int fStopOffset;
 	
 	
+	SweaveDocElement() {
+	}
+	
+	
+	public int getStatusCode() {
+		return 0;
+	}
+	
+	
 	public IAstNode getParent() {
 		return fParent;
 	}

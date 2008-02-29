@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
@@ -38,7 +41,8 @@ public class Model extends RAstNode {
 		return NodeType.MODEL;
 	}
 	
-	public final RTerminal getOperator() {
+	@Override
+	public final RTerminal getOperator(final int index) {
 		return RTerminal.TILDE;
 	}
 	
@@ -149,6 +153,17 @@ public class Model extends RAstNode {
 		
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fRightExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+		}
+		if (fLeftExpr == expr) {
+			return STATUS_OK;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	final void updateStartOffset() {
 		if (fLeftExpr.node != null) {

@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,6 +131,15 @@ abstract class FlatMulti extends RAstNode {
 		return expr;
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fLeftExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
+		}
+		// if (fMultExpr.indexOf(expr) >= 0) {
+		return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+	}
 	
 	final void updateStartOffset() {
 		fStartOffset = fLeftExpr.node.fStartOffset;

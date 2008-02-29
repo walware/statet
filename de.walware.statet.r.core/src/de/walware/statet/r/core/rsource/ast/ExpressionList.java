@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS1_SYNTAX_MISSING_TOKEN;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +109,12 @@ public abstract class ExpressionList extends RAstNode {
 	}
 	
 	void setSeparator(final int offset) {
+	}
+	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		return STATUS1_SYNTAX_MISSING_TOKEN;
 	}
 	
 }

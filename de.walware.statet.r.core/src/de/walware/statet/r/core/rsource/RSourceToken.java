@@ -11,27 +11,25 @@
 
 package de.walware.statet.r.core.rsource;
 
-import org.eclipse.core.runtime.IStatus;
-
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
 public abstract class RSourceToken {
 	
 	
-	public static RSourceToken createFix(final RTerminal type, final int start, final IStatus status) {
-		FixToken token = new FixToken(type, start, type.text.length(), status);
+	public static RSourceToken createFix(final RTerminal type, final int start, final int status) {
+		final FixToken token = new FixToken(type, start, type.text.length(), status);
 		return token;
 	}
 	
-	public static RSourceToken create(final RTerminal type, final int start, final String text, final IStatus status) {
-		IndToken token = new IndToken(type, start, text.length(), status);
+	public static RSourceToken create(final RTerminal type, final int start, final String text, final int status) {
+		final IndToken token = new IndToken(type, start, text.length(), status);
 		token.fText = text;
 		return token;
 	}
 	
-	public static RSourceToken create(final RTerminal type, final int start, final int length, final CharSequence source, final IStatus status) {
-		IndToken token = new IndToken(type, start, length, status);
+	public static RSourceToken create(final RTerminal type, final int start, final int length, final CharSequence source, final int status) {
+		final IndToken token = new IndToken(type, start, length, status);
 		token.fInput = source;
 		return token;
 	}
@@ -41,7 +39,7 @@ public abstract class RSourceToken {
 		private String fText;
 		private CharSequence fInput;
 		
-		public IndToken(final RTerminal type, final int start, final int length, final IStatus status) {
+		public IndToken(final RTerminal type, final int start, final int length, final int status) {
 			super(type, start, length, status);
 		}
 		
@@ -57,7 +55,7 @@ public abstract class RSourceToken {
 	
 	public static class FixToken extends RSourceToken {
 		
-		public FixToken(final RTerminal type, final int start, final int length, final IStatus status) {
+		public FixToken(final RTerminal type, final int start, final int length, final int status) {
 			super(type, start, length, status);
 		}
 		
@@ -72,10 +70,10 @@ public abstract class RSourceToken {
 	protected final RTerminal fType;
 	protected int fStart;
 	protected int fLength;
-	protected IStatus fStatus;
+	protected int fStatus;
 	
 	
-	protected RSourceToken(final RTerminal type, final int start, final int length, final IStatus status) {
+	protected RSourceToken(final RTerminal type, final int start, final int length, final int status) {
 		fType = type;
 		fStart = start;
 		fLength = length;
@@ -94,7 +92,7 @@ public abstract class RSourceToken {
 		return fLength;
 	}
 	
-	public final IStatus getStatus() {
+	public final int getStatusCode() {
 		return fStatus;
 	}
 	

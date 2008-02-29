@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
@@ -37,7 +39,8 @@ public abstract class SubNamed extends RAstNode {
 			return NodeType.SUB_NAMED;
 		}
 		
-		public final RTerminal getOperator() {
+		@Override
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.SUB_NAMED;
 		}
 		
@@ -61,7 +64,8 @@ public abstract class SubNamed extends RAstNode {
 			return NodeType.SUB_SLOT;
 		}
 		
-		public final RTerminal getOperator() {
+		@Override
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.SUB_AT;
 		}
 		
@@ -174,6 +178,14 @@ public abstract class SubNamed extends RAstNode {
 				);
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	final void updateStartOffset() {
 		fStartOffset = fExpr.node.fStartOffset;

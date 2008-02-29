@@ -18,6 +18,8 @@ import java.util.List;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
+import de.walware.statet.r.core.rlang.RTerminal;
+
 
 /**
  * Comma separated list
@@ -29,6 +31,12 @@ abstract class SpecList extends RAstNode {
 	
 	
 	protected SpecList() {
+	}
+	
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return null;
 	}
 	
 	
@@ -87,14 +95,20 @@ abstract class SpecList extends RAstNode {
 		return null;
 	}
 	
-	@Override
-	final void updateStopOffset() {
-	}
-	
 	abstract SpecItem createItem();
 	
 	void appendItem(final SpecItem item) {
 		fSpecs.add(item);
+	}
+	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		throw new IllegalArgumentException();
+	}
+	
+	@Override
+	final void updateStopOffset() {
 	}
 	
 }

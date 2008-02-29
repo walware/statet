@@ -38,7 +38,7 @@ public abstract class NSGet extends RAstNode {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.NS_GET;
 		}
 		
@@ -62,7 +62,7 @@ public abstract class NSGet extends RAstNode {
 		}
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.NS_GET_INT;
 		}
 		
@@ -121,8 +121,6 @@ public abstract class NSGet extends RAstNode {
 		return fNamespace;
 	}
 	
-	public abstract RTerminal getOperator();
-	
 	public final RAstNode getElementChild() {
 		return fElement;
 	}
@@ -159,6 +157,11 @@ public abstract class NSGet extends RAstNode {
 		return null;
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		throw new IllegalArgumentException();
+	}
 	
 	final void updateStartOffset() {
 		fStartOffset = fNamespace.fStartOffset;

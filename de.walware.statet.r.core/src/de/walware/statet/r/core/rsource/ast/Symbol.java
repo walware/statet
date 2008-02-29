@@ -13,11 +13,28 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
+import de.walware.statet.r.core.rlang.RTerminal;
+
 
 /**
  * 
  */
-public class Symbol extends SingleValue {
+public abstract class Symbol extends SingleValue {
+	
+	
+	static class Std extends Symbol {
+		
+		
+		Std() {
+		}
+		
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
+	}
 	
 	
 	static class G extends Symbol {
@@ -26,6 +43,16 @@ public class Symbol extends SingleValue {
 		G() {
 		}
 		
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.SYMBOL_G;
+		}
+		
+	}
+	
+	
+	protected Symbol() {
 	}
 	
 	

@@ -11,10 +11,14 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
@@ -35,6 +39,12 @@ public class Group extends RAstNode {
 	public final NodeType getNodeType() {
 		return NodeType.GROUP;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.GROUP_OPEN;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -115,6 +125,14 @@ public class Group extends RAstNode {
 		return (element.getNodeType() == NodeType.GROUP);
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {

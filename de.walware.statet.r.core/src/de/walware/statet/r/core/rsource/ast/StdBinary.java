@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
+
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
@@ -110,6 +113,17 @@ abstract class StdBinary extends RAstNode {
 		return fRightExpr;
 	}
 	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fLeftExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
+		}
+		if (fRightExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	final void updateStartOffset() {
 		fStartOffset = fLeftExpr.node.fStartOffset;

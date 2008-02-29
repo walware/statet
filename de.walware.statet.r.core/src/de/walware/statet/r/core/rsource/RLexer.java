@@ -11,24 +11,17 @@
 
 package de.walware.statet.r.core.rsource;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FLOAT_EXP_INVALID;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_FLOAT_WITH_L;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
 public abstract class RLexer {
-	
-	protected final static IStatus STATUS_OK = Status.OK_STATUS;
-	protected final static IStatus STATUS_SYMBOL_G_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Quoted symbol not closed.", null);
-	protected final static IStatus STATUS_STRING_S_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
-	protected final static IStatus STATUS_STRING_D_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "String not closed.", null);
-	protected final static IStatus STATUS_NUM_FLOAT_L = new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1, "Float with L.", null);
-	protected final static IStatus STATUS_SPECIAL_NOT_CLOSED = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Special not closed.", null);
-	protected final static IStatus STATUS_EXPONENT_INVALID = new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Invalid exponent.", null);
 	
 	private final static char[] C_FALSE = RTerminal.S_FALSE.toCharArray();
 	private final static char[] C_NA_real_ = RTerminal.S_NA_REAL.toCharArray();
@@ -586,7 +579,7 @@ public abstract class RLexer {
 				continue LOOP;
 			case SourceParseInput.EOF:
 				fNextNum--;
-				createStringToken(RTerminal.STRING_D, STATUS_STRING_D_NOT_CLOSED);
+				createStringToken(RTerminal.STRING_D, STATUS2_SYNTAX_TOKEN_NOT_CLOSED);
 				return;
 			default:
 				continue LOOP;
@@ -617,7 +610,7 @@ public abstract class RLexer {
 				continue LOOP;
 			case SourceParseInput.EOF:
 				fNextNum--;
-				createStringToken(RTerminal.STRING_S, STATUS_STRING_S_NOT_CLOSED);
+				createStringToken(RTerminal.STRING_S, STATUS2_SYNTAX_TOKEN_NOT_CLOSED);
 				return;
 			default:
 				continue LOOP;
@@ -648,7 +641,7 @@ public abstract class RLexer {
 				continue LOOP;
 			case SourceParseInput.EOF:
 				fNextNum--;
-				createQuotedSymbolToken(RTerminal.SYMBOL_G, STATUS_SYMBOL_G_NOT_CLOSED);
+				createQuotedSymbolToken(RTerminal.SYMBOL_G, STATUS2_SYNTAX_TOKEN_NOT_CLOSED);
 				return;
 			default:
 				continue LOOP;
@@ -699,7 +692,7 @@ public abstract class RLexer {
 	
 	private final void consumeNumberInDec() {
 		// only dec digits
-		IStatus status = STATUS_OK;
+		int status = STATUS_OK;
 		LOOP : while (true) {
 			final int next = fInput.get(++fNextNum);
 			if (next >= '0' && next <= '9') {
@@ -729,7 +722,7 @@ public abstract class RLexer {
 	
 	private final void consumeNumberInFloat() {
 		// after .
-		IStatus status = STATUS_OK;
+		int status = STATUS_OK;
 		LOOP : while (true) {
 			final int next = fInput.get(++fNextNum);
 			if (next >= '0' && next <= '9') {
@@ -741,7 +734,7 @@ public abstract class RLexer {
 				status = scanNumberInExp();
 				continue LOOP;
 			case 'L':
-				createNumberToken(RTerminal.NUM_NUM, status != STATUS_OK ? status : STATUS_NUM_FLOAT_L);
+				createNumberToken(RTerminal.NUM_NUM, status != STATUS_OK ? status : STATUS2_SYNTAX_FLOAT_WITH_L);
 				return;
 			case 'i':
 				createNumberToken(RTerminal.NUM_COMPLEX, status);
@@ -754,7 +747,7 @@ public abstract class RLexer {
 		}
 	}
 	
-	private final IStatus scanNumberInExp() {
+	private final int scanNumberInExp() {
 		// after e // w/o i/L
 		final int start = fInput.get(++fNextNum);
 		START : if (start < '0' || start > '9') {
@@ -765,7 +758,7 @@ public abstract class RLexer {
 				}
 			}
 			fNextNum--;
-			return STATUS_EXPONENT_INVALID;
+			return STATUS2_SYNTAX_FLOAT_EXP_INVALID;
 		}
 		LOOP : while (true) {
 			final int next = fInput.get(++fNextNum);
@@ -811,7 +804,7 @@ public abstract class RLexer {
 			case '\r':
 			case SourceParseInput.EOF:
 				fNextNum--;
-				createSpecialToken(STATUS_SPECIAL_NOT_CLOSED);
+				createSpecialToken(STATUS2_SYNTAX_TOKEN_NOT_CLOSED);
 				return;
 			default:
 				continue LOOP;
@@ -821,16 +814,16 @@ public abstract class RLexer {
 	
 	
 	protected abstract void createFix(RTerminal type);
-	protected abstract void createSpecialToken(IStatus status);
+	protected abstract void createSpecialToken(int status);
 	protected abstract void createSymbolToken();
-	protected abstract void createQuotedSymbolToken(RTerminal type, IStatus status);
-	protected abstract void createStringToken(RTerminal type, IStatus status);
-	protected abstract void createNumberToken(RTerminal type, IStatus status);
+	protected abstract void createQuotedSymbolToken(RTerminal type, int status);
+	protected abstract void createStringToken(RTerminal type, int status);
+	protected abstract void createNumberToken(RTerminal type, int status);
 	protected abstract void createWhitespaceToken();
 	protected abstract void createCommentToken();
 	protected abstract void createLinebreakToken(String text);
 	protected abstract void createUnknownToken(String text);
-		
+	
 	protected void handleNewLine() {
 	}
 	

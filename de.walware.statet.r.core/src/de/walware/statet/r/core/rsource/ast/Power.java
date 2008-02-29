@@ -31,7 +31,8 @@ public class Power extends StdBinary {
 		return NodeType.POWER;
 	}
 	
-	public final RTerminal getOperator() {
+	@Override
+	public final RTerminal getOperator(final int index) {
 		return RTerminal.POWER;
 	}
 	

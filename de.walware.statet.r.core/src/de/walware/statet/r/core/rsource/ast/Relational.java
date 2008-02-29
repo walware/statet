@@ -35,7 +35,7 @@ public abstract class Relational extends StdBinary {
 		
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_LT;
 		}
 		
@@ -49,7 +49,7 @@ public abstract class Relational extends StdBinary {
 		
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_LE;
 		}
 		
@@ -63,7 +63,7 @@ public abstract class Relational extends StdBinary {
 		
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_EQ;
 		}
 		
@@ -77,7 +77,7 @@ public abstract class Relational extends StdBinary {
 		
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_GE;
 		}
 		
@@ -91,7 +91,7 @@ public abstract class Relational extends StdBinary {
 		
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_GT;
 		}
 		
@@ -105,7 +105,7 @@ public abstract class Relational extends StdBinary {
 		
 		
 		@Override
-		public final RTerminal getOperator() {
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_NE;
 		}
 		
@@ -117,7 +117,6 @@ public abstract class Relational extends StdBinary {
 		return NodeType.RELATIONAL;
 	}
 	
-	public abstract RTerminal getOperator();
 	
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {

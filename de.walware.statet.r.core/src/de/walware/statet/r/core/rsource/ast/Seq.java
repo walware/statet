@@ -31,7 +31,8 @@ public class Seq extends StdBinary {
 		return NodeType.SEQ;
 	}
 	
-	public final RTerminal getOperator() {
+	@Override
+	public final RTerminal getOperator(final int index) {
 		return RTerminal.SEQ;
 	}
 	
