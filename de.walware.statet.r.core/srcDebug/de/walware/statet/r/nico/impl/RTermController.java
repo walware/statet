@@ -21,6 +21,8 @@ import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
@@ -53,6 +55,9 @@ import de.walware.statet.r.nico.RWorkspace;
  * Controller for RTerm.
  */
 public class RTermController extends AbstractRController implements IRequireSynch {
+	
+	
+	private static final Pattern INT_OUTPUT_PATTERN = Pattern.compile("\\Q[1] \\E(\\d*)"); //$NON-NLS-1$
 	
 	
 	private class ReadThread extends Thread {
@@ -131,6 +136,75 @@ public class RTermController extends AbstractRController implements IRequireSync
 		}
 	}
 	
+	private class UpdateProcessIdTask implements IToolRunnable<IToolRunnableControllerAdapter> {
+		
+		
+		public UpdateProcessIdTask() {
+		}
+		
+		
+		public String getTypeId() {
+			return "r/rterm/fetch-process-id"; //$NON-NLS-1$
+		}
+		
+		public SubmitType getSubmitType() {
+			return SubmitType.OTHER;
+		}
+		
+		public String getLabel() {
+			return "Fetch Process Id";
+		}
+		
+		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) 
+				throws InterruptedException, CoreException {
+			final StringBuilder output = new StringBuilder();
+			final IStreamListener listener = new IStreamListener() {
+				public void streamAppended(final String text, final IStreamMonitor monitor) {
+					output.append(text);
+				}
+			};
+			try {
+				synch(monitor);
+				getStreams().getOutputStreamMonitor().addListener(listener);
+				getStreams().getErrorStreamMonitor().addListener(listener);
+				if (monitor.isCanceled()) {
+					return;
+				}
+				tools.submitToConsole("Sys.getpid()", monitor); //$NON-NLS-1$
+				final String string = synch(monitor);
+				if (string != null) {
+					final int idx = output.indexOf(string);
+					if (idx >= 0) {
+						output.delete(idx, output.length());
+					}
+					final Matcher matcher = INT_OUTPUT_PATTERN.matcher(output);
+					if (matcher.find()) {
+						final String idString = matcher.group(1);
+						if (idString != null) {
+							try {
+								fProcessId = Long.valueOf(idString);
+							}
+							catch (final NumberFormatException e) {
+								fProcessId = null;
+							}
+						}
+						else {
+							fProcessId = null;
+						}
+					}
+				}
+			}
+			finally {
+				getStreams().getOutputStreamMonitor().removeListener(listener);
+				getStreams().getErrorStreamMonitor().removeListener(listener);
+			}
+		}
+		
+		public void changed(final int event) {
+		}
+		
+	}
+	
 	
 	private ProcessBuilder fConfig;
 	private Charset fCharset;
@@ -139,6 +213,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	private BufferedInputStream fProcessOutputBuffer;
 	private InputStreamReader fProcessOutputReader;
 	private ReadThread fProcessOutputThread;
+	Long fProcessId;
 	
 	
 	public RTermController(final ToolProcess process, final ProcessBuilder config, final Charset charset) {
@@ -183,6 +258,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 			processInput = fProcess.getOutputStream();
 			fProcessInputWriter = new OutputStreamWriter(processInput, fCharset);
 			setCurrentPrompt(fDefaultPrompt);
+			
+			submit(new UpdateProcessIdTask());
 		} catch (final IOException e) {
 			if (processInput != null) {
 				try {

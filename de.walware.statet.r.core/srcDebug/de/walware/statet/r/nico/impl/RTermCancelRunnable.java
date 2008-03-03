@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
@@ -62,15 +61,20 @@ class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 			monitor.beginTask(RNicoMessages.RTerm_CancelTask_SendSignal_label, 10);
 			final String local = FileLocator.toFileURL(dir).getPath();
 			final File file = new File(local);
-			if (!file.exists())
+			if (!file.exists()) {
 				throw new IOException("Missing File '"+file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			monitor.worked(1);
-			final String[] cmd = new String[] {
-					"cmd", "/S", "/C",  									//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					"\"FOR /F \"tokens=2\" %I IN ('TASKLIST /FI \"IMAGENAME eq Rterm.exe\" /NH') " + //$NON-NLS-1$
-					// does not work in all languages: /FI \"STATUS eq running\"
-					"DO \"" + file.getCanonicalPath() + "\" %I \"" , 		//$NON-NLS-1$ //$NON-NLS-2$
-					">", "NULL" }; 										//$NON-NLS-1$ //$NON-NLS-2$
+			final RTermController controller = (RTermController) tools.getController();
+			final Long processId = controller.fProcessId;
+			if (processId == null) {
+				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, "Cannot run cancel command: process-id of Rterm process is missing.")); //$NON-NLS-1$
+				return;
+			}
+			final String[] cmd = new String[] { 
+					file.getAbsolutePath(), processId.toString()
+					// the tool usually does not print output
+			};
 			final Process process = Runtime.getRuntime().exec(cmd);
 			monitor.worked(1);
 			while (true) {
@@ -104,7 +108,6 @@ class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 					Thread.interrupted();
 				}
 			}
-			final ToolController controller = tools.getController();
 			controller.runOnIdle(controller.createCommandRunnable("", SubmitType.OTHER)); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
