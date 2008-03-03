@@ -22,7 +22,8 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[0.5.0,0.6.0)";visib
  org.eclipse.debug.ui,
  org.eclipse.compare
 Import-Package: com.ibm.icu.text;version="3.6.1"
-Export-Package: de.walware.eclipsecommons.ltk.ui,
+Export-Package: de.walware.eclipsecommons,
+ de.walware.eclipsecommons.ltk.ui,
  de.walware.eclipsecommons.templates,
  de.walware.eclipsecommons.ui,
  de.walware.eclipsecommons.ui.databinding,
