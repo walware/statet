@@ -14,10 +14,11 @@ package de.walware.statet.r.internal.sweave;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.templates.Template;
 
+import de.walware.eclipsecommons.ltk.ISourceUnit;
+
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.TemplatesUtil;
-import de.walware.statet.r.core.RResourceUnit;
 
 
 /**
@@ -38,7 +39,7 @@ public class CodeGeneration {
 	 * @return Returns the new content or <code>null</code> if the template is undefined or empty.
 	 * @throws CoreException Thrown when the evaluation of the code template fails.
 	 */
-	public static NewFileData getNewRweaveTexDocContent(final RResourceUnit cu, final String lineDelimiter) throws CoreException {
+	public static NewFileData getNewRweaveTexDocContent(final ISourceUnit cu, final String lineDelimiter) throws CoreException {
 		final Template template = SweavePlugin.getDefault().getRweaveTexGenerationTemplateStore().findTemplateById(RweaveTexTemplatesContextType.NEW_SWEAVEDOC_ID);
 		if (template == null) {
 			return null;

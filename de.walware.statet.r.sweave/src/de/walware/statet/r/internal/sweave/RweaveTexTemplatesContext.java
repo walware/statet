@@ -16,9 +16,10 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateException;
 
+import de.walware.eclipsecommons.ltk.ISourceUnit;
+
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.StatextCodeTemplatesContext;
-import de.walware.statet.r.core.RResourceUnit;
 
 
 public class RweaveTexTemplatesContext extends StatextCodeTemplatesContext {
@@ -31,12 +32,13 @@ public class RweaveTexTemplatesContext extends StatextCodeTemplatesContext {
 				lineDelim);
 	}
 	
+	
 	@Override
 	public TemplateBuffer evaluate(final Template template) throws BadLocationException, TemplateException {
 		return super.evaluate(template);
 	}
 	
-	public void setCodeUnitVariables(final RResourceUnit u) {
+	public void setCodeUnitVariables(final ISourceUnit u) {
 		setVariable(RweaveTexTemplatesContextType.FILENAME, u.getElementName());
 	}
 	
