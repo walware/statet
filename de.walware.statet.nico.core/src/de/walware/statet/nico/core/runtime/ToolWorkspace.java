@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,13 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
+
 
 /**
  * Life cycle: ToolProcess
@@ -90,6 +93,9 @@ public class ToolWorkspace {
 		return new ControllerListener();
 	}
 	
+	
+	public void refresh(final IProgressMonitor monitor) throws CoreException {
+	}
 	
 	public String getLineSeparator() {
 		return fLineSeparator;

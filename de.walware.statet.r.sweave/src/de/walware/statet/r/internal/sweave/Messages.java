@@ -37,6 +37,10 @@ public class Messages extends NLS {
 	public static String TexTab_label;
 	public static String TexTab_OpenTex_label;
 	public static String TexTab_OpenTex_OnlyOnErrors_label;
+	public static String TexTab_OutputDir_label;
+	public static String TexTab_OutputDir_name;
+	public static String TexTab_OutputDir_InsertSweavePath_label;
+	public static String TexTab_OutputDir_InsertTexPath_label;
 	public static String TexTab_BuildTex_label;
 	
 	public static String Creation_PreviewTab_label;
@@ -74,6 +78,7 @@ public class Messages extends NLS {
 	public static String RweaveTexCreation_Sweave_RCmd_error_Found_message;
 	public static String RweaveTexCreation_Tex_label;
 	public static String RweaveTexCreation_Tex_error_BuilderNotConfigured_message;
+	public static String RweaveTexCreation_Tex_error_OutputDir_message;
 	public static String RweaveTexCreation_Tex_error_MustBeInWorkspace_message;
 	public static String RweaveTexCreation_Tex_error_NotFound_message;
 	public static String RweaveTexCreation_Output_error_NotFound_message;

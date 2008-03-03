@@ -25,6 +25,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -59,6 +60,7 @@ public class FileValidator implements IValidator {
 	private int fOnFile;
 	private int fOnDirectory;
 	private int fOnNotLocal;
+	private boolean fIgnoreRelative;
 	
 	
 	/**
@@ -72,6 +74,7 @@ public class FileValidator implements IValidator {
 		fOnFile = IStatus.OK;
 		fOnDirectory = IStatus.OK;
 		fOnNotLocal = IStatus.ERROR;
+		fIgnoreRelative = false;
 	}
 	
 	/**
@@ -143,6 +146,10 @@ public class FileValidator implements IValidator {
 	public int getOnNotLocal() {
 		return fOnNotLocal;
 	}
+	public void setIgnoreRelative(final boolean ignore) {
+		fIgnoreRelative = ignore;
+		fStatus = null;
+	}
 	
 	public void setResourceLabel(final String label) {
 		fResourceLabel = " '" + label + "' "; //$NON-NLS-1$ //$NON-NLS-2$
@@ -199,6 +206,9 @@ public class FileValidator implements IValidator {
 				s = resolveExpression(s);
 			} catch (final CoreException e) {
 				return createStatus(e.getStatus().getSeverity(), Messages.Resource_error_Other_message, e.getStatus().getMessage());
+			}
+			if (fIgnoreRelative && !new Path(s).isAbsolute()) {
+				return Status.OK_STATUS;
 			}
 			fWorkspaceResource = ResourcesPlugin.getWorkspace().getRoot().findMember(s, false);
 			if (fWorkspaceResource == null) {

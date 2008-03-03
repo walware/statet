@@ -28,6 +28,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.IStreamListener;
@@ -58,6 +59,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	
 	
 	private static final Pattern INT_OUTPUT_PATTERN = Pattern.compile("\\Q[1] \\E(\\d*)"); //$NON-NLS-1$
+	private static final Pattern STRING_OUTPUT_PATTERN = Pattern.compile("\\Q[1] \"\\E((?:\\Q\\\"\\E|[^\"])*)\\\""); //$NON-NLS-1$
 	
 	
 	private class ReadThread extends Thread {
@@ -157,46 +159,23 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) 
 				throws InterruptedException, CoreException {
-			final StringBuilder output = new StringBuilder();
-			final IStreamListener listener = new IStreamListener() {
-				public void streamAppended(final String text, final IStreamMonitor monitor) {
-					output.append(text);
-				}
-			};
-			try {
-				synch(monitor);
-				getStreams().getOutputStreamMonitor().addListener(listener);
-				getStreams().getErrorStreamMonitor().addListener(listener);
-				if (monitor.isCanceled()) {
-					return;
-				}
-				tools.submitToConsole("Sys.getpid()", monitor); //$NON-NLS-1$
-				final String string = synch(monitor);
-				if (string != null) {
-					final int idx = output.indexOf(string);
-					if (idx >= 0) {
-						output.delete(idx, output.length());
-					}
-					final Matcher matcher = INT_OUTPUT_PATTERN.matcher(output);
-					if (matcher.find()) {
-						final String idString = matcher.group(1);
-						if (idString != null) {
-							try {
-								fProcessId = Long.valueOf(idString);
-							}
-							catch (final NumberFormatException e) {
-								fProcessId = null;
-							}
+			final StringBuilder output = readOutputLine("Sys.getpid()", monitor); //$NON-NLS-1$
+			if (output != null) {
+				final Matcher matcher = INT_OUTPUT_PATTERN.matcher(output);
+				if (matcher.find()) {
+					final String idString = matcher.group(1);
+					if (idString != null) {
+						try {
+							fProcessId = Long.valueOf(idString);
 						}
-						else {
+						catch (final NumberFormatException e) {
 							fProcessId = null;
 						}
 					}
+					else {
+						fProcessId = null;
+					}
 				}
-			}
-			finally {
-				getStreams().getOutputStreamMonitor().removeListener(listener);
-				getStreams().getErrorStreamMonitor().removeListener(listener);
 			}
 		}
 		
@@ -221,7 +200,23 @@ public class RTermController extends AbstractRController implements IRequireSync
 		fConfig = config;
 		fCharset = charset;
 		
-		fWorkspaceData = new RWorkspace(this);
+		fWorkspaceData = new RWorkspace(this) {
+			@Override
+			public void refresh(final IProgressMonitor monitor) throws CoreException {
+				if (Thread.currentThread() != getControllerThread()) {
+					// TODO
+					return;
+				}
+				final StringBuilder output = readOutputLine("getwd()", monitor); //$NON-NLS-1$
+				if (output != null) {
+					final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
+					if (matcher.find()) {
+						final String wd = matcher.group(1);
+						setWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+					}
+				}
+			}
+		};
 		setWorkspaceDir(EFS.getLocalFileSystem().fromLocalFile(config.directory()));
 		initRunnableAdapter();
 	}
@@ -315,7 +310,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	
 	
 	private boolean runSendCtrlC() {
-		if (!Platform.getOS().startsWith("win") //$NON-NLS-1$
+		if (!Platform.getOS().startsWith("win")  //$NON-NLS-1$
 				|| getStatus() == ToolStatus.TERMINATED) {
 			return false;
 		}
@@ -403,20 +398,72 @@ public class RTermController extends AbstractRController implements IRequireSync
 			}
 			
 		};
-		fDefaultOutputStream.addListener(listener);
-		submitToConsole("cat(\""+pattern+"\\n\");", monitor); //$NON-NLS-1$ //$NON-NLS-2$
-		while (!patternFound.get()) {
-			if (monitor.isCanceled()) {
-				fDefaultOutputStream.removeListener(listener);
-				throw cancelTask();
+		try {
+			fDefaultOutputStream.addListener(listener);
+			submitToConsole("cat(\""+pattern+"\\n\");", monitor); //$NON-NLS-1$ //$NON-NLS-2$
+			while (!patternFound.get()) {
+				if (monitor.isCanceled()) {
+					throw cancelTask();
+				}
+				try {
+					Thread.sleep(50);
+				}
+				catch (final InterruptedException e) {
+					Thread.interrupted();
+				}
 			}
-			try {
-				Thread.sleep(50);
-			} catch (final InterruptedException e) {
-				Thread.interrupted();
-			}
+			return pattern;
 		}
-		return pattern;
+		finally {
+			fDefaultOutputStream.removeListener(listener);
+		}
+	}
+	
+	private StringBuilder readOutputLine(final String command, final IProgressMonitor monitor) throws CoreException {
+		final StringBuilder output = new StringBuilder();
+		final AtomicBoolean patternFound = new AtomicBoolean(false);
+		final IStreamListener listener = new IStreamListener() {
+			
+			public void streamAppended(final String text, final IStreamMonitor monitor) {
+				final Matcher matcher = RUtil.LINE_SEPARATOR_PATTERN.matcher(text);
+				if (matcher.find()) {
+					output.append(text.substring(0, matcher.start()));
+					found();
+				}
+				else {
+					output.append(text);
+				}
+			}
+			
+			private void found() {
+				fDefaultOutputStream.removeListener(this);
+				patternFound.set(true);
+			}
+			
+		};
+		synch(monitor);
+		try {
+			fDefaultOutputStream.addListener(listener);
+			if (monitor.isCanceled()) {
+				return null;
+			}
+			submitToConsole(command, monitor);
+			while (!patternFound.get()) {
+				if (monitor.isCanceled()) {
+					throw cancelTask();
+				}
+				try {
+					Thread.sleep(50);
+				}
+				catch (final InterruptedException e) {
+					Thread.interrupted();
+				}
+			}
+			return output;
+		}
+		finally {
+			fDefaultOutputStream.removeListener(listener);
+		}
 	}
 	
 }

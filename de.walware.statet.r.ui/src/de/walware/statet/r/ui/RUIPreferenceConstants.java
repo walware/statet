@@ -344,7 +344,7 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS, ""); //$NON-NLS-1$
 		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS, ""); //$NON-NLS-1$
 		
-		PreferenceConverter.setDefault(store, R.TS_UNDEFINED_COLOR, new RGB(47, 175, 191));
+		PreferenceConverter.setDefault(store, R.TS_UNDEFINED_COLOR, new RGB(223, 63, 127));
 		store.setDefault(R.TS_UNDEFINED_BOLD, true);
 		store.setDefault(R.TS_UNDEFINED_ITALIC, false);
 		store.setDefault(R.TS_UNDEFINED_UNDERLINE, false);

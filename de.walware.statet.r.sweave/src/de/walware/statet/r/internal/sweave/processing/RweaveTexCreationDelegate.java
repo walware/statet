@@ -154,6 +154,7 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 		thread.fTexOpenEditor = configuration.getAttribute(TexTab.ATTR_OPENTEX_ENABLED, TexTab.OPEN_OFF);
 		thread.fTexBuilderId = configuration.getAttribute(TexTab.ATTR_BUILDTEX_BUILDERID, -1);
 		thread.fRunTex = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) && SweaveCreation.isEnabled(STEP_TEX, buildFlags);
+		thread.fConfiguredOutputDir = configuration.getAttribute(TexTab.ATTR_BUILDTEX_OUTPUTDIR, (String) null);
 		
 		final String preview = configuration.getAttribute(PreviewTab.ATTR_VIEWER_CODE, ""); //$NON-NLS-1$
 		if ((RweaveTexCreationDelegate.STEP_PREVIEW & buildFlags) != 0) {
