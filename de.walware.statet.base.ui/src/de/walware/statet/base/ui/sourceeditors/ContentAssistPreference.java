@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package de.walware.statet.base.ui.sourceeditors;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.swt.graphics.Color;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
@@ -119,7 +120,7 @@ public class ContentAssistPreference {
 	
 	
 	/**
-	 * Configure the given content assistant from the given store.
+	 * Configure the given content assistant according common StatET settings.
 	 */
 	public static void configure(final ContentAssistant assistant) {
 		final ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
@@ -137,6 +138,17 @@ public class ContentAssistPreference {
 		manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
 		assistant.setContextInformationPopupBackground(c);
 		assistant.setContextSelectorBackground(c);
+	}
+	
+	/**
+	 * Configure the given quick assistant according common StatET settings.
+	 */
+	public static void configure(final IQuickAssistAssistant assistant) {
+		final ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
+		final IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
+		
+		assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
+		assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
 	}
 	
 }

@@ -133,6 +133,9 @@
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
          <keywordReference id="de.walware.statet.base.keywords.Formatting"/>
+         <keywordReference
+               id="de.walware.statet.base.keywords.SpellChecking">
+         </keywordReference>
       </page>
       <page
             category="de.walware.statet.base.preferencePages.Editors"

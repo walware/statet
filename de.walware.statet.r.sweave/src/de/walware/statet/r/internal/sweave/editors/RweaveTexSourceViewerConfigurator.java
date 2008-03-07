@@ -11,8 +11,11 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
+import java.util.Set;
+
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.core.IRCoreAccess;
@@ -44,6 +47,15 @@ public class RweaveTexSourceViewerConfigurator extends RSourceViewerConfigurator
 	@Override
 	public void setConfiguration(final StatextSourceViewerConfiguration config) {
 		super.setConfiguration(config);
+	}
+	
+	@Override
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		if (groupIds != null && groupIds.contains(SweaveEditorOptions.GROUP_ID) && getREditor() != null) {
+			fUpdateCompleteConfig = true;
+			SpellingProblem.removeAllInActiveEditor(getREditor(), null);
+		}
+		return super.handleSettingsChanged(groupIds, options);
 	}
 	
 }

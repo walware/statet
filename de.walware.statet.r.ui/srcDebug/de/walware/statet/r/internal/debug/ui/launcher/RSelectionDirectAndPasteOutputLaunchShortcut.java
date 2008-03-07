@@ -115,7 +115,7 @@ public class RSelectionDirectAndPasteOutputLaunchShortcut implements ILaunchShor
 		}
 		
 		public String getTypeId() {
-			return "r/editor.run-and-paste"; //$NON-NLS-1$
+			return "editor/run-and-paste"; //$NON-NLS-1$
 		}
 		
 		public String getLabel() {
@@ -140,7 +140,7 @@ public class RSelectionDirectAndPasteOutputLaunchShortcut implements ILaunchShor
 				throws InterruptedException, CoreException {
 			fOutput = new StringBuilder(200);
 			final IStreamListener listener = new IStreamListener() {
-				public void streamAppended(String text, IStreamMonitor monitor) {
+				public void streamAppended(final String text, final IStreamMonitor monitor) {
 					fOutput.append(text);
 				}
 			};

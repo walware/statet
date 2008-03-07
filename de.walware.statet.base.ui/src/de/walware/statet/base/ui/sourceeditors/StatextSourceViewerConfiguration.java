@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,17 +14,31 @@ package de.walware.statet.base.ui.sourceeditors;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.jface.internal.text.html.BrowserInformationControl;
+import org.eclipse.jface.internal.text.html.HTMLPrinter;
+import org.eclipse.jface.internal.text.html.HTMLTextPresenter;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
@@ -45,6 +59,97 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		implements ISettingsChangedHandler {
 	
 	
+	private static IInformationControlCreator ASSIST_INFO_CREATOR;
+	
+	private static class AssistInformationControlCreator extends AbstractReusableInformationControlCreator 
+			implements IPropertyChangeListener {
+		
+		private String INFO_STYLE_SHEET;
+		
+		public AssistInformationControlCreator() {
+			JFaceResources.getFontRegistry().addListener(this);
+			updateStyleSheet();
+		}
+		
+		public void propertyChange(final PropertyChangeEvent event) {
+			if (event.getProperty().equals(JFaceResources.DIALOG_FONT)) {
+				updateStyleSheet();
+			}
+		}
+		
+		private void updateStyleSheet() {
+			String style =
+				// Font definitions
+				"html         { font-family: sans-serif; font-size: 9pt; font-style: normal; font-weight: normal; }\n"+
+				"body, h1, h2, h3, h4, h5, h6, p, table, td, caption, th, ul, ol, dl, li, dd, dt { font-size:1em; }\n"+
+				"pre          { font-family: monospace; }\n"+
+				// Margins
+				"body         { overflow: auto; margin-top: 0px; margin-bottom: 0.5em; margin-left: 0.3em; margin-right: 0px; }\n"+
+				"h1           { margin-top: 0.3em; margin-bottom: 0.04em; }\n"+
+				"h2           { margin-top: 2em; margin-bottom: 0.25em; }\n"+
+				"h3           { margin-top: 1.7em; margin-bottom: 0.25em; }\n"+
+				"h4           { margin-top: 2em; margin-bottom: 0.3em; }\n"+
+				"h5           { margin-top: 0px; margin-bottom: 0px; }\n"+
+				"p            { margin-top: 1em; margin-bottom: 1em; }\n"+
+				"pre          { margin-left: 0.6em; }\n"+
+				"ul           { margin-top: 0px; margin-bottom: 1em; }\n"+
+				"li           { margin-top: 0px; margin-bottom: 0px; }\n"+
+				"li p         { margin-top: 0px; margin-bottom: 0px; }\n"+
+				"ol           { margin-top: 0px; margin-bottom: 1em; }\n"+
+				"dl           { margin-top: 0px; margin-bottom: 1em; }\n"+
+				"dt           { margin-top: 0px; margin-bottom: 0px; font-weight: bold; }\n"+
+				"dd           { margin-top: 0px; margin-bottom: 0px; }\n"+
+				// Styles and colors
+				"a:link       { color: #0000FF; }\n"+
+				"a:hover      { color: #000080; }\n"+
+				"a:visited    { text-decoration: underline; }\n"+
+				"h4           { font-style: italic; }\n"+
+				"strong       { font-weight: bold; }\n"+
+				"em           { font-style: italic; }\n"+
+				"var          { font-style: italic; }\n"+
+				"th           { font-weight: bold; }\n";
+			try {
+				final FontData[] fontData = JFaceResources.getFontRegistry().getFontData(JFaceResources.DIALOG_FONT);
+				if (fontData != null && fontData.length > 0) {
+					style = style.replace("9pt", fontData[0].getHeight()+"pt");
+					style = style.replace("sans-serif", "sans-serif, '"+fontData[0].getName()+"'");
+				}
+			}
+			catch (final Throwable e) {
+			}
+			INFO_STYLE_SHEET = style;
+		}
+		
+		@Override
+		protected IInformationControl doCreateInformationControl(final Shell parent) {
+			final int shellStyle = SWT.NO_TRIM | SWT.TOOL;
+			final int style = SWT.NONE;
+			if (BrowserInformationControl.isAvailable(parent)) {
+				return new BrowserInformationControl(parent, shellStyle, style) {
+					@Override
+					public void setInformation(String content) {
+						if (content.lastIndexOf("<html>", 100) < 0) {
+							if (!content.startsWith("...<br")) {
+								content = HTMLPrinter.convertToHTMLContent(content);
+							}
+							final StringBuffer s = new StringBuffer(content);
+							HTMLPrinter.insertPageProlog(s, 0, INFO_STYLE_SHEET);
+							HTMLPrinter.addPageEpilog(s);
+							content = s.toString();
+						}
+						final String html = content;
+						super.setInformation(html);
+					}
+				};
+			}
+			else {
+				return new DefaultInformationControl(parent, shellStyle, style, new HTMLTextPresenter(false));
+			}
+		}
+		
+	};
+	
+	
 	public static IPreferenceStore createCombinedPreferenceStore(final IPreferenceStore store) {
 		return createCombinedPreferenceStore(new IPreferenceStore[] { store });
 	}
@@ -59,11 +164,12 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	}
 	
 	
-	protected final IEditorAdapter fEditorAdapter;
+	private final IEditorAdapter fEditorAdapter;
 	
 	private ColorManager fColorManager;
 	private FastList<ISettingsChangedHandler> fSettingsHandler = new FastList<ISettingsChangedHandler>(ISettingsChangedHandler.class);
 	private ContentAssistant fContentAssistant;
+	private IQuickAssistAssistant fQuickAssistant;
 	
 	
 	public StatextSourceViewerConfiguration(final IEditorAdapter editorAdapter) {
@@ -86,6 +192,10 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		}
 	}
 	
+	protected IEditorAdapter getEditorAdapter() {
+		return fEditorAdapter;
+	}
+	
 	public IPreferenceStore getPreferences() {
 		return fPreferenceStore;
 	}
@@ -96,8 +206,13 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	
 	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
 		boolean affectsPresentation = false;
-		if (groupIds.contains(ContentAssistPreference.GROUP_ID) && fContentAssistant != null) {
-			ContentAssistPreference.configure(fContentAssistant);
+		if (groupIds.contains(ContentAssistPreference.GROUP_ID)) {
+			if (fContentAssistant != null) {
+				ContentAssistPreference.configure(fContentAssistant);
+			}
+			if (fQuickAssistant != null) {
+				ContentAssistPreference.configure(fQuickAssistant);
+			}
 		}
 		for (final ISettingsChangedHandler handler : fSettingsHandler.toArray()) {
 			affectsPresentation |= handler.handleSettingsChanged(groupIds, options);
@@ -158,7 +273,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 				ContentAssistPreference.configure(fContentAssistant);
 				fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
 				fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
-				fContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+				fContentAssistant.setInformationControlCreator(getAssistInformationControlCreator(sourceViewer));
 			}
 		}
 		return fContentAssistant;
@@ -176,6 +291,30 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			assistant.setContentAssistProcessor(processor, contentType);
 		}
 		return assistant;
+	}
+	
+	
+	@Override
+	public IQuickAssistAssistant getQuickAssistAssistant(final ISourceViewer sourceViewer) {
+		if (fQuickAssistant == null) {
+			fQuickAssistant = createQuickAssistant(sourceViewer);
+			if (fQuickAssistant != null) {
+				ContentAssistPreference.configure(fQuickAssistant);
+				fQuickAssistant.setInformationControlCreator(getAssistInformationControlCreator(sourceViewer));
+			}
+		}
+		return fQuickAssistant;
+	}
+	
+	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
+		return super.getQuickAssistAssistant(sourceViewer);
+	}
+	
+	protected IInformationControlCreator getAssistInformationControlCreator(final ISourceViewer sourceViewer) {
+		if (ASSIST_INFO_CREATOR == null) {
+			ASSIST_INFO_CREATOR = new AssistInformationControlCreator();
+		}
+		return ASSIST_INFO_CREATOR;
 	}
 	
 }

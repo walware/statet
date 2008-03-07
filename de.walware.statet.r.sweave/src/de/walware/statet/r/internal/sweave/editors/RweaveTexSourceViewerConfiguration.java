@@ -29,7 +29,6 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
-import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
@@ -58,7 +57,6 @@ import de.walware.statet.r.sweave.text.RChunkControlCodeScanner;
 import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
 import de.walware.statet.r.ui.editors.RAutoEditStrategy;
 import de.walware.statet.r.ui.editors.REditor;
-import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
@@ -302,7 +300,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	}
 	
 	protected IReconcilingStrategy getSpellingStrategy(final ISourceViewer sourceViewer) {
-		if (!(fRConfig.getRCoreAccess().getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)
+		if (!(fRConfig.getRCoreAccess().getPrefs().getPreferenceValue(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED)
 				&& fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) ) {
 			return null;
 		}
@@ -311,14 +309,6 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 			return null;
 		}
 		return new SpellingReconcileStrategy(sourceViewer, spellingService);
-	}
-	
-	@Override
-	public IQuickAssistAssistant getQuickAssistAssistant(final ISourceViewer sourceViewer) {
-		if (fRConfig.getRCoreAccess().getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)) {
-			return super.getQuickAssistAssistant(sourceViewer);
-		}
-		return null;
 	}
 	
 	@Override

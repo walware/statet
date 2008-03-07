@@ -96,7 +96,7 @@ public abstract class AbstractConfigurationBlock {
 	
 	protected void addLinkHeader(final Composite pageComposite, final String text) {
 		final Link link = addLinkControl(pageComposite, text);
-		final GridData gridData = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
+		final GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gridData.widthHint = 150; // only expand further if anyone else requires it
 		link.setLayoutData(gridData);
 		LayoutUtil.addSmallFiller(pageComposite, false);

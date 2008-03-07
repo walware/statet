@@ -172,6 +172,21 @@
             contentTypeId="de.walware.statet.r.contentTypes.RweaveTex">
       </contentTypeBinding>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="de.walware.statet.base.preferencePages.Editors"
+            class="de.walware.statet.r.internal.sweave.editors.SweaveEditorPreferencePage"
+            id="de.walware.statet.r.preferencePages.SweaveEditor"
+            name="%preferencePages_SweaveEditor">
+         <keywordReference
+               id="de.walware.statet.base.keywords.Editor">
+         </keywordReference>
+         <keywordReference
+               id="de.walware.statet.base.keywords.SpellChecking">
+         </keywordReference>
+      </page>
+   </extension>
 
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchContentHandler">

@@ -20,6 +20,7 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
+import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
@@ -42,6 +43,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RIndentUtil;
+import de.walware.statet.r.internal.ui.editors.RQuickAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.RCodeScanner2;
@@ -101,10 +103,6 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	public IRCoreAccess getRCoreAccess() {
 		return fRCoreAccess;
-	}
-	
-	protected IEditorAdapter getEditorAdapter() {
-		return fEditorAdapter;
 	}
 	
 	protected REditor getEditor() {
@@ -235,27 +233,19 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public IQuickAssistAssistant getQuickAssistAssistant(final ISourceViewer sourceViewer) {
-		if (fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)) {
-			return super.getQuickAssistAssistant(sourceViewer);
-		}
-		return null;
-	}
-	
-	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
-		if (fEditorAdapter == null) {
+		if (getEditorAdapter() == null) {
 			return super.getAutoEditStrategies(sourceViewer, contentType);
 		}
 		if (fRAutoEditStrategy == null) {
 			fRAutoEditStrategy = createRAutoEditStrategy();
-			fEditorAdapter.install(fRAutoEditStrategy);
+			getEditorAdapter().install(fRAutoEditStrategy);
 		}
 		return new IAutoEditStrategy[] { fRAutoEditStrategy };
 	}
 	
 	protected RAutoEditStrategy createRAutoEditStrategy() {
-		return new RAutoEditStrategy(fRCoreAccess, fEditorAdapter, fEditor);
+		return new RAutoEditStrategy(fRCoreAccess, getEditorAdapter(), fEditor);
 	}
 	
 	@Override
@@ -271,6 +261,13 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			return assistant;
 		}
 		return null;
+	}
+	
+	@Override
+	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
+		final QuickAssistAssistant assistant = new QuickAssistAssistant();
+		assistant.setQuickAssistProcessor(new RQuickAssistProcessor(fEditor));
+		return assistant;
 	}
 	
 }

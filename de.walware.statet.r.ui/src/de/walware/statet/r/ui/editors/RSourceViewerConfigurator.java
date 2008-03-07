@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,12 +18,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.ui.texteditor.ITextEditorActionConstants;
-import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
@@ -51,17 +48,16 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}));
 	
 	
-	private REditor fEditor;
+	private REditor fRealEditor;
 	private StatextSourceViewerConfiguration fConfig;
 	
 	private RCodeStyleSettings fRCodeStyleCopy;
 	private IRCoreAccess fSourceCoreAccess;
 	
-	private boolean fUpdateCompleteConfig;
+	protected boolean fUpdateCompleteConfig;
 	private boolean fUpdateTextPresentation;
 	private boolean fUpdateTabSize;
 	private boolean fUpdateIndent;
-	private boolean fUpdateQuickFix;
 	
 	
 	public RSourceViewerConfigurator(final IRCoreAccess core, final IPreferenceStore store) {
@@ -102,7 +98,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	public void setTarget(final REditor editor) {
-		fEditor = editor;
+		fRealEditor = editor;
 		fIsConfigured = true;
 		setTarget((IEditorAdapter) editor.getAdapter(IEditorAdapter.class), false);
 	}
@@ -111,6 +107,10 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	public void setTarget(final IEditorAdapter editor, final boolean configure) {
 		fUpdateIndent = true;
 		super.setTarget(editor, configure);
+	}
+	
+	protected REditor getREditor() {
+		return fRealEditor;
 	}
 	
 	public void propertyChange(final PropertyChangeEvent event) {
@@ -142,10 +142,9 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		if (groupIds.contains(RCodeStyleSettings.GROUP_ID)) {
 			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		}
-		if (groupIds.contains(REditorOptions.GROUP_ID) && fEditor != null) {
+		if (groupIds.contains(REditorOptions.GROUP_ID) && fRealEditor != null) {
 			fUpdateCompleteConfig = true;
-			fUpdateQuickFix = true;
-			SpellingProblem.removeAllInActiveEditor(fEditor, null);
+			SpellingProblem.removeAllInActiveEditor(fRealEditor, null);
 		}
 		fUpdateTextPresentation = fConfig.handleSettingsChanged(groupIds, viewer);
 		
@@ -169,14 +168,8 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 			if (fUpdateTextPresentation) {
 				viewer.invalidateTextPresentation();
 			}
-			if (fUpdateIndent && fEditor != null) {
-				fEditor.updateSettings(fUpdateIndent);
-			}
-		}
-		if (fUpdateQuickFix && fEditor != null) {
-			final IAction quickAssistAction = fEditor.getAction(ITextEditorActionConstants.QUICK_ASSIST);
-			if (quickAssistAction instanceof IUpdate) {
-				((IUpdate) quickAssistAction).update();
+			if (fUpdateIndent && fRealEditor != null) {
+				fRealEditor.updateSettings(fUpdateIndent);
 			}
 		}
 		
@@ -184,7 +177,6 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		fUpdateTextPresentation = false;
 		fUpdateTabSize = false;
 		fUpdateIndent = false;
-		fUpdateQuickFix = false;
 	}
 	
 	public RCodeStyleSettings getRCodeStyle() {
