@@ -48,7 +48,7 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = TemplatesUtil.getLineSeparator(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = new RResourceUnit(newFileHandle);
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.R_TEX_UNIT_TYPE_ID);
 				final NewFileData data = CodeGeneration.getNewRweaveTexDocContent(rcu, lineDelimiter);
 				if (data != null) {
 					fSelectionStart = data.selectionStart;
@@ -61,6 +61,7 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 			return null;
 		}
 	}
+	
 	
 	private NewSweaveFileCreationWizardPage fFirstPage;
 	private NewFileCreator fNewSweaveFile;

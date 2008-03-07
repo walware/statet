@@ -50,7 +50,7 @@ import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;
 public class History {
 	
 	
-	private int fMaxSize = 1000;
+	private int fMaxSize = 2500;
 	private int fCurrentSize = 0;
 	private boolean fIgnoreCommentLines;
 	

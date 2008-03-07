@@ -64,8 +64,8 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		
 		@Override
 		protected String resolve(final TemplateContext context) {
-			if (context instanceof IStatetContext) {
-				final StatetProject proj = ((IStatetContext) context).getStatetProject();
+			if (context instanceof IExtTemplateContext) {
+				final StatetProject proj = ((IExtTemplateContext) context).getStatetProject();
 				final String todoTaskTag = TemplatesUtil.getTodoTaskTag(proj);
 				if (todoTaskTag != null)
 					return todoTaskTag;
@@ -120,8 +120,8 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		
 		@Override
 		protected String resolve(final TemplateContext context) {
-			if (context instanceof IStatetContext) {
-				final StatetProject proj = ((IStatetContext) context).getStatetProject();
+			if (context instanceof IExtTemplateContext) {
+				final StatetProject proj = ((IExtTemplateContext) context).getStatetProject();
 				if (proj != null)
 					return proj.getProject().getName();
 			}

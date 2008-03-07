@@ -14,19 +14,20 @@ package de.walware.eclipsecommons;
 
 public interface ICommonStatusConstants {
 	
-	int INTERNAL_ERROR = 100;
-	int INTERNAL_PREF = 200;
-	int INTERNAL_PREF_PERSISTENCE = 1001;
-	int INTERNAL_TEMPLATE = 2000;
+	int INTERNAL_ERROR =               100000;
+	int INTERNAL_PLUGGED_IN =          110000;
+	int INTERNAL_PREF =                120000;
+	int INTERNAL_PREF_PERSISTENCE =    120001;
+	int INTERNAL_TEMPLATE =            130000;
 	
-	int LAUNCHING = 20100;
+	int LAUNCHING =                     20100;
 	
 	/** Code for errors when handle LaunchConfigurations */
-	int LAUNCHCONFIG_ERROR = 20110;
+	int LAUNCHCONFIG_ERROR =            20110;
 	
-	int IO_ERROR = 30100;
+	int IO_ERROR =                      30100;
 	
 	/** Status Code for common errors in (incremental) builders */
-	int BUILD_ERROR = 40100;
+	int BUILD_ERROR =                   40100;
 	
 }

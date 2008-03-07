@@ -35,9 +35,9 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- * 
+ * Generic source unit for R related files.
  */
-public class RResourceUnit implements ISourceUnit {
+public abstract class RResourceUnit implements ISourceUnit {
 	
 	
 	public static String createResourceId(final IResource file) {
@@ -48,6 +48,15 @@ public class RResourceUnit implements ISourceUnit {
 			}
 		}
 		return null;
+	}
+	
+	public static RResourceUnit createTempUnit(final IResource file, final String typeId) {
+		return new RResourceUnit(file) {
+			@Override
+			public String getTypeId() {
+				return typeId;
+			}
+		};
 	}
 	
 	
@@ -73,9 +82,7 @@ public class RResourceUnit implements ISourceUnit {
 	protected void dispose() {
 	}
 	
-	public String getTypeId() {
-		return "r"; //$NON-NLS-1$
-	}
+	public abstract String getTypeId();
 	
 	public String getId() {
 		return fId;

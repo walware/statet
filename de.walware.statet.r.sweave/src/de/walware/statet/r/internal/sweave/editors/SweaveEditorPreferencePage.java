@@ -83,7 +83,7 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 		gd.widthHint = 300;
 		link.setLayoutData(gd);
 		
-		link = addLinkControl(pageComposite, "The markers '<<' and '>>=' are displayed according to the <a href=\"de.walware.statet.r.preferencePages.RSyntaxColoring\">coloring</a> options for 'Invalid / Other' tokens.");
+		link = addLinkControl(pageComposite, "The markers '<<', '>>=' and '@' for R chunks are displayed according to the <a href=\"de.walware.statet.r.preferencePages.RSyntaxColoring\">coloring</a> options for 'Invalid / Other' tokens.");
 		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
 		gd.widthHint = 300;
 		gd.horizontalIndent = LayoutUtil.defaultIndent();

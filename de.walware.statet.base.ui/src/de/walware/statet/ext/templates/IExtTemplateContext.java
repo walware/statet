@@ -18,10 +18,15 @@ import org.eclipse.jface.text.templates.TemplateException;
 import de.walware.statet.base.core.StatetProject;
 
 
-public interface IStatetContext {
+/**
+ * Can extend {@link org.eclipse.jface.text.templates.TemplateContext} 
+ * and similar contexts.
+ */
+public interface IExtTemplateContext {
 	
 	
 	public StatetProject getStatetProject();
+	
 	public String evaluateInfo(Template template) throws BadLocationException, TemplateException;
 	
 }

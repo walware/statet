@@ -49,7 +49,7 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			try {
-				final RResourceUnit rcu = new RResourceUnit(newFileHandle);
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "rd");
 				final NewFileData data = CodeGeneration.getNewRdFileContent(rcu, lineDelimiter);
 				if (data != null) {
 					fSelectionStart = data.selectionStart;

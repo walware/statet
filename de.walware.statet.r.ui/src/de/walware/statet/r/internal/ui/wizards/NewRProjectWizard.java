@@ -31,7 +31,6 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
 
-
 public class NewRProjectWizard extends NewElementWizard {
 	
 	
@@ -64,7 +63,7 @@ public class NewRProjectWizard extends NewElementWizard {
 		
 	}
 	
-//    protected ISchedulingRule getSchedulingRule() { // root-rule required to change project description
+//	protected ISchedulingRule getSchedulingRule() { // root-rule required to change project description
 	
 	@Override
 	public boolean performFinish() {

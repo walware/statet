@@ -34,14 +34,14 @@ import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.templates.IStatetContext;
+import de.walware.statet.ext.templates.IExtTemplateContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;
 
 
-public class REditorContext extends DocumentTemplateContext implements IStatetContext {
+public class REditorContext extends DocumentTemplateContext implements IExtTemplateContext {
 	
 	
 	private REditor fEditor;

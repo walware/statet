@@ -22,6 +22,7 @@ public interface IRTextTokens {
 	
 	public static final RTerminal[] SYMBOL = new RTerminal[] {
 		RTerminal.SYMBOL,
+//		RTerminal.SYMBOL_G, // colored like a string because of partitioning
 	};
 	public static final RTerminal[] STRING = new RTerminal[] {
 		RTerminal.STRING_D,

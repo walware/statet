@@ -32,7 +32,7 @@ import org.eclipse.jface.text.templates.TemplateVariableResolver;
 import de.walware.statet.base.core.StatetProject;
 
 
-public class StatextCodeTemplatesContext extends TemplateContext implements IStatetContext {
+public class StatextCodeTemplatesContext extends TemplateContext implements IExtTemplateContext {
 	
 	
 	private String fLineDelimiter;

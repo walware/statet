@@ -58,8 +58,8 @@ public class StatextTemplateProposal extends TemplateProposal {
 		try {
 			final TemplateContext context = getContext();
 			context.setReadOnly(true);
-			if (context instanceof IStatetContext) {
-				return ((IStatetContext) context).evaluateInfo(getTemplate());
+			if (context instanceof IExtTemplateContext) {
+				return ((IExtTemplateContext) context).evaluateInfo(getTemplate());
 			}
 				
 			final TemplateBuffer templateBuffer = context.evaluate(getTemplate());
