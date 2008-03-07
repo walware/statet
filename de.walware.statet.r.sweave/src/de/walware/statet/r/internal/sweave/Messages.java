@@ -38,7 +38,6 @@ public class Messages extends NLS {
 	public static String TexTab_OpenTex_label;
 	public static String TexTab_OpenTex_OnlyOnErrors_label;
 	public static String TexTab_OutputDir_label;
-	public static String TexTab_OutputDir_name;
 	public static String TexTab_OutputDir_InsertSweavePath_label;
 	public static String TexTab_OutputDir_InsertTexPath_label;
 	public static String TexTab_BuildTex_label;

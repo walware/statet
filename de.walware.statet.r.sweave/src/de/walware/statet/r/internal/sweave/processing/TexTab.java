@@ -198,7 +198,6 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			}
 		};
 		fOutputDirControl.showInsertVariable(true);
-		fOutputDirControl.getValidator().setResourceLabel(Messages.TexTab_OutputDir_name);
 		fOutputDirControl.getValidator().setOnEmpty(IStatus.OK);
 		fOutputDirControl.getValidator().setOnExisting(IStatus.OK);
 		fOutputDirControl.getValidator().setOnFile(IStatus.ERROR);
