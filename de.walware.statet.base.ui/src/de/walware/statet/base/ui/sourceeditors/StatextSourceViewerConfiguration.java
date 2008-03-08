@@ -13,6 +13,8 @@ package de.walware.statet.base.ui.sourceeditors;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
@@ -59,7 +61,10 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		implements ISettingsChangedHandler {
 	
 	
+	private static final Pattern TAB_PATTERN = Pattern.compile("\\\t"); //$NON-NLS-1$
+	
 	private static IInformationControlCreator ASSIST_INFO_CREATOR;
+	
 	
 	private static class AssistInformationControlCreator extends AbstractReusableInformationControlCreator 
 			implements IPropertyChangeListener {
@@ -81,17 +86,18 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			String style =
 				// Font definitions
 				"html         { font-family: sans-serif; font-size: 9pt; font-style: normal; font-weight: normal; }\n"+
-				"body, h1, h2, h3, h4, h5, h6, p, table, td, caption, th, ul, ol, dl, li, dd, dt { font-size:1em; }\n"+
+				"body, h1, h2, h3, h4, h5, h6, p, table, td, caption, th, ul, ol, dl, li, dd, dt { font-size: 1em; }\n"+
 				"pre          { font-family: monospace; }\n"+
 				// Margins
-				"body         { overflow: auto; margin-top: 0px; margin-bottom: 0.5em; margin-left: 0.3em; margin-right: 0px; }\n"+
+				"html         { margin: 0px; padding: 0px }"+
+				"body         { overflow: auto; margin-top: 0.25em; margin-bottom: 0.5em; margin-left: 0.25em; margin-right: 0.25em; }\n"+
 				"h1           { margin-top: 0.3em; margin-bottom: 0.04em; }\n"+
 				"h2           { margin-top: 2em; margin-bottom: 0.25em; }\n"+
 				"h3           { margin-top: 1.7em; margin-bottom: 0.25em; }\n"+
 				"h4           { margin-top: 2em; margin-bottom: 0.3em; }\n"+
 				"h5           { margin-top: 0px; margin-bottom: 0px; }\n"+
 				"p            { margin-top: 1em; margin-bottom: 1em; }\n"+
-				"pre          { margin-left: 0.6em; }\n"+
+//				"pre          { margin-left: 0.6em; }\n"+
 				"ul           { margin-top: 0px; margin-bottom: 1em; }\n"+
 				"li           { margin-top: 0px; margin-bottom: 0px; }\n"+
 				"li p         { margin-top: 0px; margin-bottom: 0px; }\n"+
@@ -131,6 +137,11 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 						if (content.lastIndexOf("<html>", 100) < 0) {
 							if (!content.startsWith("...<br")) {
 								content = HTMLPrinter.convertToHTMLContent(content);
+								final Matcher matcher = TAB_PATTERN.matcher(content);
+								if (matcher.find()) {
+									content = matcher.replaceAll("    ");
+								}
+								content = "<pre>"+content+"</pre>";
 							}
 							final StringBuffer s = new StringBuffer(content);
 							HTMLPrinter.insertPageProlog(s, 0, INFO_STYLE_SHEET);

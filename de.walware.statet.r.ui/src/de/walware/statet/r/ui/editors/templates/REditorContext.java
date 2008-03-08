@@ -12,6 +12,7 @@
 package de.walware.statet.r.ui.editors.templates;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -23,6 +24,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
+import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
@@ -36,6 +38,7 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.IExtTemplateContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;
@@ -70,11 +73,26 @@ public class REditorContext extends DocumentTemplateContext implements IExtTempl
 	
 	@Override
 	public TemplateBuffer evaluate(final Template template) throws BadLocationException, TemplateException {
-		final TemplateBuffer buffer = super.evaluate(template);
+		if (!canEvaluate(template)) {
+			return null;
+		}
+		
+		final String ln = TextUtilities.getDefaultLineDelimiter(getDocument());
+		final TemplateTranslator translator = new TemplateTranslator();
+		String pattern = template.getPattern();
+		// correct line delimiter
+		final Matcher matcher = RUtil.LINE_SEPARATOR_PATTERN.matcher(pattern);
+		if (matcher.find()) {
+			pattern = matcher.replaceAll(ln);
+		}
+		
+		// default, see super
+		final TemplateBuffer buffer = translator.translate(pattern);
+		getContextType().resolve(buffer, this);
+		
 		indent(buffer);
 		final String selection = getVariable("selection"); //$NON-NLS-1$
 		if (selection != null && TextUtilities.indexOf(getDocument().getLegalLineDelimiters(), selection, 0)[0] != -1) {
-			final String ln = TextUtilities.getDefaultLineDelimiter(getDocument());
 			buffer.setContent(buffer.getString()+ln, buffer.getVariables());
 		}
 		

@@ -31,4 +31,5 @@ public class RTemplateSourceViewerConfigurator extends RSourceViewerConfigurator
 				getPreferenceStore(),
 				StatetUIServices.getSharedColorManager()));
 	}
+	
 }
