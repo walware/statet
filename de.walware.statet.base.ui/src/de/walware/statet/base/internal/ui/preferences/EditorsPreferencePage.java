@@ -12,7 +12,9 @@
 package de.walware.statet.base.internal.ui.preferences;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -105,45 +107,56 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	protected String[] getChangedGroups() {
-		return new String[] {
-				ContentAssistPreference.GROUP_ID,
-		};
-	}
-	
-	@Override
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
-		// Preferences
-		fMatchingBracketsPref = new BooleanPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
+		
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		final List<AppearanceColorsItem> colors = new ArrayList<AppearanceColorsItem>();
+		AppearanceColorsItem color;
+		
+		// Content Assist
+		fCodeAssistAutoSinglePref = ContentAssistPreference.AUTOINSERT_SINGLE;
+		prefs.put(fCodeAssistAutoSinglePref, ContentAssistPreference.GROUP_ID);
+		fCodeAssistAutoCommonPref = ContentAssistPreference.AUTOINSERT_COMMON;
+		prefs.put(fCodeAssistAutoCommonPref, ContentAssistPreference.GROUP_ID);
+		fCodeAssistDelayPref = ContentAssistPreference.AUTOACTIVATION_DELAY;
+		prefs.put(fCodeAssistDelayPref, ContentAssistPreference.GROUP_ID);
+		
+		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor,
+				ContentAssistPreference.PROPOSALS_FOREGROUND);
+		colors.add(color);
+		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor,
+				ContentAssistPreference.PROPOSALS_BACKGROUND);
+		colors.add(color);
+		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		color = new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor,
+				ContentAssistPreference.PARAMETERS_FOREGROUND);
+		colors.add(color);
+		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		color = new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor,
+				ContentAssistPreference.PARAMETERS_BACKGROUND);
+		colors.add(color);
+		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor,
+				ContentAssistPreference.REPLACEMENT_FOREGROUND);
+		colors.add(color);
+		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
+				ContentAssistPreference.REPLACEMENT_BACKGROUND);
+		colors.add(color);
+		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		
+		// Matching Bracket
+		fMatchingBracketsPref = new BooleanPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
+		prefs.put(fMatchingBracketsPref, null);
 		colors.add(new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor,
 				new RGBPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR)));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor,
-				ContentAssistPreference.PROPOSALS_FOREGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor,
-				ContentAssistPreference.PROPOSALS_BACKGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor,
-				ContentAssistPreference.PARAMETERS_FOREGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor,
-				ContentAssistPreference.PARAMETERS_BACKGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor,
-				ContentAssistPreference.REPLACEMENT_FOREGROUND));
-		colors.add(new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
-				ContentAssistPreference.REPLACEMENT_BACKGROUND));
-		fCodeAssistAutoSinglePref = ContentAssistPreference.AUTOINSERT_SINGLE;
-		fCodeAssistAutoCommonPref = ContentAssistPreference.AUTOINSERT_COMMON;
-		fCodeAssistDelayPref = ContentAssistPreference.AUTOACTIVATION_DELAY;
+		colors.add(color);
+		prefs.put(color.pref, null);
 		
-		final List<Preference> prefs = new ArrayList<Preference>();
-		prefs.add(fMatchingBracketsPref);
-		for (final AppearanceColorsItem color : colors) {
-			prefs.add(color.pref);
-		}
-		prefs.add(fCodeAssistAutoSinglePref);
-		prefs.add(fCodeAssistAutoCommonPref);
-		prefs.add(fCodeAssistDelayPref);
-		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
+		// Register preferences
+		setupPreferenceManager(container, prefs);
 		
 		// Controls
 		addLinkHeader(pageComposite, Messages.Editors_link);

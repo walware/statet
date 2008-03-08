@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.ui.preferences;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -81,39 +81,31 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	protected String[] getChangedGroups() {
-		return new String[] {
-				REditorOptions.GROUP_ID,
-		};
-	}
-	
-	@Override
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
-		final List<Preference> prefs = new ArrayList<Preference>();
-		prefs.add(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED);
-		prefs.add(REditorOptions.PREF_SMARTINSERT_ONPASTE_ENABLED);
-		prefs.add(REditorOptions.PREF_SMARTINSERT_CLOSECURLY_ENABLED);
-		prefs.add(REditorOptions.PREF_SMARTINSERT_CLOSEROUND_ENABLED);
-		prefs.add(REditorOptions.PREF_SMARTINSERT_CLOSESQUARE_ENABLED);
-		prefs.add(REditorOptions.PREF_SMARTINSERT_CLOSESPECIAL_ENABLED);
-		prefs.add(REditorOptions.PREF_SMARTINSERT_CLOSESTRINGS_ENABLED);
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		prefs.put(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.PREF_SMARTINSERT_ONPASTE_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSECURLY_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSEROUND_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSESQUARE_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSESPECIAL_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(REditorOptions.PREF_SMARTINSERT_CLOSESTRINGS_ENABLED, REditorOptions.GROUP_ID);
 		
-		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED);
-		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED);
-		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED);
-		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED);
-		prefs.add(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSEROUND_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESQUARE_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, REditorOptions.GROUP_ID);
 		
-		prefs.add(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED);
-		prefs.add(DefaultRFoldingProvider.PREF_OTHERBLOCKS_ENABLED);
-		prefs.add(DefaultRFoldingProvider.PREF_MINLINES_NUM);
-		prefs.add(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED);
+		prefs.put(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED, REditorOptions.GROUP_ID);
+		prefs.put(DefaultRFoldingProvider.PREF_OTHERBLOCKS_ENABLED, null);
+		prefs.put(DefaultRFoldingProvider.PREF_MINLINES_NUM, null);
 		
-		prefs.add(REditorOptions.PREF_SPELLCHECKING_ENABLED);
+		prefs.put(REditorOptions.PREF_SPELLCHECKING_ENABLED, REditorOptions.GROUP_ID);
 		
-		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
+		setupPreferenceManager(container, prefs);
 		
 		// Controls
 		Link link;

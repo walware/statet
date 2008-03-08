@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.ui.preferences;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
@@ -71,26 +74,21 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	protected String[] getChangedGroups() {
-		return new String[] {
-				RCodeStyleSettings.GROUP_ID,
-		};
-	}
-	
-	@Override
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
 			final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
-		setupPreferenceManager(container, new Preference[] {
-				RCodeStyleSettings.PREF_TAB_SIZE,
-				RCodeStyleSettings.PREF_INDENT_DEFAULT_TYPE,
-				RCodeStyleSettings.PREF_INDENT_SPACES_COUNT,
-				RCodeStyleSettings.PREF_INDENT_BLOCK_DEPTH,
-				RCodeStyleSettings.PREF_INDENT_GROUP_DEPTH,
-				RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH,
-				RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES,
-				RCodeStyleSettings.PREF_REPLACE_CONVERSATIVE,
-		});
+		
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		prefs.put(RCodeStyleSettings.PREF_TAB_SIZE, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_INDENT_DEFAULT_TYPE, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_INDENT_SPACES_COUNT, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_INDENT_BLOCK_DEPTH, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_INDENT_GROUP_DEPTH, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES, RCodeStyleSettings.GROUP_ID);
+		prefs.put(RCodeStyleSettings.PREF_REPLACE_CONVERSATIVE, RCodeStyleSettings.GROUP_ID);
+		setupPreferenceManager(container, prefs);
+		
 		fModel = new RCodeStyleSettings(true);
 		
 		final Composite mainComposite = new Composite(pageComposite, SWT.NONE);

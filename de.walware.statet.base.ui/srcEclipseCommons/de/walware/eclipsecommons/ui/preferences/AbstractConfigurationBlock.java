@@ -11,6 +11,8 @@
 
 package de.walware.eclipsecommons.ui.preferences;
 
+import java.util.Set;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -86,10 +88,6 @@ public abstract class AbstractConfigurationBlock {
 		fUseProjectSettings = enable;
 	}
 	
-	protected String[] getChangedGroups() {
-		return null;
-	}
-	
 	protected Shell getShell() {
 		return fShell;
 	}
@@ -114,9 +112,8 @@ public abstract class AbstractConfigurationBlock {
 		return link;
 	}
 	
-	protected void scheduleChangeNotification(final boolean directly) {
-		final String[] groupIds = getChangedGroups();
-		scheduleChangeNotification(fContainer, groupIds, directly);
+	protected void scheduleChangeNotification(final Set<String> groupIds, final boolean directly) {
+		scheduleChangeNotification(fContainer, groupIds.toArray(new String[groupIds.size()]), directly);
 	}
 	
 	protected void logSaveError(final BackingStoreException e) {

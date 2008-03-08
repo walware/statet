@@ -163,9 +163,8 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		fLexer = createLexer();
 		fTextStyles = new TextStyleManager(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID);
 		
-		fTokens.put(RTerminal.EOF, Token.EOF);
+		fDefaultToken = getToken(IRTextTokens.SYMBOL_KEY);
 		registerTokens();
-		fDefaultToken = fTokens.get(RTerminal.SYMBOL);
 //		checkTokenMap();
 	}
 	
@@ -211,6 +210,7 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	}
 	protected void resetSpecialSymbols() {
 		fSpecialSymbols.clear();
+		updateSymbols();
 	}
 	
 	
@@ -260,13 +260,20 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	}
 	
 	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		return fTextStyles.handleSettingsChanged(groupIds, options);
+		boolean changed = fTextStyles.handleSettingsChanged(groupIds, options);
+		if (groupIds.contains(RIdentifierGroups.GROUP_ID)) {
+			resetSpecialSymbols();
+			changed = true;
+		}
+		return changed;
 	}
 	
 	
 	//-- Concrete associations
 	
 	protected void registerTokens() {
+		registerTerminal(RTerminal.EOF, Token.EOF);
+		
 		registerTerminals(IRTextTokens.FLOWCONTROL, getToken(IRTextTokens.FLOWCONTROL_KEY));
 		registerTerminals(IRTextTokens.GROUPING, getToken(IRTextTokens.GROUPING_KEY));
 		registerTerminals(IRTextTokens.SEPARATOR, getToken(IRTextTokens.SEPARATOR_KEY));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,14 @@
 
 package de.walware.eclipsecommons.ui.preferences;
 
+import java.util.Set;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 
-public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
+public abstract class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 	
 	
 	protected OverlayPreferenceStore fOverlayStore;
@@ -44,6 +46,8 @@ public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 		fIsDirty = false;
 	}
 	
+	protected abstract Set<String> getChangedGroups();
+	
 	protected void handlePropertyChange() {
 	}
 	
@@ -62,7 +66,7 @@ public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 		if (fOverlayStore != null && fIsDirty) {
 			fOverlayStore.propagate();
 			fIsDirty = false;
-			scheduleChangeNotification(true);
+			scheduleChangeNotification(getChangedGroups(), true);
 		}
 	}
 	
@@ -71,7 +75,7 @@ public class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
 		if (fOverlayStore != null && fIsDirty) {
 			fOverlayStore.propagate();
 			fIsDirty = false;
-			scheduleChangeNotification(false);
+			scheduleChangeNotification(getChangedGroups(), false);
 			return true;
 		}
 		return true;

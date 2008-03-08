@@ -13,7 +13,9 @@
 package de.walware.statet.base.internal.ui.preferences;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
@@ -200,13 +202,6 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	
-	@Override
-	protected String[] getChangedGroups() {
-		return new String[] { 
-				TaskTagsPreferences.GROUP_ID,
-		};
-	}
-	
 	final boolean isDefaultTask(final TaskTag task) {
 		return (task == fTasksGroup.fDefaultTask);
 	}
@@ -216,10 +211,12 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		
-		setupPreferenceManager(container, new Preference[] {
-				TaskTagsPreferences.PREF_TAGS,
-				TaskTagsPreferences.PREF_PRIORITIES,
-		});
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		
+		prefs.put(TaskTagsPreferences.PREF_TAGS, TaskTagsPreferences.GROUP_ID);
+		prefs.put(TaskTagsPreferences.PREF_PRIORITIES, TaskTagsPreferences.GROUP_ID);
+		
+		setupPreferenceManager(container, prefs);
 		
 		fTasksGroup.createGroup(pageComposite, 1);
 		

@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Realm;
@@ -59,20 +59,14 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	protected String[] getChangedGroups() {
-		return new String[] {
-				SweaveEditorOptions.GROUP_ID,
-		};
-	}
-	
-	@Override
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		// Preferences
-		final List<Preference> prefs = new ArrayList<Preference>();
-		prefs.add(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED);
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		
-		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
+		prefs.put(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, SweaveEditorOptions.GROUP_ID);
+		
+		setupPreferenceManager(container, prefs);
 		
 		// Controls
 		Link link;

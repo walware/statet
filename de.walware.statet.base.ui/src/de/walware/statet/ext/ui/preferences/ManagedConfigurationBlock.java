@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,9 +12,11 @@
 package de.walware.statet.ext.ui.preferences;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -57,9 +59,7 @@ import de.walware.statet.base.core.CoreUtility;
  *   <li>override {@link #addBindings(DataBindingContext, Realm)}) to register bindings</li>
  * </ul></li>
  * <li>optional project scope</li>
- * <li>change settings groups ({@link SettingsChangeNotifier})<ul>
- *   <li>override {@link #getChangedGroups()}</li>
- * </ul></li>
+ * <li>change settings groups ({@link SettingsChangeNotifier})</li>
  * </ul>
  */
 public class ManagedConfigurationBlock extends AbstractConfigurationBlock
@@ -69,7 +69,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	protected class PreferenceManager {
 		
 		private IScopeContext[] fLookupOrder;
-		protected final Preference[] fPreferenceKeys;
+		protected final Map<Preference, String> fPreferences;
 		
 		/** Manager for a working copy of the preferences */
 		private final IWorkingCopyManager fManager;
@@ -77,9 +77,9 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		private Map<Preference, Object> fDisabledProjectSettings;
 		
 		
-		PreferenceManager(final Preference[] keys) {
+		PreferenceManager(final Map<Preference, String> prefs) {
 			fManager = fContainer.getWorkingCopyManager();
-			fPreferenceKeys = keys;
+			fPreferences = prefs;
 			
 			fPreferenceManager = this;
 			
@@ -117,7 +117,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		 */
 		boolean hasProjectSpecificSettings(final IProject project) {
 			final IScopeContext projectContext = new ProjectScope(project);
-			for (final Preference<Object> key : fPreferenceKeys) {
+			for (final Preference<Object> key : fPreferences.keySet()) {
 				if (getInternalValue(key, projectContext, true) != null)
 					return true;
 			}
@@ -137,7 +137,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		private void saveDisabledProjectSettings() {
 			fDisabledProjectSettings = new IdentityHashMap<Preference, Object>();
-			for (final Preference<Object> key : fPreferenceKeys) {
+			for (final Preference<Object> key : fPreferences.keySet()) {
 				fDisabledProjectSettings.put(key, getValue(key));
 				setInternalValue(key, null); // clear project settings
 			}
@@ -145,7 +145,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 		
 		private void loadDisabledProjectSettings() {
-			for (final Preference<Object> key : fPreferenceKeys) {
+			for (final Preference<Object> key : fPreferences.keySet()) {
 				// Copy values from saved disabled settings to working store
 				setValue(key, fDisabledProjectSettings.get(key));
 			}
@@ -153,9 +153,9 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 		
 		boolean processChanges(final boolean saveStore) {
-			final List<Preference> changedOptions = new ArrayList<Preference>();
-			final boolean needsBuild = getChanges(changedOptions);
-			if (changedOptions.isEmpty()) {
+			final List<Preference> changedPrefs = new ArrayList<Preference>();
+			final boolean needsBuild = getChanges(changedPrefs);
+			if (changedPrefs.isEmpty()) {
 				return true;
 			}
 			
@@ -191,7 +191,14 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 					fContainer.registerUpdateJob(CoreUtility.getBuildJob(fProject));
 				}
 			}
-			scheduleChangeNotification(saveStore);
+			final Set<String> groupIds = new HashSet<String>();
+			for (final Preference pref : changedPrefs) {
+				final String groupId = fPreferences.get(pref);
+				if (groupId != null) {
+					groupIds.add(groupId);
+				}
+			}
+			scheduleChangeNotification(groupIds, saveStore);
 			return true;
 		}
 		
@@ -204,7 +211,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		private boolean getChanges(final List<Preference> changedSettings) {
 			final IScopeContext currContext = fLookupOrder[0];
 			boolean needsBuild = false;
-			for (final Preference<Object> key : fPreferenceKeys) {
+			for (final Preference<Object> key : fPreferences.keySet()) {
 				final String oldVal = getInternalValue(key, currContext, false);
 				final String val = getInternalValue(key, currContext, true);
 				if (val == null) {
@@ -223,7 +230,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		void loadDefaults() {
 			final DefaultScope defaultScope = new DefaultScope();
-			for (final Preference<Object> key : fPreferenceKeys) {
+			for (final Preference<Object> key : fPreferences.keySet()) {
 				final String defValue = getInternalValue(key, defaultScope, false);
 				setInternalValue(key, defValue);
 			}
@@ -232,7 +239,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		// DEBUG
 		private void testIfOptionsComplete() {
-			for (final Preference<Object> key : fPreferenceKeys) {
+			for (final Preference<Object> key : fPreferences.keySet()) {
 				if (getInternalValue(key, false) == null) {
 					System.out.println("preference option missing: " + key + " (" + this.getClass().getName() +')');  //$NON-NLS-1$//$NON-NLS-2$
 				}
@@ -364,9 +371,15 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	
-	protected void setupPreferenceManager(final IWorkbenchPreferenceContainer container, final Preference[] keys) {
+	/**
+	 * initialize preference management
+	 * 
+	 * @param container
+	 * @param prefs map with preference objects as key and their settings group id as optional value
+	 */
+	protected void setupPreferenceManager(final IWorkbenchPreferenceContainer container, final Map<Preference, String> prefs) {
 		fContainer = container;
-		new PreferenceManager(keys);
+		new PreferenceManager(prefs);
 	}
 	
 	protected void initBindings() {
@@ -512,7 +525,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T setPrefValue(final Preference<T> key, final T value) {
-		
 		assert (fPreferenceManager != null);
 		assert (value != null);
 		
@@ -524,7 +536,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	public void setPrefValues(final Map<Preference, Object> map) {
-		
 		for (final Preference<Object> unit : map.keySet()) {
 			setPrefValue(unit, map.get(unit));
 		}

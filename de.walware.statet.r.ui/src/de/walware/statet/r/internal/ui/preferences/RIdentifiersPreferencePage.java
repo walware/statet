@@ -11,10 +11,10 @@
 
 package de.walware.statet.r.internal.ui.preferences;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Status;
@@ -218,19 +218,11 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	protected String[] getChangedGroups() {
-		return new String[] {
-				RIdentifierGroups.GROUP_ID,
-				RUIPreferenceConstants.R.TS_GROUP_ID,
-		};
-	}
-	
-	@Override
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
 		super.createContents(pageComposite, container, preferenceStore);
 		
 		// Preferences
-		final List<Preference> prefs = new ArrayList<Preference>();
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		fCategories = new Category[] {
 				new Category(Messages.RSyntaxColoring_Identifier_Assignment_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS),
 				new Category(Messages.RSyntaxColoring_Identifier_Flowcontrol_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS),
@@ -239,9 +231,9 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 				new Category(Messages.RSyntaxColoring_Identifier_Custom2_label, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS),
 		};
 		for (int i = 0; i < fCategories.length; i++) {
-			prefs.add(fCategories[i].fPref);
+			prefs.put(fCategories[i].fPref, RIdentifierGroups.GROUP_ID);
 		}
-		setupPreferenceManager(container, prefs.toArray(new Preference[prefs.size()]));
+		setupPreferenceManager(container, prefs);
 		
 		// Controls
 		GridData gd;

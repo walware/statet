@@ -13,6 +13,9 @@ package de.walware.statet.r.internal.debug.ui.preferences;
 
 import static de.walware.statet.r.launching.RCodeLaunchRegistry.PREF_R_CONNECTOR;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
@@ -89,9 +92,9 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		super.createContents(pageComposite, container, preferenceStore);
 		
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
-		setupPreferenceManager(container, new Preference[] {
-				PREF_R_CONNECTOR,
-		});
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		prefs.put(PREF_R_CONNECTOR, null);
+		setupPreferenceManager(container, prefs);
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		Composite group = createConnectorComponent(pageComposite);
