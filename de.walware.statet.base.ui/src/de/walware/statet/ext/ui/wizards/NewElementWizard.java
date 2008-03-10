@@ -300,7 +300,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * @return
 		 * 
 		 * @return the created project resource, or <code>null</code> if the
-		 *    project was not created
+		 *     project was not created
 		 * @throws CoreException
 		 */
 		public IProject createProject(final IProgressMonitor monitor)

@@ -64,25 +64,26 @@ import de.walware.statet.ext.ui.dialogs.StatetDialogsMessages;
  */
 public abstract class NewElementWizardPage extends WizardPage {
 	
+	private static class StatetProjectFilter extends ContainerSelectionComposite.ContainerFilter {
+		
+		@Override
+		public boolean select(final IContainer container) {
+			
+			final IProject project = container.getProject();
+			try {
+				if (project.hasNature(StatetProject.NATURE_ID))
+					return true;
+			} catch (final CoreException e) {	}
+			
+			return false;
+		}
+	}
+	
 	public class ResourceGroup implements Listener {
 		
 		private static final int SIZING_CONTAINER_GROUP_HEIGHT = 250;
 		private static final String DIALOGSETTING_ENABLEFILTER = "de.walware.statet.NewElementWizard.ContainerFilter"; //$NON-NLS-1$
 		
-		private class StatetProjectFilter extends ContainerSelectionComposite.ContainerFilter {
-			
-			@Override
-			public boolean select(IContainer container) {
-				
-				IProject project = container.getProject();
-				try {
-					if (project.hasNature(StatetProject.NATURE_ID))
-						return true;
-				} catch (CoreException e) {	}
-				
-				return false;
-			}
-		}
 		
 		private ContainerSelectionComposite fContainerGroup;
 		private Text fResourceNameControl;
@@ -93,14 +94,13 @@ public abstract class NewElementWizardPage extends WizardPage {
 		private boolean fResourceNameEdited;
 		
 		
-		public ResourceGroup(String defaultResourceNameExtension) {
-			
+		public ResourceGroup(final String defaultResourceNameExtension) {
 			fResourceNameDefaultSuffix = defaultResourceNameExtension;
 		}
 		
-		public void createGroup(Layouter parentLayouter) {
-			
-			Layouter layouter = new Layouter(new Composite(parentLayouter.composite, SWT.NONE), 2);
+		
+		public void createGroup(final Layouter parentLayouter) {
+			final Layouter layouter = new Layouter(new Composite(parentLayouter.composite, SWT.NONE), 2);
 			layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			
 			// resource and container group
@@ -141,15 +141,14 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 * such a value.
 		 */
 		protected void initFields() {
-			
 			IPath path = null;
 			
 			if (fContainerFullPath != null)
 				path = fContainerFullPath;
 			else {
-				Iterator it = fResourceSelection.iterator();
+				final Iterator it = fResourceSelection.iterator();
 				if (it.hasNext()) {
-					Object object = it.next();
+					final Object object = it.next();
 					IResource selectedResource = null;
 					if (object instanceof IResource) {
 						selectedResource = (IResource) object;
@@ -171,10 +170,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 				fResourceNameControl.setText(fResourceName);
 		}
 		
-		public void handleEvent(Event event) {
-			
+		public void handleEvent(final Event event) {
 			fContainerFullPath = fContainerGroup.getContainerFullPath();
-			String name =  fResourceNameControl.getText();
+			final String name =  fResourceNameControl.getText();
 			if (!fResourceNameEdited && event.widget == fResourceNameControl 
 					&& name.length() > 0 && !name.equals(fResourceName)) {
 				fResourceNameEdited = true;
@@ -184,43 +182,40 @@ public abstract class NewElementWizardPage extends WizardPage {
 			validatePage();
 		}
 		
-//        /**
-//         * Sets the value of this page's container name field, or stores
-//         * it for future use if this page's controls do not exist yet.
-//         * 
-//         * @param path the full path to the container
-//         */
-//        public void setContainerFullPath(IPath path) {
-//        	
-//        	if (fResourceGroup != null)
-//        		fResourceGroup.setContainerFullPath(path); // update fResourceName?
-//        	else
-//        		fContainerFullPath = path;
-//        }
-//		 
-//        /**
-//         * Sets the value of this page's file name field, or stores
-//         * it for future use if this page's controls do not exist yet.
-//         * 
-//         * @param value new file name
-//         */
-//        public void setFileName(String value) {
-//        	
-//        	if (fResourceGroup != null)
-//        		fResourceGroup.setResource(value); // update fResourceName?
-//        	else
-//        		fResourceName = value;
-//        }
+//		/**
+//		 * Sets the value of this page's container name field, or stores
+//		 * it for future use if this page's controls do not exist yet.
+//		 * 
+//		 * @param path the full path to the container
+//		 */
+//		public void setContainerFullPath(IPath path) {
+//			if (fResourceGroup != null)
+//				fResourceGroup.setContainerFullPath(path); // update fResourceName?
+//			else
+//				fContainerFullPath = path;
+//		}
+//		
+//		/**
+//		 * Sets the value of this page's file name field, or stores
+//		 * it for future use if this page's controls do not exist yet.
+//		 * 
+//		 * @param value new file name
+//		 */
+//		public void setFileName(String value) {
+//			if (fResourceGroup != null)
+//				fResourceGroup.setResource(value); // update fResourceName?
+//			else
+//				fResourceName = value;
+//		}
 		 
 		/**
 		 * Returns the current full path of the containing resource as entered or 
 		 * selected by the user, or its anticipated initial value.
 		 * 
 		 * @return the container's full path, anticipated initial value, 
-		 *   or <code>null</code> if no path is known
+		 *     or <code>null</code> if no path is known
 		 */
 		public IPath getContainerFullPath() {
-			
 			return fContainerFullPath;
 		}
 		
@@ -229,10 +224,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 * initial value.
 		 * 
 		 * @return the file name, its anticipated initial value, or <code>null</code>
-		 *   if no file name is known
+		 *     if no file name is known
 		 */
 		public String getResourceName() {
-			
 			String name = fResourceName;
 			if (!name.endsWith(fResourceNameDefaultSuffix))
 				name += fResourceNameDefaultSuffix;
@@ -241,7 +235,6 @@ public abstract class NewElementWizardPage extends WizardPage {
 		}
 		
 		public void setFocus() {
-			
 			fResourceNameControl.setFocus();
 		}
 		
@@ -250,27 +243,25 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 * @return true, if ok
 		 */
 		public IStatus validate() {
-			
 			// don't attempt to validate controls until they have been created
 			if (fContainerGroup == null)
 				return null;
 			
-			IStatus containerSelectionStatus = ContainerSelectionComposite.validate(fContainerFullPath);
+			final IStatus containerSelectionStatus = ContainerSelectionComposite.validate(fContainerFullPath);
 			if (containerSelectionStatus.matches(IStatus.ERROR))
 				return containerSelectionStatus;
 			
-			IStatus resourceNameStatus = validateResourceName(fResourceName);
+			final IStatus resourceNameStatus = validateResourceName(fResourceName);
 			if (resourceNameStatus == null || resourceNameStatus.matches(IStatus.ERROR))
 				return resourceNameStatus;
 			
-			IPath path = fContainerGroup.getContainerFullPath().append(getResourceName());
+			final IPath path = fContainerGroup.getContainerFullPath().append(getResourceName());
 			
 			// no warnings
 			return validateFullResourcePath(path);
 		}
 		
-		protected IStatus validateResourceName(String resourceName) {
-			
+		protected IStatus validateResourceName(final String resourceName) {
 			if (resourceName == null || resourceName.trim().length() == 0) {
 				if (fResourceNameEdited)
 					return new StatusInfo(IStatus.ERROR, NLS.bind(
@@ -297,11 +288,10 @@ public abstract class NewElementWizardPage extends WizardPage {
 		 * @param resourcePath the path to validate
 		 * @return IStatus indicating validity of the resource path
 		 */
-		protected IStatus validateFullResourcePath(IPath resourcePath) {
+		protected IStatus validateFullResourcePath(final IPath resourcePath) {
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			
-			IStatus result = workspace.validatePath(resourcePath.toString(), IResource.FILE);
+			final IStatus result = workspace.validatePath(resourcePath.toString(), IResource.FILE);
 			if (!result.isOK()) {
 				return result;
 			}
@@ -316,13 +306,14 @@ public abstract class NewElementWizardPage extends WizardPage {
 		
 		
 		public void saveSettings() {
-			
 			getDialogSettings().put(DIALOGSETTING_ENABLEFILTER, fContainerGroup.getToggleFilterSetting());
 		}
 	}
 	
+	
 	/** the current resource selection */
 	protected IStructuredSelection fResourceSelection;
+	
 	
 	/**
 	 * Creates a new file creation wizard page. If the initial resource selection 
@@ -332,8 +323,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 	 * @param pageName the name of the page
 	 * @param selection the current resource selection
 	 */
-	public NewElementWizardPage(String pageName, IStructuredSelection selection) {
-		
+	public NewElementWizardPage(final String pageName, final IStructuredSelection selection) {
 		super(pageName);
 		setPageComplete(false);
 		
@@ -344,14 +334,13 @@ public abstract class NewElementWizardPage extends WizardPage {
 	/** (non-Javadoc)
 	 * Method declared on IDialogPage.
 	 */
-	public void createControl(Composite parent) {
-		
+	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		
 		// top level group
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
-		Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
+		final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
 		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		createContents(layouter);
@@ -377,10 +366,9 @@ public abstract class NewElementWizardPage extends WizardPage {
 	 * values.
 	 * 
 	 * @return <code>true</code> if all controls are valid, and
-	 *   <code>false</code> if at least one is invalid
+	 *     <code>false</code> if at least one is invalid
 	 */
 	protected void validatePage() {
-		
 		updateStatus(new StatusInfo());
 	}
 	
@@ -390,14 +378,13 @@ public abstract class NewElementWizardPage extends WizardPage {
 	 * @param status status to apply
 	 */
 	protected void updateStatus(IStatus status) {
-		
 		if (status != null) {
 			setPageComplete(!status.matches(IStatus.ERROR));
 		} else {
 			setPageComplete(false);
 			status = new StatusInfo();
 		}
-		Control control = getControl();
+		final Control control = getControl();
 		if (control != null && control.isVisible())
 			StatusInfo.applyToStatusLine(this, status);
 	}
