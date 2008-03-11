@@ -190,7 +190,9 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 			
 			for (final IOConsoleOutputStream stream : fStreams.values()) {
 				try {
-					stream.close();
+					if (!stream.isClosed()) {
+						stream.close();
+					}
 				} catch (final IOException e) {
 					NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when closing a console stream.", e); //$NON-NLS-1$
 				}
