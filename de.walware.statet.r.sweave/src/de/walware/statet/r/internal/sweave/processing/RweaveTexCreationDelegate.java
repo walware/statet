@@ -122,6 +122,13 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 		
 		final RweaveTexTool thread = new RweaveTexTool(configuration.getName(), launch, workbenchPage, sweaveFile);
 		
+		// Tex config (for output format, before sweave)
+		thread.fTexOpenEditor = configuration.getAttribute(TexTab.ATTR_OPENTEX_ENABLED, TexTab.OPEN_OFF);
+		thread.fTexBuilderId = configuration.getAttribute(TexTab.ATTR_BUILDTEX_BUILDERID, -1);
+		thread.fRunTex = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) && SweaveCreation.isEnabled(STEP_TEX, buildFlags);
+		thread.fConfiguredOutputDir = configuration.getAttribute(TexTab.ATTR_BUILDTEX_OUTPUTDIR, (String) null);
+		
+		// Sweave config
 		final String sweaveProcessing = configuration.getAttribute(RweaveTab.ATTR_SWEAVE_ID, (String) null);
 		if (sweaveProcessing.startsWith(RweaveTexCreationDelegate.SWEAVE_LAUNCH)) {
 			final String[] split = sweaveProcessing.split(":", 2); //$NON-NLS-1$
@@ -151,11 +158,7 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 		}
 		thread.fRunSweave = SweaveCreation.isEnabled(RweaveTexCreationDelegate.STEP_WEAVE, buildFlags);
 		
-		thread.fTexOpenEditor = configuration.getAttribute(TexTab.ATTR_OPENTEX_ENABLED, TexTab.OPEN_OFF);
-		thread.fTexBuilderId = configuration.getAttribute(TexTab.ATTR_BUILDTEX_BUILDERID, -1);
-		thread.fRunTex = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) && SweaveCreation.isEnabled(STEP_TEX, buildFlags);
-		thread.fConfiguredOutputDir = configuration.getAttribute(TexTab.ATTR_BUILDTEX_OUTPUTDIR, (String) null);
-		
+		// Preview config
 		final String preview = configuration.getAttribute(PreviewTab.ATTR_VIEWER_CODE, ""); //$NON-NLS-1$
 		if ((RweaveTexCreationDelegate.STEP_PREVIEW & buildFlags) != 0) {
 			thread.fRunPreview = RweaveTexTool.EXPLICITE;
