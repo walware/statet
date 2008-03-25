@@ -54,7 +54,7 @@ public class HistoryPreferences {
 	public HistoryPreferences() {
 		setup(	EnumSet.of(SubmitType.CONSOLE, SubmitType.EDITOR),
 				true,
-				100
+				10000
 		);
 	}
 	

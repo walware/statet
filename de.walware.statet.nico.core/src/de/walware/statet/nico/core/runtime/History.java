@@ -50,7 +50,7 @@ import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;
 public class History {
 	
 	
-	private int fMaxSize = 2500;
+	private int fMaxSize = 1000; // is usually overwritten by the preferences
 	private int fCurrentSize = 0;
 	private boolean fIgnoreCommentLines;
 	
@@ -333,7 +333,7 @@ public class History {
 		assert(command != null);
 		final long stamp = System.currentTimeMillis();
 		
-		final Entry removedEntry = null;
+		Entry removedEntry = null;
 		Entry newEntry = null;
 		
 		fLock.writeLock().lock();
@@ -348,6 +348,7 @@ public class History {
 			fNewest = newEntry;
 			
 			if (fCurrentSize == fMaxSize) {
+				removedEntry = fOldest;
 				fOldest = fOldest.dispose();
 			}
 			else {

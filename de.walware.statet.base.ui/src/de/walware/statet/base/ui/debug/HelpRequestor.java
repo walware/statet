@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.StatetImages;
 
 
 /**
@@ -63,13 +64,11 @@ public class HelpRequestor implements IRunnableWithProgress {
 		private Label fCmdInfo;
 		
 		private InfoTray(final TrayDialog dialog) {
-			
 			fDialog = dialog;
 		}
 		
 		@Override
 		protected Control createContents(final Composite parent) {
-			
 			final FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 			
 			final Composite container = new Composite(parent, SWT.NONE);
@@ -87,7 +86,8 @@ public class HelpRequestor implements IRunnableWithProgress {
 				@Override
 				public void fill(final ToolBar parent, final int index) {
 					final ToolItem item = new ToolItem(parent, SWT.PUSH);
-					item.setText(StatetMessages.HelpRequestor_Close_name);
+					item.setImage(StatetImages.getImage(StatetImages.LOCTOOL_CLOSETRAY));
+					item.setHotImage(StatetImages.getImage(StatetImages.LOCTOOL_CLOSETRAY_H));
 					item.setToolTipText(StatetMessages.HelpRequestor_Close_tooltip);
 					item.addSelectionListener(new SelectionAdapter() {
 						@Override
@@ -115,7 +115,6 @@ public class HelpRequestor implements IRunnableWithProgress {
 		}
 		
 		public void update(final String cmdInfo, final String text) {
-			
 			fCmdInfo.setText(cmdInfo);
 			fTextControl.setText(text);
 		}
