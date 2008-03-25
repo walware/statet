@@ -366,12 +366,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
 			public void keyPressed(final KeyEvent e) {
-			}
-			public void keyReleased(final KeyEvent e) {
 				if (e.doit
 						&& (e.character >= 32)
 						&& (e.stateMask == SWT.NONE || e.stateMask == SWT.SHIFT)
-						&& (e.keyCode & SWT.KEYCODE_BIT) == 0) {
+						&& ( ((e.keyCode & SWT.KEYCODE_BIT) == 0) 
+								|| (SWT.KEYCODE_BIT + 32 <= e.keyCode && e.keyCode <= (SWT.KEYCODE_BIT + 80)) )) {
 					final StyledText textWidget = fInputGroup.getSourceViewer().getTextWidget();
 					if (!UIAccess.isOkToUse(textWidget)) {
 						return;
@@ -385,6 +384,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 					}
 					setFocus();
 				}
+			}
+			public void keyReleased(final KeyEvent e) {
 			}
 		});
 		
