@@ -54,7 +54,7 @@ Fill in a <b>Name</b> for this launch configuration.
    <item title="Use an R Package Checker" dialog="true" skip="false">
       <description>
          In order to use an R package checker you configured, you need
-to first <b>select the package root folder</b> in the Project explorer view, because the target was configured as &apos;${resource_loc}&apos; (variable for location of currently selected resource in the active view). 
+to first <b>select the package root folder</b> in the Project Explorer view, because the target was configured as &apos;${resource_loc}&apos; (variable for location of currently selected resource in the active view). 
 <br/><br/>
 If you configured an R package checker, you can make use of
 it via <b>Run &gt; External Tools</b> or via the External Tools button on the workbench toolbar. If during configuration you specified to display the R package checker within the favorites, it will be visible directly under the External Tools. To run the given R package checker, click on its name. 
