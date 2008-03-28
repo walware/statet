@@ -12,7 +12,6 @@
 package de.walware.eclipsecommons;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.filesystem.EFS;
@@ -213,7 +212,7 @@ public class FileValidator implements IValidator {
 			fWorkspaceResource = ResourcesPlugin.getWorkspace().getRoot().findMember(s, false);
 			if (fWorkspaceResource == null) {
 				try {
-					fFileStore = findFileStore(s);
+					fFileStore = FileUtil.getFileStore(s);
 					if (fFileStore == null) {
 						return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, null);
 					}
@@ -251,27 +250,6 @@ public class FileValidator implements IValidator {
 			manager.validateStringVariables(expression); // throws invalid variable
 			throw new CoreException(new Status(fOnLateResolve, e.getStatus().getPlugin(), e.getStatus().getMessage())); // throws runtime variable
 		}
-	}
-	
-	private IFileStore findFileStore(final String location) throws CoreException {
-		try {
-			final IFileStore store = FileUtil.getLocalFileStore(location);
-			if (store != null) {
-				return store;
-			}
-			return null;
-		}
-		catch (final CoreException e) {
-		}
-		try {
-			final URI uri = new URI(location);
-			if (uri.getScheme() != null) {
-				return EFS.getStore(uri);
-			}
-		}
-		catch (final URISyntaxException e) {
-		}
-		return null;
 	}
 	
 	private IResource findWorkspaceResource(final URI location) {

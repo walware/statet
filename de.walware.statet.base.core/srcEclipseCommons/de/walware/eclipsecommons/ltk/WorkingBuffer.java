@@ -95,7 +95,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 	
 	protected void loadDocumentFromFile(final IFile file, final AbstractDocument document) {
 		try {
-			FileUtil.createReadTextFileOp(new FileUtil.ReaderAction() {
+			FileUtil.getFileUtil(file).createReadTextFileOp(new FileUtil.ReaderAction() {
 				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException {
 					final StringBuilder buffer = new StringBuilder();
 					final char[] readBuffer = new char[2048];
@@ -110,7 +110,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 						document.set(buffer.toString());
 					}
 				}
-			}, file).doOperation(new NullProgressMonitor());
+			}).doOperation(new NullProgressMonitor());
 		} catch (final OperationCanceledException e) {
 		} catch (final CoreException e) {
 			BaseCorePlugin.log(e.getStatus());
@@ -151,7 +151,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 	
 	protected void loadContentFromFile(final IFile file, final AtomicReference<SourceContent> content) {
 		try {
-			FileUtil.createReadTextFileOp(new FileUtil.ReaderAction() {
+			FileUtil.getFileUtil(file).createReadTextFileOp(new FileUtil.ReaderAction() {
 				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException {
 					final StringBuilder buffer = new StringBuilder();
 					final char[] readBuffer = new char[2048];
@@ -161,7 +161,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 					}
 					content.set(new SourceContent(file.getModificationStamp(), buffer.toString()));
 				}
-			}, file).doOperation(new NullProgressMonitor());
+			}).doOperation(new NullProgressMonitor());
 		} catch (final OperationCanceledException e) {
 		} catch (final CoreException e) {
 			BaseCorePlugin.log(e.getStatus());

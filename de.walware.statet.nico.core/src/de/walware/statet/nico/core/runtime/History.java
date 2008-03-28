@@ -216,10 +216,11 @@ public class History {
 		monitor.beginTask(NicoCoreMessages.LoadHistoryJob_label, 100);
 		
 		try {
+			final FileUtil fileUtil = FileUtil.getFileUtil(file);
 			final HistoryData exch = new HistoryData();
 			final ReaderAction action = new ReaderAction() {
 				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException, CoreException {
-					long timeStamp = FileUtil.getTimeStamp(file, new SubProgressMonitor(monitor, 1));
+					long timeStamp = fileUtil.getTimeStamp(new SubProgressMonitor(monitor, 1));
 					if (timeStamp < 0) {
 						timeStamp = System.currentTimeMillis();
 					}
@@ -241,7 +242,7 @@ public class History {
 					monitor.done();
 				}
 			};
-			final ReadTextFileOperation op = FileUtil.createReadTextFileOp(action, file);
+			final ReadTextFileOperation op = fileUtil.createReadTextFileOp(action);
 			op.setCharset(charset, forceCharset);
 			op.doOperation(new SubProgressMonitor(monitor, 90));
 			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getToolLabel(false)));
@@ -293,6 +294,7 @@ public class History {
 		}
 		monitor.beginTask(NicoCoreMessages.SaveHistoryJob_label, 4);
 		try {
+			final FileUtil fileUtil = FileUtil.getFileUtil(file);
 			final String newLine = fProcess.getWorkspaceData().getLineSeparator();
 			StringBuilder buffer;
 			fLock.readLock().lock();
@@ -316,7 +318,7 @@ public class History {
 			}
 			monitor.worked(1);
 			
-			final WriteTextFileOperation op = FileUtil.createWriteTextFileOp(content, file);
+			final WriteTextFileOperation op = fileUtil.createWriteTextFileOp(content);
 			op.setCharset(charset, forceCharset);
 			op.setFileOperationMode(mode);
 			op.doOperation(new SubProgressMonitor(monitor, 2));
