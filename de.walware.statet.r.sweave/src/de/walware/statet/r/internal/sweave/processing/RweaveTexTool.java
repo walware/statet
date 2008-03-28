@@ -121,9 +121,8 @@ class RweaveTexTool implements Runnable, IProcess {
 		public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
 			try {
-				final ToolWorkspace workspace = tools.getWorkspaceData();
-				workspace.refresh(monitor);
-				updatePathInformations(workspace);
+				tools.refreshWorkspaceData(monitor);
+				updatePathInformations(tools.getWorkspaceData());
 				if (fStatus.getSeverity() >= IStatus.ERROR) {
 					return;
 				}

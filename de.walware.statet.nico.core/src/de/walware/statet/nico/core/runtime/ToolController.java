@@ -889,28 +889,32 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	public ToolController getController() {
 		return this;
 	}
-			
+	
+	public void refreshWorkspaceData(final IProgressMonitor monitor) throws CoreException {
+		fWorkspaceData.controlRefresh(monitor);
+	}
+	
 	public ToolWorkspace getWorkspaceData() {
 		return fWorkspaceData;
 	}
 	
 	protected void setCurrentPrompt(final Prompt prompt) {
 		fCurrentPrompt = prompt;
-		fWorkspaceData.setCurrentPrompt(prompt, fStatus);
+		fWorkspaceData.controlSetCurrentPrompt(prompt, fStatus);
 	}
 	
 	public void setDefaultPromptText(final String text) {
 		fDefaultPrompt = new Prompt(text, IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
-		fWorkspaceData.setDefaultPrompt(fDefaultPrompt);
+		fWorkspaceData.controlSetDefaultPrompt(fDefaultPrompt);
 	}
 	
 	public void setLineSeparator(final String newSeparator) {
 		fLineSeparator = newSeparator;
-		fWorkspaceData.setLineSeparator(newSeparator);
+		fWorkspaceData.controlSetLineSeparator(newSeparator);
 	}
 	
 	public void setWorkspaceDir(final IFileStore directory) {
-		fWorkspaceData.setWorkspaceDir(directory);
+		fWorkspaceData.controlSetWorkspaceDir(directory);
 	}
 	
 	public void submitToConsole(final String input, final IProgressMonitor monitor)

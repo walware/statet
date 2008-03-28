@@ -84,7 +84,7 @@ public class ToolWorkspace {
 			prompt = Prompt.DEFAULT;
 		}
 		fCurrentPrompt = fDefaultPrompt = prompt;
-		setLineSeparator(lineSeparator);
+		controlSetLineSeparator(lineSeparator);
 		
 		controller.addToolStatusListener(createToolStatusListener());
 	}
@@ -94,10 +94,10 @@ public class ToolWorkspace {
 	}
 	
 	
-	public void refresh(final IProgressMonitor monitor) throws CoreException {
+	protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
 	}
 	
-	public String getLineSeparator() {
+	public final String getLineSeparator() {
 		return fLineSeparator;
 	}
 	
@@ -112,11 +112,11 @@ public class ToolWorkspace {
 		}
 	}
 	
-	public Prompt getDefaultPrompt() {
+	public final Prompt getDefaultPrompt() {
 		return fDefaultPrompt;
 	}
 	
-	public IFileStore getWorkspaceDir() {
+	public final IFileStore getWorkspaceDir() {
 		return fWorkspaceDir;
 	}
 	
@@ -124,11 +124,16 @@ public class ToolWorkspace {
 		return "UTF-8"; //$NON-NLS-1$
 	}
 	
+	
+	final void controlRefresh(final IProgressMonitor monitor) throws CoreException {
+		refreshFromTool(monitor);
+	}
+	
 	/**
 	 * Use only in tool lifecycle thread.
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
-	void setCurrentPrompt(final Prompt prompt, final ToolStatus status) {
+	final void controlSetCurrentPrompt(final Prompt prompt, final ToolStatus status) {
 		if (prompt == fCurrentPrompt || prompt == null) {
 			return;
 		}
@@ -150,7 +155,7 @@ public class ToolWorkspace {
 	 * Use only in tool lifecycle thread.
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
-	void setDefaultPrompt(final Prompt prompt) {
+	final void controlSetDefaultPrompt(final Prompt prompt) {
 		if (prompt == fDefaultPrompt || prompt == null) {
 			return;
 		}
@@ -166,7 +171,7 @@ public class ToolWorkspace {
 	 * Use only in tool lifecycle thread.
 	 * @param newSeparator the new separator, null sets the system default separator
 	 */
-	void setLineSeparator(final String newSeparator) {
+	final void controlSetLineSeparator(final String newSeparator) {
 		final String oldSeparator = fLineSeparator;
 		fLineSeparator = (newSeparator != null) ? newSeparator : System.getProperty("line.separator"); //$NON-NLS-1$
 //		if (!fLineSeparator.equals(oldSeparator)) {
@@ -176,7 +181,7 @@ public class ToolWorkspace {
 //		}
 	}
 	
-	void setWorkspaceDir(final IFileStore directory) {
+	final void controlSetWorkspaceDir(final IFileStore directory) {
 		fWorkspaceDir = directory;
 	}
 	

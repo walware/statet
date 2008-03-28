@@ -202,7 +202,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		fWorkspaceData = new RWorkspace(this) {
 			@Override
-			public void refresh(final IProgressMonitor monitor) throws CoreException {
+			protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
 				if (Thread.currentThread() != getControllerThread()) {
 					// TODO
 					return;

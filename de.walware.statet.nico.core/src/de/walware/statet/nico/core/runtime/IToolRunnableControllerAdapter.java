@@ -39,6 +39,9 @@ public interface IToolRunnableControllerAdapter {
 	
 	public ToolWorkspace getWorkspaceData();
 	
+	public void refreshWorkspaceData(IProgressMonitor monitor) 
+			throws CoreException;
+	
 	public void submitToConsole(String input, IProgressMonitor monitor)
 			throws CoreException, InterruptedException;
 	
