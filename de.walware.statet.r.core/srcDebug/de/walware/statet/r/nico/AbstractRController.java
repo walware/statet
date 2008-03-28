@@ -11,11 +11,15 @@
 
 package de.walware.statet.r.nico;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+
+import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolStatus;
 
 
 public abstract class AbstractRController
@@ -32,13 +36,44 @@ public abstract class AbstractRController
 		process.registerFeatureSet(BasicR.FEATURESET_ID);
 	}
 	
+	
 	@Override
-	protected void postCancelTask(final int options) {
-		if ((getStatus() == ToolStatus.STARTED_IDLING || getStatus() == ToolStatus.STARTED_PAUSED)
-				&& (fWorkspaceData.getPrompt().meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-			cancelIncompletePrompt();
-		}
+	protected IToolRunnable createCancelPostRunnable(final int options) {
+		return new IToolRunnable() {
+			public SubmitType getSubmitType() {
+				return SubmitType.OTHER;
+			}
+			public String getTypeId() {
+				return "common/cancel/post"; //$NON-NLS-1$
+			}
+			public String getLabel() {
+				return "Reset prompt";
+			}
+			public void changed(final int event) {
+			}
+			public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+				postCancelTask(options, monitor);
+			}
+		};
 	}
+	
+	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
+		final String text = fCurrentPrompt.text + (
+				((fCurrentPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
+						"(Input cancelled)" : "(Command cancelled)") + 
+						fLineSeparator;
+		fInfoStream.append(text,
+				(fCurrentRunnable != null) ? fCurrentRunnable.getSubmitType() : SubmitType.TOOLS, fCurrentPrompt.meta);
+	}
+	
+	public boolean supportsBusy() {
+		return false;
+	}
+	
+	public boolean isBusy() {
+		return false;
+	}
+	
 	
 //-- Runnable Adapter
 	@Override
@@ -59,26 +94,24 @@ public abstract class AbstractRController
 		fIncompletePromptText = text.intern();
 	}
 	
-	protected final Prompt createIncompleteInputPrompt() {
-		return new IncompleteInputPrompt(fCurrentPrompt, fCurrentInput+fLineSeparator, fIncompletePromptText);
-	}
-	
-	protected final void setCurrentPrompt(final String text) {
+	protected final void setCurrentPrompt(final String text, final boolean addToHistory) {
 		if (fDefaultPromptText.equals(text)) {
-			setCurrentPrompt(Prompt.DEFAULT);
+			if (addToHistory) {
+				setCurrentPrompt(fDefaultPrompt);
+			}
+			else {
+				setCurrentPrompt(new Prompt(text, IToolRunnableControllerAdapter.META_HISTORY_DONTADD | IToolRunnableControllerAdapter.META_PROMPT_DEFAULT));
+			}
 		}
 		else if (fIncompletePromptText.equals(text)) {
-			setCurrentPrompt(createIncompleteInputPrompt());
+			setCurrentPrompt(new IncompleteInputPrompt(
+					fCurrentPrompt, fCurrentInput+fLineSeparator, fIncompletePromptText,
+					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
 		else {
-			setCurrentPrompt(new Prompt(text));
+			setCurrentPrompt(new Prompt(text, 
+					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
-	}
-	
-	protected void cancelIncompletePrompt() {
-		fInfoStream.append(fCurrentPrompt.text+"(Input cancelled)"+fLineSeparator,
-				(fCurrentRunnable != null) ? fCurrentRunnable.getSubmitType() : SubmitType.TOOLS, fCurrentPrompt.meta);
-		setCurrentPrompt(fDefaultPrompt);
 	}
 	
 }

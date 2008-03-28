@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int TYPE_MASK = 0x00f000;
 	public static final int STATUS =    0x001000;
 	public static final int REQUEST =   0x002000;
+	public static final int BUSY =      0x004000;
 	
 	private static final int PROCESS = 0x010;
 	private static final int IDLE = 0x020;
@@ -364,6 +365,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 				eventCollection.add(nameEvent);
 			}
 		}
+	}
+	
+	public void controllerBusyChanged(final boolean isBusy, final List<DebugEvent> eventCollection) {
+		eventCollection.add(new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, 
+				isBusy ? (ToolProcess.BUSY | 0x1) : (ToolProcess.BUSY | 0x0)));
 	}
 	
 	protected void dispose() {

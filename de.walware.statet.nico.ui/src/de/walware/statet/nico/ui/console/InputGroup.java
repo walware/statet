@@ -381,6 +381,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	
 	private Composite fComposite;
 	private Label fPrefix;
+	private boolean fIsPrefixHighlighted;
 	private Image fPrefixBackground;
 	private InputSourceViewer fSourceViewer;
 	protected InputDocument fDocument;
@@ -423,6 +424,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		gd.verticalIndent = 1;
 		fPrefix.setLayoutData(gd);
 		fPrefixBackground = createImage(Display.getCurrent());
+		fIsPrefixHighlighted = true;
 		fPrefix.setBackgroundImage(fPrefixBackground);
 		fPrefix.setText("> "); //$NON-NLS-1$
 		fPrefix.addMouseListener(new MouseAdapter() {
@@ -483,6 +485,8 @@ public class InputGroup implements ISettingsChangedHandler {
 			public void documentChanged(final DocumentEvent event) {
 			}
 		});
+		
+		updatePrompt(null);
 		return fComposite;
 	}
 	
@@ -590,20 +594,32 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSourceViewer.getControl().setFont(font);
 	}
 	
+	void updateBusy(final boolean isBusy) {
+		final boolean highlight = !isBusy;
+		if (highlight == fIsPrefixHighlighted) {
+			return;
+		}
+		if (UIAccess.isOkToUse(fPrefix)) {
+			fIsPrefixHighlighted = highlight;
+			fPrefix.setBackgroundImage(highlight ? fPrefixBackground : null);
+		}
+	}
+	
 	/**
 	 * @param prompt new prompt or null.
 	 */
-	public void updatePrompt(final Prompt prompt) {
-		UIAccess.getDisplay().syncExec(new Runnable() {
-			public void run() {
-				if (UIAccess.isOkToUse(fPrefix)) {
-					final Prompt p = (prompt != null) ? prompt : fProcess.getWorkspaceData().getPrompt();
-					fPrefix.setText(p.text);
+	void updatePrompt(final Prompt prompt) {
+		final Prompt p = (prompt != null) ? prompt : fProcess.getWorkspaceData().getPrompt();
+		if (UIAccess.isOkToUse(fPrefix)) {
+			final String oldText = fPrefix.getText();
+			if (!oldText.equals(p.text)) {
+				fPrefix.setText(p.text);
+				if (oldText.length() != p.text.length()) { // assuming monospace font
 					getComposite().layout(new Control[] { fPrefix });
-					onPromptUpdate(p);
 				}
 			}
-		});
+			onPromptUpdate(p);
+		}
 	}
 	
 	protected void onPromptUpdate(final Prompt prompt) {

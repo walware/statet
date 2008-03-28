@@ -116,6 +116,13 @@ public class RServeClientController extends AbstractRController {
 	}
 	
 	@Override
+	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
+		super.postCancelTask(options, monitor);
+		fDefaultOutputStream.append(fLineSeparator, fCurrentRunnable.getSubmitType(), 0);
+		setCurrentPrompt(fDefaultPrompt);
+	}
+	
+	@Override
 	protected boolean isToolAlive() {
 		final Rconnection con = fRconnection;
 		if (con != null && con.isConnected()) {
@@ -172,7 +179,7 @@ public class RServeClientController extends AbstractRController {
 		}
 		catch (final RSrvException e) {
 			if (e.getRequestReturnCode() == 2) {
-				setCurrentPrompt(createIncompleteInputPrompt());
+				setCurrentPrompt(fIncompletePromptText, true);
 				return;
 			}
 			fErrorOutputStream.append("[RServe] Error: "+e.getLocalizedMessage()+"."+fLineSeparator, fCurrentRunnable.getSubmitType(), 0);

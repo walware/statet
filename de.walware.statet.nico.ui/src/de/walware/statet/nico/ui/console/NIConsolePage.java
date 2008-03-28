@@ -238,6 +238,86 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 	}
 	
+	private class StatusListener implements IDebugEventSetListener {
+		
+		private boolean isProcessing = false;
+		private boolean isTerminated = false;
+		
+		private int updateId = Integer.MIN_VALUE;
+		private Prompt fNewPrompt = null;
+		private boolean fCurrentBusy = false;
+		private boolean fNewBusy = false;
+		
+		public void handleDebugEvents(final DebugEvent[] events) {
+			final ToolProcess process = getConsole().getProcess();
+			final ToolWorkspace data = process.getWorkspaceData();
+			
+			Prompt prompt = null;
+			
+			for (final DebugEvent event : events) {
+				final Object source = event.getSource();
+				
+				if (source == process) {
+					switch (event.getKind()) {
+					case DebugEvent.TERMINATE:
+						isTerminated = true;
+						onToolTerminated();
+						break;
+					case DebugEvent.MODEL_SPECIFIC:
+						final int type = (event.getDetail() & ToolProcess.TYPE_MASK);
+						if (type == ToolProcess.STATUS) {
+							isProcessing = (event.getDetail() == ToolProcess.STATUS_PROCESS);
+						}
+						break;
+					}
+				}
+				else if (source == data) {
+					if (event.getKind() == DebugEvent.CHANGE
+							&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT) {
+						prompt = (Prompt) event.getData();
+					}
+				}
+			}
+			final int thisId;
+			final long schedule;
+			synchronized (StatusListener.this) {
+				fNewBusy = isProcessing || isTerminated;
+				schedule = (fNewBusy) ? (System.currentTimeMillis() + 50) : System.currentTimeMillis();
+				if (prompt != null) {
+					fNewPrompt = prompt;
+				}
+				if (!fIsCreated || 
+						(fNewBusy == fCurrentBusy && fNewPrompt == null)) {
+					return;
+				}
+				thisId = ++updateId;
+			}
+			UIAccess.getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					final long diff = schedule - System.currentTimeMillis();
+					if (diff > 0) {
+						Display.getCurrent().timerExec((int) diff, this);
+						return;
+					}
+					synchronized (StatusListener.this) {
+						if (thisId != updateId) {
+							return;
+						}
+						if (fNewPrompt != null) {
+							fInputGroup.updatePrompt(fNewPrompt);
+							fNewPrompt = null;
+						}
+						if (fNewBusy != fCurrentBusy) {
+							fInputGroup.updateBusy(fNewBusy);
+							fCurrentBusy = fNewBusy;
+						}
+					}
+				};
+			});
+		}
+	
+	}
+	
 	
 	private final NIConsole fConsole;
 	private final IConsoleView fConsoleView;
@@ -304,30 +384,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fSite = site;
 		fInputGroup = createInputGroup();
 		
-		fDebugListener = new IDebugEventSetListener() {
-			public void handleDebugEvents(final DebugEvent[] events) {
-				final ToolProcess process = getConsole().getProcess();
-				final ToolWorkspace data = process.getWorkspaceData();
-				for (final DebugEvent event : events) {
-					final Object source = event.getSource();
-					
-					if (source == process) {
-						switch (event.getKind()) {
-						case DebugEvent.TERMINATE:
-							onToolTerminated();
-							break;
-						}
-					}
-					else if (source == data) {
-						if (event.getKind() == DebugEvent.CHANGE
-								&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT && fIsCreated) {
-							final Prompt prompt = (Prompt) event.getData();
-							fInputGroup.updatePrompt(prompt);
-						}
-					}
-				}
-			}
-		};
+		fDebugListener = new StatusListener();
 		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
 	}
 	

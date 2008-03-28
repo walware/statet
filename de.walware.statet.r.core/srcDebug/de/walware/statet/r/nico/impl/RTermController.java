@@ -274,6 +274,10 @@ public class RTermController extends AbstractRController implements IRequireSync
 	}
 	
 	@Override
+	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
+	}
+	
+	@Override
 	protected void killTool(final IProgressMonitor monitor) {
 		final Process p = fProcess;
 		if (p != null) {

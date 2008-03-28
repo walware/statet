@@ -76,6 +76,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		 * @param eventCollection a collection, you can add you own debug events to.
 		 */
 		void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection);
+		
 	}
 	
 	
@@ -176,6 +177,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	private Queue fQueue;
 	
 	protected IToolRunnable fCurrentRunnable;
+	private IToolRunnable fControllerRunnable;
 	private RunnableProgressMonitor fRunnableProgressMonitor;
 	
 	private Thread fControllerThread;
@@ -358,25 +360,18 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 		
 		try {
-			return doCancelTask(options);
+			interruptTool(0);
+			return true;
 		}
 		catch (final UnsupportedOperationException e) {
 			return false;
 		}
 		finally {
 			synchronized (fQueue) {
-				postCancelTask(options);
+				scheduleControllerRunnable(createCancelPostRunnable(options));
 				endInternalTask();
 			}
 		}
-	}
-	
-	protected boolean doCancelTask(final int options) {
-		interruptTool(0);
-		return true;
-	}
-	
-	protected void postCancelTask(final int options) {
 	}
 	
 	/**
@@ -436,7 +431,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	private final void endInternalTask() {
 		fInternalTask--;
-		if (fInternalTask == 0) {
+		if (fControllerRunnable != null || fInternalTask == 0) {
 			fQueue.notifyAll();
 		}
 	}
@@ -449,6 +444,10 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * @return
 	 */
 	protected abstract IToolRunnable createQuitRunnable();
+	
+	protected IToolRunnable createCancelPostRunnable(final int options) {
+		return null;
+	}
 	
 	/**
 	 * Cancels requests to termate the controller.
@@ -545,23 +544,35 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fEventCollector.clear();
 	}
 	
-//	public boolean isStarted() {
-//
+//	public final boolean isStarted() {
 //		switch (fStatus) {
 //		case STARTED_PROCESSING:
 //		case STARTED_IDLING:
 //		case STARTED_PAUSED:
 //			return true;
-//
 //		default:
 //			return false;
 //		}
 //	}
-//
-//	public boolean isTerminated() {
-//
+//	
+//	public final boolean isTerminated() {
 //		return (fStatus == ToolStatus.TERMINATED);
 //	}
+	
+	/**
+	 * Only for internal short tasks.
+	 * You must have the lock for the queue.
+	 */
+	protected final void scheduleControllerRunnable(final IToolRunnable runnable) {
+		synchronized (fQueue) {
+			if (fControllerRunnable != null) {
+				NicoPlugin.log(new Status(IStatus.WARNING, NicoCore.PLUGIN_ID, 
+						NLS.bind("Scheduled controller task ''{0}'' was overwritten by ''{1}''.",  //$NON-NLS-1$
+								fControllerRunnable.getLabel(), runnable.getLabel())));
+			}
+			fControllerRunnable = runnable;
+		}
+	}
 	
 	/**
 	 * Version for one single text line.
@@ -736,7 +747,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	private final void loop() {
 		while (true) {
-			while (loopRunTask()) {}
+			loopRunTask();
 			
 			synchronized (fQueue) {
 				fQueue.internalCheck();
@@ -746,8 +757,12 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					continue;
 				}
 				if (fIsTerminated) {
+					finishTool();
 					loopChangeStatus(ToolStatus.TERMINATED, null);
 					return;
+				}
+				if (fControllerRunnable != null) {
+					continue;
 				}
 				if (fPauseRequested) {
 					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
@@ -763,49 +778,72 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
-	private boolean loopRunTask() {
-		synchronized (fQueue) {
-			if (fIsTerminated || fInternalTask > 0 || fQueue.internalIsEmpty()
-					|| (!fIgnoreRequests && fPauseRequested)) {
-				return false;
+	private final void loopRunTask() {
+		while (true) {
+			final boolean isPublic;
+			synchronized (fQueue) {
+				if (fControllerRunnable != null) {
+					fCurrentRunnable = fControllerRunnable;
+					fControllerRunnable = null;
+					isPublic = false;
+				}
+				else {
+					if (fIsTerminated || fInternalTask > 0 || fQueue.internalIsEmpty()
+							|| (!fIgnoreRequests && fPauseRequested)) {
+						return;
+					}
+					fIgnoreRequests = false;
+					fCurrentRunnable = fQueue.internalPoll();
+					isPublic = true;
+				}
+				loopChangeStatus(ToolStatus.STARTED_PROCESSING,
+						new RunnableProgressMonitor(fCurrentRunnable));
 			}
-			fIgnoreRequests = false;
-			fCurrentRunnable = fQueue.internalPoll();
-			loopChangeStatus(ToolStatus.STARTED_PROCESSING,
-					new RunnableProgressMonitor(fCurrentRunnable));
-		}
-		
-		try {
-			// muss nicht synchronisiert werden, da Zugriff nur durch einen Thread
-			fCurrentRunnable.run(this, fRunnableProgressMonitor);
-			fQueue.internalFinished(fCurrentRunnable, Queue.OK);
-		}
-		catch (final Throwable e) {
-			if (e instanceof CoreException && ((CoreException) e)
-					.getStatus().getSeverity() == IStatus.CANCEL) {
-				fQueue.internalFinished(fCurrentRunnable, Queue.CANCEL);
+			if (isPublic) {
+				try {
+					// muss nicht synchronisiert werden, da Zugriff nur durch einen Thread
+					fCurrentRunnable.run(this, fRunnableProgressMonitor);
+					fQueue.internalFinished(fCurrentRunnable, Queue.OK);
+				}
+				catch (final Throwable e) {
+					if (e instanceof CoreException && ((CoreException) e)
+							.getStatus().getSeverity() == IStatus.CANCEL) {
+						fQueue.internalFinished(fCurrentRunnable, Queue.CANCEL);
+					}
+					else {
+						fQueue.internalFinished(fCurrentRunnable, Queue.ERROR);
+						handleStatus(new Status(
+								IStatus.ERROR,
+								NicoCore.PLUGIN_ID,
+								NicoPlugin.EXTERNAL_ERROR,
+								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
+										new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
+								e));
+					}
+					
+					if (!isToolAlive()) {
+						markAsTerminated();
+					}
+					return;
+				}
+				finally {
+					fRunnableProgressMonitor.done();
+				}
 			}
 			else {
-				fQueue.internalFinished(fCurrentRunnable, Queue.ERROR);
-				handleStatus(new Status(
-						IStatus.ERROR,
-						NicoCore.PLUGIN_ID,
-						NicoPlugin.EXTERNAL_ERROR,
-						NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
-								new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
-						e));
+				try {
+					fCurrentRunnable.run(this, fRunnableProgressMonitor);
+				}
+				catch (final Throwable e) {
+					NicoPlugin.logError(-1, "An Error occurred when running internal controller task.", e); // //$NON-NLS-1$
+					
+					if (!isToolAlive()) {
+						markAsTerminated();
+					}
+					return;
+				}
 			}
-			
-			if (!isToolAlive()) {
-				markAsTerminated();
-			}
-			return false;
 		}
-		finally {
-			fRunnableProgressMonitor.done();
-		}
-		
-		return true;
 	}
 	
 	private final void loopWait() {
@@ -907,7 +945,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
-//-- RunnableAdapter
+	
+//-- RunnableAdapter - access only in main loop
 	
 	protected void initRunnableAdapter() {
 		fCurrentPrompt = fDefaultPrompt = fWorkspaceData.getDefaultPrompt();
