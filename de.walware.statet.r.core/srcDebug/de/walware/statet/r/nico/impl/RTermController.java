@@ -157,7 +157,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 			return "Fetch Process Id";
 		}
 		
-		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) 
+		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
 			final StringBuilder output = readOutputLine("Sys.getpid()", monitor); //$NON-NLS-1$
 			if (output != null) {
@@ -203,10 +203,6 @@ public class RTermController extends AbstractRController implements IRequireSync
 		fWorkspaceData = new RWorkspace(this) {
 			@Override
 			protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
-				if (Thread.currentThread() != getControllerThread()) {
-					// TODO
-					return;
-				}
 				final StringBuilder output = readOutputLine("getwd()", monitor); //$NON-NLS-1$
 				if (output != null) {
 					final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
@@ -302,22 +298,20 @@ public class RTermController extends AbstractRController implements IRequireSync
 	}
 	
 	@Override
-	protected void finishTool() {
+	protected void clear() {
 		fProcess = null;
-		// save history
-		super.finishTool();
+		super.clear();
 	}
 	
 	
 	private boolean runSendCtrlC() {
-		if (!Platform.getOS().startsWith("win")  //$NON-NLS-1$
+		if (!Platform.getOS().startsWith("win") //$NON-NLS-1$
 				|| getStatus() == ToolStatus.TERMINATED) {
 			return false;
 		}
 		
 		final IToolEventHandler handler = getEventHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID);
 		if (handler != null) {
-			final boolean hasLock = Thread.holdsLock(getQueue());
 			final RTermCancelRunnable cancelRunnable = new RTermCancelRunnable();
 			return (handler.handle(this, cancelRunnable) == IToolEventHandler.OK);
 		}

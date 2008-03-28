@@ -31,7 +31,7 @@ import de.walware.statet.r.nico.IBasicRAdapter;
 
 
 /**
- * Cancel support for win32/rterm.
+ * Cancel support for windows/rterm.
  */
 class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 	
@@ -71,7 +71,7 @@ class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, "Cannot run cancel command: process-id of Rterm process is missing.")); //$NON-NLS-1$
 				return;
 			}
-			final String[] cmd = new String[] { 
+			final String[] cmd = new String[] {
 					file.getAbsolutePath(), processId.toString()
 					// the tool usually does not print output
 			};

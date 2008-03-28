@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -38,13 +37,19 @@ import de.walware.statet.base.internal.ui.StatetMessages;
 public class InputArgumentsComposite extends Composite {
 	
 	
+	private String fTitle;
+	
 	private Text fTextControl;
-	private Button fVariablesButton;
 	
 	
 	public InputArgumentsComposite(final Composite parent) {
+		this(parent, StatetMessages.InputArguments_label);
+	}
+	
+	public InputArgumentsComposite(final Composite parent, final String title) {
 		super(parent, SWT.NONE);
 		
+		fTitle = title;
 		createControls();
 	}
 	
@@ -56,7 +61,7 @@ public class InputArgumentsComposite extends Composite {
 		container.setLayout(layout);
 		
 		final Label label = new Label(container, SWT.LEFT);
-		label.setText(StatetMessages.InputArguments_label);
+		label.setText(fTitle);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 		
 		fTextControl = new Text(container, SWT.LEFT | SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
