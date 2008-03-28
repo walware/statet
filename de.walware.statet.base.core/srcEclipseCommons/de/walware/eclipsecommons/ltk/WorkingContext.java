@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.osgi.util.NLS;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
@@ -49,12 +50,13 @@ public final class WorkingContext {
 			}
 			final ISourceUnitFactory factory = getFactory(typeId);
 			if (factory == null) {
-				throw new UnsupportedOperationException("no factory for type: "+typeId); //$NON-NLS-1$
+				throw new UnsupportedOperationException(NLS.bind(
+						"no factory for type ''{0}''", typeId)); //$NON-NLS-1$
 			}
 			final ISourceUnit copy = factory.getUnit(from, typeId, this, create);
 			if (copy == null) {
 				if (create) {
-					throw new UnsupportedOperationException("");
+					throw new UnsupportedOperationException();
 				}
 				else {
 					return null;
