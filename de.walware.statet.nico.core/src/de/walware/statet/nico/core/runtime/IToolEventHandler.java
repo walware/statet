@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,10 +31,11 @@ public interface IToolEventHandler {
 	
 	/**
 	 * 
-	 * contextData:  LoginEventData
-	 * return:       OK = try login, CANCEL = cancel
+	 * data:    LoginEventData
+	 * return:  OK = try login, CANCEL = cancel
 	 */
 	public static final String LOGIN_EVENT_ID = "common/login"; //$NON-NLS-1$
+	
 	
 	public static final class LoginEventData {
 		public String name;
@@ -43,22 +44,28 @@ public interface IToolEventHandler {
 	
 	/**
 	 * 
-	 * contextData:  IToolRunnable<IToolRunnableControllerAdapter>[*] = existing scheduled runnables
-	 * return:       OK = schedule, CANCEL = do nothing
+	 * data:    IStatus 
+	 */
+	public static final String REPORT_STATUS_EVENT_ID = "common/reportStatus"; //$NON-NLS-1$
+	
+	/**
+	 * 
+	 * data:    IToolRunnable<IToolRunnableControllerAdapter>[*] = existing scheduled runnables
+	 * return:  OK = schedule, CANCEL = do nothing
 	 */
 	public static final String SCHEDULE_QUIT_EVENT_ID = "common/scheduleQuit"; //$NON-NLS-1$
 	
 	/**
 	 * Should try to block other actions (e.g. modal dialog)
 	 * 
-	 * contextData:  IRunnableWithProgress = existing scheduled runnables
-	 * return:       OK, ERROR, CANCEL
+	 * data:    IRunnableWithProgress = existing scheduled runnables
+	 * return:  OK, ERROR, CANCEL
 	 */
 	public static final String RUN_BLOCKING_EVENT_ID = "common/runBlocking"; //$NON-NLS-1$
 	
 	/**
 	 * 
-	 * return:       OK = schedule, CANCEL = do nothing
+	 * return:  OK = schedule, CANCEL = do nothing
 	 */
 	public static final String SELECTFILE_EVENT_ID = "common/selectFile"; //$NON-NLS-1$
 	
@@ -69,6 +76,6 @@ public interface IToolEventHandler {
 	};
 	
 	
-	public int handle(IToolRunnableControllerAdapter tools, Object contextData);
+	public int handle(IToolRunnableControllerAdapter tools, Object data);
 	
 }

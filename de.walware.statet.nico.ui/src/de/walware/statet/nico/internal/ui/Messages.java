@@ -59,6 +59,8 @@ public class Messages extends NLS {
 	public static String Login_Dialog_Password_label;
 	
 	public static String ExecuteHandler_error_message;
+	public static String Util_SelectFile_Dialog_title;
+	public static String Util_SelectFile_File_label;
 	
 	
 	static {
