@@ -28,7 +28,10 @@ public class Messages extends NLS {
 	public static String Runtime_error_CriticalError_message;
 	public static String Runtime_error_UnexpectedTermination_message;
 	
+	public static String ToolController_CommonStartTask_label;
 	public static String ToolController_FileOperation_error_CannotResolve_message;
+	public static String ToolController_SubmitCancelled_message;
+	public static String ToolController_ToolTerminated_message;
 	
 	public static String Progress_Starting_label;
 	public static String Progress_Terminating_label;

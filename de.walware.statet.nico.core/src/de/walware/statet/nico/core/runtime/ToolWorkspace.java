@@ -49,13 +49,13 @@ public class ToolWorkspace {
 				synchronized (fPromptMutex) {
 					fIsCurrentPromptPublished = true;
 				}
-				firePrompt(prompt);
+				firePrompt(prompt, eventCollection);
 			}
 			else if (fIsCurrentPromptPublished) {
 				synchronized (fPromptMutex) {
 					fIsCurrentPromptPublished = false;
 				}
-				firePrompt(fDefaultPrompt);
+				firePrompt(fDefaultPrompt, eventCollection);
 			}
 		}
 	}
@@ -130,7 +130,7 @@ public class ToolWorkspace {
 	}
 	
 	/**
-	 * Use only in tool lifecycle thread.
+	 * Use only in tool main thread.
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
 	final void controlSetCurrentPrompt(final Prompt prompt, final ToolStatus status) {
@@ -147,12 +147,12 @@ public class ToolWorkspace {
 			}
 		}
 		if (firePrompt) {
-			firePrompt(prompt);
+			firePrompt(prompt, null);
 		}
 	}
 	
 	/**
-	 * Use only in tool lifecycle thread.
+	 * Use only in tool main thread.
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
 	final void controlSetDefaultPrompt(final Prompt prompt) {
@@ -163,12 +163,12 @@ public class ToolWorkspace {
 			fDefaultPrompt = prompt;
 		}
 		if (!fIsCurrentPromptPublished) {
-			firePrompt(fDefaultPrompt);
+			firePrompt(fDefaultPrompt, null);
 		}
 	}
 	
 	/**
-	 * Use only in tool lifecycle thread.
+	 * Use only in tool main thread.
 	 * @param newSeparator the new separator, null sets the system default separator
 	 */
 	final void controlSetLineSeparator(final String newSeparator) {
@@ -186,10 +186,16 @@ public class ToolWorkspace {
 	}
 	
 	
-	private void firePrompt(final Prompt prompt) {
+	private void firePrompt(final Prompt prompt, final List<DebugEvent> eventCollection) {
 		final DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
 		event.setData(prompt);
-		fireEvent(event);
+		if (eventCollection != null) {
+			eventCollection.add(event);
+			return;
+		}
+		else {
+			fireEvent(event);
+		}
 	}
 	
 	protected void fireEvent(final DebugEvent event) {

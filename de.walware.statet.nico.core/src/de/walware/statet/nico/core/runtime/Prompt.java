@@ -26,12 +26,10 @@ public class Prompt {
 	
 	
 	public Prompt(final String text) {
-		
 		this(text, 0);
 	}
 	
 	public Prompt(final String text, final int meta) {
-		
 		this.text = text;
 		this.meta = meta;
 	}

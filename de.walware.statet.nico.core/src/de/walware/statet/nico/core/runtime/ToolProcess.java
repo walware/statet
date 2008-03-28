@@ -46,10 +46,6 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public static final int TYPE_MASK = 0x00f000;
 	public static final int STATUS =    0x001000;
 	public static final int REQUEST =   0x002000;
-	public static final int BUSY =      0x004000;
-	
-	public static final int MASK_STATUS = 0x001000;
-	public static final int MASK_REQUEST = 0x002000;
 	
 	private static final int PROCESS = 0x010;
 	private static final int IDLE = 0x020;
@@ -66,7 +62,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_PROCESS = MASK_STATUS | PROCESS;
+	public static final int STATUS_PROCESS = STATUS | PROCESS;
 	
 	/**
 	 * Constant for detail of a DebugEvent, signalising that
@@ -76,7 +72,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_IDLE = MASK_STATUS | IDLE;
+	public static final int STATUS_IDLE = STATUS | IDLE;
 	
 	/**
 	 * Constant for detail of a DebugEvent, signalising that
@@ -86,14 +82,14 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	 * The status can be ended by another status event or by a
 	 * DebugEvent of kind <code>TERMINATE</code>.
 	 */
-	public static final int STATUS_PAUSE = MASK_STATUS | PAUSE;
+	public static final int STATUS_PAUSE = STATUS | PAUSE;
 	
 	
-	public static final int REQUEST_PAUSE = MASK_REQUEST | PAUSE | 0x1;
-	public static final int REQUEST_PAUSE_CANCELED = MASK_REQUEST | PAUSE | 0x2;
+	public static final int REQUEST_PAUSE = REQUEST | PAUSE | 0x1;
+	public static final int REQUEST_PAUSE_CANCELED = REQUEST | PAUSE | 0x2;
 	
-	public static final int REQUEST_TERMINATE = MASK_REQUEST | TERMINATE | 0x1;
-	public static final int REQUEST_TERMINATE_CANCELED = MASK_REQUEST | TERMINATE | 0x2;
+	public static final int REQUEST_TERMINATE = REQUEST | TERMINATE | 0x1;
+	public static final int REQUEST_TERMINATE_CANCELED = REQUEST | TERMINATE | 0x2;
 	
 	
 	public static ToolStatus getChangedToolStatus(final DebugEvent event) {
