@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
@@ -83,28 +84,29 @@ public class SaveHistoryWizard extends Wizard {
 			
 			getContainer().run(true, true, new IRunnableWithProgress() {
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
-					try {
-						history.save(file, fmode, charset, false, monitor);
-					} catch (final CoreException e) {
-						throw new InvocationTargetException(e);
+					final IStatus status = history.save(file, fmode, charset, false, monitor);
+					if (status.getSeverity() == IStatus.ERROR) {
+						throw new InvocationTargetException(new CoreException(status));
 					}
 				}
 			});
-		}
-		catch (final InvocationTargetException e) {
-			StatusManager.getManager().handle(((CoreException) e.getTargetException()).getStatus(),
-					StatusManager.LOG | StatusManager.SHOW);
-			return false;
+			return true;
 		}
 		catch (final OperationCanceledException e) {
 			return false;
 		}
 		catch (final Exception e) {
+			if (e instanceof InvocationTargetException) {
+				final Throwable cause = ((InvocationTargetException) e).getTargetException();
+				if (cause instanceof CoreException) {
+					StatusManager.getManager().handle(((CoreException) cause).getStatus(),
+						StatusManager.LOG | StatusManager.SHOW);
+					return false;
+				}
+			}
 			NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when performing save history.", e); //$NON-NLS-1$
 			return false;
 		}
-		
-		return true;
 	}
 	
 }

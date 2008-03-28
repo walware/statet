@@ -17,17 +17,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
+
+import de.walware.eclipsecommons.FileUtil;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
@@ -877,6 +881,14 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fErrorOutputStream = null;
 	}
 	
+	protected void handleStatus(final IStatus status) {
+		if (status == null || status.getSeverity() == IStatus.OK) {
+			return;
+		}
+		if (status.getSeverity() > IStatus.INFO) {
+			NicoPlugin.getDefault().getLog().log(status);
+		}
+	}
 	
 //-- RunnableAdapter
 	
@@ -941,5 +953,60 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	protected abstract void doSubmit(IProgressMonitor monitor)
 			throws CoreException;
+	
+	
+	protected int loadHistory(final String filename, final IProgressMonitor monitor) {
+		try {
+			CoreException fileException = null;
+			IFileStore fileStore = null;
+			try {
+				fileStore = FileUtil.getFileStore(filename, getWorkspaceData().getWorkspaceDir());
+			}
+			catch (final CoreException e) {
+				fileException = e; 
+			}
+			final IStatus status;
+			if (fileStore == null) {
+				status = new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, NLS.bind(
+						Messages.ToolController_FileOperation_error_CannotResolve_message, filename), 
+						fileException);
+			}
+			else {
+				status = fProcess.getHistory().load(fileStore, fWorkspaceData.getEncoding(), false, monitor);
+			}
+			handleStatus(status);
+			return status.getSeverity();
+		}
+		catch (final OperationCanceledException e) {
+			return IStatus.CANCEL;
+		}
+	}
+	
+	protected int saveHistory(final String filename, final IProgressMonitor monitor) {
+		try {
+			CoreException fileException = null;
+			IFileStore fileStore = null;
+			try {
+				fileStore = FileUtil.getFileStore(filename, getWorkspaceData().getWorkspaceDir());
+			}
+			catch (final CoreException e) {
+				fileException = e; 
+			}
+			final IStatus status;
+			if (fileStore == null) {
+				status = new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, NLS.bind(
+						Messages.ToolController_FileOperation_error_CannotResolve_message, filename), 
+						fileException);
+			}
+			else {
+				status = fProcess.getHistory().save(fileStore, EFS.NONE, fWorkspaceData.getEncoding(), false, monitor);
+			}
+			handleStatus(status);
+			return status.getSeverity();
+		}
+		catch (final OperationCanceledException e) {
+			return IStatus.CANCEL;
+		}
+	}
 	
 }

@@ -19,6 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -206,10 +207,9 @@ public class History {
 	 * @param forceCharset use always the specified charset
 	 * @param monitor
 	 * 
-	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	public void load(final Object file, final String charset, final boolean forceCharset, IProgressMonitor monitor) throws CoreException {
+	public IStatus load(final Object file, final String charset, final boolean forceCharset, IProgressMonitor monitor) {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
@@ -260,11 +260,14 @@ public class History {
 			finally {
 				fLock.writeLock().unlock();
 			}
+			
+			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
+					Messages.LoadHistory_ok_message, fileUtil.getFileLabel()));
 		} 
 		catch (final CoreException e) {
-			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
-					NLS.bind(Messages.LoadHistory_error_message,
-							new Object[] { fProcess.getToolLabel(true), file.toString() }), e));
+			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
+					Messages.LoadHistory_error_message,
+					new Object[] { fProcess.getToolLabel(true), file.toString() }), e);
 		} finally {
 			monitor.done();
 		}
@@ -282,12 +285,11 @@ public class History {
 	 * @param forceCharset use always the specified charset
 	 * @param monitor
 	 * 
-	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	public void save(final Object file, final int mode, final String charset, final boolean forceCharset,
+	public IStatus save(final Object file, final int mode, final String charset, final boolean forceCharset,
 			IProgressMonitor monitor)
-			throws CoreException, OperationCanceledException {
+			throws OperationCanceledException {
 		
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
@@ -322,10 +324,13 @@ public class History {
 			op.setCharset(charset, forceCharset);
 			op.setFileOperationMode(mode);
 			op.doOperation(new SubProgressMonitor(monitor, 2));
+			
+			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
+					Messages.SaveHistory_ok_message, fileUtil.getFileLabel()));
 		} catch (final CoreException e) {
-			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
-					NLS.bind(Messages.SaveHistory_error_message,
-							new Object[] { fProcess.getLabel(), file.toString() }), e));
+			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
+					Messages.SaveHistory_error_message,
+					new Object[] { fProcess.getLabel(), file.toString() }), e);
 		} finally {
 			monitor.done();
 		}
