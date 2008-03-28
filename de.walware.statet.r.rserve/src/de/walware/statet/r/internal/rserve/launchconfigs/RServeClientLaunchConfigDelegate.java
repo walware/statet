@@ -40,8 +40,8 @@ import de.walware.statet.r.rserve.RServeClientController;
 public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDelegate {
 	
 	
-	public void launch(ILaunchConfiguration configuration, String mode,
-			ILaunch launch, IProgressMonitor monitor) throws CoreException {
+	public void launch(final ILaunchConfiguration configuration, final String mode,
+			final ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		
 		try {
 			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
@@ -52,7 +52,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			
 			final ConnectionConfig connectionConfig = new ConnectionConfig();
 			connectionConfig.load(configuration);
-			String name = "rserve://"+connectionConfig.getServerAddress()+':'+connectionConfig.getServerPort() + ' '+LaunchConfigUtil.createProcessTimestamp();
+			final String name = "rserve://"+connectionConfig.getServerAddress()+':'+connectionConfig.getServerPort() + ' '+LaunchConfigUtil.createProcessTimestamp(); //$NON-NLS-1$
 			
 			monitor.worked(1);
 			if (monitor.isCanceled()) {
@@ -60,11 +60,10 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			}
 			
 			UnterminatedLaunchAlerter.registerLaunchType(IRServeConstants.ID_RSERVE_LAUNCHCONFIG);
-			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch,
-					RLaunchConfigurations.ID_R_CONSOLE_PROCESS_TYPE,
+			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, "R", //$NON-NLS-1$
 					LaunchConfigUtil.createLaunchPrefix(configuration), name);
 			
-			RServeClientController controller = new RServeClientController(process, connectionConfig);
+			final RServeClientController controller = new RServeClientController(process, connectionConfig);
 			process.init(controller);
 			controller.addEventHandler(IToolEventHandler.LOGIN_EVENT_ID, new LoginHandler());
 			controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());

@@ -97,7 +97,7 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 						checked = Boolean.FALSE;
 						break;
 					default:
-						if ((detail & ToolProcess.MASK_STATUS) == ToolProcess.MASK_STATUS) { // status other than QUEUE_PAUSE
+						if ((detail & ToolProcess.STATUS) == ToolProcess.STATUS) { // status other than QUEUE_PAUSE
 							checked = Boolean.FALSE;
 						}
 						break;

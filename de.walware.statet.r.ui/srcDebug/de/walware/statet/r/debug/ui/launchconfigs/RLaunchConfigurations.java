@@ -19,6 +19,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
 
+import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.r.core.renv.REnvSetting;
 import de.walware.statet.r.core.renv.REnvSetting.SettingsType;
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdMainTab;
@@ -33,7 +34,7 @@ public class RLaunchConfigurations {
 	public static final String ID_R_CMD_PROCESS_TYPE = "R.cmd"; //$NON-NLS-1$
 	
 	public static final String ID_R_CONSOLE_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RConsole"; //$NON-NLS-1$
-	public static final String ID_R_CONSOLE_PROCESS_TYPE = "R.console"; //$NON-NLS-1$
+	public static final String ID_R_CONSOLE_PROCESS_TYPE = "R"+ToolProcess.PROCESS_TYPE_SUFFIX; 
 	
 	public static final String ATTR_R_CMD_COMMAND = RCmdMainTab.NS+"arguments.cmd"; //$NON-NLS-1$
 	public static final String ATTR_R_CMD_OPTIONS = RCmdMainTab.NS+"arguments.options"; //$NON-NLS-1$

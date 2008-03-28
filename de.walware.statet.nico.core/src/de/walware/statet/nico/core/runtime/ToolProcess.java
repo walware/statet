@@ -40,6 +40,13 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		extends PlatformObject implements IProcess, ITool, IToolStatusListener {
 	
+	public static final String PROCESS_TYPE_SUFFIX = ".nico"; //$NON-NLS-1$
+	
+	
+	public static final int TYPE_MASK = 0x00f000;
+	public static final int STATUS =    0x001000;
+	public static final int REQUEST =   0x002000;
+	public static final int BUSY =      0x004000;
 	
 	public static final int MASK_STATUS = 0x001000;
 	public static final int MASK_REQUEST = 0x002000;
@@ -113,7 +120,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	
 	private final ILaunch fLaunch;
-	private Set<String> fFeatureSets = new HashSet<String>();
+	private final String fMainType;
+	private final Set<String> fFeatureSets = new HashSet<String>();
 	private final String fName;
 	private String fToolLabelShort;
 	
@@ -129,14 +137,15 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	protected volatile int fExitValue = 0;
 	
 	
-	public ToolProcess(final ILaunch launch, final String type, final String prefix, final String name) {
+	public ToolProcess(final ILaunch launch, final String mainType, final String labelPrefix, final String name) {
 		fLaunch = launch;
+		fMainType = mainType;
 		fName = name;
 		fAttributes = new HashMap<String, String>(5);
-		fToolLabelShort = prefix;
+		fToolLabelShort = labelPrefix;
 		doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
 				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
-		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, type);
+		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, (mainType+PROCESS_TYPE_SUFFIX).intern());
 		
 		final String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
@@ -182,6 +191,10 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	private String computerConsoleLabel(final String statusLabel) {
 		return fToolLabelShort + " " + fName + " " + statusLabel; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	public final String getMainType() {
+		return fMainType;
 	}
 	
 	public String getLabel() {
