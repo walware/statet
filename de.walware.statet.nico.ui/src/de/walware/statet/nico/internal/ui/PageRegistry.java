@@ -13,7 +13,6 @@ package de.walware.statet.nico.internal.ui;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -88,20 +87,23 @@ class PageRegistry {
 	
 	private class ShowConsoleViewJob extends WorkbenchJob {
 		
+		private final int fDelay;
+		
 		private volatile NIConsole fConsoleToShow;
 		private volatile boolean fActivate;
 		
-		ShowConsoleViewJob() {
+		ShowConsoleViewJob(final int delay) {
 			super(SHOW_CONSOLE_JOB_NAME);
 			setSystem(true);
 			setPriority(Job.SHORT);
+			fDelay = delay;
 		}
 		
 		void schedule(final NIConsole console, final boolean activate) {
 			cancel();
 			fConsoleToShow = console;
 			fActivate = activate;
-			schedule(100);
+			schedule(fDelay);
 		}
 		
 		@Override
@@ -121,37 +123,43 @@ class PageRegistry {
 				}
 				// Search the console view
 				final List<IConsoleView> views = getConsoleViews(page);
-				final ListIterator<IConsoleView> iter = views.listIterator();
-				while (iter.hasNext()) {
-					final IConsoleView view = iter.next();
-					if (view.isPinned()) {					// visible and pinned
-						if (console == view.getConsole()) {
-							return showInView(view, monitor);
-						} else {
-							iter.remove();
-						}
-					}
-				}
-				final IConsoleView[] preferedView = new IConsoleView[4];
+				
+				final IConsoleView[] preferedView = new IConsoleView[10];
 				for (final IConsoleView view : views) {
-					if (console == view.getConsole()) {
-						if (page.isPartVisible(view)) {	// already visible
-							return showInView(view, monitor);
+					final IConsole consoleInView = view.getConsole();
+					if (consoleInView == console) {
+						if (page.isPartVisible(view)) {		// already visible
+							preferedView[view.isPinned() ? 0 : 1] = view;
+							continue;
 						}
-						else { 								// already selected
-							preferedView[0] = view;
+						else {								// already selected
+							preferedView[view.isPinned() ? 2 : 3] = view;
+							continue;
 						}
 					}
-					else {									// for same type created view
+					if (consoleInView == null) {
+						if (page.isPartVisible(view)) {
+							preferedView[4] = view;
+							continue;
+						}
+						else {
+							preferedView[5] = view;
+							continue;
+						}
+					}
+					if (!view.isPinned()) {					// for same type created view
 						final String secId = view.getViewSite().getSecondaryId();
 						if (secId != null && secId.startsWith(console.getType())) {
-							preferedView[1] = view;
+							preferedView[6] = view;
+							continue;
 						}
-						else if (page.isPartVisible(view)) { // visible views
-							preferedView[2] = view;
+						if (page.isPartVisible(view)) { 	// visible views
+							preferedView[7] = view;
+							continue;
 						}
 						else {								// other views
-							preferedView[3] = view;
+							preferedView[8] = view;
+							continue;
 						}
 					}
 				}
@@ -188,11 +196,15 @@ class PageRegistry {
 			else {
 				page.bringToTop(view);
 			}
+			finish(view);
 			return Status.OK_STATUS;
 		}
 		
+		protected void finish(final IConsoleView view) {
+		}
+		
 	}
-	private ShowConsoleViewJob fShowConsoleViewJob = new ShowConsoleViewJob();
+	private ShowConsoleViewJob fShowConsoleViewJob = new ShowConsoleViewJob(100);
 	
 	private class UpdateConsoleJob extends Job {
 		
@@ -343,6 +355,17 @@ class PageRegistry {
 		fShowConsoleViewJob.schedule(console, activate);
 	}
 	
+	public void showConsoleExplicitly(final NIConsole console, final boolean pin) {
+		new ShowConsoleViewJob(0) {
+			@Override
+			protected void finish(final IConsoleView view) {
+				if (pin) {
+					view.setPinned(true);
+				}
+			}
+		}.schedule(console, true);
+	}
+	
 	/**
 	 * only in UI thread
 	 */
@@ -355,7 +378,7 @@ class PageRegistry {
 		final IWorkbenchPart part = page.getActivePart();
 		if (part instanceof IConsoleView) {
 			final IConsole console = ((IConsoleView) part).getConsole();
-			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console))) {
+			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console).getProcess())) {
 				return nico;
 			}
 		}
@@ -364,7 +387,7 @@ class PageRegistry {
 		NIConsole secondChoice = null;
 		for (final IConsoleView view : consoleViews) {
 			final IConsole console = view.getConsole();
-			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console))) {
+			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console).getProcess())) {
 				if (page.isPartVisible(view)) {
 					return nico;
 				}

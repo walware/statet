@@ -163,7 +163,7 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		monitor.worked(5);
 		
 		final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
-		NicoUITools.startConsoleLazy(console, page);
+		NicoUITools.startConsoleLazy(console, page, false);
 		// start
 		
 		new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());

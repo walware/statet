@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ public class NicoUITools {
 //	}
 	
 	
-	public static void startConsoleLazy(final NIConsole console, final IWorkbenchPage page) {
+	public static void startConsoleLazy(final NIConsole console, final IWorkbenchPage page, final boolean pin) {
 		DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
 			public void handleDebugEvents(final DebugEvent[] events) {
 				final ToolProcess process = console.getProcess();
@@ -80,7 +80,8 @@ public class NicoUITools {
 							DebugPlugin.getDefault().removeDebugEventListener(this);
 							ConsolePlugin.getDefault().getConsoleManager().addConsoles(
 									new IConsole[] { console });
-							showConsole(console, page, true);
+							final ToolRegistry registry = NicoUIPlugin.getDefault().getToolRegistry();
+							registry.showConsoleExplicitly(console, page, pin);
 							break;
 						}
 					}

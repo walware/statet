@@ -325,4 +325,10 @@ public class ToolRegistry implements IToolRegistry {
 		reg.showConsole(console, activate);
 	}
 	
+	public void showConsoleExplicitly(final NIConsole console, final IWorkbenchPage page,
+			final boolean pin) {
+		final PageRegistry reg = getPageRegistry(page);
+		reg.showConsoleExplicitly(console, pin);
+	}
+	
 }

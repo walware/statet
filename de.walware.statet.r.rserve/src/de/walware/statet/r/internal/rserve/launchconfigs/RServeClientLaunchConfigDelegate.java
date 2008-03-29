@@ -69,7 +69,7 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
 			
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
-			NicoUITools.startConsoleLazy(console, page);
+			NicoUITools.startConsoleLazy(console, page, false);
 			// start
 			new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		}

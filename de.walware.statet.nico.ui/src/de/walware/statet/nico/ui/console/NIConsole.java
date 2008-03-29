@@ -55,10 +55,10 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
 	
 	
-	private Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
+	private final Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
 	private boolean fStreamsClosed;
 	
-	private ToolProcess fProcess;
+	private final ToolProcess fProcess;
 	private NIConsoleColorAdapter fAdapter;
 	
 	private IDebugEventSetListener fDebugListener;
@@ -73,7 +73,6 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	public NIConsole(final ToolProcess process, final NIConsoleColorAdapter adapter) {
 		super(process.getAttribute(IProcess.ATTR_PROCESS_LABEL),
 				NICONSOLE_TYPE, null, null, true);
-		
 		fProcess = process;
 		fAdapter = adapter;
 		Charset.defaultCharset();
