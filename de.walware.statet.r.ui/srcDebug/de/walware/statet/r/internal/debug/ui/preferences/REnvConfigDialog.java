@@ -250,7 +250,7 @@ public class REnvConfigDialog extends StatusDialog {
 			else {
 				final String[] defLocations = new String[] {
 						"/usr/lib/R", //$NON-NLS-1$
-						"/usr/local/bin/R", //$NON-NLS-1$
+						"/usr/lib64/R", //$NON-NLS-1$
 				};
 				for (int i = 0; i < defLocations.length; i++) {
 					loc = defLocations[i];
