@@ -15,8 +15,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.AbstractDocument;
@@ -29,6 +30,7 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IUpdate;
 
@@ -42,16 +44,19 @@ import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.internal.ui.RUIMessages;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
- * 
+ * Action to correct indentation of selected code lines.
+ * @see RSourceIndenter
  */
 public class RCorrectIndentAction extends Action implements IUpdate {
 	
 	
-	private REditor fEditor;
-	private IEditorAdapter fEditorAdapter;
+	private final REditor fEditor;
+	private final IEditorAdapter fEditorAdapter;
 	private RSourceIndenter fIndenter;
 	
 	
@@ -83,7 +88,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 						final ISourceUnit unit = ((IDocumentModelProvider) documentProvider).getWorkingCopy(fEditor.getEditorInput());
 						doCorrection(unit, selection, monitor);
 					}
-					catch (final CoreException e) {
+					catch (final Exception e) {
 						throw new InvocationTargetException(e);
 					}
 					finally {
@@ -91,16 +96,16 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 				}
 			});
 		} catch (final InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					RUIMessages.CorrectIndent_error_message, e.getTargetException()));
 		} catch (final InterruptedException e) {
 			Thread.interrupted();
 		}
 	}
 	
 	private void doCorrection(final ISourceUnit unit, final ITextSelection selection, final IProgressMonitor monitor)
-			throws CoreException {
-		monitor.subTask("Updating document structure...");
+			throws Exception {
+		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
 		final AbstractDocument document = unit.getDocument();
 		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) unit.getAstInfo("r", true, monitor); //$NON-NLS-1$
 		
@@ -108,72 +113,62 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			return;
 		}
 		
-		monitor.subTask("Indenting lines...");
+		monitor.subTask(RUIMessages.CorrectIndent_task_Indent);
 		
 		if (fIndenter == null) {
 			fIndenter = new RSourceIndenter();
 		}
-		try {
-			final int startLine = selection.getStartLine(); // save before change
-	//		if (length > 0 && fDocument.getLineOffset(fLastLine) == start+length) {
-	//			fLastLine--;
-	//		}
-			final MultiTextEdit edits = new MultiTextEdit();
-			final List<IRegion> codeRanges = getCodeRanges(document, selection);
-			for (final IRegion range : codeRanges) {
-				final int rStartLine = document.getLineOfOffset(Math.max(selection.getOffset(), range.getOffset()));
-				int rEndLine = document.getLineOfOffset(Math.min(selection.getOffset()+selection.getLength(), range.getOffset()+range.getLength()));
-				final int rEndLineOffset = document.getLineOffset(rEndLine);
-				if (rEndLineOffset == range.getOffset()+range.getLength()
-						|| (rStartLine < rEndLine && rEndLineOffset == selection.getOffset()+selection.getLength())) {
-					rEndLine--;
-				}
-				if (rStartLine <= rEndLine) {
-					final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine, fEditor.getRCoreAccess());
-					if (rEdits.getChildrenSize() > 0) {
-						edits.addChild(rEdits);
-					}
+		final int startLine = selection.getStartLine(); // save before change
+//		if (length > 0 && fDocument.getLineOffset(fLastLine) == start+length) {
+//			fLastLine--;
+//		}
+		final MultiTextEdit edits = new MultiTextEdit();
+		final List<IRegion> codeRanges = getCodeRanges(document, selection);
+		for (final IRegion range : codeRanges) {
+			final int rStartLine = document.getLineOfOffset(Math.max(selection.getOffset(), range.getOffset()));
+			int rEndLine = document.getLineOfOffset(Math.min(selection.getOffset()+selection.getLength(), range.getOffset()+range.getLength()));
+			final int rEndLineOffset = document.getLineOffset(rEndLine);
+			if (rEndLineOffset == range.getOffset()+range.getLength()
+					|| (rStartLine < rEndLine && rEndLineOffset == selection.getOffset()+selection.getLength())) {
+				rEndLine--;
+			}
+			if (rStartLine <= rEndLine) {
+				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine, fEditor.getRCoreAccess());
+				if (rEdits.getChildrenSize() > 0) {
+					edits.addChild(rEdits);
 				}
 			}
-			
-			if (edits.getChildrenSize() > 0) {
-				unit.syncExec(new SourceDocumentRunnable(document, ast.stamp,
-						(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
-					@Override
-					public void run(final AbstractDocument document) throws InvocationTargetException {
-						try {
-							edits.apply(document, TextEdit.NONE);
-						}
-						catch (final MalformedTreeException e) {
-							throw new InvocationTargetException(e);
-						}
-						catch (final BadLocationException e) {
-							throw new InvocationTargetException(e);
+		}
+		
+		if (edits.getChildrenSize() > 0) {
+			unit.syncExec(new SourceDocumentRunnable(document, ast.stamp,
+					(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
+				@Override
+				public void run(final AbstractDocument document) throws InvocationTargetException {
+					try {
+						edits.apply(document, TextEdit.NONE);
+					}
+					catch (final MalformedTreeException e) {
+						throw new InvocationTargetException(e);
+					}
+					catch (final BadLocationException e) {
+						throw new InvocationTargetException(e);
+					}
+				}
+			});
+		}
+		
+		if (selection.getLength() == 0) {
+			final int newPos = fIndenter.getNewIndentOffset(startLine);
+			if (newPos >= 0) {
+				UIAccess.getDisplay().syncExec(new Runnable() {
+					public void run() {
+						if (UIAccess.isOkToUse(fEditorAdapter.getSourceViewer())) {
+							fEditor.selectAndReveal(newPos, 0);
 						}
 					}
 				});
 			}
-			
-			if (selection.getLength() == 0) {
-				final int newPos = fIndenter.getNewIndentOffset(startLine);
-				if (newPos >= 0) {
-					UIAccess.getDisplay().syncExec(new Runnable() {
-						public void run() {
-							if (UIAccess.isOkToUse(fEditorAdapter.getSourceViewer())) {
-								fEditor.selectAndReveal(newPos, 0);
-							}
-						}
-					});
-				}
-			}
-		}
-		catch (final BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (final InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
