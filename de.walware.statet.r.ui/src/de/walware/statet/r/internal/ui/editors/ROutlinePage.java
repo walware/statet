@@ -39,7 +39,7 @@ import de.walware.statet.r.ui.editors.REditor;
 
 
 /**
- *
+ * 
  */
 public class ROutlinePage extends StatextOutlinePage<REditor> {
 	

@@ -30,7 +30,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 
 /**
- *
+ * 
  */
 public class SupportFileCommandTester extends PropertyTester {
 	

@@ -77,7 +77,7 @@ public class RCodeLaunchRegistry {
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
 	 * the specified file.</p>
-	 *
+	 * 
 	 * @param command the command, (at moment) should be single line.
 	 * @param file the file.
 	 * @throws CoreException if running failed.
@@ -105,7 +105,7 @@ public class RCodeLaunchRegistry {
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
 	 * the specified file.</p>
-	 *
+	 * 
 	 * @param command the command, (at moment) should be single line.
 	 * @param file the file.
 	 * @throws CoreException if running failed.
@@ -125,7 +125,7 @@ public class RCodeLaunchRegistry {
 	 * <p>
 	 * The pattern ${file} in command string is replaced by the path of
 	 * the specified file.</p>
-	 *
+	 * 
 	 * @param command the command, (at moment) should be single line.
 	 * @param file the file.
 	 * @throws CoreException if running failed.

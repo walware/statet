@@ -26,7 +26,7 @@ import de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdMainTab;
 
 
 /**
- *
+ * 
  */
 public class RLaunchConfigurations {
 	

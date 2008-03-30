@@ -44,8 +44,6 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
  * and does not change the focus.
  * 
  * Supports only text editors with input supporting R AST.
- * 
- * TODO: error reporting
  */
 public class RFunctionDirectLaunchShortcut implements ILaunchShortcut {
 	

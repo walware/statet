@@ -25,7 +25,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 
 /**
- *
+ * 
  */
 public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	

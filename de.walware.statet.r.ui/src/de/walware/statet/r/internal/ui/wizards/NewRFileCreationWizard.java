@@ -51,7 +51,7 @@ public class NewRFileCreationWizard extends NewElementWizard {
 		protected String getInitialFileContent(final IFile newFileHandle) {
 			final String lineDelimiter = TemplatesUtil.getLineSeparator(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "r");
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "r"); //$NON-NLS-1$
 				final NewFileData data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
 				if (data != null) {
 					fSelectionStart = data.selectionStart;

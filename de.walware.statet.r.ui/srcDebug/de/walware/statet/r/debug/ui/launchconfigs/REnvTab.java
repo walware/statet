@@ -46,13 +46,13 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- *
+ * 
  */
 public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	
 	public static final String NS = "de.walware.statet.r.debug/REnv/"; //$NON-NLS-1$
-	private static final String NEW_RENV_ID = NS + "code";
+	private static final String NEW_RENV_ID = NS + "code"; //$NON-NLS-1$
 	
 	public static REnvSetting readREnv(final ILaunchConfiguration configuration) throws CoreException {
 		final String setting = configuration.getAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, (String) null);
@@ -178,7 +178,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		final String code = REnvSetting.encodeREnv(SettingsType.WORKBENCH, null, false);
 		configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, code);
 		configuration.setAttribute(NEW_RENV_ID, code);
-		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "");
+		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 	
 	@Override

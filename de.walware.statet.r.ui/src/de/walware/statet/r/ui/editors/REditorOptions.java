@@ -22,7 +22,7 @@ import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 
 
 /**
- *
+ * 
  */
 public class REditorOptions extends AbstractPreferencesModelObject {
 	// Default values see RUIPreferenceInitializer

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.text.rd;
@@ -14,8 +14,6 @@ package de.walware.statet.r.ui.text.rd;
 
 /**
  * Keys of TextTokens recognized by text-parser (syntax-highlighting)
- *
- * @author Stephan Wahlbrink
  */
 public interface RdTextTokens {
 	

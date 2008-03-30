@@ -27,7 +27,7 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**
- *
+ * 
  */
 public class RPathCompletionProcessor extends PathCompletionProcessor {
 	

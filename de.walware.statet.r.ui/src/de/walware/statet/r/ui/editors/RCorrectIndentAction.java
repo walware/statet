@@ -45,7 +45,7 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
 /**
- *
+ * 
  */
 public class RCorrectIndentAction extends Action implements IUpdate {
 	

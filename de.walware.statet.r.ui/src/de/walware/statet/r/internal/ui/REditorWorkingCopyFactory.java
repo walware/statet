@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rmodel.IRSourceUnit;
 
 
 /**
- *
+ * 
  */
 public class REditorWorkingCopyFactory extends AbstractRUnitFactory {
 	

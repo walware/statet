@@ -52,7 +52,7 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- *
+ * 
  */
 public class RSelectionDirectAndPasteOutputLaunchShortcut implements ILaunchShortcut {
 	

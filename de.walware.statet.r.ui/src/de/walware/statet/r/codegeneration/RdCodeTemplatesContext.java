@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.codegeneration;
@@ -20,19 +20,18 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class RdCodeTemplatesContext extends StatextCodeTemplatesContext {
 	
 	
-	public RdCodeTemplatesContext(String contextTypeName, StatetProject project, String lineDelim) {
-		
+	public RdCodeTemplatesContext(final String contextTypeName, final StatetProject project, final String lineDelim) {
 		super(
 				RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry().getContextType(contextTypeName),
 				project,
 				lineDelim);
 	}
 	
-
-	public void setCodeUnitVariables(RResourceUnit u) {
+	
+	public void setCodeUnitVariables(final RResourceUnit u) {
 		setVariable(RCodeTemplatesContextType.FILENAME, u.getElementName());
 //		setVariable(RCodeTemplatesContextType.PACKAGENAME, u.getParent().getElementName());
 //		setVariable(RCodeTemplatesContextType.PROJECTNAME, u.getRProject().getElementName());
 	}
-
+	
 }

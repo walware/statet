@@ -18,7 +18,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 /**
- *
+ * 
  */
 public class RUI {
 	

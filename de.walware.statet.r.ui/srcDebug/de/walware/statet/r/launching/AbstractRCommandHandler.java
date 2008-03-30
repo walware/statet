@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.launching;
@@ -37,28 +37,30 @@ import de.walware.statet.r.ui.RUI;
  * Abstract handler to submit a simple command to R.
  */
 public abstract class AbstractRCommandHandler extends AbstractHandler {
-
-	public static String createCommandString(String commandId, String[][] parameters) throws NotDefinedException {
-		ICommandService service = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-		Command base = service.getCommand(commandId);
+	
+	
+	public static String createCommandString(final String commandId, final String[][] parameters) throws NotDefinedException {
+		final ICommandService service = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+		final Command base = service.getCommand(commandId);
 		if (base == null) {
 			throw new NotDefinedException("No command registered with the requested id: " + commandId); //$NON-NLS-1$
 		}
-		Parameterization[] par = new Parameterization[parameters.length];
+		final Parameterization[] par = new Parameterization[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
 			par[i] = new Parameterization(base.getParameter(parameters[i][0]), parameters[i][1]);
 		}
-		ParameterizedCommand configured = new ParameterizedCommand(base, par);
+		final ParameterizedCommand configured = new ParameterizedCommand(base, par);
 		return configured.serialize();
 	}
-
+	
 	
 	private String fName;
 	
 	
-	protected AbstractRCommandHandler(String commandName) {
+	protected AbstractRCommandHandler(final String commandName) {
 		fName = commandName;
 	}
+	
 	
 	protected String getRSelection() {
 		final AtomicReference<String> topic = new AtomicReference<String>();
@@ -73,10 +75,11 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 		return topic.get();
 	}
 	
-	protected void runCommand(String cmd, boolean gotoConsole) {
+	protected void runCommand(final String cmd, final boolean gotoConsole) {
 		try {
 			RCodeLaunchRegistry.runRCodeDirect(new String[] { cmd }, gotoConsole);
-		} catch (CoreException e) {
+		}
+		catch (final CoreException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					-1, NLS.bind(RLaunchingMessages.RSpecifiedLaunch_error_message, fName), e),
 					StatusManager.LOG | StatusManager.SHOW);

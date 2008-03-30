@@ -46,7 +46,7 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- *
+ * 
  */
 public class RErrorLineTracker implements IPatternMatchListener {
 	

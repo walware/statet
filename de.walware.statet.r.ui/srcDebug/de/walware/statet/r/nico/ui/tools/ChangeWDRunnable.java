@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico.ui.tools;
@@ -28,38 +28,37 @@ import de.walware.statet.r.nico.ISetupRAdapter;
  * ToolRunnable to change the working directory of R.
  */
 public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
-
+	
 	public static final String TYPE_ID = "r/tools/changeWorkingDir"; //$NON-NLS-1$
 	
 	
 	private IFileStore fWorkingDir;
 	
 	
-	public ChangeWDRunnable(IFileStore workingdir) {
+	public ChangeWDRunnable(final IFileStore workingdir) {
 		fWorkingDir = workingdir;
 	}
 	
 	
-	public void changed(int event) {
+	public void changed(final int event) {
 	}
-
+	
 	public String getTypeId() {
 		return TYPE_ID;
 	}
-
+	
 	public String getLabel() {
 		return RNicoMessages.ChangeWorkingDir_Task_label;
 	}
-
+	
 	public SubmitType getSubmitType() {
 		return SubmitType.TOOLS;
 	}
-
-	public void run(IBasicRAdapter tools, IProgressMonitor monitor)
+	
+	public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
 			throws InterruptedException, CoreException {
-		
-		String path = URIUtil.toPath(fWorkingDir.toURI()).toOSString();
-		String command = "setwd(\"" + RUtil.escapeCompletly(path) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+		final String path = URIUtil.toPath(fWorkingDir.toURI()).toOSString();
+		final String command = "setwd(\"" + RUtil.escapeCompletly(path) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
 		tools.submitToConsole(command, monitor);
 		if (tools instanceof ISetupRAdapter) {
 			((ISetupRAdapter) tools).setWorkspaceDir(fWorkingDir);

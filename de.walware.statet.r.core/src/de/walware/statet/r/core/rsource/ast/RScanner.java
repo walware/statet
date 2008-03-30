@@ -1147,7 +1147,7 @@ public class RScanner {
 		return symbol;
 	}
 	
-	protected Symbol createEllipsis(final RAstNode parent) { // TODO replace with own type?
+	protected Symbol createEllipsis(final RAstNode parent) { // replace with own type?
 		final Symbol symbol = new Symbol.Std();
 		symbol.fRParent = parent;
 		setupFromSourceToken(symbol);

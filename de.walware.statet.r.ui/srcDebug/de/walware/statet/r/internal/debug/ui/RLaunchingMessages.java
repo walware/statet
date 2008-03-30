@@ -83,5 +83,6 @@ public class RLaunchingMessages extends NLS {
 	static {
 		NLS.initializeMessages(RLaunchingMessages.class.getName(), RLaunchingMessages.class);
 	}
+	private RLaunchingMessages() {}
 	
 }

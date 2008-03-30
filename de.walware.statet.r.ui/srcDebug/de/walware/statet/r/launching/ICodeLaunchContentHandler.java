@@ -17,7 +17,7 @@ import org.eclipse.jface.text.IDocument;
 
 
 /**
- *
+ * 
  */
 public interface ICodeLaunchContentHandler {
 	

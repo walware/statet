@@ -47,7 +47,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 			public void run() throws CoreException {
 				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 				final ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
-				final ToolController controller = NicoUITools.accessTool("R", info.getProcess());
+				final ToolController controller = NicoUITools.accessTool("R", info.getProcess()); //$NON-NLS-1$
 				final IStatus status = controller.submit(rCommands, SubmitType.EDITOR);
 				if (status.getSeverity() >= IStatus.ERROR) {
 					throw new CoreException(status);

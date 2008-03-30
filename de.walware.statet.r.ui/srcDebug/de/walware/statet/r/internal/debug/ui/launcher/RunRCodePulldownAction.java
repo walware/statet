@@ -80,7 +80,7 @@ public class RunRCodePulldownAction implements IWorkbenchWindowPulldownDelegate 
 		
 		/**
 		 * Runs with either the active editor or workbench selection.
-		 *
+		 * 
 		 * @see IAction#run()
 		 */
 		@Override
