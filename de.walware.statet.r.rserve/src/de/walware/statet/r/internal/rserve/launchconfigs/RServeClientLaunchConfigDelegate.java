@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the GNU Lesser General Public License
  * v2.1 or newer, which accompanies this distribution, and is available at
@@ -22,16 +22,13 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
-import de.walware.statet.nico.ui.util.LoginHandler;
-import de.walware.statet.nico.ui.util.QuitHandler;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
-import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
+import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.rserve.RServeClientController;
@@ -65,11 +62,11 @@ public class RServeClientLaunchConfigDelegate implements ILaunchConfigurationDel
 			
 			final RServeClientController controller = new RServeClientController(process, connectionConfig);
 			process.init(controller);
-			controller.addEventHandler(IToolEventHandler.LOGIN_EVENT_ID, new LoginHandler());
-			controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
+			RConsoleLaunching.registerDefaultHandlerTo(controller);
 			
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
-			NicoUITools.startConsoleLazy(console, page, false);
+			NicoUITools.startConsoleLazy(console, page, 
+					configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false));
 			// start
 			new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		}
