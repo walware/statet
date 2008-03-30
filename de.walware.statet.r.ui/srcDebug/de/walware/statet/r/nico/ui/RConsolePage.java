@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,24 +12,108 @@
 package de.walware.statet.r.nico.ui;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
+import org.eclipse.ui.console.TextConsoleViewer;
 
+import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.ui.NicoUITools;
+import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.internal.nico.ui.RInputConfigurator;
+import de.walware.statet.r.internal.nico.ui.RInputGroup;
+import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.nico.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.ui.RUIHelp;
 
 
 public class RConsolePage extends NIConsolePage {
+	
+	
+	private class AdjustWithAction extends ToolAction implements IToolRunnable {
+		
+		
+		public AdjustWithAction() {
+			super(RConsolePage.this, true);
+			setText(RNicoMessages.AdjustWidth_label);
+			setDescription(RNicoMessages.AdjustWidth_description);
+		}
+		
+		
+		@Override
+		public void run() {
+			try {
+				final ToolController controller = NicoUITools.accessTool("R", getConsole().getProcess()); //$NON-NLS-1$
+				controller.submit(this);
+			}
+			catch (final CoreException e) {
+			}
+		}
+		
+		
+		public void changed(final int event) {
+		}
+		
+		public String getTypeId() {
+			return "r/console/width"; //$NON-NLS-1$
+		}
+		
+		public SubmitType getSubmitType() {
+			return SubmitType.TOOLS;
+		}
+		
+		public String getLabel() {
+			return RNicoMessages.AdjustWidth_task;
+		}
+		
+		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) 
+				throws InterruptedException, CoreException {
+			final AtomicInteger width = new AtomicInteger(-1);
+			UIAccess.getDisplay().syncExec(new Runnable() {
+				public void run() {
+					final TextConsoleViewer outputViewer = getOutputViewer();
+					if (UIAccess.isOkToUse(outputViewer)) {
+						final GC gc = new GC(Display.getCurrent());
+						gc.setFont(outputViewer.getTextWidget().getFont());
+						final FontMetrics fontMetrics = gc.getFontMetrics();
+						final int charWidth = fontMetrics.getAverageCharWidth();
+						final int clientWidth = outputViewer.getTextWidget().getClientArea().width;
+						width.set(clientWidth/charWidth);
+						gc.dispose();
+					}
+				}
+			});
+			int setWidth = width.get();
+			if (setWidth >= 0) {
+				if (setWidth < 10) {
+					setWidth = 10;
+				}
+				tools.submitToConsole("options(width = "+setWidth+")", monitor); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		
+	}
 	
 	
 	private IContextProvider fHelpContextProvider;
@@ -68,7 +152,10 @@ public class RConsolePage extends NIConsolePage {
 		super.contributeToActionBars();
 		
 		final IMenuManager menuManager = getSite().getActionBars().getMenuManager();
+		menuManager.add(new Separator("workspace")); //$NON-NLS-1$
 		menuManager.add(new ChangeWorkingDirectoryWizard.ChangeAction(this));
+		menuManager.add(new Separator("console")); //$NON-NLS-1$
+		menuManager.add(new AdjustWithAction());
 	}
 	
 	@Override

@@ -45,8 +45,8 @@ import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.launcher.DefaultCodeLaunchHandler;
+import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.ui.RUI;
 
 

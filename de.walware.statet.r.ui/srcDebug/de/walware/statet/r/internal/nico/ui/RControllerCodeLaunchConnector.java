@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico.ui;
+package de.walware.statet.r.internal.nico.ui;
 
 import java.util.concurrent.atomic.AtomicReference;
 

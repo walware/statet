@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.nico.ui;
+package de.walware.statet.r.internal.nico.ui;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.commands.ActionHandler;
@@ -25,6 +25,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.r.nico.BasicR;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
+import de.walware.statet.r.nico.ui.RConsolePage;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
@@ -32,23 +33,23 @@ import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 /**
  * R Console input line
  */
-class RInputGroup extends InputGroup implements ISettingsChangedHandler {
+public class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	
 	
 	private RSourceViewerConfigurator fRConfig;
 	
 	
 	/**
-	 * @param page
 	 */
-	RInputGroup(RConsolePage page) {
+	public RInputGroup(final RConsolePage page) {
 		super(page);
 	}
 	
+	
 	@Override
-	protected void onPromptUpdate(Prompt prompt) {
+	protected void onPromptUpdate(final Prompt prompt) {
 		if ((prompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-			IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
+			final IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
 			fDocument.setPrefix(p.previousInput);
 		}
 		else {
@@ -57,14 +58,14 @@ class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	}
 	
 	@Override
-	public Composite createControl(Composite parent, SourceViewerConfigurator editorConfig) {
+	public Composite createControl(final Composite parent, final SourceViewerConfigurator editorConfig) {
 		fRConfig = (RSourceViewerConfigurator) editorConfig;
-		Composite control = super.createControl(parent, editorConfig);
+		final Composite control = super.createControl(parent, editorConfig);
 		return control;
 	}
 	
 	@Override
-	public void configureServices(IHandlerService commands, IContextService keys) {
+	public void configureServices(final IHandlerService commands, final IContextService keys) {
 		super.configureServices(commands, keys);
 		
 		keys.activateContext("de.walware.statet.r.contexts.REditorScope"); //$NON-NLS-1$

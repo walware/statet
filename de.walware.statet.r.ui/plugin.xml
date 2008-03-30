@@ -1053,7 +1053,7 @@
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
-            class="de.walware.statet.r.nico.ui.RControllerCodeLaunchConnector"
+            class="de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector"
             description="%rConnector_RNewConsoleConnector_description"
             id="de.walware.statet.r.launching.RNewConsoleConnector"
             name="%rConnector_RNewConsoleConnector_name"/>
