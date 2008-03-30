@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,12 +24,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -39,6 +41,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -58,6 +61,7 @@ import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -66,29 +70,6 @@ import de.walware.statet.r.ui.RUI;
  */
 public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
-	private static final String ATTR_ROOT = "de.walware.statet.r.debug/RConsole/"; //$NON-NLS-1$
-	public static final String ATTR_TYPE = ATTR_ROOT+"type"; //$NON-NLS-1$
-	public static final String ATTR_OPTIONS = ATTR_ROOT+"arguments.options"; //$NON-NLS-1$
-	
-	
-	protected class ConsoleType {
-		
-		private String fName;
-		private String fId;
-		
-		public ConsoleType(final String name, final String id) {
-			fName = name;
-			fId = id;
-		}
-		
-		public String getName() {
-			return fName;
-		}
-		
-		public String getId() {
-			return fId;
-		}
-	}
 	
 	private class RArgumentsComposite extends InputArgumentsComposite {
 		
@@ -115,14 +96,16 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		}
 	}
 	
-	private ConsoleType[] fTypes;
-	private ConsoleType fSelectedType;
+	private RConsoleType[] fTypes;
+	private RConsoleType fDefaultType;
 	
 	private ComboViewer fTypesCombo;
 	private RArgumentsComposite fArgumentsControl;
+	private Button fPinControl;
 	
 	private WritableValue fTypeValue;
 	private WritableValue fArgumentsValue;
+	private WritableValue fPinValue;
 	
 	boolean fWithHelp = false;
 	private MenuItem fHelpItem;
@@ -133,12 +116,22 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	public RConsoleMainTab() {
 		super();
 		fTypes = loadTypes();
+		fDefaultType = fTypes[0];
 	}
 	
-	protected ConsoleType[] loadTypes() {
-		final List<ConsoleType> types = new ArrayList<ConsoleType>();
-		types.add(new ConsoleType("Rterm", "rterm")); //$NON-NLS-1$ //$NON-NLS-2$
-		return types.toArray(new ConsoleType[types.size()]);
+	
+	protected RConsoleType[] loadTypes() {
+		final List<RConsoleType> types = new ArrayList<RConsoleType>();
+		types.add(new RConsoleType("Rterm", RConsoleLaunching.LOCAL_RTERM, false, false)); //$NON-NLS-1$
+		types.add(new RConsoleType("RJ (RMI/JRI)", RConsoleLaunching.LOCAL_RJS, true, true)); //$NON-NLS-1$
+		return types.toArray(new RConsoleType[types.size()]);
+	}
+	
+	RConsoleType getSelectedType() {
+		if (fTypeValue != null) {
+			return (RConsoleType) fTypeValue.getValue();
+		}
+		return null;
 	}
 	
 	public String getName() {
@@ -156,15 +149,32 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(new GridLayout());
 		
+		if (getLaunchConfigurationDialog().getMode().equals(ILaunchManager.DEBUG_MODE)) {
+			final Label label = new Label(mainComposite, SWT.WRAP);
+			label.setText("The 'debug' launch mode enables debug features for Java, not for R, and only if you use 'JR' type."); //$NON-NLS-1$
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+			gd.widthHint = 300;
+			label.setLayoutData(gd);
+			label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
+			LayoutUtil.addSmallFiller(mainComposite, false);
+		}
+		
 		Group group;
 		group = new Group(mainComposite, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 //		group.setText("Launch configuration:");
 		createCommandControls(group);
 		
+		group = new Group(mainComposite, SWT.NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		group.setText(RLaunchingMessages.RConsole_MainTab_ConsoleOptions_label);
+		createConsoleOptions(group);
+		
 		final Label note = new Label(mainComposite, SWT.WRAP);
 		note.setText(SharedMessages.Note_label + ": " + fArgumentsControl.getNoteText()); //$NON-NLS-1$
 		note.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, true));
+		
+		LayoutUtil.addSmallFiller(mainComposite, false);
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
@@ -194,14 +204,14 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		fTypesCombo.setLabelProvider(new LabelProvider() {
 			@Override
 			public String getText(final Object element) {
-				final ConsoleType type = (ConsoleType) element;
+				final RConsoleType type = (RConsoleType) element;
 				return type.getName();
 			}
 		});
 		fTypesCombo.setInput(fTypes);
 		fTypesCombo.getCombo().setVisibleItemCount(names.length);
 		fTypesCombo.getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fTypesCombo.getControl().setEnabled(false);
+		fTypesCombo.getControl().setEnabled(fTypes.length > 1);
 		LayoutUtil.addGDDummy(container);
 		
 		createTypeDetails(container);
@@ -214,37 +224,75 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	protected void createTypeDetails(final Composite container) {
 	}
 	
+	private void createConsoleOptions(final Composite container) {
+		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+		
+		fPinControl = new Button(container, SWT.CHECK);
+		fPinControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fPinControl.setText(RLaunchingMessages.RConsole_MainTab_ConsoleOptions_Pin_label);
+	}
+	
+	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
-		fTypeValue = new WritableValue(realm, ConsoleType.class);
+		fTypeValue = new WritableValue(realm, RConsoleType.class);
 		fArgumentsValue = new WritableValue(realm, String.class);
+		fPinValue = new WritableValue(realm, Boolean.class);
 		
 		final IObservableValue typeSelection = ViewersObservables.observeSingleSelection(fTypesCombo);
 		dbc.bindValue(typeSelection, fTypeValue, null, null);
 		
 		dbc.bindValue(SWTObservables.observeText(fArgumentsControl.getTextControl(), SWT.Modify),
 				fArgumentsValue, null, null);
+		
+		dbc.bindValue(SWTObservables.observeSelection(fPinControl), fPinValue, null, null);
 	}
 	
 	
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(ATTR_TYPE, fTypes[0].getId()); //s
-		configuration.setAttribute(ATTR_OPTIONS, ""); //$NON-NLS-1$
+		configuration.setAttribute(RConsoleLaunching.ATTR_TYPE, fDefaultType.getId()); //s
+		configuration.setAttribute(RConsoleLaunching.ATTR_OPTIONS, ""); //$NON-NLS-1$
+		configuration.setAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false); 
 	}
 	
 	@Override
 	protected void doInitialize(final ILaunchConfiguration configuration) {
-		fTypeValue.setValue(fTypes[0]);
+		String type = null;
+		try {
+			type = configuration.getAttribute(RConsoleLaunching.ATTR_TYPE, ""); //$NON-NLS-1$
+		} catch (final CoreException e) {
+			type = ""; //$NON-NLS-1$
+			logReadingError(e);
+		}
+		int i = 0;
+		for (; i < fTypes.length; i++) {
+			if (fTypes[i].getId().equals(type)) {
+				fTypeValue.setValue(fTypes[i]);
+				break;
+			}
+		}
+		if (i >= fTypes.length) {
+			fTypeValue.setValue(fDefaultType);
+		}
 		
 		String options = null;
 		try {
-			options = configuration.getAttribute(ATTR_OPTIONS, ""); //$NON-NLS-1$
-			
+			options = configuration.getAttribute(RConsoleLaunching.ATTR_OPTIONS, ""); //$NON-NLS-1$
 		} catch (final CoreException e) {
 			options = ""; //$NON-NLS-1$
 			logReadingError(e);
 		}
 		fArgumentsValue.setValue(options);
+		
+		boolean pin;
+		try {
+			pin = configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false);
+		}
+		catch (final CoreException e) {
+			pin = false;
+			logReadingError(e);
+		}
+		fPinValue.setValue(pin);
 		
 		checkHelp(configuration);
 	}
@@ -257,8 +305,9 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(ATTR_TYPE, ((ConsoleType) fTypeValue.getValue()).getId());
-		configuration.setAttribute(ATTR_OPTIONS, (String) fArgumentsValue.getValue());
+		configuration.setAttribute(RConsoleLaunching.ATTR_TYPE, ((RConsoleType) fTypeValue.getValue()).getId());
+		configuration.setAttribute(RConsoleLaunching.ATTR_OPTIONS, (String) fArgumentsValue.getValue());
+		configuration.setAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, ((Boolean) fPinValue.getValue()).booleanValue());
 	}
 	
 	private void checkHelp(final ILaunchConfiguration configuration) {

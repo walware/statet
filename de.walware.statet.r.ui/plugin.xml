@@ -422,9 +422,11 @@
       <launchConfigurationType
             delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleLaunchDelegate"
             id="de.walware.statet.r.launchConfigurationTypes.RConsole"
-            modes="run"
+            modes="run,debug"
             name="%launchConfigurations.RConsole_name"
-            public="true">
+            public="true"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
       </launchConfigurationType>
    </extension>
    <extension
@@ -444,6 +446,32 @@
             type="de.walware.statet.r.launchConfigurationTypes.RConsole"/>
    </extension>
 
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RRemoteConsoleLaunchDelegate"
+            id="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
+            modes="run"
+            name="%launchConfigurations.RRemoteConsole_name"
+            public="true">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            id="de.walware.statet.r.images.RRemoteConsole"
+            configTypeID="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
+            icon="icons/tool_16/r-remoteconsole.png">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RRemoteConsoleTabGroup"
+            description="%launchConfigurations.RRemoteConsole_description"
+            id="de.walware.statet.r.launchConfigurationTabGroups.RRemoteConsole"
+            type="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"/>
+   </extension>
 
    <extension-point
          id="rCodeLaunchConnector"

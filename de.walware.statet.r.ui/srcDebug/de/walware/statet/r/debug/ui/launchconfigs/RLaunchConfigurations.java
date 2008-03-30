@@ -34,7 +34,9 @@ public class RLaunchConfigurations {
 	public static final String ID_R_CMD_PROCESS_TYPE = "R.cmd"; //$NON-NLS-1$
 	
 	public static final String ID_R_CONSOLE_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RConsole"; //$NON-NLS-1$
-	public static final String ID_R_CONSOLE_PROCESS_TYPE = "R"+ToolProcess.PROCESS_TYPE_SUFFIX; 
+	public static final String ID_R_REMOTE_CONSOLE_CONFIGURATION_TYPE = "de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"; //$NON-NLS-1$
+	public static final String ID_R_CONSOLE_PROCESS_TYPE = "R"+ToolProcess.PROCESS_TYPE_SUFFIX; //$NON-NLS-1$
+	
 	
 	public static final String ATTR_R_CMD_COMMAND = RCmdMainTab.NS+"arguments.cmd"; //$NON-NLS-1$
 	public static final String ATTR_R_CMD_OPTIONS = RCmdMainTab.NS+"arguments.options"; //$NON-NLS-1$

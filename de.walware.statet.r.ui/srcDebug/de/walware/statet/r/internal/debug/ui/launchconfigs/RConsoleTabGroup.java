@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,15 +15,33 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
+import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
 
 import de.walware.statet.nico.ui.util.CommonTabForNico;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 
 
-/**
- * 
- */
 public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
+	
+	
+	public static class ExtJavaClasspathTab extends JavaClasspathTab {
+		
+		@Override
+		public String getName() {
+			return "Java "+super.getName(); //$NON-NLS-1$
+		}
+		
+	}
+	
+	public static class ExtSourceLookupTab extends SourceLookupTab {
+		
+		@Override
+		public String getName() {
+			return "Java "+super.getName(); //$NON-NLS-1$
+		}
+		
+	}
 	
 	
 	public RConsoleTabGroup() {
@@ -31,10 +49,24 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 	
 	
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
-		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
-				new RConsoleMainTab(),
+		final RConsoleMainTab mainTab = new RConsoleMainTab();
+		final boolean jdt = true;
+		
+		final ILaunchConfigurationTab[] tabs = jdt ? new ILaunchConfigurationTab[] {
+				mainTab,
 				new REnvTab(),
 				new EnvironmentTab(),
+				
+				new ExtJavaJRETab(mainTab),
+				new ExtJavaClasspathTab(),
+				new ExtSourceLookupTab(),
+				
+				new CommonTabForNico()
+		} : new ILaunchConfigurationTab[] {
+				mainTab,
+				new REnvTab(),
+				new EnvironmentTab(),
+				
 				new CommonTabForNico()
 		};
 		setTabs(tabs);

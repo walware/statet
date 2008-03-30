@@ -42,6 +42,7 @@ public class RLaunchingMessages extends NLS {
 	
 	public static String LaunchDelegate_error_StartingExec;
 	public static String LaunchDelegate_error_ProcessHandle;
+	public static String LaunchDelegate_error_InvalidUnsupportedConsoleEncoding_message;
 	
 	public static String REnv_Tab_REnvConfig_label;
 	public static String REnv_Tab_title;
@@ -54,6 +55,8 @@ public class RLaunchingMessages extends NLS {
 	public static String RConsole_MainTab_RunHelp_label;
 	public static String RConsole_MainTab_error_CannotRunHelp_message;
 	public static String RConsole_MainTab_error_WhileRunningHelp_message;
+	public static String RConsole_MainTab_ConsoleOptions_label;
+	public static String RConsole_MainTab_ConsoleOptions_Pin_label;
 	
 	public static String RCmd_MainTab_name;
 	public static String RCmd_MainTab_Cmd_label;
