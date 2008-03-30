@@ -93,7 +93,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	public static IFileStore getWorkingDirectory(final ILaunchConfiguration configuration) throws CoreException {
 		return getWorkingDirectoryValidator(configuration, true).getFileStore();
 	}
-
+	
 	public static FileValidator getWorkingDirectoryValidator(final ILaunchConfiguration configuration, final boolean validate) throws CoreException {
 		String path = readWorkingDirectory(configuration);
 		if (path == null || path.trim().length() == 0) {
@@ -105,6 +105,9 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		validator.setResourceLabel(MessageUtil.removeMnemonics(RLaunchingMessages.REnv_Tab_WorkingDir_label));
 		if (validate && validator.validate(path).getSeverity() == IStatus.ERROR) {
 			throw new CoreException(validator.getStatus());
+		}
+		else {
+			validator.setExplicit(path);
 		}
 		return validator;
 	}
@@ -123,6 +126,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	public REnvTab() {
 		super();
 	}
+	
 	
 	public String getName() {
 		return RLaunchingMessages.REnv_Tab_title;
