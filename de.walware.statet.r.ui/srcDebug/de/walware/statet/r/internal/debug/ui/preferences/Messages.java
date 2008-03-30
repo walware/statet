@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,14 @@ public class Messages extends NLS {
 	public static String REnv_Detail_FindAuto_label;
 	public static String REnv_Detail_FindAuto_Failed_message;
 	public static String REnv_error_Saving_message;
+	
+	public static String RIntegrationExt_description;
+	public static String RIntegrationExt_LocalRMI_label;
+	public static String RIntegrationExt_LocalRMI_RegistryAction_Start_label;
+	public static String RIntegrationExt_LocalRMI_RegistryAction_Stop_label;
+	public static String RIntegrationExt_LocalRMI_RegistryAutostart_label;
+	public static String RIntegrationExt_LocalRMI_RegistryPort_error_Invalid_message;
+	public static String RIntegrationExt_LocalRMI_RegistryPort_label;
 	
 	
 	static {

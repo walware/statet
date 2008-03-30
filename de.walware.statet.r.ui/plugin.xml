@@ -892,6 +892,12 @@
             class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
             id="de.walware.statet.r.preferencePages.RInteractionPreferencePage"
             name="%preferencePages.REnvironments.name"/>
+      <page
+            category="de.walware.statet.r.preferencePages.RInteraction"
+            class="de.walware.statet.r.internal.debug.ui.preferences.ExtendedOptionsPreferencePage"
+            id="de.walware.statet.r.preferencePages.AdvancedIntegration"
+            name="%preferencePages.RIntegrationExt.name">
+      </page>
    </extension>
 
    <extension point="org.eclipse.ui.commands">
