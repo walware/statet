@@ -73,6 +73,7 @@ import org.eclipse.ui.console.actions.ClearOutputAction;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.console.IOConsoleViewer;
+import org.eclipse.ui.internal.services.IServiceLocatorCreator;
 import org.eclipse.ui.internal.services.ServiceLocator;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
@@ -80,7 +81,6 @@ import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.services.IServiceLocator;
-import org.eclipse.ui.services.IServiceLocatorCreator;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
@@ -342,7 +342,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				return false; // our page handles focus
 			}
 		};
-		GridLayout layout = new GridLayout(1, false);
+		final GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
 		layout.verticalSpacing = 0;
 		layout.marginWidth = 0;
