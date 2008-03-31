@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.codegeneration;
 
-
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 
 import de.walware.statet.ext.templates.StatextCodeTemplatesContextType;

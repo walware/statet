@@ -63,6 +63,8 @@ public class ToolRegistry implements IToolRegistry {
 			
 			public RemoveToolsJob() {
 				super("Remove Tools"); //$NON-NLS-1$
+				setSystem(true);
+				setPriority(Job.SHORT);
 			}
 			
 			public synchronized void schedule(final List<ToolProcess> list) {

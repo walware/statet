@@ -316,7 +316,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			listStatus.setError(Messages.TaskTags_error_DefaultTast_message);
 		}
 		
-		final IStatus status = listStatus; 		// StatusUtil.getMostSevere(new IStatus[] { ... });
+		final IStatus status = listStatus; // StatusUtil.getMostSevere(new IStatus[] { ... });
 		fStatusListener.statusChanged(status);
 		return status;
 	}
@@ -324,7 +324,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	protected String[] getFullBuildDialogStrings(final boolean workspaceSettings) {
-		final String title = Messages.TaskTags_NeedsBuild_title; 
+		final String title = Messages.TaskTags_NeedsBuild_title;
 		String message;
 		if (workspaceSettings) {
 			message = Messages.TaskTags_NeedsFullBuild_message; 

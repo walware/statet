@@ -28,8 +28,14 @@ import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
  */
 public class RAst {
 	
-	
+	/**
+	 * AST without any text informations.
+	 */
 	public static final int LEVEL_MINIMAL = 1;
+	
+	/**
+	 * AST ready for model processing.
+	 */
 	public static final int LEVEL_MODEL_DEFAULT = 2;
 	
 	
