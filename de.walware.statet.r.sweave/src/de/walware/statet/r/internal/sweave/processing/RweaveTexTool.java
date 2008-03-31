@@ -304,7 +304,7 @@ class RweaveTexTool implements Runnable, IProcess {
 			}
 			
 			// Prepare TeX processing
-			if (fTexFile.exists() && fTexFile.getType() == IResource.FILE) {
+			if ((fRunSweave || fRunTex) && fTexFile.exists() && fTexFile.getType() == IResource.FILE) {
 				fTexFile.deleteMarkers(TexlipseBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
 				fTexFile.deleteMarkers(TexlipseBuilder.LAYOUT_WARNING_TYPE, true, IResource.DEPTH_INFINITE);
 			}
@@ -316,7 +316,7 @@ class RweaveTexTool implements Runnable, IProcess {
 			if (fStatus.getSeverity() >= IStatus.ERROR) {
 				return;
 			}
-			if (!fTexFile.exists()) {
+			if (fRunTex && !fTexFile.exists()) {
 				fExitValue = 199;
 				fStatus.add(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
 						NLS.bind(Messages.RweaveTexCreation_Tex_error_NotFound_message, fTexFile.getFullPath().toString()), null));
