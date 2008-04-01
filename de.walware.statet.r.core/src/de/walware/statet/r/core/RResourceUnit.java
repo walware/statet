@@ -23,7 +23,9 @@ import org.eclipse.jface.text.AbstractDocument;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelElement;
+import de.walware.eclipsecommons.ltk.IProblemRequestor;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 import de.walware.eclipsecommons.ltk.SourceContent;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
 import de.walware.eclipsecommons.ltk.WorkingBuffer;
@@ -198,6 +200,14 @@ public abstract class RResourceUnit implements ISourceUnit {
 	}
 	
 	public AstInfo<?> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+		return null;
+	}
+	
+	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
+		return null;
+	}
+	
+	public IProblemRequestor getProblemRequestor() {
 		return null;
 	}
 	

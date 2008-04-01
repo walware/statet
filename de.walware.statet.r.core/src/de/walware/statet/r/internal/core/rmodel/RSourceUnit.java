@@ -61,7 +61,7 @@ public class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	}
 	
 	
-	public synchronized void reconcile(final int level, final IProgressMonitor monitor) {
+	public synchronized void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 	}
 	
 }

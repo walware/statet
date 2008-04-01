@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui;
 
 import java.lang.reflect.InvocationTargetException;
 
+import de.walware.eclipsecommons.ltk.IProblemRequestor;
 import de.walware.eclipsecommons.ltk.IWorkingBuffer;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
 import de.walware.eclipsecommons.ltk.WorkingContext;
@@ -43,6 +44,10 @@ public class REditorWorkingCopy extends RManagedWorkingCopy {
 	public void syncExec(final SourceDocumentRunnable runnable)
 			throws InvocationTargetException {
 		FileBufferWorkingBuffer.syncExec(runnable);
+	}
+	
+	public IProblemRequestor getProblemRequestor() {
+		return (IProblemRequestor) RUIPlugin.getDefault().getRDocumentProvider().getAnnotationModel(this);
 	}
 	
 }

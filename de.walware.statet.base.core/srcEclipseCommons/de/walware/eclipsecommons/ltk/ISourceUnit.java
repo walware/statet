@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,10 @@ public interface ISourceUnit extends IModelElement, IAdaptable {
 	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException;
 	
 	public AstInfo<? extends IAstNode> getAstInfo(String type, boolean ensureSync, IProgressMonitor monitor);
+	
+	public IProblemRequestor getProblemRequestor();
+	
+	public ISourceUnitModelInfo getModelInfo(String type, int syncLevel, IProgressMonitor monitor);
 	
 	public void connect();
 	public void disconnect();

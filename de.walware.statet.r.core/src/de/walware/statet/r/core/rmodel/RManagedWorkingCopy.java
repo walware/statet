@@ -14,6 +14,8 @@ package de.walware.statet.r.core.rmodel;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.eclipsecommons.ltk.IModelManager;
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rsource.ast.RAst;
@@ -45,7 +47,7 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 		return (IRSourceUnit) super.getUnderlyingUnit();
 	}
 	
-	public void reconcile(final int reconcileLevel, final IProgressMonitor monitor) {
+	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 		RCorePlugin.getDefault().getRModelManager().reconcile(this, reconcileLevel, reconcileLevel, monitor);
 	}
 	
@@ -53,10 +55,14 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	public AstInfo<RAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals("r")) { //$NON-NLS-1$
 			if (ensureSync) {
-				return RCorePlugin.getDefault().getRModelManager().reconcile(this, RAst.LEVEL_MODEL_DEFAULT, 0, monitor);
+				return RCorePlugin.getDefault().getRModelManager().reconcile(this, RAst.LEVEL_MODEL_DEFAULT, IModelManager.AST, monitor);
 			}
 			return fAst;
 		}
+		return null;
+	}
+	
+	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		return null;
 	}
 	

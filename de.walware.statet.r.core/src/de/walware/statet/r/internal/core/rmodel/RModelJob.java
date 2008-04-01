@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.eclipsecommons.ltk.IModelManager;
 
 import de.walware.statet.r.core.rmodel.IManagableRUnit;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
@@ -32,30 +33,66 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public class RModelJob extends Job {
 	
 	
-	private class TaskDetail {
-		final IManagableRUnit u;
-		AstInfo oldAst;
-		AstInfo newAst;
+	private class Task {
+		
+		private final IManagableRUnit fUnit;
+		private AstInfo fNewAst;
+		private int fFinishedLevel = RModelManager.AST;
+		private int fWaitingCount;
 		
 		
-		public TaskDetail(final IManagableRUnit u) {
-			this.u = u;
+		public Task(final IManagableRUnit u) {
+			fUnit = u;
 		}
 		
 		@Override
 		public final boolean equals(final Object obj) {
-			return u.equals(((TaskDetail) obj).u);
+			return fUnit.equals(((Task) obj).fUnit);
 		}
 		
 		@Override
 		public final int hashCode() {
-			return u.hashCode();
+			return fUnit.hashCode();
 		}
+		
+		private final void wait(int level) {
+			if (level > IModelManager.MODEL_DEPENDENCIES) {
+				level = IModelManager.MODEL_DEPENDENCIES;
+			}
+			synchronized (fUnit.getModelLockObject()) {
+				fWaitingCount++;
+				while (fFinishedLevel < level) {
+					try {
+						fUnit.getModelLockObject().wait();
+					} catch (final InterruptedException e) {
+						Thread.interrupted();
+					}
+				}
+				fWaitingCount--;
+			}
+		}
+		
+		private final void finished(final int level) {
+			fFinishedLevel = level;
+			fUnit.getModelLockObject().notifyAll();
+		}
+		
+		public void run() {
+			// insert code analysis here
+			
+			synchronized (fUnit.getModelLockObject()) {
+				finished(RModelManager.MODEL_DEPENDENCIES); // eigentlich MODEL_FILE
+			}
+			
+			final ModelDelta delta = new ModelDelta(fUnit, null, fNewAst);
+			fManager.fireDelta(delta, fUnit.getWorkingContext());
+		}
+		
 	}
 	
 	
 	private LinkedList<IRSourceUnit> fTaskQueue = new LinkedList<IRSourceUnit>();
-	private HashMap<IRSourceUnit, TaskDetail> fTaskDetail = new HashMap<IRSourceUnit, TaskDetail>();
+	private HashMap<IRSourceUnit, Task> fTaskDetail = new HashMap<IRSourceUnit, Task>();
 	private boolean fWorking = false;
 	
 	private RModelManager fManager;
@@ -63,37 +100,43 @@ public class RModelJob extends Job {
 	
 	public RModelJob(final RModelManager manager) {
 		super("RModel Updater"); //$NON-NLS-1$
-		
+		setPriority(Job.LONG);
 		setSystem(true);
 		setUser(false);
-		setPriority(Job.LONG);
 		
 		fManager = manager;
 	}
 	
 	
-	synchronized void add(final IManagableRUnit u, final AstInfo oldAst, final AstInfo newAst) {
-		TaskDetail task = fTaskDetail.get(u);
-		if (task == null) {
-			task = new TaskDetail(u);
-			task.oldAst = oldAst;
-			task.newAst = newAst;
-			fTaskDetail.put(u, task);
-			fTaskQueue.add(u);
-		}
-		else {
-			task.newAst = newAst;
+	void addReconcile(final IManagableRUnit u, final AstInfo newAst, final int waitLevel) {
+		Task task;
+		final boolean important = (waitLevel > RModelManager.AST);
+		synchronized (this) {
+			task = fTaskDetail.get(u);
+			if (task == null) {
+				task = new Task(u);
+				task.fNewAst = newAst;
+				fTaskDetail.put(u, task);
+				fTaskQueue.add(u);
+			}
+			else {
+				task.fNewAst = newAst;
+			}
+			
+			if (!fWorking) {
+				schedule(important ? 0 : 250);
+			}
 		}
 		
-		if (!fWorking) {
-			schedule(250);
+		if (important) {
+			task.wait(waitLevel);
 		}
 	}
 	
 	
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
-		TaskDetail task;
+		Task task;
 		while (true) {
 			synchronized (this) {
 				final IRSourceUnit u = fTaskQueue.poll();
@@ -106,17 +149,12 @@ public class RModelJob extends Job {
 			}
 			
 			try {
-				runTask(task);
+				task.run();
 			}
 			catch (final Throwable e) {
 				RCorePlugin.logError(-1, "R Model Update", e); //$NON-NLS-1$
 			}
 		}
-	}
-	
-	private void runTask(final TaskDetail task) {
-		final ModelDelta delta = new ModelDelta(task.u, task.oldAst, task.newAst);
-		fManager.fireDelta(delta, task.u.getWorkingContext());
 	}
 	
 }

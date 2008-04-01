@@ -18,7 +18,9 @@ import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.eclipsecommons.ltk.IProblemRequestor;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 import de.walware.eclipsecommons.ltk.IWorkingBuffer;
 import de.walware.eclipsecommons.ltk.SourceContent;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
@@ -126,6 +128,14 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 				return old;
 			}
 		}
+	}
+	
+	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
+		return null;
+	}
+	
+	public IProblemRequestor getProblemRequestor() {
+		return null;
 	}
 	
 }

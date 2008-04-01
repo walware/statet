@@ -19,6 +19,7 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 import org.eclipse.ui.IEditorInput;
 
+import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
 
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
@@ -67,7 +68,7 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 		if (u == null || fMonitor.isCanceled()) {
 			return;
 		}
-		u.reconcile(0, fMonitor);
+		u.reconcileRModel(IModelManager.MODEL_FILE, fMonitor);
 	}
 	
 }

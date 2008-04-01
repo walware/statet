@@ -36,6 +36,7 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rmodel.IManagableRUnit;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.rmodel.RManagedWorkingCopy;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
@@ -183,6 +184,25 @@ public class RModelManager implements IModelManager {
 		}
 	}
 	
+	/**
+	 * Refresh reuses existing ast
+	 */
+	public void refresh(final WorkingContext context) {
+		final IRSourceUnit[] units = getWorkingCopies(context);
+		for (int i = 0; i < units.length; i++) {
+			if (units[i] instanceof RManagedWorkingCopy) {
+				final RManagedWorkingCopy u = (RManagedWorkingCopy) units[i];
+				synchronized (u.getModelLockObject()) {
+					final AstInfo<RAstNode> ast = u.getCurrentRAst();
+					if (ast != null) {
+						fJob.addReconcile(u, ast, 0);
+					}
+				}
+			}
+		}
+		
+	}
+	
 	
 	public AstInfo<RAstNode> reconcile(final IManagableRUnit u, final int level, final int waitLevel, final IProgressMonitor monitor) {
 		synchronized (u.getModelLockObject()) {
@@ -196,7 +216,7 @@ public class RModelManager implements IModelManager {
 				if (monitor.isCanceled()) {
 					return null;
 				}
-				fJob.add(u, old, ast);
+				fJob.addReconcile(u, ast, waitLevel);
 				return ast;
 			}
 			else {
