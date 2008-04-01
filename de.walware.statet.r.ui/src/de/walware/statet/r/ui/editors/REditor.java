@@ -20,9 +20,9 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
@@ -32,22 +32,24 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ast.AstSelection;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.EditorMessages;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.IFoldingStructureProvider;
+import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.rsource.ast.NodeType;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.internal.ui.editors.RDoubleCommentAction;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
@@ -62,7 +64,7 @@ public class REditor extends StatextEditor1<RProject> {
 	protected IContextProvider fHelpContextProvider;
 	protected REditorOptions fOptions;
 	
-	private ElementInfoController fModelProvider;
+	protected ElementInfoController fModelProvider;
 	
 	
 	public REditor() {
@@ -81,13 +83,15 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected SourceViewerConfigurator createConfiguration() {
 		fModelProvider = new ElementInfoController(RCore.getRModelManger(), StatetCore.EDITOR_CONTEXT);
-		enableStructureSupport(fModelProvider);
+		enableStructuralFeatures(fModelProvider,
+				REditorOptions.PREF_FOLDING_ENABLED);
 		
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		
 		final IRCoreAccess basicContext = RCore.getWorkbenchAccess();
 		fOptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
+		
 		final IPreferenceStore store = RUIPlugin.getDefault().getEditorPreferenceStore();
 		fRConfig = new RSourceViewerConfigurator(basicContext, store);
 		fRConfig.setConfiguration(new RSourceViewerConfiguration(this,
@@ -111,8 +115,23 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected IFoldingStructureProvider createFoldingStructureProvider() {
+	protected IEditorInstallable createCodeFoldingProvider() {
 		return new DefaultRFoldingProvider();
+	}
+	
+	@Override
+	protected Point getRangeToHighlight(final AstSelection element) {
+		final IAstNode covering = element.getCovering();
+		if (covering instanceof RAstNode) {
+			RAstNode node = (RAstNode) covering;
+			while (node != null) {
+				if (node.getNodeType() == NodeType.F_DEF) {
+					return new Point(node.getStartOffset(), node.getLength());
+				}
+				node = node.getParent();
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -169,14 +188,6 @@ public class REditor extends StatextEditor1<RProject> {
 		}
 		else {
 			setInsertMode(INSERT);
-		}
-		
-		if (sourceViewer instanceof ProjectionViewer) {
-			final ProjectionViewer projViewer = (ProjectionViewer) sourceViewer;
-			final boolean pref = PreferencesUtil.getInstancePrefs().getPreferenceValue(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED);
-			if (pref != projViewer.isProjectionMode()) {
-				projViewer.doOperation(ProjectionViewer.TOGGLE);
-			}
 		}
 	}
 	

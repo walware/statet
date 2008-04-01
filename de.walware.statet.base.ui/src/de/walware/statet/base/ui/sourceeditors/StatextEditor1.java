@@ -21,6 +21,8 @@ import java.util.Set;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -41,6 +43,7 @@ import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -56,7 +59,10 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ast.AstSelection;
 import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
+import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -68,7 +74,7 @@ import de.walware.statet.ext.core.StatextProject;
 
 
 public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
-		implements SettingsChangeNotifier.ChangeListener {
+		implements SettingsChangeNotifier.ChangeListener, IPreferenceChangeListener {
 	
 	
 	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment"; //$NON-NLS-1$
@@ -97,7 +103,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			return new Region(offset, lastLineOffset+document.getLineLength(lastLine)-offset);
 		}
 		catch (final BadLocationException x) {
-			StatetUIPlugin.logUnexpectedError(x);					// should not happen
+			StatetUIPlugin.logUnexpectedError(x); // should not happen
 		}
 		return null;
 	}
@@ -315,9 +321,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		 * @param prefixes Possible comment prefixes
 		 * @param document The document
 		 * @return <code>true</code> iff each line from <code>startLine</code>
-		 *             to and including <code>endLine</code> is prepended by one
-		 *             of the <code>prefixes</code>, ignoring whitespace at the
-		 *             begin of line
+		 *     to and including <code>endLine</code> is prepended by one
+		 *     of the <code>prefixes</code>, ignoring whitespace at the
+		 *     begin of line
 		 */
 		private boolean isBlockCommented(final int startLine, final int endLine, final String[] prefixes, final IDocument document) {
 			try {
@@ -362,10 +368,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	/** The outline page */
 	private StatextOutlinePage fOutlinePage;
 	
-	private boolean fEnableStructureSupport;
 	private SelectionHistory fSelectionHistory;
+	private Preference<Boolean> fFoldingEnablement;
 	private ProjectionSupport fFoldingSupport;
-	private IFoldingStructureProvider fFoldingProvider;
+	private IEditorInstallable fFoldingProvider;
 	private FoldingActionGroup fFoldingActionGroup;
 	
 	private List<IUpdate> fUpdateables = new ArrayList<IUpdate>();
@@ -396,9 +402,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	protected abstract SourceViewerConfigurator createConfiguration();
 	
 	
-	protected void enableStructureSupport(final IModelElementInputProvider provider) {
+	protected void enableStructuralFeatures(final IModelElementInputProvider provider,
+			final Preference<Boolean> codeFoldingEnablement) {
 		fModelProvider = provider;
-		fEnableStructureSupport = true;
+		fFoldingEnablement = codeFoldingEnablement;
 	}
 	
 	protected void configureStatetProjectNatureId(final String id) {
@@ -506,19 +513,22 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	public void createPartControl(final Composite parent) {
 		super.createPartControl(parent);
 		
-		if (fEnableStructureSupport) {
+		if (fFoldingEnablement != null) {
 			final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 			
 			fFoldingSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
 			fFoldingSupport.install();
 			viewer.addProjectionListener(new IProjectionListener() {
 				public void projectionEnabled() {
-					installFoldingSupport();
+					installFoldingProvider();
 				}
 				public void projectionDisabled() {
-					uninstallFoldingSupport();
+					uninstallFoldingProvider();
 				}
 			});
+			PreferencesUtil.getInstancePrefs().addPreferenceNodeListener(
+					fFoldingEnablement.getQualifier(), this);
+			updateFoldingEnablement();
 		}
 		
 		if (fLazySetup) {
@@ -532,7 +542,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		fAnnotationAccess = getAnnotationAccess();
 		fOverviewRuler = createOverviewRuler(getSharedColors());
 		
-		final ISourceViewer viewer = fEnableStructureSupport ?
+		final ISourceViewer viewer = (fFoldingEnablement != null) ?
 				new ProjectionViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles) :
 					new SourceViewer(parent, ruler, getOverviewRuler(), isOverviewRulerVisible(), styles);
 		// ensure decoration support has been created and configured.
@@ -541,29 +551,55 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		return viewer;
 	}
 	
-	protected void installFoldingSupport() {
-		uninstallFoldingSupport();
-		fFoldingProvider = createFoldingStructureProvider();
+	
+	protected Point getRangeToHighlight(final AstSelection element) {
+		return null;
+	}
+	
+	
+	protected IEditorInstallable createCodeFoldingProvider() {
+		return null;
+	}
+	
+	private void installFoldingProvider() {
+		uninstallFoldingProvider();
+		fFoldingProvider = createCodeFoldingProvider();
 		if (fFoldingProvider != null) {
-			fFoldingProvider.install(StatextEditor1.this, (ProjectionViewer) getSourceViewer());
+			fFoldingProvider.install(fEditorAdapter);
 		}
 	}
 	
-	protected void uninstallFoldingSupport() {
+	private void uninstallFoldingProvider() {
 		if (fFoldingProvider != null) {
 			fFoldingProvider.uninstall();
 			fFoldingProvider = null;
 		}
 	}
 	
-	protected IFoldingStructureProvider createFoldingStructureProvider() {
+	private void updateFoldingEnablement() {
+		if (fFoldingEnablement != null) {
+			UIAccess.getDisplay().timerExec(50, new Runnable() {
+				public void run() {
+					final Boolean enable = PreferencesUtil.getInstancePrefs().getPreferenceValue(fFoldingEnablement);
+					final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
+					if (enable != null && UIAccess.isOkToUse(viewer)) {
+						if (enable) {
+							viewer.enableProjection();
+						}
+						else {
+							viewer.disableProjection();
+						}
+					}
+				}
+			});
+		}
+	}
+	
+	
+	protected IEditorInstallable createMarkOccurrencesProvider() {
 		return null;
 	}
-	
-	protected FoldingActionGroup createFoldingActionGroup() {
-		return new FoldingActionGroup(this, (ProjectionViewer) getSourceViewer());
-	}
-	
+		
 	@Override
 	protected void configureSourceViewerDecorationSupport(final SourceViewerDecorationSupport support) {
 		super.configureSourceViewerDecorationSupport(support);
@@ -593,9 +629,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			markAsContentDependentAction(action.getId(), true);
 		}
 		
-		if (fEnableStructureSupport) {
+		if (fFoldingEnablement != null) {
 			fFoldingActionGroup = createFoldingActionGroup();
-			
+		}
+		
+		if (fModelProvider != null) {
 			fSelectionHistory = new SelectionHistory(this);
 			action = new StructureSelectAction.Enclosing(this, fSelectionHistory);
 			setAction(action.getId(), action);
@@ -608,6 +646,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			fSelectionHistory.addUpdateListener((IUpdate) action);
 		}
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
+	}
+	
+	protected FoldingActionGroup createFoldingActionGroup() {
+		return new FoldingActionGroup(this, (ProjectionViewer) getSourceViewer());
 	}
 	
 	protected IAction createToggleCommentAction() {
@@ -687,6 +729,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		fConfigurator.handleSettingsChanged(groupIds, null);
 	}
 	
+	public void preferenceChange(final PreferenceChangeEvent event) {
+		if (fFoldingEnablement != null && event.getKey().equals(fFoldingEnablement.getKey())) {
+			updateFoldingEnablement();
+		}
+	}
+	
 	
 	protected StatextOutlinePage createOutlinePage() {
 		return null;
@@ -706,7 +754,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	@Override
 	public void dispose() {
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
-		uninstallFoldingSupport();
+		if (fFoldingEnablement != null) {
+			PreferencesUtil.getInstancePrefs().removePreferenceNodeListener(
+					fFoldingEnablement.getQualifier(), this);
+			uninstallFoldingProvider();
+		}
 		
 		super.dispose();
 	}

@@ -51,6 +51,11 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 			RUIPreferenceInitializer.REDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
 	
 	
+	// not in group
+	public static final BooleanPref PREF_FOLDING_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "folding.enabled"); //$NON-NLS-1$
+	
+	
 	private boolean fIsSmartByDefaultEnabled;
 	private boolean fIsSmartCurlyBracketsEnabled;
 	private boolean fIsSmartRoundBracketsEnabled;

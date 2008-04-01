@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000-2007 WalWare/StatET-Project (www.walware.de/goto/statet)
+ * Copyright (c) 2000-2008 WalWare/StatET-Project (www.walware.de/goto/statet)
  * and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -15,13 +15,13 @@ package de.walware.statet.base.ui.sourceeditors;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.text.source.projection.IProjectionListener;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.editors.text.IFoldingCommandIds;
+import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextOperationAction;
-
 
 
 /**
@@ -41,11 +41,8 @@ public class FoldingActionGroup extends ActionGroup {
 //		
 //	}
 	
-	private ProjectionViewer fViewer;
+	private ITextEditor fEditor;
 	
-	private final IProjectionListener fProjectionListener;
-	
-	private TextOperationAction fToggle;
 	private final TextOperationAction fExpand;
 	private final TextOperationAction fCollapse;
 	private final TextOperationAction fExpandAll;
@@ -63,26 +60,7 @@ public class FoldingActionGroup extends ActionGroup {
 	 * @param viewer the viewer of the editor
 	 */
 	public FoldingActionGroup(final ITextEditor editor, final ProjectionViewer viewer) {
-		
-		fViewer = viewer;
-		
-		fProjectionListener = new IProjectionListener() {
-			public void projectionEnabled() {
-				update();
-				fToggle.setChecked(fViewer.isProjectionMode());
-			}
-			
-			public void projectionDisabled() {
-				update();
-				fToggle.setChecked(fViewer.isProjectionMode());
-			}
-		};
-		fViewer.addProjectionListener(fProjectionListener);
-		
-		fToggle = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.Toggle.", editor, ProjectionViewer.TOGGLE); //$NON-NLS-1$
-		fToggle.setChecked(fViewer.isProjectionMode());
-		fToggle.setActionDefinitionId(IFoldingCommandIds.FOLDING_TOGGLE);
-		editor.setAction("FoldingToggle", fToggle); //$NON-NLS-1$
+		fEditor = editor;
 		
 		fExpandAll = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.ExpandAll.", editor, ProjectionViewer.EXPAND_ALL, true); //$NON-NLS-1$
 		fExpandAll.setActionDefinitionId(IFoldingCommandIds.FOLDING_EXPAND_ALL);
@@ -111,16 +89,13 @@ public class FoldingActionGroup extends ActionGroup {
 	 * @return <code>true</code> if the group is enabled
 	 */
 	protected boolean isEnabled() {
-		return fViewer != null;
+		return fEditor != null;
 	}
 	
 	@Override
 	public void dispose() {
-		if (isEnabled()) {
-			fViewer.removeProjectionListener(fProjectionListener);
-			fViewer= null;
-		}
 		super.dispose();
+		fEditor = null;
 	}
 	
 	/**
@@ -143,7 +118,10 @@ public class FoldingActionGroup extends ActionGroup {
 	public void fillMenu(final IMenuManager manager) {
 		if (isEnabled()) {
 			update();
-			manager.add(fToggle);
+			manager.add(new CommandContributionItem(
+					fEditor.getSite(), "ToggleFolding", IFoldingCommandIds.FOLDING_TOGGLE, null, //$NON-NLS-1$
+					null, null, null,
+					EditorMessages.CodeFolding_Enable_label, EditorMessages.CodeFolding_Enable_mnemonic, null, SWT.CHECK));
 			manager.add(new Separator());
 			manager.add(fExpandAll);
 			manager.add(fCollapseAll);

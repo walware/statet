@@ -26,7 +26,6 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
-import org.eclipse.jface.text.source.projection.ProjectionViewer;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelElement;
@@ -34,13 +33,11 @@ import de.walware.eclipsecommons.ltk.IModelElementDelta;
 import de.walware.eclipsecommons.ltk.ui.IModelElementInputListener;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
 
 import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.ui.sourceeditors.IFoldingStructureProvider;
-import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.CForLoop;
@@ -50,23 +47,13 @@ import de.walware.statet.r.core.rsource.ast.CWhileLoop;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
-import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.REditor;
-import de.walware.statet.r.ui.editors.REditorOptions;
 
 
 /**
  * 
  */
-public class DefaultRFoldingProvider implements IFoldingStructureProvider, IModelElementInputListener, ChangeListener {
-	
-	
-	public static final String NODE = RUI.PLUGIN_ID + "/editor.r/folding.default"; //$NON-NLS-1$
-	
-	public static final BooleanPref PREF_OTHERBLOCKS_ENABLED = new BooleanPref(
-			NODE, "other_blocks.enabled"); //$NON-NLS-1$
-	public static final IntPref PREF_MINLINES_NUM = new IntPref(
-			NODE, "min_lines.num"); //$NON-NLS-1$
+public class DefaultRFoldingProvider implements IEditorInstallable, IModelElementInputListener, ChangeListener {
 	
 	
 	protected static final IRegion createRegion(final FoldingStructureComputationContext ctx, final int startLine, final int endLine) throws BadLocationException {
@@ -216,10 +203,10 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider, IMode
 	private volatile Input fInput;
 	
 	
-	public void install(final StatextEditor1 editor, final ProjectionViewer viewer) {
+	public void install(final IEditorAdapter editor) {
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 		updateConfig();
-		fEditor = (REditor) editor;
+		fEditor = (REditor) editor.getWorkbenchPart();
 		fEditor.getModelInputProvider().addListener(this);
 	}
 	
@@ -253,7 +240,7 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider, IMode
 	}
 	
 	public void settingsChanged(final Set<String> groupIds) {
-		if (groupIds.contains(REditorOptions.GROUP_ID)) {
+		if (groupIds.contains(DefaultRFoldingPreferences.GROUP_ID)) {
 			updateConfig();
 			final Input input = fInput;
 			if (input != null) {
@@ -265,8 +252,8 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider, IMode
 	protected void updateConfig() {
 		final FoldingConfiguration config = new FoldingConfiguration();
 		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
-		config.enableOtherBlocks = prefs.getPreferenceValue(PREF_OTHERBLOCKS_ENABLED);
-		config.minLines = prefs.getPreferenceValue(PREF_MINLINES_NUM);
+		config.enableOtherBlocks = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED);
+		config.minLines = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_MINLINES_NUM);
 		if (config.minLines < 2) {
 			config.minLines = 3;
 		}

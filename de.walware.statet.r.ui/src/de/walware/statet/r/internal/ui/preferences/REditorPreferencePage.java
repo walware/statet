@@ -38,7 +38,7 @@ import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
-import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
+import de.walware.statet.r.internal.ui.editors.DefaultRFoldingPreferences;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 
@@ -99,9 +99,9 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, REditorOptions.GROUP_ID);
 		prefs.put(RUIPreferenceInitializer.CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, REditorOptions.GROUP_ID);
 		
-		prefs.put(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED, REditorOptions.GROUP_ID);
-		prefs.put(DefaultRFoldingProvider.PREF_OTHERBLOCKS_ENABLED, null);
-		prefs.put(DefaultRFoldingProvider.PREF_MINLINES_NUM, null);
+		prefs.put(REditorOptions.PREF_FOLDING_ENABLED, null);
+		prefs.put(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED, DefaultRFoldingPreferences.GROUP_ID);
+		prefs.put(DefaultRFoldingPreferences.PREF_MINLINES_NUM, DefaultRFoldingPreferences.GROUP_ID);
 		
 		prefs.put(REditorOptions.PREF_SPELLCHECKING_ENABLED, REditorOptions.GROUP_ID);
 		
@@ -124,7 +124,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, n, 1));
 		link = addLinkControl(group, Messages.REditorOptions_SmartInsert_description);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false, n, 1);
-		gd.widthHint = 140;
+		gd.widthHint = 300;
 		link.setLayoutData(gd);
 		
 		LayoutUtil.addGDDummy(group);
@@ -172,7 +172,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		link = addLinkControl(pageComposite, Messages.REditorOptions_SpellChecking_note);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.widthHint = 140;
+		gd.widthHint = 300;
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
 		link.setLayoutData(gd);
 		
@@ -258,13 +258,13 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 				null, null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fFoldingEnableControl),
-				createObservable(RUIPreferenceInitializer.PREF_FOLDING_ASDEFAULT_ENABLED),
+				createObservable(REditorOptions.PREF_FOLDING_ENABLED),
 				null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultAllBlocksControl),
-				createObservable(DefaultRFoldingProvider.PREF_OTHERBLOCKS_ENABLED),
+				createObservable(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED),
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
-				createObservable(DefaultRFoldingProvider.PREF_MINLINES_NUM),
+				createObservable(DefaultRFoldingPreferences.PREF_MINLINES_NUM),
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),
