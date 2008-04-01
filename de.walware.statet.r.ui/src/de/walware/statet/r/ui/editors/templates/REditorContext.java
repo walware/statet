@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.ext.templates.IExtTemplateContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.r.core.RUtil;
@@ -60,8 +61,13 @@ public class REditorContext extends DocumentTemplateContext implements IExtTempl
 //		super(type, document, position);
 //	}
 	
+	
 	public StatetProject getStatetProject() {
 		return StatetCore.getStatetProject(fEditor.getSourceUnit());
+	}
+	
+	public StatextEditor1 getEditor() {
+		return fEditor;
 	}
 	
 	public String evaluateInfo(final Template template) throws BadLocationException, TemplateException {

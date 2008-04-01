@@ -16,6 +16,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateException;
 
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 
 /**
@@ -26,6 +27,8 @@ public interface IExtTemplateContext {
 	
 	
 	public StatetProject getStatetProject();
+	
+	public StatextEditor1 getEditor();
 	
 	public String evaluateInfo(Template template) throws BadLocationException, TemplateException;
 	

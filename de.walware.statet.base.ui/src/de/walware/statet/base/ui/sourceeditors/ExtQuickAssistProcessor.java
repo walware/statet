@@ -45,6 +45,7 @@ public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 		fEditor = editor;
 	}
 	
+	
 	public boolean canAssist(final IQuickAssistInvocationContext invocationContext) {
 		return false;
 	}
@@ -74,6 +75,9 @@ public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 		final IAnnotationModel model = viewer.getAnnotationModel();
 		if (model != null) {
 			addAnnotationProposals(proposals, context, model);
+		}
+		if (context.getModelInfo() != null) {
+			addModelAssistProposals(proposals, context);
 		}
 		
 		if (proposals.isEmpty()) {
@@ -112,6 +116,9 @@ public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 				}
 			}
 		}
+	}
+	
+	protected void addModelAssistProposals(final List<ICompletionProposal> proposals, final ExtTextInvocationContext context) {
 	}
 	
 	public String getErrorMessage() {

@@ -11,10 +11,13 @@
 
 package de.walware.statet.base.ui.sourceeditors;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.quickassist.IQuickAssistInvocationContext;
 import org.eclipse.jface.text.source.TextInvocationContext;
 
+import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 import de.walware.eclipsecommons.ltk.ast.AstSelection;
 
 
@@ -22,6 +25,7 @@ public class ExtTextInvocationContext extends TextInvocationContext {
 	
 	private StatextEditor1 fEditor;
 	private ISourceUnit fSourceUnit;
+	private ISourceUnitModelInfo fModelInfo;
 	private AstSelection fAstSelection;
 	
 	
@@ -30,8 +34,14 @@ public class ExtTextInvocationContext extends TextInvocationContext {
 		if (editor != null) {
 			fEditor = editor;
 			fSourceUnit = editor.getSourceUnit();
+			// later check, if synch is really necessary or causes delay
+			fModelInfo = fSourceUnit.getModelInfo(null, IModelManager.MODEL_FILE, new NullProgressMonitor());
+			if (fModelInfo != null) {
+				fAstSelection = AstSelection.search(fModelInfo.getAst().root, getOffset(), getOffset(), AstSelection.MODE_COVERING_SAME_LAST);
+			}
 		}
 	}
+	
 	
 	public StatextEditor1 getEditor() {
 		return fEditor;
@@ -39,6 +49,10 @@ public class ExtTextInvocationContext extends TextInvocationContext {
 	
 	public ISourceUnit getSourceUnit() {
 		return fSourceUnit;
+	}
+	
+	public ISourceUnitModelInfo getModelInfo() {
+		return fModelInfo;
 	}
 	
 	public AstSelection getAstSelection() {

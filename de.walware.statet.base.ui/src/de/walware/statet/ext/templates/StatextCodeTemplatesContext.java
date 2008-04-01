@@ -30,6 +30,7 @@ import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
 
 import de.walware.statet.base.core.StatetProject;
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 
 public class StatextCodeTemplatesContext extends TemplateContext implements IExtTemplateContext {
@@ -53,6 +54,10 @@ public class StatextCodeTemplatesContext extends TemplateContext implements IExt
 	
 	public StatetProject getStatetProject() {
 		return fProject;
+	}
+	
+	public StatextEditor1 getEditor() {
+		return null;
 	}
 	
 	public String evaluateInfo(final Template template) throws BadLocationException, TemplateException {
