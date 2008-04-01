@@ -41,6 +41,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.IProjectionListener;
 import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
+import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Point;
@@ -61,6 +62,9 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.ast.AstSelection;
 import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
+import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
+import de.walware.eclipsecommons.ltk.ui.PostSelectionCancelExtension;
+import de.walware.eclipsecommons.ltk.ui.PostSelectionWithElementInfoController;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
@@ -163,6 +167,32 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			return StatextEditor1.this.getAdapter(required);
 		}
 		
+	}
+	
+	protected class PostSelectionEditorCancel extends PostSelectionCancelExtension {
+		
+		public PostSelectionEditorCancel() {
+		}
+		
+		@Override
+		public void init() {
+			final ISourceViewer viewer = getSourceViewer();
+			if (viewer != null) {
+				viewer.getSelectionProvider().addSelectionChangedListener(this);
+				viewer.addTextInputListener(this);
+				viewer.getDocument().addDocumentListener(this);
+			}
+		}
+		
+		@Override
+		public void dispose() {
+			final ISourceViewer viewer = getSourceViewer();
+			if (viewer != null) {
+				viewer.getSelectionProvider().removeSelectionChangedListener(this);
+				viewer.removeTextInputListener(this);
+				viewer.getDocument().removeDocumentListener(this);
+			}
+		}
 	}
 	
 	protected class ToggleCommentAction extends TextEditorAction {
@@ -364,6 +394,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private String fProjectNatureId;
 	private ProjectT fProject;
 	private IModelElementInputProvider fModelProvider;
+	protected PostSelectionWithElementInfoController fModelPostSelection;
+	protected volatile Point fCurrentSelection;
 	
 	/** The outline page */
 	private StatextOutlinePage fOutlinePage;
@@ -513,6 +545,23 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	public void createPartControl(final Composite parent) {
 		super.createPartControl(parent);
 		
+		if (fModelProvider != null) {
+			fModelPostSelection = new PostSelectionWithElementInfoController(fModelProvider,
+					(IPostSelectionProvider) getSelectionProvider(), new PostSelectionEditorCancel());
+			fModelPostSelection.addListener(new ISelectionWithElementInfoListener() {
+				public void inputChanged() {
+				}
+				public void stateChanged(final StateData state) {
+					final Point toHighlight = getRangeToHighlight(state.getAstSelection());
+					if (toHighlight != null) {
+						setHighlightRange(toHighlight.x, toHighlight.y, false);
+					}
+					else {
+						resetHighlightRange();
+					}
+				}
+			});
+		}
 		if (fFoldingEnablement != null) {
 			final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 			
@@ -735,6 +784,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 	}
 	
+	@Override
+	protected void handleCursorPositionChanged() {
+		fCurrentSelection = getSourceViewer().getSelectedRange();
+		super.handleCursorPositionChanged();
+	}
+	
 	
 	protected StatextOutlinePage createOutlinePage() {
 		return null;
@@ -754,6 +809,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	@Override
 	public void dispose() {
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		if (fModelPostSelection != null) {
+			fModelPostSelection.dispose();
+		}
 		if (fFoldingEnablement != null) {
 			PreferencesUtil.getInstancePrefs().removePreferenceNodeListener(
 					fFoldingEnablement.getQualifier(), this);
@@ -761,6 +819,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 		
 		super.dispose();
+		fModelPostSelection = null;
 	}
 	
 }
