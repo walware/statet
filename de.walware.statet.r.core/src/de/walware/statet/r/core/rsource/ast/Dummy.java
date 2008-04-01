@@ -15,6 +15,8 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
@@ -31,6 +33,9 @@ public abstract class Dummy extends RAstNode {
 	static class Terminal extends Dummy {
 		
 		
+		String fText;
+		
+		
 		Terminal(final int status) {
 			super(status);
 		}
@@ -39,6 +44,16 @@ public abstract class Dummy extends RAstNode {
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.ERROR_TERM;
+		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
+		@Override
+		public final String getText() {
+			return fText;
 		}
 		
 		@Override
@@ -64,11 +79,6 @@ public abstract class Dummy extends RAstNode {
 		@Override
 		public final int getChildIndex(final IAstNode child) {
 			return -1;
-		}
-		
-		@Override
-		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-			visitor.visit(this);
 		}
 		
 		@Override
@@ -126,6 +136,11 @@ public abstract class Dummy extends RAstNode {
 		}
 		
 		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
+		@Override
 		public final boolean hasChildren() {
 			return true;
 		}
@@ -164,11 +179,6 @@ public abstract class Dummy extends RAstNode {
 		}
 		
 		@Override
-		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
-			visitor.visit(this);
-		}
-		
-		@Override
 		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
 			if (fLeftExpr.node != null) {
 				fLeftExpr.node.acceptInR(visitor);
@@ -181,6 +191,12 @@ public abstract class Dummy extends RAstNode {
 				fLeftExpr.node.accept(visitor);
 			}
 			fRightExpr.node.accept(visitor);
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.ERROR);
 		}
 		
 		
@@ -206,12 +222,6 @@ public abstract class Dummy extends RAstNode {
 		}
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			return (element.getNodeType() == NodeType.ERROR);
-		}
-		
-		
-		@Override
 		final int getMissingExprStatus(final Expression expr) {
 			if (expr == fLeftExpr) {
 				return STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
@@ -225,7 +235,106 @@ public abstract class Dummy extends RAstNode {
 	}
 	
 	
-	String fText;
+	static class NodeList extends Dummy {
+		
+		
+		private List<RAstNode> fList;
+		
+		
+		NodeList(final RAstNode[] children) {
+			super(0);
+			
+			for (int i = 0; i < children.length; i++) {
+				if (children[i] == null) {
+					children[i] = new Dummy.Terminal(0);
+					children[i].fRParent = this;
+				}
+			}
+			
+			
+			fList = Arrays.asList(children);
+		}
+		
+		
+		@Override
+		public final NodeType getNodeType() {
+			return NodeType.DUMMY;
+		}
+		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.COMMA;
+		}
+		
+		@Override
+		public final boolean hasChildren() {
+			return fList.size() > 0;
+		}
+		
+		@Override
+		public final int getChildCount() {
+			return fList.size();
+		}
+		
+		@Override
+		public final RAstNode getChild(final int index) {
+			return fList.get(index);
+		}
+		
+		@Override
+		public final int getChildIndex(final IAstNode child) {
+			return fList.indexOf(child);
+		}
+		
+		@Override
+		public final RAstNode[] getChildren() {
+			return fList.toArray(new RAstNode[fList.size()]);
+		}
+		
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fList);
+		}
+		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fList);
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() != getNodeType());
+		}
+		
+		
+		@Override
+		final Expression getExpr(final RAstNode child) {
+			return null;
+		}
+		
+		@Override
+		final Expression getLeftExpr() {
+			return null;
+		}
+		
+		@Override
+		final Expression getRightExpr() {
+			return null;
+		}
+		
+		@Override
+		final int getMissingExprStatus(final Expression expr) {
+			throw new IllegalArgumentException();
+		}
+		
+	}
+	
+	
+	public static Dummy createNodeList(final RAstNode[] nodes) {
+		return new Dummy.NodeList(nodes);
+	}
+	
 	
 	
 	Dummy(final int status) {
@@ -234,8 +343,8 @@ public abstract class Dummy extends RAstNode {
 	
 	
 	@Override
-	public final RTerminal getOperator(final int index) {
-		return null;
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
 	}
 	
 	

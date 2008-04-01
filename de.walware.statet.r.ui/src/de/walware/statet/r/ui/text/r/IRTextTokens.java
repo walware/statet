@@ -81,8 +81,8 @@ public interface IRTextTokens {
 		RTerminal.SUB_INDEXED_S_OPEN,
 		RTerminal.SUB_INDEXED_D_OPEN,
 		RTerminal.SUB_INDEXED_CLOSE,
-		RTerminal.SUB_NAMED,
-		RTerminal.SUB_AT,
+		RTerminal.SUB_NAMED_PART,
+		RTerminal.SUB_NAMED_SLOT,
 	};
 	public static final RTerminal[] ASSIGN = new RTerminal[] {
 		RTerminal.ARROW_LEFT_S,

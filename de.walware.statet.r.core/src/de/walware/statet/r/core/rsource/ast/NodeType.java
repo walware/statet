@@ -23,6 +23,7 @@ public enum NodeType {
 	COMMENT ("#", -1, -1), //$NON-NLS-1$
 	ERROR ("‼", 99, Assoc.LEFTSTD), //$NON-NLS-1$
 	ERROR_TERM ("‼", 1, Assoc.TERM), //$NON-NLS-1$
+	DUMMY ("", 1, Assoc.CONTAINER), //$NON-NLS-1$
 	
 	STRING_CONST ("str", 1, Assoc.TERM), //$NON-NLS-1$
 	NUM_CONST ("num", 1, Assoc.TERM), //$NON-NLS-1$
@@ -40,8 +41,8 @@ public enum NodeType {
 	NS_GET ("::", 13, Assoc.TERM), //$NON-NLS-1$
 	NS_GET_INT (":::", 13, Assoc.TERM), //$NON-NLS-1$
 	
-	SUB_NAMED ("$", 14, Assoc.LEFTSTD), //$NON-NLS-1$
-	SUB_SLOT ("@", 14, Assoc.LEFTSTD), //$NON-NLS-1$
+	SUB_NAMED_PART ("$", 14, Assoc.LEFTSTD), //$NON-NLS-1$
+	SUB_NAMED_SLOT ("@", 14, Assoc.LEFTSTD), //$NON-NLS-1$
 	
 	POWER ("^", 101, Assoc.RIGHTSTD), //$NON-NLS-1$
 	SIGN ("±", 102, Assoc.LEFTSTD), //$NON-NLS-1$

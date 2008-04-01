@@ -417,8 +417,8 @@ public class RScanner {
 				appendOp(context, scanSubIndexed(context));
 				continue ITER_TOKEN;
 				
-			case SUB_NAMED:
-			case SUB_AT:
+			case SUB_NAMED_PART:
+			case SUB_NAMED_SLOT:
 				appendOp(context, scanSubNamed(context));
 				continue ITER_TOKEN;
 				
@@ -548,10 +548,10 @@ public class RScanner {
 	final SubNamed scanSubNamed(final ExprContext context) {
 		final SubNamed node;
 		switch (fNextType) {
-		case SUB_NAMED:
+		case SUB_NAMED_PART:
 			node = new SubNamed.Named();
 			break;
-		case SUB_AT:
+		case SUB_NAMED_SLOT:
 			node = new SubNamed.Slot();
 			break;
 		default:

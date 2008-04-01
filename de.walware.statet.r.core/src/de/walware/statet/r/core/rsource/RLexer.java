@@ -113,7 +113,7 @@ public abstract class RLexer {
 			consumeComment();
 			return;
 		case '$':
-			createFix(RTerminal.SUB_NAMED);
+			createFix(RTerminal.SUB_NAMED_PART);
 			return;
 		case '%':
 			consumeSpecial();
@@ -254,7 +254,7 @@ public abstract class RLexer {
 			createFix(RTerminal.QUESTIONMARK);
 			return;
 		case '@':
-			createFix(RTerminal.SUB_AT);
+			createFix(RTerminal.SUB_NAMED_SLOT);
 			return;
 		case '[':
 			if (fInput.get(2) == '[') {

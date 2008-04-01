@@ -36,18 +36,18 @@ public abstract class SubNamed extends RAstNode {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.SUB_NAMED;
+			return NodeType.SUB_NAMED_PART;
 		}
 		
 		@Override
 		public final RTerminal getOperator(final int index) {
-			return RTerminal.SUB_NAMED;
+			return RTerminal.SUB_NAMED_PART;
 		}
 		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
-			return (element.getNodeType() == NodeType.SUB_NAMED && super.equalsSingle(element));
+			return (element.getNodeType() == NodeType.SUB_NAMED_PART && super.equalsSingle(element));
 		}
 		
 	}
@@ -61,18 +61,18 @@ public abstract class SubNamed extends RAstNode {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.SUB_SLOT;
+			return NodeType.SUB_NAMED_SLOT;
 		}
 		
 		@Override
 		public final RTerminal getOperator(final int index) {
-			return RTerminal.SUB_AT;
+			return RTerminal.SUB_NAMED_SLOT;
 		}
 		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
-			return (element.getNodeType() == NodeType.SUB_SLOT && super.equalsSingle(element));
+			return (element.getNodeType() == NodeType.SUB_NAMED_SLOT && super.equalsSingle(element));
 		}
 		
 	}

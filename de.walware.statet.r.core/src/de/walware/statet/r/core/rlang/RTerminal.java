@@ -29,8 +29,8 @@ public enum RTerminal {
 	SUB_INDEXED_S_OPEN ("["), //$NON-NLS-1$
 	SUB_INDEXED_D_OPEN ("[["), //$NON-NLS-1$
 	SUB_INDEXED_CLOSE ("]"), //$NON-NLS-1$
-	SUB_NAMED ("$"), //$NON-NLS-1$
-	SUB_AT ("@"), //$NON-NLS-1$
+	SUB_NAMED_PART ("$"), //$NON-NLS-1$
+	SUB_NAMED_SLOT ("@"), //$NON-NLS-1$
 	
 	NS_GET ("::"), //$NON-NLS-1$
 	NS_GET_INT (":::"), //$NON-NLS-1$
