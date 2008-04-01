@@ -39,21 +39,24 @@ public abstract class RAstNode implements IAstNode {
 	
 	
 	static final RAstNode[] NO_CHILDREN = new RAstNode[0];
+	static final Object[] NO_ATTACHMENT = new Object[0];
 	
 	
 	RAstNode fRParent;
 	int fStartOffset;
 	int fStopOffset;
 	int fStatus;
-	private Object[] fAttachment;
+	private Object[] fAttachments;
 	
 	
 	protected RAstNode() {
 		fStatus = STATUS_OK;
+		fAttachments = NO_ATTACHMENT;
 	}
 	
 	protected RAstNode(final int status) {
 		fStatus = status;
+		fAttachments = NO_ATTACHMENT;
 	}
 	
 	
@@ -153,8 +156,7 @@ public abstract class RAstNode implements IAstNode {
 	abstract Expression getLeftExpr();
 	abstract Expression getRightExpr();
 	
-	@Override
-	public final boolean equals(final Object obj) {
+	public final boolean equalsIgnoreAst(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
@@ -179,7 +181,7 @@ public abstract class RAstNode implements IAstNode {
 		return true;
 	}
 	
-	public abstract boolean equalsSingle(RAstNode element);
+	abstract boolean equalsSingle(RAstNode element);
 	
 	
 	void appendPathElement(final StringBuilder s) {
@@ -190,8 +192,7 @@ public abstract class RAstNode implements IAstNode {
 		s.append(getNodeType().ordinal());
 	}
 	
-	@Override
-	public int hashCode() {
+	public int hashCodeIgnoreAst() {
 		final StringBuilder path = new StringBuilder();
 		if (fRParent != null) {
 			if (fRParent.fRParent != null) {
@@ -229,18 +230,20 @@ public abstract class RAstNode implements IAstNode {
 	abstract void updateStopOffset();
 	
 	
-	public void setAttachment(final int i, final Object data) {
-		if (fAttachment == null) {
-			fAttachment = new Object[2];
+	public void addAttachment(final Object data) {
+		if (fAttachments == NO_ATTACHMENT) {
+			fAttachments = new Object[] { data };
 		}
-		fAttachment[i] = data;
+		else {
+			final Object[] newArray = new Object[fAttachments.length+1];
+			System.arraycopy(fAttachments, 0, newArray, 0, fAttachments.length);
+			newArray[fAttachments.length] = data;
+			fAttachments = newArray;
+		}
 	}
 	
-	public Object getAttachment(final int i) {
-		if (fAttachment != null) {
-			return fAttachment[i];
-		}
-		return null;
+	public Object[] getAttachments() {
+		return fAttachments;
 	}
 	
 }

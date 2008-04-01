@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -39,9 +40,9 @@ import de.walware.statet.r.ui.editors.REditor;
 
 
 /**
- * 
+ * Shows the AST in the outline - for debugging purposes
  */
-public class ROutlinePage extends StatextOutlinePage<REditor> {
+public class RAstOutlinePage extends StatextOutlinePage<REditor> {
 	
 	
 	private class ChangeListener implements IElementChangedListener {
@@ -145,7 +146,7 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 	private IRSourceUnit fInputUnit;
 	
 	
-	public ROutlinePage(final REditor editor) {
+	public RAstOutlinePage(final REditor editor) {
 		fEditor = editor;
 	}
 	
@@ -155,6 +156,14 @@ public class ROutlinePage extends StatextOutlinePage<REditor> {
 		super.createControl(parent);
 		final TreeViewer viewer = getTreeViewer();
 		viewer.setUseHashlookup(true);
+		viewer.setComparer(new IElementComparer() {
+			public int hashCode(final Object element) {
+				return ((RAstNode) element).hashCodeIgnoreAst();
+			}
+			public boolean equals(final Object a, final Object b) {
+				return ((RAstNode) a).equalsIgnoreAst(b);
+			}
+		});
 		viewer.setLabelProvider(new RLabelProvider());
 		fContentProvider = new ContentProvider();
 		viewer.setContentProvider(fContentProvider);
