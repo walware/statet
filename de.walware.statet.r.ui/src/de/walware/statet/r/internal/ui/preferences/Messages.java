@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -134,6 +134,8 @@ public class Messages extends NLS {
 	public static String REditorOptions_SmartInsert_CloseString_label;
 	public static String REditorOptions_SpellChecking_Enable_label;
 	public static String REditorOptions_SpellChecking_note;
+	public static String REditorOptions_MarkOccurrences_Enable_label;
+	public static String REditorOptions_MarkOccurrences_Appearance_info;
 	public static String REditorOptions_Folding_Enable_label;
 	public static String REditorOptions_Folding_EnableForAllBlocks_label;
 	public static String REditorOptions_Folding_MinNumOfLines_label;
@@ -143,5 +145,6 @@ public class Messages extends NLS {
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

@@ -29,6 +29,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITypedRegion;
@@ -36,6 +37,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.link.ILinkedModeListener;
 import org.eclipse.jface.text.link.LinkedModeModel;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -87,6 +89,21 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	
 /*- Static utility methods --------------------------------------------------*/
+	
+	/**
+	 * Returns the lock object for the given annotation model.
+	 * 
+	 * @param annotationModel the annotation model
+	 * @return the annotation model's lock object
+	 */
+	protected static Object getLockObject(final IAnnotationModel annotationModel) {
+		if (annotationModel instanceof ISynchronizable) {
+			final Object lock = ((ISynchronizable) annotationModel).getLockObject();
+			if (lock != null)
+				return lock;
+		}
+		return annotationModel;
+	}
 	
 	/**
 	 * Creates a region describing the text block (something that starts at

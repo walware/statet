@@ -381,6 +381,44 @@
             </visibleWhen>
          </command>
       </menuContribution>
+
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="org.eclipse.ui.edit.text.actionSet.presentation">
+            <separator
+                  name="Presentation">
+            </separator>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.edit.text.actionSet.presentation?after=Presentation">
+         <command
+               commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
+               style="toggle">
+            <visibleWhen
+                  checkEnabled="true">
+               <and>
+                  <with
+                        variable="activeEditor">
+                     <instanceof
+                           value="de.walware.statet.base.ui.sourceeditors.StatextEditor1">
+                     </instanceof>
+                  </with>
+                  <with
+                        variable="activeContexts">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="org.eclipse.ui.edit.text.actionSet.presentation">
+                        </equals>
+                     </iterate>
+                  </with>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
 
    <extension

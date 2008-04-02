@@ -72,6 +72,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	private Button fFoldingEnableControl;
 	private Button fFoldingDefaultAllBlocksControl;
 	private Text fFoldingDefaultMinLines;
+	private Button fMarkOccurrencesControl;
 	private Button fSpellEnableControl;
 	
 	
@@ -102,6 +103,8 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.put(REditorOptions.PREF_FOLDING_ENABLED, null);
 		prefs.put(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED, DefaultRFoldingPreferences.GROUP_ID);
 		prefs.put(DefaultRFoldingPreferences.PREF_MINLINES_NUM, DefaultRFoldingPreferences.GROUP_ID);
+		
+		prefs.put(REditorOptions.PREF_MARKOCCURRENCES_ENABLED, null);
 		
 		prefs.put(REditorOptions.PREF_SPELLCHECKING_ENABLED, REditorOptions.GROUP_ID);
 		
@@ -167,6 +170,15 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fFoldingDefaultMinLines.setLayoutData(gd);
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
+		fMarkOccurrencesControl = new Button(pageComposite, SWT.CHECK);
+		fMarkOccurrencesControl.setText(Messages.REditorOptions_MarkOccurrences_Enable_label);
+		fMarkOccurrencesControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		link = addLinkControl(pageComposite, Messages.REditorOptions_MarkOccurrences_Appearance_info);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.widthHint = 300;
+		gd.horizontalIndent = LayoutUtil.defaultIndent();
+		link.setLayoutData(gd);
+		
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
 		fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
 		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -266,6 +278,10 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
 				createObservable(DefaultRFoldingPreferences.PREF_MINLINES_NUM),
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
+		
+		dbc.bindValue(SWTObservables.observeSelection(fMarkOccurrencesControl),
+				createObservable(REditorOptions.PREF_MARKOCCURRENCES_ENABLED),
+				null, null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),
 				createObservable(REditorOptions.PREF_SPELLCHECKING_ENABLED),

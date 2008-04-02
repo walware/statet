@@ -11,15 +11,28 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.AbstractDocument;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.graphics.Point;
@@ -28,13 +41,17 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
+import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 import de.walware.eclipsecommons.ltk.ast.AstSelection;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
+import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.StatetUIServices;
@@ -46,8 +63,11 @@ import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.rmodel.IElementAccess;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.ast.NodeType;
+import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
@@ -57,6 +77,204 @@ import de.walware.statet.r.ui.RUIHelp;
 
 
 public class REditor extends StatextEditor1<RProject> {
+	
+	
+	private class MarkOccurrencesProvider implements IEditorInstallable, ISelectionWithElementInfoListener {
+		
+		// CHECK: Eclipse Bug #205585
+		private static final String READ_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences"; //$NON-NLS-1$
+		private static final String WRITE_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences.write"; //$NON-NLS-1$
+		
+		private class RunData {
+			final AbstractDocument doc;
+			final long stamp;
+			Point range;
+			Annotation[] annotations;
+			String[] name;
+			
+			public RunData(final AbstractDocument doc, final long stamp) {
+				this.doc = doc;
+				this.stamp = stamp;
+			}
+		}
+		
+		private boolean fIsMarkEnabled;
+		private RunData fLastRun;
+		
+		public void install(final IEditorAdapter editor) {
+			fIsMarkEnabled = true;
+			fModelPostSelection.addListener(this);
+		}
+		
+		public void uninstall() {
+			fIsMarkEnabled = false;
+			fModelPostSelection.remove(this);
+			removeAnnotations();
+		}
+		
+		
+		public void inputChanged() {
+			fLastRun = null;
+		}
+		
+		public void stateChanged(final StateData state) {
+			final boolean ok = update((IRSourceUnit) state.getInputElement(), state.getAstSelection(), state.getLastSelection());
+			if (!ok && state.isStillValid()) {
+				removeAnnotations();
+			}
+		}
+		
+		/**
+		 * Updates the occurrences annotations based on the current selection.
+		 */
+		protected boolean update(final IRSourceUnit inputElement, final AstSelection astSelection, final ISelection orgSelection) {
+			if (!fIsMarkEnabled) {
+				return false;
+			}
+			try {
+				final ISourceUnitModelInfo info = inputElement.getModelInfo("r", IModelManager.NONE, new NullProgressMonitor());
+				if (getSourceUnit() != inputElement || info == null || astSelection == null) {
+					return false;
+				}
+				final RunData run = new RunData(inputElement.getDocument(), info.getStamp());
+				if (run.doc == null) {
+					return false;
+				}
+				if (isValid(fLastRun)) {
+					return true;
+				}
+				
+				RAstNode node = (RAstNode) astSelection.getCovering();
+				if (node != null) {
+					IElementAccess access = null;
+					while (node != null && access == null) {
+						final Object[] attachments = node.getAttachments();
+						for (int i = 0; i < attachments.length; i++) {
+							if (attachments[i] instanceof IElementAccess) {
+								access = (IElementAccess) attachments[i];
+								final Map<Annotation, Position> annotations = checkDefault(run, access);
+								
+								if (annotations != null) {
+									updateAnnotations(run, annotations);
+									return true;
+								}
+							}
+						}
+						node = node.getParent();
+					}
+				}
+				return checkClear(run, orgSelection);
+			}
+			catch (final BadLocationException e) {
+			}
+			catch (final BadPartitioningException e) {
+			}
+			catch (final UnsupportedOperationException e) {
+			}
+			return false;
+		}
+		
+		private Map<Annotation, Position> checkDefault(final RunData run, IElementAccess access) throws BadLocationException {
+			while (access != null) {
+				final RAstNode nameNode = access.getNameNode();
+				if (nameNode == null) {
+					return null;
+				}
+				run.range = new Point(nameNode.getStartOffset(), nameNode.getStopOffset());
+				if (isValid(run)) {
+					run.name = new String[] { access.getName() };
+					final IElementAccess[] accessList = access.getAllInUnit();
+					final Map<Annotation, Position> annotations = new LinkedHashMap<Annotation, Position>(accessList.length);
+					for (int i = 0; i < accessList.length; i++) {
+						final IElementAccess item = accessList[i];
+						final String message = run.doc.get(item.getNode().getStartOffset(), item.getNode().getLength());
+						annotations.put(
+								new Annotation(item.isWriteAccess() ? WRITE_ANNOTATION_KEY : READ_ANNOTATION_KEY, false, message),
+								RAst.getElementNamePosition(item.getNameNode()));
+					}
+					return annotations;
+				}
+				access = access.getSubElementAccess();
+			}
+			return null;
+		}
+		
+		private boolean isValid(final RunData run) {
+			final Point currentSelection = fCurrentSelection;
+			return (fIsMarkEnabled && run != null && currentSelection.x >= run.range.x
+					&& currentSelection.x+currentSelection.y <= run.range.y
+					&& run.doc.getModificationStamp() == run.stamp);
+		}
+		
+		private boolean checkClear(final RunData run, final ISelection selection) throws BadLocationException, BadPartitioningException {
+			if (fLastRun == null || fLastRun.stamp != run.stamp) {
+				return false;
+			}
+			if (selection instanceof ITextSelection) {
+				final ITextSelection textSelection = (ITextSelection) selection;
+				final Point currentSelection = fCurrentSelection;
+				final int offset = textSelection.getOffset();
+				final int docLength = run.doc.getLength();
+				final ITypedRegion partition = run.doc.getPartition(IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, false);
+				if (docLength > 0 &&
+						(	(currentSelection.y > 0)
+						||  (offset != currentSelection.x)
+						||	(textSelection.getLength() == 0
+							&& partition != null && partition.getType().equals(IRDocumentPartitions.R_DEFAULT)
+							&& (offset <= 0 || !Character.isLetterOrDigit(run.doc.getChar(offset-1)) )
+							&& (offset >= docLength || !Character.isLetter(run.doc.getChar(offset)) ) )
+						)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		private void updateAnnotations(final RunData run, final Map<Annotation, Position> annotations) throws BadLocationException {
+			if (!isValid(run)) {
+				return;
+			}
+			
+			// Add occurrence annotations
+			final IAnnotationModel annotationModel = getAnnotationModel();
+//			create diff ?
+//			if (fLastRun != null && Arrays.equals(run.name, fLastRun.name)) {
+//			}
+			final Annotation[] lastAnnotations = (fLastRun != null) ? fLastRun.annotations : null;
+			synchronized (getLockObject(annotationModel)) {
+				if (!isValid(run)) {
+					return;
+				}
+				((IAnnotationModelExtension)annotationModel).replaceAnnotations(lastAnnotations, annotations);
+				run.annotations = annotations.keySet().toArray(new Annotation[annotations.keySet().size()]);
+				fLastRun = run;
+			}
+		}
+		
+		private void removeAnnotations() {
+			final IAnnotationModel annotationModel = getAnnotationModel();
+			synchronized (getLockObject(annotationModel)) {
+				if (fLastRun == null) {
+					return;
+				}
+				((IAnnotationModelExtension)annotationModel).replaceAnnotations(fLastRun.annotations, null);
+				fLastRun = null;
+			}
+		}
+		
+		private IAnnotationModel getAnnotationModel() {
+			final IDocumentProvider documentProvider = getDocumentProvider();
+			if (documentProvider == null) {
+				throw new UnsupportedOperationException();
+			}
+			final IAnnotationModel annotationModel = documentProvider.getAnnotationModel(getEditorInput());
+			if (annotationModel == null || !(annotationModel instanceof IAnnotationModelExtension)) {
+				throw new UnsupportedOperationException();
+			}
+			return annotationModel;
+		}
+		
+	}
 	
 	
 	protected RSourceViewerConfigurator fRConfig;
@@ -85,7 +303,7 @@ public class REditor extends StatextEditor1<RProject> {
 		fModelProvider = new ElementInfoController(RCore.getRModelManger(), StatetCore.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider,
 				REditorOptions.PREF_FOLDING_ENABLED,
-				null);
+				REditorOptions.PREF_MARKOCCURRENCES_ENABLED);
 		
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
@@ -118,6 +336,11 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected IEditorInstallable createCodeFoldingProvider() {
 		return new DefaultRFoldingProvider();
+	}
+	
+	@Override
+	protected IEditorInstallable createMarkOccurrencesProvider() {
+		return new MarkOccurrencesProvider();
 	}
 	
 	@Override

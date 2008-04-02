@@ -55,6 +55,9 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 	public static final BooleanPref PREF_FOLDING_ENABLED = new BooleanPref(
 			RUIPreferenceInitializer.REDITOR_NODE, "folding.enabled"); //$NON-NLS-1$
 	
+	public static final BooleanPref PREF_MARKOCCURRENCES_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "markoccurrences.enabled"); //$NON-NLS-1$
+	
 	
 	private boolean fIsSmartByDefaultEnabled;
 	private boolean fIsSmartCurlyBracketsEnabled;
