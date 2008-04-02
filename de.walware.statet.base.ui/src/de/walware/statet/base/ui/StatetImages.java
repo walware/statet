@@ -23,7 +23,7 @@ public class StatetImages {
 	
 	public static final String LOCTOOL_FILTER = StatetUIPlugin.PLUGIN_ID + "image.loctool.filter_view"; //$NON-NLS-1$
 	public static final String LOCTOOLD_FILTER = StatetUIPlugin.PLUGIN_ID + "image.loctoold.filter_view"; //$NON-NLS-1$
-	public static final String LOCTOOL_SORT_ALPHA = StatetUIPlugin.PLUGIN_ID + ".image.loctool.sort.alpha";  //$NON-NLS-1$
+	public static final String LOCTOOL_SORT_ALPHA = StatetUIPlugin.PLUGIN_ID + ".image.loctool.sort.alpha"; //$NON-NLS-1$
 	
 	public static final String LOCTOOL_EXPANDALL = StatetUIPlugin.PLUGIN_ID + "image.loctool.expandall"; //$NON-NLS-1$
 	public static final String LOCTOOL_COLLAPSEALL = StatetUIPlugin.PLUGIN_ID + "image.loctool.collapseall"; //$NON-NLS-1$
@@ -33,13 +33,14 @@ public class StatetImages {
 	public static final String LOCTOOL_PAUSE = StatetUIPlugin.PLUGIN_ID + "image.loctool.pause"; //$NON-NLS-1$
 	public static final String LOCTOOLD_PAUSE = StatetUIPlugin.PLUGIN_ID + "image.loctoold.pause"; //$NON-NLS-1$
 	
-	public static final String CONTENTASSIST_TEMPLATE = StatetUIPlugin.PLUGIN_ID + ".image.contentassist.template";  //$NON-NLS-1$
+	public static final String CONTENTASSIST_TEMPLATE = StatetUIPlugin.PLUGIN_ID + ".image.assist.template"; //$NON-NLS-1$
+	public static final String CONTENTASSIST_CORRECTION_LINKEDRENAME = StatetUIPlugin.PLUGIN_ID + ".image.assist.linked_rename"; //$NON-NLS-1$
 	
-	public static final String LAUNCHCONFIG_MAIN = StatetUIPlugin.PLUGIN_ID + ".image.launchconfig.main";  //$NON-NLS-1$
+	public static final String LAUNCHCONFIG_MAIN = StatetUIPlugin.PLUGIN_ID + ".image.launchconfig.main"; //$NON-NLS-1$
 	
 	
-	public static final String OBJ_COMMAND = StatetUIPlugin.PLUGIN_ID + ".image.obj.command";  //$NON-NLS-1$
-	public static final String OBJ_COMMAND_DUMMY = StatetUIPlugin.PLUGIN_ID + ".image.obj.commanddummy";  //$NON-NLS-1$
+	public static final String OBJ_COMMAND = StatetUIPlugin.PLUGIN_ID + ".image.obj.command"; //$NON-NLS-1$
+	public static final String OBJ_COMMAND_DUMMY = StatetUIPlugin.PLUGIN_ID + ".image.obj.commanddummy"; //$NON-NLS-1$
 	
 	public static final String OVR_DEFAULT_MARKER = StatetUIPlugin.PLUGIN_ID + ".image.ovr.default_marker"; //$NON-NLS-1$
 	

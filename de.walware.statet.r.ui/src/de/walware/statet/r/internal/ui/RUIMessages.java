@@ -28,6 +28,9 @@ public class RUIMessages extends NLS {
 	public static String CorrectIndent_task_Indent;
 	public static String CorrectIndent_task_UpdateStructure;
 	
+	public static String Proposal_RenameInFile_description;
+	public static String Proposal_RenameInFile_label;
+	
 	
 	static {
 		NLS.initializeMessages(RUIMessages.class.getName(), RUIMessages.class);
