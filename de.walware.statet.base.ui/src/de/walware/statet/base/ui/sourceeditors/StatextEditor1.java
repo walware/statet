@@ -34,6 +34,8 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.jface.text.link.ILinkedModeListener;
+import org.eclipse.jface.text.link.LinkedModeModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -385,6 +387,32 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 	}
 	
+	private class EffectSynchonizer implements ITextEditorEffectSynchronizer, ILinkedModeListener {
+		
+		private EffectSynchonizer() {
+		}
+		
+		public void install(final LinkedModeModel model) {
+			fEffectSynchonizerCounter++;
+			if (fMarkOccurrencesProvider != null) {
+				fMarkOccurrencesProvider.uninstall();
+			}
+			model.addLinkingListener(this);
+		}
+		
+		public void left(final LinkedModeModel model, final int flags) {
+			fEffectSynchonizerCounter--;
+			updateMarkOccurrencesEnablement();
+		}
+		
+		public void resume(final LinkedModeModel model, final int flags) {
+		}
+		
+		public void suspend(final LinkedModeModel model) {
+		}
+		
+	}
+	
 	
 /*- Fields -----------------------------------------------------------------*/
 	
@@ -405,6 +433,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private ProjectionSupport fFoldingSupport;
 	private IEditorInstallable fFoldingProvider;
 	private FoldingActionGroup fFoldingActionGroup;
+	private Preference<Boolean> fMarkOccurrencesEnablement;
+	private IEditorInstallable fMarkOccurrencesProvider;
+	
+	private EffectSynchonizer fEffectSynchronizer;
+	private int fEffectSynchonizerCounter;
 	
 	private List<IUpdate> fUpdateables = new ArrayList<IUpdate>();
 	
@@ -435,9 +468,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	
 	protected void enableStructuralFeatures(final IModelElementInputProvider provider,
-			final Preference<Boolean> codeFoldingEnablement) {
+			final Preference<Boolean> codeFoldingEnablement,
+			final Preference<Boolean> markOccurrencesEnablement) {
 		fModelProvider = provider;
 		fFoldingEnablement = codeFoldingEnablement;
+		fMarkOccurrencesEnablement = markOccurrencesEnablement;
 	}
 	
 	protected void configureStatetProjectNatureId(final String id) {
@@ -579,6 +614,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 					fFoldingEnablement.getQualifier(), this);
 			updateFoldingEnablement();
 		}
+		if (fMarkOccurrencesEnablement != null) {
+			PreferencesUtil.getInstancePrefs().addPreferenceNodeListener(
+					fMarkOccurrencesEnablement.getQualifier(), this);
+			updateMarkOccurrencesEnablement();
+		}
 		
 		if (fLazySetup) {
 			fLazySetup = false;
@@ -648,7 +688,36 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	protected IEditorInstallable createMarkOccurrencesProvider() {
 		return null;
 	}
-		
+	
+	private void uninstallMarkOccurrencesProvider() {
+		if (fMarkOccurrencesProvider != null) {
+			fMarkOccurrencesProvider.uninstall();
+			fMarkOccurrencesProvider = null;
+		}
+	}
+	
+	private void updateMarkOccurrencesEnablement() {
+		if (fMarkOccurrencesEnablement != null) {
+			UIAccess.getDisplay().timerExec(50, new Runnable() {
+				public void run() {
+					final Boolean enable = PreferencesUtil.getInstancePrefs().getPreferenceValue(fMarkOccurrencesEnablement);
+					if (enable) {
+						if (fMarkOccurrencesProvider == null) {
+							fMarkOccurrencesProvider = createMarkOccurrencesProvider();
+						}
+						if (fMarkOccurrencesProvider != null && fEffectSynchonizerCounter == 0) {
+							fMarkOccurrencesProvider.install(fEditorAdapter);
+						}
+					}
+					else {
+						uninstallMarkOccurrencesProvider();
+					}
+				}
+			});
+		}
+	}
+	
+	
 	@Override
 	protected void configureSourceViewerDecorationSupport(final SourceViewerDecorationSupport support) {
 		super.configureSourceViewerDecorationSupport(support);
@@ -740,6 +809,13 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	
+	public ITextEditorEffectSynchronizer getEffectSynchronizer() {
+		if (fEffectSynchronizer == null) {
+			fEffectSynchronizer = new EffectSynchonizer();
+		}
+		return fEffectSynchronizer;
+	}
+	
 	@Override
 	public Object getAdapter(final Class required) {
 		if (IEditorAdapter.class.equals(required)) {
@@ -782,6 +858,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		if (fFoldingEnablement != null && event.getKey().equals(fFoldingEnablement.getKey())) {
 			updateFoldingEnablement();
 		}
+		if (fMarkOccurrencesEnablement != null && event.getKey().equals(fMarkOccurrencesEnablement.getKey())) {
+			updateMarkOccurrencesEnablement();
+		}
 	}
 	
 	@Override
@@ -816,6 +895,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			PreferencesUtil.getInstancePrefs().removePreferenceNodeListener(
 					fFoldingEnablement.getQualifier(), this);
 			uninstallFoldingProvider();
+		}
+		if (fMarkOccurrencesEnablement != null) {
+			PreferencesUtil.getInstancePrefs().removePreferenceNodeListener(
+					fMarkOccurrencesEnablement.getQualifier(), this);
+			uninstallMarkOccurrencesProvider();
 		}
 		
 		super.dispose();

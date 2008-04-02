@@ -63,25 +63,25 @@
             name="%categorys.StatetSource.name"/>
       <!-- edit -->
       <command
-      		id="de.walware.statet.base.commands.SelectExpandEnclosing"
+            id="de.walware.statet.base.commands.SelectExpandEnclosing"
             name="%commands.SelectEnclosing.name"
             description="%commands.SelectEnclosing.description"
             categoryId="org.eclipse.ui.category.edit">
       </command>
       <command
-      		id="de.walware.statet.base.commands.SelectExpandNext"
+            id="de.walware.statet.base.commands.SelectExpandNext"
             name="%commands.SelectNext.name"
             description="%commands.SelectNext.description"
             categoryId="org.eclipse.ui.category.edit">
       </command>
       <command
-      		id="de.walware.statet.base.commands.SelectExpandPrevious"
+            id="de.walware.statet.base.commands.SelectExpandPrevious"
             name="%commands.SelectPrevious.name"
             description="%commands.SelectPrevious.description"
             categoryId="org.eclipse.ui.category.edit">
       </command>
       <command
-      		id="de.walware.statet.base.commands.SelectLast"
+            id="de.walware.statet.base.commands.SelectLast"
             name="%commands.SelectLast.name"
             description="%commands.SelectLast.description"
             categoryId="org.eclipse.ui.category.edit">
@@ -113,6 +113,13 @@
             id="de.walware.statet.base.commands.CorrectIndent"
             name="%commands.CorrectIndent.name">
       </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
+            icon="icons/tool_16/mark-occurrences.png"
+            disabledIcon="icons/tool_16_d/mark-occurrences.png" />
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -375,6 +382,7 @@
          </command>
       </menuContribution>
    </extension>
+
    <extension
          id="de.walware.statet.base.markers.InitialSelection"
          point="org.eclipse.core.resources.markers">
@@ -382,5 +390,34 @@
             value="false">
       </persistent>
    </extension>
+
+<!-- Necessary only until E-3.4 -->
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+         name="org.eclipse.jdt.ui.occurrences.write"
+         super="org.eclipse.jdt.ui.occurrences">
+      </type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            annotationType="org.eclipse.jdt.ui.occurrences.write"
+            label="Occurrences: Write"
+            textPreferenceKey="writeOccurrenceIndication"
+            textPreferenceValue="false"
+            highlightPreferenceKey="writeOccurrenceHighlighting"
+            highlightPreferenceValue="true"
+            overviewRulerPreferenceKey="writeOccurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            verticalRulerPreferenceKey="writeOccurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false"
+            colorPreferenceKey="writeOccurrenceIndicationColor"
+            colorPreferenceValue="240,216,168"
+            textStylePreferenceKey="writeOccurrenceTextStyle"
+            textStylePreferenceValue="NONE">
+      </specification>
+   </extension>
+<!-- / -->
 
 </plugin>

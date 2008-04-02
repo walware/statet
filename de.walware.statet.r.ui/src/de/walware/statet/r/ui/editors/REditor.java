@@ -84,7 +84,8 @@ public class REditor extends StatextEditor1<RProject> {
 	protected SourceViewerConfigurator createConfiguration() {
 		fModelProvider = new ElementInfoController(RCore.getRModelManger(), StatetCore.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider,
-				REditorOptions.PREF_FOLDING_ENABLED);
+				REditorOptions.PREF_FOLDING_ENABLED,
+				null);
 		
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
