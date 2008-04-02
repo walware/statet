@@ -11,25 +11,21 @@
 
 package de.walware.statet.r.core.rmodel;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-
-import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
-
 
 /**
- * Extends source unit, so that they can be managed by the R model manager
- * {@link RCore#getRModelManger()}
+ * 
  */
-public interface IManagableRUnit extends IRSourceUnit {
+public interface IScope {
 	
 	
-	public Object getModelLockObject();
+	public static final int T_PROJ = 1;
+	public static final int T_PKG = 2;
+	public static final int T_EXPLICIT = 3;
+	public static final int T_FUNCTION = 4;
 	
-	public void setRAst(AstInfo ast);
-	public AstInfo<RAstNode> getCurrentRAst();
 	
-	public void setRModel(IRModelInfo model);
-	public IRModelInfo getCurrentRModel();
+	public String getId();
+	
+	public boolean containsElement(final String name);
 	
 }

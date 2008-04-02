@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,12 +24,13 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- * 
+ * R source unit working copy which can be processed by the model manager.
  */
 public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSourceUnit, IManagableRUnit {
 	
 	
 	private AstInfo<RAstNode> fAst;
+	private IRModelInfo fModelInfo;
 	private final Object fAstLock = new Object();
 	
 	
@@ -63,6 +64,12 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	}
 	
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
+		if (type == null || type.equals("r")) { //$NON-NLS-1$
+			if (syncLevel > IModelManager.NONE) {
+				RCorePlugin.getDefault().getRModelManager().reconcile(this, RAst.LEVEL_MODEL_DEFAULT, syncLevel, monitor);
+			}
+			return fModelInfo;
+		}
 		return null;
 	}
 	
@@ -77,6 +84,14 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	
 	public AstInfo<RAstNode> getCurrentRAst() {
 		return fAst;
+	}
+	
+	public void setRModel(final IRModelInfo model) {
+		fModelInfo = model;
+	}
+	
+	public IRModelInfo getCurrentRModel() {
+		return fModelInfo;
 	}
 	
 }

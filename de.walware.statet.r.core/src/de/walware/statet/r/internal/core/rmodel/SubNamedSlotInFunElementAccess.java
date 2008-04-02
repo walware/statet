@@ -9,27 +9,37 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.rmodel;
+package de.walware.statet.r.internal.core.rmodel;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-/**
- * Extends source unit, so that they can be managed by the R model manager
- * {@link RCore#getRModelManger()}
- */
-public interface IManagableRUnit extends IRSourceUnit {
+final class SubNamedSlotInFunElementAccess extends SubAbstractElementAccess {
 	
 	
-	public Object getModelLockObject();
+	final RAstNode fSlotNameNode;
 	
-	public void setRAst(AstInfo ast);
-	public AstInfo<RAstNode> getCurrentRAst();
 	
-	public void setRModel(IRModelInfo model);
-	public IRModelInfo getCurrentRModel();
+	SubNamedSlotInFunElementAccess(final ElementAccess root, final RAstNode slotNameNode) {
+		fRoot = root;
+		fSlotNameNode = slotNameNode;
+	}
+	
+	
+	public final int getType() {
+		return SUB_NAMEDSLOT;
+	}
+	
+	public final String getName() {
+		return fSlotNameNode.getText();
+	}
+	
+	public final RAstNode getNode() {
+		return fRoot.getNode();
+	}
+	
+	public final RAstNode getNameNode() {
+		return fSlotNameNode;
+	}
 	
 }

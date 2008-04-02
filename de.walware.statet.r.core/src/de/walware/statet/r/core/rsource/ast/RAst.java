@@ -13,14 +13,20 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.text.Position;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
+import de.walware.statet.r.core.rmodel.ArgsDefinition;
+import de.walware.statet.r.core.rmodel.RCoreFunctions;
+import de.walware.statet.r.core.rmodel.ArgsDefinition.Arg;
+import de.walware.statet.r.core.rsource.IRSourceConstants;
 
 
 /**
@@ -92,6 +98,7 @@ public class RAst {
 					(node.getStopOffset() >= fStartOffset && fStopOffset >= node.getStartOffset())) {
 				RAstNode take = node;
 				RAstNode cand = node.getParent();
+				// TODO: use analyzed ElementAccess if possible
 				AssignExpr assign = null;
 				while ((assign = checkAssign(cand)) != null && assign.valueNode == take) {
 					take = assign.assignNode;
@@ -213,10 +220,6 @@ public class RAst {
 		
 	}
 	
-	private static final String F_ASSIGN_NAME = "assign";
-	private static final List<String> F_ASSIGN_ARGS = Arrays.asList(new String[] {
-			"x", "value", "pos", "envir", "inherits", "immediate" });
-	
 	public static AssignExpr checkAssign(final RAstNode node) {
 		switch (node.getNodeType()) {
 		case A_LEFT_S:
@@ -238,8 +241,8 @@ public class RAst {
 			if (refChild.getNodeType() == NodeType.SYMBOL) {
 				final Symbol symbol = (Symbol) refChild;
 				if (symbol.fText != null) {
-					if (symbol.fText.equals(F_ASSIGN_NAME)) {
-						final RAstNode[] args = readArgs(callNode.getArgsChild(), F_ASSIGN_ARGS);
+					if (symbol.fText.equals(RCoreFunctions.BASE_ASSIGN_NAME)) {
+						final RAstNode[] args = readArgs(callNode.getArgsChild(), RCoreFunctions.DEFAULT.BASE_ASSIGN_args);
 						return new AssignExpr(node, AssignExpr.LOCAL, args[0], args[1]);
 					}
 				}
@@ -252,38 +255,89 @@ public class RAst {
 		return null;
 	}
 	
-	public static RAstNode[] readArgs(final FCall.Args args, final List<String> names) {
+	public static RAstNode[] readArgs(final FCall.Args args, final ArgsDefinition argsDef) {
 		final int argsCount = args.getChildCount();
-		final RAstNode[] values = new RAstNode[names.size()];
-		final ArrayList<RAstNode> defaults = new ArrayList<RAstNode>();
+		final RAstNode[] values = new RAstNode[argsDef.size()];
+		List<RAstNode> autoValues = null;
+		final int ellipsisIdx = argsDef.indexOf("..."); //$NON-NLS-1$
+		List<RAstNode> ellipsisValues = null;
 		for (int i = 0; i < argsCount; i++) {
 			final FCall.Arg child = (FCall.Arg) args.getChild(i);
 			final RAstNode nameNode = child.getNameChild();
 			if (nameNode == null) {
-				defaults.add(child.getValueChild());
+				if (autoValues == null) {
+					autoValues = new ArrayList<RAstNode>(args.getChildCount()-i);
+				}
+				autoValues.add(child.getValueChild());
 			}
 			else {
-				final int idx = names.indexOf(nameNode.getText());
-				if (idx >= 0) {
-					values[idx] = child.getValueChild();
+				final Arg arg = argsDef.get(nameNode.getText());
+				if (arg != null && arg.index != ellipsisIdx) {
+					values[arg.index] = child.getValueChild();
+				}
+				else if (ellipsisIdx >= 0) {
+					if (ellipsisValues == null) {
+						ellipsisValues = new ArrayList<RAstNode>(args.getChildCount()-i);
+					}
+					ellipsisValues.add(child.getValueChild());
 				}
 			}
 		}
-		final Iterator<RAstNode> iter = defaults.iterator();
-		int idx = 0;
-		ITER_ARGS: while (iter.hasNext()) {
-			while (idx < values.length) {
-				if (values[idx] == null) {
-					values[idx] = iter.next();
-					continue ITER_ARGS;
+		if (autoValues != null) {
+			final Iterator<RAstNode> iter = autoValues.iterator();
+			int idx = 0;
+			ITER_ARGS: while (iter.hasNext()) {
+				while (idx < values.length) {
+					if (values[idx] == null) {
+						if (ellipsisIdx == idx) {
+							if (ellipsisValues == null) {
+								ellipsisValues = autoValues.subList(idx, autoValues.size());
+								break ITER_ARGS;
+							}
+							else {
+								ellipsisValues.addAll(autoValues.subList(idx, autoValues.size()));
+								break ITER_ARGS;
+							}
+						}
+						else {
+							values[idx] = iter.next();
+							continue ITER_ARGS;
+						}
+					}
+					else {
+						idx++;
+					}
 				}
-				else {
-					idx++;
-				}
+				break ITER_ARGS;
 			}
-			break ITER_ARGS;
+		}
+		if (ellipsisValues != null) {
+			values[ellipsisIdx] = Dummy.createNodeList(ellipsisValues.toArray(new RAstNode[ellipsisValues.size()]));
 		}
 		return values;
+	}
+	
+	/**
+	 * @return position of the element name, if possible (symbol or strings), otherwise null
+	 */
+	public static Position getElementNamePosition(final RAstNode node) {
+		switch (node.getNodeType()) {
+		case SYMBOL:
+			if (node.getOperator(0) == RTerminal.SYMBOL_G) {
+				if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
+					return new Position(node.getStartOffset()+1, node.getLength()-1);
+				}
+				return new Position(node.getStartOffset()+1, node.getLength()-2);
+			}
+			return new Position(node.getStartOffset(), node.getLength());
+		case STRING_CONST:
+			if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
+				return new Position(node.getStartOffset()+1, node.getLength()-1);
+			}
+			return new Position(node.getStartOffset()+1, node.getLength()-2);
+		default:
+			return null;
+		}
 	}
 	
 }

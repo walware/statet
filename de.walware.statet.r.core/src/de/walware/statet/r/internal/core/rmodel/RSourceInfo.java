@@ -9,27 +9,39 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.rmodel;
+package de.walware.statet.r.internal.core.rmodel;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 
-import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.rmodel.IRModelInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-/**
- * Extends source unit, so that they can be managed by the R model manager
- * {@link RCore#getRModelManger()}
- */
-public interface IManagableRUnit extends IRSourceUnit {
+public class RSourceInfo implements IRModelInfo {
 	
 	
-	public Object getModelLockObject();
+	public final AstInfo<RAstNode> ast;
+	public final LinkedHashMap<String, Scope> scopes;
 	
-	public void setRAst(AstInfo ast);
-	public AstInfo<RAstNode> getCurrentRAst();
 	
-	public void setRModel(IRModelInfo model);
-	public IRModelInfo getCurrentRModel();
+	RSourceInfo(final AstInfo<RAstNode> ast, final LinkedHashMap<String, Scope> scopes) {
+		this.ast = ast;
+		this.scopes = scopes;
+	}
+	
+	public final long getStamp() {
+		return ast.stamp;
+	}
+	
+	public final AstInfo<RAstNode> getAst() {
+		return ast;
+	}
+	
+	public final Map<String, Scope> getAllScopes() {
+		return scopes;
+	}
 	
 }

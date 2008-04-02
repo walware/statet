@@ -23,12 +23,14 @@ import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelManager;
 
 import de.walware.statet.r.core.rmodel.IManagableRUnit;
+import de.walware.statet.r.core.rmodel.IRModelInfo;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- * 
+ * Worker for r model manager
  */
 public class RModelJob extends Job {
 	
@@ -78,13 +80,31 @@ public class RModelJob extends Job {
 		}
 		
 		public void run() {
-			// insert code analysis here
+			IRModelInfo newModel = null;
+			IRModelInfo oldModel = null;
+			boolean isOK = false;
 			
-			synchronized (fUnit.getModelLockObject()) {
-				finished(RModelManager.MODEL_DEPENDENCIES); // eigentlich MODEL_FILE
+			try {
+				newModel = fScopeAnalyzer.update(fUnit, fNewAst);
+				oldModel = fUnit.getCurrentRModel();
+				isOK = (newModel != null);
+			}
+			finally {
+				synchronized (fUnit.getModelLockObject()) {
+					if (isOK) {
+						final AstInfo<RAstNode> oldAst = fUnit.getCurrentRAst();
+						if (oldAst == null || oldAst.stamp == newModel.getStamp()) {
+							// otherwise, the ast is probably newer
+							fUnit.setRAst(newModel.getAst());
+						}
+						fUnit.setRModel(newModel);
+					}
+					
+					finished(RModelManager.MODEL_DEPENDENCIES); // eigentlich MODEL_FILE
+				}
 			}
 			
-			final ModelDelta delta = new ModelDelta(fUnit, null, fNewAst);
+			final ModelDelta delta = new ModelDelta(fUnit, (oldModel != null) ? oldModel.getAst() : null, fNewAst, newModel);
 			fManager.fireDelta(delta, fUnit.getWorkingContext());
 		}
 		
@@ -95,6 +115,7 @@ public class RModelJob extends Job {
 	private HashMap<IRSourceUnit, Task> fTaskDetail = new HashMap<IRSourceUnit, Task>();
 	private boolean fWorking = false;
 	
+	private ScopeAnalyzer fScopeAnalyzer;
 	private RModelManager fManager;
 	
 	
@@ -105,6 +126,7 @@ public class RModelJob extends Job {
 		setUser(false);
 		
 		fManager = manager;
+		fScopeAnalyzer = new ScopeAnalyzer();
 	}
 	
 	
