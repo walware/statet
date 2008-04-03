@@ -59,6 +59,7 @@ public class RjsController extends AbstractRController {
 	private int fTicket;
 	private ConsoleCmdItem fServerCallback;
 	private boolean fIsBusy;
+	private boolean fIsDisconnected = false;
 	
 	
 	public RjsController(final ToolProcess<RWorkspace> process, final String address, final String[] rArgs,
@@ -176,6 +177,7 @@ public class RjsController extends AbstractRController {
 		case 0:
 			return;
 		case Server.S_DISCONNECTED:
+			fIsDisconnected = true;
 			markAsTerminated();
 			handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID, "R disconnected."));
 			return;
@@ -368,6 +370,14 @@ public class RjsController extends AbstractRController {
 	@Override
 	protected void clear() {
 		super.clear();
+		
+		if (!fIsDisconnected) {
+			try {
+				Naming.unbind(fAddress);
+			}
+			catch (final Throwable e) {
+			}
+		}
 		fRJServer = null;
 	}
 	
