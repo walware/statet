@@ -67,6 +67,7 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESPECIAL_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, CONSOLE_SMARTINSERT_CLOSESTRINGS_ENABLED, false);
 		
+		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_PROBLEMCHECKING_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_SPELLCHECKING_ENABLED, false);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_MARKOCCURRENCES_ENABLED, true);
 		PreferencesUtil.setPrefValue(defaultScope, REditorOptions.PREF_FOLDING_ENABLED, true);

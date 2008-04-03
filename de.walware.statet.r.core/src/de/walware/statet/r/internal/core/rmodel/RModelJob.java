@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelManager;
+import de.walware.eclipsecommons.ltk.IProblemRequestor;
 
 import de.walware.statet.r.core.rmodel.IManagableRUnit;
 import de.walware.statet.r.core.rmodel.IRModelInfo;
@@ -104,6 +105,13 @@ public class RModelJob extends Job {
 				}
 			}
 			
+			final IProblemRequestor problemRequestor = fUnit.getProblemRequestor();
+			if (problemRequestor != null) {
+				problemRequestor.beginReportingSequence();
+				fSyntaxReporter.run(fUnit, fNewAst, problemRequestor);
+				problemRequestor.endReportingSequence();
+			}
+			
 			final ModelDelta delta = new ModelDelta(fUnit, (oldModel != null) ? oldModel.getAst() : null, fNewAst, newModel);
 			fManager.fireDelta(delta, fUnit.getWorkingContext());
 		}
@@ -115,8 +123,9 @@ public class RModelJob extends Job {
 	private HashMap<IRSourceUnit, Task> fTaskDetail = new HashMap<IRSourceUnit, Task>();
 	private boolean fWorking = false;
 	
-	private ScopeAnalyzer fScopeAnalyzer;
-	private RModelManager fManager;
+	private final ScopeAnalyzer fScopeAnalyzer;
+	private final SyntaxProblemReporter fSyntaxReporter;
+	private final RModelManager fManager;
 	
 	
 	public RModelJob(final RModelManager manager) {
@@ -127,6 +136,7 @@ public class RModelJob extends Job {
 		
 		fManager = manager;
 		fScopeAnalyzer = new ScopeAnalyzer();
+		fSyntaxReporter = new SyntaxProblemReporter();
 	}
 	
 	

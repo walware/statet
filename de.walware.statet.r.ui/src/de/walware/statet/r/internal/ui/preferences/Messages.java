@@ -132,6 +132,7 @@ public class Messages extends NLS {
 	public static String REditorOptions_SmartInsert_CloseSquare_label;
 	public static String REditorOptions_SmartInsert_ClosePercent_label;
 	public static String REditorOptions_SmartInsert_CloseString_label;
+	public static String REditorOptions_ProblemChecking_Enable_label;
 	public static String REditorOptions_SpellChecking_Enable_label;
 	public static String REditorOptions_SpellChecking_note;
 	public static String REditorOptions_MarkOccurrences_Enable_label;

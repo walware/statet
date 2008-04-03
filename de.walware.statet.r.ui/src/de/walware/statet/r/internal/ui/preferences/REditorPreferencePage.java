@@ -73,6 +73,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	private Button fFoldingDefaultAllBlocksControl;
 	private Text fFoldingDefaultMinLines;
 	private Button fMarkOccurrencesControl;
+	private Button fProblemsEnableControl;
 	private Button fSpellEnableControl;
 	
 	
@@ -106,6 +107,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		
 		prefs.put(REditorOptions.PREF_MARKOCCURRENCES_ENABLED, null);
 		
+		prefs.put(REditorOptions.PREF_PROBLEMCHECKING_ENABLED, null);
 		prefs.put(REditorOptions.PREF_SPELLCHECKING_ENABLED, REditorOptions.GROUP_ID);
 		
 		setupPreferenceManager(container, prefs);
@@ -179,6 +181,12 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
 		link.setLayoutData(gd);
 		
+		LayoutUtil.addSmallFiller(pageComposite, false);
+		fProblemsEnableControl = new Button(pageComposite, SWT.CHECK);
+		fProblemsEnableControl.setText(Messages.REditorOptions_ProblemChecking_Enable_label);
+		fProblemsEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		LayoutUtil.addSmallFiller(pageComposite, false);
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
 		fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
 		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -281,6 +289,10 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		
 		dbc.bindValue(SWTObservables.observeSelection(fMarkOccurrencesControl),
 				createObservable(REditorOptions.PREF_MARKOCCURRENCES_ENABLED),
+				null, null);
+		
+		dbc.bindValue(SWTObservables.observeSelection(fProblemsEnableControl),
+				createObservable(REditorOptions.PREF_PROBLEMCHECKING_ENABLED),
 				null, null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fSpellEnableControl),

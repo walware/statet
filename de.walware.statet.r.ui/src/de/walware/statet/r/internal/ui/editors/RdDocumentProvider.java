@@ -9,21 +9,20 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.ui.editors;
+package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-
+import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 
 
 public class RdDocumentProvider extends TextFileDocumentProvider {
 	
 	
 	public RdDocumentProvider() {
-		
 		final IDocumentProvider provider = new ForwardingDocumentProvider(IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING,
 				new RdDocumentSetupParticipant(), new TextFileDocumentProvider());
 		setParentDocumentProvider(provider);

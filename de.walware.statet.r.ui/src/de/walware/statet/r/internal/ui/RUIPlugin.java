@@ -41,10 +41,10 @@ import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
+import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
+import de.walware.statet.r.internal.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.r.ui.editors.RDocumentProvider;
 import de.walware.statet.r.ui.editors.REditorOptions;
-import de.walware.statet.r.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 
 
@@ -110,6 +110,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public RUIPlugin() {
 		gPlugin = this;
 	}
+	
 	
 	/**
 	 * This method is called upon plug-in activation

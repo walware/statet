@@ -71,6 +71,7 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
+import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RDoubleCommentAction;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUIHelp;
@@ -245,7 +246,7 @@ public class REditor extends StatextEditor1<RProject> {
 				if (!isValid(run)) {
 					return;
 				}
-				((IAnnotationModelExtension)annotationModel).replaceAnnotations(lastAnnotations, annotations);
+				((IAnnotationModelExtension) annotationModel).replaceAnnotations(lastAnnotations, annotations);
 				run.annotations = annotations.keySet().toArray(new Annotation[annotations.keySet().size()]);
 				fLastRun = run;
 			}
@@ -257,7 +258,7 @@ public class REditor extends StatextEditor1<RProject> {
 				if (fLastRun == null) {
 					return;
 				}
-				((IAnnotationModelExtension)annotationModel).replaceAnnotations(fLastRun.annotations, null);
+				((IAnnotationModelExtension) annotationModel).replaceAnnotations(fLastRun.annotations, null);
 				fLastRun = null;
 			}
 		}

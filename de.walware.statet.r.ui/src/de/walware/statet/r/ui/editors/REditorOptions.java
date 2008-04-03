@@ -47,9 +47,12 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 	public static final BooleanPref PREF_SMARTINSERT_CLOSESTRINGS_ENABLED = new BooleanPref(
 			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_strings.enabled"); //$NON-NLS-1$
 	
+	
+	public static final BooleanPref PREF_PROBLEMCHECKING_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "problemchecking.enabled"); //$NON-NLS-1$
+	
 	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
 			RUIPreferenceInitializer.REDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
-	
 	
 	// not in group
 	public static final BooleanPref PREF_FOLDING_ENABLED = new BooleanPref(

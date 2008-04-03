@@ -81,6 +81,25 @@
    </extension>
 
    <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+         name="de.walware.statet.r.ui.error"
+         super="org.eclipse.ui.workbench.texteditor.error"
+         markerSeverity="2">
+      </type>
+      <type
+         name="de.walware.statet.r.ui.warning"
+         super="org.eclipse.ui.workbench.texteditor.warning"
+         markerSeverity="1">
+      </type>
+      <type
+         name="de.walware.statet.r.ui.info"
+         super="org.eclipse.ui.workbench.texteditor.info"
+         markerSeverity="0">
+      </type>
+   </extension>
+
+   <extension
          point="org.eclipse.ui.actionSetPartAssociations">
       <actionSetPartAssociation
             targetID="de.walware.statet.base.contexts.EditSourceActionSet">

@@ -72,8 +72,8 @@ import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
-import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
+import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.ui.RUI;
 

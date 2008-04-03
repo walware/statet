@@ -24,7 +24,6 @@ import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
 
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RDocumentProvider;
 
 
 public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension, IEditorInputAcceptor {
