@@ -58,10 +58,10 @@ public class ConsolePreferences {
 	public static void initializeDefaults(final Map<Preference, Object> map) {
 		
 		final IPreferenceStore store = getStore();
-		PreferenceConverter.setDefault(store, INPUT_COLOR, new RGB(73, 177, 117));
-		PreferenceConverter.setDefault(store, INFO_COLOR, new RGB(0, 0, 127));
+		PreferenceConverter.setDefault(store, INPUT_COLOR, new RGB(31, 167, 111));
+		PreferenceConverter.setDefault(store, INFO_COLOR, new RGB(31, 79, 175));
 		PreferenceConverter.setDefault(store, OUTPUT_COLOR, new RGB(0, 0, 0));
-		PreferenceConverter.setDefault(store, ERROR_COLOR, new RGB(255, 0, 0));
+		PreferenceConverter.setDefault(store, ERROR_COLOR, new RGB(255, 0, 8));
 		
 		new FilterPreferences().addPreferencesToMap(map);
 	}
