@@ -559,7 +559,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	private void updateItem(final TableItem item) {
 		final Entry e = (Entry) item.getData();
-		item.setImage(StatetImages.getImage(StatetImages.OBJ_COMMAND));
+		item.setImage(StatetImages.getImage(StatetImages.OBJ_CONSOLECOMMAND));
 		item.setText(e.getCommand());
 	}
 	

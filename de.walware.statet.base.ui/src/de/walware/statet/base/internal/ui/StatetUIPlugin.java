@@ -133,8 +133,9 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 		util.register(StatetImages.CONTENTASSIST_TEMPLATE, ImageRegistryUtil.T_OBJ, "assist-template.png"); //$NON-NLS-1$
 		util.register(StatetImages.CONTENTASSIST_CORRECTION_LINKEDRENAME, ImageRegistryUtil.T_OBJ, "assist-linked_rename.png"); //$NON-NLS-1$
 		util.register(StatetImages.LAUNCHCONFIG_MAIN, ImageRegistryUtil.T_OBJ, "main_tab.gif"); //$NON-NLS-1$
-		util.register(StatetImages.OBJ_COMMAND, ImageRegistryUtil.T_OBJ, "command.png"); //$NON-NLS-1$
-		util.register(StatetImages.OBJ_COMMAND_DUMMY, ImageRegistryUtil.T_OBJ, "command-dummy.png"); //$NON-NLS-1$
+		util.register(StatetImages.OBJ_TASK_CONSOLECOMMAND, ImageRegistryUtil.T_OBJ, "task-consolecommand.png"); //$NON-NLS-1$
+		util.register(StatetImages.OBJ_TASK_DUMMY, ImageRegistryUtil.T_OBJ, "task-dummy.png"); //$NON-NLS-1$
+		util.register(StatetImages.OBJ_CONSOLECOMMAND, ImageRegistryUtil.T_OBJ, "consolecommand.png"); //$NON-NLS-1$
 		util.register(StatetImages.LOCTOOL_SORT_ALPHA, ImageRegistryUtil.T_LOCTOOL, "sort_alpha.gif"); //$NON-NLS-1$
 		util.register(StatetImages.OVR_DEFAULT_MARKER, ImageRegistryUtil.T_OVR, "default_marker.gif"); //$NON-NLS-1$
 		

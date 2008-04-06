@@ -239,7 +239,7 @@ public class ToolProgressGroup {
 			image = getToolImage(tool);
 		}
 		if (image == null) {
-			image = StatetImages.getImage(StatetImages.OBJ_COMMAND_DUMMY);
+			image = StatetImages.getImage(StatetImages.OBJ_TASK_DUMMY);
 		}
 		if (!(image.equals(fImageLabel.getImage()))) {
 			fImageLabel.setImage(image);

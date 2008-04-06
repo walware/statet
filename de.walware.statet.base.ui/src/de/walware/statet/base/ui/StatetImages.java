@@ -39,8 +39,9 @@ public class StatetImages {
 	public static final String LAUNCHCONFIG_MAIN = StatetUIPlugin.PLUGIN_ID + ".image.launchconfig.main"; //$NON-NLS-1$
 	
 	
-	public static final String OBJ_COMMAND = StatetUIPlugin.PLUGIN_ID + ".image.obj.command"; //$NON-NLS-1$
-	public static final String OBJ_COMMAND_DUMMY = StatetUIPlugin.PLUGIN_ID + ".image.obj.commanddummy"; //$NON-NLS-1$
+	public static final String OBJ_TASK_CONSOLECOMMAND = StatetUIPlugin.PLUGIN_ID + ".image.obj.task.consolecommand"; //$NON-NLS-1$
+	public static final String OBJ_TASK_DUMMY = StatetUIPlugin.PLUGIN_ID + ".image.obj.task.commanddummy"; //$NON-NLS-1$
+	public static final String OBJ_CONSOLECOMMAND = StatetUIPlugin.PLUGIN_ID + ".image.consolecommand"; //$NON-NLS-1$
 	
 	public static final String OVR_DEFAULT_MARKER = StatetUIPlugin.PLUGIN_ID + ".image.ovr.default_marker"; //$NON-NLS-1$
 	

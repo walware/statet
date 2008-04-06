@@ -34,7 +34,7 @@ public class CommandRunnableAdapterFactory implements IAdapterFactory {
 		}
 		
 		public ImageDescriptor getImageDescriptor() {
-			return StatetImages.getDescriptor(StatetImages.OBJ_COMMAND);
+			return StatetImages.getDescriptor(StatetImages.OBJ_TASK_CONSOLECOMMAND);
 		}
 		
 	}
