@@ -15,14 +15,20 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
@@ -52,6 +58,9 @@ import de.walware.statet.r.nico.RWorkspace;
 public class RjsController extends AbstractRController {
 	
 	
+	private static final Pattern STRING_OUTPUT_PATTERN = Pattern.compile("\\Q[1] \"\\E((?:\\Q\\\"\\E|[^\"])*)\\\""); //$NON-NLS-1$
+	
+	
 	private String fAddress;
 	private String[] fRArgs;
 	
@@ -71,7 +80,19 @@ public class RjsController extends AbstractRController {
 		fAddress = address;
 		fRArgs = rArgs;
 		
-		fWorkspaceData = new RWorkspace(this);
+		fWorkspaceData = new RWorkspace(this) {
+			@Override
+			protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
+				final StringBuilder output = readOutput("getwd()", monitor); //$NON-NLS-1$
+				if (output != null) {
+					final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
+					if (matcher.find()) {
+						final String wd = matcher.group(1);
+						setWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+					}
+				}
+			}
+		};
 		setWorkspaceDir(initialWD);
 		initRunnableAdapter();
 	}
@@ -386,6 +407,28 @@ public class RjsController extends AbstractRController {
 	protected void doSubmit(final IProgressMonitor monitor) throws CoreException {
 		fServerCallback.setAnswer(fCurrentInput + fLineSeparator);
 		rjsRunMainLoop(fServerCallback, monitor);
+	}
+	
+	
+	// workaround, until we have eval implemented
+	private StringBuilder readOutput(final String command, final IProgressMonitor monitor) throws CoreException {
+		final StringBuilder output = new StringBuilder();
+		final IStreamListener listener = new IStreamListener() {
+			public void streamAppended(final String text, final IStreamMonitor monitor) {
+				output.append(text);
+			}
+		};
+		try {
+			fDefaultOutputStream.addListener(listener);
+			if (monitor.isCanceled()) {
+				return null;
+			}
+			submitToConsole(command, monitor);
+			return output;
+		}
+		finally {
+			fDefaultOutputStream.removeListener(listener);
+		}
 	}
 	
 }
