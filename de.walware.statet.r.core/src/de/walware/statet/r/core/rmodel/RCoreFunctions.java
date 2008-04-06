@@ -11,7 +11,9 @@
 
 package de.walware.statet.r.core.rmodel;
 
-import static de.walware.statet.r.core.rmodel.ArgsDefinition.CLASSNAME_STRING;
+import static de.walware.statet.r.core.rmodel.ArgsDefinition.CLASS_NAME;
+import static de.walware.statet.r.core.rmodel.ArgsDefinition.METHOD_NAME;
+import static de.walware.statet.r.core.rmodel.ArgsDefinition.METHOD_OBJ;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -56,164 +58,181 @@ public class RCoreFunctions {
 	public final int BASE_CALL_arg_name;
 	
 	
+	public static final String BASE_USEMETHOD_NAME = "UseMethod";
+	public static final int BASE_USEMETHOD_ID =                  21;
+	public final ArgsDefinition BASE_USEMETHOD_args;
+	
+	public static final String BASE_NEXTMETHOD_NAME = "NextMethod";
+	public static final int BASE_NEXTMETHOD_ID =                 22;
+	public final ArgsDefinition BASE_NEXTMETHOD_args;
+	
+	
+	public static final String UTILS_METHODS_NAME = "methods";
+	public static final int UTILS_METHODS_ID =                   30;
+	public final ArgsDefinition UTILS_METHODS_args;
+	
+	public static final String UTILS_GETS3METHOD_NAME = "getS3method";
+	public static final int UTILS_GETS3METHOD_ID =               31;
+	public final ArgsDefinition UTILS_GETS3METHOD_args;
+	
+	
 	public static final String METHODS_SETGENERIC_NAME = "setGeneric";
-	public static final int METHODS_SETGENERIC_ID =              10;
+	public static final int METHODS_SETGENERIC_ID =              40;
 	public final ArgsDefinition METHODS_SETGENERIC_args;
 	public final int METHODS_SETGENERIC_arg_f;
 	
 	public static final String METHODS_SETGROUPGENERIC_NAME = "setGroupGeneric";
-	public static final int METHODS_SETGROUPGENERIC_ID =         11;
+	public static final int METHODS_SETGROUPGENERIC_ID =         41;
 	public final ArgsDefinition METHODS_SETGROUPGENERIC_args;
 	public final int METHODS_SETGROUPGENERIC_arg_f;
 	
 	public static final String METHODS_REMOVEGENERIC_NAME = "removeGeneric";
-	public static final int METHODS_REMOVEGENERIC_ID =           12;
+	public static final int METHODS_REMOVEGENERIC_ID =           42;
 	public final ArgsDefinition METHODS_REMOVEGENERIC_args;
 	public final int METHODS_REMOVEGENERIC_arg_f;
 	
 	public static final String METHODS_ISGENERIC_NAME = "isGeneric";
-	public static final int METHODS_ISGENERIC_ID =               13;
+	public static final int METHODS_ISGENERIC_ID =               43;
 	public final ArgsDefinition METHODS_ISGENERIC_args;
 	public final int METHODS_ISGENERIC_arg_f;
 	
 	public static final String METHODS_ISGROUP_NAME = "isGroup";
-	public static final int METHODS_ISGROUP_ID =                 14;
+	public static final int METHODS_ISGROUP_ID =                 44;
 	public final ArgsDefinition METHODS_ISGROUP_args;
 	public final int METHODS_ISGROUP_arg_f;
 	
 	public static final String METHODS_SIGNATURE_NAME = "signature";
-	public static final int METHODS_SIGNATURE_ID =               19;
+	public static final int METHODS_SIGNATURE_ID =               49;
 	public final ArgsDefinition METHODS_SIGNATURE_args;
 	
 	
 	public static final String METHODS_SETCLASS_NAME = "setClass";
-	public static final int METHODS_SETCLASS_ID =                20;
+	public static final int METHODS_SETCLASS_ID =                50;
 	public final ArgsDefinition METHODS_SETCLASS_args;
 	public final int METHODS_SETCLASS_arg_class;
 	
 	public static final String METHODS_SETIS_NAME = "setIs";
-	public static final int METHODS_SETIS_ID =                   21;
+	public static final int METHODS_SETIS_ID =                   51;
 	public final ArgsDefinition METHODS_SETIS_args;
 	public final int METHODS_SETIS_arg_class;
 	public final int METHODS_SETIS_arg_classToExtend;
 	
 	public static final String METHODS_REMOVECLASS_NAME = "removeClass";
-	public static final int METHODS_REMOVECLASS_ID =             22;
+	public static final int METHODS_REMOVECLASS_ID =             52;
 	public final ArgsDefinition METHODS_REMOVECLASS_args;
 	public final int METHODS_REMOVECLASS_arg_class;
 	
 	public static final String METHODS_RESETCLASS_NAME = "resetClass";
-	public static final int METHODS_RESETCLASS_ID =              23;
+	public static final int METHODS_RESETCLASS_ID =              53;
 	public final ArgsDefinition METHODS_RESETCLASS_args;
 	public final int METHODS_RESETCLASS_arg_class; // not naming
 	
 	public static final String METHODS_ISCLASS_NAME = "isClass";
-	public static final int METHODS_ISCLASS_ID =                 24;
+	public static final int METHODS_ISCLASS_ID =                 54;
 	public final ArgsDefinition METHODS_ISCLASS_args;
 	public final int METHODS_ISCLASS_arg_class;
 	
 	public static final String METHODS_EXTENDS_NAME = "extends";
-	public static final int METHODS_EXTENDS_ID =                 25;
+	public static final int METHODS_EXTENDS_ID =                 55;
 	public final ArgsDefinition METHODS_EXTENDS_args;
 	public final int METHODS_EXTENDS_arg_class;
 	public final int METHODS_EXTENDS_arg_classToExtend;
 	
 	public static final String METHODS_GETCLASS_NAME = "getClass";
-	public static final int METHODS_GETCLASS_ID =                27;
+	public static final int METHODS_GETCLASS_ID =                57;
 	public final ArgsDefinition METHODS_GETCLASS_args;
 	public final int METHODS_GETCLASS_arg_class;
 	
 	public static final String METHODS_GETCLASSDEF_NAME = "getClassDef";
-	public static final int METHODS_GETCLASSDEF_ID =             28;
+	public static final int METHODS_GETCLASSDEF_ID =             58;
 	public final ArgsDefinition METHODS_GETCLASSDEF_args;
 	public final int METHODS_GETCLASSDEF_arg_class;
 	
 	public static final String METHODS_FINDCLASS_NAME = "findClass";
-	public static final int METHODS_FINDCLASS_ID =               29;
+	public static final int METHODS_FINDCLASS_ID =               59;
 	public final ArgsDefinition METHODS_FINDCLASS_args;
 	public final int METHODS_FINDCLASS_arg_class;
 	
 	
 	public static final String METHODS_NEW_NAME = "new";
-	public static final int METHODS_NEW_ID =                     30;
+	public static final int METHODS_NEW_ID =                     60;
 	public final ArgsDefinition METHODS_NEW_args;
 	public final int METHODS_NEW_arg_class;
 	
 	public static final String METHODS_AS_NAME = "as";
-	public static final int METHODS_AS_ID =                      31;
+	public static final int METHODS_AS_ID =                      61;
 	public final ArgsDefinition METHODS_AS_args;
 	public final int METHODS_AS_arg_class;
 	
 	public static final String METHODS_IS_NAME = "is";
-	public static final int METHODS_IS_ID =                      35;
+	public static final int METHODS_IS_ID =                      65;
 	public final ArgsDefinition METHODS_IS_args;
-	public final int METHODS_IS_arg_class;
 	
 	
 	public static final String METHODS_SETMETHOD_NAME = "setMethod";
-	public static final int METHODS_SETMETHOD_ID =               40;
+	public static final int METHODS_SETMETHOD_ID =               70;
 	public final ArgsDefinition METHODS_SETMETHOD_args;
 	public final int METHODS_SETMETHOD_arg_f;
 	public final int METHODS_SETMETHOD_arg_signature;
 	
 	public static final String METHODS_REMOVEMETHOD_NAME = "removeMethod";
-	public static final int METHODS_REMOVEMETHOD_ID =            41;
+	public static final int METHODS_REMOVEMETHOD_ID =            71;
 	public final ArgsDefinition METHODS_REMOVEMETHOD_args;
 	public final int METHODS_REMOVEMETHOD_arg_f;
 	public final int METHODS_REMOVEMETHOD_arg_signature;
 	
 	public static final String METHODS_REMOVEMETHODS_NAME = "removeMethods";
-	public static final int METHODS_REMOVEMETHODS_ID =           42;
+	public static final int METHODS_REMOVEMETHODS_ID =           72;
 	public final ArgsDefinition METHODS_REMOVEMETHODS_args;
 	public final int METHODS_REMOVEMETHODS_arg_f;
 	
 	public static final String METHODS_EXISTSMETHOD_NAME = "existsMethod";
-	public static final int METHODS_EXISTSMETHOD_ID =            44;
+	public static final int METHODS_EXISTSMETHOD_ID =            74;
 	public final ArgsDefinition METHODS_EXISTSMETHOD_args;
 	public final int METHODS_EXISTSMETHOD_arg_f;
 	public final int METHODS_EXISTSMETHOD_arg_signature;
 	
 	public static final String METHODS_HASMETHOD_NAME = "hasMethod";
-	public static final int METHODS_HASMETHOD_ID =               45;
+	public static final int METHODS_HASMETHOD_ID =               75;
 	public final ArgsDefinition METHODS_HASMETHOD_args;
 	public final int METHODS_HASMETHOD_arg_f;
 	public final int METHODS_HASMETHOD_arg_signature;
 	
 	public static final String METHODS_GETMETHOD_NAME = "getMethod";
-	public static final int METHODS_GETMETHOD_ID =               46;
+	public static final int METHODS_GETMETHOD_ID =               76;
 	public final ArgsDefinition METHODS_GETMETHOD_args;
 	public final int METHODS_GETMETHOD_arg_f;
 	public final int METHODS_GETMETHOD_arg_signature;
 	
 	public static final String METHODS_SELECTMETHOD_NAME = "selectMethod";
-	public static final int METHODS_SELECTMETHOD_ID =            47;
+	public static final int METHODS_SELECTMETHOD_ID =            77;
 	public final ArgsDefinition METHODS_SELECTMETHOD_args;
 	public final int METHODS_SELECTMETHOD_arg_f;
 	public final int METHODS_SELECTMETHOD_arg_signature;
 	
 	public static final String METHODS_GETMETHODS_NAME = "getMethods";
-	public static final int METHODS_GETMETHODS_ID =              48;
+	public static final int METHODS_GETMETHODS_ID =              78;
 	public final ArgsDefinition METHODS_GETMETHODS_args;
 	public final int METHODS_GETMETHODS_arg_f;
 	
 	public static final String METHODS_FINDMETHOD_NAME = "findMethod";
-	public static final int METHODS_FINDMETHOD_ID =              49;
+	public static final int METHODS_FINDMETHOD_ID =              79;
 	public final ArgsDefinition METHODS_FINDMETHOD_args;
 	public final int METHODS_FINDMETHOD_arg_f;
 	public final int METHODS_FINDMETHOD_arg_signature;
 	
 	public static final String METHODS_DUMPMETHOD_NAME = "dumpMethod";
-	public static final int METHODS_DUMPMETHOD_ID =              50;
+	public static final int METHODS_DUMPMETHOD_ID =              80;
 	public final ArgsDefinition METHODS_DUMPMETHOD_args;
 	public final int METHODS_DUMPMETHOD_arg_f;
 	
 	public static final String METHODS_DUMPMETHODS_NAME = "dumpMethods";
-	public static final int METHODS_DUMPMETHODS_ID =             51;
+	public static final int METHODS_DUMPMETHODS_ID =             81;
 	public final ArgsDefinition METHODS_DUMPMETHODS_args;
 	public final int METHODS_DUMPMETHODS_arg_f;
 	
 	public static final String METHODS_SLOT_NAME = "slot";
-	public static final int METHODS_SLOT_ID =                    60;
+	public static final int METHODS_SLOT_ID =                    89;
 	public final ArgsDefinition METHODS_SLOT_args;
 	public final int METHODS_SLOT_arg_object;
 	public final int METHODS_SLOT_arg_slot;
@@ -229,7 +248,7 @@ public class RCoreFunctions {
 		fNameDefMap.put(BASE_ASSIGN_NAME, BASE_ASSIGN_args);
 		
 		BASE_REMOVE_args = createBaseRemove();
-		BASE_REMOVE_arg_x = BASE_REMOVE_args.indexOf("x");
+		BASE_REMOVE_arg_x = BASE_REMOVE_args.indexOf("...");
 		fNameDefMap.put(BASE_REMOVE_NAME, BASE_REMOVE_args);
 		fNameDefMap.put(BASE_REMOVE_ALIAS_RM, BASE_REMOVE_args);
 		
@@ -242,12 +261,27 @@ public class RCoreFunctions {
 		fNameDefMap.put(BASE_GET_NAME, BASE_GET_args);
 		
 		BASE_SAVE_args = createBaseSave();
-		BASE_SAVE_arg_x = BASE_SAVE_args.indexOf("x");
+		BASE_SAVE_arg_x = BASE_SAVE_args.indexOf("...");
 		fNameDefMap.put(BASE_SAVE_NAME, BASE_SAVE_args);
 		
 		BASE_CALL_args = createBaseCall();
 		BASE_CALL_arg_name = BASE_CALL_args.indexOf("name");
 		fNameDefMap.put(BASE_CALL_NAME, BASE_CALL_args);
+		
+		
+		BASE_USEMETHOD_args = createBaseUseMethod();
+		fNameDefMap.put(BASE_USEMETHOD_NAME, BASE_USEMETHOD_args);
+		
+		BASE_NEXTMETHOD_args = createBaseNextMethod();
+		fNameDefMap.put(BASE_NEXTMETHOD_NAME, BASE_NEXTMETHOD_args);
+		
+		
+		UTILS_METHODS_args = createUtilsMethods();
+		fNameDefMap.put(UTILS_METHODS_NAME, UTILS_METHODS_args);
+		
+		UTILS_GETS3METHOD_args = createUtilsGetS3Method();
+		fNameDefMap.put(UTILS_GETS3METHOD_NAME, UTILS_GETS3METHOD_args);
+		
 		
 		METHODS_SETGENERIC_args = createMethodsSetGeneric();
 		METHODS_SETGENERIC_arg_f = METHODS_SETGENERIC_args.indexOf("name");
@@ -319,7 +353,6 @@ public class RCoreFunctions {
 		fNameDefMap.put(METHODS_AS_NAME, METHODS_AS_args);
 		
 		METHODS_IS_args = createMethodsIs();
-		METHODS_IS_arg_class = METHODS_IS_args.indexOf("Class");
 		fNameDefMap.put(METHODS_IS_NAME, METHODS_IS_args);
 		
 		METHODS_SETMETHOD_args = createMethodsSetMethod();
@@ -410,6 +443,35 @@ public class RCoreFunctions {
 				"name", "...");
 	}
 	
+	ArgsDefinition createBaseUseMethod() {
+		return new ArgsBuilder(BASE_USEMETHOD_ID)
+				.add("generic", METHOD_NAME)
+				.add("object")
+				.toDef();
+	}
+	
+	ArgsDefinition createBaseNextMethod() {
+		return new ArgsBuilder(BASE_NEXTMETHOD_ID)
+				.add("name", METHOD_NAME)
+				.add("object", "...")
+				.toDef();
+	}
+	
+	ArgsDefinition createUtilsMethods() {
+		return new ArgsBuilder(UTILS_METHODS_ID)
+				.add("generic.function", METHOD_OBJ | METHOD_NAME)
+				.add("class", CLASS_NAME)
+				.toDef();
+	}
+	
+	ArgsDefinition createUtilsGetS3Method() {
+		return new ArgsBuilder(UTILS_GETS3METHOD_ID)
+				.add("f", METHOD_NAME)
+				.add("class", CLASS_NAME)
+				.add("optional")
+				.toDef();
+	}
+	
 	ArgsDefinition createMethodsSetGeneric() {
 		return new ArgsDefinition(METHODS_SETGENERIC_ID,
 				"name", "def", "group", "valueClass", "where", "package" , 
@@ -444,7 +506,7 @@ public class RCoreFunctions {
 	
 	ArgsDefinition createMethodsSetClass() {
 		return new ArgsBuilder(METHODS_SETCLASS_ID)
-			.add("Class", CLASSNAME_STRING)
+			.add("Class", CLASS_NAME)
 			.add("representation", "prototype", "contains", "validity", 
 				"access", "where", "version", "sealed", "package").toDef();
 	}
@@ -501,8 +563,10 @@ public class RCoreFunctions {
 	}
 	
 	ArgsDefinition createMethodsIs() {
-		return new ArgsDefinition(METHODS_IS_ID,
-				"object", "class2");
+		return new ArgsBuilder(METHODS_IS_ID)
+				.add("object")
+				.add("class2", CLASS_NAME)
+				.toDef();
 	}
 	
 	ArgsDefinition createMethodsSetMethod() {
@@ -575,6 +639,10 @@ public class RCoreFunctions {
 		case BASE_GET_ID:
 		case BASE_SAVE_ID:
 		case BASE_CALL_ID:
+		case BASE_USEMETHOD_ID:
+		case BASE_NEXTMETHOD_ID:
+		case UTILS_METHODS_ID:
+		case UTILS_GETS3METHOD_ID:
 		case METHODS_SETGENERIC_ID:
 		case METHODS_REMOVEGENERIC_ID:
 		case METHODS_ISGENERIC_ID:

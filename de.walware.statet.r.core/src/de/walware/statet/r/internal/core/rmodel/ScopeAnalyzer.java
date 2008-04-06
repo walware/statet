@@ -819,17 +819,6 @@ public class ScopeAnalyzer extends RAstVisitor {
 			}
 			return;
 		}
-		case RCoreFunctions.METHODS_IS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_IS_args);
-			final RAstNode classArg = argValues[rdef.METHODS_IS_arg_class];
-			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
-				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
-				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
-			}
-			return;
-		}
 		
 		case RCoreFunctions.METHODS_SETMETHOD_ID: {
 			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SETMETHOD_args);
@@ -980,7 +969,39 @@ public class ScopeAnalyzer extends RAstVisitor {
 		}
 		
 		default:
-			if (assignment) {
+			if (def != null) {
+				final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
+				ITER_ARGS: for (int i = 0; i < argValues.length; i++) {
+					final RAstNode arg;
+					if ((arg = argValues[i]) != null) {
+						if ((def.get(i).type & ArgsDefinition.METHOD_NAME) != 0
+								&& arg.getNodeType() == NodeType.STRING_CONST) {
+							final ElementAccess access = new ElementAccess.Default(node);
+							access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
+							access.fNameNode = arg;
+							fDefaultScope.addLateResolve(arg.getText(), access);
+							continue ITER_ARGS;
+						}
+						if ((def.get(i).type & ArgsDefinition.CLASS_NAME) != 0
+								&& arg.getNodeType() == NodeType.STRING_CONST) {
+							final ElementAccess access = new ElementAccess.Class(node);
+							access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS;
+							access.fNameNode = arg;
+							fDefaultScope.addClass(arg.getText(), access);
+							continue ITER_ARGS;
+						}
+						if ((def.get(i).type & ArgsDefinition.UNSPECIFIC_NAME) != 0
+								&& arg.getNodeType() == NodeType.STRING_CONST) {
+							final ElementAccess access = new ElementAccess.Default(node);
+							access.fFlags = ElementAccess.A_READ;
+							access.fNameNode = arg;
+							fDefaultScope.addLateResolve(arg.getText(), access);
+							continue ITER_ARGS;
+						}
+					}
+				}
+			}
+			else if (assignment) {
 				final FCall.Args args = node.getArgsChild();
 				if (args.getChildCount() > 0) {
 					final FCall.Arg firstArg = (FCall.Arg) args.getChild(0);
