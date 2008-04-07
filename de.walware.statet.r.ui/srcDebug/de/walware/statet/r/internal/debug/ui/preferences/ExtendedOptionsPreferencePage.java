@@ -111,7 +111,7 @@ class ExtendedOptionsConfigurationBlock extends ManagedConfigurationBlock {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		fRegistryPortControl = new Text(group, SWT.BORDER);
 		gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
-		gd.widthHint = LayoutUtil.hintWidth(fRegistryPortControl, 5);
+		gd.widthHint = LayoutUtil.hintWidth(fRegistryPortControl, 6);
 		fRegistryPortControl.setLayoutData(gd);
 		
 		final Button start = new Button(group, SWT.PUSH);

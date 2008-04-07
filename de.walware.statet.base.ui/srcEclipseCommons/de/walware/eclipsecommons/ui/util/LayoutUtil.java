@@ -136,7 +136,8 @@ public class LayoutUtil {
 			max = Math.max(max, s.length());
 		}
 		final PixelConverter converter = new PixelConverter(combo);
-		final int widthHint = (int) (converter.convertWidthInCharsToPixels(max+2) * 1.05);
+		final int widthHint = (int) (converter.convertWidthInCharsToPixels(max+1) 
+				+ 1.5*combo.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
 		return widthHint;
 	}
 	

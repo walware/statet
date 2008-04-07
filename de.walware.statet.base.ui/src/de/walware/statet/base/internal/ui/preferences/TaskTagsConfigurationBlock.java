@@ -139,11 +139,12 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 					}
 				}
 			});
-			int priorityWidth = conv.convertWidthInCharsToPixels(Messages.TaskTags_PriorityColumn_name.length());
-			priorityWidth = Math.max(priorityWidth, conv.convertWidthInCharsToPixels(StatetMessages.TaskPriority_High.length()));
-			priorityWidth = Math.max(priorityWidth, conv.convertWidthInCharsToPixels(StatetMessages.TaskPriority_Normal.length()));
-			priorityWidth = Math.max(priorityWidth, conv.convertWidthInCharsToPixels(StatetMessages.TaskPriority_Low.length()));
-			layout.addColumnData(new ColumnPixelData(priorityWidth+4, false, true));
+			int priorityWidth = Messages.TaskTags_PriorityColumn_name.length();
+			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_High.length());
+			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_Normal.length());
+			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_Low.length());
+			priorityWidth = conv.convertWidthInCharsToPixels(priorityWidth) + conv.convertHorizontalDLUsToPixels(5);
+			layout.addColumnData(new ColumnPixelData(priorityWidth, false, true));
 			
 			// Sorter
 			viewer.setComparator(new ViewerComparator() {
