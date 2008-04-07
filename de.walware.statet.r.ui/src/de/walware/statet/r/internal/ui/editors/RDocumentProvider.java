@@ -185,9 +185,9 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		final RSourceFileInfo rinfo = (RSourceFileInfo) info;
 		setUpSynchronization(info);
 		
-		final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(
-				adaptable.getAdapter(IFile.class), "r", true); //$NON-NLS-1$
-		if (pUnit != null) {
+		final Object ifile = adaptable.getAdapter(IFile.class);
+		if (ifile != null) {
+			final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, "r", true); //$NON-NLS-1$
 			rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(pUnit, "r", true); //$NON-NLS-1$
 		}
 		

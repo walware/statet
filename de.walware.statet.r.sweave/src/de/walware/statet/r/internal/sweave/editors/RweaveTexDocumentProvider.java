@@ -90,12 +90,11 @@ public class RweaveTexDocumentProvider extends TextFileDocumentProvider implemen
 		final SweaveSourceFileInfo rinfo = (SweaveSourceFileInfo) info;
 		setUpSynchronization(info);
 		
-		final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(
-				adaptable.getAdapter(IFile.class), Sweave.R_TEX_UNIT_TYPE_ID, true);
-		if (pUnit != null) {
+		final Object ifile = adaptable.getAdapter(IFile.class);
+		if (ifile != null) {
+			final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, Sweave.R_TEX_UNIT_TYPE_ID, true);
 			rinfo.fWorkingCopy = StatetCore.EDITOR_CONTEXT.getUnit(pUnit, Sweave.R_TEX_UNIT_TYPE_ID, true);
 		}
-		
 		return rinfo;
 	}
 	
