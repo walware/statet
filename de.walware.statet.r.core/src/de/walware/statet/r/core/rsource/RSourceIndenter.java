@@ -393,7 +393,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final SubIndexed node) throws InvocationTargetException {
 			try {
-				fFactory.createControlScope(node.getStartOffset(), node);
+				fFactory.createFCallScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.getRefChild().acceptInR(this);
 					node.getArgsChild().acceptInR(this);
@@ -824,7 +824,7 @@ class ScopeFactory {
 	public final void createFCallScope(final int offset, final RAstNode node) throws BadLocationException {
 		final int line = fDoc.getLineOfOffset(offset);
 		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line));
-		if (!useParent(true, false, node)) {
+		if (!useParent(true, true, node)) {
 			fScope.baseColumn = fScope.parent.getIndent(line+1);
 		}
 	}

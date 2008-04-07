@@ -31,11 +31,9 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IDocumentModelProvider;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -84,9 +82,10 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 				public void run(final IProgressMonitor monitor)
 						throws InvocationTargetException, InterruptedException {
 					try {
-						final IDocumentProvider documentProvider = fEditor.getDocumentProvider();
-						final ISourceUnit unit = ((IDocumentModelProvider) documentProvider).getWorkingCopy(fEditor.getEditorInput());
-						doCorrection(unit, selection, monitor);
+						final ISourceUnit unit = fEditor.getSourceUnit();
+						if (unit != null) {
+							doCorrection(unit, selection, monitor);
+						}
 					}
 					catch (final Exception e) {
 						throw new InvocationTargetException(e);

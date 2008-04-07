@@ -34,10 +34,12 @@ public class ExtTextInvocationContext extends TextInvocationContext {
 		if (editor != null) {
 			fEditor = editor;
 			fSourceUnit = editor.getSourceUnit();
-			// later check, if synch is really necessary or causes delay
-			fModelInfo = fSourceUnit.getModelInfo(null, IModelManager.MODEL_FILE, new NullProgressMonitor());
-			if (fModelInfo != null) {
-				fAstSelection = AstSelection.search(fModelInfo.getAst().root, getOffset(), getOffset(), AstSelection.MODE_COVERING_SAME_LAST);
+			if (fSourceUnit != null) {
+				// later check, if synch is really necessary or causes delay
+				fModelInfo = fSourceUnit.getModelInfo(null, IModelManager.MODEL_FILE, new NullProgressMonitor());
+				if (fModelInfo != null) {
+					fAstSelection = AstSelection.search(fModelInfo.getAst().root, getOffset(), getOffset(), AstSelection.MODE_COVERING_SAME_LAST);
+				}
 			}
 		}
 	}
