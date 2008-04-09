@@ -160,6 +160,18 @@
             </with>
          </activeWhen>
       </handler>
+      <handler
+            class="de.walware.statet.r.internal.ui.editors.RToggleLiveReportProblemsHandler"
+            commandId="de.walware.statet.base.commands.ToggleLiveReportProblems">
+         <activeWhen>
+            <with
+                  variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
 
    <extension
