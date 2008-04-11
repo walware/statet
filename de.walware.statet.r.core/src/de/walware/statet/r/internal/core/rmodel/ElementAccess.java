@@ -21,6 +21,7 @@ public abstract class ElementAccess implements IElementAccess {
 	
 	public static final int A_READ =    0x0;
 	public static final int A_WRITE =   0x000002;
+	public static final int A_DELETE =  0x000003;
 	
 	public static final int A_SUB =     0x000100;
 	public static final int A_S4 =      0x000200;
@@ -85,6 +86,10 @@ public abstract class ElementAccess implements IElementAccess {
 	
 	public final boolean isWriteAccess() {
 		return ((fFlags & A_WRITE) != 0);
+	}
+	
+	public final boolean isDeletion() {
+		return ((fFlags & A_DELETE) == A_DELETE);
 	}
 	
 	public final boolean isObject() {

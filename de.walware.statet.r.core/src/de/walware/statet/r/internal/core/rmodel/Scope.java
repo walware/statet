@@ -12,7 +12,9 @@
 package de.walware.statet.r.internal.core.rmodel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.walware.statet.r.core.rmodel.IScope;
@@ -31,11 +33,13 @@ public class Scope implements IScope {
 		final String name;
 		final ArrayList<ElementAccess> entries;
 		IScope scope;
+		int isCreated; // 0=no, 1=search, 2=explicit 
 		
 		public ElementAccessList(final String name) {
 			assert (name != null);
 			this.name = name;
 			this.entries = new ArrayList<ElementAccess>();
+			isCreated = 0;
 		}
 		
 	}
@@ -45,19 +49,27 @@ public class Scope implements IScope {
 	private Map<String, ElementAccessList> fClasses;
 	private int fType;
 	private String fId;
-	private Scope[] fParents;
+	private List<Scope> fParents;
 	
 	private Map<String, ElementAccessList> fLateWrite;
 	private Map<String, ElementAccessList> fLateRead;
 	
+	
 	Scope(final int type, final String id, final Scope[] parents) {
 		fType = type;
 		fId = id;
-		fParents = parents;
+		fParents = new ArrayList<Scope>(parents.length);
+		fParents.addAll(Arrays.asList(parents));
 		fData = new HashMap<String, ElementAccessList>();
 		fLateWrite = new HashMap<String, ElementAccessList>();
 		fLateRead = new HashMap<String, ElementAccessList>();
 	}
+	
+	
+	List<Scope> getParents() {
+		return fParents;
+	}
+	
 	
 	void add(final String name, final ElementAccess access) {
 		ElementAccessList detail = fData.get(name);
@@ -67,6 +79,9 @@ public class Scope implements IScope {
 			fData.put(name, detail);
 		}
 		detail.entries.add(access);
+		if (access.isWriteAccess() && !access.isDeletion()) {
+			detail.isCreated = 2;
+		}
 		access.fShared = detail;
 		
 		access.fFullNode.addAttachment(access);
@@ -74,6 +89,9 @@ public class Scope implements IScope {
 	
 	void addLateResolve(final String name, final ElementAccess access) {
 		ElementAccessList detail = fData.get(name);
+		if (detail != null && detail.isCreated <= 0) {
+			detail = null;
+		}
 		if (detail == null) {
 			final Map<String, ElementAccessList> late = ((access.fFlags & ElementAccess.A_WRITE) != 0) ?
 					fLateWrite : fLateRead;
@@ -112,17 +130,20 @@ public class Scope implements IScope {
 		if (map != null) {
 			final IScope defaultScope = this;
 			ITER_NAMES : for (final ElementAccessList detail : map.values()) {
-				for (int i = 0; i < searchList.length; i++) {
-					final ElementAccessList exist = searchList[i].fData.get(detail.name);
-					if (exist != null) {
-						for (final ElementAccess access : detail.entries) {
-							access.fShared = exist;
+				for (int requiredCreation = 1; requiredCreation >= 0; requiredCreation--) {
+					for (int i = 0; i < searchList.length; i++) {
+						final ElementAccessList exist = searchList[i].fData.get(detail.name);
+						if (exist != null && exist.isCreated >= requiredCreation) {
+							for (final ElementAccess access : detail.entries) {
+								access.fShared = exist;
+							}
+							exist.entries.addAll(detail.entries);
+							continue ITER_NAMES;
 						}
-						exist.entries.addAll(detail.entries);
-						continue ITER_NAMES;
 					}
 				}
 				detail.scope = defaultScope;
+				detail.isCreated = 1;
 				fData.put(detail.name, detail);
 				continue ITER_NAMES;
 			}
@@ -143,14 +164,16 @@ public class Scope implements IScope {
 				}
 			}
 			ITER_NAMES : for (final ElementAccessList detail : map.values()) {
-				for (int i = 0; i < searchList.length; i++) {
-					final ElementAccessList exist = searchList[i].fData.get(detail.name);
-					if (exist != null) {
-						for (final ElementAccess access : detail.entries) {
-							access.fShared = exist;
+				for (int requiredCreation = 1; requiredCreation >= 0; requiredCreation--) {
+					for (int i = 0; i < searchList.length; i++) {
+						final ElementAccessList exist = searchList[i].fData.get(detail.name);
+						if (exist != null && exist.isCreated >= requiredCreation) {
+							for (final ElementAccess access : detail.entries) {
+								access.fShared = exist;
+							}
+							exist.entries.addAll(detail.entries);
+							continue ITER_NAMES;
 						}
-						exist.entries.addAll(detail.entries);
-						continue ITER_NAMES;
 					}
 				}
 				detail.scope = defaultScope;
@@ -166,10 +189,10 @@ public class Scope implements IScope {
 		int idx = 0;
 		list.add(this);
 		while (idx < list.size()) {
-			final Scope[] p = list.get(idx++).fParents;
-			for (int i = 0; i < p.length; i++) {
-				if (!list.contains(p[i])) {
-					list.add(p[i]);
+			final List<Scope> ps = list.get(idx++).fParents;
+			for (final Scope p : ps) {
+				if (!list.contains(p)) {
+					list.add(p);
 				}
 			}
 		}
@@ -182,6 +205,18 @@ public class Scope implements IScope {
 	
 	public boolean containsElement(final String name) {
 		return fData.containsKey(name);
+	}
+	
+	
+	@Override
+	public String toString() {
+		switch (fType) {
+		case IScope.T_PKG:
+			return "package:"+fId;
+		case IScope.T_PROJ:
+			return ".GlobalEnv";
+		}
+		return getId();
 	}
 	
 }

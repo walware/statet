@@ -30,6 +30,16 @@ final class RScannerDefaultLexer extends RScannerLexer {
 		super(input);
 	}
 	
+	
+	@Override
+	protected void createNumberToken(final RTerminal type, final int status) {
+		fNextToken.type = type;
+		fNextToken.offset = fNextIndex;
+		fNextToken.length = fNextNum;
+		fNextToken.text = fInput.substring(1, fNextNum);
+		fNextToken.status = status;
+	}
+	
 	@Override
 	protected void createSymbolToken() {
 		fNextToken.type = RTerminal.SYMBOL;

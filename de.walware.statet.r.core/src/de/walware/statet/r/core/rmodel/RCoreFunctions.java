@@ -57,6 +57,13 @@ public class RCoreFunctions {
 	public final ArgsDefinition BASE_CALL_args;
 	public final int BASE_CALL_arg_name;
 	
+	public static final String BASE_GLOBALENV_NAME = "globalenv";
+	public static final int BASE_GLOBALENV_ID =                  11;
+	public final ArgsDefinition BASE_GLOBALENV_args;
+	
+	public static final String BASE_TOPENV_NAME = "topenv";
+	public static final int BASE_TOPENV_ID =                     12;
+	public final ArgsDefinition BASE_TOPENV_args;
 	
 	public static final String BASE_USEMETHOD_NAME = "UseMethod";
 	public static final int BASE_USEMETHOD_ID =                  21;
@@ -268,6 +275,11 @@ public class RCoreFunctions {
 		BASE_CALL_arg_name = BASE_CALL_args.indexOf("name");
 		fNameDefMap.put(BASE_CALL_NAME, BASE_CALL_args);
 		
+		BASE_GLOBALENV_args = createBaseGlobalenv();
+		fNameDefMap.put(BASE_GLOBALENV_NAME, BASE_GLOBALENV_args);
+		
+		BASE_TOPENV_args = createBaseTopenv();
+		fNameDefMap.put(BASE_TOPENV_NAME, BASE_TOPENV_args);
 		
 		BASE_USEMETHOD_args = createBaseUseMethod();
 		fNameDefMap.put(BASE_USEMETHOD_NAME, BASE_USEMETHOD_args);
@@ -442,6 +454,16 @@ public class RCoreFunctions {
 		return new ArgsDefinition(BASE_CALL_ID,
 				"name", "...");
 	}
+	
+	ArgsDefinition createBaseGlobalenv() {
+		return new ArgsDefinition(BASE_GLOBALENV_ID);
+	}
+	
+	ArgsDefinition createBaseTopenv() {
+		return new ArgsDefinition(BASE_TOPENV_ID,
+				"envir", "matchThisEnv");
+	}
+	
 	
 	ArgsDefinition createBaseUseMethod() {
 		return new ArgsBuilder(BASE_USEMETHOD_ID)
@@ -641,6 +663,8 @@ public class RCoreFunctions {
 		case BASE_CALL_ID:
 		case BASE_USEMETHOD_ID:
 		case BASE_NEXTMETHOD_ID:
+		case BASE_GLOBALENV_ID:
+		case BASE_TOPENV_ID:
 		case UTILS_METHODS_ID:
 		case UTILS_GETS3METHOD_ID:
 		case METHODS_SETGENERIC_ID:

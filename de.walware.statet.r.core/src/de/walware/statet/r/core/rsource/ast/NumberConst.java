@@ -22,7 +22,11 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class NumberConst extends SingleValue {
 	
 	
-	NumberConst() {
+	private RTerminal fType;
+	
+	
+	NumberConst(final RTerminal type) {
+		fType = type;
 	}
 	
 	
@@ -33,7 +37,7 @@ public class NumberConst extends SingleValue {
 	
 	@Override
 	public final RTerminal getOperator(final int index) {
-		return null; // we can add float/integer here
+		return fType;
 	}
 	
 	

@@ -89,7 +89,7 @@ public class RScanner {
 	/**
 	 */
 	public RScanner(final SourceParseInput input, final AstInfo ast) {
-		if (ast.level == 1) {
+		if (ast.level <= RAst.LEVEL_MINIMAL) {
 			fLexer = new RScannerLexer(input);
 		}
 		else {
@@ -1157,7 +1157,7 @@ public class RScanner {
 	}
 	
 	protected NumberConst createNumberConst(final RAstNode parent) {
-		final NumberConst num = new NumberConst();
+		final NumberConst num = new NumberConst(fNextType);
 		num.fRParent = parent;
 		setupFromSourceToken(num);
 		consumeToken();

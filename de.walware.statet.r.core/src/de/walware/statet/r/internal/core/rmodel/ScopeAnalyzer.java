@@ -13,9 +13,11 @@ package de.walware.statet.r.internal.core.rmodel;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -77,8 +79,11 @@ public class ScopeAnalyzer extends RAstVisitor {
 	private IRSourceUnit fCurrentUnit;
 	private int fAnonymCount;
 	private LinkedHashMap<String, Scope> fScopes;
+	private Map<String, Scope> fDependencyEnvironments;
 	private final List<Scope> fCurrentScopes = new ArrayList<Scope>();
-	private Scope fDefaultScope;
+	private Scope fGlobalEnvScope;
+	private Scope fGenericDefaultScope;
+	private Scope fTopEnvScope;
 	private Scope fTopScope;
 	private final List<String> fIdComponents = new ArrayList<String>();
 	private final List<RAstNode> fArgValueToIgnore = new LinkedList<RAstNode>();
@@ -94,13 +99,14 @@ public class ScopeAnalyzer extends RAstVisitor {
 		fAnonymCount = 0;
 		fCurrentUnit = u;
 		fScopes = new LinkedHashMap<String, Scope>();
+		fDependencyEnvironments = new HashMap<String, Scope>();
 		final IResource res = u.getResource();
 		final String projId = (res != null) ? res.getProject().getName() : "<noproject:"+u.getElementName(); //$NON-NLS-1$
 		
 		final Scope fileScope = new Scope(IScope.T_PROJ, projId, new Scope[0]); // ref projects
 		fCurrentScopes.add(fileScope);
 		fScopes.put(fileScope.getId(), fileScope);
-		fDefaultScope = fileScope;
+		fGenericDefaultScope = fTopEnvScope = fGlobalEnvScope = fileScope;
 		fTopScope = fCurrentScopes.get(fCurrentScopes.size()-1);
 		
 		fIdComponents.add(projId);
@@ -108,6 +114,10 @@ public class ScopeAnalyzer extends RAstVisitor {
 		try {
 			ast.root.acceptInR(this);
 			
+			for (final Scope si : fDependencyEnvironments.values()) {
+				si.runLateResolve(false);
+			}
+			fTopEnvScope.getParents().addAll(0, fDependencyEnvironments.values());
 			for (final Scope si : fScopes.values()) {
 				si.runLateResolve(false);
 			}
@@ -116,6 +126,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 			final RSourceInfo model = new RSourceInfo(newAst, fScopes);
 			
 			fScopes = null;
+			fDependencyEnvironments = null;
 			return model;
 		}
 		catch (final OperationCanceledException e) {}
@@ -148,6 +159,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 		// Value
 		fReturnValue = null;
 		node.getSourceChild().acceptInR(this);
+		final Object returnValue = fReturnValue;
 		
 		// Resolve
 		int mode;
@@ -162,7 +174,6 @@ public class ScopeAnalyzer extends RAstVisitor {
 		}
 		
 		final RAstNode target = node.getTargetChild();
-		final Object returnValue = fReturnValue;
 		final ElementAccess access = new ElementAccess.Default(node);
 		access.fFlags = ElementAccess.A_WRITE;
 		
@@ -239,22 +250,17 @@ public class ScopeAnalyzer extends RAstVisitor {
 		final String name = resolveElementName(node.getRefChild(), access, true);
 		if (name != null) {
 			registerInScope(S_SEARCH, name, access);
-			final boolean write;
-			final RAstNode parent = node.getParent();
-			if (parent instanceof Assignment) {
-				write = (((Assignment) parent).getTargetChild() == node);
-			}
-			else {
-				write = false;
-			}
-			
-			checkFunction(name, node, write);
+		}
+		final boolean write;
+		final RAstNode parent = node.getParent();
+		if (parent instanceof Assignment) {
+			write = (((Assignment) parent).getTargetChild() == node);
+		}
+		else {
+			write = false;
 		}
 		
-		// Args
-		node.getArgsChild().acceptInR(this);
-		
-		fReturnValue = null;
+		fReturnValue = checkFunction(name, node, write);
 	}
 	
 	@Override
@@ -294,6 +300,11 @@ public class ScopeAnalyzer extends RAstVisitor {
 		final String name = resolveElementName(node, access);
 		if (name != null) {
 			registerInScope(S_SEARCH, name, access);
+			
+			if (name.equals(".GlobalEnv")) {
+				fReturnValue = fGlobalEnvScope;
+				return;
+			}
 		}
 		
 		fReturnValue = access;
@@ -425,13 +436,22 @@ public class ScopeAnalyzer extends RAstVisitor {
 	}
 	
 	
+	private Scope getPkgScope(final String name) {
+		Scope scope = fDependencyEnvironments.get(Scope.createId(IScope.T_PKG, name));
+		if (scope == null) {
+			scope = new Scope(IScope.T_PKG, name, new Scope[0]);
+			fDependencyEnvironments.put(scope.getId(), scope);
+		}
+		return scope;
+	}
+	
 	private void registerInScope(final int search, final String name, final ElementAccess access) {
 		switch (search) {
 		case S_LOCAL:
 			fTopScope.add(name, access);
 			return;
 		case S_GLOBAL:
-			fDefaultScope.add(name, access);
+			fGlobalEnvScope.add(name, access);
 			return;
 		case S_SEARCH:
 			fTopScope.addLateResolve(name, access);
@@ -519,37 +539,39 @@ public class ScopeAnalyzer extends RAstVisitor {
 				&& ((node.getElementChild().getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0)) {
 			access.fFlags = ElementAccess.A_READ;
 			final String pkg = node.getNamespaceChild().getText();
-			Scope scope = fScopes.get(Scope.createId(IScope.T_PKG, pkg));
-			if (scope == null) {
-				scope = new Scope(IScope.T_PKG, pkg, new Scope[0]);
-				fScopes.put(scope.getId(), scope);
-			}
 			access.fNameNode = node.getElementChild();
-			scope.add(access.fNameNode.getText(), access);
+			getPkgScope(pkg).add(access.fNameNode.getText(), access);
 			return null; // is registered
 		}
 		return null;
 	}
 	
 	
-	private void checkFunction(final String name, final FCall node, final boolean assignment) throws InvocationTargetException {
+	private Object checkFunction(final String name, final FCall node, final boolean assignment) throws InvocationTargetException {
 		final RCoreFunctions rdef = RCoreFunctions.DEFAULT;
-		final ArgsDefinition def = rdef.getArgs(name);
+		final ArgsDefinition def = (name != null) ? rdef.getArgs(name) : null;
 		// TODO envir/late
 		switch ((def != null) ? def.eId : -1) {
 		case RCoreFunctions.BASE_ASSIGN_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.BASE_ASSIGN_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode x = argValues[rdef.BASE_ASSIGN_arg_x]; 
 			if (x != null && x.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_WRITE;
-				access.fNameNode = argValues[rdef.BASE_ASSIGN_arg_x];
-				fTopScope.add(argValues[rdef.BASE_ASSIGN_arg_x].getText(), access);
+				access.fNameNode = x;
+				final Scope scope = readScopeArgs(resolvePos(argValues, def), fTopScope);
+				if (resolveAndReadInherits(argValues, def, false)) {
+					scope.addLateResolve(x.getText(), access);
+				}
+				else {
+					scope.add(x.getText(), access);
+				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.BASE_REMOVE_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.BASE_REMOVE_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode xList = argValues[rdef.BASE_REMOVE_arg_x];
 			if (xList != null && xList.getNodeType() == NodeType.DUMMY && xList.getOperator(0) == RTerminal.COMMA) {
 				final int n = xList.getChildCount();
@@ -558,40 +580,62 @@ public class ScopeAnalyzer extends RAstVisitor {
 					switch (x.getNodeType()) {
 					case SYMBOL:
 						fArgValueToIgnore.add(x);
+						// no break
 					case STRING_CONST:
 						final ElementAccess access = new ElementAccess.Default(node);
-						access.fFlags = ElementAccess.A_WRITE;
+						access.fFlags = ElementAccess.A_DELETE;
 						access.fNameNode = x;
-						fTopScope.add(x.getText(), access);
+						final Scope scope = readScopeArgs(resolvePos(argValues, def), fTopScope);
+						if (resolveAndReadInherits(argValues, def, false)) {
+							scope.addLateResolve(x.getText(), access);
+						}
+						else {
+							scope.add(x.getText(), access);
+						}
 					}
 				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.BASE_EXISTS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.BASE_GET_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode x = argValues[rdef.BASE_EXISTS_arg_x];
 			if (x != null && x.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ;
 				access.fNameNode = x;
-				fTopScope.add(x.getText(), access);
+				final Scope scope = readScopeArgs(resolveWhere(argValues, def), fTopScope);
+				if (resolveAndReadInherits(argValues, def, false)) {
+					scope.addLateResolve(x.getText(), access);
+				}
+				else {
+					scope.add(x.getText(), access);
+				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.BASE_GET_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.BASE_GET_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode x = argValues[rdef.BASE_GET_arg_x];
 			if (x != null && x.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ;
 				access.fNameNode = x;
-				fTopScope.add(x.getText(), access);
+				final Scope scope = readScopeArgs(resolvePos(argValues, def), fTopScope);
+				if (resolveAndReadInherits(argValues, def, true)) {
+					scope.addLateResolve(x.getText(), access);
+				}
+				else {
+					scope.add(x.getText(), access);
+				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.BASE_SAVE_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.BASE_SAVE_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode xList = argValues[rdef.BASE_SAVE_arg_x];
 			if (xList != null && xList.getNodeType() == NodeType.DUMMY && xList.getOperator(0) == RTerminal.COMMA) {
 				final int n = xList.getChildCount();
@@ -600,18 +644,20 @@ public class ScopeAnalyzer extends RAstVisitor {
 					switch (xArg.getNodeType()) {
 					case SYMBOL:
 						fArgValueToIgnore.add(xArg);
+						// no break
 					case STRING_CONST:
 						final ElementAccess access = new ElementAccess.Default(node);
 						access.fFlags = ElementAccess.A_READ;
 						access.fNameNode = xArg;
-						fTopScope.add(xArg.getText(), access);
+						fTopScope.addLateResolve(xArg.getText(), access);
 					}
 				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.BASE_CALL_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.BASE_CALL_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode nameArg = argValues[rdef.BASE_CALL_arg_name];
 			if (nameArg != null && nameArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
@@ -619,66 +665,84 @@ public class ScopeAnalyzer extends RAstVisitor {
 				access.fNameNode = nameArg;
 				fTopScope.addLateResolve(nameArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
+		}
+		
+		case RCoreFunctions.BASE_GLOBALENV_ID: {
+			node.getArgsChild().acceptInR(this);
+			return fGlobalEnvScope;
+		}
+		
+		case RCoreFunctions.BASE_TOPENV_ID: {
+//			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
+//			final RAstNode envir = resolveEnvir(argValues, def);
+			node.getArgsChild().acceptInR(this);
+			return fTopEnvScope;
 		}
 		
 		case RCoreFunctions.METHODS_SETGENERIC_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SETGENERIC_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_SETGENERIC_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.add(fArg.getText(), access);
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_SETGROUPGENERIC_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SETGROUPGENERIC_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_SETGROUPGENERIC_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.add(fArg.getText(), access);
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_REMOVEGENERIC_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_REMOVEGENERIC_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_REMOVEGENERIC_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC | ElementAccess.A_S4;
+				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.add(fArg.getText(), access);
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_ISGENERIC_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_ISGENERIC_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_ISGENERIC_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_ISGROUP_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_ISGROUP_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_ISGROUP_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_SIGNATURE_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SIGNATURE_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode list = argValues[0];
 			if (list != null && list.getNodeType() == NodeType.DUMMY && list.getOperator(0) == RTerminal.COMMA) {
 				final int n = list.getChildCount();
@@ -687,270 +751,293 @@ public class ScopeAnalyzer extends RAstVisitor {
 						final ElementAccess access = new ElementAccess.Default(node);
 						access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 						access.fNameNode = list.getChild(i);
-						fDefaultScope.addClass(access.fNameNode.getText(), access);
+						fGenericDefaultScope.addClass(access.fNameNode.getText(), access);
 					}
 				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		
 		case RCoreFunctions.METHODS_SETCLASS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SETCLASS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_SETCLASS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_SETIS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SETIS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_SETIS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
 			final RAstNode classToInherit = argValues[rdef.METHODS_SETIS_arg_classToExtend];
 			if (classToInherit != null && classToInherit.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classToInherit;
-				fDefaultScope.addClass(classToInherit.getText(), access);
+				fGenericDefaultScope.addClass(classToInherit.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_REMOVECLASS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_REMOVECLASS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_REMOVECLASS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
-				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_CLASS | ElementAccess.A_S4;
+				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_ISCLASS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_ISCLASS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_ISCLASS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_EXTENDS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_EXTENDS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_EXTENDS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
 			final RAstNode classToExtendArg = argValues[rdef.METHODS_EXTENDS_arg_classToExtend];
 			if (classToExtendArg != null && classToExtendArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classToExtendArg;
-				fDefaultScope.addClass(classToExtendArg.getText(), access);
+				fGenericDefaultScope.addClass(classToExtendArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_GETCLASS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_GETCLASS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_GETCLASS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_GETCLASSDEF_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_GETCLASSDEF_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_GETCLASSDEF_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_FINDCLASS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_FINDCLASS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_FINDCLASS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		
 		case RCoreFunctions.METHODS_NEW_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_NEW_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_NEW_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_AS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_AS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode classArg = argValues[rdef.METHODS_AS_arg_class];
 			if (classArg != null && classArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS | ElementAccess.A_S4;
 				access.fNameNode = classArg;
-				fDefaultScope.addClass(classArg.getText(), access);
+				fGenericDefaultScope.addClass(classArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		
 		case RCoreFunctions.METHODS_SETMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SETMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_SETMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_SETMETHOD_arg_signature]);
-				fDefaultScope.add(fArg.getText(), access);
+				
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_REMOVEMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_REMOVEMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_REMOVEMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC | ElementAccess.A_S4;
+				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_REMOVEMETHOD_arg_signature]);
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_REMOVEMETHODS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_REMOVEMETHODS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_REMOVEMETHODS_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
-				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC | ElementAccess.A_S4;
+				access.fFlags = ElementAccess.A_DELETE | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_EXISTSMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_EXISTSMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_EXISTSMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_EXISTSMETHOD_arg_signature]);
-				fDefaultScope.add(fArg.getText(), access);
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_HASMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_HASMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_HASMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_HASMETHOD_arg_signature]);
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_GETMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_GETMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_GETMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_GETMETHOD_arg_signature]);
-				fDefaultScope.add(fArg.getText(), access);
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_SELECTMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SELECTMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_SELECTMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_SELECTMETHOD_arg_signature]);
-				fDefaultScope.add(fArg.getText(), access);
+				fGenericDefaultScope.add(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_GETMETHODS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_GETMETHODS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_GETMETHODS_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_FINDMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_FINDMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_FINDMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
 				access.fSubElement = new SubClassElementAccess(access, argValues[rdef.METHODS_FINDMETHOD_arg_signature]);
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_DUMPMETHOD_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_DUMPMETHOD_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_DUMPMETHOD_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		case RCoreFunctions.METHODS_DUMPMETHODS_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_DUMPMETHODS_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode fArg = argValues[rdef.METHODS_DUMPMETHODS_arg_f];
 			if (fArg != null && fArg.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC | ElementAccess.A_S4;
 				access.fNameNode = fArg;
-				fDefaultScope.addLateResolve(fArg.getText(), access);
+				fGenericDefaultScope.addLateResolve(fArg.getText(), access);
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		
 		case RCoreFunctions.METHODS_SLOT_ID: {
-			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), rdef.METHODS_SLOT_args);
+			final RAstNode[] argValues = RAst.readArgs(node.getArgsChild(), def);
 			final RAstNode objectArg = argValues[rdef.METHODS_SLOT_arg_object];
 			final RAstNode slotArg = argValues[rdef.METHODS_SLOT_arg_slot];
 			if (objectArg != null && objectArg.getNodeType() == NodeType.SYMBOL) {
@@ -965,7 +1052,8 @@ public class ScopeAnalyzer extends RAstVisitor {
 					access.fSubElement = new SubNamedSlotInFunElementAccess(access, slotArg);
 				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
 		
 		default:
@@ -979,7 +1067,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 							final ElementAccess access = new ElementAccess.Default(node);
 							access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
 							access.fNameNode = arg;
-							fDefaultScope.addLateResolve(arg.getText(), access);
+							fGenericDefaultScope.addLateResolve(arg.getText(), access);
 							continue ITER_ARGS;
 						}
 						if ((def.get(i).type & ArgsDefinition.CLASS_NAME) != 0
@@ -987,7 +1075,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 							final ElementAccess access = new ElementAccess.Class(node);
 							access.fFlags = ElementAccess.A_READ | ElementAccess.A_CLASS;
 							access.fNameNode = arg;
-							fDefaultScope.addClass(arg.getText(), access);
+							fGenericDefaultScope.addClass(arg.getText(), access);
 							continue ITER_ARGS;
 						}
 						if ((def.get(i).type & ArgsDefinition.UNSPECIFIC_NAME) != 0
@@ -995,7 +1083,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 							final ElementAccess access = new ElementAccess.Default(node);
 							access.fFlags = ElementAccess.A_READ;
 							access.fNameNode = arg;
-							fDefaultScope.addLateResolve(arg.getText(), access);
+							fTopScope.addLateResolve(arg.getText(), access);
 							continue ITER_ARGS;
 						}
 					}
@@ -1008,7 +1096,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 					final RAstNode argName = firstArg.getNameChild();
 					final RAstNode argValue = firstArg.getValueChild();
 					if (firstArg.hasValue()
-							&& (!firstArg.hasName() || argName.getText().equals("x"))) { //$NON-NLS-1$
+							&& (!firstArg.hasName() || argName.getText().equals("x"))) { 
 						final ElementAccess access = new ElementAccess.Default(node);
 						access.fFlags = ElementAccess.A_WRITE;
 						final String mainName = resolveElementName(argValue, access, false);
@@ -1019,8 +1107,75 @@ public class ScopeAnalyzer extends RAstVisitor {
 					}
 				}
 			}
-			return;
+			node.getArgsChild().acceptInR(this);
+			return null;
 		}
+	}
+	
+	
+	private RAstNode resolvePos(final RAstNode[] argValues, final ArgsDefinition args) {
+		final int idx = args.indexOf("pos");
+		if (idx >= 0) {
+			return argValues[idx];
+		}
+		return null;
+	}
+	
+	private RAstNode resolveWhere(final RAstNode[] argValues, final ArgsDefinition args) {
+		final int idx = args.indexOf("where");
+		if (idx >= 0) {
+			return argValues[idx];
+		}
+		return null;
+	}
+	
+	private boolean resolveAndReadInherits(final RAstNode[] argValues, final ArgsDefinition args, final boolean inheritsByDefault) {
+		final int idx = args.indexOf("inherits");
+		if (idx >= 0) {
+			final RAstNode inherits = argValues[idx];
+			if (inherits != null && inherits.getNodeType() == NodeType.NUM_CONST) {
+				if (inherits.getOperator(0) == RTerminal.TRUE) {
+					return true;
+				}
+				if (inherits.getOperator(0) == RTerminal.FALSE) {
+					return false;
+				}
+			}
+		}
+		return inheritsByDefault;
+	}
+	
+	private Scope readScopeArgs(final RAstNode pos, final Scope defaultScope) throws InvocationTargetException {
+		fReturnValue = null;
+		Scope scope = null;
+		if (pos != null) {
+			switch (pos.getNodeType()) {
+			case NUM_CONST:
+				if ("1".equals(pos.getText())) { // search pos
+					scope = fGlobalEnvScope;
+				}
+				break;
+			case STRING_CONST: // search name
+				if (pos.getText().equals(".GlobalEnv")) {
+					scope = fGlobalEnvScope;
+				}
+				if (pos.getText().startsWith("package:")) {
+					scope = getPkgScope(pos.getText().substring(8));
+				}
+				break;
+			default:
+				// check for environment
+				pos.acceptInR(this);
+				if (fReturnValue instanceof Scope) {
+					scope = (Scope) fReturnValue;
+				}
+			}
+			fArgValueToIgnore.add(pos);
+		}
+		if (scope != null) {
+			return scope;
+		}
+		return defaultScope;
 	}
 	
 }
