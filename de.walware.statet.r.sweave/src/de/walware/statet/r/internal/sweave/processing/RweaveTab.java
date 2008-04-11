@@ -94,11 +94,11 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			if (value instanceof String) {
 				final String s = (String) value;
 				fEncodedValue = s;
-				if (s.startsWith(RweaveTexCreationDelegate.SWEAVE_CONSOLE)) {
-					updateEnablement(RweaveTexCreationDelegate.SWEAVE_CONSOLE);
+				if (s.startsWith(RweaveTexLaunchDelegate.SWEAVE_CONSOLE)) {
+					updateEnablement(RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
 					
 					final String[] split = s.split(":", 2); //$NON-NLS-1$
-					final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : RweaveTexCreationDelegate.DEFAULT_CONSOLE_COMMAND;
+					final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : RweaveTexLaunchDelegate.DEFAULT_CONSOLE_COMMAND;
 					if (!command.equals(fConsoleCommandEditor.getDocument().get())) {
 						fConsoleCommandEditor.getDocument().set(command);
 					}
@@ -106,8 +106,8 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 					fCurrentStatus = ValidationStatus.ok();
 					return;
 				}
-				else if (s.startsWith(RweaveTexCreationDelegate.SWEAVE_LAUNCH)) {
-					updateEnablement(RweaveTexCreationDelegate.SWEAVE_LAUNCH);
+				else if (s.startsWith(RweaveTexLaunchDelegate.SWEAVE_LAUNCH)) {
+					updateEnablement(RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
 					
 					final String[] split = s.split(":", 2); //$NON-NLS-1$
 					if (split.length == 2 && split[1].length() > 0) {
@@ -162,13 +162,13 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		private void updateValue() {
 			String value;
 			if (fConsoleSelectControl.getSelection()) {
-				value = RweaveTexCreationDelegate.SWEAVE_CONSOLE + ':' + fConsoleCommandEditor.getDocument().get();
+				value = RweaveTexLaunchDelegate.SWEAVE_CONSOLE + ':' + fConsoleCommandEditor.getDocument().get();
 				fCurrentStatus = ValidationStatus.ok();
-				updateEnablement(RweaveTexCreationDelegate.SWEAVE_CONSOLE);
+				updateEnablement(RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
 			}
 			else if (fCmdLaunchSelectControl.getSelection()) {
 				final Object selectedLaunch = ((StructuredSelection) fCmdLaunchTable.getSelection()).getFirstElement();
-				value = RweaveTexCreationDelegate.SWEAVE_LAUNCH;
+				value = RweaveTexLaunchDelegate.SWEAVE_LAUNCH;
 				if (selectedLaunch instanceof ILaunchConfiguration) {
 					value += ':'+((ILaunchConfiguration) selectedLaunch).getName();
 					fCurrentStatus = ValidationStatus.ok();
@@ -176,7 +176,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 				else {
 					fCurrentStatus = ValidationStatus.warning(Messages.RweaveTab_RCmd_error_NoConfigSelected_message);
 				}
-				updateEnablement(RweaveTexCreationDelegate.SWEAVE_LAUNCH);
+				updateEnablement(RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
 			}
 			else {
 				value = ""; //$NON-NLS-1$
@@ -196,13 +196,13 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		
 		public void updateEnablement(final String selection) {
 			fSkipSelectControl.setSelection(selection == null);
-			fConsoleSelectControl.setSelection(selection == RweaveTexCreationDelegate.SWEAVE_CONSOLE);
-			fCmdLaunchSelectControl.setSelection(selection == RweaveTexCreationDelegate.SWEAVE_LAUNCH);
+			fConsoleSelectControl.setSelection(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
+			fCmdLaunchSelectControl.setSelection(selection == RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
 			
-			fConsoleCommandEditor.getControl().setEnabled(selection == RweaveTexCreationDelegate.SWEAVE_CONSOLE);
-			fConsoleCommandInsertButton.setEnabled(selection == RweaveTexCreationDelegate.SWEAVE_CONSOLE);
-			fCmdLaunchTable.getControl().setEnabled(selection == RweaveTexCreationDelegate.SWEAVE_LAUNCH);
-			fCmdLaunchNewButton.setEnabled(selection == RweaveTexCreationDelegate.SWEAVE_LAUNCH);
+			fConsoleCommandEditor.getControl().setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
+			fConsoleCommandInsertButton.setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
+			fCmdLaunchTable.getControl().setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
+			fCmdLaunchNewButton.setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
 		}
 		
 	}
@@ -223,7 +223,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	
 	
 	public String getName() {
-		return Messages.Creation_SweaveTab_label;
+		return Messages.Processing_SweaveTab_label;
 	}
 	
 	@Override
@@ -364,7 +364,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			final String name = getLaunchConfigurationDialog().generateName(Messages.RweaveTab_RCmd_NewConfig_seed);
 			final ILaunchConfigurationWorkingCopy config = RLaunchConfigurations.createNewRCmdConfig(name, "CMD Sweave"); //$NON-NLS-1$
 			
-			fSelectionValue.setValue(RweaveTexCreationDelegate.SWEAVE_LAUNCH+':'+name);
+			fSelectionValue.setValue(RweaveTexLaunchDelegate.SWEAVE_LAUNCH+':'+name);
 			setDirty(true);
 			
 			config.doSave();
@@ -392,7 +392,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	
 	
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(ATTR_SWEAVE_ID, RweaveTexCreationDelegate.SWEAVE_CONSOLE+':');
+		configuration.setAttribute(ATTR_SWEAVE_ID, RweaveTexLaunchDelegate.SWEAVE_CONSOLE+':');
 	}
 	
 	@Override
@@ -403,7 +403,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		} catch (final CoreException e) {
 			logReadingError(e);
 		}
-		fConsoleCommandEditor.getDocument().set(RweaveTexCreationDelegate.DEFAULT_CONSOLE_COMMAND);
+		fConsoleCommandEditor.getDocument().set(RweaveTexLaunchDelegate.DEFAULT_CONSOLE_COMMAND);
 		final Object firstConfig = fCmdLaunchTable.getElementAt(0);
 		fCmdLaunchTable.setSelection((firstConfig != null) ? new StructuredSelection(firstConfig) : new StructuredSelection());
 		fSelectionValue.setValue(value);

@@ -51,7 +51,7 @@ import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 
 
-public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
+public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
 	public static final int STEP_WEAVE = 0x1;
@@ -88,7 +88,7 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 	static final String DEFAULT_CONSOLE_COMMAND = "Sweave(file = \"${resource_loc}\")"; //$NON-NLS-1$
 	
 	
-	public RweaveTexCreationDelegate() {
+	public RweaveTexLaunchDelegate() {
 	}
 	
 	
@@ -104,9 +104,9 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 	public void launch(final ILaunchConfiguration configuration, final String mode,
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		LaunchConfigUtil.initProgressMonitor(configuration, monitor, 100);
-		final int buildFlags = configuration.getAttribute(SweaveCreation.ATT_BUILDSTEPS, 0);
+		final int buildFlags = configuration.getAttribute(SweaveProcessing.ATT_BUILDSTEPS, 0);
 		if (configuration instanceof ILaunchConfigurationWorkingCopy) {
-			((ILaunchConfigurationWorkingCopy) configuration).setAttribute(SweaveCreation.ATT_BUILDSTEPS, (String) null);
+			((ILaunchConfigurationWorkingCopy) configuration).setAttribute(SweaveProcessing.ATT_BUILDSTEPS, (String) null);
 		}
 		
 		final IResource selectedResource = DebugUITools.getSelectedResource();
@@ -117,7 +117,7 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 		}
 		else {
 			throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-					Messages.CreationConfig_error_NoFileSelected_message, null));
+					Messages.ProcessingConfig_error_NoFileSelected_message, null));
 		}
 		
 		final RweaveTexTool thread = new RweaveTexTool(configuration.getName(), launch, workbenchPage, sweaveFile);
@@ -125,29 +125,29 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 		// Tex config (for output format, before sweave)
 		thread.fTexOpenEditor = configuration.getAttribute(TexTab.ATTR_OPENTEX_ENABLED, TexTab.OPEN_OFF);
 		thread.fTexBuilderId = configuration.getAttribute(TexTab.ATTR_BUILDTEX_BUILDERID, -1);
-		thread.fRunTex = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) && SweaveCreation.isEnabled(STEP_TEX, buildFlags);
+		thread.fRunTex = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) && SweaveProcessing.isEnabled(STEP_TEX, buildFlags);
 		thread.fConfiguredOutputDir = configuration.getAttribute(TexTab.ATTR_BUILDTEX_OUTPUTDIR, (String) null);
 		
 		// Sweave config
 		final String sweaveProcessing = configuration.getAttribute(RweaveTab.ATTR_SWEAVE_ID, (String) null);
-		if (sweaveProcessing.startsWith(RweaveTexCreationDelegate.SWEAVE_LAUNCH)) {
+		if (sweaveProcessing.startsWith(RweaveTexLaunchDelegate.SWEAVE_LAUNCH)) {
 			final String[] split = sweaveProcessing.split(":", 2); //$NON-NLS-1$
 			final String sweaveConfigName = (split.length == 2) ? split[1] : ""; //$NON-NLS-1$
 			final ILaunchConfigurationWorkingCopy sweaveConfig = getRCmdSweaveConfig(sweaveConfigName, sweaveFile);
-			if (sweaveConfig == null && SweaveCreation.isEnabled(STEP_WEAVE, buildFlags)) {
+			if (sweaveConfig == null && SweaveProcessing.isEnabled(STEP_WEAVE, buildFlags)) {
 				throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-						NLS.bind(Messages.CreationConfig_error_MissingRCmdConfig_message, sweaveConfigName), null));
+						NLS.bind(Messages.ProcessingConfig_error_MissingRCmdConfig_message, sweaveConfigName), null));
 			}
 			thread.fSweaveConfig = sweaveConfig;
 			
 			final FileValidator workingDirectory = REnvTab.getWorkingDirectoryValidator(sweaveConfig, true);
 			sweaveConfig.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, workingDirectory.getFileStore().toURI().toString());
 			final IStatus status = thread.setWorkingDir(workingDirectory.getFileStore(), (IContainer) workingDirectory.getWorkspaceResource(), false);
-			if (status.getSeverity() >= IStatus.ERROR && SweaveCreation.isEnabled(STEP_WEAVE, buildFlags)) {
+			if (status.getSeverity() >= IStatus.ERROR && SweaveProcessing.isEnabled(STEP_WEAVE, buildFlags)) {
 				throw new CoreException(status);
 			}
 		}
-		else if (sweaveProcessing.startsWith(RweaveTexCreationDelegate.SWEAVE_CONSOLE)) {
+		else if (sweaveProcessing.startsWith(RweaveTexLaunchDelegate.SWEAVE_CONSOLE)) {
 			final String[] split = sweaveProcessing.split(":", 2); //$NON-NLS-1$
 			final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : DEFAULT_CONSOLE_COMMAND;
 			thread.fSweaveCommands = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(command, true);
@@ -156,11 +156,11 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 		else {
 			thread.setWorkingDir(null, sweaveFile.getParent(), true);
 		}
-		thread.fRunSweave = SweaveCreation.isEnabled(RweaveTexCreationDelegate.STEP_WEAVE, buildFlags);
+		thread.fRunSweave = SweaveProcessing.isEnabled(RweaveTexLaunchDelegate.STEP_WEAVE, buildFlags);
 		
 		// Preview config
 		final String preview = configuration.getAttribute(PreviewTab.ATTR_VIEWER_CODE, ""); //$NON-NLS-1$
-		if ((RweaveTexCreationDelegate.STEP_PREVIEW & buildFlags) != 0) {
+		if ((RweaveTexLaunchDelegate.STEP_PREVIEW & buildFlags) != 0) {
 			thread.fRunPreview = RweaveTexTool.EXPLICITE;
 		}
 		else if ((0xf & buildFlags) == 0 && preview.length() > 0) {
@@ -175,7 +175,7 @@ public class RweaveTexCreationDelegate extends LaunchConfigurationDelegate {
 				thread.fPreviewConfig = Texlipse.getViewerManager().getConfiguration(previewConfigName);
 				if (thread.fPreviewConfig == null) {
 					throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-							NLS.bind(Messages.CreationConfig_error_MissingViewerConfig_message, previewConfigName), null));
+							NLS.bind(Messages.ProcessingConfig_error_MissingViewerConfig_message, previewConfigName), null));
 				}
 			}
 		}

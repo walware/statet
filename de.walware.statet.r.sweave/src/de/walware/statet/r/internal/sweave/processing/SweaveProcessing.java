@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_PREVIEW;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_TEX;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_WEAVE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_PREVIEW;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_TEX;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -51,7 +51,7 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 /**
  * Manages profiles of a launchconfiguration type.
  */
-public class SweaveCreation implements ILaunchConfigurationListener {
+public class SweaveProcessing implements ILaunchConfigurationListener {
 	
 	
 	public static final String ATT_BUILDSTEPS = "buildSteps"; //$NON-NLS-1$
@@ -62,7 +62,7 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 	}
 	
 	
-	public static interface ICreationListener {
+	public static interface IProcessingListener {
 		
 		public void activeProfileChanged(ILaunchConfiguration config);
 		public void availableProfileChanged(ILaunchConfiguration[] configs);
@@ -70,14 +70,14 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 	}
 	
 	
-	private FastList<ICreationListener> fListenerList = new FastList<ICreationListener>(ICreationListener.class);
+	private FastList<IProcessingListener> fListenerList = new FastList<IProcessingListener>(IProcessingListener.class);
 	
 	private ILaunchConfigurationType fConfigType;
 	private ILaunchConfiguration[] fCurrentConfigs;
 	private ILaunchConfiguration fActiveSweaveConfig;
 	
 	
-	public SweaveCreation(final String id) {
+	public SweaveProcessing(final String id) {
 		final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		fConfigType = launchManager.getLaunchConfigurationType(id);
 		launchManager.addLaunchConfigurationListener(this);
@@ -158,7 +158,7 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 			updateActive = false;
 		}
 		
-		final ICreationListener[] listeners = fListenerList.toArray();
+		final IProcessingListener[] listeners = fListenerList.toArray();
 		if (updateActive) {
 			fActiveSweaveConfig = newActive;
 		}
@@ -180,11 +180,11 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 		}
 	}
 	
-	public void addCreationListener(final ICreationListener listener) {
+	public void addProcessingListener(final IProcessingListener listener) {
 		fListenerList.add(listener);
 	}
 	
-	public void removeCreationListener(final ICreationListener listener) {
+	public void removeProcessingListener(final IProcessingListener listener) {
 		fListenerList.remove(listener);
 	}
 	
@@ -238,7 +238,7 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 				monitor.beginTask(label, 1);
 				try {
 					final ILaunchConfigurationWorkingCopy config = configuration.getWorkingCopy();
-					config.setAttribute(SweaveCreation.ATT_BUILDSTEPS, flags);
+					config.setAttribute(SweaveProcessing.ATT_BUILDSTEPS, flags);
 					final String mode = ILaunchManager.RUN_MODE;
 					// TODO E-3.4 bug #200997 if fixed, set register to false
 					if ((flags & 0xf) == 0 || (flags & 0x1) != 0) {
@@ -259,7 +259,7 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					Messages.Creation_Launch_error_message+label, e.getTargetException()),
+					Messages.Processing_Launch_error_message+label, e.getTargetException()),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InterruptedException e) {
@@ -272,19 +272,19 @@ public class SweaveCreation implements ILaunchConfigurationListener {
 		switch (flags & 0xf) {
 		case 0:
 		case STEP_WEAVE | STEP_TEX | STEP_PREVIEW:
-			label = Messages.CreationAction_BuildAndPreview_label;
+			label = Messages.ProcessingAction_BuildAndPreview_label;
 			break;
 		case STEP_WEAVE | STEP_TEX:
-			label = Messages.CreationAction_BuildDoc_label;
+			label = Messages.ProcessingAction_BuildDoc_label;
 			break;
 		case STEP_WEAVE:
-			label = Messages.CreationAction_Sweave_label;
+			label = Messages.ProcessingAction_Sweave_label;
 			break;
 		case STEP_TEX:
-			label = Messages.CreationAction_Tex_label;
+			label = Messages.ProcessingAction_Tex_label;
 			break;
 		case STEP_PREVIEW:
-			label = Messages.CreationAction_Preview_label;
+			label = Messages.ProcessingAction_Preview_label;
 			break;
 		default:
 			throw new IllegalArgumentException();

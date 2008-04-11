@@ -22,7 +22,7 @@ public class Messages extends NLS {
 	
 	public static String RChunkLaunch_error_message;
 	
-	public static String Creation_SweaveTab_label;
+	public static String Processing_SweaveTab_label;
 	public static String RweaveTab_label;
 	public static String RweaveTab_Skip_label;
 	public static String RweaveTab_InConsole_label;
@@ -33,7 +33,7 @@ public class Messages extends NLS {
 	public static String RweaveTab_RCmd_NewConfig_seed;
 	public static String RweaveTab_RCmd_error_NoConfigSelected_message;
 	
-	public static String Creation_TexTab_label;
+	public static String Processing_TexTab_label;
 	public static String TexTab_label;
 	public static String TexTab_OpenTex_label;
 	public static String TexTab_OpenTex_OnlyOnErrors_label;
@@ -42,7 +42,7 @@ public class Messages extends NLS {
 	public static String TexTab_OutputDir_InsertTexPath_label;
 	public static String TexTab_BuildTex_label;
 	
-	public static String Creation_PreviewTab_label;
+	public static String Processing_PreviewTab_label;
 	public static String PreviewTab_label;
 	public static String PreviewTab_Disable_label;
 	public static String PreviewTab_SystemEditor_label;
@@ -52,40 +52,41 @@ public class Messages extends NLS {
 	public static String PreviewTab_LaunchConfig_NewConfig_error_Creating_message;
 	public static String PreviewTab_LaunchConfig_error_NoConfigSelected_message;
 	
-	public static String CreationAction_BuildAndPreview_label;
-	public static String CreationAction_BuildDoc_label;
-	public static String CreationAction_Sweave_label;
-	public static String CreationAction_Tex_label;
-	public static String CreationAction_Preview_label;
-	public static String CreationAction_ActivateProfile_label;
-	public static String CreationAction_EditProfile_label;
-	public static String CreationAction_CreateEditProfiles_label;
+	public static String ProcessingAction_BuildAndPreview_label;
+	public static String ProcessingAction_BuildDoc_label;
+	public static String ProcessingAction_Sweave_label;
+	public static String ProcessingAction_Tex_label;
+	public static String ProcessingAction_Preview_label;
+	public static String ProcessingAction_ActivateProfile_label;
+	public static String ProcessingAction_EditProfile_label;
+	public static String ProcessingAction_CreateEditProfiles_label;
 	
-	public static String CreationConfig_error_NoFileSelected_message;
-	public static String CreationConfig_error_MissingRCmdConfig_message;
-	public static String CreationConfig_error_MissingViewerConfig_message;
-	public static String Creation_Launch_error_message;
+	public static String ProcessingConfig_error_NoFileSelected_message;
+	public static String ProcessingConfig_error_MissingRCmdConfig_message;
+	public static String ProcessingConfig_error_MissingViewerConfig_message;
+	public static String Processing_Launch_error_message;
 	
-	public static String RweaveTexCreation_label;
-	public static String RweaveTexCreation_Status_label;
-	public static String RweaveTexCreation_error_UnexpectedError_message;
-	public static String RweaveTexCreation_info_Canceled_message;
-	public static String RweaveTexCreation_Sweave_InConsole_label;
-	public static String RweaveTexCreation_Sweave_Task_label;
-	public static String RweaveTexCreation_Sweave_Task_info_Canceled_message;
-	public static String RweaveTexCreation_Sweave_RCmd_label;
-	public static String RweaveTexCreation_Sweave_RCmd_error_Found_message;
-	public static String RweaveTexCreation_Tex_label;
-	public static String RweaveTexCreation_Tex_error_BuilderNotConfigured_message;
-	public static String RweaveTexCreation_Tex_error_OutputDir_message;
-	public static String RweaveTexCreation_Tex_error_MustBeInWorkspace_message;
-	public static String RweaveTexCreation_Tex_error_NotFound_message;
-	public static String RweaveTexCreation_Output_error_NotFound_message;
-	public static String RweaveTexCreation_Output_info_SkipBecauseTex_message;
+	public static String RweaveTexProcessing_label;
+	public static String RweaveTexProcessing_Status_label;
+	public static String RweaveTexProcessing_error_UnexpectedError_message;
+	public static String RweaveTexProcessing_info_Canceled_message;
+	public static String RweaveTexProcessing_Sweave_InConsole_label;
+	public static String RweaveTexProcessing_Sweave_Task_label;
+	public static String RweaveTexProcessing_Sweave_Task_info_Canceled_message;
+	public static String RweaveTexProcessing_Sweave_RCmd_label;
+	public static String RweaveTexProcessing_Sweave_RCmd_error_Found_message;
+	public static String RweaveTexProcessing_Tex_label;
+	public static String RweaveTexProcessing_Tex_error_BuilderNotConfigured_message;
+	public static String RweaveTexProcessing_Tex_error_OutputDir_message;
+	public static String RweaveTexProcessing_Tex_error_MustBeInWorkspace_message;
+	public static String RweaveTexProcessing_Tex_error_NotFound_message;
+	public static String RweaveTexProcessing_Output_error_NotFound_message;
+	public static String RweaveTexProcessing_Output_info_SkipBecauseTex_message;
 	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

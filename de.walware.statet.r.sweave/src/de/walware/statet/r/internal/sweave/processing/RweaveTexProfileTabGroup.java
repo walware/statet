@@ -20,10 +20,10 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 /**
  * Tab group for Sweave (LaTeX/R) output creation toolchain.
  */
-public class RweaveTexCreationTabGroup extends AbstractLaunchConfigurationTabGroup {
+public class RweaveTexProfileTabGroup extends AbstractLaunchConfigurationTabGroup {
 	
 	
-	public RweaveTexCreationTabGroup() {
+	public RweaveTexProfileTabGroup() {
 	}
 	
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {

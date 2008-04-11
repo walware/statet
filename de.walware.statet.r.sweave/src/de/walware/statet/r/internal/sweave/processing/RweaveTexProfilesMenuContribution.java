@@ -1,8 +1,8 @@
 package de.walware.statet.r.internal.sweave.processing;
 
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_PREVIEW;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_TEX;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_WEAVE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_PREVIEW;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_TEX;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
 
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderRegistry;
@@ -29,10 +29,10 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.internal.sweave.processing.SweaveCreation.ICreationListener;
+import de.walware.statet.r.internal.sweave.processing.SweaveProcessing.IProcessingListener;
 
 
-public class RweaveTexProfilesMenuContribution extends CompoundContributionItem implements ICreationListener {
+public class RweaveTexProfilesMenuContribution extends CompoundContributionItem implements IProcessingListener {
 	
 	
 	static String createLabel(final ILaunchConfiguration config, int num) {
@@ -129,14 +129,14 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 			MenuItem item;
 			
 			final boolean isActiveProfile = (fSweaveManager.getActiveProfile() == fConfig);
-			final StringBuilder detailComplete = new StringBuilder(Messages.CreationAction_BuildAndPreview_label);
+			final StringBuilder detailComplete = new StringBuilder(Messages.ProcessingAction_BuildAndPreview_label);
 			boolean showBuild = false;
-			final StringBuilder detailBuild = new StringBuilder(Messages.CreationAction_BuildDoc_label);
+			final StringBuilder detailBuild = new StringBuilder(Messages.ProcessingAction_BuildDoc_label);
 			boolean disableSweave = false;
-			final StringBuilder detailSweave = new StringBuilder(Messages.CreationAction_Sweave_label);
+			final StringBuilder detailSweave = new StringBuilder(Messages.ProcessingAction_Sweave_label);
 			boolean disableTex = false;
-			final StringBuilder detailTex = new StringBuilder(Messages.CreationAction_Tex_label);
-			final StringBuilder detailPreview = new StringBuilder(Messages.CreationAction_Preview_label);
+			final StringBuilder detailTex = new StringBuilder(Messages.ProcessingAction_Tex_label);
+			final StringBuilder detailPreview = new StringBuilder(Messages.ProcessingAction_Preview_label);
 			try {
 				final String attribute = fConfig.getAttribute(RweaveTab.ATTR_SWEAVE_ID, (String) null);
 				if (attribute != null && attribute.length() > 0) {
@@ -167,29 +167,29 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 			if (isActiveProfile) {
 				final IBindingService bindings = (IBindingService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IBindingService.class);
 				TriggerSequence binding;
-				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultCreationHandler.ProcessAndPreview.COMMAND_ID);
+				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultHandler.ProcessAndPreview.COMMAND_ID);
 				if (binding != null) {
 					detailComplete.append('\t');
 					detailComplete.append(binding.format());
 				}
 				if (showBuild) {
-					binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultCreationHandler.ProcessDoc.COMMAND_ID);
+					binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultHandler.ProcessDoc.COMMAND_ID);
 					if (binding != null) {
 						detailBuild.append('\t');
 						detailBuild.append(binding.format());
 					}
 				}
-				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultCreationHandler.ProcessWeave.COMMAND_ID);
+				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultHandler.ProcessWeave.COMMAND_ID);
 				if (binding != null) {
 					detailSweave.append('\t');
 					detailSweave.append(binding.format());
 				}
-				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultCreationHandler.ProcessTex.COMMAND_ID);
+				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultHandler.ProcessTex.COMMAND_ID);
 				if (binding != null) {
 					detailTex.append('\t');
 					detailTex.append(binding.format());
 				}
-				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultCreationHandler.PreviewDoc.COMMAND_ID);
+				binding = bindings.getBestActiveBindingFor(RweaveTexProfileDefaultHandler.PreviewDoc.COMMAND_ID);
 				if (binding != null) {
 					detailPreview.append('\t');
 					detailPreview.append(binding.format());
@@ -236,13 +236,13 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 			item = new MenuItem(fMenu, SWT.SEPARATOR);
 			
 			item = new MenuItem(fMenu, SWT.RADIO);
-			item.setText(Messages.CreationAction_ActivateProfile_label);
+			item.setText(Messages.ProcessingAction_ActivateProfile_label);
 			item.setData(SELECT);
 			item.addSelectionListener(this);
 			item.setSelection(isActiveProfile);
 			
 			item = new MenuItem(fMenu, SWT.PUSH);
-			item.setText(Messages.CreationAction_EditProfile_label);
+			item.setText(Messages.ProcessingAction_EditProfile_label);
 			item.setData(EDIT);
 			item.addSelectionListener(this);
 		}
@@ -320,7 +320,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 					fMenuItem = new MenuItem(parent, SWT.PUSH);
 				}
 				
-				fMenuItem.setText(Messages.CreationAction_CreateEditProfiles_label);
+				fMenuItem.setText(Messages.ProcessingAction_CreateEditProfiles_label);
 				fMenuItem.addSelectionListener(this);
 			}
 		}
@@ -335,12 +335,12 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 	}
 	
 	
-	private SweaveCreation fSweaveManager;
+	private SweaveProcessing fSweaveManager;
 	
 	
 	public RweaveTexProfilesMenuContribution() {
-		fSweaveManager = SweavePlugin.getDefault().getSweaveCreationManager();
-		fSweaveManager.addCreationListener(this);
+		fSweaveManager = SweavePlugin.getDefault().getRweaveTexProcessingManager();
+		fSweaveManager.addProcessingListener(this);
 	}
 	
 	public RweaveTexProfilesMenuContribution(final String id) {
@@ -350,7 +350,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 	@Override
 	public void dispose() {
 		if (fSweaveManager != null) {
-			fSweaveManager.removeCreationListener(this);
+			fSweaveManager.removeProcessingListener(this);
 			fSweaveManager = null;
 		}
 		super.dispose();

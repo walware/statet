@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_PREVIEW;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_TEX;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_WEAVE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_PREVIEW;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_TEX;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
 
 import java.util.Map;
 
@@ -31,15 +31,15 @@ import de.walware.eclipsecommons.ui.util.MessageUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.internal.sweave.processing.SweaveCreation.ICreationListener;
+import de.walware.statet.r.internal.sweave.processing.SweaveProcessing.IProcessingListener;
 
 
 /**
  * Handlers for Sweave (LaTeX/R) output creation toolchain running with the active profile.
  */
-public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHandler implements IElementUpdater, ICreationListener {
+public abstract class RweaveTexProfileDefaultHandler extends AbstractHandler implements IElementUpdater, IProcessingListener {
 	
-	public static class ProcessWeave extends RweaveTexProfileDefaultCreationHandler {
+	public static class ProcessWeave extends RweaveTexProfileDefaultHandler {
 		
 		public static final String COMMAND_ID = "de.walware.statet.sweave.commands.ProcessWeaveDefault"; //$NON-NLS-1$
 		
@@ -49,7 +49,7 @@ public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHan
 		
 	}
 	
-	public static class ProcessTex extends RweaveTexProfileDefaultCreationHandler {
+	public static class ProcessTex extends RweaveTexProfileDefaultHandler {
 		
 		public static final String COMMAND_ID = "de.walware.statet.sweave.commands.ProcessTexDefault"; //$NON-NLS-1$
 		
@@ -59,7 +59,7 @@ public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHan
 		
 	}
 	
-	public static class ProcessDoc extends RweaveTexProfileDefaultCreationHandler {
+	public static class ProcessDoc extends RweaveTexProfileDefaultHandler {
 		
 		public static final String COMMAND_ID = "de.walware.statet.doc.commands.ProcessDocDefault"; //$NON-NLS-1$
 		
@@ -69,7 +69,7 @@ public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHan
 		
 	}
 	
-	public static class ProcessAndPreview extends RweaveTexProfileDefaultCreationHandler {
+	public static class ProcessAndPreview extends RweaveTexProfileDefaultHandler {
 		
 		public static final String COMMAND_ID = "de.walware.statet.doc.commands.ProcessAndPreviewDefault"; //$NON-NLS-1$
 		
@@ -80,7 +80,7 @@ public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHan
 	}
 	
 	
-	public static class PreviewDoc extends RweaveTexProfileDefaultCreationHandler {
+	public static class PreviewDoc extends RweaveTexProfileDefaultHandler {
 		
 		public static final String COMMAND_ID = "de.walware.statet.doc.commands.PreviewDocDefault"; //$NON-NLS-1$
 		
@@ -93,16 +93,16 @@ public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHan
 	
 	private String fCommandId;
 	private int fLaunchFlags;
-	private SweaveCreation fSweaveManager;
+	private SweaveProcessing fSweaveManager;
 	private String fTooltip;
 	private boolean fUpdate;
 	
 	
-	public RweaveTexProfileDefaultCreationHandler(final String commandId, final int flags) {
+	public RweaveTexProfileDefaultHandler(final String commandId, final int flags) {
 		fCommandId = commandId;
 		fLaunchFlags = flags;
-		fSweaveManager = SweavePlugin.getDefault().getSweaveCreationManager();
-		fSweaveManager.addCreationListener(this);
+		fSweaveManager = SweavePlugin.getDefault().getRweaveTexProcessingManager();
+		fSweaveManager.addProcessingListener(this);
 		activeProfileChanged(fSweaveManager.getActiveProfile());
 		fUpdate = true;
 	}
@@ -110,12 +110,12 @@ public abstract class RweaveTexProfileDefaultCreationHandler extends AbstractHan
 	@Override
 	public void dispose() {
 		if (fSweaveManager != null) {
-			fSweaveManager.removeCreationListener(this);
+			fSweaveManager.removeProcessingListener(this);
 			fSweaveManager = null;
 		}
 	}
 	
-	public SweaveCreation getSweaveManager() {
+	public SweaveProcessing getSweaveManager() {
 		return fSweaveManager;
 	}
 	

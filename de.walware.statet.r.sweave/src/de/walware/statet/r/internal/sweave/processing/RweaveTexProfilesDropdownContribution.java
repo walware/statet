@@ -1,8 +1,8 @@
 package de.walware.statet.r.internal.sweave.processing;
 
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_PREVIEW;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_TEX;
-import static de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate.STEP_WEAVE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_PREVIEW;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_TEX;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
 
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.action.Action;
@@ -11,10 +11,10 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.ui.actions.CompoundContributionItem;
 
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.internal.sweave.processing.SweaveCreation.ICreationListener;
+import de.walware.statet.r.internal.sweave.processing.SweaveProcessing.IProcessingListener;
 
 
-public class RweaveTexProfilesDropdownContribution extends CompoundContributionItem implements ICreationListener {
+public class RweaveTexProfilesDropdownContribution extends CompoundContributionItem implements IProcessingListener {
 	
 	
 	public static class ProcessWeave extends RweaveTexProfilesDropdownContribution {
@@ -69,20 +69,20 @@ public class RweaveTexProfilesDropdownContribution extends CompoundContributionI
 	}
 	
 	
-	private SweaveCreation fSweaveManager;
+	private SweaveProcessing fSweaveManager;
 	private int fLaunchFlags;
 	
 	
 	public RweaveTexProfilesDropdownContribution(final int flags) {
 		fLaunchFlags = flags;
-		fSweaveManager = SweavePlugin.getDefault().getSweaveCreationManager();
-		fSweaveManager.addCreationListener(this);
+		fSweaveManager = SweavePlugin.getDefault().getRweaveTexProcessingManager();
+		fSweaveManager.addProcessingListener(this);
 	}
 	
 	@Override
 	public void dispose() {
 		if (fSweaveManager != null) {
-			fSweaveManager.removeCreationListener(this);
+			fSweaveManager.removeProcessingListener(this);
 			fSweaveManager = null;
 		}
 		super.dispose();

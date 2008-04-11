@@ -20,6 +20,6 @@ public interface Sweave {
 	public static final String R_TEX_CONTENT_ID = "de.walware.statet.r.contentTypes.RweaveTex"; //$NON-NLS-1$
 	public static final String R_TEX_UNIT_TYPE_ID = "rweave-tex"; //$NON-NLS-1$
 	
-	public static final String RWEAVETEX_DOC_CREATION_LAUNCHCONFIGURATION_ID = "de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"; //$NON-NLS-1$
+	public static final String RWEAVETEX_DOC_PROCESSING_LAUNCHCONFIGURATION_ID = "de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"; //$NON-NLS-1$
 	
 }

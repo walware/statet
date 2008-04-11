@@ -298,35 +298,35 @@
       </command>
       <command
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultCreationHandler$ProcessWeave"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessWeave"
             description="%commands_ProcessWeave_description"
             id="de.walware.statet.sweave.commands.ProcessWeaveDefault"
             name="%commands_ProcessWeave_name">
       </command>
       <command
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultCreationHandler$ProcessTex"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessTex"
             description="%commands_ProcessTex_description"
             id="de.walware.statet.sweave.commands.ProcessTexDefault"
             name="%commands_ProcessTex_name">
       </command>
       <command
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultCreationHandler$ProcessDoc"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessDoc"
             description="%commands_ProcessDocument_description"
             id="de.walware.statet.doc.commands.ProcessDocDefault"
             name="%commands_ProcessDocument_name">
       </command>
       <command
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultCreationHandler$PreviewDoc"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$PreviewDoc"
             description="%commands_PreviewDocument_description"
             id="de.walware.statet.doc.commands.PreviewDocDefault"
             name="%commands_PreviewDocument_name">
       </command>
       <command
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultCreationHandler$ProcessAndPreview"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessAndPreview"
             description="%commands_ProcessAndPreview_description"
             id="de.walware.statet.doc.commands.ProcessAndPreviewDefault"
             name="%commands_ProcessAndPreview_name">
@@ -382,17 +382,17 @@
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             category="org.eclipse.ui.externaltools"
-            delegate="de.walware.statet.r.internal.sweave.processing.RweaveTexCreationDelegate"
+            delegate="de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate"
             id="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"
             modes="run"
-            name="%launchConfigurations.RweaveTexCreation_name"
+            name="%launchConfigurations_RweaveTexProcessing_name"
             public="true">
       </launchConfigurationType>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            id="de.walware.statet.r.images.RweaveTexCreation"
+            id="de.walware.statet.r.images.RweaveTexProcessing"
             configTypeID="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"
             icon="icons/obj_16/texsweave-file.png">
       </launchConfigurationTypeImage>
@@ -400,9 +400,9 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.sweave.processing.RweaveTexCreationTabGroup"
-            description="%launchConfigurations.RweaveTexCreation_description"
-            id="de.walware.statet.r.launchConfigurationTabGroups.RweaveTexCreation"
+            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileTabGroup"
+            description="%launchConfigurations_RweaveTexProcessing_description"
+            id="de.walware.statet.r.launchConfigurationTabGroups.RweaveTexProcessing"
             type="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"/>
    </extension>
    <extension
@@ -523,10 +523,10 @@
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <cheatsheet
+            id="de.walware.statet.r.cheatSheetContent.SweaveConfigProcessing"
             category="de.walware.statet.r.cheatSheetCategories.R"
-            composite="false"
             contentFile="cheatSheets/sweave-configure_document_building.xml"
-            id="de.walware.statet.r.cheatSheetContent.SweaveConfigCreation"
+            composite="false"
             name="Configure Sweave Document Building">
       </cheatsheet>
    </extension>

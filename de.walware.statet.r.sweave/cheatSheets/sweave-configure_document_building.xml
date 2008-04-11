@@ -20,7 +20,7 @@
    <item title="Open Configuration Dialog" dialog="true" skip="false">
       <description>
          Go to <b>Run &gt; External Tools &gt; Open External Tools Dialog... </b> and select
-<b>Sweave (R/LaTeX) Document Creation</b>.
+<b>Sweave (R/LaTeX) Document Processing</b>.
 <br/><br/>
 When the Sweave editor is active, you can also access this dialog via <b>Document &gt; Create / Edit Profiles...</b> on the workbench menu bar.
 <br/><br/>

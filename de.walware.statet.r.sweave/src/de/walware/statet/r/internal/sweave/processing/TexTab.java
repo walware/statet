@@ -124,7 +124,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	
 	
 	public String getName() {
-		return Messages.Creation_TexTab_label;
+		return Messages.Processing_TexTab_label;
 	}
 	
 	@Override

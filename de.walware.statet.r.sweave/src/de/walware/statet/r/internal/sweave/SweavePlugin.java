@@ -33,7 +33,7 @@ import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
-import de.walware.statet.r.internal.sweave.processing.SweaveCreation;
+import de.walware.statet.r.internal.sweave.processing.SweaveProcessing;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.Sweave;
 import de.walware.statet.r.ui.RUI;
@@ -85,7 +85,7 @@ public class SweavePlugin extends AbstractUIPlugin {
 	private ContextTypeRegistry fRweaveTexTemplatesContextTypeRegistry;
 	private TemplateStore fRweaveTexTemplatesStore;
 	
-	private SweaveCreation fSweaveCreationManager;
+	private SweaveProcessing fRweaveTexProcessingManager;
 	
 	
 	/**
@@ -102,9 +102,9 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		if (fSweaveCreationManager != null) {
-			fSweaveCreationManager.dispose();
-			fSweaveCreationManager = null;
+		if (fRweaveTexProcessingManager != null) {
+			fRweaveTexProcessingManager.dispose();
+			fRweaveTexProcessingManager = null;
 		}
 		
 		gPlugin = null;
@@ -182,11 +182,11 @@ public class SweavePlugin extends AbstractUIPlugin {
 		return fRweaveTexTemplatesStore;
 	}
 	
-	public synchronized SweaveCreation getSweaveCreationManager() {
-		if (fSweaveCreationManager == null) {
-			fSweaveCreationManager = new SweaveCreation(Sweave.RWEAVETEX_DOC_CREATION_LAUNCHCONFIGURATION_ID);
+	public synchronized SweaveProcessing getRweaveTexProcessingManager() {
+		if (fRweaveTexProcessingManager == null) {
+			fRweaveTexProcessingManager = new SweaveProcessing(Sweave.RWEAVETEX_DOC_PROCESSING_LAUNCHCONFIGURATION_ID);
 		}
-		return fSweaveCreationManager;
+		return fRweaveTexProcessingManager;
 	}
 	
 }

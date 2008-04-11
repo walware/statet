@@ -96,13 +96,13 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 			if (value instanceof String) {
 				final String s = (String) value;
 				fEncodedValue = s;
-				if (s.startsWith(RweaveTexCreationDelegate.PREVIEW_IDE)) {
-					updateEnablement(RweaveTexCreationDelegate.PREVIEW_IDE);
+				if (s.startsWith(RweaveTexLaunchDelegate.PREVIEW_IDE)) {
+					updateEnablement(RweaveTexLaunchDelegate.PREVIEW_IDE);
 					fCurrentStatus = ValidationStatus.ok();
 					return;
 				}
-				else if (s.startsWith(RweaveTexCreationDelegate.PREVIEW_SPECIAL)) {
-					updateEnablement(RweaveTexCreationDelegate.PREVIEW_SPECIAL);
+				else if (s.startsWith(RweaveTexLaunchDelegate.PREVIEW_SPECIAL)) {
+					updateEnablement(RweaveTexLaunchDelegate.PREVIEW_SPECIAL);
 					
 					final String[] split = s.split(":", 2); //$NON-NLS-1$
 					if (split.length == 2 && split[1].length() > 0) {
@@ -157,13 +157,13 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 		private void updateValue() {
 			String value;
 			if (fSystemSelectControl.getSelection()) {
-				value = RweaveTexCreationDelegate.PREVIEW_IDE;
+				value = RweaveTexLaunchDelegate.PREVIEW_IDE;
 				fCurrentStatus = ValidationStatus.ok();
-				updateEnablement(RweaveTexCreationDelegate.PREVIEW_IDE);
+				updateEnablement(RweaveTexLaunchDelegate.PREVIEW_IDE);
 			}
 			else if (fLaunchConfigSelectControl.getSelection()) {
 				final Object selectedLaunch = ((StructuredSelection) fLaunchConfigTable.getSelection()).getFirstElement();
-				value = RweaveTexCreationDelegate.PREVIEW_SPECIAL;
+				value = RweaveTexLaunchDelegate.PREVIEW_SPECIAL;
 				if (selectedLaunch instanceof ViewerConfiguration) {
 					value += ':'+((ViewerConfiguration) selectedLaunch).getName();
 					fCurrentStatus = ValidationStatus.ok();
@@ -171,7 +171,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 				else {
 					fCurrentStatus = ValidationStatus.warning(Messages.PreviewTab_LaunchConfig_error_NoConfigSelected_message);
 				}
-				updateEnablement(RweaveTexCreationDelegate.PREVIEW_SPECIAL);
+				updateEnablement(RweaveTexLaunchDelegate.PREVIEW_SPECIAL);
 			}
 			else {
 				value = ""; //$NON-NLS-1$
@@ -191,11 +191,11 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 		
 		public void updateEnablement(final String selection) {
 			fDisableSelectControl.setSelection(selection == null);
-			fSystemSelectControl.setSelection(selection == RweaveTexCreationDelegate.PREVIEW_IDE);
-			fLaunchConfigSelectControl.setSelection(selection == RweaveTexCreationDelegate.PREVIEW_SPECIAL);
+			fSystemSelectControl.setSelection(selection == RweaveTexLaunchDelegate.PREVIEW_IDE);
+			fLaunchConfigSelectControl.setSelection(selection == RweaveTexLaunchDelegate.PREVIEW_SPECIAL);
 			
-			fLaunchConfigTable.getControl().setEnabled(selection == RweaveTexCreationDelegate.PREVIEW_SPECIAL);
-			fLaunchConfigNewButton.setEnabled(selection == RweaveTexCreationDelegate.PREVIEW_SPECIAL);
+			fLaunchConfigTable.getControl().setEnabled(selection == RweaveTexLaunchDelegate.PREVIEW_SPECIAL);
+			fLaunchConfigNewButton.setEnabled(selection == RweaveTexLaunchDelegate.PREVIEW_SPECIAL);
 		}
 		
 	}
@@ -217,7 +217,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 	
 	
 	public String getName() {
-		return Messages.Creation_PreviewTab_label;
+		return Messages.Processing_PreviewTab_label;
 	}
 	
 	@Override
@@ -350,7 +350,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 			new EnvironmentTab().setDefaults(config);
 			new TexLaunchConfigurationTab().setDefaults(config);
 			
-			fSelectionValue.setValue(RweaveTexCreationDelegate.PREVIEW_SPECIAL+':'+name);
+			fSelectionValue.setValue(RweaveTexLaunchDelegate.PREVIEW_SPECIAL+':'+name);
 			setDirty(true);
 			
 			config.doSave();
@@ -376,7 +376,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 	
 	
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-		configuration.setAttribute(ATTR_VIEWER_CODE, RweaveTexCreationDelegate.PREVIEW_IDE);
+		configuration.setAttribute(ATTR_VIEWER_CODE, RweaveTexLaunchDelegate.PREVIEW_IDE);
 	}
 	
 	@Override
