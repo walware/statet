@@ -182,12 +182,12 @@ public class StatextTemplateProposal implements ICompletionProposal, ICompletion
 			final TemplateContext context = getContext();
 			context.setReadOnly(true);
 			if (context instanceof IExtTemplateContext) {
-				return ((IExtTemplateContext) context).evaluateInfo(getTemplate());
+				return "<!-- content:source -->" + ((IExtTemplateContext) context).evaluateInfo(getTemplate());
 			}
 				
 			final TemplateBuffer templateBuffer = context.evaluate(getTemplate());
 			if (templateBuffer != null) {
-				return templateBuffer.toString();
+				return "<!-- content:source -->" + templateBuffer.toString();
 			}
 		}
 		catch (final TemplateException e) { }

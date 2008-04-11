@@ -69,6 +69,9 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	private static class AssistInformationControlCreator extends AbstractReusableInformationControlCreator 
 			implements IPropertyChangeListener {
 		
+		public static final String SOURCE_CONTENT = "<!-- content:source -->"; //$NON-NLS-1$
+		public static final String HTML_CONTENT = "<!-- content:html -->"; //$NON-NLS-1$
+		
 		private String INFO_STYLE_SHEET;
 		
 		public AssistInformationControlCreator() {
@@ -135,15 +138,38 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 					@Override
 					public void setInformation(String content) {
 						if (content.lastIndexOf("<html>", 100) < 0) {
-							if (!content.startsWith("...<br")) {
-								content = HTMLPrinter.convertToHTMLContent(content);
+							final StringBuffer s;
+							if (content.startsWith("...<br")) { // spell correction change proposal
 								final Matcher matcher = TAB_PATTERN.matcher(content);
 								if (matcher.find()) {
 									content = matcher.replaceAll("    ");
 								}
-								content = "<pre>"+content+"</pre>";
+								s = new StringBuffer(content.length()+1000);
+								s.append("<pre>");
+								s.append(content);
+								s.append("</pre>");
 							}
-							final StringBuffer s = new StringBuffer(content);
+							else if (content.startsWith(SOURCE_CONTENT)) {
+								content = HTMLPrinter.convertToHTMLContent(content.substring(SOURCE_CONTENT.length()));
+								final Matcher matcher = TAB_PATTERN.matcher(content);
+								if (matcher.find()) {
+									content = matcher.replaceAll("    ");
+								}
+								s = new StringBuffer(content.length()+1000);
+								s.append("<pre>");
+								s.append(content);
+								s.append("</pre>");
+							}
+							else if (content.startsWith(HTML_CONTENT)) {
+								content = content.substring(HTML_CONTENT.length());
+								s = new StringBuffer(content.length()+1000);
+								s.append(content);
+							}
+							else {
+								content = HTMLPrinter.convertToHTMLContent(content);
+								s = new StringBuffer(content.length()+1000);
+								s.append(content);
+							}
 							HTMLPrinter.insertPageProlog(s, 0, INFO_STYLE_SHEET);
 							HTMLPrinter.addPageEpilog(s);
 							content = s.toString();
