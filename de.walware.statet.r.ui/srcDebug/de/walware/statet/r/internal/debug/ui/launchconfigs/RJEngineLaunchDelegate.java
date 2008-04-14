@@ -98,11 +98,13 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	private String fAddress;
 	private REnvConfiguration fRenv;
+	private int fBits;
 	
 	
-	public RJEngineLaunchDelegate(final String address, final REnvConfiguration renv) {
+	public RJEngineLaunchDelegate(final String address, final REnvConfiguration renv) throws CoreException {
 		fAddress = address;
 		fRenv = renv;
+		fBits = (fRenv.getRBin().contains("64")) ? 64 : 32; //$NON-NLS-1$
 	}
 	
 	
@@ -141,7 +143,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
 		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
-		addPluginClasspath(classpath, true, fRenv.getRBin().contains("64")); //$NON-NLS-1$
+		addPluginClasspath(classpath, true, (fBits == 64)); 
 		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
 		
 		return classpath.toArray(new String[classpath.size()]);
@@ -168,6 +170,9 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (s.indexOf(" -Djava.rmi.server.hostname=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.hostname=localhost"); //$NON-NLS-1$
+		}
+		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
+			s.append(" -Xss").append(fBits*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return s.substring(1);
 	}
