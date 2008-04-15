@@ -57,7 +57,7 @@ public class RCommandDirectAndNextLaunchShortcut extends RCommandDirectLaunchSho
 		while ((parent = node.getParent()) != null) {
 			final int lastIdx = parent.getChildIndex(node);
 			if (lastIdx+1 < parent.getChildCount()) {
-				return parent.getChild(lastIdx+1).getStartOffset();
+				return parent.getChild(lastIdx+1).getOffset();
 			}
 			node = parent;
 		}

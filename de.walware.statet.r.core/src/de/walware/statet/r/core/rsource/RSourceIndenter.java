@@ -111,7 +111,7 @@ public class RSourceIndenter {
 		}
 		
 		private boolean checkNode(final RAstNode node) throws InvocationTargetException {
-			final int offset = node.getStartOffset();
+			final int offset = node.getOffset();
 			if (checkOffset(offset)) {
 				return (node.getStopOffset() >= fLineOffsets[fCurrentLine]);
 			}
@@ -129,7 +129,7 @@ public class RSourceIndenter {
 				final int count = node.getChildCount();
 				for (int i = 0; i < count; i++) {
 					final RAstNode child = node.getChild(i);
-					fFactory.createCommonExprScope(child.getStartOffset(), child);
+					fFactory.createCommonExprScope(child.getOffset(), child);
 					child.acceptInR(this);
 					fFactory.leaveScope();
 				}
@@ -139,7 +139,7 @@ public class RSourceIndenter {
 		}
 		
 		public void visit(final IAstNode node) throws InvocationTargetException {
-			if (node.getStopOffset() >= fStartOffset && node.getStartOffset() <= fStopOffset) {
+			if (node.getStopOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
 				if (node instanceof RAstNode) {
 					((RAstNode) node).acceptInR(this);
 				}
@@ -153,7 +153,7 @@ public class RSourceIndenter {
 		public void visit(final SourceComponent node) throws InvocationTargetException {
 			try {
 				fFactory.createSourceScope(0, node);
-				if (node.getStopOffset() >= fStartOffset && node.getStartOffset() <= fStopOffset) {
+				if (node.getStopOffset() >= fStartOffset && node.getOffset() <= fStopOffset) {
 					checkExprListChilds(node);
 				}
 				checkOffset(Integer.MAX_VALUE-2);
@@ -166,7 +166,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final Block node) throws InvocationTargetException {
 			try {
-				fFactory.createBlockScope(node.getStartOffset(), node);
+				fFactory.createBlockScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					fFactory.updateEnterBrackets();
 					checkExprListChilds(node);
@@ -184,7 +184,7 @@ public class RSourceIndenter {
 		public void visit(final Group node) throws InvocationTargetException {
 			try {
 				if (checkNode(node)) {
-					fFactory.createGroupContScope(node.getStartOffset()+1, node.getExprChild());
+					fFactory.createGroupContScope(node.getOffset()+1, node.getExprChild());
 					node.getExprChild().acceptInR(this);
 					checkBeforeOffset(node.getStopOffset());
 					
@@ -214,7 +214,7 @@ public class RSourceIndenter {
 		
 		private final void checkControlContChild(final RAstNode child) throws InvocationTargetException {
 			try {
-				fFactory.createControlContScope(child.getStartOffset(), child);
+				fFactory.createControlContScope(child.getOffset(), child);
 				child.acceptInR(this);
 				fFactory.leaveScope();
 			} catch (final BadLocationException e) {
@@ -232,7 +232,7 @@ public class RSourceIndenter {
 					inElseIf = true;
 				}
 				else {
-					fFactory.createControlScope(node.getStartOffset(), node);
+					fFactory.createControlScope(node.getOffset(), node);
 				}
 				if (checkNode(node)) {
 					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
@@ -257,7 +257,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final CForLoop node) throws InvocationTargetException {
 			try {
-				fFactory.createControlScope(node.getStartOffset(), node);
+				fFactory.createControlScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
 					checkControlContChild(node.getContChild());
@@ -272,7 +272,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final CWhileLoop node) throws InvocationTargetException {
 			try {
-				fFactory.createControlScope(node.getStartOffset(), node);
+				fFactory.createControlScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					checkControlCondChild(node.getCondOpenOffset(), node.getCondChild(), node.getCondCloseOffset());
 					checkControlContChild(node.getContChild());
@@ -287,7 +287,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final CRepeatLoop node) throws InvocationTargetException {
 			try {
-				fFactory.createControlScope(node.getStartOffset(), node);
+				fFactory.createControlScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					checkControlContChild(node.getContChild());
 					checkOffset(node.getStopOffset());
@@ -300,7 +300,7 @@ public class RSourceIndenter {
 		
 		private final void checkArglist(final RAstNode node) throws InvocationTargetException {
 			try {
-				fFactory.createArglistScope(node.getStartOffset(), node);
+				fFactory.createArglistScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.acceptInRChildren(this);
 		//			checkBeforeOffset(node.getStopOffset());
@@ -314,7 +314,7 @@ public class RSourceIndenter {
 		
 		private final void checkFDeflist(final RAstNode node) throws InvocationTargetException {
 			try {
-				fFactory.createFDeflistScope(node.getStartOffset(), node);
+				fFactory.createFDeflistScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.acceptInRChildren(this);
 		//			checkBeforeOffset(node.getStopOffset());
@@ -328,7 +328,7 @@ public class RSourceIndenter {
 		
 		private final void checkArg(final RAstNode node) throws InvocationTargetException {
 			try {
-				fFactory.createCommonExprScope(node.getStartOffset(), node);
+				fFactory.createCommonExprScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.acceptInRChildren(this);
 					checkOffset(node.getStopOffset());
@@ -342,7 +342,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final FDef node) throws InvocationTargetException {
 			try {
-				fFactory.createFDefScope(node.getStartOffset(), node);
+				fFactory.createFDefScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.getArgsChild().acceptInR(this);
 					fFactory.updateEnterFDefBody();
@@ -368,7 +368,7 @@ public class RSourceIndenter {
 		@Override
 		public void visit(final FCall node) throws InvocationTargetException {
 			try {
-				fFactory.createFCallScope(node.getStartOffset(), node);
+				fFactory.createFCallScope(node.getOffset(), node);
 				if (checkNode(node)) {
 					node.getRefChild().acceptInR(this);
 					node.getArgsChild().acceptInR(this);
@@ -779,13 +779,13 @@ class ScopeFactory {
 			}
 		case C_REPEAT:
 			// use control level instead of cont level
-			initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.parent.baseColumn);
+			initNew(node.getOffset(), line, node, FIX_STRAT, fScope.parent.baseColumn);
 			return;
 		default:
 			break;
 		}
 		
-		initNew(node.getStartOffset(), line, node, FIX_STRAT, fScope.getIndent(line));
+		initNew(node.getOffset(), line, node, FIX_STRAT, fScope.getIndent(line));
 	}
 	
 	public final void createCommonExprScope(final int offset, final RAstNode node) throws BadLocationException {

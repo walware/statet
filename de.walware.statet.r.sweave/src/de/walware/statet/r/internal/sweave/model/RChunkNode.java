@@ -89,7 +89,7 @@ public class RChunkNode implements IAstNode {
 	}
 	
 	
-	public int getStartOffset() {
+	public int getOffset() {
 		return fStartOffset;
 	}
 	

@@ -206,7 +206,7 @@ public class RAstOutlinePage extends StatextOutlinePage<REditor> {
 			final Object first = selection.getFirstElement();
 			if (first instanceof RAstNode) {
 				final RAstNode node = (RAstNode) first;
-				fEditor.selectAndReveal(node.getStartOffset(), node.getStopOffset()-node.getStartOffset());
+				fEditor.selectAndReveal(node.getOffset(), node.getStopOffset()-node.getOffset());
 			}
 		}
 	}

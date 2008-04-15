@@ -39,7 +39,7 @@ public abstract class StructureSelectAction extends Action {
 		@Override
 		IRegion concreteNewSelectionRange(final AstSelection selection) {
 			final IAstNode covering = selection.getCovering();
-			return createRegion(covering.getStartOffset(), covering.getStopOffset());
+			return createRegion(covering.getOffset(), covering.getStopOffset());
 		}
 		
 	}
@@ -62,7 +62,7 @@ public abstract class StructureSelectAction extends Action {
 			if (child != null) {
 				return createRegion(selection.getStartOffset(), child.getStopOffset());
 			}
-			return createRegion(covering.getStartOffset(), covering.getStopOffset());
+			return createRegion(covering.getOffset(), covering.getStopOffset());
 		}
 		
 	}
@@ -79,13 +79,13 @@ public abstract class StructureSelectAction extends Action {
 		IRegion concreteNewSelectionRange(final AstSelection selection) {
 			final IAstNode covering = selection.getCovering();
 			IAstNode child = selection.getChildFirstTouching();
-			if (child == null || selection.getStartOffset() <= child.getStartOffset()) {
+			if (child == null || selection.getStartOffset() <= child.getOffset()) {
 				child = selection.getChildBefore();
 			}
 			if (child != null) {
-				return createRegion(selection.getStopOffset(), child.getStartOffset());
+				return createRegion(selection.getStopOffset(), child.getOffset());
 			}
-			return createRegion(covering.getStopOffset(), covering.getStartOffset());
+			return createRegion(covering.getStopOffset(), covering.getOffset());
 		}
 		
 	}

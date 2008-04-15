@@ -181,14 +181,14 @@ public class REditor extends StatextEditor1<RProject> {
 				if (nameNode == null) {
 					return null;
 				}
-				run.range = new Point(nameNode.getStartOffset(), nameNode.getStopOffset());
+				run.range = new Point(nameNode.getOffset(), nameNode.getStopOffset());
 				if (isValid(run)) {
 					run.name = new String[] { access.getName() };
 					final IElementAccess[] accessList = access.getAllInUnit();
 					final Map<Annotation, Position> annotations = new LinkedHashMap<Annotation, Position>(accessList.length);
 					for (int i = 0; i < accessList.length; i++) {
 						final IElementAccess item = accessList[i];
-						final String message = run.doc.get(item.getNode().getStartOffset(), item.getNode().getLength());
+						final String message = run.doc.get(item.getNode().getOffset(), item.getNode().getLength());
 						annotations.put(
 								new Annotation(item.isWriteAccess() ? WRITE_ANNOTATION_KEY : READ_ANNOTATION_KEY, false, message),
 								RAst.getElementNamePosition(item.getNameNode()));
@@ -351,7 +351,7 @@ public class REditor extends StatextEditor1<RProject> {
 			RAstNode node = (RAstNode) covering;
 			while (node != null) {
 				if (node.getNodeType() == NodeType.F_DEF) {
-					return new Point(node.getStartOffset(), node.getLength());
+					return new Point(node.getOffset(), node.getLength());
 				}
 				node = node.getParent();
 			}

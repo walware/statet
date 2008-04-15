@@ -104,7 +104,7 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 					
 				default:
 					if (fConfig.enableOtherBlocks) {
-						create(node.getStartOffset(), node.getStopOffset());
+						create(node.getOffset(), node.getStopOffset());
 					}
 					break;
 				}
@@ -145,7 +145,7 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 		@Override
 		public void visit(final CRepeatLoop node) throws InvocationTargetException {
 			if (fConfig.enableOtherBlocks) {
-				create(node.getStartOffset()+6, node.getStopOffset());
+				create(node.getOffset()+6, node.getStopOffset());
 			}
 			super.visit(node);
 		}

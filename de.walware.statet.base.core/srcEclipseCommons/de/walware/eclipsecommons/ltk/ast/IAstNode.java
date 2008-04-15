@@ -13,16 +13,18 @@ package de.walware.eclipsecommons.ltk.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.jface.text.IRegion;
+
 
 /**
  * 
  */
-public interface IAstNode {
+public interface IAstNode extends IRegion {
 	
 	
 	public int getStatusCode();
 	
-	public int getStartOffset();
+	public int getOffset();
 	public int getStopOffset();
 	public int getLength();
 	

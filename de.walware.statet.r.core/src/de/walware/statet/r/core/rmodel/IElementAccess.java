@@ -36,7 +36,7 @@ public interface IElementAccess {
 	public static final Comparator<IElementAccess> NAME_POSITION_COMPARATOR = 
 		new Comparator<IElementAccess>() {
 			public int compare(final IElementAccess o1, final IElementAccess o2) {
-				return (o1.getNameNode().getStartOffset() - o2.getNameNode().getStartOffset()); 
+				return (o1.getNameNode().getOffset() - o2.getNameNode().getOffset()); 
 			}
 	};
 	

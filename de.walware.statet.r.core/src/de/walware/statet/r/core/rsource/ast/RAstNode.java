@@ -93,7 +93,7 @@ public abstract class RAstNode implements IAstNode {
 	public abstract int getChildIndex(IAstNode child);
 	
 	
-	public final int getStartOffset() {
+	public final int getOffset() {
 		return fStartOffset;
 	}
 	

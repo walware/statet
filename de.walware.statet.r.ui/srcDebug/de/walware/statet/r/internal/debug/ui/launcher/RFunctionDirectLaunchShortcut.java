@@ -109,7 +109,7 @@ public class RFunctionDirectLaunchShortcut implements ILaunchShortcut {
 		if (node == null) {
 			return;
 		}
-		final String[] lines = LaunchShortcutUtil.listLines(doc, new TextSelection(doc, node.getStartOffset(), node.getStopOffset()-node.getStartOffset()));
+		final String[] lines = LaunchShortcutUtil.listLines(doc, new TextSelection(doc, node.getOffset(), node.getStopOffset()-node.getOffset()));
 		
 		if (lines == null || monitor.isCanceled()) {
 			return;

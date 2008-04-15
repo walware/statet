@@ -79,7 +79,7 @@ public class OtherNode implements IAstNode {
 	}
 	
 	
-	public int getStartOffset() {
+	public int getOffset() {
 		return fStartOffset;
 	}
 	

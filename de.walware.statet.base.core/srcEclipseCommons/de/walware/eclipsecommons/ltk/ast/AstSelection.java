@@ -49,8 +49,8 @@ public class AstSelection {
 			if (fInCovering >= SEARCH_STATE_BEHIND) {
 				return;
 			}
-			if ((node.getStartOffset() < fStart && fStop <= node.getStopOffset())
-					|| (node.getStartOffset() == fStart && fStop < node.getStopOffset())) {
+			if ((node.getOffset() < fStart && fStop <= node.getStopOffset())
+					|| (node.getOffset() == fStart && fStop < node.getStopOffset())) {
 				// covering
 				clearChilds();
 				fLastCovering = node;
@@ -78,11 +78,11 @@ public class AstSelection {
 			if (fInCovering >= SEARCH_STATE_BEHIND) {
 				return;
 			}
-			if (node.getStartOffset() <= fStart && fStop <= node.getStopOffset()) {
+			if (node.getOffset() <= fStart && fStop <= node.getStopOffset()) {
 				// covering
 				clearChilds();
 				fLastCovering = node;
-				if (node.getStartOffset() != fStart || fStop != node.getStopOffset()) {
+				if (node.getOffset() != fStart || fStop != node.getStopOffset()) {
 					fInCovering = SEARCH_STATE_MATCH;
 					node.acceptInChildren(this);
 				}
@@ -105,7 +105,7 @@ public class AstSelection {
 			if (fInCovering >= SEARCH_STATE_BEHIND) {
 				return;
 			}
-			if (node.getStartOffset() <= fStart && fStop <= node.getStopOffset()) {
+			if (node.getOffset() <= fStart && fStop <= node.getStopOffset()) {
 				// covering
 				clearChilds();
 				fLastCovering = node;
@@ -138,7 +138,7 @@ public class AstSelection {
 			fBeforeChild = node;
 			return;
 		}
-		if (node.getStartOffset() > fStop) {
+		if (node.getOffset() > fStop) {
 			if (fAfterChild == null) {
 				fAfterChild = node;
 			}

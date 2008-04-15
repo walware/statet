@@ -112,7 +112,7 @@ public class RCommandDirectLaunchShortcut implements ILaunchShortcut {
 		}
 		
 		try {
-			final int offset = checkStart(doc, nodes[0].getStartOffset());
+			final int offset = checkStart(doc, nodes[0].getOffset());
 			final int length = nodes[nodes.length-1].getStopOffset() - offset;
 			final ArrayList<String> lines = new ArrayList<String>(doc.getNumberOfLines(offset, length));
 			TextUtil.getLines(doc, offset, length, lines);

@@ -64,7 +64,7 @@ public class RAst {
 				((RAstNode) node).acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getStartOffset()) {
+			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInChildren(this);
 				return;
 			}
@@ -72,7 +72,7 @@ public class RAst {
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getStartOffset()) {
+			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInRChildren(this);
 				return;
 			}
@@ -84,7 +84,7 @@ public class RAst {
 				node.getSourceChild().acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getStartOffset()) {
+			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				fInAssignment = true;
 				node.getSourceChild().acceptInR(this);
 				fInAssignment = false;
@@ -95,7 +95,7 @@ public class RAst {
 		@Override
 		public void visit(final FDef node) throws InvocationTargetException {
 			if (fInAssignment || 
-					(node.getStopOffset() >= fStartOffset && fStopOffset >= node.getStartOffset())) {
+					(node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset())) {
 				RAstNode take = node;
 				RAstNode cand = node.getParent();
 				// TODO: use analyzed ElementAccess if possible
@@ -143,7 +143,7 @@ public class RAst {
 				((RAstNode) node).acceptInR(this);
 				return;
 			}
-			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getStartOffset()) {
+			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInChildren(this);
 			}
 		}
@@ -325,16 +325,16 @@ public class RAst {
 		case SYMBOL:
 			if (node.getOperator(0) == RTerminal.SYMBOL_G) {
 				if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
-					return new Position(node.getStartOffset()+1, node.getLength()-1);
+					return new Position(node.getOffset()+1, node.getLength()-1);
 				}
-				return new Position(node.getStartOffset()+1, node.getLength()-2);
+				return new Position(node.getOffset()+1, node.getLength()-2);
 			}
-			return new Position(node.getStartOffset(), node.getLength());
+			return new Position(node.getOffset(), node.getLength());
 		case STRING_CONST:
 			if ((node.getStatusCode() & IRSourceConstants.STATUS_MASK_12) == IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED) {
-				return new Position(node.getStartOffset()+1, node.getLength()-1);
+				return new Position(node.getOffset()+1, node.getLength()-1);
 			}
-			return new Position(node.getStartOffset()+1, node.getLength()-2);
+			return new Position(node.getOffset()+1, node.getLength()-2);
 		default:
 			return null;
 		}
