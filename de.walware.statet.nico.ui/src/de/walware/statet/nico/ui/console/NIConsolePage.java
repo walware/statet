@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
+import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.actions.ClearOutputAction;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -123,6 +124,39 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private static final String DIALOG_ID = "Console"; //$NON-NLS-1$
 	private static final String SETTING_INPUTHEIGHT = "InputHeight"; //$NON-NLS-1$
 	
+	
+	private class OutputViewer extends IOConsoleViewer {
+		
+		
+		public OutputViewer(final Composite parent, final TextConsole console) {
+			super(parent, console);
+			setReadOnly();
+		}
+		
+		
+		@Override
+		public void revealEndOfDocument() {
+			UIAccess.getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					final StyledText textWidget = fOutputViewer.getTextWidget();
+					if (UIAccess.isOkToUse(textWidget)) {
+						final int lineCount = textWidget.getLineCount();
+						final int lineToShow = ((lineCount > 1 && 
+								textWidget.getCharCount() == textWidget.getOffsetAtLine(lineCount - 1)) ?
+								(lineCount - 2) : (lineCount - 1));
+						final int visiblePixel = textWidget.getClientArea().height;
+						final int linePixel = textWidget.getLineHeight();
+						final int topPixel = linePixel * (lineToShow) - visiblePixel + 
+								(int) (linePixel * 1.33) + 2;
+						if (topPixel >= 0) {
+							textWidget.setTopPixel(topPixel);
+						}
+					}
+				}
+			});
+		}
+		
+	}
 	
 	private class FindReplaceUpdater implements IDocumentListener {
 		
@@ -325,7 +359,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private Composite fControl;
 	private Clipboard fClipboard;
 	
-	private IOConsoleViewer fOutputViewer;
+	private OutputViewer fOutputViewer;
 	private InputGroup fInputGroup;
 	private SizeControl fResizer;
 	private MenuManager fOutputMenuManager;
@@ -416,8 +450,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		layout.marginWidth = 0;
 		fControl.setLayout(layout);
 		
-		fOutputViewer = new IOConsoleViewer(fControl, fConsole);
-		fOutputViewer.setReadOnly();
+		fOutputViewer = new OutputViewer(fControl, fConsole);
 		final GridData outputGD = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fOutputViewer.getControl().setLayoutData(outputGD);
 		
@@ -484,9 +517,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		Display.getCurrent().asyncExec(new Runnable() {
 			public void run() {
-				if (UIAccess.isOkToUse(fInputGroup.getSourceViewer())
-						&& fOutputViewer.getControl().isFocusControl()) {
-					setFocus();
+				if (UIAccess.isOkToUse(fInputGroup.getSourceViewer()) && UIAccess.isOkToUse(fOutputViewer)) {
+					fOutputViewer.revealEndOfDocument();
+					if (fOutputViewer.getControl().isFocusControl()) {
+						setFocus();
+					}
 				}
 			}
 		});
