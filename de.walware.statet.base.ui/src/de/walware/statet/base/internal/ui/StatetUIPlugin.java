@@ -99,18 +99,45 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
-			if (fColorManager != null) {
-				fColorManager.dispose();
-				fColorManager = null;
+			final Display display = UIAccess.getDisplay();
+			if (display != null && !display.isDisposed()) {
+				final ColorManager colorManager = fColorManager;
+				final ImageRegistry imageRegistry = fImageRegistry;
+				final WorkbenchLabelProvider workbenchLabeler = fWorkbenchLabelProvider;
+				display.asyncExec(new Runnable() {
+					public void run() {
+						if (colorManager != null) {
+							try {
+								colorManager.dispose();
+							}
+							catch (final Exception e) {}
+						}
+						if (imageRegistry != null) {
+							try {
+								imageRegistry.dispose();
+							}
+							catch (final Exception e) {}
+						}
+						if (workbenchLabeler != null) {
+							try {
+								workbenchLabeler.dispose();
+							}
+							catch (final Exception e) {}
+						}
+					}
+				});
 			}
-			if (fImageRegistry != null) {
-				fImageRegistry.dispose();
-				fImageRegistry = null;
+			else {
+				if (fWorkbenchLabelProvider != null) {
+					try {
+						fWorkbenchLabelProvider.dispose();
+					}
+					catch (final Exception e) {}
+				}
 			}
-			if (fWorkbenchLabelProvider != null) {
-				fWorkbenchLabelProvider.dispose();
-				fWorkbenchLabelProvider = null;
-			}
+			fColorManager = null;
+			fImageRegistry = null;
+			fWorkbenchLabelProvider = null;
 		}
 		finally {
 			super.stop(context);
