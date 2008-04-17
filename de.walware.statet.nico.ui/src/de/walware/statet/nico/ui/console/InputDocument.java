@@ -17,9 +17,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
-import org.eclipse.jface.text.CopyOnWriteTextStore;
 import org.eclipse.jface.text.DefaultLineTracker;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.GapTextStore;
 import org.eclipse.jface.text.IDocument;
@@ -40,6 +38,18 @@ public class InputDocument extends AbstractDocument {
 	
 	
 	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
+	
+	
+	private class MasterDocument extends AbstractDocument {
+		
+		
+		public MasterDocument() {
+			setTextStore(new GapTextStore(128, 512, 0.1f));
+			setLineTracker(new DefaultLineTracker());
+			completeInitialization();
+		}
+		
+	}
 	
 	
 	private class PartitionerMapper implements IDocumentPartitioner {
@@ -111,14 +121,14 @@ public class InputDocument extends AbstractDocument {
 	}
 	
 	
-	private Document fMaster;
+	private final MasterDocument fMaster;
 	private int fOffsetInMaster = 0;
 	private boolean fIgnoreMasterChanges = false;
 	
 	
 	InputDocument() {
-		fMaster = new Document();
-		setTextStore(new CopyOnWriteTextStore(new GapTextStore(64, 256, 0.1f)));
+		fMaster = new MasterDocument();
+		setTextStore(new GapTextStore(128, 512, 0.1f));
 		setLineTracker(new DefaultLineTracker());
 		completeInitialization();
 		
