@@ -23,7 +23,6 @@ import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 
@@ -46,6 +45,7 @@ import de.walware.statet.r.core.rsource.ast.CRepeatLoop;
 import de.walware.statet.r.core.rsource.ast.CWhileLoop;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
+import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.ui.editors.REditor;
 
@@ -56,10 +56,10 @@ import de.walware.statet.r.ui.editors.REditor;
 public class DefaultRFoldingProvider implements IEditorInstallable, IModelElementInputListener, ChangeListener {
 	
 	
-	protected static final IRegion createRegion(final FoldingStructureComputationContext ctx, final int startLine, final int endLine) throws BadLocationException {
+	protected static final Position createPosition(final FoldingStructureComputationContext ctx, final int startLine, final int endLine) throws BadLocationException {
 		final int startOffset = ctx.fDocument.getLineOffset(startLine);
 		final int endOffset = ctx.fDocument.getLineOffset(endLine)+ctx.fDocument.getLineLength(endLine);
-		return new Region(startOffset, endOffset-startOffset);
+		return new Position(startOffset, endOffset-startOffset);
 	}
 	
 	private static class ElementFinder extends GenericVisitor {
@@ -76,11 +76,14 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 			try {
 				final AbstractDocument doc = fContext.fDocument;
 				final int startLine = doc.getLineOfOffset(startOffset);
-				final int stopLine = doc.getLineOfOffset(stopOffset);
+				int stopLine = doc.getLineOfOffset(stopOffset);
+				final IRegion stopLineInfo = doc.getLineInformation(stopLine);
+				if (stopLineInfo.getOffset() + stopLineInfo.getLength() > stopOffset) {
+					stopLine--;
+				}
 				if (stopLine - startLine + 1 >= fConfig.minLines) {
-					final IRegion region = createRegion(fContext, startLine, stopLine);
 					fContext.addFoldingRegion(
-							new Position(region.getOffset(), region.getLength()),
+							createPosition(fContext, startLine, stopLine),
 							new ProjectionAnnotation());
 				}
 			}
@@ -92,62 +95,114 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 		
 		@Override
 		public void visit(final Block node) throws InvocationTargetException {
-			final RAstNode parent = node.getParent();
-			if (parent != null) {
-				switch (parent.getNodeType()) {
-				case F_DEF:
-				case C_IF:
-				case C_FOR:
-				case C_WHILE:
-				case C_REPEAT:
-					break;
-					
-				default:
-					if (fConfig.enableOtherBlocks) {
-						create(node.getOffset(), node.getStopOffset());
-					}
-					break;
-				}
+			if (fConfig.enableOtherBlocks) {
+				create(node.getOffset(), node.getStopOffset());
 			}
 			node.acceptInRChildren(this);
 		}
 		
 		@Override
 		public void visit(final FDef node) throws InvocationTargetException {
-			create(node.getArgsCloseOffset(), node.getStopOffset());
-			super.visit(node);
+			node.getArgsChild().acceptInR(this);
+			{
+				final RAstNode body = node.getContChild();
+				if (body.getNodeType() == NodeType.BLOCK) {
+					create(node.getArgsCloseOffset(), node.getStopOffset());
+					body.acceptInRChildren(this);
+				}
+				else {
+					body.acceptInR(this);
+				}
+			}
 		}
 		
 		@Override
 		public void visit(final CIfElse node) throws InvocationTargetException {
 			if (fConfig.enableOtherBlocks) {
-				create(node.getCondCloseOffset(), node.getStopOffset());
+				node.getCondChild().acceptInR(this);
+				{
+					final RAstNode body = node.getThenChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getCondCloseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
+				if (node.hasElse()) {
+					final RAstNode body = node.getElseChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getElseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
 			}
-			super.visit(node);
+			else {
+				node.acceptInRChildren(this);
+			}
 		}
 		
 		@Override
 		public void visit(final CForLoop node) throws InvocationTargetException {
 			if (fConfig.enableOtherBlocks) {
-				create(node.getCondCloseOffset(), node.getStopOffset());
+				node.getCondChild().acceptInR(this);
+				{
+					final RAstNode body = node.getContChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getCondCloseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
 			}
-			super.visit(node);
+			else {
+				node.acceptInRChildren(this);
+			}
 		}
 		
 		@Override
 		public void visit(final CWhileLoop node) throws InvocationTargetException {
 			if (fConfig.enableOtherBlocks) {
-				create(node.getCondCloseOffset(), node.getStopOffset());
+				node.getCondChild().acceptInR(this);
+				{
+					final RAstNode body = node.getContChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getCondCloseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
 			}
-			super.visit(node);
+			else {
+				node.acceptInRChildren(this);
+			}
 		}
 		
 		@Override
 		public void visit(final CRepeatLoop node) throws InvocationTargetException {
 			if (fConfig.enableOtherBlocks) {
-				create(node.getOffset()+6, node.getStopOffset());
+				{
+					final RAstNode body = node.getContChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
 			}
-			super.visit(node);
+			else {
+				node.acceptInRChildren(this);
+			}
 		}
 		
 	}
