@@ -24,6 +24,7 @@ import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -58,7 +59,10 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.ui.text.PairMatcher;
@@ -384,7 +388,7 @@ public class InputGroup implements ISettingsChangedHandler {
 	private boolean fIsPrefixHighlighted;
 	private Image fPrefixBackground;
 	private InputSourceViewer fSourceViewer;
-	protected InputDocument fDocument;
+	protected final InputDocument fDocument;
 	private Button fSubmitButton;
 	private ScrollControl fScroller;
 	
@@ -498,6 +502,10 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+		final MarkerAnnotationPreferences markerAnnotationPreferences = EditorsPlugin.getDefault().getMarkerAnnotationPreferences();
+		for (final Object pref : markerAnnotationPreferences.getAnnotationPreferences()) {
+			fSourceViewerDecorationSupport.setAnnotationPreference((AnnotationPreference) pref);
+		}
 		fSourceViewerDecorationSupport.install(fConfigurator.getPreferenceStore());
 		
 		final IDocumentSetupParticipant docuSetup = fConfigurator.getDocumentSetupParticipant();
@@ -507,7 +515,9 @@ public class InputGroup implements ISettingsChangedHandler {
 		
 		new SourceViewerUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
 		
-		fSourceViewer.setDocument(fDocument);
+		final AnnotationModel annotationModel = new AnnotationModel();
+		// annotationModel.setLockObject(fDocument.getLockObject());
+		fSourceViewer.setDocument(fDocument, annotationModel);
 		fSourceViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(final SelectionChangedEvent event) {
 				fEditorAdapter.cleanStatusLine();
