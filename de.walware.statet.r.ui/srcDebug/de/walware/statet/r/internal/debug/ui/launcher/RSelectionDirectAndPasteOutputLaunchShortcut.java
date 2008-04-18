@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -155,9 +158,13 @@ public class RSelectionDirectAndPasteOutputLaunchShortcut implements ILaunchShor
 					monitor.subTask(fLines[i]);
 					tools.submitToConsole(fLines[i], monitor);
 					if (tools instanceof IRequireSynch) {
-						final String string = ((IRequireSynch) tools).synch(monitor);
-						if (string != null) {
-							final int idx = fOutput.indexOf(string);
+						final Pattern pattern = ((IRequireSynch) tools).synch(monitor);
+						if (pattern != null) {
+							final Matcher matcher = pattern.matcher(fOutput);
+							int idx = -1;
+							while (matcher.find()) {
+								idx = matcher.start();
+							}
 							if (idx >= 0) {
 								fOutput.delete(idx, fOutput.length());
 							}

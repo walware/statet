@@ -370,20 +370,20 @@ public class RTermController extends AbstractRController implements IRequireSync
 		setCurrentPrompt(fDefaultPrompt);
 	}
 	
-	public String synch(final IProgressMonitor monitor) throws CoreException {
-		final String pattern = "Synch"+System.nanoTime(); //$NON-NLS-1$
+	public Pattern synch(final IProgressMonitor monitor) throws CoreException {
+		final String stamp = "Synch"+System.nanoTime(); //$NON-NLS-1$
 		final AtomicBoolean patternFound = new AtomicBoolean(false);
 		final IStreamListener listener = new IStreamListener() {
 			
 			private String lastLine = ""; //$NON-NLS-1$
 			
 			public void streamAppended(final String text, final IStreamMonitor monitor) {
-				if (text.contains(pattern)) {
+				if (text.contains(stamp)) {
 					found();
 					return;
 				}
 				final String[] lines = RUtil.LINE_SEPARATOR_PATTERN.split(text, -1);
-				if ((lastLine + lines[0]).contains(pattern)) {
+				if ((lastLine + lines[0]).contains(stamp)) {
 					found();
 					return;
 				}
@@ -398,7 +398,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		};
 		try {
 			fDefaultOutputStream.addListener(listener);
-			submitToConsole("cat(\""+pattern+"\\n\");", monitor); //$NON-NLS-1$ //$NON-NLS-2$
+			submitToConsole("cat(\""+stamp+"\\n\");", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			while (!patternFound.get()) {
 				if (monitor.isCanceled()) {
 					throw cancelTask();
@@ -410,7 +410,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 					Thread.interrupted();
 				}
 			}
-			return pattern;
+			return Pattern.compile("(?:"+Pattern.quote(getWorkspaceData().getDefaultPrompt().text) + ")?"+stamp);
 		}
 		finally {
 			fDefaultOutputStream.removeListener(listener);

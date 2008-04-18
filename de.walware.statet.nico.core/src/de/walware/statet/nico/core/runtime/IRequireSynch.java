@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -22,6 +24,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 public interface IRequireSynch {
 	
 	
-	public String synch(IProgressMonitor monitor) throws InterruptedException, CoreException;
+	/**
+	 * @param monitor
+	 * @return pattern (optional), matching possible output of synch command
+	 * @throws CoreException
+	 */
+	public Pattern synch(IProgressMonitor monitor) throws CoreException;
 	
 }
