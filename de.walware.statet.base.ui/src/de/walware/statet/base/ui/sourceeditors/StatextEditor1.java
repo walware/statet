@@ -903,6 +903,17 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	
 	@Override
+	// inject annotation painter workaround
+	protected SourceViewerDecorationSupport getSourceViewerDecorationSupport(final ISourceViewer viewer) {
+		if (fSourceViewerDecorationSupport == null) {
+			fSourceViewerDecorationSupport= new de.walware.eclipsepatches.ui.SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
+			configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+		}
+		return fSourceViewerDecorationSupport;
+	}
+	
+	
+	@Override
 	public void dispose() {
 		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
 		if (fModelPostSelection != null) {

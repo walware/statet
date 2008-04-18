@@ -499,7 +499,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSourceViewer = new InputSourceViewer(fComposite);
 		fConfigurator.setTarget(fEditorAdapter, true);
 		
-		fSourceViewerDecorationSupport = new SourceViewerDecorationSupport(
+		fSourceViewerDecorationSupport = new de.walware.eclipsepatches.ui.SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
 		final MarkerAnnotationPreferences markerAnnotationPreferences = EditorsPlugin.getDefault().getMarkerAnnotationPreferences();
