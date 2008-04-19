@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -49,7 +50,7 @@ public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
 							break SUB;
 						}
 						if (access.getNameNode() == node) {
-							proposals.add(new LinkedNamesAssistProposal(context, access));
+							addAccessAssistProposals(proposals, context, access);
 							break SEARCH_ACCESS;
 						}
 						access = access.getSubElementAccess();
@@ -62,7 +63,21 @@ public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
 	
 	protected void addAccessAssistProposals(final List<ICompletionProposal> proposals,
 			final ExtTextInvocationContext invocationContext, final IElementAccess access) {
-		proposals.add(new LinkedNamesAssistProposal(invocationContext, access));
+		final IElementAccess[] allInUnit = access.getAllInUnit();
+		proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE, invocationContext, access));
+		if (allInUnit.length > 2) {
+			Arrays.sort(allInUnit, IElementAccess.NAME_POSITION_COMPARATOR);
+			int current = 0;
+			for (; current < allInUnit.length; current++) {
+				if (access == allInUnit[current]) {
+					break;
+				}
+			}
+			if (current > 0 && current < allInUnit.length-1) {
+				proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE_PRECEDING, invocationContext, access));
+				proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE_FOLLOWING, invocationContext, access));
+			}
+		}
 	}
 	
 }

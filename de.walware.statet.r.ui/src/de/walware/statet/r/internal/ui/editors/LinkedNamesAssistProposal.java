@@ -84,6 +84,12 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	}
 	
 	
+	public static final int IN_FILE = 1;
+	public static final int IN_FILE_PRECEDING = 2;
+	public static final int IN_FILE_FOLLOWING = 3;
+	
+	
+	private int fMode;
 	private ExtTextInvocationContext fContext;
 	private IElementAccess fAccess;
 	private String fLabel;
@@ -92,19 +98,31 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	private int fRelevance;
 	
 	
-	private LinkedNamesAssistProposal(final String label, final String description,
-			final ExtTextInvocationContext invocationContext, final IElementAccess access, final String valueSuggestion) {
-		fLabel = label;
-		fDescription = description;
+	public LinkedNamesAssistProposal(final int mode,
+			final ExtTextInvocationContext invocationContext, final IElementAccess access) {
+		fMode = mode;
+		switch (mode) {
+		case IN_FILE:
+			fLabel = RUIMessages.Proposal_RenameInFile_label;
+			fDescription = RUIMessages.Proposal_RenameInFile_description;
+			fValueSuggestion = null;
+			break;
+		case IN_FILE_PRECEDING:
+			fLabel = RUIMessages.Proposal_RenameInFilePrecending_label;
+			fDescription = RUIMessages.Proposal_RenameInFilePrecending_description;
+			fValueSuggestion = null;
+			break;
+		case IN_FILE_FOLLOWING:
+			fLabel = RUIMessages.Proposal_RenameInFileFollowing_label;
+			fDescription = RUIMessages.Proposal_RenameInFileFollowing_description;
+			fValueSuggestion = null;
+			break;
+		default:
+			throw new IllegalArgumentException();
+		}
 		fContext = invocationContext;
 		fAccess = access;
-		fValueSuggestion = valueSuggestion;
 		fRelevance = 8;
-	}
-	
-	public LinkedNamesAssistProposal(final ExtTextInvocationContext invocationContext, final IElementAccess access) {
-		this(RUIMessages.Proposal_RenameInFile_label, RUIMessages.Proposal_RenameInFile_description,
-				invocationContext, access, null);
 	}
 	
 	
@@ -117,24 +135,26 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 			final IElementAccess[] allInUnit = fAccess.getAllInUnit();
 			Arrays.sort(allInUnit, IElementAccess.NAME_POSITION_COMPARATOR);
 			final List<IElementAccess> all = Arrays.asList(allInUnit);
-			final int currentIdx = all.indexOf(fAccess);
-			if (currentIdx < 0) {
+			final int current = all.indexOf(fAccess);
+			if (current < 0) {
 				return;
 			}
 			final int count = all.size();
 			int idx = 0;
-			ITER_ELEMENTS : for (int i = currentIdx; ; ) {
-				final Position position = RAst.getElementNamePosition(all.get(i).getNameNode());
-				if (position != null) {
-					group.addPosition(new LinkedPosition(document, position.getOffset(), position.getLength(), idx++));
+			idx = add(group, document, all.get(current), idx);
+			if (fMode == IN_FILE || fMode == IN_FILE_FOLLOWING) {
+				for (int i = current+1; i < count; i++) {
+					idx = add(group, document, all.get(i), idx);
 				}
-				i++;
-				if (i == count) {
-					i = 0;
+			}
+			if (fMode == IN_FILE || fMode == IN_FILE_PRECEDING) {
+				for (int i = 0; i < current; i++) {
+					idx = add(group, document, all.get(i), idx);
 				}
-				if (i == currentIdx) {
-					break ITER_ELEMENTS;
-				}
+			}
+			
+			if (group.isEmpty()) {
+				return;
 			}
 			
 			final LinkedModeModel model = new LinkedModeModel();
@@ -160,6 +180,15 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 		} catch (final BadLocationException e) {
 			RUIPlugin.logError(-1, "Error initializing linked rename.", e); //$NON-NLS-1$
 		}
+	}
+	
+	private int add(final LinkedPositionGroup group, final IDocument document, final IElementAccess access, final int idx) throws BadLocationException {
+		final Position position = RAst.getElementNamePosition(access.getNameNode());
+		if (position != null) {
+			group.addPosition(new LinkedPosition(document, position.getOffset(), position.getLength(), idx));
+			return idx+1;
+		}
+		return idx;
 	}
 	
 	public void apply(final IDocument document) {

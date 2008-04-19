@@ -28,8 +28,12 @@ public class RUIMessages extends NLS {
 	public static String CorrectIndent_task_Indent;
 	public static String CorrectIndent_task_UpdateStructure;
 	
-	public static String Proposal_RenameInFile_description;
 	public static String Proposal_RenameInFile_label;
+	public static String Proposal_RenameInFile_description;
+	public static String Proposal_RenameInFilePrecending_label;
+	public static String Proposal_RenameInFilePrecending_description;
+	public static String Proposal_RenameInFileFollowing_label;
+	public static String Proposal_RenameInFileFollowing_description;
 	
 	
 	static {
