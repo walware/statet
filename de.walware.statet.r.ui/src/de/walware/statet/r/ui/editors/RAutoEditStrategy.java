@@ -227,6 +227,19 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		return (balance[searchType] <= 0);
 	}
 	
+	private boolean isCharAt(final int offset, final char c) throws BadLocationException {
+		return (offset >= fValidRange.getOffset() && offset < fValidRange.getOffset()+fValidRange.getLength()
+				&& fDocument.getChar(offset) == c);
+	}
+	
+	private boolean isValueChar(final int offset) throws BadLocationException {
+		if (offset >= fValidRange.getOffset() && offset < fValidRange.getOffset()+fValidRange.getLength()) {
+			final int c = fDocument.getChar(offset);
+			return (c == '"' || c == '\'' || c == '`' || Character.isLetterOrDigit(c));
+		}
+		return false;
+	}
+	
 	private int countBackward(final char c, int offset) throws BadLocationException {
 		int count = 0;
 		while (--offset >= 0 && fDocument.getChar(offset) == c) {
@@ -289,7 +302,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			command.doit = true;
 			command.shiftsCaret = true;
 			command.caretOffset = -1;
-			int createLinkedMode = -1;
+			int linkedModeType = -1;
+			int linkedModeOffset = -1;
 			final int cEnd = command.offset+command.length;
 			
 			if (isInDefaultPartition(command.offset, c)) {
@@ -308,47 +322,47 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					break;
 				case '{':
 					command.text = "{"; //$NON-NLS-1$
-					if (fOptions.isSmartCurlyBracketsEnabled()) {
+					if (fOptions.isSmartCurlyBracketsEnabled() && !isValueChar(cEnd)) {
 						if (!isClosedBracket(command.offset, cEnd, 0)) {
 							command.text = "{}"; //$NON-NLS-1$
-							createLinkedMode = 1;
+							linkedModeType = 1;
 						}
-						else if (fDocument.getChar(cEnd) == '}') {
-							createLinkedMode = 1;
+						else if (isCharAt(cEnd, '}')) {
+							linkedModeType = 1;
 						}
 					}
-					smartIndentOnFirstLineCharDefault2(command);
+					linkedModeOffset = smartIndentOnFirstLineCharDefault2(command);
 					break;
 				case '(':
 					command.text = "("; //$NON-NLS-1$
-					if (fOptions.isSmartRoundBracketsEnabled()) {
+					if (fOptions.isSmartRoundBracketsEnabled() && !isValueChar(cEnd)) {
 						if (!isClosedBracket(command.offset, cEnd, 1)) {
 							command.text = "()"; //$NON-NLS-1$
-							createLinkedMode = 1;
+							linkedModeType = 1;
 						}
-						else if (fDocument.getChar(cEnd) == ')') {
-							createLinkedMode = 1;
+						else if (isCharAt(cEnd, ')')) {
+							linkedModeType = 1;
 						}
 					}
 					break;
 				case ')':
 					command.text = ")"; //$NON-NLS-1$
-					smartIndentOnFirstLineCharDefault2(command);
+					smartIndentOnFirstLineCharDefault2(command); // required?
 					break;
 				case '[':
 					command.text = "["; //$NON-NLS-1$
-					if (fOptions.isSmartSquareBracketsEnabled()) {
+					if (fOptions.isSmartSquareBracketsEnabled() && !isValueChar(cEnd)) {
 						if (!isClosedBracket(command.offset, cEnd, 2)) {
 							command.text = "[]"; //$NON-NLS-1$
 							if (countBackward('[', command.offset) % 2 == 1) {
-								createLinkedMode = 2;
+								linkedModeType = 2;
 							}
 							else {
-								createLinkedMode = 1;
+								linkedModeType = 1;
 							}
 						}
-						else if (fDocument.getChar(cEnd) == ']') {
-							createLinkedMode = 1;
+						else if (isCharAt(cEnd, ']')) {
+							linkedModeType = 1;
 						}
 					}
 					break;
@@ -358,7 +372,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 						fScanner.configure(fDocument, IRDocumentPartitions.R_INFIX_OPERATOR);
 						if (fScanner.count(cEnd, line.getOffset()+line.getLength(), '%') % 2 == 0) {
 							command.text = "%%"; //$NON-NLS-1$
-							createLinkedMode = 1;
+							linkedModeType = 1;
 							break;
 						}
 					}
@@ -368,9 +382,10 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 				case '`':
 					if (fOptions.isSmartStringsEnabled()) {
 						final IRegion line = fDocument.getLineInformationOfOffset(cEnd);
-						if (!isClosedString(cEnd, line.getOffset()+line.getLength(), false, c)) {
+						if (!isValueChar(cEnd) && !isValueChar(command.offset-1)
+								&& !isClosedString(cEnd, line.getOffset()+line.getLength(), false, c)) {
 							command.text = new String(new char[] { c, c });
-							createLinkedMode = 1;
+							linkedModeType = 1;
 							break;
 						}
 					}
@@ -385,12 +400,16 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					fViewer.getTextWidget().setRedraw(false);
 					try {
 						fDocument.replace(command.offset, command.length, command.text);
-						selection = new TextSelection(fDocument, (command.caretOffset >= 0) ?
-								command.caretOffset : command.offset+command.text.length(), 0);
+						final int cursor = (command.caretOffset >= 0) ? command.caretOffset :
+								command.offset+command.text.length();
+						selection = new TextSelection(fDocument, cursor, 0);
 						fViewer.setSelection(selection, true);
 						
-						if (createLinkedMode >= 0) {
-							createLinkedMode(command.offset, c, createLinkedMode);
+						if (linkedModeType >= 0) {
+							if (linkedModeOffset < 0) {
+								linkedModeOffset = command.offset;
+							}
+							createLinkedMode(linkedModeOffset, c, linkedModeType).enter();
 						}
 					}
 					finally {
@@ -415,10 +434,11 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	 * @param c handle to read and save the document informations
 	 * @param indentCurrentLine
 	 * @param setCaret positive values indicates the line to set the caret
+	 * @param traceCursor offset to update and return (offset at state after insertion of c.text)
 	 */
-	private void smartIndentLine2(final DocumentCommand c, final boolean indentCurrentLine, final int setCaret) throws BadLocationException, BadPartitioningException, CoreException {
+	private Position[] smartIndentLine2(final DocumentCommand c, final boolean indentCurrentLine, final int setCaret, final Position[] tracePos) throws BadLocationException, BadPartitioningException, CoreException {
 		if (fEditor3 == null) {
-			return;
+			return tracePos;
 		}
 		final IRegion validRegion = fValidRange;
 		
@@ -426,7 +446,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		String append;
 		int cEnd = c.offset+c.length;
 		if (cEnd > validRegion.getOffset()+validRegion.getLength()) {
-			return;
+			return tracePos;
 		}
 		final IRegion cEndLine = fDocument.getLineInformationOfOffset(cEnd);
 		int tempEnd = cEndLine.getOffset()+cEndLine.getLength();
@@ -463,7 +483,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		int shift = 0;
 		if (c.offset < validRegion.getOffset()
 				|| c.offset > validRegion.getOffset()+validRegion.getLength()) {
-			return;
+			return tracePos;
 		}
 		if (c.offset > 2500) {
 			final int line = fDocument.getLineOfOffset(c.offset)-30;
@@ -499,7 +519,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			dummyFirstLine++;
 		}
 		if (dummyFirstLine > dummyLastLine) {
-			return;
+			return tracePos;
 		}
 		
 		// Compute indent
@@ -512,6 +532,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		// Apply indent to temp doc
 		final Position cPos = new Position(dummyCoffset, c.text.length());
 		dummyDoc.addPosition(cPos);
+		if (tracePos != null) {
+			for (int i = 0; i < tracePos.length; i++) {
+				tracePos[i].offset -= shift;
+				dummyDoc.addPosition(tracePos[i]);
+			}
+		}
 		
 		c.length = c.length+edit.getLength()
 				// add space between two replacement regions
@@ -535,6 +561,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			c.shiftsCaret = false;
 		}
 		fIndenter.clear();
+		if (tracePos != null) {
+			for (int i = 0; i < tracePos.length; i++) {
+				tracePos[i].offset += shift;
+			}
+		}
+		return tracePos;
 	}
 	
 	private final boolean endsWithNewLine(final String text) {
@@ -559,7 +591,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			c.text = c.text+c.text;
 		}
 		try {
-			smartIndentLine2(c, false, 1);
+			smartIndentLine2(c, false, 1, null);
 		}
 		catch (final Exception e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize a command in R auto edit strategy (algorithm 2).", e); //$NON-NLS-1$
@@ -610,7 +642,10 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 		
 		try {
-			smartIndentLine2(c, true, 0);
+			final Position cursorPos = new Position(c.offset+1, 0);
+			smartIndentLine2(c, true, 0, new Position[] { cursorPos });
+			c.caretOffset = cursorPos.getOffset();
+			return;
 		}
 		catch (final Exception e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize a command in R auto edit strategy (algorithm 2).", e); //$NON-NLS-1$
@@ -631,19 +666,22 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		c.offset = lineOffset;
 	}
 	
-	private void smartIndentOnFirstLineCharDefault2(final DocumentCommand c) throws BadLocationException {
+	private int smartIndentOnFirstLineCharDefault2(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
 		fScanner.configure(fDocument, null);
 		if (fScanner.findNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
-			return;
+			return c.offset;
 		}
 		
 		try {
-			smartIndentLine2(c, true, 0);
+			final Position cursorPos = new Position(c.offset+1, 0);
+			smartIndentLine2(c, true, 0, new Position[] { cursorPos });
+			return (c.caretOffset = cursorPos.getOffset()) -1;
 		}
 		catch (final Exception e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize a command in R auto edit strategy (algorithm 2).", e); //$NON-NLS-1$
+			return -1;
 		}
 	}
 	
@@ -652,7 +690,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		fScanner.configure(fDocument, null);
 		final boolean firstLine = (fScanner.findNonBlankBackward(c.offset-1, lineOffset-1, false) == ITokenScanner.NOT_FOUND);
 		try {
-			smartIndentLine2(c, firstLine, 0);
+			smartIndentLine2(c, firstLine, 0, null);
 		}
 		catch (final Exception e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while customize a command in R auto edit strategy (algorithm 2).", e); //$NON-NLS-1$
@@ -660,7 +698,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
 	
-	private void createLinkedMode(int offset, final char type, final int stopChars) throws BadLocationException, BadPositionCategoryException {
+	private LinkedModeUI createLinkedMode(int offset, final char type, final int stopChars) throws BadLocationException, BadPositionCategoryException {
 		int pos = 0;
 		offset++;
 		final LinkedPositionGroup group1 = new LinkedPositionGroup();
@@ -681,7 +719,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		ui.setExitPosition(fViewer, offset+stopChars, 0, pos);
 		ui.setSimpleMode(true);
 		ui.setExitPolicy(level);
-		ui.enter();
+		return ui;
 	}
 	
 }
