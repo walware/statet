@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.core.renv;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +86,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private String fId;
 	private StringPref fPrefRHomeDirectory;
 	private String fRHomeDirectory;
+	private int fRBits;
 	
 	
 	/**
@@ -233,14 +235,15 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	protected void setRHome(final String label) {
 		final String oldValue = fRHomeDirectory;
 		fRHomeDirectory = label;
+		fRBits = (fRHomeDirectory != null && fRHomeDirectory.contains("64")) ? 64 : 32; //$NON-NLS-1$
 		firePropertyChange(PROP_RHOME, oldValue, fRHomeDirectory);
 	}
 	public String getRHome() {
 		return fRHomeDirectory;
 	}
 	
-	public String getRBin() throws CoreException {
-		return FileUtil.expandToLocalPath(getRHome(), "bin").toOSString();
+	public int getBits() {
+		return fRBits;
 	}
 	
 	
@@ -298,7 +301,16 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
 		final Map<String, String> envp = new HashMap<String, String>();
-		envp.put("R_HOME", FileUtil.expandToLocalPath(getRHome(), null).toOSString()); //$NON-NLS-1$
+		envp.put("R_HOME", //$NON-NLS-1$
+				FileUtil.expandToLocalPath(getRHome(), null).toOSString());
+		envp.put("PATH", //$NON-NLS-1$
+				FileUtil.expandToLocalPath(getRHome(), "bin").toOSString() + //$NON-NLS-1$
+						File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
+		if (!Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
+					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
+							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH"); //$NON-NLS-1$ 
+		}
 		return envp;
 	}
 	

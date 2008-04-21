@@ -82,25 +82,55 @@ public class LaunchConfigUtil {
 		if (add != null) {
 			for (int i = 0; i < add.length; i++) {
 				if (add[i] != null) {
-					envp.putAll(add[i]);
+					envp.putAll(check(envp, add[i]));
 				}
 				else if (custom != null) {
-					envp.putAll(custom);
+					envp.putAll(check(envp, custom));
 					custom = null;
 				}
 			}
 		}
 		if (custom != null) {
-			envp.putAll(custom);
+			envp.putAll(check(envp, custom));
 			custom = null;
 		}
 		
 		return envp;
 	}
 	
+	private static Pattern ENV_PATTERN = Pattern.compile("\\Q${env_var:\\E([^\\}]*)\\}"); //$NON-NLS-1$
 	
-	private static final Pattern DOUBLE_QUOTE_PATTERN = Pattern.compile(Pattern.quote("\"")); //$NON-NLS-1$
-	private static final String DOUBLE_QUOTE_REPLACEMENT = Matcher.quoteReplacement("\\\""); //$NON-NLS-1$
+	private static Map<String, String> check(final Map<String,String> current, final Map<String,String> add) throws CoreException {
+		final String[] keys = add.keySet().toArray(new String[add.keySet().size()]);
+		for (int i = 0; i < keys.length; i++) {
+			final String orgValue = add.get(keys[i]);
+			if (orgValue != null && orgValue.length() > 0) {
+				String value = orgValue;
+				if (value.contains("${env_var:")) { //$NON-NLS-1$
+					final StringBuffer sb = new StringBuffer(value.length()+32);
+					final Matcher matcher = ENV_PATTERN.matcher(value);
+					while (matcher.find()) {
+						final String var = matcher.group(1);
+						final String varValue = current.get(var);
+						matcher.appendReplacement(sb, (varValue != null) ? Matcher.quoteReplacement(varValue) : ""); //$NON-NLS-1$
+					}
+					matcher.appendTail(sb);
+					value = sb.toString();
+				}
+				if (value.contains("${")) { //$NON-NLS-1$
+					value = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value, true);
+				}
+				if (value != orgValue) {
+					add.put(keys[i], value);
+				}
+			}
+		}
+		return add;
+	}
+	
+	
+	private static final Pattern DOUBLE_QUOTE_PATTERN = Pattern.compile(Pattern.quote("\""));  //$NON-NLS-1$
+	private static final String DOUBLE_QUOTE_REPLACEMENT = Matcher.quoteReplacement("\\\"");  //$NON-NLS-1$
 	
 	/**
 	 * Creates UI presentation of command line (command string for shell).

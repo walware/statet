@@ -98,13 +98,11 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	private String fAddress;
 	private REnvConfiguration fRenv;
-	private int fBits;
 	
 	
 	public RJEngineLaunchDelegate(final String address, final REnvConfiguration renv) throws CoreException {
 		fAddress = address;
 		fRenv = renv;
-		fBits = (fRenv.getRBin().contains("64")) ? 64 : 32; //$NON-NLS-1$
 	}
 	
 	
@@ -118,19 +116,6 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	public String[] getEnvironment(final ILaunchConfiguration configuration) throws CoreException {
 		final Map<String, String> envp = LaunchConfigUtil.createEnvironment(configuration, 
 				new Map[] { fRenv.getEnvironmentsVariables() });
-		String envPath = envp.get("PATH"); //$NON-NLS-1$
-		final String Rbin = fRenv.getRBin();
-		if (envPath == null || envPath.length() == 0) {
-			envPath = Rbin;
-		}
-		else if (!envPath.contains(Rbin)) {
-			if (envPath.charAt(envPath.length()-1) != File.pathSeparatorChar) {
-				envPath = envPath + File.pathSeparatorChar;
-			}
-			envPath = envPath + Rbin;
-		}
-		envp.put("PATH", envPath); //$NON-NLS-1$
-		
 		final String[] array = new String[envp.size()];
 		final Iterator<Map.Entry<String, String>> iter = envp.entrySet().iterator();
 		for (int i = 0; i < array.length; i++) {
@@ -143,7 +128,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
 		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
-		addPluginClasspath(classpath, true, (fBits == 64)); 
+		addPluginClasspath(classpath, true, (fRenv.getBits() == 64)); 
 		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
 		
 		return classpath.toArray(new String[classpath.size()]);
@@ -172,7 +157,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			s.append(" -Djava.rmi.server.hostname=localhost"); //$NON-NLS-1$
 		}
 		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
-			s.append(" -Xss").append(fBits*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
+			s.append(" -Xss").append(fRenv.getBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return s.substring(1);
 	}
