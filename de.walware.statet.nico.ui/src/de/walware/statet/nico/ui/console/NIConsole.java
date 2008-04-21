@@ -26,6 +26,9 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -77,6 +80,19 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 		fAdapter = adapter;
 		Charset.defaultCharset();
 		setImageDescriptor(NicoUITools.getImageDescriptor(fProcess));
+		
+		// TODO: create own preferences and listen to changes
+		final IPreferenceStore store = DebugUIPlugin.getDefault().getPreferenceStore();
+		final boolean limitBufferSize = store.getBoolean(IDebugPreferenceConstants.CONSOLE_LIMIT_CONSOLE_OUTPUT);
+		if (limitBufferSize) {
+			final int highWater = store.getInt(IDebugPreferenceConstants.CONSOLE_HIGH_WATER_MARK);
+			final int lowWater = store.getInt(IDebugPreferenceConstants.CONSOLE_LOW_WATER_MARK);
+			if (highWater > lowWater) {
+				setWaterMarks(lowWater, highWater);
+			}
+		} else {
+			setWaterMarks(-1, -1);
+		}
 		
 		fStreamsClosed = fProcess.isTerminated();
 		fAdapter.connect(process, this);
@@ -166,7 +182,7 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 			final IOConsoleOutputStream out = stream;
 			streamMonitor.addListener(new IStreamListener() {
 				
-				private static final int BUFFER_SIZE = 4000;
+				private static final int BUFFER_SIZE = 9216;
 				private final StringBuilder fBuffer = new StringBuilder(BUFFER_SIZE);
 				
 				public void streamAppended(final String text, final IStreamMonitor monitor) {
@@ -220,6 +236,15 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 									fBuffer.trimToSize();
 								}
 								fBuffer.setLength(0);
+							}
+							
+							if (text.length() >= 7168) {
+								try {
+									Thread.sleep(10);
+								}
+								catch (final InterruptedException e) {
+									Thread.interrupted();
+								}
 							}
 						}
 					}
