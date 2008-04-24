@@ -120,61 +120,77 @@ public class RweaveChunkPartitionScanner extends RFastPartitionScanner implement
 		if (state == S_CHUNKCONTROL) {
 			switch (fLast) {
 			case LAST_CC_END1:
-				fLast = (c == '>') ? LAST_CC_END2 : LAST_OTHER;
-				return;
+				if (c == '>') {
+					fLast = LAST_CC_END2;
+					return;
+				}
+				else {
+					fLast = LAST_OTHER;
+					return;
+				}
 			case LAST_CC_END2:
-				fLast = LAST_OTHER;
-				newState(S_CHUNKCOMMENT, (c == '=') ? 0 : 1);
-				return;
+				if (c == '=') {
+					fLast = LAST_OTHER;
+					newState(S_CHUNKCOMMENT, 0);
+					return;
+				}
+				else if (lineendAfterControl(c)) {
+					return;
+				}
+				else {
+					fLast = LAST_OTHER;
+					newState(S_CHUNKCOMMENT, 1);
+					return;
+				}
 			case LAST_CC_AT:
-				fLast = LAST_CC_BEHINDAT;
-				newState(S_CHUNKCOMMENT, 0);
-				return;
+				if (lineendAfterControl(c)) {
+					return;
+				}
+				else {
+					fLast = LAST_CC_BEHINDAT;
+					newState(S_CHUNKCOMMENT, 1);
+					return;
+				}
 			default:
-				switch (c) {
-				case '>':
+				if (c == '>') {
 					fLast = LAST_CC_END1;
 					return;
-				case '\r':
-					readChar('\n');
-					if (fStopChunkDetected) {
-						fIsInChunk = false;
-					}
-					newState(S_DEFAULT, 0);
+				}
+				else if (lineendAfterControl(c)) {
 					return;
-				case '\n':
-					readChar('\r');
-					if (fStopChunkDetected) {
-						fIsInChunk = false;
-					}
-					newState(S_DEFAULT, 0);
-					return;
-				default:
+				}
+				else {
 					fLast = LAST_OTHER;
 					return;
 				}
 			}
 		}
 		if (state == S_CHUNKCOMMENT) {
-			switch (c) {
-			case '\r':
-				readChar('\n');
-				if (fStopChunkDetected) {
-					fIsInChunk = false;
-				}
-				newState(S_DEFAULT, 0);
-				return;
-			case '\n':
-				readChar('\r');
-				if (fStopChunkDetected) {
-					fIsInChunk = false;
-				}
-				newState(S_DEFAULT, 0);
-				return;
-			default:
-				return;
-			}
+			lineendAfterControl(c);
+			return;
 		}
+	}
+	
+	private boolean lineendAfterControl(final int c) {
+		if (c == '\r') {
+			readChar('\n');
+			if (fStopChunkDetected) {
+				fIsInChunk = false;
+			}
+			fLast = LAST_NEWLINE;
+			newState(S_DEFAULT, 0);
+			return true;
+		}
+		if (c == '\n') {
+			readChar('\r');
+			if (fStopChunkDetected) {
+				fIsInChunk = false;
+			}
+			fLast = LAST_NEWLINE;
+			newState(S_DEFAULT, 0);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
