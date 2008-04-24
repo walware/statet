@@ -134,7 +134,7 @@
          <enablement>
             <or>
                <adapt
-                     type="org.eclipse.core.resources.IProject">
+                     type="org.eclipse.core.resources.IContainer">
                   <test
                         property="org.eclipse.core.resources.projectNature"
                         value="de.walware.statet.r.RNature">
