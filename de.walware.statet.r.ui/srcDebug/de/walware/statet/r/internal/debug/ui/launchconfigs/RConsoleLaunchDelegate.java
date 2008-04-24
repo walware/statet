@@ -54,4 +54,11 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 	}
 	
+	
+	@Override
+	protected boolean saveBeforeLaunch(final ILaunchConfiguration configuration, final String mode, 
+			final IProgressMonitor monitor) throws CoreException {
+		return true;
+	}
+	
 }
