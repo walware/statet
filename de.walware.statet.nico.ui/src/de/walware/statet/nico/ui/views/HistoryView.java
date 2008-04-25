@@ -141,7 +141,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private static final EntryFilter EMPTY_FILTER = new EntryFilter() {
 		
 		public boolean select(final Entry e) {
-			return !e.isEmpty();
+			return (e.getCommandMarker() >= 0);
 		}
 		
 	};
@@ -406,7 +406,9 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private IHandler fSearchPrevHandler;
 	private Text fSearchText;
 	private ToolItem fSearchTextItem;
-	private final SearchPattern fSearchPattern = new SearchPattern();
+	private final SearchPattern fSearchPattern = new SearchPattern(
+			SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH | 
+			SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
 	
 	private LoadHistoryAction fLoadHistoryAction;
 	private SaveHistoryAction fSaveHistoryAction;
@@ -820,14 +822,27 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		if (itemCount == 0 || text.length() == 0) {
 			return;
 		}
-		fSearchPattern.setPattern(text);
+		
+		int start = 0;
+		do {
+			final char c = text.charAt(start);
+			if (c == ' ' || c == '\t') {
+				start++;
+			}
+			else {
+				break;
+			}
+		} while (start < text.length());
+		fSearchPattern.setPattern(text.substring(start));
 		
 		int idx = fTable.getSelectionIndex();
 		if (forward) {
 			idx++;
 			while (idx < itemCount) {
 				final Entry e = (Entry) fTable.getItem(idx).getData();
-				if (fSearchPattern.matches(e.getCommand())) {
+				final int offset = e.getCommandMarker();
+				if (fSearchPattern.matches(e.getCommand().substring(
+						offset >= 0 ? offset : -1-offset))) {
 					fTable.setSelection(idx);
 					return;
 				}
@@ -838,7 +853,9 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			idx--;
 			while (idx >= 0) {
 				final Entry e = (Entry) fTable.getItem(idx).getData();
-				if (fSearchPattern.matches(e.getCommand())) {
+				final int offset = e.getCommandMarker();
+				if (fSearchPattern.matches(e.getCommand().substring(
+						offset >= 0 ? offset : -1-offset))) {
 					fTable.setSelection(idx);
 					return;
 				}

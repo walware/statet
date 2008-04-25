@@ -76,13 +76,13 @@ public class History {
 		
 		private final String fCommand;
 		private final long fTimeStamp;
-		private final boolean fIsEmpty;
+		private final int fIsEmpty;
 		private volatile Entry fOlder;
 		private volatile Entry fNewer;
 		
 		private Entry(final Entry older, final String command, final long stamp) {
 			fCommand = command;
-			fIsEmpty = isCommandEmpty(command);
+			fIsEmpty = createCommandMarker(command);
 			fTimeStamp = stamp;
 			fOlder = older;
 			if (older != null) {
@@ -98,7 +98,11 @@ public class History {
 			return fTimeStamp;
 		}
 		
-		public boolean isEmpty() {
+		/**
+		 * Returns offset of first non-blank char.
+		 * If no such char, or first char indicates a line comment, it returns -1-offset
+		 */
+		public int getCommandMarker() {
 			return fIsEmpty;
 		}
 		
@@ -439,7 +443,7 @@ public class History {
 	/**
 	 * Checks, if this command is empty or an command
 	 */
-	private boolean isCommandEmpty(final String command) {
+	protected int createCommandMarker(final String command) {
 		final int length = command.length();
 		for (int i = 0; i < length; i++) {
 			final char c = command.charAt(i);
@@ -449,12 +453,12 @@ public class History {
 			case '\t':
 				continue;
 			case '#':
-				return fIgnoreCommentLines;
+				return -i-1;
 			default:
-				return false;
+				return i;
 			}
 		}
-		return true;
+		return -length;
 	}
 	
 }

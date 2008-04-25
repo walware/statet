@@ -652,7 +652,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		
 		History.Entry next = fCurrentHistoryEntry.getNewer();
 		while (next != null
-				&& (next.isEmpty() || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
+				&& (next.getCommandMarker() < 0 || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
 			next = next.getNewer();
 		}
 		
@@ -675,7 +675,7 @@ public class InputGroup implements ISettingsChangedHandler {
 			next = fProcess.getHistory().getNewest();
 		}
 		while (next != null
-				&& (next.isEmpty() || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
+				&& (next.getCommandMarker() < 0 || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
 			next = next.getOlder();
 		}
 		
