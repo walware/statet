@@ -285,7 +285,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		fConsoleCommandEditor = new SnippetEditor(configurator);
 		fConsoleCommandEditor.create(group, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd.heightHint = LayoutUtil.hintHeight(fConsoleCommandEditor.getControl(), 4);
+		gd.heightHint = LayoutUtil.hintHeight(fConsoleCommandEditor.getControl(), 5);
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
 		fConsoleCommandEditor.getControl().setLayoutData(gd);
 		
@@ -315,9 +315,9 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		fCmdLaunchSelectControl.setText(Messages.RweaveTab_RCmd_label);
 		
 		fCmdLaunchTable = new TableViewer(group, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
-		gd.heightHint = LayoutUtil.hintHeight(fCmdLaunchTable.getTable(), 6);
+		gd.heightHint = LayoutUtil.hintHeight(fCmdLaunchTable.getTable(), 5);
 		fCmdLaunchTable.getControl().setLayoutData(gd);
 		fCmdLaunchTable.setLabelProvider(DebugUITools.newDebugModelPresentation());
 		fCmdLaunchTable.setContentProvider(new ArrayContentProvider());
