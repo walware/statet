@@ -100,7 +100,7 @@ public class WorkspaceUtilImpl extends FileUtil {
 						fFile.setCharset(fCharset, new SubProgressMonitor(monitor, 20));
 					}
 					else {
-						fCharset = fFile.getCharset();
+						fCharset = fFile.getCharset(true);
 						monitor.worked(20);
 					}
 						
