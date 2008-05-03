@@ -213,17 +213,24 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 				return null;
 			}
 			try {
+				// encoding of content type
 				final IContentTypeManager manager = Platform.getContentTypeManager();
-				IContentType contentType = manager.getContentType(getContentType(newFileHandle));
-				while (contentType != null) {
+				final IContentType contentType = manager.getContentType(getContentType(newFileHandle));
+				if (contentType != null) {
 					final String charset = contentType.getDefaultCharset();
 					if (charset != null) {
 						return new ByteArrayInputStream(content.getBytes(charset));
 					}
-					contentType = contentType.getBaseType();
+				}
+				// encoding of container
+				final String charset = newFileHandle.getCharset(true);
+				if (charset != null) {
+					return new ByteArrayInputStream(content.getBytes(charset));
 				}
 			}
 			catch (final UnsupportedEncodingException e) {
+			}
+			catch (final CoreException e) {
 			}
 			return new ByteArrayInputStream(content.getBytes());
 		}
@@ -404,10 +411,10 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 					}
 					doFinish(monitor);
 				}
-				catch (InterruptedException e) {
+				catch (final InterruptedException e) {
 					throw new OperationCanceledException(e.getMessage());
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					throw new InvocationTargetException(e);
 				}
 				finally {
