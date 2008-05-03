@@ -223,7 +223,6 @@ public class REnvConfigDialog extends StatusDialog {
 	private String[] searchRHOME() {
 		try {
 			final IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
-			final boolean isWin = Platform.getOS().startsWith("win"); //$NON-NLS-1$
 			
 			String loc = variables.performStringSubstitution("${env_var:R_HOME}", false); //$NON-NLS-1$
 			if (loc != null && loc.length() > 0) {
@@ -232,7 +231,7 @@ public class REnvConfigDialog extends StatusDialog {
 					return new String[] { loc, "System Default" };
 				}
 			}
-			if (isWin) {
+			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 				loc = "${env_var:PROGRAMFILES}\\R"; //$NON-NLS-1$
 				final IFileStore res = EFS.getLocalFileSystem().getStore(
 						new Path(variables.performStringSubstitution(loc)));
@@ -245,6 +244,12 @@ public class REnvConfigDialog extends StatusDialog {
 					if (REnvConfiguration.isValidRHomeLocation(res.getChild(childNames[i]))) {
 						return new String[] { loc + '\\' + childNames[i], childNames[i] };
 					}
+				}
+			}
+			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
+				loc = "/Library/Frameworks/R.framework/Resources";
+				if (REnvConfiguration.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
+					return new String[] { loc, null };
 				}
 			}
 			else {
