@@ -2,14 +2,14 @@
 <?eclipse version="3.2"?>
 <!--
  ###############################################################################
- # Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
  # http://www.eclipse.org/legal/epl-v10.html
- #
+ # 
  # Contributors:
- #    Stephan Wahlbrink - initial API and implementation
+ #     Stephan Wahlbrink - initial API and implementation
  ###############################################################################
 -->
 
@@ -21,14 +21,14 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            allowMultiple="true"
+            allowMultiple="false"
             category="de.walware.statet.base.views.StatetCategory"
             class="de.walware.statet.nico.ui.views.HistoryView"
             icon="icons/view_16/history.png"
             id="de.walware.statet.nico.views.HistoryView"
             name="%views_History_name"/>
       <view
-           allowMultiple="true"
+           allowMultiple="false"
            category="de.walware.statet.base.views.StatetCategory"
            class="de.walware.statet.nico.ui.views.QueueView"
            icon="icons/view_16/queue.png"
@@ -58,8 +58,19 @@
          point="org.eclipse.ui.commands">
       <command
             categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            id="de.walware.statet.nico.commands.Cancel"
-            name="%commands_Cancel_name"/>
+            id="de.walware.statet.nico.commands.CancelCurrent"
+            name="%commands_CancelCurrent_name">
+      </command>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            id="de.walware.statet.nico.commands.CancelCurrentAndPause"
+            name="%commands_CancelCurrentAndPause_name">
+      </command>
+      <command
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            id="de.walware.statet.nico.commands.CancelAll"
+            name="%commands_CancelAll_name">
+      </command>
       <command
             categoryId="de.walware.statet.base.commandCategorys.StatetSource"
             description="%commands_SearchHistoryOlder_description"
@@ -82,12 +93,12 @@
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="de.walware.statet.nico.commands.Cancel"
+            commandId="de.walware.statet.nico.commands.CancelCurrent"
             contextId="de.walware.statet.base.contexts.ConsoleEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="BREAK"/>
       <key
-            commandId="de.walware.statet.nico.commands.Cancel"
+            commandId="de.walware.statet.nico.commands.CancelCurrent"
             contextId="de.walware.statet.base.contexts.ConsoleEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+BREAK"/>
@@ -111,6 +122,24 @@
       </key>
    </extension>
    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:de.walware.statet.nico.menus.Cancel">
+         <command
+               commandId="de.walware.statet.nico.commands.CancelCurrent"
+               style="push">
+         </command>
+         <command
+               commandId="de.walware.statet.nico.commands.CancelCurrentAndPause"
+               style="push">
+         </command>
+         <command
+               commandId="de.walware.statet.nico.commands.CancelAll"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="de.walware.statet.base.perspectives.StatetPerspective">
@@ -118,6 +147,13 @@
                id="de.walware.statet.nico.views.HistoryView">
          </viewShortcut>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="de.walware.statet.nico.commands.CancelCurrent"
+            icon="icons/loctool_16/cancel.png">
+      </image>
    </extension>
 
 </plugin>

@@ -4,24 +4,33 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ltk.ast;
 
+import java.lang.reflect.InvocationTargetException;
+
 
 /**
- *
+ * Converts source range to a selection of AST nodes.
  */
 public class AstSelection {
 	
-	
+	/** Selects the node, greater than the selected range */
 	public final static int MODE_COVERING_GREATER = 1;
+	/** Selects the outermost node, greater or equal than the selected range */
 	public final static int MODE_COVERING_SAME_FIRST = 2;
+	/** Selects the innermost node, greater or equal than the selected range */
 	public final static int MODE_COVERING_SAME_LAST = 3;
 	
+	
+	private final static int SEARCH_STATE_BEFORE = -1;
+	private final static int SEARCH_STATE_MATCH = 0;
+	private final static int SEARCH_STATE_MATCHED = 1;
+	private final static int SEARCH_STATE_BEHIND = 2;
 	
 	private int fStart;
 	private int fStop;
@@ -31,81 +40,56 @@ public class AstSelection {
 	private IAstNode fLastChild;
 	private IAstNode fAfterChild;
 	
-
-	private class CoveringGreaterFinder extends CommonAstVisitor {
+	
+	private class CoveringGreaterFinder implements ICommonAstVisitor {
 		
-		private int fInCovering = -1;
+		private int fInCovering = SEARCH_STATE_BEFORE;
 		
-		@Override
-		public void visit(IAstNode node) {
-			if (fInCovering > 0) {
+		public void visit(final IAstNode node) throws InvocationTargetException {
+			if (fInCovering >= SEARCH_STATE_BEHIND) {
 				return;
 			}
-			if ((node.getStartOffset() < fStart && fStop <= node.getStopOffset())
-					|| (node.getStartOffset() == fStart && fStop < node.getStopOffset())) {
+			if ((node.getOffset() < fStart && fStop <= node.getStopOffset())
+					|| (node.getOffset() == fStart && fStop < node.getStopOffset())) {
 				// covering
 				clearChilds();
 				fLastCovering = node;
-				fInCovering = 0;
+				fInCovering = SEARCH_STATE_MATCH;
 				node.acceptInChildren(this);
-				fInCovering = 1;
+				fInCovering = (fStart == fStop && node.getStopOffset() == fStop) ? SEARCH_STATE_MATCHED : SEARCH_STATE_BEHIND;
 				return;
 			}
-			if (fInCovering == 0) {
+			if (fInCovering == SEARCH_STATE_MATCH) {
 				checkChild(node);
 				return;
+			}
+			if (fInCovering == SEARCH_STATE_MATCHED) {
+				fInCovering = SEARCH_STATE_BEHIND;
 			}
 		}
 		
 	}
 	
-	private class CoveringSameFirstFinder extends CommonAstVisitor {
+	private class CoveringSameFirstFinder implements ICommonAstVisitor {
 		
-		private int fInCovering = -1;
+		private int fInCovering = SEARCH_STATE_BEFORE;
 		
-		@Override
-		public void visit(IAstNode node) {
-			if (fInCovering > 0) {
+		public void visit(final IAstNode node) throws InvocationTargetException {
+			if (fInCovering >= SEARCH_STATE_BEHIND) {
 				return;
 			}
-			if (node.getStartOffset() <= fStart && fStop <= node.getStopOffset()) {
+			if (node.getOffset() <= fStart && fStop <= node.getStopOffset()) {
 				// covering
 				clearChilds();
 				fLastCovering = node;
-				if (node.getStartOffset() != fStart || fStop != node.getStopOffset()) {
-					fInCovering = 0;
+				if (node.getOffset() != fStart || fStop != node.getStopOffset()) {
+					fInCovering = SEARCH_STATE_MATCH;
 					node.acceptInChildren(this);
 				}
-				fInCovering = 1;
+				fInCovering = SEARCH_STATE_BEHIND;
 				return;
 			}
-			if (fInCovering == 0) {
-				checkChild(node);
-				return;
-			}
-		}
-		
-	}
-
-	private class CoveringSameLastFinder extends CommonAstVisitor {
-		
-		private int fInCovering = -1;
-		
-		@Override
-		public void visit(IAstNode node) {
-			if (fInCovering > 0) {
-				return;
-			}
-			if (node.getStartOffset() <= fStart && fStop <= node.getStopOffset()) {
-				// covering
-				clearChilds();
-				fLastCovering = node;
-				fInCovering = 0;
-				node.acceptInChildren(this);
-				fInCovering = 1;
-				return;
-			}
-			if (fInCovering == 0) {
+			if (fInCovering == SEARCH_STATE_MATCH) {
 				checkChild(node);
 				return;
 			}
@@ -113,6 +97,34 @@ public class AstSelection {
 		
 	}
 	
+	private class CoveringSameLastFinder implements ICommonAstVisitor {
+		
+		private int fInCovering = SEARCH_STATE_BEFORE;
+		
+		public void visit(final IAstNode node) throws InvocationTargetException {
+			if (fInCovering >= SEARCH_STATE_BEHIND) {
+				return;
+			}
+			if (node.getOffset() <= fStart && fStop <= node.getStopOffset()) {
+				// covering
+				clearChilds();
+				fLastCovering = node;
+				fInCovering = SEARCH_STATE_MATCH;
+				node.acceptInChildren(this);
+				fInCovering = SEARCH_STATE_BEHIND;
+				return;
+			}
+			if (fInCovering == SEARCH_STATE_MATCH) {
+				checkChild(node);
+				return;
+			}
+		}
+		
+	}
+	
+	
+	AstSelection() {
+	}
 	
 	protected final void clearChilds() {
 		fBeforeChild = null;
@@ -121,12 +133,12 @@ public class AstSelection {
 		fAfterChild = null;
 	}
 	
-	protected final void checkChild(IAstNode node) {
+	protected final void checkChild(final IAstNode node) {
 		if (node.getStopOffset() < fStart) {
 			fBeforeChild = node;
 			return;
 		}
-		if (node.getStartOffset() > fStop) {
+		if (node.getOffset() > fStop) {
 			if (fAfterChild == null) {
 				fAfterChild = node;
 			}
@@ -139,12 +151,12 @@ public class AstSelection {
 		fLastChild = node;
 	}
 	
-
-	public static AstSelection search(IAstNode rootNode, int start, int stop, int mode) {
-		AstSelection selection = new AstSelection();
+	
+	public static AstSelection search(final IAstNode rootNode, final int start, final int stop, final int mode) {
+		final AstSelection selection = new AstSelection();
 		selection.fStart = start;
 		selection.fStop = stop;
-		CommonAstVisitor finder;
+		ICommonAstVisitor finder;
 		switch (mode) {
 		case MODE_COVERING_GREATER:
 			finder = selection.new CoveringGreaterFinder();
@@ -158,23 +170,26 @@ public class AstSelection {
 		default:
 			throw new IllegalArgumentException("Wrong search mode"); //$NON-NLS-1$
 		}
-		finder.visit(rootNode);
+		try {
+			finder.visit(rootNode);
+		} catch (final InvocationTargetException e) {
+		}
 		return selection;
 	}
-
+	
 	
 	public int getStartOffset() {
 		return fStart;
 	}
-
+	
 	public int getStopOffset() {
 		return fStop;
 	}
-
+	
 	public final IAstNode getCovering() {
 		return fLastCovering;
 	}
-
+	
 	public final IAstNode getChildBefore() {
 		return fBeforeChild;
 	}
@@ -182,7 +197,7 @@ public class AstSelection {
 	public final IAstNode getChildFirstTouching() {
 		return fFirstChild;
 	}
-
+	
 	public final IAstNode getChildLastTouching() {
 		return fLastChild;
 	}

@@ -1,28 +1,38 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_BODY_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_REPEAT;
 
+import java.lang.reflect.InvocationTargetException;
+
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * <code>repeat §cont§</code>
  */
 public class CRepeatLoop extends RAstNode {
 	
 	
 	final Expression fLoopExpr = new Expression();
+	
+	
+	CRepeatLoop() {
+	}
 	
 	
 	@Override
@@ -31,17 +41,23 @@ public class CRepeatLoop extends RAstNode {
 	}
 	
 	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.WHILE;
+	}
+	
+	
+	@Override
 	public final boolean hasChildren() {
 		return true;
 	}
-
+	
 	@Override
 	public final int getChildCount() {
 		return 1;
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		switch (index) {
 		case 0:
 			return fLoopExpr.node;
@@ -56,33 +72,34 @@ public class CRepeatLoop extends RAstNode {
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fLoopExpr.node == child) {
 			return 0;
 		}
 		return -1;
 	}
-
+	
 	public final RAstNode getContChild() {
 		return fLoopExpr.node;
 	}
-
+	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-		fLoopExpr.node.accept(visitor);
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fLoopExpr.node.acceptInR(visitor);
 	}
-
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fLoopExpr.node.accept(visitor);
 	}
 	
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		if (fLoopExpr.node == child) {
 			return fLoopExpr;
 		}
@@ -100,13 +117,22 @@ public class CRepeatLoop extends RAstNode {
 	}
 	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.C_REPEAT);
+	}
+	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fLoopExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUS3_REPEAT);
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	@Override
 	final void updateStopOffset() {
 		fStopOffset = fLoopExpr.node.fStopOffset;
 	}
-
+	
 }

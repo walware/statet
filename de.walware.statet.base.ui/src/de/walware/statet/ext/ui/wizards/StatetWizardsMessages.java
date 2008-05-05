@@ -33,5 +33,6 @@ public class StatetWizardsMessages extends NLS {
 	static {
 		NLS.initializeMessages(StatetWizardsMessages.class.getName(), StatetWizardsMessages.class);
 	}
+	private StatetWizardsMessages() {}
 	
 }

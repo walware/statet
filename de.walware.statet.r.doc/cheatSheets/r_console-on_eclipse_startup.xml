@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Tobias Verbeke - initial implementation
+ ###############################################################################
+-->
+<cheatsheet title="Launch R Console on Eclipse Startup">
+   <intro>
+      <description>
+         This cheat sheet shows how one can configure Eclipse to launch an R console whenever Eclipse is started.<br/><br/>
+Note: The &apos;Auto Run&apos;-Feature (WalWare.de) must be installed for this setup.
+      </description>
+   </intro>
+   <item title="Select Launch Configuration" dialog="true" skip="false">
+      <description>
+         Go to <b>Preferences &gt; Run/Debug &gt; Autorun</b>.
+<br/><br/>
+Check the option <b>Enable run at startup of:</b>.
+<br/><br/>
+Select the configuration listed under the <b>R Console</b> node that you would like to launch at startup. This configuration and its R environment has to be defined previously in order to be able to select it for an automated launch.
+<br/><br/>
+Click on the <b>Apply</b> and <b>OK</b> button and this R console will automatically be launched on each Eclipse startup.
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.ui.window.preferences(preferencePageId=de.walware.eclipseutils.autorun.preferencePages.Config)"/>
+   </item>
+</cheatsheet>

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.templates;
@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.SimpleTemplateVariableResolver;
@@ -36,37 +37,36 @@ import de.walware.statet.base.core.StatetProject;
 
 
 public class StatextCodeTemplatesContextType extends TemplateContextType {
-
-
 	
 	/**
 	 * Resolver that resolves to the variable defined in the context.
 	 */
 	protected static class CodeTemplatesVariableResolver extends TemplateVariableResolver {
 		
-		public CodeTemplatesVariableResolver(String type, String description) {
-			
+		public CodeTemplatesVariableResolver(final String type, final String description) {
 			super(type, description);
 		}
 		
-		protected String resolve(TemplateContext context) {
+		@Override
+		protected String resolve(final TemplateContext context) {
 			return context.getVariable(getType());
 		}
 	}
-
+	
 	/**
 	 * Resolver for ToDo-tags.
 	 */
 	protected static class Todo extends SimpleTemplateVariableResolver {
-
+		
 		public Todo() {
 			super("todo", TemplatesMessages.Templates_Variable_ToDo_description);  //$NON-NLS-1$
 		}
 		
-		protected String resolve(TemplateContext context) {
-			if (context instanceof IStatetContext) {
-				StatetProject proj = ((IStatetContext) context).getStatetProject();
-				String todoTaskTag = TemplatesUtil.getTodoTaskTag(proj);
+		@Override
+		protected String resolve(final TemplateContext context) {
+			if (context instanceof IExtTemplateContext) {
+				final StatetProject proj = ((IExtTemplateContext) context).getStatetProject();
+				final String todoTaskTag = TemplatesUtil.getTodoTaskTag(proj);
 				if (todoTaskTag != null)
 					return todoTaskTag;
 			}
@@ -74,18 +74,54 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		}
 	}
 	
+	protected static class InitialSelectionStart extends TemplateVariableResolver {
+		
+		public InitialSelectionStart() {
+			super("selection_begin", TemplatesMessages.Templates_Variable_SelectionBegin_description);  //$NON-NLS-1$
+		}
+		
+		@Override
+		public void resolve(final TemplateVariable variable, final TemplateContext context) {
+			final int[] offsets = variable.getOffsets();
+			if (context instanceof StatextCodeTemplatesContext && offsets.length > 0) {
+				((StatextCodeTemplatesContext) context).fSelectionStart = new Position(variable.getOffsets()[0], 0);
+			}
+			variable.setValue(""); //$NON-NLS-1$
+			variable.setUnambiguous(true);
+		}
+	}
+	
+	protected static class InitialSelectionEnd extends TemplateVariableResolver {
+		
+		public InitialSelectionEnd() {
+			super("selection_end", TemplatesMessages.Templates_Variable_SelectionEnd_description);  //$NON-NLS-1$
+		}
+		
+		@Override
+		public void resolve(final TemplateVariable variable, final TemplateContext context) {
+			final int[] offsets = variable.getOffsets();
+			if (context instanceof StatextCodeTemplatesContext && offsets.length > 0) {
+				((StatextCodeTemplatesContext) context).fSelectionEnd = new Position(variable.getOffsets()[0], 0);
+			}
+			variable.setValue(""); //$NON-NLS-1$
+			variable.setUnambiguous(true);
+		}
+	}
+	
+	
 	/**
 	 * Resolver for Project-name.
 	 */
 	protected static class Project extends SimpleTemplateVariableResolver {
-
+		
 		public Project() {
 			super("enclosing_project", TemplatesMessages.Templates_Variable_EnclosingProject_description);  //$NON-NLS-1$
 		}
 		
-		protected String resolve(TemplateContext context) {
-			if (context instanceof IStatetContext) {
-				StatetProject proj = ((IStatetContext) context).getStatetProject();
+		@Override
+		protected String resolve(final TemplateContext context) {
+			if (context instanceof IExtTemplateContext) {
+				final StatetProject proj = ((IExtTemplateContext) context).getStatetProject();
 				if (proj != null)
 					return proj.getProject().getName();
 			}
@@ -93,13 +129,13 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		}
 	}
 	
-
+	
 	public static final String FILENAME = "file_name"; //$NON-NLS-1$
 	
 	
-	public StatextCodeTemplatesContextType(String id) {
+	public StatextCodeTemplatesContextType(final String id) {
 		super(id);
-
+		
 		// Global
 		addResolver(new GlobalTemplateVariables.Dollar());
 		addResolver(new GlobalTemplateVariables.Date());
@@ -109,30 +145,37 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		addResolver(new Todo());
 		addResolver(new Project());
 	}
-
 	
-	public void resolve(TemplateBuffer buffer, TemplateContext context) throws MalformedTreeException, BadLocationException {
+	
+	protected void addInitialSelectionResolver() {
+		addResolver(new InitialSelectionStart());
+		addResolver(new InitialSelectionEnd());
+	}
+	
+	
+	@Override
+	public void resolve(final TemplateBuffer buffer, final TemplateContext context) throws MalformedTreeException, BadLocationException {
 		Assert.isNotNull(context);
-		TemplateVariable[] variables= buffer.getVariables();
-
-		IDocument document= new Document(buffer.getString());
-		List<TextEdit> positions = TemplatesUtil.variablesToPositions(variables);
-		List<TextEdit> edits= new ArrayList<TextEdit>(5);
-
-
-        // iterate over all variables and try to resolve them
-        for (int i= 0; i != variables.length; i++) {
-            TemplateVariable variable= variables[i];
-
+		final TemplateVariable[] variables= buffer.getVariables();
+		
+		final IDocument document= new Document(buffer.getString());
+		final List<TextEdit> positions = TemplatesUtil.variablesToPositions(variables);
+		final List<TextEdit> edits= new ArrayList<TextEdit>(5);
+		
+		
+		// iterate over all variables and try to resolve them
+		for (int i= 0; i != variables.length; i++) {
+			final TemplateVariable variable= variables[i];
+			
 			if (variable.isUnambiguous())
 				continue;
 			
 			// remember old values
-			int[] oldOffsets= variable.getOffsets();
-			int oldLength= variable.getLength();
-			String oldValue= variable.getDefaultValue();
-
-			String type= variable.getType();
+			final int[] oldOffsets= variable.getOffsets();
+			final int oldLength= variable.getLength();
+			final String oldValue= variable.getDefaultValue();
+			
+			final String type= variable.getType();
 			TemplateVariableResolver resolver = getResolver(type);
 			if (resolver == null) {
 				resolver = new TemplateVariableResolver();
@@ -140,22 +183,22 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 			}
 			
 			resolver.resolve(variable, context);
-
-			String value= variable.getDefaultValue();
-			String[] ln = document.getLegalLineDelimiters();
-			boolean multiLine = (TextUtilities.indexOf(ln, value, 0)[0] != -1);
-
+			
+			final String value= variable.getDefaultValue();
+			final String[] ln = document.getLegalLineDelimiters();
+			final boolean multiLine = (TextUtilities.indexOf(ln, value, 0)[0] != -1);
+			
 			if (!oldValue.equals(value))
 				// update buffer to reflect new value
 				for (int k= 0; k != oldOffsets.length; k++) {
 					String thisValue = value;
 					if (multiLine) {
-						String indent = TemplatesUtil.searchIndentation(document, oldOffsets[k]);
+						final String indent = TemplatesUtil.searchIndentation(document, oldOffsets[k]);
 						if (indent.length() > 0) {
-							StringBuilder temp = new StringBuilder(thisValue);
+							final StringBuilder temp = new StringBuilder(thisValue);
 							int offset = 0;
 							while (true) {
-								int[] search = TextUtilities.indexOf(ln, temp.toString(), offset);
+								final int[] search = TextUtilities.indexOf(ln, temp.toString(), offset);
 								if (search[0] == -1)
 									break;
 								offset = search[0]+ln[search[1]].length();
@@ -167,19 +210,22 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 					}
 					edits.add(new ReplaceEdit(oldOffsets[k], oldLength, thisValue));
 				}
-        }
-
-        MultiTextEdit edit= new MultiTextEdit(0, document.getLength());
-        edit.addChildren(positions.toArray(new TextEdit[positions.size()]));
-        edit.addChildren(edits.toArray(new TextEdit[edits.size()]));
-        edit.apply(document, TextEdit.UPDATE_REGIONS);
-
+		}
+		
+		if (context instanceof StatextCodeTemplatesContext) {
+			final Position[] updatePositions = ((StatextCodeTemplatesContext) context).getPositions();
+			for (int i = 0; i < updatePositions.length; i++) {
+				document.addPosition(updatePositions[i]);
+			}
+		}
+		final MultiTextEdit edit= new MultiTextEdit(0, document.getLength());
+		edit.addChildren(positions.toArray(new TextEdit[positions.size()]));
+		edit.addChildren(edits.toArray(new TextEdit[edits.size()]));
+		edit.apply(document, TextEdit.UPDATE_REGIONS);
+		
 		TemplatesUtil.positionsToVariables(positions, variables);
-
-        buffer.setContent(document.get(), variables);
-    }
-	
-	
-	
+		
+		buffer.setContent(document.get(), variables);
+	}
 	
 }

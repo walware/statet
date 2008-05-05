@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.dialogs;
@@ -18,11 +18,11 @@ import org.eclipse.jface.dialogs.IMessageProvider;
 
 
 public class StatusInfo extends Status {
-
+	
 	/**
 	 * Applies the status to the status line of a dialog page.
 	 */
-	public static void applyToStatusLine(DialogPage page, IStatus status) {
+	public static void applyToStatusLine(final DialogPage page, final IStatus status) {
 		String message= status.getMessage();
 		switch (status.getSeverity()) {
 			case IStatus.OK:
@@ -46,33 +46,30 @@ public class StatusInfo extends Status {
 				break;		
 		}
 	}
-
-
+	
 	
 	public StatusInfo() {
 		this(IStatus.OK, ""); //$NON-NLS-1$
 	}
 	
-	public StatusInfo(int severity, String message) {
+	public StatusInfo(final int severity, final String message) {
 		super(severity, "no supported", IStatus.OK, message, null); //$NON-NLS-1$
 	}
-
+	
+	
 	public void setOK() {
-		
 		setSeverity(IStatus.OK);
 		setMessage(""); //$NON-NLS-1$
 	}
 	
-	public void setWarning(String message) {
-		
+	public void setWarning(final String message) {
 		setSeverity(IStatus.WARNING);
 		setMessage(message);
 	}
-
-	public void setError(String message) {
-		
+	
+	public void setError(final String message) {
 		setSeverity(IStatus.ERROR);
 		setMessage(message);
 	}
-
+	
 }

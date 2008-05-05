@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -18,18 +18,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.ui.texteditor.ITextEditorActionConstants;
-import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
-import de.walware.statet.ext.ui.editors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
@@ -41,28 +40,27 @@ import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
  */
 public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		implements IRCoreAccess, PropertyChangeListener {
-
 	
-	private static final Set<String> INPUT_CHANGE_CONTEXTS = new HashSet<String>(Arrays.asList(new String[] {
-			RCodeStyleSettings.CONTEXT_ID,
-			TaskTagsPreferences.CONTEXT_ID,
+	
+	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(Arrays.asList(new String[] {
+			RCodeStyleSettings.GROUP_ID,
+			TaskTagsPreferences.GROUP_ID,
 	}));
 	
 	
-	private REditor fEditor;
-	private RSourceViewerConfiguration fConfig;
+	private REditor fRealEditor;
+	private StatextSourceViewerConfiguration fConfig;
 	
 	private RCodeStyleSettings fRCodeStyleCopy;
 	private IRCoreAccess fSourceCoreAccess;
 	
-	private boolean fUpdateCompleteConfig;
+	protected boolean fUpdateCompleteConfig;
 	private boolean fUpdateTextPresentation;
 	private boolean fUpdateTabSize;
 	private boolean fUpdateIndent;
-	private boolean fUpdateQuickFix;
 	
 	
-	public RSourceViewerConfigurator(IRCoreAccess core, IPreferenceStore store) {
+	public RSourceViewerConfigurator(final IRCoreAccess core, final IPreferenceStore store) {
 		setSource(core);
 		setPreferenceStore(store);
 		fRCodeStyleCopy = new RCodeStyleSettings();
@@ -70,15 +68,21 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		fRCodeStyleCopy.resetDirty();
 		fRCodeStyleCopy.addPropertyChangeListener(this);
 		
+		initialize();
+	}
+	
+	protected void initialize() {
 		setPairMatcher(new RBracketPairMatcher());
 	}
+	
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {
 		return new RDocumentSetupParticipant();
 	}
 	
-	public void setConfiguration(RSourceViewerConfiguration config) {
+	@Override
+	public void setConfiguration(final StatextSourceViewerConfiguration config) {
 		fConfig = config;
 		super.setConfiguration(config);
 	}
@@ -92,21 +96,25 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 			handleSettingsChanged(null, null);
 		}
 	}
-
-	public void setTarget(REditor editor, ISourceViewer viewer) {
-		fEditor = editor;
+	
+	public void setTarget(final REditor editor) {
+		fRealEditor = editor;
 		fIsConfigured = true;
-		setTarget(viewer, false);
+		setTarget((IEditorAdapter) editor.getAdapter(IEditorAdapter.class), false);
 	}
 	
 	@Override
-	public void setTarget(ISourceViewer viewer, boolean configure) {
+	public void setTarget(final IEditorAdapter editor, final boolean configure) {
 		fUpdateIndent = true;
-		super.setTarget(viewer, configure);
+		super.setTarget(editor, configure);
 	}
 	
-	public void propertyChange(PropertyChangeEvent event) {
-		String name = event.getPropertyName();
+	protected REditor getREditor() {
+		return fRealEditor;
+	}
+	
+	public void propertyChange(final PropertyChangeEvent event) {
+		final String name = event.getPropertyName();
 		if (name.equals(RCodeStyleSettings.PROP_TAB_SIZE)) {
 			fUpdateTabSize = true;
 			fUpdateIndent = true;
@@ -121,25 +129,24 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
-		ISourceViewer viewer = getSourceViewer();
+	public boolean handleSettingsChanged(Set<String> groupIds, final Object options) {
+		final ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
 			return false;
 		}
-		if (contexts == null) {
-			contexts = INPUT_CHANGE_CONTEXTS;
+		if (groupIds == null) {
+			groupIds = INPUT_CHANGE_GROUPS;
 		}
-		Point selectedRange = viewer.getSelectedRange();
+		final Point selectedRange = viewer.getSelectedRange();
 		
-		if (contexts.contains(RCodeStyleSettings.CONTEXT_ID)) {
+		if (groupIds.contains(RCodeStyleSettings.GROUP_ID)) {
 			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		}
-		if (contexts.contains(REditorOptions.CONTEXT_ID) && fEditor != null) {
+		if (groupIds.contains(REditorOptions.GROUP_ID) && fRealEditor != null) {
 			fUpdateCompleteConfig = true;
-			fUpdateQuickFix = true;
-			SpellingProblem.removeAllInActiveEditor(fEditor, null);
+			SpellingProblem.removeAllInActiveEditor(fRealEditor, null);
 		}
-		fUpdateTextPresentation = fConfig.handleSettingsChanged(contexts, viewer);
+		fUpdateTextPresentation = fConfig.handleSettingsChanged(groupIds, viewer);
 		
 		updateSourceViewer(viewer);
 		viewer.setSelectedRange(selectedRange.x, selectedRange.y);
@@ -147,7 +154,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		return false;
 	}
 	
-	protected void updateSourceViewer(ISourceViewer viewer) {
+	protected void updateSourceViewer(final ISourceViewer viewer) {
 		if (!fIsConfigured) {
 			return;
 		}
@@ -161,30 +168,23 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 			if (fUpdateTextPresentation) {
 				viewer.invalidateTextPresentation();
 			}
-			if (fUpdateIndent && fEditor != null) {
-				fEditor.updateSettings(fUpdateIndent);
+			if (fUpdateIndent && fRealEditor != null) {
+				fRealEditor.updateSettings(fUpdateIndent);
 			}
 		}
-		if (fUpdateQuickFix && fEditor != null) {
-			IAction quickAssistAction = fEditor.getAction(ITextEditorActionConstants.QUICK_ASSIST);
-			if (quickAssistAction instanceof IUpdate) {
-				((IUpdate) quickAssistAction).update();
-			}
-		}
-
+		
 		fUpdateCompleteConfig = false;
 		fUpdateTextPresentation = false;
 		fUpdateTabSize = false;
 		fUpdateIndent = false;
-		fUpdateQuickFix = false;
 	}
 	
 	public RCodeStyleSettings getRCodeStyle() {
 		return fRCodeStyleCopy;
 	}
-
+	
 	public IPreferenceAccess getPrefs() {
 		return fSourceCoreAccess.getPrefs();
 	}
-
+	
 }

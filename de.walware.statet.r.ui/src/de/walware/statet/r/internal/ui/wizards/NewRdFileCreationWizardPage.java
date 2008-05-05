@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.wizards;
@@ -25,47 +25,47 @@ import de.walware.statet.ext.ui.wizards.NewElementWizardPage;
  * with the extension that matches the expected one (r).
  */
 public class NewRdFileCreationWizardPage extends NewElementWizardPage {
-
+	
 	
 	private static final String fgDefaultExtension = ".Rd"; //$NON-NLS-1$
 	
 	
 	ResourceGroup fResourceGroup;
-
+	
+	
 	/**
 	 * Constructor.
 	 */
-	public NewRdFileCreationWizardPage(IStructuredSelection selection) {
+	public NewRdFileCreationWizardPage(final IStructuredSelection selection) {
 		super("NewRdFileCreationWizardPage", selection); //$NON-NLS-1$
 		
 		setTitle(Messages.NewRDocFileWizardPage_title);
 		setDescription(Messages.NewRDocFileWizardPage_description);
-
+		
 		fResourceGroup = new ResourceGroup(fgDefaultExtension);
 	}
-
+	
+	
 	@Override
-	protected void createContents(Layouter layouter) {
-		
+	protected void createContents(final Layouter layouter) {
 		fResourceGroup.createGroup(layouter);
 	}
-
-	public void setVisible(boolean visible) {
-
-		super.setVisible(visible);
-	    if (visible)
-	        fResourceGroup.setFocus();
-	}
-
-    public void saveSettings() {
-    	
-    	fResourceGroup.saveSettings();
-    }
 	
-    @Override
-    protected void validatePage() {
-    	
-    	updateStatus(fResourceGroup.validate());
-    }
+	@Override
+	public void setVisible(final boolean visible) {
+		super.setVisible(visible);
+		if (visible) {
+			fResourceGroup.setFocus();
+		}
+	}
+	
+	public void saveSettings() {
+		fResourceGroup.saveSettings();
+	}
+	
+	@Override
+	protected void validatePage() {
+		updateStatus(fResourceGroup.validate());
+	}
 	
 }

@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000-2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Wahlbrink - adaptation to StatET
@@ -12,6 +12,8 @@
 
 package de.walware.statet.nico.ui.console;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -22,21 +24,31 @@ import org.eclipse.debug.internal.ui.DebugPluginImages;
 import org.eclipse.debug.internal.ui.IDebugHelpContextIds;
 import org.eclipse.debug.internal.ui.IInternalDebugUIConstants;
 import org.eclipse.debug.internal.ui.views.console.ConsoleMessages;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.action.Action;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IUpdate;
 
+import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import de.walware.statet.nico.internal.ui.Messages;
+import de.walware.statet.nico.ui.NicoUI;
+import de.walware.statet.nico.ui.NicoUITools;
+
 
 public class TerminateToolAction extends Action implements IUpdate {
-
+	
 	
 	private IProcess fProcess;
-
+	
+	
 	/**
 	 * Creates a terminate action for the console
 	 */
-	public TerminateToolAction(IProcess process) {
+	public TerminateToolAction(final IProcess process) {
 		super(ConsoleMessages.ConsoleTerminateAction_0);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IDebugHelpContextIds.CONSOLE_TERMINATE_ACTION);
 		fProcess = process;
@@ -46,7 +58,8 @@ public class TerminateToolAction extends Action implements IUpdate {
 		setHoverImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_LCL_TERMINATE));
 		update();
 	}
-
+	
+	
 	public void update() {
 		setEnabled(fProcess.canTerminate());
 	}
@@ -54,38 +67,46 @@ public class TerminateToolAction extends Action implements IUpdate {
 	@Override
 	public void run() {
 		try {
-            killTargets(fProcess);
-            fProcess.terminate();
-		} catch (DebugException e) {
-			StatusManager.getManager().handle(e.getStatus(), StatusManager.LOG | StatusManager.SHOW);
+			killTargets(fProcess);
+			fProcess.terminate();
+			
+			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
+			final IConsole console = DebugUITools.getConsole(fProcess);
+			if (console instanceof NIConsole) {
+				NicoUITools.showConsole((NIConsole) console, page, true);
+			}
+		} catch (final DebugException e) {
+			final int severity = e.getStatus().getSeverity();
+			StatusManager.getManager().handle(new Status(severity, NicoUI.PLUGIN_ID, -1, Messages.TerminateToolAction_error_message, e),
+					(severity >= IStatus.ERROR) ? StatusManager.LOG | StatusManager.SHOW : StatusManager.LOG);
 		}
 	}
 	
-	private void killTargets(IProcess process) throws DebugException {
-        ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-        ILaunch[] launches = launchManager.getLaunches();
-
-        for (int i = 0; i < launches.length; i++) {
-            ILaunch launch = launches[i];
-            IProcess[] processes = launch.getProcesses();
-            for (int j = 0; j < processes.length; j++) {
-                IProcess process2 = processes[j];
-                if (process2.equals(process)) {
-                    IDebugTarget[] debugTargets = launch.getDebugTargets();
-                    for (int k = 0; k < debugTargets.length; k++) {
-                        IDebugTarget target = debugTargets[k];
-                        if (target.canTerminate()) {
-                            target.terminate();
-                        }
-                    }
-                    return; // all possible targets have been terminated for the launch.
-                }
-            }
-        }
-    }
-
-    public void dispose() {
-	    fProcess = null;
+	private void killTargets(final IProcess process) throws DebugException {
+		final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		final ILaunch[] launches = launchManager.getLaunches();
+		
+		for (int i = 0; i < launches.length; i++) {
+			final ILaunch launch = launches[i];
+			final IProcess[] processes = launch.getProcesses();
+			for (int j = 0; j < processes.length; j++) {
+				final IProcess process2 = processes[j];
+				if (process2.equals(process)) {
+					final IDebugTarget[] debugTargets = launch.getDebugTargets();
+					for (int k = 0; k < debugTargets.length; k++) {
+						final IDebugTarget target = debugTargets[k];
+						if (target.canTerminate()) {
+							target.terminate();
+						}
+					}
+					return; // all possible targets have been terminated for the launch.
+				}
+			}
+		}
 	}
-
+	
+	public void dispose() {
+		fProcess = null;
+	}
+	
 }

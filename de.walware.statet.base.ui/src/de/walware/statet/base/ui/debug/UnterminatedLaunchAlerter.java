@@ -29,13 +29,12 @@ import de.walware.statet.base.internal.ui.StatetMessages;
  * Register your type on launch with {@link #registerLaunchType(String)}
  */
 public class UnterminatedLaunchAlerter implements IWorkbenchListener {
-
+	
 	
 	private static Object gMutex = new Object();
 	private static UnterminatedLaunchAlerter gInstance;
 	
-	public static void registerLaunchType(String id) {
-
+	public static void registerLaunchType(final String id) {
 		synchronized (gMutex) {
 			if (gInstance == null) {
 				gInstance = new UnterminatedLaunchAlerter();
@@ -46,20 +45,18 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 	
 	
 	private Set<String> fLauchTypeIds = new HashSet<String>();
-
+	
 	private UnterminatedLaunchAlerter() { 
-		
 		PlatformUI.getWorkbench().addWorkbenchListener(this);
 	}
 	
 	
-	public boolean preShutdown(IWorkbench workbench, boolean forced) {
-
-		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-		List<ILaunchConfigurationType> programTypes = new LinkedList<ILaunchConfigurationType>();
+	public boolean preShutdown(final IWorkbench workbench, final boolean forced) {
+		final ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
+		final List<ILaunchConfigurationType> programTypes = new LinkedList<ILaunchConfigurationType>();
 		synchronized (gMutex) {
-			for (String id : fLauchTypeIds) {
-				ILaunchConfigurationType programType = manager.getLaunchConfigurationType(id);
+			for (final String id : fLauchTypeIds) {
+				final ILaunchConfigurationType programType = manager.getLaunchConfigurationType(id);
 				if (programType != null) {
 					programTypes.add(programType);
 				}
@@ -69,10 +66,10 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 			return true;
 		}
 		
-		Set<ILaunchConfigurationType> stillRunningTypes = new HashSet<ILaunchConfigurationType>();
+		final Set<ILaunchConfigurationType> stillRunningTypes = new HashSet<ILaunchConfigurationType>();
 		int count = 0;
-		ILaunch launches[] = manager.getLaunches();
-		for (ILaunch launch : launches) {
+		final ILaunch launches[] = manager.getLaunches();
+		for (final ILaunch launch : launches) {
 			ILaunchConfigurationType configType;
 			ILaunchConfiguration config;
 			try {
@@ -81,7 +78,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 					continue;
 				}
 				configType = config.getType();
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 				continue;
 			}
 			if (programTypes.contains(configType) && !launch.isTerminated()) {
@@ -93,14 +90,14 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 			return true;
 		}
 		
-		StringBuilder names = new StringBuilder(stillRunningTypes.size()*20);
+		final StringBuilder names = new StringBuilder(stillRunningTypes.size()*20);
 		names.append('\n');
-		for (ILaunchConfigurationType type : stillRunningTypes) {
+		for (final ILaunchConfigurationType type : stillRunningTypes) {
 			names.append("- "); //$NON-NLS-1$
 			names.append(type.getName());
 			names.append('\n');
 		}
-		String message = NLS.bind(StatetMessages.UnterminatedLaunchAlerter_WorkbenchClosing_message, 
+		final String message = NLS.bind(StatetMessages.UnterminatedLaunchAlerter_WorkbenchClosing_message, 
 				new Object[] { count, names });
 		if (forced) {
 			MessageDialog.openWarning(UIAccess.getDisplay().getActiveShell(),
@@ -108,21 +105,22 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 			return true;
 		}
 		else {
-			MessageDialog dialog = new MessageDialog(UIAccess.getDisplay().getActiveShell(),
+			final MessageDialog dialog = new MessageDialog(UIAccess.getDisplay().getActiveShell(),
 					StatetMessages.UnterminatedLaunchAlerter_WorkbenchClosing_title, null, message,
 					MessageDialog.WARNING,
 					new String[] { 
 						StatetMessages.UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue,
 						StatetMessages.UnterminatedLaunchAlerter_WorkbenchClosing_button_Cancel, 
 					}, 1);
-			int answer = dialog.open();
+			final int answer = dialog.open();
 			if (answer == 1) {
 				return false;
 			}
 			return true;
 		}
 	}
-
-	public void postShutdown(IWorkbench workbench) {
+	
+	public void postShutdown(final IWorkbench workbench) {
 	}
+	
 }

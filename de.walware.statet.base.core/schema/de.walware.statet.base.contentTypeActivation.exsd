@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
+-->
+<schema targetNamespace="de.walware.statet.base.core">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="de.walware.statet.base.core" id="de.walware.statet.base.contentTypeActivation" name="Additional activation for content types"/>
+      </appInfo>
+      <documentation>
+         Allows multiple content types in addition to the primary content type.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <choice minOccurs="0" maxOccurs="unbounded">
+            <element ref="activation"/>
+         </choice>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="activation">
+      <complexType>
+         <attribute name="primary" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="secondary" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         0.5
+      </documentation>
+   </annotation>
+
+</schema>

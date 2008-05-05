@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.actions;
@@ -34,7 +34,6 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 	
 	
 	public PauseAction() {
-		
 		setText(Messages.PauseAction_name);
 		setToolTipText(Messages.PauseAction_tooltip);
 		setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_PAUSE));
@@ -43,26 +42,26 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 		setEnabled(false);
 	}
 	
+	
+	@Override
 	public synchronized void run() {
-		
 		ToolController controller;
 		if (fProcess == null 
 				|| (controller = fProcess.getController()) == null) {
 			return;
 		}
-		boolean checked = isChecked();
-		boolean paused = controller.pause(checked);
+		final boolean checked = isChecked();
+		final boolean paused = controller.pause(checked);
 		if (checked != paused) {
 			setChecked(paused);
 		}
 	}
-
+	
 	/**
 	 * 
 	 * @param process must not be <code>null</code>.
 	 */
-	public synchronized void setTool(ToolProcess process) {
-		
+	public synchronized void setTool(final ToolProcess process) {
 		ToolController controller;
 		if (process != null && !process.isTerminated() && (controller = process.getController()) != null) {
 			fProcess = process;
@@ -78,19 +77,17 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 	}
 	
 	private void disconnect() {
-		
 		fProcess = null;
 		DebugPlugin.getDefault().removeDebugEventListener(this);
 	}
 	
-	public synchronized void handleDebugEvents(DebugEvent[] events) {
-		
-		for (DebugEvent event : events) {
+	public synchronized void handleDebugEvents(final DebugEvent[] events) {
+		for (final DebugEvent event : events) {
 			if (event.getSource() == fProcess) {
 				switch (event.getKind()) {
 				case DebugEvent.MODEL_SPECIFIC:
 					Boolean checked = null;
-					int detail = event.getDetail();
+					final int detail = event.getDetail();
 					switch (detail) {
 					case ToolProcess.REQUEST_PAUSE:
 					case ToolProcess.STATUS_PAUSE:
@@ -100,7 +97,7 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 						checked = Boolean.FALSE;
 						break;
 					default:
-						if ((detail & ToolProcess.MASK_STATUS) == ToolProcess.MASK_STATUS) { // status other than QUEUE_PAUSE
+						if ((detail & ToolProcess.STATUS) == ToolProcess.STATUS) { // status other than QUEUE_PAUSE
 							checked = Boolean.FALSE;
 						}
 						break;
@@ -127,9 +124,8 @@ public class PauseAction extends Action implements IDebugEventSetListener {
 			}
 		}
 	}
-		
+	
 	public void dispose() {
-		
 		disconnect();
 	}
 	

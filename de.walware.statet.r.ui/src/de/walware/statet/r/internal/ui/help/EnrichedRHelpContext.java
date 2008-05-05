@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.help;
@@ -36,7 +36,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunHelpInR;
@@ -48,7 +48,7 @@ import de.walware.statet.r.internal.ui.rtools.RunHelpSearchInR;
  */
 public class EnrichedRHelpContext implements IContext3 {
 	
-
+	
 	public static String searchContextInfo(Object target) {
 		try {
 			String plaintext = null;
@@ -87,7 +87,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		}
 		return null;
 	}
-
+	
 	private static String getPlaintextFromTextSelection(ISelectionProvider selectionProvider) {
 		ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
 		if ( (!textSelection.isEmpty()) && textSelection.getLength() > 0) {
@@ -106,7 +106,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		}
 		return null;
 	}
-
+	
 	
 	public static class Provider implements IContextProvider {
 		
@@ -138,33 +138,33 @@ public class EnrichedRHelpContext implements IContext3 {
 		}
 		
 		public String getSearchExpression(Object target) {
-
+			
 			return null;
 		}
 	}
 	
 	private static class RHelpResource implements IHelpResource {
-
+		
 		private String fLabel;
 		private String fUrl;
-
+		
 		public RHelpResource(String label, String url) {
 			fLabel = label;
 			fUrl = url;
 		}
-
+		
 		public String getLabel() {
 			return fLabel;
 		}
-
+		
 		public String getHref() {
 			return fUrl;
 		}
 		
 	}	
-
+	
 	public static class RHelpCommand extends RHelpResource {
-
+		
 		public RHelpCommand(String label, String command) {
 			super(label, "command://"+command); //$NON-NLS-1$
 		}
@@ -199,7 +199,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		try {
 			List<IHelpResource> resources = new ArrayList<IHelpResource>(fRelatedTopics.length + 1);
 			String urlText = URLEncoder.encode(plaintext, "UTF-8"); //$NON-NLS-1$
-
+			
 			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_Help_label, plaintext), 
 					MessageUtil.escapeForFormText(RunHelpInR.createCommandString(plaintext))));
 			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_HelpSearch_label, plaintext), 
@@ -214,7 +214,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		}
 	}
 	
-
+	
 	public String getTitle() {
 		return fTitle;
 	}
@@ -222,7 +222,7 @@ public class EnrichedRHelpContext implements IContext3 {
 	public String getText() {
 		return fText;
 	}
-
+	
 	public String getStyledText() {
 		return fStyledText;
 	}
@@ -230,16 +230,16 @@ public class EnrichedRHelpContext implements IContext3 {
 	public IHelpResource[] getRelatedTopics() {
 		return fRelatedTopics;
 	}
-
+	
 	public String getCategory(IHelpResource topic) {
 		if (topic instanceof RHelpResource) {
 			return Messages.RHelp_category;
 		}
 		return null;
 	}
-
+	
 	public ICommandLink[] getRelatedCommands() {
 		return fRelatedCommands;
 	}
-		
+	
 }

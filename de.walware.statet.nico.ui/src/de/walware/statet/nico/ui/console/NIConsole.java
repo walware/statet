@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.console;
@@ -26,9 +26,13 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.debug.internal.ui.preferences.IDebugPreferenceConstants;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.IOConsole;
@@ -53,11 +57,11 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
 	
-
-	private Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
+	
+	private final Map<String, IOConsoleOutputStream> fStreams = new HashMap<String, IOConsoleOutputStream>();
 	private boolean fStreamsClosed;
 	
-	private ToolProcess fProcess;
+	private final ToolProcess fProcess;
 	private NIConsoleColorAdapter fAdapter;
 	
 	private IDebugEventSetListener fDebugListener;
@@ -69,28 +73,40 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	 * 
 	 * @param name console name
 	 */
-	public NIConsole(ToolProcess process, NIConsoleColorAdapter adapter) {
+	public NIConsole(final ToolProcess process, final NIConsoleColorAdapter adapter) {
 		super(process.getAttribute(IProcess.ATTR_PROCESS_LABEL),
 				NICONSOLE_TYPE, null, null, true);
-		
 		fProcess = process;
 		fAdapter = adapter;
 		Charset.defaultCharset();
 		setImageDescriptor(NicoUITools.getImageDescriptor(fProcess));
 		
+		// TODO: create own preferences and listen to changes
+		final IPreferenceStore store = DebugUIPlugin.getDefault().getPreferenceStore();
+		final boolean limitBufferSize = store.getBoolean(IDebugPreferenceConstants.CONSOLE_LIMIT_CONSOLE_OUTPUT);
+		if (limitBufferSize) {
+			final int highWater = store.getInt(IDebugPreferenceConstants.CONSOLE_HIGH_WATER_MARK);
+			final int lowWater = store.getInt(IDebugPreferenceConstants.CONSOLE_LOW_WATER_MARK);
+			if (highWater > lowWater) {
+				setWaterMarks(lowWater, highWater);
+			}
+		} else {
+			setWaterMarks(-1, -1);
+		}
+		
 		fStreamsClosed = fProcess.isTerminated();
 		fAdapter.connect(process, this);
-
+		
 		fDebugListener = new IDebugEventSetListener() {
-			public void handleDebugEvents(DebugEvent[] events) {
+			public void handleDebugEvents(final DebugEvent[] events) {
 				
-				EVENTS: for (DebugEvent event : events) {
+				EVENTS: for (final DebugEvent event : events) {
 					if (event.getSource() == fProcess) {
 						switch (event.getKind()) {
 						case DebugEvent.CHANGE:
-							Object obj = event.getData();
+							final Object obj = event.getData();
 							if (obj != null && obj instanceof String[]) {
-								String[] attrChange = (String[]) obj;
+								final String[] attrChange = (String[]) obj;
 								if (attrChange.length == 3 && IProcess.ATTR_PROCESS_LABEL.equals(attrChange[0])) {
 									runSetName(attrChange[2]);
 								}
@@ -106,12 +122,12 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 			
 			private void runSetName(final String name) {
 				UIAccess.getDisplay().syncExec(new Runnable() {
-	                public void run() {
-	                	setName(name);
-	//                	ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
-	                	ConsolePlugin.getDefault().getConsoleManager().refresh(NIConsole.this);
-	                }
-	            });
+					public void run() {
+						setName(name);
+//						ConsolePlugin.getDefault().getConsoleManager().warnOfContentChange(NIConsole.this);
+						ConsolePlugin.getDefault().getConsoleManager().refresh(NIConsole.this);
+					}
+				});
 			}
 		};
 		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
@@ -122,7 +138,7 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 		super.init();
 		
 		fFontListener = new IPropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
+			public void propertyChange(final PropertyChangeEvent event) {
 				if (JFaceResources.TEXT_FONT.equals(event.getProperty()) )
 					setFont(null);
 			};
@@ -135,22 +151,22 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 	protected void dispose() {
 		super.dispose();
 		
-		DebugPlugin debugPlugin = DebugPlugin.getDefault();
+		final DebugPlugin debugPlugin = DebugPlugin.getDefault();
 		if (debugPlugin != null) {
 			debugPlugin.removeDebugEventListener(fDebugListener);
 		}
 		fDebugListener = null;
-
+		
 		disconnect();
-
+		
 		JFaceResources.getFontRegistry().removeListener(fFontListener);
 	}
 	
 	@Override
-    public abstract IPageBookViewPage createPage(IConsoleView view);
-
-
-	public void connect(ToolStreamMonitor streamMonitor, String streamId, EnumSet<SubmitType> filter) {
+	public abstract IPageBookViewPage createPage(IConsoleView view);
+	
+	
+	public void connect(final ToolStreamMonitor streamMonitor, final String streamId, final EnumSet<SubmitType> filter) {
 		synchronized (fStreams) {
 			if (fStreamsClosed) {
 				return;
@@ -165,58 +181,144 @@ public abstract class NIConsole extends IOConsole implements IAdaptable {
 			
 			final IOConsoleOutputStream out = stream;
 			streamMonitor.addListener(new IStreamListener() {
-				public void streamAppended(String text, IStreamMonitor monitor) {
-				    try {
-						out.write(text);
-					} catch (IOException e) {
+				
+				private static final int BUFFER_SIZE = 9216;
+				private final StringBuilder fBuffer = new StringBuilder(BUFFER_SIZE);
+				
+				public void streamAppended(final String text, final IStreamMonitor monitor) {
+					try {
+						synchronized (out) {
+							// it would be better to run the check later, e.g. in partitioning job, but this is internal Eclipse
+							int start = 0;
+							final int n = text.length();
+							for (int idx = 0; idx < n;) {
+								final char c = text.charAt(idx);
+								if (c <= 12) {
+									switch (c) {
+									case 7: // bell
+										fBuffer.append(text, start, idx);
+										ring();
+										start = ++idx;
+										continue;
+									case 8: // back
+										fBuffer.append(text, start, idx);
+										if (fBuffer.length() > 0) {
+											final char prev = fBuffer.charAt(fBuffer.length()-1);
+											if (prev != '\n' && prev != '\r') {
+												fBuffer.deleteCharAt(fBuffer.length()-1);
+											}
+										}
+										start = ++idx;
+										continue;
+									case 11: // vertical tab
+										fBuffer.append(text, start, idx);
+										printVTab();
+										start = ++idx;
+										continue;
+									case 12: // formfeed
+										fBuffer.append(text, start, idx);
+										printFormfeed();
+										start = ++idx;
+										continue;
+									}
+								}
+								++idx;
+								continue;
+							}
+							if (start == 0) {
+								out.write(text);
+							}
+							else {
+								fBuffer.append(text, start, n);
+								out.write(fBuffer.toString());
+								if (fBuffer.capacity() > BUFFER_SIZE*5) {
+									fBuffer.setLength(BUFFER_SIZE);
+									fBuffer.trimToSize();
+								}
+								fBuffer.setLength(0);
+							}
+							
+							if (text.length() >= 7168) {
+								try {
+									Thread.sleep(10);
+								}
+								catch (final InterruptedException e) {
+									Thread.interrupted();
+								}
+							}
+						}
+					}
+					catch (final IOException e) {
 						NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when writing to console stream.", e); //$NON-NLS-1$
 					}
 				}
+				
+				private void ring() {
+					final Display display = UIAccess.getDisplay();
+					display.asyncExec(new Runnable() {
+						public void run() {
+							display.beep();
+						};
+					});
+				}
+				
+				private void printVTab() {
+					final String br = fProcess.getWorkspaceData().getLineSeparator();
+					fBuffer.append(br);
+				}
+				
+				private void printFormfeed() {
+					final String br = fProcess.getWorkspaceData().getLineSeparator();
+					fBuffer.append(br+br);
+				}
+				
 			}, filter);
 		}
 	}
-
-    public IOConsoleOutputStream getStream(String streamId) {
+	
+	public IOConsoleOutputStream getStream(final String streamId) {
 		synchronized (fStreams) {
 			return fStreams.get(streamId);
 		}
 	}
-
+	
 	private void disconnect() {
 		synchronized (fStreams) {
 			if (fStreamsClosed) {
 				return;
 			}
 			
-			for (IOConsoleOutputStream stream : fStreams.values()) {
+			for (final IOConsoleOutputStream stream : fStreams.values()) {
 				try {
-					stream.close();
-				} catch (IOException e) {
+					if (!stream.isClosed()) {
+						stream.close();
+					}
+				} catch (final IOException e) {
 					NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when closing a console stream.", e); //$NON-NLS-1$
 				}
 			}
 			fStreamsClosed = true;
-
+			
 			fAdapter.disconnect();
 			fAdapter = null;
 		}
 	}
-
+	
 	public final ToolProcess getProcess() {
 		return fProcess;
 	}
 	
-	public Object getAdapter(Class required) {
-    	if (ITool.class.equals(required)) {
-    		return fProcess;
-    	}
-        if(ILaunchConfiguration.class.equals(required)) {
-        	ILaunch launch = getProcess().getLaunch();
-        	if(launch != null) {
-        		return launch.getLaunchConfiguration();
-        	}
-        	return null;
-        }
+	public Object getAdapter(final Class required) {
+		if (ITool.class.equals(required)) {
+			return fProcess;
+		}
+		if(ILaunchConfiguration.class.equals(required)) {
+			final ILaunch launch = getProcess().getLaunch();
+			if(launch != null) {
+				return launch.getLaunchConfiguration();
+			}
+			return null;
+		}
 		return null;
 	}
 	

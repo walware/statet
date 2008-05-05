@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.core;
@@ -15,44 +15,76 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 
+import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
 
 public class StatetCore {
-
+	
 	
 	public static final String PLUGIN_ID = "de.walware.statet.base.core"; //$NON-NLS-1$
 	
-	public static final int STATUSCATEGORY = (2 << 16);
 	
-	/** Status Code for common errors in (incremental) builders */
-	public static final int STATUSCODE_BUILD_ERROR = STATUSCATEGORY | (2 << 8);
+	public static final WorkingContext PERSISTENCE_CONTEXT = new WorkingContext("persistence.default"); //$NON-NLS-1$
+	public static final WorkingContext EDITOR_CONTEXT = new WorkingContext("editor.default"); //$NON-NLS-1$
 	
 	
 	public static Set<StatetProject> getStatetProjects() {
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		Set<StatetProject> collected = new HashSet<StatetProject>();
+		final IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		final Set<StatetProject> collected = new HashSet<StatetProject>();
 		try {
-			for (IProject project : projects) {
-				StatetProject sp = (StatetProject) project.getNature(StatetProject.NATURE_ID);
+			for (final IProject project : projects) {
+				final StatetProject sp = (StatetProject) project.getNature(StatetProject.NATURE_ID);
 				if (sp != null)
 					collected.add(sp);
 			}
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
+			logError(e);
 			return new HashSet<StatetProject>(0);
 		}
 		return collected;
 	}
 	
+	public static StatetProject getStatetProject(final ISourceUnit unit) {
+		if (unit == null) {
+			return null;
+		}
+		final IResource resource = unit.getResource();
+		if (resource != null) {
+			final IProject project = resource.getProject();
+			try {
+				if (project.hasNature(StatetProject.NATURE_ID)) {
+					return (StatetProject) project.getNature(StatetProject.NATURE_ID);
+				}
+			}
+			catch (final CoreException e) {
+				logError(e);
+			}
+		}
+		return null;
+	}
+	
+	private static void logError(final CoreException e) {
+		BaseCorePlugin.log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
+	}
+	
 	public static SettingsChangeNotifier getSettingsChangeNotifier() {
 		return BaseCorePlugin.getDefault().getSettingsChangeNotifier();
 	}
-
+	
+	public static IExtContentTypeManager getExtContentTypeManager() {
+		return BaseCorePlugin.getDefault().getContentTypeServices();
+	}
+	
 	
 	private StatetCore() {
 	}

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.preferences;
@@ -28,39 +28,47 @@ import de.walware.statet.base.internal.core.Messages;
 
 
 public class SettingsChangeNotifier implements ISchedulingRule {
-
+	
 	
 	public static interface ChangeListener {
-
-		public void settingsChanged(Set<String> contexts);
+		
+		/**
+		 * Is called inside a job. So, a bit longer tasks are allowed directly,
+		 * but not UI tasks.
+		 * 
+		 * @param groupIds set of ids of changed preference groups
+		 */
+		public void settingsChanged(Set<String> groupIds);
+		
 	}
 	
 	public static interface ManageListener {
-
-		public void beforeSettingsChangeNotification(Set<String> contexts);
 		
-		public void afterSettingsChangeNotification(Set<String> contexts);
+		public void beforeSettingsChangeNotification(Set<String> groupIds);
+		
+		public void afterSettingsChangeNotification(Set<String> groupIds);
+		
 	}
 	
 	
 	private class NotifyJob extends Job {
 		
 		private String fSource;
-		private Set<String> fChangeContexts = new HashSet<String>();
+		private Set<String> fChangedGroupIds = new HashSet<String>();
 		
-		public NotifyJob(String source) {
+		public NotifyJob(final String source) {
 			super(Messages.SettingsChangeNotifier_Job_title);
 			setPriority(Job.SHORT);
 			setRule(SettingsChangeNotifier.this);
 			fSource = source;
 		}
 		
-		public void addContexts(String[] contexts) {
-			fChangeContexts.addAll(Arrays.asList(contexts));
+		public void addGroups(final String[] groupIds) {
+			fChangedGroupIds.addAll(Arrays.asList(groupIds));
 		}
 		
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
+		protected IStatus run(final IProgressMonitor monitor) {
 			Object[] managers;
 			Object[] listeners;
 			synchronized (SettingsChangeNotifier.this) {
@@ -69,64 +77,64 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 				fPendingJobs.remove(fSource);
 			}
 			monitor.beginTask(Messages.SettingsChangeNotifier_Task_name, managers.length*5+listeners.length*5);
-			for (Object obj : managers) {
-				((ManageListener) obj).beforeSettingsChangeNotification(fChangeContexts);
+			for (final Object obj : managers) {
+				((ManageListener) obj).beforeSettingsChangeNotification(fChangedGroupIds);
 				monitor.worked(3);
 			}
-			for (Object obj : listeners) {
-				((ChangeListener) obj).settingsChanged(fChangeContexts);
+			for (final Object obj : listeners) {
+				((ChangeListener) obj).settingsChanged(fChangedGroupIds);
 				monitor.worked(5);
 			}
-			for (Object obj : managers) {
-				((ManageListener) obj).afterSettingsChangeNotification(fChangeContexts);
+			for (final Object obj : managers) {
+				((ManageListener) obj).afterSettingsChangeNotification(fChangedGroupIds);
 				monitor.worked(2);
 			}
 			return Status.OK_STATUS;
 		}
 	}
-
+	
 	private ListenerList fManagers = new ListenerList();
 	private ListenerList fListeners = new ListenerList();
 	private Map<String, NotifyJob> fPendingJobs = new HashMap<String, NotifyJob>();
 	
 	
-	public Job getNotifyJob(String source, String[] changeContext) {
+	public Job getNotifyJob(String source, final String[] groupIds) {
 		if (source == null) {
 			source = "direct"; //$NON-NLS-1$
 		}
 		synchronized (SettingsChangeNotifier.this) {
 			NotifyJob job = fPendingJobs.get(source);
 			if (job != null) {
-				job.addContexts(changeContext);
+				job.addGroups(groupIds);
 				return null;
 			}
 			job = new NotifyJob(source);
 			fPendingJobs.put(source, job);
-			job.addContexts(changeContext);
+			job.addGroups(groupIds);
 			return job;
 		}
 	}
 	
-	public boolean contains(ISchedulingRule rule) {
+	public boolean contains(final ISchedulingRule rule) {
 		return (rule == this);
 	}
-	public boolean isConflicting(ISchedulingRule rule) {
+	public boolean isConflicting(final ISchedulingRule rule) {
 		return (rule == this);
 	}
-
-	public void addChangeListener(ChangeListener listener) {
+	
+	public void addChangeListener(final ChangeListener listener) {
 		fListeners.add(listener);
 	}
 	
-	public void removeChangeListener(ChangeListener listener) {
+	public void removeChangeListener(final ChangeListener listener) {
 		fListeners.remove(listener);
 	}
 	
-	public void addManageListener(ManageListener listener) {
+	public void addManageListener(final ManageListener listener) {
 		fManagers.add(listener);
 	}
 	
-	public void removeManageListener(ManageListener listener) {
+	public void removeManageListener(final ManageListener listener) {
 		fManagers.remove(listener);
 	}
 	

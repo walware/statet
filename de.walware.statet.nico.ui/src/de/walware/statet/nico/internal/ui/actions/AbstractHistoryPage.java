@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui.actions;
@@ -36,35 +36,37 @@ import de.walware.statet.nico.ui.util.ToolInfoGroup;
 
 
 /**
- *
+ * 
  */
 public abstract class AbstractHistoryPage extends WizardPage {
-
+	
 	private static final String SETTINGS_HISTORY = "statet:location.history"; //$NON-NLS-1$
-
+	
+	
 	protected ChooseResourceComposite fLocationGroup;
 	private String fResourcePath;
 	public IFile fResourceInWorkspace;
 	public IFileStore fResourceInEFS;
-
+	
 	public String fEncoding = "UTF-8"; //$NON-NLS-1$
 	
 	protected ToolProcess fTool;
 	protected boolean isIntialized = false;
 	
 	
-	public AbstractHistoryPage(String pageName, String title, ToolProcess tool) {
+	public AbstractHistoryPage(final String pageName, final String title, final ToolProcess tool) {
 		super(pageName);
-
+		
 		fTool = tool;
 		setTitle(title);
 	}
 	
-	public void createControl(Composite parent) {
+	
+	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		
-    	GridLayout layout = new GridLayout();
-    	Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
+		final GridLayout layout = new GridLayout();
+		final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
 		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		setControl(layouter.composite);
 		
@@ -78,22 +80,22 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		setMessage(null);
 	}
 	
-	protected void createContents(Layouter contentLayouter) {
+	protected void createContents(final Layouter contentLayouter) {
 		fLocationGroup = createResourceComposite(contentLayouter);
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
 		fLocationGroup.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
+			public void modifyText(final ModifyEvent e) {
 				validate();
 			}
 		});
 		addAdditionalContent1(contentLayouter);
 		
-		Group encodingGroup = contentLayouter.addGroup(Messages.LoadSaveHistoryPage_Encoding_label);
-		Layouter encoding = new Layouter(encodingGroup, 1);
+		final Group encodingGroup = contentLayouter.addGroup(Messages.LoadSaveHistoryPage_Encoding_label);
+		final Layouter encoding = new Layouter(encodingGroup, 1);
 		encoding.addLabel("Not yet implemented, UTF-8 is used, if no BOM is detected."); //$NON-NLS-1$
 		addAdditionalContent2(contentLayouter);
-
+		
 		contentLayouter.addSpaceGrabber();
 		contentLayouter.add(new ToolInfoGroup(contentLayouter.composite,
 				fTool).getControl());
@@ -101,9 +103,9 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	
 	protected abstract ChooseResourceComposite createResourceComposite(Layouter layouter);
 	
-	protected void addAdditionalContent1(Layouter layouter) {
+	protected void addAdditionalContent1(final Layouter layouter) {
 	}
-	protected void addAdditionalContent2(Layouter layouter) {
+	protected void addAdditionalContent2(final Layouter layouter) {
 	}
 	
 	protected void initFields() {
@@ -113,8 +115,8 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		if (!isIntialized) {
 			return;
 		}
-		FileValidator validator = fLocationGroup.getValidator();
-		IStatus status = validator.getStatus();
+		final FileValidator validator = fLocationGroup.getValidator();
+		final IStatus status = validator.getStatus();
 		if (status != null && status.getSeverity() == IStatus.ERROR) {
 			setMessage(status.getMessage(), IStatus.ERROR);
 			setPageComplete(false);
@@ -144,9 +146,8 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	}
 	
 	public void saveSettings() {
-		IDialogSettings settings = getDialogSettings();
+		final IDialogSettings settings = getDialogSettings();
 		DialogUtil.saveHistorySettings(settings, SETTINGS_HISTORY, fResourcePath);
 	}
-
+	
 }
-

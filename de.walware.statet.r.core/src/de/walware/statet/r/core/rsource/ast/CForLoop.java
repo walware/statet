@@ -1,25 +1,33 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_BODY_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FOR;
 
+import java.lang.reflect.InvocationTargetException;
+
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * <code>for ( §var§ in §cond§ ) §cont§</code>
  */
 public class CForLoop extends RAstNode {
+	
 	
 	Symbol fVarSymbol;
 	int fCondOpenOffset = Integer.MIN_VALUE;
@@ -27,12 +35,22 @@ public class CForLoop extends RAstNode {
 	final Expression fCondExpr = new Expression();
 	int fCondCloseOffset = Integer.MIN_VALUE;
 	final Expression fLoopExpr = new Expression();
-
+	
+	
+	CForLoop() {
+	}
+	
 	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.C_FOR;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.FOR;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -45,7 +63,7 @@ public class CForLoop extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		switch (index) {
 		case 0:
 			return fVarSymbol;
@@ -64,7 +82,7 @@ public class CForLoop extends RAstNode {
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fVarSymbol == child) {
 			return 0;
 		}
@@ -76,7 +94,7 @@ public class CForLoop extends RAstNode {
 		}
 		return -1;
 	}
-
+	
 	public final int getCondOpenOffset() {
 		return fCondOpenOffset;
 	}
@@ -96,9 +114,28 @@ public class CForLoop extends RAstNode {
 	public final RAstNode getContChild() {
 		return fLoopExpr.node;
 	}
-
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	
+	@Override
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fVarSymbol.acceptInR(visitor);
+		fCondExpr.node.acceptInR(visitor);
+		fLoopExpr.node.acceptInR(visitor);
+	}
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+		fVarSymbol.accept(visitor);
+		fCondExpr.node.accept(visitor);
+		fLoopExpr.node.accept(visitor);
+	}
+	
+	
+	@Override
+	final Expression getExpr(final RAstNode child) {
 		if (fLoopExpr.node == child) {
 			return fLoopExpr;
 		}
@@ -118,31 +155,21 @@ public class CForLoop extends RAstNode {
 		return fLoopExpr;
 	}
 	
-	public final Expression getLoopExpression() {
-		return fLoopExpr;
-	}
-	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.C_FOR);
 	}
 	
-	@Override
-	public final void accept(RAstVisitor visitor) {
-		visitor.visit(this);
-	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-		fVarSymbol.accept(visitor);
-		fCondExpr.node.accept(visitor);
-		fLoopExpr.node.accept(visitor);
-	}
-	
-	public final void acceptInChildren(CommonAstVisitor visitor) {
-		fVarSymbol.accept(visitor);
-		fCondExpr.node.accept(visitor);
-		fLoopExpr.node.accept(visitor);
+	final int getMissingExprStatus(final Expression expr) {
+		if (fCondExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_FORSEQ_MISSING | STATUS3_FOR);
+		}
+		if (fLoopExpr == expr) {
+			return (STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUS3_FOR);
+		}
+		throw new IllegalArgumentException();
 	}
 	
 	@Override
@@ -169,5 +196,5 @@ public class CForLoop extends RAstNode {
 			fStopOffset = fStartOffset+3;
 		}
 	}
-
+	
 }

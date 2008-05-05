@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.text.rd;
@@ -21,10 +21,10 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import de.walware.eclipsecommons.ui.text.OperatorRule;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
-import de.walware.statet.ext.ui.text.OperatorRule;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
 import de.walware.statet.r.core.rdoc.RdTags;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
@@ -32,20 +32,18 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 /**
  * Scanner for common Rd code (in no verbatim-like sections).
- * 
- * @author Stephan Wahlbrink
  */
 public class RdCodeScanner extends StatextTextScanner {
 	
 	private static class TagDetector implements IWordDetector {
-
+		
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.text.rules.IWordDetector#isWordStart(char)
 		 */
 		public boolean isWordStart(char c) {
 			return (c == '\\');
 		}
-
+		
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.text.rules.IWordDetector#isWordPart(char)
 		 */
@@ -55,7 +53,7 @@ public class RdCodeScanner extends StatextTextScanner {
 	}
 	
 	public RdCodeScanner(ColorManager colorManager, IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.TS_CONTEXT_ID);
+		super(colorManager, preferenceStore, RUIPreferenceConstants.Rd.TS_GROUP_ID);
 		initialize();
 	}
 	
@@ -71,12 +69,12 @@ public class RdCodeScanner extends StatextTextScanner {
 		IToken tBrackets = getToken(RdTextTokens.BRACKETS);
 				
 		setDefaultReturnToken(tDefaultText);
-
+		
 		List<IRule> rules = new ArrayList<IRule>();
 		
 		// Add generic whitespace rule.
 		rules.add(new WhitespaceRule(new DefaultWhitespaceDetector()));
-
+		
 		OperatorRule charRule = new OperatorRule(new char[] { '\\', '{', '}' });
 		charRule.addOps(RdTags.ESCAPED_CHARS, tOtherTag);
 		charRule.addOps(RdTags.BRACKETS, tBrackets);
@@ -105,5 +103,5 @@ public class RdCodeScanner extends StatextTextScanner {
 		
 		return rules;
 	}
-
+	
 }

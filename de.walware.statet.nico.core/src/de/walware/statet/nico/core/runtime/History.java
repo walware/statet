@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -19,6 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -48,9 +49,9 @@ import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;
  * Command history.
  */
 public class History {
-
 	
-	private int fMaxSize = 1000;
+	
+	private int fMaxSize = 1000; // is usually overwritten by the preferences
 	private int fCurrentSize = 0;
 	private boolean fIgnoreCommentLines;
 	
@@ -75,13 +76,13 @@ public class History {
 		
 		private final String fCommand;
 		private final long fTimeStamp;
-		private final boolean fIsEmpty;
+		private final int fIsEmpty;
 		private volatile Entry fOlder;
 		private volatile Entry fNewer;
 		
-		private Entry(Entry older, String command, long stamp) {
+		private Entry(final Entry older, final String command, final long stamp) {
 			fCommand = command;
-			fIsEmpty = isCommandEmpty(command);
+			fIsEmpty = createCommandMarker(command);
 			fTimeStamp = stamp;
 			fOlder = older;
 			if (older != null) {
@@ -97,7 +98,11 @@ public class History {
 			return fTimeStamp;
 		}
 		
-		public boolean isEmpty() {
+		/**
+		 * Returns offset of first non-blank char.
+		 * If no such char, or first char indicates a line comment, it returns -1-offset
+		 */
+		public int getCommandMarker() {
 			return fIsEmpty;
 		}
 		
@@ -127,11 +132,11 @@ public class History {
 	}
 	
 	
-	public History(ToolProcess process) {
+	public History(final ToolProcess process) {
 		fProcess = process;
 		
 		fStreamListener = new IStreamListener() {
-			public void streamAppended(String text, IStreamMonitor monitor) {
+			public void streamAppended(final String text, final IStreamMonitor monitor) {
 				if ((((ToolStreamMonitor) monitor).getMeta() & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) == 0) {
 					addCommand(text);
 				}
@@ -139,35 +144,36 @@ public class History {
 		};
 		
 		fPreferenceListener = new IPreferenceChangeListener() {
-			public void preferenceChange(PreferenceChangeEvent event) {
+			public void preferenceChange(final PreferenceChangeEvent event) {
 				checkSettings();
 			}
 		};
-		IEclipsePreferences[] nodes = PreferencesUtil.getInstancePrefs().getPreferenceNodes(NicoPreferenceNodes.CAT_HISTORY_QUALIFIER);
-		for (IEclipsePreferences node : nodes) {
+		final IEclipsePreferences[] nodes = PreferencesUtil.getInstancePrefs().getPreferenceNodes(NicoPreferenceNodes.CAT_HISTORY_QUALIFIER);
+		for (final IEclipsePreferences node : nodes) {
 			node.addPreferenceChangeListener(fPreferenceListener);
 		}
 		checkSettings();
 	}
+	
 	
 	public Lock getReadLock() {
 		return fLock.readLock();
 	}
 	
 	private void checkSettings() {
-		HistoryPreferences prefs = new HistoryPreferences(PreferencesUtil.getInstancePrefs());
+		final HistoryPreferences prefs = new HistoryPreferences(PreferencesUtil.getInstancePrefs());
 		if (prefs.equals(fCurrentPreferences)) {
 			return;
 		}
-		ToolController controller = fProcess.getController();
+		final ToolController controller = fProcess.getController();
 		if (controller != null) {
-			ToolStreamProxy streams = controller.getStreams();
+			final ToolStreamProxy streams = controller.getStreams();
 			fIgnoreCommentLines = prefs.filterComments();
 			
-			EnumSet<SubmitType> types = prefs.getSelectedTypes();
+			final EnumSet<SubmitType> types = prefs.getSelectedTypes();
 			streams.getInputStreamMonitor().addListener(fStreamListener, types);
 		}
-
+		
 		fLock.writeLock().lock();
 		try {
 			fMaxSize = prefs.getLimitCount();
@@ -205,20 +211,20 @@ public class History {
 	 * @param forceCharset use always the specified charset
 	 * @param monitor
 	 * 
-	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	public void load(final Object file, String charset, boolean forceCharset, IProgressMonitor monitor) throws CoreException {
+	public IStatus load(final Object file, final String charset, final boolean forceCharset, IProgressMonitor monitor) {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
 		monitor.beginTask(NicoCoreMessages.LoadHistoryJob_label, 100);
-
+		
 		try {
+			final FileUtil fileUtil = FileUtil.getFileUtil(file);
 			final HistoryData exch = new HistoryData();
-			ReaderAction action = new ReaderAction() {
-				public void run(BufferedReader reader, IProgressMonitor monitor) throws IOException, CoreException {
-					long timeStamp = FileUtil.getTimeStamp(file, new SubProgressMonitor(monitor, 1));
+			final ReaderAction action = new ReaderAction() {
+				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException, CoreException {
+					long timeStamp = fileUtil.getTimeStamp(new SubProgressMonitor(monitor, 1));
 					if (timeStamp < 0) {
 						timeStamp = System.currentTimeMillis();
 					}
@@ -226,7 +232,7 @@ public class History {
 						exch.oldest = new Entry(null, reader.readLine(), timeStamp);
 						exch.newest = exch.oldest;
 						exch.size = 1;
-						int maxSize = fMaxSize;
+						final int maxSize = fMaxSize;
 						while (reader.ready()) {
 							exch.newest = new Entry(exch.newest, reader.readLine(), timeStamp);
 							if (exch.size < maxSize) {
@@ -240,11 +246,11 @@ public class History {
 					monitor.done();
 				}
 			};
-			ReadTextFileOperation op = FileUtil.createReadTextFileOp(action, file);
+			final ReadTextFileOperation op = fileUtil.createReadTextFileOp(action);
 			op.setCharset(charset, forceCharset);
 			op.doOperation(new SubProgressMonitor(monitor, 90));
 			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getToolLabel(false)));
-
+			
 			fLock.writeLock().lock();
 			try {
 				fOldest = exch.oldest;
@@ -258,10 +264,14 @@ public class History {
 			finally {
 				fLock.writeLock().unlock();
 			}
-		} catch (CoreException e) {
-			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
-					NLS.bind(Messages.LoadHistory_error_message,
-							new Object[] { fProcess.getToolLabel(true), file.toString() }), e));
+			
+			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
+					Messages.LoadHistory_ok_message, fileUtil.getFileLabel()));
+		} 
+		catch (final CoreException e) {
+			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
+					Messages.LoadHistory_error_message,
+					new Object[] { fProcess.getToolLabel(true), file.toString() }), e);
 		} finally {
 			monitor.done();
 		}
@@ -279,19 +289,19 @@ public class History {
 	 * @param forceCharset use always the specified charset
 	 * @param monitor
 	 * 
-	 * @throws CoreException
 	 * @throws OperationCanceledException
 	 */
-	public void save(Object file, int mode, String charset, boolean forceCharset,
+	public IStatus save(final Object file, final int mode, final String charset, final boolean forceCharset,
 			IProgressMonitor monitor)
-			throws CoreException, OperationCanceledException {
+			throws OperationCanceledException {
 		
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
 		monitor.beginTask(NicoCoreMessages.SaveHistoryJob_label, 4);
 		try {
-			String newLine = fProcess.getWorkspaceData().getLineSeparator();
+			final FileUtil fileUtil = FileUtil.getFileUtil(file);
+			final String newLine = fProcess.getWorkspaceData().getLineSeparator();
 			StringBuilder buffer;
 			fLock.readLock().lock();
 			try {
@@ -314,22 +324,25 @@ public class History {
 			}
 			monitor.worked(1);
 			
-			WriteTextFileOperation op = FileUtil.createWriteTextFileOp(content, file);
+			final WriteTextFileOperation op = fileUtil.createWriteTextFileOp(content);
 			op.setCharset(charset, forceCharset);
 			op.setFileOperationMode(mode);
 			op.doOperation(new SubProgressMonitor(monitor, 2));
-		} catch (CoreException e) {
-			throw new CoreException(new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0,
-					NLS.bind(Messages.SaveHistory_error_message,
-							new Object[] { fProcess.getLabel(), file.toString() }), e));
+			
+			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
+					Messages.SaveHistory_ok_message, fileUtil.getFileLabel()));
+		} catch (final CoreException e) {
+			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
+					Messages.SaveHistory_error_message,
+					new Object[] { fProcess.getLabel(), file.toString() }), e);
 		} finally {
 			monitor.done();
 		}
 	}
 	
-	private void addCommand(String command) {
+	private void addCommand(final String command) {
 		assert(command != null);
-		long stamp = System.currentTimeMillis();
+		final long stamp = System.currentTimeMillis();
 		
 		Entry removedEntry = null;
 		Entry newEntry = null;
@@ -346,15 +359,16 @@ public class History {
 			fNewest = newEntry;
 			
 			if (fCurrentSize == fMaxSize) {
+				removedEntry = fOldest;
 				fOldest = fOldest.dispose();
 			}
 			else {
 				fCurrentSize++;
 			}
-		
-			Object[] listeners = fListeners.getListeners();
-			for (Object obj : listeners) {
-				IHistoryListener listener = (IHistoryListener) obj;
+			
+			final Object[] listeners = fListeners.getListeners();
+			for (final Object obj : listeners) {
+				final IHistoryListener listener = (IHistoryListener) obj;
 				if (removedEntry != null)
 					listener.entryRemoved(this, removedEntry);
 				listener.entryAdded(this, newEntry);
@@ -396,31 +410,31 @@ public class History {
 		}
 		return array;
 	}
-
 	
-    /**
-     * Adds the given listener to this history.
-     * Has no effect if an identical listener is already registered.
-     *
-     * @param listener the listener
-     */
-	public void addListener(IHistoryListener listener) {
+	
+	/**
+	 * Adds the given listener to this history.
+	 * Has no effect if an identical listener is already registered.
+	 * 
+	 * @param listener the listener
+	 */
+	public void addListener(final IHistoryListener listener) {
 		fListeners.add(listener);
 	}
 	
-    /**
-     * Removes the given listener from this history.
-     * Has no effect if an identical listener was not already registered.
-     *
-     * @param listener the listener
-     */
-	public void removeListener(IHistoryListener listener) {
+	/**
+	 * Removes the given listener from this history.
+	 * Has no effect if an identical listener was not already registered.
+	 * 
+	 * @param listener the listener
+	 */
+	public void removeListener(final IHistoryListener listener) {
 		fListeners.remove(listener);
 	}
 	
 	private void fireCompleteChange() {
 		fArrayCache = toArray();
-		for (Object obj : fListeners.getListeners()) {
+		for (final Object obj : fListeners.getListeners()) {
 			((IHistoryListener) obj).completeChange(this, fArrayCache);
 		}
 		fArrayCache = null;
@@ -429,21 +443,22 @@ public class History {
 	/**
 	 * Checks, if this command is empty or an command
 	 */
-	private boolean isCommandEmpty(String command) {
-		int length = command.length();
+	protected int createCommandMarker(final String command) {
+		final int length = command.length();
 		for (int i = 0; i < length; i++) {
-			char c = command.charAt(i);
+			final char c = command.charAt(i);
 			switch(c) {
 			
 			case ' ':
 			case '\t':
 				continue;
 			case '#':
-				return fIgnoreCommentLines;
+				return -i-1;
 			default:
-				return false;
+				return i;
 			}
 		}
-		return true;
+		return -length;
 	}
+	
 }

@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -19,7 +19,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.statet.ext.ui.editors.PathCompletionProcessor;
+import de.walware.statet.base.ui.sourceeditors.PathCompletionProcessor;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 import de.walware.statet.r.core.RUtil;
@@ -27,38 +27,38 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**
- *
+ * 
  */
 public class RPathCompletionProcessor extends PathCompletionProcessor {
-
+	
 	
 	private NIConsolePage fPage;
 	private ToolWorkspace fCurrentWorkspace;
-
+	
 	
 	/**
 	 * 
 	 */
-	public RPathCompletionProcessor(NIConsolePage page) {
+	public RPathCompletionProcessor(final NIConsolePage page) {
 		fPage = page;
 	}
 	
 	
 	@Override
-	protected IRegion getContentRange(IDocument document, int offset) throws BadLocationException {
-		ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, true);
+	protected IRegion getContentRange(final IDocument document, final int offset) throws BadLocationException {
+		final ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, true);
 		int start = partition.getOffset();
 		int end = partition.getOffset() + partition.getLength();
 		if (start == end) {
 			return null;
 		}
 		
-		char bound = document.getChar(start);
+		final char bound = document.getChar(start);
 		if (bound == '\"' || bound == '\'') {
 			start++;
 		}
 		else {
-			bound = 0;
+			return null;
 		}
 		if (start > offset) {
 			return null;
@@ -80,7 +80,7 @@ public class RPathCompletionProcessor extends PathCompletionProcessor {
 	}
 	
 	@Override
-	protected String checkPathCompletion(String completion) {
+	protected String checkPathCompletion(final String completion) {
 		return RUtil.escapeCompletly(completion);
 	}
 	

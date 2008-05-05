@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.ui.debug;
@@ -48,13 +48,14 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.StatetImages;
 
 
 /**
  * Shows the help for a command line tool in a dialog tray.
  */
 public class HelpRequestor implements IRunnableWithProgress {
-
+	
 	
 	private static class InfoTray extends DialogTray{
 		
@@ -62,36 +63,35 @@ public class HelpRequestor implements IRunnableWithProgress {
 		private Text fTextControl;
 		private Label fCmdInfo;
 		
-		private InfoTray(TrayDialog dialog) {
-			
+		private InfoTray(final TrayDialog dialog) {
 			fDialog = dialog;
 		}
 		
 		@Override
-		protected Control createContents(Composite parent) {
-			
+		protected Control createContents(final Composite parent) {
 			final FormToolkit toolkit = new FormToolkit(parent.getDisplay());
 			
-			Composite container = new Composite(parent, SWT.NONE);
+			final Composite container = new Composite(parent, SWT.NONE);
 			container.addListener(SWT.Dispose, new Listener() {
-				public void handleEvent(Event event) {
+				public void handleEvent(final Event event) {
 					toolkit.dispose();
 				}
 			});
 			container.setLayout(new FillLayout(SWT.VERTICAL));
-
-			Form form = toolkit.createForm(container);
+			
+			final Form form = toolkit.createForm(container);
 			toolkit.decorateFormHeading(form);
 			form.setText("'--help'"); //$NON-NLS-1$
 			form.getToolBarManager().add(new ContributionItem() {
 				@Override
-				public void fill(ToolBar parent, int index) {
-					ToolItem item = new ToolItem(parent, SWT.PUSH);
-					item.setText(StatetMessages.HelpRequestor_Close_name);
+				public void fill(final ToolBar parent, final int index) {
+					final ToolItem item = new ToolItem(parent, SWT.PUSH);
+					item.setImage(StatetImages.getImage(StatetImages.LOCTOOL_CLOSETRAY));
+					item.setHotImage(StatetImages.getImage(StatetImages.LOCTOOL_CLOSETRAY_H));
 					item.setToolTipText(StatetMessages.HelpRequestor_Close_tooltip);
 					item.addSelectionListener(new SelectionAdapter() {
 						@Override
-						public void widgetSelected(SelectionEvent e) {
+						public void widgetSelected(final SelectionEvent e) {
 							fDialog.closeTray();
 							fDialog.getShell().setFocus();
 						}
@@ -99,7 +99,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				}
 			});
 			form.getToolBarManager().update(true);
-			Composite content = form.getBody();
+			final Composite content = form.getBody();
 			content.setLayout(new GridLayout());
 			
 			fCmdInfo = toolkit.createLabel(content, ">"); //$NON-NLS-1$
@@ -107,34 +107,33 @@ public class HelpRequestor implements IRunnableWithProgress {
 			
 			fTextControl = toolkit.createText(content, "", SWT.MULTI | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL); //$NON-NLS-1$
 			fTextControl.setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
-			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gd.widthHint = new PixelConverter(fTextControl).convertWidthInCharsToPixels(50);
 			fTextControl.setLayoutData(gd);
 			
 			return container;
 		}
 		
-		public void update(String cmdInfo, String text) {
-			
+		public void update(final String cmdInfo, final String text) {
 			fCmdInfo.setText(cmdInfo);
 			fTextControl.setText(text);
 		}
 		
 	}
 	
-	public static void closeHelpTray(TrayDialog dialog) {
+	public static void closeHelpTray(final TrayDialog dialog) {
 		if (dialog.getTray() instanceof HelpRequestor.InfoTray) {
 			dialog.closeTray();
 		}
 	}
-
+	
 	
 	private class HelpReader extends Thread {
 		
 		private InputStreamReader fOutputInput;
 		private StringBuilder fBuffer;
 		private Exception fReadException;
-
+		
 		public HelpReader() {
 			super("'--help'-Output Monitor"); //$NON-NLS-1$
 			fOutputInput = new InputStreamReader(fProcess.getInputStream());
@@ -145,14 +144,14 @@ public class HelpRequestor implements IRunnableWithProgress {
 		public void run() {
 			try {
 				boolean canRead;
-				char[] b = new char[512];
+				final char[] b = new char[512];
 				while (fIsRunning | (canRead = fOutputInput.ready())) {
 					if (fMonitor.isCanceled()) {
 						fProcess.destroy();
 						return;
 					}
 					if (canRead) {
-						int n = fOutputInput.read(b);
+						final int n = fOutputInput.read(b);
 						if (n > 0) {
 							fBuffer.append(b, 0, n);
 							continue;
@@ -163,17 +162,17 @@ public class HelpRequestor implements IRunnableWithProgress {
 					}
 					try {
 						Thread.sleep(50);
-					} catch (InterruptedException e) {
+					} catch (final InterruptedException e) {
 						Thread.interrupted();
 					}
 				}
 			}
-			catch (IOException e) {
+			catch (final IOException e) {
 			}
 			finally {
 				try {
 					fOutputInput.close();
-				} catch (IOException e1) {
+				} catch (final IOException e1) {
 				}
 			}
 		}
@@ -187,14 +186,14 @@ public class HelpRequestor implements IRunnableWithProgress {
 								StatetMessages.HelpRequestor_error_WhenReadOutput_message, fReadException));
 					}
 					return fBuffer.toString();
-				} catch (InterruptedException e) {
+				} catch (final InterruptedException e) {
 					Thread.interrupted();
 				}
 			}
 		}
 	}
 	
-
+	
 	private TrayDialog fDialog;
 	private IProgressMonitor fMonitor;
 	private ProcessBuilder fBuilder;
@@ -204,21 +203,19 @@ public class HelpRequestor implements IRunnableWithProgress {
 	private List<String> fCmdLine;
 	
 	
-	public HelpRequestor(List<String> cmdLine, TrayDialog dialog) {
-
+	public HelpRequestor(final List<String> cmdLine, final TrayDialog dialog) {
 		fCmdLine = cmdLine;
 		fBuilder = new ProcessBuilder(cmdLine);
 		fDialog = dialog;
 	}
-
+	
+	
 	public ProcessBuilder getProcessBuilder() {
-		
 		return fBuilder;
 	}
-
-	public void run(IProgressMonitor monitor) throws InvocationTargetException,
+	
+	public void run(final IProgressMonitor monitor) throws InvocationTargetException,
 			InterruptedException {
-		
 		final String cmdInfo = LaunchConfigUtil.generateCommandLine(fCmdLine);
 		fMonitor = monitor;
 		fMonitor.beginTask(StatetMessages.HelpRequestor_Task_name+cmdInfo, 10);
@@ -231,14 +228,14 @@ public class HelpRequestor implements IRunnableWithProgress {
 			try {
 				fProcess = fBuilder.start();
 			}
-			catch (IOException e) {
-				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING_ERROR,
+			catch (final IOException e) {
+				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 						NLS.bind(StatetMessages.HelpRequestor_error_WhenRunProcess_message, cmdInfo), e));
 			}
 			fIsRunning = true;
 			fMonitor.worked(2);
 			
-			HelpReader reader = new HelpReader();
+			final HelpReader reader = new HelpReader();
 			reader.start();
 			fMonitor.worked(1);
 			while (fIsRunning) {
@@ -246,12 +243,12 @@ public class HelpRequestor implements IRunnableWithProgress {
 					fProcess.waitFor();
 					fIsRunning = false;
 				}
-				catch (InterruptedException e) {
+				catch (final InterruptedException e) {
 					Thread.interrupted();
 				}
 			}
 			fMonitor.worked(2);
-
+			
 			final String helpText = reader.getText();
 			fMonitor.worked(2);
 			
@@ -272,7 +269,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 				}
 			});
 		}
-		catch (CoreException e) {
+		catch (final CoreException e) {
 			throw new InvocationTargetException(e);
 		}
 		finally {

@@ -23,6 +23,8 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 
+import de.walware.eclipsecommons.ui.util.DialogUtil;
+
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.ext.ui.wizards.StatetWizardsMessages;
 import de.walware.statet.r.core.RProject;
@@ -41,10 +43,12 @@ public class NewRProjectWizard extends NewElementWizard {
 	private IConfigurationElement fPerspConfig;
 	
 	public NewRProjectWizard() {
+		setDialogSettings(DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "NewElementWizard")); //$NON-NLS-1$
 		setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEWRPROJECT));
 		setWindowTitle(Messages.NewRProjectWizard_title);
 	}
 	
+	@Override
 	public void addPages() {
 		super.addPages();
 		fFirstPage = new NewRProjectWizardPage(getSelection());

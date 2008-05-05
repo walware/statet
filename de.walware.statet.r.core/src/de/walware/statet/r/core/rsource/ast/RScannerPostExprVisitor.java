@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
+
+import java.lang.reflect.InvocationTargetException;
 
 
 /**
@@ -19,185 +21,180 @@ package de.walware.statet.r.core.rsource.ast;
 /* package */ class RScannerPostExprVisitor extends RAstVisitor {
 	
 	@Override
-	public void visit(SourceComponent node) {
+	public void visit(final SourceComponent node) {
 	}
 	
 	@Override
-	public void visit(Block node) {
+	public void visit(final Block node) {
 	}
 	
 	@Override
-	public void visit(CIfElse node) {
-		// skip scan cond and then
+	public void visit(final Group node) {
+	}
+	
+	@Override
+	public void visit(final CIfElse node) throws InvocationTargetException {
 		if (node.fWithElse) {
-			node.getElseChild().accept(this);
+			node.fElseExpr.node.acceptInR(this);
 		}
 		node.updateStopOffset();
 	}
-
+	
 	@Override
-	public void visit(CForLoop node) {
-		// skip scan cond
-		node.getContChild().accept(this);
+	public void visit(final CForLoop node) throws InvocationTargetException {
+		node.fLoopExpr.node.acceptInR(this);
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(CRepeatLoop node) {
-		node.acceptInChildren(this);
-		node.updateStopOffset();
-	}
-
-	@Override
-	public void visit(CWhileLoop node) {
-		// skip scan cond
-		node.getContChild().accept(this);
+	public void visit(final CRepeatLoop node) throws InvocationTargetException {
+		node.fLoopExpr.node.acceptInR(this);
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(FCall node) {
-		node.getRefChild().accept(this);
+	public void visit(final CWhileLoop node) throws InvocationTargetException {
+		node.fLoopExpr.node.acceptInR(this);
+		node.updateStopOffset();
+	}
+	
+	@Override
+	public void visit(final FCall node) throws InvocationTargetException {
+		node.getRefChild().acceptInR(this);
 		node.updateStartOffset();
-//		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(FCall.Args node) {
+	public void visit(final FCall.Args node) {
 	}
 	
 	@Override
-	public void visit(FCall.Arg node) {
+	public void visit(final FCall.Arg node) {
 	}
 	
 	@Override
-	public void visit(FDef node) {
-		node.getContChild().accept(this);
+	public void visit(final FDef node) throws InvocationTargetException {
+		node.getContChild().acceptInR(this);
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(FDef.Args node) {
+	public void visit(final FDef.Args node) {
 	}
 	
 	@Override
-	public void visit(FDef.Arg node) {
+	public void visit(final FDef.Arg node) {
 	}
 	
 	@Override
-	public void visit(Assignment node) {
-		node.acceptInChildren(this);
+	public void visit(final Assignment node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Model node) {
-		node.acceptInChildren(this);
-		node.updateStartOffset();
-		node.updateStopOffset();
-	}
-
-	@Override
-	public void visit(Relational node) {
-		node.acceptInChildren(this);
+	public void visit(final Model node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Logical node) {
-		node.acceptInChildren(this);
-		node.updateStartOffset();
-		node.updateStopOffset();
-	}
-
-	@Override
-	public void visit(Arithmetic node) {
-		node.acceptInChildren(this);
+	public void visit(final Relational node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Power node) {
-		node.acceptInChildren(this);
+	public void visit(final Logical node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Seq node) {
-		node.acceptInChildren(this);
+	public void visit(final Arithmetic node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Special node) {
-		node.acceptInChildren(this);
+	public void visit(final Power node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Sign node) {
-		node.acceptInChildren(this);
-		node.updateStopOffset();
-	}
-	
-	@Override
-	public void visit(SubIndexed node) {
-		node.acceptInChildren(this);
+	public void visit(final Seq node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(SubIndexed.Sublist node) {
-	}
-	
-	@Override
-	public void visit(SubIndexed.Arg node) {
-	}
-
-	@Override
-	public void visit(SubNamed node) {
-		node.acceptInChildren(this);
+	public void visit(final Special node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(NSGet node) {
-//		node.acceptInChildren(this);
-//		node.updateStartOffset();
-//		node.updateStopOffset();
-	}
-	
-	@Override
-	public void visit(StringConst node) {
-	}
-	
-	@Override
-	public void visit(NumberConst node) {
-	}
-	
-	@Override
-	public void visit(Symbol node) {
-	}
-	
-	@Override
-	public void visit(Help node) {
-		node.acceptInChildren(this);
+	public void visit(final Sign node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStopOffset();
 	}
 	
 	@Override
-	public void visit(Dummy node) {
-		node.acceptInChildren(this);
+	public void visit(final SubIndexed node) throws InvocationTargetException {
+		node.fExpr.node.acceptInR(this);
+		node.updateStartOffset();
+	}
+	
+	@Override
+	public void visit(final SubIndexed.Args node) {
+	}
+	
+	@Override
+	public void visit(final SubIndexed.Arg node) {
+	}
+	
+	@Override
+	public void visit(final SubNamed node) throws InvocationTargetException {
+		node.fExpr.node.acceptInR(this);
+		node.updateStartOffset();
+	}
+	
+	@Override
+	public void visit(final NSGet node) {
+	}
+	
+	@Override
+	public void visit(final StringConst node) {
+	}
+	
+	@Override
+	public void visit(final NumberConst node) {
+	}
+	
+	@Override
+	public void visit(final Symbol node) {
+	}
+	
+	@Override
+	public void visit(final Help node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
+		node.updateStopOffset();
+	}
+	
+	@Override
+	public void visit(final Dummy node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
 		node.updateStartOffset();
 		node.updateStopOffset();
 	}
-
+	
 }

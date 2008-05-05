@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -20,40 +20,35 @@ import org.eclipse.debug.core.model.IStreamsProxy;
  * None buffered streams
  */
 public class ToolStreamProxy implements IStreamsProxy {
-
+	
 	
 	private ToolStreamMonitor fInputMonitor = new ToolStreamMonitor();
 	private ToolStreamMonitor fInfoMonitor = new ToolStreamMonitor();
 	private ToolStreamMonitor fOutputMonitor = new ToolStreamMonitor();
 	private ToolStreamMonitor fErrorMonitor = new ToolStreamMonitor();
-
+	
 	
 	public ToolStreamProxy() {
 	}
 	
 	
-	public void write(String input) throws IOException {
-		
+	public void write(final String input) throws IOException {
 		throw new IOException("Function is not supported."); //$NON-NLS-1$
 	}
-
+	
 	public ToolStreamMonitor getInputStreamMonitor() {
-		
 		return fInputMonitor;
 	}
 	
 	public ToolStreamMonitor getInfoStreamMonitor() {
-		
 		return fInfoMonitor;
 	}
 	
 	public ToolStreamMonitor getOutputStreamMonitor() {
-
 		return fOutputMonitor;
 	}
-
+	
 	public ToolStreamMonitor getErrorStreamMonitor() {
-		
 		return fErrorMonitor;
 	}
 	
@@ -62,11 +57,10 @@ public class ToolStreamProxy implements IStreamsProxy {
 	 * 
 	 */
 	public void dispose() {
-		
 		fInputMonitor.dispose();
 		fInfoMonitor.dispose();
 		fOutputMonitor.dispose();
 		fErrorMonitor.dispose();
 	}
-
+	
 }

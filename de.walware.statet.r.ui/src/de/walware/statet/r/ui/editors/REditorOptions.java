@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -18,45 +18,50 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
 
-import de.walware.statet.r.ui.RUI;
+import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 
 
 /**
- *
+ * 
  */
 public class REditorOptions extends AbstractPreferencesModelObject {
 	// Default values see RUIPreferenceInitializer
-
-	public static final String CONTEXT_ID = "r.editor/options"; //$NON-NLS-1$
+	
+	public static final String GROUP_ID = "r.editor/options"; //$NON-NLS-1$
 	
 	
-	public static final String NODE = RUI.PLUGIN_ID + "/editor.r/options"; //$NON-NLS-1$
-
 	public static final BooleanPref PREF_SMARTINSERT_BYDEFAULT_ENABLED = new BooleanPref(
-			NODE, "smartinsert.as_default.enabled"); //$NON-NLS-1$
-
-	public static final BooleanPref PREF_SMARTINSERT_ONPASTE_ENABLED = new BooleanPref(
-			NODE, "smartinsert.on_paste.enabled"); //$NON-NLS-1$
-
-	public static final BooleanPref PREF_SMARTINSERT_CLOSECURLY_ENABLED = new BooleanPref(
-			NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$
-	public static final BooleanPref PREF_SMARTINSERT_CLOSEROUND_ENABLED = new BooleanPref(
-			NODE, "smartinsert.close_roundbrackets.enabled"); //$NON-NLS-1$
-	public static final BooleanPref PREF_SMARTINSERT_CLOSESQUARE_ENABLED = new BooleanPref(
-			NODE, "smartinsert.close_squarebrackets.enabled"); //$NON-NLS-1$
-	public static final BooleanPref PREF_SMARTINSERT_CLOSESPECIAL_ENABLED = new BooleanPref(
-			NODE, "smartinsert.close_specialpercent.enabled"); //$NON-NLS-1$
-	public static final BooleanPref PREF_SMARTINSERT_CLOSESTRINGS_ENABLED = new BooleanPref(
-			NODE, "smartinsert.close_strings.enabled"); //$NON-NLS-1$
-
-	public static final BooleanPref PREF_FOLDING_ASDEFAULT_ENABLED = new BooleanPref(
-			NODE, "folding.enable_as_default.enabled"); //$NON-NLS-1$
-
-	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
-			NODE, "spellcheck.enabled"); //$NON-NLS-1$
-
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.as_default.enabled"); //$NON-NLS-1$
 	
-
+	public static final BooleanPref PREF_SMARTINSERT_ONPASTE_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.on_paste.enabled"); //$NON-NLS-1$
+	
+	public static final BooleanPref PREF_SMARTINSERT_CLOSECURLY_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$
+	public static final BooleanPref PREF_SMARTINSERT_CLOSEROUND_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_roundbrackets.enabled"); //$NON-NLS-1$
+	public static final BooleanPref PREF_SMARTINSERT_CLOSESQUARE_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_squarebrackets.enabled"); //$NON-NLS-1$
+	public static final BooleanPref PREF_SMARTINSERT_CLOSESPECIAL_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_specialpercent.enabled"); //$NON-NLS-1$
+	public static final BooleanPref PREF_SMARTINSERT_CLOSESTRINGS_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "smartinsert.close_strings.enabled"); //$NON-NLS-1$
+	
+	
+	public static final BooleanPref PREF_PROBLEMCHECKING_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "problemchecking.enabled"); //$NON-NLS-1$
+	
+	public static final BooleanPref PREF_SPELLCHECKING_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "spellcheck.enabled"); //$NON-NLS-1$
+	
+	// not in group
+	public static final BooleanPref PREF_FOLDING_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "folding.enabled"); //$NON-NLS-1$
+	
+	public static final BooleanPref PREF_MARKOCCURRENCES_ENABLED = new BooleanPref(
+			RUIPreferenceInitializer.REDITOR_NODE, "markoccurrences.enabled"); //$NON-NLS-1$
+	
+	
 	private boolean fIsSmartByDefaultEnabled;
 	private boolean fIsSmartCurlyBracketsEnabled;
 	private boolean fIsSmartRoundBracketsEnabled;
@@ -66,7 +71,7 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 	private boolean fIsSmartPasteEnabled;
 	
 	
-	public REditorOptions(int mode) {
+	public REditorOptions(final int mode) {
 		if (mode == 1) {
 			installLock();
 		}
@@ -77,7 +82,7 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 	public String[] getNodeQualifiers() {
 		return new String[0];
 	}
-
+	
 	@Override
 	public void loadDefaults() {
 		fIsSmartByDefaultEnabled = true;
@@ -88,9 +93,9 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 		fIsSmartStringsEnabled = true;
 		fIsSmartPasteEnabled = true;
 	}
-
+	
 	@Override
-	public void load(IPreferenceAccess prefs) {
+	public void load(final IPreferenceAccess prefs) {
 		fIsSmartByDefaultEnabled = prefs.getPreferenceValue(PREF_SMARTINSERT_BYDEFAULT_ENABLED);
 		fIsSmartCurlyBracketsEnabled = prefs.getPreferenceValue(PREF_SMARTINSERT_CLOSECURLY_ENABLED);
 		fIsSmartRoundBracketsEnabled = prefs.getPreferenceValue(PREF_SMARTINSERT_CLOSEROUND_ENABLED);
@@ -99,9 +104,9 @@ public class REditorOptions extends AbstractPreferencesModelObject {
 		fIsSmartStringsEnabled = prefs.getPreferenceValue(PREF_SMARTINSERT_CLOSESTRINGS_ENABLED);
 		fIsSmartPasteEnabled = prefs.getPreferenceValue(PREF_SMARTINSERT_ONPASTE_ENABLED);
 	}
-
+	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
+	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
 		map.put(PREF_SMARTINSERT_BYDEFAULT_ENABLED, fIsSmartByDefaultEnabled);
 		map.put(PREF_SMARTINSERT_CLOSECURLY_ENABLED, fIsSmartCurlyBracketsEnabled);
 		map.put(PREF_SMARTINSERT_CLOSEROUND_ENABLED, fIsSmartRoundBracketsEnabled);

@@ -1,59 +1,77 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+
+import java.lang.reflect.InvocationTargetException;
+
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * <code>+ §right§</code>
+ * <code>- §right§</code>
  */
 public abstract class Sign extends RAstNode {
 	
-
+	
 	static class PlusSign extends Sign {
+		
+		
+		PlusSign() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SIGN;
 		}
 		
-		public final RTerminal getOperator() {
+		@Override
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.PLUS;
 		}
-
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.SIGN);
 		}
 		
 	}
-
+	
 	static class MinusSign extends Sign {
+		
+		
+		MinusSign() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.SIGN;
 		}
 		
-		public final RTerminal getOperator() {
+		@Override
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.MINUS;
 		}
-
+		
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.SIGN);
 		}
 		
@@ -66,12 +84,14 @@ public abstract class Sign extends RAstNode {
 			return NodeType.NOT;
 		}
 		
-		public final RTerminal getOperator() {
+		@Override
+		public final RTerminal getOperator(final int index) {
 			return RTerminal.NOT;
 		}
-
+		
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.NOT);
 		}
 		
@@ -79,6 +99,10 @@ public abstract class Sign extends RAstNode {
 	
 	
 	final Expression fRightExpr = new Expression();
+	
+	
+	protected Sign() {
+	}
 	
 	
 	@Override
@@ -92,47 +116,47 @@ public abstract class Sign extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		if (index == 0) {
 			return fRightExpr.node;
 		}
 		throw new IndexOutOfBoundsException();
 	}
-
+	
 	@Override
 	public final RAstNode[] getChildren() {
 		return new RAstNode[] { fRightExpr.node };
 	}
-
+	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fRightExpr.node == child) {
 			return 0;
 		}
 		return -1;
 	}
-
+	
 	public final RAstNode getRightChild() {
 		return fRightExpr.node;
 	}
 	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-		fRightExpr.node.accept(visitor);
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fRightExpr.node.acceptInR(visitor);
 	}
-
-	public final void acceptInChildren(CommonAstVisitor visitor) {
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fRightExpr.node.accept(visitor);
 	}
 	
 	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		if (fRightExpr.node == child) {
 			return fRightExpr;
 		}
@@ -148,11 +172,19 @@ public abstract class Sign extends RAstNode {
 	final Expression getRightExpr() {
 		return fRightExpr;
 	}
-
+	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fRightExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
 	
 	@Override
 	final void updateStopOffset() {
 		fStopOffset = fRightExpr.node.fStopOffset;
 	}
-
+	
 }

@@ -1,99 +1,212 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.editors;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
-import org.eclipse.jface.text.source.projection.ProjectionViewer;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.eclipsecommons.ltk.AstAbortVisitException;
 import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.ElementChangedEvent;
-import de.walware.eclipsecommons.ltk.IElementChangedListener;
+import de.walware.eclipsecommons.ltk.IModelElement;
+import de.walware.eclipsecommons.ltk.IModelElementDelta;
+import de.walware.eclipsecommons.ltk.ui.IModelElementInputListener;
+import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
 
-import de.walware.statet.ext.ui.editors.IFoldingStructureProvider;
-import de.walware.statet.r.core.RCore;
+import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.rsource.ast.Block;
+import de.walware.statet.r.core.rsource.ast.CForLoop;
+import de.walware.statet.r.core.rsource.ast.CIfElse;
+import de.walware.statet.r.core.rsource.ast.CRepeatLoop;
+import de.walware.statet.r.core.rsource.ast.CWhileLoop;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
+import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.ui.editors.REditor;
 
 
 /**
- *
+ * 
  */
-public class DefaultRFoldingProvider implements IFoldingStructureProvider {
+public class DefaultRFoldingProvider implements IEditorInstallable, IModelElementInputListener, ChangeListener {
 	
 	
-	protected static final IRegion createRegion(FoldingStructureComputationContext ctx, int startLine, int endLine) throws BadLocationException {
+	protected static final Position createPosition(final FoldingStructureComputationContext ctx, final int startLine, final int endLine) throws BadLocationException {
 		final int startOffset = ctx.fDocument.getLineOffset(startLine);
 		final int endOffset = ctx.fDocument.getLineOffset(endLine)+ctx.fDocument.getLineLength(endLine);
-		return new Region(startOffset, endOffset-startOffset);
+		return new Position(startOffset, endOffset-startOffset);
 	}
 	
 	private static class ElementFinder extends GenericVisitor {
 		
 		private final FoldingStructureComputationContext fContext;
+		private final FoldingConfiguration fConfig;
 		
-		public ElementFinder(FoldingStructureComputationContext ctx) {
+		public ElementFinder(final FoldingStructureComputationContext ctx, final FoldingConfiguration config) {
 			fContext = ctx;
+			fConfig = config;
+		}
+		
+		private void create(final int startOffset, final int stopOffset) throws InvocationTargetException {
+			try {
+				final AbstractDocument doc = fContext.fDocument;
+				final int startLine = doc.getLineOfOffset(startOffset);
+				int stopLine = doc.getLineOfOffset(stopOffset);
+				final IRegion stopLineInfo = doc.getLineInformation(stopLine);
+				if (stopLineInfo.getOffset() + stopLineInfo.getLength() > stopOffset) {
+					stopLine--;
+				}
+				if (stopLine - startLine + 1 >= fConfig.minLines) {
+					fContext.addFoldingRegion(
+							createPosition(fContext, startLine, stopLine),
+							new ProjectionAnnotation());
+				}
+			}
+			catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+			
 		}
 		
 		@Override
-		public void visit(FDef node) {
-			try {
-				int startLine = fContext.fDocument.getLineOfOffset(node.getArgsChild().getStopOffset());
-				int stopLine = fContext.fDocument.getLineOfOffset(node.getContChild().getStopOffset());
-				if (stopLine - startLine >= 3) {
-					IRegion region = createRegion(fContext, startLine, stopLine);
-					fContext.addFoldingRegion(
-							new Position(region.getOffset(), region.getLength()),
-							new ProjectionAnnotation());
-				}
-			} catch (BadLocationException e) {
-				throw new AstAbortVisitException(e);
+		public void visit(final Block node) throws InvocationTargetException {
+			if (fConfig.enableOtherBlocks) {
+				create(node.getOffset(), node.getStopOffset());
 			}
-			node.acceptInChildren(this);
+			node.acceptInRChildren(this);
 		}
-	}
-	
-	private class ElementChangeListener implements IElementChangedListener {
-		public void elementChanged(ElementChangedEvent event) {
-			Input input = fInput;
-			if (input != null && event.delta.getModelElement() == input.fUnit) {
-				AstInfo<?> astInfo = event.delta.getNewAst();
-				if (astInfo != null) {
-					synchronized (input) {
-						update(input, astInfo.stamp);
+		
+		@Override
+		public void visit(final FDef node) throws InvocationTargetException {
+			node.getArgsChild().acceptInR(this);
+			{
+				final RAstNode body = node.getContChild();
+				if (body.getNodeType() == NodeType.BLOCK) {
+					create(node.getArgsCloseOffset(), node.getStopOffset());
+					body.acceptInRChildren(this);
+				}
+				else {
+					body.acceptInR(this);
+				}
+			}
+		}
+		
+		@Override
+		public void visit(final CIfElse node) throws InvocationTargetException {
+			if (fConfig.enableOtherBlocks) {
+				node.getCondChild().acceptInR(this);
+				{
+					final RAstNode body = node.getThenChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getCondCloseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
+				if (node.hasElse()) {
+					final RAstNode body = node.getElseChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getElseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
 					}
 				}
 			}
+			else {
+				node.acceptInRChildren(this);
+			}
 		}
+		
+		@Override
+		public void visit(final CForLoop node) throws InvocationTargetException {
+			if (fConfig.enableOtherBlocks) {
+				node.getCondChild().acceptInR(this);
+				{
+					final RAstNode body = node.getContChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getCondCloseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
+			}
+			else {
+				node.acceptInRChildren(this);
+			}
+		}
+		
+		@Override
+		public void visit(final CWhileLoop node) throws InvocationTargetException {
+			if (fConfig.enableOtherBlocks) {
+				node.getCondChild().acceptInR(this);
+				{
+					final RAstNode body = node.getContChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getCondCloseOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
+			}
+			else {
+				node.acceptInRChildren(this);
+			}
+		}
+		
+		@Override
+		public void visit(final CRepeatLoop node) throws InvocationTargetException {
+			if (fConfig.enableOtherBlocks) {
+				{
+					final RAstNode body = node.getContChild();
+					if (body.getNodeType() == NodeType.BLOCK) {
+						create(node.getOffset(), body.getStopOffset());
+						body.acceptInRChildren(this);
+					}
+					else {
+						body.acceptInR(this);
+					}
+				}
+			}
+			else {
+				node.acceptInRChildren(this);
+			}
+		}
+		
 	}
-
+	
 	protected static final class FoldingStructureComputationContext {
 		
 		public final ProjectionAnnotationModel fModel;
@@ -103,8 +216,8 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 		
 		public final boolean fIsInitial;
 		
-		protected FoldingStructureComputationContext(AbstractDocument document, AstInfo<RAstNode> ast, ProjectionAnnotationModel model,
-				boolean isInitial) {
+		protected FoldingStructureComputationContext(final AbstractDocument document, final AstInfo<RAstNode> ast, final ProjectionAnnotationModel model,
+				final boolean isInitial) {
 			fModel = model;
 			fAst = ast;
 			fDocument = document;
@@ -112,11 +225,18 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 		}
 		
 		
-		public void addFoldingRegion(Position position, ProjectionAnnotation ann) {
+		public void addFoldingRegion(final Position position, final ProjectionAnnotation ann) {
 			if (!fTable.containsKey(position)) {
 				fTable.put(position, ann);
 			}
 		}
+		
+	}
+	
+	protected static final class FoldingConfiguration {
+		
+		public boolean enableOtherBlocks;
+		public int minLines;
 		
 	}
 	
@@ -125,7 +245,7 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 		private boolean fInitilized;
 		private long fUpdateStamp;
 		
-		Input(IRSourceUnit unit) {
+		Input(final IRSourceUnit unit) {
 			fUnit = unit;
 			fInitilized = false;
 			fUpdateStamp = Long.MIN_VALUE;
@@ -134,39 +254,74 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 	
 	
 	private REditor fEditor;
-	private Input fInput;
-	private ElementChangeListener fListener;
+	private FoldingConfiguration fConfig;
+	private volatile Input fInput;
 	
-
-	public void install(ITextEditor editor, ProjectionViewer viewer) {
-		fEditor = (REditor) editor;
-		fListener = new ElementChangeListener();
-		RCore.addRElementChangedListener(fListener, RCore.PRIMARY_WORKING_CONTEXT);
+	
+	public void install(final IEditorAdapter editor) {
+		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
+		updateConfig();
+		fEditor = (REditor) editor.getWorkbenchPart();
+		fEditor.getModelInputProvider().addListener(this);
 	}
 	
-	public void setEditorInput(IEditorInput editorInput) {
-		Input input = new Input(fEditor.getSourceUnit());
-		synchronized (input) {
+	public void elementChanged(final IModelElement element) {
+		final Input input = new Input((IRSourceUnit) element);
+		synchronized (this) {
 			fInput = input;
-			update(input, 0);
+		}
+	}
+	
+	public void elementInitialInfo(final IModelElement element) {
+		final Input input = fInput;
+		if (input.fUnit == element) {
+			update(input, -1);
+		}
+	}
+	
+	public void elementUpdatedInfo(final IModelElement element, final IModelElementDelta delta) {
+		final Input input = fInput;
+		if (input.fUnit == element) {
+			update(input, delta.getNewAst().stamp);
 		}
 	}
 	
 	public void uninstall() {
-		if (fListener != null) {
-			RCore.removeRElementChangedListener(fListener, RCore.PRIMARY_WORKING_CONTEXT);
-			fListener = null;
+		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		if (fEditor != null) {
+			fEditor.getModelInputProvider().removeListener(this);
+			fEditor = null;
 		}
-		fEditor = null;
+	}
+	
+	public void settingsChanged(final Set<String> groupIds) {
+		if (groupIds.contains(DefaultRFoldingPreferences.GROUP_ID)) {
+			updateConfig();
+			final Input input = fInput;
+			if (input != null) {
+				update(input, -1);
+			}
+		}
+	}
+	
+	protected void updateConfig() {
+		final FoldingConfiguration config = new FoldingConfiguration();
+		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
+		config.enableOtherBlocks = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED);
+		config.minLines = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_MINLINES_NUM);
+		if (config.minLines < 2) {
+			config.minLines = 3;
+		}
+		fConfig = config;
 	}
 	
 	protected FoldingStructureComputationContext createCtx(final Input input) {
-		ProjectionAnnotationModel model = (ProjectionAnnotationModel) fEditor.getAdapter(ProjectionAnnotationModel.class);
+		final ProjectionAnnotationModel model = (ProjectionAnnotationModel) fEditor.getAdapter(ProjectionAnnotationModel.class);
 		if (input.fUnit == null || model == null) {
 			return null;
 		}
-		AstInfo<RAstNode> ast = input.fUnit.getAstInfo(false, null);
-		AbstractDocument document = input.fUnit.getDocument();
+		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) input.fUnit.getAstInfo("r", false, null); //$NON-NLS-1$
+		final AbstractDocument document = input.fUnit.getDocument();
 		if (ast == null || document == null || ast.stamp != document.getModificationStamp()) {
 			return null;
 		}
@@ -174,13 +329,12 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 	}
 	
 	private void update(final Input input, final long stamp) {
-		if (input.fUnit == null
-				|| input.fUpdateStamp == stamp) { // already uptodate
-			return;
-		}
-		FoldingStructureComputationContext ctx;
-		input.fUnit.connect();
-		try {
+		synchronized(input) {
+			if (input.fUnit == null
+					|| (stamp != -1 && input.fUpdateStamp == stamp)) { // already uptodate
+				return;
+			}
+			FoldingStructureComputationContext ctx;
 			if (input != fInput) {
 				return;
 			}
@@ -188,45 +342,42 @@ public class DefaultRFoldingProvider implements IFoldingStructureProvider {
 			if (ctx == null) {
 				return;
 			}
-		}
-		finally {
-			input.fUnit.disconnect();
-		}
-		try {
-			ctx.fAst.root.accept(new ElementFinder(ctx));
-		}
-		catch (AstAbortVisitException e) {
-			return;
-		}
-		
-		ProjectionAnnotation[] deletions;
-		if (ctx.fIsInitial) {
-			deletions = null;
-			input.fInitilized = true;
-		}
-		else {
-			Iterator<ProjectionAnnotation> iter = ctx.fModel.getAnnotationIterator();
-			List<ProjectionAnnotation> del = new ArrayList<ProjectionAnnotation>();
-			while (iter.hasNext()) {
-				ProjectionAnnotation ann = iter.next();
-				Position position = ctx.fModel.getPosition(ann);
-				if (ctx.fTable.remove(position) == null) {
-					del.add(ann);
-				}
+			try {
+				ctx.fAst.root.acceptInR(new ElementFinder(ctx, fConfig));
 			}
-			deletions = del.toArray(new ProjectionAnnotation[del.size()]);
-			if (ctx.fDocument.getModificationStamp() != ctx.fAst.stamp || input != fInput) {
+			catch (final InvocationTargetException e) {
 				return;
 			}
+			
+			ProjectionAnnotation[] deletions;
+			if (ctx.fIsInitial) {
+				deletions = null;
+				input.fInitilized = true;
+			}
+			else {
+				final Iterator<ProjectionAnnotation> iter = ctx.fModel.getAnnotationIterator();
+				final List<ProjectionAnnotation> del = new ArrayList<ProjectionAnnotation>();
+				while (iter.hasNext()) {
+					final ProjectionAnnotation ann = iter.next();
+					final Position position = ctx.fModel.getPosition(ann);
+					if (ctx.fTable.remove(position) == null) {
+						del.add(ann);
+					}
+				}
+				deletions = del.toArray(new ProjectionAnnotation[del.size()]);
+				if (ctx.fDocument.getModificationStamp() != ctx.fAst.stamp || input != fInput) {
+					return;
+				}
+			}
+			final LinkedHashMap<ProjectionAnnotation, Position> additions = new LinkedHashMap<ProjectionAnnotation, Position>();
+			final Iterator<Entry<Position, ProjectionAnnotation>> iter = ctx.fTable.entrySet().iterator();
+			while (iter.hasNext()) {
+				final Entry<Position, ProjectionAnnotation> next = iter.next();
+				additions.put(next.getValue(), next.getKey());
+			}
+			ctx.fModel.modifyAnnotations(deletions, additions, null);
+			input.fUpdateStamp = ctx.fAst.stamp;
 		}
-		final LinkedHashMap<ProjectionAnnotation, Position> additions = new LinkedHashMap<ProjectionAnnotation, Position>();
-		Iterator<Entry<Position, ProjectionAnnotation>> iter = ctx.fTable.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<Position, ProjectionAnnotation> next = iter.next();
-			additions.put(next.getValue(), next.getKey());
-		}
-		ctx.fModel.modifyAnnotations(deletions, additions, null);
-		input.fUpdateStamp = ctx.fAst.stamp;
 	}
-
+	
 }

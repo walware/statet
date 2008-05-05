@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.util;
@@ -36,40 +36,38 @@ public class ImageRegistryUtil {
 	public static final String T_LOCTOOL = "loctool_16"; 	  //$NON-NLS-1$
 	/** Icons of deactivated local tools */
 	public static final String T_LOCTOOL_D = "loctool_16_d";   //$NON-NLS-1$
-
+	
 	
 	private AbstractUIPlugin fPlugin;
 	private URL fIconBaseURL;
-
 	
-	public ImageRegistryUtil(AbstractUIPlugin plugin) {
-		
+	
+	public ImageRegistryUtil(final AbstractUIPlugin plugin) {
 		fIconBaseURL = plugin.getBundle().getEntry("/icons/"); //$NON-NLS-1$
 		fPlugin = plugin;
 	}
 	
 	
-	public void register(String key, String prefix, String name) {
-		
-		ImageDescriptor descriptor = createDescriptor(prefix, name);
+	public void register(final String key, final String prefix, final String name) {
+		final ImageDescriptor descriptor = createDescriptor(prefix, name);
 		fPlugin.getImageRegistry().put(key, descriptor);
 	}
 	
-	protected ImageDescriptor createDescriptor(String prefix, String name) {
+	protected ImageDescriptor createDescriptor(final String prefix, final String name) {
 		try {
 			return ImageDescriptor.createFromURL(makeIconFileURL(prefix, name));
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 			fPlugin.getLog().log(new Status(IStatus.ERROR, fPlugin.getBundle().getSymbolicName(), 0,
 					"Error occured while loading an image descriptor. (internal, unexpected)", e)); //$NON-NLS-1$
 			return ImageDescriptor.getMissingImageDescriptor();
 		}
 	}
-
-	protected URL makeIconFileURL(String prefix, String name) throws MalformedURLException {
-		
+	
+	protected URL makeIconFileURL(final String prefix, final String name) throws MalformedURLException {
 		if (fIconBaseURL == null) {
 			throw new MalformedURLException();
 		}
 		return new URL(fIconBaseURL, prefix+'/'+name);
-	}	
+	}
+	
 }

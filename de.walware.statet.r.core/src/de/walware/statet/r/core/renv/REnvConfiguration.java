@@ -1,16 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.renv;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +41,7 @@ import de.walware.statet.r.internal.core.Messages;
 
 
 /**
- *
+ * Configuration of an R setup
  */
 public class REnvConfiguration extends AbstractPreferencesModelObject {
 	
@@ -50,7 +51,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	
 	public static final String PROP_ID = "id"; //$NON-NLS-1$
 	private static final String PREFKEY_ID = "id"; //$NON-NLS-1$
-
+	
 	public static final String PROP_RHOME = "RHome"; //$NON-NLS-1$
 	private static final String PREFKEY_RHOME = "env.r_home"; //$NON-NLS-1$
 	
@@ -59,10 +60,10 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		CMD,
 		TERM;
 	}
-
 	
-	public static boolean isValidRHomeLocation(IFileStore loc) {
-		IFileStore binDir = loc.getChild("bin"); //$NON-NLS-1$
+	
+	public static boolean isValidRHomeLocation(final IFileStore loc) {
+		final IFileStore binDir = loc.getChild("bin"); //$NON-NLS-1$
 		IFileStore exeFile = null;
 		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 			exeFile = binDir.getChild("R.exe"); //$NON-NLS-1$
@@ -70,7 +71,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		else {
 			exeFile = binDir.getChild("R"); //$NON-NLS-1$
 		}
-		IFileInfo info = exeFile.fetchInfo();
+		final IFileInfo info = exeFile.fetchInfo();
 		return (!info.isDirectory() && info.exists());
 	}
 	
@@ -78,13 +79,14 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private String fNodeQualifier;
 	private String fCheckName;
 	private boolean fIsDisposed;
-
+	
 	private StringPref fPrefName;
 	private String fName;
 	private StringPref fPrefId;
 	private String fId;
 	private StringPref fPrefRHomeDirectory;
 	private String fRHomeDirectory;
+	private int fRBits;
 	
 	
 	/**
@@ -95,7 +97,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		setId(System.getProperty("user.name")+System.currentTimeMillis()); //$NON-NLS-1$
 	}
 	
-	protected REnvConfiguration(String id) {
+	protected REnvConfiguration(final String id) {
 		fIsDisposed = false;
 		setId(id);
 	}
@@ -112,14 +114,15 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		fPrefRHomeDirectory = new StringPref(fNodeQualifier, PREFKEY_RHOME);
 	}
 	
-	protected void checkExistence(IPreferenceAccess prefs) {
-		IEclipsePreferences[] nodes = prefs.getPreferenceNodes(RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER);
+	protected void checkExistence(final IPreferenceAccess prefs) {
+		final IEclipsePreferences[] nodes = prefs.getPreferenceNodes(RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER);
 		if (nodes.length > 0)  {
 			try {
 				if (!nodes[0].nodeExists(fName)) {
 					throw new IllegalArgumentException("A REnv configuration with this name does not exists."); //$NON-NLS-1$
 				}
-			} catch (BackingStoreException e) {
+			}
+			catch (final BackingStoreException e) {
 				throw new IllegalArgumentException("REnv Configuration could not be accessed."); //$NON-NLS-1$
 			}
 		}
@@ -139,29 +142,29 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 //				fPrefBinDirectory,
 		};
 	}
-
+	
 	@Override
 	public void loadDefaults() {
 		setName("R"); //$NON-NLS-1$
 		setRHome(""); //$NON-NLS-1$
 	}
 	
-	public void load(REnvConfiguration from) {
+	public void load(final REnvConfiguration from) {
 		load(from, false);
 	}
-	protected void load(REnvConfiguration from, boolean copyId) {
+	protected void load(final REnvConfiguration from, final boolean copyId) {
 		if (copyId) {
 			setId(from.getId());
 		}
 		setName(from.getName());
 		setRHome(from.getRHome());
 	}
-
+	
 	@Override
-	public void load(IPreferenceAccess prefs) {
+	public void load(final IPreferenceAccess prefs) {
 		load(prefs, false);
 	}
-	protected void load(IPreferenceAccess prefs, boolean copyId) {
+	protected void load(final IPreferenceAccess prefs, final boolean copyId) {
 		checkPrefs();
 		checkExistence(prefs);
 		if (copyId) {
@@ -170,22 +173,22 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		setName(prefs.getPreferenceValue(fPrefName));
 		setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
 	}
-
+	
 	@Override
 	public Map<Preference, Object> deliverToPreferencesMap(
-			Map<Preference, Object> map) {
+			final Map<Preference, Object> map) {
 		checkPrefs();
 		map.put(fPrefId, getId());
 		map.put(fPrefName, getName());
 		map.put(fPrefRHomeDirectory, getRHome());
 		return map;
 	}
-
+	
 	
 /*-- Properties --------------------------------------------------------------*/
 	
-	protected void setName(String label) {
-		String oldValue = fName;
+	protected void setName(final String label) {
+		final String oldValue = fName;
 		fName = label;
 		firePropertyChange(PROP_NAME, oldValue, fName);
 	}
@@ -193,8 +196,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		return fName;
 	}
 	
-	protected void setId(String id) {
-		String oldValue = fId;
+	protected void setId(final String id) {
+		final String oldValue = fId;
 		fId = id;
 		firePropertyChange(PROP_RHOME, oldValue, fId);
 	}
@@ -202,8 +205,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		return fId;
 	}
 	
-	protected void setDispose(boolean isDisposed) {
-		boolean oldValue = fIsDisposed;
+	protected void setDispose(final boolean isDisposed) {
+		final boolean oldValue = fIsDisposed;
 		fIsDisposed = isDisposed;
 		firePropertyChange(PROP_RHOME, oldValue, fIsDisposed);
 	}
@@ -219,7 +222,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		IFileStore rloc = null;
 		try {
 			rloc = FileUtil.expandToLocalFileStore(getRHome(), null);
-		} catch (CoreException e) {
+		}
+		catch (final CoreException e) {
 			error = e;
 		}
 		if (rloc == null || !isValidRHomeLocation(rloc)) {
@@ -228,18 +232,23 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		return Status.OK_STATUS;
 	}
 	
-	protected void setRHome(String label) {
-		String oldValue = fRHomeDirectory;
+	protected void setRHome(final String label) {
+		final String oldValue = fRHomeDirectory;
 		fRHomeDirectory = label;
+		fRBits = (fRHomeDirectory != null && fRHomeDirectory.contains("64")) ? 64 : 32; //$NON-NLS-1$
 		firePropertyChange(PROP_RHOME, oldValue, fRHomeDirectory);
 	}
 	public String getRHome() {
 		return fRHomeDirectory;
 	}
-
 	
-	public List<String> getExecCommand(String arg1, Set<Exec> execTypes) throws CoreException {
-		String test = (arg1 != null) ? arg1.trim().toUpperCase() : ""; //$NON-NLS-1$
+	public int getBits() {
+		return fRBits;
+	}
+	
+	
+	public List<String> getExecCommand(String arg1, final Set<Exec> execTypes) throws CoreException {
+		final String test = (arg1 != null) ? arg1.trim().toUpperCase() : ""; //$NON-NLS-1$
 		Exec type = Exec.COMMON;
 		if (test.equals("CMD")) { //$NON-NLS-1$
 			if (execTypes.contains(Exec.CMD)) {
@@ -252,16 +261,16 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 				type = Exec.TERM;
 			}
 		}
-		List<String> commandLine = getExecCommand(type);
+		final List<String> commandLine = getExecCommand(type);
 		if (arg1 != null) {
 			commandLine.add(arg1);
 		}
 		return commandLine;
 	}
 	
-	public List<String> getExecCommand(Exec execType) throws CoreException {
+	public List<String> getExecCommand(final Exec execType) throws CoreException {
 		String child = null;
-		List<String> commandLine = new ArrayList<String>(2);
+		final List<String> commandLine = new ArrayList<String>(2);
 		switch (execType) {
 		case TERM:
 			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
@@ -283,16 +292,26 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 			break;
 		}
 		if (child == null) {
-			child = "bin/R";
+			child = "bin/R"; //$NON-NLS-1$
 		}
-		IPath exec = FileUtil.expandToLocalPath(getRHome(), child);
+		final IPath exec = FileUtil.expandToLocalPath(getRHome(), child);
 		commandLine.add(0, exec.toOSString());
 		return commandLine;
 	}
 	
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
-		Map<String, String> envp = new HashMap<String, String>();
-		envp.put("R_HOME", FileUtil.expandToLocalPath(getRHome(), null).toOSString()); //$NON-NLS-1$
+		final Map<String, String> envp = new HashMap<String, String>();
+		envp.put("R_HOME", //$NON-NLS-1$
+				FileUtil.expandToLocalPath(getRHome(), null).toOSString());
+		envp.put("PATH", //$NON-NLS-1$
+				FileUtil.expandToLocalPath(getRHome(), "bin").toOSString() + //$NON-NLS-1$
+						File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
+		if (!Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
+					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
+							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH"); //$NON-NLS-1$ 
+		}
 		return envp;
 	}
+	
 }

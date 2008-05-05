@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-StatET
+ ###############################################################################
+ # Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
 -->
 
 <templates>
@@ -11,14 +20,13 @@ StatET
 	context="r_NewRScriptFile_context" 
 	name="r_NewRScriptFile" 
 	description="%r_NewRScriptFile_description" 
-	># ${file_name}
+	># ${todo}: %r_NewRScriptFile_content2
 # 
-# ${todo}: %r_NewRScriptFile_content2
-#
 # %r_NewRScriptFile_content3 ${user}
 ###############################################################################
 
 
+${selection_begin}
 </template>
 
 <!-- Rd -->
@@ -27,11 +35,11 @@ StatET
 	context="rd_NewRDocFile_context"
 	name="rd_NewRDocFile" 
 	description="%rd_NewRDocFile_description" 
-	>%rd_C ${file_name}
-%rd_C
-%rd_C ${todo}: %rd_NewRDocFile_content2
+	>%rd_C 
+%rd_C ${todo}: %rd_NewRDocFile_content2 
+%rd_C 
 
-
+${selection_begin}
 </template>
 
 

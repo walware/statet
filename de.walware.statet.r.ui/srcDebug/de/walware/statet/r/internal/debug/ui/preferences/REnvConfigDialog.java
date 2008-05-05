@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.preferences;
@@ -60,14 +60,14 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
 /**
- *
+ * Dialog for an {@link REnvConfiguration}
  */
 public class REnvConfigDialog extends StatusDialog {
 	
-
+	
 	private class RHomeComposite extends ChooseResourceComposite {
-
-		public RHomeComposite(Composite parent) {
+		
+		public RHomeComposite(final Composite parent) {
 			super (parent, 
 					ChooseResourceComposite.STYLE_TEXT,
 					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN, 
@@ -76,31 +76,31 @@ public class REnvConfigDialog extends StatusDialog {
 		}
 		
 		@Override
-		protected boolean excludeVariable(String variableName) {
+		protected boolean excludeVariable(final String variableName) {
 			return (super.excludeVariable(variableName)
 				|| excludeBuildVariable(variableName)
 				|| excludeInteractiveVariable(variableName));
 		}
 		
 		@Override
-		protected void fillMenu(Menu menu) {
+		protected void fillMenu(final Menu menu) {
 			super.fillMenu(menu);
 			
-			MenuItem item = new MenuItem(menu, SWT.PUSH);
+			final MenuItem item = new MenuItem(menu, SWT.PUSH);
 			item.setText(Messages.REnv_Detail_FindAuto_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
-				public void widgetSelected(SelectionEvent e) {
-					String[] rhome = searchRHOME();
+				public void widgetSelected(final SelectionEvent e) {
+					final String[] rhome = searchRHOME();
 					if (rhome != null) {
 						setText(rhome[0], true);
-						String current = fNameControl.getText().trim();
+						final String current = fNameControl.getText().trim();
 						if ((current.length() == 0 || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$
 							fNameControl.setText(rhome[1]);
 						}
 					}
 					else {
-						String name = Messages.REnv_Detail_Location_label;
+						final String name = Messages.REnv_Detail_Location_label;
 						MessageDialog.openInformation(getShell(), 
 								MessageUtil.removeMnemonics(name), 
 								NLS.bind(Messages.REnv_Detail_FindAuto_Failed_message, name));
@@ -112,26 +112,27 @@ public class REnvConfigDialog extends StatusDialog {
 		}
 	}
 	
+	
 	private REnvPreferencePage.REnvConfig fConfigModel;
 	private boolean fIsNewConfig;
 	private DataBindingContext fDbc;
 	private Set<String> fExistingNames;
 	private AggregateValidationStatus fAggregateStatus;
-
+	
 	private Text fNameControl;
 	private ChooseResourceComposite fRHomeControl;
 	
 	
-	public REnvConfigDialog(Shell parent, 
-			REnvPreferencePage.REnvConfig config, boolean isNewConfig, 
-			Collection<REnvConfiguration> existingConfigs) {
+	public REnvConfigDialog(final Shell parent, 
+			final REnvPreferencePage.REnvConfig config, final boolean isNewConfig, 
+			final Collection<REnvConfiguration> existingConfigs) {
 		super(parent);
 		setShellStyle(getShellStyle() | SWT.RESIZE);
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
 		fExistingNames = new HashSet<String>();
-		for (REnvConfiguration ec : existingConfigs) {
+		for (final REnvConfiguration ec : existingConfigs) {
 			fExistingNames.add(ec.getName());
 		}
 		setTitle(fIsNewConfig ? Messages.REnv_Detail_AddDialog_title : Messages.REnv_Detail_Edit_Dialog_title);
@@ -139,8 +140,8 @@ public class REnvConfigDialog extends StatusDialog {
 	
 	
 	@Override
-	protected Control createDialogArea(Composite parent) {
-		Composite content = (Composite) super.createDialogArea(parent);
+	protected Control createDialogArea(final Composite parent) {
+		final Composite content = (Composite) super.createDialogArea(parent);
 		((GridData) content.getLayoutData()).widthHint = convertWidthInCharsToPixels(100);
 		((GridLayout) content.getLayout()).numColumns = 2;
 		
@@ -151,26 +152,26 @@ public class REnvConfigDialog extends StatusDialog {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		fNameControl = new Text(content, SWT.SINGLE | SWT.BORDER);
 		fNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-
+		
 		label = new Label(content, SWT.LEFT);
 		label.setText(Messages.REnv_Detail_Location_label+':');
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		fRHomeControl = new RHomeComposite(content);
 		fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
+		
 		applyDialogFont(content);
 		initBindings();
 		return content;
 	}
 	
 	private void initBindings() {
-		Realm realm = Realm.getDefault();
+		final Realm realm = Realm.getDefault();
 		fDbc = new DataBindingContext(realm);
-
+		
 		fDbc.bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
 				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
-					public IStatus validate(Object value) {
+					public IStatus validate(final Object value) {
 						String s = (String) value;
 						s = s.trim();
 						if (s.length() == 0) {
@@ -188,8 +189,8 @@ public class REnvConfigDialog extends StatusDialog {
 		fDbc.bindValue(fRHomeControl.createObservable(), 
 				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_RHOME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
-					public IStatus validate(Object value) {
-						IStatus status = fRHomeControl.getValidator().validate(value);
+					public IStatus validate(final Object value) {
+						final IStatus status = fRHomeControl.getValidator().validate(value);
 						if (!status.isOK()) {
 							return status;
 						}
@@ -200,11 +201,10 @@ public class REnvConfigDialog extends StatusDialog {
 					}
 				}), null);
 		
-		
 		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
-			public void handleValueChange(ValueChangeEvent event) {
-				IStatus currentStatus = (IStatus) event.diff.getNewValue();
+			public void handleValueChange(final ValueChangeEvent event) {
+				final IStatus currentStatus = (IStatus) event.diff.getNewValue();
 				updateStatus(currentStatus);
 			}
 		});
@@ -222,9 +222,8 @@ public class REnvConfigDialog extends StatusDialog {
 	
 	private String[] searchRHOME() {
 		try {
-			IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
-			boolean isWin = Platform.getOS().startsWith("win"); //$NON-NLS-1$
-
+			final IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
+			
 			String loc = variables.performStringSubstitution("${env_var:R_HOME}", false); //$NON-NLS-1$
 			if (loc != null && loc.length() > 0) {
 				if (EFS.getLocalFileSystem().getStore(
@@ -232,14 +231,14 @@ public class REnvConfigDialog extends StatusDialog {
 					return new String[] { loc, "System Default" };
 				}
 			}
-			if (isWin) {
+			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 				loc = "${env_var:PROGRAMFILES}\\R"; //$NON-NLS-1$
-				IFileStore res = EFS.getLocalFileSystem().getStore(
+				final IFileStore res = EFS.getLocalFileSystem().getStore(
 						new Path(variables.performStringSubstitution(loc)));
 				if (!res.fetchInfo().exists()) {
 					return null;
 				}
-				String[] childNames = res.childNames(EFS.NONE, null);
+				final String[] childNames = res.childNames(EFS.NONE, null);
 				Arrays.sort(childNames, 0, childNames.length, Collator.getInstance());
 				for (int i = childNames.length-1; i >= 0; i--) {
 					if (REnvConfiguration.isValidRHomeLocation(res.getChild(childNames[i]))) {
@@ -247,10 +246,16 @@ public class REnvConfigDialog extends StatusDialog {
 					}
 				}
 			}
+			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
+				loc = "/Library/Frameworks/R.framework/Resources";
+				if (REnvConfiguration.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
+					return new String[] { loc, null };
+				}
+			}
 			else {
-				String[] defLocations = new String[] {
+				final String[] defLocations = new String[] {
 						"/usr/lib/R", //$NON-NLS-1$
-						"/usr/local/bin/R", //$NON-NLS-1$
+						"/usr/lib64/R", //$NON-NLS-1$
 				};
 				for (int i = 0; i < defLocations.length; i++) {
 					loc = defLocations[i];
@@ -259,7 +264,7 @@ public class REnvConfigDialog extends StatusDialog {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			RUIPlugin.logError(-1, "Error when searching R_HOME location", e); //$NON-NLS-1$
 		}
 		return null;

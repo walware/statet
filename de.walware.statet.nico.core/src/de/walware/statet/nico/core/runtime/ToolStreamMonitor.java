@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -20,24 +20,23 @@ import org.eclipse.debug.core.model.IStreamMonitor;
 
 
 public class ToolStreamMonitor implements IStreamMonitor {
-
+	
 	
 	private EnumMap<SubmitType, ListenerList> fListeners;
 	private int fCurrentMeta;
 	
 	
 	public ToolStreamMonitor() {
-		
 		// Create listener lists
 		fListeners = new EnumMap<SubmitType, ListenerList>(SubmitType.class);
-		for (SubmitType type : EnumSet.allOf(SubmitType.class)) {
+		for (final SubmitType type : EnumSet.allOf(SubmitType.class)) {
 			fListeners.put(type, new ListenerList(ListenerList.IDENTITY));
 		}
 	}
-
-	public void addListener(IStreamListener listener) {
+	
+	
+	public void addListener(final IStreamListener listener) {
 		// Assign all SubmitTypes to this listener 
-		
 		addListener(listener, SubmitType.getDefaultSet());
 	}
 	
@@ -47,14 +46,13 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	 * The events (streamAppended) are filtered by the specified set.
 	 * If an identical listener is already registered, the filter settings
 	 * are replaced.</p>
-	 *
+	 * 
 	 * @param listener the listener to add
 	 * @param types the types to listen for 
 	 */
-	public void addListener(IStreamListener listener, EnumSet<SubmitType> types) {
-		
-		for (SubmitType type : SubmitType.values()) {
-			ListenerList list = fListeners.get(type);
+	public void addListener(final IStreamListener listener, final EnumSet<SubmitType> types) {
+		for (final SubmitType type : SubmitType.values()) {
+			final ListenerList list = fListeners.get(type);
 			if (types.contains(type)) {
 				list.add(listener);
 			}
@@ -63,17 +61,15 @@ public class ToolStreamMonitor implements IStreamMonitor {
 			}
 		}
 	}
-
-	public void removeListener(IStreamListener listener) {
-		
-		for (ListenerList list : fListeners.values()) {
+	
+	public void removeListener(final IStreamListener listener) {
+		for (final ListenerList list : fListeners.values()) {
 			list.remove(listener);
 		}
 	}
-
+	
 	public String getContents() {
 		// not buffered
-		
 		return ""; //$NON-NLS-1$
 	}
 	
@@ -84,18 +80,16 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	 * @param type the type of the runnable.
 	 * @param optional meta data
 	 */
-	public void append(String text, SubmitType type, int meta) {
-		
-		ListenerList list = fListeners.get(type);
+	public void append(final String text, final SubmitType type, final int meta) {
+		final ListenerList list = fListeners.get(type);
 		fCurrentMeta = meta;
-		for (Object obj : list.getListeners()) {
-			IStreamListener listener = (IStreamListener) obj;
+		for (final Object obj : list.getListeners()) {
+			final IStreamListener listener = (IStreamListener) obj;
 			listener.streamAppended(text, this);
 		}
 	}
 	
 	public int getMeta() {
-		
 		return fCurrentMeta;
 	}
 	
@@ -104,4 +98,5 @@ public class ToolStreamMonitor implements IStreamMonitor {
 		
 		fListeners.clear();
 	}
+	
 }

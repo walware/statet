@@ -1,29 +1,37 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import java.lang.reflect.InvocationTargetException;
 
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- * next
- * break
+ * <code>next</code>
+ * <code>break</code>
  */
 public abstract class CLoopCommand extends RAstNode {
 	
 	
 	static class Break extends CLoopCommand {
+		
+		
+		Break() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
@@ -31,26 +39,53 @@ public abstract class CLoopCommand extends RAstNode {
 		}
 		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.BREAK;
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.C_BREAK);
 		}
 		
+		@Override
+		public final RTerminal getTerminal() {
+			return RTerminal.BREAK;
+		}
+		
 	}
-
+	
 	static class Next extends CLoopCommand {
+		
+		
+		Next() {
+		}
+		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.C_NEXT;
 		}
-
+		
 		@Override
-		public final boolean equalsSingle(RAstNode element) {
+		public final RTerminal getOperator(final int index) {
+			return RTerminal.NEXT;
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.C_NEXT);
 		}
 		
+		@Override
+		public final RTerminal getTerminal() {
+			return RTerminal.NEXT;
+		}
+		
 	}
-
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -63,7 +98,7 @@ public abstract class CLoopCommand extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		throw new IndexOutOfBoundsException();
 	}
 	
@@ -73,12 +108,27 @@ public abstract class CLoopCommand extends RAstNode {
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		return -1;
 	}
-
+	
+	public abstract RTerminal getTerminal();
+	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
+		visitor.visit(this);
+	}
+	
+	@Override
+	public final void acceptInRChildren(final RAstVisitor visitor) {
+	}
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) {
+	}
+	
+	
+	@Override
+	final Expression getExpr(final RAstNode child) {
 		return null;
 	}
 	
@@ -92,20 +142,14 @@ public abstract class CLoopCommand extends RAstNode {
 		return null;
 	}
 	
+	
 	@Override
-	public final void accept(RAstVisitor visitor) {
-		visitor.visit(this);
+	final int getMissingExprStatus(final Expression expr) {
+		throw new IllegalArgumentException();
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
-	}
-
-	public final void acceptInChildren(CommonAstVisitor visitor) {
-	}
-
-	@Override
 	final void updateStopOffset() {
 	}
-
+	
 }

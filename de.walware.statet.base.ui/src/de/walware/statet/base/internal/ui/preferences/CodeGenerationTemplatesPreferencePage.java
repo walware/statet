@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * Copyright (c) 2000-2005 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation in JDT
  *     Stephan Wahlbrink - adaptations to StatET
@@ -23,7 +23,7 @@ import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
  * The page to configure the code templates.
  */
 public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreferencePage<CodeGenerationTemplatesConfigurationBlock> {
-
+	
 	public static final String PREF_ID = "de.walware.statet.base.preferencePages.CodeGenerationTemplates"; //$NON-NLS-1$
 	public static final String PROP_ID = "de.walware.statet.base.propertyPages.CodeGenerationTemplates"; //$NON-NLS-1$
 	
@@ -31,20 +31,18 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 	
 	
 	public CodeGenerationTemplatesPreferencePage() {
-
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
 		
 		// only used when page is shown programatically
 		setTitle(Messages.CodeTemplates_title);		 
 	}
-
-
+	
+	
 	@Override
 	protected String getPreferencePageID() {
-		
 		return PREF_ID;
 	}
-
+	
 	@Override
 	protected String getPropertyPageID() {
 		
@@ -54,15 +52,12 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 	@Override
 	protected CodeGenerationTemplatesConfigurationBlock createConfigurationBlock()
 			throws CoreException {
-		
 		return new CodeGenerationTemplatesConfigurationBlock(getProject());
 	}
-
 	
-	/*
-	 * @see org.eclipse.jface.preference.PreferencePage#applyData(java.lang.Object)
-	 */
-	public void applyData(Object data) {
+	
+	@Override
+	public void applyData(final Object data) {
 //		if (data instanceof Map) {
 //			Object id = ((Map) data).get(DATA_SELECT_TEMPLATE);
 //			if (id instanceof String) {
@@ -80,11 +75,10 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 //		}
 		super.applyData(data);
 	}
-
+	
 	@Override
-	protected boolean hasProjectSpecificSettings(IProject project) {
-		
+	protected boolean hasProjectSpecificSettings(final IProject project) {
 		return CodeGenerationTemplatesStore.hasProjectSpecificTempates(project);
 	}
-
+	
 }

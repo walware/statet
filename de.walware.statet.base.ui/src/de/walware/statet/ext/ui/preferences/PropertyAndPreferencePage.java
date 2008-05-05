@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.ext.ui.preferences;
@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -48,13 +49,13 @@ import de.walware.statet.base.internal.ui.preferences.Messages;
 /**
  * Base for project property and preference pages
  */
-public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurationBlock> 
-		extends ConfigurationBlockPreferencePage<Block> 
+public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurationBlock>
+		extends ConfigurationBlockPreferencePage<Block>
 		implements IWorkbenchPreferencePage, IWorkbenchPropertyPage {
 	
 	
 	public static final String DATA_NO_LINK = "PropertyAndPreferencePage.nolink"; //$NON-NLS-1$
-
+	
 	
 	// GUI Components
 	private Composite fParentComposite;
@@ -70,16 +71,17 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 		fProject = null;
 		fData = null;
 	}
-
+	
+	
 	protected abstract String getPreferencePageID();
 	protected abstract String getPropertyPageID();
-
+	
 	@Override
 	protected abstract Block createConfigurationBlock() throws CoreException;
 	
 	protected abstract boolean hasProjectSpecificSettings(IProject project);
 	
-
+	
 	protected boolean supportsProjectSpecificOptions() {
 		return getPropertyPageID() != null;
 	}
@@ -87,7 +89,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	protected boolean offerLink() {
 		return fData == null || !Boolean.TRUE.equals(fData.get(DATA_NO_LINK));
 	}
-
+	
 	protected boolean useProjectSettings() {
 		return isProjectPreferencePage() && fUseProjectSettings != null && fUseProjectSettings.getSelection();
 	}
@@ -95,25 +97,25 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 	protected boolean isProjectPreferencePage() {
 		return fProject != null;
 	}
-
+	
 	protected IProject getProject() {
 		return fProject;
 	}
-
-
-	protected Label createDescriptionLabel(Composite parent) {
-		
+	
+	
+	@Override
+	protected Label createDescriptionLabel(final Composite parent) {
 		fParentComposite = parent;
 		
 		if (isProjectPreferencePage()) {
-			Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
+			final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
 			layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			
 			fUseProjectSettings = layouter.addCheckBox(Messages.PropertyAndPreference_UseProjectSettings_label, 0, 1);
 			fUseProjectSettings.addSelectionListener(new SelectionListener() {
-				public void widgetDefaultSelected(SelectionEvent e) {
+				public void widgetDefaultSelected(final SelectionEvent e) {
 				}
-				public void widgetSelected(SelectionEvent e) {
+				public void widgetSelected(final SelectionEvent e) {
 					doEnableProjectSpecificSettings(fUseProjectSettings.getSelection());
 				};
 			});
@@ -127,89 +129,83 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 		else if (supportsProjectSpecificOptions() && offerLink()) {
 			fChangeWorkspaceSettings = createLink(parent, Messages.PropertyAndPreference_ShowProjectSpecificSettings_label);
 		}
-
+		
 		return super.createDescriptionLabel(parent);
-    }
+	}
 	
-	private Link createLink(Composite composite, String text) {
-		Link link = new Link(composite, SWT.RIGHT);
+	private Link createLink(final Composite composite, final String text) {
+		final Link link = new Link(composite, SWT.RIGHT);
 		link.setLayoutData(new GridData(SWT.END, SWT.CENTER, true, false));
-		link.setText("<A>" + text + "</A>"); //$NON-NLS-1$//$NON-NLS-2$
-		link.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				doLinkActivated((Link) e.widget);
-			}
-
-			public void widgetDefaultSelected(SelectionEvent e) {
+		link.setText("<a>" + text + "</a>"); //$NON-NLS-1$//$NON-NLS-2$
+		link.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
 				doLinkActivated((Link) e.widget);
 			}
 		});
 		return link;
 	}
-
-	final void doLinkActivated(Link link) {
-		
-		Map<String, Object> data = new HashMap<String, Object>();
+	
+	final void doLinkActivated(final Link link) {
+		final Map<String, Object> data = new HashMap<String, Object>();
 		data.put(DATA_NO_LINK, Boolean.TRUE);
 		
 		if (isProjectPreferencePage()) {
 			openWorkspacePreferences(data);
 		} else {
 			try {
-				Set<StatetProject> all = StatetCore.getStatetProjects();
-				Set<StatetProject> projectsWithSpecifics = new HashSet<StatetProject>();
-				for (StatetProject proj : all) {
+				final Set<StatetProject> all = StatetCore.getStatetProjects();
+				final Set<StatetProject> projectsWithSpecifics = new HashSet<StatetProject>();
+				for (final StatetProject proj : all) {
 					if (hasProjectSpecificSettings(proj.getProject())) {
 						projectsWithSpecifics.add(proj);
 					}
 				}
 				
-				ProjectSelectionDialog dialog = new ProjectSelectionDialog<StatetProject>(getShell(), all, projectsWithSpecifics);
+				final ProjectSelectionDialog dialog = new ProjectSelectionDialog<StatetProject>(getShell(), all, projectsWithSpecifics);
 				if (dialog.open() == Window.OK) {
-					StatetProject res = (StatetProject) dialog.getFirstResult();
+					final StatetProject res = (StatetProject) dialog.getFirstResult();
 					openProjectProperties(res.getProject(), data);
 				}
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				//
 			}
 			
 		}
 	}
-
 	
-	protected Control createContents(Composite parent) {
-		
+	
+	@Override
+	protected Control createContents(final Composite parent) {
 		if (fBlock == null)
 			init(null);
 		
-		Control control = super.createContents(parent);
-
+		final Control control = super.createContents(parent);
+		
 		if (isProjectPreferencePage())
 			doEnableProjectSpecificSettings(hasProjectSpecificSettings(getProject()));
-
+		
 		return control;
 	}
-
-	protected final void openWorkspacePreferences(Object data) {
-		
-		String id = getPreferencePageID();
+	
+	protected final void openWorkspacePreferences(final Object data) {
+		final String id = getPreferencePageID();
 		PreferencesUtil.createPreferenceDialogOn(getShell(), id, new String[] { id }, data).open();
 	}
 	
-	protected final void openProjectProperties(IProject project, Object data) {
-		
-		String id = getPropertyPageID();
+	protected final void openProjectProperties(final IProject project, final Object data) {
+		final String id = getPropertyPageID();
 		if (id != null) {
 			PreferencesUtil.createPropertyDialogOn(getShell(), project, id, new String[] { id }, data).open();
 		}
 	}
 	
 	
-	protected void doEnableProjectSpecificSettings(boolean useProjectSpecificSettings) {
+	protected void doEnableProjectSpecificSettings(final boolean useProjectSpecificSettings) {
 		
 		if (fBlock != null)
 			fBlock.setUseProjectSpecificSettings(useProjectSpecificSettings);
-
+		
 		fUseProjectSettings.setSelection(useProjectSpecificSettings);
 		if (useProjectSpecificSettings) {
 			if (fBlockEnableState != null) {
@@ -234,6 +230,7 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 			fChangeWorkspaceSettings.setEnabled(!useProjectSettings());
 	}
 	
+	@Override
 	protected void updateStatus() {
 		if (!isProjectPreferencePage() || useProjectSettings()) {
 			updateStatus(fBlockStatus);
@@ -242,35 +239,28 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 		}
 	}
 	
-
+	
 /* PropertyPage Implementation ************************************************/
 	
-	/* 
-	 * @see org.eclipse.ui.IWorkbenchPropertyPage#getElement()
-	 */
 	public IAdaptable getElement() {
-		
 		return fProject;
 	}
-
-	/*
-	 * @see org.eclipse.ui.IWorkbenchPropertyPage#setElement(org.eclipse.core.runtime.IAdaptable)
-	 */
-	public void setElement(IAdaptable element) {
-		
+	
+	public void setElement(final IAdaptable element) {
 		fProject = (IProject) element.getAdapter(IResource.class);
 	}
 	
 	
 /* PreferencePage Implementation **********************************************/
-
+	
 // super
 //	public void init(IWorkbench workbench) {
 //
 //		fBlock = createConfigurationBlock(getProject());
 //	}
-
-	public void applyData(Object data) {
+	
+	@Override
+	public void applyData(final Object data) {
 		if (data instanceof Map) {
 			fData = (Map) data;
 		}
@@ -280,20 +270,22 @@ public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurat
 				fParentComposite.layout(true, true);
 			}
 		}
- 	}
+	}
 	
 	protected Map getData() {
 		return fData;
 	}
-
+	
+	@Override
 	public void performDefaults() {
-
+		
 		if (isProjectPreferencePage() && !useProjectSettings()) {
 			return;
 		}
 		super.performDefaults();
 	}
-
+	
+	@Override
 	public boolean performCancel() {
 		if (fBlock != null) {
 			fBlock.performCancel();

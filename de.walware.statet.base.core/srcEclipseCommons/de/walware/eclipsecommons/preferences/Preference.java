@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.preferences;
@@ -22,13 +22,12 @@ import java.util.regex.Pattern;
  * <p>
  * This package should help to manage the new preference system
  * with scopes and nodes introduced with Eclipse 3.1.
- *
+ * 
  * @param <T> the type, which this preference can store
- * 		(normally, thats the same as the type property,
- * 		but not have to be)
+ *     (normally, thats the same as the type property, but not have to be)
  */
 public abstract class Preference<T> {
-
+	
 	/**
 	 * The types inside the Eclipse preference store
 	 */
@@ -40,7 +39,7 @@ public abstract class Preference<T> {
 		LONG,
 		INT;
 	}
-
+	
 	
 /*-- Definition --------------------------------------------------------------*/
 	
@@ -49,26 +48,23 @@ public abstract class Preference<T> {
 	private final Type fType;
 	
 	
-	protected Preference(String qualifier, String key, Type type) {
+	protected Preference(final String qualifier, final String key, final Type type) {
 		
 		fQualifier = qualifier;
 		fKey = key;
 		fType = type;
 	}
 	
-
+	
 	public String getQualifier() {
-		
 		return fQualifier;
 	}
 	
 	public String getKey() {
-		
 		return fKey;
 	}
 	
 	public Type getStoreType() {
-		
 		return fType;
 	}
 	
@@ -76,12 +72,11 @@ public abstract class Preference<T> {
 	
 	/**
 	 * Converts object of type T (this Preference is designed for) in the value for the PreferenceStore (type specified by getStoreType)
-	 *
+	 * 
 	 * @param obj
 	 * @return
 	 */
-	public Object usage2Store(T obj) {
-		
+	public Object usage2Store(final T obj) {
 		return obj;
 	}
 	
@@ -98,38 +93,35 @@ public abstract class Preference<T> {
 	
 	@Override
 	public String toString() {
-		
 		return fQualifier + '/' + fKey;
 	}
 	
 	@Override
 	public int hashCode() {
-		
 		return toString().hashCode();
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		
+	public boolean equals(final Object obj) {
 		if (obj.getClass() == getClass()) {
 			return obj.toString().equals(toString());
 		}
 		return false;
 	}
-
+	
 	
 /*-- Implementation for common types -----------------------------------------*/	
 	
 	private static final char LIST_SEPARATOR_CHAR = ',';
 	private static final Pattern LIST_SEPARATOR_PATTERN = Pattern.compile(",");  //$NON-NLS-1$
-
+	
 	
 	/**
 	 * Default implementation for preferences of type String
 	 */
 	public static class StringPref extends Preference<String> {
 		
-		public StringPref(String qualifier, String key) {
+		public StringPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.STRING);
 		}
 		
@@ -138,7 +130,7 @@ public abstract class Preference<T> {
 			return String.class;
 		}
 		@Override
-		public String store2Usage(Object obj) {
+		public String store2Usage(final Object obj) {
 			return (String) obj;
 		}
 	}
@@ -148,7 +140,7 @@ public abstract class Preference<T> {
 	 */
 	public static class BooleanPref extends Preference<Boolean> {
 		
-		public BooleanPref(String qualifier, String key) {
+		public BooleanPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.BOOLEAN);
 		}
 		
@@ -157,7 +149,7 @@ public abstract class Preference<T> {
 			return Boolean.class;
 		}
 		@Override
-		public Boolean store2Usage(Object obj) {
+		public Boolean store2Usage(final Object obj) {
 			if (obj != null) {
 				if (obj instanceof Boolean) {
 					return (Boolean) obj;
@@ -169,22 +161,22 @@ public abstract class Preference<T> {
 			return null;
 		}
 	}
-
+	
 	/**
 	 * Default implementation for preferences of type Integer/int
 	 */
 	public static class IntPref extends Preference<Integer> {
 		
-		public IntPref(String qualifier, String key) {
+		public IntPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.INT);
 		}
-
+		
 		@Override
 		public Class<Integer> getUsageType() {
 			return Integer.class;
 		}
 		@Override
-		public Integer store2Usage(Object obj) {
+		public Integer store2Usage(final Object obj) {
 			if (obj != null) {
 				if (obj instanceof Integer) {
 					return (Integer) obj;
@@ -202,16 +194,16 @@ public abstract class Preference<T> {
 	 */
 	public static class LongPref extends Preference<Long> {
 		
-		public LongPref(String qualifier, String key) {
+		public LongPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.LONG);
 		}
-
+		
 		@Override
 		public Class<Long> getUsageType() {
 			return Long.class;
 		}
 		@Override
-		public Long store2Usage(Object obj) {
+		public Long store2Usage(final Object obj) {
 			if (obj != null) {
 				if (obj instanceof Boolean) {
 					return (Long) obj;
@@ -229,7 +221,7 @@ public abstract class Preference<T> {
 	 */
 	public static class FloatPref extends Preference<Float> {
 		
-		public FloatPref(String qualifier, String key) {
+		public FloatPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.FLOAT);
 		}
 		
@@ -238,7 +230,7 @@ public abstract class Preference<T> {
 			return Float.class;
 		}
 		@Override
-		public Float store2Usage(Object obj) {
+		public Float store2Usage(final Object obj) {
 			if (obj != null) {
 				if (obj instanceof Float) {
 					return (Float) obj;
@@ -256,7 +248,7 @@ public abstract class Preference<T> {
 	 */
 	public static class DoublePref extends Preference<Double> {
 		
-		public DoublePref(String qualifier, String key) {
+		public DoublePref(final String qualifier, final String key) {
 			super(qualifier, key, Type.DOUBLE);
 		}
 		
@@ -265,7 +257,7 @@ public abstract class Preference<T> {
 			return Double.class;
 		}
 		@Override
-		public Double store2Usage(Object obj) {
+		public Double store2Usage(final Object obj) {
 			if (obj != null) {
 				if (obj instanceof Double) {
 					return (Double) obj;
@@ -285,30 +277,31 @@ public abstract class Preference<T> {
 		
 		private Class<E> fEnumType;
 		
-		public EnumPref(String qualifier, String key, Class<E> enumType) {
+		public EnumPref(final String qualifier, final String key, final Class<E> enumType) {
 			super(qualifier, key, Type.STRING);
 			fEnumType = enumType;
 		}
-
+		
 		@Override
 		public Class<E> getUsageType() {
 			return fEnumType;
 		}
 		@Override
-		public E store2Usage(Object obj) {
+		public E store2Usage(final Object obj) {
 			if (obj != null) {
-				String s = (String) obj;
+				final String s = (String) obj;
 				if (s.length() > 0) {
 					return Enum.valueOf(fEnumType, s);
 				}
 			}
 			return null;
 		}
-		public String usage2Store(E value) {
+		@Override
+		public String usage2Store(final E value) {
 			return value.name();
 		}
 	}
-
+	
 	/**
 	 * Default implementation for preferences of type EnumSet.
 	 */
@@ -316,7 +309,7 @@ public abstract class Preference<T> {
 		
 		private Class<E> fEnumType;
 		
-		public EnumSetPref(String qualifier, String key, Class<E> enumType) {
+		public EnumSetPref(final String qualifier, final String key, final Class<E> enumType) {
 			super(qualifier, key, Type.STRING);
 			fEnumType = enumType;
 		}
@@ -326,10 +319,10 @@ public abstract class Preference<T> {
 			return EnumSet.class;
 		}
 		@Override
-		public EnumSet<E> store2Usage(Object storedValue) {
-			String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
-			EnumSet<E> set = EnumSet.noneOf(fEnumType);
-			for (String s : values) {
+		public EnumSet<E> store2Usage(final Object storedValue) {
+			final String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
+			final EnumSet<E> set = EnumSet.noneOf(fEnumType);
+			for (final String s : values) {
 				if (s.length() > 0) {
 					set.add(Enum.valueOf(fEnumType, s));
 				}
@@ -337,14 +330,14 @@ public abstract class Preference<T> {
 			return set;
 		}
 		
-		public String usage2Store(EnumSet<E> set) {
-			
+		@Override
+		public String usage2Store(final EnumSet<E> set) {
 			if (set.isEmpty()) {
 				return ""; //$NON-NLS-1$
 			}
 			
-			StringBuilder sb = new StringBuilder();
-			for (E e : set) {
+			final StringBuilder sb = new StringBuilder();
+			for (final E e : set) {
 				sb.append(e.name());
 				sb.append(LIST_SEPARATOR_CHAR);
 			}
@@ -359,7 +352,7 @@ public abstract class Preference<T> {
 		
 		private Class<E> fEnumType;
 		
-		public EnumListPref(String qualifier, String key, Class<E> enumType) {
+		public EnumListPref(final String qualifier, final String key, final Class<E> enumType) {
 			super(qualifier, key, Type.STRING);
 			fEnumType = enumType;
 		}
@@ -369,10 +362,10 @@ public abstract class Preference<T> {
 			return List.class;
 		}
 		@Override
-		public ArrayList<E> store2Usage(Object storedValue) {
-			String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
-			ArrayList<E> list = new ArrayList<E>(values.length);
-			for (String s : values) {
+		public ArrayList<E> store2Usage(final Object storedValue) {
+			final String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
+			final ArrayList<E> list = new ArrayList<E>(values.length);
+			for (final String s : values) {
 				if (s.length() > 0) {
 					list.add(Enum.valueOf(fEnumType, s));
 				}
@@ -380,25 +373,25 @@ public abstract class Preference<T> {
 			return list;
 		}
 		@Override
-		public String usage2Store(List<E> list) {
+		public String usage2Store(final List<E> list) {
 			if (list.isEmpty()) {
 				return ""; //$NON-NLS-1$
 			}
-			StringBuilder sb = new StringBuilder();
-			for (E e : list) {
+			final StringBuilder sb = new StringBuilder();
+			for (final E e : list) {
 				sb.append(e.name());
 				sb.append(LIST_SEPARATOR_CHAR);
 			}
 			return sb.substring(0, sb.length()-1);
 		}
 	}
-
+	
 	/**
 	 * Default implementation for preferences of type String-Array
 	 */
 	public static class StringArrayPref extends Preference<String[]> {
 		
-		public StringArrayPref(String qualifier, String key) {
+		public StringArrayPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.STRING);
 		}
 		
@@ -407,20 +400,20 @@ public abstract class Preference<T> {
 			return String[].class;
 		}
 		@Override
-		public String[] store2Usage(Object storedValue) {
-			String s = (String) storedValue;
+		public String[] store2Usage(final Object storedValue) {
+			final String s = (String) storedValue;
 			if (s.length() == 0) {
 				return new String[0];
 			}
 			return LIST_SEPARATOR_PATTERN.split(s);
 		}
 		@Override
-		public String usage2Store(String[] array) {
+		public String usage2Store(final String[] array) {
 			if (array.length == 0) {
 				return ""; //$NON-NLS-1$
 			}
-			StringBuilder sb = new StringBuilder();
-			for (String s : array) {
+			final StringBuilder sb = new StringBuilder();
+			for (final String s : array) {
 				sb.append(s);
 				sb.append(',');
 			}

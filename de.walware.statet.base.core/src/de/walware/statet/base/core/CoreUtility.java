@@ -1,14 +1,14 @@
 /*******************************************************************************
  * Copyright (c) 2005-2007 IBM Corporation and 
- *    WalWare/StatET-Project (http://www.walware.de/goto/statet).
+ *   WalWare/StatET-Project (http://www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    IBM Corporation - initial API and implementation in JDT
- *    Stephan Wahlbrink - adaptations to StatET
+ *     IBM Corporation - initial API and implementation in JDT
+ *     Stephan Wahlbrink - adaptations to StatET
  *******************************************************************************/
 
 package de.walware.statet.base.core;
@@ -29,19 +29,19 @@ import de.walware.statet.base.internal.core.Messages;
 
 
 public class CoreUtility {
-
+	
 	
 	private static final class BuildJob extends Job {
 		
 		private final IProject fProject;
 		
-		private BuildJob(String name, IProject project) {
+		private BuildJob(final String name, final IProject project) {
 			super(name);
 			
 			fProject = project;
 		}
 		
-		public boolean isCoveredBy(BuildJob other) {
+		public boolean isCoveredBy(final BuildJob other) {
 			if (other.fProject == null)
 				return true;
 			
@@ -49,25 +49,24 @@ public class CoreUtility {
 		}
 		
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			
+		protected IStatus run(final IProgressMonitor monitor) {
 			// check for other BuildJobs
 			try {
 				synchronized (getClass()) {
 					if (monitor.isCanceled()) {
 						throw new OperationCanceledException();
 					}
-			        Job[] buildJobs = Job.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
-			        for (Job job : buildJobs) {
-			        	if (job != this && job instanceof BuildJob) {
-			        		BuildJob buildJob = (BuildJob) job;
-			        		if (buildJob.isCoveredBy(this)) {
-			        			buildJob.cancel();  // cancel all other build jobs of our kind
-			        		}
-			        	}
+					final Job[] buildJobs = Job.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_BUILD);
+					for (final Job job : buildJobs) {
+						if (job != this && job instanceof BuildJob) {
+							final BuildJob buildJob = (BuildJob) job;
+							if (buildJob.isCoveredBy(this)) {
+								buildJob.cancel();  // cancel all other build jobs of our kind
+							}
+						}
 					}
 				}
-			
+				
 				if (fProject != null) {
 					monitor.beginTask(NLS.bind(Messages.CoreUtility_Build_ProjectTask_name, fProject.getName()), 2); 
 					fProject.build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor,1));
@@ -77,10 +76,10 @@ public class CoreUtility {
 					ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new SubProgressMonitor(monitor, 2));
 				}
 			} 
-			catch (CoreException e) {
+			catch (final CoreException e) {
 				return e.getStatus();
 			} 
-			catch (OperationCanceledException e) {
+			catch (final OperationCanceledException e) {
 				return Status.CANCEL_STATUS;
 			}
 			finally {
@@ -89,10 +88,11 @@ public class CoreUtility {
 			return Status.OK_STATUS;
 		}
 		
-		public boolean belongsTo(Object family) {
-			
+		@Override
+		public boolean belongsTo(final Object family) {
 			return ResourcesPlugin.FAMILY_MANUAL_BUILD == family;
 		}
+		
 	}
 	
 	/**
@@ -100,8 +100,7 @@ public class CoreUtility {
 	 * @param project The project to build or <code>null</code> to build the workspace.
 	 */
 	public static Job getBuildJob(final IProject project) {
-		
-		Job buildJob = new BuildJob(Messages.CoreUtility_Build_Job_title, project);
+		final Job buildJob = new BuildJob(Messages.CoreUtility_Build_Job_title, project);
 		buildJob.setRule(ResourcesPlugin.getWorkspace().getRuleFactory().buildRule());
 		buildJob.setUser(true);
 		return buildJob;
@@ -114,5 +113,5 @@ public class CoreUtility {
 	public static void startBuildInBackground(final IProject project) {
 		getBuildJob(project).schedule();
 	}
-
+	
 }

@@ -2,14 +2,14 @@
 <?eclipse version="3.2"?>
 <!--
  ###############################################################################
- # Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
  # http://www.eclipse.org/legal/epl-v10.html
- #
+ # 
  # Contributors:
- #    Stephan Wahlbrink - initial API and implementation
+ #     Stephan Wahlbrink - initial API and implementation
  ###############################################################################
 -->
 
@@ -23,6 +23,48 @@
       <contexts
             file="contexts_R.xml"
             plugin="de.walware.statet.r.ui"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="de.walware.statet.r.cheatSheetCategories.R"
+            name="StatET: R in Eclipse">
+      </category>
+      <cheatsheet
+            category="de.walware.statet.r.cheatSheetCategories.R"
+            composite="false"
+            contentFile="cheatSheets/get_started-perspective.xml"
+            id="de.walware.statet.r.cheatSheetContent.GetStartedPerspective"
+            name="1) Set StatET as the Default Perspective">
+      </cheatsheet>
+      <cheatsheet
+            category="de.walware.statet.r.cheatSheetCategories.R"
+            composite="false"
+            contentFile="cheatSheets/r_console-config_and_launch.xml"
+            id="de.walware.statet.r.cheatSheetContent.RConsoleGettingStarted"
+            name="2) Configure and Launch R Console">
+      </cheatsheet>
+      <cheatsheet
+            category="de.walware.statet.r.cheatSheetCategories.R"
+            composite="false"
+            contentFile="cheatSheets/r_console-on_eclipse_startup.xml"
+            id="de.walware.statet.r.cheatSheetContent.RConsoleAutorun"
+            name="3) Launch R Console on Eclipse Startup">
+      </cheatsheet>
+      <cheatsheet
+            category="de.walware.statet.r.cheatSheetCategories.R"
+            composite="false"
+            contentFile="cheatSheets/r_cmd-check.xml"
+            id="de.walware.statet.r.cheatSheetContent.RCmdPkgCheck"
+            name="4.1) Configure and Use the R Package Checker">
+      </cheatsheet>
+      <cheatsheet
+            category="de.walware.statet.r.cheatSheetCategories.R"
+            composite="false"
+            contentFile="cheatSheets/r_cmd-build.xml"
+            id="de.walware.statet.r.cheatSheetContent.RCmdPkgBuild"
+            name="4.2) Configure and Use the R Package Builder">
+      </cheatsheet>
    </extension>
 
 </plugin>

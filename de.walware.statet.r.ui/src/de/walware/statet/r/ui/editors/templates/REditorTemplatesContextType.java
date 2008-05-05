@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors.templates;
@@ -79,12 +79,12 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 	
 /* context types **************************************************************/
 	public static final String RSCIRPT_CONTEXTTYPE = "rscript"; //$NON-NLS-1$
-
 	
-	public REditorTemplatesContextType(String contextName) {
+	
+	public REditorTemplatesContextType(final String contextName) {
 		
 		super(contextName);
-
+		
 		addResolver(new GlobalTemplateVariables.Cursor());
 		addResolver(new GlobalTemplateVariables.WordSelection());
 		addResolver(new GlobalTemplateVariables.LineSelection());
@@ -98,9 +98,8 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 		
 	}
 	
-	public static void registerContextTypes(ContextTypeRegistry registry) {
-		
+	public static void registerContextTypes(final ContextTypeRegistry registry) {
 		registry.addContextType(new REditorTemplatesContextType(RSCIRPT_CONTEXTTYPE));
 	}
-
+	
 }

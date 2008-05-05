@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui;
@@ -50,13 +50,13 @@ import de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage;
  * Composite to choose a configured R Environment.
  */
 public class ChooseREnvComposite extends Composite implements ISettingsChangedHandler {
-
+	
 	public static interface ChangeListener {
 		public void settingChanged(ChooseREnvComposite source, String oldValue, String newValue);
 	}
 	
 	private class CompositeObservable extends AbstractObservableValue implements ChangeListener {
-
+		
 		public CompositeObservable(Realm realm) {
 			super(realm);
 			ChooseREnvComposite.this.addChangeListener(CompositeObservable.this);
@@ -86,7 +86,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	}
 	
 	private class ChooseREnvValidator implements IValidator {
-
+		
 		public IStatus validate(Object dummy) {
 			if (fInvalidPreference) {
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_InvalidPreferences_message);
@@ -107,7 +107,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	private String fCurrentSetting;
 	private REnvConfiguration fCurrentSpecified;
 	private ListenerList fListeners;
-
+	
 	private DataBindingContext fBindindContexts;
 	private Binding fBindings;
 	
@@ -117,7 +117,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	private Combo fSpecificCombo;
 	private Button fConfigurationButton;
 	
-
+	
 	public ChooseREnvComposite(Composite parent) {
 		super(parent, SWT.NONE);
 		fInvalidPreference = true;
@@ -132,7 +132,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	
 	
 	private void initPreferences() {
-		new SettingsUpdater(this, fSpecificCombo, new String[] { IREnvManager.CONTEXT_ID });
+		new SettingsUpdater(this, fSpecificCombo, new String[] { IREnvManager.SETTINGS_GROUP_ID });
 		loadREnvironments();
 	}
 	
@@ -156,7 +156,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		fConfigurationButton = new Button(container, SWT.PUSH);
 		fConfigurationButton.setText(RUIMessages.ChooseREnv_Configure_label);
 		fConfigurationButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-
+		
 		fWorkbenchDefaultButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -183,7 +183,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		});
 	}
 	
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
+	public boolean handleSettingsChanged(Set<String> groupIds, Object options) {
 		loadREnvironments();
 		return true;
 	}
@@ -233,7 +233,7 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		}
 		updateState(false);
 	}
-
+	
 	public String getEncodedSetting() {
 		return fCurrentSetting;
 	}

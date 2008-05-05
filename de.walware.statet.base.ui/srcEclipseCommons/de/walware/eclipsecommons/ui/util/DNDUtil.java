@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.util;
@@ -29,52 +29,51 @@ import de.walware.eclipsecommons.internal.ui.Messages;
 
 
 public class DNDUtil {
-
-
+	
+	
 	public static abstract class SimpleTextDropAdapter extends DropTargetAdapter {
 		
 		protected abstract StyledText getTextWidget();
-
-		public void dragEnter(DropTargetEvent e) {
-			
-			if (e.detail == DND.DROP_DEFAULT) {
-				e.detail = DND.DROP_COPY;
-			}
-		}
 		
-		public void dragOperationChanged(DropTargetEvent e) {
-			
-			if (e.detail == DND.DROP_DEFAULT) {
+		@Override
+		public void dragEnter(final DropTargetEvent e) {
+			if (e.detail == DND.DROP_DEFAULT && (e.operations & DND.DROP_COPY) != 0) {
 				e.detail = DND.DROP_COPY;
 			}
 		}
 		
 		@Override
-		public void dragOver(DropTargetEvent event) {
-
+		public void dragOperationChanged(final DropTargetEvent e) {
+			if (e.detail == DND.DROP_DEFAULT && (e.operations & DND.DROP_COPY) != 0) {
+				e.detail = DND.DROP_COPY;
+			}
+		}
+		
+		@Override
+		public void dragOver(final DropTargetEvent event) {
 			event.feedback = DND.FEEDBACK_SCROLL | DND.FEEDBACK_SELECT;
 		}
 		
-		public void drop(DropTargetEvent e) {
-			
+		@Override
+		public void drop(final DropTargetEvent e) {
 			getTextWidget().insert((String)e.data);
 		}
 	}
 	
 	
-	public static boolean setContent(Clipboard clipboard, Object[] datas, Transfer[] tranfers) {
-
+	public static boolean setContent(final Clipboard clipboard, final Object[] datas, final Transfer[] tranfers) {
+		
 		while (true) {
 			try {
 				clipboard.setContents(datas, tranfers);
 				return true;
 			}
-			catch (SWTError e) {
+			catch (final SWTError e) {
 				if (e.code != DND.ERROR_CANNOT_SET_CLIPBOARD)
 					throw e;
-	
+				
 				if (!MessageDialog.openQuestion(
-						UIAccess.getActiveWorkbenchShell(true), 
+						UIAccess.getActiveWorkbenchShell(true),
 						Messages.CopyToClipboard_error_title,
 						Messages.CopyToClipboard_error_message))
 					return false;
@@ -83,33 +82,37 @@ public class DNDUtil {
 	}
 	
 	/**
-	 * for common options (DEFAULT, MOVE, COPY).  
+	 * for common options (DEFAULT, MOVE, COPY).
+	 * 
 	 * @param viewer
 	 * @param listener
 	 * @param transferTypes
 	 */
-	public static void addDropSupport(Control control, DropTargetListener listener,
-			Transfer[] transferTypes) {
-		
-		addDropSupport(control, new DropTargetListener[] { listener }, 
-				DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY, 
+	public static void addDropSupport(final Control control, final DropTargetListener listener,
+			final Transfer[] transferTypes) {
+		addDropSupport(control, new DropTargetListener[] { listener },
+				DND.DROP_DEFAULT | DND.DROP_MOVE | DND.DROP_COPY,
 				transferTypes);
 	}
 	
-	public static void addDropSupport(Control control, DropTargetListener[] listeners,
-			int operations, Transfer[] transferTypes) {
-
+	public static void addDropSupport(final Control control, final DropTargetListener[] listeners,
+			final int operations, final Transfer[] transferTypes) {
+		
 		final DropTarget dropTarget = new DropTarget(control, operations);
 		dropTarget.setTransfer(transferTypes);
-		for (DropTargetListener listener : listeners) {
+		for (final DropTargetListener listener : listeners) {
 			dropTarget.addDropListener(listener);
 		}
 		
 		control.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
+			public void widgetDisposed(final DisposeEvent e) {
 				e.widget.removeDisposeListener(this);
 				dropTarget.dispose();
 			}
 		});
 	}
+	
+	
+	private DNDUtil() {}
+	
 }

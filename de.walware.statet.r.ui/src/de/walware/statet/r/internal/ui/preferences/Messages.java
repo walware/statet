@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.ui.preferences;
@@ -25,10 +25,10 @@ public class Messages extends NLS {
 	public static String RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message;
 	public static String RIdentifiers_Identifier_error_Empty_message;
 	public static String RIdentifiers_Identifier_error_Invalid_message;
-
+	
 	public static String RSyntaxColoring_CodeCategory_label;
 	public static String RSyntaxColoring_CommentsCategory_label;
-
+	
 	public static String RSyntaxColoring_Default_label;
 	public static String RSyntaxColoring_Default_description;
 	public static String RSyntaxColoring_Identifier_Items_description;
@@ -45,6 +45,10 @@ public class Messages extends NLS {
 	public static String RSyntaxColoring_String_description;
 	public static String RSyntaxColoring_Numbers_label;
 	public static String RSyntaxColoring_Numbers_description;
+	public static String RSyntaxColoring_Numbers_Integer_label;
+	public static String RSyntaxColoring_Numbers_Integer_description;
+	public static String RSyntaxColoring_Numbers_Complex_label;
+	public static String RSyntaxColoring_Numbers_Complex_description;
 	public static String RSyntaxColoring_SpecialConstants_label;
 	public static String RSyntaxColoring_SpecialConstants_description;
 	public static String RSyntaxColoring_LogicalConstants_label;
@@ -95,7 +99,7 @@ public class Messages extends NLS {
 	public static String RdSyntaxColoring_Brackets_description;
 	public static String RdSyntaxColoring_TaskTag_label;
 	public static String RdSyntaxColoring_TaskTag_description;
-
+	
 	public static String RCodeStyle_TabSize_label;
 	public static String RCodeStyle_TabSize_error_message;
 	public static String RCodeStyle_Indent_group;
@@ -115,7 +119,7 @@ public class Messages extends NLS {
 	public static String RCodeStyle_Indent_Strategy_Levels_label;
 	
 	public static String REditorTemplates_title;
-
+	
 	public static String REditorOptions_SmartInsert_label;
 	public static String REditorOptions_SmartInsert_description;
 	public static String REditorOptions_SmartInsert_AsDefault_label;
@@ -128,12 +132,20 @@ public class Messages extends NLS {
 	public static String REditorOptions_SmartInsert_CloseSquare_label;
 	public static String REditorOptions_SmartInsert_ClosePercent_label;
 	public static String REditorOptions_SmartInsert_CloseString_label;
+	public static String REditorOptions_ProblemChecking_Enable_label;
 	public static String REditorOptions_SpellChecking_Enable_label;
 	public static String REditorOptions_SpellChecking_note;
+	public static String REditorOptions_MarkOccurrences_Enable_label;
+	public static String REditorOptions_MarkOccurrences_Appearance_info;
 	public static String REditorOptions_Folding_Enable_label;
-
-
+	public static String REditorOptions_Folding_EnableForAllBlocks_label;
+	public static String REditorOptions_Folding_MinNumOfLines_label;
+	public static String REditorOptions_Folding_MinNumOfLines_error_message;
+	
+	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
+	
 }

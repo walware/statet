@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.internal.ui;
@@ -15,6 +15,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
+import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.progress.IProgressConstants;
 
 
@@ -23,8 +24,7 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 	
 	private static final String ID_SEARCH_VIEW = "org.eclipse.search.ui.views.SearchView"; // NewSearchUI.SEARCH_VIEW_ID)  //$NON-NLS-1$
 	private static final String ID_CONSOLE_VIEW = "org.eclipse.ui.console.ConsoleView"; // IConsoleConstants.ID_CONSOLE_VIEW //$NON-NLS-1$
-	private static final String ID_PROJECT_EXPLORER = "org.eclipse.ui.navigator.ProjectExplorer"; //$NON-NLS-1$
-
+	
 	
 	/**
 	 * Constructs a new Default layout engine.
@@ -32,15 +32,15 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 	public StatetPerspectiveFactory() {
 		super();
 	}
-
-	public void createInitialLayout(IPageLayout layout) {
- 		String editorArea = layout.getEditorArea();
+	
+	public void createInitialLayout(final IPageLayout layout) {
+		final String editorArea = layout.getEditorArea();
 		
-		IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
-		folder.addView(ID_PROJECT_EXPLORER);
+		final IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
+		folder.addView(ProjectExplorer.VIEW_ID);
 		folder.addPlaceholder(IPageLayout.ID_RES_NAV);
 		
-		IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.75f, editorArea); //$NON-NLS-1$
+		final IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.75f, editorArea); //$NON-NLS-1$
 		outputfolder.addView(IPageLayout.ID_TASK_LIST);
 		outputfolder.addPlaceholder(IPageLayout.ID_PROBLEM_VIEW);
 		outputfolder.addPlaceholder(ID_SEARCH_VIEW);
@@ -58,7 +58,7 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		
 		// views - debugging
 		layout.addShowViewShortcut(ID_CONSOLE_VIEW);
-
+		
 		// views - standard workbench
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
 		layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
@@ -70,4 +70,5 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
 		layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
 	}
+	
 }

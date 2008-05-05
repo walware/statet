@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.databinding;
@@ -23,7 +23,7 @@ import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 
 
 /**
- *
+ * 
  */
 public class DirtyTracker implements IValueChangeListener {
 	
@@ -31,25 +31,24 @@ public class DirtyTracker implements IValueChangeListener {
 	private boolean fDirty;
 	
 	
-	public DirtyTracker(DataBindingContext dbc) {
-
-		for (Object obj : dbc.getBindings()) {
+	public DirtyTracker(final DataBindingContext dbc) {
+		for (final Object obj : dbc.getBindings()) {
 			track((Binding) obj, true);
 		}
 		dbc.getBindings().addListChangeListener(new IListChangeListener() {
-			public void handleListChange(ListChangeEvent event) {
-				for (ListDiffEntry diff : event.diff.getDifferences()) {
+			public void handleListChange(final ListChangeEvent event) {
+				for (final ListDiffEntry diff : event.diff.getDifferences()) {
 					track((Binding) diff.getElement(), diff.isAddition());
 				}
 			}
 		});
 	}
 	
-	private void track(Binding binding, boolean add) {
-		
-		IObservable obs = binding.getTarget();
+	
+	private void track(final Binding binding, final boolean add) {
+		final IObservable obs = binding.getTarget();
 		if (obs instanceof IObservableValue) {
-			IObservableValue value = (IObservableValue) obs;
+			final IObservableValue value = (IObservableValue) obs;
 			if (add) {
 				value.addValueChangeListener(this);
 			}
@@ -61,23 +60,20 @@ public class DirtyTracker implements IValueChangeListener {
 		// add more, if required
 	}
 	
-	public void handleValueChange(ValueChangeEvent event) {
-		
+	public void handleValueChange(final ValueChangeEvent event) {
 		handleChange();
 	}
 	
 	public void handleChange() {
-		
 		fDirty = true;
 	}
 	
 	public void resetDirty() {
-		
 		fDirty = false;
 	}
 	
 	public boolean isDirty() {
-		
 		return fDirty;
 	}
+	
 }

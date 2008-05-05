@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -24,14 +24,14 @@ public class Prompt {
 	public final String text;
 	public final int meta;
 	
-	public Prompt(String text) {
-		
+	
+	public Prompt(final String text) {
 		this(text, 0);
 	}
 	
-	public Prompt(String text, int meta) {
-		
+	public Prompt(final String text, final int meta) {
 		this.text = text;
 		this.meta = meta;
 	}
+	
 }

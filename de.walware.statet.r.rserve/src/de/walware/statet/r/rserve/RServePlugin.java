@@ -19,10 +19,10 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class RServePlugin extends AbstractUIPlugin {
-
+	
 	
 	public static final String PLUGIN_ID = "de.walware.statet.r.rserve";
-		
+	
 	
 	/** The shared instance. */
 	private static RServePlugin gPlugin;
@@ -36,7 +36,7 @@ public class RServePlugin extends AbstractUIPlugin {
 		
 		return gPlugin;
 	}
-
+	
 	
 	/**
 	 * The constructor.
@@ -45,22 +45,24 @@ public class RServePlugin extends AbstractUIPlugin {
 		
 		gPlugin = this;
 	}
-
+	
 	/**
 	 * This method is called upon plug-in activation
 	 */
-	public void start(BundleContext context) throws Exception {
+	@Override
+	public void start(final BundleContext context) throws Exception {
 		
 		super.start(context);
 	}
-
+	
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
-	public void stop(BundleContext context) throws Exception {
+	@Override
+	public void stop(final BundleContext context) throws Exception {
 		
 		gPlugin = null;
 		super.stop(context);
 	}
-
+	
 }

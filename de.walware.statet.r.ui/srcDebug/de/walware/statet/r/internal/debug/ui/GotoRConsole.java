@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui;
@@ -21,32 +21,38 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 
 
 public class GotoRConsole implements IHandler {
-
-	public void addHandlerListener(IHandlerListener handlerListener) {
+	
+	
+	public GotoRConsole() {
 	}
-
+	
+	
 	public void dispose() {
 	}
-
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		try {
 			RCodeLaunchRegistry.gotoRConsole();
 		}
-		catch (CoreException e) {
+		catch (final CoreException e) {
 			throw new ExecutionException("Error occured when Goto R Console", e);
 		}
 		return null;
 	}
-
+	
+	
 	public boolean isEnabled() {
 		return true;
 	}
-
+	
 	public boolean isHandled() {
 		return true;
 	}
-
-	public void removeHandlerListener(IHandlerListener handlerListener) {
+	
+	public void addHandlerListener(final IHandlerListener handlerListener) {
 	}
-
+	
+	public void removeHandlerListener(final IHandlerListener handlerListener) {
+	}
+	
 }

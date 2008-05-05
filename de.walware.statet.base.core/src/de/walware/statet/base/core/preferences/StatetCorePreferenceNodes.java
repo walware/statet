@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.core.preferences;
@@ -23,7 +23,7 @@ import de.walware.statet.base.core.StatetCore;
 
 
 public class StatetCorePreferenceNodes {
-
+	
 	
 	public static final String CORE_QUALIFIER = StatetCore.PLUGIN_ID;
 	
@@ -33,13 +33,12 @@ public class StatetCorePreferenceNodes {
 	/**
 	 * Initializes the default values.
 	 */
-	public static void initializeDefaultValues(DefaultScope scope) {
-
-		Map<Preference, Object> defaults = new HashMap<Preference, Object>();
+	public static void initializeDefaultValues(final DefaultScope scope) {
+		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
 		
 		new TaskTagsPreferences().addPreferencesToMap(defaults);
 		
-		for (Preference<Object> unit : defaults.keySet()) {
+		for (final Preference<Object> unit : defaults.keySet()) {
 			PreferencesUtil.setPrefValue(scope, unit, defaults.get(unit));
 		}
 	}

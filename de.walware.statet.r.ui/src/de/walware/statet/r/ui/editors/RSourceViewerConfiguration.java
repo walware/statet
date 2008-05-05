@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -17,13 +17,14 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
+import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
+import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -32,21 +33,20 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 import de.walware.eclipsecommons.ui.text.EcoReconciler;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
-import de.walware.statet.ext.ui.editors.ContentAssistPreference;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
-import de.walware.statet.ext.ui.editors.StatextSourceViewerConfiguration;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.ext.ui.text.SingleTokenScanner;
-import de.walware.statet.ext.ui.text.StatextTextScanner;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RIndentUtil;
+import de.walware.statet.r.internal.ui.editors.RQuickAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
-import de.walware.statet.r.ui.text.r.RCodeScanner;
+import de.walware.statet.r.ui.text.r.RCodeScanner2;
 import de.walware.statet.r.ui.text.r.RCommentScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
@@ -57,97 +57,110 @@ import de.walware.statet.r.ui.text.r.RStringScanner;
  * Default Configuration for SourceViewer of R code.
  */
 public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration {
-
 	
-	private RCodeScanner fCodeScanner;
-	private RInfixOperatorScanner fInfixScanner;
-	private CommentScanner fCommentScanner;
-	private SingleTokenScanner fStringScanner;
+	
+	protected RCodeScanner2 fCodeScanner;
+	protected RInfixOperatorScanner fInfixScanner;
+	protected CommentScanner fCommentScanner;
+	protected SingleTokenScanner fStringScanner;
 	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fRAutoEditStrategy;
-	protected ContentAssistant fContentAssistant;
 	
 	private REditor fEditor;
-	private IEditorAdapter fEditorAdapter;
 	private IRCoreAccess fRCoreAccess;
-
+	
 	
 	public RSourceViewerConfiguration(
-			IRCoreAccess rCoreAccess, IPreferenceStore store, ColorManager colorManager) {
-		this(null, null, rCoreAccess, store, colorManager);
+			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
+		this(null, null, null, rCoreAccess, store, colorManager);
 	}
 	
-	public RSourceViewerConfiguration(IEditorAdapter editor,
-			IRCoreAccess rCoreAccess, IPreferenceStore store, ColorManager colorManager) {
-		this(null, editor, rCoreAccess, store, colorManager);
+	public RSourceViewerConfiguration(final IEditorAdapter editor,
+			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
+		this(null, null, editor, rCoreAccess, store, colorManager);
 	}
 	
-	public RSourceViewerConfiguration(REditor editor,
-			IRCoreAccess rCoreAccess, IPreferenceStore preferenceStore, ColorManager colorManager) {
-		this(editor, (IEditorAdapter) editor.getAdapter(IEditorAdapter.class),
+	public RSourceViewerConfiguration(final REditor editor,
+			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+		this(null, editor, (IEditorAdapter) editor.getAdapter(IEditorAdapter.class),
 				rCoreAccess, preferenceStore, colorManager);
 	}
 	
-	protected RSourceViewerConfiguration(REditor editor, IEditorAdapter adapter,
-			IRCoreAccess rCoreAccess, IPreferenceStore preferenceStore, ColorManager colorManager) {
-		super();
+	protected RSourceViewerConfiguration(final StatextSourceViewerConfiguration parent,
+			final REditor editor, final IEditorAdapter adapter,
+			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+		super(adapter);
 		fRCoreAccess = rCoreAccess;
 		if (fRCoreAccess == null) {
 			fRCoreAccess = RCore.getWorkbenchAccess();
 		}
 		fEditor = editor;
-		fEditorAdapter = adapter;
 		setup(preferenceStore, colorManager);
 		setScanners(initializeScanners());
 	}
 	
 	
-	protected IRCoreAccess getRCoreAccess() {
+	public IRCoreAccess getRCoreAccess() {
 		return fRCoreAccess;
+	}
+	
+	protected REditor getEditor() {
+		return fEditor;
 	}
 	
 	/**
 	 * Initializes the scanners.
 	 */
-	protected StatextTextScanner[] initializeScanners() {
-		IPreferenceStore store = getPreferences();
-		ColorManager colorManager = getColorManager();
-		fCodeScanner = new RCodeScanner(colorManager, store, fRCoreAccess.getPrefs());
+	protected ITokenScanner[] initializeScanners() {
+		final IPreferenceStore store = getPreferences();
+		final ColorManager colorManager = getColorManager();
+		fCodeScanner = new RCodeScanner2(colorManager, store);
 		fInfixScanner = new RInfixOperatorScanner(colorManager, store);
 		fCommentScanner = new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs());
 		fStringScanner = new RStringScanner(colorManager, store);
-		return new StatextTextScanner[] { fCodeScanner, fInfixScanner, fCommentScanner, fStringScanner };
+		return new ITokenScanner[] { fCodeScanner, fInfixScanner, fCommentScanner, fStringScanner };
 	}
-
+	
 	
 	@Override
-	public String[] getConfiguredContentTypes(ISourceViewer sourceViewer) {
-		return IRDocumentPartitions.R_PARTITIONS;
-	}
-
-	@Override
-	public String getConfiguredDocumentPartitioning(ISourceViewer sourceViewer) {
+	public String getConfiguredDocumentPartitioning(final ISourceViewer sourceViewer) {
 		return IRDocumentPartitions.R_DOCUMENT_PARTITIONING;
 	}
 	
 	@Override
-	public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
+	public String[] getConfiguredContentTypes(final ISourceViewer sourceViewer) {
+		return IRDocumentPartitions.R_PARTITIONS;
+	}
+	
+	@Override
+	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
 		if (fDoubleClickStrategy == null) {
 			fDoubleClickStrategy = new RDoubleClickStrategy();
 		}
 		return fDoubleClickStrategy;
 	}
-
+	
 	@Override
-	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-		PresentationReconciler reconciler = new PresentationReconciler();
+	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
+		final PresentationReconciler reconciler = new PresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-
+		
+		initDefaultPresentationReconciler(reconciler, true);
+		
+		return reconciler;
+	}
+	
+	public void initDefaultPresentationReconciler(final PresentationReconciler reconciler,
+			final boolean handleDefaultContentType) {
 		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fCodeScanner);
-		reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
-		reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
-
+		if (handleDefaultContentType) {
+			reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
+			reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
+		}
+		reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
+		reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
+		
 		dr = new DefaultDamagerRepairer(fInfixScanner);
 		reconciler.setDamager(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
@@ -155,28 +168,26 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		dr = new DefaultDamagerRepairer(fStringScanner);
 		reconciler.setDamager(dr, IRDocumentPartitions.R_STRING);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_STRING);
-
+		
 		dr = new DefaultDamagerRepairer(fCommentScanner);
 		reconciler.setDamager(dr, IRDocumentPartitions.R_COMMENT);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_COMMENT);
-
-		return reconciler;
 	}
-
+	
 	@Override
-	public int getTabWidth(ISourceViewer sourceViewer) {
+	public int getTabWidth(final ISourceViewer sourceViewer) {
 		return fRCoreAccess.getRCodeStyle().getTabSize();
 	}
-
+	
 	@Override
-	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
+	public String[] getDefaultPrefixes(final ISourceViewer sourceViewer, final String contentType) {
 		return new String[] { "#", "" }; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	@Override
-	public String[] getIndentPrefixes(ISourceViewer sourceViewer, String contentType) {
-		String[] prefixes = getIndentPrefixesForTab(getTabWidth(sourceViewer));
-		RCodeStyleSettings codeStyle = fRCoreAccess.getRCodeStyle();
+	public String[] getIndentPrefixes(final ISourceViewer sourceViewer, final String contentType) {
+		final String[] prefixes = getIndentPrefixesForTab(getTabWidth(sourceViewer));
+		final RCodeStyleSettings codeStyle = fRCoreAccess.getRCodeStyle();
 		if (codeStyle.getIndentDefaultType() == IndentationType.SPACES) {
 			for (int i = prefixes.length-2; i > 0; i--) {
 				prefixes[i] = prefixes[i-1];
@@ -187,24 +198,21 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(Set<String> contexts, Object options) {
-		if (contexts.contains(ContentAssistPreference.CONTEXT_ID)) {
-			ContentAssistPreference.configure(fContentAssistant);
-		}
-		return super.handleSettingsChanged(contexts, fRCoreAccess.getPrefs());
+	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+		return super.handleSettingsChanged(groupIds, fRCoreAccess.getPrefs());
 	}
 	
 	
 	@Override
-	public IReconciler getReconciler(ISourceViewer sourceViewer) {
+	public IReconciler getReconciler(final ISourceViewer sourceViewer) {
 		if (fEditor == null) { // at moment only for editors
 			return null;
 		}
-		EcoReconciler reconciler = new EcoReconciler(fEditor);
-		reconciler.setDelay(333);
+		final EcoReconciler reconciler = new EcoReconciler(fEditor);
+		reconciler.setDelay(500);
 		reconciler.addReconcilingStrategy(new RReconcilingStrategy());
 		
-		IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
+		final IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
 		if (spellingStrategy != null) {
 			reconciler.addReconcilingStrategy(spellingStrategy);
 		}
@@ -212,12 +220,12 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		return reconciler;
 	}
 	
-	protected IReconcilingStrategy getSpellingStrategy(ISourceViewer sourceViewer) {
+	protected IReconcilingStrategy getSpellingStrategy(final ISourceViewer sourceViewer) {
 		if (!(fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)
 				&& fPreferenceStore.getBoolean(SpellingService.PREFERENCE_SPELLING_ENABLED)) ) {
 			return null;
 		}
-		SpellingService spellingService = EditorsUI.getSpellingService();
+		final SpellingService spellingService = EditorsUI.getSpellingService();
 		if (spellingService.getActiveSpellingEngineDescriptor(fPreferenceStore) == null) {
 			return null;
 		}
@@ -225,51 +233,41 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public IQuickAssistAssistant getQuickAssistAssistant(ISourceViewer sourceViewer) {
-		if (fRCoreAccess.getPrefs().getPreferenceValue(REditorOptions.PREF_SPELLCHECKING_ENABLED)) {
-			return super.getQuickAssistAssistant(sourceViewer);
-		}
-		return null;
-	}
-	
-	@Override
-	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
-		if (fEditorAdapter == null) {
+	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
+		if (getEditorAdapter() == null) {
 			return super.getAutoEditStrategies(sourceViewer, contentType);
 		}
 		if (fRAutoEditStrategy == null) {
-			fRAutoEditStrategy = new RAutoEditStrategy(fRCoreAccess, fEditorAdapter, fEditor);
-			fInstallableModules.add(fRAutoEditStrategy);
+			fRAutoEditStrategy = createRAutoEditStrategy();
+			getEditorAdapter().install(fRAutoEditStrategy);
 		}
 		return new IAutoEditStrategy[] { fRAutoEditStrategy };
 	}
 	
-	@Override
-	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-		if (fContentAssistant == null) {
-			fContentAssistant = createContentAssistant(sourceViewer);
-			if (fContentAssistant != null) {
-				ContentAssistPreference.configure(fContentAssistant);
-				fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
-				fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
-				fContentAssistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
-			}
-		}
-		return fContentAssistant;
+	protected RAutoEditStrategy createRAutoEditStrategy() {
+		return new RAutoEditStrategy(fRCoreAccess, getEditorAdapter(), fEditor);
 	}
 	
-	protected ContentAssistant createContentAssistant(ISourceViewer sourceViewer) {
+	@Override
+	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
 		if (fEditor != null) {
-			ContentAssistant contentAssistant = new ContentAssistant();
-			REditorTemplatesCompletionProcessor processor = new REditorTemplatesCompletionProcessor(fEditor);
+			final ContentAssistant assistant = new ContentAssistant();
+			final REditorTemplatesCompletionProcessor processor = new REditorTemplatesCompletionProcessor(fEditor);
 			
-			contentAssistant.setDocumentPartitioning(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
-			for (String contentType : getConfiguredContentTypes(sourceViewer)) {
-				contentAssistant.setContentAssistProcessor(processor, contentType);
+			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+			for (final String contentType : getConfiguredContentTypes(sourceViewer)) {
+				assistant.setContentAssistProcessor(processor, contentType);
 			}
-			return contentAssistant;
+			return assistant;
 		}
 		return null;
+	}
+	
+	@Override
+	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
+		final QuickAssistAssistant assistant = new QuickAssistAssistant();
+		assistant.setQuickAssistProcessor(new RQuickAssistProcessor(fEditor));
+		return assistant;
 	}
 	
 }

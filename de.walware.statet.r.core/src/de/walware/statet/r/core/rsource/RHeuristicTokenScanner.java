@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource;
@@ -19,22 +19,30 @@ import de.walware.statet.r.core.rlang.RTokens;
 
 
 /**
- *
+ * 
  */
 public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
-
+	
 	
 	/**
 	 * 
 	 */
 	public RHeuristicTokenScanner() {
-		
-		super(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
+		this(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
+	}
+	
+	protected RHeuristicTokenScanner(final String partitioning) {
+		super(partitioning);
 	}
 	
 	
-	public IRegion findRWord(int position, final boolean isDotSeparator, boolean allowEnd) {
-		
+	@Override
+	public boolean isDefaultPartition(final String contentType) {
+		return (IRDocumentPartitions.R_DEFAULT.equals(contentType)
+				|| IRDocumentPartitions.R_DEFAULT_EXPL.equals(contentType));
+	}
+	
+	public IRegion findRWord(final int position, final boolean isDotSeparator, final boolean allowEnd) {
 		return findRegion(position, new StopCondition() {
 			@Override
 			public boolean stop() {
@@ -50,7 +58,7 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		private boolean open;
 		
 		@Override
-		protected boolean matchesChar(char c) {
+		protected boolean matchesChar(final char c) {
 			switch (c) {
 			case '{':
 				type = 0;
@@ -83,9 +91,9 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		
 	};
 	
-	public int[] computeBracketBalance(int backwardOffset, int forwardOffset, int[] initial, final int searchType) {
-		int[] compute = new int[3];
-		BracketBalanceCondition condition = new BracketBalanceCondition();
+	public int[] computeBracketBalance(int backwardOffset, int forwardOffset, final int[] initial, final int searchType) {
+		final int[] compute = new int[3];
+		final BracketBalanceCondition condition = new BracketBalanceCondition();
 		int breakType = -1;
 		ITER_BACKWARD : while (--backwardOffset >= 0) {
 			backwardOffset = scanBackward(backwardOffset, -1, condition);

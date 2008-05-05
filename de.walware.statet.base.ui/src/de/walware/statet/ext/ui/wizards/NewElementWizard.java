@@ -13,10 +13,12 @@ package de.walware.statet.ext.ui.wizards;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -31,8 +33,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -63,6 +68,8 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		
 		protected IPath fContainerPath;
 		protected String fResourceName;
+		protected int fSelectionStart;
+		protected int fSelectionEnd;
 		
 		
 		/** No direct access, use getFileHandle() */
@@ -71,6 +78,8 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		public NewFileCreator(final IPath containerPath, final String resourceName) {
 			fContainerPath = containerPath;
 			fResourceName = resourceName;
+			fSelectionStart = -1;
+			fSelectionEnd = -1;
 		}
 		
 		/**
@@ -90,7 +99,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Creates a file resource handle for the file with the given workspace path.
 		 * This method does not create the file resource; this is the responsibility
 		 * of <code>createFile</code>.
-		 *
+		 * 
 		 * @param filePath the path of the file resource to create a handle for
 		 * @return the new file resource handle
 		 * @see #createFile
@@ -117,7 +126,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * This method should be called within a workspace modify operation since
 		 * it creates resources.
 		 * </p>
-		 *
+		 * 
 		 * @return the created file resource, or <code>null</code> if the file
 		 *    was not created
 		 * @throws InterruptedException
@@ -128,7 +137,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 				throws InvocationTargetException, InterruptedException, CoreException {
 			final IPath containerPath = fContainerPath;
 			final IFile newFileHandle = getFileHandle();
-			final InputStream initialContents = getInitialFileContents(newFileHandle);
+			final InputStream initialContents = getInitialFileContentStream(newFileHandle);
 			
 			try {
 				assert (containerPath != null);
@@ -137,7 +146,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 				monitor.beginTask(NLS.bind(StatetWizardsMessages.NewElement_CreateFileTask_name, newFileHandle.getName()), 1000);
 				final ContainerGenerator generator = new ContainerGenerator(containerPath);
 				generator.generateContainer(new SubProgressMonitor(monitor, 500));
-				doCreateFile(newFileHandle, initialContents, new SubProgressMonitor(monitor, 500));
+				doCreateFile(newFileHandle, initialContents, monitor, 500);
 			}
 			finally {
 				monitor.done();
@@ -146,7 +155,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		
 		/**
 		 * Creates a file resource given the file handle and contents.
-		 *
+		 * 
 		 * @param fileHandle the file handle to create a file resource with
 		 * @param contents the initial contents of the new file resource, or
 		 *   <code>null</code> if none (equivalent to an empty stream)
@@ -154,14 +163,12 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * @exception CoreException if the operation fails
 		 * @exception OperationCanceledException if the operation is canceled
 		 */
-		private static void doCreateFile(final IFile fileHandle, InputStream contents, final IProgressMonitor monitor)
+		private static void doCreateFile(final IFile fileHandle, InputStream contents, final IProgressMonitor monitor, final int ticks)
 				throws CoreException {
-			if (contents == null)
+			if (contents == null) {
 				contents = new ByteArrayInputStream(new byte[0]);
-			
+			}
 			try {
-				monitor.beginTask("Create file...", 1000);
-				
 				// Create a new file resource in the workspace
 				final IPath path = fileHandle.getFullPath();
 				final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -176,12 +183,13 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 						}
 					}
 				}
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
-				
+				}
 				fileHandle.create(contents, false, new SubProgressMonitor(monitor, 500));
-				if (monitor.isCanceled())
+				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
+				}
 			}
 			catch (final CoreException e) {
 				// If the file already existed locally, just refresh to get contents
@@ -197,11 +205,63 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Returns a stream containing the initial contents to be given to new file resource
 		 * instances.  <b>Subclasses</b> may wish to override.  This default implementation
 		 * provides no initial contents.
-		 *
+		 * 
 		 * @return initial contents to be given to new file resource instances
 		 */
-		protected InputStream getInitialFileContents(final IFile newFileHandle) {
+		protected InputStream getInitialFileContentStream(final IFile newFileHandle) {
+			final String content = getInitialFileContent(newFileHandle);
+			if (content == null) {
+				return null;
+			}
+			try {
+				// encoding of content type
+				final IContentTypeManager manager = Platform.getContentTypeManager();
+				final IContentType contentType = manager.getContentType(getContentType(newFileHandle));
+				if (contentType != null) {
+					final String charset = contentType.getDefaultCharset();
+					if (charset != null) {
+						return new ByteArrayInputStream(content.getBytes(charset));
+					}
+				}
+				// encoding of container
+				final String charset = newFileHandle.getCharset(true);
+				if (charset != null) {
+					return new ByteArrayInputStream(content.getBytes(charset));
+				}
+			}
+			catch (final UnsupportedEncodingException e) {
+			}
+			catch (final CoreException e) {
+			}
+			return new ByteArrayInputStream(content.getBytes());
+		}
+		
+		/**
+		 * Returns the content type id of the new file.
+		 * Used e.g. to lookup the encoding.
+		 * @return id
+		 */
+		public String getContentType(final IFile newFileHandle) {
+			return IContentTypeManager.CT_TEXT;
+		}
+		
+		/**
+		 * Returns a stream containing the initial contents to be given to new file resource
+		 * instances.  <b>Subclasses</b> may wish to override.  This default implementation
+		 * provides no initial contents.
+		 * 
+		 * @return initial contents to be given to new file resource instances
+		 */
+		protected String getInitialFileContent(final IFile newFileHandle) {
 			return null;
+		}
+		
+		public int getInitialSelectionStart() {
+			return fSelectionStart;
+		}
+		
+		public int getInitialSelectionEnd() {
+			return fSelectionEnd;
 		}
 		
 	}
@@ -231,7 +291,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		 * Note: Handle is cached. This method does not create the project resource;
 		 * this is the responsibility of <code>IProject::create</code>.
 		 * </p>
-		 *
+		 * 
 		 * @return the project resource handle
 		 */
 		public IProject getProjectHandle() {
@@ -318,7 +378,6 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	
 	
 	public NewElementWizard() {
-		setDialogSettings(StatetUIPlugin.getDefault().getDialogSettings());
 		setNeedsProgressMonitor(true);
 	}
 	
@@ -365,10 +424,10 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 					}
 					doFinish(monitor);
 				}
-				catch (InterruptedException e) {
+				catch (final InterruptedException e) {
 					throw new OperationCanceledException(e.getMessage());
 				}
-				catch (CoreException e) {
+				catch (final CoreException e) {
 					throw new InvocationTargetException(e);
 				}
 				finally {
@@ -387,7 +446,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		return true;
 	}
 	
-	protected void handleFinishException(Shell shell, InvocationTargetException e) {
+	protected void handleFinishException(final Shell shell, final InvocationTargetException e) {
 		StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
 				StatetWizardsMessages.NewElementWizard_error_DuringOperation_message, e),
 				StatusManager.LOG | StatusManager.SHOW);
@@ -411,7 +470,6 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	 * the top-most non-existing parent.
 	 * @param resource The resource being created
 	 * @return The scheduling rule for creating the given resource
-	 * @since 3.1
 	 */
 	protected ISchedulingRule createRule(IResource resource) {
 		IResource parent = resource.getParent();
@@ -425,6 +483,17 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	}
 	
 	protected void openResource(final IFile resource) {
+		openResource(resource, -1, -1);
+	}
+	
+	protected void openResource(final NewFileCreator file) {
+		if (file.getFileHandle() == null) {
+			return;
+		}
+		openResource(file.getFileHandle(), file.getInitialSelectionStart(), file.getInitialSelectionEnd());
+	}
+	
+	protected void openResource(final IFile resource, final int start, final int end) {
 		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(true);
 		if (activePage != null) {
 			final Display display = getShell().getDisplay();
@@ -432,8 +501,20 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 				display.asyncExec(new Runnable() {
 					public void run() {
 						try {
-							IDE.openEditor(activePage, resource, true);
-						} catch (PartInitException e) {
+							if (start >= 0) {
+								try {
+									final IMarker marker = resource.createMarker("de.walware.statet.base.markers.InitialSelection"); //$NON-NLS-1$
+									marker.setAttribute(IMarker.CHAR_START, start);
+									marker.setAttribute(IMarker.CHAR_END, (end >= start) ? end : start);
+									IDE.openEditor(activePage, marker, true);
+								} catch (final CoreException e) {
+									IDE.openEditor(activePage, resource, true);
+								}
+							}
+							else {
+								IDE.openEditor(activePage, resource, true);
+							}
+						} catch (final PartInitException e) {
 							StatetUIPlugin.logUnexpectedError(e);
 						}
 					}

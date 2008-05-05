@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui;
@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
 
 public class SharedMessages extends NLS {
 	
-
+	
 	public static String ToggleSortAction_name;
 	public static String ToggleSortAction_tooltip;
 	
@@ -35,7 +35,7 @@ public class SharedMessages extends NLS {
 	
 	public static String CutAction_name;
 	public static String CutAction_tooltip;
-
+	
 	public static String CopyAction_name;
 	public static String CopyAction_tooltip;
 	
@@ -56,14 +56,15 @@ public class SharedMessages extends NLS {
 	public static String Note_label;
 	
 	
-	private static final String BUNDLE_NAME = SharedMessages.class.getName();
 	static {
-		NLS.initializeMessages(BUNDLE_NAME, SharedMessages.class);
+		NLS.initializeMessages(SharedMessages.class.getName(), SharedMessages.class);
 	}
 	
-	private static ResourceBundle fgCompatibilityBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static ResourceBundle fgCompatibilityBundle = ResourceBundle.getBundle(SharedMessages.class.getName());
 	public static ResourceBundle getCompatibilityBundle() {
 		return fgCompatibilityBundle;
 	}
+	
+	private SharedMessages() {}
 	
 }

@@ -1,23 +1,28 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.CommonAstVisitor;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING;
 
+import java.lang.reflect.InvocationTargetException;
+
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+
+import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- *
+ * <code>( ... )</code>
  */
 public class Group extends RAstNode {
 	
@@ -26,10 +31,20 @@ public class Group extends RAstNode {
 	int fGroupCloseOffset = Integer.MIN_VALUE;
 	
 	
+	Group() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.GROUP;
 	}
+	
+	@Override
+	public final RTerminal getOperator(final int index) {
+		return RTerminal.GROUP_OPEN;
+	}
+	
 	
 	@Override
 	public final boolean hasChildren() {
@@ -42,7 +57,7 @@ public class Group extends RAstNode {
 	}
 	
 	@Override
-	public final RAstNode getChild(int index) {
+	public final RAstNode getChild(final int index) {
 		switch (index) {
 		case 0:
 			return fExpr.node;
@@ -50,14 +65,14 @@ public class Group extends RAstNode {
 			throw new IndexOutOfBoundsException();
 		}
 	}
-
+	
 	@Override
 	public final RAstNode[] getChildren() {
 		return new RAstNode[] { fExpr.node };
 	}
 	
 	@Override
-	public final int getChildIndex(IAstNode child) {
+	public final int getChildIndex(final IAstNode child) {
 		if (fExpr.node == child) {
 			return 0;
 		}
@@ -73,22 +88,22 @@ public class Group extends RAstNode {
 	}
 	
 	@Override
-	public final void accept(RAstVisitor visitor) {
+	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
 	
 	@Override
-	public final void acceptInChildren(RAstVisitor visitor) {
+	public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+		fExpr.node.acceptInR(visitor);
+	}
+	
+	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		fExpr.node.accept(visitor);
 	}
 	
-	public final void acceptInChildren(CommonAstVisitor visitor) {
-		fExpr.node.accept(visitor);
-	}
-
 	
 	@Override
-	final Expression getExpr(RAstNode child) {
+	final Expression getExpr(final RAstNode child) {
 		if (fExpr.node == child) {
 			return fExpr;
 		}
@@ -106,11 +121,19 @@ public class Group extends RAstNode {
 	}
 	
 	@Override
-	public final boolean equalsSingle(RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
 		return (element.getNodeType() == NodeType.GROUP);
 	}
-
-
+	
+	
+	@Override
+	final int getMissingExprStatus(final Expression expr) {
+		if (fExpr == expr) {
+			return STATUS2_SYNTAX_EXPR_IN_GROUP_MISSING;
+		}
+		throw new IllegalArgumentException();
+	}
+	
 	@Override
 	final void updateStopOffset() {
 		if (fGroupCloseOffset >= 0) {
@@ -123,5 +146,5 @@ public class Group extends RAstNode {
 			fStopOffset = fStartOffset+1;
 		}
 	}
-
+	
 }

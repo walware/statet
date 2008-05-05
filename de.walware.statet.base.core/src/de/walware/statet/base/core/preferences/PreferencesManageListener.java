@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.base.core.preferences;
@@ -22,25 +22,26 @@ import de.walware.statet.base.core.StatetCore;
 
 
 /**
- * Keeps a preferences model uptodate listening to changes of in specified settings context.
+ * Keeps a preferences model up-to-date listening to changes of in the specified settings group.
  * 
  * The listener be disposed, if no longer required.
  */
 public class PreferencesManageListener implements SettingsChangeNotifier.ManageListener {
-
+	
+	
 	private AbstractPreferencesModelObject fModel;
 	private IPreferenceAccess fPrefAccess;
-	private String fContext;
+	private String fGroupId;
 	
 	
 	/**
 	 * Creates a new listener.
 	 */
-	public PreferencesManageListener(AbstractPreferencesModelObject model, IPreferenceAccess prefs, String context) {
+	public PreferencesManageListener(final AbstractPreferencesModelObject model, final IPreferenceAccess prefs, final String groupId) {
 		fModel = model;
 		fPrefAccess = prefs;
-		fContext = context;
-		Lock lock = fModel.getWriteLock();
+		fGroupId = groupId;
+		final Lock lock = fModel.getWriteLock();
 		lock.lock();
 		try {
 			StatetCore.getSettingsChangeNotifier().addManageListener(this);
@@ -51,9 +52,9 @@ public class PreferencesManageListener implements SettingsChangeNotifier.ManageL
 		}
 	}
 	
-	public void beforeSettingsChangeNotification(Set<String> contexts) {
-		if (contexts.contains(fContext)) {
-			Lock lock = fModel.getWriteLock();
+	public void beforeSettingsChangeNotification(final Set<String> groupIds) {
+		if (groupIds.contains(fGroupId)) {
+			final Lock lock = fModel.getWriteLock();
 			lock.lock();
 			try {
 				fModel.load(fPrefAccess);
@@ -64,7 +65,7 @@ public class PreferencesManageListener implements SettingsChangeNotifier.ManageL
 		}
 	}
 	
-	public void afterSettingsChangeNotification(Set<String> contexts) {
+	public void afterSettingsChangeNotification(final Set<String> groupIds) {
 		fModel.resetDirty();
 	}
 	

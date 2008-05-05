@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.actions;
@@ -15,11 +15,14 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.ext.ui.wizards.AbstractWizard;
+import de.walware.eclipsecommons.ui.util.DialogUtil;
+
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.LoadHistoryPage;
@@ -28,27 +31,29 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 
 
 /**
- *
+ * 
  */
-public class LoadHistoryWizard extends AbstractWizard {
-
+public class LoadHistoryWizard extends Wizard {
+	
 	
 	static final String STORE_SECTION = "common/tools/*History-Wizard"; //$NON-NLS-1$ shared with save
 	
+	
 	private ToolProcess fProcess;
 	private LoadHistoryPage fPage;
-
 	
-	public LoadHistoryWizard(ToolProcess process) {
+	
+	public LoadHistoryWizard(final ToolProcess process) {
 		super();
 		
 		fProcess = process;
 		
-		setDialogSettings(NicoUIPlugin.getDefault(), STORE_SECTION);
+		setDialogSettings(DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), STORE_SECTION));
 		setWindowTitle(NicoUIMessages.LoadHistory_title);
 //		setDefaultPageImageDescriptor();
 		setNeedsProgressMonitor(true);
 	}
+	
 	
 	@Override
 	public void addPages() {
@@ -64,34 +69,36 @@ public class LoadHistoryWizard extends AbstractWizard {
 			final History history = fProcess.getHistory();
 			final Object file = fPage.getFile();
 			final String charset = fPage.fEncoding;
-
+			
 			assert (history != null);
 			assert (file != null);
 			assert (charset != null);
 			
 			getContainer().run(true, true, new IRunnableWithProgress() {
-				public void run(IProgressMonitor monitor) throws InvocationTargetException {
-					try {
-						history.load(file, charset, false, monitor);
-					} catch (CoreException e) {
-						throw new InvocationTargetException(e);
+				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
+					final IStatus status = history.load(file, charset, false, monitor);
+					if (status.getSeverity() == IStatus.ERROR) {
+						throw new InvocationTargetException(new CoreException(status));
 					}
 				}
 			});
+			return true;
 		}
-		catch (InvocationTargetException e) {
-			StatusManager.getManager().handle(((CoreException) e.getTargetException()).getStatus(),
-					StatusManager.LOG | StatusManager.SHOW);
+		catch (final OperationCanceledException e) {
 			return false;
 		}
-		catch (OperationCanceledException e) {
-			return false;
-		}
-		catch (Exception e) {
+		catch (final Exception e) {
+			if (e instanceof InvocationTargetException) {
+				final Throwable cause = ((InvocationTargetException) e).getTargetException();
+				if (cause instanceof CoreException) {
+					StatusManager.getManager().handle(((CoreException) cause).getStatus(),
+						StatusManager.LOG | StatusManager.SHOW);
+					return false;
+				}
+			}
 			NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when performing load history.", e); //$NON-NLS-1$
 			return false;
 		}
-		
-		return true;
 	}
+	
 }

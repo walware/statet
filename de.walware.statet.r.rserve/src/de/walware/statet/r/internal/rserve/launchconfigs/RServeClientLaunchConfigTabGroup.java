@@ -19,18 +19,19 @@ import de.walware.statet.nico.ui.util.CommonTabForNico;
 
 
 public class RServeClientLaunchConfigTabGroup extends AbstractLaunchConfigurationTabGroup {
-
+	
 	
 	public RServeClientLaunchConfigTabGroup() {
 	}
-
-	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
-
-		ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
+	
+	
+	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
+		
+		final ILaunchConfigurationTab[] tabs = new ILaunchConfigurationTab[] {
 				new RServeClientMainTab(),
 				new CommonTabForNico(),
 		};
 		setTabs(tabs);
 	}
-
+	
 }

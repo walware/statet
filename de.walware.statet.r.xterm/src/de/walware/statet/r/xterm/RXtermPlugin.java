@@ -16,7 +16,7 @@ package de.walware.statet.r.xterm;
  * 
  */
 public class RXtermPlugin {
-
+	
 	public static final String ID = "de.walware.statet.r.xterm";
 	
 }

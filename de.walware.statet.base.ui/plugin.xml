@@ -2,14 +2,14 @@
 <?eclipse version="3.2"?>
 <!--
  ###############################################################################
- # Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
  # http://www.eclipse.org/legal/epl-v10.html
- #
+ # 
  # Contributors:
- #    Stephan Wahlbrink - initial API and implementation
+ #     Stephan Wahlbrink - initial API and implementation
  ###############################################################################
 -->
 
@@ -57,62 +57,82 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <category
-            description="%categorys.StatetSource.description"
-            id="de.walware.statet.base.commandCategorys.StatetSource"
-            name="%categorys.StatetSource.name"/>
       <!-- edit -->
       <command
-      		id="de.walware.statet.base.commands.SelectExpandEnclosing"
-            name="%commands.SelectEnclosing.name"
-            description="%commands.SelectEnclosing.description"
-            categoryId="org.eclipse.ui.category.edit">
-      </command>
+            id="de.walware.statet.base.commands.SelectExpandEnclosing"
+            categoryId="org.eclipse.ui.category.edit"
+            name="%commands_SelectEnclosing_name"
+            description="%commands_SelectEnclosing_description"
+            />
       <command
-      		id="de.walware.statet.base.commands.SelectExpandNext"
-            name="%commands.SelectNext.name"
-            description="%commands.SelectNext.description"
-            categoryId="org.eclipse.ui.category.edit">
-      </command>
+            id="de.walware.statet.base.commands.SelectExpandNext"
+            categoryId="org.eclipse.ui.category.edit"
+            name="%commands_SelectNext_name"
+            description="%commands_SelectNext_description"
+            />
       <command
-      		id="de.walware.statet.base.commands.SelectExpandPrevious"
-            name="%commands.SelectPrevious.name"
-            description="%commands.SelectPrevious.description"
-            categoryId="org.eclipse.ui.category.edit">
-      </command>
+            id="de.walware.statet.base.commands.SelectExpandPrevious"
+            categoryId="org.eclipse.ui.category.edit"
+            name="%commands_SelectPrevious_name"
+            description="%commands_SelectPrevious_description"
+            />
       <command
-      		id="de.walware.statet.base.commands.SelectLast"
-            name="%commands.SelectLast.name"
-            description="%commands.SelectLast.description"
-            categoryId="org.eclipse.ui.category.edit">
-      </command>
+            id="de.walware.statet.base.commands.SelectLast"
+            categoryId="org.eclipse.ui.category.edit"
+            name="%commands_SelectLast_name"
+            description="%commands_SelectLast_description"
+            />
       <!-- navigate -->
       <command
-            categoryId="org.eclipse.ui.category.navigate"
-            description="%commands.GotoMatchingBracket.description"
             id="de.walware.statet.base.commands.GotoMatchingBracket"
-            name="%commands.GotoMatchingBracket.name"/>
+            categoryId="org.eclipse.ui.category.navigate"
+            name="%commands_GotoMatchingBracket_name"
+            description="%commands.GotoMatchingBracket_description"
+            />
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands.ToggleComment.description"
             id="de.walware.statet.base.commands.ToggleComment"
-            name="%commands.ToggleComment.name"/>
-      <command
             categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands.InsertAssignment.description"
+            name="%commands_ToggleComment_name"
+            description="%commands_ToggleComment_description"
+            />
+      <command
             id="de.walware.statet.base.commands.InsertAssignment"
-            name="%commands.InsertAssignment.name"/>
-      <command
             categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands.AddDocComment.description"
+            name="%commands_InsertAssignment_name"
+            description="%commands_InsertAssignment_description"
+            />
+      <command
             id="de.walware.statet.base.commands.AddDocComment"
-            name="%commands.AddDocComment.name"/>
-      <command
             categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands.CorrectIndent.description"
+            name="%commands_AddDocComment_name"
+            description="%commands_AddDocComment_description"
+            />
+      <!-- source -->
+      <category
+            id="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%categorys_StatetSource_name"
+            description="%categorys_StatetSource_description"
+            />
+      <command
             id="de.walware.statet.base.commands.CorrectIndent"
-            name="%commands.CorrectIndent.name">
-      </command>
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_CorrectIndent_name"
+            description="%commands_CorrectIndent_description"
+            />
+      
+      <command
+            id="de.walware.statet.base.commands.ToggleLiveReportProblems"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_ToggleReportProblemWhenTyping_name"
+            description="%commands_ToggleReportProblemWhenTyping_description"
+            />
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
+            icon="icons/tool_16/mark-occurrences.png"
+            disabledIcon="icons/tool_16_d/mark-occurrences.png" />
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -262,6 +282,10 @@
       <keyword
             id="de.walware.statet.base.keywords.Formatting"
             label="%keywords.Formatting"/>
+      <keyword
+            id="de.walware.statet.base.keywords.SpellChecking"
+            label="%keywords.SpellChecking">
+      </keyword>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -370,6 +394,52 @@
             </visibleWhen>
          </command>
       </menuContribution>
+
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="org.eclipse.ui.edit.text.actionSet.presentation">
+            <separator
+                  name="Presentation">
+            </separator>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.edit.text.actionSet.presentation?after=Presentation">
+         <command
+               commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
+               style="toggle">
+            <visibleWhen
+                  checkEnabled="true">
+               <and>
+                  <with
+                        variable="activeEditor">
+                     <instanceof
+                           value="de.walware.statet.base.ui.sourceeditors.StatextEditor1">
+                     </instanceof>
+                  </with>
+                  <with
+                        variable="activeContexts">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="org.eclipse.ui.edit.text.actionSet.presentation">
+                        </equals>
+                     </iterate>
+                  </with>
+               </and>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+
+   <extension
+         id="de.walware.statet.base.markers.InitialSelection"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="false">
+      </persistent>
    </extension>
 
 </plugin>

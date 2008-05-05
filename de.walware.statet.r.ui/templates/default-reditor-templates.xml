@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-StatET
+ ###############################################################################
+ # Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
 -->
 
 <templates>
@@ -9,19 +17,19 @@ StatET
 <template id="rscript.else" 
 	context="rscript" 
 	name="else"
-	description="else block" 
+	description="else statement" 
 	autoinsert="false" 
-	>else {&#13;
-	${line_selection}${cursor}&#13;
+	>else {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.elseif"
 	context="rscript" 
 	name="elseif"
-	description="else if block" 
+	description="else if statement" 
 	autoinsert="false" 
-	>else if (${condition}) {&#13;
-	${line_selection}${cursor}&#13;
+	>else if (${condition}) {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.for"
@@ -29,8 +37,8 @@ StatET
 	name="for"
 	description="iterate over a vector" 
 	autoinsert="false" 
-	>for (${x} in ${vector}) {&#13;
-	${line_selection}${cursor}&#13;
+	>for (${x} in ${vector}) {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.for.index"
@@ -38,8 +46,8 @@ StatET
 	name="for"
 	description="iterate with index over a vector" 
 	autoinsert="false" 
-	>for (${i} in 1:length(${vector})) {&#13;
-	${line_selection}${cursor}&#13;
+	>for (${i} in 1:length(${vector})) {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.function"
@@ -47,8 +55,8 @@ StatET
 	name="function"
 	description="function definition" 
 	autoinsert="false" 
-	>function(${parameter}) {&#13;
-	${line_selection}${cursor}&#13;
+	>function(${parameter}) {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.if"
@@ -56,8 +64,8 @@ StatET
 	name="if"
 	description="if statement" 
 	autoinsert="false" 
-	>if (${condition}) {&#13;
-	${line_selection}${cursor}&#13;
+	>if (${condition}) {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.ifelse"
@@ -65,28 +73,28 @@ StatET
 	name="ifelse"
 	description="if else statement" 
 	autoinsert="false" 
-	>if (${condition}) {&#13;
-	${line_selection}${cursor}&#13;
-} else {&#13;
-	&#13;
+	>if (${condition}) {
+	${line_selection}${cursor}
+} else {
+	
 }</template>
 
 <template id="rscript.repeat"
 	context="rscript" 
 	name="repeat"
-	description="repeat loop block" 
+	description="repeat loop statement" 
 	autoinsert="false" 
-	>repeat {&#13;
-	${line_selection}${cursor}&#13;
+	>repeat {
+	${line_selection}${cursor}
 }</template>
 
 <template id="rscript.while"
 	context="rscript" 
 	name="while"
-	description="while loop block" 
+	description="while loop statement" 
 	autoinsert="false" 
-	>while (${condition}) {&#13;
-	${line_selection}${cursor}&#13;
+	>while (${condition}) {
+	${line_selection}${cursor}
 }</template>
 
 </templates>

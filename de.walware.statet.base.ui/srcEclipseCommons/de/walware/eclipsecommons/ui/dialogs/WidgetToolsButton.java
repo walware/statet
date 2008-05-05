@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.dialogs;
@@ -45,10 +45,10 @@ public class WidgetToolsButton extends Composite {
 	static final String FONT_SYMBOLIC_NAME = "de.walware.toolbuttonfont"; //$NON-NLS-1$
 	
 	static Font getToolButtonFont() {
-		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		final FontRegistry fontRegistry = JFaceResources.getFontRegistry();
 		if (!fontRegistry.hasValueFor(FONT_SYMBOLIC_NAME)) {
 			fontRegistry.addListener(new IPropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent event) {
+				public void propertyChange(final PropertyChangeEvent event) {
 					if (event.getProperty().equals(JFaceResources.DIALOG_FONT)) {
 						updateFont();
 					}
@@ -58,12 +58,13 @@ public class WidgetToolsButton extends Composite {
 		}
 		return fontRegistry.get(FONT_SYMBOLIC_NAME);
 	}
+	
 	private static void updateFont() {
-		FontRegistry fontRegistry = JFaceResources.getFontRegistry();
-		Font dialogFont = fontRegistry.get(JFaceResources.DIALOG_FONT);
-		int size = Math.max(dialogFont.getFontData()[0].getHeight()*3/5, 7);
-		FontDescriptor descriptor = fontRegistry.getDescriptor(JFaceResources.TEXT_FONT).setHeight(size);
-		Font toolFont = descriptor.createFont(Display.getCurrent());
+		final FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		final Font dialogFont = fontRegistry.get(JFaceResources.DIALOG_FONT);
+		final int size = Math.max(dialogFont.getFontData()[0].getHeight()*3/5, 7);
+		final FontDescriptor descriptor = fontRegistry.getDescriptor(JFaceResources.TEXT_FONT).setHeight(size);
+		final Font toolFont = descriptor.createFont(Display.getCurrent());
 		fontRegistry.put(FONT_SYMBOLIC_NAME, toolFont.getFontData());
 	}
 	
@@ -72,41 +73,42 @@ public class WidgetToolsButton extends Composite {
 	private Menu fMenu;
 	
 	
-	public WidgetToolsButton(Control target) {
+	public WidgetToolsButton(final Control target) {
 		super(target.getParent(), SWT.NONE);
 		setLayout(new FillLayout());
 		createButton(target);
 	}
 	
+	
 	@Override
-	public void setFont(Font font) {
+	public void setFont(final Font font) {
 		super.setFont(font);
 		fButton.setFont(getToolButtonFont());
 	}
 	
 	@Override
-	public Point computeSize(int hint, int hint2, boolean changed) {
-		Point computeSize = super.computeSize(hint, hint2, changed);
-		int y = Math.max(computeSize.y-2, 18);
-		int x = Math.max(computeSize.x-2, y);
+	public Point computeSize(final int hint, final int hint2, final boolean changed) {
+		final Point computeSize = super.computeSize(hint, hint2, changed);
+		final int y = Math.max(computeSize.y-2, 18);
+		final int x = Math.max(computeSize.x-2, y);
 		return new Point(x, y);
 	}
-
-	protected void createButton(Control target) {
-		Composite parent = target.getParent();
+	
+	protected void createButton(final Control target) {
+		final Composite parent = target.getParent();
 		
 		fButton = new Button(this, (SWT.PUSH | SWT.CENTER));
 		updateLabels(false);
 		fButton.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				showMenu();
 			}
 		});
 		fButton.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
+			public void keyPressed(final KeyEvent e) {
 			}
-			public void keyReleased(KeyEvent e) {
+			public void keyReleased(final KeyEvent e) {
 				if (e.character == '+') {
 					showMenu();
 				}
@@ -114,16 +116,16 @@ public class WidgetToolsButton extends Composite {
 		});
 		
 		target.addFocusListener(new FocusListener() {
-			public void focusGained(FocusEvent e) {
+			public void focusGained(final FocusEvent e) {
 				updateLabels(true);
 			}
-			public void focusLost(FocusEvent e) {
+			public void focusLost(final FocusEvent e) {
 				updateLabels(false);
 			}
 		});
 		
 		fButton.addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
+			public void widgetDisposed(final DisposeEvent e) {
 				disposeMenu();
 			}
 		});
@@ -135,8 +137,8 @@ public class WidgetToolsButton extends Composite {
 			fMenu = new Menu(fButton);
 			fillMenu(fMenu);
 		}
-		Rectangle bounds = fButton.getBounds();
-		Point pos = fButton.getParent().toDisplay(bounds.x, bounds.y + bounds.height);
+		final Rectangle bounds = fButton.getBounds();
+		final Point pos = fButton.getParent().toDisplay(bounds.x, bounds.y + bounds.height);
 		fMenu.setLocation(pos);
 		fMenu.setVisible(true);
 	}
@@ -151,11 +153,12 @@ public class WidgetToolsButton extends Composite {
 			fMenu = null;
 		}
 	}
-
-	protected void updateLabels(boolean hasFocus) {
+	
+	protected void updateLabels(final boolean hasFocus) {
 		fButton.setText(hasFocus ? "&+" : "+"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
-	protected void fillMenu(Menu menu) {
+	
+	protected void fillMenu(final Menu menu) {
 	}
+	
 }

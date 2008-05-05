@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.eclipsecommons.internal.fileutil;
@@ -25,74 +25,89 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
+import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.FileUtil.ReadTextFileOperation;
-import de.walware.eclipsecommons.FileUtil.ReaderAction;
-import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
 
 import de.walware.statet.base.core.StatetCore;
 
 
 /**
- *
+ * impl for {@link EFS} / {@link IFileStore}
  */
-public class EFSUtilImpl extends FileUtilProvider {
-
+public class EFSUtilImpl extends FileUtil {
+	
+	
+	private IFileStore fFile;
+	
+	
+	public EFSUtilImpl(final IFileStore file) {
+		fFile = file;
+	}
+	
+	
 	@Override
-	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action, Object file) {
-		final IFileStore fileStore = (IFileStore) file;
+	public String getFileLabel() {
+		final IFileSystem system = fFile.getFileSystem();
+		if (system.equals(EFS.getLocalFileSystem())) {
+			return "'"+fFile.toString()+"' (local file)";
+		}
+		return "'"+fFile.toURI().toString()+"'";
+	
+	}
+	
+	@Override
+	public long getTimeStamp(final IProgressMonitor monitor) throws CoreException {
+		return fFile.fetchInfo(EFS.NONE, monitor).getLastModified();
+	}
+	
+	
+	@Override
+	public ReadTextFileOperation createReadTextFileOp(final ReaderAction action) {
 		return new ReadTextFileOperation() {
-			@Override
-			protected String getFileLabel() {
-				return EFSUtilImpl.this.getFileLabel0(fileStore);
-			}
 			
 			@Override
-			protected FileInput getInput(IProgressMonitor monitor) throws CoreException, IOException {
+			protected FileInput getInput(final IProgressMonitor monitor) throws CoreException, IOException {
 				try {
-					InputStream raw = fileStore.openInputStream(EFS.NONE, monitor);
+					final InputStream raw = fFile.openInputStream(EFS.NONE, monitor);
 					return new FileInput(raw, null);
 				}
 				finally {
 					monitor.done();
 				}
 			}
+			
 			@Override
 			protected ReaderAction getAction() {
 				return action;
 			}
+			
 		};
 	}
-
-	@Override
-	public WriteTextFileOperation createWriteTextFileOp(final String content, Object file) {
-		final IFileStore fileStore = (IFileStore) file;
-		return new WriteTextFileOperation() {
-			@Override
-			protected String getFileLabel() {
-				return EFSUtilImpl.this.getFileLabel0(fileStore);
-			}
 	
+	@Override
+	public WriteTextFileOperation createWriteTextFileOp(final String content) {
+		return new WriteTextFileOperation() {
+			
 			@Override
-			protected void writeImpl(IProgressMonitor monitor) throws CoreException, IOException {
+			protected void writeImpl(final IProgressMonitor monitor) throws CoreException, IOException {
 				Writer out = null;
 				try {
-					boolean exists = fileStore.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
+					final boolean exists = fFile.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
 					if (exists && (fMode & (EFS.OVERWRITE | EFS.APPEND)) == 0) {
 						throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 								"The file already exists.", null));
 					}
 					if (exists && (fMode & EFS.APPEND) != 0 && !fForceCharset) {
 						try {
-							InputStream raw = fileStore.openInputStream(EFS.NONE, new SubProgressMonitor(monitor, 5));
-							FileInput fi = new FileInput(raw, null);
+							final InputStream raw = fFile.openInputStream(EFS.NONE, new SubProgressMonitor(monitor, 5));
+							final FileInput fi = new FileInput(raw, null);
 							fi.close();
-							String defaultCharset = fi.getDefaultCharset();
+							final String defaultCharset = fi.getDefaultCharset();
 							if (defaultCharset != null) {
 								fCharset = defaultCharset;
 							}
 						}
-						catch (IOException e) { }
+						catch (final IOException e) { }
 						finally {
 							monitor.worked(5);
 						}
@@ -100,8 +115,8 @@ public class EFSUtilImpl extends FileUtilProvider {
 					else {
 						monitor.worked(10);
 					}
-					out = new OutputStreamWriter(fileStore.openOutputStream(fMode, new SubProgressMonitor(monitor, 5)), fCharset);
-	
+					out = new OutputStreamWriter(fFile.openOutputStream(fMode, new SubProgressMonitor(monitor, 5)), fCharset);
+					
 					out.write(content);
 					monitor.worked(75);
 					out.flush();
@@ -110,22 +125,8 @@ public class EFSUtilImpl extends FileUtilProvider {
 					saveClose(out);
 				}
 			}
+			
 		};
-	}
-
-	private String getFileLabel0(IFileStore file) {
-		IFileSystem system = file.getFileSystem();
-		if (system.equals(EFS.getLocalFileSystem())) {
-			return "'"+file.toString()+"' (local file)";
-		}
-		return "'"+file.toURI().toString()+"'";
-	
-	}
-
-	@Override
-	public long getTimeStamp(Object file, IProgressMonitor monitor) throws CoreException {
-		final IFileStore fileStore = (IFileStore) file;
-		return fileStore.fetchInfo(EFS.NONE, monitor).getLastModified();
 	}
 	
 }

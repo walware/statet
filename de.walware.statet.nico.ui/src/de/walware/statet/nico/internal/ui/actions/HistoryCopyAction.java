@@ -1,21 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui.actions;
 
-import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.action.Action;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.actions.BaseSelectionListenerAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.eclipsecommons.ui.SharedMessages;
@@ -24,14 +23,13 @@ import de.walware.eclipsecommons.ui.util.DNDUtil;
 import de.walware.statet.nico.ui.views.HistoryView;
 
 
-public class HistoryCopyAction extends BaseSelectionListenerAction {
-
+public class HistoryCopyAction extends Action {
+	
 	
 	private HistoryView fView;
 	
 	
-	public HistoryCopyAction(HistoryView view) {
-		
+	public HistoryCopyAction(final HistoryView view) {
 		super(SharedMessages.CopyAction_name);
 		setToolTipText(SharedMessages.CopyAction_tooltip);
 		
@@ -39,28 +37,14 @@ public class HistoryCopyAction extends BaseSelectionListenerAction {
 		setActionDefinitionId(IWorkbenchActionDefinitionIds.COPY);
 		
 		fView = view;
-		view.getTableViewer().addSelectionChangedListener(this);
-	}
-	
-	@Override
-	protected boolean updateSelection(IStructuredSelection selection) {
-		
-		return (selection.size() > 0);
 	}
 	
 	@Override
 	public void run() {
-		
-		String text = HistoryView.createTextBlock(getStructuredSelection());
+		final String text = HistoryView.createTextBlock(fView.getSelection());
 		DNDUtil.setContent(fView.getClipboard(), 
 				new String[] { text }, 
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
-
-// Lifecycle with view
-//	public void dispose() {
-//		
-//		fView.getTableViewer().removeSelectionChangedListener(this);
-//		fView = null;
-//	}
+	
 }

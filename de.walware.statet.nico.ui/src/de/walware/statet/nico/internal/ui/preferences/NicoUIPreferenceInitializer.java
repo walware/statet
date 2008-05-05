@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui.preferences;
@@ -22,18 +22,18 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 
 public class NicoUIPreferenceInitializer extends AbstractPreferenceInitializer {
-
-
+	
+	
 	@Override
 	public void initializeDefaultPreferences() {
-		
-		DefaultScope defaultScope = new DefaultScope();
-		Map<Preference, Object> defaults = new HashMap<Preference, Object>();
+		final DefaultScope defaultScope = new DefaultScope();
+		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
 		
 		ConsolePreferences.initializeDefaults(defaults);
 		
-		for (Preference<Object> unit : defaults.keySet()) {
+		for (final Preference<Object> unit : defaults.keySet()) {
 			PreferencesUtil.setPrefValue(defaultScope, unit, defaults.get(unit));
 		}
 	}
+	
 }

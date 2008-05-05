@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
@@ -18,12 +18,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 /**
  * Runnables part which can communicate with the tool software.
  * The are added to the queue and runned, when it is one's turn.
- *
+ * 
  * A runnable depends on an adapter type. It is a good idea, if
  * this is an interface and not an implementation.
  */
 public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
-
+	
 	
 	/**
 	 * Total work of progress monitors.
@@ -31,6 +31,30 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 */
 	public static final int TOTAL_WORK = 10000;
 	
+	
+	/**
+	 * Unique id of the runnable type (not instance).
+	 * 
+	 * @return the id
+	 */
+	public String getTypeId();
+	
+	/**
+	 * Return the submit type of this entry. The same runnable should
+	 * always return the same type.
+	 * 
+	 * @return the type
+	 */
+	public SubmitType getSubmitType();
+	
+	/**
+	 * Return a label for this runnable, used by the UI.
+	 * 
+	 * @return the label
+	 */
+	public String getLabel();
+	
+	public void changed(int event);
 	
 	/**
 	 * This method is called by the tool controller, when it is one's turn.
@@ -52,25 +76,4 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	public void run(T tools, IProgressMonitor monitor)
 			throws InterruptedException, CoreException;
 	
-	/**
-	 * Unique id of the runnable type (not instance).
-	 * 
-	 * @return the id
-	 */
-	public String getTypeId();
-	
-	/**
-	 * Return a label for this runnable, used by the UI.
-	 * 
-	 * @return the label
-	 */
-	public String getLabel();
-	
-	/**
-	 * Return the submit type of this entry. The same runnable should
-	 * always return the same type.
-	 * 
-	 * @return the type
-	 */
-	public SubmitType getSubmitType();
 }

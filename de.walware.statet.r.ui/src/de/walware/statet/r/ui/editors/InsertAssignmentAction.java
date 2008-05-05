@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.ui.editors;
@@ -19,7 +19,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.ext.ui.editors.IEditorAdapter;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
@@ -31,10 +31,10 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 	
 	
 	public static final String ACTION_ID = "de.walware.statet.r.ui.actions.InsertAssignment"; //$NON-NLS-1$
-
+	
 	
 	private IEditorAdapter fEditor;
-
+	
 	
 	public InsertAssignmentAction(IEditorAdapter editor) {
 		
@@ -43,7 +43,7 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 		
 		setId(ACTION_ID);
 		setActionDefinitionId(IStatetUICommandIds.INSERT_ASSIGNMENT);
-
+		
 		update();
 	}
 	
@@ -59,7 +59,7 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 		}
 		insertSequence();
 	}
-
+	
 	/**
 	 * Inserts the assignment char sequence.
 	 */

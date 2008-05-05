@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.internal.debug.ui.launcher;
@@ -33,19 +33,20 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
  */
 public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcut {
 	
-	public void launch(ISelection selection, String mode) {
+	
+	public void launch(final ISelection selection, final String mode) {
 		// not supported
 	}
 	
-	public void launch(IEditorPart editor, String mode) {
+	public void launch(final IEditorPart editor, final String mode) {
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
-			AbstractTextEditor redt = (AbstractTextEditor) editor;
-			IDocument doc = redt.getDocumentProvider().getDocument(editor.getEditorInput() );
-			ITextSelection selection = (ITextSelection) redt.getSelectionProvider().getSelection();
+			final AbstractTextEditor redt = (AbstractTextEditor) editor;
+			final IDocument doc = redt.getDocumentProvider().getDocument(editor.getEditorInput() );
+			final ITextSelection selection = (ITextSelection) redt.getSelectionProvider().getSelection();
 			
-			String[] lines = LaunchShortcutUtil.listLines(doc, selection);
+			final String[] lines = LaunchShortcutUtil.listLines(doc, selection);
 			
 			if (lines == null) {
 				return;
@@ -53,19 +54,19 @@ public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcu
 			
 			RCodeLaunchRegistry.runRCodeDirect(lines, false);
 			
-			int newOffset = getNextLineOffset(doc, selection.getEndLine());
+			final int newOffset = getNextLineOffset(doc, selection.getEndLine());
 			if (newOffset >= 0) {
 				redt.selectAndReveal(newOffset, 0);
 			}
 		}
-		catch (CoreException e) {
+		catch (final CoreException e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RSelectionLaunch_error_message);
 		}
 	}
 	
 	
-	private int getNextLineOffset(IDocument doc, int endLine) {
+	private int getNextLineOffset(final IDocument doc, final int endLine) {
 		try {
 			if (endLine >= 0 && endLine+1 < doc.getNumberOfLines()) {
 				return doc.getLineOffset(endLine+1);
@@ -73,7 +74,8 @@ public class RSelectionDirectAndNextLineLaunchShortcut implements ILaunchShortcu
 			else {
 				return -1;
 			}
-		} catch (BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error while find next line.", e); //$NON-NLS-1$
 			return -1;
 		}

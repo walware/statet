@@ -1,92 +1,82 @@
 /*******************************************************************************
- * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core.runtime;
 
-import java.util.EnumSet;
 import java.util.List;
 
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 
+
 /**
- * 
- * Lifecycle: ToolProcess
- * 
- * @author Stephan Wahlbrink
+ * Life cycle: ToolProcess
  */
 public class ToolWorkspace {
 	
 	protected class ControllerListener implements IToolStatusListener {
-	
-		public void controllerStatusRequested(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
+		
+		public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		}
 		
-		public void controllerStatusRequestCanceled(ToolStatus currentStatus, ToolStatus requestedStatus, List<DebugEvent> eventCollection) {
+		public void controllerStatusRequestCanceled(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		}
 		
-		public void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection) {
+		public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 			// by definition in tool lifecycle thread
-
-			PUBLISH_PROMPT: if (fPublishPromptStatusSet.contains(newStatus)) {
-				if (fPublishPromptStatusSet.contains(oldStatus)) {
-					break PUBLISH_PROMPT;
+			if (isPublishPromptStatus(newStatus)) {
+				if (fCurrentPrompt == null || fCurrentPrompt == fPublishedPrompt) {
+					return;
 				}
-				Prompt prompt = fCurrentPrompt;
-				if (prompt == null || prompt == fDefaultPrompt) {
-					break PUBLISH_PROMPT;
-				}
-				synchronized (fPromptMutex) {
-					fIsCurrentPromptPublished = true;
-				}
-				firePrompt(prompt);
+				fPublishedPrompt = fCurrentPrompt;
+				firePrompt(fCurrentPrompt, eventCollection);
+				return;
 			}
-			else if (fIsCurrentPromptPublished) {
-				synchronized (fPromptMutex) {
-					fIsCurrentPromptPublished = false;
-				}
-				firePrompt(fDefaultPrompt);
+			else {
+				fPublishedPrompt = fDefaultPrompt;
+				firePrompt(fDefaultPrompt, eventCollection);
 			}
 		}
+		
 	}
-
+	
 	
 	public static final int DETAIL_PROMPT = 1;
 	public static final int DETAIL_LINE_SEPARTOR = 2;
 	
 	private volatile String fLineSeparator;
-
-	private Object fPromptMutex = new Object();
-	private Prompt fCurrentPrompt;
-	private Prompt fDefaultPrompt;
-	private boolean fIsCurrentPromptPublished = false;
-	private EnumSet<ToolStatus> fPublishPromptStatusSet = EnumSet.of(ToolStatus.STARTED_IDLING, ToolStatus.STARTED_PAUSED);
+	
+	private volatile Prompt fCurrentPrompt;
+	private volatile Prompt fDefaultPrompt;
+	private Prompt fPublishedPrompt;
 	
 	private IFileStore fWorkspaceDir;
-
 	
-	public ToolWorkspace(ToolController controller) {
+	
+	public ToolWorkspace(final ToolController controller) {
 		this(controller, null, null);
 	}
 	
-	public ToolWorkspace(ToolController controller, Prompt prompt, String lineSeparator) {
+	public ToolWorkspace(final ToolController controller, Prompt prompt, final String lineSeparator) {
 		if (prompt == null) {
 			prompt = Prompt.DEFAULT;
 		}
 		fCurrentPrompt = fDefaultPrompt = prompt;
-		setLineSeparator(lineSeparator);
-
+		controlSetLineSeparator(lineSeparator);
+		
 		controller.addToolStatusListener(createToolStatusListener());
 	}
 	
@@ -95,78 +85,76 @@ public class ToolWorkspace {
 	}
 	
 	
-	public String getLineSeparator() {
+	protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
+	}
+	
+	public final String getLineSeparator() {
 		return fLineSeparator;
 	}
 	
 	
 	public Prompt getPrompt() {
-		synchronized (fPromptMutex) {
-			if (fIsCurrentPromptPublished) {
-				return fCurrentPrompt;
-			} else {
-				return fDefaultPrompt;
-			}
-		}
+		return fCurrentPrompt;
 	}
 	
-	public Prompt getDefaultPrompt() {
+	public final Prompt getDefaultPrompt() {
 		return fDefaultPrompt;
 	}
 	
-	public IFileStore getWorkspaceDir() {
+	public final IFileStore getWorkspaceDir() {
 		return fWorkspaceDir;
 	}
 	
 	public String getEncoding() {
 		return "UTF-8"; //$NON-NLS-1$
 	}
-
+	
+	
+	final void controlRefresh(final IProgressMonitor monitor) throws CoreException {
+		refreshFromTool(monitor);
+	}
+	
 	/**
-	 * Use only in tool lifecycle thread.
+	 * Use only in tool main thread.
 	 * @param prompt the new prompt, null doesn't change anything
 	 */
-	void setCurrentPrompt(Prompt prompt, ToolStatus status) {
+	final void controlSetCurrentPrompt(final Prompt prompt, final ToolStatus status) {
 		if (prompt == fCurrentPrompt || prompt == null) {
 			return;
 		}
-		boolean firePrompt = false;
-		synchronized (fPromptMutex) {
-			fCurrentPrompt = prompt;
-			if (fPublishPromptStatusSet.contains(status)
-					&& (prompt != fDefaultPrompt || fIsCurrentPromptPublished) ) {
-				firePrompt = true;
-				fIsCurrentPromptPublished = (prompt != fDefaultPrompt);
-			}
-		}
-		if (firePrompt) {
-			firePrompt(prompt);
-		}
-	}
-
-	/**
-	 * Use only in tool lifecycle thread.
-	 * @param prompt the new prompt, null doesn't change anything
-	 */
-	void setDefaultPrompt(Prompt prompt) {
-		if (prompt == fDefaultPrompt || prompt == null) {
-			return;
-		}
-		synchronized (fPromptMutex) {
-			fDefaultPrompt = prompt;
-		}
-		if (!fIsCurrentPromptPublished) {
-			firePrompt(fDefaultPrompt);
+		fCurrentPrompt = prompt;
+		if (isPublishPromptStatus(status)) {
+			fPublishedPrompt = prompt;
+			firePrompt(prompt, null);
 		}
 	}
 	
 	/**
-	 * Use only in tool lifecycle thread.
+	 * Use only in tool main thread.
+	 * @param prompt the new prompt, null doesn't change anything
+	 */
+	final void controlSetDefaultPrompt(final Prompt prompt) {
+		if (prompt == fDefaultPrompt || prompt == null) {
+			return;
+		}
+		final Prompt oldDefault = fDefaultPrompt;
+		fDefaultPrompt = prompt;
+		if (oldDefault == fCurrentPrompt) {
+			fCurrentPrompt = prompt;
+		}
+		if (oldDefault == fPublishedPrompt) {
+			fPublishedPrompt = prompt;
+			firePrompt(prompt, null);
+		}
+	}
+	
+	/**
+	 * Use only in tool main thread.
 	 * @param newSeparator the new separator, null sets the system default separator
 	 */
-	void setLineSeparator(String newSeparator) {
-		String oldSeparator = fLineSeparator;
-		fLineSeparator = (newSeparator != null) ? newSeparator : System.getProperty("line.separator"); //$NON-NLS-1$
+	final void controlSetLineSeparator(final String newSeparator) {
+		final String oldSeparator = fLineSeparator;
+		fLineSeparator = (newSeparator != null) ? newSeparator : System.getProperty("line.separator"); 
 //		if (!fLineSeparator.equals(oldSeparator)) {
 //			DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_LINE_SEPARTOR);
 //			event.setData(fLineSeparator);
@@ -174,21 +162,32 @@ public class ToolWorkspace {
 //		}
 	}
 	
-	void setWorkspaceDir(IFileStore directory) {
+	final void controlSetWorkspaceDir(final IFileStore directory) {
 		fWorkspaceDir = directory;
 	}
-		
 	
-	private void firePrompt(Prompt prompt) {
-		DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
-		event.setData(prompt);
-		fireEvent(event);
+	
+	private final boolean isPublishPromptStatus(final ToolStatus status) {
+		return (status == ToolStatus.STARTED_IDLING || status == ToolStatus.STARTED_PAUSED);
 	}
 	
-	protected void fireEvent(DebugEvent event) {
-		DebugPlugin manager = DebugPlugin.getDefault();
+	private final void firePrompt(final Prompt prompt, final List<DebugEvent> eventCollection) {
+		final DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);
+		event.setData(prompt);
+		if (eventCollection != null) {
+			eventCollection.add(event);
+			return;
+		}
+		else {
+			fireEvent(event);
+		}
+	}
+	
+	protected final void fireEvent(final DebugEvent event) {
+		final DebugPlugin manager = DebugPlugin.getDefault();
 		if (manager != null) {
 			manager.fireDebugEventSet(new DebugEvent[] { event });
 		}
 	}
+	
 }

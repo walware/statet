@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.internal.ui;
@@ -21,17 +21,19 @@ import de.walware.statet.nico.internal.ui.actions.AbstractHistoryPage;
 
 
 /**
- *
+ * 
  */
 public class LoadHistoryPage extends AbstractHistoryPage {
-
 	
-	public LoadHistoryPage(ToolProcess tool) {
+	
+	public LoadHistoryPage(final ToolProcess tool) {
 		super("LoadHistoryPage", Messages.LoadHistoryPage_title, tool); //$NON-NLS-1$
 		setDescription(NLS.bind(Messages.LoadHistoryPage_description, fTool.getToolLabel(false)));
 	}
 	
-	protected ChooseResourceComposite createResourceComposite(Layouter layouter) {
+	
+	@Override
+	protected ChooseResourceComposite createResourceComposite(final Layouter layouter) {
 		return new ChooseResourceComposite(layouter.composite, 
 				ChooseResourceComposite.STYLE_COMBO,
 				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN, 

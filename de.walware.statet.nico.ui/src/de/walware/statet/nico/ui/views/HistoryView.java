@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.ui.views;
@@ -15,54 +15,65 @@ import java.util.Date;
 
 import com.ibm.icu.text.DateFormat;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.CellLabelProvider;
-import org.eclipse.jface.viewers.ColumnViewerToolTipSupport;
-import org.eclipse.jface.viewers.DoubleClickEvent;
-import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.dialogs.SearchPattern;
+import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
+import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommons.ui.SharedMessages;
+import de.walware.eclipsecommons.FastArrayCacheList;
+import de.walware.eclipsecommons.FastList;
+import de.walware.eclipsecommons.ui.HandlerContributionItem;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -70,6 +81,8 @@ import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
+import de.walware.statet.nico.core.util.IToolProvider;
+import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.actions.HistoryCopyAction;
 import de.walware.statet.nico.internal.ui.actions.HistoryDragAdapter;
@@ -78,8 +91,6 @@ import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.ToolSessionUIData;
-import de.walware.statet.nico.ui.actions.IToolAction;
-import de.walware.statet.nico.ui.actions.IToolActionSupport;
 import de.walware.statet.nico.ui.actions.LoadHistoryAction;
 import de.walware.statet.nico.ui.actions.SaveHistoryAction;
 import de.walware.statet.nico.ui.console.ScrollLockAction;
@@ -91,7 +102,14 @@ import de.walware.statet.nico.ui.console.ScrollLockAction.Receiver;
  * 
  * Usage: This class is not intend to be subclassed.
  */
-public class HistoryView extends ViewPart implements IToolActionSupport {
+public class HistoryView extends ViewPart implements IToolProvider {
+	
+	
+	public static interface EntryFilter {
+		
+		public boolean select(Entry e);
+		
+	}
 	
 	
 	/**
@@ -100,66 +118,52 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	 * @param selection a selection with history entries.
 	 * @return command block.
 	 */
-	public static String createTextBlock(IStructuredSelection selection) {
-		Object[] elements = selection.toArray();
-		StringBuilder text = new StringBuilder(elements.length * 8);
-		for (Object obj : elements) {
-			Entry e = (Entry) obj;
-			text.append(e.getCommand());
+	public static String createTextBlock(final Entry[] selection) {
+		final StringBuilder text = new StringBuilder(selection.length * 8);
+		for (int i = 0; i < selection.length; i++) {
+			text.append(selection[i].getCommand());
 			text.append('\n');
 		}
 		
 		return text.toString();
 	}
 	
-	
-	private static class TableLabelProvider extends CellLabelProvider {
-		
-		private DateFormat fFormat = DateFormat.getDateTimeInstance();
-
-		@Override
-		public void update(ViewerCell cell) {
-			cell.setImage(StatetImages.getImage(StatetImages.OBJ_COMMAND));
-			cell.setText(((Entry) cell.getElement()).getCommand());
+	public static String[] createTextArray(final Entry[] selection) {
+		final String[] array = new String[selection.length];
+		for (int i = 0; i < selection.length; i++) {
+			array[i] = selection[i].getCommand();
 		}
 		
-		@Override
-		public boolean useNativeToolTip(Object object) {
-			return true;
-		}
-		
-		@Override
-		public String getToolTipText(Object element) {
-			Entry entry = (Entry) element;
-			if (entry.getTimeStamp() < 0) {
-				return " - | "+entry.getCommand();
-			}
-			return fFormat.format(new Date(entry.getTimeStamp())) + " | " + entry.getCommand();
-		}
+		return array;
 	}
 	
-	private static class EntryComparator extends ViewerComparator {
-		@SuppressWarnings("unchecked")
-		@Override
-		public int compare(Viewer viewer, Object e1, Object e2) {
-			return getComparator().compare(((Entry) e1).getCommand(), ((Entry) e2).getCommand());
-		}
-	}
-
 	
-	private class ViewJob extends Job {
+	private static final EntryFilter EMPTY_FILTER = new EntryFilter() {
 		
-		ViewJob() {
+		public boolean select(final Entry e) {
+			return (e.getCommandMarker() >= 0);
+		}
+		
+	};
+	
+	
+	private class ViewReloadJob extends Job {
+		
+		ViewReloadJob() {
 			super("Update History View"); //$NON-NLS-1$
 			setPriority(SHORT);
 			setUser(false);
 		}
 		
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			ToolProcess process = fProcess;
-			if (process == null || monitor.isCanceled()) {
+		protected IStatus run(final IProgressMonitor monitor) {
+			final ToolProcess process = fProcess;
+			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
+			}
+			if (process == null) {
+				fContentProvider.setNewSource(null, new Entry[0]);
+				return Status.OK_STATUS;
 			}
 			final History history = process.getHistory();
 			history.getReadLock().lock();
@@ -173,112 +177,181 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			if (monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
-			UIAccess.getDisplay().syncExec(new Runnable() {
-				public void run() {
-					if (fProcess == null || fProcess.getHistory() != history || !UIAccess.isOkToUse(fTableViewer)) {
-						return;
-					}
-					fNewEntrys = entries;
-					fTableViewer.refresh(false);
-					fNewEntrys = null;
-					fReloadScheduled = false;
-				}
-			});
+			fContentProvider.setNewSource(history, entries);
 			return Status.OK_STATUS;
 		}
+		
 	}
 	
-	private class ViewContentProvider implements IStructuredContentProvider, IHistoryListener {
+	private class ViewContentProvider implements IHistoryListener, Runnable {
 		
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		}
+		private static final int REMOVE_THRESHOLD = 25;
 		
-		public Object[] getElements(Object parent) {
-			if (fNewEntrys != null) {
-				return fNewEntrys;
-			}
-			if (fProcess != null) {
-				scheduleRefresh(false);
-			}
-			return new History.Entry[0];
-		}
-
-		public void dispose() {
-		}
-
+		private History fCurrentSource;
+		private boolean fIsScheduled;
+		private final FastArrayCacheList<Entry> fToAdd = new FastArrayCacheList<Entry>(Entry.class, 16);
+		private final FastArrayCacheList<Entry> fToRemove = new FastArrayCacheList<Entry>(Entry.class, 16);
+		private Entry[] fNewEntrys;
 		
-		public void entryAdded(final History source, final Entry e) {
-			// history event
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					if (fReloadScheduled || fProcess == null || fProcess.getHistory() != source || !UIAccess.isOkToUse(fTableViewer)) {
-						return;
-					}
-					
-					fTableViewer.add(e);
-
-					if (fDoAutoscroll)
-						fTableViewer.reveal(e);
-					else {
-//						Table table = (Table) fViewer.getControl();
-//						TableItem item = table.getItem(new Point(0, 0));
-//						if (item != null)
-//							table.showItem(item);
-					}
-				}
-			});
-		}
-
-		public void entryRemoved(final History source, final Entry e) {
-			// history event.
-			Display.getDefault().asyncExec(new Runnable() {
-				public void run() {
-					if (fReloadScheduled || fProcess == null || fProcess.getHistory() != source || !UIAccess.isOkToUse(fTableViewer)) {
-						return;
-					}
-					fTableViewer.remove(e);
-				}
-			});
-		}
-
-		public void completeChange(final History source, final Entry[] es) {
-			// history event
-			UIAccess.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					if (fReloadScheduled || fProcess == null || fProcess.getHistory() != source || !UIAccess.isOkToUse(fTableViewer)) {
-						return;
-					}
-					fNewEntrys = es;
-					fTableViewer.refresh(false);
-					fNewEntrys = null;
-					//			packTable(); //???
-				}
-			});
-		}
-	}
-	
-
-	private class ToggleSortAction extends Action {
-		
-		ToggleSortAction() {
-			setText(SharedMessages.ToggleSortAction_name);
-			setToolTipText(SharedMessages.ToggleSortAction_tooltip);
-			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_SORT_ALPHA));
+		public synchronized void disable() {
+			fCurrentSource = null;
 			
-			setChecked(fDoSortAlpha);
+			fNewEntrys = null;
+			fToAdd.clear();
+			fToRemove.clear();
 		}
 		
-		@Override
-		public void run() {
-			boolean switchOn = isChecked();
-			fDoSortAlpha = switchOn;
-			if (switchOn)
-				fTableViewer.setComparator(fEntryComparator);
-			else
-				fTableViewer.setComparator(null);
+		public synchronized void setNewSource(final History source, final Entry[] es) {
+			fCurrentSource = source;
+			
+			fNewEntrys = es;
+			fToAdd.clear();
+			fToRemove.clear();
+			
+			if (!fIsScheduled) {
+				fIsScheduled = true;
+				UIAccess.getDisplay().asyncExec(this);
+			}
 		}
-
+		
+		public synchronized void completeChange(final History source, final Entry[] es) {
+			if (fCurrentSource != source) {
+				return;
+			}
+			fNewEntrys = es;
+			fToAdd.clear();
+			fToRemove.clear();
+			
+			if (!fIsScheduled) {
+				fIsScheduled = true;
+				UIAccess.getDisplay().asyncExec(this);
+			}
+		}
+		
+		public synchronized void entryAdded(final History source, final Entry e) {
+			if (fCurrentSource != source) {
+				return;
+			}
+			fToAdd.add(e);
+			
+			if (!fIsScheduled) {
+				fIsScheduled = true;
+				UIAccess.getDisplay().asyncExec(this);
+			}
+		}
+		
+		public synchronized void entryRemoved(final History source, final Entry e) {
+			if (fCurrentSource != source) {
+				return;
+			}
+			fToRemove.add(e);
+			
+			if (!fIsScheduled) {
+				fIsScheduled = true;
+				UIAccess.getDisplay().asyncExec(this);
+			}
+		}
+		
+		public void run() {
+			final Entry[] newEntries;
+			final int toAdd;
+			final Entry[] toAddEntries;
+			final int toRemove;
+			final Entry[] toRemoveEntries;
+			final EntryFilter[] filter;
+			synchronized (this) {
+				fIsScheduled = false;
+				if (!UIAccess.isOkToUse(fTable)) {
+					return;
+				}
+				if ((fProcess != null && fCurrentSource != fProcess.getHistory())
+						|| (fProcess == null && fCurrentSource != null)) {
+					return;
+				}
+				
+				newEntries = fNewEntrys;
+				fNewEntrys = null;
+				toAdd = fToAdd.size();
+				toAddEntries = (toAdd > 0) ? fToAdd.removeAll() : null;
+				toRemove = fToRemove.size();
+				toRemoveEntries = (toRemove > REMOVE_THRESHOLD) ? fToRemove.removeAll() : null;
+				filter = fFilter.toArray();
+			}
+			fTable.setRedraw(false);
+			
+			TableItem addedItem = null;
+			if (newEntries != null) {
+				fTable.deselectAll();
+				
+				final int reusableItemCount = fTable.getItemCount();
+				int reuseItemIdx = 0;
+				final int n = newEntries.length;
+				ITER_ENTRY : for (int i = 0; i < n; i++) {
+					final Entry e = newEntries[i];
+					for (int f = 0; f < filter.length; f++) {
+						if (!filter[f].select(e)) {
+							continue ITER_ENTRY;
+						}
+					}
+					if (reuseItemIdx < reusableItemCount) {
+						addedItem = fTable.getItem(reuseItemIdx++);
+					}
+					else {
+						addedItem = new TableItem(fTable, SWT.NONE);
+					}
+					addedItem.setData(e);
+					updateItem(addedItem);
+				}
+				if (reuseItemIdx < reusableItemCount) {
+					fTable.remove(reuseItemIdx, reusableItemCount-1);
+				}
+				
+				if (addedItem != null) {
+					fTable.showItem(addedItem);
+				}
+			}
+			
+			if (toAdd > 0) {
+				ITER_ENTRY : for (int i = 0; i < toAdd; i++) {
+					final Entry e = toAddEntries[i];
+					for (int f = 0; f < filter.length; f++) {
+						if (!filter[f].select(e)) {
+							continue ITER_ENTRY;
+						}
+					}
+					addedItem = new TableItem(fTable, SWT.NONE);
+					addedItem.setData(e);
+					updateItem(addedItem);
+				}
+			}
+			if (toRemove > REMOVE_THRESHOLD) {
+				final int itemCount = fTable.getItemCount();
+				int[] removeIdxs = new int[toRemove];
+				int count = 0;
+				for (int i = 0; i < toRemove; i++) {
+					for (int j = 0; j < itemCount; j++) {
+						final TableItem removedItem = fTable.getItem(j);
+						if (removedItem.getData() == toRemoveEntries[i]) {
+							removedItem.setData(null);
+							removeIdxs[count++] = j;
+						}
+					}
+				}
+				if (count > 0) {
+					if (count < removeIdxs.length) {
+						System.arraycopy(removeIdxs, 0, removeIdxs = new int[count], 0, count);
+					}
+					fTable.remove(removeIdxs);
+				}
+			}
+			
+			if (fDoAutoscroll && addedItem != null) {
+				fTable.showItem(addedItem);
+			}
+			fTable.setRedraw(true);
+		}
 	}
+	
 	
 	private class FilterEmptyAction extends Action {
 		
@@ -288,43 +361,35 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER));
 			
 			setChecked(fDoFilterEmpty);
+			run();
 		}
 		
 		@Override
 		public void run() {
-			boolean switchOn = isChecked();
+			final boolean switchOn = isChecked();
 			fDoFilterEmpty = switchOn;
 			if (switchOn) {
-				ViewerFilter emptyFilter = new ViewerFilter() {
-					@Override
-					public boolean select(Viewer viewer, Object parentElement, Object element) {
-						return !((History.Entry) element).isEmpty();
-					}
-				};
-				fTableViewer.setFilters(new ViewerFilter[] { emptyFilter });
+				addFilter(EMPTY_FILTER); 
 			}
 			else {
-				fTableViewer.setFilters(new ViewerFilter[0]);
+				removeFilter(EMPTY_FILTER);
 			}
 		}
 		
 	}
 	
-
-	private volatile ToolProcess fProcess;
+	
+	private volatile ToolProcess fProcess; // note: we write only in ui thread
 	private IToolRegistryListener fToolRegistryListener;
-	private ViewContentProvider fContentProvider;
-
-	private TableViewer fTableViewer;
+	private final ViewContentProvider fContentProvider;
+	
+	private Table fTable;
 	private Clipboard fClipboard;
-
-	private static final String M_SORT_ALPHA = "HistoryView.SortAlpha"; //$NON-NLS-1$
-	private boolean fDoSortAlpha;
-	private EntryComparator fEntryComparator = new EntryComparator();
-	private Action fToggleSortAction;
+	
 	private static final String M_FILTER_EMPTY = "HistoryView.FilterEmpty"; //$NON-NLS-1$
 	private boolean fDoFilterEmpty;
 	private Action fFilterEmptyAction;
+	private final FastList<EntryFilter> fFilter = new FastList<EntryFilter>(EntryFilter.class, FastList.IDENTITY);
 	
 	private static final String M_AUTOSCROLL = "HistoryView.Autoscroll"; //$NON-NLS-1$
 	private boolean fDoAutoscroll;
@@ -336,113 +401,142 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	private Action fCopyAction;
 	private Action fSubmitAction;
 	
+	private IHandler fSearchStartHandler;
+	private IHandler fSearchNextHandler;
+	private IHandler fSearchPrevHandler;
+	private Text fSearchText;
+	private ToolItem fSearchTextItem;
+	private final SearchPattern fSearchPattern = new SearchPattern(
+			SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH | 
+			SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
+	
 	private LoadHistoryAction fLoadHistoryAction;
 	private SaveHistoryAction fSaveHistoryAction;
-
-	private ToolProcess fNewProcess;
-	private final ViewJob fReloadJob;
-	private volatile boolean fReloadScheduled;
-	private Entry[] fNewEntrys;
+	
+	private final ViewReloadJob fReloadJob;
+	
 	
 	/**
 	 * The constructor.
 	 */
 	public HistoryView() {
-		fReloadJob = new ViewJob();
+		fReloadJob = new ViewReloadJob();
 		fContentProvider = new ViewContentProvider();
 	}
 	
+	
 	@Override
-	public void init(IViewSite site, IMemento memento) throws PartInitException {
+	public void init(final IViewSite site, final IMemento memento) throws PartInitException {
 		super.init(site, memento);
 		
-		String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
+		final String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
 		if (autoscroll == null || autoscroll.equals("on")) { // default  //$NON-NLS-1$
 			fDoAutoscroll = true;
 		} else {
 			fDoAutoscroll = false;
 		}
-
-		String sortAlpha = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
-		if (sortAlpha == null || sortAlpha.equals("off")) { // default  //$NON-NLS-1$
-			fDoSortAlpha = false;
-		} else {
-			fDoSortAlpha = true;
-		}
-
-		String filterEmpty = (memento != null) ? memento.getString(M_SORT_ALPHA) : null;
+		
+		final String filterEmpty = (memento != null) ? memento.getString(M_FILTER_EMPTY) : null;
 		if (filterEmpty == null || filterEmpty.equals("off")) { // default  //$NON-NLS-1$
 			fDoFilterEmpty = false;
 		} else {
 			fDoFilterEmpty = true;
 		}
+		
 	}
 	
 	@Override
-	public void saveState(IMemento memento) {
+	public void saveState(final IMemento memento) {
 		super.saveState(memento);
 		
 		memento.putString(M_AUTOSCROLL, (fDoAutoscroll) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
-		memento.putString(M_SORT_ALPHA, (fDoSortAlpha) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
 		memento.putString(M_FILTER_EMPTY, (fDoFilterEmpty) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-
+	
 	@Override
-	public void createPartControl(Composite parent) {
-		fTableViewer = new TableViewer(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION) {
-			// we avoid refresh if no entries are available (e.g. switching sorting/filtering)
+	public void createPartControl(final Composite parent) {
+		final GridLayout layout = new GridLayout();
+		LayoutUtil.applyCompositeDefaults(layout, 1);
+		layout.verticalSpacing = 0;
+		parent.setLayout(layout);
+		final GridData gd;
+		
+		fTable = new Table(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
+		fTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		fTable.setLinesVisible(false);
+		fTable.setHeaderVisible(false);
+		new DefaultToolTip(fTable) {
+			
+			private DateFormat fFormat = DateFormat.getDateTimeInstance();
+			
 			@Override
-			public void refresh() {
-				if (fProcess == null || fNewEntrys != null) {
-					super.refresh();
+			protected String getText(final Event event) {
+				final TableItem item = fTable.getItem(new Point(event.x, event.y));
+				if (item != null) {
+					final Entry e = (Entry) item.getData();
+					if (e.getTimeStamp() < 0) {
+						return "[-]\n"+e.getCommand(); //$NON-NLS-1$
+					}
+					else {
+						return "["+fFormat.format(new Date(e.getTimeStamp()))+"]\n" + e.getCommand(); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
-				else {
-					scheduleRefresh(false);
-				}
+				return null;
 			}
-			@Override
-			public void refresh(boolean updateLabels) {
-				if (fProcess == null || fNewEntrys != null) {
-					super.refresh(updateLabels);
-				}
-				else {
-					scheduleRefresh(false);
-				}
-			}
+			
 		};
-		fTableViewer.getTable().setLinesVisible(false);
-		fTableViewer.getTable().setHeaderVisible(false);
-		fTableViewer.setUseHashlookup(true);
-		ColumnViewerToolTipSupport.enableFor(fTableViewer);
-		TableViewerColumn column = new TableViewerColumn(fTableViewer, SWT.DEFAULT);
-		column.setLabelProvider(new TableLabelProvider());
-		fTableViewer.getTable().addControlListener(new ControlAdapter() {
-			@Override
-			public void controlResized(ControlEvent e) {
+		final TableColumn column = new TableColumn(fTable, SWT.DEFAULT);
+		fTable.addListener(SWT.Resize, new Listener() {
+			public void handleEvent(final Event event) {
 				// adapt the column width to the width of the table
-				Table table = fTableViewer.getTable();
-				Rectangle area = table.getClientArea();
-				TableColumn column = table.getColumn(0);
-				column.setWidth(area.width);
+				final int tableWidth = fTable.getClientArea().width;
+				if (tableWidth == 0) {
+					return;
+				}
+				column.setWidth(tableWidth);
+			}
+		});
+		fTable.addKeyListener(new KeyListener() {
+			public void keyPressed(final KeyEvent e) {
+				if (e.keyCode == SWT.ARROW_UP && 
+						fTable.getSelectionCount() == 1 && fTable.getSelectionIndex() == 0) {
+					showSearch();
+					fTable.deselectAll();
+					e.doit = false;
+				}
+			}
+			public void keyReleased(final KeyEvent e) {
 			}
 		});
 		
-		fTableViewer.setContentProvider(new ViewContentProvider());
-		fTableViewer.setInput(new Object());
 		createActions();
 		hookContextMenu();
-		hookDoubleClickAction();
 		contributeToActionBars();
-
-		fTableViewer.addDragSupport(
-				DND.DROP_COPY,
-				new Transfer[] { TextTransfer.getInstance() },
-				new HistoryDragAdapter(this));
-
+		
+		parent.addListener(SWT.Resize, new Listener() {
+			public void handleEvent(final Event event) {
+				final int viewWidth = parent.getClientArea().width;
+				if (viewWidth == 0) {
+					return;
+				}
+				final ToolBar toolBar = fSearchTextItem.getParent();
+				final int toolBarWidth = toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+				final int minWidth = LayoutUtil.hintWidth(fSearchText, 8);
+				fSearchTextItem.setWidth(Math.max(minWidth,
+						viewWidth - toolBarWidth + fSearchTextItem.getWidth() - 26));
+				toolBar.layout(new Control[] { fSearchText });
+				toolBar.getParent().layout(true, true);
+			}
+		});
+		
+		final DragSource dragSource = new DragSource(fTable, DND.DROP_COPY);
+		dragSource.setTransfer(new Transfer[] { TextTransfer.getInstance() });
+		dragSource.addDragListener(new HistoryDragAdapter(this));
+		
 		// listen on console changes
-		IToolRegistry toolRegistry = NicoUI.getToolRegistry();
+		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
-			public void toolSessionActivated(ToolSessionUIData info) {
+			public void toolSessionActivated(final ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
@@ -450,7 +544,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 					}
 				});
 			}
-			public void toolSessionClosed(ToolSessionUIData info) {
+			public void toolSessionClosed(final ToolSessionUIData info) {
 				final ToolProcess process = info.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
@@ -464,19 +558,26 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 	}
-
+	
+	private void updateItem(final TableItem item) {
+		final Entry e = (Entry) item.getData();
+		item.setImage(StatetImages.getImage(StatetImages.OBJ_CONSOLECOMMAND));
+		item.setText(e.getCommand());
+	}
+	
 	private void createActions() {
-		fToggleSortAction = new ToggleSortAction();
+		final IHandlerService handlerService = (IHandlerService) getSite().getService(IHandlerService.class);
+		
 		fFilterEmptyAction = new FilterEmptyAction();
 		fScrollLockAction = new ScrollLockAction(new Receiver() {
-			public void setAutoScroll(boolean enabled) {
+			public void setAutoScroll(final boolean enabled) {
 				fDoAutoscroll = enabled;
 			}
 		}, !fDoAutoscroll);
 		fSelectAllAction = new Action() {
 			@Override
 			public void run() {
-				fTableViewer.getTable().selectAll();
+				fTable.selectAll();
 			}
 		};
 		
@@ -484,44 +585,71 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		fSubmitAction = new HistorySubmitAction(this);
 		
 		enabledSelectionActions(false);
-		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				if (selection != null && !selection.isEmpty()) {
+		fTable.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(final SelectionEvent e) {
+				if (fTable.getSelectionCount() > 0) {
 					enabledSelectionActions(true);
 				}
 				else {
 					enabledSelectionActions(false);
 				}
+			};
+			public void widgetDefaultSelected(final SelectionEvent e) {
+				fSubmitAction.run();
 			}
 		} );
 		
 		fLoadHistoryAction = new LoadHistoryAction(this);
 		fSaveHistoryAction = new SaveHistoryAction(this);
-	}
-
-	protected void enabledSelectionActions(boolean enable) {
 		
+		fSearchStartHandler = new AbstractHandler() {
+			public Object execute(final ExecutionEvent arg0) {
+				showSearch();
+				return null;
+			}
+		};
+		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_REPLACE, fSearchStartHandler);
+		
+		fSearchPrevHandler = new AbstractHandler() {
+			public Object execute(final ExecutionEvent arg0) {
+				search(false);
+				return null;
+			}
+		};
+		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_PREVIOUS, fSearchPrevHandler);
+		handlerService.activateHandler("org.eclipse.ui.navigate.previous", fSearchPrevHandler); //$NON-NLS-1$
+		
+		fSearchNextHandler = new AbstractHandler() {
+			public Object execute(final ExecutionEvent arg0) {
+				search(true);
+				return null;
+			}
+		};
+		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_NEXT, fSearchNextHandler);
+		handlerService.activateHandler("org.eclipse.ui.navigate.next", fSearchNextHandler); //$NON-NLS-1$
+	}
+	
+	protected void enabledSelectionActions(final boolean enable) {
 		fCopyAction.setEnabled(enable);
 		fSubmitAction.setEnabled(enable);
 	}
-
-
+	
+	
 	private void hookContextMenu() {
-		MenuManager menuMgr = new MenuManager("ContextMenu"); //$NON-NLS-1$
+		final MenuManager menuMgr = new MenuManager("ContextMenu"); //$NON-NLS-1$
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
-			public void menuAboutToShow(IMenuManager manager) {
+			public void menuAboutToShow(final IMenuManager manager) {
 				HistoryView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(fTableViewer.getControl());
-		fTableViewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, fTableViewer);
+		final Menu menu = menuMgr.createContextMenu(fTable);
+		fTable.setMenu(menu);
+//		getSite().registerContextMenu(menuMgr, fTableViewer);
 	}
-
+	
 	private void contributeToActionBars() {
-		IActionBars bars = getViewSite().getActionBars();
+		final IActionBars bars = getViewSite().getActionBars();
 		
 		bars.setGlobalActionHandler(ActionFactory.SELECT_ALL.getId(), fSelectAllAction);
 		bars.setGlobalActionHandler(ActionFactory.COPY.getId(), fCopyAction);
@@ -529,18 +657,17 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		fillLocalPullDown(bars.getMenuManager());
 		fillLocalToolBar(bars.getToolBarManager());
 	}
-
-	private void fillLocalPullDown(IMenuManager manager) {
+	
+	private void fillLocalPullDown(final IMenuManager manager) {
 		manager.add(fLoadHistoryAction);
 		manager.add(fSaveHistoryAction);
 		manager.add(new Separator());
-		manager.add(fToggleSortAction);
 		manager.add(fFilterEmptyAction);
 		manager.add(fScrollLockAction);
 		manager.add(new Separator());
 	}
-
-	private void fillContextMenu(IMenuManager manager) {
+	
+	private void fillContextMenu(final IMenuManager manager) {
 		manager.add(fCopyAction);
 		manager.add(fSubmitAction);
 		
@@ -548,17 +675,49 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 	
-	private void fillLocalToolBar(IToolBarManager manager) {
-		manager.add(fToggleSortAction);
-		manager.add(fScrollLockAction);
-	}
-
-	private void hookDoubleClickAction() {
-		fTableViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(DoubleClickEvent event) {
-				fSubmitAction.run();
+	private void fillLocalToolBar(final IToolBarManager manager) {
+		manager.add(new ContributionItem("search.text") { //$NON-NLS-1$
+			
+			@Override
+			public void fill(final ToolBar parent, final int index) {
+				fSearchText = new Text(parent, SWT.BORDER | SWT.LEFT | SWT.SINGLE | SWT.SEARCH);
+				fSearchText.setToolTipText(Messages.HistorySearch_Pattern_tooltip);
+				
+				fSearchText.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyPressed(final KeyEvent e) {
+						if (e.keyCode == SWT.ARROW_DOWN) {
+							fTable.setFocus();
+							if (fTable.getSelectionCount() == 0) {
+								final int idx = fTable.getTopIndex();
+								if (idx >= 0) {
+									fTable.setSelection(idx);
+								}
+							}
+						}
+						if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
+							search(true);
+						}
+					}
+				});
+				
+				fSearchTextItem = new ToolItem(parent, SWT.SEPARATOR, index);
+				fSearchTextItem.setControl(fSearchText);
+				fSearchTextItem.setWidth(10000); // high value prevents that the toolbar is moved to tabs
 			}
 		});
+		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
+				getSite(), "search.next", "org.eclipse.ui.navigate.next", null, //$NON-NLS-1$ //$NON-NLS-2$
+				StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN_H),
+				Messages.HistorySearch_NextMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchNextHandler));
+		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
+				getSite(), "search.previous", "org.eclipse.ui.navigate.previous", null, //$NON-NLS-1$ //$NON-NLS-2$
+				StatetImages.getDescriptor(StatetImages.LOCTOOL_UP), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_UP_H),
+				Messages.HistorySearch_PreviousMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchPrevHandler));
+		
+		manager.add(new Separator());
+		
+		manager.add(fScrollLockAction);
 	}
 	
 	/** Should only be called inside UI Thread */
@@ -573,20 +732,14 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		if (fProcess != null) {
 			fProcess.getHistory().addListener(fContentProvider);
 		}
-		if (fProcess != null) {
-			scheduleRefresh(true);
-		}
-		else {
-			fTableViewer.refresh();
-		}
-		for (Object action : fToolActions.getListeners()) {
-			((IToolAction) action).setTool(fProcess);
+		scheduleRefresh(true);
+		for (final Object action : fToolActions.getListeners()) {
+			((IToolRetargetable) action).setTool(fProcess);
 		}
 	}
 	
-	private void scheduleRefresh(boolean change) {
-		IWorkbenchSiteProgressService context = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
-		fReloadScheduled = true;
+	private void scheduleRefresh(final boolean change) {
+		final IWorkbenchSiteProgressService context = (IWorkbenchSiteProgressService) getSite().getAdapter(IWorkbenchSiteProgressService.class);
 		if (change) {
 			fReloadJob.cancel();
 			context.schedule(fReloadJob, 200);
@@ -596,8 +749,18 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		}
 	}
 	
-	public void addToolAction(IToolAction action) {
+	public void addToolRetargetable(final IToolRetargetable action) {
 		fToolActions.add(action);
+	}
+	
+	public void addFilter(final EntryFilter filter) {
+		fFilter.add(filter);
+		scheduleRefresh(false);
+	}
+	
+	public void removeFilter(final EntryFilter filter) {
+		fFilter.remove(filter);
+		scheduleRefresh(false);
 	}
 	
 	
@@ -611,15 +774,6 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 	}
 	
 	/**
-	 * Returns the table viewer, containing the entries of the history.
-	 * 
-	 * @return a table viewer.
-	 */
-	public TableViewer getTableViewer() {
-		return fTableViewer;
-	}
-	
-	/**
 	 * Returns a shared clipboard resource, which can be used by actions of this view.
 	 * 
 	 * @return a clipboard object.
@@ -630,12 +784,82 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		
 		return fClipboard;
 	}
-
+	
+	public Entry[] getSelection() {
+		final TableItem[] items = fTable.getSelection();
+		final int n = items.length;
+		final Entry[] selection = new Entry[n];
+		for (int i = 0; i < n; i++) {
+			selection[i] = (Entry) items[i].getData();
+		}
+		return selection;
+	}
 	
 	@Override
 	public void setFocus() {
 		// Passing the focus request to the viewer's control.
-		fTableViewer.getControl().setFocus();
+		fTable.setFocus();
+	}
+	
+	private void showSearch() {
+		if (!UIAccess.isOkToUse(fSearchText)) {
+			return;
+		}
+		
+		fSearchText.setFocus();
+	}
+	
+	private void search(final boolean forward) {
+		if (!UIAccess.isOkToUse(fTable)) {
+			return;
+		}
+		
+		final int itemCount = fTable.getItemCount();
+		final String text = fSearchText.getText();
+		if (itemCount == 0 || text.length() == 0) {
+			return;
+		}
+		
+		int start = 0;
+		do {
+			final char c = text.charAt(start);
+			if (c == ' ' || c == '\t') {
+				start++;
+			}
+			else {
+				break;
+			}
+		} while (start < text.length());
+		fSearchPattern.setPattern(text.substring(start));
+		
+		int idx = fTable.getSelectionIndex();
+		if (forward) {
+			idx++;
+			while (idx < itemCount) {
+				final Entry e = (Entry) fTable.getItem(idx).getData();
+				final int offset = e.getCommandMarker();
+				if (fSearchPattern.matches(e.getCommand().substring(
+						offset >= 0 ? offset : -1-offset))) {
+					fTable.setSelection(idx);
+					return;
+				}
+				idx++;
+			}
+		}
+		else {
+			idx--;
+			while (idx >= 0) {
+				final Entry e = (Entry) fTable.getItem(idx).getData();
+				final int offset = e.getCommandMarker();
+				if (fSearchPattern.matches(e.getCommand().substring(
+						offset >= 0 ? offset : -1-offset))) {
+					fTable.setSelection(idx);
+					return;
+				}
+				idx--;
+			}
+		}
+		Display.getCurrent().beep();
 	}
 	
 	@Override
@@ -645,7 +869,7 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 			fToolRegistryListener = null;
 		}
 		fReloadJob.cancel();
-		ToolProcess process = fProcess;
+		final ToolProcess process = fProcess;
 		if (process != null) {
 			process.getHistory().removeListener(fContentProvider);
 		}
@@ -655,15 +879,27 @@ public class HistoryView extends ViewPart implements IToolActionSupport {
 		fSubmitAction = null;
 		fLoadHistoryAction = null;
 		fSaveHistoryAction = null;
+		if (fSearchStartHandler != null) {
+			fSearchStartHandler.dispose();
+			fSearchStartHandler = null;
+		}
+		if (fSearchPrevHandler != null) {
+			fSearchPrevHandler.dispose();
+			fSearchPrevHandler = null;
+		}
+		if (fSearchNextHandler != null) {
+			fSearchNextHandler.dispose();
+			fSearchNextHandler = null;
+		}
 		
 		super.dispose();
-
+		
 		if (fClipboard != null) {
 			fClipboard.dispose();
 			fClipboard = null;
 		}
 		
-		fTableViewer = null;
+		fTable = null;
 	}
 	
 }

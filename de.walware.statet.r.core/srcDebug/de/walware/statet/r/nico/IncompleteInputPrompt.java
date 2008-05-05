@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.r.nico;
@@ -29,20 +29,12 @@ public class IncompleteInputPrompt extends Prompt {
 	public final String previousInput;
 	
 	
-	IncompleteInputPrompt(Prompt previousPrompt, String lastInput, String promptText) {
-		
-		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT);
+	IncompleteInputPrompt(final Prompt previousPrompt, String lastInput, final String promptText, final int meta) {
+		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT | meta);
 		if ((previousPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			lastInput = ((IncompleteInputPrompt) previousPrompt).previousInput + lastInput;
 		}
 		previousInput = lastInput;
-	}
-
-	
-	IncompleteInputPrompt(String allInput, String promptText) {
-		
-		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT);
-		previousInput = allInput;
 	}
 	
 }

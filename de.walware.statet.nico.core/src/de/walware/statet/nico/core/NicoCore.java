@@ -4,9 +4,9 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *    Stephan Wahlbrink - initial API and implementation
+ *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
 package de.walware.statet.nico.core;
@@ -19,12 +19,11 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 
-
 /**
- *
+ * 
  */
 public class NicoCore {
-
+	
 	/**
 	 * Plugin-ID
 	 * Value: @value
@@ -35,14 +34,14 @@ public class NicoCore {
 	
 	/** Status Code for errors when handle Threads/Runnables */
 	public static final int STATUSCODE_RUNTIME_ERROR = STATUS_CATEGORY | (2 << 8);
-
+	
 	public static final int EXITVALUE_CORE_EXCEPTION = STATUSCODE_RUNTIME_ERROR | 1;
 	public static final int EXITVALUE_RUNTIME_EXCEPTION = STATUSCODE_RUNTIME_ERROR | 2;
-
+	
 	
 	private static IPreferenceAccess CONSOLE_PREFS = PreferencesUtil.createAccess(new IScopeContext[] {
 			new ConsoleInstanceScope(), new ConsoleDefaultScope(), new InstanceScope(), new DefaultScope() });
-
+	
 	public static IPreferenceAccess getDefaultConsolePreferences() {
 		return CONSOLE_PREFS;
 	}
