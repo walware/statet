@@ -42,7 +42,7 @@ public class RCompatibilityBuilder extends IncrementalProjectBuilder {
 	private static final String OLD_BUILDER_ID = "de.walware.statet.r.core.RInternalBuilder"; //$NON-NLS-1$
 	
 	private boolean fAutoMigrate = true;
-	private boolean fRemoveOldIds = false;
+	private boolean fRemoveOldIds = true;
 	
 	
 	public RCompatibilityBuilder() {
