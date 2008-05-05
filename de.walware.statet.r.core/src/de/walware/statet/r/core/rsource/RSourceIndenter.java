@@ -226,7 +226,7 @@ public class RSourceIndenter {
 		public void visit(final CIfElse node) throws InvocationTargetException {
 			try {
 				boolean inElseIf = false;
-				if (node.getParent().getNodeType() == NodeType.C_IF
+				if (node.getRParent().getNodeType() == NodeType.C_IF
 						&& ((CIfElse) node.getParent()).getElseChild() == node) {
 					fFactory.leaveScope();
 					inElseIf = true;
@@ -768,12 +768,12 @@ class ScopeFactory {
 	
 	public final void createBlockScope(final int offset, final RAstNode node) throws BadLocationException {
 		final int line = fDoc.getLineOfOffset(offset);
-		switch (node.getParent().getNodeType()) {
+		switch (node.getRParent().getNodeType()) {
 		case C_IF:
 		case C_FOR:
 		case C_WHILE:
 		case F_DEF:
-			if (node.getParent().getChild(0) == node) {
+			if (node.getRParent().getChild(0) == node) {
 				// first are conditions
 				break;
 			}
@@ -861,7 +861,7 @@ class ScopeFactory {
 		}
 		if (onlyAssignments) {
 			ITER_OPS : while (true) {
-				node = node.getParent();
+				node = node.getRParent();
 				switch (node.getNodeType()) {
 				case A_LEFT_E:
 				case A_LEFT_S:

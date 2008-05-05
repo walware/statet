@@ -54,7 +54,7 @@ public class RCommandDirectAndNextLaunchShortcut extends RCommandDirectLaunchSho
 	
 	protected int getNextOffset(RAstNode node, final IDocument doc) throws BadLocationException {
 		RAstNode parent;
-		while ((parent = node.getParent()) != null) {
+		while ((parent = node.getRParent()) != null) {
 			final int lastIdx = parent.getChildIndex(node);
 			if (lastIdx+1 < parent.getChildCount()) {
 				return parent.getChild(lastIdx+1).getOffset();

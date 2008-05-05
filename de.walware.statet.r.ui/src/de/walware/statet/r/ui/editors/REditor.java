@@ -161,7 +161,7 @@ public class REditor extends StatextEditor1<RProject> {
 								}
 							}
 						}
-						node = node.getParent();
+						node = node.getRParent();
 					}
 				}
 				return checkClear(run, orgSelection);
@@ -353,7 +353,7 @@ public class REditor extends StatextEditor1<RProject> {
 				if (node.getNodeType() == NodeType.F_DEF) {
 					return new Point(node.getOffset(), node.getLength());
 				}
-				node = node.getParent();
+				node = node.getRParent();
 			}
 		}
 		return null;

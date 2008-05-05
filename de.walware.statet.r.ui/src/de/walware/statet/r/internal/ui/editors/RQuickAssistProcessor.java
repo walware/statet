@@ -57,7 +57,7 @@ public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
 					}
 				}
 			}
-			candidate = candidate.getParent();
+			candidate = candidate.getRParent();
 		}
 	}
 	

@@ -72,14 +72,29 @@ public abstract class RAstNode implements IAstNode {
 		return null;
 	}
 	
-	
-	public final RAstNode getParent() {
+	/**
+	 * @return the parent node, if it is an RAstNode too, otherwise <code>null</code>
+	 */
+	public final RAstNode getRParent() {
 		return fRParent;
 	}
 	
-	public final RAstNode getRoot() {
+	public IAstNode getParent() {
+		return fRParent;
+	};
+	
+	public final RAstNode getRRoot() {
 		RAstNode candidate = this;
 		RAstNode p;
+		while ((p = candidate.fRParent) != null) {
+			candidate = p;
+		}
+		return candidate;
+	}
+	
+	public final IAstNode getRoot() {
+		IAstNode candidate = this;
+		IAstNode p;
 		while ((p = candidate.getParent()) != null) {
 			candidate = p;
 		}
@@ -208,14 +223,12 @@ public abstract class RAstNode implements IAstNode {
 	@Override
 	public String toString() {
 		final StringBuilder s = new StringBuilder();
-		final RAstNode parent = getParent();
-		if (parent != null) {
-			if (parent instanceof FlatMulti) {
-				final FlatMulti multi = (FlatMulti) parent;
-				final RTerminal operator = multi.getOperator(multi.getChildIndex(this));
-				s.append(operator != null ? operator.text : "•"); //$NON-NLS-1$
-				s.append("  "); //$NON-NLS-1$
-			}
+		final IAstNode parent = getParent();
+		if (parent instanceof FlatMulti) {
+			final FlatMulti multi = (FlatMulti) parent;
+			final RTerminal operator = multi.getOperator(multi.getChildIndex(this));
+			s.append(operator != null ? operator.text : "•"); //$NON-NLS-1$
+			s.append("  "); //$NON-NLS-1$
 		}
 //		s.append("«");
 		s.append(getNodeType().label);

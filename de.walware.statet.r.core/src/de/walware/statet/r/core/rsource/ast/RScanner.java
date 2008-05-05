@@ -39,6 +39,7 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_
 import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -115,11 +116,12 @@ public class RScanner {
 		}
 	}
 	
-	public SourceComponent scanSourceRange(final int offset, final int length) {
+	public SourceComponent scanSourceRange(final IAstNode parent, final int offset, final int length) {
 		try {
 			fLexer.setRange(offset, length);
 			init();
 			final SourceComponent rootNode = scanSourceUnit(null);
+			rootNode.fParent = parent;
 			return rootNode;
 		}
 		catch (final Exception e) {
@@ -509,7 +511,7 @@ public class RScanner {
 		case STRING_CONST:
 			{
 				node.fNamespace = (SingleValue) context.lastNode;
-				final RAstNode base = context.lastNode.getParent();
+				final RAstNode base = context.lastNode.fRParent;
 				node.fNamespace.fRParent = node;
 				final Expression expr = base.getExpr(node.fNamespace);
 				if (expr != null) {
@@ -1076,10 +1078,10 @@ public class RScanner {
 				break ITER_CAND;
 			}
 			left = cand;
-			cand = cand.getParent();
+			cand = cand.fRParent;
 		}
 		
-		final RAstNode baseNode = left.getParent();
+		final RAstNode baseNode = left.fRParent;
 		if (baseNode == null) {
 			throw new IllegalStateException(); // DEBUG
 		}

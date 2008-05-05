@@ -97,12 +97,12 @@ public class RAst {
 			if (fInAssignment || 
 					(node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset())) {
 				RAstNode take = node;
-				RAstNode cand = node.getParent();
+				RAstNode candidate = node.getRParent();
 				// TODO: use analyzed ElementAccess if possible
 				AssignExpr assign = null;
-				while ((assign = checkAssign(cand)) != null && assign.valueNode == take) {
+				while ((assign = checkAssign(candidate)) != null && assign.valueNode == take) {
 					take = assign.assignNode;
-					cand = take.getParent();
+					candidate = take.getRParent();
 				}
 				fAssignment = take;
 				throw new OperationCanceledException();
@@ -124,15 +124,15 @@ public class RAst {
 		return visitor.fAssignment;
 	}
 	
-	private static class CommandsSearchVisitor extends GenericVisitor implements ICommonAstVisitor {
+	private static class DeepestCommandsSearchVisitor extends GenericVisitor implements ICommonAstVisitor {
 		
-		private RAstNode fContainer;
 		private final int fStartOffset;
 		private final int fStopOffset;
-		final List<RAstNode> fCommands = new ArrayList<RAstNode>();
+		private RAstNode fContainer;
+		private final List<RAstNode> fCommands = new ArrayList<RAstNode>();
 		
 		
-		public CommandsSearchVisitor(final int startOffset, final int stopOffset) {
+		public DeepestCommandsSearchVisitor(final int startOffset, final int stopOffset) {
 			fStartOffset = startOffset;
 			fStopOffset = stopOffset;
 		}
@@ -145,6 +145,7 @@ public class RAst {
 			}
 			if (node.getStopOffset() >= fStartOffset && fStopOffset >= node.getOffset()) {
 				node.acceptInChildren(this);
+				return;
 			}
 		}
 		
@@ -158,10 +159,12 @@ public class RAst {
 			
 			if (node.fStartOffset <= fStartOffset && fStopOffset <= node.fStopOffset) {
 				node.acceptInRChildren(this);
+				return;
 			}
 		}
 		
-		private void visitList(final RAstNode node) throws InvocationTargetException {
+		@Override
+		public void visit(final Block node) throws InvocationTargetException {
 			if (node.fStartOffset <= fStartOffset && fStopOffset <= node.fStopOffset) {
 				fCommands.clear();
 				if (node.fStartOffset == fStartOffset && fStopOffset == node.fStopOffset) {
@@ -176,29 +179,117 @@ public class RAst {
 				if (fCommands.isEmpty() && node.fStopOffset > fStartOffset) {
 					fCommands.add(node);
 				}
+				return;
+			}
+		}
+		
+		@Override
+		public void visit(final SourceComponent node) throws InvocationTargetException {
+			if (node.fStopOffset >= fStartOffset && fStopOffset >= node.fStartOffset) {
+				fCommands.clear();
+				fContainer = node;
+				
+				node.acceptInRChildren(this);
+				return;
+			}
+		}
+		
+	}
+	
+	private static class NextCommandsSearchVisitor extends GenericVisitor implements ICommonAstVisitor {
+		
+		private final int fOffset;
+		private RAstNode fContainer;
+		private RAstNode fNext;
+		
+		
+		public NextCommandsSearchVisitor(final int offset) {
+			fOffset = offset;
+		}
+		
+		
+		public void visit(final IAstNode node) throws InvocationTargetException {
+			if (node instanceof RAstNode) {
+				((RAstNode) node).acceptInR(this);
+				return;
+			}
+			if (node.getStopOffset() >= fOffset && fOffset >= node.getOffset()) {
+				node.acceptInChildren(this);
+				return;
+			}
+		}
+		
+		@Override
+		public void visitNode(final RAstNode node) throws InvocationTargetException {
+			if (fNext == null) {
+				if (node.fStartOffset >= fOffset) {
+					if (fContainer != null && fContainer == node.fRParent) {
+						fNext = node;
+						return;
+					}
+					else {
+						node.acceptInRChildren(this);
+						return;
+					}
+				}
 			}
 		}
 		
 		@Override
 		public void visit(final Block node) throws InvocationTargetException {
-			visitList(node);
+			if (fNext == null) {
+				if (node.fStartOffset >= fOffset) {
+					if (fContainer != null && fContainer == node.fRParent) {
+						fNext = node;
+						return;
+					}
+					else {
+						node.acceptInRChildren(this);
+						return;
+					}
+				}
+				if (node.fStopOffset >= fOffset) {
+					fContainer = node;
+					node.acceptInRChildren(this);
+					return;
+				}
+			}
 		}
 		
 		@Override
 		public void visit(final SourceComponent node) throws InvocationTargetException {
-			visitList(node);
+			if (fNext == null) {
+				final IAstNode parent = node.getParent();
+				if (node.fStopOffset >= fOffset &&
+						// R script file or inside R chunk
+						(parent == null || (parent.getOffset() <= fOffset && fOffset <= parent.getStopOffset())) ) {
+					fContainer = node;
+					node.acceptInRChildren(this);
+					return;
+				}
+			}
 		}
 		
 	}
 	
 	public static RAstNode[] findDeepestCommands(final IAstNode root, final int startOffset, final int stopOffset) {
-		final CommandsSearchVisitor visitor = new CommandsSearchVisitor(startOffset, stopOffset);
+		final DeepestCommandsSearchVisitor visitor = new DeepestCommandsSearchVisitor(startOffset, stopOffset);
 		try {
 			root.accept(visitor);
 		}
 		catch (final InvocationTargetException e) {
 		}
 		return visitor.fCommands.toArray(new RAstNode[visitor.fCommands.size()]);
+	}
+	
+	public static RAstNode findNextCommands(final IAstNode root, final int offset) {
+		final NextCommandsSearchVisitor visitor = new NextCommandsSearchVisitor(offset);
+		try {
+			root.accept(visitor);
+		}
+		catch (final InvocationTargetException e) {
+		}
+		return visitor.fNext;
 	}
 	
 	public static class AssignExpr {
@@ -248,9 +339,9 @@ public class RAst {
 				}
 			}
 		case F_CALL_ARGS:
-			return checkAssign(node.getParent());
+			return checkAssign(node.getRParent());
 		case F_CALL_ARG:
-			return checkAssign(node.getParent().getParent());
+			return checkAssign(node.getRParent().getRParent());
 		}
 		return null;
 	}

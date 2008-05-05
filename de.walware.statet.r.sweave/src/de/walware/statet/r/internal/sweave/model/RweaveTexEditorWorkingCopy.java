@@ -100,7 +100,7 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 						rChunk.fStartOffset = cats[i].getOffset();
 						rChunk.fStopOffset = cats[i].getOffset() + cats[i].getLength();
 						if (++i < cats.length && cats[i].getType() == Rweave.R_CAT) {
-							rChunk.fRSource = scanner.scanSourceRange(cats[i].getOffset(), cats[i].getLength());
+							rChunk.fRSource = scanner.scanSourceRange(rChunk, cats[i].getOffset(), cats[i].getLength());
 							rChunk.fStopOffset = rChunk.fRSource.getStopOffset();
 							if (++i < cats.length && cats[i].getType() == Rweave.CONTROL_CAT) {
 								rChunk.fStopOffset = cats[i].getOffset() + cats[i].getLength();

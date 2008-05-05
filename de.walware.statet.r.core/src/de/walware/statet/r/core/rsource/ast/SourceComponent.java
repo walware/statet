@@ -13,6 +13,8 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
@@ -20,6 +22,9 @@ import de.walware.statet.r.core.rlang.RTerminal;
  * 
  */
 public class SourceComponent extends ExpressionList {
+	
+	
+	IAstNode fParent;
 	
 	
 	SourceComponent() {
@@ -36,6 +41,11 @@ public class SourceComponent extends ExpressionList {
 		return null;
 	}
 	
+	
+	@Override
+	public IAstNode getParent() {
+		return fParent;
+	}
 	
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {

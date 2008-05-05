@@ -252,7 +252,7 @@ public class ScopeAnalyzer extends RAstVisitor {
 			registerInScope(S_SEARCH, name, access);
 		}
 		final boolean write;
-		final RAstNode parent = node.getParent();
+		final RAstNode parent = node.getRParent();
 		if (parent instanceof Assignment) {
 			write = (((Assignment) parent).getTargetChild() == node);
 		}

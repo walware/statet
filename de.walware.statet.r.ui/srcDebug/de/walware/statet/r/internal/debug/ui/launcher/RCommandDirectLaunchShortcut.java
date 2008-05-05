@@ -108,6 +108,14 @@ public class RCommandDirectLaunchShortcut implements ILaunchShortcut {
 		}
 		final RAstNode[] nodes = RAst.findDeepestCommands(astInfo.root, selection.getOffset(), selection.getOffset()+selection.getLength());
 		if (nodes == null || nodes.length == 0) {
+			final RAstNode next = RAst.findNextCommands(astInfo.root, selection.getOffset()+selection.getLength());
+			if (next != null) {
+				UIAccess.getDisplay().syncExec(new Runnable() {
+					public void run() {
+						textEditor.selectAndReveal(next.getOffset(), 0);
+					}
+				});
+			}
 			return;
 		}
 		
