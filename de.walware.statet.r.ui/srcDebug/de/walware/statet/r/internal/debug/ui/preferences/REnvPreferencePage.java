@@ -87,6 +87,12 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		public void setRHome(final String label) {
 			super.setRHome(label);
 		}
+		
+		@Override
+		public void setRBits(final int bits) {
+			super.setRBits(bits);
+		}
+		
 	}
 	
 	private class REnvTableGroup extends TableOptionButtonsGroup<REnvConfig> {

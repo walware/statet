@@ -33,6 +33,7 @@ import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
+import de.walware.eclipsecommons.preferences.Preference.IntPref;
 import de.walware.eclipsecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.r.core.RCore;
@@ -54,6 +55,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	
 	public static final String PROP_RHOME = "RHome"; //$NON-NLS-1$
 	private static final String PREFKEY_RHOME = "env.r_home"; //$NON-NLS-1$
+	
+	public static final String PROP_RBITS = "RBits"; //$NON-NLS-1$
+	private static final String PREFKEY_RBITS = "env.r_bits.count"; //$NON-NLS-1$
 	
 	public static enum Exec {
 		COMMON,
@@ -86,6 +90,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private String fId;
 	private StringPref fPrefRHomeDirectory;
 	private String fRHomeDirectory;
+	private IntPref fPrefRBits;
 	private int fRBits;
 	
 	
@@ -93,13 +98,13 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	 * Creates new empty configuration
 	 */
 	protected REnvConfiguration() {
-		fIsDisposed = false;
-		setId(System.getProperty("user.name")+System.currentTimeMillis()); //$NON-NLS-1$
+		this(System.getProperty("user.name")+System.currentTimeMillis()); //$NON-NLS-1$
 	}
 	
 	protected REnvConfiguration(final String id) {
 		fIsDisposed = false;
 		setId(id);
+		fRBits = 32;
 	}
 	
 	protected void checkPrefs() {
@@ -112,6 +117,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		fPrefName = new StringPref(fNodeQualifier, PREFKEY_NAME);
 		fPrefId = new StringPref(fNodeQualifier, PREFKEY_ID);
 		fPrefRHomeDirectory = new StringPref(fNodeQualifier, PREFKEY_RHOME);
+		fPrefRBits = new IntPref(fNodeQualifier, PREFKEY_RBITS);
 	}
 	
 	protected void checkExistence(final IPreferenceAccess prefs) {
@@ -140,6 +146,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 				fPrefName,
 				fPrefRHomeDirectory,
 //				fPrefBinDirectory,
+				fPrefRBits,
 		};
 	}
 	
@@ -158,6 +165,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		}
 		setName(from.getName());
 		setRHome(from.getRHome());
+		setRBits(from.getRBits());
 	}
 	
 	@Override
@@ -172,6 +180,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		}
 		setName(prefs.getPreferenceValue(fPrefName));
 		setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
+		setRBits(prefs.getPreferenceValue(fPrefRBits));
 	}
 	
 	@Override
@@ -181,6 +190,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		map.put(fPrefId, getId());
 		map.put(fPrefName, getName());
 		map.put(fPrefRHomeDirectory, getRHome());
+		map.put(fPrefRBits, getRBits());
 		return map;
 	}
 	
@@ -235,14 +245,22 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	protected void setRHome(final String label) {
 		final String oldValue = fRHomeDirectory;
 		fRHomeDirectory = label;
-		fRBits = (fRHomeDirectory != null && fRHomeDirectory.contains("64")) ? 64 : 32; //$NON-NLS-1$
 		firePropertyChange(PROP_RHOME, oldValue, fRHomeDirectory);
 	}
 	public String getRHome() {
 		return fRHomeDirectory;
 	}
 	
-	public int getBits() {
+	protected void setRBits(int bits) {
+		if (bits != 32 && bits != 64) {
+			bits = 32;
+		}
+		final int oldValue = fRBits;
+		fRBits = bits;
+		firePropertyChange(PROP_RBITS, oldValue, bits);
+	}
+	
+	public int getRBits() {
 		return fRBits;
 	}
 	

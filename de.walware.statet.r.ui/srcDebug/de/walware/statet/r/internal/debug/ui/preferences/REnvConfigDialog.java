@@ -35,8 +35,13 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.StatusDialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -63,6 +68,10 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
  * Dialog for an {@link REnvConfiguration}
  */
 public class REnvConfigDialog extends StatusDialog {
+	
+	
+	private static final Integer T_64 = Integer.valueOf(64);
+	private static final Integer T_32 = Integer.valueOf(32);
 	
 	
 	private class RHomeComposite extends ChooseResourceComposite {
@@ -94,6 +103,8 @@ public class REnvConfigDialog extends StatusDialog {
 					final String[] rhome = searchRHOME();
 					if (rhome != null) {
 						setText(rhome[0], true);
+						fRBitViewer.setSelection(new StructuredSelection(
+								rhome[0].contains("64") ? T_64 : T_32)); //$NON-NLS-1$
 						final String current = fNameControl.getText().trim();
 						if ((current.length() == 0 || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$
 							fNameControl.setText(rhome[1]);
@@ -121,6 +132,7 @@ public class REnvConfigDialog extends StatusDialog {
 	
 	private Text fNameControl;
 	private ChooseResourceComposite fRHomeControl;
+	private ComboViewer fRBitViewer;
 	
 	
 	public REnvConfigDialog(final Shell parent, 
@@ -158,6 +170,19 @@ public class REnvConfigDialog extends StatusDialog {
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		fRHomeControl = new RHomeComposite(content);
 		fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+		label = new Label(content, SWT.LEFT);
+		label.setText(Messages.REnv_Detail_Bits_label+':');
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		fRBitViewer = new ComboViewer(content);
+		fRBitViewer.setContentProvider(new ArrayContentProvider());
+		fRBitViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(final Object element) {
+				return ((Integer) element).toString() + "-bit"; //$NON-NLS-1$
+			}
+		});
+		fRBitViewer.setInput(new Integer[] { T_32, T_64 });
 		
 		applyDialogFont(content);
 		initBindings();
@@ -200,7 +225,9 @@ public class REnvConfigDialog extends StatusDialog {
 						return ValidationStatus.ok();
 					}
 				}), null);
-		
+		fDbc.bindValue(ViewersObservables.observeSingleSelection(fRBitViewer), 
+				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_RBITS), 
+				null, null);
 		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
 			public void handleValueChange(final ValueChangeEvent event) {
@@ -228,7 +255,7 @@ public class REnvConfigDialog extends StatusDialog {
 			if (loc != null && loc.length() > 0) {
 				if (EFS.getLocalFileSystem().getStore(
 						new Path(loc)).fetchInfo().exists()) {
-					return new String[] { loc, "System Default" };
+					return new String[] { loc, "System Default (R_HOME)" };
 				}
 			}
 			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
@@ -247,7 +274,7 @@ public class REnvConfigDialog extends StatusDialog {
 				}
 			}
 			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
-				loc = "/Library/Frameworks/R.framework/Resources";
+				loc = "/Library/Frameworks/R.framework/Resources"; //$NON-NLS-1$
 				if (REnvConfiguration.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
 					return new String[] { loc, null };
 				}

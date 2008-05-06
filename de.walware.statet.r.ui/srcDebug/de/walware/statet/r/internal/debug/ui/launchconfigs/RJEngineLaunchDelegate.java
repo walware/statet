@@ -137,7 +137,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
 		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
-		addPluginClasspath(classpath, true, (fRenv.getBits() == 64)); 
+		addPluginClasspath(classpath, true, (fRenv.getRBits() == 64)); 
 		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
 		
 		return classpath.toArray(new String[classpath.size()]);
@@ -166,7 +166,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			s.append(" -Djava.rmi.server.hostname=localhost"); //$NON-NLS-1$
 		}
 		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
-			s.append(" -Xss").append(fRenv.getBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
+			s.append(" -Xss").append(fRenv.getRBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return s.substring(1);
 	}
