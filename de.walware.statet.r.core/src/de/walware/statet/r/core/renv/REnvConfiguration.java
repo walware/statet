@@ -327,7 +327,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		if (!Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
 					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
-							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH"); //$NON-NLS-1$ 
+							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH}"); //$NON-NLS-1$ 
 		}
 		return envp;
 	}
