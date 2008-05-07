@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.TextEvent;
@@ -47,6 +46,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
@@ -60,7 +60,7 @@ import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 /**
  * Dialog to edit a template.
  */
-public class EditTemplateDialog extends StatusDialog {
+public class EditTemplateDialog extends ExtStatusDialog {
 	
 	private final Template fOriginalTemplate;
 	private Template fNewTemplate;
@@ -98,9 +98,9 @@ public class EditTemplateDialog extends StatusDialog {
 			final ContextTypeRegistry registry) {
 		super(parent);
 		
-		final String title = edit ?
-				Messages.EditTemplateDialog_title_Edit: Messages.EditTemplateDialog_title_New;
-		setTitle(title);
+		setTitle(edit ?
+				Messages.EditTemplateDialog_title_Edit :
+				Messages.EditTemplateDialog_title_New );
 		
 		fOriginalTemplate = template;
 		fIsNameModifiable = isNameModifiable;
@@ -121,11 +121,6 @@ public class EditTemplateDialog extends StatusDialog {
 		fTemplateProcessor.setContextType(type);
 		fConfigurator = configuration;
 		fPatternEditor = new SnippetEditor(fConfigurator, template.getPattern(), PlatformUI.getWorkbench());
-	}
-	
-	@Override
-	protected boolean isResizable() {
-		return true;
 	}
 	
 	
@@ -244,9 +239,11 @@ public class EditTemplateDialog extends StatusDialog {
 		assistAction.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
 		fPatternEditor.addAction(assistAction); 
 		
+		LayoutUtil.addSmallFiller(dialogArea, false);
 		applyDialogFont(dialogArea);
 		return composite;
 	}
+	
 	
 /* GUI Methods ****************************************************************/
 	

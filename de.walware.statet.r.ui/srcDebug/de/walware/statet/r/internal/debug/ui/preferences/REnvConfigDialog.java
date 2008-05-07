@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -58,6 +57,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.databinding.DirtyTracker;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 
@@ -68,7 +68,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 /**
  * Dialog for an {@link REnvConfiguration}
  */
-public class REnvConfigDialog extends StatusDialog {
+public class REnvConfigDialog extends ExtStatusDialog {
 	
 	
 	private static final Integer T_64 = Integer.valueOf(64);
@@ -140,7 +140,6 @@ public class REnvConfigDialog extends StatusDialog {
 			final REnvPreferencePage.REnvConfig config, final boolean isNewConfig, 
 			final Collection<REnvConfiguration> existingConfigs) {
 		super(parent);
-		setShellStyle(getShellStyle() | SWT.RESIZE);
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
@@ -148,7 +147,9 @@ public class REnvConfigDialog extends StatusDialog {
 		for (final REnvConfiguration ec : existingConfigs) {
 			fExistingNames.add(ec.getName());
 		}
-		setTitle(fIsNewConfig ? Messages.REnv_Detail_AddDialog_title : Messages.REnv_Detail_Edit_Dialog_title);
+		setTitle(fIsNewConfig ?
+				Messages.REnv_Detail_AddDialog_title : 
+				Messages.REnv_Detail_Edit_Dialog_title );
 	}
 	
 	
@@ -172,7 +173,7 @@ public class REnvConfigDialog extends StatusDialog {
 			label.setText(Messages.REnv_Detail_Location_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			fRHomeControl = new RHomeComposite(dialogArea);
-			fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+			fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
 		{	// Type (Bits):
 			final Label label = new Label(dialogArea, SWT.LEFT);
@@ -189,6 +190,7 @@ public class REnvConfigDialog extends StatusDialog {
 			fRBitViewer.setInput(new Integer[] { T_32, T_64 });
 		}
 		
+		LayoutUtil.addSmallFiller(dialogArea, true);
 		applyDialogFont(dialogArea);
 		initBindings();
 		return dialogArea;
