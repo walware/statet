@@ -105,9 +105,9 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 	
 	
 	public RCodeTemplatesContextType(final String contextName) {
-		
 		super(contextName);
 		
+		addCommonVariables();
 		if (NEW_RSCIRPTFILE_CONTEXTTYPE.equals(contextName)) {
 			addRUnitVariables();
 			addInitialSelectionResolver();

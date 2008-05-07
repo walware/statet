@@ -32,9 +32,9 @@ public class RdCodeTemplatesContextType extends StatextCodeTemplatesContextType 
 	
 	
 	public RdCodeTemplatesContextType(final String contextName) {
-		
 		super(contextName);
 		
+		addCommonVariables();
 		if (NEW_RDOCFILE_CONTEXTTYPE.equals(contextName)) {
 			addRUnitVariables();
 			addInitialSelectionResolver();

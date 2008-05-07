@@ -12,6 +12,7 @@
 package de.walware.statet.base.ui.sourceeditors;
 
 import org.eclipse.compare.CompareConfiguration;
+import org.eclipse.compare.IEditableContent;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -49,7 +50,7 @@ public class CompareTextViewer extends Viewer {
 		}
 		
 		public boolean isEditable(final boolean validate) {
-			return false;
+			return (fInput instanceof IEditableContent && ((IEditableContent) fInput).isEditable());
 		}
 		
 		public void setStatusLineErrorMessage(final String message) {

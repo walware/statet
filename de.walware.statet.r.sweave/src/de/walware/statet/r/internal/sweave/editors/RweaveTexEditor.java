@@ -31,6 +31,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
@@ -192,6 +193,12 @@ public class RweaveTexEditor extends REditor {
 	@Override
 	public ISourceUnit getSourceUnit() {
 		return fDocUnit;
+	}
+	
+	
+	@Override
+	protected ITemplatesPage createTemplatesPage() {
+		return new RweaveTexEditorTemplatesPage(this, getSourceViewer());
 	}
 	
 }

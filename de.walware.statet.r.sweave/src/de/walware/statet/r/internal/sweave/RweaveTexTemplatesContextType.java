@@ -39,6 +39,7 @@ public class RweaveTexTemplatesContextType extends StatextCodeTemplatesContextTy
 	public RweaveTexTemplatesContextType(final String contextName) {
 		super(contextName);
 		
+		addCommonVariables();
 		if (NEW_RWEAVETEX_CONTEXTTYPE.equals(contextName)) {
 			addRUnitVariables();
 			addInitialSelectionResolver();

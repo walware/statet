@@ -78,18 +78,22 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 	
 	
 /* context types **************************************************************/
-	public static final String RSCIRPT_CONTEXTTYPE = "rscript"; //$NON-NLS-1$
+	
+	/**
+	 * Common context for R source code.
+	 */
+	public static final String RCODE_CONTEXTTYPE = "r-code"; //$NON-NLS-1$
 	
 	
-	public REditorTemplatesContextType(final String contextName) {
+	public REditorTemplatesContextType(final String id, final String name) {
+		super(id, name);
 		
-		super(contextName);
-		
+		addCommonVariables();
 		addResolver(new GlobalTemplateVariables.Cursor());
 		addResolver(new GlobalTemplateVariables.WordSelection());
 		addResolver(new GlobalTemplateVariables.LineSelection());
 		
-		if (RSCIRPT_CONTEXTTYPE.equals(contextName)) {
+		if (RCODE_CONTEXTTYPE.equals(id)) {
 //			addResolver(new VectorVar());
 //			addResolver(new XVar());
 //			addResolver(new IndexVar());
@@ -99,7 +103,7 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 	}
 	
 	public static void registerContextTypes(final ContextTypeRegistry registry) {
-		registry.addContextType(new REditorTemplatesContextType(RSCIRPT_CONTEXTTYPE));
+		registry.addContextType(new REditorTemplatesContextType(RCODE_CONTEXTTYPE, "R Code"));
 	}
 	
 }

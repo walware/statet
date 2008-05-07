@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
@@ -63,11 +62,12 @@ import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.base.ui.util.SettingsUpdater;
+import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
 import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 
@@ -176,8 +176,10 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	private int fPatternViewerConfiguredCategory = -1;
 	private SourceViewerUpdater fPatternViewerUpdater = null;
 	private SourceViewerConfigurator fPatternConfigurator;
+	private IEditorAdapter fPatternEditor;
 	
-	private TemplateVariableProcessor fTemplateProcessor;
+	private TemplateVariableProcessor fPatternTemplateProcessor;
+	private TemplateVariableProcessor fEditTemplateProcessor;
 	
 	
 	public CodeGenerationTemplatesConfigurationBlock(final IProject project) throws CoreException {
@@ -186,7 +188,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		loadRegisteredTemplates();
 		fGroup.generateListModel();
 		
-		fTemplateProcessor = new TemplateVariableProcessor();
+		fPatternTemplateProcessor = new TemplateVariableProcessor();
+		fEditTemplateProcessor = new TemplateVariableProcessor();
 	}
 	
 	private void loadRegisteredTemplates() {
@@ -294,11 +297,11 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		final IDocument document = new Document();
 		viewer.setDocument(document);
 		
-		final Control control = viewer.getControl();
 		final GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.heightHint = new PixelConverter(control).convertHeightInCharsToPixels(5);
-		control.setLayoutData(data);
+		data.heightHint = new PixelConverter(viewer.getControl()).convertHeightInCharsToPixels(5);
+		viewer.getControl().setLayoutData(data);
 		
+		fPatternEditor = new ViewerEditorAdapter(viewer, null);
 		new SettingsUpdater(new ISettingsChangedHandler() {
 			public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
 				if (fPatternConfigurator != null) {
@@ -306,7 +309,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 				}
 				return false;
 			}
-		}, control);
+		}, viewer.getControl());
 		
 		return viewer;
 	}
@@ -321,8 +324,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 			final Template template = data.getTemplate();
 			
 			final TemplateContextType type = category.getContextTypeRegistry().getContextType(template.getContextTypeId());
-			fTemplateProcessor.setContextType(type);
-			fPatternConfigurator = category.getEditTemplateDialogConfiguator(fTemplateProcessor, fProject);
+			fPatternTemplateProcessor.setContextType(type);
 			
 			if (item.getCategoryIndex() != fPatternViewerConfiguredCategory) {
 				fPatternViewerConfiguredCategory = item.getCategoryIndex();
@@ -331,11 +333,16 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 					fPatternViewerUpdater.unregister();
 					fPatternViewerUpdater = null;
 				}
-				fPatternViewer.unconfigure();
+				if (fPatternConfigurator != null) {
+					fPatternConfigurator.unconfigureTarget();
+					fPatternConfigurator = null;
+				}
 				
-				final StatextSourceViewerConfiguration configuration = fPatternConfigurator.getSourceViewerConfiguration();
-				fPatternViewer.configure(configuration);
-				fPatternViewerUpdater = new SourceViewerUpdater(fPatternViewer, configuration, fPatternConfigurator.getPreferenceStore());
+				fPatternConfigurator = category.getEditTemplateDialogConfiguator(fPatternTemplateProcessor, fProject);
+				fPatternConfigurator.setTarget(fPatternEditor, true);
+				fPatternViewerUpdater = new SourceViewerUpdater(fPatternViewer, 
+						fPatternConfigurator.getSourceViewerConfiguration(), 
+						fPatternConfigurator.getPreferenceStore());
 				
 				final IDocument document = new Document(template.getPattern());
 				fPatternConfigurator.getDocumentSetupParticipant().setup(document);
@@ -356,8 +363,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	public void doEdit(final TemplateItem item) {
 		final EditTemplateDialog dialog = new EditTemplateDialog(
 				getShell(), item.fData.getTemplate(), true, false,
-				fCategoryProvider[item.getCategoryIndex()].getEditTemplateDialogConfiguator(fTemplateProcessor, fProject),
-				fTemplateProcessor,
+				fCategoryProvider[item.getCategoryIndex()].getEditTemplateDialogConfiguator(fEditTemplateProcessor, fProject),
+				fEditTemplateProcessor,
 				fCategoryProvider[item.getCategoryIndex()].getContextTypeRegistry());
 		if (dialog.open() == Window.OK) {
 			// changed

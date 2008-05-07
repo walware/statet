@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -184,6 +185,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 		fCommandEditors = new SnippetEditor[fContentHandler.length];
 		
 		final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
+		// templateVariableProcessor does not work without context type, but prevents NPE etc. by use of RTemplateSourceViewerConfiguration
+		// templateVariableProcessor.setContextType(contextType);
 		
 		for (int i = 0; i < fContentHandler.length; i++) {
 			final IContentType contentType = manager.getContentType(fContentHandler[i].getContentTypeId());
@@ -195,12 +198,9 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
-			fCommandEditors[i] = new SnippetEditor(configurator);
+			fCommandEditors[i] = new SnippetEditor(configurator, fContentHandler[i].getCurrentFileCommand(), PlatformUI.getWorkbench());
 			fCommandEditors[i].create(group, SnippetEditor.DEFAULT_SINGLE_LINE_STYLE);
 			fCommandEditors[i].getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			
-			fCommandEditors[i].getDocument().set(fContentHandler[i].getCurrentFileCommand());
-			fCommandEditors[i].reset();
 		}
 		return group;
 	}

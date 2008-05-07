@@ -48,7 +48,6 @@ import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.RChunkTemplatesCompletionProcessor;
 import de.walware.statet.r.internal.sweave.Rweave;
@@ -66,21 +65,6 @@ import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
  * Default Configuration for SourceViewer of Sweave (LaTeX/R) code.
  */
 public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfiguration {
-	
-	
-	private static final boolean isRPartition(final String contentType) {
-		return (contentType.equals(IRDocumentPartitions.R_DEFAULT_EXPL)
-				|| contentType.equals(IRDocumentPartitions.R_INFIX_OPERATOR)
-				|| contentType.equals(IRDocumentPartitions.R_STRING)
-				|| contentType.equals(IRDocumentPartitions.R_COMMENT)
-				);
-	}
-	
-	private static final boolean isChunkControlPartition(final String contentType) {
-		return (contentType.equals(Rweave.CHUNK_CONTROL_CONTENT_TYPE)
-				|| contentType.equals(Rweave.CHUNK_COMMENT_CONTENT_TYPE)
-				);
-	}
 	
 	
 	private static class RChunkAutoEditStrategy extends RAutoEditStrategy {
@@ -205,7 +189,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
-		if (isRPartition(contentType) || isChunkControlPartition(contentType)) {
+		if (Rweave.isRPartition(contentType) || Rweave.isChunkControlPartition(contentType)) {
 			if (fRDoubleClickStrategy == null) {
 				fRDoubleClickStrategy = new RDoubleClickStrategy(Rweave.R_TEX_PARTITIONING);
 			}
@@ -258,7 +242,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public String[] getDefaultPrefixes(final ISourceViewer sourceViewer, final String contentType) {
-		if (isRPartition(contentType)) {
+		if (Rweave.isRPartition(contentType)) {
 			return fRConfig.getDefaultPrefixes(sourceViewer, contentType);
 		}
 		return new String[] { "%", "" }; //$NON-NLS-1$ //$NON-NLS-2$
@@ -266,10 +250,10 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public String[] getIndentPrefixes(final ISourceViewer sourceViewer, final String contentType) {
-		if (isChunkControlPartition(contentType)) {
+		if (Rweave.isChunkControlPartition(contentType)) {
 			return new String[0];
 		}
-		if (isRPartition(contentType)) {
+		if (Rweave.isRPartition(contentType)) {
 			return fRConfig.getIndentPrefixes(sourceViewer, contentType);
 		}
 		return super.getIndentPrefixes(sourceViewer, contentType);
@@ -313,7 +297,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
-		if (isRPartition(contentType)) {
+		if (Rweave.isRPartition(contentType)) {
 			return fRConfig.getAutoEditStrategies(sourceViewer, contentType);
 		}
 		return super.getAutoEditStrategies(sourceViewer, contentType);

@@ -73,8 +73,7 @@
          point="org.eclipse.ui.editors.templates">
       <include
             file="templates/default-code-templates.xml"
-            translations="templates/default-templates.properties">
-      </include>
+            translations="templates/default-templates.properties"/>
       <include
             file="templates/default-reditor-templates.xml"
             translations="templates/default-templates.properties"/>

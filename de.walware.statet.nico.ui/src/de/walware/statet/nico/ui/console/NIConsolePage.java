@@ -570,7 +570,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			public void dispose() {
 				if (UIAccess.isOkToUse(fControl)) {
 					fControl.dispose();
-					dispose();
+					NIConsolePage.this.dispose();
 				}
 			}
 		});

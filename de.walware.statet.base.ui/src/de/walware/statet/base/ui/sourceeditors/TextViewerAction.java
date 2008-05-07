@@ -27,7 +27,6 @@ import de.walware.eclipsecommons.ui.SharedMessages;
  * <p>
  * Clients may subclass this class.
  * </p>
- * @since 3.0
  */
 public class TextViewerAction extends Action implements IUpdate {
 	
@@ -66,7 +65,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	
 	
 	public static TextViewerAction createDeleteAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.DELETE);
 		action.setId(ActionFactory.DELETE.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.DELETE);
@@ -76,7 +74,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	}
 	
 	public static TextViewerAction createCutAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.CUT);
 		action.setId(ActionFactory.CUT.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.CUT);
@@ -86,7 +83,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	}
 	
 	public static TextViewerAction createCopyAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.COPY);
 		action.setId(ActionFactory.COPY.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.COPY);
@@ -96,7 +92,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	}
 	
 	public static TextViewerAction createPasteAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.PASTE);
 		action.setId(ActionFactory.PASTE.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);
@@ -106,7 +101,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	}
 	
 	public static TextViewerAction createSelectAllAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.SELECT_ALL);
 		action.setId(ActionFactory.SELECT_ALL.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.SELECT_ALL);
@@ -116,7 +110,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	}
 	
 	public static TextViewerAction createUndoAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.UNDO);
 		action.setId(ActionFactory.UNDO.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.UNDO);
@@ -126,7 +119,6 @@ public class TextViewerAction extends Action implements IUpdate {
 	}
 	
 	public static TextViewerAction createRedoAction(final ITextViewer viewer) {
-		
 		final TextViewerAction action = new TextViewerAction(viewer, ITextOperationTarget.REDO);
 		action.setId(ActionFactory.REDO.getId());
 		action.setActionDefinitionId(IWorkbenchActionDefinitionIds.REDO);

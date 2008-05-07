@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,8 +28,8 @@ import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.base.ui.util.SettingsUpdater;
+import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
@@ -64,24 +64,26 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	}
 	
 	@Override
-	public void setVisible(boolean visible) {
+	public void setVisible(final boolean visible) {
 		super.setVisible(visible);
 		setTitle(Messages.REditorTemplates_title);
 	}
 	
 	@Override
-	protected SourceViewer createViewer(Composite parent) {
-		SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+	protected SourceViewer createViewer(final Composite parent) {
+		final SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setEditable(false);	
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 		
-		StatextSourceViewerConfiguration configuration = fViewerConfigurator.getSourceViewerConfiguration();
-		viewer.configure(configuration);
+		final ViewerEditorAdapter adapter = new ViewerEditorAdapter(viewer, null);
+		fViewerConfigurator.setTarget(adapter, true);
 		// updater
 		new SettingsUpdater(fViewerConfigurator, viewer.getControl());
-		new SourceViewerUpdater(viewer, configuration, fViewerConfigurator.getPreferenceStore());
+		new SourceViewerUpdater(viewer, 
+				fViewerConfigurator.getSourceViewerConfiguration(), 
+				fViewerConfigurator.getPreferenceStore());
 		
-		IDocument document = new Document();
+		final IDocument document = new Document();
 		fViewerConfigurator.getDocumentSetupParticipant().setup(document);
 		viewer.setDocument(document);
 		
@@ -92,13 +94,13 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	protected void updateViewerInput() {
 		super.updateViewerInput();
 		
-		IStructuredSelection selection = (IStructuredSelection) getTableViewer().getSelection();
+		final IStructuredSelection selection = (IStructuredSelection) getTableViewer().getSelection();
 		
 		if (selection.size() == 1) {
-			TemplatePersistenceData data = (TemplatePersistenceData) selection.getFirstElement();
-			Template template = data.getTemplate();
+			final TemplatePersistenceData data = (TemplatePersistenceData) selection.getFirstElement();
+			final Template template = data.getTemplate();
 //			fPatternViewer.getDocument().set(template.getPattern());
-			TemplateContextType type = getContextTypeRegistry().getContextType(template.getContextTypeId());
+			final TemplateContextType type = getContextTypeRegistry().getContextType(template.getContextTypeId());
 			fTemplateProcessor.setContextType(type);
 		} else {
 //			fPatternViewer.getDocument().set(""); //$NON-NLS-1$
@@ -106,8 +108,8 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	}
 	
 	@Override
-	protected Template editTemplate(Template template, boolean edit, boolean isNameModifiable) {
-		de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
+	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
+		final de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
 				getShell(), template, edit, isNameModifiable, 
 				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry());
 		if (dialog.open() == Dialog.OK) {

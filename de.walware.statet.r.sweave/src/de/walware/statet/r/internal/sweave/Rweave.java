@@ -90,4 +90,27 @@ public class Rweave {
 	public static final MultiCatDocumentUtil R_TEX_CAT_UTIL = new MultiCatDocumentUtil(
 			R_TEX_PARTITIONING, new String[] { TEX_CAT, R_CAT });
 	
+	
+	public static final boolean isChunkControlPartition(final String contentType) {
+		return (contentType == Rweave.CHUNK_CONTROL_CONTENT_TYPE
+				|| contentType == Rweave.CHUNK_COMMENT_CONTENT_TYPE
+				);
+	}
+	
+	public static final boolean isRPartition(final String contentType) {
+		return (contentType == IRDocumentPartitions.R_DEFAULT_EXPL
+				|| contentType == IRDocumentPartitions.R_STRING
+				|| contentType == IRDocumentPartitions.R_COMMENT
+				|| contentType == IRDocumentPartitions.R_INFIX_OPERATOR
+				);
+	}
+	
+	public static final boolean isTexPartition(final String contentType) {
+		return (contentType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
+				|| contentType == ITexDocumentConstants.TEX_MATH_CONTENT_TYPE
+				|| contentType == ITexDocumentConstants.TEX_VERBATIM
+				|| contentType == ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE
+				);
+	}
+	
 }

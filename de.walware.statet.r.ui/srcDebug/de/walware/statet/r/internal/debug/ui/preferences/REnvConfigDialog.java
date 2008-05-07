@@ -58,6 +58,7 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.databinding.DirtyTracker;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -153,40 +154,44 @@ public class REnvConfigDialog extends StatusDialog {
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite content = (Composite) super.createDialogArea(parent);
-		((GridData) content.getLayoutData()).widthHint = convertWidthInCharsToPixels(100);
-		((GridLayout) content.getLayout()).numColumns = 2;
+		final Composite dialogArea = new Composite(parent, SWT.NONE);
+		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
 		
-		Label label;
+		{	// Name:
+			final Label label = new Label(dialogArea, SWT.LEFT);
+			label.setText(Messages.REnv_Detail_Name_label+':');
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			fNameControl = new Text(dialogArea, SWT.SINGLE | SWT.BORDER);
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
+			fNameControl.setLayoutData(gd);
+		}
+		{	// Location:
+			final Label label = new Label(dialogArea, SWT.LEFT);
+			label.setText(Messages.REnv_Detail_Location_label+':');
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			fRHomeControl = new RHomeComposite(dialogArea);
+			fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		}
+		{	// Type (Bits):
+			final Label label = new Label(dialogArea, SWT.LEFT);
+			label.setText(Messages.REnv_Detail_Bits_label+':');
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			fRBitViewer = new ComboViewer(dialogArea);
+			fRBitViewer.setContentProvider(new ArrayContentProvider());
+			fRBitViewer.setLabelProvider(new LabelProvider() {
+				@Override
+				public String getText(final Object element) {
+					return ((Integer) element).toString() + "-bit"; //$NON-NLS-1$
+				}
+			});
+			fRBitViewer.setInput(new Integer[] { T_32, T_64 });
+		}
 		
-		label = new Label(content, SWT.LEFT);
-		label.setText(Messages.REnv_Detail_Name_label+':');
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		fNameControl = new Text(content, SWT.SINGLE | SWT.BORDER);
-		fNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-		
-		label = new Label(content, SWT.LEFT);
-		label.setText(Messages.REnv_Detail_Location_label+':');
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		fRHomeControl = new RHomeComposite(content);
-		fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		label = new Label(content, SWT.LEFT);
-		label.setText(Messages.REnv_Detail_Bits_label+':');
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		fRBitViewer = new ComboViewer(content);
-		fRBitViewer.setContentProvider(new ArrayContentProvider());
-		fRBitViewer.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(final Object element) {
-				return ((Integer) element).toString() + "-bit"; //$NON-NLS-1$
-			}
-		});
-		fRBitViewer.setInput(new Integer[] { T_32, T_64 });
-		
-		applyDialogFont(content);
+		applyDialogFont(dialogArea);
 		initBindings();
-		return content;
+		return dialogArea;
 	}
 	
 	private void initBindings() {

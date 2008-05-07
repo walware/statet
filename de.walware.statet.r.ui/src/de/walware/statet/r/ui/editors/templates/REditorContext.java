@@ -48,11 +48,11 @@ import de.walware.statet.r.ui.editors.REditor;
 public class REditorContext extends DocumentTemplateContext implements IExtTemplateContext {
 	
 	
-	private REditor fEditor;
+	private StatextEditor1 fEditor;
 	
 	
 	public REditorContext(final TemplateContextType type, final IDocument document,	final int offset, final int length,
-			final REditor editor) {
+			final StatextEditor1 editor) {
 		super(type, document, offset, length);
 		fEditor = editor;
 	}
@@ -148,7 +148,8 @@ public class REditorContext extends DocumentTemplateContext implements IExtTempl
 		if ("selection".equals(name) && value != null && value.length() > 0) { //$NON-NLS-1$
 			try {
 				final IDocument valueDoc = new Document(value);
-				final RIndentUtil util = new RIndentUtil(valueDoc, fEditor.getRCoreAccess().getRCodeStyle());
+				
+				final RIndentUtil util = new RIndentUtil(valueDoc, REditor.getRCoreAccess(fEditor).getRCodeStyle());
 				final int column = util.getMultilineIndentColumn(0, valueDoc.getNumberOfLines()-1);
 				if (column > 0) {
 					final IndentEditAction action = new IndentEditAction(column) {

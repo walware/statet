@@ -133,10 +133,16 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 	public static final String FILENAME = "file_name"; //$NON-NLS-1$
 	
 	
+	public StatextCodeTemplatesContextType(final String id, final String name) {
+		super(id, name);
+	}
+	
 	public StatextCodeTemplatesContextType(final String id) {
 		super(id);
-		
-		// Global
+	}
+	
+	
+	protected void addCommonVariables() {
 		addResolver(new GlobalTemplateVariables.Dollar());
 		addResolver(new GlobalTemplateVariables.Date());
 		addResolver(new GlobalTemplateVariables.Year());
@@ -145,7 +151,6 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		addResolver(new Todo());
 		addResolver(new Project());
 	}
-	
 	
 	protected void addInitialSelectionResolver() {
 		addResolver(new InitialSelectionStart());

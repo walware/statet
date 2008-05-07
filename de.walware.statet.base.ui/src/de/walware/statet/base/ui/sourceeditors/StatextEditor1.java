@@ -61,6 +61,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.texteditor.TextEditorAction;
+import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
@@ -442,8 +443,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	protected PostSelectionWithElementInfoController fModelPostSelection;
 	protected volatile Point fCurrentSelection;
 	
-	/** The outline page */
+	/** The outline page of this editor */
 	private StatextOutlinePage fOutlinePage;
+	
+	/** The templates page of this editor */
+	private ITemplatesPage fTemplatesPage;
 	
 	private SelectionHistory fSelectionHistory;
 	private Preference<Boolean> fFoldingEnablement;
@@ -847,6 +851,12 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			}
 			return fOutlinePage;
 		}
+		if (ITemplatesPage.class.equals(required)) {
+			if (fTemplatesPage == null) {
+				fTemplatesPage = createTemplatesPage();
+			}
+			return fTemplatesPage;
+		}
 		if (ISourceViewer.class.equals(required)) {
 			return getSourceViewer();
 		}
@@ -899,6 +909,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			fOutlinePage = null;
 			resetHighlightRange();
 		}
+	}
+	
+	protected ITemplatesPage createTemplatesPage() {
+		return null;
 	}
 	
 	

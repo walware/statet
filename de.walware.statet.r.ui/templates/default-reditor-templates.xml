@@ -14,8 +14,8 @@
 
 <templates>
 
-<template id="rscript.else" 
-	context="rscript" 
+<template id="r-code.else" 
+	context="r-code" 
 	name="else"
 	description="else statement" 
 	autoinsert="false" 
@@ -23,8 +23,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.elseif"
-	context="rscript" 
+<template id="r-code.elseif"
+	context="r-code" 
 	name="elseif"
 	description="else if statement" 
 	autoinsert="false" 
@@ -32,8 +32,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.for"
-	context="rscript" 
+<template id="r-code.for"
+	context="r-code" 
 	name="for"
 	description="iterate over a vector" 
 	autoinsert="false" 
@@ -41,8 +41,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.for.index"
-	context="rscript" 
+<template id="r-code.for.index"
+	context="r-code" 
 	name="for"
 	description="iterate with index over a vector" 
 	autoinsert="false" 
@@ -50,8 +50,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.function"
-	context="rscript" 
+<template id="r-code.function"
+	context="r-code" 
 	name="function"
 	description="function definition" 
 	autoinsert="false" 
@@ -59,8 +59,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.if"
-	context="rscript" 
+<template id="r-code.if"
+	context="r-code" 
 	name="if"
 	description="if statement" 
 	autoinsert="false" 
@@ -68,8 +68,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.ifelse"
-	context="rscript" 
+<template id="r-code.ifelse"
+	context="r-code" 
 	name="ifelse"
 	description="if else statement" 
 	autoinsert="false" 
@@ -79,8 +79,8 @@
 	
 }</template>
 
-<template id="rscript.repeat"
-	context="rscript" 
+<template id="r-code.repeat"
+	context="r-code" 
 	name="repeat"
 	description="repeat loop statement" 
 	autoinsert="false" 
@@ -88,8 +88,8 @@
 	${line_selection}${cursor}
 }</template>
 
-<template id="rscript.while"
-	context="rscript" 
+<template id="r-code.while"
+	context="r-code" 
 	name="while"
 	description="while loop statement" 
 	autoinsert="false" 

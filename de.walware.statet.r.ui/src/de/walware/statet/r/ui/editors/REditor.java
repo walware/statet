@@ -44,6 +44,7 @@ import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
+import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
 import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
@@ -73,11 +74,17 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RDoubleCommentAction;
+import de.walware.statet.r.internal.ui.editors.REditorTemplatesPage;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUIHelp;
 
 
 public class REditor extends StatextEditor1<RProject> {
+	
+	public static IRCoreAccess getRCoreAccess(final StatextEditor1 editor) {
+		final IRCoreAccess adapter = (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
+		return (adapter != null) ? adapter : RCore.getWorkbenchAccess();
+	}
 	
 	
 	private class MarkOccurrencesProvider implements IEditorInstallable, ISelectionWithElementInfoListener {
@@ -466,7 +473,7 @@ public class REditor extends StatextEditor1<RProject> {
 		return fRUnit;
 	}
 	
-	public IRCoreAccess getRCoreAccess() {
+	protected IRCoreAccess getRCoreAccess() {
 		return fRConfig;
 	}
 	
@@ -479,6 +486,11 @@ public class REditor extends StatextEditor1<RProject> {
 			return getRCoreAccess();
 		}
 		return super.getAdapter(required);
+	}
+	
+	@Override
+	protected ITemplatesPage createTemplatesPage() {
+		return new REditorTemplatesPage(this, getSourceViewer());
 	}
 	
 }
