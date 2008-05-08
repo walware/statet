@@ -79,6 +79,9 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_Resource_Package_label;
 	public static String RCmd_LaunchDelegate_Running_label;
 	
+	public static String JavaJRE_RCompatibility_error_DifferentBits_message;
+	public static String JavaJRE_Tab_VMArguments_label;
+	
 	// Console
 	public static String TextConsoleConnector_error_NoConsole_message;
 	public static String TextConsoleConnector_error_Other_message;

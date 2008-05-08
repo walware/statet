@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.debug.ui.launchconfigs;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
@@ -121,6 +122,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	private WritableValue fREnvSettingValue;
 	private WritableValue fWorkingDirectoryValue;
+	private Binding fREnvBinding;
 	
 	
 	public REnvTab() {
@@ -167,7 +169,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		fREnvSettingValue = new WritableValue(realm, null, String.class);
 		fWorkingDirectoryValue = new WritableValue(realm, null, String.class);
 		
-		dbc.bindValue(fREnvControl.createObservable(realm), fREnvSettingValue,
+		fREnvBinding = dbc.bindValue(fREnvControl.createObservable(realm), fREnvSettingValue,
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fREnvControl.createValidator(dbc))),
 				null);
@@ -208,6 +210,20 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, code);
 		configuration.setAttribute(NEW_RENV_ID, code);
 		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, (String) fWorkingDirectoryValue.getValue());
+	}
+	
+	
+	public REnvConfiguration getSelectedEnv() {
+		if (fREnvBinding != null) {
+			final IStatus validationStatus = (IStatus) fREnvBinding.getValidationStatus().getValue();
+			if (validationStatus != null && validationStatus.getSeverity() < IStatus.WARNING) { // note: warning means error which can be saved
+				final REnvSetting setting = REnvSetting.decodeType((String) fREnvSettingValue.getValue(), false);
+				if (setting != null) {
+					return REnvSetting.resolveREnv(setting);
+				}
+			}
+		}
+		return null;
 	}
 	
 }
