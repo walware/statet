@@ -37,7 +37,7 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.eclipsecommons.ui.ControlNestedServices;
+import de.walware.eclipsecommons.ui.ControlServicesUtil;
 
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
@@ -99,8 +99,8 @@ public class SnippetEditor extends Object {
 	private Map<String, Action> fGlobalActions;
 	private Updater fUpdater;
 	
-	private IServiceLocator fServiceParent;
-	private ControlNestedServices fServiceUtil;
+	private IServiceLocator fServiceLocator;
+	private ControlServicesUtil fServiceUtil;
 	
 	
 	/**
@@ -117,7 +117,7 @@ public class SnippetEditor extends Object {
 		fConfigurator = configurator;
 		fDocument = (initialContent != null) ? new Document(initialContent) : new Document();
 		fConfigurator.getDocumentSetupParticipant().setup(fDocument);
-		fServiceParent = serviceParent;
+		fServiceLocator = serviceParent;
 	}
 	
 	
@@ -150,7 +150,7 @@ public class SnippetEditor extends Object {
 		fGlobalActions.put(action.getId(), action);
 		final String commandId = action.getActionDefinitionId();
 		if (fServiceUtil != null && commandId != null) {
-			fServiceUtil.getHandlerService().activateHandler(commandId, new ActionHandler(action));
+			fServiceUtil.activateHandler(commandId, new ActionHandler(action));
 		}
 	}
 	
@@ -161,8 +161,9 @@ public class SnippetEditor extends Object {
 	private void initActions() {
 		fGlobalActions = new HashMap<String, Action>(10);
 		
-		if (fServiceParent != null) {
-			fServiceUtil = new ControlNestedServices(getSourceViewer().getControl(), fServiceParent);
+		if (fServiceLocator != null) {
+			fServiceUtil = new ControlServicesUtil(fServiceLocator, this.getClass().toString()+'#'+hashCode(), getSourceViewer().getControl());
+			fServiceUtil.addControl(getSourceViewer().getControl());
 		}
 		
 		// default actions
