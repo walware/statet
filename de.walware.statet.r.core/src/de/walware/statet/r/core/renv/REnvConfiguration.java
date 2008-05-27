@@ -324,7 +324,15 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		envp.put("PATH", //$NON-NLS-1$
 				FileUtil.expandToLocalPath(getRHome(), "bin").toOSString() + //$NON-NLS-1$
 						File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
-		if (!Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+			// libs in path
+		}
+		else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
+			envp.put("DYLD_LIBRARY_PATH", //$NON-NLS-1$
+					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
+							File.pathSeparatorChar + "${env_var:DYLD_LIBRARY_PATH}"); //$NON-NLS-1$ 
+		}
+		else {
 			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
 					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
 							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH}"); //$NON-NLS-1$ 
