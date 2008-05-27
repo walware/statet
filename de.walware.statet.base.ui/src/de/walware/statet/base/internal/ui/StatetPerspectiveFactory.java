@@ -17,6 +17,7 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.progress.IProgressConstants;
+import org.eclipse.ui.texteditor.templates.TemplatesView;
 
 
 public class StatetPerspectiveFactory implements IPerspectiveFactory {
@@ -36,19 +37,23 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 	public void createInitialLayout(final IPageLayout layout) {
 		final String editorArea = layout.getEditorArea();
 		
-		final IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
-		folder.addView(ProjectExplorer.VIEW_ID);
-		folder.addPlaceholder(IPageLayout.ID_RES_NAV);
+		final IFolderLayout leftFolder = layout.createFolder("left", IPageLayout.LEFT, 0.25f, editorArea); //$NON-NLS-1$
+		leftFolder.addView(ProjectExplorer.VIEW_ID);
+		leftFolder.addPlaceholder(IPageLayout.ID_RES_NAV);
 		
 		final IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.75f, editorArea); //$NON-NLS-1$
 		outputfolder.addView(IPageLayout.ID_TASK_LIST);
+		outputfolder.addView(ID_CONSOLE_VIEW);
 		outputfolder.addPlaceholder(IPageLayout.ID_PROBLEM_VIEW);
 		outputfolder.addPlaceholder(ID_SEARCH_VIEW);
-		outputfolder.addPlaceholder(ID_CONSOLE_VIEW);
 		outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
 		outputfolder.addPlaceholder(IProgressConstants.PROGRESS_VIEW_ID);
 		
-		layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, 0.75f, editorArea);
+		final IFolderLayout editorAddonFolder = layout.createFolder("editor-additions", IPageLayout.RIGHT, 0.75f, editorArea); //$NON-NLS-1$
+		editorAddonFolder.addView(IPageLayout.ID_OUTLINE);
+		editorAddonFolder.addPlaceholder(TemplatesView.ID);
+		
+//		layout.createPlaceholderFolder("console-additions", IPageLayout.BOTTOM, 0.80f, "left"); //$NON-NLS-1$
 		
 		layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
 		layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
@@ -60,10 +65,11 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		layout.addShowViewShortcut(ID_CONSOLE_VIEW);
 		
 		// views - standard workbench
+		layout.addShowViewShortcut(ProjectExplorer.VIEW_ID);
 		layout.addShowViewShortcut(IPageLayout.ID_OUTLINE);
+		layout.addShowViewShortcut(TemplatesView.ID);
 		layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
 		layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
-		layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 		
 		// new actions
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
