@@ -146,6 +146,13 @@
          <viewShortcut
                id="de.walware.statet.nico.views.HistoryView">
          </viewShortcut>
+         <view
+               id="de.walware.statet.nico.views.HistoryView"
+               ratio="0.75"
+               relationship="bottom"
+               relative="left"
+               visible="false">
+         </view>
       </perspectiveExtension>
    </extension>
    <extension

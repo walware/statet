@@ -443,41 +443,34 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		final IRegion validRegion = fValidRange;
 		
 		// new algorithm using RSourceIndenter
-		String append;
-		int cEnd = c.offset+c.length;
+		final int cEnd = c.offset+c.length;
 		if (cEnd > validRegion.getOffset()+validRegion.getLength()) {
 			return tracePos;
 		}
-		final IRegion cEndLine = fDocument.getLineInformationOfOffset(cEnd);
-		int tempEnd = cEndLine.getOffset()+cEndLine.getLength();
-		if (tempEnd > validRegion.getOffset()+validRegion.getLength()) {
-			tempEnd = validRegion.getOffset()+validRegion.getLength();
-		}
 		fScanner.configure(fDocument, null);
+		final int smartEnd;
+		final String smartAppend;
 		if (endsWithNewLine(c.text)) {
-			final int nextCharOffset = fScanner.findNonBlankForward(cEnd, tempEnd, false);
-			int nextChar;
-			if (nextCharOffset >= 0) {
-				nextChar = fScanner.getChar();
-				cEnd = nextCharOffset;
-			}
-			else {
-				nextChar = -1;
-			}
-			switch(nextChar) {
+			final IRegion cEndLine = fDocument.getLineInformationOfOffset(cEnd);
+			final int validEnd = (cEndLine.getOffset()+cEndLine.getLength() <= validRegion.getOffset()+validRegion.getLength()) ?
+					cEndLine.getOffset()+cEndLine.getLength() : validRegion.getOffset()+validRegion.getLength();
+			final int next = fScanner.findNonBlankForward(cEnd, validEnd, false);
+			smartEnd = (next >= 0) ? next : validEnd;
+			switch(fScanner.getChar()) {
 			case '}':
 			case '{':
 			case '|':
 			case '&':
-				append = ""; //$NON-NLS-1$
+				smartAppend = ""; //$NON-NLS-1$
 				break;
 			default:
-				append = "DUMMY+"; //$NON-NLS-1$
+				smartAppend = "DUMMY+"; //$NON-NLS-1$
 				break;
 			}
 		}
 		else {
-			append = ""; //$NON-NLS-1$
+			smartEnd = cEnd;
+			smartAppend = ""; //$NON-NLS-1$
 		}
 		
 		int shift = 0;
@@ -498,19 +491,33 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		if (shift < validRegion.getOffset()) {
 			shift = validRegion.getOffset();
 		}
-		tempEnd = cEnd+1500;
-		if (tempEnd > validRegion.getOffset()+validRegion.getLength()) {
-			tempEnd = validRegion.getOffset()+validRegion.getLength();
+		int dummyDocEnd = cEnd+1500;
+		if (dummyDocEnd > validRegion.getOffset()+validRegion.getLength()) {
+			dummyDocEnd = validRegion.getOffset()+validRegion.getLength();
 		}
-		String text = fDocument.get(shift, c.offset-shift)
-				+ c.text + append + fDocument.get(cEnd, tempEnd-cEnd);
+		final String text;
+		{
+			final StringBuilder s = new StringBuilder(
+					(c.offset-shift) +
+					c.text.length() +
+					(smartEnd-cEnd) +
+					smartAppend.length() +
+					(dummyDocEnd-smartEnd) );
+			s.append(fDocument.get(shift, c.offset-shift));
+			s.append(c.text);
+			if (smartEnd-cEnd > 0) {
+				s.append(fDocument.get(cEnd, smartEnd-cEnd));
+			}
+			s.append(smartAppend);
+			s.append(fDocument.get(smartEnd, dummyDocEnd-smartEnd));
+			text = s.toString();
+		}
 		
 		// Create temp doc to compute indent
 		int dummyCoffset = c.offset-shift;
 		int dummyCend = dummyCoffset+c.text.length();
 		final AbstractDocument dummyDoc = new Document(text);
 		final StringParseInput parseInput = new StringParseInput(text);
-		text = null;
 		
 		// Lines to indent
 		int dummyFirstLine = dummyDoc.getLineOfOffset(dummyCoffset);
@@ -550,12 +557,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		edit.apply(dummyDoc, TextEdit.NONE);
 		
 		// Read indent for real doc
-		tempEnd = edit.getExclusiveEnd();
+		int dummyChangeEnd = edit.getExclusiveEnd();
 		dummyCend = cPos.getOffset()+cPos.getLength();
-		if (!cPos.isDeleted && dummyCend > tempEnd) {
-			tempEnd = dummyCend;
+		if (!cPos.isDeleted && dummyCend > dummyChangeEnd) {
+			dummyChangeEnd = dummyCend;
 		}
-		c.text = dummyDoc.get(dummyCoffset, tempEnd-dummyCoffset);
+		c.text = dummyDoc.get(dummyCoffset, dummyChangeEnd-dummyCoffset);
 		if (setCaret != 0) {
 			c.caretOffset = shift+fIndenter.getNewIndentOffset(dummyFirstLine+setCaret-1);
 			c.shiftsCaret = false;

@@ -45,6 +45,8 @@ public class LayoutUtil {
 		
 		int defaultEntryFieldWidth;
 		
+		int defaultHMargin;
+		int defaultVMargin;
 		int defaultHSpacing;
 		int defaultVSpacing;
 		int defaultIndent;
@@ -55,6 +57,8 @@ public class LayoutUtil {
 			gc.setFont(JFaceResources.getDialogFont());
 			final FontMetrics fontMetrics = gc.getFontMetrics();
 			
+			defaultHMargin = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.HORIZONTAL_MARGIN);
+			defaultVMargin = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.VERTICAL_MARGIN);
 			defaultHSpacing = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.HORIZONTAL_SPACING);
 			defaultVSpacing = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.VERTICAL_SPACING);
 			defaultEntryFieldWidth = Dialog.convertHorizontalDLUsToPixels(fontMetrics, IDialogConstants.ENTRY_FIELD_WIDTH);
@@ -166,32 +170,45 @@ public class LayoutUtil {
 	}
 	
 	
-	public static GridLayout applyGroupDefaults(final GridLayout gl, final int numColumns) {
+	public static GridLayout applyDialogDefaults(final GridLayout gl, final int numColumns) {
+		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
-		gl.horizontalSpacing = defaultHSpacing();
-		gl.verticalSpacing = defaultVSpacing();
-		gl.marginTop = defaultVSpacing() / 2;
-		gl.marginBottom = defaultVSpacing() / 2;
+		gl.marginHeight = dialogValues.defaultVMargin;
+		gl.marginWidth = dialogValues.defaultHMargin;
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
+		return gl;
+	}
+	
+	public static GridLayout applyGroupDefaults(final GridLayout gl, final int numColumns) {
+		final DialogValues dialogValues = getDialogValues();
+		gl.numColumns = numColumns;
+		gl.marginTop = dialogValues.defaultVSpacing / 2;
+		gl.marginBottom = dialogValues.defaultVSpacing / 2;
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		return gl;
 	}
 	
 	public static GridLayout applyCompositeDefaults(final GridLayout gl, final int numColumns) {
+		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
 		gl.marginHeight = 0;
 		gl.marginWidth = 0;
-		gl.horizontalSpacing = defaultHSpacing();
-		gl.verticalSpacing = defaultVSpacing();
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		return gl;
 	}
 	
 	public static GridLayout applyTabDefault(final GridLayout gl, final int numColumns) {
+		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
-		gl.horizontalSpacing = defaultHSpacing();
-		gl.verticalSpacing = defaultVSpacing();
-		gl.marginTop = defaultVSpacing() / 2;
-		gl.marginBottom = defaultVSpacing() / 2;
-		gl.marginLeft = defaultHSpacing() / 2;
-		gl.marginRight = defaultHSpacing() / 2;
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
+		gl.marginTop = dialogValues.defaultVSpacing / 2;
+		gl.marginBottom = dialogValues.defaultVSpacing / 2;
+		gl.marginLeft = dialogValues.defaultHSpacing / 2;
+		gl.marginRight = dialogValues.defaultHSpacing / 2;
 		return gl;
 	}
 		

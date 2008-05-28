@@ -26,7 +26,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -68,8 +67,10 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.ui.SharedMessages;
+import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
@@ -81,7 +82,7 @@ import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
 /**
  * Dialog to edit a template.
  */
-public class EditTemplateDialog extends StatusDialog {
+public class EditTemplateDialog extends ExtStatusDialog {
 	
 	private class EditorAdapter implements IEditorAdapter {
 		
@@ -152,10 +153,9 @@ public class EditTemplateDialog extends StatusDialog {
 		
 		fConfigurator = configuration;
 		
-		setShellStyle(getShellStyle() | SWT.MAX | SWT.RESIZE);
-		final String title = edit ?
-				Messages.EditTemplateDialog_title_Edit: Messages.EditTemplateDialog_title_New;
-		setTitle(title);
+		setTitle(edit ?
+				Messages.EditTemplateDialog_title_Edit :
+				Messages.EditTemplateDialog_title_New );
 		
 		fOriginalTemplate = template;
 		fIsNameModifiable = isNameModifiable;
@@ -174,7 +174,6 @@ public class EditTemplateDialog extends StatusDialog {
 		
 		final TemplateContextType type = fContextTypeRegistry.getContextType(template.getContextTypeId());
 		fTemplateProcessor.setContextType(type);
-		
 	}
 	
 	
@@ -201,12 +200,10 @@ public class EditTemplateDialog extends StatusDialog {
 	}
 	
 	@Override
-	protected Control createDialogArea(final Composite ancestor) {
-		final Composite parent= new Composite(ancestor, SWT.NONE);
-		GridLayout layout= new GridLayout();
-		layout.numColumns= 2;
-		parent.setLayout(layout);
-		parent.setLayoutData(new GridData(GridData.FILL_BOTH));
+	protected Control createDialogArea(final Composite parent) {
+		final Composite dialogArea = new Composite(parent, SWT.NONE);
+		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		dialogArea.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		final ModifyListener listener= new ModifyListener() {
 			public void modifyText(final ModifyEvent e) {
@@ -215,17 +212,13 @@ public class EditTemplateDialog extends StatusDialog {
 		};
 		
 		if (fIsNameModifiable) {
-			createLabel(parent, Messages.EditTemplateDialog_Name_label);
+			createLabel(dialogArea, Messages.EditTemplateDialog_Name_label);
 			
-			final Composite composite= new Composite(parent, SWT.NONE);
+			final Composite composite = new Composite(dialogArea, SWT.NONE);
 			composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			layout= new GridLayout();
-			layout.numColumns= 4;
-			layout.marginWidth= 0;
-			layout.marginHeight= 0;
-			composite.setLayout(layout);
+			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 4));
 			
-			fNameText= createText(composite);
+			fNameText = createText(composite);
 			fNameText.addModifyListener(listener);
 			fNameText.addFocusListener(new FocusListener() {
 				
@@ -253,26 +246,23 @@ public class EditTemplateDialog extends StatusDialog {
 			fAutoInsertCheckbox.setSelection(fOriginalTemplate.isAutoInsertable());
 		}
 		
-		createLabel(parent, Messages.EditTemplateDialog_Description_label);
+		createLabel(dialogArea, Messages.EditTemplateDialog_Description_label);
 		
 		final int descFlags= fIsNameModifiable ? SWT.BORDER : SWT.BORDER | SWT.READ_ONLY;
-		fDescriptionText= new Text(parent, descFlags );
+		fDescriptionText= new Text(dialogArea, descFlags );
 		fDescriptionText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
 		fDescriptionText.addModifyListener(listener);
 		
-		final Label patternLabel= createLabel(parent, Messages.EditTemplateDialog_Pattern_label);
+		final Label patternLabel= createLabel(dialogArea, Messages.EditTemplateDialog_Pattern_label);
 		patternLabel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
-		createEditor(parent, fOriginalTemplate.getPattern());
+		createEditor(dialogArea, fOriginalTemplate.getPattern());
 		
 		final Label filler= new Label(parent, SWT.NONE);
 		filler.setLayoutData(new GridData());
 		
-		final Composite composite= new Composite(parent, SWT.NONE);
-		layout= new GridLayout();
-		layout.marginWidth= 0;
-		layout.marginHeight= 0;
-		composite.setLayout(layout);
+		final Composite composite= new Composite(dialogArea, SWT.NONE);
+		composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 1));
 		composite.setLayoutData(new GridData());
 		
 		fInsertVariableButton= new Button(composite, SWT.NONE);
@@ -297,9 +287,11 @@ public class EditTemplateDialog extends StatusDialog {
 		}
 		initializeActions();
 		
-		applyDialogFont(parent);
+		LayoutUtil.addSmallFiller(dialogArea, false);
+		applyDialogFont(dialogArea);
 		return composite;
 	}
+	
 	
 /* GUI Methods ****************************************************************/
 	

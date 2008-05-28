@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -27,9 +27,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.eclipsecommons.ui.dialogs.Layouter;
 import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
@@ -41,7 +43,7 @@ import de.walware.statet.base.internal.ui.preferences.TaskTagsConfigurationBlock
 /**
  * Dialog to enter a new task tag
  */
-public class TaskTagsInputDialog extends StatusDialog {
+public class TaskTagsInputDialog extends ExtStatusDialog {
 	
 	
 	private Text fNameControl;
@@ -68,27 +70,17 @@ public class TaskTagsInputDialog extends StatusDialog {
 			}
 		}
 		
-		if (task == null) {
-			setTitle(Messages.TaskTags_InputDialog_NewTag_title);
-		} else {
-			setTitle(Messages.TaskTags_InputDialog_EditTag_title);
-		}
-		
+		setTitle((task == null) ? 
+				Messages.TaskTags_InputDialog_NewTag_title :
+				Messages.TaskTags_InputDialog_EditTag_title );
 	}
 	
-	
-	@Override
-	protected void configureShell(final Shell newShell) {
-		super.configureShell(newShell);
-		// ADDHELP
-//		PlatformUI.getWorkbench().getHelpSystem().setHelp(newShell, IJavaHelpContextIds.TODO_TASK_INPUT_DIALOG);
-	}
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite composite = (Composite) super.createDialogArea(parent);
-		
-		final Layouter layouter = new Layouter(new Composite(composite, SWT.NONE), 2);
+		final Composite dialogArea = new Composite(parent, SWT.NONE);
+		final Layouter layouter = new Layouter(dialogArea, LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		dialogArea.setLayoutData(new GridData(GridData.FILL_BOTH));
 		
 		fNameControl = layouter.addLabeledTextControl(Messages.TaskTags_InputDialog_Name_label);
 		((GridData) fNameControl.getLayoutData()).widthHint =
@@ -150,15 +142,16 @@ public class TaskTagsInputDialog extends StatusDialog {
 			);
 		}
 		
-		applyDialogFont(composite);
-		return composite;
+		LayoutUtil.addSmallFiller(dialogArea, true);
+		applyDialogFont(dialogArea);
+		return dialogArea;
 	}
+	
 	
 	public TaskTag getResult() {
 		return new TaskTag(fName, fPriority);
 	}
 	
-		
 	private void doValidation() {
 		final StatusInfo status = new StatusInfo();
 		final String newText = fNameControl.getText();

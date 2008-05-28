@@ -49,6 +49,7 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.dialogs.groups.TableOptionButtonsGroup;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -59,7 +60,7 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- * 
+ * Preference page for R (Environment) configuration of the workbench.
  */
 public class REnvPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	
@@ -210,9 +211,6 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	private Image fEnvDefaultIcon;
 	
 	
-	/**
-	 * 
-	 */
 	public REnvPreferencePage() {
 	}
 	
@@ -226,7 +224,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		createImages();
 		
 		final Composite page = new Composite(parent, SWT.NONE);
-		page.setLayout(new GridLayout());
+		page.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 1));
 		final Label label = new Label(page, SWT.LEFT);
 		label.setText(Messages.REnv_REnvList_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));

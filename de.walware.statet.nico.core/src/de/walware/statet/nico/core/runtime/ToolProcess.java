@@ -367,10 +367,10 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
-	public void controllerBusyChanged(final boolean isBusy, final List<DebugEvent> eventCollection) {
-		eventCollection.add(new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, 
-				isBusy ? (ToolProcess.BUSY | 0x1) : (ToolProcess.BUSY | 0x0)));
-	}
+//	public void controllerBusyChanged(final boolean isBusy, final List<DebugEvent> eventCollection) {
+//		eventCollection.add(new DebugEvent(this, DebugEvent.MODEL_SPECIFIC, 
+//				isBusy ? (ToolProcess.BUSY | 0x1) : (ToolProcess.BUSY | 0x0)));
+//	}
 	
 	protected void dispose() {
 		if (fQueue != null) {

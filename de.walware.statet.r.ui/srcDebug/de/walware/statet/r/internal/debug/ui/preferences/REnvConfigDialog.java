@@ -36,7 +36,6 @@ import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -53,6 +52,8 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.eclipsecommons.ui.databinding.DirtyTracker;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -62,7 +63,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 /**
  * Dialog for an {@link REnvConfiguration}
  */
-public class REnvConfigDialog extends StatusDialog {
+public class REnvConfigDialog extends ExtStatusDialog {
 	
 	
 	private class RHomeComposite extends ChooseResourceComposite {
@@ -127,7 +128,6 @@ public class REnvConfigDialog extends StatusDialog {
 			final REnvPreferencePage.REnvConfig config, final boolean isNewConfig, 
 			final Collection<REnvConfiguration> existingConfigs) {
 		super(parent);
-		setShellStyle(getShellStyle() | SWT.RESIZE);
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
@@ -135,33 +135,39 @@ public class REnvConfigDialog extends StatusDialog {
 		for (final REnvConfiguration ec : existingConfigs) {
 			fExistingNames.add(ec.getName());
 		}
-		setTitle(fIsNewConfig ? Messages.REnv_Detail_AddDialog_title : Messages.REnv_Detail_Edit_Dialog_title);
+		setTitle(fIsNewConfig ? 
+				Messages.REnv_Detail_AddDialog_title : 
+				Messages.REnv_Detail_Edit_Dialog_title );
 	}
 	
 	
 	@Override
 	protected Control createDialogArea(final Composite parent) {
-		final Composite content = (Composite) super.createDialogArea(parent);
-		((GridData) content.getLayoutData()).widthHint = convertWidthInCharsToPixels(100);
-		((GridLayout) content.getLayout()).numColumns = 2;
+		final Composite dialogArea = new Composite(parent, SWT.NONE);
+		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		dialogArea.setLayout(LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
 		
-		Label label;
+		{	// Name:
+			final Label label = new Label(dialogArea, SWT.LEFT);
+			label.setText(Messages.REnv_Detail_Name_label+':');
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			fNameControl = new Text(dialogArea, SWT.SINGLE | SWT.BORDER);
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
+			fNameControl.setLayoutData(gd);
+		}
+				{	// Location:
+			final Label label = new Label(dialogArea, SWT.LEFT);
+			label.setText(Messages.REnv_Detail_Location_label+':');
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			fRHomeControl = new RHomeComposite(dialogArea);
+			fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		}
 		
-		label = new Label(content, SWT.LEFT);
-		label.setText(Messages.REnv_Detail_Name_label+':');
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		fNameControl = new Text(content, SWT.SINGLE | SWT.BORDER);
-		fNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
-		
-		label = new Label(content, SWT.LEFT);
-		label.setText(Messages.REnv_Detail_Location_label+':');
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		fRHomeControl = new RHomeComposite(content);
-		fRHomeControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		
-		applyDialogFont(content);
+		LayoutUtil.addSmallFiller(dialogArea, true);
+		applyDialogFont(dialogArea);
 		initBindings();
-		return content;
+		return dialogArea;
 	}
 	
 	private void initBindings() {
@@ -228,7 +234,7 @@ public class REnvConfigDialog extends StatusDialog {
 			if (loc != null && loc.length() > 0) {
 				if (EFS.getLocalFileSystem().getStore(
 						new Path(loc)).fetchInfo().exists()) {
-					return new String[] { loc, "System Default" };
+					return new String[] { loc, "System Default (R_HOME)" };
 				}
 			}
 			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
@@ -247,7 +253,7 @@ public class REnvConfigDialog extends StatusDialog {
 				}
 			}
 			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
-				loc = "/Library/Frameworks/R.framework/Resources";
+				loc = "/Library/Frameworks/R.framework/Resources"; //$NON-NLS-1$
 				if (REnvConfiguration.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
 					return new String[] { loc, null };
 				}

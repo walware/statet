@@ -1149,15 +1149,6 @@ public class RScanner {
 		return symbol;
 	}
 	
-	protected Symbol createEllipsis(final RAstNode parent) { // replace with own type?
-		final Symbol symbol = new Symbol.Std();
-		symbol.fRParent = parent;
-		setupFromSourceToken(symbol);
-		symbol.fText = "..."; //$NON-NLS-1$
-		consumeToken();
-		return symbol;
-	}
-	
 	protected NumberConst createNumberConst(final RAstNode parent) {
 		final NumberConst num = new NumberConst(fNextType);
 		num.fRParent = parent;
