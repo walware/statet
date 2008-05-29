@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Display;
 
 
 // Patched copy of orginal AnnotationPainter fixing https://bugs.eclipse.org/227534
-// org.eclipse.jface.text.source.AnnotationPainter #1.89
+// ORG: org.eclipse.jface.text.source.AnnotationPainter
 public class AnnotationPainter extends org.eclipse.jface.text.source.AnnotationPainter {
 	
 	

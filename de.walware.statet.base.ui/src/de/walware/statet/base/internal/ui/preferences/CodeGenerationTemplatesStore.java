@@ -10,7 +10,7 @@
  *     Stephan Wahlbrink - adaptations to StatET
  *******************************************************************************/
 
-// Org: org.eclipse.jdt.internal.ui.viewsupport.ProjectTemplateStore
+// ORG: org.eclipse.jdt.internal.ui.viewsupport.ProjectTemplateStore
 
 package de.walware.statet.base.internal.ui.preferences;
 

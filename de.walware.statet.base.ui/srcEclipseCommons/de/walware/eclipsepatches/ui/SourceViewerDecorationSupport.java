@@ -28,7 +28,7 @@ import org.eclipse.ui.texteditor.AnnotationPreference;
 
 
 // Uses patch AnnotationPainter
-// org.eclipse.ui.texteditor.SourceViewerDecorationSupport #1.46
+// ORG: org.eclipse.ui.texteditor.SourceViewerDecorationSupport
 public class SourceViewerDecorationSupport extends org.eclipse.ui.texteditor.SourceViewerDecorationSupport {
 	
 	

@@ -10,7 +10,7 @@
  *     Stephan Wahlbrink
  *******************************************************************************/
 
-// Org: org.eclipse.jdt.internal.ui.preferences.JavaSourcePreviewerUpdater
+// ORG: org.eclipse.jdt.internal.ui.preferences.JavaSourcePreviewerUpdater
 
 package de.walware.statet.base.ui.sourceeditors;
 
