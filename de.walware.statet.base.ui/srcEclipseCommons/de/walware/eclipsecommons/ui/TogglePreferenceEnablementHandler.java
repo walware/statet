@@ -13,6 +13,7 @@ package de.walware.eclipsecommons.ui;
 
 import java.util.Map;
 
+import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
@@ -22,7 +23,6 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
-import de.walware.eclipsecommons.UpdateableHandler;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
@@ -31,7 +31,7 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 /**
  * Handler toggling and caching the state of a boolean preference value.
  */
-public class TogglePreferenceEnablementHandler extends UpdateableHandler implements IElementUpdater, IPreferenceChangeListener {
+public class TogglePreferenceEnablementHandler extends AbstractHandler implements IElementUpdater, IPreferenceChangeListener {
 	
 	
 	private Preference<Boolean> fPreferenceKey;
@@ -46,12 +46,13 @@ public class TogglePreferenceEnablementHandler extends UpdateableHandler impleme
 	}
 	
 	public TogglePreferenceEnablementHandler(final Preference<Boolean> pref, final IPreferenceAccess access, final String commandId) {
-		super(true);
+		super();
 		fPreferenceKey = pref;
 		fPrefAccess = access;
 		fCommandId = commandId;
 		fPrefAccess.addPreferenceNodeListener(fPreferenceKey.getQualifier(), this);
 		fPreferenceIsEnabled = fPrefAccess.getPreferenceValue(fPreferenceKey);
+		setBaseEnabled(true);
 	}
 	
 	

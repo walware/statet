@@ -31,8 +31,8 @@ import de.walware.eclipsecommons.ui.SharedMessages;
 public class TextViewerAction extends Action implements IUpdate {
 	
 	
-	private int fOperationCode;
-	private ITextOperationTarget fOperationTarget;
+	private final ITextOperationTarget fOperationTarget;
+	private final int fOperationCode;
 	
 	
 	/**
@@ -53,12 +53,12 @@ public class TextViewerAction extends Action implements IUpdate {
 	
 	
 	public void update() {
-		setEnabled(fOperationTarget != null && fOperationTarget.canDoOperation(fOperationCode));
+		setEnabled(fOperationTarget.canDoOperation(fOperationCode));
 	}
 	
 	@Override
 	public void run() {
-		if (isEnabled()) {
+		if (fOperationTarget.canDoOperation(fOperationCode)) {
 			fOperationTarget.doOperation(fOperationCode);
 		}
 	}

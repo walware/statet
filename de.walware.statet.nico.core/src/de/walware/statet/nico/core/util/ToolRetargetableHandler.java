@@ -11,7 +11,7 @@
 
 package de.walware.statet.nico.core.util;
 
-import de.walware.eclipsecommons.UpdateableHandler;
+import org.eclipse.core.commands.AbstractHandler;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
@@ -19,7 +19,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 /**
  * 
  */
-public abstract class ToolRetargetableHandler extends UpdateableHandler implements IToolRetargetable {
+public abstract class ToolRetargetableHandler extends AbstractHandler implements IToolRetargetable {
 	
 	
 	private ToolProcess fTool;
@@ -27,12 +27,14 @@ public abstract class ToolRetargetableHandler extends UpdateableHandler implemen
 	
 	
 	public ToolRetargetableHandler(final ToolProcess tool, final boolean disableOnTermination) {
+		super();
 		fTool = tool;
 		fDisableOnTermination = disableOnTermination;
 		handleToolChanged();
 	}
 	
 	public ToolRetargetableHandler(final IToolProvider toolProvider, final boolean disableOnTermination) {
+		super();
 		toolProvider.addToolRetargetable(this);
 		fTool = toolProvider.getTool();
 		fDisableOnTermination = disableOnTermination;
@@ -50,12 +52,12 @@ public abstract class ToolRetargetableHandler extends UpdateableHandler implemen
 	}
 	
 	public void handleToolChanged() {
-		setEnabled(evaluateEnabled());
+		setBaseEnabled(evaluateEnabled());
 	}
 	
 	public void handleToolTerminated() {
 		if (fDisableOnTermination) {
-			setEnabled(evaluateEnabled());
+			setBaseEnabled(evaluateEnabled());
 		}
 	}
 	

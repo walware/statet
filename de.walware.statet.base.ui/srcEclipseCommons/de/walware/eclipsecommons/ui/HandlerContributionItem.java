@@ -12,18 +12,14 @@
 
 package de.walware.eclipsecommons.ui;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.HandlerEvent;
-import org.eclipse.core.commands.IHandler;
+import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.commands.IHandlerListener;
-import org.eclipse.core.commands.IParameter;
-import org.eclipse.core.commands.Parameterization;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.jface.action.ContributionItem;
@@ -51,6 +47,7 @@ import org.eclipse.ui.commands.IElementReference;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.internal.WorkbenchPlugin;
+import org.eclipse.ui.internal.services.IWorkbenchLocationService;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.IMenuService;
@@ -90,6 +87,15 @@ public final class HandlerContributionItem extends ContributionItem {
 	 */
 	public static final int STYLE_PULLDOWN = SWT.DROP_DOWN;
 	
+	/**
+	 * Mode bit: Show text on tool items or buttons, even if an image is
+	 * present. If this mode bit is not set, text is only shown on tool items if
+	 * there is no image present.
+	 * 
+	 * @since 3.4
+	 */
+	public static int MODE_FORCE_TEXT = 1;
+
 	private LocalResourceManager localResourceManager;
 	
 	private Listener menuItemListener;
@@ -105,7 +111,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	private IBindingService bindingService;
 	
 	private ParameterizedCommand command;
-	private IHandler commandHandler;
+	private IHandler2 commandHandler;
 	
 	private ImageDescriptor icon;
 	
@@ -133,6 +139,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	
 	private String helpContextId;
 	
+	private int mode = 0;
 	
 	/**
 	 * Create a CommandContributionItem to place in a ContributionManager.
@@ -141,7 +148,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	 *            paramters necessary to render this contribution item.
 	 */
 	public HandlerContributionItem(
-			final CommandContributionItemParameter contributionParameters, final IHandler handler) {
+			final CommandContributionItemParameter contributionParameters, final IHandler2 handler) {
 		super(contributionParameters.id);
 		
 		this.icon = contributionParameters.icon;
@@ -208,7 +215,8 @@ public final class HandlerContributionItem extends ContributionItem {
 				elementRef = commandService.registerElementForCommand(command,
 						callback);
 				commandHandler.addHandlerListener(getHandlerListener());
-				setImages(contributionParameters.serviceLocator);
+				setImages(contributionParameters.serviceLocator,
+						contributionParameters.iconStyle);
 				
 				if (contributionParameters.helpContextId == null) {
 					try {
@@ -218,8 +226,9 @@ public final class HandlerContributionItem extends ContributionItem {
 						// it's OK to not have a helpContextId
 					}
 				}
-				final IWorkbench workbench = (IWorkbench) contributionParameters.serviceLocator
-						.getService(IWorkbench.class);
+				final IWorkbenchLocationService wls = (IWorkbenchLocationService) contributionParameters.serviceLocator
+						.getService(IWorkbenchLocationService.class);
+				final IWorkbench workbench = wls.getWorkbench();
 				if (workbench != null && helpContextId != null) {
 					this.workbenchHelpSystem = workbench.getHelpSystem();
 				}
@@ -233,16 +242,16 @@ public final class HandlerContributionItem extends ContributionItem {
 	}
 	
 	
-	private void setImages(final IServiceLocator locator) {
+	private void setImages(final IServiceLocator locator, final String iconStyle) {
 		if (icon == null) {
 			final ICommandImageService service = (ICommandImageService) locator
 					.getService(ICommandImageService.class);
 			icon = service.getImageDescriptor(command.getId(),
-					ICommandImageService.TYPE_DEFAULT);
+					ICommandImageService.TYPE_DEFAULT, iconStyle);
 			disabledIcon = service.getImageDescriptor(command.getId(),
-					ICommandImageService.TYPE_DISABLED);
+					ICommandImageService.TYPE_DISABLED, iconStyle);
 			hoverIcon = service.getImageDescriptor(command.getId(),
-					ICommandImageService.TYPE_HOVER);
+					ICommandImageService.TYPE_HOVER, iconStyle);
 		}
 	}
 	
@@ -297,47 +306,9 @@ public final class HandlerContributionItem extends ContributionItem {
 					+ "\", command \"" + commandId + "\" not defined"); //$NON-NLS-1$ //$NON-NLS-2$
 			return;
 		}
-		
-		if (parameters == null || parameters.size() == 0) {
-			command = new ParameterizedCommand(cmd, null);
-			return;
-		}
-		
-		try {
-			final ArrayList parmList = new ArrayList();
-			final Iterator i = parameters.entrySet().iterator();
-			while (i.hasNext()) {
-				final Map.Entry entry = (Map.Entry) i.next();
-				final String parmName = (String) entry.getKey();
-				IParameter parm;
-				parm = cmd.getParameter(parmName);
-				if (parm == null) {
-					WorkbenchPlugin
-							.log("Unable to create menu item \"" + getId() //$NON-NLS-1$
-									+ "\", parameter \"" + parmName + "\" for command \"" //$NON-NLS-1$ //$NON-NLS-2$
-									+ commandId + "\" is not defined"); //$NON-NLS-1$
-					return;
-				}
-				parmList.add(new Parameterization(parm, (String) entry
-						.getValue()));
-			}
-			command = new ParameterizedCommand(cmd,
-					(Parameterization[]) parmList
-							.toArray(new Parameterization[parmList.size()]));
-		} catch (final NotDefinedException e) {
-			// this shouldn't happen as we checked for !defined, but we
-			// won't take the chance
-			WorkbenchPlugin.log("Failed to create menu item " //$NON-NLS-1$
-					+ getId(), e);
-		}
+		command = ParameterizedCommand.generateCommand(cmd, parameters);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.ContributionItem#fill(org.eclipse.swt.widgets.Menu,
-	 *      int)
-	 */
 	@Override
 	public void fill(final Menu parent, final int index) {
 		if (command == null) {
@@ -367,14 +338,9 @@ public final class HandlerContributionItem extends ContributionItem {
 		widget = item;
 		
 		update(null);
+		updateIcons();
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.ContributionItem#fill(org.eclipse.swt.widgets.ToolBar,
-	 *      int)
-	 */
 	@Override
 	public void fill(final ToolBar parent, final int index) {
 		if (command == null) {
@@ -398,23 +364,14 @@ public final class HandlerContributionItem extends ContributionItem {
 		widget = item;
 		
 		update(null);
+		updateIcons();
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.ContributionItem#update()
-	 */
 	@Override
 	public void update() {
 		update(null);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.ContributionItem#update(java.lang.String)
-	 */
 	@Override
 	public void update(final String id) {
 		if (widget != null) {
@@ -437,7 +394,7 @@ public final class HandlerContributionItem extends ContributionItem {
 				String keyBindingText = null;
 				if (command != null) {
 					final TriggerSequence binding = bindingService
-							.getBestActiveBindingFor(command.getId());
+							.getBestActiveBindingFor(command);
 					if (binding != null) {
 						keyBindingText = binding.format();
 					}
@@ -450,7 +407,6 @@ public final class HandlerContributionItem extends ContributionItem {
 					}
 				}
 				
-				updateIcons();
 				if (item.getSelection() != checkedState) {
 					item.setSelection(checkedState);
 				}
@@ -462,26 +418,26 @@ public final class HandlerContributionItem extends ContributionItem {
 			} else if (widget instanceof ToolItem) {
 				final ToolItem item = (ToolItem) widget;
 				
-				if (icon != null) {
-					updateIcons();
-				} else if (label != null) {
-					item.setText(label);
+				String text = label;
+				if (text == null) {
+					if (command != null) {
+						try {
+							text = command.getCommand().getName();
+						} catch (final NotDefinedException e) {
+							WorkbenchPlugin.log("Update item failed " //$NON-NLS-1$
+									+ getId(), e);
+						}
+					}
+				}
+				
+				if ((icon == null || (mode & MODE_FORCE_TEXT) == MODE_FORCE_TEXT)
+						&& text != null) {
+					item.setText(text);
 				}
 				
 				if (tooltip != null)
 					item.setToolTipText(tooltip);
 				else {
-					String text = label;
-					if (text == null) {
-						if (command != null) {
-							try {
-								text = command.getCommand().getName();
-							} catch (final NotDefinedException e) {
-								WorkbenchPlugin.log("Update item failed " //$NON-NLS-1$
-										+ getId(), e);
-							}
-						}
-					}
 					if (text != null) {
 						item.setToolTipText(text);
 					}
@@ -520,13 +476,12 @@ public final class HandlerContributionItem extends ContributionItem {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.ContributionItem#dispose()
-	 */
 	@Override
 	public void dispose() {
+		if (widget != null) {
+			widget.dispose();
+			widget = null;
+		}
 		if (elementRef != null) {
 			commandService.unregisterElement(elementRef);
 			elementRef = null;
@@ -538,6 +493,9 @@ public final class HandlerContributionItem extends ContributionItem {
 		command = null;
 		commandHandler = null;
 		commandService = null;
+		bindingService = null;
+		menuService = null;
+		handlerService = null;
 		disposeOldImages();
 		super.dispose();
 	}
@@ -708,14 +666,10 @@ public final class HandlerContributionItem extends ContributionItem {
 		updateIcons();
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.action.ContributionItem#isEnabled()
-	 */
 	@Override
 	public boolean isEnabled() {
 		if (commandHandler != null) {
+			commandHandler.setEnabled(menuService.getCurrentState());
 			return commandHandler.isEnabled();
 		}
 		return false;
