@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,14 @@ public class StatetMessages extends NLS {
 	public static String InsertVariable_label;
 	public static String InputArguments_label;
 	public static String InputArguments_note;
+	
+	public static String CodeFolding_label;
+	public static String CodeFolding_Enable_label;
+	public static String CodeFolding_Enable_mnemonic;
+	public static String CodeFolding_ExpandAll_label;
+	public static String CodeFolding_ExpandAll_mnemonic;
+	public static String CodeFolding_CollapseAll_label;
+	public static String CodeFolding_CollapseAll_mnemonic;
 	
 	
 	static {

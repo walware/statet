@@ -28,10 +28,6 @@ public class EditorMessages extends NLS {
 	
 	public static String ToggleCommentAction_error;
 	
-	public static String FoldingMenu_label;
-	public static String CodeFolding_Enable_label;
-	public static String CodeFolding_Enable_mnemonic;
-	
 	
 	static {
 		NLS.initializeMessages(EditorMessages.class.getName(), EditorMessages.class);
