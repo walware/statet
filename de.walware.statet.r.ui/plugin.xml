@@ -315,6 +315,7 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="de.walware.statet.base.perspectives.StatetPerspective">
+         <newWizardShortcut id="de.walware.statet.r.newWizards.RProjectCreation"/>
          <newWizardShortcut id="de.walware.statet.r.newWizards.RFileCreation"/>
          <actionSet id="de.walware.statet.r.actionSets.RToolbarSet"/>
       </perspectiveExtension>
