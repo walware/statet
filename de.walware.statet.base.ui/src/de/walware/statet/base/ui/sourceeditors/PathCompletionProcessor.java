@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,8 +34,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextOperationTarget;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
@@ -60,9 +60,6 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public abstract class PathCompletionProcessor implements IContentAssistProcessor {
 	
 	
-	private static final String[] DEFAULT_BOUNDS = new String[] { "\"", "\'" }; //$NON-NLS-1$ //$NON-NLS-2$
-	
-	
 	private class ResourceProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension3 {
 		
 		private IFileStore fFileStore;
@@ -70,15 +67,19 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		private String fName;
 		private Image fImage;
 		
+		/** Offset where the name starts and where to insert the completion */
+		private int fCompletionOffset;
+		/** Final completion string */
 		private String fCompletion;
-		private IRegion fTarget;
-		private int fBeginIdx;
+		
+		private IRegion fSelectionToSet;
 		
 		
-		public ResourceProposal(IFileStore fileStore, String prefix, IContainer workspaceRef, IRegion target, int beginIdx) {
+		public ResourceProposal(final int offset, final IFileStore fileStore, final String prefix, final IContainer workspaceRef) {
+			fCompletionOffset = offset;
 			fFileStore = fileStore;
 			fIsDirectory = fFileStore.fetchInfo().isDirectory();
-			StringBuilder name = new StringBuilder(fFileStore.getName());
+			final StringBuilder name = new StringBuilder(fFileStore.getName());
 			if (prefix != null) {
 				name.insert(0, prefix);
 			}
@@ -86,7 +87,7 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 				name.append(fPathSeparator);
 			}
 			if (workspaceRef != null) {
-				IResource member = workspaceRef.findMember(fFileStore.getName(), false);
+				final IResource member = workspaceRef.findMember(fFileStore.getName(), false);
 				if (member != null) {
 					fImage = StatetUIPlugin.getDefault().getWorkbenchLabelProvider().getImage(member);
 				}
@@ -96,21 +97,16 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 					fIsDirectory ? ISharedImages.IMG_OBJ_FOLDER : ISharedImages.IMG_OBJ_FILE);
 			}
 			fName = name.toString();
-			
-			fTarget = target;
-			fBeginIdx = beginIdx;
 		}
 		
-		public void createCompletion(IDocument document) {
+		private void createCompletion(final IDocument document) {
 			if (fCompletion == null) {
-				fCompletion = checkPathCompletion(fName.substring(fBeginIdx));
 				try {
-					int offset = fTarget.getOffset();
-					if (offset >= 2
-							&& document.getChar(offset-1) == '\\' && document.getChar(offset-2) != '\\') {
-							fCompletion = '\\'+fCompletion;
-					}
-				} catch (BadLocationException e) {
+					fCompletion = checkPathCompletion(document, fCompletionOffset, fName);
+				}
+				catch (final BadLocationException e) {
+					StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+							"An error occurred while creating the final path completion.", e), StatusManager.LOG);
 				}
 			}
 		}
@@ -124,10 +120,10 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 			return fName;
 		}
 		
-		public void selected(ITextViewer viewer, boolean smartToggle) {
+		public void selected(final ITextViewer viewer, final boolean smartToggle) {
 		}
 		
-		public void unselected(ITextViewer viewer) {
+		public void unselected(final ITextViewer viewer) {
 		}
 		
 		public String getAdditionalProposalInfo() {
@@ -142,12 +138,40 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 			return null;
 		}
 		
-		public boolean validate(IDocument document, int offset, DocumentEvent event) {
-			return false;
+		public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
+			if (offset < fCompletionOffset) {
+				return false;
+			}
+			try {
+				final String startsWith = document.get(fCompletionOffset, offset-fCompletionOffset);
+				return fName.regionMatches(true, 0, startsWith, 0, startsWith.length());
+			}
+			catch (final BadLocationException e) {
+				return false;
+			}
 		}
 		
-		public void apply(ITextViewer viewer, char trigger, int stateMask, int offset) {
-			apply(viewer.getDocument());
+		public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
+			final IDocument document = viewer.getDocument();
+			final Point selectedRange = viewer.getSelectedRange();
+			if (selectedRange.x != offset) {
+				return;
+			}
+			createCompletion(document);
+			final Position newSelectionOffset = new Position(selectedRange.x+selectedRange.y, 0);
+			try {
+				document.addPosition(newSelectionOffset);
+				document.replace(fCompletionOffset, newSelectionOffset.getOffset()-fCompletionOffset, fCompletion);
+				fSelectionToSet = new Region(newSelectionOffset.getOffset(), 0);
+			}
+			catch (final BadLocationException e) {
+				StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+						"An error occurred while inserting the path completion.", e), StatusManager.SHOW | StatusManager.LOG);
+				return;
+			}
+			finally {
+				document.removePosition(newSelectionOffset);
+			}
 			if (fIsDirectory && viewer instanceof ITextOperationTarget) {
 				final ITextOperationTarget target = (ITextOperationTarget) viewer;
 				Display.getCurrent().asyncExec(new Runnable() {
@@ -160,25 +184,22 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 			}
 		}
 		
-		public void apply(IDocument document) {
-			createCompletion(document);
-			try {
-				document.replace(fTarget.getOffset(), fTarget.getLength(), fCompletion);
-			} catch (BadLocationException e) {
-				StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
-						"An error occurred while inserting the path completion.", e), StatusManager.SHOW | StatusManager.LOG);
+		public void apply(final IDocument document) {
+			// not called anymore
+		}
+		
+		public Point getSelection(final IDocument document) {
+			if (fSelectionToSet != null) {
+				return new Point(fSelectionToSet.getOffset(), fSelectionToSet.getLength());
 			}
+			return null;
 		}
 		
-		public Point getSelection(IDocument document) {
-			return new Point(fTarget.getOffset()+fCompletion.length(), 0);
+		public int getPrefixCompletionStart(final IDocument document, final int completionOffset) {
+			return fCompletionOffset;
 		}
 		
-		public int getPrefixCompletionStart(IDocument document, int completionOffset) {
-			return fTarget.getOffset();
-		}
-		
-		public CharSequence getPrefixCompletionText(IDocument document, int completionOffset) {
+		public CharSequence getPrefixCompletionText(final IDocument document, final int completionOffset) {
 			createCompletion(document);
 			return fCompletion;
 		}
@@ -203,54 +224,63 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		return null;
 	}
 	
-	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
+	public ICompletionProposal[] computeCompletionProposals(final ITextViewer viewer, final int offset) {
 		try {
-			IDocument document = viewer.getDocument();
-			IRegion partition = getContentRange(document, offset);
+			final IDocument document = viewer.getDocument();
+			final IRegion partition = getContentRange(document, offset);
 			if (partition == null) {
 				return new ICompletionProposal[0];
 			}
 			
-			final String prefix = checkPrefix(
+			String prefix = checkPrefix(
 					document.get(partition.getOffset(), offset-partition.getOffset()) );
 			
-			boolean separatorAtEnd = false;
+			boolean needSeparatorBeforeStart = false; // including virtual separator
 			String start = ""; //$NON-NLS-1$
 			IFileStore baseStore = null;
 			if (prefix != null) {
-				char lastChar = (prefix.length() > 0) ? prefix.charAt(prefix.length()-1) : 0;
-				separatorAtEnd = (lastChar == '\\' || lastChar == '/');
+				final char lastChar = (prefix.length() > 0) ? prefix.charAt(prefix.length()-1) : 0;
 				
-				IPath path;
-				if (lastChar == '.'
-					&& (prefix.length() == 1 || prefix.endsWith("\\.") || prefix.endsWith("/."))) { //$NON-NLS-1$ //$NON-NLS-2$
-					if (prefix.length() <= 1) {
-						path = new Path(""); //$NON-NLS-1$
+				IPath path = null;
+				switch (lastChar) {
+				case ':':
+					prefix = prefix+fPathSeparator;
+					if (Path.ROOT.isValidPath(prefix)) {
+						path = new Path(prefix);
+						needSeparatorBeforeStart = true;
 					}
-					else {
-						path = new Path(prefix.substring(0, prefix.length()-2));
+					break;
+				case '.':
+					// prevent that path segments '.' and '..' at end are resolved
+					if (prefix.equals(".") || prefix.endsWith("\\.") || prefix.endsWith("/.")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						prefix = prefix.substring(0, prefix.length()-1);
+						if (Path.ROOT.isValidPath(prefix)) {
+							start = "."; //$NON-NLS-1$
+							path = new Path(prefix);
+						}
+						break;
 					}
-					start = "."; //$NON-NLS-1$
-					separatorAtEnd = true;
-				}
-				else if (lastChar == ':' && prefix.length() == 2) {
-					path = new Path(prefix+fPathSeparator);
-				}
-				else {
-					path = new Path(prefix);
-					if (!path.isValidPath(prefix)) {
-						path = null;
+					else if (prefix.equals("..") || prefix.endsWith("\\..") || prefix.endsWith("/..")) { // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						prefix = prefix.substring(0, prefix.length()-2);
+						if (Path.ROOT.isValidPath(prefix)) {
+							start = ".."; //$NON-NLS-1$
+							path = new Path(prefix);
+						}
+						break;
 					}
-					else if (!separatorAtEnd && path.segmentCount() > 0) {
-						if (lastChar != '.'
-							|| !(prefix.equals("..") || prefix.equals("."))) { //$NON-NLS-1$ //$NON-NLS-2$
+					// continue with default
+				default:
+					if (Path.ROOT.isValidPath(prefix)) {
+						path = new Path(prefix);
+						if (path.segmentCount() > 0 && lastChar != '\\' && lastChar != '/') {
 							start = path.lastSegment();
 							path = path.removeLastSegments(1);
+							if (path == null) {
+								path = new Path(""); //$NON-NLS-1$
+							}
 						}
 					}
-					if (path.segmentCount() == 0 || start.length() > 0) {
-						separatorAtEnd = true;
-					}
+					break;
 				}
 				
 				if (path != null) {
@@ -271,46 +301,44 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 				return new ICompletionProposal[0];
 			}
 			
-			// Selection
-			IRegion region;
-			ITextSelection selection = (ITextSelection) viewer.getSelectionProvider().getSelection();
-			if (selection.getLength() == 0) {
-				region = new Region(offset, 0);
-			} else {
-				region = new Region(selection.getOffset(), selection.getLength());
-			}
-			// Separator type
 			updatePathSeparator(prefix);
 			
-			List<ICompletionProposal> matches = new ArrayList<ICompletionProposal>();
-			doAdd(matches, baseStore, start, (!separatorAtEnd) ? fPathSeparator : null, start.length(), region);
+			final List<ICompletionProposal> matches = new ArrayList<ICompletionProposal>();
+			String completionPrefix = (needSeparatorBeforeStart) ? fPathSeparator : null;
+			doAdd(matches, baseStore, offset-start.length(), start, completionPrefix);
 			if (start != null && start.length() > 0 && !start.equals(".")) { //$NON-NLS-1$
 				baseStore = baseStore.getChild(start);
 				if (baseStore.fetchInfo().exists()) {
-					StringBuilder fullPrefix = new StringBuilder(baseStore.getName());
-					if (!separatorAtEnd) {
-						fullPrefix.insert(0, fPathSeparator);
+					final StringBuilder prefixBuilder = new StringBuilder();
+					if (completionPrefix != null) {
+						prefixBuilder.append(completionPrefix);
 					}
-					fullPrefix.append(fPathSeparator);
-					doAdd(matches, baseStore, null, fullPrefix.toString(), start.length(), region);
+					prefixBuilder.append(baseStore.getName());
+					prefixBuilder.append(fPathSeparator);
+					completionPrefix = prefixBuilder.toString();
+					doAdd(matches, baseStore, offset-start.length(), null, completionPrefix);
 				}
 			}
-			if (matches.size() > 0) {
-				return matches.toArray(new ICompletionProposal[matches.size()]);
-			}
+			return matches.toArray(new ICompletionProposal[matches.size()]);
 		}
-		catch (BadLocationException e) {
-			StatetUIPlugin.logError(-1, "Error while fetching text infos for resource completion proposals.", e); //$NON-NLS-1$
+		catch (final BadLocationException e) {
+			StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+					"An error occurred while preparing path completions.", e), StatusManager.LOG);
 		}
-		catch (CoreException e) {
-			StatetUIPlugin.logError(-1, "Error while fetching file infos for resource completion proposals.", e); //$NON-NLS-1$
+		catch (final CoreException e) {
+			StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+					"An error occurred while preparing path completions.", e), StatusManager.LOG);
 		}
 		restorePathSeparator();
 		return new ICompletionProposal[0];
 	}
 	
-	protected String checkPrefix(String prefix) {
-		char[] breakingChars = "\n\r+<>|?*\"\'".toCharArray(); //$NON-NLS-1$
+	/**
+	 * @param prefix to check
+	 * @return the prefix, if valid, otherwise <code>null</code>
+	 */
+	protected String checkPrefix(final String prefix) {
+		final char[] breakingChars = "\n\r+<>|?*\"".toCharArray(); //$NON-NLS-1$
 		for (int i = 0; i < breakingChars.length; i++) {
 			if (prefix.indexOf(breakingChars[i]) >= 0) {
 				return null;
@@ -319,9 +347,9 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		return prefix;
 	}
 	
-	private void updatePathSeparator(String prefix) {
-		int lastBack = prefix.lastIndexOf('\\');
-		int lastForw = prefix.lastIndexOf('/');
+	private void updatePathSeparator(final String prefix) {
+		final int lastBack = prefix.lastIndexOf('\\');
+		final int lastForw = prefix.lastIndexOf('/');
 		if (lastBack > lastForw) {
 			fPathSeparatorBackup = fPathSeparator;
 			fPathSeparator = "\\"; //$NON-NLS-1$
@@ -340,20 +368,20 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		}
 	}
 	
-	protected void doAdd(List<ICompletionProposal> matches, IFileStore baseStore, String filterStart,
-			String prefix, int startIdx, IRegion target) throws CoreException {
-		IContainer[] workspaceRefs = ResourcesPlugin.getWorkspace().getRoot().findContainersForLocationURI(baseStore.toURI());
-		IContainer workspaceRef = (workspaceRefs.length > 0) ? workspaceRefs[0] : null;
-		String[] names = baseStore.childNames(EFS.NONE, new NullProgressMonitor());
+	protected void doAdd(final List<ICompletionProposal> matches, final IFileStore baseStore, 
+			final int startOffset, final String startsWith, final String prefix) throws CoreException {
+		final IContainer[] workspaceRefs = ResourcesPlugin.getWorkspace().getRoot().findContainersForLocationURI(baseStore.toURI());
+		final IContainer workspaceRef = (workspaceRefs.length > 0) ? workspaceRefs[0] : null;
+		final String[] names = baseStore.childNames(EFS.NONE, new NullProgressMonitor());
 		Arrays.sort(names, Collator.getInstance());
-		for (String name : names) {
-			if (filterStart == null || name.startsWith(filterStart)) {
-				matches.add(new ResourceProposal(baseStore.getChild(name), prefix, workspaceRef, target, startIdx));
+		for (final String name : names) {
+			if (startsWith == null || name.regionMatches(true, 0, startsWith, 0, startsWith.length())) {
+				matches.add(new ResourceProposal(startOffset, baseStore.getChild(name), prefix, workspaceRef));
 			}
 		}
 	}
 	
-	public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
+	public IContextInformation[] computeContextInformation(final ITextViewer viewer, final int offset) {
 		return null;
 	}
 	
@@ -372,7 +400,20 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		return null;
 	}
 	
-	protected String checkPathCompletion(String completion) {
+	/**
+	 * Final check of completion string. 
+	 * 
+	 * E.g. to escape special chars.
+	 * 
+	 * @param document
+	 * @param completionOffset
+	 * @param completion
+	 * 
+	 * @return the checked completion string
+	 * @throws BadLocationException
+	 */
+	protected String checkPathCompletion(final IDocument document, final int completionOffset, final String completion) 
+			throws BadLocationException {
 		return completion;
 	}
 	

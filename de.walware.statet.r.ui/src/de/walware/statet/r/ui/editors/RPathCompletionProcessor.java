@@ -36,9 +36,6 @@ public class RPathCompletionProcessor extends PathCompletionProcessor {
 	private ToolWorkspace fCurrentWorkspace;
 	
 	
-	/**
-	 * 
-	 */
 	public RPathCompletionProcessor(final NIConsolePage page) {
 		fPage = page;
 	}
@@ -80,8 +77,47 @@ public class RPathCompletionProcessor extends PathCompletionProcessor {
 	}
 	
 	@Override
-	protected String checkPathCompletion(final String completion) {
-		return RUtil.escapeCompletly(completion);
+	protected String checkPrefix(final String prefix) {
+		String unescaped = RUtil.unescapeCompletly(prefix);
+		// keep a single (not escaped) backslash
+		if (prefix.length() > 0 && prefix.charAt(prefix.length()-1) == '\\' && 
+				(unescaped.length() == 0 || unescaped.charAt(unescaped.length()-1) != '\\')) {
+			unescaped = unescaped + '\\';
+		}
+		return super.checkPrefix(prefix);
+	}
+	
+	@Override
+	protected String checkPathCompletion(final IDocument document, final int completionOffset, String completion)
+			throws BadLocationException {
+		completion = RUtil.escapeCompletly(completion);
+		int existingBackslashCount = 0;
+		if (completionOffset >= 1) {
+			if (document.getChar(completionOffset-1) == '\\') {
+				existingBackslashCount++;
+				if (completionOffset >= 2) {
+					if (document.getChar(completionOffset-2) == '\\') {
+						existingBackslashCount++;
+					}
+				}
+			}
+		}
+		final boolean startsWithBackslash = (completion.length() >= 2 && 
+				completion.charAt(0) == '\\' && completion.charAt(1) == '\\');
+		if ((existingBackslashCount % 2) == 1) {
+			if (startsWithBackslash) {
+				completion = completion.substring(1);
+			}
+			else {
+				completion = '\\' + completion;
+			}
+		}
+		else if (existingBackslashCount > 0) {
+			if (startsWithBackslash) {
+				completion = completion.substring(2);
+			}
+		}
+		return completion;
 	}
 	
 }

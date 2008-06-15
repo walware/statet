@@ -14,9 +14,7 @@ package de.walware.statet.r.core;
 import java.util.regex.Pattern;
 
 
-/**
- * 
- */
+// TODO: add all escape codes
 public class RUtil {
 	
 	public static final Pattern BACKSLASH_PATTERN = Pattern.compile("\\\\"); //$NON-NLS-1$
@@ -28,64 +26,93 @@ public class RUtil {
 		if (s.indexOf('"') < 0) {
 			return s;
 		}
-		final StringBuilder escaped = new StringBuilder(s.length()+1);
+		final StringBuilder result = new StringBuilder(s.length()+1);
 		boolean nextEscaped = false;
-		for (int i = 0; i < s.length(); i++) {
-			final char c = s.charAt(i);
+		for (int i = 0; i < s.length(); ) {
+			final char c = s.charAt(i++);
 			switch (c) {
 			case '\\':
 				nextEscaped = !nextEscaped;
-				escaped.append(c);
+				result.append(c);
 				break;
 			case '"':
 				if (!nextEscaped) {
-					escaped.append('\\');
+					result.append('\\');
 				}
 				// no break
 			default:
 				nextEscaped = false;
-				escaped.append(c);
+				result.append(c);
 				break;
 			}
 		}
-		return escaped.toString();
+		return result.toString();
 	}
 	
 	public static String escapeBackslash(final String s) {
 		if (s.indexOf('\\') < 0) {
 			return s;
 		}
-		final StringBuilder escaped = new StringBuilder(s.length());
-		for (int i = 0; i < s.length(); i++) {
-			final char c = s.charAt(i);
+		final StringBuilder result = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); ) {
+			final char c = s.charAt(i++);
 			switch (c) {
 			case '\\':
-				escaped.append("\\\\"); //$NON-NLS-1$
+				result.append("\\\\"); //$NON-NLS-1$
 				break;
 			default:
-				escaped.append(c);
+				result.append(c);
 				break;
 			}
 		}
-		return escaped.toString();
+		return result.toString();
 	}
 	
 	public static String escapeCompletly(final String s) {
-		final StringBuilder escaped = new StringBuilder(s.length());
-		for (int i = 0; i < s.length(); i++) {
-			final char c = s.charAt(i);
+		final StringBuilder result = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); ) {
+			final char c = s.charAt(i++);
 			switch (c) {
 			case '\\':
 			case '\'':
 			case '"':
-				escaped.append('\\');
-				// no break
+				result.append('\\');
+				result.append(c);
+				continue;
 			default:
-				escaped.append(c);
-				break;
+				result.append(c);
+				continue;
 			}
 		}
-		return escaped.toString();
+		return result.toString();
+	}
+	
+	public static String unescapeCompletly(final String s) {
+		final StringBuilder result = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); ) {
+			final char c = s.charAt(i++);
+			if (c == '\\') {
+				if (i < s.length()) {
+					final char e = s.charAt(i++);
+					switch(e) {
+					case 'n':
+						result.append('\n');
+						continue;
+					default:
+						result.append(e);
+						continue;
+					}
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				result.append(c);
+				continue;
+			}
+		}
+		return result.toString();
 	}
 	
 }
