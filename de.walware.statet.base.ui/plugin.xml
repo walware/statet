@@ -25,14 +25,14 @@
             class="de.walware.statet.base.internal.ui.StatetPerspectiveFactory"
             icon="icons/view_16/statet_perspective.gif"
             id="de.walware.statet.base.perspectives.StatetPerspective"
-            name="%perspectives.StatetPerspective.name"/>
+            name="%perspectives_StatetPerspective_name"/>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
       <context
-            description="%contexts.TextEditorScope.description"
+            description="%contexts_TextEditorScope_description"
             id="de.walware.statet.base.contexts.TextEditor"
-            name="%contexts.TextEditorScope.name"
+            name="%contexts_TextEditorScope_name"
             parentId="org.eclipse.ui.textEditorScope"/>
    </extension>
    <extension
@@ -87,7 +87,7 @@
             id="de.walware.statet.base.commands.GotoMatchingBracket"
             categoryId="org.eclipse.ui.category.navigate"
             name="%commands_GotoMatchingBracket_name"
-            description="%commands.GotoMatchingBracket_description"
+            description="%commands_GotoMatchingBracket_description"
             />
       <command
             id="de.walware.statet.base.commands.ToggleComment"
@@ -200,14 +200,14 @@
       <page
             class="de.walware.statet.base.internal.ui.preferences.StatetBasePreferencePage"
             id="de.walware.statet.base.preferencePages.StatetBase"
-            name="%preferencePages.StatetBase.name">
+            name="%preferencePages_StatetBase_name">
          <keywordReference id="de.walware.statet.base.keywords.StatetGeneral"/>
       </page>
       <page
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.EditorsPreferencePage"
             id="de.walware.statet.base.preferencePages.Editors"
-            name="%preferencePages.Editors.name">
+            name="%preferencePages_Editors_name">
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
       </page>
@@ -215,7 +215,7 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
             id="de.walware.statet.base.preferencePages.CodeGenerationTemplates"
-            name="%preferencePages.CodeGenerationTemplates.name">
+            name="%preferencePages_CodeGenerationTemplates_name">
          <keywordReference id="de.walware.statet.base.keywords.Template"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
@@ -223,7 +223,7 @@
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.TaskTagsPreferencePage"
             id="de.walware.statet.base.ui.preferencePages.TaskTags"
-            name="%preferencePages.TaskTags.name">
+            name="%preferencePages_TaskTags_name">
          <keywordReference id="de.walware.statet.base.keywords.TaskTag"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
@@ -233,7 +233,7 @@
       <page
             class="de.walware.statet.base.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
             id="de.walware.statet.base.propertyPages.CodeGenerationTemplates"
-            name="%propertyPages.CodeGenerationTemplates.name"
+            name="%propertyPages_CodeGenerationTemplates_name"
             >
          <enabledWhen>
             <instanceof value="org.eclipse.core.resources.IProject"/>
@@ -247,7 +247,7 @@
       <page
             class="de.walware.statet.base.internal.ui.preferences.TaskTagsPreferencePage"
             id="de.walware.statet.base.propertyPages.TaskTags"
-            name="%propertyPages.TaskTags.name"
+            name="%propertyPages_TaskTags_name"
             >
          <enabledWhen>
             <instanceof value="org.eclipse.core.resources.IProject"/>
@@ -263,28 +263,28 @@
          point="org.eclipse.ui.keywords">
       <keyword
             id="de.walware.statet.base.keywords.StatetGeneral"
-            label="%keywords.StatetGeneral"/>
+            label="%keywords_StatetGeneral"/>
       <keyword
             id="de.walware.statet.base.keywords.Appearance"
-            label="%keywords.Appearance"/>
+            label="%keywords_Appearance"/>
       <keyword
             id="de.walware.statet.base.keywords.Template"
-            label="%keywords.Template"/>
+            label="%keywords_Template"/>
       <keyword
             id="de.walware.statet.base.keywords.Editor"
-            label="%keywords.Editor"/>
+            label="%keywords_Editor"/>
       <keyword
             id="de.walware.statet.base.keywords.TaskTag"
-            label="%keywords.TaskTag"/>
+            label="%keywords_TaskTag"/>
       <keyword
             id="de.walware.statet.base.keywords.ProjectSpecific"
-            label="%keywords.ProjectSpecific"/>
+            label="%keywords_ProjectSpecific"/>
       <keyword
             id="de.walware.statet.base.keywords.Formatting"
-            label="%keywords.Formatting"/>
+            label="%keywords_Formatting"/>
       <keyword
             id="de.walware.statet.base.keywords.SpellChecking"
-            label="%keywords.SpellChecking">
+            label="%keywords_SpellChecking">
       </keyword>
    </extension>
    <extension
@@ -304,27 +304,27 @@
       <menuContribution
             locationURI="menu:edit?after=selectAll">
          <menu
-               label="%menus.Edit_ExpandSelectionTo.label"
-               mnemonic="%menus.Edit_ExpandSelectionTo.mnemonic">
+               label="%menus_Edit_ExpandSelectionTo_label"
+               mnemonic="%menus_Edit_ExpandSelectionTo_mnemonic">
             <command
                   commandId="de.walware.statet.base.commands.SelectExpandEnclosing"
-                  label="%commands.SelectEnclosing.name"
-                  mnemonic="%menus.Edit_ExpandSelectionTo_Enclosing.mnemonic">
+                  label="%commands_SelectEnclosing_name"
+                  mnemonic="%menus_Edit_ExpandSelectionTo_Enclosing_mnemonic">
             </command>
             <command
                   commandId="de.walware.statet.base.commands.SelectExpandNext"
-                  label="%commands.SelectNext.name"
-                  mnemonic="%menus.Edit_ExpandSelectionTo_Next.mnemonic">
+                  label="%commands_SelectNext_name"
+                  mnemonic="%menus_Edit_ExpandSelectionTo_Next_mnemonic">
             </command>
             <command
                   commandId="de.walware.statet.base.commands.SelectExpandPrevious"
-                  label="%commands.SelectPrevious.name"
-                  mnemonic="%menus.Edit_ExpandSelectionTo_Previous.mnemonic">
+                  label="%commands_SelectPrevious_name"
+                  mnemonic="%menus_Edit_ExpandSelectionTo_Previous_mnemonic">
             </command>
             <command
                   commandId="de.walware.statet.base.commands.SelectLast"
-                  label="%commands.SelectLast.name"
-                  mnemonic="%menus.Edit_ExpandSelectionTo_Last.mnemonic">
+                  label="%commands_SelectLast_name"
+                  mnemonic="%menus_Edit_ExpandSelectionTo_Last_mnemonic">
             </command>
             <visibleWhen>
                <reference
@@ -345,13 +345,13 @@
             </separator>
             <command
                   commandId="de.walware.statet.base.commands.ToggleComment"
-                  label="%commands.ToggleComment.name"
-                  mnemonic="%menus.Source_ToggleComment.mnemonic">
+                  label="%commands_ToggleComment_name"
+                  mnemonic="%menus_Source_ToggleComment_mnemonic">
             </command>
             <command
                   commandId="de.walware.statet.base.commands.AddDocComment"
-                  label="%commands.AddDocComment.name"
-                  mnemonic="%menus.Source_AddDocComment.mnemonic">
+                  label="%commands_AddDocComment_name"
+                  mnemonic="%menus_Source_AddDocComment_mnemonic">
             </command>
             <separator
                   name="format"
@@ -359,16 +359,16 @@
             </separator>
             <command
                   commandId="org.eclipse.ui.edit.text.shiftRight"
-                  mnemonic="%menus.Source_ShiftRight.mnemonic">
+                  mnemonic="%menus_Source_ShiftRight_mnemonic">
             </command>
             <command
                   commandId="org.eclipse.ui.edit.text.shiftLeft"
-                  mnemonic="%menus.Source_ShiftLeft.mnemonic">
+                  mnemonic="%menus_Source_ShiftLeft_mnemonic">
             </command>
             <command
                   commandId="de.walware.statet.base.commands.CorrectIndent"
-                  label="%commands.CorrectIndent.name"
-                  mnemonic="%menus.Source_CorrectIndent.mnemonic">
+                  label="%commands_CorrectIndent_name"
+                  mnemonic="%menus_Source_CorrectIndent_mnemonic">
             </command>
             <separator
                   name="additions"
@@ -384,8 +384,8 @@
       <menuContribution locationURI="menu:goTo">
          <command
                commandId="de.walware.statet.base.commands.GotoMatchingBracket"
-               label="%menuCommand.GotoMatchingBracket.label"
-               mnemonic="%menus.Nav_GoTo_GotoMatchingBracket.mnemonic"
+               label="%menus_Nav_Goto_GotoMatchingBracket_label"
+               mnemonic="%menus_Nav_GoTo_GotoMatchingBracket_mnemonic"
                style="push">
             <visibleWhen>
                <reference

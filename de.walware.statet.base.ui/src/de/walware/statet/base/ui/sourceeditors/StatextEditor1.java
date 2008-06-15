@@ -76,6 +76,7 @@ import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.ext.core.StatextProject;
@@ -684,16 +685,13 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	private void updateFoldingEnablement() {
 		if (fFoldingEnablement != null) {
-			UIAccess.getDisplay().timerExec(50, new Runnable() {
+			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					final Boolean enable = PreferencesUtil.getInstancePrefs().getPreferenceValue(fFoldingEnablement);
 					final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 					if (enable != null && UIAccess.isOkToUse(viewer)) {
-						if (enable) {
-							viewer.enableProjection();
-						}
-						else {
-							viewer.disableProjection();
+						if (enable != viewer.isProjectionMode()) {
+							viewer.doOperation(ProjectionViewer.TOGGLE);
 						}
 					}
 				}
@@ -715,7 +713,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	private void updateMarkOccurrencesEnablement() {
 		if (fMarkOccurrencesEnablement != null) {
-			UIAccess.getDisplay().timerExec(50, new Runnable() {
+			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					final Boolean enable = PreferencesUtil.getInstancePrefs().getPreferenceValue(fMarkOccurrencesEnablement);
 					if (enable) {
@@ -819,7 +817,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	protected void rulerContextMenuAboutToShow(final IMenuManager menu) {
 		super.rulerContextMenuAboutToShow(menu);
 		if (fFoldingActionGroup != null) {
-			final IMenuManager foldingMenu = new MenuManager(EditorMessages.FoldingMenu_label, "projection"); //$NON-NLS-1$
+			final IMenuManager foldingMenu = new MenuManager(StatetMessages.CodeFolding_label, "projection"); //$NON-NLS-1$
 			menu.appendToGroup(ITextEditorActionConstants.GROUP_RULERS, foldingMenu);
 			fFoldingActionGroup.fillMenu(foldingMenu);
 		}

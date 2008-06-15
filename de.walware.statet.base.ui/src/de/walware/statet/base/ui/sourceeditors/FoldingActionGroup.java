@@ -13,96 +13,107 @@
 
 package de.walware.statet.base.ui.sourceeditors;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.text.source.projection.IProjectionListener;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.editors.text.IFoldingCommandIds;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.eclipse.ui.texteditor.TextOperationAction;
+
+import de.walware.eclipsecommons.UpdateableHandler;
+import de.walware.eclipsecommons.ui.HandlerContributionItem;
+import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import de.walware.statet.base.internal.ui.StatetMessages;
 
 
 /**
  * Groups the folding actions.
  */
-public class FoldingActionGroup extends ActionGroup {
+public class FoldingActionGroup extends ActionGroup implements IProjectionListener {
 	
-//	private class FoldingAction extends ResourceAction implements IUpdate {
-//		
-//		FoldingAction(ResourceBundle bundle, String prefix) {
-//			super(bundle, prefix, IAction.AS_PUSH_BUTTON);
-//		}
-//		
-//		public void update() {
-//			setEnabled(FoldingActionGroup.this.isEnabled() && fViewer.isProjectionMode());
-//		}
-//		
-//	}
+	private class ViewerOperationHandler extends UpdateableHandler {
+		
+		private int fOperationCode;
+		
+		public ViewerOperationHandler(final int operationCode) {
+			super();
+			fOperationCode = operationCode;
+		}
+		
+		public void update() {
+			setEnabled(UIAccess.isOkToUse(fViewer) && fViewer.isProjectionMode());
+		}
+		
+		@Override
+		public Object execute(final ExecutionEvent event) throws ExecutionException {
+			if (UIAccess.isOkToUse(fViewer) && fViewer.canDoOperation(fOperationCode)) {
+				fViewer.doOperation(fOperationCode);
+			}
+			return null;
+		}
+		
+	}
 	
 	private ITextEditor fEditor;
+	private ProjectionViewer fViewer;
 	
-	private final TextOperationAction fExpand;
-	private final TextOperationAction fCollapse;
-	private final TextOperationAction fExpandAll;
-	private final TextOperationAction fCollapseAll;
-//	private final FoldingAction fCollapseMembers;
-//	private final FoldingAction fCollapseComments;
+	private final ViewerOperationHandler fExpand;
+	private final ViewerOperationHandler fCollapse;
+	private final ViewerOperationHandler fExpandAll;
+	private final ViewerOperationHandler fCollapseAll;
 	
 	
 	/**
-	 * Creates a new projection action group for <code>editor</code>. If the
-	 * supplied viewer is not an instance of <code>ProjectionViewer</code>, the
-	 * action group is disabled.
+	 * Creates a new projection action group for <code>editor</code>.
 	 * 
 	 * @param editor the text editor to operate on
 	 * @param viewer the viewer of the editor
 	 */
 	public FoldingActionGroup(final ITextEditor editor, final ProjectionViewer viewer) {
 		fEditor = editor;
+		fViewer = viewer;
+		final IHandlerService handlerService = (IHandlerService) fEditor.getSite().getService(IHandlerService.class);
 		
-		fExpandAll = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.ExpandAll.", editor, ProjectionViewer.EXPAND_ALL, true); //$NON-NLS-1$
-		fExpandAll.setActionDefinitionId(IFoldingCommandIds.FOLDING_EXPAND_ALL);
-		editor.setAction("FoldingExpandAll", fExpandAll); //$NON-NLS-1$
+		fExpandAll = new ViewerOperationHandler(ProjectionViewer.EXPAND_ALL);
+		handlerService.activateHandler(IFoldingCommandIds.FOLDING_EXPAND_ALL, fExpandAll);
 		
-		fCollapseAll = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.CollapseAll.", editor, ProjectionViewer.COLLAPSE_ALL, true); //$NON-NLS-1$
-		fCollapseAll.setActionDefinitionId(IFoldingCommandIds.FOLDING_COLLAPSE_ALL);
-		editor.setAction("FoldingCollapseAll", fCollapseAll); //$NON-NLS-1$
+		fCollapseAll = new ViewerOperationHandler(ProjectionViewer.COLLAPSE_ALL); 
+		handlerService.activateHandler(IFoldingCommandIds.FOLDING_COLLAPSE_ALL, fCollapseAll);
 		
-		fExpand = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.Expand.", editor, ProjectionViewer.EXPAND, true); //$NON-NLS-1$
-		fExpand.setActionDefinitionId(IFoldingCommandIds.FOLDING_EXPAND);
-		editor.setAction("FoldingExpand", fExpand); //$NON-NLS-1$
+		fExpand = new ViewerOperationHandler(ProjectionViewer.EXPAND); 
+		handlerService.activateHandler(IFoldingCommandIds.FOLDING_EXPAND, fExpand);
 		
-		fCollapse = new TextOperationAction(EditorMessages.getCompatibilityBundle(), "Projection.Collapse.", editor, ProjectionViewer.COLLAPSE, true); //$NON-NLS-1$
-		fCollapse.setActionDefinitionId(IFoldingCommandIds.FOLDING_COLLAPSE);
-		editor.setAction("FoldingCollapse", fCollapse); //$NON-NLS-1$
+		fCollapse = new ViewerOperationHandler(ProjectionViewer.COLLAPSE); 
+		handlerService.activateHandler(IFoldingCommandIds.FOLDING_COLLAPSE, fCollapse);
 		
+		fViewer.addProjectionListener(this);
+		
+		update();
 	}
 	
 	/**
-	 * Returns <code>true</code> if the group is enabled.
-	 * <pre>
-	 * Invariant: isEnabled() <=> fViewer and all actions are != null.
-	 * </pre>
-	 * 
-	 * @return <code>true</code> if the group is enabled
+	 * Note: this is not intend to use to remove the actions from the editor
 	 */
-	protected boolean isEnabled() {
-		return fEditor != null;
-	}
-	
 	@Override
 	public void dispose() {
-		super.dispose();
 		fEditor = null;
+		fViewer = null;
+		super.dispose();
 	}
 	
 	/**
 	 * Updates the actions.
 	 */
 	protected void update() {
-		if (isEnabled()) {
+		if (fViewer != null) {
 			fExpand.update();
 			fExpandAll.update();
 			fCollapse.update();
@@ -116,20 +127,36 @@ public class FoldingActionGroup extends ActionGroup {
 	 * @param manager the menu manager for the folding submenu
 	 */
 	public void fillMenu(final IMenuManager manager) {
-		if (isEnabled()) {
+		if (fViewer != null) {
 			update();
 			manager.add(new CommandContributionItem(
-					fEditor.getSite(), "ToggleFolding", IFoldingCommandIds.FOLDING_TOGGLE, null, //$NON-NLS-1$
+					fEditor.getSite(), null, IFoldingCommandIds.FOLDING_TOGGLE, null, 
 					null, null, null,
-					EditorMessages.CodeFolding_Enable_label, EditorMessages.CodeFolding_Enable_mnemonic, null, SWT.CHECK));
+					StatetMessages.CodeFolding_Enable_label, StatetMessages.CodeFolding_Enable_mnemonic, null, SWT.CHECK) );
 			manager.add(new Separator());
-			manager.add(fExpandAll);
-			manager.add(fCollapseAll);
+			manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
+					fEditor.getSite(), null, IFoldingCommandIds.FOLDING_EXPAND_ALL, null, 
+					null, null, null,
+					StatetMessages.CodeFolding_ExpandAll_label, StatetMessages.CodeFolding_ExpandAll_mnemonic, null, SWT.CHECK, null),
+					fExpandAll ));
+			manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
+					fEditor.getSite(), null, IFoldingCommandIds.FOLDING_COLLAPSE_ALL, null, 
+					null, null, null,
+					StatetMessages.CodeFolding_CollapseAll_label, StatetMessages.CodeFolding_CollapseAll_mnemonic, null, SWT.CHECK, null),
+					fCollapseAll ));
 		}
 	}
 	
 	@Override
 	public void updateActionBars() {
+		update();
+	}
+	
+	public void projectionEnabled() {
+		update();
+	}
+	
+	public void projectionDisabled() {
 		update();
 	}
 	

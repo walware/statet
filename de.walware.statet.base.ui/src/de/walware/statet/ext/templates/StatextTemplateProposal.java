@@ -86,7 +86,7 @@ public class StatextTemplateProposal implements ICompletionProposal, ICompletion
 	private IRegion fRegion;
 	private int fRelevance;
 	
-	private IRegion fSelectedRegion; // initialized by apply()
+	private IRegion fSelectionToSet; // initialized by apply()
 	private InclusivePositionUpdater fUpdater;
 	private String fId;
 	
@@ -216,7 +216,7 @@ public class StatextTemplateProposal implements ICompletionProposal, ICompletion
 				templateBuffer = fContext.evaluate(fTemplate);
 			}
 			catch (final TemplateException e1) {
-				fSelectedRegion = new Region(regionPosition.getOffset(), regionPosition.getLength());
+				fSelectionToSet = new Region(regionPosition.getOffset(), regionPosition.getLength());
 				return;
 			}
 			
@@ -276,10 +276,10 @@ public class StatextTemplateProposal implements ICompletionProposal, ICompletion
 				ui.setExitPosition(viewer, getCaretOffset(templateBuffer) + start, 0, Integer.MAX_VALUE);
 				ui.enter();
 				
-				fSelectedRegion = ui.getSelectedRegion();
+				fSelectionToSet = ui.getSelectedRegion();
 			} else {
 				ensurePositionCategoryRemoved(document);
-				fSelectedRegion = new Region(getCaretOffset(templateBuffer) + start, 0);
+				fSelectionToSet = new Region(getCaretOffset(templateBuffer) + start, 0);
 			}
 			
 		}
@@ -299,7 +299,7 @@ public class StatextTemplateProposal implements ICompletionProposal, ICompletion
 	private void handleError(final Exception e) {
 		StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.INTERNAL_TEMPLATE,
 				"Template Evaluation Error", e));
-		fSelectedRegion = fRegion;
+		fSelectionToSet = fRegion;
 	}
 	
 	private String getCategory() {
@@ -390,7 +390,10 @@ public class StatextTemplateProposal implements ICompletionProposal, ICompletion
 	}
 	
 	public Point getSelection(final IDocument document) {
-		return new Point(fSelectedRegion.getOffset(), fSelectedRegion.getLength());
+		if (fSelectionToSet != null) {
+			return new Point(fSelectionToSet.getOffset(), fSelectionToSet.getLength());
+		}
+		return null;
 	}
 	
 	public int getContextInformationPosition() {
