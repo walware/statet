@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -64,8 +65,10 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		
 		private IFileStore fFileStore;
 		private boolean fIsDirectory;
+		/** The parent in the workspace, if in workspace */
+		private IContainer fWorkspaceRef;
+		
 		private String fName;
-		private Image fImage;
 		
 		/** Offset where the name starts and where to insert the completion */
 		private int fCompletionOffset;
@@ -79,22 +82,13 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 			fCompletionOffset = offset;
 			fFileStore = fileStore;
 			fIsDirectory = fFileStore.fetchInfo().isDirectory();
+			fWorkspaceRef = workspaceRef;
 			final StringBuilder name = new StringBuilder(fFileStore.getName());
 			if (prefix != null) {
 				name.insert(0, prefix);
 			}
 			if (fIsDirectory) {
 				name.append(fPathSeparator);
-			}
-			if (workspaceRef != null) {
-				final IResource member = workspaceRef.findMember(fFileStore.getName(), false);
-				if (member != null) {
-					fImage = StatetUIPlugin.getDefault().getWorkbenchLabelProvider().getImage(member);
-				}
-			}
-			if (fImage == null) {
-				fImage = PlatformUI.getWorkbench().getSharedImages().getImage(
-					fIsDirectory ? ISharedImages.IMG_OBJ_FOLDER : ISharedImages.IMG_OBJ_FILE);
 			}
 			fName = name.toString();
 		}
@@ -113,7 +107,18 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 		
 		
 		public Image getImage() {
-			return fImage;
+			Image image = null;
+			if (fWorkspaceRef != null) {
+				final IResource member = fWorkspaceRef.findMember(fFileStore.getName(), true);
+				if (member != null) {
+					image = StatetUIPlugin.getDefault().getWorkbenchLabelProvider().getImage(member);
+				}
+			}
+			if (image == null) {
+				image = PlatformUI.getWorkbench().getSharedImages().getImage(
+					fIsDirectory ? ISharedImages.IMG_OBJ_FOLDER : ISharedImages.IMG_OBJ_FILE);
+			}
+			return image;
 		}
 		
 		public String getDisplayString() {
@@ -285,12 +290,19 @@ public abstract class PathCompletionProcessor implements IContentAssistProcessor
 				
 				if (path != null) {
 					if (path.isAbsolute()) {
+						// on Windows, path starting with path separator are relative to the device of current directory
+						if (Platform.getOS().startsWith("win") && path.getDevice() == null && !path.isUNC()) { //$NON-NLS-1$
+							final IFileStore workspace = getRelativeBase();
+							if (workspace != null) {
+								path = path.setDevice(URIUtil.toPath(workspace.toURI()).getDevice());
+							}
+						}
 						baseStore = EFS.getStore(URIUtil.toURI(path));
 					}
 					else {
-						baseStore = getRelativeBase();
-						if (baseStore != null) {
-							path = URIUtil.toPath(baseStore.toURI()).append(path).makeAbsolute();
+						final IFileStore workspace = getRelativeBase();
+						if (workspace != null) {
+							path = URIUtil.toPath(workspace.toURI()).append(path).makeAbsolute();
 							baseStore = EFS.getStore(URIUtil.toURI(path));
 						}
 					}
