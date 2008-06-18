@@ -77,7 +77,8 @@ public class FileValidator implements IValidator {
 	}
 	
 	/**
-	 * 
+	 * New validator initialized with specified default mode
+	 * ({@link #setDefaultMode(boolean)})
 	 */
 	public FileValidator(final boolean existingResource) {
 		this();
@@ -198,7 +199,7 @@ public class FileValidator implements IValidator {
 		}
 		if (value instanceof String) {
 			String s = (String) value;
-			if (s.trim().length() == 0) {
+			if (s.length() == 0) {
 				return createStatus(fOnEmpty, Messages.Resource_error_NoInput_message, null);
 			}
 			try {
@@ -206,18 +207,31 @@ public class FileValidator implements IValidator {
 			} catch (final CoreException e) {
 				return createStatus(e.getStatus().getSeverity(), Messages.Resource_error_Other_message, e.getStatus().getMessage());
 			}
+			if (s.length() == 0) {
+				return createStatus(fOnEmpty, Messages.Resource_error_NoInput_message, null);
+			}
 			if (fIgnoreRelative && !new Path(s).isAbsolute()) {
 				return Status.OK_STATUS;
 			}
-			fWorkspaceResource = ResourcesPlugin.getWorkspace().getRoot().findMember(s, false);
-			if (fWorkspaceResource == null) {
-				try {
-					fFileStore = FileUtil.getFileStore(s);
-					if (fFileStore == null) {
-						return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, null);
-					}
-				} catch (final CoreException e) {
-					return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, e.getStatus().getMessage());
+			
+			// search efs reference
+			try {
+				fFileStore = FileUtil.getFileStore(s);
+				if (fFileStore == null) {
+					return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, null);
+				}
+			}
+			catch (final CoreException e) {
+				return createStatus(IStatus.ERROR, Messages.Resource_error_NoValidSpecification_message, e.getStatus().getMessage());
+			}
+			
+			// search file in workspace 
+			if (fFileStore != null) {
+				final IResource[] resources = (fFileStore.fetchInfo().isDirectory()) ? 
+						ResourcesPlugin.getWorkspace().getRoot().findContainersForLocationURI(fFileStore.toURI()) :
+						ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(fFileStore.toURI());
+				if (resources.length > 0) {
+					fWorkspaceResource = resources[0];
 				}
 			}
 		}
