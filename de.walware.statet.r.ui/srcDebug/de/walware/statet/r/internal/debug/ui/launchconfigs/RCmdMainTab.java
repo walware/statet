@@ -116,6 +116,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		public String getCommand() {
 			return fCommand;
 		}
+		
 	}
 	
 	
@@ -259,8 +260,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		final IObservableValue cmdSelection = ViewersObservables.observeSingleSelection(fCmdCombo);
 		dbc.bindValue(cmdSelection, fCmdValue, null, null);
 		final IValidator cmdValidator = new IValidator() {
-			public IStatus validate(Object value) {
-				String s = (String) value;
+			public IStatus validate(final Object value) {
+				final String s = (String) value;
 				if (s == null || s.trim().length() == 0) {
 					return ValidationStatus.warning(RLaunchingMessages.RCmd_MainTab_error_MissingCMD_message);
 				}
@@ -331,7 +332,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				fCustomCommand.setCommand(command);
 				cmd = fCustomCommand;
 			}
-		} catch (final CoreException e) {
+		}
+		catch (final CoreException e) {
 			cmd = fCommands[0];
 			logReadingError(e);
 		}
@@ -341,7 +343,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		try {
 			options = configuration.getAttribute(RLaunchConfigurations.ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$
 			
-		} catch (final CoreException e) {
+		}
+		catch (final CoreException e) {
 			options = ""; //$NON-NLS-1$
 			logReadingError(e);
 		}
@@ -350,7 +353,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		String resource = null;
 		try {
 			resource = configuration.getAttribute(ATTR_R_CMD_RESOURCE, ""); //$NON-NLS-1$
-		} catch (final CoreException e) {
+		}
+		catch (final CoreException e) {
 			resource = ""; //$NON-NLS-1$
 		}
 		fResourceValue.setValue(resource);
