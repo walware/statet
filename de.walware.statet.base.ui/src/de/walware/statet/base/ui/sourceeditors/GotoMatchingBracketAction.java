@@ -18,6 +18,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
 
 import de.walware.eclipsecommons.ltk.text.ITokenScanner;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
@@ -90,15 +92,21 @@ public class GotoMatchingBracketAction extends Action {
 		}
 		
 		if (selectionLength > 0) {
-			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_InvalidSelection);
+			final IEditorStatusLine statusLine = (IEditorStatusLine) fEditor.getAdapter(IEditorStatusLine.class);
+			if (statusLine != null) {
+				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_InvalidSelection, null);
+			}
 			sourceViewer.getTextWidget().getDisplay().beep();
 			return;
 		}
 		
 		final IRegion region = fPairMatcher.match(document, offset);
 		if (region == null) {
-			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket);
-			sourceViewer.getTextWidget().getDisplay().beep();
+			final IEditorStatusLine statusLine = (IEditorStatusLine) fEditor.getAdapter(IEditorStatusLine.class);
+			if (statusLine != null) {
+				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket, null);
+			}
+			Display.getCurrent().beep();
 			return;
 		}
 		
@@ -120,8 +128,11 @@ public class GotoMatchingBracketAction extends Action {
 		}
 		
 		if (!visible) {
-			fEditor.setStatusLineErrorMessage(EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement);
-			sourceViewer.getTextWidget().getDisplay().beep();
+			final IEditorStatusLine statusLine = (IEditorStatusLine) fEditor.getAdapter(IEditorStatusLine.class);
+			if (statusLine != null) {
+				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement, null);
+			}
+			Display.getCurrent().beep();
 			return;
 		}
 		

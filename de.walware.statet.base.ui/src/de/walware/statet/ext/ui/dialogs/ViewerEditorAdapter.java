@@ -59,9 +59,6 @@ public class ViewerEditorAdapter implements IEditorAdapter {
 		return fSourceViewer.isEditable();
 	}
 	
-	public void setStatusLineErrorMessage(final String message) {
-	}
-	
 	public Object getAdapter(final Class adapter) {
 		return null;
 	}

@@ -18,10 +18,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.ui.NicoUI;
@@ -74,9 +74,9 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 			// TODO Move to registry actions/throw exceptions
 			final IWorkbenchPart part = page.getActivePart();
 			if (part != null) {
-				final IEditorAdapter adapter = (IEditorAdapter) part.getAdapter(IEditorAdapter.class);
-				if (adapter != null) {
-					adapter.setStatusLineErrorMessage(RLaunchingMessages.Run_error_NoRSession_message);
+				final IEditorStatusLine statusLine = (IEditorStatusLine) part.getAdapter(IEditorStatusLine.class);
+				if (statusLine != null) {
+					statusLine.setMessage(true, RLaunchingMessages.Run_error_NoRSession_message, null);
 				}
 			}
 			Display.getCurrent().beep();

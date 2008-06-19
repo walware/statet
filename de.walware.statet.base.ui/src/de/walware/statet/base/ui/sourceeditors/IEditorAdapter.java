@@ -29,13 +29,6 @@ public interface IEditorAdapter extends IAdaptable {
 	public void install(IEditorInstallable installable);
 	
 	/**
-	 * Shows the message to the status line, if possible.
-	 * 
-	 * @param message message to show.
-	 */
-	public void setStatusLineErrorMessage(String message);
-	
-	/**
 	 * Returns the part the editor belongs to.
 	 * 
 	 * @return the part

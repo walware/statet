@@ -53,9 +53,6 @@ public class CompareTextViewer extends Viewer {
 			return (fInput instanceof IEditableContent && ((IEditableContent) fInput).isEditable());
 		}
 		
-		public void setStatusLineErrorMessage(final String message) {
-		}
-		
 		public Object getAdapter(final Class adapter) {
 			return null;
 		}

@@ -64,12 +64,6 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.internal.ui.StatetMessages;
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.ext.core.StatextProject;
-
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.ast.AstSelection;
 import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
@@ -81,6 +75,12 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.internal.ui.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.statet.base.ui.IStatetUICommandIds;
+import de.walware.statet.ext.core.StatextProject;
 
 
 public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
@@ -178,10 +178,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 				return StatextEditor1.this.validateEditorInputState();
 			}
 			return StatextEditor1.this.isEditorInputModifiable();
-		}
-		
-		public void setStatusLineErrorMessage(final String message) {
-			StatextEditor1.this.setStatusLineErrorMessage(message);
 		}
 		
 		public Object getAdapter(final Class required) {

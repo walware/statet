@@ -34,6 +34,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
@@ -250,14 +251,14 @@ public class RSelectionDirectAndPasteOutputLaunchShortcut implements ILaunchShor
 	
 	private void runAndPasteSelection(final IEditorAdapter editor) {
 		if (!editor.isEditable(true)) {
-			cancel(editor, null, RLaunchingMessages.RunAndPasteLaunch_info_WriteProtected_status);
+			cancel(editor, null, false, RLaunchingMessages.RunAndPasteLaunch_info_WriteProtected_status);
 			return;
 		}
 		final SourceViewer viewer = editor.getSourceViewer();
 		final ITextSelection selection = (ITextSelection) viewer.getSelection();
 		final R r = new R(editor);
 		if (!r.setupSource(selection)) {
-			cancel(editor, r, RLaunchingMessages.RunAndPasteLaunch_error_Unspecific_status);
+			cancel(editor, r, true, RLaunchingMessages.RunAndPasteLaunch_error_Unspecific_status);
 			return;
 		}
 		try {
@@ -266,19 +267,23 @@ public class RSelectionDirectAndPasteOutputLaunchShortcut implements ILaunchShor
 			controller.submit(r);
 		}
 		catch (final CoreException e) {
-			cancel(editor, r, e.getStatus().getMessage());
+			final IStatus status = e.getStatus();
+			cancel(editor, r, status.getSeverity() == IStatus.ERROR, status.getMessage());
 			return;
 		}
 	}
 	
-	private void cancel(final IEditorAdapter editor, final R r, final String message) {
+	private void cancel(final IEditorAdapter editor, final R r, final boolean isError, final String message) {
 		if (r != null) {
 			r.dispose();
 		}
-		Display.getCurrent().beep();
 		if (message != null) {
-			editor.setStatusLineErrorMessage(message);
+			final IEditorStatusLine statusLine = (IEditorStatusLine) editor.getAdapter(IEditorStatusLine.class);
+			if (statusLine != null) {
+				statusLine.setMessage(isError, message, null);
+			}
 		}
+		Display.getCurrent().beep();
 	}
 	
 }

@@ -61,6 +61,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.texteditor.AnnotationPreference;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
@@ -226,7 +227,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		}
 	}
 	
-	private class EditorAdapter implements IEditorAdapter {
+	private class EditorAdapter implements IEditorAdapter, IEditorStatusLine {
 		
 		private boolean fMessageSetted;
 		
@@ -242,22 +243,35 @@ public class InputGroup implements ISettingsChangedHandler {
 			fConfigurator.installModul(installable);
 		}
 		
-		public void setStatusLineErrorMessage(final String message) {
-			final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
-			if (manager != null) {
-				fMessageSetted = true;
-				manager.setErrorMessage(message);
-			}
-		}
-		
 		public boolean isEditable(final boolean validate) {
 			return true;
 		}
 		
-		protected void cleanStatusLine() {
+		public Object getAdapter(final Class required) {
+			if (required.equals(IEditorStatusLine.class)) {
+				return EditorAdapter.this;
+			}
+			return InputGroup.this.fConsolePage.getAdapter(required);
+		}
+		
+		public void setMessage(final boolean error, final String message, final Image image) {
+			final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
+			if (manager != null) {
+				fMessageSetted = true;
+				if (error) {
+					manager.setErrorMessage(image, message);
+				}
+				else {
+					manager.setMessage(image, message);
+				}
+			}
+		}
+		
+		void cleanStatusLine() {
 			if (fMessageSetted) {
 				final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
 				if (manager != null) {
+					manager.setMessage(null);
 					manager.setErrorMessage(null);
 					fMessageSetted = false;
 				}
@@ -265,9 +279,6 @@ public class InputGroup implements ISettingsChangedHandler {
 			}
 		}
 		
-		public Object getAdapter(final Class required) {
-			return InputGroup.this.fConsolePage.getAdapter(required);
-		}
 	}
 	
 	private class ThisKeyListener implements VerifyKeyListener {
@@ -729,7 +740,8 @@ public class InputGroup implements ISettingsChangedHandler {
 		if (controller != null) {
 			final IStatus status = controller.submit(content, SubmitType.CONSOLE);
 			if (status.getSeverity() >= IStatus.ERROR) {
-				fEditorAdapter.setStatusLineErrorMessage(status.getMessage());
+				fEditorAdapter.setMessage(true, status.getMessage(), null);
+				Display.getCurrent().beep();
 				return;
 			}
 			clear();

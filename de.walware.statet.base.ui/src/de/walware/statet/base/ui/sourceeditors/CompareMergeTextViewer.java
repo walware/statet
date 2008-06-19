@@ -72,9 +72,6 @@ public abstract class CompareMergeTextViewer extends TextMergeViewer {
 			return fEditorViewer.isEditable();
 		}
 		
-		public void setStatusLineErrorMessage(final String message) {
-		}
-		
 		public Object getAdapter(final Class adapter) {
 			return null;
 		}
