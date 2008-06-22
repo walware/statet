@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico Core
 Bundle-SymbolicName: de.walware.statet.nico.core;singleton:=true
-Bundle-Version: 0.6.0.qualifier
+Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: de.walware.statet.nico.internal.core.NicoPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
