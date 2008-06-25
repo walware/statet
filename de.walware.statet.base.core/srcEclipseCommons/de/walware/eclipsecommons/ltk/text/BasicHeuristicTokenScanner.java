@@ -350,7 +350,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 					return start;
 			}
 			
-		} catch (final BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			return NOT_FOUND;
 		}
 	}
@@ -379,7 +380,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 					return start;
 			}
 			
-		} catch (final BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			return NOT_FOUND;
 		}
 	}
@@ -415,7 +417,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				start = fDocument.getLineOffset(fLine+1);
 			}
 			
-		} catch (final BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			return NOT_FOUND;
 		}
 	}
@@ -538,7 +541,9 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				fPos = condition.nextPositionForward();
 			}
 			fPos = bound;
-		} catch (final BadLocationException e) {
+			fChar = (fPos >= 0 && fPos < fDocument.getLength()) ? fDocument.getChar(fPos) : (char) -1;
+		}
+		catch (final BadLocationException e) {
 		}
 		return NOT_FOUND;
 	}
@@ -600,7 +605,9 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				}
 			}
 			fPos = bound;
-		} catch (final BadLocationException e) {
+			fChar = (fPos >= 0 && fPos < fDocument.getLength()) ? fDocument.getChar(fPos) : (char) -1;
+		}
+		catch (final BadLocationException e) {
 		}
 		return NOT_FOUND;
 	}
@@ -678,7 +685,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	protected final String getContentType() {
 		try {
 			return TextUtilities.getContentType(fDocument, fPartitioning, fPos, false);
-		} catch (final BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			return null; // ?
 		}
 	}
@@ -693,7 +701,8 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	protected final ITypedRegion getPartition() {
 		try {
 			return TextUtilities.getPartition(fDocument, fPartitioning, fPos, false);
-		} catch (final BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			return new TypedRegion(fPos, 0, "__no_partition_at_all"); //$NON-NLS-1$
 		}
 	}
