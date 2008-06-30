@@ -53,11 +53,12 @@
       </content-type>
       <content-type
             base-type="org.eclipse.core.runtime.text"
+            describer="de.walware.statet.r.core.rdoc.RdTextContentDescriber"
             file-extensions="Rd"
             id="de.walware.statet.r.contentTypes.Rd"
             name="%contentTypes.Rd.name"
             priority="normal">
-         <property name="bom"/>
+         <property name="org.eclipse.core.runtime.charset" />
       </content-type>
       <content-type
             file-extensions="RData"
