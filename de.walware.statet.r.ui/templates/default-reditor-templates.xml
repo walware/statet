@@ -34,7 +34,7 @@
 
 <template id="r-code.for"
 	context="r-code" 
-	name="for"
+	name="foreach"
 	description="iterate over a vector" 
 	autoinsert="false" 
 	>for (${x} in ${vector}) {
@@ -46,7 +46,7 @@
 	name="for"
 	description="iterate with index over a vector" 
 	autoinsert="false" 
-	>for (${i} in 1:length(${vector})) {
+	>for (${i} in seq(along = ${vector})) {
 	${line_selection}${cursor}
 }</template>
 
