@@ -27,8 +27,7 @@ import de.walware.eclipsecommons.ui.text.BufferedDocumentScanner;
 
 
 /**
- * This scanner recognizes the comments, platform specif., verbatim-like section
- * (and other/usual Rd code).
+ * This scanner recognizes the comments, platform specif., and other/usual Rd code.
  */
 public class RdFastPartitionScanner implements IPartitionTokenScanner {	
 	
