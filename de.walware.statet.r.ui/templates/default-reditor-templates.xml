@@ -46,7 +46,7 @@
 	name="for"
 	description="iterate with index over a vector" 
 	autoinsert="false" 
-	>for (${i} in 1:length(${vector})) {
+	>for (${i} in seq(along = ${vector})) {
 	${line_selection}${cursor}
 }</template>
 

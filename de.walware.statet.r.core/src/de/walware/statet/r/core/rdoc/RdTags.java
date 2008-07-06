@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ package de.walware.statet.r.core.rdoc;
 public class RdTags {
 	
 	//---- main-section-tags --------------------------------------------------
+	public static final String ENCODING = "\\encoding"; //$NON-NLS-1$
 	public static final String NAME = "\\name"; //$NON-NLS-1$
 	public static final String DOCTYPE = "\\docType";  // dataset //$NON-NLS-1$
 	public static final String ALIAS = "\\alias"; //$NON-NLS-1$
@@ -42,6 +43,7 @@ public class RdTags {
 	public static final String CONCEPT = "\\concept"; //$NON-NLS-1$
 	
 	public static final String[] MAIN_SECTIONS = {
+		ENCODING,
 		NAME, DOCTYPE, ALIAS, TITLE, DESCRIPTION, 
 		SYNOPSIS, USAGE, ARGUMENTS, DETAILS, VALUE,
 		FORMAT, SOURCE, 
