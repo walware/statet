@@ -43,7 +43,7 @@ public class Rweave {
 	 */
 	public static final String R_TEX_PARTITIONING = "__sweave_tex_partitioning"; //$NON-NLS-1$
 	
-	public static final String[] R_PARTITIONS = new String[] {
+	public static final String[] R_PARTITION_TYPES = new String[] {
 		IRDocumentPartitions.R_DEFAULT_EXPL,
 		IRDocumentPartitions.R_QUOTED_SYMBOL,
 		IRDocumentPartitions.R_INFIX_OPERATOR,
@@ -51,7 +51,7 @@ public class Rweave {
 		IRDocumentPartitions.R_COMMENT,
 	};
 	
-	public static final String[] R_CHUNK_PARTITIONS = new String[] {
+	public static final String[] R_CHUNK_PARTITION_TYPES = new String[] {
 		CHUNK_CONTROL_CONTENT_TYPE,
 		CHUNK_COMMENT_CONTENT_TYPE,
 		IRDocumentPartitions.R_DEFAULT_EXPL,
@@ -61,7 +61,7 @@ public class Rweave {
 		IRDocumentPartitions.R_COMMENT,
 	};
 	
-	public static final String[] TEX_PARTITIONS = new String[] {
+	public static final String[] TEX_PARTITION_TYPES = new String[] {
 		ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_MATH_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_VERBATIM,
@@ -71,9 +71,9 @@ public class Rweave {
 	/**
 	 * Array with all partitions of Sweave LaTeX documents.
 	 */
-	public static final String[] R_TEX_PARTITIONS = new String[] {
-//		TexPartitionScanner.TEX_DEFAULT,
+	public static final String[] ALL_PARTITION_TYPES = new String[] {
 		IDocument.DEFAULT_CONTENT_TYPE,
+//		ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE, automatically converted to DEFAULT_CONTENT_TYPE
 		ITexDocumentConstants.TEX_MATH_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_VERBATIM,
 		ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE,

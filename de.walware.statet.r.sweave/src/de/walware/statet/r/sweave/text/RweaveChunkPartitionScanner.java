@@ -203,7 +203,7 @@ public class RweaveChunkPartitionScanner extends RFastPartitionScanner implement
 	
 	
 	public String[] getContentTypes() {
-		return Rweave.R_CHUNK_PARTITIONS;
+		return Rweave.R_CHUNK_PARTITION_TYPES;
 	}
 	
 	public boolean isInCat() {

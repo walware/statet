@@ -185,7 +185,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public String[] getConfiguredContentTypes(final ISourceViewer sourceViewer) {
-		return Rweave.R_TEX_PARTITIONS;
+		return Rweave.ALL_PARTITION_TYPES;
 	}
 	
 	@Override
@@ -312,7 +312,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 			final RChunkTemplatesCompletionProcessor controlProcessor = new RChunkTemplatesCompletionProcessor(fEditor);
 			
 			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-			for (final String contentType : Rweave.R_PARTITIONS) {
+			for (final String contentType : Rweave.R_PARTITION_TYPES) {
 				assistant.setContentAssistProcessor(rProcessor, contentType);
 			}
 			assistant.setContentAssistProcessor(controlProcessor, Rweave.TEX_DEFAULT_CONTENT_TYPE);

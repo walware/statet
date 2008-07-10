@@ -48,7 +48,7 @@ public class RweaveTexDocumentSetupParticipant extends PartitionerDocumentSetupP
 	protected Partitioner createDocumentPartitioner() {
 		return new CatPartitioner(new MultiCatPartitionScanner(Rweave.R_TEX_PARTITIONING,
 				new TexChunkPartitionScanner(fTemplateMode), new RweaveChunkPartitionScanner()),
-				Rweave.R_TEX_PARTITIONS);
+				Rweave.ALL_PARTITION_TYPES);
 	}
 	
 }

@@ -59,7 +59,7 @@ public class TexChunkPartitionScanner extends TexFastPartitionScanner
 	}
 	
 	public String[] getContentTypes() {
-		return Rweave.R_CHUNK_PARTITIONS;
+		return Rweave.TEX_PARTITION_TYPES;
 	}
 	
 	public boolean isInCat() {
