@@ -22,6 +22,7 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.eclipsecommons.ICommonStatusConstants;
 
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
+
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.ui.RUI;
 

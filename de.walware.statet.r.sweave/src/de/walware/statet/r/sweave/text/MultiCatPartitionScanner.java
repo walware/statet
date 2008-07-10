@@ -14,14 +14,14 @@ package de.walware.statet.r.sweave.text;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sourceforge.texlipse.TexlipsePlugin;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
+
+import net.sourceforge.texlipse.TexlipsePlugin;
 
 
 /**

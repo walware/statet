@@ -31,6 +31,7 @@ import de.walware.eclipsecommons.ltk.text.StringParseInput;
 import de.walware.eclipsecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.rmodel.RWorkingCopy;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RScanner;

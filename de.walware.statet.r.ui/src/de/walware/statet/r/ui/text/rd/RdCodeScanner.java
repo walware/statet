@@ -26,6 +26,7 @@ import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
 import de.walware.statet.ext.ui.text.StatextTextScanner;
+
 import de.walware.statet.r.core.rdoc.RdTags;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 

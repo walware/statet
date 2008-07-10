@@ -23,6 +23,7 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.ext.core.StatextProject;
+
 import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RSupportBuilder;

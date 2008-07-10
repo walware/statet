@@ -14,14 +14,6 @@ package de.walware.statet.r.internal.sweave.processing;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sourceforge.texlipse.TexPathConfig;
-import net.sourceforge.texlipse.Texlipse;
-import net.sourceforge.texlipse.builder.AbstractBuilder;
-import net.sourceforge.texlipse.builder.Builder;
-import net.sourceforge.texlipse.builder.BuilderRegistry;
-import net.sourceforge.texlipse.builder.TexlipseBuilder;
-import net.sourceforge.texlipse.viewer.ViewerConfiguration;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
@@ -70,6 +62,15 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
+
+import net.sourceforge.texlipse.TexPathConfig;
+import net.sourceforge.texlipse.Texlipse;
+import net.sourceforge.texlipse.builder.AbstractBuilder;
+import net.sourceforge.texlipse.builder.Builder;
+import net.sourceforge.texlipse.builder.BuilderRegistry;
+import net.sourceforge.texlipse.builder.TexlipseBuilder;
+import net.sourceforge.texlipse.viewer.ViewerConfiguration;
+
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.nico.IBasicRAdapter;

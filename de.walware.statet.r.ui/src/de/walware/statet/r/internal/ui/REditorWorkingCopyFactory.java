@@ -17,6 +17,7 @@ import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.WorkingContext;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.rmodel.AbstractRUnitFactory;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 

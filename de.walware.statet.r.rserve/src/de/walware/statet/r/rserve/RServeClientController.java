@@ -29,6 +29,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.IToolEventHandler.LoginEventData;
+
 import de.walware.statet.r.internal.rserve.launchconfigs.ConnectionConfig;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.BasicR;

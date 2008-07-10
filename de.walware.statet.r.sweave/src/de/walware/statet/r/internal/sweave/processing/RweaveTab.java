@@ -59,6 +59,7 @@ import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.dialogs.SnippetEditor;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.sweave.Messages;

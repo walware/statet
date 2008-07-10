@@ -37,6 +37,7 @@ import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
+
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingPreferences;
 import de.walware.statet.r.ui.editors.REditorOptions;

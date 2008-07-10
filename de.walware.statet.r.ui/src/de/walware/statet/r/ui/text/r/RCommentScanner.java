@@ -17,6 +17,7 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.CommentScanner;
+
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 

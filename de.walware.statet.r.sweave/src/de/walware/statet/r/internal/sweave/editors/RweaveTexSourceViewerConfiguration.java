@@ -13,12 +13,6 @@ package de.walware.statet.r.internal.sweave.editors;
 
 import java.util.Set;
 
-import net.sourceforge.texlipse.TexlipsePlugin;
-import net.sourceforge.texlipse.editor.ITexDocumentConstants;
-import net.sourceforge.texlipse.editor.TexDoubleClickStrategy;
-import net.sourceforge.texlipse.editor.scanner.TexMathScanner;
-import net.sourceforge.texlipse.editor.scanner.TexScanner;
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -47,6 +41,13 @@ import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
+
+import net.sourceforge.texlipse.TexlipsePlugin;
+import net.sourceforge.texlipse.editor.ITexDocumentConstants;
+import net.sourceforge.texlipse.editor.TexDoubleClickStrategy;
+import net.sourceforge.texlipse.editor.scanner.TexMathScanner;
+import net.sourceforge.texlipse.editor.scanner.TexScanner;
+
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.RChunkTemplatesCompletionProcessor;

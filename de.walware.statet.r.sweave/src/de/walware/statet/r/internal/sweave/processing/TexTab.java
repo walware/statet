@@ -11,11 +11,6 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
-import net.sourceforge.texlipse.TexPathConfig;
-import net.sourceforge.texlipse.builder.Builder;
-import net.sourceforge.texlipse.builder.BuilderChooser;
-import net.sourceforge.texlipse.builder.BuilderRegistry;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Diffs;
@@ -47,6 +42,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
+
+import net.sourceforge.texlipse.TexPathConfig;
+import net.sourceforge.texlipse.builder.Builder;
+import net.sourceforge.texlipse.builder.BuilderChooser;
+import net.sourceforge.texlipse.builder.BuilderRegistry;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;

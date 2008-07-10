@@ -37,6 +37,7 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;

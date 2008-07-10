@@ -38,6 +38,7 @@ import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.base.ui.util.SettingsUpdater;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.REnvConfiguration;

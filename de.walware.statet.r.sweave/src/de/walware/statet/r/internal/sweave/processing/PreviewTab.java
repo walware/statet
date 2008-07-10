@@ -13,11 +13,6 @@ package de.walware.statet.r.internal.sweave.processing;
 
 import java.util.List;
 
-import net.sourceforge.texlipse.Texlipse;
-import net.sourceforge.texlipse.viewer.TexLaunchConfigurationDelegate;
-import net.sourceforge.texlipse.viewer.TexLaunchConfigurationTab;
-import net.sourceforge.texlipse.viewer.ViewerConfiguration;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.ChangeEvent;
@@ -64,6 +59,11 @@ import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import net.sourceforge.texlipse.Texlipse;
+import net.sourceforge.texlipse.viewer.TexLaunchConfigurationDelegate;
+import net.sourceforge.texlipse.viewer.TexLaunchConfigurationTab;
+import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;

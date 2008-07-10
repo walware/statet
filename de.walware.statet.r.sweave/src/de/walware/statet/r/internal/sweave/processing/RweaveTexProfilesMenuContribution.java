@@ -4,9 +4,6 @@ import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDele
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_TEX;
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
 
-import net.sourceforge.texlipse.builder.Builder;
-import net.sourceforge.texlipse.builder.BuilderRegistry;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jface.action.ContributionItem;
@@ -26,6 +23,9 @@ import org.eclipse.ui.keys.IBindingService;
 
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import net.sourceforge.texlipse.builder.Builder;
+import net.sourceforge.texlipse.builder.BuilderRegistry;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;

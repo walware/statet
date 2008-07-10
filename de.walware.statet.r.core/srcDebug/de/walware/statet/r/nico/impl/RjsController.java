@@ -33,6 +33,11 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
 
+import de.walware.statet.nico.core.runtime.IToolEventHandler;
+import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.IToolEventHandler.SelectFileEventData;
+
 import de.walware.rj.server.ConsoleCmdItem;
 import de.walware.rj.server.ExtUICmdItem;
 import de.walware.rj.server.MainCmdItem;
@@ -42,10 +47,6 @@ import de.walware.rj.server.RjsPing;
 import de.walware.rj.server.RjsStatus;
 import de.walware.rj.server.Server;
 
-import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.IToolEventHandler.SelectFileEventData;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.nico.AbstractRController;

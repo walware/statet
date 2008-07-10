@@ -37,6 +37,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunHelpInR;

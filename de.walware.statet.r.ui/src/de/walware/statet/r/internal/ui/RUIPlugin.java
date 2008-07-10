@@ -39,6 +39,7 @@ import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
+
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;

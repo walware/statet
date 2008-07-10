@@ -14,6 +14,7 @@ package de.walware.statet.r.ui.editors;
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.ui.StatetUIServices;
+
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.preferences.RTemplateSourceViewerConfiguration;

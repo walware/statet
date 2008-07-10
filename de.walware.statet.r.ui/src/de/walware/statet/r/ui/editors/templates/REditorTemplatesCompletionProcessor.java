@@ -37,6 +37,7 @@ import org.eclipse.swt.graphics.Image;
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.ext.templates.StatextTemplateProposal;
 import de.walware.statet.ext.templates.StatextTemplateProposal.TemplateComparator;
+
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;

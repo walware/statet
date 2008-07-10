@@ -47,6 +47,7 @@ import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
+
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;

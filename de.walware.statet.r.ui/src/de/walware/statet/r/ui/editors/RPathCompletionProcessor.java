@@ -22,6 +22,7 @@ import org.eclipse.jface.text.TextUtilities;
 import de.walware.statet.base.ui.sourceeditors.PathCompletionProcessor;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.console.NIConsolePage;
+
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 

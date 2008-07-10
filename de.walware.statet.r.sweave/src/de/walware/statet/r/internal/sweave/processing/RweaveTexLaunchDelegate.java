@@ -14,8 +14,6 @@ package de.walware.statet.r.internal.sweave.processing;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sourceforge.texlipse.Texlipse;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -44,6 +42,9 @@ import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.debug.LaunchConfigUtil;
+
+import net.sourceforge.texlipse.Texlipse;
+
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;

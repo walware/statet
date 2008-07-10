@@ -19,6 +19,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import de.walware.statet.base.ui.sourceeditors.ExtQuickAssistProcessor;
 import de.walware.statet.base.ui.sourceeditors.ExtTextInvocationContext;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
+
 import de.walware.statet.r.core.rmodel.IElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 

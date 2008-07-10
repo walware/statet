@@ -23,6 +23,7 @@ import org.eclipse.swt.graphics.Image;
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.ext.templates.StatextTemplateProposal;
 import de.walware.statet.ext.templates.StatextTemplateProposal.TemplateComparator;
+
 import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.templates.REditorContext;
 

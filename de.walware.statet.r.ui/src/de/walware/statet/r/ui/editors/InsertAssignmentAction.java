@@ -20,6 +20,7 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 

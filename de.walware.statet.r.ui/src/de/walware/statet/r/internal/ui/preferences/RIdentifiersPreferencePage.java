@@ -59,6 +59,7 @@ import de.walware.eclipsecommons.ui.util.ViewerUtil;
 import de.walware.eclipsecommons.ui.util.ViewerUtil.TableComposite;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
+
 import de.walware.statet.r.core.RNamesComparator;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RSourceTokenLexer;

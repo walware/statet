@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.CompareTextViewer;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 

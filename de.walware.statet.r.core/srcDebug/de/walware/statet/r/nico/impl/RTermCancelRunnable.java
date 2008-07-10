@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;

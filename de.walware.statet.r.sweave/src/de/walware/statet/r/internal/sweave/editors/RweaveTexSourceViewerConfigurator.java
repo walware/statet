@@ -18,6 +18,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
+
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.sweave.text.RweaveTexBracketPairMatcher;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;

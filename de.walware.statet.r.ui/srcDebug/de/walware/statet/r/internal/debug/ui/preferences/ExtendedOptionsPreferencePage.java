@@ -40,6 +40,7 @@ import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
+
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RMIUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 

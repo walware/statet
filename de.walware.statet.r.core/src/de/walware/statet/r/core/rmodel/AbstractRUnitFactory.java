@@ -18,6 +18,7 @@ import de.walware.eclipsecommons.ltk.ISourceUnitFactory;
 import de.walware.eclipsecommons.ltk.WorkingContext;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.internal.core.RCorePlugin;
 

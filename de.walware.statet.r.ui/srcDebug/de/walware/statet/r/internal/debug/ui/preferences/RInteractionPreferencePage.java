@@ -48,6 +48,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.ui.RUIPlugin;

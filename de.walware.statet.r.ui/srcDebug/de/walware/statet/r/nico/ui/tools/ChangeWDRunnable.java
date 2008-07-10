@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
+
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.nico.IBasicRAdapter;

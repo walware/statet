@@ -44,6 +44,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.core.RCorePlugin;

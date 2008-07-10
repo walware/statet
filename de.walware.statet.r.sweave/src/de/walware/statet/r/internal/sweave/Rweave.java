@@ -13,11 +13,11 @@ package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.jface.text.IDocument;
 
+import net.sourceforge.texlipse.editor.ITexDocumentConstants;
+
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.sweave.text.CatPartitioner;
 import de.walware.statet.r.sweave.text.MultiCatDocumentUtil;
-
-import net.sourceforge.texlipse.editor.ITexDocumentConstants;
 
 
 /**

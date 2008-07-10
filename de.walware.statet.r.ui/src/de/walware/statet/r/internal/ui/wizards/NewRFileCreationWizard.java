@@ -25,6 +25,7 @@ import de.walware.eclipsecommons.ui.util.DialogUtil;
 
 import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
+
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.codegeneration.CodeGeneration.NewFileData;
 import de.walware.statet.r.core.RResourceUnit;

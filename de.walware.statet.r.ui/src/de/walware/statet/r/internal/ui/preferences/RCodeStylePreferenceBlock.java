@@ -45,6 +45,7 @@ import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
+
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 

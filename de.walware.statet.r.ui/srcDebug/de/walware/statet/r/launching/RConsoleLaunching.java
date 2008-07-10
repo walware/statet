@@ -16,6 +16,7 @@ import de.walware.statet.nico.ui.util.QuitHandler;
 import de.walware.statet.nico.ui.util.ReportStatusHandler;
 import de.walware.statet.nico.ui.util.RunBlockingHandler;
 import de.walware.statet.nico.ui.util.SelectFileHandler;
+
 import de.walware.statet.r.nico.AbstractRController;
 
 

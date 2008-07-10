@@ -28,6 +28,7 @@ import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.text.TextStyleManager;
+
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;
 import de.walware.statet.r.internal.ui.RIdentifierGroups;

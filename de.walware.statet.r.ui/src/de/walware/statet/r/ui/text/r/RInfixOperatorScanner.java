@@ -21,6 +21,7 @@ import org.eclipse.jface.text.rules.IToken;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 
 import de.walware.statet.ext.ui.text.StatextTextScanner;
+
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 
 

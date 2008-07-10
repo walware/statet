@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
+
 import de.walware.statet.r.core.RProject;
 
 

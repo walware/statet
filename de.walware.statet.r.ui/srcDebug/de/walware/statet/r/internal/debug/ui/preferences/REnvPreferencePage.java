@@ -53,6 +53,7 @@ import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.REnvConfiguration;

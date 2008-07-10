@@ -41,6 +41,7 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.eclipsecommons.ICommonStatusConstants;
 
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;

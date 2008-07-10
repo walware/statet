@@ -40,6 +40,7 @@ import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.util.NicoWizardDialog;
 import de.walware.statet.nico.ui.util.ToolInfoGroup;
+
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 

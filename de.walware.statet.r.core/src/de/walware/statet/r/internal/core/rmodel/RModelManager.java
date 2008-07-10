@@ -33,6 +33,7 @@ import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 import de.walware.eclipsecommons.ltk.text.StringParseInput;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rmodel.IManagableRUnit;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;

@@ -24,6 +24,7 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
+
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingPreferences;
 import de.walware.statet.r.ui.RUI;

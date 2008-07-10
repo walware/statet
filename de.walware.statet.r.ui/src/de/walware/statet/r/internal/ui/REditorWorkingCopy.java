@@ -20,6 +20,7 @@ import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.core.rmodel.RManagedWorkingCopy;
 

@@ -39,6 +39,7 @@ import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.console.InputGroup;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
+
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.internal.nico.ui.RInputConfigurator;
 import de.walware.statet.r.internal.nico.ui.RInputGroup;

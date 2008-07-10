@@ -25,6 +25,7 @@ import de.walware.eclipsecommons.ltk.IDocumentModelProvider;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.sweave.Sweave;
 

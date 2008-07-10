@@ -32,6 +32,7 @@ import de.walware.eclipsecommons.ltk.WorkingBuffer;
 import de.walware.eclipsecommons.ltk.WorkingContext;
 
 import de.walware.statet.base.core.StatetCore;
+
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
 import de.walware.statet.r.internal.core.RCorePlugin;
 

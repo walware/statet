@@ -39,6 +39,7 @@ import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.ext.templates.IExtTemplateContext;
 import de.walware.statet.ext.templates.TemplatesUtil;
+
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
