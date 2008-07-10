@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.sweave.text;
 
-import net.sourceforge.texlipse.editor.TexFastPartitionScanner;
-
 import org.eclipse.jface.text.IDocument;
+
+import net.sourceforge.texlipse.editor.TexFastPartitionScanner;
 
 import de.walware.statet.r.internal.sweave.Rweave;
 
@@ -59,7 +59,7 @@ public class TexChunkPartitionScanner extends TexFastPartitionScanner
 	}
 	
 	public String[] getContentTypes() {
-		return Rweave.R_CHUNK_PARTITIONS;
+		return Rweave.TEX_PARTITIONS;
 	}
 	
 	public boolean isInCat() {

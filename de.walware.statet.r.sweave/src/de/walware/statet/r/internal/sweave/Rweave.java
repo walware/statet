@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.internal.sweave;
 
-import net.sourceforge.texlipse.editor.ITexDocumentConstants;
-
 import org.eclipse.jface.text.IDocument;
+
+import net.sourceforge.texlipse.editor.ITexDocumentConstants;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.sweave.text.CatPartitioner;
@@ -70,8 +70,8 @@ public class Rweave {
 	 * Array with all partitions of Sweave LaTeX documents.
 	 */
 	public static final String[] R_TEX_PARTITIONS = new String[] {
-//		TexPartitionScanner.TEX_DEFAULT,
 		IDocument.DEFAULT_CONTENT_TYPE,
+//		ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE, automatically converted to DEFAULT_CONTENT_TYPE
 		ITexDocumentConstants.TEX_MATH_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_VERBATIM,
 		ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE,
