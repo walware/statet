@@ -75,7 +75,7 @@ public class RweaveTexEditorTemplatesPage extends ExtEditorTemplatesPage {
 	protected String[] getContextTypeIds(final IDocument document, final int offset) {
 		try {
 			final String contentType = TextUtilities.getContentType(document, Rweave.R_TEX_PARTITIONING, offset, true);
-			if (Rweave.isRPartition(contentType)) {
+			if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType)) {
 				return new String[] { REditorTemplatesContextType.RCODE_CONTEXTTYPE };
 			}
 		}

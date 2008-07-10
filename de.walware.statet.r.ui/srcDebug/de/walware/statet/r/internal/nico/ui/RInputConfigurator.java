@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 		protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
 			final ContentAssistant contentAssistant = new ContentAssistant();
 			final PathCompletionProcessor resourceProcessor = new RPathCompletionProcessor(fPage);
-			contentAssistant.setDocumentPartitioning(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
+			contentAssistant.setDocumentPartitioning(IRDocumentPartitions.R_PARTITIONING);
 			contentAssistant.setContentAssistProcessor(resourceProcessor, IRDocumentPartitions.R_STRING);
 			
 			return contentAssistant;

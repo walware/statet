@@ -13,6 +13,9 @@ package de.walware.statet.r.core.rsource;
 
 import org.eclipse.jface.text.IDocument;
 
+import de.walware.eclipsecommons.ltk.text.IPartitionConstraint;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
+
 
 public interface IRDocumentPartitions {
 	
@@ -22,7 +25,7 @@ public interface IRDocumentPartitions {
 	 * Id of partitioning of R-documents.
 	 * Value: {@value}
 	 */
-	String R_DOCUMENT_PARTITIONING = "__r_partitioning"; //$NON-NLS-1$
+	public static final String R_PARTITIONING = "__r_partitioning"; //$NON-NLS-1$
 	
 	
 	/**
@@ -30,53 +33,61 @@ public interface IRDocumentPartitions {
 	 * 
 	 * Value: defined by {@link org.eclipse.jface.text.IDocument#DEFAULT_CONTENT_TYPE}
 	 */
-	String R_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
+	public static final String R_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
 	
 	/**
 	 * The type of a explicit default partition (R code) in R documents
 	 * 
 	 * Value: {@value}
 	 */
-	String R_DEFAULT_EXPL = "__r_default"; //$NON-NLS-1$
+	public static final String R_DEFAULT_EXPL = "__r_default"; //$NON-NLS-1$
 	
 	/**
 	 * The type of a symbol partition in R documents
 	 * 
 	 * Value: {@value}
 	 */
-	String R_QUOTED_SYMBOL = "__r_symbol_quoted"; //$NON-NLS-1$
+	public static final String R_QUOTED_SYMBOL = "__r_symbol_quoted"; //$NON-NLS-1$
 	
 	/**
 	 * The type of a infix operator partition in R documents
 	 * 
 	 * Value: {@value}
 	 */
-	String R_INFIX_OPERATOR = "__r_op_infix"; //$NON-NLS-1$
+	public static final String R_INFIX_OPERATOR = "__r_op_infix"; //$NON-NLS-1$
 	
 	/**
 	 * The type of a string partition in R documents
 	 * 
 	 * Value: {@value}
 	 */
-	String R_STRING = "__r_string"; //$NON-NLS-1$
+	public static final String R_STRING = "__r_string"; //$NON-NLS-1$
 	
 	/**
 	 * The type of a comment partition in R documents.
 	 * Value: {@value}
 	 */
-	String R_COMMENT = "__r_comment"; //$NON-NLS-1$
+	public static final String R_COMMENT = "__r_comment"; //$NON-NLS-1$
 	
 	
 	/**
 	 * Array with partitions of R-documents.
 	 */
-	String[] R_PARTITIONS = new String[] {
+	public static final String[] R_PARTITIONS = new String[] {
 			R_DEFAULT, 
 			R_QUOTED_SYMBOL, 
 			R_INFIX_OPERATOR, 
 			R_STRING, 
 			R_COMMENT,
 	};
+	
+	public static final PartitioningConfiguration R_PARTITIONING_CONFIG = new PartitioningConfiguration(
+			R_PARTITIONING, new IPartitionConstraint() {
+				public boolean matches(final String partitionType) {
+					return (partitionType == R_DEFAULT
+							|| partitionType == R_DEFAULT_EXPL);
+				}
+			});
 	
 	
 /* Rd ************************************************************************/
@@ -86,7 +97,7 @@ public interface IRDocumentPartitions {
 	 * 
 	 * Value: {@value}
 	 */
-	String RDOC_DOCUMENT_PARTITIONING = "__rd_partitioning"; //$NON-NLS-1$
+	public static final String RDOC_DOCUMENT_PARTITIONING = "__rd_partitioning"; //$NON-NLS-1$
 	
 	
 	/**
@@ -94,14 +105,14 @@ public interface IRDocumentPartitions {
 	 * 
 	 * Value: defined by {@link org.eclipse.jface.text.IDocument#DEFAULT_CONTENT_TYPE}
 	 */
-	String RDOC_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
+	public static final String RDOC_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
 	
 	/**
 	 * The type of a comment partition in Rd documents
 	 * 
 	 * Value: {@value}
 	 */
-	String RDOC_COMMENT = "__rd_comment"; //$NON-NLS-1$
+	public static final String RDOC_COMMENT = "__rd_comment"; //$NON-NLS-1$
 	
 	/**
 	 * The type of a platform instruction partition in Rd documents
@@ -109,16 +120,23 @@ public interface IRDocumentPartitions {
 	 * Value: {@value}
 	 */
 	
-	String RDOC_PLATFORM_SPECIF = "__rd_platform"; //$NON-NLS-1$
+	public static final String RDOC_PLATFORM_SPECIF = "__rd_platform"; //$NON-NLS-1$
 	
 	
 	/**
 	 * Array with partitions of Rd-documents.
 	 */
-	String[] RDOC_PARTITIONS = new String[] {
+	public static final String[] RDOC_PARTITIONS = new String[] {
 			RDOC_DEFAULT, 
 			RDOC_COMMENT, 
 			RDOC_PLATFORM_SPECIF,
 	};
+	
+	public static final PartitioningConfiguration RDOC_PARTITIONING_CONFIG = new PartitioningConfiguration(
+			RDOC_DOCUMENT_PARTITIONING, new IPartitionConstraint() {
+				public boolean matches(final String partitionType) {
+					return (partitionType == RDOC_DEFAULT);
+				}
+			});
 	
 }

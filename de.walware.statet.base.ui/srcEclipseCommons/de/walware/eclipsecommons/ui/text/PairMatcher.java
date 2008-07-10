@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 
 import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
 import de.walware.eclipsecommons.ltk.text.ITokenScanner;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 
 
 /**
@@ -61,15 +62,15 @@ public class PairMatcher implements ICharacterPairMatcher {
 	/**
 	 * constructor using <code>BasicHeuristicTokenScanner</code>, without escapeChar.
 	 */
-	public PairMatcher(final char[][] pairs, final String partitioning, final String[] partitions) {
-		this(pairs, partitioning, partitions, new BasicHeuristicTokenScanner(partitioning), (char) 0);
+	public PairMatcher(final char[][] pairs, final PartitioningConfiguration partitioning, final String[] partitions) {
+		this(pairs, partitioning.getPartitioning(), partitions, new BasicHeuristicTokenScanner(partitioning), (char) 0);
 	}
 	
 	/**
 	 * Constructor using <code>BasicHeuristicTokenScanner</code>.
 	 */
-	public PairMatcher(final char[][] pairs, final String partitioning, final String[] partitions, final char escapeChar) {
-		this(pairs, partitioning, partitions, new BasicHeuristicTokenScanner(partitioning), escapeChar);
+	public PairMatcher(final char[][] pairs, final PartitioningConfiguration partitioning, final String[] partitions, final char escapeChar) {
+		this(pairs, partitioning.getPartitioning(), partitions, new BasicHeuristicTokenScanner(partitioning), escapeChar);
 	}
 	
 	

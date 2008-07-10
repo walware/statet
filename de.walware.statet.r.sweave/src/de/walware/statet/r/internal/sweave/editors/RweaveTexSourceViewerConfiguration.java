@@ -190,7 +190,8 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
-		if (Rweave.isRPartition(contentType) || Rweave.isChunkControlPartition(contentType)) {
+		if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType) 
+				|| Rweave.CHUNK_CONTROL_PARTITION_CONSTRAINT.matches(contentType)) {
 			if (fRDoubleClickStrategy == null) {
 				fRDoubleClickStrategy = new RDoubleClickStrategy(Rweave.R_TEX_PARTITIONING);
 			}
@@ -243,7 +244,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public String[] getDefaultPrefixes(final ISourceViewer sourceViewer, final String contentType) {
-		if (Rweave.isRPartition(contentType)) {
+		if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType)) {
 			return fRConfig.getDefaultPrefixes(sourceViewer, contentType);
 		}
 		return new String[] { "%", "" }; //$NON-NLS-1$ //$NON-NLS-2$
@@ -251,10 +252,10 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public String[] getIndentPrefixes(final ISourceViewer sourceViewer, final String contentType) {
-		if (Rweave.isChunkControlPartition(contentType)) {
+		if (Rweave.CHUNK_CONTROL_PARTITION_CONSTRAINT.matches(contentType)) {
 			return new String[0];
 		}
-		if (Rweave.isRPartition(contentType)) {
+		if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType)) {
 			return fRConfig.getIndentPrefixes(sourceViewer, contentType);
 		}
 		return super.getIndentPrefixes(sourceViewer, contentType);
@@ -298,7 +299,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
-		if (Rweave.isRPartition(contentType)) {
+		if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType)) {
 			return fRConfig.getAutoEditStrategies(sourceViewer, contentType);
 		}
 		return super.getAutoEditStrategies(sourceViewer, contentType);

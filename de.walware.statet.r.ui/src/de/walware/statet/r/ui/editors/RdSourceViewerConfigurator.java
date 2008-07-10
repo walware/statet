@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,8 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 	
 	public RdSourceViewerConfigurator(final IRCoreAccess core, final IPreferenceStore store) {
 		setPairMatcher(new PairMatcher(BRACKETS,
-				IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\'));
+				IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
+				new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\'));
 		setSource(core);
 		setPreferenceStore(store);
 	}

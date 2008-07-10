@@ -30,7 +30,7 @@ public class RDocumentSetupParticipant extends PartitionerDocumentSetupParticipa
 	
 	@Override
 	protected String getPartitioningId() {
-		return IRDocumentPartitions.R_DOCUMENT_PARTITIONING;
+		return IRDocumentPartitions.R_PARTITIONING;
 	}
 	
 	@Override

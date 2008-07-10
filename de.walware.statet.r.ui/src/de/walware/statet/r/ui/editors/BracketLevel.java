@@ -23,10 +23,9 @@ import org.eclipse.jface.text.link.LinkedModeUI.IExitPolicy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
 
-import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 
 
 /**
@@ -36,7 +35,7 @@ class BracketLevel implements IExitPolicy {
 	
 	static interface IBracketLevelType {
 		boolean processReturn();
-		boolean matchesEnd(IDocument doc, BasicHeuristicTokenScanner scanner, int startOffset, char c, int charOffset) throws BadLocationException;
+		boolean matchesEnd(IDocument doc, PartitioningConfiguration scanner, int startOffset, char c, int charOffset) throws BadLocationException;
 	}
 	
 	private static class BracketLevelType implements IBracketLevelType {
@@ -50,8 +49,8 @@ class BracketLevel implements IExitPolicy {
 		public boolean processReturn() {
 			return true;
 		}
-		public boolean matchesEnd(final IDocument doc, final BasicHeuristicTokenScanner scanner, final int startOffset, final char c, final int charOffset) throws BadLocationException {
-			return (c == fCloseChar && scanner.isDefaultPartition(
+		public boolean matchesEnd(final IDocument doc, final PartitioningConfiguration scanner, final int startOffset, final char c, final int charOffset) throws BadLocationException {
+			return (c == fCloseChar && scanner.getDefaultPartitionConstraint().matches(
 					TextUtilities.getPartition(doc, scanner.getPartitioning(), charOffset, true).getType())
 					);
 		}
@@ -69,7 +68,7 @@ class BracketLevel implements IExitPolicy {
 		public boolean processReturn() {
 			return false;
 		}
-		public boolean matchesEnd(final IDocument doc, final BasicHeuristicTokenScanner scanner, final int startOffset, final char c, int charOffset) throws BadLocationException {
+		public boolean matchesEnd(final IDocument doc, final PartitioningConfiguration scanner, final int startOffset, final char c, int charOffset) throws BadLocationException {
 			if (c == fSeparatorChar && TextUtilities.getPartition(doc, scanner.getPartitioning(), charOffset, true)
 					.getType() == IRDocumentPartitions.R_STRING) {
 				int count = -1;
@@ -95,7 +94,7 @@ class BracketLevel implements IExitPolicy {
 		public boolean processReturn() {
 			return false;
 		}
-		public boolean matchesEnd(final IDocument doc, final BasicHeuristicTokenScanner scanner, final int startOffset, final char c, int charOffset) throws BadLocationException {
+		public boolean matchesEnd(final IDocument doc, final PartitioningConfiguration scanner, final int startOffset, final char c, int charOffset) throws BadLocationException {
 			if (c == fSeparatorChar && TextUtilities.getPartition(doc, scanner.getPartitioning(), charOffset, true)
 					.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
 				int count = -1;
@@ -121,7 +120,7 @@ class BracketLevel implements IExitPolicy {
 		public boolean processReturn() {
 			return false;
 		}
-		public boolean matchesEnd(final IDocument doc, final BasicHeuristicTokenScanner scanner, final int startOffset, final char c, final int charOffset) throws BadLocationException {
+		public boolean matchesEnd(final IDocument doc, final PartitioningConfiguration scanner, final int startOffset, final char c, final int charOffset) throws BadLocationException {
 			return (c == fCloseChar);
 		}
 		
@@ -160,10 +159,10 @@ class BracketLevel implements IExitPolicy {
 	private LinkedPosition fPosition;
 	
 	private IDocument fDocument;
-	private RHeuristicTokenScanner fScanner;
+	private PartitioningConfiguration fScanner;
 	private boolean fConsoleMode;
 	
-	public BracketLevel(final IDocument doc, final RHeuristicTokenScanner scanner, final LinkedPosition position, final IBracketLevelType config, final boolean consoleMode) throws BadLocationException, BadPositionCategoryException {
+	public BracketLevel(final IDocument doc, final PartitioningConfiguration scanner, final LinkedPosition position, final IBracketLevelType config, final boolean consoleMode) throws BadLocationException, BadPositionCategoryException {
 		fConfig = config;
 		fPosition = position;
 		fDocument = doc;

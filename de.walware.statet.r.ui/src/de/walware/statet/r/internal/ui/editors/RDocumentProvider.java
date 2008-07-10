@@ -94,7 +94,7 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 	
 	public RDocumentProvider() {
 		fDocumentSetupParticipant = new RDocumentSetupParticipant();
-		final IDocumentProvider provider = new ForwardingDocumentProvider(IRDocumentPartitions.R_DOCUMENT_PARTITIONING,
+		final IDocumentProvider provider = new ForwardingDocumentProvider(IRDocumentPartitions.R_PARTITIONING,
 				fDocumentSetupParticipant, new TextFileDocumentProvider());
 		setParentDocumentProvider(provider);
 		final IPreferenceAccess access = PreferencesUtil.getInstancePrefs();
@@ -156,7 +156,7 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		final IDocument document = getDocument(element);
 		if (document instanceof IDocumentExtension3) {
 			final IDocumentExtension3 extension= (IDocumentExtension3) document;
-			if (extension.getDocumentPartitioner(IRDocumentPartitions.R_DOCUMENT_PARTITIONING) == null) {
+			if (extension.getDocumentPartitioner(IRDocumentPartitions.R_PARTITIONING) == null) {
 				fDocumentSetupParticipant.setup(document);
 			}
 		}

@@ -16,6 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextUtilities;
 
+import de.walware.eclipsecommons.ltk.text.IPartitionConstraint;
+
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.Rweave;
 
@@ -27,12 +29,13 @@ public class RweaveChunkHeuristicScanner extends RHeuristicTokenScanner {
 	
 	
 	public RweaveChunkHeuristicScanner() {
-		super(Rweave.R_TEX_PARTITIONING);
+		super(Rweave.R_CHUNK_PARTITIONING_CONFIG);
 	}
+	
 	
 	@Override
 	protected int createForwardBound(final int start) throws BadLocationException {
-		final PartitionMatcher matcher = getPartitionMatcher();
+		final IPartitionConstraint matcher = getPartitionConstraint();
 		if (matcher.matches(IDocument.DEFAULT_CONTENT_TYPE)) {
 			return UNBOUND;
 		}
@@ -46,7 +49,7 @@ public class RweaveChunkHeuristicScanner extends RHeuristicTokenScanner {
 	
 	@Override
 	protected int createBackwardBound(final int start) throws BadLocationException {
-		final PartitionMatcher matcher = getPartitionMatcher();
+		final IPartitionConstraint matcher = getPartitionConstraint();
 		if (matcher.matches(Rweave.TEX_DEFAULT_CONTENT_TYPE)) {
 			return -1;
 		}

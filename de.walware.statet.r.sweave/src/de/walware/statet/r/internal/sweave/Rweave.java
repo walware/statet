@@ -13,6 +13,9 @@ package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.jface.text.IDocument;
 
+import de.walware.eclipsecommons.ltk.text.IPartitionConstraint;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
+
 import net.sourceforge.texlipse.editor.ITexDocumentConstants;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -94,27 +97,40 @@ public class Rweave {
 			R_TEX_PARTITIONING, new String[] { TEX_CAT, R_CAT });
 	
 	
-	public static final boolean isChunkControlPartition(final String contentType) {
-		return (contentType == Rweave.CHUNK_CONTROL_CONTENT_TYPE
-				|| contentType == Rweave.CHUNK_COMMENT_CONTENT_TYPE
-				);
-	}
+	public static final IPartitionConstraint CHUNK_CONTROL_PARTITION_CONSTRAINT = new IPartitionConstraint() {
+		public boolean matches(final String partitionType) {
+			return (partitionType == Rweave.CHUNK_CONTROL_CONTENT_TYPE
+					|| partitionType == Rweave.CHUNK_COMMENT_CONTENT_TYPE
+					);
+		}
+	};
 	
-	public static final boolean isRPartition(final String contentType) {
-		return (contentType == IRDocumentPartitions.R_DEFAULT_EXPL
-				|| contentType == IRDocumentPartitions.R_STRING
-				|| contentType == IRDocumentPartitions.R_COMMENT
-				|| contentType == IRDocumentPartitions.R_INFIX_OPERATOR
-				|| contentType == IRDocumentPartitions.R_QUOTED_SYMBOL
-				);
-	}
+	public static final IPartitionConstraint R_PARTITION_CONSTRAINT = new IPartitionConstraint() {
+		public boolean matches(final String partitionType) {
+			return (partitionType == IRDocumentPartitions.R_DEFAULT_EXPL
+					|| partitionType == IRDocumentPartitions.R_STRING
+					|| partitionType == IRDocumentPartitions.R_COMMENT
+					|| partitionType == IRDocumentPartitions.R_INFIX_OPERATOR
+					|| partitionType == IRDocumentPartitions.R_QUOTED_SYMBOL
+					);
+		}
+	};
 	
-	public static final boolean isTexPartition(final String contentType) {
-		return (contentType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
-				|| contentType == ITexDocumentConstants.TEX_MATH_CONTENT_TYPE
-				|| contentType == ITexDocumentConstants.TEX_VERBATIM
-				|| contentType == ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE
-				);
-	}
+	public static final IPartitionConstraint TEX_PARTITION_CONSTRAINT = new IPartitionConstraint() {
+		public boolean matches(final String partitionType) {
+			return (partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
+					|| partitionType == ITexDocumentConstants.TEX_MATH_CONTENT_TYPE
+					|| partitionType == ITexDocumentConstants.TEX_VERBATIM
+					|| partitionType == ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE
+					);
+		}
+	};
+	
+	public static final PartitioningConfiguration R_CHUNK_PARTITIONING_CONFIG = new PartitioningConfiguration(
+			R_TEX_PARTITIONING, new IPartitionConstraint() {
+				public boolean matches(final String partitionType) {
+					return (partitionType == IRDocumentPartitions.R_DEFAULT_EXPL);
+				}
+			});
 	
 }

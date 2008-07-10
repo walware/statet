@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,6 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
  */
 public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 	
-	private static final String PARTITIONING = IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING;
 	private static final char[][] BRACKETS = { {'{', '}'} };
 	
 	protected PairMatcher fPairMatcher;
@@ -41,7 +40,8 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 	public RdDoubleClickStrategy() {
 		super();
 		fPairMatcher = new PairMatcher(BRACKETS,
-				PARTITIONING, new String[] { IRDocumentPartitions.RDOC_DEFAULT },
+				IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
+				new String[] { IRDocumentPartitions.RDOC_DEFAULT },
 				'\\');
 	}
 	
@@ -56,7 +56,7 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 		
 		final IDocument document = textViewer.getDocument();
 		try {
-			ITypedRegion partition = TextUtilities.getPartition(document, PARTITIONING, offset, true);
+			ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, offset, true);
 			String type = partition.getType();
 			
 			// Bracket-Pair-Matching in Code-Partitions
@@ -69,7 +69,7 @@ public class RdDoubleClickStrategy implements ITextDoubleClickStrategy {
 			}
 			
 			// For other partitions, use prefere new partitions (instead opend)
-			partition = TextUtilities.getPartition(document, PARTITIONING, offset, false);
+			partition = TextUtilities.getPartition(document, IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING, offset, false);
 			type = partition.getType();
 			// Start in Comment-Partitions
 			if (IRDocumentPartitions.RDOC_COMMENT.equals(type) || IRDocumentPartitions.RDOC_PLATFORM_SPECIF.equals(type)) {

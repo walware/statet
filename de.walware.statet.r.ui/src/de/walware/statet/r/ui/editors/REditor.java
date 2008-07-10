@@ -224,7 +224,7 @@ public class REditor extends StatextEditor1<RProject> {
 				final Point currentSelection = fCurrentSelection;
 				final int offset = textSelection.getOffset();
 				final int docLength = run.doc.getLength();
-				final ITypedRegion partition = run.doc.getPartition(IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, false);
+				final ITypedRegion partition = run.doc.getPartition(IRDocumentPartitions.R_PARTITIONING, offset, false);
 				if (docLength > 0 &&
 						(	(currentSelection.y > 0)
 						||  (offset != currentSelection.x)

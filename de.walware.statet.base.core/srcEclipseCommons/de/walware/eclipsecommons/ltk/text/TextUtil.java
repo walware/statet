@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
 
 
 /**
@@ -86,6 +87,17 @@ public class TextUtil {
 			lineEnd = start+region.getLength();
 		}
 		to.add(document.get(start, end-start));
+	}
+	
+	public final static IRegion getBlock(final IDocument document, final int position1, final int position2) throws BadLocationException {
+		final int line1 = document.getLineOfOffset(position1);
+		int line2 = document.getLineOfOffset(position2);
+		if (line1 < line2 && document.getLineOffset(line2) == position2) {
+			line2--;
+		}
+		final int start = document.getLineOffset(line1);
+		final int length = document.getLineOffset(line2)+document.getLineLength(line2)-start;
+		return new Region(start, length);
 	}
 	
 }

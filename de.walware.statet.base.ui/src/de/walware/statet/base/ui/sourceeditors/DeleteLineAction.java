@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000-2007 IBM Corporation and others.
+ * Copyright (c) 2000-2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
+import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -171,9 +171,7 @@ public class DeleteLineAction extends Action {
 		
 		switch  (type) {
 		case DeleteLineAction.WHOLE:
-			final BasicHeuristicTokenScanner scanner = new BasicHeuristicTokenScanner(""); //$NON-NLS-1$
-			scanner.configure(document, null);
-			return scanner.getTextBlock(offset, offset+length);
+			return TextUtil.getBlock(document, offset, offset+length);
 		
 		case DeleteLineAction.TO_BEGINNING:
 			temp = document.getLineOffset(line);

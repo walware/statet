@@ -35,35 +35,14 @@ import org.eclipse.jface.text.TypedRegion;
 public class BasicHeuristicTokenScanner implements ITokenScanner {
 	
 	
-	protected static abstract class PartitionMatcher {
+	protected static final IPartitionConstraint ALL_PARTITIONS_CONSTRAINT = new IPartitionConstraint() {
 		
-		public abstract boolean matches(String partitionId);
-		
-	}
-	
-	protected static class SinglePartitionMatcher extends PartitionMatcher {
-		
-		private String fPartitionId;
-		
-		public SinglePartitionMatcher(final String partitionId) {
-			fPartitionId = partitionId;
-		}
-		
-		@Override
-		public boolean matches(final String partitionId) {
-			return fPartitionId.equals(partitionId);
-		}
-		
-	}
-	
-	protected static final PartitionMatcher ALL_PARTITIONS_MATCHER = new PartitionMatcher() {
-		
-		@Override
-		public boolean matches(final String partitionId) {
+		public boolean matches(final String partitionType) {
 			return true;
 		}
 		
 	};
+	
 	
 	/**
 	 * Specifies the stop condition, upon which the <code>scan...</code> methods will decide whether
@@ -116,7 +95,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			fCurrentPartition = getPartition();
 			fCurrentPartitionStart = fCurrentPartition.getOffset();
 			fCurrentPartitionEnd = fCurrentPartitionStart+fCurrentPartition.getLength();
-			if (fPartition.matches(fCurrentPartition.getType())) {
+			if (fPartitionConstraint.matches(fCurrentPartition.getType())) {
 				fCurrentPartitionMatched = true;
 				return matchesChar(fChar);
 			}
@@ -207,18 +186,19 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 				fLastEscapeOffset = fPos;
 				return false;
 			}
-			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartition.matches(getContentType())) );
+			return (Arrays.binarySearch(fChars, fChar) >= 0 && (fPartitionConstraint.matches(getContentType())) );
 		}
 		
 	}
 	
 	
+	/** The partitioning being used for scanning. */
+	private final PartitioningConfiguration fPartitioning;
+	
 	/** The document being scanned. */
 	protected IDocument fDocument;
-	/** The partitioning being used for scanning. */
-	private String fPartitioning;
 	/** The partition to scan in. */
-	private PartitionMatcher fPartition;
+	private IPartitionConstraint fPartitionConstraint;
 	
 	/* internal scan state */
 	
@@ -239,18 +219,27 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * 
 	 * @param partitioning the partitioning to use for scanning
 	 */
-	public BasicHeuristicTokenScanner(final String partitioning) {
-		Assert.isNotNull(partitioning);
+	public BasicHeuristicTokenScanner(final PartitioningConfiguration partitioning) {
+		assert (partitioning != null);
+		
 		fPartitioning = partitioning;
 	}
 	
 	
-	public String getPartitioning() {
+	public final PartitioningConfiguration getPartitioningConfig() {
 		return fPartitioning;
 	}
 	
-	public boolean isDefaultPartition(final String contentType) {
-		return IDocument.DEFAULT_CONTENT_TYPE.equals(contentType);
+	protected final String getPartitioning() {
+		return fPartitioning.getPartitioning();
+	}
+	
+	protected final IPartitionConstraint getDefaultPartitionConstraint() {
+		return fPartitioning.getDefaultPartitionConstraint();
+	}
+	
+	protected final IPartitionConstraint getPartitionConstraint() {
+		return fPartitionConstraint;
 	}
 	
 	public final char getChar() {
@@ -287,10 +276,14 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param document the document to scan
 	 * @param partition the partition to scan in
 	 */
-	public void configure(final IDocument document, final String partition) {
+	public void configure(final IDocument document, final String partitionType) {
 		Assert.isNotNull(document);
 		fDocument = document;
-		fPartition = (partition != null) ? new SinglePartitionMatcher(partition) : ALL_PARTITIONS_MATCHER;
+		fPartitionConstraint = (partitionType != null) ? new IPartitionConstraint() {
+			public boolean matches(final String partitionTypeToTest) {
+				return partitionType == partitionTypeToTest;
+			}
+		} : ALL_PARTITIONS_CONSTRAINT;
 	}
 	
 //	public void configure(IDocument document, int offset) throws BadLocationException {
@@ -465,17 +458,6 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 	
 	
-	public final IRegion getTextBlock(final int position1, final int position2) throws BadLocationException {
-		final int line1 = fDocument.getLineOfOffset(position1);
-		int line2 = fDocument.getLineOfOffset(position2);
-		if (line1 < line2 && fDocument.getLineOffset(line2) == position2) {
-			line2--;
-		}
-		final int start = fDocument.getLineOffset(line1);
-		final int length = fDocument.getLineOffset(line2)+fDocument.getLineLength(line2)-start;
-		return new Region(start, length);
-	}
-	
 	public final int getFirstLineOfRegion(final IRegion region) throws BadLocationException {
 		return fDocument.getLineOfOffset(region.getOffset());
 	}
@@ -491,7 +473,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	private final int[] preScanBackward(final int start, final int bound, final StopCondition condition) throws BadLocationException {
 		final IntList list = new ArrayIntList();
 		int scanEnd = start+1;
-	
+		
 		NEXT_LINE: while (list.isEmpty() && fLine >= 0) {
 			final int lineOffset = fDocument.getLineOffset(fLine);
 			int next = lineOffset - 1;
@@ -684,7 +666,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 */
 	protected final String getContentType() {
 		try {
-			return TextUtilities.getContentType(fDocument, fPartitioning, fPos, false);
+			return TextUtilities.getContentType(fDocument, fPartitioning.getPartitioning(), fPos, false);
 		}
 		catch (final BadLocationException e) {
 			return null; // ?
@@ -700,15 +682,11 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 */
 	protected final ITypedRegion getPartition() {
 		try {
-			return TextUtilities.getPartition(fDocument, fPartitioning, fPos, false);
+			return TextUtilities.getPartition(fDocument, fPartitioning.getPartitioning(), fPos, false);
 		}
 		catch (final BadLocationException e) {
 			return new TypedRegion(fPos, 0, "__no_partition_at_all"); //$NON-NLS-1$
 		}
-	}
-	
-	protected final PartitionMatcher getPartitionMatcher() {
-		return fPartition;
 	}
 	
 }

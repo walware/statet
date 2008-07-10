@@ -22,6 +22,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.IUpdate;
 
+import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
@@ -48,7 +49,7 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 	/**
 	 * 
 	 */
-	public RDoubleCommentAction(IEditorAdapter editor, IRCoreAccess core) {
+	public RDoubleCommentAction(final IEditorAdapter editor, final IRCoreAccess core) {
 		fEditor = editor;
 		fCore = core;
 		setId(ACTION_ID);
@@ -69,18 +70,18 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 		}
 		try {
 			addComment();
-		} catch (BadLocationException e) {
+		} catch (final BadLocationException e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while running RDoubleClickAction.", e); //$NON-NLS-1$
 		}
 	}
 	
 	private void addComment() throws BadLocationException {
-		ISourceViewer sourceViewer = fEditor.getSourceViewer();
+		final ISourceViewer sourceViewer = fEditor.getSourceViewer();
 		final IDocument document = sourceViewer.getDocument();
-		ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
-		int offset = selection.getOffset();
+		final ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
+		final int offset = selection.getOffset();
 		
-		RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
+		final RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
 		scanner.configure(document, null);
 		if (selection.getLength() == 0 && scanner.isBlankLine(selection.getOffset())) {
 			document.replace(offset, 0, "## "); //$NON-NLS-1$
@@ -89,7 +90,7 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 			return;
 		}
 		
-		IRegion textBlock = scanner.getTextBlock(selection.getOffset(), selection.getOffset()+selection.getLength());
+		final IRegion textBlock = TextUtil.getBlock(document, selection.getOffset(), selection.getOffset()+selection.getLength());
 		final RIndentUtil util = new RIndentUtil(document, fCore.getRCodeStyle());
 		IDocumentExtension4 doc4 = null;
 		DocumentRewriteSession rewriteSession = null;
@@ -101,9 +102,9 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 			final int firstLine = scanner.getFirstLineOfRegion(textBlock);
 			final int lastLine = scanner.getLastLineOfRegion(textBlock);
 			final int column = util.getMultilineIndentColumn(firstLine, lastLine);
-			IndentEditAction action = new IndentEditAction(column) {
+			final IndentEditAction action = new IndentEditAction(column) {
 				@Override
-				public void doEdit(int line, int offset, int length, StringBuilder text) throws BadLocationException {
+				public void doEdit(final int line, final int offset, final int length, final StringBuilder text) throws BadLocationException {
 					if (text != null) {
 						document.replace(offset, length, text.toString());
 					}

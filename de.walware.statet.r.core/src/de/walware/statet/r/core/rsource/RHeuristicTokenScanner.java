@@ -14,6 +14,7 @@ package de.walware.statet.r.core.rsource;
 import org.eclipse.jface.text.IRegion;
 
 import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 
 import de.walware.statet.r.core.rlang.RTokens;
 
@@ -28,19 +29,13 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 	 * 
 	 */
 	public RHeuristicTokenScanner() {
-		this(IRDocumentPartitions.R_DOCUMENT_PARTITIONING);
+		this(IRDocumentPartitions.R_PARTITIONING_CONFIG);
 	}
 	
-	protected RHeuristicTokenScanner(final String partitioning) {
+	protected RHeuristicTokenScanner(final PartitioningConfiguration partitioning) {
 		super(partitioning);
 	}
 	
-	
-	@Override
-	public boolean isDefaultPartition(final String contentType) {
-		return (IRDocumentPartitions.R_DEFAULT.equals(contentType)
-				|| IRDocumentPartitions.R_DEFAULT_EXPL.equals(contentType));
-	}
 	
 	public IRegion findRWord(final int position, final boolean isDotSeparator, final boolean allowEnd) {
 		return findRegion(position, new StopCondition() {

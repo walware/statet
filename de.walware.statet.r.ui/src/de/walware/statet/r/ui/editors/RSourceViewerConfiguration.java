@@ -126,7 +126,7 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	@Override
 	public String getConfiguredDocumentPartitioning(final ISourceViewer sourceViewer) {
-		return IRDocumentPartitions.R_DOCUMENT_PARTITIONING;
+		return IRDocumentPartitions.R_PARTITIONING;
 	}
 	
 	@Override
