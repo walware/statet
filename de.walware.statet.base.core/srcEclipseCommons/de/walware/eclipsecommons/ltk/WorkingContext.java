@@ -27,6 +27,10 @@ import de.walware.statet.base.internal.core.BaseCorePlugin;
 public final class WorkingContext {
 	
 	
+	private static final String CONFIG_MODELTYPE_ID_ATTRIBUTE_NAME = "modelTypeId"; //$NON-NLS-1$
+	private static final String CONFIG_CONTEXT_KEY_ATTRIBUTE_NAME = "contextKey"; //$NON-NLS-1$
+	
+	
 	private final String fKey;
 	private final Map<String, ISourceUnitFactory> fFactories;
 	
@@ -46,7 +50,7 @@ public final class WorkingContext {
 			final ISourceUnit fromUnit = (from instanceof ISourceUnit) ?
 				((ISourceUnit) from) : null;
 			if (typeId == null && fromUnit != null) {
-				typeId = fromUnit.getTypeId();
+				typeId = fromUnit.getModelTypeId();
 			}
 			final ISourceUnitFactory factory = getFactory(typeId);
 			if (factory == null) {
@@ -75,12 +79,12 @@ public final class WorkingContext {
 		if (factory == null) {
 			try {
 				final IConfigurationElement[] elements = Platform.getExtensionRegistry().
-						getConfigurationElementsFor("de.walware.statet.base.workingContexts"); //$NON-NLS-1$
+						getConfigurationElementsFor("de.walware.eclipsecommons.ltk.workingContexts"); //$NON-NLS-1$
 				IConfigurationElement matchingElement = null;
 				for (final IConfigurationElement element : elements) {
 					if (element.getName().equals("unitType") && element.isValid()) { //$NON-NLS-1$
-						final String typeIdOfElement= element.getAttribute("typeId"); //$NON-NLS-1$
-						final String contextKeyOfElement = element.getAttribute("contextKey"); //$NON-NLS-1$
+						final String typeIdOfElement= element.getAttribute(CONFIG_MODELTYPE_ID_ATTRIBUTE_NAME);
+						final String contextKeyOfElement = element.getAttribute(CONFIG_CONTEXT_KEY_ATTRIBUTE_NAME);
 						if (typeId.equals(typeIdOfElement)) {
 							if ((contextKeyOfElement == null) || (contextKeyOfElement.length() == 0)) {
 								matchingElement = element;

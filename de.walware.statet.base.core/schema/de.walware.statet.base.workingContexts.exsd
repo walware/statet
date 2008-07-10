@@ -14,7 +14,7 @@
 <schema targetNamespace="de.walware.statet.r.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.walware.statet.r.core" id="de.walware.statet.base.workingContexts" name="Working Contexts"/>
+         <meta.schema plugin="de.walware.statet.r.core" id="de.walware.eclipsecommons.ltk.workingContexts" name="Working Contexts"/>
       </appinfo>
       <documentation>
          
@@ -22,6 +22,11 @@
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
       <complexType>
          <choice minOccurs="0" maxOccurs="unbounded">
             <element ref="unitType"/>
@@ -55,7 +60,7 @@
 
    <element name="unitType">
       <complexType>
-         <attribute name="typeId" type="string" use="required">
+         <attribute name="modelTypeId" type="string" use="required">
             <annotation>
                <documentation>
                   

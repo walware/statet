@@ -25,7 +25,7 @@ public class RweaveTexDocUnit extends RResourceUnit {
 	}
 	
 	@Override
-	public String getTypeId() {
+	public String getModelTypeId() {
 		return Sweave.R_TEX_UNIT_TYPE_ID;
 	}
 	

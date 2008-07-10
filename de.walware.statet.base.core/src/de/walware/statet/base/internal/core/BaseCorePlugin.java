@@ -16,9 +16,10 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
+import de.walware.eclipsecommons.ltk.IExtContentTypeManager;
+import de.walware.eclipsecommons.ltk.internal.ExtContentTypeServices;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 
-import de.walware.statet.base.core.IExtContentTypeManager;
 import de.walware.statet.base.core.StatetCore;
 
 

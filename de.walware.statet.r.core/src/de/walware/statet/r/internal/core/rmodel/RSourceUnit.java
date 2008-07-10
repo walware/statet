@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.eclipsecommons.ltk.IModelElement;
+import de.walware.eclipsecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.rmodel.IRSourceUnit;
@@ -41,7 +42,7 @@ public class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	}
 	
 	@Override
-	public String getTypeId() {
+	public String getModelTypeId() {
 		return "r"; //$NON-NLS-1$
 	}
 	
@@ -51,12 +52,12 @@ public class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	}
 	
 	@Override
-	public boolean hasChildren(final Object filter) {
+	public boolean hasChildren(final Filter filter) {
 		return false;
 	}
 	
 	@Override
-	public IModelElement[] getChildren(final Object filter) {
+	public IModelElement[] getChildren(final Filter filter) {
 		return new IModelElement[] { };
 	}
 	

@@ -14,7 +14,7 @@ package de.walware.eclipsecommons.ltk;
 
 /**
  * Interface for factories creation {@link ISourceUnit}.
- * Can be registered via extension point <code>de.walware.statet.base.workingContexts</code>
+ * Can be registered via extension point <code>de.walware.eclipsecommons.ltk.workingContexts</code>
  */
 public interface ISourceUnitFactory {
 	

@@ -30,6 +30,7 @@ import de.walware.eclipsecommons.ltk.SourceContent;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
 import de.walware.eclipsecommons.ltk.WorkingBuffer;
 import de.walware.eclipsecommons.ltk.WorkingContext;
+import de.walware.eclipsecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -56,7 +57,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	public static RResourceUnit createTempUnit(final IResource file, final String typeId) {
 		return new RResourceUnit(file) {
 			@Override
-			public String getTypeId() {
+			public String getModelTypeId() {
 				return typeId;
 			}
 		};
@@ -85,7 +86,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	protected void dispose() {
 	}
 	
-	public abstract String getTypeId();
+	public abstract String getModelTypeId();
 	
 	public String getId() {
 		return fId;
@@ -123,11 +124,11 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return null; // directory
 	}
 	
-	public boolean hasChildren(final Object filter) {
+	public boolean hasChildren(final Filter filter) {
 		return true;
 	}
 	
-	public IModelElement[] getChildren(final Object filter) {
+	public IModelElement[] getChildren(final Filter filter) {
 		return new IModelElement[0];
 	}
 	
@@ -183,7 +184,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	
 	
 	protected final void register() {
-		if (getTypeId().equals("r")) { //$NON-NLS-1$
+		if (getModelTypeId().equals("r")) { //$NON-NLS-1$
 			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
 		}
 		else {
@@ -192,7 +193,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	}
 	
 	protected final void unregister() {
-		if (getTypeId().equals("r")) { //$NON-NLS-1$
+		if (getModelTypeId().equals("r")) { //$NON-NLS-1$
 			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
 		}
 		else {

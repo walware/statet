@@ -442,4 +442,15 @@
       </persistent>
    </extension>
 
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="de.walware.eclipsecommons.internal.ui.ActivatedContentTypeTester"
+            id="de.walware.statet.base.propertyTester.ContentTypeActivation"
+            namespace="de.walware.eclipsecommons.ltk"
+            properties="matchesActivatedContentType,matchesContentType"
+            type="org.eclipse.core.runtime.IAdaptable">
+      </propertyTester>
+   </extension>
+
 </plugin>

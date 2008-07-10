@@ -122,7 +122,7 @@ public class RModelManager implements IModelManager {
 	public void registerWorksheetCopy(final ISourceUnit copy) {
 		final ContextItem item = getContextItem(copy.getWorkingContext(), true);
 		synchronized (item) {
-			item.worksheets.put(copy.getId()+'+'+copy.getTypeId(), copy);
+			item.worksheets.put(copy.getId()+'+'+copy.getModelTypeId(), copy);
 		}
 	}
 	
@@ -136,7 +136,7 @@ public class RModelManager implements IModelManager {
 	public void removeWorksheetCopy(final ISourceUnit copy) {
 		final ContextItem item = getContextItem(copy.getWorkingContext(), true);
 		synchronized (item) {
-			item.worksheets.remove(copy.getId()+'+'+copy.getTypeId());
+			item.worksheets.remove(copy.getId()+'+'+copy.getModelTypeId());
 		}
 	}
 	

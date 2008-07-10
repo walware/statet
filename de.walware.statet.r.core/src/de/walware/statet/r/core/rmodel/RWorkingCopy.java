@@ -34,7 +34,7 @@ public abstract class RWorkingCopy extends GenericSourceUnitWorkingCopy {
 	
 	@Override
 	protected final void register() {
-		if (getTypeId().equals("r")) { //$NON-NLS-1$
+		if (getModelTypeId().equals("r")) { //$NON-NLS-1$
 			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
 		}
 		else {
@@ -44,7 +44,7 @@ public abstract class RWorkingCopy extends GenericSourceUnitWorkingCopy {
 	
 	@Override
 	protected final void unregister() {
-		if (getTypeId().equals("r")) { //$NON-NLS-1$
+		if (getModelTypeId().equals("r")) { //$NON-NLS-1$
 			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
 		}
 		else {

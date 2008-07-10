@@ -14,8 +14,8 @@
 -->
 
 <plugin>
-   <extension-point id="de.walware.statet.base.contentTypeActivation" name="Additional activation for content types" schema="schema/de.walware.statet.base.contentTypeActivation.exsd"/>
-   <extension-point id="de.walware.statet.base.workingContexts" name="StatET Working Contexts" schema="schema/de.walware.statet.base.workingContexts.exsd"/>
+   <extension-point id="de.walware.eclipsecommons.ltk.contentTypeActivation" name="Additional activation for content types" schema="schema/de.walware.eclipsecommons.ltk.contentTypeActivation.exsd"/>
+   <extension-point id="de.walware.eclipsecommons.ltk.workingContexts" name="StatET Working Contexts" schema="schema/de.walware.eclipsecommons.ltk.workingContexts.exsd"/>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.base.internal.core.BaseCorePreferenceInitializer"/>
@@ -27,15 +27,5 @@
       <runtime>
          <run class="de.walware.statet.base.core.StatetProject"/>
       </runtime>
-   </extension>
-   <extension
-         point="org.eclipse.core.expressions.propertyTesters">
-      <propertyTester
-            class="de.walware.statet.base.internal.core.ActivatedContentTypeTester"
-            id="de.walware.statet.base.propertyTester.ContentTypeActivation"
-            namespace="de.walware.statet.base"
-            properties="matchesActivatedContentType"
-            type="org.eclipse.core.runtime.IAdaptable">
-      </propertyTester>
    </extension>
 </plugin>

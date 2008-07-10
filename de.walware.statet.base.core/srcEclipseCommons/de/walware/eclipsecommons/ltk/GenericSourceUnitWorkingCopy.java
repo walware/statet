@@ -15,6 +15,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.AbstractDocument;
 
+import de.walware.eclipsecommons.ltk.IModelElement.Filter;
+
 
 /**
  * 
@@ -46,8 +48,8 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	public String getId() {
 		return fFrom.getId();
 	}
-	public String getTypeId() {
-		return fFrom.getTypeId();
+	public String getModelTypeId() {
+		return fFrom.getModelTypeId();
 	}
 	public IPath getPath() {
 		return fFrom.getPath();
@@ -72,11 +74,11 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 		return null; // directory
 	}
 	
-	public boolean hasChildren(final Object filter) {
+	public boolean hasChildren(final Filter filter) {
 		return false;
 	}
 	
-	public IModelElement[] getChildren(final Object filter) {
+	public IModelElement[] getChildren(final Filter filter) {
 		return new IModelElement[0];
 	}
 	

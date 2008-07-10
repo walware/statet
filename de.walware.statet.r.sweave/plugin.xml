@@ -33,18 +33,17 @@
       </content-type>
    </extension>
    <extension
-         point="de.walware.statet.base.workingContexts">
-      <unitType
-            typeId="rweave-tex"
+         point="de.walware.eclipsecommons.ltk.workingContexts">
+      <unitType modelTypeId="rweave-tex"
             unitFactory="de.walware.statet.r.internal.sweave.RweaveTexUnitFactory">
       </unitType>
    </extension>
    <extension
-         point="de.walware.statet.base.contentTypeActivation">
-      <activation
-            primary="de.walware.statet.r.contentTypes.RweaveTex"
-            secondary="de.walware.statet.r.contentTypes.R">
-      </activation>
+         point="de.walware.eclipsecommons.ltk.contentTypeActivation">
+      <contentType
+            id="de.walware.statet.r.contentTypes.RweaveTex"
+            secondaryId="de.walware.statet.r.contentTypes.R">
+      </contentType>
    </extension>
    <extension
          point="org.eclipse.team.core.fileTypes">
@@ -220,7 +219,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.statet.base.matchesActivatedContentType"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.RweaveTex">
                   </test>
                </iterate>
@@ -239,7 +238,7 @@
                      </instanceof>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.statet.base.matchesActivatedContentType"
+                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RweaveTex">
                      </test>
                   </iterate>
@@ -271,7 +270,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.statet.base.matchesActivatedContentType"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.RweaveTex">
                   </test>
                </iterate>

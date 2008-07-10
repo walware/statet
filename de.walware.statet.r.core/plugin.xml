@@ -107,12 +107,17 @@
    </extension>
 
    <extension
-         point="de.walware.statet.base.workingContexts">
-      <unitType
+         point="de.walware.eclipsecommons.ltk.workingContexts">
+      <unitType modelTypeId="r"
             contextKey="persistence.default"
-            typeId="r"
             unitFactory="de.walware.statet.r.internal.core.RSourceUnitFactory">
       </unitType>
+   </extension>
+   <extension
+         point="de.walware.eclipsecommons.ltk.contentTypeActivation">
+      <modelType id="r"
+            contentTypeId="de.walware.statet.r.contentTypes.R">
+      </modelType>
    </extension>
 
 </plugin>

@@ -11,20 +11,26 @@
  #     Stephan Wahlbrink - initial API and implementation
  ###############################################################################
 -->
-<schema targetNamespace="de.walware.statet.base.core">
+<schema targetNamespace="de.walware.statet.base.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appInfo>
-         <meta.schema plugin="de.walware.statet.base.core" id="de.walware.statet.base.contentTypeActivation" name="Additional activation for content types"/>
-      </appInfo>
+      <appinfo>
+         <meta.schema plugin="de.walware.statet.base.core" id="de.walware.eclipsecommons.ltk.contentTypeActivation" name="Additional activation for content types"/>
+      </appinfo>
       <documentation>
          Allows multiple content types in addition to the primary content type.
       </documentation>
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
       <complexType>
          <choice minOccurs="0" maxOccurs="unbounded">
-            <element ref="activation"/>
+            <element ref="contentType"/>
+            <element ref="modelType"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -45,27 +51,56 @@
                <documentation>
                   
                </documentation>
-               <appInfo>
+               <appinfo>
                   <meta.attribute translatable="true"/>
-               </appInfo>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
-   <element name="activation">
+   <element name="contentType">
+      <annotation>
+         <documentation>
+            Activation for content types
+         </documentation>
+      </annotation>
       <complexType>
-         <attribute name="primary" type="string" use="required">
+         <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  (Primary) content type id
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="secondary" type="string" use="required">
+         <attribute name="secondaryId" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Id of secondary content type to associate to primary content type
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="modelType">
+      <annotation>
+         <documentation>
+            Activation for model types
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Model type id
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="contentTypeId" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Id of content type to associate to model type
                </documentation>
             </annotation>
          </attribute>
@@ -73,9 +108,9 @@
    </element>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="since"/>
-      </appInfo>
+      </appinfo>
       <documentation>
          0.5
       </documentation>

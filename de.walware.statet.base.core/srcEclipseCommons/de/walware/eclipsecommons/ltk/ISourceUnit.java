@@ -31,7 +31,6 @@ public interface ISourceUnit extends IModelElement, IAdaptable {
 	public WorkingContext getWorkingContext();
 	public ISourceUnit getUnderlyingUnit();
 	
-	public String getTypeId();
 	public String getId();
 	public IPath getPath();
 	public IResource getResource();

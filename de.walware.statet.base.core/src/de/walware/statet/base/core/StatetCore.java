@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import de.walware.eclipsecommons.ltk.IExtContentTypeManager;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
