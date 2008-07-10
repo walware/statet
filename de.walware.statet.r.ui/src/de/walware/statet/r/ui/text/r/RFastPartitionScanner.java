@@ -42,11 +42,13 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	 * 0-7 are reserved.
 	 **/
 	protected static final int S_DEFAULT = 0;
-	protected static final int S_INFIX = 1;
-	protected static final int S_STRING = 2;
-	protected static final int S_COMMENT = 3;
+	protected static final int S_QUOTED_SYMBOL = 1;
+	protected static final int S_INFIX_OPERATOR = 2;
+	protected static final int S_STRING = 3;
+	protected static final int S_COMMENT = 4;
 	
 	protected final static IToken T_DEFAULT = new Token(null);
+	protected final static IToken T_QUOTED_SYMBOL = new Token(IRDocumentPartitions.R_QUOTED_SYMBOL);
 	protected final static IToken T_INFIX = new Token(IRDocumentPartitions.R_INFIX_OPERATOR);
 	protected final static IToken T_STRING = new Token(IRDocumentPartitions.R_STRING);
 	protected final static IToken T_COMMENT = new Token(IRDocumentPartitions.R_COMMENT);
@@ -106,7 +108,8 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	
 	protected void initTokens(final Map<Integer, IToken> states) {
 		states.put(S_DEFAULT, T_DEFAULT);
-		states.put(S_INFIX, T_INFIX);
+		states.put(S_QUOTED_SYMBOL, T_QUOTED_SYMBOL);
+		states.put(S_INFIX_OPERATOR, T_INFIX);
 		states.put(S_STRING, T_STRING);
 		states.put(S_COMMENT, T_COMMENT);
 	}
@@ -152,11 +155,19 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 			fLast = LAST_NEWLINE;
 			fState = fStartPartitionState;
 		}
-		if (fPrefixLength > 0 && fState == S_STRING) {
-			try {
-				fEndChar = document.getChar(fTokenOffset);
-			} catch (final BadLocationException e) {
-				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when detect start char.", e);
+		if (fPrefixLength > 0) {
+			switch (fState) {
+			case S_QUOTED_SYMBOL:
+				fEndChar = '`';
+				break;
+			case S_STRING:
+				try {
+					fEndChar = document.getChar(fTokenOffset);
+				}
+				catch (final BadLocationException e) {
+					RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when detect start char.", e);
+				}
+				break;
 			}
 		}
 	}
@@ -208,19 +219,19 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 				return;
 			case '`':
 				fEndChar = '`';
-				newState(S_STRING, 1);
+				newState(S_QUOTED_SYMBOL, 1);
 				return;
 			case '#':
 				newState(S_COMMENT, 1);
 				return;
 			case '%':
-				newState(S_INFIX, 1);
+				newState(S_INFIX_OPERATOR, 1);
 				return;
 			default: // Standard
 				return;
 			}
 		
-		case S_INFIX:
+		case S_INFIX_OPERATOR:
 			if (c == '%') {
 				newState(S_DEFAULT, 0);
 				return;
@@ -232,6 +243,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 			}
 			return;
 			
+		case S_QUOTED_SYMBOL:
 		case S_STRING:
 			// Escaped?
 			if (fLast == LAST_BACKSLASH) {
@@ -309,7 +321,10 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 			return S_COMMENT;
 		}
 		if (contentType == IRDocumentPartitions.R_INFIX_OPERATOR) {
-			return S_INFIX;
+			return S_INFIX_OPERATOR;
+		}
+		if (contentType == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+			return S_QUOTED_SYMBOL;
 		}
 		return getExtState(contentType);
 	}

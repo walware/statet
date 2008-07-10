@@ -84,6 +84,32 @@ class BracketLevel implements IExitPolicy {
 		
 	}
 	
+	private static class QuotedLevelType implements IBracketLevelType {
+		
+		private final char fSeparatorChar;
+		
+		public QuotedLevelType(final char sepChar) {
+			fSeparatorChar = sepChar;
+		}
+		
+		public boolean processReturn() {
+			return false;
+		}
+		public boolean matchesEnd(final IDocument doc, final BasicHeuristicTokenScanner scanner, final int startOffset, final char c, int charOffset) throws BadLocationException {
+			if (c == fSeparatorChar && TextUtilities.getPartition(doc, scanner.getPartitioning(), charOffset, true)
+					.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
+				int count = -1;
+				do {
+					count++;
+					charOffset--;
+				} while (doc.getChar(charOffset) == '\\');
+				return ((count % 2) == 0);
+			}
+			return false;
+		}
+		
+	}
+	
 	private static class InfixLevelType implements IBracketLevelType {
 		
 		private final char fCloseChar;
@@ -103,7 +129,7 @@ class BracketLevel implements IExitPolicy {
 	
 	private static final IBracketLevelType LEVEL_STRING_S = new StringLevelType('\'');
 	private static final IBracketLevelType LEVEL_STRING_D = new StringLevelType('"');
-	private static final IBracketLevelType LEVEL_SYMBOL_G = new StringLevelType('`');
+	private static final IBracketLevelType LEVEL_QUOTED_SYMBOL = new QuotedLevelType('`');
 	private static final IBracketLevelType LEVEL_CURLY_BRACKET = new BracketLevelType('}');
 	private static final IBracketLevelType LEVEL_ROUND_BRACKET = new BracketLevelType(')');
 	private static final IBracketLevelType LEVEL_SQUARE_BRACKET = new BracketLevelType(']');
@@ -116,7 +142,7 @@ class BracketLevel implements IExitPolicy {
 		case '"':
 			return LEVEL_STRING_D;
 		case '`':
-			return LEVEL_SYMBOL_G;
+			return LEVEL_QUOTED_SYMBOL;
 		case '{':
 			return LEVEL_CURLY_BRACKET;
 		case '(':

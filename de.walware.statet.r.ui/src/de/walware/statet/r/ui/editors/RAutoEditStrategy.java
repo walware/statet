@@ -181,21 +181,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
 	private final boolean isInDefaultPartition(final int offset, final int c) throws BadLocationException, BadPartitioningException {
-		final ITypedRegion partition = fDocument.getPartition(fScanner.getPartitioning(), offset, false);
-		if (!fScanner.isDefaultPartition(partition.getType())) {
-			// no default partition
-			return false;
-		}
-		if (offset == partition.getOffset() && offset > 0) {
-			// avoid automation directly after same type
-			if (c == '%') {
-				return !fDocument.getPartition(fScanner.getPartitioning(), offset-1, false).getType().equals(IRDocumentPartitions.R_INFIX_OPERATOR);
-			}
-			if (c == '"' || c == '\'' || c == '`') {
-				return !fDocument.getPartition(fScanner.getPartitioning(), offset-1, false).getType().equals(IRDocumentPartitions.R_STRING);
-			}
-		}
-		return true;
+		final ITypedRegion partition = fDocument.getPartition(fScanner.getPartitioning(), offset, true);
+		return fScanner.isDefaultPartition(partition.getType());
 	}
 	
 	private final boolean isClosedString(int offset, final int end, final boolean endVirtual, final char sep) {
@@ -483,7 +470,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			if (line >= 5) {
 				shift = fDocument.getLineOffset(line);
 				final ITypedRegion partition = fDocument.getPartition(fScanner.getPartitioning(), shift, true);
-				if (partition.getType().equals(IRDocumentPartitions.R_STRING)) {
+				if (!fScanner.isDefaultPartition(partition.getType())) {
 					shift = partition.getOffset();
 				}
 			}

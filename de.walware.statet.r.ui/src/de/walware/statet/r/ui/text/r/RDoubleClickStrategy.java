@@ -65,7 +65,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			String type = partition.getType();
 			
 			// Bracket-Pair-Matching in Code-Partitions
-			if (IRDocumentPartitions.R_DEFAULT.equals(type) || IRDocumentPartitions.R_DEFAULT_EXPL.equals(type)) {
+			if (type == IRDocumentPartitions.R_DEFAULT || type == IRDocumentPartitions.R_DEFAULT_EXPL) {
 				final IRegion region = fPairMatcher.match(document, offset);
 				if (region != null && region.getLength() >= 2) {
 					textViewer.setSelectedRange(region.getOffset() + 1, region.getLength() - 2);
@@ -77,7 +77,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 			partition = TextUtilities.getPartition(document, fPartitioning, offset, false);
 			type = partition.getType();
 			// Start or End in String-Partitions
-			if (IRDocumentPartitions.R_STRING.equals(type)) {
+			if (type == IRDocumentPartitions.R_STRING || type == IRDocumentPartitions.R_QUOTED_SYMBOL) {
 				final int partitionOffset = partition.getOffset();
 				final int partitionEnd = partitionOffset + partition.getLength();
 				if (offset == partitionOffset || offset == partitionOffset+1
@@ -96,22 +96,22 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				return;
 			}
 			// Start in Comment-Partitions
-			if (IRDocumentPartitions.R_COMMENT.equals(type)) {
+			if (type == IRDocumentPartitions.R_COMMENT) {
 				final int partitionOffset = partition.getOffset();
 				if (offset == partitionOffset || offset == partitionOffset+1) {
 					textViewer.setSelectedRange(partitionOffset, partition.getLength());
 					return;
 				}
 			}
-			if (IRDocumentPartitions.R_INFIX_OPERATOR.equals(type)) {
+			if (type == IRDocumentPartitions.R_INFIX_OPERATOR) {
 				textViewer.setSelectedRange(partition.getOffset(), partition.getLength());
 				return;
 			}
 			// Spezialfall: End String-Partition
-			if (partition.getOffset() == offset && offset > 0
-					&& IRDocumentPartitions.R_STRING.equals(
-							(partition = TextUtilities.getPartition(document, fPartitioning, offset-1, true)).getType()
-					)) {
+			if ((partition.getOffset() == offset) && (offset > 0)
+					&& ( (partition = TextUtilities.getPartition(document, fPartitioning, offset-1, true))
+							.getType() == IRDocumentPartitions.R_STRING)
+					) {
 				selectRegion(textViewer, getStringContent(document, partition));
 				return;
 			}

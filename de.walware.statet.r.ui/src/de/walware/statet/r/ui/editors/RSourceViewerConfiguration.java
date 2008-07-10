@@ -161,6 +161,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT_EXPL);
 		
+		dr = new DefaultDamagerRepairer(fStringScanner);
+		reconciler.setDamager(dr, IRDocumentPartitions.R_QUOTED_SYMBOL);
+		reconciler.setRepairer(dr, IRDocumentPartitions.R_QUOTED_SYMBOL);
+		
 		dr = new DefaultDamagerRepairer(fInfixScanner);
 		reconciler.setDamager(dr, IRDocumentPartitions.R_INFIX_OPERATOR);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_INFIX_OPERATOR);

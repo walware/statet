@@ -26,32 +26,42 @@ public interface IRDocumentPartitions {
 	
 	
 	/**
-	 * The name of a default partition (R code) in R documents.
+	 * The type of a default partition (R code) in R documents
+	 * 
 	 * Value: defined by {@link org.eclipse.jface.text.IDocument#DEFAULT_CONTENT_TYPE}
 	 */
 	String R_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
 	
 	/**
-	 * The name of a explicit default partition (R code) in R documents.
+	 * The type of a explicit default partition (R code) in R documents
+	 * 
 	 * Value: {@value}
 	 */
 	String R_DEFAULT_EXPL = "__r_default"; //$NON-NLS-1$
 	
 	/**
-	 * The name of a infix operator partition in R documents.
+	 * The type of a symbol partition in R documents
+	 * 
+	 * Value: {@value}
+	 */
+	String R_QUOTED_SYMBOL = "__r_symbol_quoted"; //$NON-NLS-1$
+	
+	/**
+	 * The type of a infix operator partition in R documents
+	 * 
 	 * Value: {@value}
 	 */
 	String R_INFIX_OPERATOR = "__r_op_infix"; //$NON-NLS-1$
 	
 	/**
-	 * The name of a string partition in R documents, more exactly for all quoted text
-	 * including quoted symbols.
+	 * The type of a string partition in R documents
+	 * 
 	 * Value: {@value}
 	 */
 	String R_STRING = "__r_string"; //$NON-NLS-1$
 	
 	/**
-	 * The name of a comment partition in R documents.
+	 * The type of a comment partition in R documents.
 	 * Value: {@value}
 	 */
 	String R_COMMENT = "__r_comment"; //$NON-NLS-1$
@@ -62,6 +72,7 @@ public interface IRDocumentPartitions {
 	 */
 	String[] R_PARTITIONS = new String[] {
 			R_DEFAULT, 
+			R_QUOTED_SYMBOL, 
 			R_INFIX_OPERATOR, 
 			R_STRING, 
 			R_COMMENT,
@@ -71,26 +82,30 @@ public interface IRDocumentPartitions {
 /* Rd ************************************************************************/
 	
 	/**
-	 * Id of partitioning of Rd-documents.
+	 * Id of partitioning of Rd-documents
+	 * 
 	 * Value: {@value}
 	 */
 	String RDOC_DOCUMENT_PARTITIONING = "__rd_partitioning"; //$NON-NLS-1$
 	
 	
 	/**
-	 * The name of a default partition (Rd code) in Rd documents.
+	 * The type of a default partition (Rd code) in Rd documents
+	 * 
 	 * Value: defined by {@link org.eclipse.jface.text.IDocument#DEFAULT_CONTENT_TYPE}
 	 */
 	String RDOC_DEFAULT = IDocument.DEFAULT_CONTENT_TYPE;
 	
 	/**
-	 * The name of a comment partition in Rd documents.
+	 * The type of a comment partition in Rd documents
+	 * 
 	 * Value: {@value}
 	 */
 	String RDOC_COMMENT = "__rd_comment"; //$NON-NLS-1$
 	
 	/**
-	 * The name of a platform instruction partition in Rd documents.
+	 * The type of a platform instruction partition in Rd documents
+	 * 
 	 * Value: {@value}
 	 */
 	

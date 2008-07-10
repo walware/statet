@@ -11,13 +11,13 @@
 
 package de.walware.statet.r.internal.sweave;
 
-import net.sourceforge.texlipse.editor.ITexDocumentConstants;
-
 import org.eclipse.jface.text.IDocument;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.sweave.text.CatPartitioner;
 import de.walware.statet.r.sweave.text.MultiCatDocumentUtil;
+
+import net.sourceforge.texlipse.editor.ITexDocumentConstants;
 
 
 /**
@@ -45,6 +45,7 @@ public class Rweave {
 	
 	public static final String[] R_PARTITIONS = new String[] {
 		IRDocumentPartitions.R_DEFAULT_EXPL,
+		IRDocumentPartitions.R_QUOTED_SYMBOL,
 		IRDocumentPartitions.R_INFIX_OPERATOR,
 		IRDocumentPartitions.R_STRING,
 		IRDocumentPartitions.R_COMMENT,
@@ -54,6 +55,7 @@ public class Rweave {
 		CHUNK_CONTROL_CONTENT_TYPE,
 		CHUNK_COMMENT_CONTENT_TYPE,
 		IRDocumentPartitions.R_DEFAULT_EXPL,
+		IRDocumentPartitions.R_QUOTED_SYMBOL,
 		IRDocumentPartitions.R_INFIX_OPERATOR,
 		IRDocumentPartitions.R_STRING,
 		IRDocumentPartitions.R_COMMENT,
@@ -78,6 +80,7 @@ public class Rweave {
 		CHUNK_CONTROL_CONTENT_TYPE,
 		CHUNK_COMMENT_CONTENT_TYPE,
 		IRDocumentPartitions.R_DEFAULT_EXPL,
+		IRDocumentPartitions.R_QUOTED_SYMBOL,
 		IRDocumentPartitions.R_INFIX_OPERATOR,
 		IRDocumentPartitions.R_STRING,
 		IRDocumentPartitions.R_COMMENT,
@@ -102,6 +105,7 @@ public class Rweave {
 				|| contentType == IRDocumentPartitions.R_STRING
 				|| contentType == IRDocumentPartitions.R_COMMENT
 				|| contentType == IRDocumentPartitions.R_INFIX_OPERATOR
+				|| contentType == IRDocumentPartitions.R_QUOTED_SYMBOL
 				);
 	}
 	
