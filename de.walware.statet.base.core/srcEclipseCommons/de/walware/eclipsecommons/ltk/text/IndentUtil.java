@@ -20,7 +20,7 @@ import org.eclipse.osgi.util.NLS;
 
 
 /**
- * 
+ * Util to compute and edit line indentations
  */
 public class IndentUtil {
 	

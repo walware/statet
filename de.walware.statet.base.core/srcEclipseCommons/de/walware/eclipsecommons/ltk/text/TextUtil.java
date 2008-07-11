@@ -11,18 +11,37 @@
 
 package de.walware.eclipsecommons.ltk.text;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
 
-/**
- * 
- */
 public class TextUtil {
+	
+	public static final Pattern LINE_DELIMITER_PATTERN = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
+	
+	private static final IScopeContext[] PLATFORM_SCOPES = new IScopeContext[] { new InstanceScope() };
+	
+	
+	/**
+	 * Returns the default line delimiter of the Eclipse platform (workbench).
+	 * 
+	 * @return the line delimiter string
+	 */
+	public static final String getPlatformLineDelimiter() {
+		final String lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, PLATFORM_SCOPES);
+		if (lineDelimiter != null) {
+			return lineDelimiter;
+		}
+		return System.getProperty("line.separator"); //$NON-NLS-1$
+	}
 	
 	/**
 	 * Return the length of the overlapping length of two regions.
@@ -71,24 +90,58 @@ public class TextUtil {
 		return 0;
 	}
 	
-	public static final void getLines(final IDocument document, final int offset, final int length, final List<String> to) throws BadLocationException {
-		int start = offset;
-		final int end = offset+length;
-		int line = document.getLineOfOffset(offset);
-		IRegion region = document.getLineInformation(line++);
-		int lineEnd = region.getOffset()+region.getLength();
-		while (true) {
-			if (lineEnd >= end) {
-				break;
-			}
-			to.add(document.get(start, lineEnd-start));
-			region = document.getLineInformation(line++);
-			start = region.getOffset();
-			lineEnd = start+region.getLength();
+	/**
+	 * Adds text of lines of a document to the list.
+	 * 
+	 * The first and begins at <code>offset</code>, the last lines ends at <code>offset+length</code>.
+	 * 
+	 * @param document the document
+	 * @param offset the offset of region to include
+	 * @param length the length of region to include
+	 * @param lines list the lines are added to
+	 * @throws BadLocationException
+	 */
+	public static final void addLines(final IDocument document, final int offset, final int length, final ArrayList<String> lines) throws BadLocationException {
+		final int startLine = document.getLineOfOffset(offset);
+		final int endLine = document.getLineOfOffset(offset+length);
+		lines.ensureCapacity(lines.size() + endLine-startLine+1);
+		
+		IRegion lineInfo;
+		if (startLine > endLine) {
+			throw new IllegalArgumentException();
 		}
-		to.add(document.get(start, end-start));
+		if (startLine == endLine) {
+			lineInfo = document.getLineInformation(endLine);
+			lines.add(document.get(offset, Math.max(0, Math.min(
+					length, lineInfo.getOffset()+lineInfo.getLength()-offset))));
+			return;
+		}
+		else {
+			lineInfo = document.getLineInformation(startLine);
+			lines.add(document.get(offset, lineInfo.getOffset()+lineInfo.getLength()));
+			for (int line = startLine+1; line < endLine; line++) {
+				lineInfo = document.getLineInformation(line);
+				lines.add(document.get(lineInfo.getOffset(), lineInfo.getOffset()+lineInfo.getLength()));
+			}
+			lineInfo = document.getLineInformation(endLine);
+			lines.add(document.get(lineInfo.getOffset(), lineInfo.getOffset()+lineInfo.getLength()));
+		}
 	}
 	
+	/**
+	 * Computes the region of full lines containing the two specified positions 
+	 * (e.g. begin and end offset of the editor selection).
+	 * 
+	 * If the second position is in column 0 and in another line than the first position,
+	 * the line of second position is not included in the region. The last line contains
+	 * the line delimiter, if exists (not if EOF).
+	 * 
+	 * @param document the document
+	 * @param position1 first position
+	 * @param position2 second position >= position1
+	 * @return a region for the block
+	 * @throws BadLocationException
+	 */
 	public final static IRegion getBlock(final IDocument document, final int position1, final int position2) throws BadLocationException {
 		final int line1 = document.getLineOfOffset(position1);
 		int line2 = document.getLineOfOffset(position2);
