@@ -18,7 +18,7 @@ import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.r.core.RResourceUnit;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 
 
 /**

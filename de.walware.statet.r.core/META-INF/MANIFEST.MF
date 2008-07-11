@@ -14,10 +14,10 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[0.7.0,0.8.0)",
  de.walware.rj
 Import-Package: com.ibm.icu.text;version="3.6.1"
 Export-Package: de.walware.statet.r.core,
+ de.walware.statet.r.core.model,
  de.walware.statet.r.core.rdoc,
  de.walware.statet.r.core.renv,
  de.walware.statet.r.core.rlang,
- de.walware.statet.r.core.rmodel,
  de.walware.statet.r.core.rsource,
  de.walware.statet.r.core.rsource.ast,
  de.walware.statet.r.nico,

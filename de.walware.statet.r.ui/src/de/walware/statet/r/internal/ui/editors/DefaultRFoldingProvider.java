@@ -40,7 +40,7 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.CForLoop;
 import de.walware.statet.r.core.rsource.ast.CIfElse;

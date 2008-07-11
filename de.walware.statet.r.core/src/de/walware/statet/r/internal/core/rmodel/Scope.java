@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.walware.statet.r.core.rmodel.IScope;
+import de.walware.statet.r.core.model.IScope;
 
 
 public class Scope implements IScope {

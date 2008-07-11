@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.core.rmodel;
 
-import de.walware.statet.r.core.rmodel.IElementAccess;
+import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
 

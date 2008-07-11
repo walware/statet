@@ -22,7 +22,7 @@ import org.eclipse.ui.IEditorInput;
 import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
 
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 

@@ -16,7 +16,7 @@ import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.IModelElementDelta;
 import de.walware.eclipsecommons.ltk.IModelManager;
 
-import de.walware.statet.r.core.rmodel.IRModelInfo;
+import de.walware.statet.r.core.model.IRModelInfo;
 
 
 public class ModelDelta implements IModelElementDelta {

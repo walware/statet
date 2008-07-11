@@ -33,7 +33,7 @@ import de.walware.eclipsecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
 
-import de.walware.statet.r.core.rmodel.RWorkingCopy;
+import de.walware.statet.r.core.model.RWorkingCopy;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.sweave.Rweave;

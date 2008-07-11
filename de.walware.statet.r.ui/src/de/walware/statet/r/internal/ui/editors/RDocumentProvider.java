@@ -41,7 +41,7 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;

@@ -61,7 +61,7 @@ import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.Problem;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
 import de.walware.statet.r.core.rsource.ast.Arithmetic;
 import de.walware.statet.r.core.rsource.ast.Assignment;

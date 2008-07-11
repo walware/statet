@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.rmodel;
+package de.walware.statet.r.core.model;
 
 import org.eclipse.core.resources.IFile;
 

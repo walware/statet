@@ -41,7 +41,7 @@ import de.walware.statet.base.ui.sourceeditors.DefaultBrowserInformationInput;
 import de.walware.statet.base.ui.sourceeditors.ExtTextInvocationContext;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
-import de.walware.statet.r.core.rmodel.IElementAccess;
+import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.internal.ui.RUIMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;

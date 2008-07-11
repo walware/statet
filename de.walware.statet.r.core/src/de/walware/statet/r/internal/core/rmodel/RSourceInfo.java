@@ -16,7 +16,7 @@ import java.util.Map;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 
-import de.walware.statet.r.core.rmodel.IRModelInfo;
+import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 

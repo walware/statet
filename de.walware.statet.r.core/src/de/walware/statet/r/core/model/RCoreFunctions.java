@@ -9,11 +9,11 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.rmodel;
+package de.walware.statet.r.core.model;
 
-import static de.walware.statet.r.core.rmodel.ArgsDefinition.CLASS_NAME;
-import static de.walware.statet.r.core.rmodel.ArgsDefinition.METHOD_NAME;
-import static de.walware.statet.r.core.rmodel.ArgsDefinition.METHOD_OBJ;
+import static de.walware.statet.r.core.model.ArgsDefinition.CLASS_NAME;
+import static de.walware.statet.r.core.model.ArgsDefinition.METHOD_NAME;
+import static de.walware.statet.r.core.model.ArgsDefinition.METHOD_OBJ;
 
 import java.util.HashMap;
 import java.util.Random;

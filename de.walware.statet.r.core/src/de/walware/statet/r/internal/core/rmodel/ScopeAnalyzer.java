@@ -24,12 +24,12 @@ import org.eclipse.core.runtime.OperationCanceledException;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 
+import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IScope;
+import de.walware.statet.r.core.model.RCoreFunctions;
 import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rmodel.ArgsDefinition;
-import de.walware.statet.r.core.rmodel.IRModelInfo;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
-import de.walware.statet.r.core.rmodel.IScope;
-import de.walware.statet.r.core.rmodel.RCoreFunctions;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
 import de.walware.statet.r.core.rsource.ast.Arithmetic;
 import de.walware.statet.r.core.rsource.ast.Assignment;

@@ -9,12 +9,12 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.rmodel;
+package de.walware.statet.r.core.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.walware.statet.r.core.rmodel.ArgsDefinition.Arg;
+import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 
 
 /**

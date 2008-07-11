@@ -35,9 +35,9 @@ import de.walware.eclipsecommons.ltk.text.StringParseInput;
 import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rmodel.IManagableRUnit;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
-import de.walware.statet.r.core.rmodel.RManagedWorkingCopy;
+import de.walware.statet.r.core.model.IManagableRUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RManagedWorkingCopy;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;

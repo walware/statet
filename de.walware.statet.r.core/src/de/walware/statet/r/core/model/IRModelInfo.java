@@ -9,23 +9,21 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.rmodel;
+package de.walware.statet.r.core.model;
+
+import java.util.Map;
+
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
+
+import de.walware.statet.r.internal.core.rmodel.Scope;
 
 
 /**
- * 
+ * Container for model information of a R source unit
  */
-public interface IScope {
+public interface IRModelInfo extends ISourceUnitModelInfo {
 	
 	
-	public static final int T_PROJ = 1;
-	public static final int T_PKG = 2;
-	public static final int T_EXPLICIT = 3;
-	public static final int T_FUNCTION = 4;
-	
-	
-	public String getId();
-	
-	public boolean containsElement(final String name);
+	public Map<String, Scope> getAllScopes();
 	
 }

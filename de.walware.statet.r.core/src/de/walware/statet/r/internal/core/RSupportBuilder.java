@@ -44,7 +44,7 @@ import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.core.builder.MarkerHandler;
 import de.walware.statet.r.internal.core.builder.RParser;
 import de.walware.statet.r.internal.core.builder.RdParser;

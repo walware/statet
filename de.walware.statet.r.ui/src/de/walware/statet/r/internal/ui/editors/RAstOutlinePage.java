@@ -34,7 +34,7 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.ui.RLabelProvider;
 import de.walware.statet.r.ui.editors.REditor;

@@ -42,7 +42,7 @@ import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.r.core.RUtil;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.launcher.DefaultCodeLaunchHandler;
 import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;

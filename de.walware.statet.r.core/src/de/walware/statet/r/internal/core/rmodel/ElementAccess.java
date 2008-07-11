@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.core.rmodel;
 
-import de.walware.statet.r.core.rmodel.IElementAccess;
-import de.walware.statet.r.core.rmodel.IScope;
+import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.IScope;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 

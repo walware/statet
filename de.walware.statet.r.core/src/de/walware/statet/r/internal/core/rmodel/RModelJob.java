@@ -24,9 +24,9 @@ import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.IProblemRequestor;
 
-import de.walware.statet.r.core.rmodel.IManagableRUnit;
-import de.walware.statet.r.core.rmodel.IRModelInfo;
-import de.walware.statet.r.core.rmodel.IRSourceUnit;
+import de.walware.statet.r.core.model.IManagableRUnit;
+import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.RCorePlugin;
 

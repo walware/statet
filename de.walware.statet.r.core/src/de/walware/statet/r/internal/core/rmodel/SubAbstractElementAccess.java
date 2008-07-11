@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import de.walware.statet.r.core.rmodel.IElementAccess;
-import de.walware.statet.r.core.rmodel.IScope;
+import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.IScope;
 
 
 abstract class SubAbstractElementAccess implements IElementAccess {

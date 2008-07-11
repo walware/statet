@@ -22,10 +22,10 @@ import org.eclipse.jface.text.Position;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
 
+import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.RCoreFunctions;
+import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rmodel.ArgsDefinition;
-import de.walware.statet.r.core.rmodel.RCoreFunctions;
-import de.walware.statet.r.core.rmodel.ArgsDefinition.Arg;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
 
 
