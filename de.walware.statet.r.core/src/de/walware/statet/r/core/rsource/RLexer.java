@@ -39,7 +39,7 @@ public abstract class RLexer {
 	protected int fNextIndex;
 	protected int fNextNum;
 	private int fUnknownState = -1;
-	private StringBuilder fUnknwonString = new StringBuilder();
+	private StringBuilder fUnknownString = new StringBuilder();
 	
 	
 	public RLexer(final SourceParseInput input) {
@@ -83,16 +83,16 @@ public abstract class RLexer {
 			if (fInput.get(2) == '\n') {
 				fNextNum++;
 				handleNewLine();
-				createLinebreakToken("\r\n");  //$NON-NLS-1$
+				createLinebreakToken("\r\n"); //$NON-NLS-1$
 				return;
 			}
 			handleNewLine();
-			createLinebreakToken("\r");  //$NON-NLS-1$
+			createLinebreakToken("\r"); //$NON-NLS-1$
 			return;
 		case '\n':
 		case '\f':
 			handleNewLine();
-			createLinebreakToken("\n");  //$NON-NLS-1$
+			createLinebreakToken("\n"); //$NON-NLS-1$
 			return;
 		case ' ':
 		case '\t':
@@ -504,7 +504,7 @@ public abstract class RLexer {
 		int unknownNum = 0;
 		do {
 			unknownNum += fNextNum;
-			fUnknwonString.append(fInput.substring(1, fNextNum));
+			fUnknownString.append(fInput.substring(1, fNextNum));
 			
 			fUnknownState = 0;
 			searchNext();
@@ -514,13 +514,13 @@ public abstract class RLexer {
 		
 		fNextIndex = unknownIndex;
 		fNextNum = unknownNum;
-		createUnknownToken(fUnknwonString.toString());
+		createUnknownToken(fUnknownString.toString());
 		
-		if (fUnknwonString.length() > 40 || fUnknwonString.capacity() > 40) {
-			fUnknwonString.setLength(16);
-			fUnknwonString.trimToSize();
+		if (fUnknownString.length() > 40 || fUnknownString.capacity() > 40) {
+			fUnknownString.setLength(16);
+			fUnknownString.trimToSize();
 		}
-		fUnknwonString.setLength(0);
+		fUnknownString.setLength(0);
 		fNextNum = 0;
 		return;
 	}

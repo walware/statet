@@ -62,7 +62,6 @@ public class DNDUtil {
 	
 	
 	public static boolean setContent(final Clipboard clipboard, final Object[] datas, final Transfer[] tranfers) {
-		
 		while (true) {
 			try {
 				clipboard.setContents(datas, tranfers);
@@ -97,7 +96,6 @@ public class DNDUtil {
 	
 	public static void addDropSupport(final Control control, final DropTargetListener[] listeners,
 			final int operations, final Transfer[] transferTypes) {
-		
 		final DropTarget dropTarget = new DropTarget(control, operations);
 		dropTarget.setTransfer(transferTypes);
 		for (final DropTargetListener listener : listeners) {
