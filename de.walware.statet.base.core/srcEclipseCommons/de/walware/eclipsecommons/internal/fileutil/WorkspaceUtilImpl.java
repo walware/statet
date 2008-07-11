@@ -27,7 +27,7 @@ import de.walware.eclipsecommons.FileUtil;
 
 
 /**
- * 
+ * Impl of FileUtil for Eclipse workspace files.
  */
 public class WorkspaceUtilImpl extends FileUtil {
 	
@@ -44,7 +44,7 @@ public class WorkspaceUtilImpl extends FileUtil {
 	
 	@Override
 	public String getFileLabel() {
-		return "'"+fFile.getFullPath().makeRelative().toString()+"' (workspace)";
+		return "'workspace:"+fFile.getFullPath().makeAbsolute().toString()+"'";
 	}
 	
 	@Override
