@@ -14,6 +14,8 @@ package de.walware.eclipsecommons.ui.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.jface.action.LegacyActionTools;
+
 
 /**
  * 
@@ -21,16 +23,11 @@ import java.util.regex.Pattern;
 public class MessageUtil {
 	
 	
-	public static final Pattern MNEMONICS_PATTERN = Pattern.compile("(\\&)[^\\&]"); //$NON-NLS-1$
 	public static final Pattern AMPERSAND_PATTERN = Pattern.compile("\\&"); //$NON-NLS-1$
 	public static final String AMPERSAND_TOOLTIP_REPLACEMENT = Matcher.quoteReplacement("&&"); //$NON-NLS-1$
 	
 	public static String removeMnemonics(final String label) {
-		final Matcher match = MNEMONICS_PATTERN.matcher(label);
-		if (match.find()) {
-			return label.substring(0, match.start(0)) + label.substring(match.start(0)+1, label.length());
-		}
-		return label;
+		return LegacyActionTools.removeMnemonics(label);
 	}
 	
 	public static String escapeForFormText(final String text) {
@@ -88,7 +85,6 @@ public class MessageUtil {
 	}
 	
 	
-	private MessageUtil() {
-	}
+	private MessageUtil() {}
 	
 }
