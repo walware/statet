@@ -144,7 +144,9 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		
-		progress.done();
+		if (monitor != null) {
+			monitor.done();
+		}
 	}
 	
 }

@@ -106,7 +106,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 	private void doCorrection(final ISourceUnit unit, final ITextSelection selection, final IProgressMonitor monitor)
 			throws Exception {
 		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
-		final AbstractDocument document = unit.getDocument();
+		final AbstractDocument document = unit.getDocument(monitor);
 		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) unit.getAstInfo("r", true, monitor); //$NON-NLS-1$
 		
 		if (monitor.isCanceled()) {

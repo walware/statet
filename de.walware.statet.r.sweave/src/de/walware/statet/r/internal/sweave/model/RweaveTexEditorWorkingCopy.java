@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.sweave.model;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
@@ -55,7 +56,7 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 	}
 	
 	@Override
-	protected IWorkingBuffer createWorkingBuffer() {
+	protected IWorkingBuffer createWorkingBuffer(final SubMonitor progress) {
 		return new FileBufferWorkingBuffer(this);
 	}
 	
@@ -78,11 +79,11 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 	
 	public AstInfo<SweaveDocElement> reconcileR(final int level, final IProgressMonitor monitor) {
 		synchronized (fAstLock) {
-			final AbstractDocument document = getDocument();
+			final AbstractDocument document = getDocument(monitor);
 			SourceContent content;
 			ITypedRegion[] cats;
 			do {
-				content = getContent();
+				content = getContent(monitor);
 				cats = Rweave.R_TEX_CAT_UTIL.getCats(document, 0, content.text.length());
 			} while (document.getModificationStamp() != content.stamp);
 			

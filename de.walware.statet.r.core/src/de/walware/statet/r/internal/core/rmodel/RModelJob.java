@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
@@ -80,7 +81,7 @@ public class RModelJob extends Job {
 			fUnit.getModelLockObject().notifyAll();
 		}
 		
-		public void run() {
+		public void run(final SubMonitor progress) {
 			IRModelInfo newModel = null;
 			IRModelInfo oldModel = null;
 			boolean isOK = false;
@@ -108,7 +109,7 @@ public class RModelJob extends Job {
 			final IProblemRequestor problemRequestor = fUnit.getProblemRequestor();
 			if (problemRequestor != null) {
 				problemRequestor.beginReportingSequence();
-				fSyntaxReporter.run(fUnit, fNewAst, problemRequestor);
+				fSyntaxReporter.run(fUnit, fNewAst, problemRequestor, progress);
 				problemRequestor.endReportingSequence();
 			}
 			
@@ -168,20 +169,25 @@ public class RModelJob extends Job {
 	
 	@Override
 	protected IStatus run(final IProgressMonitor monitor) {
+		final SubMonitor progress = SubMonitor.convert(monitor);
 		Task task;
 		while (true) {
 			synchronized (this) {
 				final IRSourceUnit u = fTaskQueue.poll();
 				if (u == null) {
 					fWorking = false;
+					if (monitor != null) {
+						monitor.done();
+					}
 					return Status.OK_STATUS;
 				}
 				fWorking = true;
 				task = fTaskDetail.remove(u);
+				progress.setWorkRemaining(1+fTaskQueue.size());
 			}
 			
 			try {
-				task.run();
+				task.run(progress.newChild(1));
 			}
 			catch (final Throwable e) {
 				RCorePlugin.logError(-1, "R Model Update", e); //$NON-NLS-1$

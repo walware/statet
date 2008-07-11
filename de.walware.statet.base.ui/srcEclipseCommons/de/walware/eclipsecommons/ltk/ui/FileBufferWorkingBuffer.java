@@ -21,8 +21,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.IDocument;
@@ -94,12 +94,11 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 	
 	
 	@Override
-	protected AbstractDocument createDocument() {
-		final IProgressMonitor monitor = new NullProgressMonitor();
+	protected AbstractDocument createDocument(final SubMonitor progress) {
 		if (fUnit.getResource() instanceof IFile) {
 			final IPath path = fUnit.getPath();
 			try {
-				FileBuffers.getTextFileBufferManager().connect(path, LocationKind.IFILE, monitor);
+				FileBuffers.getTextFileBufferManager().connect(path, LocationKind.IFILE, progress);
 				fBuffer = FileBuffers.getTextFileBufferManager().getTextFileBuffer(path, LocationKind.IFILE);
 				final IDocument fileDoc = fBuffer.getDocument();
 				if (!(fileDoc instanceof AbstractDocument)) {
@@ -111,11 +110,11 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 				StatetUIPlugin.log(e.getStatus());
 			}
 		}
-		return super.createDocument();
+		return super.createDocument(progress);
 	}
 	
 	@Override
-	protected SourceContent createContent() {
+	protected SourceContent createContent(final SubMonitor progress) {
 		if (fUnit.getResource() instanceof IFile) {
 			final IPath path = fUnit.getPath();
 			final ITextFileBuffer buffer = FileBuffers.getTextFileBufferManager().getTextFileBuffer(path, LocationKind.IFILE);
@@ -123,23 +122,25 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 				return createContentFromDocument(buffer.getDocument());
 			}
 		}
-		return super.createContent();
+		return super.createContent(progress);
 	}
 	
 	@Override
-	public void releaseDocument() {
-		final IProgressMonitor monitor = new NullProgressMonitor();
+	public void releaseDocument(final IProgressMonitor monitor) {
 		if (fBuffer != null) {
+			final SubMonitor progress = SubMonitor.convert(monitor);
 			final IPath path = fUnit.getPath();
 			try {
-				FileBuffers.getTextFileBufferManager().disconnect(path, LocationKind.IFILE, monitor);
+				FileBuffers.getTextFileBufferManager().disconnect(path, LocationKind.IFILE, progress);
 			} 
 			catch (final CoreException e) {
 				StatetUIPlugin.log(e.getStatus());
 			}
-			fBuffer = null;
+			finally {
+				fBuffer = null;
+			}
 		}
-		super.releaseDocument();
+		super.releaseDocument(monitor);
 	}
 	
 }

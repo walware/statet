@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension4;
@@ -43,31 +43,39 @@ public class WorkingBuffer implements IWorkingBuffer {
 	}
 	
 	
-	public synchronized AbstractDocument getDocument() {
+	/**
+	 * {@inheritDoc}
+	 */
+	public synchronized AbstractDocument getDocument(final IProgressMonitor monitor) {
 		if (fDocument == null) {
-			final AbstractDocument doc = createDocument();
+			final SubMonitor progress = SubMonitor.convert(monitor);
+			final AbstractDocument doc = createDocument(progress);
 			fDocument = doc;
 		}
 		return fDocument;
 	}
 	
-	public SourceContent getContent() {
+	/**
+	 * {@inheritDoc}
+	 */
+	public SourceContent getContent(final IProgressMonitor monitor) {
+		final SubMonitor progress = SubMonitor.convert(monitor);
 		final IDocument doc = fDocument;
 		if (doc != null) {
 			return createContentFromDocument(doc);
 		}
-		return createContent();
+		return createContent(progress);
 	}
 	
-	public void saveDocument() {
+	public void saveDocument(final IProgressMonitor monitor) {
 	}
 	
-	public void releaseDocument() {
+	public void releaseDocument(final IProgressMonitor monitor) {
 		fDocument = null;
 	}
 	
 	
-	protected AbstractDocument createDocument() {
+	protected AbstractDocument createDocument(final SubMonitor progress) {
 		final IDocument fileDoc = FileBuffers.getTextFileBufferManager().createEmptyDocument(null, null);
 		if (!(fileDoc instanceof AbstractDocument)) {
 			return null;
@@ -76,7 +84,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 		
 		final ISourceUnit underlyingUnit = fUnit.getUnderlyingUnit();
 		if (underlyingUnit != null) {
-			final SourceContent underlyingContent = underlyingUnit.getContent();
+			final SourceContent underlyingContent = underlyingUnit.getContent(progress);
 			if (document instanceof IDocumentExtension4) {
 				((IDocumentExtension4) document).set(underlyingContent.text, underlyingContent.stamp);
 			}
@@ -87,13 +95,13 @@ public class WorkingBuffer implements IWorkingBuffer {
 		else {
 			final IResource resource = fUnit.getResource();
 			if (resource instanceof IFile) {
-				loadDocumentFromFile((IFile) resource, document);
+				loadDocumentFromFile((IFile) resource, document, progress);
 			}
 		}
 		return document;
 	}
 	
-	protected void loadDocumentFromFile(final IFile file, final AbstractDocument document) {
+	protected final void loadDocumentFromFile(final IFile file, final AbstractDocument document, final SubMonitor progress) {
 		try {
 			FileUtil.getFileUtil(file).createReadTextFileOp(new FileUtil.ReaderAction() {
 				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException {
@@ -110,23 +118,23 @@ public class WorkingBuffer implements IWorkingBuffer {
 						document.set(buffer.toString());
 					}
 				}
-			}).doOperation(new NullProgressMonitor());
+			}).doOperation(progress);
 		} catch (final OperationCanceledException e) {
 		} catch (final CoreException e) {
 			BaseCorePlugin.log(e.getStatus());
 		}
 	}
 	
-	protected SourceContent createContent() {
+	protected SourceContent createContent(final SubMonitor progress) {
 		final ISourceUnit underlyingUnit = fUnit.getUnderlyingUnit();
 		if (underlyingUnit != null) {
-			return underlyingUnit.getContent();
+			return underlyingUnit.getContent(progress);
 		}
 		else {
-			final AtomicReference<SourceContent> content = new AtomicReference<SourceContent>();
 			final IResource resource = fUnit.getResource();
+			final AtomicReference<SourceContent> content = new AtomicReference<SourceContent>();
 			if (resource instanceof IFile) {
-				loadContentFromFile((IFile) resource, content);
+				loadContentFromFile((IFile) resource, content, progress);
 			}
 			return content.get();
 		}
@@ -149,7 +157,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 		}
 	}
 	
-	protected void loadContentFromFile(final IFile file, final AtomicReference<SourceContent> content) {
+	protected final void loadContentFromFile(final IFile file, final AtomicReference<SourceContent> content, final SubMonitor progress) {
 		try {
 			FileUtil.getFileUtil(file).createReadTextFileOp(new FileUtil.ReaderAction() {
 				public void run(final BufferedReader reader, final IProgressMonitor monitor) throws IOException {
@@ -161,9 +169,11 @@ public class WorkingBuffer implements IWorkingBuffer {
 					}
 					content.set(new SourceContent(file.getModificationStamp(), buffer.toString()));
 				}
-			}).doOperation(new NullProgressMonitor());
-		} catch (final OperationCanceledException e) {
-		} catch (final CoreException e) {
+			}).doOperation(progress);
+		}
+		catch (final OperationCanceledException e) {
+		}
+		catch (final CoreException e) {
 			BaseCorePlugin.log(e.getStatus());
 		}
 	}

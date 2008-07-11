@@ -105,9 +105,9 @@ public class PostSelectionWithElementInfoController {
 						return Status.OK_STATUS;
 					}
 					input = run.inputElement;
-					input.connect();
+					input.connect(monitor);
 					astInfo = input.getAstInfo(null, false, null);
-					if (astInfo == null || astInfo.level < fInfoLevel || astInfo.stamp != input.getDocument().getModificationStamp()) {
+					if (astInfo == null || astInfo.level < fInfoLevel || astInfo.stamp != input.getDocument(monitor).getModificationStamp()) {
 						return Status.OK_STATUS;
 					}
 				}
@@ -136,7 +136,7 @@ public class PostSelectionWithElementInfoController {
 			}
 			finally {
 				if (input != null) {
-					input.disconnect();
+					input.disconnect(monitor);
 				}
 			}
 			

@@ -13,6 +13,8 @@ package de.walware.statet.r.internal.ui;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.runtime.SubMonitor;
+
 import de.walware.eclipsecommons.ltk.IProblemRequestor;
 import de.walware.eclipsecommons.ltk.IWorkingBuffer;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
@@ -38,7 +40,7 @@ public class REditorWorkingCopy extends RManagedWorkingCopy {
 	}
 	
 	@Override
-	protected IWorkingBuffer createWorkingBuffer() {
+	protected IWorkingBuffer createWorkingBuffer(final SubMonitor progress) {
 		return new FileBufferWorkingBuffer(this);
 	}
 	

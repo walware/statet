@@ -153,7 +153,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		new ToolRunner().runInBackgroundThread(process, new WorkbenchStatusHandler());
 		
-		progress.done();
+		if (monitor != null) {
+			monitor.done();
+		}
 	}
 	
 }

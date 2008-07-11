@@ -15,6 +15,8 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
@@ -73,8 +75,17 @@ public class RweaveTexDocumentProvider extends TextFileDocumentProvider implemen
 		if (info instanceof SweaveSourceFileInfo) {
 			final SweaveSourceFileInfo rinfo = (SweaveSourceFileInfo) info;
 			if (rinfo.fCount == 1 && rinfo.fWorkingCopy != null) {
-				rinfo.fWorkingCopy.disconnect();
-				rinfo.fWorkingCopy = null;
+				final IProgressMonitor monitor = getProgressMonitor();
+				final SubMonitor progress = SubMonitor.convert(monitor, 1);
+				try {
+					rinfo.fWorkingCopy.disconnect(progress.newChild(1));
+				}
+				finally {
+					rinfo.fWorkingCopy = null;
+					if (monitor != null) {
+						monitor.done();
+					}
+				}
 			}
 		}
 		super.disconnect(element);
@@ -93,8 +104,17 @@ public class RweaveTexDocumentProvider extends TextFileDocumentProvider implemen
 		
 		final Object ifile = adaptable.getAdapter(IFile.class);
 		if (ifile != null) {
-			final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, Sweave.R_TEX_UNIT_TYPE_ID, true);
-			rinfo.fWorkingCopy = StatetCore.EDITOR_CONTEXT.getUnit(pUnit, Sweave.R_TEX_UNIT_TYPE_ID, true);
+			final IProgressMonitor monitor = getProgressMonitor();
+			final SubMonitor progress = SubMonitor.convert(monitor, 2);
+			try {
+				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, Sweave.R_TEX_UNIT_TYPE_ID, true, progress.newChild(1));
+				rinfo.fWorkingCopy = StatetCore.EDITOR_CONTEXT.getUnit(pUnit, Sweave.R_TEX_UNIT_TYPE_ID, true, progress.newChild(1));
+			}
+			finally {
+				if (monitor != null) {
+					monitor.done();
+				}
+			}
 		}
 		return rinfo;
 	}

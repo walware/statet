@@ -30,7 +30,6 @@ import de.walware.eclipsecommons.ltk.SourceContent;
 import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
 import de.walware.eclipsecommons.ltk.WorkingBuffer;
 import de.walware.eclipsecommons.ltk.WorkingContext;
-import de.walware.eclipsecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -97,14 +96,14 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return StatetCore.PERSISTENCE_CONTEXT;
 	}
 	
-	public synchronized final void connect() {
+	public synchronized final void connect(final IProgressMonitor monitor) {
 		fCounter++;
 		if (fCounter == 1) {
 			init();
 		}
 	}
 	
-	public synchronized final void disconnect() {
+	public synchronized final void disconnect(final IProgressMonitor monitor) {
 		fCounter--;
 		if (fCounter == 0) {
 			dispose();
@@ -145,12 +144,12 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return fFile.getFullPath();
 	}
 	
-	public AbstractDocument getDocument() {
+	public AbstractDocument getDocument(final IProgressMonitor monitor) {
 		return null;
 	}
 	
-	public SourceContent getContent() {
-		return new WorkingBuffer(this).getContent();
+	public SourceContent getContent(final IProgressMonitor monitor) {
+		return new WorkingBuffer(this).getContent(monitor);
 	}
 	
 	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {

@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
@@ -123,10 +124,11 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	}
 	
 	
-	public void run(final IRSourceUnit unit, final AstInfo<RAstNode> ast, final IProblemRequestor problemRequestor) {
+	public void run(final IRSourceUnit unit, final AstInfo<RAstNode> ast, final IProblemRequestor problemRequestor,
+			final IProgressMonitor monitor) {
 		try {
 			fCurrentUnit = unit;
-			fCurrentDoc = unit.getDocument();
+			fCurrentDoc = unit.getDocument(monitor);
 			fMaxOffset = fCurrentDoc.getLength();
 			fCurrentRequestor = problemRequestor;
 			ast.root.acceptInR(this);

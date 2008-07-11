@@ -93,7 +93,7 @@ public class ElementInfoController implements IModelElementInputProvider {
 			}
 			
 			if (listeners != null && listeners.length > 0) {
-				notifyInitial(listeners, input);
+				notifyInitial(listeners, input, monitor);
 			}
 			return Status.OK_STATUS;
 		}
@@ -127,8 +127,9 @@ public class ElementInfoController implements IModelElementInputProvider {
 				}
 				
 				try {
-					Job.getJobManager().beginRule(fNewInputJob, null);
-					notifyUpdated(listeners, input, event.delta);
+					final IProgressMonitor monitor = new NullProgressMonitor();
+					Job.getJobManager().beginRule(fNewInputJob, monitor);
+					notifyUpdated(listeners, input, event.delta, monitor);
 				}
 				finally {
 					Job.getJobManager().endRule(fNewInputJob);
@@ -173,12 +174,13 @@ public class ElementInfoController implements IModelElementInputProvider {
 		}
 	}
 	
-	private void notifyInitial(final IModelElementInputListener[] listeners, final ISourceUnit input) {
+	private void notifyInitial(final IModelElementInputListener[] listeners, final ISourceUnit input, 
+			final IProgressMonitor monitor) {
 		if (input != fInput) {
 			return;
 		}
 		try {
-			input.connect();
+			input.connect(monitor);
 			for (int i = 0; i < listeners.length; i++) {
 				if (input != fInput) {
 					return;
@@ -187,16 +189,17 @@ public class ElementInfoController implements IModelElementInputProvider {
 			}
 		}
 		finally {
-			input.disconnect();
+			input.disconnect(monitor);
 		}
 	}
 	
-	private void notifyUpdated(final IModelElementInputListener[] listeners, final ISourceUnit input, final IModelElementDelta delta) {
+	private void notifyUpdated(final IModelElementInputListener[] listeners, final ISourceUnit input, final IModelElementDelta delta, 
+			final IProgressMonitor monitor) {
 		if (input != fInput) {
 			return;
 		}
 		try {
-			input.connect();
+			input.connect(monitor);
 			for (int i = 0; i < listeners.length; i++) {
 				if (input != fInput) {
 					return;
@@ -205,7 +208,7 @@ public class ElementInfoController implements IModelElementInputProvider {
 			}
 		}
 		finally {
-			input.disconnect();
+			input.disconnect(monitor);
 		}
 	}
 	

@@ -145,7 +145,7 @@ public class REditor extends StatextEditor1<RProject> {
 				if (getSourceUnit() != inputElement || info == null || astSelection == null) {
 					return false;
 				}
-				final RunData run = new RunData(inputElement.getDocument(), info.getStamp());
+				final RunData run = new RunData(inputElement.getDocument(null), info.getStamp());
 				if (run.doc == null) {
 					return false;
 				}

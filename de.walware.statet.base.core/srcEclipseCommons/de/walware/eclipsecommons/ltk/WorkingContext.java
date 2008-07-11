@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.osgi.util.NLS;
 
@@ -45,19 +46,19 @@ public final class WorkingContext {
 		return fKey;
 	}
 	
-	public ISourceUnit getUnit(final Object from, String typeId, final boolean create) {
+	public ISourceUnit getUnit(final Object from, String modelTypeId, final boolean create, final IProgressMonitor monitor) {
 		synchronized (this) {
 			final ISourceUnit fromUnit = (from instanceof ISourceUnit) ?
 				((ISourceUnit) from) : null;
-			if (typeId == null && fromUnit != null) {
-				typeId = fromUnit.getModelTypeId();
+			if (modelTypeId == null && fromUnit != null) {
+				modelTypeId = fromUnit.getModelTypeId();
 			}
-			final ISourceUnitFactory factory = getFactory(typeId);
+			final ISourceUnitFactory factory = getFactory(modelTypeId);
 			if (factory == null) {
 				throw new UnsupportedOperationException(NLS.bind(
-						"no factory for type ''{0}''", typeId)); //$NON-NLS-1$
+						"no factory for type ''{0}''", modelTypeId)); //$NON-NLS-1$
 			}
-			final ISourceUnit copy = factory.getUnit(from, typeId, this, create);
+			final ISourceUnit copy = factory.getUnit(from, modelTypeId, this, create);
 			if (copy == null) {
 				if (create) {
 					throw new UnsupportedOperationException();
@@ -66,9 +67,9 @@ public final class WorkingContext {
 					return null;
 				}
 			}
-			copy.connect();
+			copy.connect(monitor);
 			if (fromUnit != null) {
-				fromUnit.disconnect();
+				fromUnit.disconnect(null);
 			}
 			return copy;
 		}

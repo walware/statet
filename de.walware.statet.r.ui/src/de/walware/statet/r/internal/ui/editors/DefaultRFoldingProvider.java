@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -321,8 +323,9 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 		if (input.fUnit == null || model == null) {
 			return null;
 		}
-		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) input.fUnit.getAstInfo("r", false, null); //$NON-NLS-1$
-		final AbstractDocument document = input.fUnit.getDocument();
+		final IProgressMonitor monitor = new NullProgressMonitor();
+		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) input.fUnit.getAstInfo("r", false, monitor); //$NON-NLS-1$
+		final AbstractDocument document = input.fUnit.getDocument(monitor);
 		if (ast == null || document == null || ast.stamp != document.getModificationStamp()) {
 			return null;
 		}

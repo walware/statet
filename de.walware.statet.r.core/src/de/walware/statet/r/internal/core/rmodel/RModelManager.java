@@ -207,7 +207,7 @@ public class RModelManager implements IModelManager {
 	
 	public AstInfo<RAstNode> reconcile(final IManagableRUnit u, final int level, final int waitLevel, final IProgressMonitor monitor) {
 		synchronized (u.getModelLockObject()) {
-			final SourceContent content = u.getContent();
+			final SourceContent content = u.getContent(monitor);
 			final AstInfo<RAstNode> old = u.getCurrentRAst();
 			if (old == null || old.stamp != content.stamp) {
 				final SourceParseInput input = new StringParseInput(content.text);

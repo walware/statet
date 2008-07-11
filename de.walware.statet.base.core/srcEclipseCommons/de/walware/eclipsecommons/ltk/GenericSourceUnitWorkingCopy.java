@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,9 +13,9 @@ package de.walware.eclipsecommons.ltk;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.AbstractDocument;
-
-import de.walware.eclipsecommons.ltk.IModelElement.Filter;
 
 
 /**
@@ -35,75 +35,131 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	}
 	
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public ISourceUnit getUnderlyingUnit() {
 		return fFrom;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public ISourceUnit getSourceUnit() {
 		return this;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getElementName() {
 		return fFrom.getElementName();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getId() {
 		return fFrom.getId();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getModelTypeId() {
 		return fFrom.getModelTypeId();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IPath getPath() {
 		return fFrom.getPath();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IResource getResource() {
 		return fFrom.getResource();
 	}
 	
-	public AbstractDocument getDocument() {
-		return fBuffer.getDocument();
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public AbstractDocument getDocument(final IProgressMonitor monitor) {
+		return fBuffer.getDocument(monitor);
 	}
 	
-	public SourceContent getContent() {
-		return fBuffer.getContent();
+	/**
+	 * {@inheritDoc}
+	 */
+	public SourceContent getContent(final IProgressMonitor monitor) {
+		return fBuffer.getContent(monitor);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Object getAdapter(final Class adapter) {
 		return fFrom.getAdapter(adapter);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IModelElement getParent() {
 		return null; // directory
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean hasChildren(final Filter filter) {
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IModelElement[] getChildren(final Filter filter) {
 		return new IModelElement[0];
 	}
 	
-	public synchronized final void connect() {
+	/**
+	 * {@inheritDoc}
+	 */
+	public synchronized final void connect(final IProgressMonitor monitor) {
 		fCounter++;
 		if (fCounter == 1) {
+			final SubMonitor progress = SubMonitor.convert(monitor, 1);
 			if (fBuffer == null) {
-				fBuffer = createWorkingBuffer();
+				progress.setWorkRemaining(2);
+				fBuffer = createWorkingBuffer(progress.newChild(1));
 			}
 			register();
-			fFrom.connect();
+			fFrom.connect(progress.newChild(1));
 		}
 	}
 	
-	protected abstract IWorkingBuffer createWorkingBuffer();
-	protected abstract void register();
-	
-	public synchronized final void disconnect() {
+	/**
+	 * {@inheritDoc}
+	 */
+	public synchronized final void disconnect(final IProgressMonitor monitor) {
 		fCounter--;
 		if (fCounter == 0) {
-			fBuffer.releaseDocument();
+			final SubMonitor progress = SubMonitor.convert(monitor, 2);
+			fBuffer.releaseDocument(progress.newChild(1));
 			unregister();
-			fFrom.disconnect();
+			fFrom.disconnect(progress.newChild(1));
 		}
 	}
+	
+	
+	protected abstract IWorkingBuffer createWorkingBuffer(SubMonitor progress);
+	
+	protected abstract void register();
 	
 	protected abstract void unregister();
 	
