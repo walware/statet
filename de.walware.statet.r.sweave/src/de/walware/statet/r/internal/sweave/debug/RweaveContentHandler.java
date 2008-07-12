@@ -29,6 +29,10 @@ import de.walware.statet.r.launching.ICodeLaunchContentHandler;
 public class RweaveContentHandler implements ICodeLaunchContentHandler {
 	
 	
+	public RweaveContentHandler() {
+	}
+	
+	
 	public String[] getCodeLines(final IDocument document) throws BadLocationException, CoreException {
 		if (document instanceof IDocumentExtension3) {
 			final IDocumentExtension3 doc3 = (IDocumentExtension3) document;
@@ -40,7 +44,7 @@ public class RweaveContentHandler implements ICodeLaunchContentHandler {
 			for (int i = 0; i < cats.length; i++) {
 				final ITypedRegion cat = cats[i];
 				if (cat.getType() == Rweave.R_CAT) {
-					TextUtil.getLines(document, cat.getOffset(), cat.getLength(), lines);
+					TextUtil.addLines(document, cat.getOffset(), cat.getLength(), lines);
 				}
 			}
 			return lines.toArray(new String[lines.size()]);

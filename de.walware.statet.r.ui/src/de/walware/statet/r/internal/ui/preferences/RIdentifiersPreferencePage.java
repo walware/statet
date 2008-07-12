@@ -60,7 +60,7 @@ import de.walware.eclipsecommons.ui.util.ViewerUtil.TableComposite;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
-import de.walware.statet.r.core.RNamesComparator;
+import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RSourceTokenLexer;
 import de.walware.statet.r.internal.ui.RIdentifierGroups;
@@ -268,7 +268,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		fWordListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fWordList = fWordListComposite.viewer;
 		fWordList.setContentProvider(new ArrayContentProvider());
-		fWordList.setComparator(new ViewerComparator(new RNamesComparator()) {
+		fWordList.setComparator(new ViewerComparator(new RSymbolComparator()) {
 			@Override
 			public int compare(final Viewer viewer, final Object e1, final Object e2) {
 				return getComparator().compare(e1, e2);

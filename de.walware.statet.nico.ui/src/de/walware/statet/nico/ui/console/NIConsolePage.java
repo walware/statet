@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.ui.console;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -92,6 +94,7 @@ import de.walware.eclipsecommons.ui.HandlerContributionItem;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.util.DNDUtil;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
@@ -371,7 +374,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	// Actions
 	private MultiActionHandler fMultiActionHandler;
 	private final ListenerList fToolActions = new ListenerList();
-	private ServiceLocator fInputServices;
+	ServiceLocator fInputServices;
 	
 	private FindReplaceUpdater fFindReplaceUpdater;
 	private FindReplaceAction fFindReplaceAction;
@@ -462,7 +465,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 						&& (e.stateMask == SWT.NONE || e.stateMask == SWT.SHIFT)
 						&& ( ((e.keyCode & SWT.KEYCODE_BIT) == 0) 
 								|| (SWT.KEYCODE_BIT + 32 <= e.keyCode && e.keyCode <= (SWT.KEYCODE_BIT + 80)) )) {
-					final StyledText textWidget = fInputGroup.getSourceViewer().getTextWidget();
+					final StyledText textWidget = fInputGroup.getViewer().getTextWidget();
 					if (!UIAccess.isOkToUse(textWidget)) {
 						return;
 					}
@@ -518,7 +521,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		Display.getCurrent().asyncExec(new Runnable() {
 			public void run() {
-				if (UIAccess.isOkToUse(fInputGroup.getSourceViewer()) && UIAccess.isOkToUse(fOutputViewer)) {
+				if (UIAccess.isOkToUse(fInputGroup.getViewer()) && UIAccess.isOkToUse(fOutputViewer)) {
 					fOutputViewer.revealEndOfDocument();
 					if (fOutputViewer.getControl().isFocusControl()) {
 						setFocus();
@@ -561,7 +564,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	protected void createActions() {
 		final Control outputControl = fOutputViewer.getControl();
-		final SourceViewer inputViewer = fInputGroup.getSourceViewer();
+		final SourceViewer inputViewer = fInputGroup.getViewer();
 		final Control inputControl = inputViewer.getControl();
 		
 		final IServiceLocator pageServices = getSite();
@@ -640,7 +643,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.REDO.getId(), fInputRedoAction);
 		
 		final ResourceBundle bundle = SharedMessages.getCompatibilityBundle();
-		fFindReplaceAction = new FindReplaceAction(bundle, "FindReplaceAction_", fConsoleView); 
+		fFindReplaceAction = new FindReplaceAction(bundle, "FindReplaceAction_", fConsoleView);  //$NON-NLS-1$
 		fFindReplaceAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.FIND_REPLACE);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
@@ -676,10 +679,10 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				fillInputContextMenu(manager);
 			}
 		});
-		control = fInputGroup.getSourceViewer().getControl();
+		control = fInputGroup.getViewer().getControl();
 		menu = fInputMenuManager.createContextMenu(control);
 		control.setMenu(menu);
-		getSite().registerContextMenu(id, fInputMenuManager, fInputGroup.getSourceViewer());
+		getSite().registerContextMenu(id, fInputMenuManager, fInputGroup.getViewer());
 	}
 	
 	protected void hookDND() {
@@ -757,7 +760,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			try {
 				fConsole.getDocument().removeDocumentListener(fFindReplaceUpdater);
 				fOutputViewer.removeSelectionChangedListener(fMultiActionHandler);
-				fInputGroup.getSourceViewer().removeSelectionChangedListener(fMultiActionHandler);
+				fInputGroup.getViewer().removeSelectionChangedListener(fMultiActionHandler);
 			}
 			catch (final Exception e) {
 				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, Messages.Console_error_UnexpectedException_message, e);
@@ -856,11 +859,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		if (Widget.class.equals(required)) {
 			if (fOutputViewer.getControl().isFocusControl())
 				return fOutputViewer.getTextWidget();
-			return fInputGroup.getSourceViewer().getTextWidget();
+			return fInputGroup.getViewer().getTextWidget();
 		}
 		if (IFindReplaceTarget.class.equals(required)) {
-			if (fInputGroup.getSourceViewer().getControl().isFocusControl())
-				return fInputGroup.getSourceViewer().getFindReplaceTarget();
+			if (fInputGroup.getViewer().getControl().isFocusControl())
+				return fInputGroup.getViewer().getFindReplaceTarget();
 			return fOutputViewer.getFindReplaceTarget();
 		}
 		if (IShowInSource.class.equals(required)) {
@@ -906,7 +909,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	public void setFocus() {
-		fInputGroup.getSourceViewer().getControl().setFocus();
+		fInputGroup.getViewer().getControl().setFocus();
 	}
 	
 	
@@ -965,17 +968,21 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	public void settingsChanged(final Set<String> groupIds) {
+		final Map<String, Object> options = new HashMap<String, Object>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
-				if (UIAccess.isOkToUse(fControl)) {
-					handleSettingsChanged(groupIds);
-				}
+				handleSettingsChanged(groupIds, options);
 			}
 		});
 	}
 	
-	protected void handleSettingsChanged(final Set<String> groupIds) {
-		fInputGroup.handleSettingsChanged(groupIds, null);
+	/**
+	 * @see ISettingsChangedHandler#handleSettingsChanged(Set, Map)
+	 */
+	protected void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		if (fInputGroup != null && UIAccess.isOkToUse(fControl)) {
+			fInputGroup.handleSettingsChanged(groupIds, options);
+		}
 	}
 	
 }

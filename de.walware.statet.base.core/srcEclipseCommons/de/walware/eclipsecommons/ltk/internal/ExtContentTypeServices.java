@@ -94,19 +94,23 @@ public class ExtContentTypeServices implements IExtContentTypeManager {
 		
 		for (final IConfigurationElement element : elements) {
 			if (element.getName().equals(CONFIG_CONTENTTYPE_ELEMENT_NAME)) { 
-				final String primary = element.getAttribute(CONFIG_ID_ATTRIBUTE_NAME); 
-				final String secondary = element.getAttribute(CONFIG_SECONDARY_ID_ATTRIBUTE_NAME); 
+				String primary = element.getAttribute(CONFIG_ID_ATTRIBUTE_NAME); 
+				String secondary = element.getAttribute(CONFIG_SECONDARY_ID_ATTRIBUTE_NAME); 
 				if (primary != null && secondary != null
 						&& primary.length() > 0 && secondary.length() > 0) {
+					primary = primary.intern();
+					secondary = secondary.intern();
 					add(primaryToSecondary, primary, secondary);
 					add(secondaryToPrimary, secondary, primary);
 				}
 			}
 			if (element.getName().equals(CONFIG_MODELTYPE_ELEMENT_NAME)) {
-				final String modelTypeId = element.getAttribute(CONFIG_ID_ATTRIBUTE_NAME); 
-				final String contentTypeId = element.getAttribute(CONFIG_CONTENTTYPE_ID_ATTRIBUTE_NAME); 
+				String modelTypeId = element.getAttribute(CONFIG_ID_ATTRIBUTE_NAME); 
+				String contentTypeId = element.getAttribute(CONFIG_CONTENTTYPE_ID_ATTRIBUTE_NAME); 
 				if (modelTypeId != null && contentTypeId != null
 						&& modelTypeId.length() > 0 && contentTypeId.length() > 0) {
+					modelTypeId = modelTypeId.intern();
+					contentTypeId = contentTypeId.intern();
 					modelToPrimary.put(modelTypeId, contentTypeId);
 				}
 			}

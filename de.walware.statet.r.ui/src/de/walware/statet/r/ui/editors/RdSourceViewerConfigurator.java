@@ -12,7 +12,9 @@
 package de.walware.statet.r.ui.editors;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
@@ -22,6 +24,8 @@ import org.eclipse.swt.graphics.Point;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
+import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
@@ -84,23 +88,26 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(Set<String> groupIds, final Object options) {
+	public void handleSettingsChanged(Set<String> groupIds, Map<String, Object> options) {
 		final ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
-			return false;
+			return;
 		}
 		if (groupIds == null) {
 			groupIds = INPUT_CHANGE_GROUPS;
 		}
+		if (options == null) {
+			options = new HashMap<String, Object>();
+		}
 		final Point selectedRange = viewer.getSelectedRange();
 		
-		final boolean affectsPresentation = fConfig.handleSettingsChanged(groupIds, viewer);
-		if (affectsPresentation) {
+		options.put(ISettingsChangedHandler.VIEWER_KEY, viewer);
+		fConfig.handleSettingsChanged(groupIds, options);
+		if (options.containsKey(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY)) {
 			viewer.invalidateTextPresentation();
 		}
 		
 		viewer.setSelectedRange(selectedRange.x, selectedRange.y);
-		return false;
 	}
 	
 	public RCodeStyleSettings getRCodeStyle() {

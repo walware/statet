@@ -12,6 +12,7 @@
 package de.walware.statet.r.core;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.eclipsecommons.ltk.IElementName;
 import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.IProblemRequestor;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
@@ -34,6 +36,8 @@ import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
@@ -47,17 +51,17 @@ public abstract class RResourceUnit implements ISourceUnit {
 		if (file != null) {
 			final IPath path = file.getFullPath();
 			if (path != null) {
-				return "wr:"+path.toPortableString(); //$NON-NLS-1$
+				return "epr:"+path.toPortableString(); // eclipse-platform-resource //$NON-NLS-1$
 			}
 		}
 		return null;
 	}
 	
-	public static RResourceUnit createTempUnit(final IResource file, final String typeId) {
+	public static RResourceUnit createTempUnit(final IResource file, final String modelTypeId) {
 		return new RResourceUnit(file) {
 			@Override
 			public String getModelTypeId() {
-				return typeId;
+				return modelTypeId;
 			}
 		};
 	}
@@ -65,13 +69,13 @@ public abstract class RResourceUnit implements ISourceUnit {
 	
 	private IResource fFile;
 	private String fId;
-	private String fName;
+	private IElementName fName;
 	protected int fCounter;
 	
 	
 	public RResourceUnit(final IResource file) {
 		fFile = file;
-		fName = (fFile != null) ? fFile.getName() : "<no file info>"; //$NON-NLS-1$
+		fName = RElementName.create(RElementName.RESOURCE, (file != null) ? file.getName() : "<no file info>"); //$NON-NLS-1$
 		fId = createResourceId(fFile);
 		if (fId == null) {
 			fId = "xx:"+fName; //$NON-NLS-1$
@@ -94,6 +98,15 @@ public abstract class RResourceUnit implements ISourceUnit {
 	
 	public WorkingContext getWorkingContext() {
 		return StatetCore.PERSISTENCE_CONTEXT;
+	}
+	
+	public boolean exists() {
+		return true;
+	}
+	
+	public boolean isReadOnly() {
+		// true only for e.g. libraries, not because of read only flag
+		return false;
 	}
 	
 	public synchronized final void connect(final IProgressMonitor monitor) {
@@ -119,6 +132,10 @@ public abstract class RResourceUnit implements ISourceUnit {
 	}
 	
 	
+	public int getElementType() {
+		return C2_SOURCE_FILE;
+	}
+	
 	public IModelElement getParent() {
 		return null; // directory
 	}
@@ -127,12 +144,12 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return true;
 	}
 	
-	public IModelElement[] getChildren(final Filter filter) {
-		return new IModelElement[0];
+	public List<? extends IModelElement> getChildren(final Filter filter) {
+		return NO_CHILDREN;
 	}
 	
 	
-	public String getElementName() {
+	public IElementName getElementName() {
 		return fName;
 	}
 	
@@ -158,7 +175,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	
 	public RProject getRProject() {
 		if (fFile != null) {
-			final IProject proj =  fFile.getProject();
+			final IProject proj = fFile.getProject();
 			try {
 				if (proj.hasNature(RProject.NATURE_ID)) {
 					return (RProject) proj.getNature(RProject.NATURE_ID);
@@ -178,12 +195,15 @@ public abstract class RResourceUnit implements ISourceUnit {
 			}
 			return RCore.getWorkbenchAccess();
 		}
+		if (required.equals(IResource.class)) {
+			return getResource();
+		}
 		return null;
 	}
 	
 	
 	protected final void register() {
-		if (getModelTypeId().equals("r")) { //$NON-NLS-1$
+		if (getModelTypeId().equals(RModel.TYPE_ID)) {
 			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
 		}
 		else {
@@ -192,7 +212,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	}
 	
 	protected final void unregister() {
-		if (getModelTypeId().equals("r")) { //$NON-NLS-1$
+		if (getModelTypeId().equals(RModel.TYPE_ID)) {
 			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
 		}
 		else {

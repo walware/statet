@@ -35,6 +35,9 @@ public class RUIMessages extends NLS {
 	public static String Proposal_RenameInFileFollowing_label;
 	public static String Proposal_RenameInFileFollowing_description;
 	
+	public static String Outline_HideGeneralVariables_name;
+	public static String Outline_HideLocalElements_name;
+	
 	
 	static {
 		NLS.initializeMessages(RUIMessages.class.getName(), RUIMessages.class);

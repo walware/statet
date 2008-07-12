@@ -32,6 +32,7 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.core.preferences.PreferencesManageListener;
@@ -62,6 +63,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public static final String IMG_WIZBAN_NEWRDFILE = RUI.PLUGIN_ID + "/image/wizban/new.rd-file"; //$NON-NLS-1$
 	public static final String IMG_WIZBAN_NEWRFILE = RUI.PLUGIN_ID + "/image/wizban/new.r-file"; //$NON-NLS-1$
 	public static final String IMG_WIZBAN_NEWRPROJECT = RUI.PLUGIN_ID + "/image/wizban/new.r-project"; //$NON-NLS-1$
+	
+	public static final String IMG_LOCTOOL_FILTER_LOCAL = RUI.PLUGIN_ID + "/image/ltool/filter.local"; //$NON-NLS-1$
+	public static final String IMG_LOCTOOL_FILTER_GENERAL = RUI.PLUGIN_ID + "/image/ltool/filter.general"; //$NON-NLS-1$
 	
 	
 	private static final String R_CODE_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_code_templates"; //$NON-NLS-1$
@@ -101,6 +105,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	private TemplateStore fREditorTemplatesStore;
 	private ContextTypeRegistry fREditorContextTypeRegistry;
+	
+	private ContentAssistComputerRegistry fRConsoleContentAssistRegistry;
+	private ContentAssistComputerRegistry fREditorContentAssistRegistry;
 	
 	private List<IDisposable> fDisposables;
 	
@@ -167,10 +174,22 @@ public class RUIPlugin extends AbstractUIPlugin {
 	protected void initializeImageRegistry(final ImageRegistry reg) {
 		final ImageRegistryUtil util = new ImageRegistryUtil(this);
 		util.register(IMG_WIZBAN_NEWRPROJECT, ImageRegistryUtil.T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
-		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png"); 
-		util.register(IMG_WIZBAN_NEWRDFILE, ImageRegistryUtil.T_WIZBAN, "new_rd-file.png"); 
+		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png");  //$NON-NLS-1$
+		util.register(IMG_WIZBAN_NEWRDFILE, ImageRegistryUtil.T_WIZBAN, "new_rd-file.png");  //$NON-NLS-1$
 		
-		util.register(RUI.IMG_OBJ_R_ENVIRONMENT, ImageRegistryUtil.T_OBJ, "r-env.png"); 
+		util.register(RUI.IMG_OBJ_R_ENVIRONMENT, ImageRegistryUtil.T_OBJ, "r-env.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_SCRIPT, ImageRegistryUtil.T_OBJ, "r-file_obj.gif"); //$NON-NLS-1$
+		
+		util.register(RUI.IMG_OBJ_COMMON_FUNCTION, ImageRegistryUtil.T_OBJ, "function.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_COMMON_LOCAL_FUNCTION, ImageRegistryUtil.T_OBJ, "function-local.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_GENERIC_FUNCTION, ImageRegistryUtil.T_OBJ, "generic_function.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_METHOD, ImageRegistryUtil.T_OBJ, "method.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_GENERAL_VARIABLE, ImageRegistryUtil.T_OBJ, "var.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_GENERAL_LOCAL_VARIABLE, ImageRegistryUtil.T_OBJ, "var-local.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_SLOT, ImageRegistryUtil.T_OBJ, "slot.png"); //$NON-NLS-1$
+		
+		util.register(IMG_LOCTOOL_FILTER_GENERAL, ImageRegistryUtil.T_LOCTOOL, "filter-general.png"); //$NON-NLS-1$
+		util.register(IMG_LOCTOOL_FILTER_LOCAL, ImageRegistryUtil.T_LOCTOOL, "filter-local.png"); //$NON-NLS-1$
 	}
 	
 	
@@ -327,6 +346,20 @@ public class RUIPlugin extends AbstractUIPlugin {
 			}
 		}
 		return fREditorTemplatesStore;
+	}
+	
+	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
+		if (fRConsoleContentAssistRegistry == null) {
+			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID, "rConsoleContentAssistComputer"); //$NON-NLS-1$
+		}
+		return fRConsoleContentAssistRegistry;
+	}
+	
+	public synchronized ContentAssistComputerRegistry getREditorContentAssistRegistry() {
+		if (fREditorContentAssistRegistry == null) {
+			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID, "rEditorContentAssistComputer"); //$NON-NLS-1$
+		}
+		return fREditorContentAssistRegistry;
 	}
 	
 	public void registerPluginDisposable(final IDisposable d) {

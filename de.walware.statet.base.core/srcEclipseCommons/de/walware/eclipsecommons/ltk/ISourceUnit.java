@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
@@ -33,10 +34,12 @@ import de.walware.eclipsecommons.ltk.ast.IAstNode;
 public interface ISourceUnit extends IModelElement, IAdaptable {
 	
 	
+	public static final long UNKNOWN_MODIFICATION_STAMP = IDocumentExtension4.UNKNOWN_MODIFICATION_STAMP;
+	
+	
 	public WorkingContext getWorkingContext();
 	public ISourceUnit getUnderlyingUnit();
 	
-	public String getId();
 	public IPath getPath();
 	public IResource getResource();
 	

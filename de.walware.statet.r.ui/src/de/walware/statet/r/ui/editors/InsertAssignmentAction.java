@@ -18,8 +18,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.IUpdate;
 
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -34,11 +35,10 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 	public static final String ACTION_ID = "de.walware.statet.r.ui.actions.InsertAssignment"; //$NON-NLS-1$
 	
 	
-	private IEditorAdapter fEditor;
+	private ISourceEditor fEditor;
 	
 	
-	public InsertAssignmentAction(IEditorAdapter editor) {
-		
+	public InsertAssignmentAction(final ISourceEditor editor) {
 		assert (editor != null);
 		fEditor = editor;
 		
@@ -49,12 +49,11 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 	}
 	
 	public void update() {
-		
 		setEnabled(fEditor.isEditable(false));
 	}
 	
+	@Override
 	public void run() {
-		
 		if (!fEditor.isEditable(true)) {
 			return;
 		}
@@ -65,12 +64,11 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 	 * Inserts the assignment char sequence.
 	 */
 	private void insertSequence() {
-		
-		ISourceViewer sourceViewer = fEditor.getSourceViewer();
-		IDocument document = sourceViewer.getDocument();
-		ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
-		int offset = selection.getOffset();
-		int selectionLength = selection.getLength();
+		final ISourceViewer sourceViewer = fEditor.getViewer();
+		final IDocument document = sourceViewer.getDocument();
+		final ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
+		final int offset = selection.getOffset();
+		final int selectionLength = selection.getLength();
 		
 		String sequence = "<-"; //$NON-NLS-1$ 
 		try {
@@ -81,12 +79,13 @@ public class InsertAssignmentAction extends Action implements IUpdate {
 				sequence = " " + sequence + " "; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			document.replace(offset, selectionLength, sequence);
-		} catch (BadLocationException e) {
+		} catch (final BadLocationException e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "An error occurred while inserting assignment.", e); //$NON-NLS-1$
 		}
-		int targetOffset = offset + sequence.length();
+		final int targetOffset = offset + sequence.length();
 		
 		sourceViewer.setSelectedRange(targetOffset, 0);
 		sourceViewer.revealRange(targetOffset, 0);
 	}
+	
 }

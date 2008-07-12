@@ -95,11 +95,11 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					"Invalid launch configuration: missing address", null));
 		}
-		if (!address.startsWith("//")) {
-			address = "//" + address;
+		if (!address.startsWith("//")) { //$NON-NLS-1$
+			address = "//" + address; //$NON-NLS-1$
 		}
 		try {
-			new URL("http:"+address);
+			new URL("http:"+address); //$NON-NLS-1$
 		}
 		catch (final MalformedURLException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
@@ -119,7 +119,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch,
 				RLaunchConfigurations.ID_R_CONSOLE_PROCESS_TYPE,
 				LaunchConfigUtil.createLaunchPrefix(configuration), " (Remote) : R Console/RJ ~ " + name); //$NON-NLS-1$
-		process.setAttribute(IProcess.ATTR_CMDLINE, name + " " + Arrays.toString(args));
+		process.setAttribute(IProcess.ATTR_CMDLINE, name + " " + Arrays.toString(args)); //$NON-NLS-1$
 		
 		final RjsController controller = new RjsController(process, address, args, null);
 		process.init(controller);

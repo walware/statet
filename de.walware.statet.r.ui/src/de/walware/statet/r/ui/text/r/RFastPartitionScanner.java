@@ -146,8 +146,9 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 					fLast = LAST_NEWLINE;
 					break;
 				}
-			} catch (final BadLocationException e) {
-				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when detect last char.", e);
+			}
+			catch (final BadLocationException e) {
+				RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when detect last char.", e); //$NON-NLS-1$
 			}
 			fState = (fPrefixLength == 0) ? S_DEFAULT : getState(contentType);
 		}
@@ -165,7 +166,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 					fEndChar = document.getChar(fTokenOffset);
 				}
 				catch (final BadLocationException e) {
-					RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when detect start char.", e);
+					RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when detecting start char.", e); //$NON-NLS-1$
 				}
 				break;
 			}
@@ -310,7 +311,6 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		if (contentType == null) {
 			return S_DEFAULT;
 		}
-		contentType = contentType.intern();
 		if (contentType == IRDocumentPartitions.R_DEFAULT || contentType == IRDocumentPartitions.R_DEFAULT_EXPL) {
 			return S_DEFAULT;
 		}

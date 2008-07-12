@@ -25,9 +25,13 @@ public class Messages {
 	public static String Resource_error_IsDirectory_message;
 	public static String Resource_error_NotLocal_message;
 	
+	public static String FileType_Local_name;
+	public static String FileType_Workspace_name;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

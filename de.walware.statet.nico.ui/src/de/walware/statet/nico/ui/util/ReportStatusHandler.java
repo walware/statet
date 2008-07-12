@@ -47,7 +47,7 @@ public class ReportStatusHandler implements IToolEventHandler {
 			boolean details = (status.getException() != null);
 			final IStatus[] children = status.getChildren();
 			for (final IStatus subStatus : children) {
-				msg.append("    ");
+				msg.append("    "); //$NON-NLS-1$
 				msg.append(subStatus.getMessage());
 				msg.append(br);
 				details |= (subStatus.getChildren().length > 0 || subStatus.getException() != null);

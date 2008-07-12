@@ -12,15 +12,18 @@
 package de.walware.statet.r.internal.debug.ui.launcher;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
 import de.walware.eclipsecommons.ltk.text.TextUtil;
 
-import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -28,15 +31,17 @@ import de.walware.statet.r.launching.ICodeLaunchContentHandler;
  */
 public class DefaultCodeLaunchHandler implements ICodeLaunchContentHandler {
 	
-	public String[] getCodeLines(final IDocument document) {
+	
+	public String[] getCodeLines(final IDocument document) throws CoreException {
 		try {
-			final List<String> lines = new ArrayList<String>(document.getNumberOfLines()+1);
-			TextUtil.getLines(document, 0, document.getLength(), lines);
+			final ArrayList<String> lines = new ArrayList<String>(document.getNumberOfLines()+1);
+			TextUtil.addLines(document, 0, document.getLength(), lines);
 			return lines.toArray(new String[lines.size()]);
-		} catch (final BadLocationException e) {
-			RUIPlugin.logError(-1, "Error occurred when reading R code lines.", e); //$NON-NLS-1$
 		}
-		return null;
+		catch (final BadLocationException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
 	}
 	
 }

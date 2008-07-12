@@ -234,7 +234,7 @@ public class EditTemplateDialog extends ExtStatusDialog {
 		}
 		
 		final TextViewerAction assistAction = new TextViewerAction(fPatternEditor.getSourceViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
-		assistAction.setId("ContentAssistProposal");
+		assistAction.setId("ContentAssistProposal"); //$NON-NLS-1$
 		assistAction.setText(Messages.EditTemplateDialog_ContentAssist);
 		assistAction.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
 		fPatternEditor.addAction(assistAction); 

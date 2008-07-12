@@ -143,7 +143,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 				assert (containerPath != null);
 				assert (newFileHandle != null);
 				
-				monitor.beginTask(NLS.bind(StatetWizardsMessages.NewElement_CreateFileTask_name, newFileHandle.getName()), 1000);
+				monitor.beginTask(NLS.bind(StatetWizardsMessages.NewElement_CreateFile_task, newFileHandle.getName()), 1000);
 				final ContainerGenerator generator = new ContainerGenerator(containerPath);
 				generator.generateContainer(new SubProgressMonitor(monitor, 500));
 				doCreateFile(newFileHandle, initialContents, monitor, 500);
@@ -330,7 +330,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 			try {
 				Assert.isNotNull(projectHandle);
 				
-				monitor.beginTask(StatetWizardsMessages.NewElement_CreateProjectTask_name, 2500);
+				monitor.beginTask(StatetWizardsMessages.NewElement_CreateProject_task, 2500);
 				if (monitor.isCanceled()) {
 					throw new OperationCanceledException();
 				}
@@ -364,7 +364,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		
 		private void doAddToWorkingSets(final IProject project, final IProgressMonitor monitor) {
 			if (fWorkingSets != null && fWorkingSets.length > 0) {
-				monitor.beginTask("Add Project to Working Sets", 1);
+				monitor.beginTask(StatetWizardsMessages.NewElement_AddProjectToWorkingSet_task, 1);
 				getWorkbench().getWorkingSetManager().addToWorkingSets(project, fWorkingSets);
 			}
 			monitor.done();
@@ -448,7 +448,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	
 	protected void handleFinishException(final Shell shell, final InvocationTargetException e) {
 		StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
-				StatetWizardsMessages.NewElementWizard_error_DuringOperation_message, e),
+				StatetWizardsMessages.NewElement_error_DuringOperation_message, e),
 				StatusManager.LOG | StatusManager.SHOW);
 	}
 	

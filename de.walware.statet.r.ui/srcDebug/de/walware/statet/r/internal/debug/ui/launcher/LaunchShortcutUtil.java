@@ -11,85 +11,51 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.ui.texteditor.IEditorStatusLine;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.ui.util.WorkbenchUIUtil;
 
-import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
+
+import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.launching.ICodeLaunchContentHandler;
+import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
 public class LaunchShortcutUtil {
 	
-	
-	public static String[] listLines(final IDocument doc, final ITextSelection selection) {
-		int line = selection.getStartLine();
-		final int endLine = selection.getEndLine();
-		if (line < 0 || endLine < 0) {
-			return null;
-		}
-		
-		try {
-			final String[] lines = new String[endLine - line +1];
-			
-			if (line == endLine) {
-				lines[0] = (selection.getLength() > 0) ?
-						doc.get(selection.getOffset(), getEndLineLength(doc, selection)-(selection.getOffset()-doc.getLineOffset(line))) :
-						doc.get(doc.getLineOffset(line), getLineLength(doc, endLine));
-			}
-			else {
-				int i = 0;
-				lines[i++] = doc.get(selection.getOffset(),
-						getLineLength(doc, line) - (selection.getOffset()-doc.getLineOffset(line)) );
-				line++;
-				
-				while (line < endLine) {
-					lines[i++] = doc.get(doc.getLineOffset(line), getLineLength(doc, line));
-					line++;
-				}
-				
-				lines[i] = doc.get(doc.getLineOffset(line), getEndLineLength(doc, selection) );
-			}
-			
-			return lines;
-		}
-		catch (final BadLocationException e) {
-			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error collecting selected text to submit.", e); //$NON-NLS-1$
-			return null;
-		}
-	}
-	
-	private static int getLineLength(final IDocument doc, final int line) throws BadLocationException {
-		int lineLength = doc.getLineLength(line);
-		final String lineDelimiter = doc.getLineDelimiter(line);
-		if (lineDelimiter != null)
-			lineLength -= lineDelimiter.length();
-		
-		return lineLength;
-	}
-	
-	private static int getEndLineLength(final IDocument doc, final ITextSelection selection) throws BadLocationException {
-		final int endLine = selection.getEndLine();
-		return Math.min(
-				getLineLength(doc, endLine),
-				selection.getOffset()+selection.getLength() - doc.getLineOffset(endLine) );
-	}
 	
 	public static String getContentTypeId(final IFile file) {
 		try {
@@ -98,7 +64,8 @@ public class LaunchShortcutUtil {
 				final IContentType contentType = contentTypeDescription.getContentType();
 				return (contentType != null) ? contentType.getId() : null;
 			}
-		} catch (final CoreException e) {
+		}
+		catch (final CoreException e) {
 		}
 		return null;
 	}
@@ -134,19 +101,117 @@ public class LaunchShortcutUtil {
 		return (contentType != null) ? contentType.getId() : null;
 	}
 	
-	public static void handleRLaunchException(final Throwable e, final String defaultMessage) {
-//		CoreException core;
-//		if (e instanceof CoreException)
-//			core = (CoreException) e;
-//		else
-//			core = new CoreException(new Status(
-//					IStatus.ERROR,
-//					RUI.PLUGIN_ID,
-//					ICommonStatusConstants.LAUNCHING,
-//					defaultMessage,
-//					e));
-		StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
-				ICommonStatusConstants.LAUNCHING, defaultMessage, e));
+	public static String[] getCodeLines(final IFile file) throws CoreException {
+		final InputStream input;
+		final String charset;
+		try {
+			input = file.getContents();
+			charset = file.getCharset();
+		}
+		catch (final CoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
+					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
+		try {
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
+			final StringBuilder buffer = new StringBuilder();
+			final char[] readBuffer = new char[2048];
+			int n;
+			while ((n = reader.read(readBuffer)) > 0) {
+				buffer.append(readBuffer, 0, n);
+			}
+			
+			final ICodeLaunchContentHandler handler = RCodeLaunching.getCodeLaunchContentHandler(
+					LaunchShortcutUtil.getContentTypeId(file));
+			final String[] lines = handler.getCodeLines(new Document(buffer.toString()));
+			return lines;
+		}
+		catch (final CoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
+					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
+		catch (final IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
+					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
+		catch (final BadLocationException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
+	}
+	
+	public static String getSelectedCode(final ExecutionEvent event) throws CoreException {
+		try {
+			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event);
+			final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
+			if (selection instanceof ITextSelection) {
+				final ITextSelection textSelection = (ITextSelection) selection;
+				if (textSelection.getLength() > 0) {
+					final String code = textSelection.getText();
+					if (code != null) {
+						return code;
+					}
+				}
+				IDocument document = null;
+				if (workbenchPart instanceof ITextEditor) {
+					final ITextEditor editor = (ITextEditor) workbenchPart;
+					document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+				}
+				else {
+					final IEditorAdapter editor = (IEditorAdapter) workbenchPart.getAdapter(IEditorAdapter.class);
+					document = editor.getSourceViewer().getDocument();
+				}
+				if (document != null) {
+					if (textSelection.getLength() > 0) {
+						return document.get(textSelection.getOffset(), textSelection.getLength());
+					}
+					else {
+						final int line = document.getLineOfOffset(textSelection.getOffset());
+						final IRegion lineInformation = document.getLineInformation(line);
+						return document.get(lineInformation.getOffset(), lineInformation.getLength());
+					}
+				}
+			}
+			return null;
+		}
+		catch (final BadLocationException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
+	}
+	
+	public static void handleUnsupportedExecution(final ExecutionEvent executionEvent) {
+		handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, 
+				RLaunchingMessages.RunCode_info_NotSupported_message), executionEvent);
+	}
+	
+	public static void handleRLaunchException(final Throwable e, final String defaultMessage, final ExecutionEvent executionEvent) {
+		final Status status = new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING, defaultMessage, e);
+		StatusManager.getManager().handle(status);
+		if (e instanceof CoreException) {
+			handleStatus(((CoreException) e).getStatus(), executionEvent);
+		}
+		else {
+			handleStatus(status, executionEvent);
+		}
+	}
+	
+	public static void handleStatus(final IStatus status, final ExecutionEvent executionEvent) {
+		if (status.isOK()) {
+			return;
+		}
+		if (status.getMessage() != null && executionEvent != null) {
+			final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(executionEvent);
+			if (workbenchPart != null) {
+				final IEditorStatusLine statusLine = (IEditorStatusLine) workbenchPart.getAdapter(IEditorStatusLine.class);
+				if (statusLine != null) {
+					statusLine.setMessage(status.getSeverity() == IStatus.ERROR, status.getMessage(), null);
+				}
+			}
+		}
+		if (status.getSeverity() == IStatus.ERROR) {
+			Display.getCurrent().beep();
+		}
 	}
 	
 }

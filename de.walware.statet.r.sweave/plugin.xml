@@ -193,7 +193,9 @@
             contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
             handler="de.walware.statet.r.internal.sweave.debug.RweaveContentHandler">
          <fileCommand
-               defaultCommand="Sweave(&quot;${resource_loc}&quot;)">
+               defaultCommand="Sweave(&quot;${resource_loc}&quot;)"
+               id="de.walware.statet.r.rFileCommand.SweaveRweaveTexDoc"
+               name="%rCodeLaunchHandler_SweaveRweaveTexDoc_label">
          </fileCommand>
       </contentHandler>
    </extension>
@@ -276,6 +278,53 @@
                </iterate>
             </with>
          </enablement>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.basic"
+            class="de.walware.statet.r.internal.sweave.debug.RweaveTexViaSweaveLaunchShortcut"
+            icon="icons/tool_16/run-sweave.png"
+            id="de.walware.statet.r.launchShortcuts.SweaveRweaveTexDoc"
+            label="%launchShortcuts_RunRweaveTexDocViaSweave"
+            modes="run"
+            path="statet/r/5">
+         <enablement>
+            <with
+                  variable="selection">
+               <count
+                     value="1">
+               </count>
+               <iterate>
+                  <or>
+                     <test
+                           forcePluginActivation="true"
+                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           value="de.walware.statet.r.contentTypes.RweaveTex">
+                     </test>
+                  </or>
+               </iterate>
+            </with>
+         </enablement>
+         <contextualLaunch>
+            <enablement>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate>
+                     <test
+                           forcePluginActivation="true"
+                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           value="de.walware.statet.r.contentTypes.RweaveTex">
+                     </test>
+                  </iterate>
+               </with>
+            </enablement>
+            <contextLabel
+                  label="%launchShortcuts_RunRweaveTexDocViaSweave"
+                  mode="run">
+            </contextLabel>
+         </contextualLaunch>
       </shortcut>
    </extension>
    <extension

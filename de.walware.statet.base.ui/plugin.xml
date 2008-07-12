@@ -59,6 +59,12 @@
          point="org.eclipse.ui.commands">
       <!-- edit -->
       <command
+            id="de.walware.statet.base.commands.CopyElementName"
+            categoryId="org.eclipse.ui.category.edit"
+            name="%commands_CopyElementName_name"
+            description="%commands_CopyElementName_description"
+            />
+      <command
             id="de.walware.statet.base.commands.SelectExpandEnclosing"
             categoryId="org.eclipse.ui.category.edit"
             name="%commands_SelectEnclosing_name"
@@ -133,6 +139,10 @@
             commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences"
             icon="icons/tool_16/mark-occurrences.png"
             disabledIcon="icons/tool_16_d/mark-occurrences.png" />
+      <image
+            commandId="de.walware.statet.base.commands.CopyElementName"
+            icon="icons/tool_16/copy-name.png">
+      </image>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">

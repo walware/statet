@@ -18,9 +18,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 
+import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
 import de.walware.eclipsecommons.ui.util.ColorManager;
-
-import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 
@@ -28,7 +27,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 /**
  * Scanner for infix-operators.
  */
-public class RInfixOperatorScanner extends StatextTextScanner {
+public class RInfixOperatorScanner extends AbstractRuleBasedScanner {
 	
 	
 	/**

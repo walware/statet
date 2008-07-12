@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
@@ -51,12 +52,12 @@ public class RweaveTexSourceViewerConfigurator extends RSourceViewerConfigurator
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		if (groupIds != null && groupIds.contains(SweaveEditorOptions.GROUP_ID) && getREditor() != null) {
 			fUpdateCompleteConfig = true;
 			SpellingProblem.removeAllInActiveEditor(getREditor(), null);
 		}
-		return super.handleSettingsChanged(groupIds, options);
+		super.handleSettingsChanged(groupIds, options);
 	}
 	
 }

@@ -18,7 +18,6 @@ import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
@@ -49,14 +48,14 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	}
 	
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
-		RCorePlugin.getDefault().getRModelManager().reconcile(this, reconcileLevel, reconcileLevel, monitor);
+		RCorePlugin.getDefault().getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
 	
 	@Override
 	public AstInfo<RAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		if (type == null || type.equals("r")) { //$NON-NLS-1$
+		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
-				return RCorePlugin.getDefault().getRModelManager().reconcile(this, RAst.LEVEL_MODEL_DEFAULT, IModelManager.AST, monitor);
+				RCorePlugin.getDefault().getRModelManager().reconcile(this, IModelManager.AST, false, monitor);
 			}
 			return fAst;
 		}
@@ -64,9 +63,9 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	}
 	
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
-		if (type == null || type.equals("r")) { //$NON-NLS-1$
+		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (syncLevel > IModelManager.NONE) {
-				RCorePlugin.getDefault().getRModelManager().reconcile(this, RAst.LEVEL_MODEL_DEFAULT, syncLevel, monitor);
+				RCorePlugin.getDefault().getRModelManager().reconcile(this, syncLevel, false, monitor);
 			}
 			return fModelInfo;
 		}

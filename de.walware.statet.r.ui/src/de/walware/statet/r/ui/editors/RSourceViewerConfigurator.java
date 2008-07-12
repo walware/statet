@@ -14,7 +14,9 @@ package de.walware.statet.r.ui.editors;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
@@ -24,6 +26,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
@@ -130,13 +134,16 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(Set<String> groupIds, final Object options) {
+	public void handleSettingsChanged(Set<String> groupIds, Map<String, Object> options) {
 		final ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
-			return false;
+			return;
 		}
 		if (groupIds == null) {
 			groupIds = INPUT_CHANGE_GROUPS;
+		}
+		if (options == null) {
+			options = new HashMap<String, Object>();
 		}
 		final Point selectedRange = viewer.getSelectedRange();
 		
@@ -147,12 +154,13 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 			fUpdateCompleteConfig = true;
 			SpellingProblem.removeAllInActiveEditor(fRealEditor, null);
 		}
-		fUpdateTextPresentation = fConfig.handleSettingsChanged(groupIds, viewer);
+		options.put(ISettingsChangedHandler.VIEWER_KEY, viewer);
+		fConfig.handleSettingsChanged(groupIds, options);
+		fUpdateTextPresentation = options.containsKey(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY);
 		
 		updateSourceViewer(viewer);
 		viewer.setSelectedRange(selectedRange.x, selectedRange.y);
 		fRCodeStyleCopy.resetDirty();
-		return false;
 	}
 	
 	protected void updateSourceViewer(final ISourceViewer viewer) {

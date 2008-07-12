@@ -20,6 +20,7 @@ import static de.walware.statet.r.ui.text.rd.IRdTextTokens.COMMENT;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.PLATFORM_SPECIF;
 import static de.walware.statet.r.ui.text.rd.IRdTextTokens.TASK_TAG;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -29,13 +30,13 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 
+import de.walware.eclipsecommons.ui.text.presentation.SingleTokenScanner;
+import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
 import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.ext.ui.text.CommentScanner;
-import de.walware.statet.ext.ui.text.SingleTokenScanner;
-import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -73,7 +74,7 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	/**
 	 * Initializes the scanners.
 	 */
-	protected StatextTextScanner[] initializeScanners() {
+	protected AbstractRuleBasedScanner[] initializeScanners() {
 		final IPreferenceStore store = getPreferences();
 		final ColorManager colorManager = getColorManager();
 		fDocScanner = new RdCodeScanner(colorManager, store);
@@ -84,7 +85,7 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 		
 		fDoubleClickStrategy = new RdDoubleClickStrategy();
 		
-		return new StatextTextScanner[] { fDocScanner, fCommentScanner, fPlatformSpecifScanner };
+		return new AbstractRuleBasedScanner[] { fDocScanner, fCommentScanner, fPlatformSpecifScanner };
 	}
 	
 	@Override
@@ -128,8 +129,9 @@ public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguratio
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		return super.handleSettingsChanged(groupIds, fRCoreAccess.getPrefs());
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		options.put(ISettingsChangedHandler.PREFERENCEACCESS_KEY, fRCoreAccess.getPrefs());
+		super.handleSettingsChanged(groupIds, options);
 	}
 	
 }

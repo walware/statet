@@ -15,8 +15,6 @@ import java.util.Map;
 
 import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 
-import de.walware.statet.r.internal.core.rmodel.Scope;
-
 
 /**
  * Container for model information of a R source unit
@@ -24,6 +22,6 @@ import de.walware.statet.r.internal.core.rmodel.Scope;
 public interface IRModelInfo extends ISourceUnitModelInfo {
 	
 	
-	public Map<String, Scope> getAllScopes();
+	public Map<String, ? extends IEnvirInSource> getSourceFrames();
 	
 }

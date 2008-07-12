@@ -97,19 +97,6 @@ public class TemplatesUtil {
 		return positions;
 	}
 	
-	
-	public static String getLineSeparator(final IProject project) {
-		IScopeContext[] scopeContext;
-		if (project != null) {
-			scopeContext = new IScopeContext[] { new ProjectScope(project.getProject()), new InstanceScope() };
-			final String lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
-			if (lineSeparator != null)
-				return lineSeparator;
-		}
-		
-		return System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
 	public static String evaluateTemplate(final StatextCodeTemplatesContext context, final Template template) throws CoreException {
 		TemplateBuffer buffer;
 		try {

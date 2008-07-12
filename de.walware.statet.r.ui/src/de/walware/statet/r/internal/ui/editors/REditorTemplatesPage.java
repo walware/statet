@@ -52,7 +52,7 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	
 	@Override
 	protected String getPreferencePageId() {
-		return "de.walware.statet.r.preferencePages.REditorTemplates"; 
+		return "de.walware.statet.r.preferencePages.REditorTemplates";  //$NON-NLS-1$
 	}
 	
 	@Override

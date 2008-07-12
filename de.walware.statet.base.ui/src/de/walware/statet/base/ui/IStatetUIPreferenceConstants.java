@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,43 +18,6 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * Common Preference constants used in Statet UI preference store. 
  */
 public interface IStatetUIPreferenceConstants {
-	
-	
-	/**
-	 * Preference key suffix for enablement of optional text styles.
-	 * Value: @value
-	 */
-	public static final String TS_USE_SUFFIX = ".use"; //$NON-NLS-1$
-	
-	/**
-	 * Preference key suffix for color text style preference keys.
-	 * Value: @value
-	 */
-	public static final String TS_COLOR_SUFFIX = ".color"; //$NON-NLS-1$
-	
-	/**
-	 * Preference key suffix for bold text style preference keys.
-	 * Value: @value
-	 */
-	public static final String TS_BOLD_SUFFIX = ".bold"; //$NON-NLS-1$
-	
-	/**
-	 * Preference key suffix for bold text style preference keys.
-	 * Value: @value
-	 */
-	public static final String TS_ITALIC_SUFFIX = ".italic"; //$NON-NLS-1$	
-	
-	/**
-	 * Preference key suffix for strikethrough text style preference keys.
-	 * Value: @value
-	 */
-	public static final String TS_STRIKETHROUGH_SUFFIX = ".strikethrough"; //$NON-NLS-1$
-	
-	/**
-	 * Preference key suffix for underline text style preference keys.
-	 * Value: @value
-	 */
-	public static final String TS_UNDERLINE_SUFFIX = ".underline"; //$NON-NLS-1$
 	
 	
 	/**

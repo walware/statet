@@ -12,6 +12,7 @@
 
 package de.walware.eclipsecommons.ui;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.core.commands.Command;
@@ -44,6 +45,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.commands.ICommandImageService;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementReference;
+import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
 import org.eclipse.ui.internal.WorkbenchPlugin;
@@ -66,6 +68,10 @@ import org.eclipse.ui.services.IServiceLocator;
  * </p>
  */
 public final class HandlerContributionItem extends ContributionItem {
+	
+	
+	public static final String NO_COMMAND_ID = "NO_COMMAND"; //$NON-NLS-1$
+	
 	
 	/**
 	 * A push button tool item or menu item.
@@ -95,7 +101,8 @@ public final class HandlerContributionItem extends ContributionItem {
 	 * @since 3.4
 	 */
 	public static int MODE_FORCE_TEXT = 1;
-
+	
+	
 	private LocalResourceManager localResourceManager;
 	
 	private Listener menuItemListener;
@@ -111,6 +118,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	private IBindingService bindingService;
 	
 	private ParameterizedCommand command;
+	private boolean noCommandMode;
 	private IHandler2 commandHandler;
 	
 	private ImageDescriptor icon;
@@ -140,6 +148,8 @@ public final class HandlerContributionItem extends ContributionItem {
 	private String helpContextId;
 	
 	private int mode = 0;
+	
+	private final UIElement callback;
 	
 	/**
 	 * Create a CommandContributionItem to place in a ContributionManager.
@@ -172,46 +182,46 @@ public final class HandlerContributionItem extends ContributionItem {
 				contributionParameters.parameters);
 		commandHandler = handler;
 		
+		callback = new UIElement(
+				contributionParameters.serviceLocator) {
+			
+			@Override
+			public void setChecked(final boolean checked) {
+				HandlerContributionItem.this.setChecked(checked);
+			}
+			
+			@Override
+			public void setDisabledIcon(final ImageDescriptor desc) {
+				HandlerContributionItem.this.setDisabledIcon(desc);
+			}
+			
+			@Override
+			public void setHoverIcon(final ImageDescriptor desc) {
+				HandlerContributionItem.this.setHoverIcon(desc);
+			}
+			
+			@Override
+			public void setIcon(final ImageDescriptor desc) {
+				HandlerContributionItem.this.setIcon(desc);
+			}
+			
+			@Override
+			public void setText(final String text) {
+				HandlerContributionItem.this.setText(text);
+			}
+			
+			@Override
+			public void setTooltip(final String text) {
+				HandlerContributionItem.this.setTooltip(text);
+			}
+			
+			@Override
+			public void setDropDownId(final String id) {
+				dropDownMenuOverride = id;
+			}
+		};
 		if (command != null) {
 			try {
-				final UIElement callback = new UIElement(
-						contributionParameters.serviceLocator) {
-					
-					@Override
-					public void setChecked(final boolean checked) {
-						HandlerContributionItem.this.setChecked(checked);
-					}
-					
-					@Override
-					public void setDisabledIcon(final ImageDescriptor desc) {
-						HandlerContributionItem.this.setDisabledIcon(desc);
-					}
-					
-					@Override
-					public void setHoverIcon(final ImageDescriptor desc) {
-						HandlerContributionItem.this.setHoverIcon(desc);
-					}
-					
-					@Override
-					public void setIcon(final ImageDescriptor desc) {
-						HandlerContributionItem.this.setIcon(desc);
-					}
-					
-					@Override
-					public void setText(final String text) {
-						HandlerContributionItem.this.setText(text);
-					}
-					
-					@Override
-					public void setTooltip(final String text) {
-						HandlerContributionItem.this.setTooltip(text);
-					}
-					
-					@Override
-					public void setDropDownId(final String id) {
-						dropDownMenuOverride = id;
-					}
-				};
 				elementRef = commandService.registerElementForCommand(command,
 						callback);
 				commandHandler.addHandlerListener(getHandlerListener());
@@ -238,12 +248,11 @@ public final class HandlerContributionItem extends ContributionItem {
 								+ "\", command \"" + contributionParameters.commandId + "\" not defined"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		
 	}
 	
 	
 	private void setImages(final IServiceLocator locator, final String iconStyle) {
-		if (icon == null) {
+		if (icon == null && command != null) {
 			final ICommandImageService service = (ICommandImageService) locator
 					.getService(ICommandImageService.class);
 			icon = service.getImageDescriptor(command.getId(),
@@ -300,6 +309,10 @@ public final class HandlerContributionItem extends ContributionItem {
 					+ "\", no command id"); //$NON-NLS-1$
 			return;
 		}
+		if (commandId == NO_COMMAND_ID) {
+			noCommandMode = true;
+			return;
+		}
 		final Command cmd = commandService.getCommand(commandId);
 		if (!cmd.isDefined()) {
 			WorkbenchPlugin.log("Unable to create menu item \"" + getId() //$NON-NLS-1$
@@ -311,6 +324,9 @@ public final class HandlerContributionItem extends ContributionItem {
 	
 	@Override
 	public void fill(final Menu parent, final int index) {
+		if (command == null && !noCommandMode) {
+			return;
+		}
 		if (command == null) {
 			return;
 		}
@@ -343,7 +359,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	
 	@Override
 	public void fill(final ToolBar parent, final int index) {
-		if (command == null) {
+		if (command == null && !noCommandMode) {
 			return;
 		}
 		if (widget != null || parent == null) {
@@ -415,6 +431,9 @@ public final class HandlerContributionItem extends ContributionItem {
 				if (item.getEnabled() != shouldBeEnabled) {
 					item.setEnabled(shouldBeEnabled);
 				}
+				if (noCommandMode && commandHandler instanceof IElementUpdater) {
+					((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
+				}
 			} else if (widget instanceof ToolItem) {
 				final ToolItem item = (ToolItem) widget;
 				
@@ -450,6 +469,9 @@ public final class HandlerContributionItem extends ContributionItem {
 				final boolean shouldBeEnabled = isEnabled();
 				if (item.getEnabled() != shouldBeEnabled) {
 					item.setEnabled(shouldBeEnabled);
+				}
+				if (noCommandMode && commandHandler instanceof IElementUpdater) {
+					((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
 				}
 			}
 		}

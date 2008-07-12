@@ -24,8 +24,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -34,6 +36,7 @@ import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.link.ILinkedModeListener;
 import org.eclipse.jface.text.link.LinkedModeModel;
@@ -47,6 +50,7 @@ import org.eclipse.jface.text.source.projection.ProjectionSupport;
 import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.viewers.IPostSelectionProvider;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
@@ -54,8 +58,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.navigator.resources.ProjectExplorer;
+import org.eclipse.ui.part.IShowInSource;
+import org.eclipse.ui.part.IShowInTargetList;
+import org.eclipse.ui.part.ShowInContext;
+import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
@@ -64,27 +74,37 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
+import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ast.AstSelection;
+import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
 import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
 import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
+import de.walware.eclipsecommons.ltk.ui.LTKInputData;
 import de.walware.eclipsecommons.ltk.ui.PostSelectionCancelExtension;
 import de.walware.eclipsecommons.ltk.ui.PostSelectionWithElementInfoController;
+import de.walware.eclipsecommons.ltk.ui.PostSelectionWithElementInfoController.IgnoreActivation;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.eclipsecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
+import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.ext.core.StatextProject;
 
 
 public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
-		implements SettingsChangeNotifier.ChangeListener, IPreferenceChangeListener {
+		implements ISourceEditor, 
+			SettingsChangeNotifier.ChangeListener, IPreferenceChangeListener,
+			IShowInSource, IShowInTargetList {
 	
 	
 	public static final String ACTION_ID_TOGGLE_COMMENT = "de.walware.statet.ui.actions.ToggleComment"; //$NON-NLS-1$
@@ -161,12 +181,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	private class EditorAdapter implements IEditorAdapter {
 		
-		public IWorkbenchPart getWorkbenchPart() {
-			return StatextEditor1.this;
-		}
-		
 		public SourceViewer getSourceViewer() {
-			return (SourceViewer) StatextEditor1.this.getSourceViewer();
+			return StatextEditor1.this.getViewer();
 		}
 		
 		public void install(final IEditorInstallable installable) {
@@ -174,10 +190,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 		
 		public boolean isEditable(final boolean validate) {
-			if (validate) {
-				return StatextEditor1.this.validateEditorInputState();
-			}
-			return StatextEditor1.this.isEditorInputModifiable();
+			return StatextEditor1.this.isEditable(validate);
 		}
 		
 		public Object getAdapter(final Class required) {
@@ -195,7 +208,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		public void init() {
 			final ISourceViewer viewer = getSourceViewer();
 			if (viewer != null) {
-				viewer.getSelectionProvider().addSelectionChangedListener(this);
 				viewer.addTextInputListener(this);
 				viewer.getDocument().addDocumentListener(this);
 			}
@@ -205,7 +217,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		public void dispose() {
 			final ISourceViewer viewer = getSourceViewer();
 			if (viewer != null) {
-				viewer.getSelectionProvider().removeSelectionChangedListener(this);
 				viewer.removeTextInputListener(this);
 				viewer.getDocument().removeDocumentListener(this);
 			}
@@ -402,7 +413,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 	}
 	
-	private class EffectSynchonizer implements ITextEditorEffectSynchronizer, ILinkedModeListener {
+	private class EffectSynchonizer implements ITextEditToolSynchronizer, ILinkedModeListener {
 		
 		private EffectSynchonizer() {
 		}
@@ -437,11 +448,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private String fProjectNatureId;
 	private ProjectT fProject;
 	private IModelElementInputProvider fModelProvider;
-	protected PostSelectionWithElementInfoController fModelPostSelection;
+	private PostSelectionWithElementInfoController fModelPostSelection;
 	protected volatile Point fCurrentSelection;
 	
 	/** The outline page of this editor */
-	private StatextOutlinePage fOutlinePage;
+	private StatextOutlinePage1 fOutlinePage;
 	
 	/** The templates page of this editor */
 	private ITemplatesPage fTemplatesPage;
@@ -589,8 +600,44 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		return null;
 	}
 	
+	
+	public SourceViewer getViewer() {
+		return (SourceViewer) super.getSourceViewer();
+	}
+	
+	public String getPartitioning() {
+		return fConfigurator.getSourceViewerConfiguration().getConfiguredDocumentPartitioning(getSourceViewer());
+	}
+	
+	public IWorkbenchPart getWorkbenchPart() {
+		return this;
+	}
+	
+	public IServiceLocator getServiceLocator() {
+		return getSite();
+	}
+	
+	public boolean isEditable(final boolean validate) {
+		if (validate) {
+			return StatextEditor1.this.validateEditorInputState();
+		}
+		return StatextEditor1.this.isEditorInputModifiable();
+	}
+	
 	public IModelElementInputProvider getModelInputProvider() {
 		return fModelProvider;
+	}
+	
+	public void addPostSelectionWithElementInfoListener(final ISelectionWithElementInfoListener listener) {
+		if (fModelPostSelection != null) {
+			fModelPostSelection.addListener(listener);
+		}
+	}
+	
+	public void removePostSelectionWithElementInfoListener(final ISelectionWithElementInfoListener listener) {
+		if (fModelPostSelection != null) {
+			fModelPostSelection.removeListener(listener);
+		}
 	}
 	
 	
@@ -604,10 +651,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			fModelPostSelection.addListener(new ISelectionWithElementInfoListener() {
 				public void inputChanged() {
 				}
-				public void stateChanged(final StateData state) {
-					final Point toHighlight = getRangeToHighlight(state.getAstSelection());
+				public void stateChanged(final LTKInputData state) {
+					final IRegion toHighlight = getRangeToHighlight(state);
 					if (toHighlight != null) {
-						setHighlightRange(toHighlight.x, toHighlight.y, false);
+						setHighlightRange(toHighlight.getOffset(), toHighlight.getLength(), false);
 					}
 					else {
 						resetHighlightRange();
@@ -658,8 +705,43 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		return viewer;
 	}
 	
-	
-	protected Point getRangeToHighlight(final AstSelection element) {
+	protected IRegion getRangeToHighlight(final LTKInputData state) {
+		IModelElement modelElement = state.getModelSelection();
+		TRY_MODEL: while (modelElement != null) {
+			switch (modelElement.getElementType() & IModelElement.MASK_C1) {
+			case IModelElement.C1_CLASS:
+			case IModelElement.C1_METHOD:
+				if (modelElement instanceof ISourceStructElement) {
+					return ((ISourceStructElement) modelElement).getSourceRange();
+				}
+				break TRY_MODEL;
+			case IModelElement.C1_SOURCE:
+				if ((modelElement.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_CHUNK
+						&& modelElement instanceof ISourceStructElement) {
+					return ((ISourceStructElement) modelElement).getSourceRange();
+				}
+				break TRY_MODEL;
+			default:
+				modelElement = modelElement.getParent();
+				continue TRY_MODEL;
+			}
+		}
+		final IAstNode root = state.getInputInfo().getAst().root;
+		TRY_AST: if (root != null) {
+			final ITextSelection selection = (ITextSelection) state.getSelection();
+			final int n = root.getChildCount();
+			for (int i = 0; i < n; i++) {
+				final IAstNode child = root.getChild(i);
+				if (selection.getOffset() >= child.getOffset()) {
+					if (selection.getOffset()+selection.getLength() <= child.getStopOffset()) {
+						return child;
+					}
+				}
+				else {
+					break TRY_AST;
+				}
+			}
+		}
 		return null;
 	}
 	
@@ -812,6 +894,16 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		}
 	}
 	
+	@Override
+	protected void editorContextMenuAboutToShow(final IMenuManager m) {
+		super.editorContextMenuAboutToShow(m);
+		
+		m.insertBefore(IStatetUIMenuIds.GROUP_ADDITIONS_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
+		final IContributionItem additions = m.find(IStatetUIMenuIds.GROUP_ADDITIONS_ID);
+		if (additions != null) {
+			additions.setVisible(false);
+		}
+	}
 	
 	@Override
 	protected void rulerContextMenuAboutToShow(final IMenuManager menu) {
@@ -824,7 +916,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	
-	public ITextEditorEffectSynchronizer getEffectSynchronizer() {
+	public ITextEditToolSynchronizer getTextEditToolSynchronizer() {
 		if (fEffectSynchronizer == null) {
 			fEffectSynchronizer = new EffectSynchonizer();
 		}
@@ -835,6 +927,9 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	public Object getAdapter(final Class required) {
 		if (IEditorAdapter.class.equals(required)) {
 			return fEditorAdapter;
+		}
+		if (ISourceEditor.class.equals(required)) {
+			return this;
 		}
 		if (IContentOutlinePage.class.equals(required)) {
 			if (fOutlinePage == null) {
@@ -859,20 +954,27 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 			if (adapter != null)
 				return adapter;
 		}
+		
 		return super.getAdapter(required);
 	}
 	
 	
 	public void settingsChanged(final Set<String> groupIds) {
+		final Map<String, Object> options = new HashMap<String, Object>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
-				handleSettingsChanged(groupIds);
+				handleSettingsChanged(groupIds, options);
 			}
 		});
 	}
 	
-	protected void handleSettingsChanged(final Set<String> groupIds) {
-		fConfigurator.handleSettingsChanged(groupIds, null);
+	/**
+	 * @see ISettingsChangedHandler#handleSettingsChanged(Set, Map)
+	 */
+	protected void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		if (fConfigurator != null) {
+			fConfigurator.handleSettingsChanged(groupIds, options);
+		}
 	}
 	
 	public void preferenceChange(final PreferenceChangeEvent event) {
@@ -891,11 +993,11 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	
-	protected StatextOutlinePage createOutlinePage() {
+	protected StatextOutlinePage1 createOutlinePage() {
 		return null;
 	}
 	
-	protected void updateOutlinePageInput(final StatextOutlinePage page) {
+	protected void updateOutlinePageInput(final StatextOutlinePage1 page) {
 	}
 	
 	void handleOutlinePageClosed() {
@@ -920,6 +1022,58 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		return fSourceViewerDecorationSupport;
 	}
 	
+	@Override
+	public void selectAndReveal(final int start, final int length) {
+		if (fModelPostSelection != null) {
+			fModelPostSelection.setUpdateOnSelection(true);
+			try {
+				super.selectAndReveal(start, length);
+			}
+			finally {
+				fModelPostSelection.setUpdateOnSelection(false);
+			}
+		}
+		else {
+			super.selectAndReveal(start, length);
+		}
+	}
+	
+	public void setSelection(final ISelection selection, final ISelectionWithElementInfoListener listener) {
+		if (fModelPostSelection != null && listener != null) {
+			final IgnoreActivation activation = fModelPostSelection.ignoreNext(listener);
+			doSetSelection(selection);
+			activation.deleteNext();
+		}
+		else {
+			doSetSelection(selection);
+		}
+	}
+	
+	@Override
+	protected void doSetSelection(final ISelection selection) {
+		if (selection instanceof IStructuredSelection) {
+			final IStructuredSelection structured = (IStructuredSelection) selection;
+			if (!structured.isEmpty()) {
+				final Object first = structured.getFirstElement();
+				IRegion region = null;
+				if (first instanceof ISourceStructElement) {
+					region = ((ISourceStructElement) first).getNameSourceRange();
+					if (region == null) {
+						region = ((ISourceStructElement) first).getSourceRange();
+					}
+				}
+				if (region == null && first instanceof IRegion) {
+					region = (IRegion) first;
+				}
+				if (region != null) {
+					selectAndReveal(region.getOffset(), region.getLength());
+					return;
+				}
+			}
+		}
+		super.doSetSelection(selection);
+	}
+	
 	
 	@Override
 	public void dispose() {
@@ -940,6 +1094,22 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 		super.dispose();
 		fModelPostSelection = null;
+	}
+	
+	public ShowInContext getShowInContext() {
+		final Point selectionPoint = fCurrentSelection;
+		final ISourceViewer sourceViewer = getSourceViewer();
+		final ISourceUnit unit = getSourceUnit();
+		ISelection selection = null;
+		if (selectionPoint != null && unit != null && sourceViewer != null) {
+			selection = new LTKInputData(unit,
+					new TextSelection(sourceViewer.getDocument(), selectionPoint.x, selectionPoint.y));
+		}
+		return new ShowInContext(getEditorInput(), selection);
+	}
+	
+	public String[] getShowInTargetIds() {
+		return new String[] { ProjectExplorer.VIEW_ID, IPageLayout.ID_OUTLINE };
 	}
 	
 }

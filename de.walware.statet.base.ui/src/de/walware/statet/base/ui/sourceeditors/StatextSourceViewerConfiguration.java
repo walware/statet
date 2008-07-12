@@ -12,6 +12,7 @@
 package de.walware.statet.base.ui.sourceeditors;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
@@ -41,10 +42,11 @@ import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import de.walware.eclipsecommons.FastList;
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.templates.WordFinder;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 
 
 /**
@@ -67,17 +69,17 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 					
 					@Override
 					public void setInformation(String content) {
-						if (content.startsWith("...<br")) { // spell correction change proposal
-							content = content.replace("\\t", "    ");
+						if (content.startsWith("...<br")) { // spell correction change proposal //$NON-NLS-1$
+							content = content.replace("\\t", "    "); //$NON-NLS-1$ //$NON-NLS-2$
 							final StringBuffer s = new StringBuffer(content.length()+1000);
-							s.append("<pre>");
+							s.append("<pre>"); //$NON-NLS-1$
 							s.append(content);
-							s.append("</pre>");
-							setInput(new DefaultBrowserInformationInput(null, "", s.toString(), 
+							s.append("</pre>"); //$NON-NLS-1$
+							setInput(new DefaultBrowserInformationInput(null, "", s.toString(),  //$NON-NLS-1$
 									DefaultBrowserInformationInput.FORMAT_HTMLBODY_INPUT));
 						}
 						else {
-							setInput(new DefaultBrowserInformationInput(null, "", content,
+							setInput(new DefaultBrowserInformationInput(null, "", content, //$NON-NLS-1$
 									DefaultBrowserInformationInput.FORMAT_TEXT_INPUT));
 						}
 					}
@@ -106,6 +108,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	
 	
 	private final IEditorAdapter fEditorAdapter;
+	private final ISourceEditor fSourceEditor;
 	
 	private ColorManager fColorManager;
 	private FastList<ISettingsChangedHandler> fSettingsHandler = new FastList<ISettingsChangedHandler>(ISettingsChangedHandler.class);
@@ -115,6 +118,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 	
 	public StatextSourceViewerConfiguration(final IEditorAdapter editorAdapter) {
 		fEditorAdapter = editorAdapter;
+		fSourceEditor = (editorAdapter != null) ? (ISourceEditor) editorAdapter.getAdapter(ISourceEditor.class) : null;
 	}
 	
 	protected void setup(final IPreferenceStore preferenceStore, final ColorManager colorManager) {
@@ -137,6 +141,10 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		return fEditorAdapter;
 	}
 	
+	protected ISourceEditor getSourceEditor() {
+		return fSourceEditor;
+	}
+	
 	public IPreferenceStore getPreferences() {
 		return fPreferenceStore;
 	}
@@ -145,8 +153,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 		return fColorManager;
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		boolean affectsPresentation = false;
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		if (groupIds.contains(ContentAssistPreference.GROUP_ID)) {
 			if (fContentAssistant != null) {
 				ContentAssistPreference.configure(fContentAssistant);
@@ -156,9 +163,8 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			}
 		}
 		for (final ISettingsChangedHandler handler : fSettingsHandler.toArray()) {
-			affectsPresentation |= handler.handleSettingsChanged(groupIds, options);
+			handler.handleSettingsChanged(groupIds, options);
 		}
-		return affectsPresentation;
 	}
 	
 /* For TemplateEditors ********************************************************/
@@ -178,7 +184,7 @@ public abstract class StatextSourceViewerConfiguration extends TextSourceViewerC
 			try {
 				final IDocument doc= textViewer.getDocument();
 				final int offset= subject.getOffset();
-				if (offset >= 2 && "${".equals(doc.get(offset-2, 2))) { 
+				if (offset >= 2 && "${".equals(doc.get(offset-2, 2))) {  //$NON-NLS-1$
 					final String varName= doc.get(offset, subject.getLength());
 					final TemplateContextType contextType= fProcessor.getContextType();
 					if (contextType != null) {

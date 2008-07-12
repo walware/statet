@@ -42,7 +42,7 @@ import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
-import de.walware.statet.r.launching.RCodeLaunchRegistry;
+import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -55,6 +55,10 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 	
 	
 	protected boolean fGotoConsole = false;
+	
+	
+	public RChunkDirectLaunchShortcut() {
+	}
 	
 	
 	public void launch(final ISelection selection, final String mode) {
@@ -109,7 +113,7 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 			for (int i = 0; i < cats.length; i++) {
 				final ITypedRegion cat = cats[i];
 				if (cat.getType() == Rweave.R_CAT) {
-					TextUtil.getLines(doc, cat.getOffset(), cat.getLength(), lines);
+					TextUtil.addLines(doc, cat.getOffset(), cat.getLength(), lines);
 				}
 			}
 			
@@ -122,7 +126,7 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 			}
 			
 			monitor.subTask(RLaunchingMessages.RCodeLaunch_SubmitCode_task);
-			RCodeLaunchRegistry.runRCodeDirect(lines.toArray(new String[lines.size()]), fGotoConsole);
+			RCodeLaunching.runRCodeDirect(lines.toArray(new String[lines.size()]), fGotoConsole);
 		}
 		catch (final BadLocationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,

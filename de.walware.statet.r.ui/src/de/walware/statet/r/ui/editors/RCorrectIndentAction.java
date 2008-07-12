@@ -41,6 +41,7 @@ import de.walware.eclipsecommons.ui.util.UIAccess;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIMessages;
@@ -107,7 +108,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			throws Exception {
 		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
 		final AbstractDocument document = unit.getDocument(monitor);
-		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) unit.getAstInfo("r", true, monitor); //$NON-NLS-1$
+		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) unit.getAstInfo(RModel.TYPE_ID, true, monitor);
 		
 		if (monitor.isCanceled()) {
 			return;

@@ -36,9 +36,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 
+import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
+
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.sourceeditors.DefaultBrowserInformationInput;
-import de.walware.statet.base.ui.sourceeditors.ExtTextInvocationContext;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 import de.walware.statet.r.core.model.IElementAccess;
@@ -94,7 +95,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	
 	
 	private int fMode;
-	private ExtTextInvocationContext fContext;
+	private AssistInvocationContext fContext;
 	private IElementAccess fAccess;
 	private String fLabel;
 	private String fDescription;
@@ -103,7 +104,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	
 	
 	public LinkedNamesAssistProposal(final int mode,
-			final ExtTextInvocationContext invocationContext, final IElementAccess access) {
+			final AssistInvocationContext invocationContext, final IElementAccess access) {
 		fMode = mode;
 		switch (mode) {
 		case IN_FILE:
@@ -130,6 +131,28 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	}
 	
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void selected(final ITextViewer textViewer, final boolean smartToggle) {
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void unselected(final ITextViewer textViewer) {
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
 		try {
 			Point seletion = viewer.getSelectedRange();
@@ -164,9 +187,9 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 			final LinkedModeModel model = new LinkedModeModel();
 			model.addGroup(group);
 			model.forceInstall();
-			final StatextEditor1 editor = fContext.getEditor();
+			final StatextEditor1 editor = (StatextEditor1) fContext.getEditor();
 			if (editor != null) {
-				editor.getEffectSynchronizer().install(model);
+				editor.getTextEditToolSynchronizer().install(model);
 			}
 			
 			final LinkedModeUI ui = new EditorLinkedModeUI(model, viewer);
@@ -199,6 +222,9 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Point getSelection(final IDocument document) {
 		return null;
 	}
@@ -208,37 +234,40 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 		return fRelevance;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getDisplayString() {
 		return fLabel;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Image getImage() {
 		return StatetImages.getImage(StatetImages.CONTENTASSIST_CORRECTION_LINKEDRENAME);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getAdditionalProposalInfo() {
 		return fDescription;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Object getAdditionalProposalInfo(final IProgressMonitor monitor) {
 		return new DefaultBrowserInformationInput(null, getDisplayString(), fDescription, 
 				DefaultBrowserInformationInput.FORMAT_TEXT_INPUT);
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IContextInformation getContextInformation() {
 		return null;
-	}
-	
-	
-	public void selected(final ITextViewer textViewer, final boolean smartToggle) {
-	}
-	
-	public void unselected(final ITextViewer textViewer) {
-	}
-	
-	public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
-		return false;
 	}
 	
 }

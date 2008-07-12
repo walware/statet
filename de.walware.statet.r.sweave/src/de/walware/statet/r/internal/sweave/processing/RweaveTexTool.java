@@ -414,7 +414,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	}
 	
 	
-	private void doWeave(final SubMonitor progress) { // 1xx
+	private void doWeave(final SubMonitor parentProgress) { // 1xx
 		if (fSweaveCommands != null) { // 11x
 			try {
 	//			RCodeLaunchRegistry.runRCodeDirect(RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveCommands), false);
@@ -425,10 +425,10 @@ class RweaveTexTool implements Runnable, IProcess {
 				
 				final R rTask = new R();
 				if (fRunSweave) {
-					final SubMonitor monitor = progress.newChild(TICKS_RWEAVE);
-					monitor.beginTask(Messages.RweaveTexProcessing_Sweave_InConsole_label, 100);
+					final SubMonitor progress = parentProgress.newChild(TICKS_RWEAVE);
+					progress.beginTask(Messages.RweaveTexProcessing_Sweave_InConsole_label, 100);
 					final ToolController rController = NicoUITools.accessTool("R", rProcess); //$NON-NLS-1$
-					monitor.worked(10);
+					progress.worked(10);
 					final IStatus submitStatus = rController.submit(rTask);
 					if (submitStatus.getSeverity() > IStatus.OK) {
 						fStatus.add(submitStatus);
@@ -440,7 +440,7 @@ class RweaveTexTool implements Runnable, IProcess {
 					while (true) {
 						synchronized (this) {
 							try {
-								if (monitor.isCanceled()) {
+								if (progress.isCanceled()) {
 									rController.getProcess().getQueue().removeElements(new IToolRunnable[] { rTask });
 									break;
 								}
@@ -458,10 +458,10 @@ class RweaveTexTool implements Runnable, IProcess {
 						abort(null, 113);
 						return;
 					}
-					monitor.done();
+					progress.done();
 				}
 				else { // we need the working directory
-					final SubMonitor monitor = progress.newChild(TICKS_RWEAVE/10);
+					final SubMonitor monitor = parentProgress.newChild(TICKS_RWEAVE/10);
 					rTask.updatePathInformations(rProcess.getWorkspaceData());
 					monitor.done();
 				}
@@ -474,7 +474,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		else if (fSweaveConfig != null) { // 12x
 			try {
 				if (fRunSweave) {
-					final SubMonitor monitor = progress.newChild(TICKS_RWEAVE);
+					final SubMonitor monitor = parentProgress.newChild(TICKS_RWEAVE);
 					monitor.beginTask(Messages.RweaveTexProcessing_Sweave_RCmd_label, 100);
 					if (!beginSchedulingRule(monitor)) {
 						return;
@@ -511,24 +511,24 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 	}
 	
-	private void doProcessTex(final SubMonitor progress) { // 2xx
+	private void doProcessTex(final SubMonitor parentProgress) { // 2xx
 		if (fTexOpenEditor == TexTab.OPEN_ALWAYS) {
 			openEditor(fTexFile);
-			progress.worked(TICKS_OPEN_TEX);
+			parentProgress.worked(TICKS_OPEN_TEX);
 		}
 		
 		if (fRunTex) {
-			final SubMonitor monitor = progress.newChild(TICKS_TEX);
-			monitor.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);
-			if (!beginSchedulingRule(monitor)) {
+			final SubMonitor progress = parentProgress.newChild(TICKS_TEX);
+			progress.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);
+			if (!beginSchedulingRule(progress)) {
 				return;
 			}
 			Texlipse.getViewerManager().closeDocInViewer(fTexPathConfig);
 			try {
 				final Builder builder = BuilderRegistry.get(fTexBuilderId);
-				builder.reset(monitor.newChild(60, SubMonitor.SUPPRESS_SUBTASK));
+				builder.reset(progress.newChild(60, SubMonitor.SUPPRESS_SUBTASK));
 				builder.build(fTexPathConfig);
-				AbstractBuilder.checkOutput(fTexPathConfig, new SubProgressMonitor(monitor, 10));
+				AbstractBuilder.checkOutput(fTexPathConfig, new SubProgressMonitor(progress, 10));
 			}
 			catch (final OperationCanceledException e) {
 				abort(IStatus.CANCEL, Messages.RweaveTexProcessing_info_Canceled_message, e,
@@ -540,19 +540,19 @@ class RweaveTexTool implements Runnable, IProcess {
 				return;
 			}
 			finally {
-				refreshDir(fWorkingFolderInWorkspace, progress.isCanceled() ? null : monitor.newChild(5));
+				refreshDir(fWorkingFolderInWorkspace, parentProgress.isCanceled() ? null : progress.newChild(5));
 				if (!fWorkingFolderInWorkspace.equals(fTexPathConfig.getOutputFile().getParent())) {
-					refreshDir(fTexPathConfig.getOutputFile(), monitor.isCanceled() ? null : monitor.newChild(5));
+					refreshDir(fTexPathConfig.getOutputFile(), progress.isCanceled() ? null : progress.newChild(5));
 				}
 			}
-			monitor.done();
+			progress.done();
 		}
 		
 		if (fStatus.getSeverity() < IStatus.ERROR) {
 			try { // 28x
 				if (fRunTex && fTexOpenEditor > TexTab.OPEN_ALWAYS && fTexFile.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_ZERO) >= fTexOpenEditor) {
 					openEditor(fTexFile);
-					progress.worked(TICKS_OPEN_TEX);
+					parentProgress.worked(TICKS_OPEN_TEX);
 				}
 			}
 			catch (final CoreException e) {
@@ -562,10 +562,10 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 	}
 	
-	private void doOpenOutput(final SubMonitor progress) { // 3xx
+	private void doOpenOutput(final SubMonitor parentProgress) { // 3xx
 		if (fRunPreview > NO) {
-			final SubMonitor monitor = progress.newChild(TICKS_OPEN_OUTPUT);
-			monitor.setWorkRemaining(100);
+			final SubMonitor progress = parentProgress.newChild(TICKS_OPEN_OUTPUT);
+			progress.setWorkRemaining(100);
 			if (!fTexPathConfig.getOutputFile().exists()) {
 				abort((fRunPreview == EXPLICITE) ? IStatus.ERROR : IStatus.INFO,
 						NLS.bind(Messages.RweaveTexProcessing_Output_error_NotFound_message, fTexPathConfig.getOutputFile().getFullPath().toString()), null,
@@ -582,14 +582,14 @@ class RweaveTexTool implements Runnable, IProcess {
 				abort(e.getStatus(), 303);
 				return;
 			}
-			monitor.worked(10);
+			progress.worked(10);
 			if (fPreviewConfig != null) {
 				Texlipse.getViewerManager().openDocInViewer(fTexPathConfig, fPreviewConfig);
 			}
 			else {
 				openEditor(fTexPathConfig.getOutputFile());
 			}
-			monitor.done();
+			progress.done();
 //			final ILaunchConfigurationDelegate delegate = getRunDelegate(fPreviewConfig);
 //			delegate.launch(fPreviewConfig, ILaunchManager.RUN_MODE, fLaunch, new SubProgressMonitor(fMonitor, 10));
 		}
@@ -624,7 +624,8 @@ class RweaveTexTool implements Runnable, IProcess {
 			public void run() {
 				try {
 					IDE.openEditor(fWorkbenchPage, file);
-				} catch (final PartInitException e) {
+				}
+				catch (final PartInitException e) {
 					SweavePlugin.logError(-1, "An error occured when opening the document.", e); //$NON-NLS-1$
 				}
 			}

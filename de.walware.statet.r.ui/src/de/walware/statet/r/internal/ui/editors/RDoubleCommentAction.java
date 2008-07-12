@@ -24,9 +24,9 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ltk.text.IndentUtil.IndentEditAction;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
@@ -42,14 +42,11 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 	public static final String ACTION_ID = "de.walware.statet.r.actions.AddDoubleComment"; //$NON-NLS-1$
 	
 	
-	private IEditorAdapter fEditor;
+	private ISourceEditor fEditor;
 	private IRCoreAccess fCore;
 	
 	
-	/**
-	 * 
-	 */
-	public RDoubleCommentAction(final IEditorAdapter editor, final IRCoreAccess core) {
+	public RDoubleCommentAction(final ISourceEditor editor, final IRCoreAccess core) {
 		fEditor = editor;
 		fCore = core;
 		setId(ACTION_ID);
@@ -76,7 +73,7 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 	}
 	
 	private void addComment() throws BadLocationException {
-		final ISourceViewer sourceViewer = fEditor.getSourceViewer();
+		final ISourceViewer sourceViewer = fEditor.getViewer();
 		final IDocument document = sourceViewer.getDocument();
 		final ITextSelection selection = (ITextSelection) sourceViewer.getSelectionProvider().getSelection();
 		final int offset = selection.getOffset();

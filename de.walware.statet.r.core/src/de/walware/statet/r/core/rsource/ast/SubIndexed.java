@@ -14,6 +14,8 @@ package de.walware.statet.r.core.rsource.ast;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
@@ -78,15 +80,15 @@ public abstract class SubIndexed extends RAstNode {
 		
 	}
 	
-	public static class Args extends SpecList {
+	public static class Args extends RAstNode {
 		
 		
-		Args() {
-		}
+		List<SubIndexed.Arg> fSpecs;
 		
 		
 		Args(final SubIndexed parent) {
 			fRParent = parent;
+			fSpecs = new ArrayList<SubIndexed.Arg>();
 		}
 		
 		@Override
@@ -94,22 +96,87 @@ public abstract class SubIndexed extends RAstNode {
 			return NodeType.SUB_INDEXED_ARGS;
 		}
 		
+		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
+		
+		@Override
+		public final boolean hasChildren() {
+			return (!fSpecs.isEmpty());
+		}
+		
+		@Override
+		public final int getChildCount() {
+			return fSpecs.size();
+		}
+		
+		@Override
+		public final RAstNode getChild(final int index) {
+			return fSpecs.get(index);
+		}
+		
+		@Override
+		public final RAstNode[] getChildren() {
+			return fSpecs.toArray(new RAstNode[fSpecs.size()]);
+		}
+		
+		@Override
+		public final int getChildIndex(final IAstNode child) {
+			for (int i = fSpecs.size()-1; i >= 0; i--) {
+				if (fSpecs.get(i) == child) {
+					return i;
+				}
+			}
+			return -1;
+		}
 		
 		@Override
 		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 			visitor.visit(this);
 		}
 		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fSpecs);
+		}
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fSpecs);
+		}
+		
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
+		final Expression getExpr(final RAstNode child) {
+			return null;
+		}
+		
+		@Override
+		final Expression getLeftExpr() {
+			return null;
+		}
+		
+		@Override
+		final Expression getRightExpr() {
+			return null;
+		}
+		
+		
+		@Override
+		final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.SUB_INDEXED_ARGS);
 		}
 		
 		@Override
-		final SpecItem createItem() {
-			return new SubIndexed.Arg(this);
+		final int getMissingExprStatus(final Expression expr) {
+			throw new IllegalArgumentException();
 		}
+		
+		@Override
+		final void updateStopOffset() {
+		}
+		
 	}
 	
 	public static class Arg extends SpecItem {

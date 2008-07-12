@@ -107,8 +107,8 @@ public class RweaveTexDocumentProvider extends TextFileDocumentProvider implemen
 			final IProgressMonitor monitor = getProgressMonitor();
 			final SubMonitor progress = SubMonitor.convert(monitor, 2);
 			try {
-				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, Sweave.R_TEX_UNIT_TYPE_ID, true, progress.newChild(1));
-				rinfo.fWorkingCopy = StatetCore.EDITOR_CONTEXT.getUnit(pUnit, Sweave.R_TEX_UNIT_TYPE_ID, true, progress.newChild(1));
+				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, Sweave.R_TEX_MODEL_TYPE_ID, true, progress.newChild(1));
+				rinfo.fWorkingCopy = StatetCore.EDITOR_CONTEXT.getUnit(pUnit, Sweave.R_TEX_MODEL_TYPE_ID, true, progress.newChild(1));
 			}
 			finally {
 				if (monitor != null) {

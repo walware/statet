@@ -26,6 +26,9 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
+import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+
 
 /**
  *
@@ -33,7 +36,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 	
 	
-	private StatextEditor1 fEditor;
+	private final ISourceEditor fEditor;
 	private String fErrorMessage;
 	
 	
@@ -43,6 +46,14 @@ public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 	
 	public ExtQuickAssistProcessor(final StatextEditor1 editor) {
 		fEditor = editor;
+	}
+	
+	
+	/**
+	 * @return the editor
+	 */
+	public ISourceEditor getEditor() {
+		return fEditor;
 	}
 	
 	
@@ -61,10 +72,20 @@ public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 		return false;
 	}
 	
+	/**
+	 * Creates the context that is passed to the completion proposal
+	 * computers.
+	 * 
+	 * @return the context to be passed to the computers
+	 */
+	protected AssistInvocationContext createContext() {
+		return new AssistInvocationContext(getEditor(), -1);
+	}
+	
 	public ICompletionProposal[] computeQuickAssistProposals(final IQuickAssistInvocationContext invocationContext) {
 		fErrorMessage = null;
 		
-		final ExtTextInvocationContext context = new ExtTextInvocationContext(fEditor, invocationContext);
+		final AssistInvocationContext context = createContext();
 		final ISourceViewer viewer = context.getSourceViewer();
 		final int offset = context.getOffset();
 		if (viewer == null) {
@@ -118,7 +139,7 @@ public class ExtQuickAssistProcessor implements IQuickAssistProcessor {
 		}
 	}
 	
-	protected void addModelAssistProposals(final List<ICompletionProposal> proposals, final ExtTextInvocationContext context) {
+	protected void addModelAssistProposals(final List<ICompletionProposal> proposals, final AssistInvocationContext context) {
 	}
 	
 	public String getErrorMessage() {

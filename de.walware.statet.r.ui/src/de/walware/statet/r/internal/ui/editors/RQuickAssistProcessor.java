@@ -16,8 +16,9 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
+import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
+
 import de.walware.statet.base.ui.sourceeditors.ExtQuickAssistProcessor;
-import de.walware.statet.base.ui.sourceeditors.ExtTextInvocationContext;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 import de.walware.statet.r.core.model.IElementAccess;
@@ -33,8 +34,13 @@ public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
 	
 	
 	@Override
+	protected AssistInvocationContext createContext() {
+		return new RAssistInvocationContext(getEditor(), -1);
+	}
+	
+	@Override
 	protected void addModelAssistProposals(final List<ICompletionProposal> proposals,
-			final ExtTextInvocationContext context) {
+			final AssistInvocationContext context) {
 		if (!(context.getAstSelection().getCovering() instanceof RAstNode)) {
 			return;
 		}
@@ -47,14 +53,14 @@ public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
 				if (attachments[i] instanceof IElementAccess) {
 					IElementAccess access = (IElementAccess) attachments[i]; 
 					SUB: while (access != null) {
-						if (access.getName() == null) {
+						if (access.getSegmentName() == null) {
 							break SUB;
 						}
 						if (access.getNameNode() == node) {
 							addAccessAssistProposals(proposals, context, access);
 							break SEARCH_ACCESS;
 						}
-						access = access.getSubElementAccess();
+						access = access.getNextSegment();
 					}
 				}
 			}
@@ -63,7 +69,7 @@ public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
 	}
 	
 	protected void addAccessAssistProposals(final List<ICompletionProposal> proposals,
-			final ExtTextInvocationContext invocationContext, final IElementAccess access) {
+			final AssistInvocationContext invocationContext, final IElementAccess access) {
 		final IElementAccess[] allInUnit = access.getAllInUnit();
 		proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE, invocationContext, access));
 		if (allInUnit.length > 2) {

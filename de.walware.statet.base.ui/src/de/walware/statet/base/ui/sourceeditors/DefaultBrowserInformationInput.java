@@ -114,19 +114,19 @@ public class DefaultBrowserInformationInput extends BrowserInformationControlInp
 				content = HTMLPrinter.convertToHTMLContent(content);
 				final Matcher matcher = TAB_PATTERN.matcher(content);
 				if (matcher.find()) {
-					content = matcher.replaceAll("    ");
+					content = matcher.replaceAll("    "); //$NON-NLS-1$
 				}
 				s = new StringBuffer(content.length()+1000);
-				s.append("<pre>");
+				s.append("<pre>"); //$NON-NLS-1$
 				s.append(content);
-				s.append("</pre>");
+				s.append("</pre>"); //$NON-NLS-1$
 				break;
 			case FORMAT_HTMLBODY_INPUT:
 				s = new StringBuffer(content.length()+1000);
 				s.append(content);
 				break;
 			default:
-				throw new IllegalArgumentException("Unsupported format");
+				throw new IllegalArgumentException("Unsupported format"); //$NON-NLS-1$
 			}
 			
 			HTMLPrinter.insertPageProlog(s, 0, STYLE_SHEET);

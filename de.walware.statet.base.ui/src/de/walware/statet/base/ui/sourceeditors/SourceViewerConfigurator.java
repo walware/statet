@@ -11,6 +11,7 @@
 
 package de.walware.statet.base.ui.sourceeditors;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
@@ -22,9 +23,9 @@ import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.FastList;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 
 
 /**
@@ -169,8 +170,7 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 		}
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		return false;
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 	}
 	
 }

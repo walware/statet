@@ -28,10 +28,10 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.statet.base.internal.ui.StatetMessages;
-
 import de.walware.eclipsecommons.ui.HandlerContributionItem;
 import de.walware.eclipsecommons.ui.util.UIAccess;
+
+import de.walware.statet.base.internal.ui.StatetMessages;
 
 
 /**

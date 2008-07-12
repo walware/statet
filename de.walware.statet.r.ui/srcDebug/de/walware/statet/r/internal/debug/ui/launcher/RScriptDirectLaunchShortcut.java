@@ -11,22 +11,18 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
+import de.walware.eclipsecommons.ltk.ui.LTKSelectionUtil;
+
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
-import de.walware.statet.r.launching.RCodeLaunchRegistry;
+import de.walware.statet.r.launching.RCodeLaunching;
 
 
 /**
@@ -36,7 +32,7 @@ import de.walware.statet.r.launching.RCodeLaunchRegistry;
 public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 	
 	
-	protected boolean fGotoConsole;
+	private boolean fGotoConsole;
 	
 	
 	public RScriptDirectLaunchShortcut() {
@@ -52,15 +48,22 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 		assert mode.equals("run"); //$NON-NLS-1$
 		
 		try {
-			final IStructuredSelection sel = (IStructuredSelection) selection;
-			final Object firstElement = sel.getFirstElement();
-			if (firstElement instanceof IFile) {
-				doRun((IFile) firstElement);
+			final IFile[] files = LTKSelectionUtil.getSelectedFiles(selection);
+			if (files != null) {
+				final int last = files.length-1;
+				for (int i = 0; i <= last; i++) {
+					final String[] lines = LaunchShortcutUtil.getCodeLines(files[i]);
+					RCodeLaunching.runRCodeDirect(lines[i], 
+							(i < last) && fGotoConsole);
+				}
+				return;
 			}
+			
+			LaunchShortcutUtil.handleUnsupportedExecution(null);
 		}
 		catch (final Exception e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
-					RLaunchingMessages.RScriptLaunch_error_message);
+					RLaunchingMessages.RScriptLaunch_error_message, null);
 		}
 	}
 	
@@ -70,35 +73,20 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 		try {
 			if (editor instanceof AbstractTextEditor) {
 				final AbstractTextEditor redt = (AbstractTextEditor) editor;
-				final ICodeLaunchContentHandler handler = RCodeLaunchRegistry.getCodeLaunchContentHandler(
+				final ICodeLaunchContentHandler handler = RCodeLaunching.getCodeLaunchContentHandler(
 						LaunchShortcutUtil.getContentTypeId(redt.getEditorInput()));
 				final IDocument document = redt.getDocumentProvider().getDocument(editor.getEditorInput() );
 				final String[] lines = handler.getCodeLines(document);
-				RCodeLaunchRegistry.runRCodeDirect(lines, fGotoConsole);
+				RCodeLaunching.runRCodeDirect(lines, fGotoConsole);
+				return;
 			}
+			
+			LaunchShortcutUtil.handleUnsupportedExecution(null);
 		}
 		catch (final Exception e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
-					RLaunchingMessages.RScriptLaunch_error_message);
+					RLaunchingMessages.RScriptLaunch_error_message, null);
 		}
-	}
-	
-	
-	private void doRun(final IFile file) throws Exception {
-		final InputStream input = file.getContents();
-		final String charset = file.getCharset();
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
-		final StringBuilder buffer = new StringBuilder();
-		final char[] readBuffer = new char[2048];
-		int n;
-		while ((n = reader.read(readBuffer)) > 0) {
-			buffer.append(readBuffer, 0, n);
-		}
-		
-		final ICodeLaunchContentHandler handler = RCodeLaunchRegistry.getCodeLaunchContentHandler(
-				LaunchShortcutUtil.getContentTypeId(file));
-		final String[] lines = handler.getCodeLines(new Document(buffer.toString()));
-		RCodeLaunchRegistry.runRCodeDirect(lines, fGotoConsole);
 	}
 	
 }

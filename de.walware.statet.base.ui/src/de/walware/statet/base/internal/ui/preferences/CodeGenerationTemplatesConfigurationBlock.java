@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -58,6 +59,7 @@ import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
 import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
 import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
@@ -65,7 +67,6 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.base.ui.util.SettingsUpdater;
 import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
@@ -303,11 +304,10 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		
 		fPatternEditor = new ViewerEditorAdapter(viewer, null);
 		new SettingsUpdater(new ISettingsChangedHandler() {
-			public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+			public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 				if (fPatternConfigurator != null) {
-					fPatternConfigurator.handleSettingsChanged(groupIds, null);
+					fPatternConfigurator.handleSettingsChanged(groupIds, options);
 				}
-				return false;
 			}
 		}, viewer.getControl());
 		

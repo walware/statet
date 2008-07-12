@@ -138,6 +138,8 @@ public class ContentAssistPreference {
 		manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
 		assistant.setContextInformationPopupBackground(c);
 		assistant.setContextSelectorBackground(c);
+		
+//		assistant.enableColoredLabels(true);
 	}
 	
 	/**

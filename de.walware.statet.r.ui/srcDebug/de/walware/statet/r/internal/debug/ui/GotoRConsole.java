@@ -17,7 +17,7 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.statet.r.launching.RCodeLaunchRegistry;
+import de.walware.statet.r.launching.RCodeLaunching;
 
 
 public class GotoRConsole implements IHandler {
@@ -32,7 +32,7 @@ public class GotoRConsole implements IHandler {
 	
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		try {
-			RCodeLaunchRegistry.gotoRConsole();
+			RCodeLaunching.gotoRConsole();
 		}
 		catch (final CoreException e) {
 			throw new ExecutionException("Error occured when Goto R Console", e);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package de.walware.statet.base.ui.util;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import org.eclipse.swt.events.DisposeEvent;
@@ -18,6 +19,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
 
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
@@ -72,10 +74,11 @@ public class SettingsUpdater implements ChangeListener {
 	}
 	
 	private void runUpdate(final Set<String> groupIds) {
+		final HashMap<String, Object> options = new HashMap<String, Object>();
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				if (UIAccess.isOkToUse(fControl)) {
-					fHandler.handleSettingsChanged(groupIds, null);
+					fHandler.handleSettingsChanged(groupIds, options);
 				}
 			}
 		});

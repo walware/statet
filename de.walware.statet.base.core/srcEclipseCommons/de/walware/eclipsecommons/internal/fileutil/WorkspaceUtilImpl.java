@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2006-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,8 @@ import de.walware.eclipsecommons.FileUtil;
  */
 public class WorkspaceUtilImpl extends FileUtil {
 	
-	private static InputStream EMPTY_INPUT = new ByteArrayInputStream(new byte[0]);
+	private static final InputStream EMPTY_INPUT = new ByteArrayInputStream(new byte[0]);
+	private static final String LABEL_2_WORKSPACE = "' ("+Messages.FileType_Workspace_name+")"; //$NON-NLS-1$ //$NON-NLS-2$
 	
 	
 	private IFile fFile;
@@ -44,7 +45,7 @@ public class WorkspaceUtilImpl extends FileUtil {
 	
 	@Override
 	public String getFileLabel() {
-		return "'workspace:"+fFile.getFullPath().makeAbsolute().toString()+"'";
+		return "'"+fFile.getFullPath().makeAbsolute().toString()+LABEL_2_WORKSPACE;  //$NON-NLS-1$
 	}
 	
 	@Override

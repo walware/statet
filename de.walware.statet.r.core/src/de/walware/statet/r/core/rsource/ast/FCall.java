@@ -14,6 +14,8 @@ package de.walware.statet.r.core.rsource.ast;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_AS_REF_MISSING;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
@@ -27,11 +29,20 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class FCall extends RAstNode {
 	
 	
-	public static class Args extends SpecList {
+	public static class Args extends RAstNode {
+		
+		
+		List<FCall.Arg> fSpecs;
 		
 		
 		Args(final FCall parent) {
 			fRParent = parent;
+			fSpecs = new ArrayList<FCall.Arg>(0);
+		}
+		
+		Args(final List<FCall.Arg> args) {
+			fRParent = null;
+			fSpecs = args;
 		}
 		
 		
@@ -41,8 +52,69 @@ public class FCall extends RAstNode {
 		}
 		
 		@Override
+		public final RTerminal getOperator(final int index) {
+			return null;
+		}
+		
+		@Override
 		public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 			visitor.visit(this);
+		}
+		
+		
+		@Override
+		public final boolean hasChildren() {
+			return (!fSpecs.isEmpty());
+		}
+		
+		@Override
+		public final int getChildCount() {
+			return fSpecs.size();
+		}
+		
+		@Override
+		public final FCall.Arg getChild(final int index) {
+			return fSpecs.get(index);
+		}
+		
+		@Override
+		public final FCall.Arg[] getChildren() {
+			return fSpecs.toArray(new FCall.Arg[fSpecs.size()]);
+		}
+		
+		@Override
+		public final int getChildIndex(final IAstNode child) {
+			for (int i = fSpecs.size()-1; i >= 0; i--) {
+				if (fSpecs.get(i) == child) {
+					return i;
+				}
+			}
+			return -1;
+		}
+		
+		@Override
+		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fSpecs);
+		}
+		
+		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
+			acceptChildren(visitor, fSpecs);
+		}
+		
+		
+		@Override
+		final Expression getExpr(final RAstNode child) {
+			return null;
+		}
+		
+		@Override
+		final Expression getLeftExpr() {
+			return null;
+		}
+		
+		@Override
+		final Expression getRightExpr() {
+			return null;
 		}
 		
 		
@@ -52,8 +124,12 @@ public class FCall extends RAstNode {
 		}
 		
 		@Override
-		final SpecItem createItem() {
-			return new FCall.Arg(this);
+		final int getMissingExprStatus(final Expression expr) {
+			throw new IllegalArgumentException();
+		}
+		
+		@Override
+		final void updateStopOffset() {
 		}
 		
 	}

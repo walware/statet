@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.nico.ui;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -140,8 +141,8 @@ public class RConsolePage extends NIConsolePage {
 		super.createActions();
 		
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(
-				getInputGroup().getSourceViewer(), IRUIHelpContextIds.R_CONSOLE);
-		getInputGroup().getSourceViewer().getTextWidget().addHelpListener(new HelpListener() {
+				getInputGroup().getViewer(), IRUIHelpContextIds.R_CONSOLE);
+		getInputGroup().getViewer().getTextWidget().addHelpListener(new HelpListener() {
 			public void helpRequested(final HelpEvent e) {
 				PlatformUI.getWorkbench().getHelpSystem().displayHelp(fHelpContextProvider.getContext(null));
 			}
@@ -168,9 +169,10 @@ public class RConsolePage extends NIConsolePage {
 	}
 	
 	@Override
-	protected void handleSettingsChanged(final Set<String> groupIds) {
-		super.handleSettingsChanged(groupIds);
-		if (groupIds.contains(RCodeStyleSettings.GROUP_ID)) {
+	protected void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		super.handleSettingsChanged(groupIds, options);
+		if (groupIds.contains(RCodeStyleSettings.GROUP_ID) 
+				&& UIAccess.isOkToUse(getOutputViewer())) {
 			final RCodeStyleSettings codeStyle = ((RConsole) getConsole()).getRCodeStyle();
 			if (codeStyle.isDirty()) {
 				getOutputViewer().setTabWidth(codeStyle.getTabSize());

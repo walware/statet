@@ -13,24 +13,17 @@ package de.walware.statet.r.core.model;
 
 import java.util.Comparator;
 
+import de.walware.eclipsecommons.ltk.IElementName;
+
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
 /**
- * Access of a variable of class in source code. 
+ * Access of a variable of class in source code
  * 
  * Is created by code analysis, not indent to implement by clients.
  */
-public interface IElementAccess {
-	
-	
-	public static final int MAIN_DEFAULT = 1;
-	public static final int MAIN_CLASS = 2;
-	public static final int SUB_INDEXED = 3;
-	public static final int SUB_NAMEDPART = 4;
-	public static final int SUB_NAMEDSLOT = 5;
-	
-	public static final int SUB_CLASS_HINT = 6;
+public interface IElementAccess extends IElementName {
 	
 	
 	public static final Comparator<IElementAccess> NAME_POSITION_COMPARATOR = 
@@ -41,20 +34,16 @@ public interface IElementAccess {
 	};
 	
 	
-	public IScope getScope();
+	public IEnvirInSource getFrame();
 	
-	public int getType();
 	public boolean isWriteAccess();
-	
-	public String getName();
 	
 	public RAstNode getNode();
 	
 	public RAstNode getNameNode();
 	
+	public IElementAccess getNextSegment();
+	
 	public IElementAccess[] getAllInUnit();
-	
-	public IElementAccess getSubElementAccess();
-	
 	
 }

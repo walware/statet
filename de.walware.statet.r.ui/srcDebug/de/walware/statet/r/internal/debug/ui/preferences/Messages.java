@@ -21,6 +21,8 @@ public class Messages extends NLS {
 	public static String RInteraction_RConnector;
 	public static String RInteraction_RConnector_Description_label;
 	
+	public static String RInteraction_FileCommands_label;
+	
 	public static String REnv_REnvList_label;
 	public static String REnv_LocationColumn_name;
 	public static String REnv_NameColumn_name;
@@ -37,6 +39,7 @@ public class Messages extends NLS {
 	public static String REnv_Detail_Bits_label;
 	public static String REnv_Detail_FindAuto_label;
 	public static String REnv_Detail_FindAuto_Failed_message;
+	public static String REnv_SystemRHome_name;
 	public static String REnv_error_Saving_message;
 	
 	public static String RIntegrationExt_description;
@@ -51,5 +54,6 @@ public class Messages extends NLS {
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
 	}
+	private Messages() {}
 	
 }

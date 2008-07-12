@@ -15,8 +15,6 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
 
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
@@ -233,108 +231,6 @@ public abstract class Dummy extends RAstNode {
 		}
 		
 	}
-	
-	
-	static class NodeList extends Dummy {
-		
-		
-		private List<RAstNode> fList;
-		
-		
-		NodeList(final RAstNode[] children) {
-			super(0);
-			
-			for (int i = 0; i < children.length; i++) {
-				if (children[i] == null) {
-					children[i] = new Dummy.Terminal(0);
-					children[i].fRParent = this;
-				}
-			}
-			
-			
-			fList = Arrays.asList(children);
-		}
-		
-		
-		@Override
-		public final NodeType getNodeType() {
-			return NodeType.DUMMY;
-		}
-		
-		@Override
-		public final RTerminal getOperator(final int index) {
-			return RTerminal.COMMA;
-		}
-		
-		@Override
-		public final boolean hasChildren() {
-			return fList.size() > 0;
-		}
-		
-		@Override
-		public final int getChildCount() {
-			return fList.size();
-		}
-		
-		@Override
-		public final RAstNode getChild(final int index) {
-			return fList.get(index);
-		}
-		
-		@Override
-		public final int getChildIndex(final IAstNode child) {
-			return fList.indexOf(child);
-		}
-		
-		@Override
-		public final RAstNode[] getChildren() {
-			return fList.toArray(new RAstNode[fList.size()]);
-		}
-		
-		
-		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-			acceptChildren(visitor, fList);
-		}
-		
-		@Override
-		public final void acceptInRChildren(final RAstVisitor visitor) throws InvocationTargetException {
-			acceptChildren(visitor, fList);
-		}
-		
-		
-		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			return (element.getNodeType() != getNodeType());
-		}
-		
-		
-		@Override
-		final Expression getExpr(final RAstNode child) {
-			return null;
-		}
-		
-		@Override
-		final Expression getLeftExpr() {
-			return null;
-		}
-		
-		@Override
-		final Expression getRightExpr() {
-			return null;
-		}
-		
-		@Override
-		final int getMissingExprStatus(final Expression expr) {
-			throw new IllegalArgumentException();
-		}
-		
-	}
-	
-	
-	public static Dummy createNodeList(final RAstNode[] nodes) {
-		return new Dummy.NodeList(nodes);
-	}
-	
 	
 	
 	Dummy(final int status) {

@@ -39,7 +39,7 @@ public class RweaveTexTemplatesContext extends StatextCodeTemplatesContext {
 	}
 	
 	public void setCodeUnitVariables(final ISourceUnit u) {
-		setVariable(RweaveTexTemplatesContextType.FILENAME, u.getElementName());
+		setVariable(RweaveTexTemplatesContextType.FILENAME, u.getElementName().getDisplayName());
 	}
 	
 }

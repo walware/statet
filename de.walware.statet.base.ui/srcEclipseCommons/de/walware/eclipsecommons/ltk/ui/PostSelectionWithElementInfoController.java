@@ -11,26 +11,23 @@
 
 package de.walware.eclipsecommons.ltk.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.IPostSelectionProvider;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.FastList;
 import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.IModelElementDelta;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ast.AstSelection;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener.StateData;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -45,36 +42,22 @@ public class PostSelectionWithElementInfoController {
 	private class SelectionTask extends Job {
 		
 		
-		private final class Data implements StateData {
+		private final class Data extends LTKInputData {
 			
-			int stateNr;
-			SelectionChangedEvent selectionEvent;
-			ISourceUnit inputElement;
-			AstSelection astSelection;
+			int fStateNr;
 			
 			
-			Data(final ISourceUnit input, final int runNr, final SelectionChangedEvent selection) {
-				this.stateNr = runNr;
-				this.inputElement = input;
-				this.selectionEvent = selection;
+			Data(final ISourceUnit input, final SelectionChangedEvent currentSelection, final int runNr) {
+				super(input, (currentSelection != null) ? currentSelection.getSelection() : null);
+				this.fStateNr = runNr;
 			}
 			
 			
-			public ISelection getLastSelection() {
-				return selectionEvent.getSelection();
-			}
-			
-			public IModelElement getInputElement() {
-				return inputElement;
-			}
-			
-			public AstSelection getAstSelection() {
-				return astSelection;
-			}
-			
+			@Override
 			public boolean isStillValid() {
-				return (fCurrentNr == stateNr);
+				return (fCurrentNr == fStateNr);
 			}
+			
 		}
 		
 		private int fLastNr;
@@ -96,33 +79,50 @@ public class PostSelectionWithElementInfoController {
 			try {
 				checkNewInput();
 				
-				AstInfo<? extends IAstNode> astInfo;
 				final Data run;
+				IgnoreActivation[] ignore = null;
 				synchronized (fInputLock) {
-					run = new Data(fInput, fCurrentNr, fCurrentSelection);
-					if (run.inputElement == null || run.selectionEvent == null
-							|| (fLastNr == run.stateNr && fNewListeners.isEmpty())) {
+					run = new Data(fInput, fCurrentSelection, fCurrentNr);
+					if (run.fInputElement == null || run.fSelection == null
+							|| (fLastNr == run.fStateNr && fNewListeners.isEmpty())) {
 						return Status.OK_STATUS;
 					}
-					input = run.inputElement;
+					
+					if (!fIgnoreList.isEmpty()) {
+						int num = fIgnoreList.size();
+						ignore = fIgnoreList.toArray(new IgnoreActivation[num]);
+						for (int i = num-1; i >= 0; i--) {
+							if (ignore[i].marked && ignore[i].nr != run.fStateNr) {
+								fIgnoreList.remove(i);
+								ignore[i] = null;
+								num--;
+							}
+						}
+						if (num == 0) {
+							ignore = null;
+						}
+					}
+					
+					input = run.fInputElement;
 					input.connect(monitor);
-					astInfo = input.getAstInfo(null, false, null);
-					if (astInfo == null || astInfo.level < fInfoLevel || astInfo.stamp != input.getDocument(monitor).getModificationStamp()) {
-						return Status.OK_STATUS;
-					}
 				}
-				
-				if (run.selectionEvent.getSelection() instanceof ITextSelection) {
-					final ITextSelection textSelection = (ITextSelection) run.selectionEvent.getSelection();
-					run.astSelection = AstSelection.search(astInfo.root, textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
+				if (run.getInputInfo() == null || run.getInputInfo().getStamp() != input.getDocument(null).getModificationStamp()) {
+					return Status.OK_STATUS;
 				}
 				
 				ISelectionWithElementInfoListener[] listeners = fNewListeners.clear();
-				if (run.stateNr != fLastNr) {
+				if (run.fStateNr != fLastNr) {
 					listeners = fListeners.toArray();
-					fLastNr = run.stateNr;
+					fLastNr = run.fStateNr;
 				}
-				for (int i = 0; i < listeners.length; i++) {
+				ITER_LISTENER : for (int i = 0; i < listeners.length; i++) {
+					if (ignore != null) {
+						for (int j = 0; j < ignore.length; j++) {
+							if (ignore[j] != null && ignore[j].listener == listeners[i]) {
+								continue ITER_LISTENER;
+							}
+						}
+					}
 					if (!run.isStillValid()) {
 						return Status.CANCEL_STATUS;
 					}
@@ -161,28 +161,74 @@ public class PostSelectionWithElementInfoController {
 		}
 	}
 	
-	private IPostSelectionProvider fPostSelectionProvider;
-	private IModelElementInputProvider fModelProvider;
-	private int fInfoLevel = 1;
+	private class SelectionListener implements ISelectionChangedListener {
+		
+		private boolean active;
+		
+		public void selectionChanged(final SelectionChangedEvent event) {
+			if (!active) {
+				return;
+			}
+			synchronized (PostSelectionWithElementInfoController.this) {
+				if (fCurrentSelection != null && fCurrentSelection.getSelection().equals(event.getSelection())) {
+					return;
+				}
+				fCurrentNr++;
+				fCurrentSelection = event;
+				fUpdateJob.schedule();
+			}
+		}
+	};
+	
+	public class IgnoreActivation {
+		
+		private final ISelectionWithElementInfoListener listener;
+		private boolean marked;
+		private int nr;
+		
+		private IgnoreActivation(final ISelectionWithElementInfoListener listener) {
+			this.listener = listener;
+		}
+		
+		public void deleteNext() {
+			nr = fCurrentNr;
+			marked = true;
+		}
+		
+		public void delete() {
+			nr = fCurrentNr-1;
+			marked = true;
+			synchronized (fInputLock) {
+				fIgnoreList.remove(this);
+			}
+		}
+		
+	}
+	
+	private final IPostSelectionProvider fSelectionProvider;
+	private final IModelElementInputProvider fModelProvider;
 	private final FastList<ISelectionWithElementInfoListener> fListeners = new FastList<ISelectionWithElementInfoListener>(ISelectionWithElementInfoListener.class);
 	private final FastList<ISelectionWithElementInfoListener> fNewListeners = new FastList<ISelectionWithElementInfoListener>(ISelectionWithElementInfoListener.class);
 	private final Object fInputLock = new Object();
 	
-	private IModelElementInputListener fElementChangeListener;
-	private ISelectionChangedListener fPostSelectionListener;
+	private final IModelElementInputListener fElementChangeListener;
+	private final SelectionListener fSelectionListener;
+	private final SelectionListener fPostSelectionListener;
 	private PostSelectionCancelExtension fCancelExtension;
+	
+	private final List<IgnoreActivation> fIgnoreList = new ArrayList<IgnoreActivation>();
 	
 	private ISourceUnit fInput; // current input
 	private boolean fInputChanged;
-	private SelectionChangedEvent fCurrentSelection; // current post selection
+	private SelectionChangedEvent fCurrentSelection; // current selection
 	private volatile int fCurrentNr; // stamp to check, if information still up-to-date
 	
 	private final SelectionTask fUpdateJob = new SelectionTask();
 	
 	
 	public PostSelectionWithElementInfoController(final IModelElementInputProvider modelProvider,
-			final IPostSelectionProvider postProvider, final PostSelectionCancelExtension cancelExt) {
-		fPostSelectionProvider = postProvider;
+			final IPostSelectionProvider selectionProvider, final PostSelectionCancelExtension cancelExt) {
+		fSelectionProvider = selectionProvider;
 		
 		fModelProvider = modelProvider;
 		
@@ -215,17 +261,14 @@ public class PostSelectionWithElementInfoController {
 				fUpdateJob.run(null);
 			}
 		};
-		fPostSelectionListener = new ISelectionChangedListener() {
-			public void selectionChanged(final SelectionChangedEvent event) {
-				synchronized (PostSelectionWithElementInfoController.this) {
-					fCurrentNr++;
-					fCurrentSelection = event;
-					fUpdateJob.schedule();
-				}
-			}
-		};
+		fSelectionListener = new SelectionListener();
+		fSelectionListener.active = false;
+		fSelectionProvider.addSelectionChangedListener(fSelectionListener);
 		
-		fPostSelectionProvider.addPostSelectionChangedListener(fPostSelectionListener);
+		fPostSelectionListener = new SelectionListener();
+		fPostSelectionListener.active = true;
+		fSelectionProvider.addPostSelectionChangedListener(fPostSelectionListener);
+		
 		fModelProvider.addListener(fElementChangeListener);
 		if (fCancelExtension != null) {
 			fCancelExtension.fController = this;
@@ -234,6 +277,14 @@ public class PostSelectionWithElementInfoController {
 		}
 	}
 	
+	
+	public void setUpdateOnSelection(final boolean active) {
+		fSelectionListener.active = active;
+	}
+	
+	public void setUpdateOnPostSelection(final boolean active) {
+		fPostSelectionListener.active = active;
+	}
 	
 	public void cancel() {
 		synchronized (fInputLock) {
@@ -245,10 +296,13 @@ public class PostSelectionWithElementInfoController {
 	public void dispose() {
 		cancel();
 		fModelProvider.removeListener(fElementChangeListener);
-		fPostSelectionProvider.removePostSelectionChangedListener(fPostSelectionListener);
+		fSelectionProvider.removeSelectionChangedListener(fSelectionListener);
+		fSelectionProvider.removePostSelectionChangedListener(fPostSelectionListener);
 		if (fCancelExtension != null) {
 			fCancelExtension.dispose();
 		}
+		fNewListeners.clear();
+		fListeners.clear();
 	}
 	
 	
@@ -258,9 +312,15 @@ public class PostSelectionWithElementInfoController {
 		fUpdateJob.schedule();
 	}
 	
-	public void remove(final ISelectionWithElementInfoListener listener) {
+	public void removeListener(final ISelectionWithElementInfoListener listener) {
 		fNewListeners.remove(listener);
 		fListeners.remove(listener);
+	}
+	
+	public IgnoreActivation ignoreNext(final ISelectionWithElementInfoListener listener) {
+		final IgnoreActivation control = new IgnoreActivation(listener);
+		fIgnoreList.add(control);
+		return control;
 	}
 	
 	

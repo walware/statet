@@ -15,11 +15,9 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextInputListener;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 
 
-public abstract class PostSelectionCancelExtension implements ISelectionChangedListener, ITextInputListener, IDocumentListener {
+public abstract class PostSelectionCancelExtension implements ITextInputListener, IDocumentListener {
 	
 	
 	PostSelectionWithElementInfoController fController;
@@ -28,28 +26,25 @@ public abstract class PostSelectionCancelExtension implements ISelectionChangedL
 	public abstract void init();
 	public abstract void dispose();
 	
-	public void selectionChanged(SelectionChangedEvent event) {
-//		fController.cancel();
-	}
 	
-	public void inputDocumentAboutToBeChanged(IDocument oldInput, IDocument newInput) {
+	public void inputDocumentAboutToBeChanged(final IDocument oldInput, final IDocument newInput) {
 		if (oldInput != null) {
 			oldInput.removeDocumentListener(this);
 		}
 		fController.cancel();
 	}
 	
-	public void inputDocumentChanged(IDocument oldInput, IDocument newInput) {
+	public void inputDocumentChanged(final IDocument oldInput, final IDocument newInput) {
 		if (newInput != null) {
 			newInput.addDocumentListener(this);
 		}
 	}
 	
-	public void documentAboutToBeChanged(DocumentEvent event) {
+	public void documentAboutToBeChanged(final DocumentEvent event) {
 		fController.cancel();
 	}
 	
-	public void documentChanged(DocumentEvent event) {
+	public void documentChanged(final DocumentEvent event) {
 	}
 	
 }

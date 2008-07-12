@@ -11,6 +11,8 @@
 
 package de.walware.eclipsecommons.ltk;
 
+import java.util.List;
+
 
 /**
  * 
@@ -26,7 +28,7 @@ public interface IModelManager {
 	/**
 	 * Returns all loaded source units of the given context.
 	 */
-	public ISourceUnit[] getWorkingCopies(WorkingContext context);
+	public List<? extends ISourceUnit> getWorkingCopies(WorkingContext context);
 	
 	/**
 	 * Refreshes the model infos of all loaded source units in given context.

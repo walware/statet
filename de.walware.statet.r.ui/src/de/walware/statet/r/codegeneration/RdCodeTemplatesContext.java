@@ -30,7 +30,7 @@ public class RdCodeTemplatesContext extends StatextCodeTemplatesContext {
 	
 	
 	public void setCodeUnitVariables(final RResourceUnit u) {
-		setVariable(RCodeTemplatesContextType.FILENAME, u.getElementName());
+		setVariable(RCodeTemplatesContextType.FILENAME, u.getElementName().getDisplayName());
 //		setVariable(RCodeTemplatesContextType.PACKAGENAME, u.getParent().getElementName());
 //		setVariable(RCodeTemplatesContextType.PROJECTNAME, u.getRProject().getElementName());
 	}

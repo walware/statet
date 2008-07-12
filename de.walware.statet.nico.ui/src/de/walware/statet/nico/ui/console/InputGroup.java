@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.console;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -60,13 +61,18 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
+import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.eclipsecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
@@ -78,7 +84,6 @@ import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
 import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -93,7 +98,7 @@ import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 /**
  * The input line (prompt, input, submit button) of the console page.
  */
-public class InputGroup implements ISettingsChangedHandler {
+public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 	
 	
 	final static int KEY_HIST_UP = SWT.ARROW_UP;
@@ -232,11 +237,7 @@ public class InputGroup implements ISettingsChangedHandler {
 		private boolean fMessageSetted;
 		
 		public SourceViewer getSourceViewer() {
-			return fSourceViewer;
-		}
-		
-		public IWorkbenchPart getWorkbenchPart() {
-			return fConsolePage.getView();
+			return InputGroup.this.getViewer();
 		}
 		
 		public void install(final IEditorInstallable installable) {
@@ -244,14 +245,11 @@ public class InputGroup implements ISettingsChangedHandler {
 		}
 		
 		public boolean isEditable(final boolean validate) {
-			return true;
+			return InputGroup.this.isEditable(validate);
 		}
 		
 		public Object getAdapter(final Class required) {
-			if (required.equals(IEditorStatusLine.class)) {
-				return EditorAdapter.this;
-			}
-			return InputGroup.this.fConsolePage.getAdapter(required);
+			return InputGroup.this.getAdapter(required);
 		}
 		
 		public void setMessage(final boolean error, final String message, final Image image) {
@@ -551,9 +549,8 @@ public class InputGroup implements ISettingsChangedHandler {
 		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		fConfigurator.handleSettingsChanged(groupIds, options);
-		return false;
 	}
 	
 	public void configureServices(final IHandlerService commands, final IContextService keys) {
@@ -760,10 +757,6 @@ public class InputGroup implements ISettingsChangedHandler {
 		return fComposite;
 	}
 	
-	public InputSourceViewer getSourceViewer() {
-		return fSourceViewer;
-	}
-	
 	public Button getSubmitButton() {
 		return fSubmitButton;
 	}
@@ -788,6 +781,53 @@ public class InputGroup implements ISettingsChangedHandler {
 			fPrefixBackground.dispose();
 			fPrefixBackground = null;
 		}
+	}
+	
+/*- Complete ISourceEditor --------------------------------------------------*/
+	
+	public ISourceUnit getSourceUnit() {
+		return null;
+	}
+	
+	public IWorkbenchPart getWorkbenchPart() {
+		return fConsolePage.getView();
+	}
+	
+	public IServiceLocator getServiceLocator() {
+		return fConsolePage.fInputServices;
+	}
+	
+	public InputSourceViewer getViewer() {
+		return fSourceViewer;
+	}
+	
+	public String getPartitioning() {
+		return fConfigurator.getSourceViewerConfiguration().getConfiguredDocumentPartitioning(fSourceViewer);
+	}
+	
+	public boolean isEditable(final boolean validate) {
+		return true;
+	}
+	
+	public void selectAndReveal(final int offset, final int length) {
+		if (UIAccess.isOkToUse(fSourceViewer)) {
+			fSourceViewer.setSelectedRange(offset, length);
+			fSourceViewer.revealRange(offset, length);
+		}
+	}
+	
+	public Object getAdapter(final Class required) {
+		if (ISourceEditor.class.equals(required)) {
+			return this;
+		}
+		if (required.equals(IEditorStatusLine.class)) {
+			return fEditorAdapter;
+		}
+		return fConsolePage.getAdapter(required);
+	}
+	
+	public ITextEditToolSynchronizer getTextEditToolSynchronizer() {
+		return null;
 	}
 	
 }

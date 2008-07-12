@@ -27,7 +27,16 @@ public class RUI {
 	public static final String R_EDITOR_ID = "de.walware.statet.r.editors.R"; //$NON-NLS-1$
 	public static final String RD_EDITOR_ID = "de.walware.statet.r.editors.Rd"; //$NON-NLS-1$
 	
-	public static final String IMG_OBJ_R_ENVIRONMENT = RUI.PLUGIN_ID+"/image/obj/r_environment"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_SCRIPT = RUI.PLUGIN_ID + "/image/obj/r_script"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_ENVIRONMENT = RUI.PLUGIN_ID + "/image/obj/r_environment"; //$NON-NLS-1$
+	
+	public static final String IMG_OBJ_METHOD = RUI.PLUGIN_ID + "/image/obj/method"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COMMON_FUNCTION = RUI.PLUGIN_ID + "/image/obj/function.common"; //$NON-NLS-1$
+	public static final String IMG_OBJ_COMMON_LOCAL_FUNCTION = RUI.PLUGIN_ID + "/image/obj/function.common.local"; //$NON-NLS-1$
+	public static final String IMG_OBJ_GENERIC_FUNCTION = RUI.PLUGIN_ID + "/image/obj/function.generic"; //$NON-NLS-1$
+	public static final String IMG_OBJ_GENERAL_VARIABLE = RUI.PLUGIN_ID + "/image/obj/variable.common"; //$NON-NLS-1$
+	public static final String IMG_OBJ_GENERAL_LOCAL_VARIABLE = RUI.PLUGIN_ID + "/image/obj/variable.common.local"; //$NON-NLS-1$
+	public static final String IMG_OBJ_SLOT = RUI.PLUGIN_ID + "/image/obj/variable.slot"; //$NON-NLS-1$
 	
 	
 	public static ImageDescriptor getImageDescriptor(final String key) {

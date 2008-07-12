@@ -11,34 +11,16 @@
 
 package de.walware.eclipsecommons.ltk.ui;
 
-import org.eclipse.jface.viewers.ISelection;
-
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ast.AstSelection;
-
 
 /**
- * Combine the selection and model information in one state.
+ * Combines the selection and model information in one state.
  * This is the listener interface, provider is available in 
  * {@link PostSelectionWithElementInfoController}.
  */
 public interface ISelectionWithElementInfoListener {
 	
 	
-	public interface StateData {
-		
-		public ISelection getLastSelection();
-		
-		public IModelElement getInputElement();
-		
-		public AstSelection getAstSelection();
-		
-		public boolean isStillValid();
-		
-	}
-	
-	
-	public void stateChanged(StateData state);
+	public void stateChanged(LTKInputData state);
 	
 	public void inputChanged();
 	

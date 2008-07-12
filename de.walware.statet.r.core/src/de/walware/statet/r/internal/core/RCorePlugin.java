@@ -26,7 +26,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvManager;
-import de.walware.statet.r.internal.core.rmodel.RModelManager;
+import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
 
 
 /**
@@ -116,6 +116,10 @@ public class RCorePlugin extends Plugin {
 		super.stop(context);
 		gPlugin = null;
 		
+		if (fRModelManager != null) {
+			fRModelManager.dispose();
+			fRModelManager = null;
+		}
 		if (fWorkspaceCoreAccess != null) {
 			fWorkspaceCoreAccess.dispose();
 			fWorkspaceCoreAccess = null;

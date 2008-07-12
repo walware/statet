@@ -21,15 +21,16 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 
-import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.codegeneration.CodeGeneration.NewFileData;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 
@@ -50,16 +51,17 @@ public class NewRFileCreationWizard extends NewElementWizard {
 		
 		@Override
 		protected String getInitialFileContent(final IFile newFileHandle) {
-			final String lineDelimiter = TemplatesUtil.getLineSeparator(newFileHandle.getProject());
+			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "r"); //$NON-NLS-1$
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, RModel.TYPE_ID);
 				final NewFileData data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
 				if (data != null) {
 					fSelectionStart = data.selectionStart;
 					fSelectionEnd = data.selectionEnd;
 					return data.content;
 				}
-			} catch (final CoreException e) {
+			}
+			catch (final CoreException e) {
 				RUIPlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE, "An error occured when applying template to new R-script file.", e); //$NON-NLS-1$
 			}
 			return null;

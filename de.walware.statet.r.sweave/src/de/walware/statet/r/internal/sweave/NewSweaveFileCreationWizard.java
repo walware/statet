@@ -21,9 +21,9 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 
-import de.walware.statet.ext.templates.TemplatesUtil;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 
 import de.walware.statet.r.core.RResourceUnit;
@@ -47,9 +47,9 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 		
 		@Override
 		protected String getInitialFileContent(final IFile newFileHandle) {
-			final String lineDelimiter = TemplatesUtil.getLineSeparator(newFileHandle.getProject());
+			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			try {
-				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.R_TEX_UNIT_TYPE_ID);
+				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.R_TEX_MODEL_TYPE_ID);
 				final NewFileData data = CodeGeneration.getNewRweaveTexDocContent(rcu, lineDelimiter);
 				if (data != null) {
 					fSelectionStart = data.selectionStart;
@@ -72,6 +72,7 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 		setDialogSettings(DialogUtil.getDialogSettings(SweavePlugin.getDefault(), "NewElementWizard")); //$NON-NLS-1$
 		setWindowTitle(Messages.NewSweaveFileWizard_title);
 	}
+	
 	
 	@Override
 	public void addPages() {
@@ -111,7 +112,7 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 	@Override
 	protected void doFinish(final IProgressMonitor monitor) throws InterruptedException, CoreException, InvocationTargetException {
 		try {
-			monitor.beginTask("Create new file...", 1000); //$NON-NLS-1$
+			monitor.beginTask("Create new file...", 1000);
 			
 			fNewSweaveFile.createFile(new SubProgressMonitor(monitor, 900) );
 			

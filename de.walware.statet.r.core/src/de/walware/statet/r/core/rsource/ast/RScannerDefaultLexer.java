@@ -15,6 +15,7 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
+import de.walware.eclipsecommons.ltk.text.IStringCache;
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -26,10 +27,19 @@ import de.walware.statet.r.core.rlang.RTerminal;
 final class RScannerDefaultLexer extends RScannerLexer {
 	
 	
-	public RScannerDefaultLexer(final SourceParseInput input) {
+	private final IStringCache fStringCache;
+	
+	
+	public RScannerDefaultLexer(final SourceParseInput input, final IStringCache cache) {
 		super(input);
+		fStringCache = cache;
 	}
 	
+	
+	@Override
+	protected void reset(final SourceParseInput input) {
+		super.reset(input);
+	}
 	
 	@Override
 	protected void createNumberToken(final RTerminal type, final int status) {
@@ -46,6 +56,9 @@ final class RScannerDefaultLexer extends RScannerLexer {
 		fNextToken.offset = fNextIndex;
 		fNextToken.length = fNextNum;
 		fNextToken.text = fInput.substring(1, fNextNum);
+		if (fStringCache != null && fNextToken.text.length() <= 20) {
+			fNextToken.text = fStringCache.get(fNextToken.text);
+		}
 		fNextToken.status = STATUS_OK;
 	}
 	
@@ -56,6 +69,9 @@ final class RScannerDefaultLexer extends RScannerLexer {
 		fNextToken.length = fNextNum;
 		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+		if (fStringCache != null && fNextToken.text.length() <= 20) {
+			fNextToken.text = fStringCache.get(fNextToken.text);
+		}
 		fNextToken.status = status;
 	}
 	
@@ -76,6 +92,9 @@ final class RScannerDefaultLexer extends RScannerLexer {
 		fNextToken.length = fNextNum;
 		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+		if (fStringCache != null && fNextToken.text.length() <= 3) {
+			fNextToken.text = fStringCache.get(fNextToken.text);
+		}
 		fNextToken.status = status;
 	}
 	

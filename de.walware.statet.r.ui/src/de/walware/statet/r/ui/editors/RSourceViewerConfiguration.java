@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -31,12 +32,15 @@ import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.eclipsecommons.ui.text.EcoReconciler;
+import de.walware.eclipsecommons.ui.text.presentation.SingleTokenScanner;
+import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistProcessor;
 import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
-import de.walware.statet.ext.ui.text.SingleTokenScanner;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -44,9 +48,10 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RIndentUtil;
+import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.internal.ui.editors.RContentAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RQuickAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
-import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.RCodeScanner2;
 import de.walware.statet.r.ui.text.r.RCommentScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
@@ -70,6 +75,8 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	private REditor fEditor;
 	private IRCoreAccess fRCoreAccess;
+	
+	private boolean fHandleDefaultContentType;
 	
 	
 	public RSourceViewerConfiguration(
@@ -97,8 +104,14 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 			fRCoreAccess = RCore.getWorkbenchAccess();
 		}
 		fEditor = editor;
+		fHandleDefaultContentType = true;
 		setup(preferenceStore, colorManager);
 		setScanners(initializeScanners());
+	}
+	
+	
+	public void setHandleDefaultContentType(final boolean enable) {
+		fHandleDefaultContentType = enable;
 	}
 	
 	
@@ -147,15 +160,14 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		final PresentationReconciler reconciler = new PresentationReconciler();
 		reconciler.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		
-		initDefaultPresentationReconciler(reconciler, true);
+		initDefaultPresentationReconciler(reconciler);
 		
 		return reconciler;
 	}
 	
-	public void initDefaultPresentationReconciler(final PresentationReconciler reconciler,
-			final boolean handleDefaultContentType) {
+	public void initDefaultPresentationReconciler(final PresentationReconciler reconciler) {
 		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(fCodeScanner);
-		if (handleDefaultContentType) {
+		if (fHandleDefaultContentType) {
 			reconciler.setDamager(dr, IRDocumentPartitions.R_DEFAULT);
 			reconciler.setRepairer(dr, IRDocumentPartitions.R_DEFAULT);
 		}
@@ -203,8 +215,9 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		return super.handleSettingsChanged(groupIds, fRCoreAccess.getPrefs());
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		options.put(ISettingsChangedHandler.PREFERENCEACCESS_KEY, fRCoreAccess.getPrefs());
+		super.handleSettingsChanged(groupIds, options);
 	}
 	
 	
@@ -255,17 +268,38 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	@Override
 	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
-		if (fEditor != null) {
+		if (getSourceEditor() != null) {
 			final ContentAssistant assistant = new ContentAssistant();
-			final REditorTemplatesCompletionProcessor processor = new REditorTemplatesCompletionProcessor(fEditor);
-			
 			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-			for (final String contentType : getConfiguredContentTypes(sourceViewer)) {
-				assistant.setContentAssistProcessor(processor, contentType);
-			}
+			
+			initDefaultContentAssist(assistant);
 			return assistant;
 		}
 		return null;
+	}
+	
+	public void initDefaultContentAssist(final ContentAssistant assistant) {
+		final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getREditorContentAssistRegistry();
+		
+		final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
+				IRDocumentPartitions.R_DEFAULT_EXPL, registry, getSourceEditor());
+//		codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$' });
+		assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT_EXPL);
+		if (fHandleDefaultContentType) {
+			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT);
+		}
+		
+		final ContentAssistProcessor symbolProcessor = new RContentAssistProcessor(assistant,
+				IRDocumentPartitions.R_QUOTED_SYMBOL, registry, getSourceEditor());
+		assistant.setContentAssistProcessor(symbolProcessor, IRDocumentPartitions.R_QUOTED_SYMBOL);
+		
+		final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,
+				IRDocumentPartitions.R_STRING, registry, getSourceEditor());
+		assistant.setContentAssistProcessor(stringProcessor, IRDocumentPartitions.R_STRING);
+		
+		final ContentAssistProcessor commentProcessor = new RContentAssistProcessor(assistant,
+				IRDocumentPartitions.R_COMMENT, registry, getSourceEditor());
+		assistant.setContentAssistProcessor(commentProcessor, IRDocumentPartitions.R_COMMENT);
 	}
 	
 	@Override

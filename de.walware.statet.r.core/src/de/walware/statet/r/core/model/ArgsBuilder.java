@@ -23,39 +23,38 @@ import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 public final class ArgsBuilder {
 	
 	
-	private int fEId;
 	private List<Arg> fArgs = new ArrayList<Arg>();
 	
 	
-	ArgsBuilder(final int eId) {
-		fEId = eId;
-	}
-	
 	public ArgsBuilder() {
-		fEId = -1;
 	}
 	
 	
 	public ArgsBuilder add(final String name) {
-		fArgs.add(new Arg(fArgs.size(), name, 0));
+		fArgs.add(new Arg(fArgs.size(), name, 0, null));
 		return this;
 	}
 	
 	public ArgsBuilder add(final String... name) {
 		for (int i = 0; i < name.length; i++) {
-			fArgs.add(new Arg(fArgs.size(), name[i], 0));
+			fArgs.add(new Arg(fArgs.size(), name[i], 0, null));
 		}
 		return this;
 	}
 	
 	public ArgsBuilder add(final String name, final int type) {
-		fArgs.add(new Arg(fArgs.size(), name, type));
+		fArgs.add(new Arg(fArgs.size(), name, type, null));
+		return this;
+	}
+	
+	public ArgsBuilder add(final String name, final int type, final String className) {
+		fArgs.add(new Arg(fArgs.size(), name, type, className));
 		return this;
 	}
 	
 	
 	public ArgsDefinition toDef() {
-		return new ArgsDefinition(fEId, fArgs.toArray(new Arg[fArgs.size()]));
+		return new ArgsDefinition(fArgs.toArray(new Arg[fArgs.size()]));
 	}
 	
 }

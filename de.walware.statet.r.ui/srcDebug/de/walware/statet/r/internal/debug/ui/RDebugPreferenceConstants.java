@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.debug.ui;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RMIUtil;
-import de.walware.statet.r.launching.RCodeLaunchRegistry;
+import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 
 
 public class RDebugPreferenceConstants {

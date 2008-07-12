@@ -33,6 +33,7 @@ import de.walware.eclipsecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
 
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.RWorkingCopy;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RScanner;
@@ -68,7 +69,7 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 	
 	@Override
 	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
-		if (type == null || type.equals("r")) { //$NON-NLS-1$
+		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
 				reconcileR(0, monitor);
 			}

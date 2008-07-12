@@ -11,6 +11,7 @@
 
 package de.walware.statet.base.ui.sourceeditors;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -31,11 +32,11 @@ import org.eclipse.ui.texteditor.templates.AbstractTemplatesPage;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.ui.text.sourceediting.TemplateProposal;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.templates.StatextTemplateProposal;
 import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 
 
@@ -96,7 +97,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 			return;
 		}
 		final IRegion region = new Region(selectedRange.x, selectedRange.y);
-		final StatextTemplateProposal proposal = new StatextTemplateProposal(template, context, region, null, 0);
+		final TemplateProposal proposal = new TemplateProposal(template, context, region, null, 0);
 		fEditor.getSite().getPage().activate(fEditor);
 		proposal.apply(sourceViewer, (char) 0, 0, region.getOffset());
 	}
@@ -112,11 +113,10 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 		
 		fPreviewEditor = new ViewerEditorAdapter(viewer, null);
 		new SettingsUpdater(new ISettingsChangedHandler() {
-			public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+			public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 				if (fCurrentPreviewConfigurator != null) {
-					fCurrentPreviewConfigurator.handleSettingsChanged(groupIds, null);
+					fCurrentPreviewConfigurator.handleSettingsChanged(groupIds, options);
 				}
-				return false;
 			}
 		}, viewer.getControl());
 		

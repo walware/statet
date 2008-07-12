@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -58,7 +59,6 @@ import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
 import de.walware.statet.r.ui.editors.RAutoEditStrategy;
 import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
-import de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionProcessor;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 
 
@@ -159,6 +159,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 		super(adapter);
 		fEditor = editor;
 		fRConfig = new RChunkConfiguration(this, editor, adapter, rCoreAccess, preferenceStore, colorManager);
+		fRConfig.setHandleDefaultContentType(false);
 		
 		setup(preferenceStore, colorManager);
 		fChunkControlScanner = new RChunkControlCodeScanner(colorManager, preferenceStore);
@@ -216,7 +217,7 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 		reconciler.setDamager(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
 		reconciler.setRepairer(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
 		
-		fRConfig.initDefaultPresentationReconciler(reconciler, false);
+		fRConfig.initDefaultPresentationReconciler(reconciler);
 		
 		dr = new DefaultDamagerRepairer(fTexDefaultScanner);
 		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
@@ -262,9 +263,9 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		fRConfig.handleSettingsChanged(groupIds, options);
-		return super.handleSettingsChanged(groupIds, options);
+		super.handleSettingsChanged(groupIds, options);
 	}
 	
 	
@@ -309,15 +310,14 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
 		if (fEditor != null) {
 			final ContentAssistant assistant = new ContentAssistant();
-			final REditorTemplatesCompletionProcessor rProcessor = new REditorTemplatesCompletionProcessor(fEditor);
-			final RChunkTemplatesCompletionProcessor controlProcessor = new RChunkTemplatesCompletionProcessor(fEditor);
-			
 			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-			for (final String contentType : Rweave.R_PARTITION_TYPES) {
-				assistant.setContentAssistProcessor(rProcessor, contentType);
-			}
+			
+			final RChunkTemplatesCompletionProcessor controlProcessor = new RChunkTemplatesCompletionProcessor(fEditor);
 			assistant.setContentAssistProcessor(controlProcessor, Rweave.TEX_DEFAULT_CONTENT_TYPE);
 			assistant.setContentAssistProcessor(controlProcessor, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
+			
+			fRConfig.initDefaultContentAssist(assistant);
+			
 			return assistant;
 		}
 		return null;

@@ -25,9 +25,10 @@ public class StatetWizardsMessages extends NLS {
 	public static String ResourceGroup_error_InvalidFilename;
 	public static String ResourceGroup_error_ResourceExists;
 	
-	public static String NewElement_CreateFileTask_name;
-	public static String NewElement_CreateProjectTask_name;
-	public static String NewElementWizard_error_DuringOperation_message;
+	public static String NewElement_CreateFile_task;
+	public static String NewElement_CreateProject_task;
+	public static String NewElement_AddProjectToWorkingSet_task;
+	public static String NewElement_error_DuringOperation_message;
 	
 	
 	static {

@@ -75,8 +75,8 @@ public final class WorkingContext {
 		}
 	}
 	
-	private ISourceUnitFactory getFactory(final String typeId) {
-		ISourceUnitFactory factory = fFactories.get(typeId);
+	private ISourceUnitFactory getFactory(final String modelTypeId) {
+		ISourceUnitFactory factory = fFactories.get(modelTypeId);
 		if (factory == null) {
 			try {
 				final IConfigurationElement[] elements = Platform.getExtensionRegistry().
@@ -84,9 +84,9 @@ public final class WorkingContext {
 				IConfigurationElement matchingElement = null;
 				for (final IConfigurationElement element : elements) {
 					if (element.getName().equals("unitType") && element.isValid()) { //$NON-NLS-1$
-						final String typeIdOfElement= element.getAttribute(CONFIG_MODELTYPE_ID_ATTRIBUTE_NAME);
+						final String typeIdOfElement = element.getAttribute(CONFIG_MODELTYPE_ID_ATTRIBUTE_NAME);
 						final String contextKeyOfElement = element.getAttribute(CONFIG_CONTEXT_KEY_ATTRIBUTE_NAME);
-						if (typeId.equals(typeIdOfElement)) {
+						if (modelTypeId.equals(typeIdOfElement)) {
 							if ((contextKeyOfElement == null) || (contextKeyOfElement.length() == 0)) {
 								matchingElement = element;
 								continue;
@@ -100,7 +100,7 @@ public final class WorkingContext {
 				}
 				if (matchingElement != null) {
 					factory = (ISourceUnitFactory) matchingElement.createExecutableExtension("unitFactory"); //$NON-NLS-1$
-					fFactories.put(typeId, factory);
+					fFactories.put(modelTypeId, factory);
 				}
 			}
 			catch (final Exception e) {

@@ -35,7 +35,7 @@ public abstract class AbstractRUnitFactory implements ISourceUnitFactory {
 				final IFile fromFile = (IFile) from;
 				final String id = RResourceUnit.createResourceId(fromFile);
 				final ISourceUnit copy;
-				if (typeId.equals("r")) { //$NON-NLS-1$
+				if (typeId.equals(RModel.TYPE_ID)) {
 					copy = RCorePlugin.getDefault().getRModelManager().getWorkingCopy(id, context);
 				}
 				else {
@@ -53,7 +53,7 @@ public abstract class AbstractRUnitFactory implements ISourceUnitFactory {
 		if (from instanceof ISourceUnit) {
 			final ISourceUnit fromUnit = (ISourceUnit) from;
 			final ISourceUnit copy;
-			if (typeId.equals("r")) { //$NON-NLS-1$
+			if (typeId.equals(RModel.TYPE_ID)) {
 				copy = RCorePlugin.getDefault().getRModelManager().getWorkingCopy(fromUnit.getId(), context);
 			}
 			else {

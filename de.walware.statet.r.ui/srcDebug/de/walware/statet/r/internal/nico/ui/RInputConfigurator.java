@@ -12,17 +12,18 @@
 package de.walware.statet.r.internal.nico.ui;
 
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.source.ISourceViewer;
+
+import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistProcessor;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.PathCompletionProcessor;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.internal.ui.editors.RContentAssistProcessor;
 import de.walware.statet.r.nico.ui.RConsole;
-import de.walware.statet.r.ui.editors.RPathCompletionProcessor;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
@@ -41,13 +42,13 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 		}
 		
 		@Override
-		protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
-			final ContentAssistant contentAssistant = new ContentAssistant();
-			final PathCompletionProcessor resourceProcessor = new RPathCompletionProcessor(fPage);
-			contentAssistant.setDocumentPartitioning(IRDocumentPartitions.R_PARTITIONING);
-			contentAssistant.setContentAssistProcessor(resourceProcessor, IRDocumentPartitions.R_STRING);
+		public void initDefaultContentAssist(final ContentAssistant assistant) {
+			final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getRConsoleContentAssistRegistry();
 			
-			return contentAssistant;
+			final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,
+					IRDocumentPartitions.R_STRING, registry, getSourceEditor());
+			stringProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '/' });
+			assistant.setContentAssistProcessor(stringProcessor, IRDocumentPartitions.R_STRING);
 		}
 		
 	}

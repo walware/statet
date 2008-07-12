@@ -19,7 +19,7 @@ import de.walware.statet.r.core.RProject;
 
 
 /**
- * R source (script) file
+ * An R source (script) file
  */
 public interface IRSourceUnit extends ISourceUnit {
 	

@@ -24,10 +24,10 @@ import org.eclipse.jface.text.rules.Token;
 
 import de.walware.eclipsecommons.ltk.text.BufferedDocumentParseInput;
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
+import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.eclipsecommons.ui.text.presentation.TextStyleManager;
 import de.walware.eclipsecommons.ui.util.ColorManager;
-
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
-import de.walware.statet.ext.ui.text.TextStyleManager;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;
@@ -260,13 +260,12 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		return fTextStyles.getToken(key);
 	}
 	
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		boolean changed = fTextStyles.handleSettingsChanged(groupIds, options);
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		fTextStyles.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(RIdentifierGroups.GROUP_ID)) {
 			resetSpecialSymbols();
-			changed = true;
+			options.put(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY, Boolean.TRUE);
 		}
-		return changed;
 	}
 	
 	

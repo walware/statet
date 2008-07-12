@@ -21,11 +21,10 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 
+import de.walware.eclipsecommons.ui.text.DefaultWhitespaceDetector;
 import de.walware.eclipsecommons.ui.text.OperatorRule;
+import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
 import de.walware.eclipsecommons.ui.util.ColorManager;
-
-import de.walware.statet.ext.ui.text.DefaultWhitespaceDetector;
-import de.walware.statet.ext.ui.text.StatextTextScanner;
 
 import de.walware.statet.r.core.rdoc.RdTags;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
@@ -34,7 +33,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 /**
  * Scanner for common Rd code (in no verbatim-like sections).
  */
-public class RdCodeScanner extends StatextTextScanner {
+public class RdCodeScanner extends AbstractRuleBasedScanner {
 	
 	private static class TagDetector implements IWordDetector {
 		

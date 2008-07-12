@@ -40,6 +40,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.eclipsecommons.ltk.text.IStringCache;
 import de.walware.eclipsecommons.ltk.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -87,14 +88,16 @@ public class RScanner {
 	private boolean fWasLinebreak;
 	
 	
-	/**
-	 */
 	public RScanner(final SourceParseInput input, final AstInfo ast) {
+		this(input, ast, null);
+	}
+	
+	public RScanner(final SourceParseInput input, final AstInfo ast, final IStringCache stringCache) {
 		if (ast.level <= RAst.LEVEL_MINIMAL) {
 			fLexer = new RScannerLexer(input);
 		}
 		else {
-			fLexer = new RScannerDefaultLexer(input);
+			fLexer = new RScannerDefaultLexer(input, stringCache);
 		}
 		fNext = fLexer.getToken();
 		fAst = ast;
@@ -944,10 +947,90 @@ public class RScanner {
 		}
 	}
 	
-	final void scanInSpecArgs(final SpecList args) {
+	final void scanInSpecArgs(final FCall.Args args) {
 		args.fStartOffset = args.fStopOffset = args.fRParent.fStopOffset;
 		ITER_ARGS : while (true) {
-			final SpecItem arg = args.createItem();
+			final FCall.Arg arg = new FCall.Arg(args);
+			arg.fStartOffset = fNext.offset;
+			switch(fNextType) {
+			case SYMBOL:
+				arg.fArgName = createSymbol(arg);
+				readLines();
+				break;
+			case STRING_S:
+			case STRING_D:
+				arg.fArgName = createStringConst(arg);
+				readLines();
+				break;
+			case NULL:
+				arg.fArgName = createNullConst(arg);
+				readLines();
+				break;
+			case EQUAL:
+				arg.fArgName = errorNonExistingSymbol(arg, fNext.offset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
+				break;
+			default:
+				break;
+			}
+			if (arg.fArgName != null) {
+				if (fNextType == RTerminal.EQUAL) {
+					arg.fEqualsOffset = fNext.offset;
+					arg.fStopOffset = arg.fEqualsOffset+1;
+					consumeToken();
+					
+					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+					scanInExpression(valueContext);
+					if (arg.fValueExpr.node != null) { // empty items are allowed
+						checkExpression(valueContext);
+						arg.fStopOffset = arg.fValueExpr.node.fStopOffset;
+					}
+				}
+				else {
+					// argName -> valueExpr
+					arg.fValueExpr.node = arg.fArgName;
+					arg.fArgName = null;
+					
+					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+					valueContext.update(arg.fValueExpr.node, null);
+					scanInExpression(valueContext);
+					checkExpression(valueContext);
+					arg.fStopOffset = arg.fValueExpr.node.fStopOffset;
+				}
+			}
+			else {
+				final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+				scanInExpression(valueContext);
+				if (arg.fValueExpr.node != null) { // empty items are allowed
+					checkExpression(valueContext);
+					arg.fStopOffset = arg.fValueExpr.node.fStopOffset;
+				}
+				else {
+					arg.fStartOffset = arg.fStopOffset = args.fStopOffset;
+				}
+			}
+			
+			if (fNextType == RTerminal.COMMA) {
+				args.fSpecs.add(arg);
+				args.fStopOffset = fNext.offset+1;
+				consumeToken();
+				readLines();
+				continue ITER_ARGS;
+			}
+			// last arg before )
+			if (args.fSpecs.isEmpty() && !arg.hasChildren()) {
+				return;
+			}
+			args.fSpecs.add(arg);
+			args.fStartOffset = args.fSpecs.get(0).fStartOffset;
+			args.fStopOffset = arg.fStopOffset;
+			return;
+		}
+	}
+	
+	final void scanInSpecArgs(final SubIndexed.Args args) {
+		args.fStartOffset = args.fStopOffset = args.fRParent.fStopOffset;
+		ITER_ARGS : while (true) {
+			final SubIndexed.Arg arg = new SubIndexed.Arg(args);
 			arg.fStartOffset = fNext.offset;
 			switch(fNextType) {
 			case SYMBOL:

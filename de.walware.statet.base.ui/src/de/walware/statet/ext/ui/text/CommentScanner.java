@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package de.walware.statet.ext.ui.text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -22,16 +23,18 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
 import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
-import de.walware.statet.base.ui.util.ISettingsChangedHandler;
 
 
 /**
  * Scanner for comments. Provides support for task tags.
  */
-public class CommentScanner extends StatextTextScanner 
+public class CommentScanner extends AbstractRuleBasedScanner 
 		implements ISettingsChangedHandler {
 	
 	private static class TaskTagDetector implements IWordDetector {
@@ -102,14 +105,13 @@ public class CommentScanner extends StatextTextScanner
 	}
 	
 	@Override
-	public boolean handleSettingsChanged(final Set<String> groupIds, final Object options) {
-		boolean affectsPresentation = super.handleSettingsChanged(groupIds, options);
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		super.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(TaskTagsPreferences.GROUP_ID)) {
-			final IPreferenceAccess prefs = (IPreferenceAccess) options;
+			final IPreferenceAccess prefs = (IPreferenceAccess) options.get(ISettingsChangedHandler.PREFERENCEACCESS_KEY);
 			loadTaskTags(prefs);
-			affectsPresentation |= true;
+			options.put(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY, Boolean.TRUE);
 		}
-		return affectsPresentation;
 	}
 	
 	public void loadTaskTags(final IPreferenceAccess prefs) {

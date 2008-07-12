@@ -11,6 +11,10 @@
 
 package de.walware.eclipsecommons.ltk;
 
+import org.eclipse.jface.text.IDocumentExtension4;
+
+import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
+
 
 /**
  * Container for model information of an source unit
@@ -18,7 +22,27 @@ package de.walware.eclipsecommons.ltk;
 public interface ISourceUnitModelInfo {
 	
 	
+	/**
+	 * Modification stamp, same as
+	 *   {@link IDocumentExtension4#getModificationStamp()}
+	 * 
+	 * @return the stamp
+	 */
 	public long getStamp();
-	public AstInfo getAst(); 
+	
+	/**
+	 * The AST used to create this info.
+	 * The AST has the same stamp as this info.
+	 * 
+	 * @return the AST information
+	 */
+	public AstInfo getAst();
+	
+	/**
+	 * The source unit as source structure model element.
+	 * 
+	 * @return the element
+	 */
+	public ISourceStructElement getSourceElement();
 	
 }

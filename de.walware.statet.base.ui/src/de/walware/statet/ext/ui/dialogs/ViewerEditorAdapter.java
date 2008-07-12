@@ -12,7 +12,6 @@
 package de.walware.statet.ext.ui.dialogs;
 
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
@@ -43,10 +42,6 @@ public class ViewerEditorAdapter implements IEditorAdapter {
 	
 	public SourceViewer getSourceViewer() {
 		return fSourceViewer;
-	}
-	
-	public IWorkbenchPart getWorkbenchPart() {
-		return null;
 	}
 	
 	public void install(final IEditorInstallable installable) {

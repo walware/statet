@@ -39,6 +39,7 @@ import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
+import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -196,6 +197,11 @@ public class RweaveTexEditor extends REditor {
 		return fDocUnit;
 	}
 	
+	
+	@Override
+	protected StatextOutlinePage1 createOutlinePage() {
+		return null;
+	}
 	
 	@Override
 	protected ITemplatesPage createTemplatesPage() {

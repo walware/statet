@@ -13,11 +13,12 @@ package de.walware.statet.base.ui.sourceeditors;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.ui.IWorkbenchPart;
 
 
+/**
+ * TODO replace completely with ISourceEditor
+ */
 public interface IEditorAdapter extends IAdaptable {
-	
 	
 	/**
 	 * Allows access to the SourceViewer.
@@ -27,13 +28,6 @@ public interface IEditorAdapter extends IAdaptable {
 	public SourceViewer getSourceViewer();
 	
 	public void install(IEditorInstallable installable);
-	
-	/**
-	 * Returns the part the editor belongs to.
-	 * 
-	 * @return the part
-	 */
-	public IWorkbenchPart getWorkbenchPart();
 	
 	/**
 	 * Returns whether the text in this text editor (SourceViewer) can be changed by the user.

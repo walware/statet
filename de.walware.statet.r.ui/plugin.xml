@@ -78,23 +78,53 @@
             translations="templates/default-templates.properties"/>
    </extension>
 
-   <extension
-         point="org.eclipse.ui.editors.annotationTypes">
-      <type
-         name="de.walware.statet.r.ui.error"
-         super="org.eclipse.ui.workbench.texteditor.error"
-         markerSeverity="2">
-      </type>
-      <type
-         name="de.walware.statet.r.ui.warning"
-         super="org.eclipse.ui.workbench.texteditor.warning"
-         markerSeverity="1">
-      </type>
-      <type
-         name="de.walware.statet.r.ui.info"
-         super="org.eclipse.ui.workbench.texteditor.info"
-         markerSeverity="0">
-      </type>
+   <extension-point id="rEditorContentAssistComputer"
+         name="Point to register categories and computers for content assist in R editor"
+         schema="schema/rEditorContentAssistComputer.exsd"/>
+
+   <extension point="de.walware.statet.r.ui.rEditorContentAssistComputer">
+      <category
+            id="templates"
+            name="%contentAssist_TemplateCategory_name">
+      </category>
+      <computer
+            categoryId="templates"
+            class="de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionComputer"
+            id="de.walware.statet.r.contentAssistComputers.TemplateCompletion">
+         <partition
+               partitionType="__r_default">
+         </partition>
+         <partition
+               partitionType="__r_comment">
+         </partition>
+      </computer>
+      <category
+            id="paths"
+            name="%contentAssist_ResourceCategory_name">
+      </category>
+      <computer
+            categoryId="paths"
+            class="de.walware.statet.r.ui.editors.RPathCompletionComputer"
+            id="de.walware.statet.r.contentAssistComputers.PathCompletion">
+         <partition
+               partitionType="__r_string">
+         </partition>
+      </computer>
+      <category
+            id="r-elements"
+            name="%contentAssist_RCategory_name">
+      </category>
+      <computer
+            categoryId="r-elements"
+            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer"
+            id="de.walware.statet.r.contentAssistComputers.RCompletion">
+         <partition
+               partitionType="__r_default">
+         </partition>
+         <partition
+               partitionType="__r_symbol_quoted">
+         </partition>
+      </computer>
    </extension>
 
    <extension
@@ -241,6 +271,26 @@
             name="%templatesCategory.RdCodeTemplates.name"
             providerClass="de.walware.statet.r.internal.ui.preferences.RdCodeTemplatesProvider"/>
    </extension>
+
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+         name="de.walware.statet.r.ui.error"
+         super="org.eclipse.ui.workbench.texteditor.error"
+         markerSeverity="2">
+      </type>
+      <type
+         name="de.walware.statet.r.ui.warning"
+         super="org.eclipse.ui.workbench.texteditor.warning"
+         markerSeverity="1">
+      </type>
+      <type
+         name="de.walware.statet.r.ui.info"
+         super="org.eclipse.ui.workbench.texteditor.info"
+         markerSeverity="0">
+      </type>
+   </extension>
+
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
@@ -446,8 +496,7 @@
    </extension>
 
 
-   <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
+   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             category="org.eclipse.ui.externaltools"
             delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdLaunchDelegate"
@@ -457,16 +506,14 @@
             public="true">
       </launchConfigurationType>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             id="de.walware.statet.r.images.RCmdTool"
             configTypeID="de.walware.statet.r.launchConfigurationTypes.RCmdTool"
             icon="icons/tool_16/r-cmd.png">
       </launchConfigurationTypeImage>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
             class="de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdToolTabGroup"
             description="%launchConfigurations.RCmd_description"
@@ -475,8 +522,7 @@
             type="de.walware.statet.r.launchConfigurationTypes.RCmdTool"/>
    </extension>
 
-   <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
+   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleLaunchDelegate"
             id="de.walware.statet.r.launchConfigurationTypes.RConsole"
@@ -487,16 +533,14 @@
             sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
       </launchConfigurationType>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             id="de.walware.statet.r.images.RConsole"
             configTypeID="de.walware.statet.r.launchConfigurationTypes.RConsole"
             icon="icons/tool_16/r-console.png">
       </launchConfigurationTypeImage>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
             class="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleTabGroup"
             description="%launchConfigurations.RConsole_description"
@@ -504,8 +548,7 @@
             type="de.walware.statet.r.launchConfigurationTypes.RConsole"/>
    </extension>
 
-   <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
+   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
             delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RRemoteConsoleLaunchDelegate"
             id="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
@@ -514,16 +557,14 @@
             public="true">
       </launchConfigurationType>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             id="de.walware.statet.r.images.RRemoteConsole"
             configTypeID="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
             icon="icons/tool_16/r-remoteconsole.png">
       </launchConfigurationTypeImage>
    </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
             class="de.walware.statet.r.internal.debug.ui.launchconfigs.RRemoteConsoleTabGroup"
             description="%launchConfigurations.RRemoteConsole_description"
@@ -531,59 +572,95 @@
             type="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"/>
    </extension>
 
-   <extension-point
-         id="rCodeLaunchConnector"
+   <extension-point id="rConsoleContentAssistComputer"
+         name="Point to register categories and computers for content assist in R console"
+         schema="schema/rConsoleContentAssistComputer.exsd"/>
+
+   <extension-point id="rCodeLaunchConnector"
          name="Point to register Connectors which can launch r code"
          schema="schema/rCodeLaunchConnector.exsd"/>
-   <extension-point id="rCodeLaunchContentHandler" name="Content specific handling of code launching" schema="schema/rCodeLaunchContentHandler.exsd"/>
-   <extension
-         point="de.walware.statet.r.ui.rCodeLaunchContentHandler">
+   <extension-point id="rCodeLaunchContentHandler"
+         name="Content specific handling of code launching"
+         schema="schema/rCodeLaunchContentHandler.exsd"/>
+
+   <extension point="de.walware.statet.r.ui.rCodeLaunchContentHandler">
       <contentHandler
             contentTypeId="de.walware.statet.r.contentTypes.RData">
          <fileCommand
-               defaultCommand="load(&quot;${resource_loc}&quot;)">
+               defaultCommand="load(&quot;${resource_loc}&quot;)"
+               id="de.walware.statet.r.rFileCommand.LoadRData"
+               name="%rCodeLaunchHandler_LoadRData_label">
+         </fileCommand>
+      </contentHandler>
+      <contentHandler
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            handler="de.walware.statet.r.internal.debug.ui.launcher.DefaultCodeLaunchHandler">
+         <fileCommand
+               defaultCommand="source(&quot;${resource_loc}&quot;)"
+               id="de.walware.statet.r.rFileCommand.SourceRScript"
+               name="%rCodeLaunchHandler_SourceRScript_label">
          </fileCommand>
       </contentHandler>
    </extension>
-
    <extension
-         point="org.eclipse.debug.ui.launchShortcuts">
+         point="de.walware.statet.r.ui.rConsoleContentAssistComputer">
+      <category
+            id="paths"
+            name="%contentAssist_TemplateCategory_name">
+      </category>
+      <computer
+            categoryId="paths"
+            class="de.walware.statet.r.ui.editors.RPathCompletionComputer"
+            id="de.walware.statet.r.contentAssistComputers.PathCompletion">
+         <partition
+               partitionType="__r_string">
+         </partition>
+      </computer>
+   </extension>
+
+   <extension point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptViaSourceLaunchShortcut"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptViaSourceShortcut"
             icon="icons/tool_16/run-r-script-source.png"
-            id="de.walware.statet.r.launchShortcuts.RScriptViaSource"
+            id="de.walware.statet.r.launchShortcuts.SourceRScript"
             label="%launchShortcuts_RunRScriptViaSource_label"
             modes="run"
             path="statet/r/5">
          <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <or>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="org.eclipse.core.runtime.text">
-                     </test>
-                     <test
-                           forcePluginActivation="false"
-                           property="de.walware.statet.r.supportsFileCommand">
-                     </test></or>
+            <with
+                  variable="selection">
+               <count
+                     value="1">
+               </count>
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
                </iterate>
             </with>
          </enablement>
          <contextualLaunch>
             <enablement>
-                <with variable="selection">
-                   <count value="1"/>
-                   <iterate>
-                      <test
-                            forcePluginActivation="false"
-                            property="de.walware.statet.r.supportsFileCommand">
-                      </test>
-                   </iterate>
-                </with>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <test
+                           forcePluginActivation="true"
+                           property="de.walware.eclipsecommons.ltk.matchesContentType"
+                           value="de.walware.statet.r.contentTypes.R">
+                     </test>
+                  </iterate>
+               </with>
             </enablement>
             <contextLabel
                   label="%launchShortcuts_RunRScriptViaSource_label"
@@ -591,290 +668,13 @@
          </contextualLaunch>
       </shortcut>
       <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptViaSourceAndConsoleLaunchShortcut"
+            category="de.walware.statet.r.basic"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RDataViaLoadShortcut"
             icon="icons/tool_16/run-r-script-source.png"
-            id="de.walware.statet.r.launchShortcuts.RScriptViaSourceAndConsole"
-            label="%launchShortcuts_RunRScriptViaSourceAndGotoConsole_label"
+            id="de.walware.statet.r.launchShortcuts.LoadRData"
+            label="%launchShortcuts_RunRDataViaLoad_label"
             modes="run"
             path="statet/r/5">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <test
-                        forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                        value="org.eclipse.core.runtime.text">
-                  </test>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptDirectLaunchShortcut"
-            icon="icons/tool_16/run-r-script.png"
-            id="de.walware.statet.r.launchShortcuts.RScriptDirect"
-            label="%launchShortcuts_RunRScriptDirect_label"
-            modes="run"
-            path="statet/r/5">
-        <enablement>
-            <with variable="selection">
-              <count value="1"/>
-              <iterate>
-                 <test
-                       forcePluginActivation="true"
-                       property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                       value="org.eclipse.core.runtime.text">
-                 </test>
-               </iterate>
-            </with>
-         </enablement>
-         <contextualLaunch>
-            <enablement>
-               <with variable="selection">
-                  <count value="1"/>
-                  <iterate>
-                     <test
-                          forcePluginActivation="true"
-                          property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                          value="de.walware.statet.r.contentTypes.R">
-                     </test>
-                  </iterate>
-               </with>
-            </enablement>
-            <contextLabel
-                  label="%launchShortcuts_RunRScriptDirect_label"
-                  mode="run"/>
-         </contextualLaunch>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptDirectAndConsoleLaunchShortcut"
-            icon="icons/tool_16/run-r-script.png"
-            id="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole"
-            label="%launchShortcuts_RunRScriptDirectAndGotoConsole_label"
-            modes="run"
-            path="statet/r/5">
-        <enablement>
-            <with variable="selection">
-              <count value="1"/>
-              <iterate>
-                 <test
-                       forcePluginActivation="true"
-                       property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                       value="org.eclipse.core.runtime.text">
-                 </test>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectLaunchShortcut"
-            icon="icons/tool_16/run-r-selection.png"
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirect"
-            label="%launchShortcuts_RunRSelectionDirect_label"
-            modes="run"
-            path="statet/r/2">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="org.eclipse.core.runtime.text">
-                     </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-         <contextualLaunch>
-            <enablement>
-               <with variable="selection">
-                  <count value="1"/>
-                  <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                  <test
-                        forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                        value="de.walware.statet.r.contentTypes.R">
-                  </test>
-                  </and>
-                  </iterate>
-               </with>
-            </enablement>
-            <contextLabel
-                  label="%launchShortcuts_RunRSelectionDirect_label"
-                  mode="run"/>
-         </contextualLaunch>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectAndConsoleLaunchShortcut"
-            icon="icons/tool_16/run-r-selection.png"
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndConsole"
-            label="%launchShortcuts_RunRSelectionDirectAndGotoConsole_label"
-            modes="run"
-            path="statet/r/2">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                  <test
-                        property="de.walware.eclipsecommons.ltk.matchesContentType"
-                        value="org.eclipse.core.runtime.text"/>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectAndNextLineLaunchShortcut"
-            icon="icons/tool_16/run-r-selection.png"
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndNextLine"
-            label="%launchShortcuts_RunRSelectionDirectAndGotoNextLine_label"
-            modes="run"
-            path="statet/r/2">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="org.eclipse.core.runtime.text">
-                     </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RFunctionDirectLaunchShortcut"
-            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirect"
-            label="%launchShortcuts_RunRFunctionDirect_label"
-            modes="run"
-            path="statet/r">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.R">
-                     </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RFunctionDirectAndConsoleLaunchShortcut"
-            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirectAndConsole"
-            label="%launchShortcuts_RunRFunctionDirectAndGotoConsole_label"
-            modes="run"
-            path="statet/r">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.R">
-                     </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RCommandDirectLaunchShortcut"
-            id="de.walware.statet.r.launchShortcuts.REditorCommandDirect"
-            label="%launchShortcuts_RunRCommandDirect_label"
-            modes="run"
-            path="statet/r">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.R">
-                     </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RCommandDirectAndConsoleLaunchShortcut"
-            id="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndConsole"
-            label="%launchShortcuts_RunRCommandDirectAndGotoConsole_label"
-            modes="run"
-            path="statet/r">
-         <enablement>
-            <with variable="selection">
-               <count value="1"/>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.R">
-                     </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RCommandDirectAndNextLaunchShortcut"
-            id="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndNextCommand"
-            label="%launchShortcuts_RunRCommandDirectAndGotoNextCommand_label"
-            modes="run"
-            path="statet/r">
          <enablement>
             <with
                   variable="selection">
@@ -882,45 +682,13 @@
                      value="1">
                </count>
                <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
+                  <or>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.R">
+                           property="de.walware.eclipsecommons.de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           value="de.walware.statet.r.contentTypes.RData">
                      </test>
-                  </and>
-               </iterate>
-            </with>
-         </enablement>
-      </shortcut>
-      <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.debug.ui.launcher.RSelectionDirectAndPasteOutputLaunchShortcut"
-            icon="icons/tool_16/run-r-selection-paste.png"
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndPasteOutput"
-            label="%launchShortcuts_RunRSelectionDirectAndPasteOutput_label"
-            modes="run"
-            path="statet/r/8">
-         <enablement>
-            <with
-                  variable="selection">
-               <count
-                     value="1">
-               </count>
-               <iterate>
-                  <and>
-                     <instanceof
-                           value="org.eclipse.ui.IEditorInput">
-                     </instanceof>
-                     <test
-                           forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                           value="de.walware.statet.r.contentTypes.R">
-                     </test>
-                  </and>
+                  </or>
                </iterate>
             </with>
          </enablement>
@@ -932,24 +700,94 @@
                         value="1">
                   </count>
                   <iterate>
-                     <and>
-                        <instanceof
-                              value="org.eclipse.ui.IEditorInput">
-                        </instanceof>
-                        <test
-                              forcePluginActivation="true"
-                              property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
-                              value="de.walware.statet.r.contentTypes.R">
-                        </test>
-                     </and>
+                     <test
+                           forcePluginActivation="true"
+                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           value="de.walware.statet.r.contentTypes.RData">
+                     </test>
                   </iterate>
                </with>
             </enablement>
             <contextLabel
-                  label="%launchShortcuts_RunRSelectionDirectAndPasteOutput_label"
+                  label="%launchShortcuts_RunRDataViaLoad_label"
                   mode="run">
             </contextLabel>
          </contextualLaunch>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.basic"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptDirectLaunchShortcut"
+            icon="icons/tool_16/run-r-script.png"
+            id="de.walware.statet.r.launchShortcuts.RScriptDirect"
+            label="%launchShortcuts_RunRScriptDirect_label"
+            modes="run"
+            path="statet/r/5">
+         <enablement>
+            <with
+                  variable="selection">
+               <count
+                     value="1">
+               </count>
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </iterate>
+            </with>
+         </enablement>
+         <contextualLaunch>
+            <enablement>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <test
+                           forcePluginActivation="true"
+                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           value="de.walware.statet.r.contentTypes.R">
+                     </test>
+                  </iterate>
+               </with>
+            </enablement>
+            <contextLabel
+                  label="%launchShortcuts_RunRScriptDirect_label"
+                  mode="run">
+            </contextLabel>
+         </contextualLaunch>
+      </shortcut>
+      <shortcut
+            category="de.walware.statet.r.other"
+            class="de.walware.statet.r.internal.debug.ui.launcher.RScriptDirectAndConsoleLaunchShortcut"
+            icon="icons/tool_16/run-r-script.png"
+            id="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole"
+            label="%launchShortcuts_RunRScriptDirectAndGotoConsole_label"
+            modes="run"
+            path="statet/r/5">
+         <enablement>
+            <with
+                  variable="selection">
+               <count
+                     value="1">
+               </count>
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </iterate>
+            </with>
+         </enablement>
       </shortcut>
    </extension>
    <extension
@@ -957,13 +795,6 @@
       <actionSet
             id="de.walware.statet.r.actionSets.RToolbarSet"
             label="%actionSets.RToolbar.label">
-         <action
-               class="de.walware.statet.r.internal.debug.ui.launcher.RunRCodePulldownAction"
-               icon="icons/tool_16/run-r-script.png"
-               id="de.walware.statet.r.ui.actions.RunRCodePulldown"
-               label="%actions.RunRCode.label"
-               style="pulldown"
-               toolbarPath="statet.r"/>
       </actionSet>
    </extension>
    <extension
@@ -987,92 +818,431 @@
    </extension>
 
    <extension point="org.eclipse.ui.commands">
+      <!-- commands of launch shortcuts above -->
       <command
             id="de.walware.statet.r.launchShortcuts.RScriptViaSource.run"
-            name="%commands.RunRScriptViaSource.name"
-            categoryId="org.eclipse.debug.ui.category.run">
-      </command>
-      <command
-            id="de.walware.statet.r.launchShortcuts.RScriptViaSourceAndConsole.run"
-            name="%commands.RunRScriptViaSourceAndGotoConsole.name"
+            name="%commands_RunRScriptViaSource_name"
             categoryId="org.eclipse.debug.ui.category.run">
       </command>
       <command
             id="de.walware.statet.r.launchShortcuts.RScriptDirect.run"
-            name="%commands.RunRScriptDirect.name"
+            name="%commands_RunRScriptDirect_name"
             categoryId="org.eclipse.debug.ui.category.run">
       </command>
       <command
             id="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole.run"
-            name="%commands.RunRScriptDirectAndGotoConsole.name"
+            name="%commands_RunRScriptDirect_GotoConsole_name"
             categoryId="org.eclipse.debug.ui.category.run">
       </command>
-      <command
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirect.run"
-            name="%commands.RunRSelectionDirect.name"
-            categoryId="org.eclipse.debug.ui.category.run">
-      </command>
-      <command
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndConsole.run"
-            name="%commands.RunRSelectionDirectAndGotoConsole.name"
-            categoryId="org.eclipse.debug.ui.category.run">
-      </command>
-      <command
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndNextLine.run"
-            name="%commands.RunRSelectionDirectAndGotoNextLine.name"
-            categoryId="org.eclipse.debug.ui.category.run">
-      </command>
-      <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirect.run"
-            name="%commands.RunRFunctionDirect.name">
-      </command>
-      <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="de.walware.statet.r.launchShortcuts.REditorFunctionDirectAndConsole.run"
-            name="%commands.RunRFunctionDirectAndGotoConsole.name">
-      </command>
-      <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="de.walware.statet.r.launchShortcuts.REditorCommandDirect.run"
-            name="%commands.RunRCommandDirect.name">
-      </command>
-      <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndConsole.run"
-            name="%commands.RunRCommandDirectAndGotoConsole.name">
-      </command>
-      <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndNextCommand.run"
-            name="%commands.RunRCommandDirectAndGotoNextCommand.name">
-      </command>
-      <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndPasteOutput.run"
-            name="%commands.RunRSelectionDirectAndPasteOutput.name">
-      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
       <command
             categoryId="org.eclipse.debug.ui.category.run"
             defaultHandler="de.walware.statet.r.internal.debug.ui.GotoRConsole"
             id="de.walware.statet.r.commands.GotoRConsole"
-            name="%commands.GotoRConsole"/>
+            name="%commands_GotoRConsole_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunSelectionInR_description"
+            id="de.walware.statet.r.commands.RunSelectionInR"
+            name="%commands_RunSelectionInR_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunSelectionInR_GotoConsole_description"
+            id="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
+            name="%commands_RunSelectionInR_GotoConsole_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunSelectionInR_GotoNextLine_description"
+            id="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
+            name="%commands_RunSelectionInR_GotoNextLine_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunSelectionInR_PasteOutput_description"
+            id="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
+            name="%commands_RunSelectionInR_PasteOutput_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunFileInRViaCommand_Default_description"
+            id="de.walware.statet.r.commands.RunFileViaCommand"
+            name="%commands_RunFileInRViaCommand_Default_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunFileInRViaCommand_Default_GotoConsole_description"
+            id="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
+            name="%commands_RunFileInRViaCommand_Default_GotoConsole_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunEntireCommand_description"
+            id="de.walware.statet.r.commands.RunEntireCommand"
+            name="%commands_RunEntireCommand_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunEntireCommand_GotoConsole_description"
+            id="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
+            name="%commands_RunEntireCommand_GotoConsole_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunEntireCommand_GotoNextCommand_description"
+            id="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
+            name="%commands_RunEntireCommand_GotoNextCommand_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunFunctionDef_description"
+            id="de.walware.statet.r.commands.RunFunctionDef"
+            name="%commands_RunFunctionDef_name">
+      </command>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="%commands_RunFunctionDef_GotoConsole_description"
+            id="de.walware.statet.r.commands.RunFunctionDef_GotoConsole"
+            name="%commands_RunFunctionDef_GotoConsole_name">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="de.walware.statet.r.commands.RunSelectionInR"
+            icon="icons/tool_16/run-r-selection.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
+            icon="icons/tool_16/run-r-selection.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
+            icon="icons/tool_16/run-r-selection-next.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
+            icon="icons/tool_16/run-r-selection-paste.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunFileViaCommand"
+            icon="icons/tool_16/run-r-script-source.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
+            icon="icons/tool_16/run-r-script-source.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunEntireCommand"
+            icon="icons/tool_16/run-r-selection.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
+            icon="icons/tool_16/run-r-selection.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
+            icon="icons/tool_16/run-r-selection-next.png">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunSelectionHandler"
+            commandId="de.walware.statet.r.commands.RunSelectionInR">
+         <activeWhen>
+            <with variable="selection">
+               <or>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <instanceof
+                           value="de.walware.statet.r.core.model.IRLangElement">
+                     </instanceof>
+                  </iterate>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.eclipse.core.resources.IFile">
+                     </adapt></iterate>
+               </or>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunSelectionForTextHandler"
+            commandId="de.walware.statet.r.commands.RunSelectionInR">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <instanceof
+                     value="org.eclipse.jface.text.ITextSelection">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunSelectionAndGotoConsoleHandler"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole">
+         <activeWhen>
+            <with variable="selection">
+               <or>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <instanceof
+                           value="de.walware.statet.r.core.model.IRLangElement">
+                     </instanceof>
+                  </iterate>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <adapt
+                           type="org.eclipse.core.resources.IFile">
+                     </adapt>
+                  </iterate>
+               </or>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunSelectionAndGotoConsoleForTextHandler"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <instanceof
+                     value="org.eclipse.jface.text.ITextSelection">
+               </instanceof>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunSelectionAndGotoNextLineHandler"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine">
+         <activeWhen>
+            <with
+                  variable="selection">
+               <instanceof
+                     value="org.eclipse.jface.text.ITextSelection">
+               </instanceof>
+            </with></activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunSelectionAndPasteOutputHandler"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_PasteOutput">
+         <activeWhen>
+            <and>
+               <with
+                     variable="selection">
+                  <instanceof
+                        value="org.eclipse.jface.text.ITextSelection">
+                  </instanceof>
+               </with>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="de.walware.statet.base.ui.sourceeditors.StatextEditor1">
+                  </instanceof>
+               </with>
+               
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunFileViaCommandHandler"
+            commandId="de.walware.statet.r.commands.RunFileViaCommand">
+         <activeWhen>
+            <or>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <or>
+                        <test
+                              forcePluginActivation="true"
+                              property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                              value="org.eclipse.core.runtime.text">
+                        </test>
+                        <test
+                              property="de.walware.statet.r.supportsFileCommand">
+                        </test>
+                     </or>
+                  </iterate>
+               </with>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.IEditorPart">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="org.eclipse.core.runtime.text">
+                  </test>
+               </with>
+            </or>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunFileViaCommandAndGotoConsoleHandler"
+            commandId="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole">
+         <activeWhen>
+            <or>
+               <with
+                     variable="selection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate
+                        ifEmpty="false"
+                        operator="and">
+                     <or>
+                        <test
+                              forcePluginActivation="true"
+                              property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                              value="org.eclipse.core.runtime.text">
+                        </test>
+                        <test
+                              property="de.walware.statet.r.supportsFileCommand">
+                        </test>
+                     </or>
+                  </iterate>
+               </with>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.IEditorPart">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="org.eclipse.core.runtime.text">
+                  </test>
+               </with>
+            </or>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunEntireCommandHandler"
+            commandId="de.walware.statet.r.commands.RunEntireCommand">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.texteditor.ITextEditor">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunEntireCommandAndGotoConsoleHandler"
+            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.texteditor.ITextEditor">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunEntireCommandAndGotoNextCommandHandler"
+            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.texteditor.ITextEditor">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunFunctionDefHandler"
+            commandId="de.walware.statet.r.commands.RunFunctionDef">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.texteditor.ITextEditor">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.debug.ui.launcher.RunFunctionDefAndGotoConsoleHandler"
+            commandId="de.walware.statet.r.commands.RunFunctionDef_GotoConsole">
+         <activeWhen>
+            <and>
+               <with
+                     variable="activePart">
+                  <instanceof
+                        value="org.eclipse.ui.texteditor.ITextEditor">
+                  </instanceof>
+                  <test
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        value="de.walware.statet.r.contentTypes.R">
+                  </test>
+               </with>
+            </and>
+         </activeWhen>
+      </handler>
    </extension>
 
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="de.walware.statet.r.launchShortcuts.RScriptViaSource.run"
+            commandId="de.walware.statet.r.commands.RunFileViaCommand"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M2+M3+X R"/>
        <key
-            commandId="de.walware.statet.r.launchShortcuts.RScriptViaSource.run"
+            commandId="de.walware.statet.r.commands.RunFileViaCommand"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+S"/>
      <key
-            commandId="de.walware.statet.r.launchShortcuts.RScriptViaSourceAndConsole.run"
+            commandId="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R S"/>
@@ -1083,54 +1253,54 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+D"/>
       <key
+            commandId="de.walware.statet.r.commands.RunEntireCommand"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+E"/>
+      <key
+            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R E"/>
+      <key
+            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+3">
+      </key>
+      <key
+            commandId="de.walware.statet.r.commands.RunFunctionDef"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R M1+F"/>
+      <key
+            commandId="de.walware.statet.r.commands.RunFunctionDef_GotoConsole"
+            contextId="de.walware.statet.r.contexts.REditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R F"/>
+      <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole.run"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R D"/>
 
       <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirect.run"
+            commandId="de.walware.statet.r.commands.RunSelectionInR"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+R"/>
       <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndConsole.run"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R R"/>
       <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndNextLine.run"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+4"/>
       <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorFunctionDirect.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+F"/>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorFunctionDirectAndConsole.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R F"/>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorCommandDirect.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+E"/>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndConsole.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R E"/>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorCommandDirectAndNextCommand.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+3">
-      </key>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.REditorSelectionDirectAndPasteOutput.run"
+            commandId="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
             contextId="de.walware.statet.r.contexts.REditorScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+V">
@@ -1141,6 +1311,53 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R C">
       </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="de.walware.statet.r.menus.RunToolbar">
+            <separator
+                  name="begin"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="de.walware.statet.r.commands.RunSelectionInR"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeContexts">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="de.walware.statet.r.actionSets.RToolbarSet">
+                        </equals>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeContexts">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="de.walware.statet.r.actionSets.RToolbarSet">
+                        </equals>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+         </toolbar>
+      </menuContribution>
    </extension>
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">

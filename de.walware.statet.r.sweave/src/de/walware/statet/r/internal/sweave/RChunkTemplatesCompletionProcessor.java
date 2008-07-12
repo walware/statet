@@ -20,9 +20,10 @@ import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.swt.graphics.Image;
 
+import de.walware.eclipsecommons.ui.text.sourceediting.TemplateProposal;
+import de.walware.eclipsecommons.ui.text.sourceediting.TemplateProposal.TemplateComparator;
+
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.ext.templates.StatextTemplateProposal;
-import de.walware.statet.ext.templates.StatextTemplateProposal.TemplateComparator;
 
 import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.templates.REditorContext;
@@ -31,7 +32,7 @@ import de.walware.statet.r.ui.editors.templates.REditorContext;
 public class RChunkTemplatesCompletionProcessor extends TemplateCompletionProcessor {
 	
 	
-	private static final TemplateComparator fgTemplateComparator = new StatextTemplateProposal.TemplateComparator();
+	private static final TemplateComparator fgTemplateComparator = new TemplateProposal.TemplateComparator();
 	
 	
 	private TemplateStore fTemplateStore;
@@ -44,6 +45,7 @@ public class RChunkTemplatesCompletionProcessor extends TemplateCompletionProces
 		fTypeRegistry = SweavePlugin.getDefault().getRweaveTexGenerationTemplateContextRegistry();
 		fEditor = editor;
 	}
+	
 	
 	@Override
 	public char[] getCompletionProposalAutoActivationCharacters() {
@@ -84,7 +86,7 @@ public class RChunkTemplatesCompletionProcessor extends TemplateCompletionProces
 	private void doComputeProposals(final List<ICompletionProposal> matches, final REditorContext context, final String prefix, final IRegion replacementRegion) {
 		// Add Templates
 		final Template[] templates = getTemplates(context.getContextType().getId());
-		final List<StatextTemplateProposal> templateMatches = new ArrayList<StatextTemplateProposal>();
+		final List<TemplateProposal> templateMatches = new ArrayList<TemplateProposal>();
 		for (int i = 0; i < templates.length; i++) {
 			final Template template = templates[i];
 			try {
@@ -152,8 +154,8 @@ public class RChunkTemplatesCompletionProcessor extends TemplateCompletionProces
 	}
 	
 	@Override
-	protected StatextTemplateProposal createProposal(final Template template, final TemplateContext context, final IRegion region, final int relevance) {
-		return new StatextTemplateProposal(template, context, region, getImage(template), relevance);
+	protected TemplateProposal createProposal(final Template template, final TemplateContext context, final IRegion region, final int relevance) {
+		return new TemplateProposal(template, context, region, getImage(template), relevance);
 	}
 	
 }

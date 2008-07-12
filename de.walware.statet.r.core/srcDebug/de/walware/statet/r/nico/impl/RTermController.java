@@ -411,7 +411,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 					Thread.interrupted();
 				}
 			}
-			return Pattern.compile("(?:"+Pattern.quote(getWorkspaceData().getDefaultPrompt().text) + ")?"+stamp);
+			return Pattern.compile("(?:"+Pattern.quote(getWorkspaceData().getDefaultPrompt().text) + ")?"+stamp); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		finally {
 			fDefaultOutputStream.removeListener(listener);

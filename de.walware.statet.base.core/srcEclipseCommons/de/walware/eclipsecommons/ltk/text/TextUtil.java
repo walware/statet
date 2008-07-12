@@ -14,6 +14,8 @@ package de.walware.eclipsecommons.ltk.text;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -27,20 +29,41 @@ public class TextUtil {
 	
 	public static final Pattern LINE_DELIMITER_PATTERN = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
-	private static final IScopeContext[] PLATFORM_SCOPES = new IScopeContext[] { new InstanceScope() };
+	private static final IScopeContext PLATFORM_SCOPE = new InstanceScope();
 	
 	
 	/**
-	 * Returns the default line delimiter of the Eclipse platform (workbench).
+	 * Returns the default line delimiter of the Eclipse platform (workbench)
 	 * 
 	 * @return the line delimiter string
 	 */
 	public static final String getPlatformLineDelimiter() {
-		final String lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, PLATFORM_SCOPES);
+		final String lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null,
+				new IScopeContext[] { PLATFORM_SCOPE });
 		if (lineDelimiter != null) {
 			return lineDelimiter;
 		}
 		return System.getProperty("line.separator"); //$NON-NLS-1$
+	}
+	
+	/**
+	 * Returns the default line delimiter for the specified project
+	 * 
+	 * If it cannot find a project specific setting, it returns the
+	 * {@link #getPlatformLineDelimiter()}
+	 * 
+	 * @param project the project handle, may be <code>null</code>
+	 * @return the line delimiter string
+	 */
+	public static String getLineDelimiter(final IProject project) {
+		if (project != null) {
+			final String lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null,
+					new IScopeContext[] { new ProjectScope(project.getProject()), PLATFORM_SCOPE });
+			if (lineSeparator != null) {
+				return lineSeparator;
+			}
+		}
+		return getPlatformLineDelimiter();
 	}
 	
 	/**

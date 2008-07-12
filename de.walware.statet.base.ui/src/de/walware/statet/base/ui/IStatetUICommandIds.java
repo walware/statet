@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,13 @@ package de.walware.statet.base.ui;
  */
 public interface IStatetUICommandIds {
 	
+	
+	/**
+	 * Action definition ID of the 'edit' &gt; 'copy (qualified) (element) name' action
+	 * 
+	 * Value: @value
+	 */
+	public static final String COPY_ELEMENT_NAME = 		"de.walware.statet.base.commands.CopyElementName"; //$NON-NLS-1$
 	
 	/**
 	 * Action definition ID of the edit -> select enclosing action

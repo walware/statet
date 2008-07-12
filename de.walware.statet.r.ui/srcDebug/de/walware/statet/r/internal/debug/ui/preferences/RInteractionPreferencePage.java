@@ -11,13 +11,12 @@
 
 package de.walware.statet.r.internal.debug.ui.preferences;
 
-import static de.walware.statet.r.launching.RCodeLaunchRegistry.PREF_R_CONNECTOR;
+import static de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.PREF_R_CONNECTOR;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -51,9 +50,9 @@ import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
+import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
+import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.launching.RCodeLaunchRegistry;
-import de.walware.statet.r.launching.RCodeLaunchRegistry.ContentHandler;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
 
@@ -80,7 +79,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	private Combo fConnectorsSelector;
 	private Link fConnectorsDescription;
 	
-	private ContentHandler[] fContentHandler;
+	private FileCommand[] fFileCommands;
 	private SnippetEditor[] fCommandEditors;
 	
 	
@@ -175,31 +174,27 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	private Composite createHandlerComponent(final Composite parent) {
-		fContentHandler = RCodeLaunchRegistry.getAvailableContentHandler();
+		fFileCommands = RCodeLaunchRegistry.getAvailableFileCommands();
 		final IContentTypeManager manager = Platform.getContentTypeManager();
 		
 		final Group group = new Group(parent, SWT.NONE);
-		group.setText("&File Commands:");
+		group.setText(Messages.RInteraction_FileCommands_label);
 		final GridLayout layout = LayoutUtil.applyGroupDefaults(new GridLayout(), 2);
 		layout.verticalSpacing = 3;
 		group.setLayout(layout);
-		fCommandEditors = new SnippetEditor[fContentHandler.length];
+		fCommandEditors = new SnippetEditor[fFileCommands.length];
 		
 		final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
 		// templateVariableProcessor does not work without context type, but prevents NPE etc. by use of RTemplateSourceViewerConfiguration
 		// templateVariableProcessor.setContextType(contextType);
 		
-		for (int i = 0; i < fContentHandler.length; i++) {
-			final IContentType contentType = manager.getContentType(fContentHandler[i].getContentTypeId());
-			if (contentType == null) {
-				continue;
-			}
+		for (int i = 0; i < fFileCommands.length; i++) {
 			final Label label = new Label(group, SWT.NONE);
-			label.setText(contentType.getName() + ":"); //$NON-NLS-1$
+			label.setText(fFileCommands[i].getLabel() + ":"); //$NON-NLS-1$
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
-			fCommandEditors[i] = new SnippetEditor(configurator, fContentHandler[i].getCurrentFileCommand(), PlatformUI.getWorkbench());
+			fCommandEditors[i] = new SnippetEditor(configurator, fFileCommands[i].getCurrentCommand(), PlatformUI.getWorkbench());
 			fCommandEditors[i].create(group, SnippetEditor.DEFAULT_SINGLE_LINE_STYLE);
 			fCommandEditors[i].getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
@@ -234,11 +229,11 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private void saveHandlerConfig(final boolean save) {
 		final IEclipsePreferences node = new InstanceScope().getNode(RDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER);
-		for (int i = 0; i < fContentHandler.length; i++) {
+		for (int i = 0; i < fFileCommands.length; i++) {
 			if (fCommandEditors[i] != null) {
-				final String key = fContentHandler[i].getContentTypeId()+":command"; //$NON-NLS-1$
+				final String key = fFileCommands[i].getId()+":command"; //$NON-NLS-1$
 				final String command = fCommandEditors[i].getDocument().get();
-				if (command == null || command.length() == 0 || command.equals(fContentHandler[i].getDefaultFileCommand())) {
+				if (command == null || command.length() == 0 || command.equals(fFileCommands[i].getDefaultCommand())) {
 					node.remove(key);
 				}
 				else {
@@ -257,9 +252,9 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	
 	@Override
 	public void performDefaults() {
-		for (int i = 0; i < fContentHandler.length; i++) {
+		for (int i = 0; i < fFileCommands.length; i++) {
 			if (fCommandEditors[i] != null) {
-				fCommandEditors[i].getDocument().set(fContentHandler[i].getDefaultFileCommand());
+				fCommandEditors[i].getDocument().set(fFileCommands[i].getDefaultCommand());
 				fCommandEditors[i].reset();
 			}
 		}

@@ -17,8 +17,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
@@ -71,6 +73,7 @@ import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
 import de.walware.eclipsecommons.ui.preferences.OverlayStorePreference;
 import de.walware.eclipsecommons.ui.preferences.PreferenceStoreBeanWrapper;
 import de.walware.eclipsecommons.ui.preferences.RGBPref;
+import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
@@ -81,7 +84,6 @@ import de.walware.eclipsecommons.ui.util.ViewerUtil.Node;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.internal.ui.preferences.Messages;
-import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxNode.UseStyle;
@@ -285,22 +287,22 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		
 		private String getUseKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_USE_SUFFIX;
+			return fRootKey + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX;
 		}
 		private String getColorKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_COLOR_SUFFIX;
+			return fRootKey + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX;
 		}
 		private String getBoldKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_BOLD_SUFFIX;
+			return fRootKey + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX;
 		}
 		private String getItalicKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_ITALIC_SUFFIX;
+			return fRootKey + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX;
 		}
 		private String getUnderlineKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_UNDERLINE_SUFFIX;
+			return fRootKey + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX;
 		}
 		private String getStrikethroughKey() {
-			return fRootKey + IStatetUIPreferenceConstants.TS_STRIKETHROUGH_SUFFIX;
+			return fRootKey + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX;
 		}
 		
 		protected void gatherPreferenceKeys(final List<OverlayStorePreference> keys) {
@@ -719,7 +721,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	@Override
 	protected void handlePropertyChange() {
 		if (UIAccess.isOkToUse(fPreviewViewer)) {
-			fConfiguration.handleSettingsChanged(fGroupIds, null);
+			final Map<String, Object> options = new HashMap<String, Object>();
+			fConfiguration.handleSettingsChanged(fGroupIds, options);
 			fPreviewViewer.invalidateTextPresentation();
 		}
 	}

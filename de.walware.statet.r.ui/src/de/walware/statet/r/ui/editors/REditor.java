@@ -39,6 +39,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -50,25 +52,28 @@ import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 import de.walware.eclipsecommons.ltk.ast.AstSelection;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
 import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
+import de.walware.eclipsecommons.ltk.ui.LTKInputData;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.EditorMessages;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
+import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -76,13 +81,15 @@ import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RDoubleCommentAction;
 import de.walware.statet.r.internal.ui.editors.REditorTemplatesPage;
+import de.walware.statet.r.internal.ui.editors.ROutlinePage;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
+import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUIHelp;
 
 
 public class REditor extends StatextEditor1<RProject> {
 	
-	public static IRCoreAccess getRCoreAccess(final StatextEditor1 editor) {
+	public static IRCoreAccess getRCoreAccess(final ISourceEditor editor) {
 		final IRCoreAccess adapter = (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
 		return (adapter != null) ? adapter : RCore.getWorkbenchAccess();
 	}
@@ -112,12 +119,12 @@ public class REditor extends StatextEditor1<RProject> {
 		
 		public void install(final IEditorAdapter editor) {
 			fIsMarkEnabled = true;
-			fModelPostSelection.addListener(this);
+			addPostSelectionWithElementInfoListener(this);
 		}
 		
 		public void uninstall() {
 			fIsMarkEnabled = false;
-			fModelPostSelection.remove(this);
+			removePostSelectionWithElementInfoListener(this);
 			removeAnnotations();
 		}
 		
@@ -126,8 +133,8 @@ public class REditor extends StatextEditor1<RProject> {
 			fLastRun = null;
 		}
 		
-		public void stateChanged(final StateData state) {
-			final boolean ok = update((IRSourceUnit) state.getInputElement(), state.getAstSelection(), state.getLastSelection());
+		public void stateChanged(final LTKInputData state) {
+			final boolean ok = update((IRSourceUnit) state.getInputElement(), state.getAstSelection(), state.getSelection());
 			if (!ok && state.isStillValid()) {
 				removeAnnotations();
 			}
@@ -141,7 +148,7 @@ public class REditor extends StatextEditor1<RProject> {
 				return false;
 			}
 			try {
-				final ISourceUnitModelInfo info = inputElement.getModelInfo("r", IModelManager.NONE, new NullProgressMonitor());
+				final ISourceUnitModelInfo info = inputElement.getModelInfo(RModel.TYPE_ID, IModelManager.NONE, new NullProgressMonitor());
 				if (getSourceUnit() != inputElement || info == null || astSelection == null) {
 					return false;
 				}
@@ -191,7 +198,7 @@ public class REditor extends StatextEditor1<RProject> {
 				}
 				run.range = new Point(nameNode.getOffset(), nameNode.getStopOffset());
 				if (isValid(run)) {
-					run.name = new String[] { access.getName() };
+					run.name = new String[] { access.getSegmentName() };
 					final IElementAccess[] accessList = access.getAllInUnit();
 					final Map<Annotation, Position> annotations = new LinkedHashMap<Annotation, Position>(accessList.length);
 					for (int i = 0; i < accessList.length; i++) {
@@ -203,7 +210,7 @@ public class REditor extends StatextEditor1<RProject> {
 					}
 					return annotations;
 				}
-				access = access.getSubElementAccess();
+				access = access.getNextSegment();
 			}
 			return null;
 		}
@@ -353,21 +360,6 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected Point getRangeToHighlight(final AstSelection element) {
-		final IAstNode covering = element.getCovering();
-		if (covering instanceof RAstNode) {
-			RAstNode node = (RAstNode) covering;
-			while (node != null) {
-				if (node.getNodeType() == NodeType.F_DEF) {
-					return new Point(node.getOffset(), node.getLength());
-				}
-				node = node.getRParent();
-			}
-		}
-		return null;
-	}
-	
-	@Override
 	public void dispose() {
 		if (fModelProvider != null) {
 			fModelProvider.dispose();
@@ -446,11 +438,11 @@ public class REditor extends StatextEditor1<RProject> {
 		action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
 		setAction("ContentAssistProposal", action); //$NON-NLS-1$
 		
-		action = new InsertAssignmentAction((IEditorAdapter) getAdapter(IEditorAdapter.class));
+		action = new InsertAssignmentAction(this);
 		setAction(action.getId(), action);
 		markAsContentDependentAction(action.getId(), true);
 		
-		action = new RDoubleCommentAction((IEditorAdapter) getAdapter(IEditorAdapter.class), getRCoreAccess());
+		action = new RDoubleCommentAction(this, getRCoreAccess());
 		setAction(action.getId(), action);
 		markAsContentDependentAction(action.getId(), true);
 	}
@@ -461,11 +453,16 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected void editorContextMenuAboutToShow(final IMenuManager menu) {
-		super.editorContextMenuAboutToShow(menu);
+	protected void editorContextMenuAboutToShow(final IMenuManager m) {
+		super.editorContextMenuAboutToShow(m);
 		
-		menu.remove(ITextEditorActionConstants.SHIFT_RIGHT);
-		menu.remove(ITextEditorActionConstants.SHIFT_LEFT);
+		m.remove(ITextEditorActionConstants.SHIFT_RIGHT);
+		m.remove(ITextEditorActionConstants.SHIFT_LEFT);
+		
+		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, new CommandContributionItem(new CommandContributionItemParameter(
+				getSite(), null, RCodeLaunching.RUN_SELECTION_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
+		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, new CommandContributionItem(new CommandContributionItemParameter(
+				getSite(), null, RCodeLaunching.RUN_SELECTION_PASTEOUTPUT_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
 	}
 	
 	
@@ -487,6 +484,11 @@ public class REditor extends StatextEditor1<RProject> {
 			return getRCoreAccess();
 		}
 		return super.getAdapter(required);
+	}
+	
+	@Override
+	protected StatextOutlinePage1 createOutlinePage() {
+		return new ROutlinePage(this);
 	}
 	
 	@Override

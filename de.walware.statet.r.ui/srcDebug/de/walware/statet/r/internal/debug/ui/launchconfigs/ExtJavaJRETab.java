@@ -196,7 +196,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 			try {
 				getLaunchConfigurationDialog().run(true, true, new IRunnableWithProgress() {
 					public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						final String[] propertyNames = new String[] { "java.vm.name", "sun.arch.data.model", "com.ibm.vm.bitmode" }; //$NON-NLS-1$ //$NON-NLS-2$
+						final String[] propertyNames = new String[] { "java.vm.name", "sun.arch.data.model", "com.ibm.vm.bitmode" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						try {
 							final Map<String, String> properties = ((IVMInstall3) fLastCheckedVM).evaluateSystemProperties(propertyNames, monitor);
 							

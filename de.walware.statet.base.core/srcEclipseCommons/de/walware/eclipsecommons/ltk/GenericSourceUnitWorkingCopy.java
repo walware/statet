@@ -11,6 +11,8 @@
 
 package de.walware.eclipsecommons.ltk;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -52,7 +54,21 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getElementName() {
+	public String getModelTypeId() {
+		return fFrom.getModelTypeId();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getElementType() {
+		return fFrom.getElementType();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public IElementName getElementName() {
 		return fFrom.getElementName();
 	}
 	
@@ -66,8 +82,15 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getModelTypeId() {
-		return fFrom.getModelTypeId();
+	public boolean exists() {
+		return fCounter > 0;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isReadOnly() {
+		return false;
 	}
 	
 	/**
@@ -123,8 +146,8 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public IModelElement[] getChildren(final Filter filter) {
-		return new IModelElement[0];
+	public List<? extends IModelElement> getChildren(final Filter filter) {
+		return NO_CHILDREN;
 	}
 	
 	/**

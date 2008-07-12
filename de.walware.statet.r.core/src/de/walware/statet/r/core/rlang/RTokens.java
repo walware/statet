@@ -86,27 +86,27 @@ public class RTokens {
 		}
 	}
 	
-	public static boolean isSeparator(int c) {
+	public static boolean isSeparator(final int c) {
 		return (c < 0   // EOF
 				|| (c <= 127 && SEPARATOR_MAP[c]) );
 	}
 	
-	public static boolean isRobustSeparator(int c, boolean isDotSeparator) {
+	public static boolean isRobustSeparator(final int c, final boolean isDotSeparator) {
 		return ( (c == '.')? isDotSeparator :
-				(!Character.isLetter(c) && c != '_' && !isDigit(c)) );
+				(!Character.isLetterOrDigit(c) && c != '_') );
 	}
 	
-	public static boolean isDigit(int c) {
+	public static boolean isDigit(final int c) {
 		return (c >= 0x30 && c <= 0x39);
 	}
 	
-	public static boolean isHexDigit(int c) {
+	public static boolean isHexDigit(final int c) {
 		return ( c >= 0x30 && (c <= 0x39 || 		// 0-9
 				(c >= 0x41 && (c <= 0x46 ||			// A-F
 				(c >= 0x61 && c <= 0x66) ))));		// a-f
 	}
 	
-	public static boolean isWhitespace(int c) {
+	public static boolean isWhitespace(final int c) {
 		return (c == WHITESPACE_CHARS[0] || c == WHITESPACE_CHARS[1]);
 	}
 	

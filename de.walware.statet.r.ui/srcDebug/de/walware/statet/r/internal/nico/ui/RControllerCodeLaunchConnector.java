@@ -46,7 +46,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 		final AtomicReference<Boolean> success = new AtomicReference<Boolean>(Boolean.FALSE);
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			public void run() throws CoreException {
-				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
+				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 				final ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
 				final ToolController controller = NicoUITools.accessTool("R", info.getProcess()); //$NON-NLS-1$
 				final IStatus status = controller.submit(rCommands, SubmitType.EDITOR);
@@ -77,7 +77,7 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 			if (part != null) {
 				final IEditorStatusLine statusLine = (IEditorStatusLine) part.getAdapter(IEditorStatusLine.class);
 				if (statusLine != null) {
-					statusLine.setMessage(true, RLaunchingMessages.Run_error_NoRSession_message, null);
+					statusLine.setMessage(true, RLaunchingMessages.RunCode_error_NoRSession_message, null);
 				}
 			}
 			Display.getCurrent().beep();

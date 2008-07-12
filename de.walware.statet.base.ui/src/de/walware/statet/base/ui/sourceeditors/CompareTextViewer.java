@@ -20,7 +20,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.statet.base.ui.util.SettingsUpdater;
 import de.walware.statet.ext.ui.dialogs.SnippetEditor;
@@ -37,10 +36,6 @@ public class CompareTextViewer extends Viewer {
 		
 		public SourceViewer getSourceViewer() {
 			return fSourceViewer;
-		}
-		
-		public IWorkbenchPart getWorkbenchPart() {
-			return null;
 		}
 		
 		public void install(final IEditorInstallable installable) {

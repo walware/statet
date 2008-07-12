@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.osgi.util.NLS;
 
 import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.ICommonStatusConstants;
@@ -35,6 +36,9 @@ import de.walware.statet.base.core.StatetCore;
  * impl for {@link EFS} / {@link IFileStore}
  */
 public class EFSUtilImpl extends FileUtil {
+	
+	
+	private static final String LABEL_2_LOCALFILE = "' ("+Messages.FileType_Local_name+")"; //$NON-NLS-1$ //$NON-NLS-2$
 	
 	
 	private IFileStore fFile;
@@ -49,9 +53,9 @@ public class EFSUtilImpl extends FileUtil {
 	public String getFileLabel() {
 		final IFileSystem system = fFile.getFileSystem();
 		if (system.equals(EFS.getLocalFileSystem())) {
-			return "'"+fFile.toString()+"' (local file)";
+			return "'"+fFile.toString()+LABEL_2_LOCALFILE; //$NON-NLS-1$
 		}
-		return "'"+fFile.toURI().toString()+"'";
+		return "'"+fFile.toURI().toString()+"'"; //$NON-NLS-1$ //$NON-NLS-2$
 	
 	}
 	
@@ -95,7 +99,7 @@ public class EFSUtilImpl extends FileUtil {
 					final boolean exists = fFile.fetchInfo(EFS.NONE, new SubProgressMonitor(monitor, 5)).exists();
 					if (exists && (fMode & (EFS.OVERWRITE | EFS.APPEND)) == 0) {
 						throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
-								"The file already exists.", null));
+								NLS.bind(Messages.Resource_error_AlreadyExists_message, " "+getFileLabel()+" "), null)); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					if (exists && (fMode & EFS.APPEND) != 0 && !fForceCharset) {
 						try {

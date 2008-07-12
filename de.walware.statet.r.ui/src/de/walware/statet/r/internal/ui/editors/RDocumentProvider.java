@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
+import java.util.List;
+
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -42,6 +44,7 @@ import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
@@ -130,11 +133,11 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 				RCore.getRModelManger().refresh(StatetCore.EDITOR_CONTEXT);
 			}
 			else {
-				final ISourceUnit[] units = RCore.getRModelManger().getWorkingCopies(StatetCore.EDITOR_CONTEXT);
-				for (final ISourceUnit u : units) {
-					final IAnnotationModel model = getAnnotationModel(u);
+				final List<? extends ISourceUnit> sus = RCore.getRModelManger().getWorkingCopies(StatetCore.EDITOR_CONTEXT);
+				for (final ISourceUnit su : sus) {
+					final IAnnotationModel model = getAnnotationModel(su);
 					if (model instanceof RAnnotationModel) {
-						((RAnnotationModel) model).clearProblems("r"); //$NON-NLS-1$
+						((RAnnotationModel) model).clearProblems(RModel.TYPE_ID);
 					}
 				}
 			}
@@ -202,8 +205,8 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 			final IProgressMonitor monitor = getProgressMonitor();
 			final SubMonitor progress = SubMonitor.convert(monitor, 2);
 			try {
-				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, "r", true, progress.newChild(1)); //$NON-NLS-1$
-				rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(pUnit, "r", true, progress.newChild(1)); //$NON-NLS-1$
+				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, RModel.TYPE_ID, true, progress.newChild(1));
+				rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(pUnit, RModel.TYPE_ID, true, progress.newChild(1));
 			}
 			finally {
 				if (monitor != null) {

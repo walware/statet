@@ -57,7 +57,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 	final static String EDIT = "edit"; //$NON-NLS-1$
 	
 	
-	private class ConfigMenu extends ContributionItem implements MenuListener, SelectionListener {
+	private class ProfileContribution extends ContributionItem implements MenuListener, SelectionListener {
 		
 		private MenuItem fMenuItem;
 		private Menu fMenu;
@@ -67,10 +67,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		private ILaunchConfiguration fConfig;
 		
 		
-		/**
-		 * 
-		 */
-		public ConfigMenu(final ILaunchConfiguration config, final int num) {
+		public ProfileContribution(final ILaunchConfiguration config, final int num) {
 			super();
 			
 			fNum = num;
@@ -298,7 +295,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		
 	}
 	
-	private class ConfigContributionItem extends ContributionItem implements SelectionListener {
+	private class ConfigureContribution extends ContributionItem implements SelectionListener {
 		
 		private MenuItem fMenuItem;
 		
@@ -364,9 +361,9 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		int accelerator = 1;
 		int i = 0;
 		for (; i < configs.length; i++) {
-			items[i] = new ConfigMenu(configs[i], accelerator++);
+			items[i] = new ProfileContribution(configs[i], accelerator++);
 		}
-		items[i++] = new ConfigContributionItem();
+		items[i++] = new ConfigureContribution();
 		return items;
 	}
 	

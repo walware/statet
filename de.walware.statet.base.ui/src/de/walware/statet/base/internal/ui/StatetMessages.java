@@ -17,7 +17,6 @@ import org.eclipse.osgi.util.NLS;
 public class StatetMessages extends NLS {
 	
 	
-	public static String ErrorDialog_title;
 	public static String InternalError_UnexpectedException;
 	
 	public static String TaskPriority_High;
@@ -50,6 +49,9 @@ public class StatetMessages extends NLS {
 	public static String CodeFolding_ExpandAll_mnemonic;
 	public static String CodeFolding_CollapseAll_label;
 	public static String CodeFolding_CollapseAll_mnemonic;
+	
+	public static String SyncWithEditor_label;
+	public static String SelectSourceCode_label;
 	
 	
 	static {

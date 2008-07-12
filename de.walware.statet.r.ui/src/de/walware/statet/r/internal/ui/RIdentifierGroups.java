@@ -19,7 +19,7 @@ import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.Preference;
 import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
 
-import de.walware.statet.r.core.RNamesComparator;
+import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 
@@ -55,7 +55,7 @@ public class RIdentifierGroups extends AbstractPreferencesModelObject {
 	
 	@Override
 	public void load(IPreferenceAccess prefs) {
-		RNamesComparator comparator = new RNamesComparator();
+		RSymbolComparator comparator = new RSymbolComparator();
 		fIdentifiersItemsAssignment = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS);
 		Arrays.sort(fIdentifiersItemsAssignment, comparator);
 		fIdentifiersItemsLogical = loadValues(prefs, RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS);

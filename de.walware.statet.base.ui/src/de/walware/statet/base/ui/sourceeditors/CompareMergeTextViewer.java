@@ -26,7 +26,6 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.statet.base.ui.util.SettingsUpdater;
 
@@ -56,10 +55,6 @@ public abstract class CompareMergeTextViewer extends TextMergeViewer {
 		
 		public SourceViewer getSourceViewer() {
 			return fEditorViewer;
-		}
-		
-		public IWorkbenchPart getWorkbenchPart() {
-			return null;
 		}
 		
 		public void install(final IEditorInstallable installable) {

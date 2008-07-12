@@ -262,7 +262,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			if (loc != null && loc.length() > 0) {
 				if (EFS.getLocalFileSystem().getStore(
 						new Path(loc)).fetchInfo().exists()) {
-					return new String[] { loc, "System Default (R_HOME)" };
+					return new String[] { loc, Messages.REnv_SystemRHome_name };
 				}
 			}
 			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
@@ -298,7 +298,8 @@ public class REnvConfigDialog extends ExtStatusDialog {
 					}
 				}
 			}
-		} catch (final Exception e) {
+		}
+		catch (final Exception e) {
 			RUIPlugin.logError(-1, "Error when searching R_HOME location", e); //$NON-NLS-1$
 		}
 		return null;

@@ -30,6 +30,8 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 /**
  * Control LinkedModel for auto inserted pairs
+ * 
+ * TODO: simplify and move generic to eclisecommons.sourceeditor
  */
 class BracketLevel implements IExitPolicy {
 	

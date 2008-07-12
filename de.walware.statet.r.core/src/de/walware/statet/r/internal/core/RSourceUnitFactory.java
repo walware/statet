@@ -21,11 +21,11 @@ import de.walware.eclipsecommons.ltk.WorkingContext;
 import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.internal.core.rmodel.RSourceUnit;
+import de.walware.statet.r.internal.core.sourcemodel.RSourceUnit;
 
 
 /**
- * 
+ * Factory for common R script files
  */
 public class RSourceUnitFactory implements ISourceUnitFactory {
 	

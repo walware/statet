@@ -35,12 +35,14 @@ import de.walware.eclipsecommons.ltk.ui.IModelElementInputListener;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
 import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.Block;
 import de.walware.statet.r.core.rsource.ast.CForLoop;
 import de.walware.statet.r.core.rsource.ast.CIfElse;
@@ -54,7 +56,7 @@ import de.walware.statet.r.ui.editors.REditor;
 
 
 /**
- * 
+ * Provides code folding for R Scripts
  */
 public class DefaultRFoldingProvider implements IEditorInstallable, IModelElementInputListener, ChangeListener {
 	
@@ -264,7 +266,7 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 	public void install(final IEditorAdapter editor) {
 		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
 		updateConfig();
-		fEditor = (REditor) editor.getWorkbenchPart();
+		fEditor = (REditor) editor.getAdapter(ISourceEditor.class);
 		fEditor.getModelInputProvider().addListener(this);
 	}
 	
@@ -324,7 +326,7 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 			return null;
 		}
 		final IProgressMonitor monitor = new NullProgressMonitor();
-		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) input.fUnit.getAstInfo("r", false, monitor); //$NON-NLS-1$
+		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) input.fUnit.getAstInfo(RModel.TYPE_ID, false, monitor);
 		final AbstractDocument document = input.fUnit.getDocument(monitor);
 		if (ast == null || document == null || ast.stamp != document.getModificationStamp()) {
 			return null;

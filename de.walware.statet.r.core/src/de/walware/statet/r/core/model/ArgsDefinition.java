@@ -33,18 +33,19 @@ public final class ArgsDefinition {
 		public final int index;
 		public final String name;
 		public final int type;
-		String defaultAsCode;
+		public final String className;
+//		String defaultAsCode;
 		
-		Arg(final int index, final String name, final int type) {
+		Arg(final int index, final String name, final int type, final String className) {
 			this.index = index;
 			this.name = name;
 			this.type = type;
+			this.className = className;
 		}
 		
 	}
 	
 	
-	public final int eId;
 	protected final Arg[] fArgs;
 	
 	
@@ -52,19 +53,13 @@ public final class ArgsDefinition {
 	 * For more detailed definitions, use an {@link ArgsBuilder}.
 	 */
 	public ArgsDefinition(final String... argNames) {
-		this(-1, argNames);
-	}
-	
-	ArgsDefinition(final int eId, final String... argNames) {
-		this.eId = eId;
 		fArgs = new Arg[argNames.length];
 		for (int i = 0; i < argNames.length; i++) {
-			fArgs[i] = new Arg(i, argNames[i], 0);
+			fArgs[i] = new Arg(i, argNames[i], 0, null);
 		}
 	}
 	
-	ArgsDefinition(final int eId, final Arg[] args) {
-		this.eId = eId;
+	ArgsDefinition(final Arg[] args) {
 		fArgs = args;
 	}
 	

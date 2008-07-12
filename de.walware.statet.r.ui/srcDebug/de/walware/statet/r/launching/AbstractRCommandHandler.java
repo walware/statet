@@ -77,7 +77,7 @@ public abstract class AbstractRCommandHandler extends AbstractHandler {
 	
 	protected void runCommand(final String cmd, final boolean gotoConsole) {
 		try {
-			RCodeLaunchRegistry.runRCodeDirect(new String[] { cmd }, gotoConsole);
+			RCodeLaunching.runRCodeDirect(new String[] { cmd }, gotoConsole);
 		}
 		catch (final CoreException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,

@@ -66,7 +66,7 @@ public class FDef extends RAstNode {
 		}
 		
 		@Override
-		public final RAstNode getChild(final int index) {
+		public final Arg getChild(final int index) {
 			return fSpecs.get(index);
 		}
 		

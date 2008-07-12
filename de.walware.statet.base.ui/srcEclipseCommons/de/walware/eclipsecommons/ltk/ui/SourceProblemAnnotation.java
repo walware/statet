@@ -90,9 +90,9 @@ public class SourceProblemAnnotation extends Annotation implements IAnnotationPr
 		
 	}
 	
-	public static final PresentationConfig ERROR_CONFIG = new PresentationConfig("org.eclipse.ui.workbench.texteditor.error", +1);
-	public static final PresentationConfig WARNING_CONFIG = new PresentationConfig("org.eclipse.ui.workbench.texteditor.warning", +1);
-	public static final PresentationConfig INFO_CONFIG = new PresentationConfig("org.eclipse.ui.workbench.texteditor.info", +1);
+	public static final PresentationConfig ERROR_CONFIG = new PresentationConfig("org.eclipse.ui.workbench.texteditor.error", +1); //$NON-NLS-1$
+	public static final PresentationConfig WARNING_CONFIG = new PresentationConfig("org.eclipse.ui.workbench.texteditor.warning", +1); //$NON-NLS-1$
+	public static final PresentationConfig INFO_CONFIG = new PresentationConfig("org.eclipse.ui.workbench.texteditor.info", +1); //$NON-NLS-1$
 	
 	
 	private IProblem fProblem;
