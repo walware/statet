@@ -448,7 +448,6 @@ public class History {
 		for (int i = 0; i < length; i++) {
 			final char c = command.charAt(i);
 			switch(c) {
-			
 			case ' ':
 			case '\t':
 				continue;
@@ -458,7 +457,7 @@ public class History {
 				return i;
 			}
 		}
-		return -length;
+		return -length-1;
 	}
 	
 }
