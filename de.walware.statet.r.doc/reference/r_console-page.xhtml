@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<link rel="stylesheet" href="../content/PLUGINS_ROOT/org.eclipse.help.webapp/advanced/breadcrumbs.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Console (Page/View)</title>
+	<meta name="copyright" content="Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>R Console (Page/View)</h1>
+- New Integrated Console -
+
+<p>The R console (new integrated console) page is separated in two areas: the input line 
+and the output viewer. The input line allows you to submit directly 
+input to launched tool. The output viewer shows all previews input and 
+"their response", the output of R.</p>
+
+<h2 id="input">Cmd Input</h2>
+<p>You can type commands in input line text field and edit code almost like in 
+an usual editor of StatET.
+Pressing <kbd>ENTER</kbd> or the 'Submit'-Button sends your current input to your tool.</p>
+
+<h4>Special shortcuts</h4>
+<p>There are some special actions and keyboard shortcuts to access the history and to scroll
+the output viewer, if you are in the input line:</p>
+<table class="style1">
+
+<tr><th colspan="3">History control</th></tr><tr>
+	<td>Go to the following older history item</td>
+	<td><kbd>Up</kbd></td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Go to the following newer history item</td>
+	<td><kbd>Down</kbd></td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Go to the newest history item (last input)</td>
+	<td><kbd>Ctrl+Alt+End</kbd></td>
+	<td><sup><a href="#ft2">2</a></sup></td>
+</tr><tr>
+	<td>Search for the following older history item starting with the text before the cursor.</td>
+	<td><kbd>Ctrl+Alt+Up</kbd></td>
+	<td><sup><a href="#ft2">2</a></sup></td>
+</tr><tr>
+	<td>Search for the following newer history item starting with the text before the cursor.</td>
+	<td><kbd>Ctrl+Alt+Down</kbd></td>
+	<td><sup><a href="#ft2">2</a></sup></td>
+</tr><tr>
+	<td colspan="3"><em>Tip:</em> You can use the Undo feature to go back to the last edited input.</td>
+</tr>
+
+<tr><th colspan="3"><a href="#output">Output</a> control</th></tr>
+<tr>
+	<td>Scroll output one line up</td>
+	<td><kbd>Shift+Up</kbd></td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Scroll output one line down</td>
+	<td><kbd>Shift+Down</kbd></td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Scroll output one page up</td>
+	<td><kbd>Shift+PageUp</kbd></td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Scroll output one page down.</td>
+	<td><kbd>Shift+PageDown</kbd></td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Scroll output to the start</td>
+	<td>
+<kbd>Shift+Ctrl+Home<enablement><not><systemTest property="osgi.os" value="macosx"/></not></enablement></kbd>
+<kbd>Shift+Command+Home<enablement><systemTest property="osgi.os" value="macosx"/></enablement></kbd>
+	</td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr><tr>
+	<td>Scroll output to the end</td>
+	<td>
+<kbd>Shift+Ctrl+End<enablement><not><systemTest property="osgi.os" value="macosx"/></not></enablement></kbd>
+<kbd>Shift+Command+End<enablement><systemTest property="osgi.os" value="macosx"/></enablement></kbd>
+	</td>
+	<td><sup><a href="#ft1">1</a></sup></td>
+</tr>
+</table>
+
+<p>
+<sup><a id="ft1">1</a></sup> Keyboard binding is fix.<br/>
+<sup><a id="ft2">2</a></sup> Keyboard binding can be changed as usual.
+</p>
+
+<h4>Content Assistant</h4>
+<p>The command line offers the possibility to select file paths using a
+graphical interface. This functionality is available whenever the cursor
+is positioned within quotes by using <kbd>Ctrl+Space</kbd>.</p>
+
+<h2 id="output">Console Output</h2>
+<ul>
+	<li>Coloring of errors</li>
+	<li>Links to line in script when submitting from script</li>
+</ul>
+
+<h2 id="toolbar">R Console Toolbar</h2>
+<p>As any other view, the R Console View offers a toolbar with buttons and
+menus that allow straightforward interaction&nbsp;and configuration.</p>
+<!-- The screenshot below gives an overview of these buttons and menus.</p>
+TODO add screenshot
+-->
+
+<h4>Cancel Tasks&nbsp;<img alt="Cancel tasks icon" src="../icons/loctool/cancel.png"/></h4>
+<p>Cancel Tasks is a menu that allows to cancel the execution of the
+currently running R task. This can be useful e.g. when one launches an
+intensive simulation, but discovers the parameters were not correctly
+specified. The menu offers three options.</p>
+<img style="width: 321px; height: 111px;" alt="Screenshot full cancel tasks menu" src="../images/screenshot_full_cancel_tasks_menu.png"/>
+
+<h4>Terminate R <img alt="Stop icon" src="../icons/loctool/terminate.gif"/></h4>
+<p>The Stop Console button allows to quit a given R. On pressing this button,
+the user will be prompted to save the workspace or not.</p>
+<img style="width: 679px; height: 394px;" alt="Screenshot terminate action" src="../images/screenshot_terminate_action.png"/>
+<!-- Afterwards the console will be TODO -->
+
+<h4>Clear Console&nbsp;<img alt="Clear console button" src="../icons/loctool/clear_doc.gif"/></h4>
+<p>The Clear Console button will clean the output window of the console. After
+clearing the console, it obviously is no longer possible to scroll up to
+previous output.</p>
+
+<h4>Scroll-Lock&nbsp;<img alt="Screenshot scroll lock button" src="../icons/loctool/scrolllock.gif"/></h4>
+<p>The Scroll-Lock button is a toggle button that allows to lock scrolling of
+the console output window. This implies that when submitting new statements
+either at the command line or from a script, the view the user has on the
+output window will not change. It is, of course, always possible to manually
+scroll to a given location within the output window.</p>
+
+<h4>Pin Console&nbsp;<img alt="Pin console icon" src="../icons/loctool/pin.gif"/></h4>
+<p>If one pins&nbsp;a console by toggling the Pin Console button, it means that
+other consoles that might be opened (R Consoles or&nbsp;SVN consoles, TeXlipse
+consoles, etc.) will not open inside the current Console View, but inside a
+separate, new Console View. The pinning of an R console can also be set when
+configuring an R Launch Configuration.</p>
+
+<h4>Console Button <img style="width: 35px; height: 29px;" alt="Console button" src="../images/screenshot_console_button_alone.png"/></h4>
+<p>If several consoles are opened within one Console View, the console
+button allows to navigate to other consoles that are available within
+the Console View. When two consoles are open, a single click allows to
+navigate between the two consoles.</p>
+<img style="width: 819px; height: 271px;" alt="Screenshot console button" src="../images/screenshot_console_button.png"/>
+
+<h4>Open New Console&nbsp;<img style="width: 39px; height: 28px;" alt="Screenshot new console menu button" src="../images/screenshot_new_console_menu_button.png"/></h4>
+
+<h2>R Console Menu&nbsp;<img style="width: 23px; height: 29px;" alt="Screenshot console menu button" src="../images/screenshot_view_menu_button.png"/></h2>
+<p>The R Console menu is available in the right corner of the R Console 
+toolbar. It currently offers the user two items, which are treated in a
+separate paragraph below.</p>
+<img style="width: 312px; height: 92px;" alt="Screenshot console menu" src="../images/screenshot_console_menu.png"/>
+
+<h4>Change Working Directory</h4>
+<p>This menu item allows to change the R working directory of the console via
+an Eclipse interface.</p>
+
+<h4>Adjust Output Width</h4>
+<p>This menu item will change the number of characters of an R output line,
+such that it perfectly fits the current dimensions of the R Console View.</p>
+
+</body>
+</html>

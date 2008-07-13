@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<link rel="stylesheet" href="../content/PLUGINS_ROOT/org.eclipse.help.webapp/advanced/breadcrumbs.css" charset="ISO-8859-1" type="text/css"/>
+	<title>Cmd History View</title>
+	<meta name="copyright" content="Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>Cmd History View</h1>
+
+<p>The Cmd History View records and displays all R commands that were used
+during a session. Double clicking on an item from the command history will
+submit the given line to the R Console again. The copy action copies
+the text of the selected commands to clipboard.</p>
+<img style="width: 711px; height: 320px;" alt="Cmd history view overview" src="../images/screenshot_cmd_history_view_overview.png"/>
+
+<h2>Cmd History Actions</h2>
+<p>The Cmd History toolbar and menu provide the following special actions:</p>
+<img style="width: 270px; height: 171px;" alt="Screenshot cmd history full menu" src="../images/screenshot_cmd_history_full_menu.png"/>
+
+<h4>Search bar</h4>
+<p>The Cmd History search bar (the text field in the toolbar) allows to search
+for a given command in the command history. On pressing Enter, the first matching
+result will be highlighted. The arrows right to the search bar allow to navigate
+to the following and previous search result. You can use the common wildcards 
+* = any string and ? = any char like in other dialogs in Eclipse.
+Hovering over an item in the command history will highlight the command as well
+as the exact date and time at which the command was submitted to the R Console.</p>
+
+<h4>Scroll-Lock button&nbsp;<img alt="Scroll lock button" src="../icons/loctool/scrolllock.gif"/></h4>
+<p>The scroll-lock button is a toggle that allows to fix the user's view on
+the Cmd History at a given location. The lock on scrolling, however, does
+not prevent the user to manually scroll through the command history.</p>
+
+<h4>Load and Save History</h4>
+<p>R has a mechanism to save and load a command history to a file which is by
+default named <code>.Rhistory</code>. The options Load History and Save History
+provide a convenient interface to perform these actions using the Eclipse file
+browser.</p>
+
+<h4>Filter Empty Commands</h4>
+<p>A command history can contain comment blocks as well as blank lines. In
+order to hide these lines from the Cmd History view, one can check the
+Filter Empty Commands option in the menu.</p>
+
+</body>
+</html>

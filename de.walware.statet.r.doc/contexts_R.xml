@@ -2,7 +2,7 @@
 <?NLS TYPE="org.eclipse.help.contexts"?>
 <!--
  ###############################################################################
- # Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  # All rights reserved. This program and the accompanying materials
  # are made available under the terms of the Eclipse Public License v1.0
  # which accompanies this distribution, and is available at
@@ -11,15 +11,16 @@
 -->
 
 <contexts>
-
-    <context id="r_editor">
-        <description>The R Editor provides you with R specific text editing support.</description>
-        <topic label="Workbench - Editors" href="/org.eclipse.platform.doc.user/concepts/concepts-6.htm" />
-        <topic label="Workbench - Navigating the user interface using the keyboard" href="/org.eclipse.platform.doc.user/concepts/accessibility/navigation.htm" />
-    </context>
-    <context id="r_console">
-        <description>The R Console enables command based interaction with R.</description>
-        <topic label="New Integrated Console" href="reference/newconsole.xhtml" />
-    </context>
-
+   <context id="r_editor">
+      <description>The R Editor provides you with R specific text editing support.</description>
+      <topic href="reference/r_editor-highlighting.xhtml" label="R Script Editor - Highlighting"/>
+      <topic href="reference/r_editor-contentassist.xhtml" label="R Script Editor - Content Assistant"/>
+      <topic href="reference/r_editor-quickfix.xhtml" label="R Script Editor - Quick Fix"/>
+      <topic href="reference/r_editor.xhtml" label="R Script Editor ..."/>
+      <topic label="Workbench - Navigating the user interface using the keyboard" href="/org.eclipse.platform.doc.user/concepts/accessibility/navigation.htm" />
+   </context>
+   <context id="r_console">
+      <description>The R Console enables command based interaction with R.</description>
+      <topic label="R Console" href="reference/r_console-page.xhtml" />
+   </context>
 </contexts>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<link rel="stylesheet" href="../content/PLUGINS_ROOT/org.eclipse.help.webapp/advanced/breadcrumbs.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Console - Launching</title>
+	<meta name="copyright" content="Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>Launching</h1>
+
+<h2 id="configure">Configure Console</h2>
+<p>Before being able to use an R Console, it is necessary to configure one.
+The inconvenience of needing to specify configurations is very low compared
+to the many advantages R configurations offer: one can configure R Consoles
+for different versions of R (e.g. current release and devel release) or with
+different default startup-options.</p>
+<p>To configure a console, navigate to 
+<span class="uisequence indent">Run &gt; Run Configurations...</span>
+</p>
+<img style="width: 862px; height: 581px;" alt="Screenshot r console run config main" src="../images/screenshot_r_console_run_config_main.png"/>
+
+<p>The user is invited to assign a name to the particular configuration and
+adjust the relevant settings in the tabs of the configuration window.
+The most important tabs are dealt with in detail in separate paragraphs
+below.</p>
+
+<h4>Main</h4>
+<p>The launch type allows to specify how the connection to R will
+be managed. The default is the Java-based RJ console connection which is fully
+cross-platform. An older connection type Rterm is provided as well (Windows only).</p>
+<p>The options field allows to specify R startup-options, such as 
+<code>--no-environ</code>,<code> --no-init-file</code> etc.</p>
+<p>The console option 'Pin initial console automatically' will pin the initial
+console. This means that when one opens additional R consoles, these
+will be opened in separate Console Views.</p>
+
+<h4>R Config</h4>
+<img style="width: 862px; height: 581px;" alt="Screenshot r console run config r config" src="../images/screenshot_r_console_run_config_R_config.png"/>
+<p>The R Config tab allows to specify</p>
+<ul>
+	<li>which R environment to use;</li>
+	<li>in which working directory to launch R.</li>
+</ul>
+<p>An R environment is simply a given version of R linked to a certain path
+on your filesystem. One can either choose the default R environment that you
+set for the workbench or a specific environment (Selected Configuration). When
+one presses the 'Configure...' button, the R Environments window will show up.
+This window is part of the StatET preferences and is displayed below.</p>
+<img style="width: 629px; height: 418px;" alt="Screenshot r environments" src="../images/screenshot_r_environments.png"/>
+<p>One can specify as many R environments as wanted as long as they have a
+unique name. Buttons 'Add..', 'Edit', etc. allow to define new environments or
+edit existing ones. The user will be asked to provide a name, to indicate the
+path to the <code>$R_HOME</code> for that given R (not <code>$R_HOME/bin</code> !!)
+and to specify whether it is a 32-bit or 64-bit version of R.</p>
+<img style="width: 570px; height: 235px;" alt="Screenshot edit r environment" src="../images/screenshot_edit_r_environment.png"/>
+
+<p>Upon clicking 'OK' the configuration will be added to the list of R
+environments, so the user can make use of them when configuring the 'R Config'
+tab of an R Console launch configuration.</p>
+
+<h2 id="launch">Launch Console</h2>
+<p>To launch a run configuration such as an R console, one can accede the Run
+menu and choose
+<span class="uisequence indent">Run -&gt; Run Configurations...</span>
+Among the many possible run configurations, you will find the R Console menu
+with a list of all currently R Console configurations.</p>
+<p>You can either double-click on the R Console configuration of your choice or
+select the configuration and click on the Run button.</p>
+<!-- TODO add screenshot -->
+
+<p>If during configuration of an R Console, you chose to display this
+particular run configuration in the favorites menu, the configuration
+will be listed.</p>
+<img style="width: 388px; height: 93px;" alt="Screenshot run configuration menu" src="../images/screenshot_run-configuration-2.png"/>
+
+</body>
+</html>

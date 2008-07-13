@@ -14,18 +14,36 @@
 -->
 
 <plugin>
-   <extension
-         point="org.eclipse.help.base.luceneSearchParticipants">
+   <extension point="org.eclipse.help.base.luceneSearchParticipants">
       <binding participantId="org.eclipse.help.base.xhtml"/>
    </extension>
-   <extension
-         point="org.eclipse.help.contexts">
+
+   <extension point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true">
+      </toc>
+      <toc
+            file="topics_R.xml"
+            primary="false">
+      </toc>
+      <toc
+            file="topics_Nico.xml"
+            primary="false">
+      </toc>
+   </extension>
+
+   <extension point="org.eclipse.help.contexts">
       <contexts
             file="contexts_R.xml"
             plugin="de.walware.statet.r.ui"/>
+      <contexts
+            file="contexts_Nico.xml"
+            plugin="de.walware.statet.nico.ui">
+      </contexts>
    </extension>
-   <extension
-         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+
+   <extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
             id="de.walware.statet.r.cheatSheetCategories.R"
             name="StatET: R in Eclipse">

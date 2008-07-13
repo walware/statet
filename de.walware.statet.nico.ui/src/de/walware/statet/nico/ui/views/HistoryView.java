@@ -62,6 +62,7 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SearchPattern;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -455,11 +456,12 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	@Override
 	public void createPartControl(final Composite parent) {
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "de.walware.statet.nico.ui.cmd_history_view"); //$NON-NLS-1$
+		
 		final GridLayout layout = new GridLayout();
 		LayoutUtil.applyCompositeDefaults(layout, 1);
 		layout.verticalSpacing = 0;
 		parent.setLayout(layout);
-		final GridData gd;
 		
 		fTable = new Table(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		fTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

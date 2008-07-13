@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<link rel="stylesheet" href="../content/PLUGINS_ROOT/org.eclipse.help.webapp/advanced/breadcrumbs.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Script Editor - Highlighting</title>
+	<meta name="copyright" content="Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>Highlighting</h1>
+
+<h2 id="syntax_highlighting">Syntax highlighting</h2>
+<p>In order to clearly distinguish different operators and types of keywords
+in the R language, StatET offers syntactic highlighting.</p>
+<p>StatET offers very fine-grained configuration of syntactic highlighting, 
+which is accessible via the StatET preferences in 
+<span class="uisequence">Window&nbsp;&gt; Preferences</span> at:
+<span class="uisequence indent">StatET &gt; Source Editors &gt; R Syntax Coloring</span>
+</p>
+<img style="width: 700px; height: 516px;" alt="Screenshot preferences R syntax coloring" src="../images/screenshot_preferences_r_syntax_coloring.png"/>
+
+<h2 id="syntax_errors">Syntax error detection</h2>
+<p>Syntax errors are detected and by default indicated by squiggly lines on
+the error location and red rectangles in the right gutter of the editor
+(the annotations overview). Syntax errors are a type of Eclipse
+Annotations, so the usual navigation shortcuts for Annotations can be
+used:</p>
+<ul>
+	<li><kbd>Ctrl+.</kbd> : navigate to the next annotation</li>
+	<li><kbd>Ctrl+,</kbd> : navigate to previous annotation</li>
+</ul>
+<p>The Syntax error detection feature can be (dis)activated in the StatET preferences at
+<span class="uisequence indent">StatET &gt; Source Editors &gt; R Editing Options</span>
+by (un)checking the option 'Enable syntax checking as you type'.</p>
+<img style="width: 675px; height: 713px;" alt="Syntax checking preferences" src="../images/screenshot_syntax_checking_preferences-2.png"/>
+
+<h2 id="mark_occurrences">Mark Occurrences</h2>
+<p>When the pointer is located on a certain variable, the editor will highlight
+the variable as well as all other occurrences of the variable in the file. 
+The Mark Occurrences feature makes a (very useful) difference between</p>
+<ul>
+	<li>occurrences where the value of the variable is changed (write occurrences) and</li>
+	<li>plain uses of the variable (read occurrences).</li>
+</ul>
+<p>In the following screenshot, both types of occurrences are displayed with their 
+corresponding default colors.</p>
+<img style="width: 951px; height: 283px;" alt="Screenshot mark occurrences" src="../images/screenshot_mark_occurrences.png"/>
+
+<p>Occurrences are a type of Eclipse Annotations and as such all occurrences of a
+given variable will also be displayed as small grey rectangles in the
+right gutter of the editor. By clicking on these small symbols, one can
+quickly navigate to the desired occurrence.</p>
+<p>The Mark occurrences feature can be (dis)activated in the
+StatET preferences at
+<span class="uisequence indent">StatET &gt; Source Editors &gt; R Editing Options</span>
+by (un)checking the option 'Enable mark occurences'. As is indicated in
+that preferences page, the visual display of the occurrences can be
+configured at
+<span class="uisequence indent">General &gt; Editors &gt; Text Editors &gt; Annotations</span>
+where 'Occurrences' and 'Occurrences: write' are listed among the Annotation types.</p>
+<img style="width: 724px; height: 577px;" alt="Mark occurrences annotation preferences" src="../images/screenshot_mark_occurrences_preferences-2.png"/>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ ###############################################################################
+-->
+
+<!-- ============================================================================= -->
+<!-- StatET R top topics                                                           -->
+<!-- ============================================================================= -->
+<toc label="StatET for R User Guide" 
+      link_to="toc.xml#main_languages">
+   <topic href="reference/r_editor.xhtml" label="R Script Editor">
+      <topic href="reference/r_editor-highlighting.xhtml" label="Highlighting">
+      </topic>
+      <topic href="reference/r_editor-contentassist.xhtml" label="Content Assist">
+      </topic>
+      <topic href="reference/r_editor-quickfix.xhtml" label="Quick Fix">
+      </topic>
+      <topic href="reference/r_editor-tasks.xhtml" label="Tasks">
+      </topic>
+      <topic href="reference/r_editor-codesubmit.xhtml" label="Submit Actions">
+      </topic>
+   </topic>
+   <topic label="R Console">
+      <topic href="reference/r_console-launch.xhtml" label="Launchning">
+      </topic>
+      <topic href="reference/r_console-page.xhtml" label="The Console">
+      </topic>
+   </topic>
+</toc>
