@@ -204,6 +204,28 @@
             contextId="de.walware.statet.base.contexts.TextEditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+I"/>
+      <key
+            contextId="org.eclipse.ui.textEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+K">
+      </key>
+      <key
+            commandId="org.eclipse.ui.edit.findNext"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+K">
+      </key>
+      <key
+            contextId="org.eclipse.ui.textEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+K">
+      </key>
+      <key
+            commandId="org.eclipse.ui.edit.findPrevious"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M2+K">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

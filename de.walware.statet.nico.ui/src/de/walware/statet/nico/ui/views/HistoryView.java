@@ -709,11 +709,11 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			}
 		});
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
-				getSite(), "search.next", "org.eclipse.ui.navigate.next", null, //$NON-NLS-1$ //$NON-NLS-2$
+				getSite(), "search.next", IWorkbenchActionDefinitionIds.FIND_NEXT, null, //$NON-NLS-1$
 				StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN_H),
 				Messages.HistorySearch_NextMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchNextHandler));
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
-				getSite(), "search.previous", "org.eclipse.ui.navigate.previous", null, //$NON-NLS-1$ //$NON-NLS-2$
+				getSite(), "search.previous", IWorkbenchActionDefinitionIds.FIND_PREVIOUS, null, //$NON-NLS-1$
 				StatetImages.getDescriptor(StatetImages.LOCTOOL_UP), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_UP_H),
 				Messages.HistorySearch_PreviousMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchPrevHandler));
 		
