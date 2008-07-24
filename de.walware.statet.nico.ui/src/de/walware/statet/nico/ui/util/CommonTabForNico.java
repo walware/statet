@@ -15,8 +15,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 
 /**
@@ -28,13 +26,6 @@ public class CommonTabForNico extends CommonTab {
 	public CommonTabForNico() {
 	}
 	
-	
-	@Override
-	protected void createLaunchInBackgroundComponent(final Composite parent) {
-		super.createLaunchInBackgroundComponent(parent);
-		final Control[] children = parent.getChildren();
-		children[children.length-1].setEnabled(false);
-	}
 	
 	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy config) {
