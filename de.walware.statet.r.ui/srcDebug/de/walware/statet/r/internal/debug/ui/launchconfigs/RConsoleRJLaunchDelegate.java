@@ -44,6 +44,7 @@ import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
+import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RjsController;
@@ -57,7 +58,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	public void launch(final ILaunchConfiguration configuration, final String mode, 
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-		final SubMonitor progress = SubMonitor.convert(monitor, 25);
+		final SubMonitor progress = SubMonitor.convert(monitor, RLaunchingMessages.LaunchDelegate_task, 25);
+		progress.subTask(RLaunchingMessages.LaunchDelegate_Init_subtask);
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -77,6 +79,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		
 		// start server
+		progress.subTask(RLaunchingMessages.RJLaunchDelegate_StartR_subtask);
 		RMIUtil.startRegistry(port);
 		engineLaunchDelegate.launch(configuration, mode, launch, progress.newChild(10));
 		final IProcess[] processes = launch.getProcesses();
@@ -107,6 +110,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " : R Console/RJ ~ " + name); //$NON-NLS-1$
 		process.setAttribute(IProcess.ATTR_CMDLINE, name + " " + Arrays.toString(rArgs)); //$NON-NLS-1$
 		
+		progress.subTask(RLaunchingMessages.RJLaunchDelegate_WaitForR_subtask);
 		WAIT: for (int i = 0; i < 50; i++) {
 			if (processes[0].isTerminated()) {
 				final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);

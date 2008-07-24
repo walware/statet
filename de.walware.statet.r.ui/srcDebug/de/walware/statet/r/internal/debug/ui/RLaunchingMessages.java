@@ -45,9 +45,13 @@ public class RLaunchingMessages extends NLS {
 	public static String RMI_status_RegistryStartFailedWithExitValue_message;
 	public static String RMI_status_RegistryStopFailedNotFound_message;
 	
+	public static String LaunchDelegate_task;
+	public static String LaunchDelegate_Init_subtask;
 	public static String LaunchDelegate_error_StartingExec;
 	public static String LaunchDelegate_error_ProcessHandle;
 	public static String LaunchDelegate_error_InvalidUnsupportedConsoleEncoding_message;
+	public static String RJLaunchDelegate_StartR_subtask;
+	public static String RJLaunchDelegate_WaitForR_subtask;
 	
 	public static String REnv_Tab_REnvConfig_label;
 	public static String REnv_Tab_title;
