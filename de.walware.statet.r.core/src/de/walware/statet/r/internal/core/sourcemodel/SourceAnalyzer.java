@@ -366,7 +366,9 @@ public class SourceAnalyzer extends RAstVisitor {
 				for (final RSourceElementByElementAccess element : seb.children) {
 //					if (seb.envir != element.fAccess.getFrame()) {
 //					}
-					if (seb.envir != fTopLevelEnvir) {
+					final Envir modelParent = (seb.envir.fParents.size() == 1) ? seb.envir.fParents.get(0) : null;
+					if (modelParent != null && 
+							(modelParent.getType() == IEnvirInSource.T_FUNCTION || modelParent.getType() == IEnvirInSource.T_CLASS)) {
 						// make sure it is marked as local
 						element.fType |= 0x1;
 					}
@@ -459,6 +461,9 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private void registerInEnvir(final int search, final String name, final ElementAccess access) {
+		if (access.fShared != null) {
+			return;
+		}
 		switch (search) {
 		case S_LOCAL:
 			fTopScope.add(name, access);
@@ -927,7 +932,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
-	public String resolveElementName(final RAstNode node, final ElementAccess access, final boolean allowString) throws InvocationTargetException {
+	private String resolveElementName(final RAstNode node, final ElementAccess access, final boolean allowString) throws InvocationTargetException {
 		switch (node.getNodeType()) {
 		case SYMBOL:
 			return resolveElementName((Symbol) node, access);
@@ -1005,17 +1010,22 @@ public class SourceAnalyzer extends RAstVisitor {
 		String namespaceName = null;
 		if (isValidPackageName(namespaceChild)) {
 			namespaceName = namespaceChild.getText();
-			final ElementAccess packageAccess = new ElementAccess.Package(node, namespaceChild);
+			final ElementAccess packageAccess = new ElementAccess.Package(access.fFullNode, namespaceChild);
 			fPkgEnvir.add(namespaceName, packageAccess);
 		}
+		// register explicit
+		Envir envir;
 		if (namespaceName != null &&
 				((node.getElementChild().getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0)) {
-			access.fFlags = ElementAccess.A_READ;
-			access.fNameNode = node.getElementChild();
-			getPkgEnvir(namespaceName).add(access.fNameNode.getText(), access);
-			return null; // is registered
+			envir = getPkgEnvir(namespaceName);
 		}
-		return null;
+		else {
+			envir = fTopScope;
+		}
+		access.fNameNode = node.getElementChild();
+		final String name = access.fNameNode.getText();
+		envir.add(name, access);
+		return name;
 	}
 	
 	private boolean isValidPackageName(final RAstNode node) {
@@ -2291,7 +2301,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			fRequest = NO_REQUESTS;
 			
 			final FCall.Args args = node.getArgsChild();
-			if (args.getChildCount() > 0) {
+			if (args.getChildCount() > 0 && assignment) {
 				final FCall.Arg firstArg = args.getChild(0);
 				final RAstNode argName = firstArg.getNameChild();
 				final RAstNode argValue = firstArg.getValueChild();
@@ -2302,7 +2312,7 @@ public class SourceAnalyzer extends RAstVisitor {
 					final String mainName = resolveElementName(argValue, access, false);
 					fArgValueToIgnore.add(argValue);
 					if (mainName != null) {
-						fTopScope.addLateResolve(mainName, access);
+						registerInEnvir(S_SEARCH, mainName, access);
 					}
 				}
 			}
