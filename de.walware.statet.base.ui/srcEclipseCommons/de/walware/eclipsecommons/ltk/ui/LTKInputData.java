@@ -14,6 +14,7 @@ package de.walware.eclipsecommons.ltk.ui;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.part.ShowInContext;
 
 import de.walware.eclipsecommons.ltk.IModelElement;
@@ -35,6 +36,7 @@ public class LTKInputData implements ISelection {
 	protected ISourceUnit fInputElement;
 	protected ISourceUnitModelInfo fInputInfo;
 	
+	protected ISelectionProvider fSelectionProvider;
 	protected ISelection fSelection;
 	protected AstSelection fAstSelection;
 	protected ISourceStructElement fModelSelection;
@@ -45,6 +47,24 @@ public class LTKInputData implements ISelection {
 		fSelection = selection;
 	}
 	
+	public LTKInputData(final ISourceUnit inputElement, final ISelectionProvider selectionProvider) {
+		fInputElement = inputElement;
+		fSelectionProvider = selectionProvider;
+		fSelection = selectionProvider.getSelection();
+	}
+	
+	
+	public boolean update() {
+		if (fSelectionProvider != null) {
+			final ISelection selection = fSelectionProvider.getSelection();
+			if (!selection.equals(fSelection)) {
+				fAstSelection = null;
+				fModelSelection = null;
+			}
+			return true;
+		}
+		return false;
+	}
 	
 	public IModelElement getInputElement() {
 		return fInputElement;

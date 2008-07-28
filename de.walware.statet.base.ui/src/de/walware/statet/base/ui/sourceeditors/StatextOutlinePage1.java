@@ -651,6 +651,7 @@ public abstract class StatextOutlinePage1 extends Page
 		final ISelection selection = context.getSelection();
 		if (selection instanceof LTKInputData) {
 			final LTKInputData data = (LTKInputData) selection;
+			data.update();
 			if (inputUnit.equals(data.getInputElement())) {
 				select(data.getModelSelection());
 				return true;

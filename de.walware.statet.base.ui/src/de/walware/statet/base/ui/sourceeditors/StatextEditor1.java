@@ -36,7 +36,6 @@ import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.link.ILinkedModeListener;
 import org.eclipse.jface.text.link.LinkedModeModel;
@@ -1102,8 +1101,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		final ISourceUnit unit = getSourceUnit();
 		ISelection selection = null;
 		if (selectionPoint != null && unit != null && sourceViewer != null) {
-			selection = new LTKInputData(unit,
-					new TextSelection(sourceViewer.getDocument(), selectionPoint.x, selectionPoint.y));
+			selection = new LTKInputData(unit, getSelectionProvider());
 		}
 		return new ShowInContext(getEditorInput(), selection);
 	}
