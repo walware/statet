@@ -142,7 +142,7 @@ public class LaunchShortcutUtil {
 	
 	public static String getSelectedCode(final ExecutionEvent event) throws CoreException {
 		try {
-			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event);
+			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 			final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
 			if (selection instanceof ITextSelection) {
 				final ITextSelection textSelection = (ITextSelection) selection;

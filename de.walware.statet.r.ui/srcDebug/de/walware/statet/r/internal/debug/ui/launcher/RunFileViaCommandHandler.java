@@ -92,7 +92,7 @@ public class RunFileViaCommandHandler extends AbstractHandler implements IElemen
 					return null;
 				}
 			}
-			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event);
+			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 			if (selection instanceof IStructuredSelection) {
 				final IStructuredSelection sel = (IStructuredSelection) selection;
 				if (sel.size() == 1) {

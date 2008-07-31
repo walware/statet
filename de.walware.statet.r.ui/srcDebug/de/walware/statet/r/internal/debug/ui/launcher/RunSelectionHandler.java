@@ -66,7 +66,7 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 	}
 	
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event);
+		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 		
 		try {
 			// text selection
