@@ -114,9 +114,10 @@ public class TextUtil {
 	}
 	
 	/**
-	 * Adds text of lines of a document to the list.
+	 * Adds text of lines of a document without its line delimiters to the list.
 	 * 
-	 * The first and begins at <code>offset</code>, the last lines ends at <code>offset+length</code>.
+	 * The first line begins at <code>offset</code>, the last line ends at <code>offset+length</code>.
+	 * The positions must not be inside a line delimiter (if it consists of multiple chars).
 	 * 
 	 * @param document the document
 	 * @param offset the offset of region to include
@@ -135,19 +136,20 @@ public class TextUtil {
 		}
 		if (startLine == endLine) {
 			lineInfo = document.getLineInformation(endLine);
-			lines.add(document.get(offset, Math.max(0, Math.min(
-					length, lineInfo.getOffset()+lineInfo.getLength()-offset))));
+			lines.add(document.get(offset, length));
 			return;
 		}
 		else {
 			lineInfo = document.getLineInformation(startLine);
-			lines.add(document.get(offset, lineInfo.getOffset()+lineInfo.getLength()));
+			lines.add(document.get(offset, Math.max(0, lineInfo.getOffset()+lineInfo.getLength()-offset)));
 			for (int line = startLine+1; line < endLine; line++) {
 				lineInfo = document.getLineInformation(line);
-				lines.add(document.get(lineInfo.getOffset(), lineInfo.getOffset()+lineInfo.getLength()));
+				lines.add(document.get(lineInfo.getOffset(), lineInfo.getLength()));
 			}
 			lineInfo = document.getLineInformation(endLine);
-			lines.add(document.get(lineInfo.getOffset(), lineInfo.getOffset()+lineInfo.getLength()));
+			if (offset+length > lineInfo.getOffset()) {
+				lines.add(document.get(lineInfo.getOffset(), offset+length-lineInfo.getOffset()));
+			}
 		}
 	}
 	
