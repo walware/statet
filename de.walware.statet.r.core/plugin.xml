@@ -38,7 +38,7 @@
          </run>
       </runtime>
       <requires-nature
-            id="de.walware.statet.r.core.RProject">
+            id="de.walware.statet.r.RNature">
       </requires-nature>
    </extension>
    <extension
