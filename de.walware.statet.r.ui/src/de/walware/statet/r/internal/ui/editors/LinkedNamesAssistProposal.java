@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.ui.editors;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
@@ -161,22 +160,26 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 			final LinkedPositionGroup group = new LinkedPositionGroup();
 			final IElementAccess[] allInUnit = fAccess.getAllInUnit();
 			Arrays.sort(allInUnit, IElementAccess.NAME_POSITION_COMPARATOR);
-			final List<IElementAccess> all = Arrays.asList(allInUnit);
-			final int current = all.indexOf(fAccess);
+			int current = -1;
+			for (int i = 0; i < allInUnit.length; i++) {
+				if (fAccess == allInUnit[i]) {
+					current = i;
+					break;
+				}
+			}
 			if (current < 0) {
 				return;
 			}
-			final int count = all.size();
 			int idx = 0;
-			idx = add(group, document, all.get(current), idx);
+			idx = add(group, document, allInUnit[current], idx);
 			if (fMode == IN_FILE || fMode == IN_FILE_FOLLOWING) {
-				for (int i = current+1; i < count; i++) {
-					idx = add(group, document, all.get(i), idx);
+				for (int i = current+1; i < allInUnit.length; i++) {
+					idx = add(group, document, allInUnit[i], idx);
 				}
 			}
 			if (fMode == IN_FILE || fMode == IN_FILE_PRECEDING) {
 				for (int i = 0; i < current; i++) {
-					idx = add(group, document, all.get(i), idx);
+					idx = add(group, document, allInUnit[i], idx);
 				}
 			}
 			

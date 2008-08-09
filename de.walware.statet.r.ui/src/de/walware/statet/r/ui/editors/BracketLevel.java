@@ -178,7 +178,10 @@ class BracketLevel implements IExitPolicy {
 			switch (event.character) {
 			case 0x0A: // cr
 			case 0x0D:
-				if (fConsoleMode || fConfig.processReturn() || length > 0) {
+				if (fConsoleMode) {
+					return new ExitFlags(ILinkedModeListener.EXIT_ALL, true);
+				}
+				if (fConfig.processReturn() || length > 0) {
 					return new ExitFlags(ILinkedModeListener.NONE, true);
 				}
 				return null;
