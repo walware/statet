@@ -91,8 +91,9 @@ public abstract class FileUtil {
 					}
 				}
 			}
-			if (relativeParent != null) {
-				return relativeParent.getChild(path);
+			else if ( // !path.isAbsolute() &&
+					path.getDevice() == null) {
+				return relativeParent.getFileStore(path);
 			}
 		}
 		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No local filesystem resource."));
@@ -120,21 +121,24 @@ public abstract class FileUtil {
 	}
 	
 	
-	public static IFileStore expandToLocalFileStore(final String location, final String child) throws CoreException {
-		
+	/**
+	 * Tries to resolves string to local file store handler.
+	 *  - Performs Variable substitution
+	 * 
+	 * @param location path as string of the location
+	 * @param parent optional parent directory, used if <code>location</code> is relative
+	 * @param child optional child, appended to location
+	 * @return the file store handler
+	 * @throws CoreException
+	 */
+	public static IFileStore expandToLocalFileStore(final String location, final IFileStore parent, final String child) throws CoreException {
 		final IStringVariableManager variables = VariablesPlugin.getDefault().getStringVariableManager();
 		final String expanded = variables.performStringSubstitution(location);
-		final IFileStore localFileStore = getLocalFileStore(expanded);
+		final IFileStore localFileStore = getLocalFileStore(expanded, parent);
 		if (child != null) {
 			return localFileStore.getChild(child);
 		}
 		return localFileStore;
-	}
-	
-	public static IPath expandToLocalPath(final String location, final String child) throws CoreException {
-		
-		final IFileStore fileStore = expandToLocalFileStore(location, child);
-		return URIUtil.toPath(fileStore.toURI());
 	}
 	
 	public static IFile getAsWorkspaceFile(final URI uri) {

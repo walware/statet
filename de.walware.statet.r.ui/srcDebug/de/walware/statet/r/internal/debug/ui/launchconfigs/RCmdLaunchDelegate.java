@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -99,11 +100,19 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			cmdLine.addAll(Arrays.asList(
 					LaunchConfigUtil.getProcessArguments(configuration, RLaunchConfigurations.ATTR_R_CMD_OPTIONS) ));
 			
-			final String resource = configuration.getAttribute(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, ""); //$NON-NLS-1$
-			IPath resourcePath = null;
-			if (resource.length() > 0) {
-				resourcePath = FileUtil.expandToLocalPath(resource, null);
-				cmdLine.add(resourcePath.toString());
+			final String resourceValue = configuration.getAttribute(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, ""); //$NON-NLS-1$
+			IFileStore resource = null;
+			IPath resourcePathAbsolute = null;
+			IPath resourcePathAuto = null;
+			if (resourceValue.length() > 0) {
+				resource = FileUtil.expandToLocalFileStore(resourceValue, workingDirectory, null);
+				final IPath workingDirectoryPath = URIUtil.toPath(workingDirectory.toURI());
+				resourcePathAuto = resourcePathAbsolute = URIUtil.toPath(resource.toURI());
+				if (workingDirectoryPath.isPrefixOf(resourcePathAuto)) {
+					resourcePathAuto = resourcePathAuto.setDevice(null);
+					resourcePathAuto = resourcePathAuto.removeFirstSegments(workingDirectoryPath.segmentCount());
+				}
+				cmdLine.add(resourcePathAuto.toString());
 			}
 			
 			monitor.worked(1);
@@ -132,20 +141,28 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			// register process
 			final Map<String, String> processAttributes = new HashMap<String, String>();
 			processAttributes.put(IProcess.ATTR_PROCESS_TYPE, RLaunchConfigurations.ID_R_CMD_PROCESS_TYPE);
-			String name = cmdLine.get(0);
-			if (resourcePath != null) {
-				name += ' ' + resourcePath.lastSegment();
+			final String processName = cmdLine.get(0) + ' ' + LaunchConfigUtil.createProcessTimestamp();
+			final String label;
+			{
+				final StringBuilder sb = new StringBuilder(200);
+				sb.append(LaunchConfigUtil.createLaunchPrefix(configuration));
+				sb.append(' ').append(renv.getName());
+				sb.append(" : R ").append(cmd); //$NON-NLS-1$
+				if (resourcePathAbsolute != null) {
+					sb.append(' ').append(resourcePathAbsolute.toOSString());
+				}
+				sb.append(" ~ ").append(processName); //$NON-NLS-1$
+				label = sb.toString();
 			}
-			name += ' ' + LaunchConfigUtil.createProcessTimestamp();
-			final IProcess process = DebugPlugin.newProcess(launch, p, name, processAttributes);
+			
+			final IProcess process = DebugPlugin.newProcess(launch, p, processName, processAttributes);
 			if (process == null) {
 				p.destroy();
 				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 						RLaunchingMessages.LaunchDelegate_error_ProcessHandle, null));
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
-			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, LaunchConfigUtil.createLaunchPrefix(configuration) +
-					' ' + renv.getName() + " : R " + cmd + " ~ " + name); //$NON-NLS-1$ //$NON-NLS-2$
+			process.setAttribute(IProcess.ATTR_PROCESS_LABEL, label);
 			
 			monitor.worked(5);
 			if (!process.isTerminated() && !CommonTab.isLaunchInBackground(configuration)) {

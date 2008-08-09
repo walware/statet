@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -231,7 +232,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		CoreException error = null;
 		IFileStore rloc = null;
 		try {
-			rloc = FileUtil.expandToLocalFileStore(getRHome(), null);
+			rloc = FileUtil.expandToLocalFileStore(getRHome(), null, null);
 		}
 		catch (final CoreException e) {
 			error = e;
@@ -312,7 +313,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		if (child == null) {
 			child = "bin/R"; //$NON-NLS-1$
 		}
-		final IPath exec = FileUtil.expandToLocalPath(getRHome(), child);
+		final IPath exec = URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, child).toURI());
 		commandLine.add(0, exec.toOSString());
 		return commandLine;
 	}
@@ -320,21 +321,21 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
 		final Map<String, String> envp = new HashMap<String, String>();
 		envp.put("R_HOME", //$NON-NLS-1$
-				FileUtil.expandToLocalPath(getRHome(), null).toOSString());
+				URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, null).toURI()).toOSString());
 		envp.put("PATH", //$NON-NLS-1$
-				FileUtil.expandToLocalPath(getRHome(), "bin").toOSString() + //$NON-NLS-1$
+				URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "bin").toURI()).toOSString() + //$NON-NLS-1$
 						File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
 		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 			// libs in path
 		}
 		else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
 			envp.put("DYLD_LIBRARY_PATH", //$NON-NLS-1$
-					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
+					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "lib").toURI()).toOSString() + //$NON-NLS-1$
 							File.pathSeparatorChar + "${env_var:DYLD_LIBRARY_PATH}"); //$NON-NLS-1$ 
 		}
 		else {
 			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
-					FileUtil.expandToLocalPath(getRHome(), "lib").toOSString() + //$NON-NLS-1$
+					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "lib").toURI()).toOSString() + //$NON-NLS-1$
 							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH}"); //$NON-NLS-1$ 
 		}
 		return envp;
