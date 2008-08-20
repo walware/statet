@@ -217,13 +217,16 @@ public abstract class StatextOutlinePage1 extends Page
 		private String fSettingsKey;
 		private int fTime;
 		
-		public ToggleAction(final String settingsKey, final int expensive) {
-			assert (settingsKey != null);
+		public ToggleAction(final String checkSettingsKey, final boolean checkSettingsDefault, 
+				final int expensive) {
+			assert (checkSettingsKey != null);
 			
-			fSettingsKey = settingsKey;
+			fSettingsKey = checkSettingsKey;
 			fTime = expensive;
 			
-			final boolean on = getSettings().getBoolean(fSettingsKey);
+			final IDialogSettings settings = getSettings();
+			final boolean on = (settings.get(fSettingsKey) == null) ?
+					checkSettingsDefault : getSettings().getBoolean(fSettingsKey);
 			setChecked(on);
 			configure(on);
 		}
@@ -255,7 +258,7 @@ public abstract class StatextOutlinePage1 extends Page
 	private class SyncWithEditorAction extends ToggleAction implements ISelectionWithElementInfoListener {
 		
 		public SyncWithEditorAction() {
-			super("sync.editor", 0); //$NON-NLS-1$
+			super("sync.editor", true, 0); //$NON-NLS-1$
 			setText(StatetMessages.SyncWithEditor_label);
 			setImageDescriptor(StatetImages.getDescriptor(StatetImages.lOCTOOL_SYNCHRONIZED));
 		}

@@ -66,7 +66,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		
 		
 		public AlphaSortAction() {
-			super("sort.alphabetically.enabled", 2); //$NON-NLS-1$
+			super("sort.alphabetically.enabled", false, 2); //$NON-NLS-1$
 			setText(SharedMessages.ToggleSortAction_name);
 			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_SORT_ALPHA));
 			setToolTipText(SharedMessages.ToggleSortAction_tooltip);
@@ -85,7 +85,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 	private class FilterCommonVariables extends ToggleAction {
 		
 		public FilterCommonVariables() {
-			super("filter.common_var.enabled", 2); //$NON-NLS-1$
+			super("filter.common_var.enabled", false, 2); //$NON-NLS-1$
 			setText(RUIMessages.Outline_HideGeneralVariables_name);
 			setImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_LOCTOOL_FILTER_GENERAL));
 			setToolTipText(RUIMessages.Outline_HideGeneralVariables_name);
@@ -105,7 +105,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 	private class FilterLocalDefinitions extends ToggleAction {
 		
 		public FilterLocalDefinitions() {
-			super("filter.local.enabled", 2); //$NON-NLS-1$
+			super("filter.local.enabled", false, 2); //$NON-NLS-1$
 			setText(RUIMessages.Outline_HideLocalElements_name);
 			setImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_LOCTOOL_FILTER_LOCAL));
 			setToolTipText(RUIMessages.Outline_HideLocalElements_name);
