@@ -116,7 +116,8 @@ public class RunFileViaCommandHandler extends AbstractHandler implements IElemen
 		}
 		catch (final Exception e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
-					RLaunchingMessages.RScriptLaunch_error_message, null);
+					RLaunchingMessages.RScriptLaunch_error_message, event);
+			return null;
 		}
 		
 		LaunchShortcutUtil.handleUnsupportedExecution(event);

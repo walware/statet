@@ -106,6 +106,7 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 		catch (final CoreException e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RSelectionLaunch_error_message, event);
+			return null;
 		}
 		
 		LaunchShortcutUtil.handleUnsupportedExecution(event);

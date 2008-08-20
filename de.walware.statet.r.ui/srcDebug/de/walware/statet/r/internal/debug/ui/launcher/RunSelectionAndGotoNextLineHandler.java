@@ -58,6 +58,7 @@ public class RunSelectionAndGotoNextLineHandler extends AbstractHandler {
 		catch (final CoreException e) {
 			LaunchShortcutUtil.handleRLaunchException(e,
 					RLaunchingMessages.RSelectionLaunch_error_message, event);
+			return null;
 		}
 		
 		LaunchShortcutUtil.handleUnsupportedExecution(event);

@@ -50,7 +50,7 @@ public final class RCodeLaunching {
 	
 	public static final String RUN_SELECTION_PASTEOUTPUT_COMMAND_ID = "de.walware.statet.r.commands.RunSelectionInR_PasteOutput"; //$NON-NLS-1$
 	
-	public static final String RUN_FILEVIACOMMAND_COMMAND_ID = "de.walware.statet.r.RunFileViaCommand"; //$NON-NLS-1$
+	public static final String RUN_FILEVIACOMMAND_COMMAND_ID = "de.walware.statet.r.commands.RunFileViaCommand"; //$NON-NLS-1$
 	
 	public static final String RUN_FILEVIACOMMAND_GOTOCONSOLE_COMMAND_ID = "de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"; //$NON-NLS-1$
 	

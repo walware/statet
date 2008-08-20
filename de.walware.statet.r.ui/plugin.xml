@@ -1061,6 +1061,9 @@
             <or>
                <with
                      variable="selection">
+                  <instanceof
+                        value="org.eclipse.jface.viewers.IStructuredSelection">
+                  </instanceof>
                   <count
                         value="1">
                   </count>
@@ -1100,6 +1103,9 @@
             <or>
                <with
                      variable="selection">
+                  <instanceof
+                        value="org.eclipse.jface.viewers.IStructuredSelection">
+                  </instanceof>
                   <count
                         value="1">
                   </count>
