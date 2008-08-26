@@ -47,7 +47,7 @@ public class CodeGeneration {
 		}
 		
 		final StatetProject project = StatetCore.getStatetProject(cu);
-		final RCodeTemplatesContext context = new RCodeTemplatesContext(RCodeTemplatesContextType.NEW_RSCIRPTFILE_CONTEXTTYPE, project, lineDelimiter);
+		final RCodeTemplatesContext context = new RCodeTemplatesContext(RCodeTemplatesContextType.NEW_RSCRIPTFILE_CONTEXTTYPE, project, lineDelimiter);
 		context.setCodeUnitVariables(cu);
 		
 		final NewFileData data = new NewFileData();

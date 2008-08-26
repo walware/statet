@@ -21,7 +21,7 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 	
 	
 /* context types **************************************************************/
-	public static final String NEW_RSCIRPTFILE_CONTEXTTYPE = "r_NewRScriptFile_context"; //$NON-NLS-1$
+	public static final String NEW_RSCRIPTFILE_CONTEXTTYPE = "r_NewRScriptFile_context"; //$NON-NLS-1$
 	
 /* templates ******************************************************************/
 	public static final String NEW_RSCRIPTFILE = "r_NewRScriptFile"; //$NON-NLS-1$
@@ -69,7 +69,7 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 //	public static final String FILE_COMMENT= "filecomment"; //$NON-NLS-1$
 	
 	public static void registerContextTypes(final ContextTypeRegistry registry) {
-		registry.addContextType(new RCodeTemplatesContextType(NEW_RSCIRPTFILE_CONTEXTTYPE));
+		registry.addContextType(new RCodeTemplatesContextType(NEW_RSCRIPTFILE_CONTEXTTYPE));
 		
 //		registry.addContextType(new RCodeTemplatesContextTypes(RCodeTemplatesContextTypes.CATCHBLOCK_CONTEXTTYPE));
 //		registry.addContextType(new RCodeTemplatesContextTypes(RCodeTemplatesContextTypes.METHODBODY_CONTEXTTYPE));
@@ -108,7 +108,7 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 		super(contextName);
 		
 		addCommonVariables();
-		if (NEW_RSCIRPTFILE_CONTEXTTYPE.equals(contextName)) {
+		if (NEW_RSCRIPTFILE_CONTEXTTYPE.equals(contextName)) {
 			addRUnitVariables();
 			addInitialSelectionResolver();
 		}
