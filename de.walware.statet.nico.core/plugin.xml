@@ -17,10 +17,12 @@
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.nico.internal.core.NicoPreferenceInitializer"/>
+<!--
       <scope
-            class="de.walware.statet.nico.core.ConsoleInstanceScope"
-            name="nico">
+            name="nico.instance">
+            class="de.walware.statet.nico.core.-must extend EclipsePreferences-"
       </scope>
+-->
    </extension>
 
    <extension
