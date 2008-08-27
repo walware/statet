@@ -22,10 +22,10 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 
+import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
-import de.walware.statet.r.codegeneration.CodeGeneration.NewFileData;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -51,10 +51,10 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 			final String lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			try {
 				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "rd"); //$NON-NLS-1$
-				final NewFileData data = CodeGeneration.getNewRdFileContent(rcu, lineDelimiter);
+				final EvaluatedTemplate data = CodeGeneration.getNewRdFileContent(rcu, lineDelimiter);
 				if (data != null) {
-					fSelectionStart = data.selectionStart;
-					fSelectionEnd = data.selectionEnd;
+					fSelectionStart = data.selectOffset;
+					fSelectionEnd = data.selectOffset + data.selectLength;
 					return data.content;
 				}
 			} catch (final CoreException e) {

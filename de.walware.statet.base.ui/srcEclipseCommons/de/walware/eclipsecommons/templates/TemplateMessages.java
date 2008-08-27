@@ -19,6 +19,8 @@ public final class TemplateMessages extends NLS {
 	
 	public static String TemplateVariableProposal_error_title;
 	
+	public static String TemplateEvaluation_error_description;
+	
 	
 	static {
 		NLS.initializeMessages(TemplateMessages.class.getName(), TemplateMessages.class);

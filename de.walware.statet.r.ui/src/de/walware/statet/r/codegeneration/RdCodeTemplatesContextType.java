@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class RdCodeTemplatesContextType extends StatextCodeTemplatesContextType 
 	}
 	
 	private void addRUnitVariables() {
-		addResolver(new CodeTemplatesVariableResolver(FILENAME, TemplatesMessages.Templates_Variable_File_description));
+		addResolver(new CodeTemplatesVariableResolver(FILENAME_VARIABLE, TemplatesMessages.Templates_Variable_File_description));
 	}
 	
 }

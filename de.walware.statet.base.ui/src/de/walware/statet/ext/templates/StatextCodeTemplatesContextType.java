@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 import org.eclipse.jface.text.templates.SimpleTemplateVariableResolver;
@@ -77,15 +76,11 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 	protected static class InitialSelectionStart extends TemplateVariableResolver {
 		
 		public InitialSelectionStart() {
-			super("selection_begin", TemplatesMessages.Templates_Variable_SelectionBegin_description);  //$NON-NLS-1$
+			super(SELECT_START_VARIABLE, TemplatesMessages.Templates_Variable_SelectionBegin_description);  
 		}
 		
 		@Override
 		public void resolve(final TemplateVariable variable, final TemplateContext context) {
-			final int[] offsets = variable.getOffsets();
-			if (context instanceof StatextCodeTemplatesContext && offsets.length > 0) {
-				((StatextCodeTemplatesContext) context).fSelectionStart = new Position(variable.getOffsets()[0], 0);
-			}
 			variable.setValue(""); //$NON-NLS-1$
 			variable.setUnambiguous(true);
 		}
@@ -94,15 +89,11 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 	protected static class InitialSelectionEnd extends TemplateVariableResolver {
 		
 		public InitialSelectionEnd() {
-			super("selection_end", TemplatesMessages.Templates_Variable_SelectionEnd_description);  //$NON-NLS-1$
+			super(SELECT_END_VARIABLE, TemplatesMessages.Templates_Variable_SelectionEnd_description);  
 		}
 		
 		@Override
 		public void resolve(final TemplateVariable variable, final TemplateContext context) {
-			final int[] offsets = variable.getOffsets();
-			if (context instanceof StatextCodeTemplatesContext && offsets.length > 0) {
-				((StatextCodeTemplatesContext) context).fSelectionEnd = new Position(variable.getOffsets()[0], 0);
-			}
 			variable.setValue(""); //$NON-NLS-1$
 			variable.setUnambiguous(true);
 		}
@@ -130,7 +121,9 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 	}
 	
 	
-	public static final String FILENAME = "file_name"; //$NON-NLS-1$
+	public static final String FILENAME_VARIABLE = "file_name"; //$NON-NLS-1$
+	public static final String SELECT_START_VARIABLE = "selection_begin"; //$NON-NLS-1$
+	public static final String SELECT_END_VARIABLE = "selection_end"; ////$NON-NLS-1$
 	
 	
 	public StatextCodeTemplatesContextType(final String id, final String name) {
@@ -217,12 +210,6 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 				}
 		}
 		
-		if (context instanceof StatextCodeTemplatesContext) {
-			final Position[] updatePositions = ((StatextCodeTemplatesContext) context).getPositions();
-			for (int i = 0; i < updatePositions.length; i++) {
-				document.addPosition(updatePositions[i]);
-			}
-		}
 		final MultiTextEdit edit= new MultiTextEdit(0, document.getLength());
 		edit.addChildren(positions.toArray(new TextEdit[positions.size()]));
 		edit.addChildren(edits.toArray(new TextEdit[edits.size()]));
@@ -231,6 +218,21 @@ public class StatextCodeTemplatesContextType extends TemplateContextType {
 		TemplatesUtil.positionsToVariables(positions, variables);
 		
 		buffer.setContent(document.get(), variables);
+	}
+	
+	
+	@Override
+	public int hashCode() {
+		return getId().hashCode();
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		if (!(obj instanceof StatextCodeTemplatesContextType)) {
+			return false;
+		}
+		final StatextCodeTemplatesContextType other = (StatextCodeTemplatesContextType) obj;
+		return getId().equals(other.getId());
 	}
 	
 }

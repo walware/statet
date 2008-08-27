@@ -52,7 +52,7 @@ public class RweaveTexTemplatesContextType extends StatextCodeTemplatesContextTy
 	}
 	
 	private void addRUnitVariables() {
-		addResolver(new CodeTemplatesVariableResolver(FILENAME, TemplatesMessages.Templates_Variable_File_description));
+		addResolver(new CodeTemplatesVariableResolver(FILENAME_VARIABLE, TemplatesMessages.Templates_Variable_File_description));
 	}
 	
 }

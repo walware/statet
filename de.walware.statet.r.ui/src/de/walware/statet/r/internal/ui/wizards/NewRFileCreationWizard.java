@@ -24,10 +24,10 @@ import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 
+import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
-import de.walware.statet.r.codegeneration.CodeGeneration.NewFileData;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
@@ -54,10 +54,10 @@ public class NewRFileCreationWizard extends NewElementWizard {
 			final String lineDelimiter = TextUtil.getLineDelimiter(newFileHandle.getProject());
 			try {
 				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, RModel.TYPE_ID);
-				final NewFileData data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
+				final EvaluatedTemplate data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
 				if (data != null) {
-					fSelectionStart = data.selectionStart;
-					fSelectionEnd = data.selectionEnd;
+					fSelectionStart = data.selectOffset;
+					fSelectionEnd = data.selectOffset +  data.selectLength;
 					return data.content;
 				}
 			}

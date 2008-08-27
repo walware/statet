@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2006 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,9 +30,7 @@ public class RdCodeTemplatesContext extends StatextCodeTemplatesContext {
 	
 	
 	public void setCodeUnitVariables(final RResourceUnit u) {
-		setVariable(RCodeTemplatesContextType.FILENAME, u.getElementName().getDisplayName());
-//		setVariable(RCodeTemplatesContextType.PACKAGENAME, u.getParent().getElementName());
-//		setVariable(RCodeTemplatesContextType.PROJECTNAME, u.getRProject().getElementName());
+		setVariable(RCodeTemplatesContextType.FILENAME_VARIABLE, u.getElementName().getDisplayName());
 	}
 	
 }

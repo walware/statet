@@ -11,16 +11,13 @@
 
 package de.walware.statet.ext.templates;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultLineTracker;
 import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateContext;
@@ -38,8 +35,6 @@ public class StatextCodeTemplatesContext extends TemplateContext implements IExt
 	
 	private String fLineDelimiter;
 	private StatetProject fProject;
-	Position fSelectionStart;
-	Position fSelectionEnd;
 	
 	
 	public StatextCodeTemplatesContext(
@@ -84,8 +79,12 @@ public class StatextCodeTemplatesContext extends TemplateContext implements IExt
 			
 		final String pattern = changeLineDelimiter(template.getPattern(), fLineDelimiter);
 		
-		final TemplateTranslator translator= new TemplateTranslator();
-		final TemplateBuffer buffer= translator.translate(pattern);
+		final TemplateTranslator translator = new TemplateTranslator();
+		final TemplateBuffer buffer = translator.translate(pattern);
+		if (buffer == null) {
+			// translator.getErrorMessage();
+			return null;
+		}
 		getContextType().resolve(buffer, this);
 		return buffer;
 	}
@@ -118,35 +117,6 @@ public class StatextCodeTemplatesContext extends TemplateContext implements IExt
 	@Override
 	public boolean canEvaluate(final Template template) {
 		return true;
-	}
-	
-	public int getSelectionStart() {
-		if (fSelectionStart != null) {
-			return fSelectionStart.offset;
-		}
-		return -1;
-	}
-	
-	public int getSelectionEnd() {
-		if (fSelectionEnd != null) {
-			return fSelectionEnd.offset;
-		}
-		return -1;
-	}
-	
-	public final Position[] getPositions() {
-		final List<Position> list = new ArrayList<Position>();
-		addPositions(list);
-		return list.toArray(new Position[list.size()]);
-	}
-	
-	protected void addPositions(final List<Position> list) {
-		if (fSelectionStart != null) {
-			list.add(fSelectionStart);
-		}
-		if (fSelectionEnd != null) {
-			list.add(fSelectionEnd);
-		}
 	}
 	
 }

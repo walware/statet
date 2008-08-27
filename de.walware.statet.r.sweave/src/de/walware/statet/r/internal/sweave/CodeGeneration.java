@@ -12,13 +12,21 @@
 package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.templates.Template;
+import org.eclipse.jface.text.templates.TemplateBuffer;
+import org.eclipse.osgi.util.NLS;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.templates.TemplateMessages;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.TemplatesUtil;
+import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
+
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -26,35 +34,37 @@ import de.walware.statet.ext.templates.TemplatesUtil;
  */
 public class CodeGeneration {
 	
-	public static class NewFileData {
-		public String content;
-		public int selectionStart;
-		public int selectionEnd;
-	}
-	
 	
 	/**
-	 * @param cu The code unit to create the source for. The unit does not need to exist.
+	 * Generates initial content for a new Sweave (R/LaTeX) script file.
+	 * 
+	 * @param su the source unit to create the source for. The unit does not need to exist.
 	 * @param lineDelimiter The line delimiter to be used.
-	 * @return Returns the new content or <code>null</code> if the template is undefined or empty.
-	 * @throws CoreException Thrown when the evaluation of the code template fails.
+	 * @return the new content or <code>null</code> if the template is undefined or empty.
+	 * @throws CoreException thrown when the evaluation of the code template fails.
 	 */
-	public static NewFileData getNewRweaveTexDocContent(final ISourceUnit cu, final String lineDelimiter) throws CoreException {
+	public static EvaluatedTemplate getNewRweaveTexDocContent(final ISourceUnit su, final String lineDelimiter) throws CoreException {
 		final Template template = SweavePlugin.getDefault().getRweaveTexGenerationTemplateStore().findTemplateById(RweaveTexTemplatesContextType.NEW_SWEAVEDOC_ID);
 		if (template == null) {
 			return null;
 		}
 		
-		final StatetProject project = StatetCore.getStatetProject(cu);
+		final StatetProject project = StatetCore.getStatetProject(su);
 		final RweaveTexTemplatesContext context = new RweaveTexTemplatesContext(
 				RweaveTexTemplatesContextType.NEW_RWEAVETEX_CONTEXTTYPE, project, lineDelimiter);
-		context.setCodeUnitVariables(cu);
+		context.setCodeUnitVariables(su);
 		
-		final NewFileData data = new NewFileData();
-		data.content = TemplatesUtil.evaluateTemplate(context, template);
-		data.selectionStart = context.getSelectionStart();
-		data.selectionEnd = context.getSelectionEnd();
-		return data;
+		try {
+			final TemplateBuffer buffer = context.evaluate(template);
+			if (buffer == null) {
+				return null;
+			}
+			return new TemplatesUtil.EvaluatedTemplate(buffer);
+		}
+		catch (final Exception e) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, NLS.bind(
+					TemplateMessages.TemplateEvaluation_error_description, template.getDescription()), e));
+		}
 	}
 	
 }
