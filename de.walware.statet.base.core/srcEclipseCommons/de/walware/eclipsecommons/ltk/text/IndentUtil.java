@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,6 +62,10 @@ public class IndentUtil {
 		
 		public void changeIndent(final int firstLine, final int lastLine, IndentEditAction action)
 				throws BadLocationException;
+		
+		public String copyLineIndent(int line) 
+				throws BadLocationException;
+		
 	}
 	
 	private class ConserveStrategy implements EditStrategy {
@@ -192,6 +196,25 @@ public class IndentUtil {
 				continue ITER_LINES;
 			}
 		}
+		
+		public String copyLineIndent(final int line) throws BadLocationException {
+			final IRegion lineInfo = fDocument.getLineInformation(line);
+			int offset = lineInfo.getOffset();
+			ITERATE_CHAR : while (true) {
+				final int c = getDocumentChar(offset++);
+				switch (c) {
+				case ' ':
+					continue ITERATE_CHAR;
+				case '\t':
+					continue ITERATE_CHAR;
+				default:
+					--offset;
+					break ITERATE_CHAR;
+				}
+			}
+			return fDocument.get(lineInfo.getOffset(), offset-lineInfo.getOffset());
+		}
+		
 	}
 	
 	private class CorrectStrategy implements EditStrategy {
@@ -234,6 +257,26 @@ public class IndentUtil {
 			
 		}
 		
+		public String copyLineIndent(final int line) throws BadLocationException {
+			final IRegion lineInfo = fDocument.getLineInformation(line);
+			int column = 0;
+			int offset = lineInfo.getOffset();
+			ITERATE_CHAR : while (true) {
+				final int c = getDocumentChar(offset++);
+				switch (c) {
+				case ' ':
+					column++;
+					continue ITERATE_CHAR;
+				case '\t':
+					column += fTabWidth - (column % fTabWidth);
+					continue ITERATE_CHAR;
+				default:
+					break ITERATE_CHAR;
+				}
+			}
+			return createIndentString(column);
+		}
+		
 	}
 	
 	
@@ -264,7 +307,7 @@ public class IndentUtil {
 	 * 
 	 * @param line line to check
 	 * @param markBlankLine if true, empty lines have are marked with a indentColumn of -1
-	 * @return
+	 * @return column and offset of line indent
 	 * @throws BadLocationException
 	 */
 	public int[] getLineIndent(final int line, final boolean markBlankLine) throws BadLocationException {
@@ -290,6 +333,17 @@ public class IndentUtil {
 				return new int[] { column, --offset };
 			}
 		}
+	}
+	
+	/**
+	 * Creates a line indentation string with same depth as the given line.
+	 * The exact string depends on the configured strategy.
+	 * @param line the line number
+	 * @return line indentation string
+	 * @throws BadLocationException
+	 */
+	public String copyLineIndent(final int line) throws BadLocationException {
+		return fEditStrategy.copyLineIndent(line);
 	}
 	
 //	public int getIndentationindentColumn(String chars) throws BadLocationException {
