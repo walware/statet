@@ -63,7 +63,7 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 						if (runnable.getStampAssertion() > 0 && document.getModificationStamp() != runnable.getStampAssertion()) {
 							throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, "Document out of sync (usuallly caused by concurrent document modifications)."));
 						}
-						runnable.run(document);
+						runnable.run();
 					}
 				}
 				catch (final InvocationTargetException e) {

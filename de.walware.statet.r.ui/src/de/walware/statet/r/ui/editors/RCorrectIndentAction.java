@@ -145,9 +145,9 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			unit.syncExec(new SourceDocumentRunnable(document, ast.stamp,
 					(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
 				@Override
-				public void run(final AbstractDocument document) throws InvocationTargetException {
+				public void run() throws InvocationTargetException {
 					try {
-						edits.apply(document, TextEdit.NONE);
+						edits.apply(getDocument(), TextEdit.NONE);
 					}
 					catch (final MalformedTreeException e) {
 						throw new InvocationTargetException(e);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,9 @@ import org.eclipse.jface.text.DocumentRewriteSessionType;
 
 
 /**
+ * Runnable to execute a document operation in a special context.
  * 
+ * @see ISourceUnit#syncExec(SourceDocumentRunnable)
  */
 public abstract class SourceDocumentRunnable {
 	
@@ -53,6 +55,6 @@ public abstract class SourceDocumentRunnable {
 	}
 	
 	
-	public abstract void run(AbstractDocument document) throws InvocationTargetException;
+	public abstract void run() throws InvocationTargetException;
 	
 }
