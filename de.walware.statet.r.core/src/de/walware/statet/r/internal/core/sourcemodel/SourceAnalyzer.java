@@ -311,10 +311,12 @@ public class SourceAnalyzer extends RAstVisitor {
 				new MethodsSlot(rdef));
 		
 		// DEBUG
-		final Set<String> test = new HashSet<String>();
-		test.addAll(rdef.getKnownFunctions());
-		test.removeAll(fFCallAnalyzers.keySet());
-		System.out.println("nonregistered RCoreFunctions: " + test.toString());
+		if (false) {
+			final Set<String> test = new HashSet<String>();
+			test.addAll(rdef.getKnownFunctions());
+			test.removeAll(fFCallAnalyzers.keySet());
+			System.out.println("nonregistered RCoreFunctions: " + test.toString());
+		}
 		
 		fFCallFallback = new NoDefFallback();
 	}

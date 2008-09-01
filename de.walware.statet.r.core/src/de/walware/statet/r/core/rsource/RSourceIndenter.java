@@ -841,6 +841,7 @@ class ScopeFactory {
 	
 	public final void createArglistScope(final int offset, final RAstNode node) throws BadLocationException {
 		final int line = fDoc.getLineOfOffset(offset);
+		// TODO: this can cause deep indentation - use compact detection of parent?
 		initNew(offset, line, node, FIX_STRAT, fScope.getIndent(line)+fWrappedCol);
 	}
 	
