@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.eclipsecommons.FileUtil;
 
@@ -78,7 +79,7 @@ public class WorkspaceUtilImpl extends FileUtil {
 			
 			@Override
 			public void doOperation(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-				runAsWorkspaceRunnable(monitor, fFile);
+				runAsWorkspaceRunnable(monitor, null);
 			}
 			
 		};
@@ -90,7 +91,10 @@ public class WorkspaceUtilImpl extends FileUtil {
 			
 			@Override
 			public void doOperation(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
-				runAsWorkspaceRunnable(monitor, fFile);
+				final ISchedulingRule rule = (fFile.exists()) ? 
+						fFile.getWorkspace().getRuleFactory().modifyRule(fFile) :
+						fFile.getWorkspace().getRuleFactory().createRule(fFile);
+				runAsWorkspaceRunnable(monitor, rule);
 			}
 			
 			@Override

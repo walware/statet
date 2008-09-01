@@ -28,7 +28,6 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -180,15 +179,15 @@ public abstract class FileUtil {
 			fForceCharset = forceCharset;
 		}
 		
+		
 		public void doOperation(final IProgressMonitor monitor) throws CoreException, OperationCanceledException {
 			runInEnv(monitor);
 		}
 		
 		protected abstract void runInEnv(IProgressMonitor monitor) throws CoreException, OperationCanceledException;
 		
-		protected void runAsWorkspaceRunnable(final IProgressMonitor monitor, final IResource scope) throws CoreException, OperationCanceledException {
+		protected void runAsWorkspaceRunnable(final IProgressMonitor monitor, final ISchedulingRule rule) throws CoreException, OperationCanceledException {
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			final ISchedulingRule rule = workspace.getRuleFactory().createRule(scope);
 			final IWorkspaceRunnable workspaceRunner = new IWorkspaceRunnable() {
 				public void run(final IProgressMonitor monitor) throws CoreException {
 					runInEnv(monitor);
