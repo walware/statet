@@ -34,9 +34,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;

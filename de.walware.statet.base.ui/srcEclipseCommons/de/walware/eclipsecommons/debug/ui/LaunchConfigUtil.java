@@ -9,15 +9,19 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.ui.debug;
+package de.walware.eclipsecommons.debug.ui;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.Collator;
 import com.ibm.icu.text.DateFormat;
 
 import org.eclipse.core.resources.IProject;
@@ -39,12 +43,14 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.RefreshTab;
 
-import de.walware.statet.base.internal.ui.StatetMessages;
+import de.walware.eclipsecommons.debug.internal.ui.WinEnvpMap;
+import de.walware.eclipsecommons.internal.ui.Messages;
+
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
- * 
+ * Methods for common task when working with launch configurations and processes
  */
 public class LaunchConfigUtil {
 	
@@ -200,7 +206,7 @@ public class LaunchConfigUtil {
 			if (fProcess != null) {
 				DebugPlugin.getDefault().removeDebugEventListener(this);
 				fProcess = null;
-				final Job job = new Job(StatetMessages.BackgroundResourceRefresher_Job_name) {
+				final Job job = new Job(Messages.BackgroundResourceRefresher_Job_name) {
 					@Override
 					public IStatus run(final IProgressMonitor monitor) {
 						try {
@@ -224,11 +230,11 @@ public class LaunchConfigUtil {
 			monitor = new NullProgressMonitor();
 		}
 		if (CommonTab.isLaunchInBackground(configuration)) {
-			monitor.beginTask(StatetMessages.LaunchDelegate_LaunchingTask_label, taskTotalWork);
+			monitor.beginTask(Messages.LaunchDelegate_LaunchingTask_label, taskTotalWork);
 		}
 		else {
-			monitor.beginTask(StatetMessages.LaunchDelegate_RunningTask_label, taskTotalWork*2);
-			monitor.subTask(StatetMessages.LaunchDelegate_LaunchingTask_label);
+			monitor.beginTask(Messages.LaunchDelegate_RunningTask_label, taskTotalWork*2);
+			monitor.subTask(Messages.LaunchDelegate_LaunchingTask_label);
 		}
 		return monitor;
 	}
@@ -301,6 +307,27 @@ public class LaunchConfigUtil {
 		}
 		return new IProject[0];
 	}
+	
+	public static String[] toKeyValueStrings(final Map<String, String> map) {
+		final String[] array = new String[map.size()];
+		final Iterator<Map.Entry<String, String>> iter = map.entrySet().iterator();
+		for (int i = 0; i < array.length; i++) {
+			final Entry<String, String> entry = iter.next();
+			array[i] = entry.getKey()+'='+entry.getValue();
+		}
+		return array;
+	}
+	
+	
+	public static class LaunchConfigurationComparator implements Comparator<ILaunchConfiguration> {
+		
+		private Collator fCollator = Collator.getInstance();
+		
+		public int compare(final ILaunchConfiguration c1, final ILaunchConfiguration c2) {
+			return fCollator.compare(c1.getName(), c2.getName());
+		}
+		
+	};
 	
 	
 	private LaunchConfigUtil() {}

@@ -61,6 +61,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.AbstractSettingsModelObject;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
 import de.walware.eclipsecommons.ui.SharedMessages;
 import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
@@ -69,7 +70,6 @@ import de.walware.eclipsecommons.ui.util.LayoutUtil;
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.debug.HelpRequestor;
 import de.walware.statet.base.ui.debug.InputArgumentsComposite;
-import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;

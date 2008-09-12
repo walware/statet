@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.ui.debug;
+package de.walware.eclipsecommons.debug.internal.ui;
 
 import java.util.Collection;
 import java.util.HashMap;

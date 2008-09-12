@@ -39,8 +39,8 @@ import org.eclipse.ui.console.TextConsole;
 
 import de.walware.eclipsecommons.FileUtil;
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
 
-import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;

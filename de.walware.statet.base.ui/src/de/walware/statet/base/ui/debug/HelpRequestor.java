@@ -43,6 +43,7 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
 import de.walware.eclipsecommons.ui.util.PixelConverter;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 

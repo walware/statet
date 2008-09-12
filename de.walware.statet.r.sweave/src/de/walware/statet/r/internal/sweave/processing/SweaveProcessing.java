@@ -16,6 +16,8 @@ import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDele
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_WEAVE;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,6 +42,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.FastList;
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
 import de.walware.eclipsecommons.ui.util.DialogUtil;
 import de.walware.eclipsecommons.ui.util.MessageUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -55,6 +58,8 @@ public class SweaveProcessing implements ILaunchConfigurationListener {
 	
 	
 	public static final String ATT_BUILDSTEPS = "buildSteps"; //$NON-NLS-1$
+	
+	private static final Comparator<ILaunchConfiguration> CONFIG_COMPARATOR = new LaunchConfigUtil.LaunchConfigurationComparator();
 	
 	
 	public static boolean isEnabled(final int toCheck, final int currentFlags) {
@@ -193,13 +198,16 @@ public class SweaveProcessing implements ILaunchConfigurationListener {
 	}
 	
 	public ILaunchConfiguration[] getAvailableProfiles() {
-		if (fCurrentConfigs == null) {
+		ILaunchConfiguration[] configs = fCurrentConfigs;
+		if (configs == null) {
 			try {
-				fCurrentConfigs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(fConfigType);
+				configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(fConfigType);
+				Arrays.sort(configs, CONFIG_COMPARATOR);
+				fCurrentConfigs = configs;
 			} catch (final CoreException e) {
 			}
 		}
-		return fCurrentConfigs;
+		return configs;
 	}
 	
 	public void setActiveProfile(final ILaunchConfiguration configuration) {

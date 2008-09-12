@@ -16,12 +16,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
@@ -37,7 +35,8 @@ import org.eclipse.jdt.launching.JavaLaunchDelegate;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 
-import de.walware.statet.base.ui.debug.LaunchConfigUtil;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
+
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
@@ -126,13 +125,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	public String[] getEnvironment(final ILaunchConfiguration configuration) throws CoreException {
 		final Map<String, String> envp = LaunchConfigUtil.createEnvironment(configuration, 
 				new Map[] { fRenv.getEnvironmentsVariables() });
-		final String[] array = new String[envp.size()];
-		final Iterator<Map.Entry<String, String>> iter = envp.entrySet().iterator();
-		for (int i = 0; i < array.length; i++) {
-			final Entry<String, String> entry = iter.next();
-			array[i] = entry.getKey()+'='+entry.getValue();
-		}
-		return array;
+		return LaunchConfigUtil.toKeyValueStrings(envp);
 	}
 	
 	@Override

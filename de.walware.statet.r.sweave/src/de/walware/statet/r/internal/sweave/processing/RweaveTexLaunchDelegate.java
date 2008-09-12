@@ -39,9 +39,9 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
 import de.walware.eclipsecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.debug.LaunchConfigUtil;
 
 import net.sourceforge.texlipse.Texlipse;
 

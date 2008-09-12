@@ -36,6 +36,10 @@ public class Messages extends NLS {
 	
 	public static String ConfigurationPage_error_message;
 	
+	public static String LaunchDelegate_LaunchingTask_label;
+	public static String LaunchDelegate_RunningTask_label;
+	public static String BackgroundResourceRefresher_Job_name;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);
