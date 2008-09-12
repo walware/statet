@@ -21,6 +21,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -42,12 +43,16 @@ public class RunSelectionAndGotoNextLineHandler extends AbstractHandler {
 		try {
 			if (workbenchPart instanceof ITextEditor) {
 				final ITextEditor editor = (ITextEditor) workbenchPart;
-				final IDocument doc = editor.getDocumentProvider().getDocument(editor.getEditorInput() );
+				final IDocumentProvider documentProvider = editor.getDocumentProvider();
+				IDocument document = null;
+				if (documentProvider != null) {
+					document = documentProvider.getDocument(editor.getEditorInput());
+				}
 				final ISelection selection = editor.getSelectionProvider().getSelection();
-				if (doc != null && selection instanceof ITextSelection) {
+				if (document != null && selection instanceof ITextSelection) {
 					final ITextSelection textSelection = (ITextSelection) selection;
 					RCodeLaunching.runRCodeDirect(textSelection.getText(), false);
-					final int newOffset = getNextLineOffset(doc, textSelection.getEndLine());
+					final int newOffset = getNextLineOffset(document, textSelection.getEndLine());
 					if (newOffset >= 0) {
 						editor.selectAndReveal(newOffset, 0);
 					}

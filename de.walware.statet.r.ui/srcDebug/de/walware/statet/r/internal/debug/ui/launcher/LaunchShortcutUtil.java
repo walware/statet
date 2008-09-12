@@ -40,6 +40,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.statushandlers.StatusManager;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -155,11 +156,16 @@ public class LaunchShortcutUtil {
 				IDocument document = null;
 				if (workbenchPart instanceof ITextEditor) {
 					final ITextEditor editor = (ITextEditor) workbenchPart;
-					document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+					final IDocumentProvider documentProvider = editor.getDocumentProvider();
+					if (documentProvider != null) {
+						document = documentProvider.getDocument(editor.getEditorInput());
+					}
 				}
-				else {
+				if (document == null) {
 					final IEditorAdapter editor = (IEditorAdapter) workbenchPart.getAdapter(IEditorAdapter.class);
-					document = editor.getSourceViewer().getDocument();
+					if (editor != null) {
+						document = editor.getSourceViewer().getDocument();
+					}
 				}
 				if (document != null) {
 					if (textSelection.getLength() > 0) {
@@ -213,5 +219,8 @@ public class LaunchShortcutUtil {
 			Display.getCurrent().beep();
 		}
 	}
+	
+	
+	private LaunchShortcutUtil() {}
 	
 }

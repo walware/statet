@@ -34,6 +34,7 @@ import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import de.walware.eclipsecommons.FileValidator;
 import de.walware.eclipsecommons.ui.util.UIAccess;
@@ -100,9 +101,12 @@ public class RErrorLineTracker implements IPatternMatchListener {
 					editor = IDE.openEditor(UIAccess.getActiveWorkbenchPage(true), fileValidator.getFileStore().toURI(), RUI.R_EDITOR_ID, true);
 				}
 				final AbstractTextEditor textEditor = (AbstractTextEditor) editor;
-				final IDocument doc = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-				final IRegion lineInfo = doc.getLineInformation(fLine);
-				textEditor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+				final IDocumentProvider documentProvider = textEditor.getDocumentProvider();
+				if (documentProvider != null) {
+					final IDocument doc = documentProvider.getDocument(textEditor.getEditorInput());
+					final IRegion lineInfo = doc.getLineInformation(fLine);
+					textEditor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+				}
 			}
 			catch (final PartInitException e) {
 				error = e;
