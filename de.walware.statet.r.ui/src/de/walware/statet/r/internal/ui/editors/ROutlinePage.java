@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -227,7 +227,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 				site, null, RCodeLaunching.RUN_SELECTION_COMMAND_ID, null,
 				null, null, null,
 				null, "R", null, //$NON-NLS-1$
-				CommandContributionItem.STYLE_PUSH, null, true)));
+				CommandContributionItem.STYLE_PUSH, null, false)));
 		final Separator additions = new Separator(IStatetUIMenuIds.GROUP_ADDITIONS_ID);
 		additions.setVisible(false);
 		m.add(additions);
