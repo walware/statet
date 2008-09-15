@@ -571,6 +571,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 								fControllerRunnable.getLabel(), runnable.getLabel())));
 			}
 			fControllerRunnable = runnable;
+			if (fStatus != ToolStatus.STARTED_PROCESSING) {
+				fQueue.notifyAll();
+			}
 		}
 	}
 	
