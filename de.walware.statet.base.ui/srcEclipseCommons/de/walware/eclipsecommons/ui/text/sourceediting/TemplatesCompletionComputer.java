@@ -61,9 +61,15 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	public void sessionStarted(final ISourceEditor editor) {
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void sessionEnded() {
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
 			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
 		final ISourceViewer viewer = context.getSourceViewer();
@@ -111,23 +117,14 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 				continue;
 			}
 			if (template.getContextTypeId().equals(context.getContextType().getId())
-					&& template.getName().startsWith(prefix)) // Change <-> super
+					&& template.getName().regionMatches(true, 0, prefix, 0, prefix.length())) { // Change <-> super
 				templateMatches.add(createProposal(template, context, replacementRegion, getRelevance(template, prefix)));
+			}
 		}
 		if (templateMatches.size() > 0) {
 			Collections.sort(templateMatches, fgTemplateComparator);
 			tenders.addAll(templateMatches);
 			count += templateMatches.size();
-		}
-		
-		// Add keywords (allready sorted)
-		if (prefix.length() > 0) {
-			final List<String> keywords = getKeywords();
-			for (final String keyword : keywords) {
-				if (keyword.startsWith(prefix))
-					tenders.add(new KeywordCompletionProposal(keyword,
-							replacementRegion.getOffset()));
-			}
 		}
 		
 		return count;
@@ -139,10 +136,6 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	}
 	
 	
-	protected List<String> getKeywords() {
-		return Collections.EMPTY_LIST;
-	}
-	
 	protected String extractPrefix(final AssistInvocationContext context) {
 		return context.computeIdentifierPrefix();
 	}
@@ -151,13 +144,12 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 		return fTemplateStore.getTemplates();
 	}
 	
-	protected abstract TemplateContextType getContextType(final ITextViewer viewer, final IRegion region);
+	protected abstract TemplateContextType getContextType(final AssistInvocationContext context, final IRegion region);
 	
 	protected DocumentTemplateContext createTemplateContext(final AssistInvocationContext context, final IRegion region) {
 		final ISourceViewer viewer = context.getSourceViewer();
-		final TemplateContextType contextType = getContextType(viewer, region);
+		final TemplateContextType contextType = getContextType(context, region);
 		if (contextType != null) {
-			
 			final IDocument document = viewer.getDocument();
 			return new DocumentTemplateContext(contextType, document, region.getOffset(), region.getLength());
 		}
@@ -169,7 +161,7 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	}
 	
 	protected Image getImage(final Template template) {
-		return StatetImages.getImage(StatetImages.CONTENTASSIST_TEMPLATE);
+		return StatetImages.getImage(StatetImages.OBJ_TEXT_TEMPLATE);
 	}
 	
 	/**
@@ -183,7 +175,7 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	 * @see #extractPrefix(ITextViewer, int)
 	 */
 	protected int getRelevance(final Template template, final String prefix) {
-		if (template.getName().startsWith(prefix)) {
+		if (template.getName().regionMatches(true, 0, prefix, 0, prefix.length())) {
 			return 90;
 		}
 		return 0;

@@ -24,6 +24,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import de.walware.eclipsecommons.ui.text.BufferedDocumentScanner;
+import de.walware.eclipsecommons.ui.text.IPartitionScannerConfigExt;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -33,7 +34,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
  * This scanner recognizes the comments, platform specif., verbatim-like section
  * (and other/usual Rd code).
  */
-public class RFastPartitionScanner implements IPartitionTokenScanner {
+public class RFastPartitionScanner implements IPartitionTokenScanner, IPartitionScannerConfigExt {
 	
 	
 	/**
@@ -46,12 +47,14 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	protected static final int S_INFIX_OPERATOR = 2;
 	protected static final int S_STRING = 3;
 	protected static final int S_COMMENT = 4;
+	protected static final int S_ROXYGEN = 5;
 	
 	protected final static IToken T_DEFAULT = new Token(null);
 	protected final static IToken T_QUOTED_SYMBOL = new Token(IRDocumentPartitions.R_QUOTED_SYMBOL);
 	protected final static IToken T_INFIX = new Token(IRDocumentPartitions.R_INFIX_OPERATOR);
 	protected final static IToken T_STRING = new Token(IRDocumentPartitions.R_STRING);
 	protected final static IToken T_COMMENT = new Token(IRDocumentPartitions.R_COMMENT);
+	protected final static IToken T_ROXYGEN = new Token(IRDocumentPartitions.R_ROXYGEN);
 	
 	
 	/** Enum of last significant characters read. */
@@ -64,6 +67,8 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 	private final BufferedDocumentScanner fScanner = new BufferedDocumentScanner(1000);	// faster implementation
 	
 	private IDocument fDocument;
+	
+	private boolean fIsRoxygenEnabled;
 	
 	private IToken fToken;
 	/** The offset of the last returned token. */
@@ -92,6 +97,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		for (int i = 0; i < count; i++) {
 			fTokens[i] = list.get(i);
 		}
+		fIsRoxygenEnabled = true;
 	}
 	
 	private int maxState(final Set<Integer> states) {
@@ -112,6 +118,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		states.put(S_INFIX_OPERATOR, T_INFIX);
 		states.put(S_STRING, T_STRING);
 		states.put(S_COMMENT, T_COMMENT);
+		states.put(S_ROXYGEN, T_ROXYGEN);
 	}
 	
 	/**
@@ -223,8 +230,14 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 				newState(S_QUOTED_SYMBOL, 1);
 				return;
 			case '#':
-				newState(S_COMMENT, 1);
-				return;
+				if (fIsRoxygenEnabled && readChar('\'')) {
+					newState(S_ROXYGEN, 2);
+					return;
+				}
+				else {
+					newState(S_COMMENT, 1);
+					return;
+				}
 			case '%':
 				newState(S_INFIX_OPERATOR, 1);
 				return;
@@ -270,6 +283,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 			return;
 		
 		case S_COMMENT:
+		case S_ROXYGEN:
 			if (c == '\r' || c == '\n') {
 				fLast = LAST_NEWLINE;
 				newState(S_DEFAULT, 1);
@@ -307,7 +321,7 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		fPrefixLength = 0;
 	}
 	
-	protected final int getState(String contentType) {
+	protected final int getState(final String contentType) {
 		if (contentType == null) {
 			return S_DEFAULT;
 		}
@@ -319,6 +333,9 @@ public class RFastPartitionScanner implements IPartitionTokenScanner {
 		}
 		if (contentType == IRDocumentPartitions.R_COMMENT) {
 			return S_COMMENT;
+		}
+		if (contentType == IRDocumentPartitions.R_ROXYGEN) {
+			return S_ROXYGEN;
 		}
 		if (contentType == IRDocumentPartitions.R_INFIX_OPERATOR) {
 			return S_INFIX_OPERATOR;

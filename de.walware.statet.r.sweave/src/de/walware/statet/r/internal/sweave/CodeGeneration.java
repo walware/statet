@@ -59,7 +59,7 @@ public class CodeGeneration {
 			if (buffer == null) {
 				return null;
 			}
-			return new TemplatesUtil.EvaluatedTemplate(buffer);
+			return new TemplatesUtil.EvaluatedTemplate(buffer, lineDelimiter);
 		}
 		catch (final Exception e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, NLS.bind(

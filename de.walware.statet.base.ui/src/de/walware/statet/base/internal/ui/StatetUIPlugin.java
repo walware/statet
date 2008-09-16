@@ -176,7 +176,8 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 		util.register(StatetImages.LOCTOOLD_PAUSE, ImageRegistryUtil.T_LOCTOOL_D, "pause.gif"); //$NON-NLS-1$
 		util.register(StatetImages.lOCTOOL_SYNCHRONIZED, ImageRegistryUtil.T_LOCTOOL, "synced.png"); //$NON-NLS-1$
 		
-		util.register(StatetImages.CONTENTASSIST_TEMPLATE, ImageRegistryUtil.T_OBJ, "assist-template.png"); //$NON-NLS-1$
+		util.register(StatetImages.OBJ_TEXT_TEMPLATE, ImageRegistryUtil.T_OBJ, "text-template.png"); //$NON-NLS-1$
+		util.register(StatetImages.OBJ_TEXT_AT_TAG, ImageRegistryUtil.T_OBJ, "text-at_tag.png"); //$NON-NLS-1$
 		util.register(StatetImages.CONTENTASSIST_CORRECTION_LINKEDRENAME, ImageRegistryUtil.T_OBJ, "assist-linked_rename.png"); //$NON-NLS-1$
 		
 		util.register(StatetImages.LAUNCHCONFIG_MAIN, ImageRegistryUtil.T_OBJ, "main_tab.gif"); //$NON-NLS-1$

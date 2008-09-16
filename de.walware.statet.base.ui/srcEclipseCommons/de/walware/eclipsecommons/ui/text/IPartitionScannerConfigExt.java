@@ -9,20 +9,18 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.model;
+package de.walware.eclipsecommons.ui.text;
+
+import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 
 
 /**
- * An R function like element, can be a general function, a generic function or a method
+ * Optional interface for partition scanner providing additional configuration
+ * options.
  */
-public interface IRMethod extends IRLangElement {
+public interface IPartitionScannerConfigExt extends IPartitionTokenScanner {
 	
 	
-	/**
-	 * The arguments definition of this function/method
-	 * 
-	 * @return the argument definition or <code>null</code> if unknown
-	 */
-	ArgsDefinition getArgsDefinition();
+	public void setStartPartitionType(final String partitionType);
 	
 }

@@ -25,13 +25,14 @@ public class RdCodeTemplatesContextType extends StatextCodeTemplatesContextType 
 	
 /* templates ******************************************************************/
 	public static final String NEW_RDOCFILE = "rd_NewRDocFile";	 //$NON-NLS-1$
-		
+	
+	
 	public static void registerContextTypes(final ContextTypeRegistry registry) {
 		registry.addContextType(new RdCodeTemplatesContextType(NEW_RDOCFILE_CONTEXTTYPE));
 	}
 	
 	
-	public RdCodeTemplatesContextType(final String contextName) {
+	RdCodeTemplatesContextType(final String contextName) {
 		super(contextName);
 		
 		addCommonVariables();

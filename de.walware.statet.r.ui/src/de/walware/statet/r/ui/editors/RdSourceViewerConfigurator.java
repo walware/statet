@@ -22,6 +22,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
@@ -38,7 +39,7 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 
 
 /**
- * 
+ * Configurator for Rd source viewers.
  */
 public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 		implements IRCoreAccess {
@@ -60,6 +61,12 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 				new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\'));
 		setSource(core);
 		setPreferenceStore(store);
+	}
+	
+	
+	@Override
+	public PartitioningConfiguration getPartitioning() {
+		return IRDocumentPartitions.RDOC_PARTITIONING_CONFIG;
 	}
 	
 	@Override

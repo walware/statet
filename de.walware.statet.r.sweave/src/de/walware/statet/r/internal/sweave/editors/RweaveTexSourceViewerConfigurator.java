@@ -18,9 +18,12 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
+
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.sweave.text.RweaveTexBracketPairMatcher;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
@@ -39,6 +42,11 @@ public class RweaveTexSourceViewerConfigurator extends RSourceViewerConfigurator
 	@Override
 	protected void initialize() {
 		setPairMatcher(new RweaveTexBracketPairMatcher());
+	}
+	
+	@Override
+	public PartitioningConfiguration getPartitioning() {
+		return Rweave.TEX_PARTITIONING_CONFIG;
 	}
 	
 	@Override

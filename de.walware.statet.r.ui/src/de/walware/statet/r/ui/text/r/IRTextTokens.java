@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -156,6 +156,8 @@ public interface IRTextTokens {
 	
 	public static final String COMMENT_KEY = ROOT+"rComment"; //$NON-NLS-1$
 	public static final String TASK_TAG_KEY = ROOT+"taskTag"; //$NON-NLS-1$
+	public static final String ROXYGEN_KEY = ROOT + "rRoxygen"; //$NON-NLS-1$
+	public static final String ROXYGEN_TAG_KEY = ROOT + "rRoxygenTag"; //$NON-NLS-1$
 	public static final String UNDEFINED_KEY = ROOT+"rUndefined"; //$NON-NLS-1$
 	
 }

@@ -69,6 +69,7 @@ import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.eclipsecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
@@ -801,8 +802,8 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		return fSourceViewer;
 	}
 	
-	public String getPartitioning() {
-		return fConfigurator.getSourceViewerConfiguration().getConfiguredDocumentPartitioning(fSourceViewer);
+	public PartitioningConfiguration getPartitioning() {
+		return fConfigurator.getPartitioning();
 	}
 	
 	public boolean isEditable(final boolean validate) {

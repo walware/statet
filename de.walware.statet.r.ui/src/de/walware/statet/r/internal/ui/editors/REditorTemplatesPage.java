@@ -13,7 +13,10 @@ package de.walware.statet.r.internal.ui.editors;
 
 
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.AbstractDocument;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
@@ -23,11 +26,13 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.texteditor.templates.TemplatesView;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.ui.text.Partitioner;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
@@ -72,7 +77,13 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	
 	@Override
 	protected String[] getContextTypeIds(final IDocument document, final int offset) {
-//		final String partition = TextUtilities.getContentType(document, IRDocumentPartitions.R_DOCUMENT_PARTITIONING, offset, true);
+		try {
+			final String partitionType = TextUtilities.getContentType(document, getEditor().getPartitioning().getPartitioning(), offset, true);
+			if (partitionType == IRDocumentPartitions.R_ROXYGEN) {
+				return new String[] { REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE };
+			}
+		}
+		catch (final BadLocationException e) {}
 		return new String[] { REditorTemplatesContextType.RCODE_CONTEXTTYPE };
 	}
 	
@@ -98,4 +109,18 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 		return new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateProcessor);
 	}
 	
+	@Override
+	protected void configureDocument(final AbstractDocument document, final TemplateContextType contextType, final SourceViewerConfigurator configurator) {
+		final Partitioner partitioner = (Partitioner) document.getDocumentPartitioner(configurator.getPartitioning().getPartitioning());
+		if (contextType.getId().equals(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE)) {
+			partitioner.setStartPartitionType(IRDocumentPartitions.R_ROXYGEN);
+		}
+		else {
+			partitioner.setStartPartitionType(IRDocumentPartitions.R_DEFAULT_EXPL);
+		}
+		partitioner.disconnect();
+		partitioner.connect(document);
+		document.setDocumentPartitioner(configurator.getPartitioning().getPartitioning(), partitioner);
+	}
+
 }

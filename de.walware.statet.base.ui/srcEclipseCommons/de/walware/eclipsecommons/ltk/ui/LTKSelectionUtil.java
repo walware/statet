@@ -17,10 +17,12 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 import de.walware.eclipsecommons.ltk.IModelElement;
+import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
 
 
@@ -104,7 +106,8 @@ public class LTKSelectionUtil {
 			for (final ISourceStructElement child : children) {
 				final IRegion cand = child.getSourceRange();
 				if (offset >= cand.getOffset()) {
-					if (endOffset <= cand.getOffset()+cand.getLength()) {
+					if (offset < endOffset ? 
+							endOffset < cand.getOffset()+cand.getLength() : endOffset <= cand.getOffset()+cand.getLength()) {
 						ok = child;
 						continue CHECK;
 					}
@@ -116,6 +119,19 @@ public class LTKSelectionUtil {
 			break CHECK;
 		}
 		return ok;
+	}
+	
+	public static ISourceStructElement[] getSelectedSourceStructElement(final ISourceUnitModelInfo suModel, final ITextSelection selection) {
+		if (suModel != null) {
+			final ISourceStructElement root = suModel.getSourceElement();
+			final int selectionStart = selection.getOffset();
+			final int selectionEnd = selectionStart + selection.getLength();
+			if (selectionStart >= root.getSourceRange().getOffset() 
+					&& selectionEnd <= root.getSourceRange().getOffset()+root.getSourceRange().getLength()) {
+				return new ISourceStructElement[] { getSelectedSourceStructElement(root, selectionStart, selectionEnd) };
+			}
+		}
+		return null;
 	}
 	
 }

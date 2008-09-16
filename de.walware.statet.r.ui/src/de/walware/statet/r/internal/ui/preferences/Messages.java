@@ -39,8 +39,6 @@ public class Messages extends NLS {
 	public static String RSyntaxColoring_Identifier_Custom2_label;
 	public static String RSyntaxColoring_Undefined_label;
 	public static String RSyntaxColoring_Undefined_description;
-	public static String RSyntaxColoring_Comment_label;
-	public static String RSyntaxColoring_Comment_description;
 	public static String RSyntaxColoring_String_label;
 	public static String RSyntaxColoring_String_description;
 	public static String RSyntaxColoring_Numbers_label;
@@ -73,8 +71,14 @@ public class Messages extends NLS {
 	public static String RSyntaxColoring_Grouping_description;
 	public static String RSyntaxColoring_Indexing_label;
 	public static String RSyntaxColoring_Indexing_description;
-	public static String RSyntaxColoring_taskTag_label;
-	public static String RSyntaxColoring_taskTag_description;
+	public static String RSyntaxColoring_Comment_label;
+	public static String RSyntaxColoring_Comment_description;
+	public static String RSyntaxColoring_TaskTag_label;
+	public static String RSyntaxColoring_TaskTag_description;
+	public static String RSyntaxColoring_Roxygen_label;
+	public static String RSyntaxColoring_Roxygen_description;
+	public static String RSyntaxColoring_RoxygenTag_label;
+	public static String RSyntaxColoring_RoxygenTag_description;
 	
 	public static String RdSyntaxColoring_CodeCategory_label;
 	public static String RdSyntaxColoring_CommentsCategory_label;

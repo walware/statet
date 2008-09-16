@@ -56,9 +56,8 @@ public class NewRFileCreationWizard extends NewElementWizard {
 				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, RModel.TYPE_ID);
 				final EvaluatedTemplate data = CodeGeneration.getNewRFileContent(rcu, lineDelimiter);
 				if (data != null) {
-					fSelectionStart = data.selectOffset;
-					fSelectionEnd = data.selectOffset +  data.selectLength;
-					return data.content;
+					fInitialSelection = data.getRegionToSelect();
+					return data.getContent();
 				}
 			}
 			catch (final CoreException e) {

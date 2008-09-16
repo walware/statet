@@ -187,6 +187,14 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return null;
 	}
 	
+	public IRCoreAccess getRCoreAccess() {
+		final RProject project = getRProject();
+		if (project != null) {
+			return project;
+		}
+		return RCore.getWorkbenchAccess();
+	}
+	
 	public Object getAdapter(final Class required) {
 		if (required.equals(IRCoreAccess.class)) {
 			final RProject rproj = getRProject();

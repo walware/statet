@@ -89,7 +89,8 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 					}
 				}
 			});
-		} catch (final InvocationTargetException e) {
+		}
+		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING, Messages.RChunkLaunch_error_message, e.getTargetException()));
 		} catch (final InterruptedException e) {

@@ -15,9 +15,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.text.edits.RangeMarker;
@@ -34,31 +38,84 @@ public class TemplatesUtil {
 	
 	public static class EvaluatedTemplate {
 		
-		/**
-		 * Content string of template
-		 */
-		public String content;
+		private String fContent;
 		
-		/**
-		 * Offset of selection to set in template or <code>-1</code>, if not specified
-		 */
-		public int selectOffset;
+		private IRegion fSelect;
 		
-		/**
-		 * Length of selection to set
-		 */
-		public int selectLength;
+		private final String fLineDelimiter;
+		private AbstractDocument fPostEditDocument;
+		private Position fPostEditSelectPosition;
 		
 		
-		public EvaluatedTemplate(final TemplateBuffer buffer) {
-			content = buffer.getString();
+		public EvaluatedTemplate(final TemplateBuffer buffer, final String lineDelimiter) {
+			setContent(buffer.getString());
 			final TemplateVariable selectStartVariable = findVariable(buffer, StatextCodeTemplatesContextType.SELECT_START_VARIABLE);
 			final TemplateVariable selectEndVariable = findVariable(buffer, StatextCodeTemplatesContextType.SELECT_END_VARIABLE);
-			selectOffset = (selectStartVariable != null && selectStartVariable.getOffsets().length == 1) ?
-					selectStartVariable.getOffsets()[0] : -1;
-			selectLength = (selectEndVariable != null && selectEndVariable.getOffsets().length == 1
-							&& selectOffset >= 0) ?
-					Math.max(selectEndVariable.getOffsets()[0] - selectOffset, 0) : 0;
+			if (selectStartVariable != null && selectStartVariable.getOffsets().length == 1) {
+				fSelect = new Region(selectStartVariable.getOffsets()[0],
+						(selectEndVariable != null && selectEndVariable.getOffsets().length == 1) ?
+						Math.max(selectEndVariable.getOffsets()[0] - selectStartVariable.getOffsets()[0], 0) : 0);
+			}
+			fLineDelimiter = lineDelimiter;
+		}
+		
+		
+		/**
+		 * Sets the evaluated template text
+		 * @param content the text
+		 */
+		public void setContent(final String content) {
+			fPostEditDocument = null;
+			fContent = content;
+		}
+		
+		/**
+		 * Returns the evaluated template text
+		 * @return the text
+		 * */
+		public String getContent() {
+			return fContent;
+		}
+		
+		/**
+		 * Returns the region to select, if specified
+		 */
+		public IRegion getRegionToSelect() {
+			return fSelect;
+		}
+		
+		/**
+		 * Returns a document which can be used for further edits in the text.
+		 * After edits are done, {@link #finishPostEdit()} must be called.
+		 * 
+		 * @return a document with the template content
+		 * @throws BadLocationException
+		 */
+		public AbstractDocument startPostEdit() throws BadLocationException {
+			if (fPostEditDocument == null) {
+				fPostEditDocument = new Document(getContent()) {
+					@Override
+					public String getDefaultLineDelimiter() {
+						return fLineDelimiter;
+					}
+				};
+				if (fSelect != null) {
+					fPostEditSelectPosition = new Position(fSelect.getOffset(), fSelect.getLength());
+					fPostEditDocument.addPosition(fPostEditSelectPosition);
+				}
+			}
+			return fPostEditDocument;
+		}
+		
+		/**
+		 * See {@link #startPostEdit()}.
+		 */
+		public void finishPostEdit() {
+			setContent(fPostEditDocument.get());
+			if (fPostEditSelectPosition != null) {
+				fSelect = (fPostEditSelectPosition.isDeleted) ? null :
+						new Region(fPostEditSelectPosition.getOffset(), fPostEditSelectPosition.getLength());
+			}
 		}
 		
 	}
@@ -142,6 +199,27 @@ public class TemplatesUtil {
 	
 	private static boolean isLineDelimiterChar(final char c) {
 		return (c == '\r' || c == '\n');
+	}
+	
+	/**
+	 * Indents each line of the template (document) using the specified indentation (string).
+	 * An empty last line is note indented.
+	 * 
+	 * @param doc document with the template
+	 * @param lineIndent string to use as line indentation
+	 * @throws BadLocationException
+	 */
+	public static void indentTemplateDocument(final AbstractDocument doc, final String lineIndent) 
+			throws BadLocationException {
+		final int lastLine = doc.getNumberOfLines()-1;
+		for (int templateLine = 0; templateLine < lastLine; templateLine++) {
+			doc.replace(doc.getLineOffset(templateLine), 0, lineIndent);
+		}
+		final int lineOffset = doc.getLineOffset(lastLine);
+		if (lineOffset != doc.getLength()) {
+			doc.replace(lineOffset, 0, lineIndent);
+			doc.replace(doc.getLength(), 0, doc.getDefaultLineDelimiter());
+		}
 	}
 	
 }

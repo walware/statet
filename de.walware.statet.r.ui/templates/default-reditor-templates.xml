@@ -14,87 +14,99 @@
 
 <templates>
 
-<template id="r-code.else" 
-	context="r-code" 
-	name="else"
-	description="else statement" 
-	autoinsert="false" 
-	>else {
+<template id="r-code.else" context="r-code"
+		name="else" description="else statement"
+		autoinsert="false"
+>else {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.elseif"
-	context="r-code" 
-	name="elseif"
-	description="else if statement" 
-	autoinsert="false" 
-	>else if (${condition}) {
+<template id="r-code.elseif" context="r-code"
+		name="elseif" description="else if statement"
+		autoinsert="false"
+>else if (${condition}) {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.for"
-	context="r-code" 
-	name="foreach"
-	description="iterate over a vector" 
-	autoinsert="false" 
-	>for (${x} in ${vector}) {
+<template id="r-code.for" context="r-code"
+		name="foreach" description="iterate over a vector"
+		autoinsert="false"
+>for (${x} in ${vector}) {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.for.index"
-	context="r-code" 
-	name="for"
-	description="iterate with index over a vector" 
-	autoinsert="false" 
-	>for (${i} in seq(along = ${vector})) {
+<template id="r-code.for.index" context="r-code"
+		name="for" description="iterate with index over a vector"
+		autoinsert="false"
+>for (${i} in seq(along = ${vector})) {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.function"
-	context="r-code" 
-	name="function"
-	description="function definition" 
-	autoinsert="false" 
-	>function(${parameter}) {
+<template id="r-code.function" context="r-code"
+		name="function" description="function definition"
+		autoinsert="false"
+>function(${parameter}) {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.if"
-	context="r-code" 
-	name="if"
-	description="if statement" 
-	autoinsert="false" 
-	>if (${condition}) {
+<template id="r-code.if" context="r-code"
+		name="if" description="if statement"
+		autoinsert="false"
+>if (${condition}) {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.ifelse"
-	context="r-code" 
-	name="ifelse"
-	description="if else statement" 
-	autoinsert="false" 
-	>if (${condition}) {
+<template id="r-code.ifelse" context="r-code"
+		name="ifelse" description="if else statement"
+		autoinsert="false"
+>if (${condition}) {
 	${line_selection}${cursor}
 } else {
 	
 }</template>
 
-<template id="r-code.repeat"
-	context="r-code" 
-	name="repeat"
-	description="repeat loop statement" 
-	autoinsert="false" 
-	>repeat {
+<template id="r-code.repeat" context="r-code"
+		name="repeat" description="repeat loop statement"
+		autoinsert="false"
+>repeat {
 	${line_selection}${cursor}
 }</template>
 
-<template id="r-code.while"
-	context="r-code" 
-	name="while"
-	description="while loop statement" 
-	autoinsert="false" 
-	>while (${condition}) {
+<template id="r-code.while" context="r-code"
+		name="while" description="while loop statement"
+		autoinsert="false"
+>while (${condition}) {
 	${line_selection}${cursor}
 }</template>
+
+<template id="roxygen.code" context="roxygen"
+		name="\code" description="\code{...}"
+		autoinsert="true"
+>\code{${word_selection}${}}${cursor}</template>
+
+<template id="roxygen.na" context="roxygen"
+		name="NA" description="\code{NA}"
+		autoinsert="true"
+>\code{NA}${cursor}</template>
+
+<template id="roxygen.nan" context="roxygen"
+		name="NaN" description="\code{NaN}"
+		autoinsert="true"
+>\code{NaN}${cursor}</template>
+
+<template id="roxygen.dots" context="roxygen"
+		name="..." description="\code{\dots}"
+		autoinsert="true"
+>\code{\dots}${cursor}</template>
+
+<template id="roxygen.link" context="roxygen"
+		name="\link" description="\link{...}"
+		autoinsert="true"
+>\link{${word_selection}${}}${cursor}</template>
+
+<template id="roxygen.item" context="roxygen"
+		name="\item" description="\item{...}{...}"
+		autoinsert="true"
+>\item{${header}}{${word_selection}${}}${cursor}</template>
 
 </templates>

@@ -1,4 +1,9 @@
-## Compute the sample median of the vector
+#' Compute the sample median.
+#' 
+#' @param x an object for which a method has been defined, or a numeric
+#'      vector containing the values whose median is to be computed.
+#' @param na.rm a logical value indicating whether 'NA' values should be
+#'      stripped before the computation proceeds.
 median <- function (x, na.rm = FALSE) {
     if (is.factor(x) || mode(x) != "numeric") 
         stop("need numeric data")     # TODO: Translate message

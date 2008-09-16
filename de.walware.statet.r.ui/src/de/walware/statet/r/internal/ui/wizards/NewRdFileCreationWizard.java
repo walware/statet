@@ -53,9 +53,8 @@ public class NewRdFileCreationWizard extends NewElementWizard {
 				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, "rd"); //$NON-NLS-1$
 				final EvaluatedTemplate data = CodeGeneration.getNewRdFileContent(rcu, lineDelimiter);
 				if (data != null) {
-					fSelectionStart = data.selectOffset;
-					fSelectionEnd = data.selectOffset + data.selectLength;
-					return data.content;
+					fInitialSelection = data.getRegionToSelect();
+					return data.getContent();
 				}
 			} catch (final CoreException e) {
 				RUIPlugin.logError(RUIPlugin.IO_ERROR, "Error occured when applying template to new Rd file.", e); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,10 +16,17 @@ import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 
 import de.walware.statet.ext.templates.StatextCodeTemplatesContextType;
 
+import de.walware.statet.r.internal.ui.RUIMessages;
 
+
+/**
+ * Definition of context types in R code editors. The "editor contexts"
+ * are usually used in the template content assistant
+ * (in contrast to {@link de.walware.statet.r.codegeneration.RCodeTemplatesContextType}).
+ */
 public class REditorTemplatesContextType extends StatextCodeTemplatesContextType {
 	
-
+	
 //	/**
 //	 * Resolver for Array-Variables.
 //	 */
@@ -40,7 +47,7 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 //	protected static class XVar extends TemplateVariableResolver {
 //
 //		public XVar() {
-//			super("variable", Messages.TemplateVariable_Variable_description);  //$NON-NLS-1$
+//			super("variable", Messages.TemplateVariable_Variable_description);  
 //		}
 //		
 //		protected String resolve(TemplateContext context) {
@@ -54,7 +61,7 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 //	protected static class IndexVar extends TemplateVariableResolver {
 //
 //		public IndexVar() {
-//			super("index", Messages.TemplateVariable_Index_description);  //$NON-NLS-1$
+//			super("index", Messages.TemplateVariable_Index_description);  
 //		}
 //		
 //		protected String resolve(TemplateContext context) {
@@ -68,7 +75,7 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 //	protected static class Parameter extends TemplateVariableResolver {
 //
 //		public Parameter() {
-//			super("parameter", Messages.TemplateVariable_Parameter_description);  //$NON-NLS-1$
+//			super("parameter", Messages.TemplateVariable_Parameter_description);  
 //		}
 //		
 //		protected String resolve(TemplateContext context) {
@@ -84,8 +91,19 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 	 */
 	public static final String RCODE_CONTEXTTYPE = "r-code"; //$NON-NLS-1$
 	
+	/**
+	 * Context for Roxygen documentation comments.
+	 */
+	public static final String ROXYGEN_CONTEXTTYPE = "roxygen"; //$NON-NLS-1$
 	
-	public REditorTemplatesContextType(final String id, final String name) {
+	
+	public static void registerContextTypes(final ContextTypeRegistry registry) {
+		registry.addContextType(new REditorTemplatesContextType(RCODE_CONTEXTTYPE, RUIMessages.EditorTemplates_RCodeContext_label));
+		registry.addContextType(new REditorTemplatesContextType(ROXYGEN_CONTEXTTYPE, RUIMessages.EditorTemplates_RoxygenContext_label));
+	}
+	
+	
+	REditorTemplatesContextType(final String id, final String name) {
 		super(id, name);
 		
 		addCommonVariables();
@@ -93,17 +111,12 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 		addResolver(new GlobalTemplateVariables.WordSelection());
 		addResolver(new GlobalTemplateVariables.LineSelection());
 		
-		if (RCODE_CONTEXTTYPE.equals(id)) {
+//		if (RCODE_CONTEXTTYPE.equals(id)) {
 //			addResolver(new VectorVar());
 //			addResolver(new XVar());
 //			addResolver(new IndexVar());
 //			addResolver(new Parameter());
-		}
-		
-	}
-	
-	public static void registerContextTypes(final ContextTypeRegistry registry) {
-		registry.addContextType(new REditorTemplatesContextType(RCODE_CONTEXTTYPE, "R Code"));
+//		}
 	}
 	
 }

@@ -52,9 +52,8 @@ public class NewSweaveFileCreationWizard extends NewElementWizard {
 				final RResourceUnit rcu = RResourceUnit.createTempUnit(newFileHandle, Sweave.R_TEX_MODEL_TYPE_ID);
 				final EvaluatedTemplate data = CodeGeneration.getNewRweaveTexDocContent(rcu, lineDelimiter);
 				if (data != null) {
-					fSelectionStart = data.selectOffset;
-					fSelectionEnd = data.selectOffset + data.selectLength;
-					return data.content;
+					fInitialSelection = data.getRegionToSelect();
+					return data.getContent();
 				}
 			} catch (final CoreException e) {
 				SweavePlugin.logError(ICommonStatusConstants.INTERNAL_TEMPLATE, "An error occured when applying template to new Sweave file.", e); //$NON-NLS-1$

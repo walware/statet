@@ -22,6 +22,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.eclipsecommons.FastList;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 import de.walware.eclipsecommons.ui.text.PairMatcher;
 import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 
@@ -64,6 +65,8 @@ public abstract class SourceViewerConfigurator implements ISettingsChangedHandle
 	public IPreferenceStore getPreferenceStore() {
 		return fPreferenceStore;
 	}
+	
+	public abstract PartitioningConfiguration getPartitioning();
 	
 	protected void setPairMatcher(final PairMatcher pairMatcher) {
 		fPairMatcher = pairMatcher;

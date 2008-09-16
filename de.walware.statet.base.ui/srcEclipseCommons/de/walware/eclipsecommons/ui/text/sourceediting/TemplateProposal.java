@@ -134,7 +134,7 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 			final int replaceOffset = getReplaceOffset();
 			if (offset >= replaceOffset) {
 				final String content = document.get(replaceOffset, offset - replaceOffset);
-				return fTemplate.getName().toLowerCase().startsWith(content.toLowerCase());
+				return fTemplate.getName().regionMatches(true, 0, content, 0, content.length());
 			}
 		} catch (final BadLocationException e) {
 			// concurrent modification - ignore
@@ -151,12 +151,14 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 		return fTemplate;
 	}
 	
-	
 	public boolean isValidFor(final IDocument document, final int offset) {
 		// not called anymore
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public char[] getTriggerCharacters() {
 		// no triggers
 		return new char[0];
@@ -171,7 +173,9 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 		return fRelevance;
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getDisplayString() {
 		if (fDisplayString == null) {
 			final String[] arguments = new String[] { fTemplate.getName(), fTemplate.getDescription() };
@@ -222,6 +226,9 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 		// not called anymore
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
 		final IDocument document = viewer.getDocument();
 		final Position regionPosition = new Position(fRegion.getOffset(), fRegion.getLength());
@@ -401,14 +408,23 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 		return end;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public CharSequence getPrefixCompletionText(final IDocument document, final int completionOffset) {
 		return fTemplate.getName();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getPrefixCompletionStart(final IDocument document, final int completionOffset) {
 		return getReplaceOffset();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Point getSelection(final IDocument document) {
 		if (fSelectionToSet != null) {
 			return new Point(fSelectionToSet.getOffset(), fSelectionToSet.getLength());
@@ -416,10 +432,16 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 		return null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getContextInformationPosition() {
 		return fRegion.getOffset();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public IContextInformation getContextInformation() {
 		return null;
 	}

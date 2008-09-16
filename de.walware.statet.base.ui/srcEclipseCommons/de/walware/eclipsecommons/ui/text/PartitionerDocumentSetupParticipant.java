@@ -31,6 +31,7 @@ public abstract class PartitionerDocumentSetupParticipant implements IDocumentSe
 			partitioner.connect(document, true);
 			
 			if (partitioner.equals(extension3.getDocumentPartitioner(getPartitioningId()))) {
+				partitioner.disconnect();
 				return;
 			}
 			extension3.setDocumentPartitioner(getPartitioningId(), partitioner);

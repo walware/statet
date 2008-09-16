@@ -26,6 +26,7 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.r.internal.ui.RUIPreferenceInitializer"/>
    </extension>
+
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
@@ -89,13 +90,16 @@
       </category>
       <computer
             categoryId="templates"
-            class="de.walware.statet.r.ui.editors.templates.REditorTemplatesCompletionComputer"
+            class="de.walware.statet.r.internal.ui.editors.REditorTemplatesCompletionComputer"
             id="de.walware.statet.r.contentAssistComputers.TemplateCompletion">
          <partition
                partitionType="__r_default">
          </partition>
          <partition
                partitionType="__r_comment">
+         </partition>
+         <partition
+               partitionType="__r_roxygen">
          </partition>
       </computer>
       <category
@@ -125,8 +129,43 @@
                partitionType="__r_symbol_quoted">
          </partition>
       </computer>
+      <computer
+            categoryId="r-elements"
+            class="de.walware.statet.r.internal.ui.editors.RoxygenCompletionComputer"
+            id="de.walware.statet.r.contentAssistComputers.RoxygenCompletion">
+         <partition
+               partitionType="__r_roxygen">
+         </partition>
+      </computer>
    </extension>
 
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="de.walware.statet.r.expressions.RSourceElement">
+         <or>
+            <with
+                  variable="selection">
+               <instanceof
+                     value="org.eclipse.jface.viewers.IStructuredSelection">
+               </instanceof>
+               <iterate
+                     ifEmpty="false"
+                     operator="and">
+                  <instanceof
+                        value="de.walware.statet.r.core.model.IRLangElement">
+                  </instanceof>
+               </iterate>
+            </with>
+            <with
+                  variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </or>
+      </definition>
+   </extension>
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
       <actionSetPartAssociation
@@ -159,6 +198,20 @@
                id="de.walware.statet.base.commands.CorrectIndent"
                mnemonic="%menus_REditorContext_CorrectIndent_mnemonic"
                style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:de.walware.statet.base.menus.MainStatSource?after=comment.add">
+         <command
+               commandId="de.walware.statet.base.commands.GenerateElementComment"
+               mnemonic="%menus_Source_GenerateElementComment_mnemonic"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
          </command>
       </menuContribution>
    </extension>
@@ -199,6 +252,31 @@
                </equals>
             </with>
          </activeWhen>
+      </handler>
+      <handler
+            class="de.walware.statet.r.internal.ui.editors.GenerateRoxygenElementComment"
+            commandId="de.walware.statet.base.commands.GenerateElementComment">
+         <activeWhen>
+            <reference
+                  definitionId="de.walware.statet.r.expressions.RSourceElement">
+            </reference>
+         </activeWhen>
+         <enabledWhen>
+            <with
+                  variable="selection">
+               <or>
+                  <instanceof
+                        value="org.eclipse.jface.text.ITextSelection">
+                  </instanceof>
+                  <test
+                        args="1280,1024"
+                        forcePluginActivation="true"
+                        property="de.walware.eclipsecommons.ltk.isElementC1TypeSelection"
+                        value="r">
+                  </test>
+               </or>
+            </with>
+         </enabledWhen>
       </handler>
    </extension>
 

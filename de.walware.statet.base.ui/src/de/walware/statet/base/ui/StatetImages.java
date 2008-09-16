@@ -35,7 +35,8 @@ public class StatetImages {
 	public static final String LOCTOOL_PAUSE = StatetUIPlugin.PLUGIN_ID + "/image/loctool/pause"; //$NON-NLS-1$
 	public static final String LOCTOOLD_PAUSE = StatetUIPlugin.PLUGIN_ID + "/image/loctoold/pause"; //$NON-NLS-1$
 	
-	public static final String CONTENTASSIST_TEMPLATE = StatetUIPlugin.PLUGIN_ID + "/image/obj/assist.template"; //$NON-NLS-1$
+	public static final String OBJ_TEXT_TEMPLATE = StatetUIPlugin.PLUGIN_ID + "/image/obj/text.template"; //$NON-NLS-1$
+	public static final String OBJ_TEXT_AT_TAG = StatetUIPlugin.PLUGIN_ID + "/image/obj/text.at_tag"; //$NON-NLS-1$
 	public static final String CONTENTASSIST_CORRECTION_LINKEDRENAME = StatetUIPlugin.PLUGIN_ID + "/image/obj/assist.linked_rename"; //$NON-NLS-1$
 	
 	public static final String LAUNCHCONFIG_MAIN = StatetUIPlugin.PLUGIN_ID + "/image/obj/launchconfig.main"; //$NON-NLS-1$

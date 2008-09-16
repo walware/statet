@@ -31,6 +31,16 @@ public class Partitioner extends FastPartitioner {
 	}
 	
 	
+	public void setStartPartitionType(final String partitionType) {
+		if (fScanner instanceof IPartitionScannerConfigExt) {
+			((IPartitionScannerConfigExt) fScanner).setStartPartitionType(partitionType);
+		}
+		else {
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	
 	@Override
 	public ITypedRegion getPartition(final int offset, final boolean preferOpenPartitions) {
 		ITypedRegion region= getPartition(offset);

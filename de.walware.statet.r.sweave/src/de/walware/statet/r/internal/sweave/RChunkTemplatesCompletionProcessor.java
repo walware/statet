@@ -139,7 +139,7 @@ public class RChunkTemplatesCompletionProcessor extends TemplateCompletionProces
 	
 	@Override
 	protected Image getImage(final Template template) {
-		return StatetImages.getImage(StatetImages.CONTENTASSIST_TEMPLATE);
+		return StatetImages.getImage(StatetImages.OBJ_TEXT_TEMPLATE);
 	}
 	
 	

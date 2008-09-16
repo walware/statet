@@ -38,6 +38,16 @@ public class RUIMessages extends NLS {
 	public static String Outline_HideGeneralVariables_name;
 	public static String Outline_HideLocalElements_name;
 	
+	public static String EditorTemplates_RCodeContext_label;
+	public static String EditorTemplates_RoxygenContext_label;
+	
+	public static String GenerateRoxygenElementComment_label;
+	public static String GenerateRoxygenElementComment_error_message;
+	
+	public static String Templates_Variable_ElementName_description;
+	public static String Templates_Variable_RoxygenParamTags_description;
+	public static String Templates_Variable_RoxygenSlotTags_description;
+	
 	
 	static {
 		NLS.initializeMessages(RUIMessages.class.getName(), RUIMessages.class);

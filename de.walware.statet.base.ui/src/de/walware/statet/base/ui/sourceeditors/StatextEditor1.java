@@ -77,6 +77,7 @@ import de.walware.eclipsecommons.ltk.IModelElement;
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 import de.walware.eclipsecommons.ltk.ast.IAstNode;
 import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
 import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.eclipsecommons.ltk.ui.LTKInputData;
@@ -604,8 +605,8 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		return (SourceViewer) super.getSourceViewer();
 	}
 	
-	public String getPartitioning() {
-		return fConfigurator.getSourceViewerConfiguration().getConfiguredDocumentPartitioning(getSourceViewer());
+	public PartitioningConfiguration getPartitioning() {
+		return fConfigurator.getPartitioning();
 	}
 	
 	public IWorkbenchPart getWorkbenchPart() {

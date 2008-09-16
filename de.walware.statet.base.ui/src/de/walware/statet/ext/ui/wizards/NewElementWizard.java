@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -39,24 +38,23 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.ContainerGenerator;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -68,8 +66,7 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		
 		protected IPath fContainerPath;
 		protected String fResourceName;
-		protected int fSelectionStart;
-		protected int fSelectionEnd;
+		protected IRegion fInitialSelection;
 		
 		
 		/** No direct access, use getFileHandle() */
@@ -78,8 +75,6 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		public NewFileCreator(final IPath containerPath, final String resourceName) {
 			fContainerPath = containerPath;
 			fResourceName = resourceName;
-			fSelectionStart = -1;
-			fSelectionEnd = -1;
 		}
 		
 		/**
@@ -256,12 +251,8 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 			return null;
 		}
 		
-		public int getInitialSelectionStart() {
-			return fSelectionStart;
-		}
-		
-		public int getInitialSelectionEnd() {
-			return fSelectionEnd;
+		public IRegion getInitialSelection() {
+			return fInitialSelection;
 		}
 		
 	}
@@ -483,43 +474,19 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	}
 	
 	protected void openResource(final IFile resource) {
-		openResource(resource, -1, -1);
+		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(true);
+		if (activePage != null) {
+			WorkbenchUIUtil.openEditor(activePage, resource, null);
+		}
 	}
 	
 	protected void openResource(final NewFileCreator file) {
 		if (file.getFileHandle() == null) {
 			return;
 		}
-		openResource(file.getFileHandle(), file.getInitialSelectionStart(), file.getInitialSelectionEnd());
-	}
-	
-	protected void openResource(final IFile resource, final int start, final int end) {
 		final IWorkbenchPage activePage = UIAccess.getActiveWorkbenchPage(true);
 		if (activePage != null) {
-			final Display display = getShell().getDisplay();
-			if (display != null) {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						try {
-							if (start >= 0) {
-								try {
-									final IMarker marker = resource.createMarker("de.walware.statet.base.markers.InitialSelection"); //$NON-NLS-1$
-									marker.setAttribute(IMarker.CHAR_START, start);
-									marker.setAttribute(IMarker.CHAR_END, (end >= start) ? end : start);
-									IDE.openEditor(activePage, marker, true);
-								} catch (final CoreException e) {
-									IDE.openEditor(activePage, resource, true);
-								}
-							}
-							else {
-								IDE.openEditor(activePage, resource, true);
-							}
-						} catch (final PartInitException e) {
-							StatetUIPlugin.logUnexpectedError(e);
-						}
-					}
-				});
-			}
+			WorkbenchUIUtil.openEditor(activePage, file.getFileHandle(), file.getInitialSelection());
 		}
 	}
 	

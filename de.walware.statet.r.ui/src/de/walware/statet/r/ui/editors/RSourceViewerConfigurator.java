@@ -25,6 +25,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
 import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
@@ -37,6 +38,7 @@ import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
@@ -80,6 +82,11 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 		setPairMatcher(new RBracketPairMatcher());
 	}
 	
+	
+	@Override
+	public PartitioningConfiguration getPartitioning() {
+		return IRDocumentPartitions.R_PARTITIONING_CONFIG;
+	}
 	
 	@Override
 	public IDocumentSetupParticipant getDocumentSetupParticipant() {

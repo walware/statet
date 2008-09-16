@@ -113,6 +113,12 @@
             name="%commands_AddDocComment_name"
             description="%commands_AddDocComment_description"
             />
+      <command
+            id="de.walware.statet.base.commands.GenerateElementComment"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_GenerateElementComment_name"
+            description="%commands_GenerateElementComment_description"
+            />
       <!-- source -->
       <category
             id="de.walware.statet.base.commandCategorys.StatetSource"
@@ -377,14 +383,16 @@
             </separator>
             <command
                   commandId="de.walware.statet.base.commands.ToggleComment"
-                  label="%commands_ToggleComment_name"
                   mnemonic="%menus_Source_ToggleComment_mnemonic">
             </command>
             <command
                   commandId="de.walware.statet.base.commands.AddDocComment"
-                  label="%commands_AddDocComment_name"
                   mnemonic="%menus_Source_AddDocComment_mnemonic">
             </command>
+            <separator
+                  name="comment.add"
+                  visible="false">
+            </separator>
             <separator
                   name="format"
                   visible="true">
@@ -481,8 +489,13 @@
             id="de.walware.statet.base.propertyTester.ContentTypeActivation"
             namespace="de.walware.eclipsecommons.ltk"
             properties="matchesActivatedContentType,matchesContentType"
-            type="org.eclipse.core.runtime.IAdaptable">
-      </propertyTester>
+            type="org.eclipse.core.runtime.IAdaptable" />
+      <propertyTester
+            class="de.walware.eclipsecommons.ltk.internal.ui.refactoring.ModelElementTester"
+            id="de.walware.statet.base.propertyTester.ModelElements"
+            namespace="de.walware.eclipsecommons.ltk"
+            properties="isElementC1TypeSelection,isElementC2TypeSelection"
+            type="org.eclipse.jface.viewers.ISelection" />
    </extension>
 
 </plugin>

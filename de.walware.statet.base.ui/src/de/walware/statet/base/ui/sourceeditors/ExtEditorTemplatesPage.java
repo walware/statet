@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -149,18 +150,24 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 						fCurrentPreviewConfigurator.getSourceViewerConfiguration(), 
 						fCurrentPreviewConfigurator.getPreferenceStore());
 				
-				final IDocument document = new Document(template.getPattern());
+				final AbstractDocument document = new Document();
 				fCurrentPreviewConfigurator.getDocumentSetupParticipant().setup(document);
+				configureDocument(document, type, configurator);
+				document.set(template.getPattern());
 				patternViewer.setDocument(document);
-				
 			}
 			else {
-				patternViewer.getDocument().set(template.getPattern());
+				final AbstractDocument document = (AbstractDocument) patternViewer.getDocument();
+				document.set(""); //$NON-NLS-1$
+				configureDocument(document, type, configurator);
+				document.set(template.getPattern());
 			}
 			
-		} else {
+		}
+		else {
 			patternViewer.getDocument().set(""); //$NON-NLS-1$
 		}
+		patternViewer.setSelectedRange(0, 0);
 	}
 	
 	@Override
@@ -168,7 +175,16 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 		final SourceViewerConfigurator configurator = getTemplateEditConfig(template, fEditTemplateProcessor);
 		final de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
 				getSite().getShell(), template, edit, isNameModifiable, 
-				configurator, fEditTemplateProcessor, getContextTypeRegistry());
+				configurator, fEditTemplateProcessor, getContextTypeRegistry()) {
+			
+			@Override
+			protected void configureForContext(final TemplateContextType contextType) {
+				super.configureForContext(contextType);
+				final SourceViewer sourceViewer = getSourceViewer();
+				final AbstractDocument document = (AbstractDocument) sourceViewer.getDocument();
+				ExtEditorTemplatesPage.this.configureDocument(document, contextType, getSourceViewerConfigurator());
+			}
+		};
 		if (dialog.open() == Dialog.OK) {
 			return dialog.getTemplate();
 		}
@@ -178,8 +194,18 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	
 	protected abstract DocumentTemplateContext createContext(final IDocument document, final Template template, final int offset, final int length);
 	
-	protected abstract SourceViewerConfigurator getTemplatePreviewConfig(Template template, final TemplateVariableProcessor templateProcessor);
+	protected abstract SourceViewerConfigurator getTemplatePreviewConfig(final Template template, final TemplateVariableProcessor templateProcessor);
 	
-	protected abstract SourceViewerConfigurator getTemplateEditConfig(Template template, final TemplateVariableProcessor templateProcessor);
+	protected abstract SourceViewerConfigurator getTemplateEditConfig(final Template template, final TemplateVariableProcessor templateProcessor);
+	
+	/**
+	 * Can be implemented to configure the document when the context is changed
+	 * 
+	 * @param document the document to adapt
+	 * @param contextType the new context
+	 * @param configurator the configurator of the viewer/document (preview or edit)
+	 */
+	protected void configureDocument(final AbstractDocument document, final TemplateContextType contextType, final SourceViewerConfigurator configurator) {
+	}
 	
 }

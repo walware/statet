@@ -49,6 +49,18 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	}
 	
 	
+	protected final int getReplacementOffset() {
+		return fReplacementOffset;
+	}
+	
+	protected final String getReplacementString() {
+		return fReplacementString;
+	}
+	
+	protected final void setCursorPosition(final int offset) {
+		fCursorPosition = offset;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -60,7 +72,7 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	 * {@inheritDoc}
 	 */
 	public String getDisplayString() {
-		return fReplacementString;
+		return getReplacementString();
 	}
 	
 	/**
@@ -96,7 +108,7 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
 		try {
 			final String content = document.get(fReplacementOffset, offset - fReplacementOffset);
-			if (fReplacementString.startsWith(content)) {
+			if (fReplacementString.regionMatches(true, 0, content, 0, content.length())) {
 				return true;
 			}
 		}
@@ -123,8 +135,10 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
 		try {
 			final IDocument document = viewer.getDocument();
-			document.replace(fReplacementOffset, offset-fReplacementOffset, fReplacementString);
-			fCursorPosition = fReplacementOffset + fReplacementString.length();
+			final int replacementOffset = getReplacementOffset();
+			final String replacementString = getReplacementString();
+			document.replace(replacementOffset, offset-replacementOffset, replacementString);
+			setCursorPosition(replacementOffset + replacementString.length());
 		}
 		catch (final BadLocationException x) {
 		}

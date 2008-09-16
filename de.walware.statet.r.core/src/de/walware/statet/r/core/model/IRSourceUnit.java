@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
 
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;
 
 
@@ -28,8 +29,7 @@ public interface IRSourceUnit extends ISourceUnit {
 	
 	
 	public RProject getRProject();
-//	public IPreferenceAccess getPrefs();
-//	public RCodeStyleSettings getRCodeStyle();
+	public IRCoreAccess getRCoreAccess();
 	
 	public void reconcileRModel(int reconcileLevel, IProgressMonitor monitor);
 	

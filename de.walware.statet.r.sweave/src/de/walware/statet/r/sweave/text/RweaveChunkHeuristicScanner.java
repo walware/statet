@@ -29,7 +29,7 @@ public class RweaveChunkHeuristicScanner extends RHeuristicTokenScanner {
 	
 	
 	public RweaveChunkHeuristicScanner() {
-		super(Rweave.R_CHUNK_PARTITIONING_CONFIG);
+		super(Rweave.R_PARTITIONING_CONFIG);
 	}
 	
 	

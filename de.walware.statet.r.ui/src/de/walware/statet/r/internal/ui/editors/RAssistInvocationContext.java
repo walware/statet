@@ -42,7 +42,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			return ""; //$NON-NLS-1$
 		}
 		try {
-			ITypedRegion partition = document.getPartition(getEditor().getPartitioning(), idx, true);
+			ITypedRegion partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), idx, true);
 			if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
 				idx = partition.getOffset();
 			}
@@ -69,7 +69,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 						}
 						break SEARCH_START;
 					case '`':
-						partition = document.getPartition(getEditor().getPartitioning(), idx, false);
+						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), idx, false);
 						if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
 							idx = goodStart = partition.getOffset();
 							continue SEARCH_START;

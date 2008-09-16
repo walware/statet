@@ -17,6 +17,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
 
 
 /**
@@ -55,9 +56,9 @@ public interface ISourceEditor extends IAdaptable {
 	/**
 	 * The partitioning the viewer is configured to.
 	 * 
-	 * @return the partitioning id
+	 * @return the partitioning configuration
 	 */
-	public String getPartitioning();
+	public PartitioningConfiguration getPartitioning();
 	
 	/**
 	 * Returns whether the text in this text editor (SourceViewer) can be changed by the user

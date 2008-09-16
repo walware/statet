@@ -129,7 +129,7 @@ public class ElementNameCompletionProposal implements ICompletionProposal,
 	public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
 		try {
 			final String content = document.get(fReplacementOffset, offset - fReplacementOffset);
-			if (fReplacementName.getSegmentName().startsWith(content)) {
+			if (fReplacementName.getSegmentName().regionMatches(true, 0, content, 0, content.length())) {
 				return true;
 			}
 		}

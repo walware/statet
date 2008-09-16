@@ -86,6 +86,13 @@ public interface IStatetUICommandIds {
 	public static final String ADD_DOC_COMMENT =        "de.walware.statet.base.commands.AddDocComment"; //$NON-NLS-1$
 	
 	/**
+	 * Action definition ID of the 'generate element comment' action
+	 * 
+	 * Value: @value
+	 */
+	public static final String GENERATE_ELEMENT_COMMENT = "de.walware.statet.base.commands.GenerateElementComment"; //$NON-NLS-1$
+	
+	/**
 	 * Action definition ID of the 'correct indentation' action
 	 * 
 	 * Value: @value

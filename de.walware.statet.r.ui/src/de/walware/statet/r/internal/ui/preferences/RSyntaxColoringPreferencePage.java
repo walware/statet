@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2007 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,11 +44,11 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 	
 	@Override
 	protected AbstractSyntaxColoringBlock createConfigurationBlock() {
-		AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
+		final AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
 			
 			@Override
 			protected SyntaxNode[] createItems() {
-				List<StyleNode> identifierChilds = new ArrayList<StyleNode>(5);
+				final List<StyleNode> identifierChilds = new ArrayList<StyleNode>(5);
 				identifierChilds.add(
 						new StyleNode(Messages.RSyntaxColoring_Identifier_Assignment_label, getIdentifierItemsDescription(RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS),
 								RUIPreferenceConstants.R.TS_IDENTIFIER_SUB_ASSIGNMENT_ROOT, new SyntaxNode.UseStyle[] {
@@ -139,15 +139,19 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 						new CategoryNode(Messages.RSyntaxColoring_CommentsCategory_label, new SyntaxNode[] {
 								new StyleNode(Messages.RSyntaxColoring_Comment_label, Messages.RSyntaxColoring_Comment_description,
 										RUIPreferenceConstants.R.TS_COMMENT_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
-								new StyleNode(Messages.RSyntaxColoring_taskTag_label, Messages.RSyntaxColoring_taskTag_description,
+								new StyleNode(Messages.RSyntaxColoring_TaskTag_label, Messages.RSyntaxColoring_TaskTag_description,
 										RUIPreferenceConstants.R.TS_TASK_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RSyntaxColoring_Roxygen_label, Messages.RSyntaxColoring_Roxygen_description,
+										RUIPreferenceConstants.R.TS_ROXYGEN_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
+								new StyleNode(Messages.RSyntaxColoring_RoxygenTag_label, Messages.RSyntaxColoring_RoxygenTag_description,
+										RUIPreferenceConstants.R.TS_ROXYGEN_TAG_ROOT, new SyntaxNode.UseStyle[] { SyntaxNode.createUseCustomStyle() }, null),
 						}),
 				};
 			}
 			
-			private String getIdentifierItemsDescription(String key) {
-				Preference<String[]> pref = new StringArrayPref(RUI.PLUGIN_ID, key);
-				String[] value = PreferencesUtil.getInstancePrefs().getPreferenceValue(pref);
+			private String getIdentifierItemsDescription(final String key) {
+				final Preference<String[]> pref = new StringArrayPref(RUI.PLUGIN_ID, key);
+				final String[] value = PreferencesUtil.getInstancePrefs().getPreferenceValue(pref);
 				return addListToTooltip(Messages.RSyntaxColoring_Identifier_Items_description, value);
 			}
 			
@@ -163,7 +167,7 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 			
 			@Override
 			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
-					ColorManager colorManager, IPreferenceStore store) {
+					final ColorManager colorManager, final IPreferenceStore store) {
 				return new RSourceViewerConfiguration(RCore.getDefaultsAccess(),
 						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);
 			}
@@ -173,7 +177,7 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 				return new RDocumentSetupParticipant();
 			}
 			
-			protected String addListToTooltip(String tooltip, RTerminal[] listItems) {
+			protected String addListToTooltip(final String tooltip, final RTerminal[] listItems) {
 				return addListToTooltip(tooltip, RTerminal.textArray(listItems));
 			}
 			

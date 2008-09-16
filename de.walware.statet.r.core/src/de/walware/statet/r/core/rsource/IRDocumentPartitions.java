@@ -69,6 +69,12 @@ public interface IRDocumentPartitions {
 	 */
 	public static final String R_COMMENT = "__r_comment"; //$NON-NLS-1$
 	
+	/**
+	 * The type of a Roxygen comment partition in R documents.
+	 * Value: {@value}
+	 */
+	public static final String R_ROXYGEN = "__r_roxygen"; //$NON-NLS-1$
+	
 	
 	/**
 	 * Array with partitions of R-documents.
@@ -79,6 +85,7 @@ public interface IRDocumentPartitions {
 			R_INFIX_OPERATOR, 
 			R_STRING, 
 			R_COMMENT,
+			R_ROXYGEN,
 	};
 	
 	public static final PartitioningConfiguration R_PARTITIONING_CONFIG = new PartitioningConfiguration(

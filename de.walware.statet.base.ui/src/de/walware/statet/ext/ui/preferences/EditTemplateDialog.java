@@ -17,14 +17,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -35,13 +43,11 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
@@ -69,7 +75,7 @@ public class EditTemplateDialog extends ExtStatusDialog {
 	
 	private Text fNameText;
 	private Text fDescriptionText;
-	private Combo fContextCombo;
+	private ComboViewer fContextCombo;
 	private SnippetEditor fPatternEditor;
 	private Button fInsertVariableButton;
 	private Button fAutoInsertCheckbox;
@@ -77,7 +83,6 @@ public class EditTemplateDialog extends ExtStatusDialog {
 	
 	private StatusInfo fValidationStatus;
 	private boolean fSuppressError = true;
-	private String[][] fContextTypes;
 	
 	private ContextTypeRegistry fContextTypeRegistry;
 	private final TemplateVariableProcessor fTemplateProcessor;
@@ -105,13 +110,6 @@ public class EditTemplateDialog extends ExtStatusDialog {
 		fOriginalTemplate = template;
 		fIsNameModifiable = isNameModifiable;
 		
-		final List<String[]> contexts = new ArrayList<String[]>();
-		for (final Iterator it = registry.contextTypes(); it.hasNext();) {
-			final TemplateContextType type= (TemplateContextType) it.next();
-			contexts.add(new String[] { type.getId(), type.getName() });
-		}
-		fContextTypes = contexts.toArray(new String[contexts.size()][]);
-				
 		fValidationStatus = new StatusInfo();
 		
 		fTemplateProcessor = processor;
@@ -154,7 +152,8 @@ public class EditTemplateDialog extends ExtStatusDialog {
 		
 		final ModifyListener listener= new ModifyListener() {
 			public void modifyText(final ModifyEvent e) {
-				doTextWidgetChanged(e.widget);
+				fSuppressError = false;
+				updateButtons();
 			}
 		};
 		
@@ -174,23 +173,41 @@ public class EditTemplateDialog extends ExtStatusDialog {
 				
 				public void focusLost(final FocusEvent e) {
 					if (fSuppressError) {
-						fSuppressError= false;
+						fSuppressError = false;
 						updateButtons();
 					}
 				}
 			});
 			
 			createLabel(composite, Messages.EditTemplateDialog_Context_label);
-			fContextCombo= new Combo(composite, SWT.READ_ONLY);
-			
-			for (int i= 0; i < fContextTypes.length; i++) {
-				fContextCombo.add(fContextTypes[i][1]);
+			fContextCombo = new ComboViewer(composite, SWT.BORDER | SWT.READ_ONLY);
+			fContextCombo.setLabelProvider(new LabelProvider() {
+				@Override
+				public String getText(final Object element) {
+					return ((TemplateContextType) element).getName();
+				}
+			});
+			fContextCombo.setContentProvider(new ArrayContentProvider());
+			final List<TemplateContextType> contextTypes = new ArrayList<TemplateContextType>();
+			final Iterator iter = fContextTypeRegistry.contextTypes();
+			while (iter.hasNext()) {
+				final TemplateContextType contextType = (TemplateContextType) iter.next();
+				contextTypes.add(contextType);
 			}
+			fContextCombo.setInput(contextTypes.toArray());
 			
-			fContextCombo.addModifyListener(listener);
+			fContextCombo.addSelectionChangedListener(new ISelectionChangedListener() {
+				public void selectionChanged(final SelectionChangedEvent event) {
+					final StructuredSelection selection = (StructuredSelection) event.getSelection();
+					doContextChanged(((TemplateContextType) selection.getFirstElement()));
+				}
+			});
 			
 			fAutoInsertCheckbox= createCheckbox(composite, Messages.EditTemplateDialog_AutoInsert_label);
 			fAutoInsertCheckbox.setSelection(fOriginalTemplate.isAutoInsertable());
+		}
+		else {
+			configureForContext(getContextType());
 		}
 		
 		createLabel(dialogArea, Messages.EditTemplateDialog_Description_label);
@@ -228,7 +245,7 @@ public class EditTemplateDialog extends ExtStatusDialog {
 		if (fIsNameModifiable) {
 			fNameText.setText(fOriginalTemplate.getName());
 			fNameText.addModifyListener(listener);
-			fContextCombo.select(getIndex(fOriginalTemplate.getContextTypeId()));
+			fContextCombo.setSelection(new StructuredSelection(fContextTypeRegistry.getContextType(fOriginalTemplate.getContextTypeId())));
 		} else {
 			fPatternEditor.getControl().setFocus();
 		}
@@ -242,6 +259,14 @@ public class EditTemplateDialog extends ExtStatusDialog {
 		LayoutUtil.addSmallFiller(dialogArea, false);
 		applyDialogFont(dialogArea);
 		return composite;
+	}
+	
+	protected SourceViewer getSourceViewer() {
+		return fPatternEditor.getSourceViewer();
+	}
+	
+	protected SourceViewerConfigurator getSourceViewerConfigurator() {
+		return fConfigurator;
 	}
 	
 	
@@ -296,40 +321,42 @@ public class EditTemplateDialog extends ExtStatusDialog {
 	
 /* Handlers *******************************************************************/
 	
-	private void doTextWidgetChanged(final Widget w) {
-		if (w == fNameText) {
-			fSuppressError= false;
-			updateButtons();
-		} else if (w == fContextCombo) {
-			final String contextId= getContextId();
-			fTemplateProcessor.setContextType(fContextTypeRegistry.getContextType(contextId));
-		} else if (w == fDescriptionText) {
-			// oh, nothing
-		}
-	}
 	
-	private void doSourceChanged(final IDocument document) {
-		final String text = document.get();
-		fValidationStatus.setOK();
-		final TemplateContextType contextType = fContextTypeRegistry.getContextType(getContextId());
-		if (contextType != null) {
-			try {
-				contextType.validate(text);
-			} catch (final TemplateException e) {
-				fValidationStatus.setError(e.getLocalizedMessage());
-			}
-		}
+	protected void doContextChanged(final TemplateContextType contextType) {
+		fTemplateProcessor.setContextType(contextType);
+		configureForContext(contextType);
+		final Document document = fPatternEditor.getDocument();
+		doValidate(contextType, document);
 		updateButtons();
 	}
 	
-	/*
-	 * @since 3.1
-	 */
+	private void doSourceChanged(final IDocument document) {
+		final TemplateContextType contextType = getContextType();
+		doValidate(contextType, document);
+		updateButtons();
+	}
+	
+	private void doValidate(final TemplateContextType contextType, final IDocument document) {
+		final String text = document.get();
+		fValidationStatus.setOK();
+		if (contextType != null) {
+			try {
+				contextType.validate(text);
+			}
+			catch (final TemplateException e) {
+				fValidationStatus.setError(e.getLocalizedMessage());
+			}
+		}
+	}
+	
+	protected void configureForContext(final TemplateContextType contextType) {
+	}
+	
 	@Override
 	protected void okPressed() {
 		final String name= fNameText == null ? fOriginalTemplate.getName() : fNameText.getText();
 		final boolean isAutoInsertable= fAutoInsertCheckbox != null && fAutoInsertCheckbox.getSelection();
-		fNewTemplate= new Template(name, fDescriptionText.getText(), getContextId(), fPatternEditor.getDocument().get(), isAutoInsertable);
+		fNewTemplate= new Template(name, fDescriptionText.getText(), getContextType().getId(), fPatternEditor.getDocument().get(), isAutoInsertable);
 		super.okPressed();
 	}
 	
@@ -351,30 +378,14 @@ public class EditTemplateDialog extends ExtStatusDialog {
 	
 /* ******/
 	
-	private String getContextId() {
-		if (fContextCombo != null && !fContextCombo.isDisposed()) {
-			final String name= fContextCombo.getText();
-			for (int i= 0; i < fContextTypes.length; i++) {
-				if (name.equals(fContextTypes[i][1])) {
-					return fContextTypes[i][0];
-				}
-			}
+	protected TemplateContextType getContextType() {
+		if (fContextCombo != null) {
+			final StructuredSelection selection = (StructuredSelection) fContextCombo.getSelection();
+			return ((TemplateContextType) selection.getFirstElement());
 		}
-		
-		return fOriginalTemplate.getContextTypeId();
-	}
-	
-	private int getIndex(final String contextid) {
-		
-		if (contextid == null)
-			return -1;
-		
-		for (int i= 0; i < fContextTypes.length; i++) {
-			if (contextid.equals(fContextTypes[i][0])) {
-				return i;
-			}
+		else {
+			return fContextTypeRegistry.getContextType(fOriginalTemplate.getContextTypeId());
 		}
-		return -1;
 	}
 	
 	@Override

@@ -57,6 +57,7 @@ import de.walware.statet.r.ui.text.r.RCommentScanner;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 import de.walware.statet.r.ui.text.r.RInfixOperatorScanner;
 import de.walware.statet.r.ui.text.r.RStringScanner;
+import de.walware.statet.r.ui.text.r.RoxygenScanner;
 
 
 /**
@@ -67,8 +68,9 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	protected RCodeScanner2 fCodeScanner;
 	protected RInfixOperatorScanner fInfixScanner;
-	protected CommentScanner fCommentScanner;
 	protected SingleTokenScanner fStringScanner;
+	protected CommentScanner fCommentScanner;
+	protected CommentScanner fRoxygenScanner;
 	
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fRAutoEditStrategy;
@@ -131,9 +133,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		final ColorManager colorManager = getColorManager();
 		fCodeScanner = new RCodeScanner2(colorManager, store);
 		fInfixScanner = new RInfixOperatorScanner(colorManager, store);
-		fCommentScanner = new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs());
 		fStringScanner = new RStringScanner(colorManager, store);
-		return new ITokenScanner[] { fCodeScanner, fInfixScanner, fCommentScanner, fStringScanner };
+		fCommentScanner = new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs());
+		fRoxygenScanner = new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs());
+		return new ITokenScanner[] { fCodeScanner, fInfixScanner, fStringScanner, fCommentScanner, fRoxygenScanner };
 	}
 	
 	
@@ -189,6 +192,10 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		dr = new DefaultDamagerRepairer(fCommentScanner);
 		reconciler.setDamager(dr, IRDocumentPartitions.R_COMMENT);
 		reconciler.setRepairer(dr, IRDocumentPartitions.R_COMMENT);
+		
+		dr = new DefaultDamagerRepairer(fRoxygenScanner);
+		reconciler.setDamager(dr, IRDocumentPartitions.R_ROXYGEN);
+		reconciler.setRepairer(dr, IRDocumentPartitions.R_ROXYGEN);
 	}
 	
 	@Override
@@ -300,6 +307,11 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		final ContentAssistProcessor commentProcessor = new RContentAssistProcessor(assistant,
 				IRDocumentPartitions.R_COMMENT, registry, getSourceEditor());
 		assistant.setContentAssistProcessor(commentProcessor, IRDocumentPartitions.R_COMMENT);
+		
+		final ContentAssistProcessor roxygenProcessor = new RContentAssistProcessor(assistant,
+				IRDocumentPartitions.R_ROXYGEN, registry, getSourceEditor());
+		roxygenProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '@', '\\' });
+		assistant.setContentAssistProcessor(roxygenProcessor, IRDocumentPartitions.R_ROXYGEN);
 	}
 	
 	@Override

@@ -21,7 +21,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class RdCodeTemplatesContext extends StatextCodeTemplatesContext {
 	
 	
-	public RdCodeTemplatesContext(final String contextTypeName, final StatetProject project, final String lineDelim) {
+	RdCodeTemplatesContext(final String contextTypeName, final StatetProject project, final String lineDelim) {
 		super(
 				RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry().getContextType(contextTypeName),
 				project,

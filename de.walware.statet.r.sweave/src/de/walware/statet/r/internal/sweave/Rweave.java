@@ -52,6 +52,7 @@ public class Rweave {
 		IRDocumentPartitions.R_INFIX_OPERATOR,
 		IRDocumentPartitions.R_STRING,
 		IRDocumentPartitions.R_COMMENT,
+		IRDocumentPartitions.R_ROXYGEN,
 	};
 	
 	public static final String[] R_CHUNK_PARTITION_TYPES = new String[] {
@@ -62,6 +63,7 @@ public class Rweave {
 		IRDocumentPartitions.R_INFIX_OPERATOR,
 		IRDocumentPartitions.R_STRING,
 		IRDocumentPartitions.R_COMMENT,
+		IRDocumentPartitions.R_ROXYGEN,
 	};
 	
 	public static final String[] TEX_PARTITION_TYPES = new String[] {
@@ -87,6 +89,7 @@ public class Rweave {
 		IRDocumentPartitions.R_INFIX_OPERATOR,
 		IRDocumentPartitions.R_STRING,
 		IRDocumentPartitions.R_COMMENT,
+		IRDocumentPartitions.R_ROXYGEN,
 	};
 	
 	public static final String R_CAT = "r"; //$NON-NLS-1$
@@ -110,6 +113,7 @@ public class Rweave {
 			return (partitionType == IRDocumentPartitions.R_DEFAULT_EXPL
 					|| partitionType == IRDocumentPartitions.R_STRING
 					|| partitionType == IRDocumentPartitions.R_COMMENT
+					|| partitionType == IRDocumentPartitions.R_ROXYGEN
 					|| partitionType == IRDocumentPartitions.R_INFIX_OPERATOR
 					|| partitionType == IRDocumentPartitions.R_QUOTED_SYMBOL
 					);
@@ -118,7 +122,8 @@ public class Rweave {
 	
 	public static final IPartitionConstraint TEX_PARTITION_CONSTRAINT = new IPartitionConstraint() {
 		public boolean matches(final String partitionType) {
-			return (partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
+			return (partitionType == IDocument.DEFAULT_CONTENT_TYPE
+					|| partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
 					|| partitionType == ITexDocumentConstants.TEX_MATH_CONTENT_TYPE
 					|| partitionType == ITexDocumentConstants.TEX_VERBATIM
 					|| partitionType == ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE
@@ -126,7 +131,15 @@ public class Rweave {
 		}
 	};
 	
-	public static final PartitioningConfiguration R_CHUNK_PARTITIONING_CONFIG = new PartitioningConfiguration(
+	public static final PartitioningConfiguration TEX_PARTITIONING_CONFIG = new PartitioningConfiguration(
+			R_TEX_PARTITIONING, new IPartitionConstraint() {
+				public boolean matches(final String partitionType) {
+					return (partitionType == IDocument.DEFAULT_CONTENT_TYPE
+							|| partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE);
+				}
+			});
+	
+	public static final PartitioningConfiguration R_PARTITIONING_CONFIG = new PartitioningConfiguration(
 			R_TEX_PARTITIONING, new IPartitionConstraint() {
 				public boolean matches(final String partitionType) {
 					return (partitionType == IRDocumentPartitions.R_DEFAULT_EXPL);

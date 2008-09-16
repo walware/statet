@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.ui.preferences;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -25,6 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
 import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.eclipsecommons.ui.text.Partitioner;
 
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
@@ -32,8 +34,10 @@ import de.walware.statet.base.ui.util.SettingsUpdater;
 import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
+import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 
 
 /**
@@ -100,11 +104,10 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		if (selection.size() == 1) {
 			final TemplatePersistenceData data = (TemplatePersistenceData) selection.getFirstElement();
 			final Template template = data.getTemplate();
-//			fPatternViewer.getDocument().set(template.getPattern());
-			final TemplateContextType type = getContextTypeRegistry().getContextType(template.getContextTypeId());
-			fTemplateProcessor.setContextType(type);
-		} else {
-//			fPatternViewer.getDocument().set(""); //$NON-NLS-1$
+			final TemplateContextType contextType = getContextTypeRegistry().getContextType(template.getContextTypeId());
+			fTemplateProcessor.setContextType(contextType);
+			final AbstractDocument document = (AbstractDocument) getViewer().getDocument();
+			configureContext(document, contextType, fViewerConfigurator);
 		}
 	}
 	
@@ -112,11 +115,33 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
 		final de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
 				getShell(), template, edit, isNameModifiable, 
-				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry());
+				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry()) {
+			
+			@Override
+			protected void configureForContext(final TemplateContextType contextType) {
+				super.configureForContext(contextType);
+				final SourceViewer sourceViewer = getSourceViewer();
+				final AbstractDocument document = (AbstractDocument) sourceViewer.getDocument();
+				REditorTemplatePreferencePage.this.configureContext(document, contextType, getSourceViewerConfigurator());
+			}
+		};
 		if (dialog.open() == Dialog.OK) {
 			return dialog.getTemplate();
 		}
 		return null;
+	}
+	
+	protected void configureContext(final AbstractDocument document, final TemplateContextType contextType, final SourceViewerConfigurator configurator) {
+		final Partitioner partitioner = (Partitioner) document.getDocumentPartitioner(configurator.getPartitioning().getPartitioning());
+		if (contextType.getId().equals(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE)) {
+			partitioner.setStartPartitionType(IRDocumentPartitions.R_ROXYGEN);
+		}
+		else {
+			partitioner.setStartPartitionType(IRDocumentPartitions.R_DEFAULT_EXPL);
+		}
+		partitioner.disconnect();
+		partitioner.connect(document);
+		document.setDocumentPartitioner(configurator.getPartitioning().getPartitioning(), partitioner);
 	}
 	
 	@Override

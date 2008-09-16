@@ -108,6 +108,20 @@ public class RUIPreferenceConstants {
 		public final static String TS_TASK_TAG_UNDERLINE = TS_TASK_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX;
 		public final static String TS_TASK_TAG_STRIKETHROUGH = TS_TASK_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX;
 		
+		public final static String TS_ROXYGEN_ROOT = IRTextTokens.ROXYGEN_KEY;
+		public final static String TS_ROXYGEN_COLOR = TS_ROXYGEN_ROOT + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX;
+		public final static String TS_ROXYGEN_BOLD = TS_ROXYGEN_ROOT + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX;
+		public final static String TS_ROXYGEN_ITALIC = TS_ROXYGEN_ROOT + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX;
+		public final static String TS_ROXYGEN_UNDERLINE = TS_ROXYGEN_ROOT + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX;
+		public final static String TS_ROXYGEN_STRIKETHROUGH = TS_ROXYGEN_ROOT + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX;
+		
+		public final static String TS_ROXYGEN_TAG_ROOT = IRTextTokens.ROXYGEN_TAG_KEY;
+		public final static String TS_ROXYGEN_TAG_COLOR = TS_ROXYGEN_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX;
+		public final static String TS_ROXYGEN_TAG_BOLD = TS_ROXYGEN_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX;
+		public final static String TS_ROXYGEN_TAG_ITALIC = TS_ROXYGEN_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX;
+		public final static String TS_ROXYGEN_TAG_UNDERLINE = TS_ROXYGEN_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX;
+		public final static String TS_ROXYGEN_TAG_STRIKETHROUGH = TS_ROXYGEN_TAG_ROOT + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX;
+		
 		public final static String TS_STRING_ROOT = IRTextTokens.STRING_KEY;
 		public final static String TS_STRING_COLOR = TS_STRING_ROOT + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX;
 		public final static String TS_STRING_BOLD = TS_STRING_ROOT + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX;
@@ -345,7 +359,7 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_UNDEFINED_UNDERLINE, false);
 		store.setDefault(R.TS_UNDEFINED_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_COMMENT_COLOR, new RGB(63, 127, 95));
+		PreferenceConverter.setDefault(store, R.TS_COMMENT_COLOR, new RGB(63, 127, 79));
 		store.setDefault(R.TS_COMMENT_BOLD, false);
 		store.setDefault(R.TS_COMMENT_ITALIC, false);
 		store.setDefault(R.TS_COMMENT_UNDERLINE, false);
@@ -357,7 +371,19 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_TASK_TAG_UNDERLINE, false);
 		store.setDefault(R.TS_TASK_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_STRING_COLOR, new RGB(79, 111, 167));
+		PreferenceConverter.setDefault(store, R.TS_ROXYGEN_COLOR, new RGB(31, 127, 167));
+		store.setDefault(R.TS_ROXYGEN_BOLD, false);
+		store.setDefault(R.TS_ROXYGEN_ITALIC, false);
+		store.setDefault(R.TS_ROXYGEN_UNDERLINE, false);
+		store.setDefault(R.TS_ROXYGEN_STRIKETHROUGH, false);
+		
+		PreferenceConverter.setDefault(store, R.TS_ROXYGEN_TAG_COLOR, new RGB(135, 159, 175));
+		store.setDefault(R.TS_ROXYGEN_TAG_BOLD, true);
+		store.setDefault(R.TS_ROXYGEN_TAG_ITALIC, false);
+		store.setDefault(R.TS_ROXYGEN_TAG_UNDERLINE, false);
+		store.setDefault(R.TS_ROXYGEN_TAG_STRIKETHROUGH, false);
+		
+		PreferenceConverter.setDefault(store, R.TS_STRING_COLOR, new RGB(63, 63, 175));
 		store.setDefault(R.TS_STRING_BOLD, false);
 		store.setDefault(R.TS_STRING_ITALIC, false);
 		store.setDefault(R.TS_STRING_UNDERLINE, false);

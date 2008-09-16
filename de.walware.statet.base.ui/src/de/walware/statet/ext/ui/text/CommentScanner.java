@@ -23,8 +23,8 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
 
 import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
+import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.eclipsecommons.ui.util.ColorManager;
 import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
 

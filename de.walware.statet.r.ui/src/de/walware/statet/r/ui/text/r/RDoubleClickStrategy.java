@@ -33,8 +33,8 @@ import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
  * a single identifier.
  */
 public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
-
-
+	
+	
 	private final String fPartitioning;
 	private PairMatcher fPairMatcher;
 	private RHeuristicTokenScanner fScanner;
@@ -96,7 +96,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				return;
 			}
 			// Start in Comment-Partitions
-			if (type == IRDocumentPartitions.R_COMMENT) {
+			if (type == IRDocumentPartitions.R_COMMENT || type == IRDocumentPartitions.R_ROXYGEN) {
 				final int partitionOffset = partition.getOffset();
 				if (offset == partitionOffset || offset == partitionOffset+1) {
 					textViewer.setSelectedRange(partitionOffset, partition.getLength());

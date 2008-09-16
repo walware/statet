@@ -17,6 +17,7 @@ import de.walware.eclipsecommons.ltk.AstInfo;
 import de.walware.eclipsecommons.ltk.IModelManager;
 import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
 
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -40,6 +41,10 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	
 	public RProject getRProject() {
 		return ((IRSourceUnit) fFrom).getRProject();
+	}
+	
+	public IRCoreAccess getRCoreAccess() {
+		return ((IRSourceUnit) fFrom).getRCoreAccess();
 	}
 	
 	@Override
