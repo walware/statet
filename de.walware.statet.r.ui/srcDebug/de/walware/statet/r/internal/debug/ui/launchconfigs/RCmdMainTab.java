@@ -90,7 +90,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		
 		public final static int PACKAGE = 1;
 		public final static int DOC = 2;
-		public final static int CUSTOM = 3;
+		public final static int OTHER = 3;
+		public final static int CUSTOM = 4;
 		
 		private String fName;
 		private String fCommand;
@@ -154,6 +155,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRd2dvi_name, "CMD Rd2dvi", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRd2txt_name, "CMD Rd2txt", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdSd2Rd_name, "CMD Sd2Rd", Cmd.DOC)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRoxygen_name, "CMD roxygen", Cmd.PACKAGE)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdSweave_name, "CMD Sweave", Cmd.DOC)); //$NON-NLS-1$
 		fCustomCommand = new Cmd(RLaunchingMessages.RCmd_CmdOther_name, "", Cmd.CUSTOM); //$NON-NLS-1$
 		commands.add(fCustomCommand);
@@ -298,8 +300,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 						label = RLaunchingMessages.RCmd_Resource_Doc_label;
 						mode = ChooseResourceComposite.MODE_FILE;
 						break;
-					case Cmd.CUSTOM:
-					default:
+					default: // Cmd.OTHER, Cmd.CUSTOM
 						label = RLaunchingMessages.RCmd_Resource_Other_label;
 						mode = ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_DIRECTORY;
 						break;

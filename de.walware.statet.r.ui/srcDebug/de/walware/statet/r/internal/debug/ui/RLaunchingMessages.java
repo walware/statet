@@ -78,6 +78,7 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_CmdRdconv_name;
 	public static String RCmd_CmdRemove_name;
 	public static String RCmd_CmdSd2Rd_name;
+	public static String RCmd_CmdRoxygen_name;
 	public static String RCmd_CmdSweave_name;
 	public static String RCmd_MainTab_error_MissingCMD_message;
 	public static String RCmd_MainTab_RunHelp_label;
