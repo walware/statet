@@ -40,6 +40,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.eclipsecommons.ltk.text.TextUtil;
 import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.eclipsecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.IRequireSynch;
@@ -294,7 +295,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		if (r != null) {
 			r.dispose();
 		}
-		LaunchShortcutUtil.handleStatus(status, executionEvent);
+		WorkbenchUIUtil.indicateStatus(status, executionEvent);
 	}
 	
 }

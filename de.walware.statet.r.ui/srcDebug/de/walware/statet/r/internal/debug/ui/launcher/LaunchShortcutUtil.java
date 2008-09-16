@@ -32,7 +32,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPathEditorInput;
 import org.eclipse.ui.IURIEditorInput;
@@ -41,7 +40,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.IEditorStatusLine;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
@@ -187,7 +185,7 @@ public class LaunchShortcutUtil {
 	}
 	
 	public static void handleUnsupportedExecution(final ExecutionEvent executionEvent) {
-		handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, 
+		WorkbenchUIUtil.indicateStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, 
 				RLaunchingMessages.RunCode_info_NotSupported_message), executionEvent);
 	}
 	
@@ -195,28 +193,10 @@ public class LaunchShortcutUtil {
 		final Status status = new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING, defaultMessage, e);
 		StatusManager.getManager().handle(status);
 		if (e instanceof CoreException) {
-			handleStatus(((CoreException) e).getStatus(), executionEvent);
+			WorkbenchUIUtil.indicateStatus(((CoreException) e).getStatus(), executionEvent);
 		}
 		else {
-			handleStatus(status, executionEvent);
-		}
-	}
-	
-	public static void handleStatus(final IStatus status, final ExecutionEvent executionEvent) {
-		if (status.isOK()) {
-			return;
-		}
-		if (status.getMessage() != null && executionEvent != null) {
-			final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(executionEvent);
-			if (workbenchPart != null) {
-				final IEditorStatusLine statusLine = (IEditorStatusLine) workbenchPart.getAdapter(IEditorStatusLine.class);
-				if (statusLine != null) {
-					statusLine.setMessage(status.getSeverity() == IStatus.ERROR, status.getMessage(), null);
-				}
-			}
-		}
-		if (status.getSeverity() == IStatus.ERROR) {
-			Display.getCurrent().beep();
+			WorkbenchUIUtil.indicateStatus(status, executionEvent);
 		}
 	}
 	
