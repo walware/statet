@@ -872,8 +872,22 @@
          point="org.eclipse.ui.actionSets">
       <actionSet
             id="de.walware.statet.r.actionSets.RToolbarSet"
-            label="%actionSets.RToolbar.label">
+            label="%actionSets_RToolbar_label">
       </actionSet>
+      <actionSet
+            description="%actionSets_RToolbarExt1_description"
+            id="de.walware.statet.r.actionSets.RToolbarExt1Set"
+            label="%actionSets_RToolbarExt1_label">
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation
+            targetID="de.walware.statet.r.actionSets.RToolbarSet">
+         <part
+               id="de.walware.statet.r.editors.R">
+         </part>
+      </actionSetPartAssociation>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -1406,6 +1420,10 @@
                   name="begin"
                   visible="true">
             </separator>
+            <separator
+                  name="submit_file"
+                  visible="false">
+            </separator>
             <command
                   commandId="de.walware.statet.r.commands.RunSelectionInR"
                   style="push">
@@ -1423,6 +1441,10 @@
                   </with>
                </visibleWhen>
             </command>
+            <separator
+                  name="submit_selection"
+                  visible="false">
+            </separator>
             <command
                   commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
                   style="push">
@@ -1440,7 +1462,51 @@
                   </with>
                </visibleWhen>
             </command>
+            <separator
+                  name="submit_add"
+                  visible="false">
+            </separator>
          </toolbar>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:de.walware.statet.r.menus.RunToolbar?after=submit_file">
+         <command
+               commandId="de.walware.statet.r.commands.RunFileViaCommand"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeContexts">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <equals
+                           value="de.walware.statet.r.actionSets.RToolbarExt1Set">
+                     </equals>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:de.walware.statet.r.menus.RunToolbar?after=submit_selection">
+         <command
+               commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeContexts">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <equals
+                           value="de.walware.statet.r.actionSets.RToolbarExt1Set">
+                     </equals>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
       </menuContribution>
    </extension>
    <extension
