@@ -3,12 +3,12 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Base UI
 Bundle-SymbolicName: de.walware.statet.base.ui;singleton:=true
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.ui.StatetUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: de.walware.statet.base.core;bundle-version="[0.7.0,0.8.0)";visibility:=reexport,
+Require-Bundle: de.walware.statet.base.core;bundle-version="[0.8.0,0.9.0)";visibility:=reexport,
  org.eclipse.jface.text;visibility:=reexport,
  org.eclipse.core.databinding.beans,
  org.eclipse.jface.databinding,
