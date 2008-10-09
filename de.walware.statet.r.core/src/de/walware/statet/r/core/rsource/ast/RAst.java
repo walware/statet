@@ -153,7 +153,8 @@ public class RAst {
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
-			if (node.fStopOffset >= fStartOffset && fStopOffset >= node.fStartOffset) {
+			if (node.fStopOffset >= fStartOffset && ((fStartOffset == fStopOffset) ?
+					fStopOffset >= node.fStartOffset : fStopOffset > node.fStartOffset) ) {
 				if (fContainer != null && fContainer == node.fRParent) {
 					fCommands.add(node);
 				}
