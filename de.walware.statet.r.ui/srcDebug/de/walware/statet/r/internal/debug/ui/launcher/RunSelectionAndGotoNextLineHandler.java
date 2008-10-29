@@ -24,6 +24,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import de.walware.eclipsecommons.ui.util.WorkbenchUIUtil;
+
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.RCodeLaunching;
@@ -39,25 +41,28 @@ public class RunSelectionAndGotoNextLineHandler extends AbstractHandler {
 	
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
+		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 		
 		try {
-			if (workbenchPart instanceof ITextEditor) {
+			if (workbenchPart instanceof ITextEditor && selection instanceof ITextSelection) {
 				final ITextEditor editor = (ITextEditor) workbenchPart;
 				final IDocumentProvider documentProvider = editor.getDocumentProvider();
-				IDocument document = null;
-				if (documentProvider != null) {
-					document = documentProvider.getDocument(editor.getEditorInput());
+				if (documentProvider == null) {
+					return null;
 				}
-				final ISelection selection = editor.getSelectionProvider().getSelection();
-				if (document != null && selection instanceof ITextSelection) {
-					final ITextSelection textSelection = (ITextSelection) selection;
-					RCodeLaunching.runRCodeDirect(textSelection.getText(), false);
-					final int newOffset = getNextLineOffset(document, textSelection.getEndLine());
+				final IDocument document = documentProvider.getDocument(editor.getEditorInput());
+				if (document == null) {
+					return null;
+				}
+				final String code = LaunchShortcutUtil.getSelectedCode(event);
+				if (code != null) {
+					RCodeLaunching.runRCodeDirect(code, false);
+					final int newOffset = getNextLineOffset(document, ((ITextSelection) selection).getEndLine());
 					if (newOffset >= 0) {
 						editor.selectAndReveal(newOffset, 0);
 					}
-					return null;
 				}
+				return null;
 			}
 		}
 		catch (final CoreException e) {
