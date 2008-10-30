@@ -1420,6 +1420,23 @@
                   name="begin"
                   visible="true">
             </separator>
+            <command
+                  commandId="de.walware.statet.r.commands.RunFileViaCommand"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeContexts">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="de.walware.statet.r.actionSets.RToolbarSet">
+                        </equals>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
             <separator
                   name="submit_file"
                   visible="false">
@@ -1467,26 +1484,6 @@
                   visible="false">
             </separator>
          </toolbar>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:de.walware.statet.r.menus.RunToolbar?after=submit_file">
-         <command
-               commandId="de.walware.statet.r.commands.RunFileViaCommand"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="activeContexts">
-                  <iterate
-                        ifEmpty="false"
-                        operator="or">
-                     <equals
-                           value="de.walware.statet.r.actionSets.RToolbarExt1Set">
-                     </equals>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
       </menuContribution>
       <menuContribution
             locationURI="toolbar:de.walware.statet.r.menus.RunToolbar?after=submit_selection">
