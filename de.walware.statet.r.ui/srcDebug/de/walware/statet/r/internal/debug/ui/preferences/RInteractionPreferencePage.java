@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.debug.ui.preferences;
 
-import static de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.PREF_R_CONNECTOR;
+import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_R_CONNECTOR;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
+import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER;
+import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_R_CONNECTOR;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +25,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -31,13 +33,11 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.eclipsecommons.ICommonStatusConstants;
 import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
-import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
@@ -45,14 +45,6 @@ import de.walware.statet.r.ui.RUI;
 
 
 public class RCodeLaunchRegistry {
-	
-	
-	public static final StringPref PREF_R_CONNECTOR = new StringPref(RDebugPreferenceConstants.CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
-	
-	
-	public static void initializeDefaultValues(final IScopeContext context) {
-		PreferencesUtil.setPrefValue(context, PREF_R_CONNECTOR, RControllerCodeLaunchConnector.ID);
-	}
 	
 	
 	public static boolean isConfigured() {
@@ -229,7 +221,7 @@ public class RCodeLaunchRegistry {
 				loadConnectorExtensions();
 			}
 		});
-		scope.getNode(RDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER).addPreferenceChangeListener(new IPreferenceChangeListener() {
+		scope.getNode(CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER).addPreferenceChangeListener(new IPreferenceChangeListener() {
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				loadHandlerPreferences();
 			}
@@ -242,7 +234,7 @@ public class RCodeLaunchRegistry {
 		final IExtensionRegistry registry = Platform.getExtensionRegistry();
 		final IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, CONNECTOR_EXTENSION_POINT);
 		
-		final String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_R_CONNECTOR);
+		final String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(RDebugPreferenceConstants.PREF_R_CONNECTOR);
 		
 		for (int i = 0; i < elements.length; i++) {
 			if (id.equals(elements[i].getAttribute(ATT_ID))) {

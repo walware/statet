@@ -13,8 +13,11 @@ package de.walware.statet.r.internal.debug.ui;
 
 import org.eclipse.core.runtime.preferences.IScopeContext;
 
+import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.eclipsecommons.preferences.Preference.StringPref;
+
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RMIUtil;
-import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
+import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
 
 
 public class RDebugPreferenceConstants {
@@ -22,15 +25,17 @@ public class RDebugPreferenceConstants {
 	
 	public static final String ROOT_QUALIFIER = "de.walware.statet.r.ui"; // 'ui', because at moment in 'ui' plugin //$NON-NLS-1$
 	
-	public static final String CAT_RCONNECTOR_QUALIFIER = ROOT_QUALIFIER + "/RConnector"; //$NON-NLS-1$
 	public static final String CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER = ROOT_QUALIFIER + "/CodeLaunchContentHandler"; //$NON-NLS-1$
 	
+	public static final String CAT_RCONNECTOR_QUALIFIER = ROOT_QUALIFIER + "/RConnector"; //$NON-NLS-1$
+	public static final StringPref PREF_R_CONNECTOR = new StringPref(CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
 	
 	/**
 	 * Initializes the default values.
 	 */
 	public static void initializeDefaultValues(final IScopeContext context) {
-		RCodeLaunchRegistry.initializeDefaultValues(context);
+		PreferencesUtil.setPrefValue(context, RDebugPreferenceConstants.PREF_R_CONNECTOR, RControllerCodeLaunchConnector.ID);
+		
 		RMIUtil.initializeDefaultValues(context);
 	}
 	

@@ -16,8 +16,9 @@
 <plugin>
    <extension
          point="org.eclipse.core.runtime.preferences">
-      <initializer class="de.walware.statet.nico.internal.ui.preferences.NicoUIPreferenceInitializer"/>
+      <initializer class="de.walware.statet.nico.internal.ui.preferences.ConsolePreferences"/>
    </extension>
+
    <extension
          point="org.eclipse.ui.views">
       <view

@@ -15,6 +15,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
@@ -33,7 +35,8 @@ import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
 /**
  * 
  */
-public class ConsolePreferences {
+public class ConsolePreferences extends AbstractPreferenceInitializer {
+	
 	
 	public static final String INPUT_COLOR = "input.color"; //$NON-NLS-1$
 	public static final String INFO_COLOR = "info.color"; //$NON-NLS-1$
@@ -55,16 +58,6 @@ public class ConsolePreferences {
 				NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER);
 	}
 	
-	public static void initializeDefaults(final Map<Preference, Object> map) {
-		
-		final IPreferenceStore store = getStore();
-		PreferenceConverter.setDefault(store, INPUT_COLOR, new RGB(31, 167, 111));
-		PreferenceConverter.setDefault(store, INFO_COLOR, new RGB(31, 79, 175));
-		PreferenceConverter.setDefault(store, OUTPUT_COLOR, new RGB(0, 0, 0));
-		PreferenceConverter.setDefault(store, ERROR_COLOR, new RGB(255, 0, 8));
-		
-		new FilterPreferences().addPreferencesToMap(map);
-	}
 	
 	public static class FilterPreferences {
 		
@@ -140,6 +133,21 @@ public class ConsolePreferences {
 			);
 		}
 		
+	}
+	
+	
+	@Override
+	public void initializeDefaultPreferences() {
+		final DefaultScope defaultScope = new DefaultScope();
+		
+		final IPreferenceStore store = getStore();
+		PreferenceConverter.setDefault(store, INPUT_COLOR, new RGB(31, 167, 111));
+		PreferenceConverter.setDefault(store, INFO_COLOR, new RGB(31, 79, 175));
+		PreferenceConverter.setDefault(store, OUTPUT_COLOR, new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, ERROR_COLOR, new RGB(255, 0, 8));
+		
+		PreferencesUtil.setPrefValue(defaultScope, PREF_FILTER_SUBMIT_TYPES, SubmitType.getDefaultSet());
+		PreferencesUtil.setPrefValue(defaultScope, PREF_FILTER_SHOW_ALL_ERRORS, false);
 	}
 	
 }
