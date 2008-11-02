@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000-2005 IBM Corporation and others.
+ * Copyright (c) 2000-2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,12 +24,12 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
 import org.eclipse.jface.text.templates.persistence.TemplateReaderWriter;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
+
+import de.walware.eclipsecommons.ui.preferences.ScopedPreferenceStore;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -39,36 +39,67 @@ public final class CodeGenerationTemplatesStore {
 	
 	public static final String KEY = "de.walware.statet.base.ui.text.custom_code_templates"; //$NON-NLS-1$
 	
+	public static boolean hasProjectSpecificTempates(final IProject project) {
+		final String pref = new ProjectScope(project).getNode(StatetUIPlugin.PLUGIN_ID).get(KEY, null);
+		if (pref != null && pref.trim().length() > 0) {
+			final Reader input = new StringReader(pref);
+			final TemplateReaderWriter reader= new TemplateReaderWriter();
+			TemplatePersistenceData[] datas;
+			try {
+				datas = reader.read(input);
+				return datas.length > 0;
+			}
+			catch (final IOException e) {
+				// ignore
+			}
+		}
+		return false;
+	}
+	
+	
 	private final TemplateStore[] fInstanceStores;
 	private final TemplateStore fProjectStore;
+	private boolean fDisableProjectSettings;
+	
+	private final String fPreferenceQualifier;
+	private final String fPreferenceKey;
 	
 	
 	public CodeGenerationTemplatesStore(final IProject project, final TemplateStore[] pluginStores) {
+		fPreferenceQualifier = StatetUIPlugin.PLUGIN_ID;
+		fPreferenceKey = KEY;
+		
 		fInstanceStores = pluginStores;
 		
 		if (project == null) {
 			fProjectStore = null;
 		} else {
-			final IPreferenceStore projectSettings = new ScopedPreferenceStore(new ProjectScope(project), StatetUIPlugin.PLUGIN_ID);
-			fProjectStore = new TemplateStore(projectSettings, KEY) {
+			final ScopedPreferenceStore projectSettings = new ScopedPreferenceStore(new ProjectScope(project), fPreferenceQualifier);
+			fProjectStore = new TemplateStore(projectSettings, fPreferenceKey) {
 				/*
 				 * Make sure we keep the id of added code templates - add removes
 				 * it in the usual add() method
 				 */
 				@Override
 				public void add(final TemplatePersistenceData data) {
-					
 					internalAdd(data);
 				}
 				
 				@Override
 				public void save() throws IOException {
-					
-					final StringWriter output = new StringWriter();
-					final TemplateReaderWriter writer = new TemplateReaderWriter();
-					writer.save(getTemplateData(false), output);
-					
-					projectSettings.setValue(KEY, output.toString());
+					if (fDisableProjectSettings) {
+						projectSettings.setValue(fPreferenceKey, null);
+					}
+					else {
+						final StringWriter output = new StringWriter();
+						final TemplateReaderWriter writer = new TemplateReaderWriter();
+						writer.save(getTemplateData(false), output);
+						
+						projectSettings.setValue(fPreferenceKey, output.toString());
+					}
+					if (projectSettings.needsSaving()) {
+						projectSettings.save();
+					}
 				}
 			};
 		}
@@ -87,8 +118,9 @@ public final class CodeGenerationTemplatesStore {
 			}
 			final TemplatePersistenceData[] allData = new TemplatePersistenceData[length];
 			
-			for (int i = 0, k = 0; i < datas.length; k += datas[i].length, i++)
+			for (int i = 0, k = 0; i < datas.length; k += datas[i].length, i++) {
 				System.arraycopy(datas[i], 0, allData, 0, datas[i].length);
+			}
 			
 			return allData;
 		}
@@ -152,7 +184,7 @@ public final class CodeGenerationTemplatesStore {
 			
 			final Set<String> collectedDatas = new HashSet<String>();
 			TemplatePersistenceData[] datas = fProjectStore.getTemplateData(false);
-			for (int i= 0; i < datas.length; i++) {
+			for (int i = 0; i < datas.length; i++) {
 				collectedDatas.add(datas[i].getId());
 			}
 			
@@ -176,65 +208,70 @@ public final class CodeGenerationTemplatesStore {
 			return false;
 		}
 		
-		if (fProjectStore == null)
+		if (fProjectStore == null) {
 			return false;
+		}
+		else {
+			final TemplatePersistenceData data = fProjectStore.getTemplateData(id);
+			return (data != null && !data.isDeleted());
+		}
+	}
+	
+	/**
+	 * Setting to globally enable/disable project settings.
+	 * If enabled, template based settings are still required.
+	 */
+	public void setProjectSpecific(final boolean projectSpecific) {
+		assert (fProjectStore != null);
 		
-		return fProjectStore.findTemplateById(id) != null;
+		fDisableProjectSettings = !projectSpecific;
 	}
 	
 	public void setProjectSpecific(final String id, final boolean projectSpecific) {
 		assert (fProjectStore != null);
 		
 		final TemplatePersistenceData data = fProjectStore.getTemplateData(id);
-		if (data == null) {
-			return; // does not exist
-		} else {
+		if (data != null) {
 			data.setDeleted(!projectSpecific);
 		}
 	}
 	
 	public void restoreDefaults() {
 		if (fProjectStore == null) {
-			for (int i = 0; i < fInstanceStores.length; i++)
+			for (int i = 0; i < fInstanceStores.length; i++) {
 				fInstanceStores[i].restoreDefaults();
-		} else {
-			fProjectStore.restoreDefaults();
+			}
+		}
+		else {
+			try {
+				load();
+			}
+			catch (final IOException e) {
+				StatetUIPlugin.logUnexpectedError(e);
+			}
 		}
 	}
 	
 	public void save() throws IOException {
 		if (fProjectStore == null) {
-			for (int i = 0; i < fInstanceStores.length; i++)
+			for (int i = 0; i < fInstanceStores.length; i++) {
 				fInstanceStores[i].save();
-		} else {
+			}
+		}
+		else {
 			fProjectStore.save();
 		}
 	}
 	
 	public void revertChanges() throws IOException {
-		if (fProjectStore != null) {
-			// nothing to do
-		} else {
-			for (int i = 0; i < fInstanceStores.length; i++)
+		if (fProjectStore == null) {
+			for (int i = 0; i < fInstanceStores.length; i++) {
 				fInstanceStores[i].load();
-		}
-	}
-	
-	
-	public static boolean hasProjectSpecificTempates(final IProject project) {
-		final String pref = new ProjectScope(project).getNode(StatetUIPlugin.PLUGIN_ID).get(KEY, null);
-		if (pref != null && pref.trim().length() > 0) {
-			final Reader input = new StringReader(pref);
-			final TemplateReaderWriter reader= new TemplateReaderWriter();
-			TemplatePersistenceData[] datas;
-			try {
-				datas= reader.read(input);
-				return datas.length > 0;
-			} catch (final IOException e) {
-				// ignore
 			}
 		}
-		return false;
+		else {
+			// nothing to do
+		}
 	}
 	
 }
