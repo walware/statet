@@ -23,16 +23,22 @@ import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.common.NotDefinedException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.bindings.TriggerSequence;
+import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -55,6 +61,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.IMenuService;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.services.IServiceLocator;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 
 /**
@@ -150,6 +157,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	private int mode = 0;
 	
 	private final UIElement callback;
+	
 	
 	/**
 	 * Create a CommandContributionItem to place in a ContributionManager.
@@ -384,6 +392,33 @@ public final class HandlerContributionItem extends ContributionItem {
 	}
 	
 	@Override
+	public void fill(final Composite parent) {
+		if (command == null && !noCommandMode) {
+			return;
+		}
+		if (widget != null || parent == null) {
+			return;
+		}
+		
+		// Buttons don't support the pulldown style
+		int tmpStyle = style;
+		if (tmpStyle == STYLE_PULLDOWN)
+			tmpStyle = STYLE_PUSH;
+		
+		final Button item = new Button(parent, tmpStyle);
+		item.setData(this);
+		if (workbenchHelpSystem != null) {
+			workbenchHelpSystem.setHelp(item, helpContextId);
+		}
+		item.addListener(SWT.Dispose, getItemListener());
+		item.addListener(SWT.Selection, getItemListener());
+		widget = item;
+		
+		update(null);
+		updateIcons();
+	}
+	
+	@Override
 	public void update() {
 		update(null);
 	}
@@ -392,89 +427,129 @@ public final class HandlerContributionItem extends ContributionItem {
 	public void update(final String id) {
 		if (widget != null) {
 			if (widget instanceof MenuItem) {
-				final MenuItem item = (MenuItem) widget;
-				
-				String text = label;
-				if (text == null) {
-					if (command != null) {
-						try {
-							text = command.getCommand().getName();
-						} catch (final NotDefinedException e) {
-							WorkbenchPlugin.log("Update item failed " //$NON-NLS-1$
-									+ getId(), e);
-						}
-					}
-				}
-				text = updateMnemonic(text);
-				
-				String keyBindingText = null;
-				if (command != null) {
-					final TriggerSequence binding = bindingService
-							.getBestActiveBindingFor(command);
-					if (binding != null) {
-						keyBindingText = binding.format();
-					}
-				}
-				if (text != null) {
-					if (keyBindingText == null) {
-						item.setText(text);
-					} else {
-						item.setText(text + '\t' + keyBindingText);
-					}
-				}
-				
-				if (item.getSelection() != checkedState) {
-					item.setSelection(checkedState);
-				}
-				
-				final boolean shouldBeEnabled = isEnabled();
-				if (item.getEnabled() != shouldBeEnabled) {
-					item.setEnabled(shouldBeEnabled);
-				}
-				if (noCommandMode && commandHandler instanceof IElementUpdater) {
-					((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
-				}
+				updateMenuItem();
 			} else if (widget instanceof ToolItem) {
-				final ToolItem item = (ToolItem) widget;
-				
-				String text = label;
-				if (text == null) {
-					if (command != null) {
-						try {
-							text = command.getCommand().getName();
-						} catch (final NotDefinedException e) {
-							WorkbenchPlugin.log("Update item failed " //$NON-NLS-1$
-									+ getId(), e);
-						}
-					}
-				}
-				
-				if ((icon == null || (mode & MODE_FORCE_TEXT) == MODE_FORCE_TEXT)
-						&& text != null) {
-					item.setText(text);
-				}
-				
-				if (tooltip != null)
-					item.setToolTipText(tooltip);
-				else {
-					if (text != null) {
-						item.setToolTipText(text);
-					}
-				}
-				
-				if (item.getSelection() != checkedState) {
-					item.setSelection(checkedState);
-				}
-				
-				final boolean shouldBeEnabled = isEnabled();
-				if (item.getEnabled() != shouldBeEnabled) {
-					item.setEnabled(shouldBeEnabled);
-				}
-				if (noCommandMode && commandHandler instanceof IElementUpdater) {
-					((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
+				updateToolItem();
+			} else if (widget instanceof Button) {
+				updateButton();
+			}
+		}
+	}
+	
+	private void updateMenuItem() {
+		final MenuItem item = (MenuItem) widget;
+		
+		String text = label;
+		if (text == null) {
+			if (command != null) {
+				try {
+					text = command.getCommand().getName();
+				} catch (final NotDefinedException e) {
+					WorkbenchPlugin.log("Update item failed " //$NON-NLS-1$
+							+ getId(), e);
 				}
 			}
 		}
+		text = updateMnemonic(text);
+		
+		String keyBindingText = null;
+		if (command != null) {
+			final TriggerSequence binding = bindingService.getBestActiveBindingFor(command);
+			if (binding != null) {
+				keyBindingText = binding.format();
+			}
+		}
+		if (text != null) {
+			if (keyBindingText == null) {
+				item.setText(text);
+			} else {
+				item.setText(text + '\t' + keyBindingText);
+			}
+		}
+		
+		if (item.getSelection() != checkedState) {
+			item.setSelection(checkedState);
+		}
+		
+		final boolean shouldBeEnabled = isEnabled();
+		if (item.getEnabled() != shouldBeEnabled) {
+			item.setEnabled(shouldBeEnabled);
+		}
+		if (noCommandMode && commandHandler instanceof IElementUpdater) {
+			((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
+		}
+	}
+	
+	private void updateToolItem() {
+		final ToolItem item = (ToolItem) widget;
+		
+		String text = label;
+		if (text == null) {
+			if (command != null) {
+				try {
+					text = command.getCommand().getName();
+				} catch (final NotDefinedException e) {
+					WorkbenchPlugin.log("Update item failed " + getId(), e); //$NON-NLS-1$
+				}
+			}
+		}
+		
+		if ((icon == null || (mode & MODE_FORCE_TEXT) == MODE_FORCE_TEXT)
+				&& text != null) {
+			item.setText(text);
+		}
+		
+		final String toolTipText = getToolTipText(text);
+		item.setToolTipText(toolTipText);
+		
+		if (item.getSelection() != checkedState) {
+			item.setSelection(checkedState);
+		}
+		
+		final boolean shouldBeEnabled = isEnabled();
+		if (item.getEnabled() != shouldBeEnabled) {
+			item.setEnabled(shouldBeEnabled);
+		}
+		if (noCommandMode && commandHandler instanceof IElementUpdater) {
+			((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
+		}
+	}
+	
+	private void updateButton() {
+		final Button item = (Button) widget;
+		
+		String text = label;
+		if (text == null) {
+			if (command != null) {
+				try {
+					text = command.getCommand().getName();
+				} catch (final NotDefinedException e) {
+					WorkbenchPlugin.log("Update item failed " + getId(), e); //$NON-NLS-1$
+				}
+			}
+		}
+	}
+	
+	private String getToolTipText(final String text) {
+		String tooltipText = tooltip;
+		if (tooltip == null)
+			if (text != null)
+				tooltipText = text;
+			else
+				tooltipText = ""; //$NON-NLS-1$
+		
+		if (command != null) {
+			final TriggerSequence activeBinding = bindingService.getBestActiveBindingFor(command);
+			if (activeBinding != null && !activeBinding.isEmpty()) {
+				final String acceleratorText = activeBinding.format();
+				if (acceleratorText != null
+						&& acceleratorText.length() != 0) {
+					tooltipText = NLS.bind("{0} ({1})", tooltipText, acceleratorText); //$NON-NLS-1$
+				}
+			}
+		}
+		
+		return tooltipText;
 	}
 	
 	private String updateMnemonic(final String s) {
@@ -512,6 +587,7 @@ public final class HandlerContributionItem extends ContributionItem {
 			commandHandler.removeHandlerListener(commandListener);
 			commandListener = null;
 		}
+		
 		command = null;
 		commandHandler = null;
 		commandService = null;
@@ -566,8 +642,7 @@ public final class HandlerContributionItem extends ContributionItem {
 			final ExecutionEvent executionEvent = handlerService.createExecutionEvent(command, event);
 			commandHandler.execute(executionEvent);
 		} catch (final ExecutionException e) {
-			WorkbenchPlugin.log("Failed to execute item " //$NON-NLS-1$
-					+ getId(), e);
+			WorkbenchPlugin.log("Failed to execute item " + getId(), e); //$NON-NLS-1$
 //		} catch (NotDefinedException e) {
 //			WorkbenchPlugin.log("Failed to execute item " //$NON-NLS-1$
 //					+ getId(), e);
@@ -637,7 +712,16 @@ public final class HandlerContributionItem extends ContributionItem {
 			final MenuItem item = (MenuItem) widget;
 			final LocalResourceManager m = new LocalResourceManager(JFaceResources
 					.getResources());
-			item.setImage(icon == null ? null : m.createImage(icon));
+			try {
+				item.setImage(icon == null ? null : m.createImage(icon));
+			} catch (final DeviceResourceException e) {
+				icon = ImageDescriptor.getMissingImageDescriptor();
+				item.setImage(m.createImage(icon));
+				// as we replaced the failed icon, log the message once.
+				StatusManager.getManager().handle(
+						new Status(IStatus.ERROR, WorkbenchPlugin.PI_WORKBENCH,
+								"Failed to load image", e)); //$NON-NLS-1$
+			}
 			disposeOldImages();
 			localResourceManager = m;
 		} else if (widget instanceof ToolItem) {
