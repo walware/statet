@@ -480,6 +480,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	public boolean performOk() {
 		if (fProject != null) {
 			final TemplatePersistenceData[] templateData = fTemplatesStore.getAllTemplateData();
+			fTemplatesStore.setProjectSpecific(fUseProjectSettings);
 			for (int i = 0; i < templateData.length; i++) {
 				fTemplatesStore.setProjectSpecific(templateData[i].getId(), fUseProjectSettings);
 			}

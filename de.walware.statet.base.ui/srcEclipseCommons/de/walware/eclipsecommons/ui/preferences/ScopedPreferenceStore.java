@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Wahlbrink - support of multiple search contexts and bug fixes
  *******************************************************************************/
 
 package de.walware.eclipsecommons.ui.preferences;
@@ -88,12 +89,12 @@ public class ScopedPreferenceStore extends EventManager implements
 	/**
 	 * The nodeQualifer is the string used to look up the node in the contexts.
 	 */
-	String nodeQualifier;
+	private final String nodeQualifier;
 	
 	/**
 	 * The defaultQualifier is the string used to look up the default node.
 	 */
-	String defaultQualifier;
+	private final String defaultQualifier;
 	
 	/**
 	 * Boolean value indicating whether or not this store has changes to be
@@ -115,8 +116,12 @@ public class ScopedPreferenceStore extends EventManager implements
 	 */
 	public ScopedPreferenceStore(final IScopeContext context, final String qualifier,
 			final String defaultQualifierPath) {
-		this(context, qualifier);
+		this.storeContext = context;
+		this.nodeQualifier = qualifier;
 		this.defaultQualifier = defaultQualifierPath;
+		
+		((IEclipsePreferences) getStorePreferences().parent())
+				.addNodeChangeListener(getNodeChangeListener());
 	}
 	
 	/**
@@ -129,12 +134,7 @@ public class ScopedPreferenceStore extends EventManager implements
 	 *            the qualifer used to look up the preference node
 	 */
 	public ScopedPreferenceStore(final IScopeContext context, final String qualifier) {
-		storeContext = context;
-		this.nodeQualifier = qualifier;
-		this.defaultQualifier = qualifier;
-		
-		((IEclipsePreferences) getStorePreferences().parent())
-				.addNodeChangeListener(getNodeChangeListener());
+		this(context, qualifier, qualifier);
 	}
 	
 	/**
@@ -659,7 +659,7 @@ public class ScopedPreferenceStore extends EventManager implements
 	
 	public void setValue(final String name, final String value) {
 		// Do not turn on silent running here as Strings are propagated
-		if (getDefaultString(name).equals(value)) {
+		if (value == null || getDefaultString(name).equals(value)) {
 			getStorePreferences().remove(name);
 		} else {
 			getStorePreferences().put(name, value);
