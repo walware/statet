@@ -90,7 +90,7 @@ public abstract class FileUtil {
 					}
 				}
 			}
-			else if ( // !path.isAbsolute() &&
+			else if (relativeParent != null && // !path.isAbsolute() &&
 					path.getDevice() == null) {
 				return relativeParent.getFileStore(path);
 			}

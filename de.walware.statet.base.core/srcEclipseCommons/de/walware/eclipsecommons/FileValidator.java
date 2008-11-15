@@ -33,6 +33,7 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.eclipsecommons.internal.fileutil.Messages;
 
 import de.walware.statet.base.core.StatetCore;
+import de.walware.statet.base.internal.core.BaseCorePlugin;
 
 
 /**
@@ -170,26 +171,37 @@ public class FileValidator implements IValidator {
 	
 	public IStatus validate(final Object value) {
 		if (!checkExplicit()) {
-//			if (fStatus == null) {
-				fStatus = doValidate(value);
-//			}
+			doValidate(value);
 		}
 		return fStatus;
 	}
 	
 	private boolean checkExplicit() {
 		if (fExplicitObject != null) {
-			if (fStatus == null && !fInCheck) {
-				fInCheck = true;
-				fStatus = doValidate(fExplicitObject);
-				fInCheck = false;
+			if (fStatus == null) {
+				doValidate(fExplicitObject);
 			}
 			return true;
 		}
 		return false;
 	}
 	
-	private IStatus doValidate(Object value) {
+	private void doValidate(final Object value) {
+		if (!fInCheck) {
+			fInCheck = true;
+			try {
+				fStatus = doValidate1(value);
+			}
+			catch (final Exception e) {
+				BaseCorePlugin.logError(-1, NLS.bind("An error occurred when validating resource path ({0}).", value), e);
+			}
+			finally {
+				fInCheck = false;
+			}
+		}
+	}
+	
+	private IStatus doValidate1(Object value) {
 		fFileStore = null;
 		fWorkspaceResource = null;
 		
