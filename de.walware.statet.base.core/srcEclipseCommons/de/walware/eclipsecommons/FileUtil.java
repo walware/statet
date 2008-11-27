@@ -71,7 +71,12 @@ public abstract class FileUtil {
 		if (s.length() > 0) {
 			final IFileSystem localFS = EFS.getLocalFileSystem();
 			if (s.startsWith(EFS.SCHEME_FILE)) {
-				return localFS.getStore(URI.create(s));
+				try {
+					return localFS.getStore(new URI(s).normalize());
+				}
+				catch (final URISyntaxException e) {
+					throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, e.getReason()));
+				}
 			}
 			final IPath path = Path.fromOSString(s);
 			if (path.isUNC()) {
@@ -108,14 +113,26 @@ public abstract class FileUtil {
 		}
 		catch (final CoreException e) {
 		}
-		try {
-			final URI uri = new URI(location);
-			if (uri.getScheme() != null) {
-				return EFS.getStore(uri);
+		
+		final int p = location.indexOf(':');
+		if (p > 1) {
+			try {
+				final URI uri = new URI(location);
+				if (uri.getScheme() != null) {
+					return EFS.getStore(uri);
+				}
+			}
+			catch (final URISyntaxException e) {
+				// use uri error message only if we find valid scheme at the beginning
+				try {
+					new URI(location.substring(0, p), "a", null); //$NON-NLS-1$
+					throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, e.getReason()));
+				}
+				catch (final URISyntaxException invalidScheme) {
+				}
 			}
 		}
-		catch (final URISyntaxException e) {
-		}
+		
 		return null;
 	}
 	
