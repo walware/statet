@@ -168,7 +168,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		for (final IEnvirInSource envir : envirList) {
 			final Set<String> elementNames = envir.getElementNames();
 			for (final String name : elementNames) {
-				if (name.regionMatches(true, 0, namePrefix, 0, namePrefix.length()) 
+				if (name != null && name.regionMatches(true, 0, namePrefix, 0, namePrefix.length()) 
 						&& !mainNames.contains(name)) {
 					if (name.equals(namePrefix) && envir.getAllAccessOfElement(name).size() <= 1) {
 						continue; // prefix itself
