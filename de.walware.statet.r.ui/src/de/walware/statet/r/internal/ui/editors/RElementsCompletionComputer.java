@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,6 +81,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
 			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+		if (context.getModelInfo() == null) {
+			return null;
+		}
+		
+		// Get node
 		final AstSelection astSelection = context.getAstSelection();
 		IAstNode node = astSelection.getCovering();
 		if (node == null) {
@@ -89,12 +94,15 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (!(node instanceof RAstNode)) {
 			return null;
 		}
+		
+		// Get envir
 		final IEnvirInSource envir = RModel.searchEnvir((RAstNode) node);
 		if (envir == null) {
 			return null;
 		}
 		final IEnvirInSource[] envirList = RModel.createEnvirList(envir);
 		
+		// Get prefix
 		final String prefix = context.getIdentifierPrefix();
 		if (prefix == null) {
 			return null;
@@ -103,6 +111,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (prefixSegments == null) {
 			return null;
 		}
+		
+		// Collect proposals
 		if (prefixSegments.getNextSegment() == null) {
 			doComputeMainProposals(context, envirList, prefix, prefixSegments.getSegmentName(), tenders, monitor);
 			doComputeKeywordProposals(context, prefixSegments.getSegmentName(), tenders, monitor);
