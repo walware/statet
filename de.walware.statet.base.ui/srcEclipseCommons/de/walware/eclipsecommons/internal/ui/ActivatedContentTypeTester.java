@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,10 +16,14 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+
+import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -38,6 +42,9 @@ public class ActivatedContentTypeTester extends PropertyTester {
 		if (!(expectedValue instanceof String)) {
 			return false;
 		}
+		IContentType contentType = null;
+		
+		// Search IFile
 		IFile file = null;
 		if (receiver instanceof IFile) {
 			file = (IFile) receiver;
@@ -51,28 +58,6 @@ public class ActivatedContentTypeTester extends PropertyTester {
 					file = (IFile) resource;
 				}
 			}
-//			IPathEditorInput editorInput = (IPathEditorInput) ((IAdaptable) receiver).getAdapter(IPathEditorInput.class);
-//			
-//						if (editorInput != null) {
-//							IPath path= editorInput.getPath();
-//							File file= path.toFile();
-//							if (file.exists()) {
-//								try {
-//									FileReader reader= new FileReader(file);
-//									IContentType contentType= Platform.getContentTypeManager().getContentType((String)expectedValue);
-//									IContentDescription description= contentType.getDescriptionFor(reader, IContentDescription.ALL);
-//									reader.close();
-//									if (description != null) {
-//										return matchesContentType(description.getContentType(), (String)expectedValue);
-//									}
-//								} catch (FileNotFoundException e) {
-//									return false;
-//								} catch (IOException e) {
-//									return false;
-//								}
-//							}
-//						}
-//					}
 		}
 		if (file == null) {
 			IEditorInput editorInput;
@@ -89,42 +74,48 @@ public class ActivatedContentTypeTester extends PropertyTester {
 				file = (IFile) editorInput.getAdapter(IFile.class);
 			}
 		}
-		
-		if (property.equals(MATCH_ACTIVATED_TYPE)) {
-			if (file != null) {
-				try {
-					final IContentDescription contentDescription = file.getContentDescription();
-					if (contentDescription != null) {
-						final String expectedContentTypeId = (String) expectedValue;
-						final IContentType contentType = contentDescription.getContentType();
-						if (contentType != null) {
-							return StatetCore.getExtContentTypeManager().matchesActivatedContentType(
-									contentType.getId(), expectedContentTypeId, true);
+		if (file != null) {
+			// get content type by IFile
+			try {
+				final IContentDescription contentDescription = file.getContentDescription();
+				if (contentDescription != null) {
+					contentType = contentDescription.getContentType();
+				}
+			}
+			catch (final CoreException e) {}
+		}
+		else {
+			// get content type by ISourceEditor
+			if (receiver instanceof IAdaptable) {
+				final ISourceEditor editor = (ISourceEditor) ((IAdaptable) receiver).getAdapter(ISourceEditor.class);
+				if (editor != null) {
+					final ISourceUnit sourceUnit = editor.getSourceUnit();
+					if (sourceUnit != null) {
+						final String modelTypeId = sourceUnit.getModelTypeId();
+						final String contentTypeId = StatetCore.getExtContentTypeManager().getContentTypeForModelType(modelTypeId);
+						if (contentTypeId != null) {
+							contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
 						}
 					}
 				}
-				catch (final CoreException e) {
-				}
+			}
+		}
+		
+		if (property.equals(MATCH_ACTIVATED_TYPE)) {
+			final String expectedContentTypeId = (String) expectedValue;
+			if (contentType != null) {
+				return StatetCore.getExtContentTypeManager().matchesActivatedContentType(
+						contentType.getId(), expectedContentTypeId, true);
 			}
 			return false;
 		}
 		if (property.equals(MATCH_TYPE)) {
-			if (file != null) {
-				try {
-					final IContentDescription contentDescription = file.getContentDescription();
-					if (contentDescription != null) {
-						final String expectedContentTypeId = (String) expectedValue;
-						IContentType testType = contentDescription.getContentType();
-						while (testType != null) {
-							if (expectedContentTypeId.equals(testType.getId())) {
-								return true;
-							}
-							testType = testType.getBaseType();
-						}
-					}
+			final String expectedContentTypeId = (String) expectedValue;
+			while (contentType != null) {
+				if (expectedContentTypeId.equals(contentType.getId())) {
+					return true;
 				}
-				catch (final CoreException e) {
-				}
+				contentType = contentType.getBaseType();
 			}
 			return false;
 		}
