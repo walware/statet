@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -366,14 +366,6 @@ public class SourceAnalyzer extends RAstVisitor {
 			final HashMap<String, Integer> importNames = new HashMap<String, Integer>();
 			for (final SourceElementBuilder seb : fSourceContainerBuilders) {
 				for (final RSourceElementByElementAccess element : seb.children) {
-//					if (seb.envir != element.fAccess.getFrame()) {
-//					}
-					final Envir modelParent = (seb.envir.fParents.size() == 1) ? seb.envir.fParents.get(0) : null;
-					if (modelParent != null && 
-							(modelParent.getType() == IEnvirInSource.T_FUNCTION || modelParent.getType() == IEnvirInSource.T_CLASS)) {
-						// make sure it is marked as local
-						element.fType |= 0x1;
-					}
 					final String name = element.getElementName().getDisplayName();
 					final HashMap<String, Integer> names;
 					switch (element.fType & IRLangElement.MASK_C1) {
@@ -519,28 +511,15 @@ public class SourceAnalyzer extends RAstVisitor {
 		return value;
 	}
 	
-	private Object registerFunctionElement(final Object value, final int type,
-			final ElementAccess access, final Signature sig, final boolean force) {
-		final RSourceElementByElementAccess.RMethod rMethod;
-		if (value instanceof RMethod) {
-			rMethod = (RMethod) value;
-			rMethod.complete(type, access, createMethodArgDef(rMethod.getFDefNode(), sig));
-		}
-		else if (force) {
-			rMethod = new RMethod(fCurrentSourceContainerBuilder.element, type, access, null);
-			rMethod.complete(null);
-		}
-		else {
-			return value;
-		}
-		access.fFlags |= ElementAccess.A_FUNC;
-		fCurrentSourceContainerBuilder.children.add(rMethod);
-		access.getNode().addAttachment(rMethod);
-		return null;
-	}
-	
-	private void registerFunctionElement(final RMethod rMethod, final int type,
+	private void registerFunctionElement(final RMethod rMethod, int type,
 			final ElementAccess access, final Signature sig) {
+		if (rMethod.getElementType() == IRLangElement.R_COMMON_FUNCTION) {
+			final IEnvirInSource frame = access.getFrame();
+			if (frame != null && (frame.getType() == IEnvirInSource.T_FUNCTION || frame.getType() == IEnvirInSource.T_CLASS)) {
+				// make sure it is marked as local
+				type |= 0x1;
+			}
+		}
 		rMethod.complete(type, access, createMethodArgDef(rMethod.getFDefNode(), sig));
 		
 		access.fFlags |= ElementAccess.A_FUNC;
@@ -2120,7 +2099,16 @@ public class SourceAnalyzer extends RAstVisitor {
 					fDefArg.acceptInR(SourceAnalyzer.this);
 					fArgValueToIgnore.add(fDefArg);
 				}
-				registerFunctionElement(fReturnValue, IRLangElement.R_S4METHOD, access, sig, true);
+				RMethod rMethod;
+				if (fReturnValue instanceof RMethod) {
+					rMethod = (RMethod) fReturnValue;
+					registerFunctionElement(rMethod, IRLangElement.R_S4METHOD, access, sig);
+				}
+				else {
+					rMethod = new RMethod(fCurrentSourceContainerBuilder.element, IRLangElement.R_S4METHOD, access, null);
+					rMethod.complete(null);
+					registerFunctionElement(rMethod);
+				}
 				fReturnValue = null;
 			}
 			

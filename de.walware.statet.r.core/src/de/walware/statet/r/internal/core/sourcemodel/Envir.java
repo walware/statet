@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,6 @@ abstract class Envir implements IEnvirInSource {
 		int isCreated; // 0=no, 1=search, 2=explicit 
 		
 		public ElementAccessList(final String name) {
-			assert (name != null);
 			this.name = name;
 			this.entries = new ArrayList<ElementAccess>(4);
 			this.isCreated = 0;
