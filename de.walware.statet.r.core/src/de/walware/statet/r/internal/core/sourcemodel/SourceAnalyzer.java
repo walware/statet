@@ -320,7 +320,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
-	IRModelInfo update(final IRSourceUnit u, final AstInfo<RAstNode> ast) {
+	public IRModelInfo update(final IRSourceUnit u, final AstInfo<RAstNode> ast) {
 		fAnonymCount = 0;
 		fCurrentUnit = u;
 		fEnvironments = new LinkedHashMap<String, Envir>();
@@ -518,15 +518,15 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private Object registerFunctionElement(final Object value, final int type,
-			final ElementAccess access, final Signature sig) {
+			final ElementAccess access, final Signature sig, final boolean force) {
 		final RSourceElementByElementAccess.RMethod rMethod;
-		if (value == null) {
-			rMethod = new RMethod(fCurrentSourceContainerBuilder.element, type, access, null);
-			rMethod.complete(null);
-		}
-		else if (value instanceof RMethod) {
+		if (value instanceof RMethod) {
 			rMethod = (RMethod) value;
 			rMethod.complete(type, access, createMethodArgDef(rMethod.getFDefNode(), sig));
+		}
+		else if (force) {
+			rMethod = new RMethod(fCurrentSourceContainerBuilder.element, type, access, null);
+			rMethod.complete(null);
 		}
 		else {
 			return value;
@@ -585,24 +585,28 @@ public class SourceAnalyzer extends RAstVisitor {
 		node.getSourceChild().acceptInR(this);
 		final Object returnValue = fReturnValue;
 		
-		// Resolve
-		int mode;
-		switch (node.getNodeType()) {
-		case A_LEFT_D:
-		case A_RIGHT_D:
-			mode = S_SEARCH;
-			break;
-		default:
-			mode = S_LOCAL;
-			break;
-		}
-		
 		final RAstNode target = node.getTargetChild();
 		final ElementAccess access = new ElementAccess.Default(node);
 		access.fFlags = ElementAccess.A_WRITE;
 		
 		final String name = resolveElementName(target, access, true);
 		
+		// Resolve
+		int mode;
+		if (access.getNextSegment() == null) {
+			switch (node.getNodeType()) {
+			case A_LEFT_D:
+			case A_RIGHT_D:
+				mode = S_SEARCH;
+				break;
+			default:
+				mode = S_LOCAL;
+				break;
+			}
+		}
+		else {
+			mode = S_SEARCH;
+		}
 		registerInEnvir(mode, name, access);
 		
 		fReturnValue = registerSourceElement(returnValue, access);
@@ -778,7 +782,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	public void visit(final SubNamed node) throws InvocationTargetException {
 		final ElementAccess access = new ElementAccess.Default(node);
 		access.fFlags = ElementAccess.A_READ;
-		final String name = resolveSlotName(node, access);
+		final String name = resolvePartName(node, access);
 		if (name != null) {
 			registerInEnvir(S_SEARCH, name, access);
 		}
@@ -1504,9 +1508,9 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				enterElement(rMethod, envir);
 				
-				final RMethod defMethod = visitAndCheckValue(args.allocatedArgs[fArgIdx_def], "def");
-				final RMethod defaultMethod = visitAndCheckValue(args.allocatedArgs[fArgIdx_useAsDefault], "useAsDefault");
-				visitAndCheckValue(args.allocatedArgs[fArgIdx_genericFunction], "genericFunction");
+				final RMethod defMethod = visitAndCheckValue(args.getArgNode(fArgIdx_def), "def");
+				final RMethod defaultMethod = visitAndCheckValue(args.getArgNode(fArgIdx_useAsDefault), "useAsDefault");
+				visitAndCheckValue(args.getArgNode(fArgIdx_genericFunction), "genericFunction");
 				
 				final RAstNode signatureValue = args.getArgValueNode(fArgIdx_signature);
 				RAstNode[] signatureArgNodes = null;
@@ -2114,7 +2118,7 @@ public class SourceAnalyzer extends RAstVisitor {
 					fDefArg.acceptInR(SourceAnalyzer.this);
 					fArgValueToIgnore.add(fDefArg);
 				}
-				registerFunctionElement(fReturnValue, IRLangElement.R_S4METHOD, access, sig);
+				registerFunctionElement(fReturnValue, IRLangElement.R_S4METHOD, access, sig, true);
 				fReturnValue = null;
 			}
 			
