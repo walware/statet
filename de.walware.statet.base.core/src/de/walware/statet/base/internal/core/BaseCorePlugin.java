@@ -65,15 +65,13 @@ public final class BaseCorePlugin extends Plugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
+		
 		fSettingsNotifier = new SettingsChangeNotifier();
 		fContentTypeServices = new ExtContentTypeServices();
 	}
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		gPlugin = null;
-		super.stop(context);
-		
 		if (fSettingsNotifier != null) {
 			fSettingsNotifier.dispose();
 			fSettingsNotifier = null;
@@ -82,6 +80,9 @@ public final class BaseCorePlugin extends Plugin {
 			fContentTypeServices.dispose();
 			fContentTypeServices = null;
 		}
+		
+		gPlugin = null;
+		super.stop(context);
 	}
 	
 	
