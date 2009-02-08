@@ -17,8 +17,8 @@ import java.util.Map;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;

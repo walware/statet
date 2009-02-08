@@ -13,8 +13,8 @@ package de.walware.statet.r.core.rsource;
 
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.eclipsecommons.ltk.text.BasicHeuristicTokenScanner;
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ltk.text.BasicHeuristicTokenScanner;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
 
 import de.walware.statet.r.core.rlang.RTokens;
 

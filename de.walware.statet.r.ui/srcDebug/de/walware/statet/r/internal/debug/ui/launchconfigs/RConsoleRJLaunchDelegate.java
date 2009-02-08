@@ -29,9 +29,9 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.debug.UnterminatedLaunchAlerter;
 import de.walware.statet.nico.core.runtime.ToolProcess;

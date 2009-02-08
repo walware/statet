@@ -66,27 +66,28 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.ui.databinding.ColorSelectorObservableValue;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.eclipsecommons.ui.preferences.OverlayStoreConfigurationBlock;
-import de.walware.eclipsecommons.ui.preferences.OverlayStorePreference;
-import de.walware.eclipsecommons.ui.preferences.PreferenceStoreBeanWrapper;
-import de.walware.eclipsecommons.ui.preferences.RGBPref;
-import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.MessageUtil;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.UIAccess;
-import de.walware.eclipsecommons.ui.util.ViewerUtil;
-import de.walware.eclipsecommons.ui.util.ViewerUtil.Node;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.ui.databinding.ColorSelectorObservableValue;
+import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.preferences.OverlayStoreConfigurationBlock;
+import de.walware.ecommons.ui.preferences.OverlayStorePreference;
+import de.walware.ecommons.ui.preferences.PreferenceStoreBeanWrapper;
+import de.walware.ecommons.ui.preferences.RGBPref;
+import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.MessageUtil;
+import de.walware.ecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.ViewerUtil;
+import de.walware.ecommons.ui.util.ViewerUtil.Node;
+
+import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxNode.UseStyle;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.internal.ui.preferences.Messages;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
-import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock.SyntaxNode.UseStyle;
 
 
 /**

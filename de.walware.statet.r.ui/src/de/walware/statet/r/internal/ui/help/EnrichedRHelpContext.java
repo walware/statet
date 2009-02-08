@@ -34,7 +34,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPart3;
 import org.eclipse.ui.editors.text.TextEditor;
 
-import de.walware.eclipsecommons.ui.util.MessageUtil;
+import de.walware.ecommons.ui.util.MessageUtil;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 

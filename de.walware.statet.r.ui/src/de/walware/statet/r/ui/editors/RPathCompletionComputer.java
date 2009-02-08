@@ -19,8 +19,8 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.eclipsecommons.ui.text.sourceediting.PathCompletionComputor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.PathCompletionComputor;
 
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.ToolProcess;

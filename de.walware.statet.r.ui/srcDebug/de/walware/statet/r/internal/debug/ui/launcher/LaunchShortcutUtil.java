@@ -42,8 +42,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 

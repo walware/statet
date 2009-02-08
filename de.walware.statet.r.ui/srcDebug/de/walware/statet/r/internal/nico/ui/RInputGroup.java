@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;

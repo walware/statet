@@ -37,7 +37,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsoleView;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRegistry;

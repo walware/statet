@@ -29,7 +29,7 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.LaunchShortcutUtil;

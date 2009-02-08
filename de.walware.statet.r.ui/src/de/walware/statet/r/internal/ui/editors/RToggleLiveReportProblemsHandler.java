@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
-import de.walware.eclipsecommons.ui.TogglePreferenceEnablementHandler;
+import de.walware.ecommons.ui.TogglePreferenceEnablementHandler;
 
 import de.walware.statet.r.ui.editors.REditorOptions;
 

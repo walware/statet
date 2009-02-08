@@ -23,8 +23,8 @@ import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
-import de.walware.eclipsecommons.ltk.IDocumentModelProvider;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IDocumentModelProvider;
+import de.walware.ecommons.ltk.ISourceUnit;
 
 import de.walware.statet.base.core.StatetCore;
 

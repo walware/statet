@@ -23,8 +23,8 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
-import de.walware.eclipsecommons.ui.text.BufferedDocumentScanner;
-import de.walware.eclipsecommons.ui.text.IPartitionScannerConfigExt;
+import de.walware.ecommons.ui.text.BufferedDocumentScanner;
+import de.walware.ecommons.ui.text.IPartitionScannerConfigExt;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;

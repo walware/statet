@@ -14,8 +14,9 @@
 -->
 
 <plugin>
+
    <extension
-         point="de.walware.eclipsecommons.ltk.workingContexts">
+         point="de.walware.ecommons.ltk.workingContexts">
       <unitType modelTypeId="r"
             contextKey="editor.default"
             unitFactory="de.walware.statet.r.internal.ui.REditorWorkingCopyFactory">
@@ -271,7 +272,7 @@
                   <test
                         args="1280,1024"
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.isElementC1TypeSelection"
+                        property="de.walware.ecommons.ltk.isElementC1TypeSelection"
                         value="r">
                   </test>
                </or>
@@ -716,7 +717,7 @@
                      operator="and">
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesContentType"
+                        property="de.walware.ecommons.ltk.matchesContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </iterate>
@@ -734,7 +735,7 @@
                         operator="and">
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesContentType"
+                           property="de.walware.ecommons.ltk.matchesContentType"
                            value="de.walware.statet.r.contentTypes.R">
                      </test>
                   </iterate>
@@ -763,7 +764,7 @@
                   <or>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.de.walware.eclipsecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RData">
                      </test>
                   </or>
@@ -780,7 +781,7 @@
                   <iterate>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RData">
                      </test>
                   </iterate>
@@ -811,7 +812,7 @@
                      operator="and">
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </iterate>
@@ -829,7 +830,7 @@
                         operator="and">
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.R">
                      </test>
                   </iterate>
@@ -860,7 +861,7 @@
                      operator="and">
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </iterate>
@@ -1165,7 +1166,7 @@
                      <or>
                         <test
                               forcePluginActivation="true"
-                              property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                              property="de.walware.ecommons.ltk.matchesActivatedContentType"
                               value="org.eclipse.core.runtime.text">
                         </test>
                         <test
@@ -1181,7 +1182,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="org.eclipse.core.runtime.text">
                   </test>
                </with>
@@ -1207,7 +1208,7 @@
                      <or>
                         <test
                               forcePluginActivation="true"
-                              property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                              property="de.walware.ecommons.ltk.matchesActivatedContentType"
                               value="org.eclipse.core.runtime.text">
                         </test>
                         <test
@@ -1223,7 +1224,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="org.eclipse.core.runtime.text">
                   </test>
                </with>
@@ -1242,7 +1243,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </with>
@@ -1261,7 +1262,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </with>
@@ -1280,7 +1281,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </with>
@@ -1299,7 +1300,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </with>
@@ -1318,7 +1319,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.R">
                   </test>
                </with>

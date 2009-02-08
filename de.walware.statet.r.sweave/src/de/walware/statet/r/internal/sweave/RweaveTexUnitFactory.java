@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.core.resources.IFile;
 
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.base.core.StatetCore;
 

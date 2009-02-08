@@ -34,7 +34,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;

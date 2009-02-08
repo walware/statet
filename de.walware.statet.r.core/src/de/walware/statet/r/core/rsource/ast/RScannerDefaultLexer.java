@@ -15,8 +15,8 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
-import de.walware.eclipsecommons.ltk.text.IStringCache;
-import de.walware.eclipsecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.ltk.text.IStringCache;
+import de.walware.ecommons.ltk.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 

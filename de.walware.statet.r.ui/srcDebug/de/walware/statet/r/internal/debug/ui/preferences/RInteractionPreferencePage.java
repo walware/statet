@@ -37,13 +37,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
@@ -58,7 +58,7 @@ import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
 
 
 public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage<RInteractionConfigurationBlock> {
-
+	
 	
 	public RInteractionPreferencePage() {
 		setPreferenceStore(RUIPlugin.getDefault().getPreferenceStore());

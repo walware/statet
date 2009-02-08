@@ -48,14 +48,14 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
-import de.walware.eclipsecommons.ltk.IModelManager;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
-import de.walware.eclipsecommons.ltk.ast.AstSelection;
-import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
-import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
-import de.walware.eclipsecommons.ltk.ui.LTKInputData;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.ui.ElementInfoController;
+import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
+import de.walware.ecommons.ltk.ui.LTKInputData;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.IStatetUIMenuIds;

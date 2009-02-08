@@ -24,9 +24,9 @@ import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.templates.TemplateMessages;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.templates.TemplateMessages;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;

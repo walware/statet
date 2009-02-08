@@ -20,7 +20,7 @@ import org.rosuda.JRclient.REXP;
 import org.rosuda.JRclient.RSrvException;
 import org.rosuda.JRclient.Rconnection;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;

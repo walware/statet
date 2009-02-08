@@ -30,10 +30,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.IDisposable;
 import org.osgi.framework.BundleContext;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ImageRegistryUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
 

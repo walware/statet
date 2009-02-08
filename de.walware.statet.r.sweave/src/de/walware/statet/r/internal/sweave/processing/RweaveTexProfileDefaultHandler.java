@@ -27,8 +27,8 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
-import de.walware.eclipsecommons.ui.util.MessageUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.MessageUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.sweave.processing.SweaveProcessing.IProcessingListener;

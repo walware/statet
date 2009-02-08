@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core.model;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.AstInfo;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.ast.RAstNode;

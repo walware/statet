@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceUnit;
 
 import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IEnvirInSource;

@@ -32,7 +32,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.menus.UIElement;
 
-import de.walware.eclipsecommons.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunching;

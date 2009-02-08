@@ -13,7 +13,7 @@ package de.walware.statet.r.core.refactoring;
 
 import org.eclipse.jface.text.ITypedRegion;
 
-import de.walware.eclipsecommons.ltk.core.refactoring.RefactoringAdapter;
+import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;

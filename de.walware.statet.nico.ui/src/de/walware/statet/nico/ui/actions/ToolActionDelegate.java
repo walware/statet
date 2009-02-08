@@ -21,7 +21,7 @@ import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IActionDelegate2;
 import org.eclipse.ui.IWorkbenchPage;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUI;

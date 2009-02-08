@@ -31,14 +31,14 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.services.IDisposable;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
-import de.walware.eclipsecommons.ltk.IDocumentModelProvider;
-import de.walware.eclipsecommons.ltk.IProblem;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ui.SourceAnnotationModel;
-import de.walware.eclipsecommons.ltk.ui.SourceProblemAnnotation;
-import de.walware.eclipsecommons.ltk.ui.SourceProblemAnnotation.PresentationConfig;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ltk.IDocumentModelProvider;
+import de.walware.ecommons.ltk.IProblem;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.SourceAnnotationModel;
+import de.walware.ecommons.ltk.ui.SourceProblemAnnotation;
+import de.walware.ecommons.ltk.ui.SourceProblemAnnotation.PresentationConfig;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetCore;
 

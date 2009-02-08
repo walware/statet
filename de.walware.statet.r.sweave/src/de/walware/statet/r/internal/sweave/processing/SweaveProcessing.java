@@ -40,12 +40,12 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.FastList;
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-import de.walware.eclipsecommons.ui.util.DialogUtil;
-import de.walware.eclipsecommons.ui.util.MessageUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.FastList;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.MessageUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;

@@ -31,8 +31,8 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;

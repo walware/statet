@@ -24,8 +24,8 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsole;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 import de.walware.statet.r.ui.RUI;

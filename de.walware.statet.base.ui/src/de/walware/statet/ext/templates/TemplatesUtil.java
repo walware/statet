@@ -27,7 +27,7 @@ import org.eclipse.jface.text.templates.TemplateVariable;
 import org.eclipse.text.edits.RangeMarker;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;

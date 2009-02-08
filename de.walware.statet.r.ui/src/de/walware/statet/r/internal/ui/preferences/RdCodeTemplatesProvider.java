@@ -19,7 +19,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;

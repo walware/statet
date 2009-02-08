@@ -38,10 +38,10 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_
 
 import java.lang.reflect.InvocationTargetException;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.text.IStringCache;
-import de.walware.eclipsecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.text.IStringCache;
+import de.walware.ecommons.ltk.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.ast.RAstNode.Assoc;

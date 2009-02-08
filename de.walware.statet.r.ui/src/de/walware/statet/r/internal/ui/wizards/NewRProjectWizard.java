@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 
-import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.ext.ui.wizards.NewElementWizard;
 import de.walware.statet.ext.ui.wizards.StatetWizardsMessages;

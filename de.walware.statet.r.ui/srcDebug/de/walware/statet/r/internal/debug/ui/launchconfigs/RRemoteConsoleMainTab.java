@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.launching.RConsoleLaunching;
 

@@ -13,7 +13,7 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 

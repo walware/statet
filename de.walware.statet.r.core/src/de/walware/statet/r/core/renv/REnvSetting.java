@@ -13,7 +13,7 @@ package de.walware.statet.r.core.renv;
 
 import java.util.regex.Pattern;
 
-import de.walware.eclipsecommons.AbstractSettingsModelObject;
+import de.walware.ecommons.AbstractSettingsModelObject;
 
 import de.walware.statet.r.core.RCore;
 

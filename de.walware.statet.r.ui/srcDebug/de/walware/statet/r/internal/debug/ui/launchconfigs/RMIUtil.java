@@ -25,9 +25,9 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.services.IDisposable;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.Preference.IntPref;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;

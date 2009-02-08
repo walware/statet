@@ -18,8 +18,8 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_IF;
 
 import java.lang.reflect.InvocationTargetException;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 

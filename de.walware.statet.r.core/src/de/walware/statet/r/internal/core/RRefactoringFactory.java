@@ -13,9 +13,9 @@ package de.walware.statet.r.internal.core;
 
 import org.eclipse.ltk.core.refactoring.participants.DeleteProcessor;
 
-import de.walware.eclipsecommons.ltk.core.refactoring.CommonRefactoringFactory;
-import de.walware.eclipsecommons.ltk.core.refactoring.RefactoringAdapter;
-import de.walware.eclipsecommons.ltk.core.refactoring.RefactoringElementSet;
+import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringFactory;
+import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
+import de.walware.ecommons.ltk.core.refactoring.RefactoringElementSet;
 
 import de.walware.statet.r.core.refactoring.RDeleteProcessor;
 import de.walware.statet.r.core.refactoring.RRefactoringAdapter;

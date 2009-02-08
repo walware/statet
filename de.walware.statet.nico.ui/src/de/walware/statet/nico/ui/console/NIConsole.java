@@ -39,7 +39,7 @@ import org.eclipse.ui.console.IOConsole;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 import org.eclipse.ui.part.IPageBookViewPage;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.SubmitType;

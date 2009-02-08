@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.nico.ui;
 
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
 
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;

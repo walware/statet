@@ -37,7 +37,7 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.eclipsecommons.ui.ControlServicesUtil;
+import de.walware.ecommons.ui.ControlServicesUtil;
 
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;

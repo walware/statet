@@ -19,7 +19,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITypedRegion;
 
-import de.walware.eclipsecommons.ltk.text.TextUtil;
+import de.walware.ecommons.ltk.text.TextUtil;
 
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant;

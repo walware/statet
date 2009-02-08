@@ -14,6 +14,7 @@
 -->
 
 <plugin>
+
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.r.internal.core.RCorePreferenceInitializer"/>
@@ -107,14 +108,14 @@
    </extension>
 
    <extension
-         point="de.walware.eclipsecommons.ltk.workingContexts">
+         point="de.walware.ecommons.ltk.workingContexts">
       <unitType modelTypeId="r"
             contextKey="persistence.default"
             unitFactory="de.walware.statet.r.internal.core.RSourceUnitFactory">
       </unitType>
    </extension>
    <extension
-         point="de.walware.eclipsecommons.ltk.contentTypeActivation">
+         point="de.walware.ecommons.ltk.contentTypeActivation">
       <modelType id="r"
             contentTypeId="de.walware.statet.r.contentTypes.R">
       </modelType>

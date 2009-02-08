@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.text.ISourceStructElement;
 
 import de.walware.statet.r.core.model.IRLangElement;
 

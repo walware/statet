@@ -55,22 +55,23 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
-import de.walware.eclipsecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
-import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
+import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
+import de.walware.ecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.util.UIAccess;
+
+import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
+import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
+import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
 import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
-import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
-import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
 
 
 /**

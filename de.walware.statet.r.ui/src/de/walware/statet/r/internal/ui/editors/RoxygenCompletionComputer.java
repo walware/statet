@@ -23,10 +23,10 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.eclipsecommons.ui.text.sourceediting.IContentAssistComputer;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.eclipsecommons.ui.text.sourceediting.KeywordCompletionProposal;
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
 
 import de.walware.statet.base.ui.StatetImages;
 

@@ -89,19 +89,20 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
-import de.walware.eclipsecommons.ui.HandlerContributionItem;
-import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.util.DNDUtil;
-import de.walware.eclipsecommons.ui.util.DialogUtil;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.ui.HandlerContributionItem;
+import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.util.DNDUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
+
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;

@@ -14,7 +14,7 @@
 <schema targetNamespace="de.walware.statet.base.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.walware.statet.base.core" id="de.walware.eclipsecommons.ltk.contentTypeActivation" name="Additional activation for content types"/>
+         <meta.schema plugin="de.walware.statet.base.core" id="de.walware.ecommons.ltk.contentTypeActivation" name="Additional activation for content types"/>
       </appinfo>
       <documentation>
          Allows multiple content types in addition to the primary content type.

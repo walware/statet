@@ -71,13 +71,14 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommons.FastArrayCacheList;
-import de.walware.eclipsecommons.FastList;
-import de.walware.eclipsecommons.ui.HandlerContributionItem;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.FastArrayCacheList;
+import de.walware.ecommons.FastList;
+import de.walware.ecommons.ui.HandlerContributionItem;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
+
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;

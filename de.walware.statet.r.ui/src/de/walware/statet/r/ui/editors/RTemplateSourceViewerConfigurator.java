@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.ui.editors;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
 
 import de.walware.statet.base.ui.StatetUIServices;
 

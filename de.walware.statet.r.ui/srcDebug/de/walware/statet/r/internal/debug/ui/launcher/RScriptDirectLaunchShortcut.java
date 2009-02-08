@@ -18,7 +18,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 
-import de.walware.eclipsecommons.ltk.ui.LTKSelectionUtil;
+import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;

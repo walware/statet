@@ -31,12 +31,12 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
-import de.walware.eclipsecommons.ui.text.EcoReconciler;
-import de.walware.eclipsecommons.ui.text.presentation.SingleTokenScanner;
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistProcessor;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.text.EcoReconciler;
+import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;

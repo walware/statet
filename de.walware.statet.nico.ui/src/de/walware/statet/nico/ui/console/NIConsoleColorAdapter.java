@@ -25,10 +25,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.console.IOConsoleOutputStream;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetUIServices;
+
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;

@@ -19,7 +19,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.eclipsecommons.FastList;
+import de.walware.ecommons.FastList;
 
 
 /**

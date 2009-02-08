@@ -11,10 +11,10 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.IModelElementDelta;
-import de.walware.eclipsecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElementDelta;
+import de.walware.ecommons.ltk.IModelManager;
 
 import de.walware.statet.r.core.model.IRModelInfo;
 

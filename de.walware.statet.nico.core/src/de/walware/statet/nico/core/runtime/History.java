@@ -32,11 +32,11 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.FileUtil;
-import de.walware.eclipsecommons.FileUtil.ReadTextFileOperation;
-import de.walware.eclipsecommons.FileUtil.ReaderAction;
-import de.walware.eclipsecommons.FileUtil.WriteTextFileOperation;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.FileUtil.ReadTextFileOperation;
+import de.walware.ecommons.FileUtil.ReaderAction;
+import de.walware.ecommons.FileUtil.WriteTextFileOperation;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;

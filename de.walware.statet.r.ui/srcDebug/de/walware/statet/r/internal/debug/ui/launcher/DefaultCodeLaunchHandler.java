@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 
-import de.walware.eclipsecommons.ltk.text.TextUtil;
+import de.walware.ecommons.ltk.text.TextUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;

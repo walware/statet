@@ -21,12 +21,12 @@ import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import de.walware.eclipsecommons.ltk.ElementChangedEvent;
-import de.walware.eclipsecommons.ltk.IElementChangedListener;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.IModelElementDelta;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.ElementChangedEvent;
+import de.walware.ecommons.ltk.IElementChangedListener;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElementDelta;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRModelInfo;

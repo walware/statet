@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.debug.ui.launcher;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 
 
-
 public class RunSelectionAndGotoConsoleForTextHandler extends RunSelectionForTextHandler {
 	
 	

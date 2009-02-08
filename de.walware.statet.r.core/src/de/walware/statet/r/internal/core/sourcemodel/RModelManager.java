@@ -23,11 +23,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import de.walware.eclipsecommons.FastList;
-import de.walware.eclipsecommons.ltk.IElementChangedListener;
-import de.walware.eclipsecommons.ltk.IModelManager;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.WorkingContext;
+import de.walware.ecommons.FastList;
+import de.walware.ecommons.ltk.IElementChangedListener;
+import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.base.core.StatetCore;
 

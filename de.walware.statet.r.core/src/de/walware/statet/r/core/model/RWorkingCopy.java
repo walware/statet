@@ -13,10 +13,10 @@ package de.walware.statet.r.core.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.GenericSourceUnitWorkingCopy;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.internal.core.RCorePlugin;
 

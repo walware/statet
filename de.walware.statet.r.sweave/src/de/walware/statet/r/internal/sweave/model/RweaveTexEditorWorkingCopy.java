@@ -18,18 +18,18 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IProblemRequestor;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
-import de.walware.eclipsecommons.ltk.IWorkingBuffer;
-import de.walware.eclipsecommons.ltk.SourceContent;
-import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
-import de.walware.eclipsecommons.ltk.WorkingContext;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.text.SourceParseInput;
-import de.walware.eclipsecommons.ltk.text.StringParseInput;
-import de.walware.eclipsecommons.ltk.ui.FileBufferWorkingBuffer;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.IWorkingBuffer;
+import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.ltk.text.StringParseInput;
+import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
 

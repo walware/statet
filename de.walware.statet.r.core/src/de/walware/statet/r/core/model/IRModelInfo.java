@@ -13,7 +13,7 @@ package de.walware.statet.r.core.model;
 
 import java.util.Map;
 
-import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
 
 /**

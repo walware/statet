@@ -15,11 +15,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
 
-import de.walware.eclipsecommons.ltk.IElementName;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ui.IElementLabelProvider;
-import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.eclipsecommons.ui.text.sourceediting.ElementNameCompletionProposal;
+import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ui.IElementLabelProvider;
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.ElementNameCompletionProposal;
 
 
 public class RCompletionProposal extends ElementNameCompletionProposal {

@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
-import de.walware.eclipsecommons.ui.text.Partitioner;
-import de.walware.eclipsecommons.ui.text.PartitionerDocumentSetupParticipant;
+import de.walware.ecommons.ui.text.Partitioner;
+import de.walware.ecommons.ui.text.PartitionerDocumentSetupParticipant;
 
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.sweave.text.CatPartitioner;

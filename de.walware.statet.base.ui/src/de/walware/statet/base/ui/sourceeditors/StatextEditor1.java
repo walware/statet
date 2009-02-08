@@ -73,32 +73,33 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
-import de.walware.eclipsecommons.ltk.ui.IModelElementInputProvider;
-import de.walware.eclipsecommons.ltk.ui.ISelectionWithElementInfoListener;
-import de.walware.eclipsecommons.ltk.ui.LTKInputData;
-import de.walware.eclipsecommons.ltk.ui.PostSelectionCancelExtension;
-import de.walware.eclipsecommons.ltk.ui.PostSelectionWithElementInfoController;
-import de.walware.eclipsecommons.ltk.ui.PostSelectionWithElementInfoController.IgnoreActivation;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
-import de.walware.eclipsecommons.ui.text.PairMatcher;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.eclipsecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ltk.ui.IModelElementInputProvider;
+import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
+import de.walware.ecommons.ltk.ui.LTKInputData;
+import de.walware.ecommons.ltk.ui.PostSelectionCancelExtension;
+import de.walware.ecommons.ltk.ui.PostSelectionWithElementInfoController;
+import de.walware.ecommons.ltk.ui.PostSelectionWithElementInfoController.IgnoreActivation;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.UIAccess;
+
+import de.walware.statet.ext.core.StatextProject;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.IStatetUIMenuIds;
-import de.walware.statet.ext.core.StatextProject;
 
 
 public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
@@ -1016,7 +1017,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	// inject annotation painter workaround
 	protected SourceViewerDecorationSupport getSourceViewerDecorationSupport(final ISourceViewer viewer) {
 		if (fSourceViewerDecorationSupport == null) {
-			fSourceViewerDecorationSupport= new de.walware.eclipsepatches.ui.SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
+			fSourceViewerDecorationSupport= new de.walware.epatches.ui.SourceViewerDecorationSupport(viewer, getOverviewRuler(), getAnnotationAccess(), getSharedColors());
 			configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
 		}
 		return fSourceViewerDecorationSupport;

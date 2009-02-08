@@ -15,7 +15,7 @@ import java.util.Comparator;
 
 import com.ibm.icu.text.Collator;
 
-import de.walware.eclipsecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IElementName;
 
 import de.walware.statet.r.core.RSymbolComparator;
 

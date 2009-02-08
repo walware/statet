@@ -17,7 +17,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.ui.RUI;

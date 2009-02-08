@@ -18,8 +18,8 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ui.IElementLabelProvider;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 
 import de.walware.statet.base.ui.StatetImages;
 

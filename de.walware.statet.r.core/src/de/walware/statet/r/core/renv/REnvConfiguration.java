@@ -30,12 +30,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.walware.eclipsecommons.FileUtil;
-import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
-import de.walware.eclipsecommons.preferences.Preference.StringPref;
+import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCorePreferenceNodes;

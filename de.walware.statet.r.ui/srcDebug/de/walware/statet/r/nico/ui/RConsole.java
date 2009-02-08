@@ -14,7 +14,7 @@ package de.walware.statet.r.nico.ui;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.part.IPageBookViewPage;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.ToolProcess;

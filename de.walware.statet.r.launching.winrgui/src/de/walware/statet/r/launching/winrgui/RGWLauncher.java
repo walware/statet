@@ -35,9 +35,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommons.ui.util.DNDUtil;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.ui.util.DNDUtil;
 
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 

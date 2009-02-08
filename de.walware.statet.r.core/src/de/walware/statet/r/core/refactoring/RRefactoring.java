@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core.refactoring;
 
-import de.walware.eclipsecommons.ltk.core.refactoring.CommonRefactoringFactory;
+import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringFactory;
 
 import de.walware.statet.r.internal.core.RRefactoringFactory;
 

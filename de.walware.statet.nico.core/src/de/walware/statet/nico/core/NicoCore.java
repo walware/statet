@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 
 /**

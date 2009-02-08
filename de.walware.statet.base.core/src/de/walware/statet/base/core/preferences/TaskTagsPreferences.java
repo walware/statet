@@ -19,10 +19,10 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.Assert;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.Preference.EnumListPref;
-import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.Preference.EnumListPref;
+import de.walware.ecommons.preferences.Preference.StringArrayPref;
 
 
 public class TaskTagsPreferences {

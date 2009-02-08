@@ -4,7 +4,7 @@
  * are made available under the terms of the GNU Lesser General Public License 
  * v2.1 or newer, which accompanies this distribution, and is available at
  * http://www.gnu.org/licenses/lgpl.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
-import de.walware.eclipsecommons.AbstractSettingsModelObject;
-import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.ecommons.AbstractSettingsModelObject;
+import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.r.rserve.RServePlugin;
 

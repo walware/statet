@@ -19,9 +19,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
-import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
+import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetUIServices;
+
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.ui.NicoUI;
 

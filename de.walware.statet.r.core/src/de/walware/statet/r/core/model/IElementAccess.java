@@ -13,7 +13,7 @@ package de.walware.statet.r.core.model;
 
 import java.util.Comparator;
 
-import de.walware.eclipsecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IElementName;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 

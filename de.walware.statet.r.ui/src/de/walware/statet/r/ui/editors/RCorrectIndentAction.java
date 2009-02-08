@@ -33,10 +33,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;

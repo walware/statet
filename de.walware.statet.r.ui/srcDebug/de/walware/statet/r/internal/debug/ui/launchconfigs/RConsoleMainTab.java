@@ -49,10 +49,10 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
+import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.debug.HelpRequestor;

@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
-
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
@@ -25,8 +24,8 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.texteditor.templates.TemplatesView;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.text.Partitioner;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.text.Partitioner;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;

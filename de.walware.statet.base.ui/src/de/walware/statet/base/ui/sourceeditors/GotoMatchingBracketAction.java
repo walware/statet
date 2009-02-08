@@ -21,8 +21,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 
-import de.walware.eclipsecommons.ltk.text.ITokenScanner;
-import de.walware.eclipsecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ltk.text.ITokenScanner;
+import de.walware.ecommons.ui.text.PairMatcher;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 

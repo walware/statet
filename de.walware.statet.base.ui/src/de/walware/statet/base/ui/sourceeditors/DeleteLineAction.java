@@ -10,9 +10,7 @@
  *     Stephan Wahlbrink - adaptions for StatET-usage and IEditorAdapter
  *******************************************************************************/
 
-
 package de.walware.statet.base.ui.sourceeditors;
-
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.BadLocationException;
@@ -26,10 +24,11 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import de.walware.eclipsecommons.ltk.text.TextUtil;
-import de.walware.eclipsecommons.ui.util.DNDUtil;
+import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.ui.util.DNDUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
+
 
 /**
  * An action to delete a whole line, the fraction of the line that is left from the cursor

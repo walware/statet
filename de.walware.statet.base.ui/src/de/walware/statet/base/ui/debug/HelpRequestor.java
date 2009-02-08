@@ -42,10 +42,10 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;

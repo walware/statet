@@ -33,13 +33,13 @@
       </content-type>
    </extension>
    <extension
-         point="de.walware.eclipsecommons.ltk.workingContexts">
+         point="de.walware.ecommons.ltk.workingContexts">
       <unitType modelTypeId="rweave-tex"
             unitFactory="de.walware.statet.r.internal.sweave.RweaveTexUnitFactory">
       </unitType>
    </extension>
    <extension
-         point="de.walware.eclipsecommons.ltk.contentTypeActivation">
+         point="de.walware.ecommons.ltk.contentTypeActivation">
       <contentType
             id="de.walware.statet.r.contentTypes.RweaveTex"
             secondaryId="de.walware.statet.r.contentTypes.R">
@@ -221,7 +221,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.RweaveTex">
                   </test>
                </iterate>
@@ -240,7 +240,7 @@
                      </instanceof>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RweaveTex">
                      </test>
                   </iterate>
@@ -272,7 +272,7 @@
                   </instanceof>
                   <test
                         forcePluginActivation="true"
-                        property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                        property="de.walware.ecommons.ltk.matchesActivatedContentType"
                         value="de.walware.statet.r.contentTypes.RweaveTex">
                   </test>
                </iterate>
@@ -297,7 +297,7 @@
                   <or>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RweaveTex">
                      </test>
                   </or>
@@ -314,7 +314,7 @@
                   <iterate>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RweaveTex">
                      </test>
                   </iterate>

@@ -14,7 +14,7 @@
 <schema targetNamespace="de.walware.statet.r.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.walware.statet.r.core" id="de.walware.eclipsecommons.ltk.workingContexts" name="Working Contexts"/>
+         <meta.schema plugin="de.walware.statet.r.core" id="de.walware.ecommons.ltk.workingContexts" name="Working Contexts"/>
       </appinfo>
       <documentation>
          
@@ -80,7 +80,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":de.walware.eclipsecommons.ltk.IUnitFactory"/>
+                  <meta.attribute kind="java" basedOn=":de.walware.ecommons.ltk.IUnitFactory"/>
                </appinfo>
             </annotation>
          </attribute>

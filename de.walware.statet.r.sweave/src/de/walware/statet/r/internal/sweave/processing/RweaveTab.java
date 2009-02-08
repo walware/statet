@@ -52,11 +52,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 

@@ -30,10 +30,10 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 
-import de.walware.eclipsecommons.ui.text.presentation.SingleTokenScanner;
-import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.text.presentation.AbstractRuleBasedScanner;
+import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;

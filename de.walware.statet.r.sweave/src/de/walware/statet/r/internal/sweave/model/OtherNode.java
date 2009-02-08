@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.sweave.model;
 
 import java.lang.reflect.InvocationTargetException;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 

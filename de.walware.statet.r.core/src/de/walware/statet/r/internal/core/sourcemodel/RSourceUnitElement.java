@@ -13,12 +13,12 @@ package de.walware.statet.r.internal.core.sourcemodel;
 
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.eclipsecommons.ltk.IElementName;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.text.ISourceStructElement;
 
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;

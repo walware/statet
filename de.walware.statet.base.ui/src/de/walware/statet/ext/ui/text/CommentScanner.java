@@ -22,11 +22,11 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.ui.text.presentation.AbstractRuleBasedScanner;
-import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.ui.text.presentation.AbstractRuleBasedScanner;
+import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 

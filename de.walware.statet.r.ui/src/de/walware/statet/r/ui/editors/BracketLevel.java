@@ -23,7 +23,7 @@ import org.eclipse.jface.text.link.LinkedModeUI.IExitPolicy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
 
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 

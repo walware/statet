@@ -25,8 +25,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.text.Partitioner;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.text.Partitioner;
 
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;

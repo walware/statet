@@ -17,8 +17,8 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.util.DNDUtil;
+import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.util.DNDUtil;
 
 import de.walware.statet.nico.ui.views.HistoryView;
 

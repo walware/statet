@@ -16,7 +16,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.eclipsecommons.ltk.text.IPartitionConstraint;
+import de.walware.ecommons.ltk.text.IPartitionConstraint;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.Rweave;

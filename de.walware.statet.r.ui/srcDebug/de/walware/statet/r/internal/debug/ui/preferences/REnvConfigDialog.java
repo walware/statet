@@ -55,11 +55,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.eclipsecommons.ui.databinding.DirtyTracker;
-import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
-import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.MessageUtil;
+import de.walware.ecommons.ui.databinding.DirtyTracker;
+import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.internal.ui.RUIPlugin;

@@ -22,11 +22,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.ui.text.PairMatcher;
-import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;

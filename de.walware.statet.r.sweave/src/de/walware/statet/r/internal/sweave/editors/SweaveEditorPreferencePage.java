@@ -25,10 +25,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 

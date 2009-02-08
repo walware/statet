@@ -17,11 +17,11 @@ import java.util.List;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
-import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
@@ -34,6 +34,7 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
+
 
 public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferencePage<AbstractSyntaxColoringBlock> {
 	

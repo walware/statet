@@ -29,7 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsoleViewer;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;

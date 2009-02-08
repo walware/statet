@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.part.DrillDownAdapter;
 
-import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.dialogs.StatusInfo;
 
 import de.walware.statet.base.ui.StatetImages;
 

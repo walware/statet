@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.core.preferences.PreferencesManageListener;

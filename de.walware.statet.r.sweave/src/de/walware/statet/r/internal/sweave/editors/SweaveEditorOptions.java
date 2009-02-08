@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
 
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 

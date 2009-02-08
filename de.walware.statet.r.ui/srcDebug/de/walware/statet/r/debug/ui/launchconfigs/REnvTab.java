@@ -31,12 +31,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.eclipsecommons.FileValidator;
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.ui.databinding.LaunchConfigTabWithDbc;
-import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.MessageUtil;
+import de.walware.ecommons.FileValidator;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
+import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvSetting;

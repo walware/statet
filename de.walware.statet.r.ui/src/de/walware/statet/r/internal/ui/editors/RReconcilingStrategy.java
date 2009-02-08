@@ -19,8 +19,8 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 import org.eclipse.ui.IEditorInput;
 
-import de.walware.eclipsecommons.ltk.IModelManager;
-import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
+import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ui.text.IEditorInputAcceptor;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;

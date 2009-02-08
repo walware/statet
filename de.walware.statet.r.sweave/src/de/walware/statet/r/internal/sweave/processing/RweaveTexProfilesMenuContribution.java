@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Stephan Wahlbrink - initial API and implementation
+ *******************************************************************************/
+
 package de.walware.statet.r.internal.sweave.processing;
 
 import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.STEP_PREVIEW;
@@ -21,8 +32,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.keys.IBindingService;
 
-import de.walware.eclipsecommons.ui.util.MessageUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.MessageUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderRegistry;

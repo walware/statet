@@ -32,7 +32,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.ui.NicoUI;

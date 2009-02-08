@@ -11,7 +11,6 @@
 
 package de.walware.statet.ext.templates;
 
-
 import java.util.ArrayList;
 import java.util.List;
 

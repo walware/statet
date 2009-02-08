@@ -44,13 +44,13 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.dialogs.groups.TableOptionButtonsGroup;
-import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.dialogs.groups.TableOptionButtonsGroup;
+import de.walware.ecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
 

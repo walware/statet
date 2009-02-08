@@ -17,12 +17,12 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.swt.graphics.Color;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
-import de.walware.eclipsecommons.ui.preferences.RGBPref;
-import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.ui.preferences.RGBPref;
+import de.walware.ecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;

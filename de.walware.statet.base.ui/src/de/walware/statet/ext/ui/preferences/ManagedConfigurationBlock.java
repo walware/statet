@@ -41,11 +41,11 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.preferences.IWorkingCopyManager;
 import org.osgi.service.prefs.BackingStoreException;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.SettingsChangeNotifier;
-import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.preferences.AbstractConfigurationBlock;
 
 import de.walware.statet.base.core.CoreUtility;
 

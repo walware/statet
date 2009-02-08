@@ -15,7 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateException;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetProject;
 

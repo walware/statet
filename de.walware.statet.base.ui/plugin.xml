@@ -14,6 +14,7 @@
 -->
 
 <plugin>
+
    <extension-point id="codeGenerationTemplatesCategory" name="Adds a new category of templates to the StatET dialog for editing code-templates" schema="schema/codeGenerationTemplatesCategory.exsd"/>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -485,17 +486,17 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="de.walware.eclipsecommons.internal.ui.ActivatedContentTypeTester"
             id="de.walware.statet.base.propertyTester.ContentTypeActivation"
-            namespace="de.walware.eclipsecommons.ltk"
+            class="de.walware.ecommons.internal.ui.ActivatedContentTypeTester"
+            namespace="de.walware.ecommons.ltk"
             properties="matchesActivatedContentType,matchesContentType"
-            type="org.eclipse.core.runtime.IAdaptable" />
+            type="org.eclipse.core.runtime.IAdaptable"/>
       <propertyTester
-            class="de.walware.eclipsecommons.ltk.internal.ui.refactoring.ModelElementTester"
             id="de.walware.statet.base.propertyTester.ModelElements"
-            namespace="de.walware.eclipsecommons.ltk"
+            class="de.walware.ecommons.ltk.internal.ui.refactoring.ModelElementTester"
+            namespace="de.walware.ecommons.ltk"
             properties="isElementC1TypeSelection,isElementC2TypeSelection"
-            type="org.eclipse.jface.viewers.ISelection" />
+            type="org.eclipse.jface.viewers.ISelection"/>
    </extension>
 
 </plugin>

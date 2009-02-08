@@ -37,11 +37,10 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
-import de.walware.eclipsecommons.FileValidator;
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
-
+import de.walware.ecommons.FileValidator;
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import net.sourceforge.texlipse.Texlipse;
 

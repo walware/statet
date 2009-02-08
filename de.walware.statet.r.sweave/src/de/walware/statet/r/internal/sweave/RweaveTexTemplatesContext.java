@@ -16,7 +16,7 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateBuffer;
 import org.eclipse.jface.text.templates.TemplateException;
 
-import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnit;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.StatextCodeTemplatesContext;

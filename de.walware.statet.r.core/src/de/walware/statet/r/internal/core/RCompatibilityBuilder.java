@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;

@@ -33,8 +33,8 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ui.ElementInfoController;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.ElementInfoController;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.StatetUIServices;

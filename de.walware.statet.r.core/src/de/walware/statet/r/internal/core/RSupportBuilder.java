@@ -38,7 +38,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 

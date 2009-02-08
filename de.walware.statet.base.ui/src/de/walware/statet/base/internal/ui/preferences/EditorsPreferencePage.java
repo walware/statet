@@ -42,20 +42,21 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
-import de.walware.eclipsecommons.ui.databinding.ColorSelectorObservableValue;
-import de.walware.eclipsecommons.ui.databinding.NumberValidator;
-import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.eclipsecommons.ui.preferences.RGBPref;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.ui.databinding.ColorSelectorObservableValue;
+import de.walware.ecommons.ui.databinding.NumberValidator;
+import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.preferences.RGBPref;
+import de.walware.ecommons.ui.util.LayoutUtil;
+
+import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.base.ui.sourceeditors.ContentAssistPreference;
-import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 
 public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<EditorsConfigurationBlock> {

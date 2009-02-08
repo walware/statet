@@ -16,8 +16,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.ITypedRegion;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;

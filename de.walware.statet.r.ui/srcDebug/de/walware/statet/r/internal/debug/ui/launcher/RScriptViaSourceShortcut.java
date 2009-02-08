@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.debug.ui.launcher;
 import de.walware.statet.r.launching.RunFileViaCommandLaunchShortcut;
 
 
-
 /**
  * Launch shortcut, which submits the whole script (file)
  * using the <code>source</code> command to R

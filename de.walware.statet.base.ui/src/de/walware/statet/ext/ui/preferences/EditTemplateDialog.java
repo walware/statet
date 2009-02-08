@@ -11,7 +11,6 @@
 
 package de.walware.statet.ext.ui.preferences;
 
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -51,16 +50,17 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.util.DialogUtil;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.LayoutUtil;
+
+import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
-import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 
 
 /**

@@ -13,10 +13,10 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistProcessor;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 
 public class RContentAssistProcessor extends ContentAssistProcessor {

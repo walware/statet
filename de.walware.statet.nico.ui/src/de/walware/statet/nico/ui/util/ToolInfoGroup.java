@@ -21,9 +21,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-import de.walware.eclipsecommons.ui.dialogs.ShortedLabel;
+import de.walware.ecommons.ui.dialogs.ShortedLabel;
 
 import de.walware.statet.base.ui.StatetImages;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
 

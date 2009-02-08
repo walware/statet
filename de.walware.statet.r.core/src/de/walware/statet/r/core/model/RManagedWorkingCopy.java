@@ -13,9 +13,9 @@ package de.walware.statet.r.core.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IModelManager;
-import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;

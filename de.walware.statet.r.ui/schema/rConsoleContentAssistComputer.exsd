@@ -125,7 +125,7 @@
                   The implementation of the computer
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":de.walware.eclipsecommons.ui.text.sourceediting.IContentAssistComputer"/>
+                  <meta.attribute kind="java" basedOn=":de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer"/>
                </appinfo>
             </annotation>
          </attribute>

@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
-import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.statet.ext.ui.wizards.NewElementWizard;

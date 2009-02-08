@@ -21,8 +21,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.RCoreFunctions;

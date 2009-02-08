@@ -35,12 +35,13 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.dialogs.StatusInfo;
 
-import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.ui.dialogs.ContainerSelectionComposite;
 import de.walware.statet.ext.ui.dialogs.StatetDialogsMessages;
+
+import de.walware.statet.base.core.StatetProject;
 
 
 /**

@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.sweave;
 
-
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 

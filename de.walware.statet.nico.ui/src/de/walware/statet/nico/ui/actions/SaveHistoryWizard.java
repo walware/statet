@@ -22,7 +22,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.ToolProcess;

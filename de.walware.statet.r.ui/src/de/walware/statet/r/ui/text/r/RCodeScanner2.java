@@ -22,12 +22,12 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
-import de.walware.eclipsecommons.ltk.text.BufferedDocumentParseInput;
-import de.walware.eclipsecommons.ltk.text.SourceParseInput;
-import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.eclipsecommons.ui.text.presentation.TextStyleManager;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ltk.text.BufferedDocumentParseInput;
+import de.walware.ecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.text.presentation.TextStyleManager;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;

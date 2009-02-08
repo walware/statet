@@ -32,13 +32,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.AbstractTemplatesPage;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.ui.text.sourceediting.TemplateProposal;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.text.sourceediting.TemplateProposal;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.UIAccess;
+
+import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 
 import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
 
 
 /**

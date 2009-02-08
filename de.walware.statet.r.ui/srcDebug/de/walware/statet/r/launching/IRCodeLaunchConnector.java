@@ -10,8 +10,8 @@
  *******************************************************************************/
 
 package de.walware.statet.r.launching;
-import org.eclipse.core.runtime.CoreException;
 
+import org.eclipse.core.runtime.CoreException;
 
 
 public interface IRCodeLaunchConnector {

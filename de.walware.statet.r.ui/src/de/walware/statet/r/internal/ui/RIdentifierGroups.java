@@ -14,10 +14,10 @@ package de.walware.statet.r.internal.ui;
 import java.util.Arrays;
 import java.util.Map;
 
-import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.Preference.StringArrayPref;
+import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.Preference.StringArrayPref;
 
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.ui.RUI;

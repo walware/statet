@@ -28,7 +28,7 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
+import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;

@@ -13,10 +13,10 @@ package de.walware.statet.r.ui.editors;
 
 import java.util.Map;
 
-import de.walware.eclipsecommons.preferences.AbstractPreferencesModelObject;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
 
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 

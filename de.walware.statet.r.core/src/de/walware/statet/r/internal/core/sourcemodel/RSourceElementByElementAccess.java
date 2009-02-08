@@ -17,10 +17,10 @@ import java.util.List;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
-import de.walware.eclipsecommons.ltk.IElementName;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IElementAccess;

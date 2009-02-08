@@ -39,12 +39,12 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
-import de.walware.eclipsecommons.FastList;
-import de.walware.eclipsecommons.templates.TemplateVariableProcessor;
-import de.walware.eclipsecommons.templates.WordFinder;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.eclipsecommons.ui.util.ColorManager;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.FastList;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.templates.WordFinder;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

@@ -18,9 +18,9 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.core.StatetCore;
 

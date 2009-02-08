@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 
 import de.walware.statet.base.ui.StatetImages;
+
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.ui.IToolRunnableAdapter;
 

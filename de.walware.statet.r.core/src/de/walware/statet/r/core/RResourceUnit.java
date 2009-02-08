@@ -22,16 +22,16 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IElementName;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.IProblemRequestor;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ISourceUnitModelInfo;
-import de.walware.eclipsecommons.ltk.SourceContent;
-import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
-import de.walware.eclipsecommons.ltk.WorkingBuffer;
-import de.walware.eclipsecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ltk.WorkingBuffer;
+import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.base.core.StatetCore;
 

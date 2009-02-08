@@ -25,10 +25,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.eclipsecommons.FileValidator;
-import de.walware.eclipsecommons.ui.dialogs.ChooseResourceComposite;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.ecommons.FileValidator;
+import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
+import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;

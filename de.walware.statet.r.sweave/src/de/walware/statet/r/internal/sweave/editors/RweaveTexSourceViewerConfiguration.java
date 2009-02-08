@@ -36,8 +36,8 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
-import de.walware.eclipsecommons.ui.text.EcoReconciler;
-import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.text.EcoReconciler;
+import de.walware.ecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;

@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.core.refactoring;
 
-import de.walware.eclipsecommons.ltk.core.refactoring.CommonDeleteProcessor;
-import de.walware.eclipsecommons.ltk.core.refactoring.RefactoringElementSet;
+import de.walware.ecommons.ltk.core.refactoring.CommonDeleteProcessor;
+import de.walware.ecommons.ltk.core.refactoring.RefactoringElementSet;
 
 
 public class RDeleteProcessor extends CommonDeleteProcessor {

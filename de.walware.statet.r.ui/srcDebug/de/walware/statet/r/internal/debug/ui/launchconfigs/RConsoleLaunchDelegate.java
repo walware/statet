@@ -19,9 +19,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.ui.RUI;

@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.IPreferenceAccess;
 
 
 /**

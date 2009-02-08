@@ -14,7 +14,7 @@ package de.walware.statet.r.core.model;
 import java.util.List;
 import java.util.Set;
 
-import de.walware.eclipsecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElement;
 
 
 public interface IEnvirInSource {

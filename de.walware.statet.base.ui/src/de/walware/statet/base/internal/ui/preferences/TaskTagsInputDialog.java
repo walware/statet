@@ -27,12 +27,12 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.eclipsecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.eclipsecommons.ui.dialogs.Layouter;
-import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.util.DialogUtil;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.base.internal.ui.StatetMessages;

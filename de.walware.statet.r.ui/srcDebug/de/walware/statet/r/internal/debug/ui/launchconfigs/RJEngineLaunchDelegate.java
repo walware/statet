@@ -35,8 +35,7 @@ import org.eclipse.jdt.launching.JavaLaunchDelegate;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 
-import de.walware.eclipsecommons.debug.ui.LaunchConfigUtil;
-
+import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;

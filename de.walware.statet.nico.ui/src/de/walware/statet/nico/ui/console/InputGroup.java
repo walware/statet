@@ -68,14 +68,14 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
-import de.walware.eclipsecommons.ui.text.PairMatcher;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.eclipsecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.DeleteLineAction;
@@ -85,6 +85,7 @@ import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
 import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
+
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -508,7 +509,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		fSourceViewer = new InputSourceViewer(fComposite);
 		fConfigurator.setTarget(fEditorAdapter, true);
 		
-		fSourceViewerDecorationSupport = new de.walware.eclipsepatches.ui.SourceViewerDecorationSupport(
+		fSourceViewerDecorationSupport = new de.walware.epatches.ui.SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
 		final MarkerAnnotationPreferences markerAnnotationPreferences = EditorsPlugin.getDefault().getMarkerAnnotationPreferences();

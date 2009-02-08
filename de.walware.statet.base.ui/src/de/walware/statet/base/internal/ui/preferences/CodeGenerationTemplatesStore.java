@@ -14,7 +14,6 @@
 
 package de.walware.statet.base.internal.ui.preferences;
 
-
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -29,7 +28,7 @@ import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
 import org.eclipse.jface.text.templates.persistence.TemplateReaderWriter;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
-import de.walware.eclipsecommons.ui.preferences.ScopedPreferenceStore;
+import de.walware.ecommons.ui.preferences.ScopedPreferenceStore;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

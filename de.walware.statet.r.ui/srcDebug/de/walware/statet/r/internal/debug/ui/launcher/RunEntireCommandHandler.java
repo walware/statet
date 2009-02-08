@@ -33,10 +33,10 @@ import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IDocumentModelProvider;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IDocumentModelProvider;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAst;

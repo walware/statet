@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core.model;
 
-import de.walware.eclipsecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElement;
 
 
 public interface IRLangElement extends IModelElement {

@@ -15,10 +15,11 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
 
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.rd.IRdTextTokens;
+
 
 /**
  * Preference constants used in the StatET-R preference store. Clients should only read the

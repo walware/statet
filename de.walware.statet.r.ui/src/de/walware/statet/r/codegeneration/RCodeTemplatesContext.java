@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.codegeneration;
 
-import de.walware.eclipsecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnit;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.StatextCodeTemplatesContext;

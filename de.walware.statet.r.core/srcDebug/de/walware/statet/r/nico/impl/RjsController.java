@@ -31,7 +31,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.ICommonStatusConstants;
+import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;

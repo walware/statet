@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.core;
 
-import de.walware.eclipsecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.IModelManager;
 
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.internal.core.RCorePlugin;

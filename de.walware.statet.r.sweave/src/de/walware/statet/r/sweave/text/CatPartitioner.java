@@ -19,7 +19,7 @@ import org.eclipse.jface.text.IPositionUpdater;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
 
-import de.walware.eclipsecommons.ui.text.Partitioner;
+import de.walware.ecommons.ui.text.Partitioner;
 
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 

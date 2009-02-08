@@ -21,10 +21,10 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.eclipsecommons.FastList;
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
-import de.walware.eclipsecommons.ui.text.PairMatcher;
-import de.walware.eclipsecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.FastList;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 

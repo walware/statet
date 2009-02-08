@@ -39,10 +39,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.ui.databinding.NumberValidator;
-import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.ui.databinding.NumberValidator;
+import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 

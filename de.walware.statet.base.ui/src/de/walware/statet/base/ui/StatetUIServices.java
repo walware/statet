@@ -14,7 +14,7 @@ package de.walware.statet.base.ui;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 
-import de.walware.eclipsecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

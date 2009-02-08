@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ltk.ast.ICommonAstVisitor;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
 
 /**

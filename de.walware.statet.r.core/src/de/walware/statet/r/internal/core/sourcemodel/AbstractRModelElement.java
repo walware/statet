@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.walware.eclipsecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.text.ISourceStructElement;
 
 import de.walware.statet.r.core.model.RModel;
 

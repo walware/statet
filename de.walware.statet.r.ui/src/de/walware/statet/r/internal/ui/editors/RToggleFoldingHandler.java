@@ -13,7 +13,7 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.ui.editors.text.IFoldingCommandIds;
 
-import de.walware.eclipsecommons.ui.TogglePreferenceEnablementHandler;
+import de.walware.ecommons.ui.TogglePreferenceEnablementHandler;
 
 import de.walware.statet.r.ui.editors.REditorOptions;
 

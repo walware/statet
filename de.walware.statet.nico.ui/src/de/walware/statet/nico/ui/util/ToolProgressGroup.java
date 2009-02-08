@@ -31,10 +31,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.progress.WorkbenchJob;
 
-import de.walware.eclipsecommons.ui.dialogs.ShortedLabel;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.dialogs.ShortedLabel;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
+
 import de.walware.statet.nico.core.runtime.IProgressInfo;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolController;

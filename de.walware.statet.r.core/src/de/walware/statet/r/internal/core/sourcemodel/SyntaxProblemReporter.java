@@ -53,11 +53,11 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IProblem;
-import de.walware.eclipsecommons.ltk.IProblemRequestor;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.Problem;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IProblem;
+import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.Problem;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;

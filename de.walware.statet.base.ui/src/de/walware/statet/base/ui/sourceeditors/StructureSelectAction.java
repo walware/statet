@@ -17,10 +17,10 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Region;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ltk.ast.AstSelection;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 

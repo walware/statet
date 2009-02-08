@@ -24,9 +24,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.eclipsecommons.ui.dialogs.WidgetToolsButton;
-import de.walware.eclipsecommons.ui.util.LayoutUtil;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
+import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.PixelConverter;
 
 import de.walware.statet.base.internal.ui.StatetMessages;
 

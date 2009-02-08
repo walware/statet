@@ -28,14 +28,14 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.IModelElementDelta;
-import de.walware.eclipsecommons.ltk.ui.IModelElementInputListener;
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.preferences.SettingsChangeNotifier.ChangeListener;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElementDelta;
+import de.walware.ecommons.ltk.ui.IModelElementInputListener;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;

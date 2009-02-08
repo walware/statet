@@ -38,12 +38,12 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.text.ITokenScanner;
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
-import de.walware.eclipsecommons.ltk.text.StringParseInput;
-import de.walware.eclipsecommons.ltk.text.TextUtil;
-import de.walware.eclipsecommons.ui.util.UIAccess;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.text.ITokenScanner;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ltk.text.StringParseInput;
+import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;

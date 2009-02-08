@@ -15,11 +15,11 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.SubMonitor;
 
-import de.walware.eclipsecommons.ltk.IProblemRequestor;
-import de.walware.eclipsecommons.ltk.IWorkingBuffer;
-import de.walware.eclipsecommons.ltk.SourceDocumentRunnable;
-import de.walware.eclipsecommons.ltk.WorkingContext;
-import de.walware.eclipsecommons.ltk.ui.FileBufferWorkingBuffer;
+import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.IWorkingBuffer;
+import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
 

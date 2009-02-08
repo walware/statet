@@ -17,7 +17,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.base.ui.sourceeditors.ContentAssistPreference;

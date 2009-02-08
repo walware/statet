@@ -15,7 +15,7 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.TreeViewer;
 
-import de.walware.eclipsecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 

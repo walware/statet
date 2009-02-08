@@ -31,7 +31,7 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.eclipsecommons.FileUtil;
+import de.walware.ecommons.FileUtil;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;

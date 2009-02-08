@@ -11,7 +11,6 @@
 
 package de.walware.statet.base.ui.sourceeditors;
 
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
@@ -19,7 +18,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.eclipsecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.SharedMessages;
 
 
 /**

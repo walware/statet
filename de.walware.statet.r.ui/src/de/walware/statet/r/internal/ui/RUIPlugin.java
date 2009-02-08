@@ -30,10 +30,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.services.IDisposable;
 import org.osgi.framework.BundleContext;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.PreferencesUtil;
-import de.walware.eclipsecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.eclipsecommons.ui.util.ImageRegistryUtil;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.base.ui.StatetUIServices;

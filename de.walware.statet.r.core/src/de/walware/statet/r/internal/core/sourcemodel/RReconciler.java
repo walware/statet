@@ -15,14 +15,14 @@ import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.eclipsecommons.ltk.AstInfo;
-import de.walware.eclipsecommons.ltk.IModelManager;
-import de.walware.eclipsecommons.ltk.IProblemRequestor;
-import de.walware.eclipsecommons.ltk.SourceContent;
-import de.walware.eclipsecommons.ltk.text.FixInterningStringCache;
-import de.walware.eclipsecommons.ltk.text.IStringCache;
-import de.walware.eclipsecommons.ltk.text.SourceParseInput;
-import de.walware.eclipsecommons.ltk.text.StringParseInput;
+import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.IProblemRequestor;
+import de.walware.ecommons.ltk.SourceContent;
+import de.walware.ecommons.ltk.text.FixInterningStringCache;
+import de.walware.ecommons.ltk.text.IStringCache;
+import de.walware.ecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.ltk.text.StringParseInput;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;

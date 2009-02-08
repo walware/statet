@@ -19,8 +19,8 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 import org.eclipse.ui.IEditorInput;
 
-import de.walware.eclipsecommons.ltk.ISourceUnit;
-import de.walware.eclipsecommons.ui.text.IEditorInputAcceptor;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ui.text.IEditorInputAcceptor;
 
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.internal.sweave.model.RweaveTexEditorWorkingCopy;

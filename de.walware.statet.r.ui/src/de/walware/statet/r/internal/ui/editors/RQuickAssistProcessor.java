@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
-import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
 
 import de.walware.statet.base.ui.sourceeditors.ExtQuickAssistProcessor;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;

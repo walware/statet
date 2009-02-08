@@ -41,18 +41,19 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.ui.SharedMessages;
-import de.walware.eclipsecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.eclipsecommons.ui.dialogs.StatusInfo;
-import de.walware.eclipsecommons.ui.dialogs.groups.TableOptionButtonsGroup;
-import de.walware.eclipsecommons.ui.util.PixelConverter;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.dialogs.groups.TableOptionButtonsGroup;
+import de.walware.ecommons.ui.util.PixelConverter;
+
+import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 
 /**

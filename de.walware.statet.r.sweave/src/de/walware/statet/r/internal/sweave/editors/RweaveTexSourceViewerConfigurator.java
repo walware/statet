@@ -18,7 +18,7 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
-import de.walware.eclipsecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.ltk.text.PartitioningConfiguration;
 
 import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 

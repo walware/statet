@@ -15,11 +15,11 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.walware.eclipsecommons.preferences.IPreferenceAccess;
-import de.walware.eclipsecommons.preferences.Preference;
-import de.walware.eclipsecommons.preferences.Preference.BooleanPref;
-import de.walware.eclipsecommons.preferences.Preference.EnumSetPref;
-import de.walware.eclipsecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.Preference.EnumSetPref;
+import de.walware.ecommons.preferences.Preference.IntPref;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 import de.walware.statet.nico.core.runtime.SubmitType;

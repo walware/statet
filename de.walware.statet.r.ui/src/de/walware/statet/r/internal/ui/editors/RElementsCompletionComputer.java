@@ -24,15 +24,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 
-import de.walware.eclipsecommons.ltk.IElementName;
-import de.walware.eclipsecommons.ltk.IModelElement;
-import de.walware.eclipsecommons.ltk.ast.AstSelection;
-import de.walware.eclipsecommons.ltk.ast.IAstNode;
-import de.walware.eclipsecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.eclipsecommons.ui.text.sourceediting.IContentAssistComputer;
-import de.walware.eclipsecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.eclipsecommons.ui.text.sourceediting.KeywordCompletionProposal;
-import de.walware.eclipsecommons.ui.text.sourceediting.SimpleCompletionProposal;
+import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
+import de.walware.ecommons.ui.text.sourceediting.SimpleCompletionProposal;
 
 import de.walware.statet.r.core.model.IEnvirInSource;
 import de.walware.statet.r.core.model.IRLangElement;
