@@ -60,15 +60,14 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 
 import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.internal.core.refactoring.RefactoringMessages;
-import de.walware.ecommons.ltk.text.BasicHeuristicTokenScanner;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
-import de.walware.ecommons.ltk.text.TextUtil;
-
-import de.walware.statet.base.core.StatetCore;
+import de.walware.ecommons.text.BasicHeuristicTokenScanner;
+import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.text.TextUtil;
 
 
 /**
@@ -579,7 +578,7 @@ public abstract class RefactoringAdapter {
 		su.connect(progress.newChild(1));
 		try {
 			final TextFileChange textFileChange = manager.get(su);
-			if (su.getWorkingContext() == StatetCore.EDITOR_CONTEXT) {
+			if (su.getWorkingContext() == ECommonsLTK.EDITOR_CONTEXT) {
 				textFileChange.setSaveMode(TextFileChange.LEAVE_DIRTY);
 			}
 			final MultiTextEdit rootEdit = new MultiTextEdit();
@@ -633,11 +632,11 @@ public abstract class RefactoringAdapter {
 	}
 	
 	protected IStatus failDocAnalyzation(final Throwable e) {
-		return new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, RefactoringMessages.Common_error_AnalyzingSourceDocument_message);
+		return new Status(IStatus.ERROR, ECommonsLTK.PLUGIN_ID, RefactoringMessages.Common_error_AnalyzingSourceDocument_message);
 	}
 	
 	protected IStatus failCreation(final Throwable e) {
-		return new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, RefactoringMessages.Common_error_CreatingElementChange_message);
+		return new Status(IStatus.ERROR, ECommonsLTK.PLUGIN_ID, RefactoringMessages.Common_error_CreatingElementChange_message);
 	}
 	
 }

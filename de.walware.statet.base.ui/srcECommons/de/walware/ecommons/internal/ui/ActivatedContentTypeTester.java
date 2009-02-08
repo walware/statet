@@ -22,10 +22,9 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-
-import de.walware.statet.base.core.StatetCore;
 
 
 /**
@@ -92,7 +91,7 @@ public class ActivatedContentTypeTester extends PropertyTester {
 					final ISourceUnit sourceUnit = editor.getSourceUnit();
 					if (sourceUnit != null) {
 						final String modelTypeId = sourceUnit.getModelTypeId();
-						final String contentTypeId = StatetCore.getExtContentTypeManager().getContentTypeForModelType(modelTypeId);
+						final String contentTypeId = ECommonsLTK.getExtContentTypeManager().getContentTypeForModelType(modelTypeId);
 						if (contentTypeId != null) {
 							contentType = Platform.getContentTypeManager().getContentType(contentTypeId);
 						}
@@ -104,7 +103,7 @@ public class ActivatedContentTypeTester extends PropertyTester {
 		if (property.equals(MATCH_ACTIVATED_TYPE)) {
 			final String expectedContentTypeId = (String) expectedValue;
 			if (contentType != null) {
-				return StatetCore.getExtContentTypeManager().matchesActivatedContentType(
+				return ECommonsLTK.getExtContentTypeManager().matchesActivatedContentType(
 						contentType.getId(), expectedContentTypeId, true);
 			}
 			return false;

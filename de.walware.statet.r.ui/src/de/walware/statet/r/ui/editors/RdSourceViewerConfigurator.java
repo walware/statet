@@ -22,15 +22,15 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -41,7 +41,7 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 /**
  * Configurator for Rd source viewers.
  */
-public class RdSourceViewerConfigurator extends SourceViewerConfigurator
+public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		implements IRCoreAccess {
 	
 	private static final char[][] BRACKETS = { {'{', '}'} };
@@ -81,7 +81,7 @@ public class RdSourceViewerConfigurator extends SourceViewerConfigurator
 	
 	public void setTarget(final RdEditor editor) {
 		fIsConfigured = true;
-		setTarget((IEditorAdapter) editor.getAdapter(IEditorAdapter.class), false);
+		setTarget((ISourceEditor) editor.getAdapter(ISourceEditor.class), false);
 	}
 	
 	public void setSource(IRCoreAccess newAccess) {

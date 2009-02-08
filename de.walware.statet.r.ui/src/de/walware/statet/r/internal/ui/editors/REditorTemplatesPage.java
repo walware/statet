@@ -26,9 +26,9 @@ import org.eclipse.ui.texteditor.templates.TemplatesView;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.text.Partitioner;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -45,7 +45,7 @@ import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	
 	
-	private SourceViewerConfigurator fRPreviewConfigurator;
+	private SourceEditorViewerConfigurator fRPreviewConfigurator;
 	
 	
 	public REditorTemplatesPage(final REditor editor, final ISourceViewer viewer) {
@@ -96,7 +96,7 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator getTemplatePreviewConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
+	protected SourceEditorViewerConfigurator getTemplatePreviewConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
 		if (fRPreviewConfigurator == null) {
 			fRPreviewConfigurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateProcessor);
 		}
@@ -104,12 +104,12 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator getTemplateEditConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
+	protected SourceEditorViewerConfigurator getTemplateEditConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
 		return new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateProcessor);
 	}
 	
 	@Override
-	protected void configureDocument(final AbstractDocument document, final TemplateContextType contextType, final SourceViewerConfigurator configurator) {
+	protected void configureDocument(final AbstractDocument document, final TemplateContextType contextType, final SourceEditorViewerConfigurator configurator) {
 		final Partitioner partitioner = (Partitioner) document.getDocumentPartitioner(configurator.getPartitioning().getPartitioning());
 		if (contextType.getId().equals(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE)) {
 			partitioner.setStartPartitionType(IRDocumentPartitions.R_ROXYGEN);

@@ -15,10 +15,9 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
-
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
-import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
+import de.walware.ecommons.ui.workbench.AbstractSyntaxColoringBlock;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -80,7 +79,7 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			}
 			
 			@Override
-			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
+			protected SourceEditorViewerConfiguration getSourceViewerConfiguration(
 					final ColorManager colorManager, final IPreferenceStore store) {
 				return new RdSourceViewerConfiguration(RCore.getDefaultsAccess(),
 						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);

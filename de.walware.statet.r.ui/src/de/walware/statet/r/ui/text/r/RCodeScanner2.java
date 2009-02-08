@@ -22,8 +22,8 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
-import de.walware.ecommons.ltk.text.BufferedDocumentParseInput;
-import de.walware.ecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.text.BufferedDocumentParseInput;
+import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.ecommons.ui.text.presentation.TextStyleManager;
 import de.walware.ecommons.ui.util.ColorManager;

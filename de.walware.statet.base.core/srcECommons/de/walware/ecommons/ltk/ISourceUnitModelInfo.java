@@ -13,8 +13,6 @@ package de.walware.ecommons.ltk;
 
 import org.eclipse.jface.text.IDocumentExtension4;
 
-import de.walware.ecommons.ltk.text.ISourceStructElement;
-
 
 /**
  * Container for model information of an source unit

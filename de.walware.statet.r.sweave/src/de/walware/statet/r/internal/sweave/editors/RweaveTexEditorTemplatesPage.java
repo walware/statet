@@ -24,9 +24,9 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.texteditor.templates.TemplatesView;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.Rweave;
@@ -42,7 +42,7 @@ import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 public class RweaveTexEditorTemplatesPage extends ExtEditorTemplatesPage {
 	
 	
-	private SourceViewerConfigurator fRPreviewConfigurator;
+	private SourceEditorViewerConfigurator fRPreviewConfigurator;
 	
 	
 	public RweaveTexEditorTemplatesPage(final RweaveTexEditor editor, final ISourceViewer viewer) {
@@ -93,7 +93,7 @@ public class RweaveTexEditorTemplatesPage extends ExtEditorTemplatesPage {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator getTemplatePreviewConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
+	protected SourceEditorViewerConfigurator getTemplatePreviewConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
 		if (fRPreviewConfigurator == null) {
 			fRPreviewConfigurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateProcessor);
 		}
@@ -101,7 +101,7 @@ public class RweaveTexEditorTemplatesPage extends ExtEditorTemplatesPage {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator getTemplateEditConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
+	protected SourceEditorViewerConfigurator getTemplateEditConfig(final Template template, final TemplateVariableProcessor templateProcessor) {
 		return new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateProcessor);
 	}
 	

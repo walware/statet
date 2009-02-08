@@ -25,7 +25,7 @@ import org.eclipse.text.edits.TextEdit;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
-import de.walware.ecommons.ltk.text.IndentUtil.IndentEditAction;
+import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;

@@ -11,8 +11,8 @@
 
 package de.walware.ecommons.ui.text;
 
-import static de.walware.ecommons.ltk.text.ITokenScanner.CLOSING_PEER;
-import static de.walware.ecommons.ltk.text.ITokenScanner.OPENING_PEER;
+import static de.walware.ecommons.text.ITokenScanner.CLOSING_PEER;
+import static de.walware.ecommons.text.ITokenScanner.OPENING_PEER;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -22,9 +22,9 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ICharacterPairMatcher;
 
-import de.walware.ecommons.ltk.text.BasicHeuristicTokenScanner;
-import de.walware.ecommons.ltk.text.ITokenScanner;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.text.BasicHeuristicTokenScanner;
+import de.walware.ecommons.text.ITokenScanner;
+import de.walware.ecommons.text.PartitioningConfiguration;
 
 
 /**

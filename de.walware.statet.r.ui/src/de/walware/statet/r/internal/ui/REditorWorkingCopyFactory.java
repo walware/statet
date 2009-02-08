@@ -14,10 +14,9 @@ package de.walware.statet.r.internal.ui;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.WorkingContext;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.model.AbstractRUnitFactory;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -40,13 +39,13 @@ public final class REditorWorkingCopyFactory extends AbstractRUnitFactory {
 	
 	@Override
 	protected ISourceUnit createNew(final ISourceUnit unit, final WorkingContext context) {
-		assert(context == StatetCore.EDITOR_CONTEXT);
+		assert(context == ECommonsLTK.EDITOR_CONTEXT);
 		return new REditorWorkingCopy((IRSourceUnit) unit);
 	}
 	
 	@Override
 	protected ISourceUnit createNew(final String id, final IFileStore store, final WorkingContext context) {
-		assert(context == StatetCore.EDITOR_CONTEXT);
+		assert(context == ECommonsLTK.EDITOR_CONTEXT);
 		return new REditorUriSourceUnit(id, store);
 	}
 	

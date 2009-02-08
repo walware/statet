@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;

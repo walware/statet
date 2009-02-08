@@ -24,12 +24,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import de.walware.ecommons.FastList;
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IElementChangedListener;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.WorkingContext;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -188,8 +187,8 @@ public class RModelManager implements IModelManager {
 	
 	
 	public RModelManager() {
-		getContextItem(StatetCore.PERSISTENCE_CONTEXT, true);
-		getContextItem(StatetCore.EDITOR_CONTEXT, true);
+		getContextItem(ECommonsLTK.PERSISTENCE_CONTEXT, true);
+		getContextItem(ECommonsLTK.EDITOR_CONTEXT, true);
 		
 		fCleanupJob.initialSchedule();
 	}

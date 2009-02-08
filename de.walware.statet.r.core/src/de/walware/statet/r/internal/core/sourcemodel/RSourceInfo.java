@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;

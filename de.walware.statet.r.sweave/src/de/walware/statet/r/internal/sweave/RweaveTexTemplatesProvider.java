@@ -17,10 +17,10 @@ import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
+import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;
@@ -70,7 +70,7 @@ public class RweaveTexTemplatesProvider implements ICodeGenerationTemplatesCateg
 		return SweavePlugin.getDefault().getRweaveTexGenerationTemplateContextRegistry();
 	}
 	
-	public SourceViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
+	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(final TemplateVariableProcessor processor, final IProject project) {
 		return new RweaveTexTemplateConfigurator(RProject.getRProject(project), processor);
 	}
 	

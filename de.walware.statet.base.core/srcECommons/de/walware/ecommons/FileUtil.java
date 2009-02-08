@@ -45,8 +45,8 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 
-import de.walware.ecommons.internal.fileutil.EFSUtilImpl;
-import de.walware.ecommons.internal.fileutil.WorkspaceUtilImpl;
+import de.walware.ecommons.internal.workspace.EFSUtilImpl;
+import de.walware.ecommons.internal.workspace.WorkspaceUtilImpl;
 
 import de.walware.statet.base.core.StatetCore;
 

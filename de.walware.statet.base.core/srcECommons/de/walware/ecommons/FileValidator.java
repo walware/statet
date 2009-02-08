@@ -30,7 +30,7 @@ import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.internal.fileutil.Messages;
+import de.walware.ecommons.internal.workspace.Messages;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.core.BaseCorePlugin;

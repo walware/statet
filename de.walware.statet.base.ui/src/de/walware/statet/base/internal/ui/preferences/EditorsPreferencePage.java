@@ -49,10 +49,9 @@ import de.walware.ecommons.ui.databinding.ColorSelectorObservableValue;
 import de.walware.ecommons.ui.databinding.NumberValidator;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.preferences.RGBPref;
 import de.walware.ecommons.ui.util.LayoutUtil;
-
-import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;

@@ -36,9 +36,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.DefaultBrowserInformationInput;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.sourceeditors.DefaultBrowserInformationInput;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 import de.walware.statet.r.core.model.IElementAccess;

@@ -17,10 +17,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 
@@ -59,7 +59,7 @@ public class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	}
 	
 	@Override
-	public Composite createControl(final Composite parent, final SourceViewerConfigurator editorConfig) {
+	public Composite createControl(final Composite parent, final SourceEditorViewerConfigurator editorConfig) {
 		fRConfig = (RSourceViewerConfigurator) editorConfig;
 		final Composite control = super.createControl(parent, editorConfig);
 		return control;

@@ -89,19 +89,18 @@ import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.ecommons.ui.HandlerContributionItem;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.TextViewerAction;
 import de.walware.ecommons.ui.util.DNDUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
 
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolController;
@@ -440,7 +439,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	public void createControl(final Composite parent) {
-		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 		fConsole.addPropertyChangeListener(this);
 		
 		fControl = new Composite(parent, SWT.NONE) {
@@ -538,7 +537,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	 * 
 	 * @return the adapter
 	 */
-	protected abstract SourceViewerConfigurator createInputEditorConfigurator();
+	protected abstract SourceEditorViewerConfigurator createInputEditorConfigurator();
 	
 	
 	private class ConsoleActivationNotifier implements Listener {
@@ -746,7 +745,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	public void dispose() {
 		fConsole.removePropertyChangeListener(this);
-		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 		if (fDebugListener != null) {
 			final DebugPlugin debug = DebugPlugin.getDefault();
 			if (debug != null) {
@@ -867,14 +866,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				return fInputGroup.getViewer().getFindReplaceTarget();
 			return fOutputViewer.getFindReplaceTarget();
 		}
+		if (ISourceEditor.class.equals(required)) {
+			return fInputGroup;
+		}
 		if (IShowInSource.class.equals(required)) {
 			return this;
 		}
 		if (IShowInTargetList.class.equals(required)) {
 			return this;
-		}
-		if (IEditorAdapter.class.equals(required)) {
-			return fInputGroup.fEditorAdapter;
 		}
 		return fConsole.getAdapter(required);
 	}

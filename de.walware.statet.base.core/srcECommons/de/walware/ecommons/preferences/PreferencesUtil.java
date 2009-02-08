@@ -20,6 +20,8 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 
+import de.walware.statet.base.internal.core.BaseCorePlugin;
+
 
 public class PreferencesUtil {
 	
@@ -257,6 +259,17 @@ public class PreferencesUtil {
 			nodes[i] = contexts[i].getNode(nodeQualifier);
 		}
 		return nodes;
+	}
+	
+	
+	/**
+	 * Returns global instance of notifier service
+	 * 
+	 * @return the notifier
+	 */
+	public static SettingsChangeNotifier getSettingsChangeNotifier() {
+		// Adapt this if used in other context
+		return BaseCorePlugin.getDefault().getSettingsChangeNotifier();
 	}
 	
 }

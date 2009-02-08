@@ -19,9 +19,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.ltk.internal.ui.refactoring.RefactoringMessages;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 

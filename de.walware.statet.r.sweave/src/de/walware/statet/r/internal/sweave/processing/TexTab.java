@@ -40,8 +40,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
-import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
 
 import net.sourceforge.texlipse.TexPathConfig;
 import net.sourceforge.texlipse.builder.Builder;

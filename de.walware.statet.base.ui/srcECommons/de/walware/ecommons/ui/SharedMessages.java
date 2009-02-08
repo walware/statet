@@ -19,6 +19,13 @@ import org.eclipse.osgi.util.NLS;
 public class SharedMessages extends NLS {
 	
 	
+	public static String ExpandAllAction_label;
+	public static String ExpandAllAction_description;
+	public static String ExpandAllAction_tooltip;
+	public static String CollapseAllAction_label;
+	public static String CollapseAllAction_description;
+	public static String CollapseAllAction_tooltip;
+	
 	public static String ToggleSortAction_name;
 	public static String ToggleSortAction_tooltip;
 	
@@ -54,6 +61,8 @@ public class SharedMessages extends NLS {
 	public static String CollectionEditing_DefaultItem_label;
 	
 	public static String Note_label;
+	
+	public static String Resources_File;
 	
 	
 	static {

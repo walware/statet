@@ -25,15 +25,15 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -45,7 +45,7 @@ import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 /**
  * Configurator for R code source viewers.
  */
-public class RSourceViewerConfigurator extends SourceViewerConfigurator
+public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		implements IRCoreAccess, PropertyChangeListener {
 	
 	
@@ -56,7 +56,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	
 	
 	private REditor fRealEditor;
-	private StatextSourceViewerConfiguration fConfig;
+	private SourceEditorViewerConfiguration fConfig;
 	
 	private RCodeStyleSettings fRCodeStyleCopy;
 	private IRCoreAccess fSourceCoreAccess;
@@ -94,7 +94,7 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	}
 	
 	@Override
-	public void setConfiguration(final StatextSourceViewerConfiguration config) {
+	public void setConfiguration(final SourceEditorViewerConfiguration config) {
 		fConfig = config;
 		super.setConfiguration(config);
 	}
@@ -112,13 +112,13 @@ public class RSourceViewerConfigurator extends SourceViewerConfigurator
 	public void setTarget(final REditor editor) {
 		fRealEditor = editor;
 		fIsConfigured = true;
-		setTarget((IEditorAdapter) editor.getAdapter(IEditorAdapter.class), false);
+		setTarget((ISourceEditor) editor.getAdapter(ISourceEditor.class), false);
 	}
 	
 	@Override
-	public void setTarget(final IEditorAdapter editor, final boolean configure) {
+	public void setTarget(final ISourceEditor sourceEditor, final boolean configure) {
 		fUpdateIndent = true;
-		super.setTarget(editor, configure);
+		super.setTarget(sourceEditor, configure);
 	}
 	
 	protected REditor getREditor() {

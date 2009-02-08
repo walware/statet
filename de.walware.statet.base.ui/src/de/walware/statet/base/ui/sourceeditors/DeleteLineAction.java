@@ -24,14 +24,15 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
-import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.DNDUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
- * An action to delete a whole line, the fraction of the line that is left from the cursor
+ * An action to delete/cut a whole line, the fraction of the line that is left from the cursor
  * or the fraction that is right from the cursor.
  */
 public class DeleteLineAction extends Action {
@@ -65,7 +66,7 @@ public class DeleteLineAction extends Action {
 	 * @since 2.1
 	 */
 	
-	private IEditorAdapter fEditor;
+	private ISourceEditor fSourceEditor;
 	
 	
 	/**
@@ -79,9 +80,9 @@ public class DeleteLineAction extends Action {
 	 * @param copyToClipboard if <code>true</code>, the contents of the deleted line are copied to the clipboard
 	 * @since 2.1
 	 */
-	public DeleteLineAction(final IEditorAdapter editor, final int type, final boolean copyToClipboard) {
+	public DeleteLineAction(final ISourceEditor editor, final int type, final boolean copyToClipboard) {
 		super();
-		fEditor = editor;
+		fSourceEditor = editor;
 		fType = type;
 		fCopyToClipboard = copyToClipboard;
 		checkCommand();
@@ -123,12 +124,12 @@ public class DeleteLineAction extends Action {
 	}
 	
 	public void update() {
-		setEnabled(fEditor.isEditable(false));
+		setEnabled(fSourceEditor.isEditable(false));
 	}
 	
 	@Override
 	public void run() {
-		if (!fEditor.isEditable(true)) {
+		if (!fSourceEditor.isEditable(true)) {
 			return;
 		}
 		try {
@@ -139,7 +140,7 @@ public class DeleteLineAction extends Action {
 	}
 	
 	private void deleteLine() throws BadLocationException {
-		final ISourceViewer sourceViewer = fEditor.getSourceViewer();
+		final ISourceViewer sourceViewer = fSourceEditor.getViewer();
 		final IDocument document = sourceViewer.getDocument();
 		final Point selection = sourceViewer.getSelectedRange();
 		

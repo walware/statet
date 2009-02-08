@@ -21,8 +21,9 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 
-import de.walware.ecommons.ltk.text.ITokenScanner;
+import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 
@@ -33,15 +34,15 @@ public class GotoMatchingBracketAction extends Action {
 	
 	
 	private PairMatcher fPairMatcher;
-	private IEditorAdapter fEditor;
+	private ISourceEditor fSourceEditor;
 	
 	
-	public GotoMatchingBracketAction(final PairMatcher pairMatcher, final IEditorAdapter editor) {
+	public GotoMatchingBracketAction(final PairMatcher pairMatcher, final ISourceEditor editor) {
 		
 		assert (pairMatcher != null);
 		assert (editor != null);
 		fPairMatcher = pairMatcher;
-		fEditor = editor;
+		fSourceEditor = editor;
 		
 		setText(EditorMessages.GotoMatchingBracketAction_label);
 		setToolTipText(EditorMessages.GotoMatchingBracketAction_tooltip);
@@ -62,7 +63,7 @@ public class GotoMatchingBracketAction extends Action {
 	 * Jumps to the matching bracket.
 	 */
 	public void gotoMatchingBracket() {
-		final ISourceViewer sourceViewer = fEditor.getSourceViewer();
+		final ISourceViewer sourceViewer = fSourceEditor.getViewer();
 		if (sourceViewer == null) {
 			return;
 		}
@@ -92,7 +93,7 @@ public class GotoMatchingBracketAction extends Action {
 		}
 		
 		if (selectionLength > 0) {
-			final IEditorStatusLine statusLine = (IEditorStatusLine) fEditor.getAdapter(IEditorStatusLine.class);
+			final IEditorStatusLine statusLine = (IEditorStatusLine) fSourceEditor.getAdapter(IEditorStatusLine.class);
 			if (statusLine != null) {
 				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_InvalidSelection, null);
 			}
@@ -102,7 +103,7 @@ public class GotoMatchingBracketAction extends Action {
 		
 		final IRegion region = fPairMatcher.match(document, offset);
 		if (region == null) {
-			final IEditorStatusLine statusLine = (IEditorStatusLine) fEditor.getAdapter(IEditorStatusLine.class);
+			final IEditorStatusLine statusLine = (IEditorStatusLine) fSourceEditor.getAdapter(IEditorStatusLine.class);
 			if (statusLine != null) {
 				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket, null);
 			}
@@ -128,7 +129,7 @@ public class GotoMatchingBracketAction extends Action {
 		}
 		
 		if (!visible) {
-			final IEditorStatusLine statusLine = (IEditorStatusLine) fEditor.getAdapter(IEditorStatusLine.class);
+			final IEditorStatusLine statusLine = (IEditorStatusLine) fSourceEditor.getAdapter(IEditorStatusLine.class);
 			if (statusLine != null) {
 				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement, null);
 			}

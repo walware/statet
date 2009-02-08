@@ -44,10 +44,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.menus.UIElement;
 
 import de.walware.ecommons.ltk.IModelManager;
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;

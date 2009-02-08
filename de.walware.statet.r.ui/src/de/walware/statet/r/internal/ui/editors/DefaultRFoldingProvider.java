@@ -36,10 +36,7 @@ import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
@@ -58,7 +55,7 @@ import de.walware.statet.r.ui.editors.REditor;
 /**
  * Provides code folding for R Scripts
  */
-public class DefaultRFoldingProvider implements IEditorInstallable, IModelElementInputListener, ChangeListener {
+public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElementInputListener, ChangeListener {
 	
 	
 	protected static final Position createPosition(final FoldingStructureComputationContext ctx, final int startLine, final int endLine) throws BadLocationException {
@@ -263,8 +260,8 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 	private volatile Input fInput;
 	
 	
-	public void install(final IEditorAdapter editor) {
-		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
+	public void install(final ISourceEditor editor) {
+		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 		updateConfig();
 		fEditor = (REditor) editor.getAdapter(ISourceEditor.class);
 		fEditor.getModelInputProvider().addListener(this);
@@ -292,7 +289,7 @@ public class DefaultRFoldingProvider implements IEditorInstallable, IModelElemen
 	}
 	
 	public void uninstall() {
-		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 		if (fEditor != null) {
 			fEditor.getModelInputProvider().removeListener(this);
 			fEditor = null;

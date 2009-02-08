@@ -34,9 +34,8 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPart3;
 import org.eclipse.ui.editors.text.TextEditor;
 
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.MessageUtil;
-
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -54,7 +53,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		try {
 			String plaintext = null;
 			if (target instanceof TextEditor) {
-				TextEditor textEditor = (TextEditor) target;
+				final TextEditor textEditor = (TextEditor) target;
 				plaintext = getPlaintextFromTextSelection(textEditor.getSelectionProvider());
 				if (plaintext == null) {
 					plaintext = getPlaintextFromDocument(
@@ -64,13 +63,13 @@ public class EnrichedRHelpContext implements IContext3 {
 			}
 			else {
 				if (target instanceof IAdaptable) {
-					IEditorAdapter editor = (IEditorAdapter) ((IAdaptable) target).getAdapter(IEditorAdapter.class);
+					final ISourceEditor editor = (ISourceEditor) ((IAdaptable) target).getAdapter(ISourceEditor.class);
 					if (editor != null) {
-						target = editor.getSourceViewer();
+						target = editor.getViewer();
 					}
 				}
 				if (target instanceof SourceViewer) {
-					SourceViewer sourceViewer = (SourceViewer) target;
+					final SourceViewer sourceViewer = (SourceViewer) target;
 					plaintext = getPlaintextFromTextSelection(sourceViewer.getSelectionProvider());
 					if (plaintext == null) {
 						plaintext = getPlaintextFromDocument(sourceViewer.getDocument(), sourceViewer.getSelectionProvider());
@@ -83,25 +82,25 @@ public class EnrichedRHelpContext implements IContext3 {
 				return plaintext;
 			}
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			RUIPlugin.logError(RUIPlugin.INTERNAL_ERROR, "Error occured when dectecting R element", e); //$NON-NLS-1$
 		}
 		return null;
 	}
 	
-	private static String getPlaintextFromTextSelection(ISelectionProvider selectionProvider) {
-		ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
+	private static String getPlaintextFromTextSelection(final ISelectionProvider selectionProvider) {
+		final ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
 		if ( (!textSelection.isEmpty()) && textSelection.getLength() > 0) {
 			return textSelection.getText();
 		}
 		return null;
 	}
 	
-	private static String getPlaintextFromDocument(IDocument document, ISelectionProvider selectionProvider) throws BadLocationException {
-		ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
-		RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
+	private static String getPlaintextFromDocument(final IDocument document, final ISelectionProvider selectionProvider) throws BadLocationException {
+		final ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
+		final RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
 		scanner.configure(document, null);
-		IRegion region = scanner.findRWord(textSelection.getOffset(), false, true);
+		final IRegion region = scanner.findRWord(textSelection.getOffset(), false, true);
 		if (region != null) {
 			return document.get(region.getOffset(), region.getLength());
 		}
@@ -116,11 +115,11 @@ public class EnrichedRHelpContext implements IContext3 {
 		private Object fTarget;
 		private String fContextId;
 		
-		public Provider(IWorkbenchPart3 part, String contextId) {
+		public Provider(final IWorkbenchPart3 part, final String contextId) {
 			fTarget = fPart = part;
 			fContextId = contextId;
 		}
-		public Provider(ISourceViewer sourceViewer, String contextId) {
+		public Provider(final ISourceViewer sourceViewer, final String contextId) {
 			fTarget = fSourceViewer = sourceViewer;
 			fContextId = contextId;
 		}
@@ -129,16 +128,16 @@ public class EnrichedRHelpContext implements IContext3 {
 			return SELECTION;
 		}
 		
-		public IContext getContext(Object target) {
+		public IContext getContext(final Object target) {
 			IContext context = HelpSystem.getContext(fContextId);
-			String plaintext = searchContextInfo(fTarget);
+			final String plaintext = searchContextInfo(fTarget);
 			if (context instanceof IContext3 & plaintext != null) {
 				context = new EnrichedRHelpContext((IContext3) context, plaintext);
 			}
 			return context;
 		}
 		
-		public String getSearchExpression(Object target) {
+		public String getSearchExpression(final Object target) {
 			
 			return null;
 		}
@@ -149,7 +148,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		private String fLabel;
 		private String fUrl;
 		
-		public RHelpResource(String label, String url) {
+		public RHelpResource(final String label, final String url) {
 			fLabel = label;
 			fUrl = url;
 		}
@@ -166,7 +165,7 @@ public class EnrichedRHelpContext implements IContext3 {
 	
 	public static class RHelpCommand extends RHelpResource {
 		
-		public RHelpCommand(String label, String command) {
+		public RHelpCommand(final String label, final String command) {
 			super(label, "command://"+command); //$NON-NLS-1$
 		}
 		
@@ -183,7 +182,7 @@ public class EnrichedRHelpContext implements IContext3 {
 	/**
 	 * 
 	 */
-	public EnrichedRHelpContext(IContext3 context, String plaintext) {
+	public EnrichedRHelpContext(final IContext3 context, final String plaintext) {
 		fTitle = context.getTitle();
 		fText = context.getText();
 		fStyledText = context.getStyledText();
@@ -196,10 +195,10 @@ public class EnrichedRHelpContext implements IContext3 {
 		enrich(plaintext);
 	}
 	
-	private void enrich(String plaintext) {
+	private void enrich(final String plaintext) {
 		try {
-			List<IHelpResource> resources = new ArrayList<IHelpResource>(fRelatedTopics.length + 1);
-			String urlText = URLEncoder.encode(plaintext, "UTF-8"); //$NON-NLS-1$
+			final List<IHelpResource> resources = new ArrayList<IHelpResource>(fRelatedTopics.length + 1);
+			final String urlText = URLEncoder.encode(plaintext, "UTF-8"); //$NON-NLS-1$
 			
 			resources.add(new RHelpCommand(NLS.bind(Messages.RHelp_Run_Help_label, plaintext), 
 					MessageUtil.escapeForFormText(RunHelpInR.createCommandString(plaintext))));
@@ -210,7 +209,7 @@ public class EnrichedRHelpContext implements IContext3 {
 			resources.addAll(Arrays.asList(fRelatedTopics));
 			fRelatedTopics = resources.toArray(new IHelpResource[resources.size()]);
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			RUIPlugin.logError(-1, "Error occured when enrich R help.", e); //$NON-NLS-1$
 		}
 	}
@@ -232,7 +231,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		return fRelatedTopics;
 	}
 	
-	public String getCategory(IHelpResource topic) {
+	public String getCategory(final IHelpResource topic) {
 		if (topic instanceof RHelpResource) {
 			return Messages.RHelp_category;
 		}

@@ -37,10 +37,10 @@ import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.ecommons.ui.text.EcoReconciler;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
 
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 
 import net.sourceforge.texlipse.TexlipsePlugin;
@@ -65,13 +65,13 @@ import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 /**
  * Default Configuration for SourceViewer of Sweave (LaTeX/R) code.
  */
-public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfiguration {
+public class RweaveTexSourceViewerConfiguration extends SourceEditorViewerConfiguration {
 	
 	
 	private static class RChunkAutoEditStrategy extends RAutoEditStrategy {
 		
-		public RChunkAutoEditStrategy(final IRCoreAccess coreAccess, final IEditorAdapter adapter, final TextEditor editor) {
-			super(coreAccess, adapter, editor);
+		public RChunkAutoEditStrategy(final IRCoreAccess coreAccess, final ISourceEditor sourceEditor, final TextEditor eclipseEditor) {
+			super(coreAccess, sourceEditor, eclipseEditor);
 		}
 		
 		@Override
@@ -104,9 +104,9 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	private class RChunkConfiguration extends RSourceViewerConfiguration {
 		
 		protected RChunkConfiguration(final RweaveTexSourceViewerConfiguration parent,
-				final REditor editor, final IEditorAdapter adapter,
+				final ISourceEditor sourceEditor, final REditor editor,
 				final IRCoreAccess coreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-			super(parent, editor, adapter, coreAccess, preferenceStore, colorManager);
+			super(parent, sourceEditor, editor, coreAccess, preferenceStore, colorManager);
 		}
 		
 		public CommentScanner getCommentScanner() {
@@ -115,14 +115,13 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 		
 		@Override
 		protected RAutoEditStrategy createRAutoEditStrategy() {
-			return new RChunkAutoEditStrategy(getRCoreAccess(), getEditorAdapter(), getEditor());
+			return new RChunkAutoEditStrategy(getRCoreAccess(), getSourceEditor(), getEditor());
 		}
 		
 	}
 	
 	
 	private REditor fEditor;
-	private IEditorAdapter fEditorAdapter;
 	private RChunkConfiguration fRConfig;
 	
 	private RChunkControlCodeScanner fChunkControlScanner;
@@ -140,25 +139,25 @@ public class RweaveTexSourceViewerConfiguration extends StatextSourceViewerConfi
 	
 	public RweaveTexSourceViewerConfiguration(
 			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(null, null, rCoreAccess, store, colorManager);
+		this(null, rCoreAccess, store, colorManager);
 	}
 	
-	public RweaveTexSourceViewerConfiguration(final IEditorAdapter editor,
+	public RweaveTexSourceViewerConfiguration(final ISourceEditor sourceEditor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(null, editor, rCoreAccess, store, colorManager);
+		this(sourceEditor, null, rCoreAccess, store, colorManager);
 	}
 	
 	public RweaveTexSourceViewerConfiguration(final REditor editor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		this(editor, (IEditorAdapter) editor.getAdapter(IEditorAdapter.class),
+		this((ISourceEditor) editor.getAdapter(ISourceEditor.class), editor,
 				rCoreAccess, preferenceStore, colorManager);
 	}
 	
-	protected RweaveTexSourceViewerConfiguration(final REditor editor, final IEditorAdapter adapter,
+	protected RweaveTexSourceViewerConfiguration(final ISourceEditor sourceEditor, final REditor editor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		super(adapter);
+		super(sourceEditor);
 		fEditor = editor;
-		fRConfig = new RChunkConfiguration(this, editor, adapter, rCoreAccess, preferenceStore, colorManager);
+		fRConfig = new RChunkConfiguration(this, sourceEditor, editor, rCoreAccess, preferenceStore, colorManager);
 		fRConfig.setHandleDefaultContentType(false);
 		
 		setup(preferenceStore, colorManager);

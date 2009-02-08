@@ -15,8 +15,9 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 import de.walware.statet.r.core.RProject;
@@ -26,7 +27,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 public class RdEditor extends StatextEditor1<RProject> {
 	
 	
-	RdSourceViewerConfigurator fRdConfig;
+	private RdSourceViewerConfigurator fRdConfig;
 	
 	
 	public RdEditor() {
@@ -34,7 +35,7 @@ public class RdEditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator createConfiguration() {
+	protected SourceEditorViewerConfigurator createConfiguration() {
 		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
 		

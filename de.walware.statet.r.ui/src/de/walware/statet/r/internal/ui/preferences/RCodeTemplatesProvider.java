@@ -16,9 +16,9 @@ import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
+import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -47,7 +47,7 @@ public class RCodeTemplatesProvider implements ICodeGenerationTemplatesCategory 
 		return RUIPlugin.getDefault().getRCodeGenerationTemplateContextRegistry();
 	}
 	
-	public SourceViewerConfigurator getEditTemplateDialogConfiguator(TemplateVariableProcessor processor, IProject project) {
+	public SourceEditorViewerConfigurator getEditTemplateDialogConfiguator(TemplateVariableProcessor processor, IProject project) {
 		return new RTemplateSourceViewerConfigurator(RProject.getRProject(project), processor);
 	}
 	

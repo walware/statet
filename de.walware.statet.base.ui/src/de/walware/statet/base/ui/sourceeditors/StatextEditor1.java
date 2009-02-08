@@ -74,11 +74,10 @@ import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
 import de.walware.ecommons.ltk.ui.IModelElementInputProvider;
 import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.ecommons.ltk.ui.LTKInputData;
@@ -88,15 +87,17 @@ import de.walware.ecommons.ltk.ui.PostSelectionWithElementInfoController.IgnoreA
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.ext.core.StatextProject;
 
-import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
@@ -180,26 +181,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	
 /*- Inner classes -----------------------------------------------------------*/
-	
-	private class EditorAdapter implements IEditorAdapter {
-		
-		public SourceViewer getSourceViewer() {
-			return StatextEditor1.this.getViewer();
-		}
-		
-		public void install(final IEditorInstallable installable) {
-			fConfigurator.installModul(installable);
-		}
-		
-		public boolean isEditable(final boolean validate) {
-			return StatextEditor1.this.isEditable(validate);
-		}
-		
-		public Object getAdapter(final Class required) {
-			return StatextEditor1.this.getAdapter(required);
-		}
-		
-	}
 	
 	protected class PostSelectionEditorCancel extends PostSelectionCancelExtension {
 		
@@ -444,8 +425,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 /*- Fields -----------------------------------------------------------------*/
 	
-	private IEditorAdapter fEditorAdapter;
-	private SourceViewerConfigurator fConfigurator;
+	private SourceEditorViewerConfigurator fConfigurator;
 	private boolean fLazySetup;
 	private String fProjectNatureId;
 	private ProjectT fProject;
@@ -462,10 +442,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	private SelectionHistory fSelectionHistory;
 	private Preference<Boolean> fFoldingEnablement;
 	private ProjectionSupport fFoldingSupport;
-	private IEditorInstallable fFoldingProvider;
+	private ISourceEditorAddon fFoldingProvider;
 	private FoldingActionGroup fFoldingActionGroup;
 	private Preference<Boolean> fMarkOccurrencesEnablement;
-	private IEditorInstallable fMarkOccurrencesProvider;
+	private ISourceEditorAddon fMarkOccurrencesProvider;
 	
 	private EffectSynchonizer fEffectSynchronizer;
 	private int fEffectSynchonizerCounter;
@@ -484,18 +464,16 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	@Override
 	protected void initializeEditor() {
-		fEditorAdapter = new EditorAdapter();
-		
 		fConfigurator = createConfiguration();
 		super.initializeEditor();
 		setCompatibilityMode(false);
 		setPreferenceStore(fConfigurator.getPreferenceStore());
 		setSourceViewerConfiguration(fConfigurator.getSourceViewerConfiguration());
 		
-		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 	}
 	
-	protected abstract SourceViewerConfigurator createConfiguration();
+	protected abstract SourceEditorViewerConfigurator createConfiguration();
 	
 	
 	protected void enableStructuralFeatures(final IModelElementInputProvider provider,
@@ -752,7 +730,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	
-	protected IEditorInstallable createCodeFoldingProvider() {
+	protected ISourceEditorAddon createCodeFoldingProvider() {
 		return null;
 	}
 	
@@ -760,7 +738,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		uninstallFoldingProvider();
 		fFoldingProvider = createCodeFoldingProvider();
 		if (fFoldingProvider != null) {
-			fFoldingProvider.install(fEditorAdapter);
+			fFoldingProvider.install(this);
 		}
 	}
 	
@@ -788,7 +766,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	
-	protected IEditorInstallable createMarkOccurrencesProvider() {
+	protected ISourceEditorAddon createMarkOccurrencesProvider() {
 		return null;
 	}
 	
@@ -809,7 +787,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 							fMarkOccurrencesProvider = createMarkOccurrencesProvider();
 						}
 						if (fMarkOccurrencesProvider != null && fEffectSynchonizerCounter == 0) {
-							fMarkOccurrencesProvider.install(fEditorAdapter);
+							fMarkOccurrencesProvider.install(StatextEditor1.this);
 						}
 					}
 					else {
@@ -834,7 +812,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 		
 		final PairMatcher matcher = fConfigurator.getPairMatcher();
 		if (matcher != null) {
-			action = new GotoMatchingBracketAction(matcher, fEditorAdapter);
+			action = new GotoMatchingBracketAction(matcher, this);
 			setAction(GotoMatchingBracketAction.ACTION_ID, action);
 		}
 		
@@ -931,9 +909,6 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	@Override
 	public Object getAdapter(final Class required) {
-		if (IEditorAdapter.class.equals(required)) {
-			return fEditorAdapter;
-		}
 		if (ISourceEditor.class.equals(required)) {
 			return this;
 		}
@@ -1083,7 +1058,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	
 	@Override
 	public void dispose() {
-		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 		if (fModelPostSelection != null) {
 			fModelPostSelection.dispose();
 		}

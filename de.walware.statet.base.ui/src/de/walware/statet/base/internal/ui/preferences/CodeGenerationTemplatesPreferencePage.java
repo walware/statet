@@ -15,8 +15,9 @@ package de.walware.statet.base.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.statet.ext.ui.preferences.PropertyAndPreferencePage;
+import de.walware.ecommons.ui.preferences.PropertyAndPreferencePage;
 
+import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
@@ -46,8 +47,12 @@ public class CodeGenerationTemplatesPreferencePage extends PropertyAndPreference
 	
 	@Override
 	protected String getPropertyPageID() {
-		
 		return PROP_ID;
+	}
+	
+	@Override
+	protected boolean isProjectSupported(final IProject project) throws CoreException {
+		return project.hasNature(StatetProject.NATURE_ID);
 	}
 	
 	@Override

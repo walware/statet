@@ -21,10 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.ltk.IExtContentTypeManager;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.WorkingContext;
-import de.walware.ecommons.preferences.SettingsChangeNotifier;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
@@ -33,10 +30,6 @@ public class StatetCore {
 	
 	
 	public static final String PLUGIN_ID = "de.walware.statet.base.core"; //$NON-NLS-1$
-	
-	
-	public static final WorkingContext PERSISTENCE_CONTEXT = new WorkingContext("persistence.default"); //$NON-NLS-1$
-	public static final WorkingContext EDITOR_CONTEXT = new WorkingContext("editor.default"); //$NON-NLS-1$
 	
 	
 	public static Set<StatetProject> getStatetProjects() {
@@ -76,14 +69,6 @@ public class StatetCore {
 	
 	private static void logError(final CoreException e) {
 		BaseCorePlugin.log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
-	}
-	
-	public static SettingsChangeNotifier getSettingsChangeNotifier() {
-		return BaseCorePlugin.getDefault().getSettingsChangeNotifier();
-	}
-	
-	public static IExtContentTypeManager getExtContentTypeManager() {
-		return BaseCorePlugin.getDefault().getContentTypeServices();
 	}
 	
 	

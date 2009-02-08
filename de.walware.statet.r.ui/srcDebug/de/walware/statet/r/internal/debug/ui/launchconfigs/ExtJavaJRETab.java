@@ -37,12 +37,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
+import de.walware.ecommons.debug.ui.InputArgumentsComposite;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -73,7 +72,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		fMainTab = mainTab;
 		fREnvTab = renvTab;
 		
-		StatetCore.getSettingsChangeNotifier().addChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
 	}
 	
 	
@@ -134,7 +133,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	
 	@Override
 	public void dispose() {
-		StatetCore.getSettingsChangeNotifier().removeChangeListener(this);
+		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(this);
 		
 		super.dispose();
 	}

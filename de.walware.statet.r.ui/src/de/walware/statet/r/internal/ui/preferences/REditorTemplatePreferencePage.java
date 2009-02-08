@@ -26,12 +26,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.preferences.SettingsUpdater;
 import de.walware.ecommons.ui.text.Partitioner;
-
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
-import de.walware.statet.base.ui.util.SettingsUpdater;
-import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ui.text.sourceediting.ViewerSourceEditorAdapter;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -46,9 +45,9 @@ import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
 public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	
 //	private FormattingPreferences fFormattingPreferences= new FormattingPreferences();
-	SourceViewerConfigurator fViewerConfigurator;
+	SourceEditorViewerConfigurator fViewerConfigurator;
 	TemplateVariableProcessor fTemplateProcessor;
-	SourceViewerConfigurator fDialogViewerConfigurator; // Dialog kann im anderen Context sein
+	SourceEditorViewerConfigurator fDialogViewerConfigurator; // Dialog kann im anderen Context sein
 	TemplateVariableProcessor fDialogTemplateProcessor;
 	
 	
@@ -80,11 +79,11 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		viewer.setEditable(false);	
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 		
-		final ViewerEditorAdapter adapter = new ViewerEditorAdapter(viewer, null);
+		final ViewerSourceEditorAdapter adapter = new ViewerSourceEditorAdapter(viewer, null);
 		fViewerConfigurator.setTarget(adapter, true);
 		// updater
 		new SettingsUpdater(fViewerConfigurator, viewer.getControl());
-		new SourceViewerUpdater(viewer, 
+		new SourceViewerJFaceUpdater(viewer, 
 				fViewerConfigurator.getSourceViewerConfiguration(), 
 				fViewerConfigurator.getPreferenceStore());
 		
@@ -113,7 +112,7 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	
 	@Override
 	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
-		final de.walware.statet.ext.ui.preferences.EditTemplateDialog dialog = new de.walware.statet.ext.ui.preferences.EditTemplateDialog(
+		final de.walware.ecommons.ui.workbench.EditTemplateDialog dialog = new de.walware.ecommons.ui.workbench.EditTemplateDialog(
 				getShell(), template, edit, isNameModifiable, 
 				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry()) {
 			
@@ -131,7 +130,7 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		return null;
 	}
 	
-	protected void configureContext(final AbstractDocument document, final TemplateContextType contextType, final SourceViewerConfigurator configurator) {
+	protected void configureContext(final AbstractDocument document, final TemplateContextType contextType, final SourceEditorViewerConfigurator configurator) {
 		final Partitioner partitioner = (Partitioner) document.getDocumentPartitioner(configurator.getPartitioning().getPartitioning());
 		if (contextType.getId().equals(REditorTemplatesContextType.ROXYGEN_CONTEXTTYPE)) {
 			partitioner.setStartPartitionType(IRDocumentPartitions.R_ROXYGEN);

@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
-import de.walware.statet.base.internal.core.Messages;
+import de.walware.ecommons.internal.preferences.Messages;
 
 
 public class SettingsChangeNotifier implements ISchedulingRule {

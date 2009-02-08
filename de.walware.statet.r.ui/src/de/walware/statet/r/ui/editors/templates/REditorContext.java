@@ -19,7 +19,7 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.ecommons.ltk.text.IndentUtil.IndentEditAction;
+import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.ext.templates.StatextEditorTemplateContext;

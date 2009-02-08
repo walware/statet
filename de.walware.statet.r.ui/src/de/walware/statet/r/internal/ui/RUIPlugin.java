@@ -31,13 +31,13 @@ import org.eclipse.ui.services.IDisposable;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
-import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
 
@@ -210,7 +210,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public IPreferenceStore getEditorPreferenceStore() {
 		if (fEditorPreferenceStore == null) {
-			fEditorPreferenceStore = StatextSourceViewerConfiguration.createCombinedPreferenceStore(
+			fEditorPreferenceStore = SourceEditorViewerConfiguration.createCombinedPreferenceStore(
 				getPreferenceStore());
 		}
 		return fEditorPreferenceStore;

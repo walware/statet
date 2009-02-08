@@ -18,7 +18,7 @@ import org.eclipse.jface.viewers.ViewerComparator;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 
 
 public class ElementNameComparator extends ViewerComparator implements Comparator<IModelElement> {

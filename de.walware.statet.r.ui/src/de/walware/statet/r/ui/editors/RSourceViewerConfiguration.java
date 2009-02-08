@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.ui.editors;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,11 +36,12 @@ import de.walware.ecommons.ui.text.EcoReconciler;
 import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -63,7 +65,7 @@ import de.walware.statet.r.ui.text.r.RoxygenScanner;
 /**
  * Default Configuration for SourceViewer of R code.
  */
-public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration {
+public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration {
 	
 	
 	protected RCodeScanner2 fCodeScanner;
@@ -86,21 +88,21 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		this(null, null, null, rCoreAccess, store, colorManager);
 	}
 	
-	public RSourceViewerConfiguration(final IEditorAdapter editor,
+	public RSourceViewerConfiguration(final ISourceEditor sourceEditor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(null, null, editor, rCoreAccess, store, colorManager);
+		this(null, sourceEditor, null, rCoreAccess, store, colorManager);
 	}
 	
 	public RSourceViewerConfiguration(final REditor editor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		this(null, editor, (IEditorAdapter) editor.getAdapter(IEditorAdapter.class),
+		this(null, (ISourceEditor) editor.getAdapter(ISourceEditor.class), editor,
 				rCoreAccess, preferenceStore, colorManager);
 	}
 	
-	protected RSourceViewerConfiguration(final StatextSourceViewerConfiguration parent,
-			final REditor editor, final IEditorAdapter adapter,
+	protected RSourceViewerConfiguration(final SourceEditorViewerConfiguration parent,
+			final ISourceEditor sourceEditor, final REditor editor, 
 			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		super(adapter);
+		super(sourceEditor);
 		fRCoreAccess = rCoreAccess;
 		if (fRCoreAccess == null) {
 			fRCoreAccess = RCore.getWorkbenchAccess();
@@ -259,18 +261,17 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 	
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(final ISourceViewer sourceViewer, final String contentType) {
-		if (getEditorAdapter() == null) {
+		if (getSourceEditor() == null) {
 			return super.getAutoEditStrategies(sourceViewer, contentType);
 		}
 		if (fRAutoEditStrategy == null) {
 			fRAutoEditStrategy = createRAutoEditStrategy();
-			getEditorAdapter().install(fRAutoEditStrategy);
 		}
 		return new IAutoEditStrategy[] { fRAutoEditStrategy };
 	}
 	
 	protected RAutoEditStrategy createRAutoEditStrategy() {
-		return new RAutoEditStrategy(fRCoreAccess, getEditorAdapter(), fEditor);
+		return new RAutoEditStrategy(fRCoreAccess, getSourceEditor(), fEditor);
 	}
 	
 	@Override
@@ -319,6 +320,15 @@ public class RSourceViewerConfiguration extends StatextSourceViewerConfiguration
 		final QuickAssistAssistant assistant = new QuickAssistAssistant();
 		assistant.setQuickAssistProcessor(new RQuickAssistProcessor(fEditor));
 		return assistant;
+	}
+	
+	@Override
+	public List<ISourceEditorAddon> getAddOns() {
+		final List<ISourceEditorAddon> addons = super.getAddOns();
+		if (fRAutoEditStrategy != null) {
+			addons.add(fRAutoEditStrategy);
+		}
+		return addons;
 	}
 	
 }

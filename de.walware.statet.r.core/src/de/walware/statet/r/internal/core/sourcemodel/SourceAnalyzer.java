@@ -27,7 +27,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;

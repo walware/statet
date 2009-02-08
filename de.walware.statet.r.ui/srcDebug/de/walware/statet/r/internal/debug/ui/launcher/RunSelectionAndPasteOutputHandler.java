@@ -37,12 +37,11 @@ import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
@@ -68,19 +67,19 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 	
 	private static class R implements IToolRunnable<IBasicRAdapter>, Runnable {
 		
-		private IEditorAdapter fEditor;
+		private ISourceEditor fEditor;
 		private IDocument fDocument;
 		private String[] fLines;
 		private Position fPosition;
 		private StringBuilder fOutput;
 		
 		
-		public R(final IEditorAdapter editor) {
+		public R(final ISourceEditor editor) {
 			fEditor = editor;
 		}
 		
 		private boolean setupSource(final ITextSelection selection) {
-			final SourceViewer viewer = fEditor.getSourceViewer();
+			final SourceViewer viewer = fEditor.getViewer();
 			fDocument = viewer.getDocument();
 			try {
 				if (selection.getLength() > 0) {
@@ -191,7 +190,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		
 		public void run() {
 			// After R in display
-			final SourceViewer viewer = fEditor.getSourceViewer();
+			final SourceViewer viewer = fEditor.getViewer();
 			if (!UIAccess.isOkToUse(viewer)
 					|| (viewer.getDocument() != fDocument)
 					|| fPosition.isDeleted()) {
@@ -256,14 +255,14 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 	
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
-		final IEditorAdapter editor = (IEditorAdapter) workbenchPart.getAdapter(IEditorAdapter.class);
+		final ISourceEditor editor = (ISourceEditor) workbenchPart.getAdapter(ISourceEditor.class);
 		if (editor != null) {
 			if (!editor.isEditable(true)) {
 				cancel(null, new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 						RLaunchingMessages.RunCodeAndPasteOutput_info_WriteProtected_status), event);
 				return null;
 			}
-			final SourceViewer viewer = editor.getSourceViewer();
+			final SourceViewer viewer = editor.getViewer();
 			final ITextSelection selection = (ITextSelection) viewer.getSelection();
 			final R r = new R(editor);
 			if (!r.setupSource(selection)) {

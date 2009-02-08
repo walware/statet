@@ -19,8 +19,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.actions.AbstractHistoryPage;

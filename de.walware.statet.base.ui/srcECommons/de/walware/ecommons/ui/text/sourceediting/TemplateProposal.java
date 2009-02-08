@@ -57,7 +57,6 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.statet.ext.templates.IExtTemplateContext;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.sourceeditors.DefaultBrowserInformationInput;
 
 
 /**

@@ -13,7 +13,7 @@ package de.walware.statet.r.core.rsource.ast;
 
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
-import de.walware.ecommons.ltk.text.SourceParseInput;
+import de.walware.ecommons.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;

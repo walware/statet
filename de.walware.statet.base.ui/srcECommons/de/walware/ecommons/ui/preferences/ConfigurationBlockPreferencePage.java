@@ -26,7 +26,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.internal.ui.Messages;
+import de.walware.ecommons.internal.ui.preferences.Messages;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.dialogs.StatusInfo;

@@ -39,14 +39,13 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.text.ITokenScanner;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
-import de.walware.ecommons.ltk.text.StringParseInput;
-import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.text.ITokenScanner;
+import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.text.StringParseInput;
+import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -69,7 +68,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
  *  - auto close of pairs
  */
 public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
-		implements IEditorInstallable {
+		implements ISourceEditorAddon {
 	
 	private static final char[] CURLY_BRACKETS = new char[] { '{', '}' };
 	
@@ -109,7 +108,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	
 	private final RealTypeListener fMyListener;
-	private IEditorAdapter fEditor;
+	private ISourceEditor fEditor;
 	private ITextEditorExtension3 fEditor3;
 	private SourceViewer fViewer;
 	private IRCoreAccess fRCoreAccess;
@@ -125,23 +124,23 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private REditorOptions fOptions;
 	
 	
-	public RAutoEditStrategy(final IRCoreAccess rCoreAccess, final IEditorAdapter adapter, final TextEditor editor) {
+	public RAutoEditStrategy(final IRCoreAccess rCoreAccess, final ISourceEditor sourceEditor, final TextEditor eclipseEditor) {
 		fRCoreAccess = rCoreAccess;
 		fOptions = RUIPlugin.getDefault().getREditorSettings(rCoreAccess.getPrefs());
-		fEditor = adapter;
+		fEditor = sourceEditor;
 		
 		assert (fRCoreAccess != null);
 		assert (fEditor != null);
 		assert (fOptions != null);
 		
-		fViewer = fEditor.getSourceViewer();
+		fViewer = fEditor.getViewer();
 		// note: at moment, (fEditor3 == null) indicates "console mode"
-		fEditor3 = editor;
+		fEditor3 = eclipseEditor;
 		fMyListener = new RealTypeListener();
 	}
 	
-	public void install(final IEditorAdapter editor) {
-		assert (editor.getSourceViewer() == fViewer);
+	public void install(final ISourceEditor editor) {
+		assert (editor.getViewer() == fViewer);
 		fViewer.prependVerifyKeyListener(fMyListener);
 	}
 	

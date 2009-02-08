@@ -30,7 +30,7 @@ import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetCore;

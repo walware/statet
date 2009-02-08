@@ -19,9 +19,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesManageListener;
 
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.base.core.preferences.PreferencesManageListener;
 import de.walware.statet.ext.core.StatextProject;
 
 import de.walware.statet.r.internal.core.Messages;

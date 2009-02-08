@@ -19,10 +19,6 @@ public class Messages extends NLS {
 	
 	public static String StatetBase_description;
 	
-	public static String PropertyAndPreference_UseProjectSettings_label;
-	public static String PropertyAndPreference_ShowProjectSpecificSettings_label;
-	public static String PropertyAndPreference_ShowWorkspaceSettings_label;
-	
 	public static String Editors_link;
 	public static String Editors_Appearance;
 	public static String Editors_HighlightMatchingBrackets;

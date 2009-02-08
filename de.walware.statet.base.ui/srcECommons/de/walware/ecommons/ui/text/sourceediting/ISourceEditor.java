@@ -17,7 +17,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.text.PartitioningConfiguration;
 
 
 /**

@@ -21,10 +21,9 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
-
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
-import de.walware.statet.ext.ui.preferences.AbstractSyntaxColoringBlock;
+import de.walware.ecommons.ui.workbench.AbstractSyntaxColoringBlock;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -167,7 +166,7 @@ public class RSyntaxColoringPreferencePage extends ConfigurationBlockPreferenceP
 			}
 			
 			@Override
-			protected StatextSourceViewerConfiguration getSourceViewerConfiguration(
+			protected SourceEditorViewerConfiguration getSourceViewerConfiguration(
 					final ColorManager colorManager, final IPreferenceStore store) {
 				return new RSourceViewerConfiguration(RCore.getDefaultsAccess(),
 						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);

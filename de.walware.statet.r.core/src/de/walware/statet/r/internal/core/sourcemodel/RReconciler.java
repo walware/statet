@@ -19,10 +19,10 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.SourceContent;
-import de.walware.ecommons.ltk.text.FixInterningStringCache;
-import de.walware.ecommons.ltk.text.IStringCache;
-import de.walware.ecommons.ltk.text.SourceParseInput;
-import de.walware.ecommons.ltk.text.StringParseInput;
+import de.walware.ecommons.text.FixInterningStringCache;
+import de.walware.ecommons.text.IStringCache;
+import de.walware.ecommons.text.SourceParseInput;
+import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;

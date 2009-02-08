@@ -21,10 +21,10 @@ import org.eclipse.ltk.core.refactoring.ContentStamp;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.UndoEdit;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
-import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
 
@@ -47,7 +47,7 @@ public final class SourceUnitChange extends TextFileChange {
 		super(su.getElementName().getDisplayName(), getFile(su));
 		assert (su != null);
 		fSourceUnit = su;
-		setTextType(StatetCore.getExtContentTypeManager().getContentTypeForModelType(su.getModelTypeId()));
+		setTextType(ECommonsLTK.getExtContentTypeManager().getContentTypeForModelType(su.getModelTypeId()));
 	}
 	
 	

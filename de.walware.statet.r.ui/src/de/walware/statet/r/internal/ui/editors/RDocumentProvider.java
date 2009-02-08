@@ -34,6 +34,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.services.IDisposable;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IDocumentModelProvider;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -42,8 +43,6 @@ import de.walware.ecommons.ltk.ui.SourceProblemAnnotation;
 import de.walware.ecommons.ltk.ui.SourceProblemAnnotation.PresentationConfig;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -133,10 +132,10 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		if (fHandleTemporaryProblems != newHandleTemporaryProblems) {
 			fHandleTemporaryProblems = newHandleTemporaryProblems;
 			if (fHandleTemporaryProblems) {
-				RCore.getRModelManager().refresh(StatetCore.EDITOR_CONTEXT);
+				RCore.getRModelManager().refresh(ECommonsLTK.EDITOR_CONTEXT);
 			}
 			else {
-				final List<? extends ISourceUnit> sus = RCore.getRModelManager().getWorkingCopies(StatetCore.EDITOR_CONTEXT);
+				final List<? extends ISourceUnit> sus = RCore.getRModelManager().getWorkingCopies(ECommonsLTK.EDITOR_CONTEXT);
 				for (final ISourceUnit su : sus) {
 					final IAnnotationModel model = getAnnotationModel(su);
 					if (model instanceof RAnnotationModel) {
@@ -207,8 +206,8 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		try {
 			final Object ifile = adaptable.getAdapter(IFile.class);
 			if (ifile != null) {
-				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, RModel.TYPE_ID, true, progress.newChild(1));
-				rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(pUnit, RModel.TYPE_ID, true, progress.newChild(1));
+				final ISourceUnit pUnit = ECommonsLTK.PERSISTENCE_CONTEXT.getUnit(ifile, RModel.TYPE_ID, true, progress.newChild(1));
+				rinfo.fWorkingCopy = (IRSourceUnit) ECommonsLTK.EDITOR_CONTEXT.getUnit(pUnit, RModel.TYPE_ID, true, progress.newChild(1));
 			}
 			else if (element instanceof IURIEditorInput) {
 				final IFileStore store;
@@ -218,7 +217,7 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 				catch (final CoreException e) {
 					return rinfo;
 				}
-				rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(store, RModel.TYPE_ID, true, progress.newChild(1));
+				rinfo.fWorkingCopy = (IRSourceUnit) ECommonsLTK.EDITOR_CONTEXT.getUnit(store, RModel.TYPE_ID, true, progress.newChild(1));
 			}
 		}
 		finally {

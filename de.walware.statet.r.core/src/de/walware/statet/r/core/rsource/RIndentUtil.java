@@ -13,7 +13,7 @@ package de.walware.statet.r.core.rsource;
 
 import org.eclipse.jface.text.IDocument;
 
-import de.walware.ecommons.ltk.text.IndentUtil;
+import de.walware.ecommons.text.IndentUtil;
 
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;

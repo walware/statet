@@ -24,15 +24,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
-
-import de.walware.statet.base.core.StatetCore;
 
 
 public abstract class AbstractConfigurationBlock {
@@ -41,7 +39,7 @@ public abstract class AbstractConfigurationBlock {
 	public static void scheduleChangeNotification(final IWorkbenchPreferenceContainer container, final String[] groupIds, final boolean directly) {
 		if (groupIds != null) {
 			final String source = (directly) ? null : container.toString();
-			final Job job = StatetCore.getSettingsChangeNotifier().getNotifyJob(source, groupIds);
+			final Job job = PreferencesUtil.getSettingsChangeNotifier().getNotifyJob(source, groupIds);
 			if (job == null) {
 				return;
 			}
@@ -106,7 +104,7 @@ public abstract class AbstractConfigurationBlock {
 		link.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-				PreferencesUtil.createPreferenceDialogOn(getShell(), e.text, null, null);
+				org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(getShell(), e.text, null, null);
 			}
 		});
 		return link;

@@ -235,7 +235,7 @@ public class TreeAndListGroup implements ISelectionChangedListener {
 	/**
 	 *	Initialize this group's viewers after they have been laid out.
 	 */
-	protected void initFields() {
+	public void initFields() {
 		fTreeViewer.setInput(fRoot);
 	}
 	

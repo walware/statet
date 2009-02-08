@@ -29,10 +29,10 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringFactory;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.ltk.internal.ui.refactoring.RefactoringMessages;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
 import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 

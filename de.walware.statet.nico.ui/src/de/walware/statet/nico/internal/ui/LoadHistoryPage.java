@@ -13,8 +13,8 @@ package de.walware.statet.nico.internal.ui;
 
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.actions.AbstractHistoryPage;

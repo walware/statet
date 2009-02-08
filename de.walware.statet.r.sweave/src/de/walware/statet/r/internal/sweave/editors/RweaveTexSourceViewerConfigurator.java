@@ -18,9 +18,8 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
-
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
+import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.internal.sweave.Rweave;
@@ -55,7 +54,7 @@ public class RweaveTexSourceViewerConfigurator extends RSourceViewerConfigurator
 	}
 	
 	@Override
-	public void setConfiguration(final StatextSourceViewerConfiguration config) {
+	public void setConfiguration(final SourceEditorViewerConfiguration config) {
 		super.setConfiguration(config);
 	}
 	

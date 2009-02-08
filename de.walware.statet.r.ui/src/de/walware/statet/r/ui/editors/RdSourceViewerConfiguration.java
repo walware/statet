@@ -32,10 +32,10 @@ import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.ecommons.ui.text.presentation.AbstractRuleBasedScanner;
 import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 import de.walware.statet.ext.ui.text.CommentScanner;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -48,7 +48,7 @@ import de.walware.statet.r.ui.text.rd.RdDoubleClickStrategy;
 /**
  * Default Configuration for SourceViewer of R documentations.
  */
-public class RdSourceViewerConfiguration extends StatextSourceViewerConfiguration
+public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 		implements ISettingsChangedHandler {
 	
 	

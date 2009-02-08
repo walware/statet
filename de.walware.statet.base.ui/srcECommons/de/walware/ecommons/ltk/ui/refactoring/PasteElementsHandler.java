@@ -26,9 +26,9 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.ltk.internal.ui.refactoring.RefactoringMessages;
-import de.walware.ecommons.ltk.text.ISourceStructElement;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;

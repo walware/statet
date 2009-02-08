@@ -15,13 +15,12 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.SubMonitor;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.IWorkingBuffer;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RManagedWorkingCopy;
@@ -36,7 +35,7 @@ public class REditorWorkingCopy extends RManagedWorkingCopy {
 	
 	
 	public WorkingContext getWorkingContext() {
-		return StatetCore.EDITOR_CONTEXT;
+		return ECommonsLTK.EDITOR_CONTEXT;
 	}
 	
 	@Override

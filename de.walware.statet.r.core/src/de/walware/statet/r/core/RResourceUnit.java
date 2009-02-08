@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IProblemRequestor;
@@ -33,8 +34,6 @@ import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingBuffer;
 import de.walware.ecommons.ltk.WorkingContext;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
@@ -111,7 +110,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	
 	
 	public WorkingContext getWorkingContext() {
-		return StatetCore.PERSISTENCE_CONTEXT;
+		return ECommonsLTK.PERSISTENCE_CONTEXT;
 	}
 	
 	public boolean exists() {

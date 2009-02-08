@@ -35,11 +35,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.dialogs.StatusInfo;
-
-import de.walware.statet.ext.ui.dialogs.ContainerSelectionComposite;
-import de.walware.statet.ext.ui.dialogs.StatetDialogsMessages;
+import de.walware.ecommons.ui.workbench.ContainerSelectionComposite;
 
 import de.walware.statet.base.core.StatetProject;
 
@@ -267,7 +266,7 @@ public abstract class NewElementWizardPage extends WizardPage {
 				if (fResourceNameEdited)
 					return new StatusInfo(IStatus.ERROR, NLS.bind(
 							StatetWizardsMessages.ResourceGroup_error_EmptyName,
-							StatetDialogsMessages.Resources_File));
+							SharedMessages.Resources_File));
 				else
 					return null;
 			}

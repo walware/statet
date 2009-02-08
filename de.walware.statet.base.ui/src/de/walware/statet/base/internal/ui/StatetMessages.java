@@ -23,21 +23,6 @@ public class StatetMessages extends NLS {
 	public static String TaskPriority_Normal;
 	public static String TaskPriority_Low;
 	
-	public static String UnterminatedLaunchAlerter_WorkbenchClosing_title;
-	public static String UnterminatedLaunchAlerter_WorkbenchClosing_message;
-	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Continue;
-	public static String UnterminatedLaunchAlerter_WorkbenchClosing_button_Cancel;
-	
-	public static String HelpRequestor_Close_name;
-	public static String HelpRequestor_Close_tooltip;
-	public static String HelpRequestor_Task_name;
-	public static String HelpRequestor_error_WhenRunProcess_message;
-	public static String HelpRequestor_error_WhenReadOutput_message;
-	
-	public static String InsertVariable_label;
-	public static String InputArguments_label;
-	public static String InputArguments_note;
-	
 	public static String CodeFolding_label;
 	public static String CodeFolding_Enable_label;
 	public static String CodeFolding_Enable_mnemonic;

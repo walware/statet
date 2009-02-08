@@ -11,14 +11,6 @@
 
 package de.walware.statet.base.core.preferences;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.eclipse.core.runtime.preferences.DefaultScope;
-
-import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.PreferencesUtil;
-
 import de.walware.statet.base.core.StatetCore;
 
 
@@ -29,18 +21,5 @@ public class StatetCorePreferenceNodes {
 	
 	public static final String CAT_MANAGMENT_QUALIFIER = CORE_QUALIFIER + "/managment"; //$NON-NLS-1$
 	
-	
-	/**
-	 * Initializes the default values.
-	 */
-	public static void initializeDefaultValues(final DefaultScope scope) {
-		final Map<Preference, Object> defaults = new HashMap<Preference, Object>();
-		
-		new TaskTagsPreferences().addPreferencesToMap(defaults);
-		
-		for (final Preference<Object> unit : defaults.keySet()) {
-			PreferencesUtil.setPrefValue(scope, unit, defaults.get(unit));
-		}
-	}
 	
 }

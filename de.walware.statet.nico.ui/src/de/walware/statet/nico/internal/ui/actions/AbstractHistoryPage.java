@@ -26,9 +26,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 import de.walware.ecommons.FileValidator;
-import de.walware.ecommons.ui.dialogs.ChooseResourceComposite;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;

@@ -49,14 +49,14 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.debug.ui.HelpRequestor;
+import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.debug.HelpRequestor;
-import de.walware.statet.base.ui.debug.InputArgumentsComposite;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;

@@ -42,9 +42,12 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.RefreshTab;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.internal.ui.Messages;
 import de.walware.ecommons.debug.internal.ui.WinEnvpMap;
-import de.walware.ecommons.internal.ui.Messages;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -211,8 +214,11 @@ public class LaunchConfigUtil {
 					public IStatus run(final IProgressMonitor monitor) {
 						try {
 							RefreshTab.refreshResources(fConfiguration, monitor);
-						} catch (final CoreException e) {
-							StatetUIPlugin.logUnexpectedError(e);
+						}
+						catch (final CoreException e) {
+							StatusManager.getManager().handle(new Status(
+									ICommonStatusConstants.LAUNCHING, StatetUIPlugin.PLUGIN_ID,
+									NLS.bind("An error occurred when refreshing resources for launch configuration ''{0}''.", fConfiguration.getName()), e));
 							return e.getStatus();
 						}
 						return Status.OK_STATUS;

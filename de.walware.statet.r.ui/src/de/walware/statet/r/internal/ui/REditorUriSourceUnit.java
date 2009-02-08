@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.GenericUriSourceUnit;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
@@ -27,8 +28,6 @@ import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -54,7 +53,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	
 	
 	public WorkingContext getWorkingContext() {
-		return StatetCore.EDITOR_CONTEXT;
+		return ECommonsLTK.EDITOR_CONTEXT;
 	}
 	
 	public String getModelTypeId() {

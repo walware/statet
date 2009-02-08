@@ -37,9 +37,8 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.databinding.NumberValidator;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
-
-import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RMIUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;

@@ -36,10 +36,10 @@ import org.eclipse.ui.texteditor.IUpdate;
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -59,7 +59,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 	
 	
 	private final REditor fEditor;
-	private final IEditorAdapter fEditorAdapter;
+	private final ISourceEditor fSourceEditor;
 	private RSourceIndenter fIndenter;
 	
 	
@@ -67,17 +67,17 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 		setId("de.walware.statet.r.actions.RCorrectIndent"); //$NON-NLS-1$
 		setActionDefinitionId(IStatetUICommandIds.CORRECT_INDENT);
 		fEditor = editor;
-		fEditorAdapter = (IEditorAdapter) editor.getAdapter(IEditorAdapter.class);
+		fSourceEditor = (ISourceEditor) editor.getAdapter(ISourceEditor.class);
 	}
 	
 	
 	public void update() {
-		setEnabled(fEditorAdapter.isEditable(false));
+		setEnabled(fSourceEditor.isEditable(false));
 	}
 	
 	@Override
 	public void run() {
-		if (!fEditorAdapter.isEditable(true)) {
+		if (!fSourceEditor.isEditable(true)) {
 			return;
 		}
 		try {
@@ -169,7 +169,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			if (newPos >= 0) {
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
-						if (UIAccess.isOkToUse(fEditorAdapter.getSourceViewer())) {
+						if (UIAccess.isOkToUse(fSourceEditor.getViewer())) {
 							fEditor.selectAndReveal(newPos, 0);
 						}
 					}

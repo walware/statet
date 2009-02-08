@@ -17,10 +17,8 @@ import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
-
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.core.preferences.PreferencesManageListener;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -103,7 +101,7 @@ public class RCorePlugin extends Plugin {
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 		
-		fREnvManager = new REnvManager(StatetCore.getSettingsChangeNotifier());
+		fREnvManager = new REnvManager(PreferencesUtil.getSettingsChangeNotifier());
 		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
 		fRModelManager = new RModelManager();
 	}

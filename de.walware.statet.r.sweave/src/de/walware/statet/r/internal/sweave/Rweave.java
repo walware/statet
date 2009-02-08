@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.jface.text.IDocument;
 
-import de.walware.ecommons.ltk.text.IPartitionConstraint;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.text.PartitioningConfiguration;
 
 import net.sourceforge.texlipse.editor.ITexDocumentConstants;
 

@@ -17,15 +17,15 @@ import java.util.List;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.QuickAssistProcessor;
 
-import de.walware.statet.base.ui.sourceeditors.ExtQuickAssistProcessor;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
 import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-public class RQuickAssistProcessor extends ExtQuickAssistProcessor {
+public class RQuickAssistProcessor extends QuickAssistProcessor {
 	
 	
 	public RQuickAssistProcessor(final StatextEditor1 editor) {

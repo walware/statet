@@ -34,11 +34,27 @@ public class Messages extends NLS {
 	
 	public static String InsertVariable_label;
 	
-	public static String ConfigurationPage_error_message;
+	public static String ContainerSelectionControl_label_EnterOrSelectFolder;
+	public static String ContainerSelectionControl_label_SelectFolder;
+	public static String ContainerSelectionControl_error_FolderEmpty;
+	public static String ContainerSelectionControl_error_ProjectNotExists;
+	public static String ContainerSelectionControl_error_PathOccupied;
 	
-	public static String LaunchDelegate_LaunchingTask_label;
-	public static String LaunchDelegate_RunningTask_label;
-	public static String BackgroundResourceRefresher_Job_name;
+	public static String FilterFavouredContainersAction_label;
+	public static String FilterFavouredContainersAction_description;
+	public static String FilterFavouredContainersAction_tooltip;
+	
+	public static String EditTemplateDialog_title_Edit;
+	public static String EditTemplateDialog_title_New;
+	public static String EditTemplateDialog_error_NoName;
+	public static String EditTemplateDialog_Name_label;
+	public static String EditTemplateDialog_Description_label;
+	public static String EditTemplateDialog_Context_label;
+	public static String EditTemplateDialog_AutoInsert_label;
+	public static String EditTemplateDialog_Pattern_label;
+	public static String EditTemplateDialog_InsertVariable;
+	
+	public static String EditTemplateDialog_ContentAssist;
 	
 	
 	static {

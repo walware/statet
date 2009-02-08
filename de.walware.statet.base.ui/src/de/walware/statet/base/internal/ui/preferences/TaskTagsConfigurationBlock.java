@@ -46,9 +46,8 @@ import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.dialogs.StatusInfo;
 import de.walware.ecommons.ui.dialogs.groups.TableOptionButtonsGroup;
+import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.PixelConverter;
-
-import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;

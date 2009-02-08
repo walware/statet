@@ -42,9 +42,8 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.databinding.NumberValidator;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
-
-import de.walware.statet.ext.ui.preferences.ManagedConfigurationBlock;
 
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;

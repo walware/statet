@@ -43,9 +43,8 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;
-
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
@@ -160,9 +159,9 @@ public class LaunchShortcutUtil {
 					}
 				}
 				if (document == null) {
-					final IEditorAdapter editor = (IEditorAdapter) workbenchPart.getAdapter(IEditorAdapter.class);
+					final ISourceEditor editor = (ISourceEditor) workbenchPart.getAdapter(ISourceEditor.class);
 					if (editor != null) {
-						document = editor.getSourceViewer().getDocument();
+						document = editor.getViewer().getDocument();
 					}
 				}
 				if (document != null) {

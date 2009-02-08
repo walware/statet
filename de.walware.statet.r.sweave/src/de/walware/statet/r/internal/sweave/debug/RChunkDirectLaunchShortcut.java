@@ -34,7 +34,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ltk.text.TextUtil;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;

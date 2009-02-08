@@ -59,19 +59,19 @@ import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
 import de.walware.ecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.ecommons.ui.preferences.SettingsUpdater;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ui.text.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.ui.workbench.EditTemplateDialog;
 
-import de.walware.statet.ext.ui.dialogs.ViewerEditorAdapter;
-import de.walware.statet.ext.ui.preferences.EditTemplateDialog;
-import de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory;
+import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
-import de.walware.statet.base.ui.util.SettingsUpdater;
 
 
 /**
@@ -176,9 +176,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	private SourceViewer fPatternViewer;
 	private SourceViewerConfiguration fPatternViewerConfig;
 	private int fPatternViewerConfiguredCategory = -1;
-	private SourceViewerUpdater fPatternViewerUpdater = null;
-	private SourceViewerConfigurator fPatternConfigurator;
-	private IEditorAdapter fPatternEditor;
+	private SourceViewerJFaceUpdater fPatternViewerUpdater = null;
+	private SourceEditorViewerConfigurator fPatternConfigurator;
+	private ISourceEditor fPatternEditor;
 	
 	private TemplateVariableProcessor fPatternTemplateProcessor;
 	private TemplateVariableProcessor fEditTemplateProcessor;
@@ -303,7 +303,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		data.heightHint = new PixelConverter(viewer.getControl()).convertHeightInCharsToPixels(5);
 		viewer.getControl().setLayoutData(data);
 		
-		fPatternEditor = new ViewerEditorAdapter(viewer, null);
+		fPatternEditor = new ViewerSourceEditorAdapter(viewer, null);
 		new SettingsUpdater(new ISettingsChangedHandler() {
 			public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 				if (fPatternConfigurator != null) {
@@ -341,7 +341,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 				
 				fPatternConfigurator = category.getEditTemplateDialogConfiguator(fPatternTemplateProcessor, fProject);
 				fPatternConfigurator.setTarget(fPatternEditor, true);
-				fPatternViewerUpdater = new SourceViewerUpdater(fPatternViewer, 
+				fPatternViewerUpdater = new SourceViewerJFaceUpdater(fPatternViewer, 
 						fPatternConfigurator.getSourceViewerConfiguration(), 
 						fPatternConfigurator.getPreferenceStore());
 				

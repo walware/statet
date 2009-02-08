@@ -55,10 +55,9 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
+import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.ext.ui.dialogs.SnippetEditor;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;

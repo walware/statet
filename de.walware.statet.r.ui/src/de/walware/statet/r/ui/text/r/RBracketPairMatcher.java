@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.ui.text.r;
 
-import de.walware.ecommons.ltk.text.ITokenScanner;
+import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.ui.text.PairMatcher;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;

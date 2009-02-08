@@ -69,10 +69,13 @@ import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.text.PartitioningConfiguration;
+import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ui.text.sourceediting.TextViewerAction;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -80,11 +83,6 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.DeleteLineAction;
 import de.walware.statet.base.ui.sourceeditors.GotoMatchingBracketAction;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerUpdater;
-import de.walware.statet.base.ui.sourceeditors.TextViewerAction;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -234,25 +232,9 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		}
 	}
 	
-	private class EditorAdapter implements IEditorAdapter, IEditorStatusLine {
+	private class StatusLine implements IEditorStatusLine {
 		
 		private boolean fMessageSetted;
-		
-		public SourceViewer getSourceViewer() {
-			return InputGroup.this.getViewer();
-		}
-		
-		public void install(final IEditorInstallable installable) {
-			fConfigurator.installModul(installable);
-		}
-		
-		public boolean isEditable(final boolean validate) {
-			return InputGroup.this.isEditable(validate);
-		}
-		
-		public Object getAdapter(final Class required) {
-			return InputGroup.this.getAdapter(required);
-		}
 		
 		public void setMessage(final boolean error, final String message, final Image image) {
 			final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
@@ -402,9 +384,9 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 	private Button fSubmitButton;
 	private ScrollControl fScroller;
 	
-	final EditorAdapter fEditorAdapter = new EditorAdapter();
+	private final StatusLine fStatusLine = new StatusLine();
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
-	private SourceViewerConfigurator fConfigurator;
+	private SourceEditorViewerConfigurator fConfigurator;
 	
 	/**
 	 * Saves the selection before starting a history navigation session.
@@ -424,7 +406,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 	}
 	
 	
-	public Composite createControl(final Composite parent, final SourceViewerConfigurator editorConfig) {
+	public Composite createControl(final Composite parent, final SourceEditorViewerConfigurator editorConfig) {
 		fComposite = new Composite(parent, SWT.NONE);
 		final GridLayout layout = new GridLayout(3, false);
 		layout.marginHeight = 0;
@@ -504,10 +486,10 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		return fComposite;
 	}
 	
-	protected void createSourceViewer(final SourceViewerConfigurator editorConfigurator) {
+	protected void createSourceViewer(final SourceEditorViewerConfigurator editorConfigurator) {
 		fConfigurator = editorConfigurator;
 		fSourceViewer = new InputSourceViewer(fComposite);
-		fConfigurator.setTarget(fEditorAdapter, true);
+		fConfigurator.setTarget(this, true);
 		
 		fSourceViewerDecorationSupport = new de.walware.epatches.ui.SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
@@ -523,19 +505,19 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 			docuSetup.setup(fDocument.getMasterDocument());
 		}
 		
-		new SourceViewerUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
+		new SourceViewerJFaceUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
 		
 		final AnnotationModel annotationModel = new AnnotationModel();
 		// annotationModel.setLockObject(fDocument.getLockObject());
 		fSourceViewer.setDocument(fDocument, annotationModel);
 		fSourceViewer.addPostSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(final SelectionChangedEvent event) {
-				fEditorAdapter.cleanStatusLine();
+				fStatusLine.cleanStatusLine();
 			}
 		});
 		fSourceViewer.getTextWidget().addListener(SWT.FocusOut, new Listener() {
 			public void handleEvent(final Event event) {
-				fEditorAdapter.cleanStatusLine();
+				fStatusLine.cleanStatusLine();
 			}
 		});
 		fSourceViewer.removeSpecialBinding(SWT.DEL);
@@ -561,24 +543,24 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		IAction action;
 		final PairMatcher matcher = fConfigurator.getPairMatcher();
 		if (matcher != null) {
-			action = new GotoMatchingBracketAction(matcher, fEditorAdapter);
+			action = new GotoMatchingBracketAction(matcher, this);
 			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
 		}
 		
-		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.WHOLE, false);
+		action = new DeleteLineAction(this, DeleteLineAction.WHOLE, false);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_BEGINNING, false);
+		action = new DeleteLineAction(this, DeleteLineAction.TO_BEGINNING, false);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_END, false);
+		action = new DeleteLineAction(this, DeleteLineAction.TO_END, false);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.WHOLE, true);
+		action = new DeleteLineAction(this, DeleteLineAction.WHOLE, true);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_BEGINNING, true);
+		action = new DeleteLineAction(this, DeleteLineAction.TO_BEGINNING, true);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(fEditorAdapter, DeleteLineAction.TO_END, true);
+		action = new DeleteLineAction(this, DeleteLineAction.TO_END, true);
 		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
 		
-		action = new TextViewerAction(fEditorAdapter.getSourceViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
+		action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
 		commands.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
 		
 		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
@@ -739,7 +721,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		if (controller != null) {
 			final IStatus status = controller.submit(content, SubmitType.CONSOLE);
 			if (status.getSeverity() >= IStatus.ERROR) {
-				fEditorAdapter.setMessage(true, status.getMessage(), null);
+				fStatusLine.setMessage(true, status.getMessage(), null);
 				Display.getCurrent().beep();
 				return;
 			}
@@ -822,8 +804,8 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		if (ISourceEditor.class.equals(required)) {
 			return this;
 		}
-		if (required.equals(IEditorStatusLine.class)) {
-			return fEditorAdapter;
+		if (IEditorStatusLine.class.equals(required)) {
+			return fStatusLine;
 		}
 		return fConsolePage.getAdapter(required);
 	}

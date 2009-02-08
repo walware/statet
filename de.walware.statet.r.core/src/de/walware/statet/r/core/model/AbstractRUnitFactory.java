@@ -14,11 +14,10 @@ package de.walware.statet.r.core.model;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitFactory;
 import de.walware.ecommons.ltk.WorkingContext;
-
-import de.walware.statet.base.core.StatetCore;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -31,7 +30,7 @@ public abstract class AbstractRUnitFactory implements ISourceUnitFactory {
 	
 	
 	public ISourceUnit getUnit(final Object from, final String typeId, final WorkingContext context, final boolean create) {
-		if (context == StatetCore.PERSISTENCE_CONTEXT) {
+		if (context == ECommonsLTK.PERSISTENCE_CONTEXT) {
 			if (from instanceof IFile) {
 				final IFile fromFile = (IFile) from;
 				final String id = RResourceUnit.createResourceId(fromFile);

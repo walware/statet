@@ -15,11 +15,12 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
+import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.RContentAssistProcessor;
@@ -33,12 +34,10 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	private class RConsoleConfiguration extends RSourceViewerConfiguration {
 		
-		public RConsoleConfiguration() {
-			super((IEditorAdapter) fPage.getAdapter(IEditorAdapter.class),
-					RInputConfigurator.this,
+		public RConsoleConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess coreAccess) {
+			super(sourceEditor, coreAccess,
 					RInputConfigurator.this.getPreferenceStore(),
-					StatetUIServices.getSharedColorManager()
-					);
+					StatetUIServices.getSharedColorManager() );
 		}
 		
 		@Override
@@ -57,10 +56,10 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	private NIConsolePage fPage;
 	
 	
-	public RInputConfigurator(final NIConsolePage page) {
+	public RInputConfigurator(final NIConsolePage page, final ISourceEditor inputEditor) {
 		super((RConsole) page.getConsole(), RUIPlugin.getDefault().getEditorPreferenceStore());
 		fPage = page;
-		setConfiguration(new RConsoleConfiguration());
+		setConfiguration(new RConsoleConfiguration(inputEditor, this));
 	}
 	
 }

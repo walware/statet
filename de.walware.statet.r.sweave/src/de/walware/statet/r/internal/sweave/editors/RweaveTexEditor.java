@@ -33,12 +33,12 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 
-import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -141,8 +141,8 @@ public class RweaveTexEditor extends REditor {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator createConfiguration() {
-		fModelProvider = new ElementInfoController(RCore.getRModelManager(), StatetCore.EDITOR_CONTEXT);
+	protected SourceEditorViewerConfigurator createConfiguration() {
+		fModelProvider = new ElementInfoController(RCore.getRModelManager(), ECommonsLTK.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider, null, null);
 		
 		configureStatetProjectNatureId(RProject.NATURE_ID);

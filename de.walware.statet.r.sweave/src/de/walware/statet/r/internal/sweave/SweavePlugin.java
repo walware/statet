@@ -28,10 +28,10 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.sourceeditors.StatextSourceViewerConfiguration;
 
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.internal.sweave.processing.SweaveProcessing;
@@ -142,7 +142,7 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	public IPreferenceStore getEditorRTexPreferenceStore() {
 		if (fEditorRTexPreferenceStore == null) {
-			fEditorRTexPreferenceStore = StatextSourceViewerConfiguration.createCombinedPreferenceStore(new IPreferenceStore[] {
+			fEditorRTexPreferenceStore = SourceEditorViewerConfiguration.createCombinedPreferenceStore(new IPreferenceStore[] {
 					getPreferenceStore(),
 					RUIPlugin.getDefault().getPreferenceStore()
 			});

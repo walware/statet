@@ -48,6 +48,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
+import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
@@ -56,14 +57,12 @@ import de.walware.ecommons.ltk.ui.ElementInfoController;
 import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.ecommons.ltk.ui.LTKInputData;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 
-import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.base.ui.sourceeditors.EditorMessages;
-import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
-import de.walware.statet.base.ui.sourceeditors.IEditorInstallable;
-import de.walware.statet.base.ui.sourceeditors.SourceViewerConfigurator;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
@@ -95,7 +94,7 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	
-	private class MarkOccurrencesProvider implements IEditorInstallable, ISelectionWithElementInfoListener {
+	private class MarkOccurrencesProvider implements ISourceEditorAddon, ISelectionWithElementInfoListener {
 		
 		// CHECK: Eclipse Bug #205585
 		private static final String READ_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences"; //$NON-NLS-1$
@@ -117,7 +116,7 @@ public class REditor extends StatextEditor1<RProject> {
 		private boolean fIsMarkEnabled;
 		private RunData fLastRun;
 		
-		public void install(final IEditorAdapter editor) {
+		public void install(final ISourceEditor editor) {
 			fIsMarkEnabled = true;
 			addPostSelectionWithElementInfoListener(this);
 		}
@@ -315,8 +314,8 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected SourceViewerConfigurator createConfiguration() {
-		fModelProvider = new ElementInfoController(RCore.getRModelManager(), StatetCore.EDITOR_CONTEXT);
+	protected SourceEditorViewerConfigurator createConfiguration() {
+		fModelProvider = new ElementInfoController(RCore.getRModelManager(), ECommonsLTK.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider,
 				REditorOptions.PREF_FOLDING_ENABLED,
 				REditorOptions.PREF_MARKOCCURRENCES_ENABLED);
@@ -350,12 +349,12 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected IEditorInstallable createCodeFoldingProvider() {
+	protected ISourceEditorAddon createCodeFoldingProvider() {
 		return new DefaultRFoldingProvider();
 	}
 	
 	@Override
-	protected IEditorInstallable createMarkOccurrencesProvider() {
+	protected ISourceEditorAddon createMarkOccurrencesProvider() {
 		return new MarkOccurrencesProvider();
 	}
 	
