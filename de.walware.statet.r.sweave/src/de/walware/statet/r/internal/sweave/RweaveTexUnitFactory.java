@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.sweave;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -36,6 +37,12 @@ public class RweaveTexUnitFactory extends AbstractRUnitFactory {
 	public ISourceUnit createNew(final ISourceUnit from, final WorkingContext context) {
 		assert (context == StatetCore.EDITOR_CONTEXT);
 		return new RweaveTexEditorWorkingCopy(from);
+	}
+	
+	@Override
+	protected ISourceUnit createNew(final String id, final IFileStore store, final WorkingContext context) {
+		assert (context == StatetCore.EDITOR_CONTEXT);
+		return null;
 	}
 	
 }

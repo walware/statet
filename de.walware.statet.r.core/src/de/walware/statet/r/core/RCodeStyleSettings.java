@@ -81,7 +81,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	/**
 	 * Creates an instance with default settings.
 	 */
-	public RCodeStyleSettings(boolean editMode) {
+	public RCodeStyleSettings(final boolean editMode) {
 		fEditMode = editMode;
 		if (!fEditMode) {
 			installLock();
@@ -116,7 +116,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public void load(IPreferenceAccess prefs) {
+	public void load(final IPreferenceAccess prefs) {
 		setTabSize(prefs.getPreferenceValue(PREF_TAB_SIZE));
 		setIndentDefaultType(prefs.getPreferenceValue(PREF_INDENT_DEFAULT_TYPE));
 		setIndentSpacesCount(prefs.getPreferenceValue(PREF_INDENT_SPACES_COUNT));
@@ -127,9 +127,9 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		setReplaceConservative(prefs.getPreferenceValue(PREF_REPLACE_CONVERSATIVE));
 	}
 	
-	public void load(RCodeStyleSettings source) {
-		Lock writeLock = getWriteLock();
-		Lock sourceLock = source.getReadLock();
+	public void load(final RCodeStyleSettings source) {
+		final Lock writeLock = getWriteLock();
+		final Lock sourceLock = source.getReadLock();
 		try {
 			sourceLock.lock();
 			writeLock.lock();
@@ -150,7 +150,7 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 	
 	@Override
-	public Map<Preference, Object> deliverToPreferencesMap(Map<Preference, Object> map) {
+	public Map<Preference, Object> deliverToPreferencesMap(final Map<Preference, Object> map) {
 		map.put(PREF_TAB_SIZE, getTabSize());
 		map.put(PREF_INDENT_DEFAULT_TYPE, getIndentDefaultType());
 		map.put(PREF_INDENT_SPACES_COUNT, getIndentSpacesCount());
@@ -165,8 +165,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
 /*-- Properties --------------------------------------------------------------*/
 	
-	public void setTabSize(int size) {
-		int oldValue = fTabSize;
+	public void setTabSize(final int size) {
+		final int oldValue = fTabSize;
 		fTabSize = size;
 		firePropertyChange(PROP_TAB_SIZE, oldValue, size);
 	}
@@ -174,8 +174,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fTabSize;
 	}
 	
-	public void setIndentDefaultType(IndentationType type) {
-		IndentationType oldValue = fIndentDefaultType;
+	public void setIndentDefaultType(final IndentationType type) {
+		final IndentationType oldValue = fIndentDefaultType;
 		fIndentDefaultType = type;
 		firePropertyChange(PROP_INDENT_DEFAULT_TYPE, oldValue, type);
 	}
@@ -183,8 +183,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fIndentDefaultType;
 	}
 	
-	public void setIndentSpacesCount(int count) {
-		int oldValue = fIndentSpacesCount;
+	public void setIndentSpacesCount(final int count) {
+		final int oldValue = fIndentSpacesCount;
 		fIndentSpacesCount = count;
 		firePropertyChange(PROP_INDENT_SPACES_COUNT, oldValue, count);
 	}
@@ -192,8 +192,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fIndentSpacesCount;
 	}
 	
-	public final void setIndentBlockDepth(int depth) {
-		int oldValue = fIndentBlockDepth;
+	public final void setIndentBlockDepth(final int depth) {
+		final int oldValue = fIndentBlockDepth;
 		fIndentBlockDepth = depth;
 		firePropertyChange(PROP_INDENT_BLOCK_DEPTH, oldValue, depth);
 	}
@@ -201,8 +201,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fIndentBlockDepth;
 	}
 	
-	public final void setIndentGroupDepth(int depth) {
-		int oldValue = fIndentGroupDepth;
+	public final void setIndentGroupDepth(final int depth) {
+		final int oldValue = fIndentGroupDepth;
 		fIndentGroupDepth = depth;
 		firePropertyChange(PROP_INDENT_GROUP_DEPTH, oldValue, depth);
 	}
@@ -210,8 +210,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fIndentGroupDepth;
 	}
 	
-	public final void setIndentWrappedCommandDepth(int depth) {
-		int oldValue = fIndentWrappedCommandDepth;
+	public final void setIndentWrappedCommandDepth(final int depth) {
+		final int oldValue = fIndentWrappedCommandDepth;
 		fIndentWrappedCommandDepth = depth;
 		firePropertyChange(PROP_INDENT_WRAPPED_COMMAND_DEPTH, oldValue, depth);
 	}
@@ -219,8 +219,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fIndentWrappedCommandDepth;
 	}
 	
-	public void setReplaceOtherTabsWithSpaces(boolean enable) {
-		boolean oldValue = fReplaceOtherTabsWithSpaces;
+	public void setReplaceOtherTabsWithSpaces(final boolean enable) {
+		final boolean oldValue = fReplaceOtherTabsWithSpaces;
 		fReplaceOtherTabsWithSpaces = enable;
 		firePropertyChange(PROP_REPLACE_TABS_WITH_SPACES, oldValue, getReplaceOtherTabsWithSpaces());
 	}
@@ -231,8 +231,8 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return (fIndentDefaultType == IndentationType.SPACES) && fReplaceOtherTabsWithSpaces;
 	}
 	
-	public void setReplaceConservative(boolean enable) {
-		boolean oldValue = fReplaceConservative;
+	public void setReplaceConservative(final boolean enable) {
+		final boolean oldValue = fReplaceConservative;
 		fReplaceConservative = enable;
 		firePropertyChange(PROP_REPLACE_CONVERSATIVE, oldValue, enable);
 	}

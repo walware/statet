@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
 package de.walware.statet.r.core;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
@@ -51,7 +52,19 @@ public abstract class RResourceUnit implements ISourceUnit {
 		if (file != null) {
 			final IPath path = file.getFullPath();
 			if (path != null) {
-				return "epr:"+path.toPortableString(); // eclipse-platform-resource //$NON-NLS-1$
+				return "platform:/resource/"+path.toPortableString(); // eclipse-platform-resource //$NON-NLS-1$
+			}
+		}
+		return null;
+	}
+	
+	public static String createResourceId(final URI uri) {
+		if (uri != null) {
+			if (uri.getScheme() == null) {
+				return "xxx:"+uri.normalize().toString();
+			}
+			else {
+				return uri.normalize().toString();
 			}
 		}
 		return null;
@@ -67,9 +80,10 @@ public abstract class RResourceUnit implements ISourceUnit {
 	}
 	
 	
-	private IResource fFile;
 	private String fId;
 	private IElementName fName;
+	
+	private final IResource fFile;
 	protected int fCounter;
 	
 	
@@ -215,7 +229,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
 		}
 		else {
-			RCorePlugin.getDefault().getRModelManager().registerWorksheetCopy(this);
+			RCorePlugin.getDefault().getRModelManager().registerDependentUnit(this);
 		}
 	}
 	
@@ -224,7 +238,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
 		}
 		else {
-			RCorePlugin.getDefault().getRModelManager().removeWorksheetCopy(this);
+			RCorePlugin.getDefault().getRModelManager().deregisterDependentUnit(this);
 		}
 	}
 	

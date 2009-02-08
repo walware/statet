@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public class LTKInputData implements ISelection {
 	
 	public AstSelection getAstSelection() {
 		if (fAstSelection == null) {
-			if (fSelection instanceof ITextSelection) {
+			if (fSelection instanceof ITextSelection && getInputInfo() != null) {
 				final ITextSelection textSelection = (ITextSelection) fSelection;
 				fAstSelection = AstSelection.search(getInputInfo().getAst().root, textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
 			}
@@ -98,7 +98,7 @@ public class LTKInputData implements ISelection {
 	
 	public ISourceStructElement getModelSelection() {
 		if (fModelSelection == null) {
-			if (fSelection instanceof ITextSelection) {
+			if (fSelection instanceof ITextSelection && getInputInfo() != null) {
 				final ITextSelection textSelection = (ITextSelection) fSelection;
 				fModelSelection = LTKSelectionUtil.getSelectedSourceStructElement(getInputInfo().getSourceElement(), textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength());
 			}

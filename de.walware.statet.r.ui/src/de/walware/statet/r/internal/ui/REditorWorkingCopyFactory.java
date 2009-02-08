@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.ui;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -23,9 +24,14 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 
 
 /**
- * 
+ * R source unit factory for editor context
  */
-public class REditorWorkingCopyFactory extends AbstractRUnitFactory {
+public final class REditorWorkingCopyFactory extends AbstractRUnitFactory {
+	
+	
+	public REditorWorkingCopyFactory() {
+	}
+	
 	
 	@Override
 	protected ISourceUnit createNew(final IFile file, final WorkingContext context) {
@@ -36,6 +42,12 @@ public class REditorWorkingCopyFactory extends AbstractRUnitFactory {
 	protected ISourceUnit createNew(final ISourceUnit unit, final WorkingContext context) {
 		assert(context == StatetCore.EDITOR_CONTEXT);
 		return new REditorWorkingCopy((IRSourceUnit) unit);
+	}
+	
+	@Override
+	protected ISourceUnit createNew(final String id, final IFileStore store, final WorkingContext context) {
+		assert(context == StatetCore.EDITOR_CONTEXT);
+		return new REditorUriSourceUnit(id, store);
 	}
 	
 }

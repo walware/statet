@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,11 +14,11 @@ package de.walware.statet.r.core.model;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
@@ -26,12 +26,12 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 /**
  * R source unit working copy which can be processed by the model manager.
  */
-public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSourceUnit, IManagableRUnit {
+public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy implements IRSourceUnit, IManagableRUnit {
 	
 	
 	private AstInfo<RAstNode> fAst;
 	private IRModelInfo fModelInfo;
-	private final Object fAstLock = new Object();
+	private final Object fModelLock = new Object();
 	
 	
 	public RManagedWorkingCopy(final IRSourceUnit from) {
@@ -39,8 +39,24 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 	}
 	
 	
-	public RProject getRProject() {
-		return ((IRSourceUnit) fFrom).getRProject();
+	@Override
+	protected final void register() {
+		if (getModelTypeId().equals(RModel.TYPE_ID)) {
+			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy(this);
+		}
+		else {
+			RCorePlugin.getDefault().getRModelManager().registerDependentUnit(this);
+		}
+	}
+	
+	@Override
+	protected final void unregister() {
+		if (getModelTypeId().equals(RModel.TYPE_ID)) {
+			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy(this);
+		}
+		else {
+			RCorePlugin.getDefault().getRModelManager().deregisterDependentUnit(this);
+		}
 	}
 	
 	public IRCoreAccess getRCoreAccess() {
@@ -56,7 +72,6 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 		RCorePlugin.getDefault().getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
 	
-	@Override
 	public AstInfo<RAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
@@ -77,10 +92,10 @@ public abstract class RManagedWorkingCopy extends RWorkingCopy implements IRSour
 		return null;
 	}
 	
-	public Object getModelLockObject() {
-		return fAstLock;
-	}
 	
+	public Object getModelLockObject() {
+		return fModelLock;
+	}
 	
 	public void setRAst(final AstInfo ast) {
 		fAst = ast;

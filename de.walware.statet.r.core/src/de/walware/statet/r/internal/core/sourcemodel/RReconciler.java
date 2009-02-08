@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import de.walware.ecommons.ltk.text.StringParseInput;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RScanner;
@@ -63,6 +64,10 @@ public class RReconciler {
 	void reconcile(final IManagableRUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
 		// Update AST
 		final AstInfo<RAstNode> ast;
+		final int type = (u.getModelTypeId().equals(RModel.TYPE_ID) ? u.getElementType() : 0);
+		if (type == 0) {
+			return;
+		}
 		synchronized (fAstLock) {
 			if (fStop) {
 				return;

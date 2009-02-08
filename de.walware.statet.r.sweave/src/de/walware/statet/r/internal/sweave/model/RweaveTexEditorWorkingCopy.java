@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.ITypedRegion;
 
 import de.walware.ecommons.ltk.AstInfo;
+import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
@@ -33,18 +34,18 @@ import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.base.core.StatetCore;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.model.RWorkingCopy;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.sweave.Rweave;
 
 
-public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
+public class RweaveTexEditorWorkingCopy extends GenericSourceUnitWorkingCopy {
 	
 	
-	AstInfo<SweaveDocElement> fRAst;
-	Object fAstLock = new Object();
+	private AstInfo<SweaveDocElement> fRAst;
+	private final Object fModelLock = new Object();
 	
 	
 	public RweaveTexEditorWorkingCopy(final ISourceUnit from) {
@@ -61,13 +62,22 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 		return new FileBufferWorkingBuffer(this);
 	}
 	
+	@Override
+	protected final void register() {
+		RCore.getRModelManager().registerDependentUnit(this);
+	}
+	
+	@Override
+	protected final void unregister() {
+		RCore.getRModelManager().registerDependentUnit(this);
+	}
+	
 	public void syncExec(final SourceDocumentRunnable runnable)
 			throws InvocationTargetException {
 		FileBufferWorkingBuffer.syncExec(runnable);
 	}
 	
 	
-	@Override
 	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
@@ -79,7 +89,7 @@ public class RweaveTexEditorWorkingCopy extends RWorkingCopy {
 	}
 	
 	public AstInfo<SweaveDocElement> reconcileR(final int level, final IProgressMonitor monitor) {
-		synchronized (fAstLock) {
+		synchronized (fModelLock) {
 			final AbstractDocument document = getDocument(monitor);
 			SourceContent content;
 			ITypedRegion[] cats;

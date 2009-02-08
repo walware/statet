@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ package de.walware.statet.r.internal.ui.editors;
 import java.util.List;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -25,6 +27,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
@@ -130,10 +133,10 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		if (fHandleTemporaryProblems != newHandleTemporaryProblems) {
 			fHandleTemporaryProblems = newHandleTemporaryProblems;
 			if (fHandleTemporaryProblems) {
-				RCore.getRModelManger().refresh(StatetCore.EDITOR_CONTEXT);
+				RCore.getRModelManager().refresh(StatetCore.EDITOR_CONTEXT);
 			}
 			else {
-				final List<? extends ISourceUnit> sus = RCore.getRModelManger().getWorkingCopies(StatetCore.EDITOR_CONTEXT);
+				final List<? extends ISourceUnit> sus = RCore.getRModelManager().getWorkingCopies(StatetCore.EDITOR_CONTEXT);
 				for (final ISourceUnit su : sus) {
 					final IAnnotationModel model = getAnnotationModel(su);
 					if (model instanceof RAnnotationModel) {
@@ -160,7 +163,7 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		
 		final IDocument document = getDocument(element);
 		if (document instanceof IDocumentExtension3) {
-			final IDocumentExtension3 extension= (IDocumentExtension3) document;
+			final IDocumentExtension3 extension = (IDocumentExtension3) document;
 			if (extension.getDocumentPartitioner(IRDocumentPartitions.R_PARTITIONING) == null) {
 				fDocumentSetupParticipant.setup(document);
 			}
@@ -198,20 +201,29 @@ public class RDocumentProvider extends TextFileDocumentProvider implements IDocu
 		
 		final IAdaptable adaptable = (IAdaptable) element;
 		final RSourceFileInfo rinfo = (RSourceFileInfo) info;
-		setUpSynchronization(info);
 		
-		final Object ifile = adaptable.getAdapter(IFile.class);
-		if (ifile != null) {
-			final IProgressMonitor monitor = getProgressMonitor();
-			final SubMonitor progress = SubMonitor.convert(monitor, 2);
-			try {
+		final IProgressMonitor monitor = getProgressMonitor();
+		final SubMonitor progress = SubMonitor.convert(monitor, 2);
+		try {
+			final Object ifile = adaptable.getAdapter(IFile.class);
+			if (ifile != null) {
 				final ISourceUnit pUnit = StatetCore.PERSISTENCE_CONTEXT.getUnit(ifile, RModel.TYPE_ID, true, progress.newChild(1));
 				rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(pUnit, RModel.TYPE_ID, true, progress.newChild(1));
 			}
-			finally {
-				if (monitor != null) {
-					monitor.done();
+			else if (element instanceof IURIEditorInput) {
+				final IFileStore store;
+				try {
+					store = EFS.getStore(((IURIEditorInput) element).getURI());
 				}
+				catch (final CoreException e) {
+					return rinfo;
+				}
+				rinfo.fWorkingCopy = (IRSourceUnit) StatetCore.EDITOR_CONTEXT.getUnit(store, RModel.TYPE_ID, true, progress.newChild(1));
+			}
+		}
+		finally {
+			if (monitor != null) {
+				monitor.done();
 			}
 		}
 		

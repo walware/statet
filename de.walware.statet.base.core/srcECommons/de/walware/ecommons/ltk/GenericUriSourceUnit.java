@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package de.walware.ecommons.ltk;
 
 import java.util.List;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,24 +22,37 @@ import org.eclipse.jface.text.AbstractDocument;
 
 
 /**
- * Generic source unit for working copies based on the same unit in the underlying context
+ * Generic source unit for external files (URI/EFS).
  */
-public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
+public abstract class GenericUriSourceUnit implements ISourceUnit {
 	
 	
-	protected final ISourceUnit fFrom;
+	private final String fId;
+	private IElementName fName;
+	
+	private final IFileStore fStore;
 	private IWorkingBuffer fBuffer;
 	
 	private int fCounter = 0;
 	
 	
-	/**
-	 * Creates new working copy of the source unit
-	 * 
-	 * @param from the underlying unit to create a working copy from
-	 */
-	public GenericSourceUnitWorkingCopy(final ISourceUnit from) {
-		fFrom = from;
+	public GenericUriSourceUnit(final String id, final IFileStore store) {
+		fId = id;
+		fName = new IElementName() {
+			public int getType() {
+				return 0x011; // see RElementName
+			}
+			public String getDisplayName() {
+				return fStore.toString();
+			}
+			public String getSegmentName() {
+				return fId;
+			}
+			public IElementName getNextSegment() {
+				return null;
+			}
+		};
+		fStore = store;
 	}
 	
 	
@@ -46,7 +60,7 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	 * {@inheritDoc}
 	 */
 	public ISourceUnit getUnderlyingUnit() {
-		return fFrom;
+		return null;
 	}
 	
 	/**
@@ -59,29 +73,22 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getModelTypeId() {
-		return fFrom.getModelTypeId();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public int getElementType() {
-		return fFrom.getElementType();
+		return IModelElement.C2_SOURCE_FILE;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public IElementName getElementName() {
-		return fFrom.getElementName();
+		return fName;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getId() {
-		return fFrom.getId();
+		return fId;
 	}
 	
 	/**
@@ -102,14 +109,14 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	 * {@inheritDoc}
 	 */
 	public IPath getPath() {
-		return fFrom.getPath();
+		return null;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public IResource getResource() {
-		return fFrom.getResource();
+		return null;
 	}
 	
 	
@@ -130,8 +137,11 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getAdapter(final Class adapter) {
-		return fFrom.getAdapter(adapter);
+	public Object getAdapter(final Class required) {
+		if (IFileStore.class.equals(required)) {
+			return fStore;
+		}
+		return null;
 	}
 	
 	/**
@@ -167,7 +177,6 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 				fBuffer = createWorkingBuffer(progress.newChild(1));
 			}
 			register();
-			fFrom.connect(progress.newChild(1));
 		}
 	}
 	
@@ -180,7 +189,6 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 			final SubMonitor progress = SubMonitor.convert(monitor, 2);
 			fBuffer.releaseDocument(progress.newChild(1));
 			unregister();
-			fFrom.disconnect(progress.newChild(1));
 		}
 	}
 	

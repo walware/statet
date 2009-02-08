@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RManagedWorkingCopy;
+import de.walware.statet.r.core.model.RModel;
 
 
 /**
@@ -256,6 +257,9 @@ public class RModelManager implements IModelManager {
 	
 	
 	public void registerWorkingCopy(final IRSourceUnit copy) {
+		assert (copy.getModelTypeId().equals(RModel.TYPE_ID) &&
+				copy.getElementType() == IRSourceUnit.R_WORKSPACE_SU);
+		
 		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
 		synchronized (contextItem) {
 			final String key = copy.getId();
@@ -273,7 +277,20 @@ public class RModelManager implements IModelManager {
 		}
 	}
 	
-	public void registerWorksheetCopy(final ISourceUnit copy) {
+	public void removeWorkingCopy(final IRSourceUnit copy) {
+		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
+		synchronized (contextItem) {
+			final SuItem<IRSourceUnit> suItem = contextItem.copies.get(copy.getId());
+			if (suItem != null) {
+				suItem.loosen();
+			}
+		}
+	}
+	
+	public void registerDependentUnit(final ISourceUnit copy) {
+		assert (copy.getModelTypeId().equals(RModel.TYPE_ID) ?
+				copy.getElementType() == IRSourceUnit.R_OTHER_SU : true);
+		
 		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
 		synchronized (contextItem) {
 			final String key = copy.getId()+'+'+copy.getModelTypeId();
@@ -291,17 +308,7 @@ public class RModelManager implements IModelManager {
 		}
 	}
 	
-	public void removeWorkingCopy(final IRSourceUnit copy) {
-		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
-		synchronized (contextItem) {
-			final SuItem<IRSourceUnit> suItem = contextItem.copies.get(copy.getId());
-			if (suItem != null) {
-				suItem.loosen();
-			}
-		}
-	}
-	
-	public void removeWorksheetCopy(final ISourceUnit copy) {
+	public void deregisterDependentUnit(final ISourceUnit copy) {
 		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
 		synchronized (contextItem) {
 			final SuItem<ISourceUnit> suItem = contextItem.worksheets.get(copy.getId()+'+'+copy.getModelTypeId());
@@ -383,8 +390,10 @@ public class RModelManager implements IModelManager {
 		new RefreshJob(context).schedule();
 	}
 	
-	public void reconcile(final IManagableRUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
-		fReconciler.reconcile(u, level, reconciler, monitor);
+	public void reconcile(final ISourceUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
+		if (u instanceof IManagableRUnit) {
+			fReconciler.reconcile((IManagableRUnit) u, level, reconciler, monitor);
+		}
 	}
 	
 	public RModelEventJob getEventJob() {

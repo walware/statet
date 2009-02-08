@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,8 @@
 package de.walware.ecommons.ltk;
 
 import java.util.List;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 
 /**
@@ -31,11 +33,16 @@ public interface IModelManager {
 	public List<? extends ISourceUnit> getWorkingCopies(WorkingContext context);
 	
 	/**
-	 * Refreshes the model infos of all loaded source units in given context.
+	 * Refreshes the model info of all loaded source units in given context.
 	 */
 	public void refresh(WorkingContext context);
 	
 	public void addElementChangedListener(IElementChangedListener listener, WorkingContext context);
 	public void removeElementChangedListener(IElementChangedListener listener, WorkingContext context);
+	
+	public void registerDependentUnit(ISourceUnit su);
+	public void deregisterDependentUnit(ISourceUnit su);
+	
+	public void reconcile(final ISourceUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor);
 	
 }

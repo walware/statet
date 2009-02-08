@@ -18,8 +18,8 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
 /**
- * Extends source unit, so that they can be managed by the R model manager
- * {@link RCore#getRModelManger()}
+ * Extends source unit, so that they can be updated by the R model manager
+ * {@link RCore#getRModelManager()}
  */
 public interface IManagableRUnit extends IRSourceUnit {
 	

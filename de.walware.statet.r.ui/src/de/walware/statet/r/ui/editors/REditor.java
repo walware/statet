@@ -316,7 +316,7 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	@Override
 	protected SourceViewerConfigurator createConfiguration() {
-		fModelProvider = new ElementInfoController(RCore.getRModelManger(), StatetCore.EDITOR_CONTEXT);
+		fModelProvider = new ElementInfoController(RCore.getRModelManager(), StatetCore.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider,
 				REditorOptions.PREF_FOLDING_ENABLED,
 				REditorOptions.PREF_MARKOCCURRENCES_ENABLED);
@@ -400,7 +400,7 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput) {
 		fRUnit = ((RDocumentProvider) getDocumentProvider()).getWorkingCopy(newInput);
-		fRConfig.setSource((fRUnit != null) ? (IRCoreAccess) fRUnit.getAdapter(IRCoreAccess.class) : null);
+		fRConfig.setSource((fRUnit != null) ? (IRCoreAccess) fRUnit.getRCoreAccess() : null);
 		fModelProvider.setInput(fRUnit);
 	}
 	

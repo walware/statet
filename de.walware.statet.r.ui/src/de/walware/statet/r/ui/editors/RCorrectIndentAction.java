@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,9 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.sourceeditors.IEditorAdapter;
 
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -104,11 +107,11 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 		}
 	}
 	
-	private void doCorrection(final ISourceUnit unit, final ITextSelection selection, final IProgressMonitor monitor)
+	private void doCorrection(final ISourceUnit su, final ITextSelection selection, final IProgressMonitor monitor)
 			throws Exception {
 		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
-		final AbstractDocument document = unit.getDocument(monitor);
-		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) unit.getAstInfo(RModel.TYPE_ID, true, monitor);
+		final AbstractDocument document = su.getDocument(monitor);
+		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) su.getAstInfo(RModel.TYPE_ID, true, monitor);
 		
 		if (monitor.isCanceled()) {
 			return;
@@ -134,7 +137,9 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 				rEndLine--;
 			}
 			if (rStartLine <= rEndLine) {
-				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine, fEditor.getRCoreAccess());
+				final IRCoreAccess coreAccess = (su instanceof IRSourceUnit) ?
+						((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
+				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine, coreAccess);
 				if (rEdits.getChildrenSize() > 0) {
 					edits.addChild(rEdits);
 				}
@@ -142,7 +147,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 		}
 		
 		if (edits.getChildrenSize() > 0) {
-			unit.syncExec(new SourceDocumentRunnable(document, ast.stamp,
+			su.syncExec(new SourceDocumentRunnable(document, ast.stamp,
 					(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
 				@Override
 				public void run() throws InvocationTargetException {

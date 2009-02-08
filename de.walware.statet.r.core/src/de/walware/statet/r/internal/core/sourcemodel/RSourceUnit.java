@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2007-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,12 +23,16 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 
 
-public class RSourceUnit extends RResourceUnit implements IRSourceUnit {
+/**
+ * Source unit implementation for R script files in workspace ("default R file").
+ */
+public final class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	
 	
 	public RSourceUnit(final IFile file) {
 		super(file);
 	}
+	
 	
 	@Override
 	protected void init() {
@@ -43,6 +47,11 @@ public class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
+	}
+	
+	@Override
+	public int getElementType() {
+		return IRSourceUnit.R_WORKSPACE_SU;
 	}
 	
 	@Override

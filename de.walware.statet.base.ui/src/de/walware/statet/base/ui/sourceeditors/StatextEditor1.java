@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2008 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2005-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,6 +75,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.text.ISourceStructElement;
 import de.walware.ecommons.ltk.text.PartitioningConfiguration;
@@ -707,6 +708,10 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 	}
 	
 	protected IRegion getRangeToHighlight(final LTKInputData state) {
+		final ISourceUnitModelInfo info = state.getInputInfo();
+		if (info == null) {
+			return null;
+		}
 		IModelElement modelElement = state.getModelSelection();
 		TRY_MODEL: while (modelElement != null) {
 			switch (modelElement.getElementType() & IModelElement.MASK_C1) {
@@ -727,7 +732,7 @@ public abstract class StatextEditor1<ProjectT extends StatextProject> extends Te
 				continue TRY_MODEL;
 			}
 		}
-		final IAstNode root = state.getInputInfo().getAst().root;
+		final IAstNode root = info.getAst().root;
 		TRY_AST: if (root != null) {
 			final ITextSelection selection = (ITextSelection) state.getSelection();
 			final int n = root.getChildCount();

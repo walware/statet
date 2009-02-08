@@ -142,7 +142,7 @@ public class RweaveTexEditor extends REditor {
 	
 	@Override
 	protected SourceViewerConfigurator createConfiguration() {
-		fModelProvider = new ElementInfoController(RCore.getRModelManger(), StatetCore.EDITOR_CONTEXT);
+		fModelProvider = new ElementInfoController(RCore.getRModelManager(), StatetCore.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider, null, null);
 		
 		configureStatetProjectNatureId(RProject.NATURE_ID);
