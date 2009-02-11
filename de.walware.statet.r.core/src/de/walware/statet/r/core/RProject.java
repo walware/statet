@@ -21,15 +21,15 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 
+import de.walware.statet.base.core.StatetExtNature;
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.core.StatextProject;
 
 import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RSupportBuilder;
 
 
-public class RProject extends StatextProject implements IRCoreAccess {
+public class RProject extends StatetExtNature implements IRCoreAccess {
 	
 	
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
@@ -141,24 +141,20 @@ public class RProject extends StatextProject implements IRCoreAccess {
 	public void setProject(final IProject project) {
 		super.setProject(project);
 		fRCodeStyle = new RCodeStyleSettings();
-		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, this, RCodeStyleSettings.GROUP_ID);
+		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.GROUP_ID);
 	}
 	
 	@Override
 	protected void dispose() {
-		super.dispose();
 		if (fPreferenceListener != null) {
 			fPreferenceListener.dispose();
 			fPreferenceListener = null;
 		}
-	}
-	
-	public StatetProject getStatetProject() throws CoreException {
-		return (StatetProject) fProject.getNature(StatetProject.NATURE_ID);
+		super.dispose();
 	}
 	
 	public IPreferenceAccess getPrefs() {
-		return this;
+		return getStatetProject();
 	}
 	
 	public RCodeStyleSettings getRCodeStyle() {

@@ -96,15 +96,14 @@ import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.ext.core.StatextProject;
-
+import de.walware.statet.base.core.StatetExtNature;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.IStatetUIMenuIds;
 
 
-public abstract class StatextEditor1<ProjectT extends StatextProject> extends TextEditor
+public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends TextEditor
 		implements ISourceEditor, 
 			SettingsChangeNotifier.ChangeListener, IPreferenceChangeListener,
 			IShowInSource, IShowInTargetList {
