@@ -131,8 +131,8 @@ public class SnippetEditor extends Object {
 		fSourceViewer.setDocument(fDocument);
 		
 		final ViewerSourceEditorAdapter adapter = new ViewerSourceEditorAdapter(fSourceViewer, fConfigurator);
-		fConfigurator.setTarget(adapter, true);
-		new SourceViewerJFaceUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration(), fConfigurator.getPreferenceStore());
+		fConfigurator.setTarget(adapter);
+		new SourceViewerJFaceUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
 		new SettingsUpdater(fConfigurator, fSourceViewer.getControl());
 		
 		initActions();

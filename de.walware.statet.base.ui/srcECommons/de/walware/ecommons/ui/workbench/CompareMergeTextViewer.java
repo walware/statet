@@ -90,9 +90,9 @@ public abstract class CompareMergeTextViewer extends TextMergeViewer {
 			final SourceViewer sourceViewer = (SourceViewer) textViewer;
 			
 			final SourceEditorViewerConfigurator configurator = createConfigurator(sourceViewer);
-			configurator.setTarget(new ViewerSourceEditorAdapter(sourceViewer, configurator), true);
+			configurator.setTarget(new ViewerSourceEditorAdapter(sourceViewer, configurator));
 			
-			new SourceViewerJFaceUpdater(sourceViewer, configurator.getSourceViewerConfiguration(), configurator.getPreferenceStore(), SYMBOLIC_FONT_NAME) {
+			new SourceViewerJFaceUpdater(sourceViewer, configurator.getSourceViewerConfiguration(), SYMBOLIC_FONT_NAME) {
 				@Override
 				protected void updateFont(final SourceViewer viewer, final Font font) {
 					CompareMergeTextViewer.updateFont(viewer, font);

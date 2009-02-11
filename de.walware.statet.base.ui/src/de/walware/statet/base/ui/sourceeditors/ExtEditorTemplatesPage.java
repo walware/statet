@@ -147,10 +147,9 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 				}
 				
 				fCurrentPreviewConfigurator = configurator;
-				fCurrentPreviewConfigurator.setTarget(fPreviewEditor, true);
-				fCurrentPreviewUpdater = new SourceViewerJFaceUpdater(patternViewer, 
-						fCurrentPreviewConfigurator.getSourceViewerConfiguration(), 
-						fCurrentPreviewConfigurator.getPreferenceStore());
+				fCurrentPreviewConfigurator.setTarget(fPreviewEditor);
+				fCurrentPreviewUpdater = new SourceViewerJFaceUpdater(patternViewer,
+						fCurrentPreviewConfigurator.getSourceViewerConfiguration());
 				
 				final AbstractDocument document = new Document();
 				fCurrentPreviewConfigurator.getDocumentSetupParticipant().setup(document);

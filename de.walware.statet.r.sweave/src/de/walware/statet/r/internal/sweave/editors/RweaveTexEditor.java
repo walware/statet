@@ -152,7 +152,7 @@ public class RweaveTexEditor extends REditor {
 		fOptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
 		
 		final IPreferenceStore store = SweavePlugin.getDefault().getEditorRTexPreferenceStore();
-		fCombinedConfig = new RweaveTexSourceViewerConfigurator(basicContext, store);
+		fCombinedConfig = new RweaveTexSourceViewerConfigurator(basicContext);
 		fRConfig = fCombinedConfig;
 		fCombinedConfig.setConfiguration(new RweaveTexSourceViewerConfiguration(this,
 				fCombinedConfig, store, StatetUIServices.getSharedColorManager()));

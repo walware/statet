@@ -80,12 +80,11 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 		
 		final ViewerSourceEditorAdapter adapter = new ViewerSourceEditorAdapter(viewer, null);
-		fViewerConfigurator.setTarget(adapter, true);
+		fViewerConfigurator.setTarget(adapter);
 		// updater
 		new SettingsUpdater(fViewerConfigurator, viewer.getControl());
 		new SourceViewerJFaceUpdater(viewer, 
-				fViewerConfigurator.getSourceViewerConfiguration(), 
-				fViewerConfigurator.getPreferenceStore());
+				fViewerConfigurator.getSourceViewerConfiguration());
 		
 		final IDocument document = new Document();
 		fViewerConfigurator.getDocumentSetupParticipant().setup(document);

@@ -30,9 +30,9 @@ public class RTextViewerCreator implements IViewerCreator {
 	
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(), RUIPlugin.getDefault().getEditorPreferenceStore());
+				RCore.getWorkbenchAccess());
 		viewerConfigurator.setConfiguration(new RSourceViewerConfiguration(
-				viewerConfigurator, viewerConfigurator.getPreferenceStore(), StatetUIServices.getSharedColorManager()));
+				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), StatetUIServices.getSharedColorManager()));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

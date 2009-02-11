@@ -40,11 +40,11 @@ public class RweaveTexTemplatesProvider implements ICodeGenerationTemplatesCateg
 		public RweaveTexTemplateConfigurator(
 				final IRCoreAccess rCoreAccess,
 				final TemplateVariableProcessor processor) {
-			super(rCoreAccess, SweavePlugin.getDefault().getEditorRTexPreferenceStore());
+			super(rCoreAccess);
 			setConfiguration(new RweaveTexTemplatesSourceViewerConfiguration(
 					processor,
 					this,
-					getPreferenceStore(),
+					SweavePlugin.getDefault().getEditorRTexPreferenceStore(),
 					StatetUIServices.getSharedColorManager()));
 		}
 		

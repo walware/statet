@@ -54,8 +54,8 @@ public class CompareTextViewer extends Viewer {
 			public boolean isEditable(final boolean validate) {
 				return (fInput instanceof IEditableContent && ((IEditableContent) fInput).isEditable());
 			}
-		}, true);
-		new SourceViewerJFaceUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration(), fConfigurator.getPreferenceStore());
+		});
+		new SourceViewerJFaceUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
 		new SettingsUpdater(fConfigurator, fSourceViewer.getControl());
 		
 		fSourceViewer.activatePlugins();

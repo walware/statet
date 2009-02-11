@@ -30,9 +30,9 @@ public class RdTextViewerCreator implements IViewerCreator {
 	
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RdSourceViewerConfigurator viewerConfigurator = new RdSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(), RUIPlugin.getDefault().getEditorPreferenceStore());
+				RCore.getWorkbenchAccess());
 		viewerConfigurator.setConfiguration(new RdSourceViewerConfiguration(
-				viewerConfigurator, viewerConfigurator.getPreferenceStore(), StatetUIServices.getSharedColorManager()));
+				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), StatetUIServices.getSharedColorManager()));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

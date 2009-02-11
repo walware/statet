@@ -17,10 +17,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.ecommons.text.PartitioningConfiguration;
@@ -37,10 +37,10 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 	
 	
 	private PairMatcher fPairMatcher;
-	private IPreferenceStore fPreferenceStore;
 	private SourceEditorViewerConfiguration fConfiguration;
 	private ISourceEditor fSourceEditor;
 	private final List<ISourceEditorAddon> fAddons = new ArrayList<ISourceEditorAddon>();
+	private List<ISourceEditorAddon> fConfigurationAddons;
 	
 	protected boolean fIsConfigured;
 	
@@ -56,17 +56,6 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 	 */
 	public abstract IDocumentSetupParticipant getDocumentSetupParticipant();
 	
-	protected void setPreferenceStore(final IPreferenceStore store) {
-		fPreferenceStore = store;
-	}
-	
-	/**
-	 * @return Returns the jface PreferenceStore.
-	 */
-	public IPreferenceStore getPreferenceStore() {
-		return fPreferenceStore;
-	}
-	
 	public abstract PartitioningConfiguration getPartitioning();
 	
 	protected void setPairMatcher(final PairMatcher pairMatcher) {
@@ -74,7 +63,7 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 	}
 	
 	/**
-	 * PairMatcher used for pairmatching decoration and
+	 * PairMatcher used for pair matching decoration and
 	 * goto matching bracket action.
 	 * 
 	 * @return the pair matcher of <code>null</code>.
@@ -102,10 +91,10 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 	}
 	
 	
-	public void setTarget(final ISourceEditor sourceEditor, final boolean configure) {
+	public void setTarget(final ISourceEditor sourceEditor) {
 		assert (sourceEditor != null);
 		fSourceEditor = sourceEditor;
-		if (configure) {
+		if (!(fSourceEditor instanceof AbstractDecoratedTextEditor)) {
 			fSourceEditor.getViewer().getControl().addDisposeListener(new DisposeListener() {
 				public void widgetDisposed(final DisposeEvent e) {
 					if (fIsConfigured) {
@@ -116,6 +105,7 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 			configureTarget();
 		}
 		else {
+			fIsConfigured = true;
 			installCurrentAddons();
 		}
 		handleSettingsChanged(null, null);
@@ -140,12 +130,15 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 		if (fSourceEditor != null) {
 			fIsConfigured = true;
 			fSourceEditor.getViewer().configure(fConfiguration);
-			fAddons.addAll(getSourceViewerConfiguration().getAddOns());
 			installCurrentAddons();
 		}
 	}
 	
 	private void installCurrentAddons() {
+		fConfigurationAddons = getSourceViewerConfiguration().getAddOns();
+		for (final ISourceEditorAddon addon : fConfigurationAddons) {
+			addon.install(fSourceEditor);
+		}
 		for (final ISourceEditorAddon addon : fAddons) {
 			addon.install(fSourceEditor);
 		}
@@ -155,6 +148,10 @@ public abstract class SourceEditorViewerConfigurator implements ISettingsChanged
 		for (final ISourceEditorAddon addon : fAddons) {
 			addon.uninstall();
 		}
+		for (final ISourceEditorAddon addon : fConfigurationAddons) {
+			addon.uninstall();
+		}
+		fConfigurationAddons = null;
 	}
 	
 	public final void installAddon(final ISourceEditorAddon installable) {

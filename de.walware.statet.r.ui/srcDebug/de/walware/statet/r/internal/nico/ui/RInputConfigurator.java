@@ -36,7 +36,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 		
 		public RConsoleConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess coreAccess) {
 			super(sourceEditor, coreAccess,
-					RInputConfigurator.this.getPreferenceStore(),
+					RUIPlugin.getDefault().getEditorPreferenceStore(),
 					StatetUIServices.getSharedColorManager() );
 		}
 		
@@ -57,7 +57,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	
 	public RInputConfigurator(final NIConsolePage page, final ISourceEditor inputEditor) {
-		super((RConsole) page.getConsole(), RUIPlugin.getDefault().getEditorPreferenceStore());
+		super((RConsole) page.getConsole());
 		fPage = page;
 		setConfiguration(new RConsoleConfiguration(inputEditor, this));
 	}

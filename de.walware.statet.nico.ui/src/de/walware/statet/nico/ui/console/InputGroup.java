@@ -489,7 +489,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 	protected void createSourceViewer(final SourceEditorViewerConfigurator editorConfigurator) {
 		fConfigurator = editorConfigurator;
 		fSourceViewer = new InputSourceViewer(fComposite);
-		fConfigurator.setTarget(this, true);
+		fConfigurator.setTarget(this);
 		
 		fSourceViewerDecorationSupport = new de.walware.epatches.ui.SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
@@ -498,7 +498,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		for (final Object pref : markerAnnotationPreferences.getAnnotationPreferences()) {
 			fSourceViewerDecorationSupport.setAnnotationPreference((AnnotationPreference) pref);
 		}
-		fSourceViewerDecorationSupport.install(fConfigurator.getPreferenceStore());
+		fSourceViewerDecorationSupport.install(fConfigurator.getSourceViewerConfiguration().getPreferences());
 		
 		final IDocumentSetupParticipant docuSetup = fConfigurator.getDocumentSetupParticipant();
 		if (docuSetup != null) {

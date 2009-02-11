@@ -43,9 +43,9 @@ public class RMergeViewer extends CompareMergeTextViewer {
 	@Override
 	protected SourceEditorViewerConfigurator createConfigurator(final SourceViewer sourceViewer) {
 		final RSourceViewerConfigurator viewerConfigurator = new RSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(), RUIPlugin.getDefault().getEditorPreferenceStore());
+				RCore.getWorkbenchAccess());
 		viewerConfigurator.setConfiguration(new RSourceViewerConfiguration(
-				viewerConfigurator, viewerConfigurator.getPreferenceStore(), StatetUIServices.getSharedColorManager()));
+				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), StatetUIServices.getSharedColorManager()));
 		return viewerConfigurator;
 	}
 	

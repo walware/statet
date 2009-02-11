@@ -25,11 +25,11 @@ public class RTemplateSourceViewerConfigurator extends RSourceViewerConfigurator
 	public RTemplateSourceViewerConfigurator(
 			final IRCoreAccess rCoreAccess,
 			final TemplateVariableProcessor processor) {
-		super(rCoreAccess, RUIPlugin.getDefault().getEditorPreferenceStore());
+		super(rCoreAccess);
 		setConfiguration(new RTemplateSourceViewerConfiguration(
 				processor,
 				this,
-				getPreferenceStore(),
+				RUIPlugin.getDefault().getEditorPreferenceStore(),
 				StatetUIServices.getSharedColorManager()));
 	}
 	

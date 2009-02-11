@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
@@ -67,9 +66,8 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	private boolean fUpdateIndent;
 	
 	
-	public RSourceViewerConfigurator(final IRCoreAccess core, final IPreferenceStore store) {
+	public RSourceViewerConfigurator(final IRCoreAccess core) {
 		setSource(core);
-		setPreferenceStore(store);
 		fRCodeStyleCopy = new RCodeStyleSettings();
 		fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		fRCodeStyleCopy.resetDirty();
@@ -109,16 +107,13 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		}
 	}
 	
-	public void setTarget(final REditor editor) {
-		fRealEditor = editor;
-		fIsConfigured = true;
-		setTarget((ISourceEditor) editor.getAdapter(ISourceEditor.class), false);
-	}
-	
 	@Override
-	public void setTarget(final ISourceEditor sourceEditor, final boolean configure) {
+	public void setTarget(final ISourceEditor sourceEditor) {
+		if (sourceEditor instanceof REditor) {
+			fRealEditor = (REditor) sourceEditor;
+		}
 		fUpdateIndent = true;
-		super.setTarget(sourceEditor, configure);
+		super.setTarget(sourceEditor);
 	}
 	
 	protected REditor getREditor() {

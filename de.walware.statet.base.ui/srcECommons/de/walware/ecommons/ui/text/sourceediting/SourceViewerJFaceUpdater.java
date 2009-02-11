@@ -57,6 +57,11 @@ public class SourceViewerJFaceUpdater {
 		this(viewer, configuration, preferenceStore, JFaceResources.TEXT_FONT);
 	}
 	
+	public SourceViewerJFaceUpdater(final SourceViewer viewer, final SourceEditorViewerConfiguration configuration,
+			final String symbolicFontName) {
+		this(viewer, configuration, configuration.getPreferences(), symbolicFontName);
+	}
+	
 	public SourceViewerJFaceUpdater(final SourceViewer viewer, final SourceEditorViewerConfiguration configuration, final IPreferenceStore preferenceStore,
 			final String symbolicFontName) {
 		assert (viewer != null);

@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
 import de.walware.ecommons.text.PartitioningConfiguration;
@@ -33,8 +32,8 @@ import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 public class RweaveTexSourceViewerConfigurator extends RSourceViewerConfigurator {
 	
 	
-	public RweaveTexSourceViewerConfigurator(final IRCoreAccess core, final IPreferenceStore store) {
-		super(core, store);
+	public RweaveTexSourceViewerConfigurator(final IRCoreAccess core) {
+		super(core);
 	}
 	
 	

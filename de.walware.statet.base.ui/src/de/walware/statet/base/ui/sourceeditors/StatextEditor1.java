@@ -471,7 +471,7 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 		fConfigurator = createConfiguration();
 		super.initializeEditor();
 		setCompatibilityMode(false);
-		setPreferenceStore(fConfigurator.getPreferenceStore());
+		setPreferenceStore(fConfigurator.getSourceViewerConfiguration().getPreferences());
 		setSourceViewerConfiguration(fConfigurator.getSourceViewerConfiguration());
 		
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
@@ -672,6 +672,7 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 		if (fLazySetup) {
 			fLazySetup = false;
 			setupConfiguration(null, fProject, getEditorInput(), getSourceViewer());
+			fConfigurator.setTarget(this);
 		}
 	}
 	

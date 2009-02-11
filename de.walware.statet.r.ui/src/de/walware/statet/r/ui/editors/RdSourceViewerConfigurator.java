@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 
@@ -26,7 +25,6 @@ import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
@@ -55,12 +53,11 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	private RdSourceViewerConfiguration fConfig;
 	
 	
-	public RdSourceViewerConfigurator(final IRCoreAccess core, final IPreferenceStore store) {
+	public RdSourceViewerConfigurator(final IRCoreAccess core) {
 		setPairMatcher(new PairMatcher(BRACKETS,
 				IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
 				new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\'));
 		setSource(core);
-		setPreferenceStore(store);
 	}
 	
 	
@@ -77,11 +74,6 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	public void setConfiguration(final RdSourceViewerConfiguration config) {
 		fConfig = config;
 		super.setConfiguration(config);
-	}
-	
-	public void setTarget(final RdEditor editor) {
-		fIsConfigured = true;
-		setTarget((ISourceEditor) editor.getAdapter(ISourceEditor.class), false);
 	}
 	
 	public void setSource(IRCoreAccess newAccess) {

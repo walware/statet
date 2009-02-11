@@ -20,7 +20,6 @@ import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -326,17 +325,17 @@ public class REditor extends StatextEditor1<RProject> {
 		final IRCoreAccess basicContext = RCore.getWorkbenchAccess();
 		fOptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
 		
-		final IPreferenceStore store = RUIPlugin.getDefault().getEditorPreferenceStore();
-		fRConfig = new RSourceViewerConfigurator(basicContext, store);
+		fRConfig = new RSourceViewerConfigurator(basicContext);
 		fRConfig.setConfiguration(new RSourceViewerConfiguration(this,
-				fRConfig, store, StatetUIServices.getSharedColorManager()));
+				fRConfig,
+				RUIPlugin.getDefault().getEditorPreferenceStore(),
+				StatetUIServices.getSharedColorManager()));
 		return fRConfig;
 	}
 	
 	@Override
 	public void createPartControl(final Composite parent) {
 		super.createPartControl(parent);
-		fRConfig.setTarget(this);
 		
 		// Editor Help:
 		final SourceViewer viewer = (SourceViewer) getSourceViewer();

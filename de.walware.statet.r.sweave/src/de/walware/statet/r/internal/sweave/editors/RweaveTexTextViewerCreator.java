@@ -28,9 +28,9 @@ public class RweaveTexTextViewerCreator implements IViewerCreator {
 	
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RweaveTexSourceViewerConfigurator viewerConfigurator = new RweaveTexSourceViewerConfigurator(
-				RCore.getWorkbenchAccess(), SweavePlugin.getDefault().getEditorRTexPreferenceStore());
+				RCore.getWorkbenchAccess());
 		viewerConfigurator.setConfiguration(new RweaveTexSourceViewerConfiguration(
-				viewerConfigurator, viewerConfigurator.getPreferenceStore(), StatetUIServices.getSharedColorManager()));
+				viewerConfigurator, SweavePlugin.getDefault().getEditorRTexPreferenceStore(), StatetUIServices.getSharedColorManager()));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

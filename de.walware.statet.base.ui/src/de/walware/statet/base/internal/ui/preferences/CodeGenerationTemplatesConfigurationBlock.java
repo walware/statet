@@ -340,10 +340,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 				}
 				
 				fPatternConfigurator = category.getEditTemplateDialogConfiguator(fPatternTemplateProcessor, fProject);
-				fPatternConfigurator.setTarget(fPatternEditor, true);
-				fPatternViewerUpdater = new SourceViewerJFaceUpdater(fPatternViewer, 
-						fPatternConfigurator.getSourceViewerConfiguration(), 
-						fPatternConfigurator.getPreferenceStore());
+				fPatternConfigurator.setTarget(fPatternEditor);
+				fPatternViewerUpdater = new SourceViewerJFaceUpdater(fPatternViewer, fPatternConfigurator.getSourceViewerConfiguration());
 				
 				final IDocument document = new Document(template.getPattern());
 				fPatternConfigurator.getDocumentSetupParticipant().setup(document);
