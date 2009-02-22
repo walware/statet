@@ -60,6 +60,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.part.IShowInSource;
 import org.eclipse.ui.part.IShowInTargetList;
@@ -89,10 +90,14 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.text.sourceediting.GotoMatchingBracketHandler;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.StructureSelectHandler;
+import de.walware.ecommons.ui.text.sourceediting.StructureSelectionHistory;
+import de.walware.ecommons.ui.text.sourceediting.StructureSelectionHistoryBackHandler;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -438,7 +443,7 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 	/** The templates page of this editor */
 	private ITemplatesPage fTemplatesPage;
 	
-	private SelectionHistory fSelectionHistory;
+	private StructureSelectionHistory fSelectionHistory;
 	private Preference<Boolean> fFoldingEnablement;
 	private ProjectionSupport fFoldingSupport;
 	private ISourceEditorAddon fFoldingProvider;
@@ -807,12 +812,13 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 	@Override
 	protected void createActions() {
 		super.createActions();
+		final IHandlerService handlerService = (IHandlerService) getServiceLocator().getService(IHandlerService.class);
 		IAction action;
 		
 		final PairMatcher matcher = fConfigurator.getPairMatcher();
 		if (matcher != null) {
-			action = new GotoMatchingBracketAction(matcher, this);
-			setAction(GotoMatchingBracketAction.ACTION_ID, action);
+			handlerService.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET,
+					new GotoMatchingBracketHandler(matcher, this));
 		}
 		
 		action = createToggleCommentAction();
@@ -832,16 +838,16 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 		}
 		
 		if (fModelProvider != null) {
-			fSelectionHistory = new SelectionHistory(this);
-			action = new StructureSelectAction.Enclosing(this, fSelectionHistory);
-			setAction(action.getId(), action);
-			action = new StructureSelectAction.Next(this, fSelectionHistory);
-			setAction(action.getId(), action);
-			action = new StructureSelectAction.Previous(this, fSelectionHistory);
-			setAction(action.getId(), action);
-			action = new SelectionHistoryBackAction(this, fSelectionHistory);
-			setAction(action.getId(), action);
-			fSelectionHistory.addUpdateListener((IUpdate) action);
+			fSelectionHistory = new StructureSelectionHistory(this);
+			handlerService.activateHandler(IStatetUICommandIds.SELECT_ENCLOSING,
+					new StructureSelectHandler.Enclosing(this, fSelectionHistory));
+			handlerService.activateHandler(IStatetUICommandIds.SELECT_PREVIOUS,
+					new StructureSelectHandler.Previous(this, fSelectionHistory));
+			handlerService.activateHandler(IStatetUICommandIds.SELECT_NEXT,
+					new StructureSelectHandler.Next(this, fSelectionHistory));
+			final StructureSelectionHistoryBackHandler backHandler = new StructureSelectionHistoryBackHandler(this, fSelectionHistory);
+			handlerService.activateHandler(IStatetUICommandIds.SELECT_LAST, backHandler);
+			fSelectionHistory.addUpdateListener(backHandler);
 		}
 		//WorkbenchHelp.setHelp(action, IJavaHelpContextIds.TOGGLE_COMMENT_ACTION);
 	}

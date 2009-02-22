@@ -9,48 +9,51 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.ui.sourceeditors;
+package de.walware.ecommons.ui.text.sourceediting;
 
-import org.eclipse.jface.action.Action;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.texteditor.IUpdate;
-
-import de.walware.statet.base.ui.IStatetUICommandIds;
 
 
 /**
  * Action to restore last selection;
  */
-public class SelectionHistoryBackAction extends Action implements IUpdate {
+public class StructureSelectionHistoryBackHandler extends AbstractHandler implements IUpdate {
 	
-	private StatextEditor1<?> fEditor;
-	private SelectionHistory fHistory;
 	
-	public SelectionHistoryBackAction(final StatextEditor1<?>editor, final SelectionHistory history) {
+	private ISourceEditor fSourceEditor;
+	private StructureSelectionHistory fHistory;
+	
+	
+	public StructureSelectionHistoryBackHandler(final ISourceEditor editor, final StructureSelectionHistory history) {
 		super();
 		assert (editor != null);
 		assert (history != null);
-		fEditor = editor;
+		fSourceEditor = editor;
 		fHistory = history;
-		setId("RestoreLastSelection"); //$NON-NLS-1$
-		setActionDefinitionId(IStatetUICommandIds.SELECT_LAST);
 		update();
 	}
 	
+	
 	public void update() {
-		setEnabled(!fHistory.isEmpty());
+		setBaseEnabled(!fHistory.isEmpty());
 	}
 	
-	@Override
-	public void run() {
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IRegion old = fHistory.getLast();
 		if (old != null) {
 			try {
 				fHistory.ignoreSelectionChanges();
-				fEditor.selectAndReveal(old.getOffset(), old.getLength());
-			} finally {
+				fSourceEditor.selectAndReveal(old.getOffset(), old.getLength());
+			}
+			finally {
 				fHistory.listenToSelectionChanges();
 			}
 		}
+		return null;
 	}
+	
 }

@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.ui.sourceeditors;
+package de.walware.ecommons.ui.text.sourceediting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +25,18 @@ import de.walware.ecommons.FastList;
 /**
  * History of selections.
  */
-public class SelectionHistory {
+public class StructureSelectionHistory {
 	
 	
 	private List<IRegion> fHistory;
-	private StatextEditor1<?> fEditor;
+	private ISourceEditor fSourceEditor;
 	private ISelectionChangedListener fSelectionListener;
 	private int fSelectionChangeListenerCounter;
 	private FastList<IUpdate> fUpdateActions = new FastList<IUpdate>(IUpdate.class);
 	
 	
-	public SelectionHistory(final StatextEditor1<?> editor) {
-		fEditor = editor;
+	public StructureSelectionHistory(final ISourceEditor editor) {
+		fSourceEditor = editor;
 		fHistory = new ArrayList<IRegion>();
 		fSelectionListener = new ISelectionChangedListener() {
 			public void selectionChanged(final SelectionChangedEvent event) {
@@ -45,7 +45,7 @@ public class SelectionHistory {
 				}
 			}
 		};
-		fEditor.getSelectionProvider().addSelectionChangedListener(fSelectionListener);
+		fSourceEditor.getViewer().getSelectionProvider().addSelectionChangedListener(fSelectionListener);
 	}
 	
 	
@@ -94,7 +94,7 @@ public class SelectionHistory {
 	}
 	
 	public void dispose() {
-		fEditor.getSelectionProvider().removeSelectionChangedListener(fSelectionListener);
+		fSourceEditor.getViewer().getSelectionProvider().removeSelectionChangedListener(fSelectionListener);
 	}
 	
 }

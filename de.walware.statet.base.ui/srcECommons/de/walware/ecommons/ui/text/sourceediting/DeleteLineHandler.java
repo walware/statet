@@ -7,12 +7,14 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Wahlbrink - adaptions for StatET-usage and IEditorAdapter
+ *     Stephan Wahlbrink - adaptions for StatET, ISourceEditor, Handler
  *******************************************************************************/
 
-package de.walware.statet.base.ui.sourceeditors;
+package de.walware.ecommons.ui.text.sourceediting;
 
-import org.eclipse.jface.action.Action;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -25,7 +27,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
 import de.walware.ecommons.text.TextUtil;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.DNDUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
@@ -35,7 +36,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * An action to delete/cut a whole line, the fraction of the line that is left from the cursor
  * or the fraction that is right from the cursor.
  */
-public class DeleteLineAction extends Action {
+public class DeleteLineHandler extends AbstractHandler {
 	
 	/**
 	 * Delete the whole line.
@@ -70,73 +71,77 @@ public class DeleteLineAction extends Action {
 	
 	
 	/**
-	 * Creates a line deletion action.
+	 * Creates a line deletion/cut action.
 	 * 
-	 * @param bundle the resource bundle for UI strings
-	 * @param prefix the prefix for the property keys into <code>bundle</code>
 	 * @param editor the editor
+	 * @param prefix the prefix for the property keys into <code>bundle</code>
 	 * @param type the line deletion type, must be one of
 	 *     <code>WHOLE_LINE</code>, <code>TO_BEGINNING</code> or <code>TO_END</code>
 	 * @param copyToClipboard if <code>true</code>, the contents of the deleted line are copied to the clipboard
-	 * @since 2.1
 	 */
-	public DeleteLineAction(final ISourceEditor editor, final int type, final boolean copyToClipboard) {
-		super();
+	public DeleteLineHandler(final ISourceEditor editor, final int type, final boolean copyToClipboard) {
 		fSourceEditor = editor;
 		fType = type;
 		fCopyToClipboard = copyToClipboard;
-		checkCommand();
 		
 		update();
 	}
 	
-	protected void checkCommand() {
-		if (fCopyToClipboard) {
-			switch (fType) {
-			case WHOLE:
-				setActionDefinitionId(ITextEditorActionDefinitionIds.CUT_LINE);
-				break;
-			case TO_BEGINNING:
-				setActionDefinitionId(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING);
-				break;
-			case TO_END:
-				setActionDefinitionId(ITextEditorActionDefinitionIds.CUT_LINE_TO_END);
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
+	/**
+	 * Creates a line deletion/cut action.
+	 * 
+	 * @param editor the editor
+	 * @param prefix the prefix for the property keys into <code>bundle</code>
+	 * @param commandId
+	 */
+	public DeleteLineHandler(final ISourceEditor editor, final String commandId) {
+		fSourceEditor = editor;
+		if (commandId.equals(ITextEditorActionDefinitionIds.CUT_LINE)) {
+			fType = WHOLE;
+			fCopyToClipboard = true;
+		}
+		else if (commandId.equals(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING)) {
+			fType = TO_BEGINNING;
+			fCopyToClipboard = true;
+		}
+		else if (commandId.equals(ITextEditorActionDefinitionIds.CUT_LINE_TO_END)) {
+			fType = TO_END;
+			fCopyToClipboard = true;
+		}
+		else if (commandId.equals(ITextEditorActionDefinitionIds.DELETE_LINE)) {
+			fType = WHOLE;
+			fCopyToClipboard = false;
+		}
+		else if (commandId.equals(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING)) {
+			fType = TO_BEGINNING;
+			fCopyToClipboard = false;
+		}
+		else if (commandId.equals(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END)) {
+			fType = TO_END;
+			fCopyToClipboard = false;
 		}
 		else {
-			switch (fType) {
-			case WHOLE:
-				setActionDefinitionId(ITextEditorActionDefinitionIds.DELETE_LINE);
-				break;
-			case TO_BEGINNING:
-				setActionDefinitionId(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING);
-				break;
-			case TO_END:
-				setActionDefinitionId(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END);
-				break;
-			default:
-				throw new IllegalArgumentException();
-			}
+			throw new IllegalArgumentException("Unsupported command"); //$NON-NLS-1$
 		}
+		
+		update();
 	}
+	
 	
 	public void update() {
-		setEnabled(fSourceEditor.isEditable(false));
+		setBaseEnabled(fSourceEditor.isEditable(false));
 	}
 	
-	@Override
-	public void run() {
-		if (!fSourceEditor.isEditable(true)) {
-			return;
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		if (fSourceEditor.isEditable(true)) {
+			try {
+				deleteLine();
+			}
+			catch (final BadLocationException e) {
+				StatetUIPlugin.logUnexpectedError(e);
+			}
 		}
-		try {
-			deleteLine();
-		} catch (final BadLocationException e) {
-			StatetUIPlugin.logUnexpectedError(e);
-		}
+		return null;
 	}
 	
 	private void deleteLine() throws BadLocationException {
@@ -170,14 +175,14 @@ public class DeleteLineAction extends Action {
 		int temp;
 		
 		switch  (type) {
-		case DeleteLineAction.WHOLE:
+		case DeleteLineHandler.WHOLE:
 			return TextUtil.getBlock(document, offset, offset+length);
 		
-		case DeleteLineAction.TO_BEGINNING:
+		case DeleteLineHandler.TO_BEGINNING:
 			temp = document.getLineOffset(line);
 			return new Region(temp, offset-temp);
 		
-		case DeleteLineAction.TO_END:
+		case DeleteLineHandler.TO_END:
 			temp = document.getLineOffset(line)+document.getLineLength(line);
 			return new Region(offset, temp-offset);
 		

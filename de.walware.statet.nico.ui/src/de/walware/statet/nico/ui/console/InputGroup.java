@@ -71,6 +71,8 @@ import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.ui.text.sourceediting.DeleteLineHandler;
+import de.walware.ecommons.ui.text.sourceediting.GotoMatchingBracketHandler;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
@@ -81,8 +83,6 @@ import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
-import de.walware.statet.base.ui.sourceeditors.DeleteLineAction;
-import de.walware.statet.base.ui.sourceeditors.GotoMatchingBracketAction;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -543,22 +543,22 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		IAction action;
 		final PairMatcher matcher = fConfigurator.getPairMatcher();
 		if (matcher != null) {
-			action = new GotoMatchingBracketAction(matcher, this);
-			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET, new ActionHandler(action));
+			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET,
+					new GotoMatchingBracketHandler(matcher, this));
 		}
 		
-		action = new DeleteLineAction(this, DeleteLineAction.WHOLE, false);
-		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(this, DeleteLineAction.TO_BEGINNING, false);
-		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(this, DeleteLineAction.TO_END, false);
-		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(this, DeleteLineAction.WHOLE, true);
-		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(this, DeleteLineAction.TO_BEGINNING, true);
-		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
-		action = new DeleteLineAction(this, DeleteLineAction.TO_END, true);
-		commands.activateHandler(action.getActionDefinitionId(), new ActionHandler(action));
+		commands.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE,
+				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE));
+		commands.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING,
+				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING));
+		commands.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_END,
+				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE_TO_END));
+		commands.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE,
+				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE));
+		commands.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING,
+				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING));
+		commands.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END,
+				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE_TO_END));
 		
 		action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
 		commands.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));

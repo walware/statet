@@ -30,6 +30,10 @@ public class EditingMessages extends NLS {
 	public static String ContentAssistProcessor_ComputingContexts_Sorting_task;
 	public static String ContentAssistProcessor_ComputingContexts_Collecting_task;
 	
+	public static String GotoMatchingBracketAction_error_BracketOutsideSelectedElement;
+	public static String GotoMatchingBracketAction_error_InvalidSelection;
+	public static String GotoMatchingBracketAction_error_NoMatchingBracket;
+	
 	
 	static {
 		NLS.initializeMessages(EditingMessages.class.getName(), EditingMessages.class);

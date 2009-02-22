@@ -9,9 +9,11 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.ui.sourceeditors;
+package de.walware.ecommons.ui.text.sourceediting;
 
-import org.eclipse.jface.action.Action;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -21,42 +23,33 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 
+import de.walware.ecommons.internal.ui.text.EditingMessages;
 import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.ui.text.PairMatcher;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-
-import de.walware.statet.base.ui.IStatetUICommandIds;
 
 
-public class GotoMatchingBracketAction extends Action {
-	
-	public static final String ACTION_ID = "de.walware.statet.ui.actions.GotoMatchingBracket"; //$NON-NLS-1$
+public class GotoMatchingBracketHandler extends AbstractHandler {
 	
 	
-	private PairMatcher fPairMatcher;
 	private ISourceEditor fSourceEditor;
 	
+	private PairMatcher fPairMatcher;
 	
-	public GotoMatchingBracketAction(final PairMatcher pairMatcher, final ISourceEditor editor) {
-		
+	
+	public GotoMatchingBracketHandler(final PairMatcher pairMatcher, final ISourceEditor editor) {
 		assert (pairMatcher != null);
 		assert (editor != null);
-		fPairMatcher = pairMatcher;
 		fSourceEditor = editor;
+		fPairMatcher = pairMatcher;
 		
-		setText(EditorMessages.GotoMatchingBracketAction_label);
-		setToolTipText(EditorMessages.GotoMatchingBracketAction_tooltip);
-		setDescription(EditorMessages.GotoMatchingBracketAction_description);
-		setId(ACTION_ID);
-		setActionDefinitionId(IStatetUICommandIds.GOTO_MATCHING_BRACKET);
-		
-		setEnabled(true);
+//		setBaseEnabled(true);
 	}
 	
 	
-	@Override
-	public void run() {
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		gotoMatchingBracket();
+		
+		return null;
 	}
 	
 	/**
@@ -95,7 +88,7 @@ public class GotoMatchingBracketAction extends Action {
 		if (selectionLength > 0) {
 			final IEditorStatusLine statusLine = (IEditorStatusLine) fSourceEditor.getAdapter(IEditorStatusLine.class);
 			if (statusLine != null) {
-				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_InvalidSelection, null);
+				statusLine.setMessage(true, EditingMessages.GotoMatchingBracketAction_error_InvalidSelection, null);
 			}
 			sourceViewer.getTextWidget().getDisplay().beep();
 			return;
@@ -105,7 +98,7 @@ public class GotoMatchingBracketAction extends Action {
 		if (region == null) {
 			final IEditorStatusLine statusLine = (IEditorStatusLine) fSourceEditor.getAdapter(IEditorStatusLine.class);
 			if (statusLine != null) {
-				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_NoMatchingBracket, null);
+				statusLine.setMessage(true, EditingMessages.GotoMatchingBracketAction_error_NoMatchingBracket, null);
 			}
 			Display.getCurrent().beep();
 			return;
@@ -131,7 +124,7 @@ public class GotoMatchingBracketAction extends Action {
 		if (!visible) {
 			final IEditorStatusLine statusLine = (IEditorStatusLine) fSourceEditor.getAdapter(IEditorStatusLine.class);
 			if (statusLine != null) {
-				statusLine.setMessage(true, EditorMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement, null);
+				statusLine.setMessage(true, EditingMessages.GotoMatchingBracketAction_error_BracketOutsideSelectedElement, null);
 			}
 			Display.getCurrent().beep();
 			return;

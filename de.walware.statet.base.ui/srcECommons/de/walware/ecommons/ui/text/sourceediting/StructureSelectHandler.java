@@ -9,10 +9,12 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.base.ui.sourceeditors;
+package de.walware.ecommons.ui.text.sourceediting;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Region;
@@ -22,18 +24,14 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
-import de.walware.statet.base.ui.IStatetUICommandIds;
 
-
-public abstract class StructureSelectAction extends Action {
+public abstract class StructureSelectHandler extends AbstractHandler {
 	
 	
-	public static class Enclosing extends StructureSelectAction {
+	public static class Enclosing extends StructureSelectHandler {
 		
-		public Enclosing(final StatextEditor1<?> editor, final SelectionHistory history) {
+		public Enclosing(final ISourceEditor editor, final StructureSelectionHistory history) {
 			super(editor, history);
-			setId("SelectEnclosingElement"); //$NON-NLS-1$
-			setActionDefinitionId(IStatetUICommandIds.SELECT_ENCLOSING);
 		}
 		
 		@Override
@@ -44,12 +42,10 @@ public abstract class StructureSelectAction extends Action {
 		
 	}
 	
-	public static class Next extends StructureSelectAction {
+	public static class Next extends StructureSelectHandler {
 		
-		public Next(final StatextEditor1<?> editor, final SelectionHistory history) {
+		public Next(final ISourceEditor editor, final StructureSelectionHistory history) {
 			super(editor, history);
-			setId("SelectNextElement"); //$NON-NLS-1$
-			setActionDefinitionId(IStatetUICommandIds.SELECT_NEXT);
 		}
 		
 		@Override
@@ -67,12 +63,10 @@ public abstract class StructureSelectAction extends Action {
 		
 	}
 	
-	public static class Previous extends StructureSelectAction {
+	public static class Previous extends StructureSelectHandler {
 		
-		public Previous(final StatextEditor1<?> editor, final SelectionHistory history) {
+		public Previous(final ISourceEditor editor, final StructureSelectionHistory history) {
 			super(editor, history);
-			setId("RestoreLastSelection"); //$NON-NLS-1$
-			setActionDefinitionId(IStatetUICommandIds.SELECT_PREVIOUS);
 		}
 		
 		@Override
@@ -91,42 +85,42 @@ public abstract class StructureSelectAction extends Action {
 	}
 	
 	
-	private StatextEditor1<?> fEditor;
-	private SelectionHistory fSelectionHistory;
+	private ISourceEditor fSourceEditor;
+	private StructureSelectionHistory fSelectionHistory;
 	
 	
-	protected StructureSelectAction(final StatextEditor1<?> editor, final SelectionHistory history) {
+	protected StructureSelectHandler(final ISourceEditor editor, final StructureSelectionHistory history) {
 		super();
 		assert (editor != null);
 		assert (history != null);
-		fEditor = editor;
+		fSourceEditor = editor;
 		fSelectionHistory = history;
 	}
 	
 	
-	@Override
-	public final  void run() {
-		final ISourceUnit inputElement = fEditor.getSourceUnit();
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final ISourceUnit inputElement = fSourceEditor.getSourceUnit();
 		if (inputElement == null) {
-			return;
+			return null;
 		}
 		final AstInfo<? extends IAstNode> astInfo = inputElement.getAstInfo(null, true, new NullProgressMonitor());
 		if (astInfo == null) {
-			return;
+			return null;
 		}
 		
 		final ITextSelection selection = getTextSelection();
 		final IRegion newRange = getNewSelectionRange(selection.getOffset(), selection.getOffset()+selection.getLength(), astInfo);
-		if (newRange == null) {
-			return;
+		if (newRange != null) {
+			fSelectionHistory.remember(new Region(selection.getOffset(), selection.getLength()));
+			try {
+				fSelectionHistory.ignoreSelectionChanges();
+				fSourceEditor.selectAndReveal(newRange.getOffset(), newRange.getLength());
+			}
+			finally {
+				fSelectionHistory.listenToSelectionChanges();
+			}
 		}
-		fSelectionHistory.remember(new Region(selection.getOffset(), selection.getLength()));
-		try {
-			fSelectionHistory.ignoreSelectionChanges();
-			fEditor.selectAndReveal(newRange.getOffset(), newRange.getLength());
-		} finally {
-			fSelectionHistory.listenToSelectionChanges();
-		}
+		return null;
 	}
 	
 	public final IRegion getNewSelectionRange(final int oldStart, final int oldStop, final AstInfo<? extends IAstNode> ast) {
@@ -148,7 +142,7 @@ public abstract class StructureSelectAction extends Action {
 	abstract IRegion concreteNewSelectionRange(AstSelection selection);
 	
 	protected final ITextSelection getTextSelection() {
-		return (ITextSelection)fEditor.getSelectionProvider().getSelection();
+		return (ITextSelection) fSourceEditor.getViewer().getSelectionProvider().getSelection();
 	}
 	
 	protected final IRegion createRegion(final int start, final int stop) {
