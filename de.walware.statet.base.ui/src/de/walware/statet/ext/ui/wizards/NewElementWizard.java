@@ -28,6 +28,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -59,7 +60,7 @@ import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
-public abstract class NewElementWizard extends Wizard implements INewWizard {
+public abstract class NewElementWizard extends Wizard implements INewWizard, IExecutableExtension {
 	
 	
 	protected static class NewFileCreator {
@@ -367,10 +368,21 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 	private IWorkbench fWorkbench;
 	private IStructuredSelection fSelection;
 	
+	private IConfigurationElement fConfigElement;
+	
 	
 	public NewElementWizard() {
 		setNeedsProgressMonitor(true);
 	}
+	
+	/**
+	 * Stores the configuration element for the wizard. The config element will
+	 * be used in <code>performFinish</code> to set the result perspective.
+	 */
+	public void setInitializationData(final IConfigurationElement config, final String propertyName, final Object data) {
+		fConfigElement = config;
+	}
+	
 	
 	/**
 	 * Subclasses should override to perform the actions of the wizard.
@@ -494,8 +506,8 @@ public abstract class NewElementWizard extends Wizard implements INewWizard {
 		BasicNewResourceWizard.selectAndReveal(newResource, fWorkbench.getActiveWorkbenchWindow());
 	}
 	
-	protected void updatePerspective(final IConfigurationElement config) {
-		BasicNewProjectResourceWizard.updatePerspective(config);
+	protected void updatePerspective() {
+		BasicNewProjectResourceWizard.updatePerspective(fConfigElement);
 	}
 	
 }

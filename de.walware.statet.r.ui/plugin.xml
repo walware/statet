@@ -374,6 +374,18 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             category="de.walware.statet.base.newWizards.StatetCategory"
+            class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
+            icon="icons/tool_16/new_r-project.gif"
+            id="de.walware.statet.r.newWizards.RProjectCreation"
+            name="%wizards.NewRProject.name"
+            project="true"
+            finalPerspective="de.walware.statet.base.perspectives.StatetPerspective">
+         <description>
+            %wizards.NewRProject.description
+         </description>
+      </wizard>
+      <wizard
+            category="de.walware.statet.base.newWizards.StatetCategory"
             class="de.walware.statet.r.internal.ui.wizards.NewRFileCreationWizard"
             icon="icons/tool_16/new_r-file.gif"
             id="de.walware.statet.r.newWizards.RFileCreation"
@@ -392,17 +404,6 @@
             project="false">
          <description>
             %wizards.NewRdFile.description
-         </description>
-      </wizard>
-      <wizard
-            category="de.walware.statet.base.newWizards.StatetCategory"
-            class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
-            icon="icons/tool_16/new_r-project.gif"
-            id="de.walware.statet.r.newWizards.RProjectCreation"
-            name="%wizards.NewRProject.name"
-            project="true">
-         <description>
-            %wizards.NewRProject.description
          </description>
       </wizard>
    </extension>

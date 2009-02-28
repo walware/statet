@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
@@ -40,7 +39,6 @@ public class NewRProjectWizard extends NewElementWizard {
 	
 	private ProjectCreator fNewRProject;
 	
-	private IConfigurationElement fPerspConfig;
 	
 	public NewRProjectWizard() {
 		setDialogSettings(DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "NewElementWizard")); //$NON-NLS-1$
@@ -83,7 +81,7 @@ public class NewRProjectWizard extends NewElementWizard {
 		final boolean result = super.performFinish();
 		
 		if (result && fNewRProject.getProjectHandle() != null) {
-			updatePerspective(fPerspConfig);
+			updatePerspective();
 			selectAndReveal(fNewRProject.getProjectHandle());
 		}
 		
