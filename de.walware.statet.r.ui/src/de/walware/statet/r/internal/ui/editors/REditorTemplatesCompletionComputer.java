@@ -60,7 +60,7 @@ public class REditorTemplatesCompletionComputer extends TemplatesCompletionCompu
 			}
 		}
 		catch (final BadLocationException e) {}
-		return null;
+		return ""; //$NON-NLS-1$
 	}
 	
 	@Override

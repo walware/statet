@@ -137,7 +137,7 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	
 	
 	protected String extractPrefix(final AssistInvocationContext context) {
-		return context.computeIdentifierPrefix();
+		return context.getIdentifierPrefix();
 	}
 	
 	protected Template[] getTemplates(final String contextTypeId) {
