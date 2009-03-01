@@ -9,20 +9,25 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.ui.databinding;
+package de.walware.ecommons.ui.preferences;
 
 import org.eclipse.core.databinding.observable.Diffs;
-import org.eclipse.jface.internal.databinding.provisional.swt.AbstractSWTObservableValue;
+import org.eclipse.core.databinding.observable.value.AbstractObservableValue;
+import org.eclipse.jface.databinding.swt.ISWTObservableValue;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Widget;
 
 
 /**
  * ObservableValue for a JFace ColorSelector.
  */
-public class ColorSelectorObservableValue extends AbstractSWTObservableValue {
+public class ColorSelectorObservableValue extends AbstractObservableValue implements ISWTObservableValue {
 	
 	
 	private final ColorSelector fSelector;
@@ -41,9 +46,14 @@ public class ColorSelectorObservableValue extends AbstractSWTObservableValue {
 	 * @param selector
 	 */
 	public ColorSelectorObservableValue(final ColorSelector selector) {
-		super(selector.getButton());
+		super(SWTObservables.getRealm(selector.getButton().getDisplay()));
 		fSelector = selector;
 		selector.addListener(fUpdateListener);
+		selector.getButton().addDisposeListener(new DisposeListener(){
+			public void widgetDisposed(final DisposeEvent e) {
+				ColorSelectorObservableValue.this.dispose();
+			}
+		});
 	}
 	
 	
@@ -62,6 +72,10 @@ public class ColorSelectorObservableValue extends AbstractSWTObservableValue {
 	
 	public Object getValueType() {
 		return RGB.class;
+	}
+	
+	public Widget getWidget() {
+		return fSelector.getButton();
 	}
 	
 }

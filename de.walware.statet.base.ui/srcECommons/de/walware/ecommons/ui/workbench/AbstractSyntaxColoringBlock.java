@@ -67,8 +67,8 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.databinding.ColorSelectorObservableValue;
 import de.walware.ecommons.ui.dialogs.Layouter;
+import de.walware.ecommons.ui.preferences.ColorSelectorObservableValue;
 import de.walware.ecommons.ui.preferences.OverlayStoreConfigurationBlock;
 import de.walware.ecommons.ui.preferences.OverlayStorePreference;
 import de.walware.ecommons.ui.preferences.PreferenceStoreBeanWrapper;

@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.ui.databinding;
+package de.walware.ecommons.debug.ui;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
@@ -28,6 +28,7 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.databinding.DirtyTracker;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

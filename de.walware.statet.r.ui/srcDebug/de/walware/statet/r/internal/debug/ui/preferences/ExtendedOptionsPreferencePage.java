@@ -33,8 +33,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.databinding.NumberValidator;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;

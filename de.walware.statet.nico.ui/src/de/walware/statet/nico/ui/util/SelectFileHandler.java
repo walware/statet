@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ui.databinding.TitleAreaDialogWithDbc;
+import de.walware.ecommons.ui.dialogs.TitleAreaDialogWithDbc;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;

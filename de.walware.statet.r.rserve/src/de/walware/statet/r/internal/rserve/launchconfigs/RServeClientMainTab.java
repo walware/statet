@@ -26,8 +26,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.ui.databinding.LaunchConfigTabWithDbc;
-import de.walware.ecommons.ui.databinding.NumberValidator;
+import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ui.dialogs.Layouter;
 
 import de.walware.statet.base.ui.StatetImages;

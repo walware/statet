@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.ui.databinding;
+package de.walware.ecommons.databinding;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
