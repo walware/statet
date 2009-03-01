@@ -1,23 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
- ###############################################################################
- # Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
- # All rights reserved. This program and the accompanying materials
- # are made available under the terms of the Eclipse Public License v1.0
- # which accompanies this distribution, and is available at
- # http://www.eclipse.org/legal/epl-v10.html
- # 
- # Contributors:
- #     Stephan Wahlbrink - initial API and implementation
- ###############################################################################
--->
-<schema targetNamespace="de.walware.statet.base.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<!-- Schema file written by PDE -->
+<schema targetNamespace="de.walware.ecommons.ltk" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="de.walware.statet.base.core" id="de.walware.ecommons.ltk.contentTypeActivation" name="Additional activation for content types"/>
+         <meta.schema plugin="de.walware.ecommons.ltk" id="contentTypeActivation" name="Additional activation for content types"/>
       </appinfo>
       <documentation>
-         Allows multiple content types in addition to the primary content type.
+         This extension-point allows multiple content types in addition to the primary content type.
       </documentation>
    </annotation>
 
@@ -113,6 +102,41 @@
       </appinfo>
       <documentation>
          0.5
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         Activate R content type in Sweave (R/LaTeX) documents:
+&lt;pre&gt;
+   &lt;extension
+         point=&quot;de.walware.ecommons.ltk.contentTypeActivation&quot;&gt;
+      &lt;contentType
+            id=&quot;de.walware.statet.r.contentTypes.RweaveTex&quot;
+            secondaryId=&quot;de.walware.statet.r.contentTypes.R&quot;&gt;
+      &lt;/contentType&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+
+Contributors:
+    Stephan Wahlbrink - initial API and implementation
+
       </documentation>
    </annotation>
 

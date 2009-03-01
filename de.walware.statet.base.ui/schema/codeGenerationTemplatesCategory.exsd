@@ -1,28 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
- ###############################################################################
- # Copyright (c) 2005-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
- # All rights reserved. This program and the accompanying materials
- # are made available under the terms of the Eclipse Public License v1.0
- # which accompanies this distribution, and is available at
- # http://www.eclipse.org/legal/epl-v10.html
- # 
- # Contributors:
- #     Stephan Wahlbrink - initial API and implementation
- ###############################################################################
--->
-
-<schema targetNamespace="de.walware.statet">
+<!-- Schema file written by PDE -->
+<schema targetNamespace="de.walware.statet.base.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
-      <appInfo>
+      <appinfo>
          <meta.schema plugin="de.walware.statet.base.ui" id="codeGenerationTemplatesCategory" name="Adds a type of templates to the central edit-dialog for codegeneration-templates"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         Adds a new category of templates to the central dialog for editing codegeneration-templates
+         This extension-point allows to add a new category of templates to the central dialog for editing codegeneration-templates
       </documentation>
    </annotation>
 
    <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
       <complexType>
          <sequence>
             <element ref="category" minOccurs="0" maxOccurs="unbounded"/>
@@ -53,9 +46,9 @@
 
    <element name="category">
       <annotation>
-         <appInfo>
+         <appinfo>
             <meta.element labelAttribute="name"/>
-         </appInfo>
+         </appinfo>
       </annotation>
       <complexType>
          <attribute name="id" type="string" use="required">
@@ -75,58 +68,48 @@
          <attribute name="providerClass" type="string" use="required">
             <annotation>
                <documentation>
-                  An implementation of de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory
+                  An implementation of &lt;code&gt;de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory&lt;/code&gt;
                </documentation>
-               <appInfo>
-                  <meta.attribute kind="java" basedOn="de.walware.statet.ext.ui.preferences.ICodeGenerationTemplatesCategory"/>
-               </appInfo>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>
    </element>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="since"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         00.06.00
+         0.6
       </documentation>
    </annotation>
 
    <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="examples"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         See usage in plugin de.walware.statet.r
+         See usage in plugin &lt;code&gt;de.walware.statet.r.ui&lt;/code&gt;
       </documentation>
    </annotation>
 
    <annotation>
-      <appInfo>
-         <meta.section type="apiInfo"/>
-      </appInfo>
-      <documentation>
-         [Enter API information here.]
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
-         <meta.section type="implementation"/>
-      </appInfo>
-      <documentation>
-         [Enter information about supplied implementation of this extension point.]
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appInfo>
+      <appinfo>
          <meta.section type="copyright"/>
-      </appInfo>
+      </appinfo>
       <documentation>
-         
+Copyright (c) 2005-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+
+Contributors:
+    Stephan Wahlbrink - initial API and implementation
+
       </documentation>
    </annotation>
 

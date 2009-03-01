@@ -1,23 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
- ###############################################################################
- # Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
- # All rights reserved. This program and the accompanying materials
- # are made available under the terms of the Eclipse Public License v1.0
- # which accompanies this distribution, and is available at
- # http://www.eclipse.org/legal/epl-v10.html
- # 
- # Contributors:
- #     Stephan Wahlbrink - initial API and implementation
- ###############################################################################
--->
+<!-- Schema file written by PDE -->
 <schema targetNamespace="de.walware.statet.r.ui" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
          <meta.schema plugin="de.walware.statet.r.ui" id="rConsoleContentAssistComputer" name="Point to register categories and computers for content assist in R console"/>
       </appinfo>
       <documentation>
-         
+         This extension-point allows to extend the content assistant of the R console.
       </documentation>
    </annotation>
 
@@ -26,9 +15,6 @@
          <appinfo>
             <meta.element />
          </appinfo>
-         <documentation>
-            Defines a new template category
-         </documentation>
       </annotation>
       <complexType>
          <choice minOccurs="0" maxOccurs="unbounded">
@@ -45,7 +31,7 @@
          <attribute name="id" type="string">
             <annotation>
                <documentation>
-                  
+                  The id/key of the partition type.
                </documentation>
             </annotation>
          </attribute>
@@ -65,14 +51,14 @@
    <element name="category">
       <annotation>
          <documentation>
-            Defines a new template category
+            Defines a new category for content assistant proposals.
          </documentation>
       </annotation>
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  id of this category
+                  The id of this category.
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier"/>
@@ -82,7 +68,7 @@
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
-                  name of this category
+                  The name of this category.
                </documentation>
                <appinfo>
                   <meta.attribute translatable="true"/>
@@ -95,7 +81,7 @@
    <element name="computer">
       <annotation>
          <documentation>
-            Adds a content assist computer to a category
+            Adds a computer for content assistant proposals.
          </documentation>
       </annotation>
       <complexType>
@@ -105,14 +91,14 @@
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  id of this computer
+                  The id of this computer.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="categoryId" type="string" use="required">
             <annotation>
                <documentation>
-                  id of the content assist category this computer belongs to
+                  The id of the content assist category this computer belongs to.
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier" basedOn="de.walware.statet.r.ui.rConsoleContentAssistComputer/category/@id"/>
@@ -122,7 +108,7 @@
          <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
-                  The implementation of the computer
+                  The implementation of the computer.
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer"/>
@@ -142,7 +128,7 @@
          <attribute name="partitionType" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  The id/key of the partition type.
                </documentation>
             </annotation>
          </attribute>
@@ -155,6 +141,22 @@
       </appinfo>
       <documentation>
          0.7
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+
+Contributors:
+    Stephan Wahlbrink - initial API and implementation
       </documentation>
    </annotation>
 
