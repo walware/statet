@@ -235,7 +235,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 		fDbc.bindValue(ViewersObservables.observeSingleSelection(fRBitViewer), 
 				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_RBITS), 
 				null, null);
-		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(), AggregateValidationStatus.MAX_SEVERITY);
+		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
 			public void handleValueChange(final ValueChangeEvent event) {
 				final IStatus currentStatus = (IStatus) event.diff.getNewValue();

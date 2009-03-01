@@ -765,7 +765,7 @@
                   <or>
                      <test
                            forcePluginActivation="true"
-                           property="de.walware.ecommons.de.walware.eclipsecommons.ltk.matchesActivatedContentType"
+                           property="de.walware.ecommons.ltk.matchesActivatedContentType"
                            value="de.walware.statet.r.contentTypes.RData">
                      </test>
                   </or>

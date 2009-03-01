@@ -205,7 +205,10 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 			final ISourceViewer viewer = getSourceViewer();
 			if (viewer != null) {
 				viewer.removeTextInputListener(this);
-				viewer.getDocument().removeDocumentListener(this);
+				final IDocument document = viewer.getDocument();
+				if (document != null) {
+					document.removeDocumentListener(this);
+				}
 			}
 		}
 	}

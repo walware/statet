@@ -127,7 +127,7 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 				}
 				if (annotation instanceof SpellingAnnotation) {
 					final SpellingProblem problem = ((SpellingAnnotation) annotation).getSpellingProblem();
-					final ICompletionProposal[] annotationProposals = problem.getProposals();
+					final ICompletionProposal[] annotationProposals = problem.getProposals(invocationContext);
 					if (annotationProposals != null && annotationProposals.length > 0) {
 						proposals.addAll(Arrays.asList(annotationProposals));
 					}

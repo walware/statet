@@ -88,7 +88,7 @@ public class TextUtil {
 	/**
 	 * Return the distance of two regions
 	 */
-	private final int distance(final int reg1Start, final int reg1End, final int reg2Start, final int reg2End) {
+	public final int distance(final int reg1Start, final int reg1End, final int reg2Start, final int reg2End) {
 		if (reg2Start > reg1End) {
 			return reg2Start-reg1End;
 		}

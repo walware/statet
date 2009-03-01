@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.LegacyActionTools;
+import org.eclipse.osgi.util.TextProcessor;
 
 
 /**
@@ -82,6 +83,10 @@ public class MessageUtil {
 			}
 		}
 		return escaped.toString();
+	}
+	
+	public static String processURLPart(final String url) {
+		return TextProcessor.process(url, ":@?-"); //$NON-NLS-1$
 	}
 	
 	

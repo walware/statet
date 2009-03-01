@@ -106,7 +106,6 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	
 	@Override
 	public void performDefaults() {
-		
 		if (fBlock != null) {
 			fBlock.performDefaults();
 		}

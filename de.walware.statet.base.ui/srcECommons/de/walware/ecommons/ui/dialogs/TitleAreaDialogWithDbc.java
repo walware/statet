@@ -87,8 +87,7 @@ public abstract class TitleAreaDialogWithDbc extends TitleAreaDialog {
 		
 		addBindings(fDbc, realm);
 		
-		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(),
-				AggregateValidationStatus.MAX_SEVERITY);
+		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
 			public void handleValueChange(final ValueChangeEvent event) {
 				fCurrentStatus = (IStatus) event.diff.getNewValue();

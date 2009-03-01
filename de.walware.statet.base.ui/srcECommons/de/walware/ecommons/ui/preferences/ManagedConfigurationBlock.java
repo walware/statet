@@ -116,7 +116,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		 */
 		boolean hasProjectSpecificSettings(final IProject project) {
 			final IScopeContext projectContext = new ProjectScope(project);
-			for (final Preference<Object> key : fPreferences.keySet()) {
+			for (final Preference key : fPreferences.keySet()) {
 				if (getInternalValue(key, projectContext, true) != null)
 					return true;
 			}
@@ -136,7 +136,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		private void saveDisabledProjectSettings() {
 			fDisabledProjectSettings = new IdentityHashMap<Preference, Object>();
-			for (final Preference<Object> key : fPreferences.keySet()) {
+			for (final Preference key : fPreferences.keySet()) {
 				fDisabledProjectSettings.put(key, getValue(key));
 				setInternalValue(key, null); // clear project settings
 			}
@@ -144,7 +144,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		}
 		
 		private void loadDisabledProjectSettings() {
-			for (final Preference<Object> key : fPreferences.keySet()) {
+			for (final Preference key : fPreferences.keySet()) {
 				// Copy values from saved disabled settings to working store
 				setValue(key, fDisabledProjectSettings.get(key));
 			}
@@ -210,7 +210,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		private boolean getChanges(final List<Preference> changedSettings) {
 			final IScopeContext currContext = fLookupOrder[0];
 			boolean needsBuild = false;
-			for (final Preference<Object> key : fPreferences.keySet()) {
+			for (final Preference key : fPreferences.keySet()) {
 				final String oldVal = getInternalValue(key, currContext, false);
 				final String val = getInternalValue(key, currContext, true);
 				if (val == null) {
@@ -218,7 +218,8 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 						changedSettings.add(key);
 						needsBuild |= !oldVal.equals(getInternalValue(key, true));
 					}
-				} else if (!val.equals(oldVal)) {
+				}
+				else if (!val.equals(oldVal)) {
 					changedSettings.add(key);
 					needsBuild |= oldVal != null || !val.equals(getInternalValue(key, true));
 				}
@@ -229,7 +230,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		void loadDefaults() {
 			final DefaultScope defaultScope = new DefaultScope();
-			for (final Preference<Object> key : fPreferences.keySet()) {
+			for (final Preference key : fPreferences.keySet()) {
 				final String defValue = getInternalValue(key, defaultScope, false);
 				setInternalValue(key, defValue);
 			}
@@ -238,7 +239,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		// DEBUG
 		private void testIfOptionsComplete() {
-			for (final Preference<Object> key : fPreferences.keySet()) {
+			for (final Preference key : fPreferences.keySet()) {
 				if (getInternalValue(key, false) == null) {
 					System.out.println("preference option missing: " + key + " (" + this.getClass().getName() +')');  //$NON-NLS-1$//$NON-NLS-2$
 				}
@@ -253,12 +254,11 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			return node;
 		}
 		
-		private String getInternalValue(final Preference<Object> key, final IScopeContext context, final boolean useWorkingCopy) {
+		private <T> String getInternalValue(final Preference<T> key, final IScopeContext context, final boolean useWorkingCopy) {
 			return getNode(context, key.getQualifier(), useWorkingCopy).get(key.getKey(), null);
 		}
 		
-		private String getInternalValue(final Preference<Object> key, final boolean ignoreTopScope) {
-			
+		private <T> String getInternalValue(final Preference<T> key, final boolean ignoreTopScope) {
 			for (int i = ignoreTopScope ? 1 : 0; i < fLookupOrder.length; i++) {
 				final String value = getInternalValue(key, fLookupOrder[i], true);
 				if (value != null) {
@@ -268,7 +268,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			return null;
 		}
 		
-		private void setInternalValue(final Preference<Object> key, final String value) {
+		private <T> void setInternalValue(final Preference<T> key, final String value) {
 			if (value != null) {
 				getNode(fLookupOrder[0], key.getQualifier(), true).put(key.getKey(), value);
 			} else {
@@ -386,8 +386,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		fDbc = new DataBindingContext(realm);
 		addBindings(fDbc, realm);
 		
-		fAggregateStatus = new AggregateValidationStatus(fDbc.getBindings(),
-				AggregateValidationStatus.MAX_SEVERITY);
+		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
 		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
 			public void handleValueChange(final ValueChangeEvent event) {
 				final IStatus currentStatus = (IStatus) event.diff.getNewValue();
