@@ -27,6 +27,7 @@ public class RefactoringMessages extends NLS {
 	public static String Common_error_CreatingElementChange_message;
 	
 	public static String Check_FileUnsavedChanges_message;
+	public static String Check_ElementNotInWS_message;
 	
 	public static String DynamicValidationState_WorkspaceChanged_message;
 	

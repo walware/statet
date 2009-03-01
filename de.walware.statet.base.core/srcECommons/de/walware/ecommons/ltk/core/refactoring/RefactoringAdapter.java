@@ -361,6 +361,10 @@ public abstract class RefactoringAdapter {
 			if (resource != null) {
 				resources.add(resource);
 			}
+			else {
+				result.addFatalError(RefactoringMessages.Check_ElementNotInWS_message);
+				return;
+			}
 		}
 		result.merge(RefactoringStatus.create(
 				Resources.checkInSync(resources.toArray(new IResource[resources.size()]))
