@@ -427,6 +427,7 @@ public abstract class RLexer {
 				return;
 			}
 			createSymbolToken();
+			return;
 		case 'f':
 			scanIdentifier();
 			switch (fNextNum) {

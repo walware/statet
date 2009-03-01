@@ -61,6 +61,11 @@ public class RModelManager implements IModelManager {
 		}
 		
 		@Override
+		public int hashCode() {
+			return context.hashCode();
+		}
+		
+		@Override
 		public boolean equals(final Object obj) {
 			if (obj instanceof ContextItem) {
 				return ( ((ContextItem) obj).context == this.context);
@@ -344,7 +349,7 @@ public class RModelManager implements IModelManager {
 	}
 	
 	public List<IRSourceUnit> getWorkingCopies(final WorkingContext context) {
-		return getWorkingCopies(context);
+		return getWorkingCopies(context, false);
 	}
 	
 	public List<IRSourceUnit> getWorkingCopies(final String id, final boolean includeDeleted) {

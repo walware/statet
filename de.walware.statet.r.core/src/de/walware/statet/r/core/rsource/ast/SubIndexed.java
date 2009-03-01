@@ -83,7 +83,7 @@ public abstract class SubIndexed extends RAstNode {
 	public static class Args extends RAstNode {
 		
 		
-		List<SubIndexed.Arg> fSpecs;
+		final List<SubIndexed.Arg> fSpecs;
 		
 		
 		Args(final SubIndexed parent) {

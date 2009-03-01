@@ -52,7 +52,7 @@ public class RCorePlugin extends Plugin {
 	}
 	
 	
-	private class CoreAccess implements IRCoreAccess {
+	private static class CoreAccess implements IRCoreAccess {
 		
 		private IPreferenceAccess fPrefs;
 		private RCodeStyleSettings fRCodeStyle;
@@ -111,24 +111,27 @@ public class RCorePlugin extends Plugin {
 	 */
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		super.stop(context);
-		gPlugin = null;
-		
-		if (fRModelManager != null) {
-			fRModelManager.dispose();
-			fRModelManager = null;
+		try {
+			if (fRModelManager != null) {
+				fRModelManager.dispose();
+				fRModelManager = null;
+			}
+			if (fWorkspaceCoreAccess != null) {
+				fWorkspaceCoreAccess.dispose();
+				fWorkspaceCoreAccess = null;
+			}
+			if (fDefaultsCoreAccess != null) {
+				fDefaultsCoreAccess.dispose();
+				fDefaultsCoreAccess = null;
+			}
+			if (fREnvManager != null) {
+				fREnvManager.dispose();
+				fREnvManager = null;
+			}
 		}
-		if (fWorkspaceCoreAccess != null) {
-			fWorkspaceCoreAccess.dispose();
-			fWorkspaceCoreAccess = null;
-		}
-		if (fDefaultsCoreAccess != null) {
-			fDefaultsCoreAccess.dispose();
-			fDefaultsCoreAccess = null;
-		}
-		if (fREnvManager != null) {
-			fREnvManager.dispose();
-			fREnvManager = null;
+		finally {
+			gPlugin = null;
+			super.stop(context);
 		}
 	}
 	

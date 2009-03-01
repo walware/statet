@@ -23,7 +23,6 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rsource.RSourceToken;
 
 
 /**
@@ -35,12 +34,12 @@ public class FDef extends RAstNode {
 	public static class Args extends RAstNode {
 		
 		
-		List<Arg> fSpecs = new ArrayList<Arg>(0);
-		List<RSourceToken> fSeparatorSources;
+		final List<Arg> fSpecs;
 		
 		
 		Args(final FDef parent) {
 			fRParent = parent;
+			fSpecs = new ArrayList<Arg>(0);
 		}
 		
 		

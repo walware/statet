@@ -46,13 +46,13 @@ import de.walware.statet.r.internal.sweave.processing.SweaveProcessing.IProcessi
 public class RweaveTexProfilesMenuContribution extends CompoundContributionItem implements IProcessingListener {
 	
 	
-	static String createLabel(final ILaunchConfiguration config, int num) {
+	static String createLabel(final ILaunchConfiguration config, final int num) {
 		final String orgLabel = config.getName();
 		final StringBuffer label = new StringBuffer(orgLabel.length()+5);
 		if (num >= 0 && num < 10) {
 			//add the numerical accelerator
 			label.append('&');
-			label.append(num++);
+			label.append(num);
 			label.append(' ');
 		}
 		label.append(MessageUtil.escapeForMenu(orgLabel));

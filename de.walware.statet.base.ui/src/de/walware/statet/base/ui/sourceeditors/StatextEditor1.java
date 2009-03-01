@@ -562,7 +562,7 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 			if (input != null && input instanceof IFileEditorInput) {
 				final IProject project = ((IFileEditorInput)input).getFile().getProject();
 				try {
-					if (project != null & project.hasNature(fProjectNatureId)) {
+					if (project != null && project.hasNature(fProjectNatureId)) {
 						return (ProjectT) project.getNature(fProjectNatureId);
 					}
 				} catch (final CoreException e) {

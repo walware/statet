@@ -30,7 +30,7 @@ import de.walware.ecommons.preferences.Preference;
  */
 public class PreferenceStoreBeanWrapper {
 	
-	private class PrefData {
+	private static class PrefData {
 		
 		final String beanProperty;
 		final Preference converter;

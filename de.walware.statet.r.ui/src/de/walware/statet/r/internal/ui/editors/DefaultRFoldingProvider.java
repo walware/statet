@@ -242,7 +242,8 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		
 	}
 	
-	private class Input {
+	private static final class Input {
+		
 		private final IRSourceUnit fUnit;
 		private boolean fInitilized;
 		private long fUpdateStamp;
@@ -252,6 +253,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 			fInitilized = false;
 			fUpdateStamp = Long.MIN_VALUE;
 		}
+		
 	}
 	
 	

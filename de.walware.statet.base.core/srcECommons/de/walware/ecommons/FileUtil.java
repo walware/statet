@@ -57,9 +57,9 @@ import de.walware.statet.base.core.StatetCore;
 public abstract class FileUtil {
 	
 	
-	public static String UTF_8 = "UTF-8"; //$NON-NLS-1$
-	public static String UTF_16_BE = "UTF-16BE"; //$NON-NLS-1$
-	public static String UTF_16_LE = "UTF-16LE"; //$NON-NLS-1$
+	public static final String UTF_8 = "UTF-8"; //$NON-NLS-1$
+	public static final String UTF_16_BE = "UTF-16BE"; //$NON-NLS-1$
+	public static final String UTF_16_LE = "UTF-16LE"; //$NON-NLS-1$
 	
 	
 /*-- Local files --*/

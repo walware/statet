@@ -154,9 +154,17 @@ public class ToolRegistry implements IToolRegistry {
 		}
 	};
 	
-	private class JobListener implements IJobChangeListener {
+	private static class JobListener implements IJobChangeListener {
 		
-		private AtomicInteger fOwnJobs = new AtomicInteger(0);
+		private final AtomicInteger fOwnJobs = new AtomicInteger(0);
+		
+		public JobListener() {
+			Job.getJobManager().addJobChangeListener(this);
+		}
+		
+		public void dispose() {
+			Job.getJobManager().removeJobChangeListener(this);
+		}
 		
 		public void scheduled(final IJobChangeEvent event) {
 			if (event.getJob().getName() == PageRegistry.SHOW_CONSOLE_JOB_NAME) {
@@ -190,6 +198,7 @@ public class ToolRegistry implements IToolRegistry {
 		}
 		public void running(final IJobChangeEvent event) {
 		}
+		
 	}
 	
 	private Map<IWorkbenchPage, PageRegistry> fPageRegistries = new HashMap<IWorkbenchPage, PageRegistry>();
@@ -197,7 +206,7 @@ public class ToolRegistry implements IToolRegistry {
 	
 	private LaunchesListener fLaunchesListener;
 	private IPageListener fPagesListener;
-	private JobListener fJobListener;
+	private final JobListener fJobListener;
 	
 	private ListenerList fListeners = new ListenerList();
 	
@@ -207,7 +216,6 @@ public class ToolRegistry implements IToolRegistry {
 		fPagesListener = new PageListener();
 		fJobListener = new JobListener();
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(fLaunchesListener);
-		Job.getJobManager().addJobChangeListener(fJobListener);
 	}
 	
 	public void dispose() {
@@ -224,8 +232,7 @@ public class ToolRegistry implements IToolRegistry {
 			isDisposed = true;
 		}
 		
-		Job.getJobManager().addJobChangeListener(fJobListener);
-		fJobListener = null;
+		fJobListener.dispose();
 		if (DEBUG) {
 			System.out.println("[tool registry] registry closed."); //$NON-NLS-1$
 		}

@@ -20,8 +20,6 @@ import java.util.List;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
-import de.walware.statet.r.core.rsource.RSourceToken;
-
 
 /**
  * <code>expr; expr; ...</code>
@@ -29,8 +27,7 @@ import de.walware.statet.r.core.rsource.RSourceToken;
 public abstract class ExpressionList extends RAstNode {
 	
 	
-	List<Expression> fExpressions = new ArrayList<Expression>();
-	List<RSourceToken> fSeparators;
+	final List<Expression> fExpressions = new ArrayList<Expression>();
 	
 	
 	ExpressionList() {

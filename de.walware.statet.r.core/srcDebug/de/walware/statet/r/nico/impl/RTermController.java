@@ -252,7 +252,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 			setCurrentPrompt(fDefaultPrompt);
 			
 			submit(new UpdateProcessIdTask());
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			if (processInput != null) {
 				try {
 					processInput.close();
@@ -260,7 +261,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 				}
 			}
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
-				RNicoMessages.RTerm_error_Starting_message, e));
+					RNicoMessages.RTerm_error_Starting_message, e));
 		}
 		
 	}

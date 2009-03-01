@@ -40,7 +40,7 @@ public class InputDocument extends AbstractDocument {
 	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
-	private class MasterDocument extends AbstractDocument {
+	private static class MasterDocument extends AbstractDocument {
 		
 		
 		public MasterDocument() {

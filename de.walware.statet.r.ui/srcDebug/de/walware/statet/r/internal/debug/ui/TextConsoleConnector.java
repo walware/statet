@@ -44,18 +44,22 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 	}
 	
 	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
+		if (rCommands == null) {
+			throw new NullPointerException();
+		}
+		
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			public void run() throws CoreException {
-				IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
+				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 				IWorkbenchPart activePart = page.getActivePart();
 				
 				try {
-					TextConsole console = getAndShowConsole();
+					final TextConsole console = getAndShowConsole();
 					if (console == null) {
 						handleNoConsole();
 					}
 					
-					IDocument doc = console.getDocument();
+					final IDocument doc = console.getDocument();
 					try {
 						for (int i = 0; i < rCommands.length; i++) {
 							doc.replace(doc.getLength(), 0, rCommands[i]+'\n');
@@ -63,7 +67,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 						if (gotoConsole) {
 							activePart = null;
 						}
-					} catch (BadLocationException e) {
+					} catch (final BadLocationException e) {
 						throw new CoreException(new Status(
 								IStatus.ERROR,
 								RUI.PLUGIN_ID,
@@ -85,7 +89,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 	public void gotoConsole() throws CoreException {
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			public void run() throws CoreException {
-				TextConsole console = getAndShowConsole();
+				final TextConsole console = getAndShowConsole();
 				if (console == null) {
 					handleNoConsole();
 				}
@@ -103,17 +107,17 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 	}
 	
 	private TextConsole getAndShowConsole() throws CoreException {
-		IConsoleView view = getConsoleView(true);
-		IConsole console = view.getConsole();
+		final IConsoleView view = getConsoleView(true);
+		final IConsole console = view.getConsole();
 		if (console instanceof TextConsole) {
 			return ((TextConsole) console);
 		}
 		return null;
 	}
 	
-	private IConsoleView getConsoleView(boolean activateConsoleView) throws PartInitException {
-		IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
-		IConsoleView view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW);
+	private IConsoleView getConsoleView(final boolean activateConsoleView) throws PartInitException {
+		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
+		final IConsoleView view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW);
 		if (activateConsoleView) {
 			page.activate(view);
 		}

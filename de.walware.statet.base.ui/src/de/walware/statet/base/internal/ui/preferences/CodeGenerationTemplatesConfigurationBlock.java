@@ -38,7 +38,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
@@ -116,9 +115,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 		
 		@Override
 		protected void handleDoubleClick(final TemplateItem item, final IStructuredSelection rawSelection) {
-			if (item instanceof TemplateItem) {
-				doEdit(item);
-			}
+			doEdit(item);
 		}
 		
 		@Override
@@ -174,7 +171,6 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 	
 	protected Group fGroup;
 	private SourceViewer fPatternViewer;
-	private SourceViewerConfiguration fPatternViewerConfig;
 	private int fPatternViewerConfiguredCategory = -1;
 	private SourceViewerJFaceUpdater fPatternViewerUpdater = null;
 	private SourceEditorViewerConfigurator fPatternConfigurator;

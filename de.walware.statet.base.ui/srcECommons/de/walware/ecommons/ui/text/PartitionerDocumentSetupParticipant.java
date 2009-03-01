@@ -12,8 +12,12 @@
 package de.walware.ecommons.ui.text;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
+
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
@@ -26,15 +30,20 @@ public abstract class PartitionerDocumentSetupParticipant implements IDocumentSe
 		if (document instanceof IDocumentExtension3) {
 			final IDocumentExtension3 extension3 = (IDocumentExtension3) document;
 			
-			// Setup the document scanner
-			final Partitioner partitioner = createDocumentPartitioner();
-			partitioner.connect(document, true);
-			
-			if (partitioner.equals(extension3.getDocumentPartitioner(getPartitioningId()))) {
-				partitioner.disconnect();
-				return;
+			if (extension3.getDocumentPartitioner(getPartitioningId()) == null) {
+				// Setup the document scanner
+				final Partitioner partitioner = createDocumentPartitioner();
+				partitioner.connect(document, true);
+				extension3.setDocumentPartitioner(getPartitioningId(), partitioner);
 			}
-			extension3.setDocumentPartitioner(getPartitioningId(), partitioner);
+			else {
+				final Partitioner partitioner = createDocumentPartitioner();
+				partitioner.connect(document, true);
+				if (!Partitioner.equalPartitioner(partitioner, extension3.getDocumentPartitioner(getPartitioningId()))) {
+					StatetUIPlugin.log(new Status(IStatus.WARNING, StatetUIPlugin.PLUGIN_ID, "Different partitioner for same partitioning!")); //$NON-NLS-1$
+				}
+				partitioner.disconnect();
+			}
 		}
 	}
 	

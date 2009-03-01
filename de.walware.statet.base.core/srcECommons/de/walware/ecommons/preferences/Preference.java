@@ -103,7 +103,7 @@ public abstract class Preference<T> {
 	
 	@Override
 	public boolean equals(final Object obj) {
-		if (obj.getClass() == getClass()) {
+		if (obj != null && obj.getClass() == getClass()) {
 			return obj.toString().equals(toString());
 		}
 		return false;
@@ -205,7 +205,7 @@ public abstract class Preference<T> {
 		@Override
 		public Long store2Usage(final Object obj) {
 			if (obj != null) {
-				if (obj instanceof Boolean) {
+				if (obj instanceof Long) {
 					return (Long) obj;
 				}
 				if (obj instanceof String) {

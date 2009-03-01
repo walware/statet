@@ -48,7 +48,7 @@ public class CommentScanner extends AbstractRuleBasedScanner
 		}
 	}
 	
-	private class TaskTagRule extends WordRule {
+	private static class TaskTagRule extends WordRule {
 		
 		private IToken fToken;
 		

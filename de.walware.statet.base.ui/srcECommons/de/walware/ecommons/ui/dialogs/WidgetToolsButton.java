@@ -95,8 +95,6 @@ public class WidgetToolsButton extends Composite {
 	}
 	
 	protected void createButton(final Control target) {
-		final Composite parent = target.getParent();
-		
 		fButton = new Button(this, (SWT.PUSH | SWT.CENTER));
 		updateLabels(false);
 		fButton.addSelectionListener(new SelectionAdapter() {

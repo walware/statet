@@ -270,9 +270,9 @@ public class PostSelectionWithElementInfoController {
 		fSelectionProvider.addPostSelectionChangedListener(fPostSelectionListener);
 		
 		fModelProvider.addListener(fElementChangeListener);
-		if (fCancelExtension != null) {
-			fCancelExtension.fController = this;
+		if (cancelExt != null) {
 			fCancelExtension = cancelExt;
+			fCancelExtension.fController = this;
 			fCancelExtension.init();
 		}
 	}

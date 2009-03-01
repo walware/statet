@@ -110,8 +110,9 @@ public class LaunchShortcutUtil {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
 					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
 		}
+		BufferedReader reader = null;
 		try {
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
+			reader = new BufferedReader(new InputStreamReader(input, charset));
 			final StringBuilder buffer = new StringBuilder();
 			final char[] readBuffer = new char[2048];
 			int n;
@@ -135,6 +136,13 @@ public class LaunchShortcutUtil {
 		catch (final BadLocationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+		}
+		finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (final IOException e) {}
+			}
 		}
 	}
 	

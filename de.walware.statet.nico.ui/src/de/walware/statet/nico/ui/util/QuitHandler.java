@@ -39,7 +39,8 @@ import de.walware.statet.nico.ui.NicoUI;
  */
 public class QuitHandler implements IToolEventHandler {
 	
-	private class UIRunnable implements Runnable {
+	
+	private static class UIRunnable implements Runnable {
 		
 		private ToolController fController;
 		private String fDialogTitle;

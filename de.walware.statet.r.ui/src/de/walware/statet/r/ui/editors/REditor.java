@@ -99,7 +99,8 @@ public class REditor extends StatextEditor1<RProject> {
 		private static final String READ_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences"; //$NON-NLS-1$
 		private static final String WRITE_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences.write"; //$NON-NLS-1$
 		
-		private class RunData {
+		private final class RunData {
+			
 			final AbstractDocument doc;
 			final long stamp;
 			Point range;
@@ -110,6 +111,7 @@ public class REditor extends StatextEditor1<RProject> {
 				this.doc = doc;
 				this.stamp = stamp;
 			}
+			
 		}
 		
 		private boolean fIsMarkEnabled;

@@ -25,7 +25,7 @@ import de.walware.statet.r.core.rsource.RLexer;
 class RScannerLexer extends RLexer {
 	
 	
-	final class ScannerToken {
+	final static class ScannerToken {
 		RTerminal type;
 		int offset;
 		int length;

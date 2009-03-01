@@ -13,6 +13,7 @@ package de.walware.statet.nico.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -35,8 +36,8 @@ public class NicoPreferenceInitializer extends AbstractPreferenceInitializer {
 		new HistoryPreferences().addPreferencesToMap(defaults);
 		defaults.put(NicoPreferenceNodes.KEY_DEFAULT_TIMEOUT, 15000);
 		
-		for (final Preference<Object> unit : defaults.keySet()) {
-			PreferencesUtil.setPrefValue(defaultScope, unit, defaults.get(unit));
+		for (final Entry<Preference, Object> entry : defaults.entrySet()) {
+			PreferencesUtil.setPrefValue(defaultScope, entry.getKey(), entry.getValue());
 		}
 	}
 	

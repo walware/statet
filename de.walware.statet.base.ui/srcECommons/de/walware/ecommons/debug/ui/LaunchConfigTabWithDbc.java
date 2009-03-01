@@ -45,7 +45,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfigurationTab {
 	
 	
-	protected class SavableErrorValidator implements IValidator {
+	protected static class SavableErrorValidator implements IValidator {
 		
 		private IValidator fWrappedValidator;
 		

@@ -107,7 +107,7 @@ public final class HandlerContributionItem extends ContributionItem {
 	 * 
 	 * @since 3.4
 	 */
-	public static int MODE_FORCE_TEXT = 1;
+	public static final int MODE_FORCE_TEXT = 1;
 	
 	
 	private LocalResourceManager localResourceManager;

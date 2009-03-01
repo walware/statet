@@ -122,6 +122,11 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 		
 		
 		@Override
+		public int hashCode() {
+			return fSubmitTypes.size();
+		}
+		
+		@Override
 		public boolean equals(final Object obj) {
 			if (obj == null || !(obj instanceof FilterPreferences)) {
 				return false;

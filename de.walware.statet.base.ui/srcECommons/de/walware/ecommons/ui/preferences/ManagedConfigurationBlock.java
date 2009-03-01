@@ -17,6 +17,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -534,8 +535,8 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	}
 	
 	public void setPrefValues(final Map<Preference, Object> map) {
-		for (final Preference<Object> unit : map.keySet()) {
-			setPrefValue(unit, map.get(unit));
+		for (final Entry<Preference, Object> entry : map.entrySet()) {
+			setPrefValue(entry.getKey(), entry.getValue());
 		}
 	}
 	

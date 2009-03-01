@@ -756,7 +756,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 				fQueue.internalCheck();
 				
 				if (fInternalTask > 0) {
-					loopWait();
+					try {
+						fQueue.wait();
+					} catch (final InterruptedException e) {}
 					continue;
 				}
 				if (fIsTerminated) {
@@ -769,12 +771,16 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 				}
 				if (fPauseRequested) {
 					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
-					loopWait();
+					try {
+						fQueue.wait();
+					} catch (final InterruptedException e) {}
 					continue;
 				}
 				if (fQueue.internalIsEmpty()) {
 					loopChangeStatus(ToolStatus.STARTED_IDLING, null);
-					loopWait();
+					try {
+						fQueue.wait();
+					} catch (final InterruptedException e) {}
 					continue;
 				}
 			}
@@ -846,13 +852,6 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					return;
 				}
 			}
-		}
-	}
-	
-	private final void loopWait() {
-		try {
-			fQueue.wait();
-		} catch (final InterruptedException e) {
 		}
 	}
 	

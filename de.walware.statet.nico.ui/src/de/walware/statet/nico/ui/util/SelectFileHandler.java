@@ -52,7 +52,7 @@ import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 public class SelectFileHandler implements IToolEventHandler {
 	
 	
-	private class SelectFileDialog extends TitleAreaDialogWithDbc {
+	private static class SelectFileDialog extends TitleAreaDialogWithDbc {
 		
 		private ToolProcess fTool;
 		private int fMode;

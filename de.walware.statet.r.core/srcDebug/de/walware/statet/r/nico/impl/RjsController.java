@@ -352,12 +352,7 @@ public class RjsController extends AbstractRController {
 		final Server server = fRJServer;
 		if (server != null) {
 			try {
-				if (server != null) {
-					return (RjsStatus.OK_STATUS.equals(server.runAsync(fTicket, RjsPing.INSTANCE)));
-				}
-				else {
-					return false;
-				}
+				return (RjsStatus.OK_STATUS.equals(server.runAsync(fTicket, RjsPing.INSTANCE)));
 			}
 			catch (final RemoteException e) {
 				// no need to log here

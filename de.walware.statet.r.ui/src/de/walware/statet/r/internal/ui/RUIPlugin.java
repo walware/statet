@@ -77,7 +77,9 @@ public class RUIPlugin extends AbstractUIPlugin {
 	private static RUIPlugin gPlugin;
 	
 	/**
-	 * Returns the shared instance.
+	 * Returns the shared instance
+	 * 
+	 * @return the plug-in instance
 	 */
 	public static RUIPlugin getDefault() {
 		return gPlugin;
@@ -159,7 +161,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 				iter.next().dispose();
 			}
 			fPrefUpdaters.clear();
-		} finally {
+		}
+		finally {
 			gPlugin = null;
 			super.stop(context);
 		}

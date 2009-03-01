@@ -131,7 +131,7 @@ public class EnrichedRHelpContext implements IContext3 {
 		public IContext getContext(final Object target) {
 			IContext context = HelpSystem.getContext(fContextId);
 			final String plaintext = searchContextInfo(fTarget);
-			if (context instanceof IContext3 & plaintext != null) {
+			if (context instanceof IContext3 && plaintext != null) {
 				context = new EnrichedRHelpContext((IContext3) context, plaintext);
 			}
 			return context;

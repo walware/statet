@@ -255,16 +255,15 @@ public class ScopedPreferenceStore extends EventManager implements
 		if (obj instanceof String) {
 			return defaults.get(key, STRING_DEFAULT_DEFAULT);
 		} else if (obj instanceof Integer) {
-			return new Integer(defaults.getInt(key, INT_DEFAULT_DEFAULT));
+			return Integer.valueOf(defaults.getInt(key, INT_DEFAULT_DEFAULT));
 		} else if (obj instanceof Double) {
-			return new Double(defaults.getDouble(key, DOUBLE_DEFAULT_DEFAULT));
+			return Double.valueOf(defaults.getDouble(key, DOUBLE_DEFAULT_DEFAULT));
 		} else if (obj instanceof Float) {
-			return new Float(defaults.getFloat(key, FLOAT_DEFAULT_DEFAULT));
+			return Float.valueOf(defaults.getFloat(key, FLOAT_DEFAULT_DEFAULT));
 		} else if (obj instanceof Long) {
-			return new Long(defaults.getLong(key, LONG_DEFAULT_DEFAULT));
+			return Long.valueOf(defaults.getLong(key, LONG_DEFAULT_DEFAULT));
 		} else if (obj instanceof Boolean) {
-			return new Boolean(defaults
-					.getBoolean(key, BOOLEAN_DEFAULT_DEFAULT));
+			return Boolean.valueOf(defaults.getBoolean(key, BOOLEAN_DEFAULT_DEFAULT));
 		} else {
 			return null;
 		}
@@ -592,8 +591,7 @@ public class ScopedPreferenceStore extends EventManager implements
 				getStorePreferences().putDouble(name, value);
 			}
 			dirty = true;
-			firePropertyChangeEvent(name, new Double(oldValue), new Double(
-					value));
+			firePropertyChangeEvent(name, Double.valueOf(oldValue), Double.valueOf(value));
 		} finally {
 			silentRunning = false;// Restart listening to preferences
 		}
@@ -612,7 +610,7 @@ public class ScopedPreferenceStore extends EventManager implements
 				getStorePreferences().putFloat(name, value);
 			}
 			dirty = true;
-			firePropertyChangeEvent(name, new Float(oldValue), new Float(value));
+			firePropertyChangeEvent(name, Float.valueOf(oldValue), Float.valueOf(value));
 		} finally {
 			silentRunning = false;// Restart listening to preferences
 		}
@@ -631,8 +629,7 @@ public class ScopedPreferenceStore extends EventManager implements
 				getStorePreferences().putInt(name, value);
 			}
 			dirty = true;
-			firePropertyChangeEvent(name, new Integer(oldValue), new Integer(
-					value));
+			firePropertyChangeEvent(name, Integer.valueOf(oldValue), Integer.valueOf(value));
 		} finally {
 			silentRunning = false;// Restart listening to preferences
 		}
@@ -651,7 +648,7 @@ public class ScopedPreferenceStore extends EventManager implements
 				getStorePreferences().putLong(name, value);
 			}
 			dirty = true;
-			firePropertyChangeEvent(name, new Long(oldValue), new Long(value));
+			firePropertyChangeEvent(name, Long.valueOf(oldValue), Long.valueOf(value));
 		} finally {
 			silentRunning = false;// Restart listening to preferences
 		}
@@ -680,8 +677,7 @@ public class ScopedPreferenceStore extends EventManager implements
 				getStorePreferences().putBoolean(name, value);
 			}
 			dirty = true;
-			firePropertyChangeEvent(name, new Boolean(oldValue), new Boolean(
-					value));
+			firePropertyChangeEvent(name, Boolean.valueOf(oldValue), Boolean.valueOf(value));
 		} finally {
 			silentRunning = false;// Restart listening to preferences
 		}

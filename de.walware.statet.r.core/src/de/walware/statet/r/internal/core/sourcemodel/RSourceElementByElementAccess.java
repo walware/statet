@@ -208,7 +208,6 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 	protected IElementAccess fAccess;
 	int fType;
 	int fOccurenceCount;
-	private String fName;
 	
 	
 	public RSourceElementByElementAccess(final AbstractRModelElement parent, final int elementType, final IElementAccess defAccess) {

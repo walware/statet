@@ -113,6 +113,10 @@ public class HistoryPreferences {
 	
 	
 	@Override
+	public int hashCode() {
+		return fSubmitTypes.size() + fLimitCount;
+	}
+	@Override
 	public boolean equals(final Object obj) {
 		if (obj == null || !(obj instanceof HistoryPreferences)) {
 			return false;

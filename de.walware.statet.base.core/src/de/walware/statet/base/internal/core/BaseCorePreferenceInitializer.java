@@ -13,6 +13,7 @@ package de.walware.statet.base.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -37,8 +38,8 @@ public class BaseCorePreferenceInitializer extends AbstractPreferenceInitializer
 		
 		new TaskTagsPreferences().addPreferencesToMap(defaults);
 		
-		for (final Preference<Object> unit : defaults.keySet()) {
-			PreferencesUtil.setPrefValue(scope, unit, defaults.get(unit));
+		for (final Entry<Preference, Object> entry : defaults.entrySet()) {
+			PreferencesUtil.setPrefValue(scope, entry.getKey(), entry.getValue());
 		}
 	}
 	

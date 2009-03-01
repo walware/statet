@@ -61,7 +61,6 @@ public class CopyNamesHandler extends AbstractElementsHandler {
 		if (selection instanceof IStructuredSelection) {
 			final List elements = ((IStructuredSelection) selection).toList();
 			final StringBuilder sb = new StringBuilder(elements.size() * 20);
-			final int last = elements.size()-1;
 			final String br = System.getProperty("line.separator"); //$NON-NLS-1$
 			for (int i = 0; ; ) {
 				final String name = getName(elements.get(i++));

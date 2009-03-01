@@ -70,7 +70,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 	public void saveDocument(final IProgressMonitor monitor) {
 	}
 	
-	public void releaseDocument(final IProgressMonitor monitor) {
+	public synchronized void releaseDocument(final IProgressMonitor monitor) {
 		fDocument = null;
 	}
 	
@@ -85,12 +85,12 @@ public class WorkingBuffer implements IWorkingBuffer {
 		final ISourceUnit underlyingUnit = fUnit.getUnderlyingUnit();
 		if (underlyingUnit != null) {
 			final SourceContent underlyingContent = underlyingUnit.getContent(progress);
-			if (document instanceof IDocumentExtension4) {
-				((IDocumentExtension4) document).set(underlyingContent.text, underlyingContent.stamp);
-			}
-			else {
-				document.set(underlyingContent.text);
-			}
+//			if (document instanceof IDocumentExtension4) {
+			document.set(underlyingContent.text, underlyingContent.stamp);
+//			}
+//			else {
+//				document.set(underlyingContent.text);
+//			}
 		}
 		else {
 			final IResource resource = fUnit.getResource();
@@ -111,12 +111,12 @@ public class WorkingBuffer implements IWorkingBuffer {
 					while ((n = reader.read(readBuffer)) > 0) {
 						buffer.append(readBuffer, 0, n);
 					}
-					if (document instanceof IDocumentExtension4) {
-						((IDocumentExtension4)document).set(buffer.toString(), file.getModificationStamp());
-					}
-					else {
-						document.set(buffer.toString());
-					}
+//					if (document instanceof IDocumentExtension4) {
+					document.set(buffer.toString(), file.getModificationStamp());
+//					}
+//					else {
+//						document.set(buffer.toString());
+//					}
 				}
 			}).doOperation(progress);
 		} catch (final OperationCanceledException e) {

@@ -72,17 +72,20 @@ public final class BaseCorePlugin extends Plugin {
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		if (fSettingsNotifier != null) {
-			fSettingsNotifier.dispose();
-			fSettingsNotifier = null;
+		try {
+			if (fSettingsNotifier != null) {
+				fSettingsNotifier.dispose();
+				fSettingsNotifier = null;
+			}
+			if (fContentTypeServices != null) {
+				fContentTypeServices.dispose();
+				fContentTypeServices = null;
+			}
 		}
-		if (fContentTypeServices != null) {
-			fContentTypeServices.dispose();
-			fContentTypeServices = null;
+		finally {
+			gPlugin = null;
+			super.stop(context);
 		}
-		
-		gPlugin = null;
-		super.stop(context);
 	}
 	
 	

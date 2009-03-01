@@ -416,7 +416,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	
-	private class SyntaxNodeLabelProvider extends CellLabelProvider {
+	private static class SyntaxNodeLabelProvider extends CellLabelProvider {
 		
 		@Override
 		public boolean useNativeToolTip(final Object object) {
@@ -436,7 +436,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		}
 	}
 	
-	private class UseStyleLabelProvider extends LabelProvider {
+	private static class UseStyleLabelProvider extends LabelProvider {
 		@Override
 		public String getText(final Object element) {
 			final UseStyle style = (UseStyle) element;

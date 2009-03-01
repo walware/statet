@@ -134,17 +134,16 @@ public class RweaveTexSourceViewerConfiguration extends SourceEditorViewerConfig
 	
 	private ITextDoubleClickStrategy fRDoubleClickStrategy;
 	private ITextDoubleClickStrategy fTexDoubleClickStrategy;
-	private RAutoEditStrategy fRAutoEditStrategy;
 	
 	
 	public RweaveTexSourceViewerConfiguration(
-			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(null, rCoreAccess, store, colorManager);
+			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+		this((ISourceEditor) null, rCoreAccess, preferenceStore, colorManager);
 	}
 	
 	public RweaveTexSourceViewerConfiguration(final ISourceEditor sourceEditor,
-			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		this(sourceEditor, null, rCoreAccess, store, colorManager);
+			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
+		this(sourceEditor, null, rCoreAccess, preferenceStore, colorManager);
 	}
 	
 	public RweaveTexSourceViewerConfiguration(final REditor editor,

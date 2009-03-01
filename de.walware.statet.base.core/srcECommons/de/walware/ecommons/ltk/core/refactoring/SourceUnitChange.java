@@ -44,16 +44,12 @@ public final class SourceUnitChange extends TextFileChange {
 	 * @param su the compilation unit this text change works on
 	 */
 	public SourceUnitChange(final ISourceUnit su) {
-		super(su.getElementName().getDisplayName(), getFile(su));
+		super(su.getElementName().getDisplayName(), (IFile) su.getResource());
 		assert (su != null);
 		fSourceUnit = su;
 		setTextType(ECommonsLTK.getExtContentTypeManager().getContentTypeForModelType(su.getModelTypeId()));
 	}
 	
-	
-	private static IFile getFile(final ISourceUnit su) {
-		return (IFile) su.getResource();
-	}
 	
 	/**
 	 * {@inheritDoc}

@@ -61,6 +61,11 @@ public class EcoReconciler implements IReconciler {
 		}
 		
 		@Override
+		public int hashCode() {
+			return strategy.hashCode();
+		}
+		
+		@Override
 		public boolean equals(final Object obj) {
 			if (obj instanceof StrategyEntry) {
 				return ( ((StrategyEntry) obj).strategy == strategy);

@@ -194,7 +194,7 @@ public class History {
 		}
 	}
 	
-	private class HistoryData {
+	private static class HistoryData {
 		Entry oldest;
 		Entry newest;
 		int size;

@@ -41,7 +41,7 @@ import de.walware.statet.nico.internal.ui.Messages;
 public class LoginHandler implements IToolEventHandler {
 	
 	
-	private class LoginDialog extends MessageDialog {
+	private static class LoginDialog extends MessageDialog {
 		
 		private Text fNameField;
 		private Text fPassField;

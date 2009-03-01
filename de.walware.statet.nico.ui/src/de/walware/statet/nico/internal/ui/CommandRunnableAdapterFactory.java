@@ -29,7 +29,7 @@ public class CommandRunnableAdapterFactory implements IAdapterFactory {
 	private static final Class[] ADAPTERS = new Class[] { IToolRunnableAdapter.class };
 	
 	
-	public class Adapter implements IToolRunnableAdapter {
+	private static class Adapter implements IToolRunnableAdapter {
 		
 		private Adapter() {
 		}

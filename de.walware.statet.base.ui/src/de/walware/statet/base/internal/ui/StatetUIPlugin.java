@@ -157,8 +157,8 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 			fWorkbenchLabelProvider = null;
 		}
 		finally {
-			super.stop(context);
 			gPlugin = null;
+			super.stop(context);
 		}
 	}
 	

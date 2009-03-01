@@ -103,13 +103,16 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
-		if (fRweaveTexProcessingManager != null) {
-			fRweaveTexProcessingManager.dispose();
-			fRweaveTexProcessingManager = null;
+		try {
+			if (fRweaveTexProcessingManager != null) {
+				fRweaveTexProcessingManager.dispose();
+				fRweaveTexProcessingManager = null;
+			}
 		}
-		
-		gPlugin = null;
-		super.stop(context);
+		finally {
+			gPlugin = null;
+			super.stop(context);
+		}
 	}
 	
 	

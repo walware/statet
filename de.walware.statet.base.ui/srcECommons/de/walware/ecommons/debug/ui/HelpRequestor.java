@@ -168,12 +168,12 @@ public class HelpRequestor implements IRunnableWithProgress {
 				}
 			}
 			catch (final IOException e) {
+				fReadException = e;
 			}
 			finally {
 				try {
 					fOutputInput.close();
-				} catch (final IOException e1) {
-				}
+				} catch (final IOException e1) {}
 			}
 		}
 		

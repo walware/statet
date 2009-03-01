@@ -16,8 +16,6 @@ import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PR
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -174,7 +172,6 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private Composite createHandlerComponent(final Composite parent) {
 		fFileCommands = RCodeLaunchRegistry.getAvailableFileCommands();
-		final IContentTypeManager manager = Platform.getContentTypeManager();
 		
 		final Group group = new Group(parent, SWT.NONE);
 		group.setText(Messages.RInteraction_FileCommands_label);

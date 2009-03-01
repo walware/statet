@@ -32,7 +32,7 @@ public class FCall extends RAstNode {
 	public static class Args extends RAstNode {
 		
 		
-		List<FCall.Arg> fSpecs;
+		final List<FCall.Arg> fSpecs;
 		
 		
 		Args(final FCall parent) {

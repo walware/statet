@@ -76,7 +76,7 @@ public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<Edit
 
 class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
-	private class AppearanceColorsItem {
+	private static class AppearanceColorsItem {
 		
 		final String name;
 		final RGBPref pref;

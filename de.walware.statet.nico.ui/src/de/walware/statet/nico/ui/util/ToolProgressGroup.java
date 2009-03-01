@@ -108,7 +108,7 @@ public class ToolProgressGroup {
 		
 	}
 	
-	private class ToolInfo {
+	private static class ToolInfo {
 		
 		ToolProcess fProcess;
 		ImageDescriptor fImageCache;

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
@@ -18,40 +18,47 @@ import org.osgi.framework.BundleContext;
 /**
  */
 public class WinRGuiConnectorPlugin extends Plugin {
-
-	public static final String ID = "de.walware.statet.r.launching.winrgui";
+	
+	
+	public static final String ID = "de.walware.statet.r.launching.winrgui"; //$NON-NLS-1$
 	
 	
 	//The shared instance.
-	private static WinRGuiConnectorPlugin fgPlugin;
+	private static WinRGuiConnectorPlugin gPlugin;
+	
+	/**
+	 * Returns the shared instance
+	 * 
+	 * @return the plug-in instance
+	 */
+	public static WinRGuiConnectorPlugin getDefault() {
+		return gPlugin;
+	}
+	
 	
 	/**
 	 * The constructor.
 	 */
 	public WinRGuiConnectorPlugin() {
-		fgPlugin = this;
+		gPlugin = this;
 	}
-
+	
+	
 	/**
 	 * This method is called upon plug-in activation
 	 */
-	public void start(BundleContext context) throws Exception {
+	@Override
+	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 	}
-
+	
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
-	public void stop(BundleContext context) throws Exception {
+	@Override
+	public void stop(final BundleContext context) throws Exception {
+		gPlugin = null;
 		super.stop(context);
-		fgPlugin = null;
 	}
-
-	/**
-	 * Returns the shared instance.
-	 */
-	public static WinRGuiConnectorPlugin getDefault() {
-		return fgPlugin;
-	}
-
+	
 }

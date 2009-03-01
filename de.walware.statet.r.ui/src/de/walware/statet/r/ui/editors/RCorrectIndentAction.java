@@ -147,8 +147,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 		}
 		
 		if (edits.getChildrenSize() > 0) {
-			su.syncExec(new SourceDocumentRunnable(document, ast.stamp,
-					(edits.getChildrenSize() > 50) ? DocumentRewriteSessionType.SEQUENTIAL : DocumentRewriteSessionType.SEQUENTIAL) {
+			su.syncExec(new SourceDocumentRunnable(document, ast.stamp, DocumentRewriteSessionType.SEQUENTIAL) {
 				@Override
 				public void run() throws InvocationTargetException {
 					try {

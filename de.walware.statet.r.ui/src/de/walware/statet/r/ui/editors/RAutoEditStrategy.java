@@ -125,12 +125,12 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	
 	public RAutoEditStrategy(final IRCoreAccess rCoreAccess, final ISourceEditor sourceEditor, final TextEditor eclipseEditor) {
-		fRCoreAccess = rCoreAccess;
-		fOptions = RUIPlugin.getDefault().getREditorSettings(rCoreAccess.getPrefs());
-		fEditor = sourceEditor;
+		assert (rCoreAccess != null);
+		assert (sourceEditor != null);
 		
-		assert (fRCoreAccess != null);
-		assert (fEditor != null);
+		fRCoreAccess = rCoreAccess;
+		fEditor = sourceEditor;
+		fOptions = RUIPlugin.getDefault().getREditorSettings(rCoreAccess.getPrefs());
 		assert (fOptions != null);
 		
 		fViewer = fEditor.getViewer();

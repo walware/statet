@@ -100,7 +100,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 				(unescaped.length() == 0 || unescaped.charAt(unescaped.length()-1) != '\\')) {
 			unescaped = unescaped + '\\';
 		}
-		return super.checkPrefix(prefix);
+		return super.checkPrefix(unescaped);
 	}
 	
 	@Override

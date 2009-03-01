@@ -301,7 +301,7 @@ public class REnvManager implements IREnvManager, ManageListener {
 		// init default config
 		final String defaultConfigName = prefs.getPreferenceValue(PREF_DEFAULT_CONFIGURATION_NAME);
 		ManagedConfig defaultConfigOrg = null;
-		if (defaultConfigName != null || defaultConfigName.length() != 0) {
+		if (defaultConfigName != null && defaultConfigName.length() != 0) {
 			defaultConfigOrg = fNameMap.get(defaultConfigName);
 		}
 		fDefaultConfig = new ManagedConfig("default/workbench"); //$NON-NLS-1$

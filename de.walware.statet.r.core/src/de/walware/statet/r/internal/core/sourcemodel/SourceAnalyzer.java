@@ -1872,7 +1872,8 @@ public class SourceAnalyzer extends RAstVisitor {
 							access.fNameNode = slotNameNode;
 							fCurrentSourceContainerBuilder.envir.addRunResolve(slotName, access);
 							for (final RSourceElementByElementAccess child : fCurrentSourceContainerBuilder.children) {
-								if (child.getElementType() == IRLangElement.R_S4SLOT && slotName.equals(child.getElementName())) {
+								if (child.getElementType() == IRLangElement.R_S4SLOT
+										&& slotName.equals(child.getElementName().getSegmentName()) ) {
 									slot = (RSlot) child;
 									break;
 								}
