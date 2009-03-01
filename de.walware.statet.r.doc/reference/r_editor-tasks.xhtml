@@ -12,22 +12,48 @@
 
 <h1>Tasks</h1>
 
-<p>Tasks are Eclipse's way of keeping track of small notes that are part of the
-code. StatET defines two different task keywords that will allow Eclipse to
-highlight the tasks in the code and offer the information in a Tasks View:</p>
-<ul><li><code>TODO</code></li><li><code>FIXME</code></li></ul>
-<p>The meaning of the Task tags is self-explanatory. The tasks will be 
-recognized as such if they are preceded with a single comment character and a
-single space, as in
-<code class="indent"># TODO: remove hard-coding of colours</code></p>
-<p>Tasks are a type of Eclipse Annotations. Therefore, an individual task icon
-will be displayed in the left gutter. In the right gutter, which gives an
-overview of all Eclipse annotations, the task annotations are indicated by
-small blue rectangles. Clicking on such a rectangle will position the cursor on
-the corresponding task.</p>
-<p>One can edit and add or remove&nbsp;task keywords in the preferences at
-<span class="uisequence indent">StatET &gt; Task Tags</span></p>
+<p>The associated tasks described here are Eclipse's way of keeping track of small notes 
+that are part of the code.
+By default StatET defines two different keywords that will allow Eclipse
+to highlight the tasks in the code and offer the information in a Tasks View:</p>
+<ul>
+	<li><code>TODO</code></li>
+	<li><code>FIXME</code></li></ul>
+<p>The meaning of the task tags is self-explanatory.</p>
+
+<h4>Creation of tasks by task tags</h4>
+<p>The tasks will be recognized as such if they are preceded with a single comment character 
+and a single space, as in
+	<code class="indent"># TODO: remove hard-coding of colours</code></p>
+<p>The tasks are created or removed when the file changed and Eclipse runs a build. 
+Usually this happens automatically when the file is saved in the R-editor. 
+If automatic build in Eclipse is disabled, a manual build must be started 
+to update the tasks 
+(build commands are located in the menu <span class="uisequence">Project</span>).
+If files was changed outside of Eclipse, refreshing the relevant folders of
+the workspace in the Project Explorer let Eclipse detect the changes.</p>
+<p>The creation of tasks by tasks tags in R files works only for files in R projects.</p>
+
+<h4>Tasks in the editor</h4>
+<p>The tasks appears as a type of Eclipse annotations in the editor.
+Therefore, an individual task icon will be displayed in the left gutter.
+In the right gutter, which gives an overview of all Eclipse annotations, 
+the task annotations are indicated by small blue rectangles.
+Clicking on such a rectangle will position the cursor on the corresponding task.</p>
+
+<h4>Options</h4>
+<p>One can edit and add or remove task keywords in the preferences at
+	<span class="uisequence indent">StatET &gt; Task Tags</span></p>
 <img style="width: 660px; height: 543px;" alt="Task tags preferences page" src="../images/screenshot_task_tags_prefs.png"/>
+
+<p>The tags can also be configured per project.</p>
+
+<h2 id="related">&mdash;</h2>
+<h3>Related topics</h3>
+<ul class="NavList">
+	<li><a href="PLUGINS_ROOT/org.eclipse.platform.doc.user/gettingStarted/qs-37-2d2.htm">Associated Tasks (manual without tags in the code)</a></li>
+	<li><a href="PLUGINS_ROOT/org.eclipse.platform.doc.user/concepts/ctskview.htm">Tasks View</a></li>
+</ul>
 
 </body>
 </html>

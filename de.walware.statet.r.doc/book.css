@@ -1,6 +1,61 @@
-@charset "ISO-8859-1";@import "PLUGINS_ROOT/PRODUCT_PLUGIN/book.css";h2 {	margin-top: 0.6em;	padding-top: 0.4em;}h3 {	margin-top: 0.4em;}h2 img, h4 img { /* Icon */	vertical-align: top;	padding: 0 2px;}body p {	margin-top: 0.4em;}table th, table td {	text-align: left;}table.style1 {	border-collapse: collapse;	border-spacing: 0;	border: 1px solid black;	border-top: 2px solid black;	border-bottom: 2px solid black;}table.style1 td, table.style1 th {	padding: 0.2em 0.4em;	border: 1px solid black;
-	vertical-align: baseline;}table.style1 th {	border-top: 2px solid black;}
+@charset "ISO-8859-1";
+@import "PLUGINS_ROOT/PRODUCT_PLUGIN/book.css";
+
+body {
+	font-size: 11pt;
+}
+h2 {
+	margin-top: 0.6em;
+	padding-top: 0.4em;
+}
+h3 {
+	margin-top: 0.4em;
+}
+h2 img, h4 img { /* Icon */
+	vertical-align: top;
+	padding: 0 2px;
+}
+body p {
+	margin-top: 0.4em;
+	font-weight: normal;
+	line-height: 14.5pt;
+}
+table th, table td {
+	text-align: left;
+}
+table p {
+	margin-top: 0;
+}
+table p:last-child {
+	margin-bottom: 0;
+}
+table.style1 {
+	border-collapse: collapse;
+	border-spacing: 0;
+	border: 1px solid black;
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+}
+table.style1 td, table.style1 th {
+	padding: 0.2em 0.4em 0.4em;
+	border: 1px solid black;
+	vertical-align: baseline;
+}
+table.style1 th {
+	border-top: 2px solid black;
+}
 sup {
 	font-size: 75%;
 }
-.uisequence {	font-family: monospace;}.indent {	display: block;	margin-top: 0.4em;	margin-bottom: 0.4em;	padding-left: 2em;}
+.uisequence {
+	font-family: monospace;
+}
+.indent {
+	display: block;
+	margin-top: 0.4em;
+	margin-bottom: 0.4em;
+	padding-left: 2em;
+}
+kbd {
+	white-space: nowrap;
+}

@@ -35,12 +35,14 @@
 
    <extension point="org.eclipse.help.contexts">
       <contexts
-            file="contexts_R.xml"
-            plugin="de.walware.statet.r.ui"/>
+            plugin="de.walware.statet.r.ui"
+            file="contexts_R.xml"/>
       <contexts
-            file="contexts_Nico.xml"
-            plugin="de.walware.statet.nico.ui">
-      </contexts>
+            plugin="de.walware.statet.base.ui"
+            file="contexts_Base.xml"/>
+      <contexts
+            plugin="de.walware.statet.nico.ui"
+            file="contexts_Nico.xml"/>
    </extension>
 
    <extension point="org.eclipse.ui.cheatsheets.cheatSheetContent">

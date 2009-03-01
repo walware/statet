@@ -5,54 +5,106 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta http-equiv="Content-Style-Type" content="text/css"/>
 	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
-	<title>R Script Editor - Submit Actions</title>
+	<title>R Script Editor - Submit Commands</title>
 	<meta name="copyright" content="Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
 </head>
 <body>
 
-<h1>Submit Actions</h1>
+<h1>Submit Commands</h1>
 
 <p>StatET allows easy interaction with an R console:
 chunks of code can be submitted by means of simple keyboard shortcuts.
 The following paragraphs detail some individual submit actions that are part of
 the StatET R editor.</p>
+<p>For some of the listed commands there is the variant ".. and Goto To Console".
+These set the focus to the R console after the code is submitted.
+If available, the default keyboard shortcut for these commands 
+is the second variant in the table.</p>
 
-<!-- better as table? (sw) -->
+<table class="style1">
+<tr><th colspan="4">Whole file
+		<p>The menu items for this commands can be found in the context menu of the R editor
+			in the submenu <span class="uisequence">Run As</span>.</p></th></tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/run-r-script.png" style="vertical-align: text-top"/></td>
+	<td>Run R-Script in R submitting directly</td>
+	<td><p>...</p></td>
+	<td><kbd>Ctrl+R, Ctrl+D</kbd><br/>
+		<kbd>Ctrl+R, D</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/run-r-script-source.png" style="vertical-align: text-top"/></td>
+	<td>Run File in R via Command /<br/>Run R-Script via 'source' in R</td>
+	<td><p>When editing an R script, this command sources in the entire file.</p>
+		<p>One can also run this command from the Navigator view for a selected R script file.
+		The generic "Run File in R via Command" works also for other files.
+		The R command depends on the content type (e.g. <code>Sweave(...)</code> for Sweave files)
+		and is customizable in the preferences.</p></td>
+	<td><kbd>Ctrl+R, Ctrl+S</kbd><br/>
+		<kbd>Ctrl+R, S</kbd></td>
+</tr>
+
+<tr><th colspan="4">Selection based</th></tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/run-r-selection.png" style="vertical-align: text-top"/></td>
+	<td>Run Selection in R /<br/>Run Selection/Current Line in R</td>
+	<td><p>In text editors, this command submits the selected code to R. If no text is selected,
+		it sends the current line to R.</p></td>
+	<td><kbd>Ctrl+R, Ctrl+R</kbd><br/>
+		<kbd>Ctrl+R, R</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/run-r-selection-next.png" style="vertical-align: text-top"/></td>
+	<td>Run Selection in R and Go to Next Line</td>
+	<td><p>This command submits the selected code or the current line to R 
+		and moves the cursor to the next line in the text editor.</p>
+		<p>Consecutively repeating this command sends the R script line by line.</p></td>
+	<td><kbd>Ctrl+R, Ctrl+4</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/run-r-selection.png" style="vertical-align: text-top"/></td>
+	<td>Run Entire Command in R</td>
+	<td><p>Submits the entire R command(s) around the current the selection.
+		Entire R command means the complete expression at top level of the script
+		or in a block <code>{ }</code>.</p></td>
+	<td><kbd>Ctrl+R, Ctrl+E</kbd><br/>
+		<kbd>Ctrl+R, E</kbd></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/tool/run-r-selection-next.png" style="vertical-align: text-top"/></td>
+	<td>Run Entire Command in R and Go to Next Command</td>
+	<td><p>This submits the entire R command to R 
+		and moves the cursor to the beginning of the next R command.</p>
+		<p>Consecutively repeating this command sends the code in steps
+			of complete statements to R.</p></td>
+	<td><kbd>Ctrl+R, Ctrl+3</kbd></td>
+</tr>
+<tr>
+	<td></td>
+	<td>Run Function Definition in R</td>
+	<td><p>When the cursor is inside a function definition, it is possible to submit
+		the entire function using this command.</p>
+		<p>This comes of course very handy when one operates small changes to a function
+		definition and wants to quickly test the use of the newly changed function.</p>
+	</td>
+	<td><kbd>Ctrl+R, Ctrl+F</kbd><br/>
+		<kbd>Ctrl+R, F</kbd></td>
+</tr>
+
+</table>
+
+<h4>Submit and paste results (simple R worksheet)</h4>
+<p>One can submit a block of R statements and directly paste the R output into
+the script file using
+<kbd class="indent">Ctrl+R Ctrl+V</kbd>
+<kbd class="indent">Ctrl+R V</kbd></p>
+
 <h4>Print variable value to console</h4>
 <p>When the cursor is on the name of a given variable, it is possible to print
 the value of the variable to the console. The default keyboard shortcuts for
 this command are
 <kbd class="indent">Ctrl+R Ctrl+P</kbd>
 <kbd class="indent">Ctrl-R P</kbd></p>
-
-<h4>Submit current line or selection</h4>
-<p>
-<kbd class="indent">Ctrl+R Ctrl+R</kbd>
-<kbd class="indent">Ctrl+R R</kbd></p>
-
-<h4>Submit entire command</h4>
-<p>
-<kbd class="indent">Ctrl+R Ctrl+E</kbd>
-<kbd class="indent">Ctrl+R E</kbd></p>
-
-<h4>Submit function</h4>
-<p>When the cursor is inside a function definition, it is possible to submit
-the entire function using
-<kbd class="indent">Ctrl+R Ctrl+F</kbd>
-<kbd class="indent">Ctrl-R F</kbd>
-This comes of course very handy when one operates small changes to a function
-definition and wants to quickly test the use of the newly changed function.</p>
-
-<h4>Submit and paste results</h4>
-<p>One can submit a block of R statements and directly paste the R output into
-the script file using
-<kbd class="indent">Ctrl+R Ctrl+V</kbd>
-<kbd class="indent">Ctrl+R V</kbd></p>
-
-<h4>Source in current file</h4>
-<p>When editing an R script, it is possible to source in the entire file using
-<kbd class="indent">Ctrl+R Ctrl+S</kbd>
-<kbd class="indent">Ctrl+R S</kbd></p>
 
 </body>
 </html>

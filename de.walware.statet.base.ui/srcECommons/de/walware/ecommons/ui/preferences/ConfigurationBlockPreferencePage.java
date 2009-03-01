@@ -19,17 +19,19 @@ import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.internal.ui.preferences.Messages;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -43,7 +45,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	
 	
 	protected Block fBlock;
-	protected Control fBlockControl;
+	protected Composite fBlockControl;
 	protected IStatus fBlockStatus;
 	
 	
@@ -76,17 +78,31 @@ public abstract class ConfigurationBlockPreferencePage<Block extends AbstractCon
 	
 	@Override
 	protected Control createContents(final Composite parent) {
-		final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 1);
-		fBlockControl = layouter.composite;
-			
-		fBlock.createContents(layouter.composite, (IWorkbenchPreferenceContainer) getContainer(), getPreferenceStore());
-		final GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		layouter.composite.setLayoutData(data);
+		fBlockControl = new Composite(parent, SWT.NONE);
+		fBlockControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		Dialog.applyDialogFont(layouter.composite);
+		fBlockControl.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 1));
+		fBlock.createContents(fBlockControl, (IWorkbenchPreferenceContainer) getContainer(), getPreferenceStore());
 		
-		return layouter.composite;
+		Dialog.applyDialogFont(fBlockControl);
+		
+		final String helpContext = getHelpContext();
+		if (helpContext != null) {
+			PlatformUI.getWorkbench().getHelpSystem().setHelp(fBlockControl, helpContext);
+		}
+		
+		return fBlockControl;
 	}
+	
+	/**
+	 * Overwrite to enable a help context
+	 * 
+	 * @return the help context for the page or <code>null</code>
+	 */
+	protected String getHelpContext() {
+		return null;
+ 	}
+	
 	
 	@Override
 	public boolean performOk() {

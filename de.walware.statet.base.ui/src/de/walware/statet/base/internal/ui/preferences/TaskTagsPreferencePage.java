@@ -34,7 +34,7 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 		
 		// only used when page is shown programatically
 		setTitle(Messages.TaskTags_title); 
-		setDescription(Messages.TaskTags_description); 
+		setDescription(Messages.TaskTags_description);
 	}
 	
 	@Override
@@ -51,6 +51,12 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 	protected boolean isProjectSupported(final IProject project) throws CoreException {
 		return project.hasNature(StatetProject.NATURE_ID);
 	}
+	
+	@Override
+	protected String getHelpContext() {
+		return StatetUIPlugin.PLUGIN_ID + ".task_tags_preferences"; //$NON-NLS-1$
+	}
+	
 	
 	@Override
 	protected TaskTagsConfigurationBlock createConfigurationBlock() 

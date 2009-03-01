@@ -932,76 +932,88 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            defaultHandler="de.walware.statet.r.internal.debug.ui.GotoRConsole"
             id="de.walware.statet.r.commands.GotoRConsole"
-            name="%commands_GotoRConsole_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_GotoRConsole_name"
+            defaultHandler="de.walware.statet.r.internal.debug.ui.GotoRConsole"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunSelectionInR_description"
             id="de.walware.statet.r.commands.RunSelectionInR"
-            name="%commands_RunSelectionInR_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunSelectionInR_name"
+            description="%commands_RunSelectionInR_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunSelectionInR_GotoConsole_description"
             id="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
-            name="%commands_RunSelectionInR_GotoConsole_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunSelectionInR_GotoConsole_name"
+            description="%commands_RunSelectionInR_GotoConsole_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunSelectionInR_GotoNextLine_description"
             id="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
-            name="%commands_RunSelectionInR_GotoNextLine_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunSelectionInR_GotoNextLine_name"
+            description="%commands_RunSelectionInR_GotoNextLine_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunSelectionInR_PasteOutput_description"
             id="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
-            name="%commands_RunSelectionInR_PasteOutput_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunSelectionInR_PasteOutput_name"
+            description="%commands_RunSelectionInR_PasteOutput_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunFileInRViaCommand_Default_description"
             id="de.walware.statet.r.commands.RunFileViaCommand"
-            name="%commands_RunFileInRViaCommand_Default_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunFileInRViaCommand_Default_name"
+            description="%commands_RunFileInRViaCommand_Default_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunFileInRViaCommand_Default_GotoConsole_description"
             id="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
-            name="%commands_RunFileInRViaCommand_Default_GotoConsole_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunFileInRViaCommand_Default_GotoConsole_name"
+            description="%commands_RunFileInRViaCommand_Default_GotoConsole_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunEntireCommand_description"
             id="de.walware.statet.r.commands.RunEntireCommand"
-            name="%commands_RunEntireCommand_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunEntireCommand_name"
+            description="%commands_RunEntireCommand_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunEntireCommand_GotoConsole_description"
             id="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
-            name="%commands_RunEntireCommand_GotoConsole_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunEntireCommand_GotoConsole_name"
+            description="%commands_RunEntireCommand_GotoConsole_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunEntireCommand_GotoNextCommand_description"
             id="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
-            name="%commands_RunEntireCommand_GotoNextCommand_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunEntireCommand_GotoNextCommand_name"
+            description="%commands_RunEntireCommand_GotoNextCommand_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunFunctionDef_description"
             id="de.walware.statet.r.commands.RunFunctionDef"
-            name="%commands_RunFunctionDef_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunFunctionDef_name"
+            description="%commands_RunFunctionDef_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
-            description="%commands_RunFunctionDef_GotoConsole_description"
             id="de.walware.statet.r.commands.RunFunctionDef_GotoConsole"
-            name="%commands_RunFunctionDef_GotoConsole_name">
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_RunFunctionDef_GotoConsole_name"
+            description="%commands_RunFunctionDef_GotoConsole_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
    </extension>
    <extension
