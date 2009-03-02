@@ -26,7 +26,6 @@ public class Messages extends NLS {
 	public static String REnv_REnvList_label;
 	public static String REnv_LocationColumn_name;
 	public static String REnv_NameColumn_name;
-	public static String REnv_Copy_label;
 	public static String REnv_warning_NoDefaultConfiguration_message;
 	public static String REnv_Detail_AddDialog_title;
 	public static String REnv_Detail_Edit_Dialog_title;

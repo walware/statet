@@ -45,7 +45,7 @@ import de.walware.ecommons.ui.dialogs.StatusInfo;
 /**
  * Base for project property and preference pages
  */
-public abstract class PropertyAndPreferencePage<Block extends AbstractConfigurationBlock>
+public abstract class PropertyAndPreferencePage<Block extends ConfigurationBlock>
 		extends ConfigurationBlockPreferencePage<Block>
 		implements IWorkbenchPreferencePage, IWorkbenchPropertyPage {
 	

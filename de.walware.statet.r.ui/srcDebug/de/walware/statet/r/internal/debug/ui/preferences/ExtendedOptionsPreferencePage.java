@@ -19,7 +19,6 @@ import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,7 +29,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.databinding.NumberValidator;
@@ -76,26 +74,23 @@ class ExtendedOptionsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
-			final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
+	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		
 		prefs.put(RMIUtil.PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED, null);
 		prefs.put(RMIUtil.PREF_LOCAL_REGISTRY_PORT, null);
 		
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
-		final Composite group = createRmiComponent(pageComposite, container);
+		final Composite group = createRmiComponent(pageComposite);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		initBindings();
 		updateControls();
 	}
 	
-	private Composite createRmiComponent(final Composite parent, final IWorkbenchPreferenceContainer container) {
+	private Composite createRmiComponent(final Composite parent) {
 		Label label;
 		GridData gd;
 		final Group group = new Group(parent, SWT.NONE);

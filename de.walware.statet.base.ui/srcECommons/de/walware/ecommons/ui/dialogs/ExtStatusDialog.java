@@ -11,6 +11,7 @@
 
 package de.walware.ecommons.ui.dialogs;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -19,6 +20,15 @@ import org.eclipse.swt.widgets.Shell;
 
 
 public class ExtStatusDialog extends StatusDialog {
+	
+	
+	public class StatusUpdater implements IStatusChangeListener {
+		
+		public void statusChanged(final IStatus status) {
+			updateStatus(status);
+		}
+		
+	};
 	
 	
 	/**

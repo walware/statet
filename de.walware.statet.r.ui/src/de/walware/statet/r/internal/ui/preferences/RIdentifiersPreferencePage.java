@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
@@ -46,7 +45,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
@@ -218,9 +216,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
+	protected void createBlockArea(final Composite pageComposite) {
 		// Preferences
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		fCategories = new Category[] {
@@ -233,7 +229,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		for (int i = 0; i < fCategories.length; i++) {
 			prefs.put(fCategories[i].fPref, RIdentifierGroups.GROUP_ID);
 		}
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		// Controls
 		GridData gd;

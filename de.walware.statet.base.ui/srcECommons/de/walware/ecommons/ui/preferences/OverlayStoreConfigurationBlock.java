@@ -16,11 +16,14 @@ import java.util.Set;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 
-public abstract class OverlayStoreConfigurationBlock extends AbstractConfigurationBlock {
+public abstract class OverlayStoreConfigurationBlock extends ConfigurationBlock {
 	
 	
+	private IPreferenceStore fOriginalStore;
 	protected OverlayPreferenceStore fOverlayStore;
 	private boolean fIsDirty;
 	private boolean fInLoading;
@@ -31,8 +34,14 @@ public abstract class OverlayStoreConfigurationBlock extends AbstractConfigurati
 	}
 	
 	
-	protected void setupOverlayStore(final IPreferenceStore store, final OverlayStorePreference[] keys) {
-		fOverlayStore = new OverlayPreferenceStore(store, keys);
+	@Override
+	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
+		fOriginalStore = preferenceStore;
+		super.createContents(pageComposite, container, preferenceStore);
+	}
+	
+	protected void setupOverlayStore(final OverlayStorePreference[] keys) {
+		fOverlayStore = new OverlayPreferenceStore(fOriginalStore, keys);
 		fOverlayStore.load();
 		fOverlayStore.start();
 		fOverlayStore.addPropertyChangeListener(new IPropertyChangeListener() {

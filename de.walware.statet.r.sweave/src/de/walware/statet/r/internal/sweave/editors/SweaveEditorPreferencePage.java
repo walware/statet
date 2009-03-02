@@ -17,13 +17,11 @@ import java.util.Map;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
@@ -58,14 +56,13 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
+	public void createBlockArea(final Composite pageComposite) {
 		// Preferences
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		
 		prefs.put(SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, SweaveEditorOptions.GROUP_ID);
 		
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		// Controls
 		Link link;

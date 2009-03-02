@@ -14,44 +14,61 @@ package de.walware.statet.base.internal.ui.preferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.databinding.observable.list.IObservableList;
+import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.core.databinding.observable.value.IObservableValue;
+import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnPixelData;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.dialogs.ButtonGroup;
+import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
+import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.dialogs.StatusInfo;
-import de.walware.ecommons.ui.dialogs.groups.TableOptionButtonsGroup;
 import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
+import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.PixelConverter;
+import de.walware.ecommons.ui.util.ViewerUtil;
+import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.base.internal.ui.StatetMessages;
+import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.StatetImages;
 
 
@@ -61,49 +78,87 @@ import de.walware.statet.base.ui.StatetImages;
 public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
-	static class TaskTag {
+	private IStatusChangeListener fStatusListener;
+	
+	private TableViewer fListViewer;
+	private ButtonGroup<TaskTag> fListButtons;
+	
+	private final IObservableList fList;
+	private final IObservableValue fDefault;
+	
+	
+	public TaskTagsConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
+		super(project);
+		fStatusListener = statusListener;
 		
-		String name;
-		TaskPriority priority;
-		
-		public TaskTag(final String name, final TaskPriority priority) {
-			this.name = name;
-			this.priority = priority;
-		}
+		fList = new WritableList();
+		fDefault = new WritableValue();
 	}
 	
 	
-/* GUI ************************************************************************/
+	final boolean isDefaultTask(final TaskTag task) {
+		return (fDefault.getValue() == task);
+	}
 	
-	private static final int IDX_ADD = 0;
-	private static final int IDX_EDIT = 1;
-	private static final int IDX_REMOVE = 2;
-	private static final int IDX_DEFAULT = 4;
-	
-	private class TasksGroup extends TableOptionButtonsGroup<TaskTag> {
+	@Override
+	protected void createBlockArea(final Composite pageComposite) {
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		
-		TaskTag fDefaultTask = null;
+		prefs.put(TaskTagsPreferences.PREF_TAGS, TaskTagsPreferences.GROUP_ID);
+		prefs.put(TaskTagsPreferences.PREF_PRIORITIES, TaskTagsPreferences.GROUP_ID);
 		
-		TasksGroup() {
-			super(new String[] {
-					SharedMessages.CollectionEditing_AddItem_label, 
-					SharedMessages.CollectionEditing_EditItem_label, 
-					SharedMessages.CollectionEditing_RemoveItem_label, 
-					null,
-					SharedMessages.CollectionEditing_DefaultItem_label, 
-			} );
-			setDefaultButton(IDX_EDIT);
-			setRemoveButton(IDX_REMOVE);
+		setupPreferenceManager(prefs);
+		
+		{	// Table area
+			final Composite composite = new Composite(pageComposite, SWT.NONE);
+			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			
+			final Composite table = createTable(composite);
+			table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			
+			fListButtons = new ButtonGroup<TaskTag>(composite) {
+				@Override
+				protected TaskTag edit1(final TaskTag item, final boolean newItem) {
+					final TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, newItem, fList);
+					if (dialog.open() == Dialog.OK) {
+						return dialog.getResult();
+					}
+					return null;
+				}
+				@Override
+				public void updateState() {
+					super.updateState();
+					saveTaskTags();
+				}
+			};
+			fListButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
+			fListButtons.addAddButton();
+			fListButtons.addCopyButton();
+			fListButtons.addEditButton();
+			fListButtons.addDeleteButton();
+			fListButtons.addSeparator();
+			fListButtons.addDefaultButton();
+			
+			fListButtons.connectTo(fListViewer, fList, fDefault);
+			fListViewer.setInput(fList);
 		}
 		
-		@Override
-		protected void createTableColumns(final TableViewer viewer, final Table table, final TableLayout layout) {
-			final PixelConverter conv = new PixelConverter(table);
-			TableViewerColumn col;
-			
-			col = new TableViewerColumn(viewer, SWT.LEFT);
-			col.getColumn().setText(Messages.TaskTags_TaskColumn_name);
-			col.setLabelProvider(new ColumnLabelProvider() {
+		updateControls();
+	}
+	
+	protected Composite createTable(final Composite parent) {
+		final TableComposite composite = new ViewerUtil.TableComposite(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+		fListViewer = composite.viewer;
+		composite.table.setHeaderVisible(true);
+		composite.table.setLinesVisible(true);
+		
+		final PixelConverter conv = new PixelConverter(composite.table);
+		
+		{	final TableViewerColumn column = new TableViewerColumn(composite.viewer, SWT.LEFT);
+			composite.layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
+			column.getColumn().setText(Messages.TaskTags_TaskColumn_name);
+			column.setLabelProvider(new ColumnLabelProvider() {
 				@Override
 				public Image getImage(final Object element) {
 					final TaskTag tag = (TaskTag) element;
@@ -119,11 +174,17 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 					return tag.name;
 				}
 			});
-			layout.addColumnData(new ColumnWeightData(1));
+		}
+		{	final TableViewerColumn column = new TableViewerColumn(composite.viewer, SWT.LEFT);
+			int priorityWidth = Messages.TaskTags_PriorityColumn_name.length();
+			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_High.length());
+			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_Normal.length());
+			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_Low.length());
+			priorityWidth = conv.convertWidthInCharsToPixels(priorityWidth) + conv.convertHorizontalDLUsToPixels(5);
+			composite.layout.setColumnData(column.getColumn(), new ColumnPixelData(priorityWidth, false, true));
 			
-			col = new TableViewerColumn(viewer, SWT.LEFT);
-			col.getColumn().setText(Messages.TaskTags_PriorityColumn_name);
-			col.setLabelProvider(new ColumnLabelProvider() {
+			column.getColumn().setText(Messages.TaskTags_PriorityColumn_name);
+			column.setLabelProvider(new ColumnLabelProvider() {
 				@Override
 				public String getText(final Object element) {
 					final TaskTag task = (TaskTag) element;
@@ -135,137 +196,29 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 					case LOW:
 						return StatetMessages.TaskPriority_Low;
 					default:
-						return ""; //$NON-NLS-1$
+						return ""; 
 					}
 				}
 			});
-			int priorityWidth = Messages.TaskTags_PriorityColumn_name.length();
-			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_High.length());
-			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_Normal.length());
-			priorityWidth = Math.max(priorityWidth, StatetMessages.TaskPriority_Low.length());
-			priorityWidth = conv.convertWidthInCharsToPixels(priorityWidth) + conv.convertHorizontalDLUsToPixels(5);
-			layout.addColumnData(new ColumnPixelData(priorityWidth, false, true));
-			
-			// Sorter
-			viewer.setComparator(new ViewerComparator() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public int compare(final Viewer viewer, final Object e1, final Object e2) {
-					return getComparator().compare(((TaskTag) e1).name, ((TaskTag) e2).name);
-				}
-			});
 		}
 		
-		
-		@Override
-		public void handleSelection(final TaskTag item, final IStructuredSelection rawSelection) {
-			fButtonGroup.enableButton(IDX_EDIT, (item != null) );
-			fButtonGroup.enableButton(IDX_DEFAULT, (item != null) && !isDefaultTask(item));
-		}
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public void handleButtonPressed(final int buttonIdx, final TaskTag item, final IStructuredSelection rawSelection) {
-			switch (buttonIdx) {
-			case IDX_ADD:
-				doEdit(null);
-				break;
-			
-			case IDX_EDIT:
-				if (item != null)
-					doEdit(item);
-				break;
-				
-			case IDX_REMOVE:
-				if (!rawSelection.isEmpty())
-					doRemove(rawSelection.toList());
-				break;
-				
-			case IDX_DEFAULT:
-				if (item != null)
-					doSetDefault(item);
-				break;
+		composite.viewer.setContentProvider(new ArrayContentProvider());
+		// Sorter
+		composite.viewer.setComparator(new ViewerComparator() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public int compare(final Viewer viewer, final Object e1, final Object e2) {
+				return getComparator().compare(((TaskTag) e1).name, ((TaskTag) e2).name);
 			}
-		}
-		
-	}
-	
-	
-	private TasksGroup fTasksGroup;
-	
-	private IStatusChangeListener fStatusListener;
-	
-	
-	public TaskTagsConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
-		super(project);
-		fStatusListener = statusListener;
-		fTasksGroup = new TasksGroup();
-	}
-	
-	
-	final boolean isDefaultTask(final TaskTag task) {
-		return (task == fTasksGroup.fDefaultTask);
-	}
-	
-	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, 
-			final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
-		final Map<Preference, String> prefs = new HashMap<Preference, String>();
-		
-		prefs.put(TaskTagsPreferences.PREF_TAGS, TaskTagsPreferences.GROUP_ID);
-		prefs.put(TaskTagsPreferences.PREF_PRIORITIES, TaskTagsPreferences.GROUP_ID);
-		
-		setupPreferenceManager(container, prefs);
-		
-		fTasksGroup.createGroup(pageComposite, 1);
-		
-		loadValues();
-		fTasksGroup.initFields();
-	}
-	
-	private void doEdit(final TaskTag item) {
-		final TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, fTasksGroup.getListModel());
-		if (dialog.open() == Window.OK) {
-			final TaskTag newItem = dialog.getResult();
-			if (item != null) {
-				if (item == fTasksGroup.fDefaultTask)
-					fTasksGroup.fDefaultTask = newItem;
-				fTasksGroup.replaceItem(item, newItem);
-			} else {
-				fTasksGroup.addItem(newItem);
-			}
-			
-			saveTaskTags();
-		}
-	}
-	
-	private void doRemove(final List<TaskTag> selection) {
-		if (selection.contains(fTasksGroup.fDefaultTask)) {
-			fTasksGroup.fDefaultTask = null;
-		}
-		fTasksGroup.removeItems(selection);
-		
-		saveTaskTags();
-	}
-	
-	private void doSetDefault(final TaskTag item) {
-		fTasksGroup.fDefaultTask = item;
-		if (fTasksGroup.getListModel().indexOf(item) != 0) {
-			fTasksGroup.getListModel().remove(item);
-			fTasksGroup.getListModel().add(0, item);
-		}
-		fTasksGroup.getStructuredViewer().refresh();
-		fTasksGroup.reselect();
-		
-		saveTaskTags();
+		});
+		return composite;
 	}
 	
 	@Override
 	protected void updateControls() {
 		loadValues();
-		fTasksGroup.getStructuredViewer().refresh();
+		fListViewer.refresh();
+		fListButtons.updateState();
 	}
 	
 	private void loadValues() {
@@ -277,26 +230,36 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		for (int i = 0; i < tags.length; i++) {
 			items.add(new TaskTag(tags[i], prios[i]));
 		}
-		fTasksGroup.getListModel().clear();
-		fTasksGroup.getListModel().addAll(items);
+		fList.clear();
+		fList.addAll(items);
 		
 		if (!items.isEmpty()) {
-			fTasksGroup.fDefaultTask = items.get(0);
+			fDefault.setValue(items.get(0));
 		}
 	}
 	
 	private void saveTaskTags() {
-		final int n = fTasksGroup.getListModel().size();
+		final int n = fList.size();
 		final String[] tags = new String[n];
 		final TaskPriority[] prios = new TaskPriority[n];
-		for (int i = 0; i < n; i++) {
-			final TaskTag item = fTasksGroup.getListModel().get(i);
-			tags[i] = item.name;
-			prios[i] = item.priority;
+		if (n > 0) {
+			int i = 0;
+			final TaskTag defaultTag = (TaskTag) fDefault.getValue();
+			if (defaultTag != null) {
+				tags[0] = defaultTag.name;
+				prios[0] = defaultTag.priority;
+				i++;
+			}
+			for (final Iterator iter = fList.iterator(); iter.hasNext(); ) {
+				final TaskTag item = (TaskTag) iter.next();
+				if (item != defaultTag) {
+					tags[i] = item.name;
+					prios[i] = item.priority;
+					i++;
+				}
+			}
 		}
-		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(
-				tags, prios);
-		
+		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(tags, prios);
 		setPrefValues(taskPrefs.getPreferencesMap());
 		
 		validateSettings();
@@ -310,10 +273,10 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private IStatus validateSettings() {
 		final StatusInfo listStatus = new StatusInfo();
-		if (fTasksGroup.getListModel().size() == 0) {
+		if (fList.size() == 0) {
 			listStatus.setWarning(Messages.TaskTags_warning_NoTag_message);
 		} 
-		else if (fTasksGroup.fDefaultTask == null) {
+		else if (fDefault.getValue() == null) {
 			listStatus.setError(Messages.TaskTags_error_DefaultTast_message);
 		}
 		
@@ -334,5 +297,152 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		}	
 		return new String[] { title, message };
 	}	
+	
+}
+
+
+class TaskTag {
+	
+	String name;
+	TaskPriority priority;
+	
+	public TaskTag(final String name, final TaskPriority priority) {
+		this.name = name;
+		this.priority = priority;
+	}
+	
+}
+
+
+class TaskTagsInputDialog extends ExtStatusDialog {
+	
+	
+	private Text fNameControl;
+	private Combo fPriorityControl;
+	
+	private String fName;
+	private TaskPriority fPriority;
+	private List<String> fExistingNames;
+	
+	
+	public TaskTagsInputDialog(final Shell parent, final TaskTag task, final boolean newTask, final List<TaskTag> existingEntries) {
+		super(parent);
+		
+		if (task != null) {
+			fName = task.name;
+			fPriority = task.priority;
+		}
+			
+		fExistingNames = new ArrayList<String>(existingEntries.size());
+		for (int i = 0; i < existingEntries.size(); i++) {
+			final TaskTag curr = existingEntries.get(i);
+			if (newTask || !curr.equals(task)) {
+				fExistingNames.add(curr.name);
+			}
+		}
+		
+		setTitle((task == null) ?
+				Messages.TaskTags_InputDialog_NewTag_title :
+				Messages.TaskTags_InputDialog_EditTag_title );
+	}
+	
+	@Override
+	protected IDialogSettings getDialogBoundsSettings() {
+		return DialogUtil.getDialogSettings(StatetUIPlugin.getDefault(), "TaskTagEditDialog"); 
+	}
+	
+	
+	@Override
+	protected Control createDialogArea(final Composite parent) {
+		final Composite dialogArea = new Composite(parent, SWT.NONE);
+		final Layouter layouter = new Layouter(dialogArea, LayoutUtil.applyDialogDefaults(new GridLayout(), 2));
+		dialogArea.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		fNameControl = layouter.addLabeledTextControl(Messages.TaskTags_InputDialog_Name_label);
+		((GridData) fNameControl.getLayoutData()).widthHint =
+				new PixelConverter(fNameControl).convertWidthInCharsToPixels(45);
+		fNameControl.addModifyListener(new ModifyListener() {
+			public void modifyText(final ModifyEvent e) {
+				fName = fNameControl.getText();
+				doValidation();
+			};
+		});
+		
+		final String[] items = new String[] {
+				StatetMessages.TaskPriority_High,
+				StatetMessages.TaskPriority_Normal,
+				StatetMessages.TaskPriority_Low,
+		};
+		fPriorityControl = layouter.addLabeledComboControl(Messages.TaskTags_InputDialog_Priority_label, items);
+		fPriorityControl.addModifyListener(new ModifyListener() {
+			public void modifyText(final ModifyEvent e) {
+				switch (fPriorityControl.getSelectionIndex()) {
+				case 0:
+					fPriority = TaskPriority.HIGH;
+					break;
+				case 2:
+					fPriority = TaskPriority.LOW;
+					break;
+				default:
+					fPriority = TaskPriority.NORMAL;
+					break;
+				}
+			};
+		});
+		
+		// Init Fields
+		if (fName != null) {
+			fNameControl.setText(fName);
+			switch (fPriority) {
+			case HIGH:
+				fPriorityControl.select(0);
+				break;
+			case LOW:
+				fPriorityControl.select(2);
+				break;
+			default: // NORMAL
+				fPriorityControl.select(1);
+				break;
+			}
+		} else {
+			fPriorityControl.select(1);
+		}
+		final Display display = parent.getDisplay();
+		if (display != null) {
+			display.asyncExec(
+				new Runnable() {
+					public void run() {
+						fNameControl.setFocus();
+					}
+				}
+			);
+		}
+		
+		LayoutUtil.addSmallFiller(dialogArea, true);
+		applyDialogFont(dialogArea);
+		return dialogArea;
+	}
+	
+	
+	public TaskTag getResult() {
+		return new TaskTag(fName, fPriority);
+	}
+	
+	private void doValidation() {
+		final StatusInfo status = new StatusInfo();
+		final String newText = fNameControl.getText();
+		if (newText.length() == 0) {
+			status.setError(Messages.TaskTags_InputDialog_error_EnterName_message);
+		} else {
+			if (newText.indexOf(',') != -1) {
+				status.setError(Messages.TaskTags_InputDialog_error_Comma_message);
+			} else if (fExistingNames.contains(newText)) {
+				status.setError(Messages.TaskTags_InputDialog_error_EntryExists_message);
+			} else if (!Character.isLetterOrDigit(newText.charAt(0))) { // ||  Character.isWhitespace(newText.charAt(newText.length() - 1))) {
+				status.setError(Messages.TaskTags_InputDialog_error_ShouldStartWithLetterOrDigit_message);
+			}
+		}
+		updateStatus(status);
+	}
 	
 }

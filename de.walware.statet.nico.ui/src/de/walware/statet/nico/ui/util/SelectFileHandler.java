@@ -13,9 +13,7 @@ package de.walware.statet.nico.ui.util;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
@@ -23,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -32,7 +31,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ui.dialogs.TitleAreaDialogWithDbc;
+import de.walware.ecommons.ui.dialogs.DatabindingSupport;
+import de.walware.ecommons.ui.dialogs.TitleAreaStatusUpdater;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -52,7 +52,7 @@ import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 public class SelectFileHandler implements IToolEventHandler {
 	
 	
-	private static class SelectFileDialog extends TitleAreaDialogWithDbc {
+	private static class SelectFileDialog extends TitleAreaDialog {
 		
 		private ToolProcess fTool;
 		private int fMode;
@@ -67,7 +67,6 @@ public class SelectFileHandler implements IToolEventHandler {
 			
 			setTitle(message);
 			setMessage(message);
-			setDialogSettings(DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), IToolEventHandler.SELECTFILE_EVENT_ID+"-Wizard")); //$NON-NLS-1$
 			fTool = tool;
 			fMode = newFile ? (ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_SAVE)
 					: (ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN);
@@ -80,12 +79,16 @@ public class SelectFileHandler implements IToolEventHandler {
 			newShell.setText(Messages.Util_SelectFile_Dialog_title);
 		}
 		
+		protected IDialogSettings getDialogSettings() {
+			return DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), IToolEventHandler.SELECTFILE_EVENT_ID+"-Wizard");
+		}
+		
 		@Override
-		protected Control createDialogArea(Composite parent) {
-			parent = (Composite) super.createDialogArea(parent);
+		protected Control createDialogArea(Composite dialogArea) {
+			dialogArea = (Composite) super.createDialogArea(dialogArea);
 			
-			LayoutUtil.addGDDummy(parent);
-			final Composite inputComposite = new Composite(parent, SWT.NONE);
+			LayoutUtil.addGDDummy(dialogArea);
+			final Composite inputComposite = new Composite(dialogArea, SWT.NONE);
 			inputComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			inputComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
@@ -96,17 +99,19 @@ public class SelectFileHandler implements IToolEventHandler {
 			fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			fLocationGroup.setHistory(getDialogSettings().getArray(fHistoryId));
 			
-			LayoutUtil.addSmallFiller(parent, true);
+			LayoutUtil.addSmallFiller(dialogArea, true);
 			
-			final ToolInfoGroup info = new ToolInfoGroup(parent, fTool);
+			final ToolInfoGroup info = new ToolInfoGroup(dialogArea, fTool);
 			info.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			
-			initBindings();
-			return parent;
+			final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
+			addBindings(databinding);
+			databinding.installStatusListener(new TitleAreaStatusUpdater(this));
+			
+			return dialogArea;
 		}
 		
-		@Override
-		protected void addBindings(final DataBindingContext dbc, final Realm realm) {
+		protected void addBindings(final DatabindingSupport db) {
 			final IFileStore current = fTool.getWorkspaceData().getWorkspaceDir();
 			String dir = ""; //$NON-NLS-1$
 			if (current != null) {
@@ -116,7 +121,7 @@ public class SelectFileHandler implements IToolEventHandler {
 				}
 			}
 			fNewLocationString = new WritableValue(dir, String.class);
-			dbc.bindValue(fLocationGroup.createObservable(), fNewLocationString,
+			db.getContext().bindValue(fLocationGroup.createObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
 		}
 		

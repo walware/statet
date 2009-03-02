@@ -40,7 +40,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * Abstract preference page which is used to wrap a
  * Configuration Block
  */
-public abstract class ConfigurationBlockPreferencePage<Block extends AbstractConfigurationBlock> extends PreferencePage
+public abstract class ConfigurationBlockPreferencePage<Block extends ConfigurationBlock> extends PreferencePage
 		implements IWorkbenchPreferencePage {
 	
 	

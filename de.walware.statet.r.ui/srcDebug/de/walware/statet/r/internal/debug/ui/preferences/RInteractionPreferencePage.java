@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlListener;
@@ -32,7 +31,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.preferences.Preference;
@@ -85,14 +83,11 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
-			final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
+	protected void createBlockArea(final Composite pageComposite) {
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		prefs.put(PREF_R_CONNECTOR, null);
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		Composite group = createConnectorComponent(pageComposite);

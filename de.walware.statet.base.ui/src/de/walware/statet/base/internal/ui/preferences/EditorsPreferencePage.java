@@ -26,7 +26,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.preference.ColorSelector;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
@@ -40,7 +39,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
@@ -107,9 +105,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
+	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		final List<AppearanceColorsItem> colors = new ArrayList<AppearanceColorsItem>();
 		AppearanceColorsItem color;
@@ -156,7 +152,7 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.put(color.pref, null);
 		
 		// Register preferences
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		// Controls
 		addLinkHeader(pageComposite, Messages.Editors_link);

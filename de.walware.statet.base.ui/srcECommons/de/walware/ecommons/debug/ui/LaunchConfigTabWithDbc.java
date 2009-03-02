@@ -123,8 +123,11 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 		new DirtyTracker(fDbc) {
 			@Override
 			public void handleChange() {
-				setDirty(true);
-				updateDialogState();
+				if (!isDirty()) {
+					fCurrentStatus = (IStatus) fAggregateStatus.getValue();
+					setDirty(true);
+					updateDialogState();
+				}
 			}
 		};
 	}

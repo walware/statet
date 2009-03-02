@@ -33,7 +33,7 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 
-public abstract class AbstractConfigurationBlock {
+public abstract class ConfigurationBlock {
 	
 	
 	public static void scheduleChangeNotification(final IWorkbenchPreferenceContainer container, final String[] groupIds, final boolean directly) {
@@ -58,15 +58,22 @@ public abstract class AbstractConfigurationBlock {
 	protected boolean fUseProjectSettings = true;
 	
 	
-	protected AbstractConfigurationBlock() {
+	protected ConfigurationBlock() {
 	}
 	
+	
+	public IWorkbenchPreferenceContainer getContainer() {
+		return fContainer;
+	}
 	
 	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
 			final IPreferenceStore preferenceStore) {
 		fShell = pageComposite.getShell();
 		fContainer = container;
+		createBlockArea(pageComposite);
 	}
+	
+	protected abstract void createBlockArea(Composite pageComposite);
 	
 	public void dispose() {
 	}

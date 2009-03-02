@@ -63,7 +63,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
 import de.walware.ecommons.preferences.Preference;
@@ -261,7 +260,6 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		
 		public StyleNode(final String name, final String description, final String rootKey, final UseStyle[] availableStyles, final SyntaxNode[] children) {
-			
 			super(name, children);
 			fDescription = description;
 			fRootKey = rootKey;
@@ -476,9 +474,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	}
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
-			final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
+	protected void createBlockArea(final Composite pageComposite) {
 		// Prepare model
 		fRootNodes = createItems();
 		final String[] groupIds = getSettingsGroups();
@@ -486,7 +482,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fGroupIds.addAll(Arrays.asList(groupIds));
 		final List<OverlayStorePreference> keys = new ArrayList<OverlayStorePreference>();
 		collectKeys(keys, fRootNodes);
-		setupOverlayStore(preferenceStore, keys.toArray(new OverlayStorePreference[keys.size()]));
+		setupOverlayStore(keys.toArray(new OverlayStorePreference[keys.size()]));
 		connectStore(fRootNodes);
 		
 		addLinkHeader(pageComposite, Messages.SyntaxColoring_link);
@@ -579,7 +575,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		fUseControl.setLabelProvider(new UseStyleLabelProvider());
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 0);
 		gd.widthHint = LayoutUtil.hintWidth(fUseControl.getCombo(),
-				new String[] { "XXXXXXXXXXXXXXX", Messages.SyntaxColoring_Use_CustomStyle_label, Messages.SyntaxColoring_Use_NoExtraStyle_label }); //$NON-NLS-1$
+				new String[] { "XXXXXXXXXXXXXXX", Messages.SyntaxColoring_Use_CustomStyle_label, Messages.SyntaxColoring_Use_NoExtraStyle_label }); 
 		fUseControl.getControl().setLayoutData(gd);
 		final int indent = LayoutUtil.defaultSmallIndent();
 		options.addLabel(Messages.SyntaxColoring_Color, indent, 1);
@@ -705,7 +701,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		boolean enableOptions;
 		if (node instanceof StyleNode) {
 			fUseControl.getControl().setEnabled(node.getAvailableUseStyles().length > 1);
-			enableOptions = useStyle != null && useStyle.getRefRootKey().equals(""); //$NON-NLS-1$
+			enableOptions = useStyle != null && useStyle.getRefRootKey().equals(""); 
 		}
 		else {
 			fUseControl.getControl().setEnabled(false);
@@ -744,10 +740,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		final StringBuilder description = new StringBuilder(tooltip);
 		final int end = Math.min(20, listItems.length);
 		for (int i = 0; i < end; i++) {
-			description.append("\n    "); //$NON-NLS-1$
+			description.append("\n    "); 
 			description.append(listItems[i]);
 		}
-		description.append("\n["+end+"/"+listItems.length+"]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		description.append("\n["+end+"/"+listItems.length+"]"); 
 		return MessageUtil.escapeForTooltip(description);
 	}
 	

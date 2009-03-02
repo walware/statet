@@ -24,7 +24,6 @@ import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -37,7 +36,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
@@ -74,10 +72,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
-			final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
+	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		prefs.put(RCodeStyleSettings.PREF_TAB_SIZE, RCodeStyleSettings.GROUP_ID);
 		prefs.put(RCodeStyleSettings.PREF_INDENT_DEFAULT_TYPE, RCodeStyleSettings.GROUP_ID);
@@ -87,7 +82,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 		prefs.put(RCodeStyleSettings.PREF_INDENT_WRAPPED_COMMAND_DEPTH, RCodeStyleSettings.GROUP_ID);
 		prefs.put(RCodeStyleSettings.PREF_REPLACE_TABS_WITH_SPACES, RCodeStyleSettings.GROUP_ID);
 		prefs.put(RCodeStyleSettings.PREF_REPLACE_CONVERSATIVE, RCodeStyleSettings.GROUP_ID);
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		fModel = new RCodeStyleSettings(true);
 		

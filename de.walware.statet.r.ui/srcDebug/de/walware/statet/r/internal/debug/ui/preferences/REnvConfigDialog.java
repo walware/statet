@@ -18,13 +18,8 @@ import java.util.Set;
 
 import com.ibm.icu.text.Collator;
 
-import org.eclipse.core.databinding.AggregateValidationStatus;
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
-import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.core.databinding.observable.value.IValueChangeListener;
-import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.filesystem.EFS;
@@ -55,7 +50,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.databinding.DirtyTracker;
+import de.walware.ecommons.ui.dialogs.DatabindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
@@ -127,9 +122,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 	
 	private REnvPreferencePage.REnvConfig fConfigModel;
 	private boolean fIsNewConfig;
-	private DataBindingContext fDbc;
 	private Set<String> fExistingNames;
-	private AggregateValidationStatus fAggregateStatus;
 	
 	private Text fNameControl;
 	private ChooseResourceComposite fRHomeControl;
@@ -192,16 +185,17 @@ public class REnvConfigDialog extends ExtStatusDialog {
 		
 		LayoutUtil.addSmallFiller(dialogArea, true);
 		applyDialogFont(dialogArea);
-		initBindings();
+		
+		final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
+		addBindings(databinding);
+		databinding.installStatusListener(new StatusUpdater());
+		
 		return dialogArea;
 	}
 	
-	private void initBindings() {
-		final Realm realm = Realm.getDefault();
-		fDbc = new DataBindingContext(realm);
-		
-		fDbc.bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
-				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_NAME), 
+	protected void addBindings(final DatabindingSupport db) {
+		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
+				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
 					public IStatus validate(final Object value) {
 						String s = (String) value;
@@ -218,8 +212,8 @@ public class REnvConfigDialog extends ExtStatusDialog {
 						return ValidationStatus.OK_STATUS;
 					}
 				}), null);
-		fDbc.bindValue(fRHomeControl.createObservable(), 
-				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_RHOME), 
+		db.getContext().bindValue(fRHomeControl.createObservable(), 
+				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_RHOME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
 					public IStatus validate(final Object value) {
 						final IStatus status = fRHomeControl.getValidator().validate(value);
@@ -232,26 +226,9 @@ public class REnvConfigDialog extends ExtStatusDialog {
 						return ValidationStatus.ok();
 					}
 				}), null);
-		fDbc.bindValue(ViewersObservables.observeSingleSelection(fRBitViewer), 
-				BeansObservables.observeValue(realm, fConfigModel, REnvConfiguration.PROP_RBITS), 
+		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fRBitViewer), 
+				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_RBITS), 
 				null, null);
-		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
-		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
-			public void handleValueChange(final ValueChangeEvent event) {
-				final IStatus currentStatus = (IStatus) event.diff.getNewValue();
-				updateStatus(currentStatus);
-			}
-		});
-		updateStatus((IStatus) fAggregateStatus.getValue());
-		new DirtyTracker(fDbc) { // sets initial status on first change again, because initial errors are suppressed
-			@Override
-			public void handleChange() {
-				if (!isDirty()) {
-					updateStatus((IStatus) fAggregateStatus.getValue());
-					super.handleChange();
-				}
-			}
-		};
 	}
 	
 	private String[] searchRHOME() {

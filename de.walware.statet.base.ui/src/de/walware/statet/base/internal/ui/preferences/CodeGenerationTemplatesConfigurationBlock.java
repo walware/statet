@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -52,12 +51,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
-import de.walware.ecommons.ui.preferences.AbstractConfigurationBlock;
+import de.walware.ecommons.ui.preferences.ConfigurationBlock;
 import de.walware.ecommons.ui.preferences.SettingsUpdater;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
@@ -76,7 +74,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 /**
  * The page to configure the codegenerator templates.
  */
-public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigurationBlock {
+public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBlock {
 	
 	
 	public static final String EXTENSION_POINT = "codeGenerationTemplatesCategory"; //$NON-NLS-1$
@@ -269,10 +267,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends AbstractConfigura
 /* GUI ************************************************************************/
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container,
-			final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
-		
+	protected void createBlockArea(final Composite pageComposite) {
 		final Label label = new Label(pageComposite, SWT.LEFT);
 		label.setText(Messages.CodeTemplates_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));

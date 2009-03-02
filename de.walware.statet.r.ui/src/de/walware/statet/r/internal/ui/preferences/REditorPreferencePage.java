@@ -18,7 +18,6 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -28,7 +27,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
@@ -83,8 +81,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void createContents(final Composite pageComposite, final IWorkbenchPreferenceContainer container, final IPreferenceStore preferenceStore) {
-		super.createContents(pageComposite, container, preferenceStore);
+	protected void createBlockArea(final Composite pageComposite) {
 		// Preferences
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		prefs.put(REditorOptions.PREF_SMARTINSERT_BYDEFAULT_ENABLED, REditorOptions.GROUP_ID);
@@ -110,7 +107,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.put(REditorOptions.PREF_PROBLEMCHECKING_ENABLED, null);
 		prefs.put(REditorOptions.PREF_SPELLCHECKING_ENABLED, REditorOptions.GROUP_ID);
 		
-		setupPreferenceManager(container, prefs);
+		setupPreferenceManager(prefs);
 		
 		// Controls
 		Link link;

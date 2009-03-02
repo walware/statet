@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChang
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.preferences.IWorkingCopyManager;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -61,7 +60,7 @@ import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
  * <li>change settings groups ({@link SettingsChangeNotifier})</li>
  * </ul>
  */
-public class ManagedConfigurationBlock extends AbstractConfigurationBlock
+public abstract class ManagedConfigurationBlock extends ConfigurationBlock
 		implements IPreferenceAccess, IObservableFactory {
 	
 	
@@ -77,7 +76,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		
 		
 		PreferenceManager(final Map<Preference, String> prefs) {
-			fManager = fContainer.getWorkingCopyManager();
+			fManager = getContainer().getWorkingCopyManager();
 			fPreferences = prefs;
 			
 			fPreferenceManager = this;
@@ -187,7 +186,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 			}
 			else {
 				if (doBuild) {
-					fContainer.registerUpdateJob(CoreUtility.getBuildJob(fProject));
+					getContainer().registerUpdateJob(CoreUtility.getBuildJob(fProject));
 				}
 			}
 			final Set<String> groupIds = new HashSet<String>();
@@ -352,10 +351,8 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	
 	protected IProject fProject;
 	protected PreferenceManager fPreferenceManager;
-	private IWorkbenchPreferenceContainer fContainer;
 	
 	private DataBindingContext fDbc;
-	private AggregateValidationStatus fAggregateStatus;
 	private IStatusChangeListener fStatusListener;
 	
 	
@@ -376,8 +373,7 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	 * @param container
 	 * @param prefs map with preference objects as key and their settings group id as optional value
 	 */
-	protected void setupPreferenceManager(final IWorkbenchPreferenceContainer container, final Map<Preference, String> prefs) {
-		fContainer = container;
+	protected void setupPreferenceManager(final Map<Preference, String> prefs) {
 		new PreferenceManager(prefs);
 	}
 	
@@ -386,13 +382,24 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 		fDbc = new DataBindingContext(realm);
 		addBindings(fDbc, realm);
 		
-		fAggregateStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
-		fAggregateStatus.addValueChangeListener(new IValueChangeListener() {
+		final AggregateValidationStatus validationStatus = new AggregateValidationStatus(fDbc, AggregateValidationStatus.MAX_SEVERITY);
+		validationStatus.addValueChangeListener(new IValueChangeListener() {
 			public void handleValueChange(final ValueChangeEvent event) {
 				final IStatus currentStatus = (IStatus) event.diff.getNewValue();
 				fStatusListener.statusChanged(currentStatus);
 			}
 		});
+		
+//		updateStatus((IStatus) validationStatus.getValue());
+//		new DirtyTracker(fDbc) { // sets initial status on first change again, because initial errors are suppressed
+//			@Override
+//			public void handleChange() {
+//				if (!isDirty()) {
+//					updateStatus((IStatus) validationStatus.getValue());
+//					super.handleChange();
+//				}
+//			}
+//		};
 	}
 	
 	protected DataBindingContext getDbc() {
@@ -438,10 +445,6 @@ public class ManagedConfigurationBlock extends AbstractConfigurationBlock
 	public void dispose() {
 		super.dispose();
 		
-		if (fAggregateStatus != null) {
-			fAggregateStatus.dispose();
-			fAggregateStatus = null;
-		}
 		if (fDbc != null) {
 			fDbc.dispose();
 			fDbc = null;
