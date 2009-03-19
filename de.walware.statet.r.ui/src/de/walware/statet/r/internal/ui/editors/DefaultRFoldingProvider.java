@@ -320,7 +320,11 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 	}
 	
 	protected FoldingStructureComputationContext createCtx(final Input input) {
-		final ProjectionAnnotationModel model = (ProjectionAnnotationModel) fEditor.getAdapter(ProjectionAnnotationModel.class);
+		final REditor editor = fEditor;
+		if (editor == null) {
+			return null;
+		}
+		final ProjectionAnnotationModel model = (ProjectionAnnotationModel) editor.getAdapter(ProjectionAnnotationModel.class);
 		if (input.fUnit == null || model == null) {
 			return null;
 		}
