@@ -30,6 +30,7 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.IWorkingBuffer;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingBuffer;
@@ -83,7 +84,9 @@ public abstract class RResourceUnit implements ISourceUnit {
 	private IElementName fName;
 	
 	private final IResource fFile;
-	protected int fCounter;
+	
+	private int fCounter;
+	private IWorkingBuffer fBuffer;
 	
 	
 	public RResourceUnit(final IResource file) {
@@ -122,9 +125,16 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return false;
 	}
 	
+	public boolean checkState(final boolean validate, final IProgressMonitor monitor) {
+		return fBuffer.checkState(validate, monitor);
+	}
+	
 	public synchronized final void connect(final IProgressMonitor monitor) {
 		fCounter++;
 		if (fCounter == 1) {
+			if (fBuffer == null) {
+				fBuffer = new WorkingBuffer(this);
+			}
 			init();
 		}
 	}
@@ -132,6 +142,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 	public synchronized final void disconnect(final IProgressMonitor monitor) {
 		fCounter--;
 		if (fCounter == 0) {
+			fBuffer.releaseDocument(monitor);
 			dispose();
 		}
 	}

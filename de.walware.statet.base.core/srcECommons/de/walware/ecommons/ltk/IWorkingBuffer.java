@@ -26,6 +26,7 @@ public interface IWorkingBuffer {
 	
 	public AbstractDocument getDocument(IProgressMonitor monitor);
 	public SourceContent getContent(IProgressMonitor monitor);
+	public boolean checkState(boolean validate, IProgressMonitor monitor);
 	public void saveDocument(IProgressMonitor monitor);
 	public void releaseDocument(IProgressMonitor monitor);
 	

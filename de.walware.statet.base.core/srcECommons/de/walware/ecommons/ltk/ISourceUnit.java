@@ -44,6 +44,16 @@ public interface ISourceUnit extends IModelElement, IAdaptable {
 	public IResource getResource();
 	
 	/**
+	 * Checks if the source is modifiable.
+	 * 
+	 * @param validate if validate state finally
+	 * @param monitor progress monitor
+	 * @return <code>true</code> if not yet validated or validated and modifiable,
+	 *     otherwise <code>false</code> (finally not modifiable).
+	 */
+	public boolean checkState(boolean validate, IProgressMonitor monitor);
+	
+	/**
 	 * Access to the document with the content of this source unit
 	 * 
 	 * You must be connected to the source unit. The document object is shared 

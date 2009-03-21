@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.expressions.EvaluationContext;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -74,6 +75,8 @@ import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.ecommons.ltk.ui.LTKInputData;
 import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ui.HandlerContributionItem;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAssociated;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetMessages;
@@ -85,7 +88,7 @@ import de.walware.statet.base.ui.StatetImages;
  * Abstract content outline page for {@link StatextEditor1} with model info
  */
 public abstract class StatextOutlinePage1 extends Page
-		implements IContentOutlinePage, 
+		implements IContentOutlinePage, IAdaptable, ISourceEditorAssociated,
 			IShowInSource, IShowInTargetList, IShowInTarget,
 			IPostSelectionProvider, IModelElementInputListener {
 	
@@ -661,6 +664,18 @@ public abstract class StatextOutlinePage1 extends Page
 			}
 		}
 		return false;
+	}
+	
+	
+	public ISourceEditor getSourceEditor() {
+		return fEditor;
+	}
+	
+	public Object getAdapter(final Class required) {
+		if (ISourceEditorAssociated.class.equals(required)) {
+			return this;
+		}
+		return null;
 	}
 	
 }

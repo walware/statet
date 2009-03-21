@@ -105,6 +105,10 @@ public abstract class GenericUriSourceUnit implements ISourceUnit {
 		return false;
 	}
 	
+	public boolean checkState(final boolean validate, final IProgressMonitor monitor) {
+		return fBuffer.checkState(validate, monitor);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

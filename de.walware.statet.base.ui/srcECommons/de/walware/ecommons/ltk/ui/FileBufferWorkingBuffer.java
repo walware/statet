@@ -18,7 +18,7 @@ import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.LocationKind;
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,6 +29,7 @@ import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ISynchronizable;
 
+import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
@@ -90,21 +91,7 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 	}
 	
 	
-	/** Mode for IFile (in workspace) */
-	private static final int IFILE = 1;
-	/** Mode for IFileStore (URI) */
-	private static final int FILESTORE = 2;
-	
-	
 	private ITextFileBuffer fBuffer;
-	/**
-	 * Mode of this working buffer:<ul>
-	 *   <li>= 0 - uninitialized</li>
-	 *   <li>< 0 - invalid/no source found</li>
-	 *   <li>> 0 - mode constant {@link #IFILE}, {@link #FILESTORE}</li>
-	 * </ul>
-	 */
-	private int fMode;
 	
 	
 	public FileBufferWorkingBuffer(final ISourceUnit unit) {
@@ -112,35 +99,10 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 	}
 	
 	
-	/**
-	 * Checks the mode of this working buffer
-	 * 
-	 * @return <code>true</code> if valid mode, otherwise <code>false</code>
-	 */
-	private boolean detectMode() {
-		if (fMode == 0) {
-			if (fUnit.getResource() != null) {
-				if (fUnit.getResource() instanceof IFile) {
-					fMode = IFILE;
-				}
-			}
-			else {
-				final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);
-				if (store != null && !store.fetchInfo().isDirectory()) {
-					fMode = FILESTORE;
-				}
-			}
-			if (fMode == 0) {
-				fMode = -1;
-			}
-		}
-		return (fMode > 0);
-	}
-	
 	@Override
 	protected AbstractDocument createDocument(final SubMonitor progress) {
 		if (detectMode()) {
-			if (fMode == IFILE) {
+			if (getMode() == IFILE) {
 				final IPath path = fUnit.getPath();
 				try {
 					FileBuffers.getTextFileBufferManager().connect(path, LocationKind.IFILE, progress);
@@ -150,7 +112,7 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 					StatetUIPlugin.log(e.getStatus());
 				}
 			}
-			else if (fMode == FILESTORE) {
+			else if (getMode() == FILESTORE) {
 				final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);
 				try {
 					FileBuffers.getTextFileBufferManager().connectFileStore(store, progress);
@@ -177,11 +139,11 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 		if (detectMode()) {
 			ITextFileBuffer buffer = fBuffer;
 			if (buffer == null) {
-				if (fMode == IFILE) {
+				if (getMode() == IFILE) {
 					final IPath path = fUnit.getPath();
 					buffer = FileBuffers.getTextFileBufferManager().getTextFileBuffer(path, LocationKind.IFILE);
 				}
-				else if (fMode == FILESTORE) {
+				else if (getMode() == FILESTORE) {
 					final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);
 					buffer = FileBuffers.getTextFileBufferManager().getFileStoreTextFileBuffer(store);
 				}
@@ -198,11 +160,11 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 		if (fBuffer != null) {
 			try {
 				final SubMonitor progress = SubMonitor.convert(monitor);
-				if (fMode == IFILE) {
+				if (getMode() == IFILE) {
 					final IPath path = fUnit.getPath();
 					FileBuffers.getTextFileBufferManager().disconnect(path, LocationKind.IFILE, progress);
 				}
-				else if (fMode == FILESTORE) {
+				else if (getMode() == FILESTORE) {
 					final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);
 					FileBuffers.getTextFileBufferManager().disconnectFileStore(store, progress);
 				}
@@ -219,6 +181,25 @@ public class FileBufferWorkingBuffer extends WorkingBuffer {
 		else {
 			super.releaseDocument(monitor);
 		}
+	}
+	
+	@Override
+	public boolean checkState(final boolean validate, final IProgressMonitor monitor) {
+		final ITextFileBuffer buffer = fBuffer;
+		if (buffer != null) {
+			if (!validate && !buffer.isStateValidated()) {
+				return true;
+			}
+			if (validate && !buffer.isStateValidated()) {
+				try {
+					buffer.validateState(monitor, IWorkspace.VALIDATE_PROMPT);
+				}
+				catch (final CoreException e) {
+					StatetUIPlugin.logError(ICommonStatusConstants.IO_ERROR, "An error occurred when validating file buffer state.", e);
+				}
+			}
+		}
+		return super.checkState(validate, monitor);
 	}
 	
 }

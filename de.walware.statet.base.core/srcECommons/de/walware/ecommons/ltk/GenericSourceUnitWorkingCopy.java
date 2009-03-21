@@ -98,6 +98,10 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 		return false;
 	}
 	
+	public boolean checkState(final boolean validate, final IProgressMonitor monitor) {
+		return fBuffer.checkState(validate, monitor);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

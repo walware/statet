@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -28,20 +30,63 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.ICommonStatusConstants;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
 
 public class WorkingBuffer implements IWorkingBuffer {
 	
+	/** Mode for IFile (in workspace) */
+	protected static final int IFILE = 1;
+	/** Mode for IFileStore (URI) */
+	protected static final int FILESTORE = 2;
+	
 	protected final ISourceUnit fUnit;
 	private AbstractDocument fDocument;
 	
+	/**
+	 * Mode of this working buffer:<ul>
+	 *   <li>= 0 - uninitialized</li>
+	 *   <li>< 0 - invalid/no source found</li>
+	 *   <li>> 0 - mode constant {@link #IFILE}, {@link #FILESTORE}</li>
+	 * </ul>
+	 */
+	private int fMode;
 	
 	public WorkingBuffer(final ISourceUnit unit) {
 		fUnit = unit;
 	}
 	
+	
+	/**
+	 * Checks the mode of this working buffer
+	 * 
+	 * @return <code>true</code> if valid mode, otherwise <code>false</code>
+	 */
+	protected final boolean detectMode() {
+		if (fMode == 0) {
+			if (fUnit.getResource() != null) {
+				if (fUnit.getResource() instanceof IFile) {
+					fMode = IFILE;
+				}
+			}
+			else {
+				final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);
+				if (store != null && !store.fetchInfo().isDirectory()) {
+					fMode = FILESTORE;
+				}
+			}
+			if (fMode == 0) {
+				fMode = -1;
+			}
+		}
+		return (fMode > 0);
+	}
+	
+	protected final int getMode() {
+		return fMode;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -72,6 +117,29 @@ public class WorkingBuffer implements IWorkingBuffer {
 	
 	public synchronized void releaseDocument(final IProgressMonitor monitor) {
 		fDocument = null;
+	}
+	
+	public boolean checkState(final boolean validate, final IProgressMonitor monitor) {
+		final ISourceUnit underlyingUnit = fUnit.getUnderlyingUnit();
+		if (underlyingUnit != null) {
+			return underlyingUnit.checkState(validate, monitor);
+		}
+		else if (detectMode()) {
+			if (getMode() == IFILE) {
+				final IResource resource = fUnit.getResource();
+				return !resource.getResourceAttributes().isReadOnly();
+			}
+			if (getMode() == FILESTORE) {
+				final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);
+				try {
+					return !store.fetchInfo(EFS.NONE, monitor).getAttribute(EFS.ATTRIBUTE_READ_ONLY);
+				}
+				catch (final CoreException e) {
+					BaseCorePlugin.logError(ICommonStatusConstants.IO_ERROR, "An error occurred when checking modifiable state of the file.", e);
+				}
+			}
+		}
+		return false;
 	}
 	
 	

@@ -50,6 +50,7 @@ import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAssociated;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.ext.templates.TemplatesUtil;
@@ -92,6 +93,8 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 		final IEvaluationContext context = (IEvaluationContext) event.getApplicationContext();
 		final ISelection selection = WorkbenchUIUtil.getCurrentSelection(context);
 		final IWorkbenchWindow workbenchWindow = HandlerUtil.getActiveWorkbenchWindow(event);
+		final IWorkbenchPart part = (IWorkbenchPart) context.getVariable(ISources.ACTIVE_PART_NAME);
+		final ISourceEditor editor;
 		if (selection instanceof IStructuredSelection) {
 			elements = LTKSelectionUtil.getSelectedSourceStructElements((IStructuredSelection) selection);
 			if (elements != null && elements.length > 0) {
@@ -105,10 +108,11 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 				info = su.getModelInfo(RModel.TYPE_ID, IModelManager.MODEL_FILE, progress.newChild(1));
 				// update elements if necessary
 			}
+			final ISourceEditorAssociated associated = (ISourceEditorAssociated) part.getAdapter(ISourceEditorAssociated.class);
+			editor = (associated != null) ? associated.getSourceEditor() : null;
 		}
 		else if (selection instanceof ITextSelection) {
-			final IWorkbenchPart part = (IWorkbenchPart) context.getVariable(ISources.ACTIVE_PART_NAME);
-			final ISourceEditor editor = (ISourceEditor) part.getAdapter(ISourceEditor.class);
+			editor = (ISourceEditor) part.getAdapter(ISourceEditor.class);
 			if (editor != null) {
 				su = editor.getSourceUnit();
 				if (su != null) {
@@ -117,11 +121,17 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 				}
 			}
 		}
+		else {
+			editor = null;
+		}
 		
 		if (su == null || elements == null || elements.length == 0 || !(su instanceof IRSourceUnit)) {
 			return null;
 		}
 		
+		if (!su.checkState(true, new NullProgressMonitor())) {
+			return false;
+		}
 		final IRSourceUnit rsu = (IRSourceUnit) su;
 		try {
 			final AbstractDocument doc = su.getDocument(null);
@@ -189,7 +199,10 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 					try {
 						multi.apply(getDocument(), TextEdit.NONE);
 						
-						if (resource != null) {
+						if (editor != null) {
+							editor.getViewer().setSelectedRange(initialSelection.getOffset(), initialSelection.getLength());
+						}
+						else if (resource != null) {
 							WorkbenchUIUtil.openEditor(workbenchWindow.getActivePage(), resource, initialSelection);
 						}
 					}
