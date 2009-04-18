@@ -11,7 +11,9 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jface.text.IRegion;
@@ -107,7 +109,8 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 		private Envir fEnvir;
 		
-		private List<String> fParentTypeNamesProtected = NO_PARENTS;
+		private List<String> fSuperClassesTypeNames = NO_PARENTS;
+		private List<String> fSuperClassesTypeNamesProtected = NO_PARENTS;
 		
 		
 		public RClass(final AbstractRModelElement parent, final ElementAccess defAccess, final Envir envir) {
@@ -116,13 +119,30 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		}
 		
 		
-		void completeParents(final String[] parentTypeNames) {
-			fParentTypeNamesProtected = Arrays.asList(parentTypeNames);
+		void addSuperClasses(final String[] typeNames) {
+			if (fSuperClassesTypeNames == NO_PARENTS) {
+				int count = 0;
+				for (final String name : typeNames) {
+					if (name != null) {
+						count++;
+					}
+				}
+				if (count == 0) {
+					return;
+				}
+				fSuperClassesTypeNames = new ArrayList<String>(count);
+				fSuperClassesTypeNamesProtected = Collections.unmodifiableList(fSuperClassesTypeNames);
+			}
+			for (final String name : typeNames) {
+				if (name != null && !fSuperClassesTypeNames.contains(name)) {
+					fSuperClassesTypeNames.add(name);
+				}
+			}
 		}
 		
 		
 		public List<String> getExtendedClassNames() {
-			return fParentTypeNamesProtected;
+			return fSuperClassesTypeNamesProtected;
 		}
 		
 		@Override

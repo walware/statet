@@ -112,6 +112,11 @@ public class RCoreFunctions {
 	public static final String METHODS_RESETCLASS_NAME = "resetClass";
 	public final ArgsDefinition METHODS_RESETCLASS_args;
 	
+	public static final String METHODS_SETAS_NAME = "setAs";
+	public final ArgsDefinition METHODS_SETAS_args;
+	
+	public static final String METHODS_SETVALIDITY_NAME = "setValidity";
+	public final ArgsDefinition METHODS_SETVALIDITY_args;
 	
 	public static final String METHODS_ISCLASS_NAME = "isClass";
 	public final ArgsDefinition METHODS_ISCLASS_args;
@@ -264,8 +269,14 @@ public class RCoreFunctions {
 		METHODS_REMOVECLASS_args = createMethodsRemoveClass();
 		fNameDefMap.put(METHODS_REMOVECLASS_NAME, METHODS_REMOVECLASS_args);
 		
-		METHODS_RESETCLASS_args = createMethodsRemoveClass();
+		METHODS_RESETCLASS_args = createMethodsResetClass();
 		fNameDefMap.put(METHODS_RESETCLASS_NAME, METHODS_RESETCLASS_args);
+		
+		METHODS_SETAS_args = createMethodsSetAs();
+		fNameDefMap.put(METHODS_SETAS_NAME, METHODS_SETAS_args);
+		
+		METHODS_SETVALIDITY_args = createMethodsSetValidity();
+		fNameDefMap.put(METHODS_SETVALIDITY_NAME, METHODS_SETVALIDITY_args);
 		
 		METHODS_ISCLASS_args = createMethodsIsClass();
 		fNameDefMap.put(METHODS_ISCLASS_NAME, METHODS_ISCLASS_args);
@@ -498,6 +509,21 @@ public class RCoreFunctions {
 		return new ArgsBuilder()
 				.add("Class") // no naming
 				.add("classDef", "where")
+				.toDef();
+	}
+	
+	ArgsDefinition createMethodsSetAs() {
+		return new ArgsBuilder()
+				.add("from", CLASS_NAME)
+				.add("to", CLASS_NAME)
+				.add("def", "replace", "where")
+				.toDef();
+	}
+	
+	ArgsDefinition createMethodsSetValidity() {
+		return new ArgsBuilder()
+				.add("Class", CLASS_NAME) // no naming
+				.add("method", "where")
 				.toDef();
 	}
 	

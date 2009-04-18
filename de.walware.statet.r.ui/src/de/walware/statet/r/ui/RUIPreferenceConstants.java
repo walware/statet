@@ -348,7 +348,7 @@ public class RUIPreferenceConstants {
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX, false);
 		}
-		store.setDefault(R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS, "assign,rm,remove,setMethod,setGeneric,setGroupGeneric,removeClass,removeGeneric,removeMethod,removeMethods,attach,detach,source"); //$NON-NLS-1$
+		store.setDefault(R.TS_IDENTIFIER_SUB_ASSIGNMENT_ITEMS, "assign,rm,remove,setMethod,setGeneric,setGroupGeneric,setClass,setClassUnion,setIs,setAs,setValidity,removeClass,removeGeneric,removeMethod,removeMethods,attach,detach,source"); //$NON-NLS-1$
 		store.setDefault(R.TS_IDENTIFIER_SUB_LOGICAL_ITEMS, "xor,any,all"); //$NON-NLS-1$
 		store.setDefault(R.TS_IDENTIFIER_SUB_FLOWCONTROL_ITEMS, "return,switch,ifelse,stop,warning,try,tryCatch"); //$NON-NLS-1$
 		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS, ""); //$NON-NLS-1$
