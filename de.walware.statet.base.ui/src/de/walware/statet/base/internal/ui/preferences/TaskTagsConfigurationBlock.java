@@ -83,6 +83,9 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	private TableViewer fListViewer;
 	private ButtonGroup<TaskTag> fListButtons;
 	
+	private Image fTaskIcon;
+	private Image fTaskDefaultIcon;
+	
 	private final IObservableList fList;
 	private final IObservableValue fDefault;
 	
@@ -108,6 +111,8 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.put(TaskTagsPreferences.PREF_PRIORITIES, TaskTagsPreferences.GROUP_ID);
 		
 		setupPreferenceManager(prefs);
+		
+		createImages();
 		
 		{	// Table area
 			final Composite composite = new Composite(pageComposite, SWT.NONE);
@@ -162,11 +167,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 				@Override
 				public Image getImage(final Object element) {
 					final TaskTag tag = (TaskTag) element;
-					final Image baseImage = PlatformUI.getWorkbench().getSharedImages().getImage(IDE.SharedImages.IMG_OBJS_TASK_TSK);
-					final ImageDescriptor defaultOverlay = (isDefaultTask(tag)) ? StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER) : null;
-					return new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
-								null, null, null, defaultOverlay, null}, 
-								new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+					return (isDefaultTask(tag)) ? fTaskDefaultIcon : fTaskIcon;
 				}
 				@Override
 				public String getText(final Object element) {
@@ -212,6 +213,29 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			}
 		});
 		return composite;
+	}
+	
+	private void createImages() {
+		final Image baseImage = PlatformUI.getWorkbench().getSharedImages().getImage(IDE.SharedImages.IMG_OBJS_TASK_TSK);
+		fTaskIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
+				null, null, null, null, null},
+				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+		fTaskDefaultIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
+				null, null, null, StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER), null},
+				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
+	}
+	
+	@Override
+	public void dispose() {
+		if (fTaskIcon != null) {
+			fTaskIcon.dispose();
+			fTaskIcon = null;
+		}
+		if (fTaskDefaultIcon != null) {
+			fTaskDefaultIcon.dispose();
+			fTaskDefaultIcon = null;
+		}
+		super.dispose();
 	}
 	
 	@Override
