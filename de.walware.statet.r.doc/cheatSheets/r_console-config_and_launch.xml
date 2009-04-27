@@ -19,7 +19,7 @@
    </intro>
    <item title="Specify Connector" dialog="true" skip="false">
       <description>
-         Go to <b>Window &gt; Preferences... &gt; StatET &gt; R Interaction</b> and choose the R interaction mode of your choice: 
+         Go to <b>Window &gt; Preferences... &gt; StatET &gt; Run/Debug &gt; R Interaction</b> and choose the R interaction mode of your choice: 
 <br/><br/>
 <b>New Console inside Eclipse</b> allows to run a Console inside Eclipse,
 <br/><br/>
@@ -33,7 +33,7 @@
    </item>
    <item title="Add R Environment" dialog="true" skip="false">
       <description>
-         Unfold the <b>R Interaction</b> node and click on R Environments.
+         Select the <b>R Environments</b> preference page.
 <br/><br/>
 Click on the <b>Add...</b> button to specify the path to the R version you would like to use.
 <br/><br/>

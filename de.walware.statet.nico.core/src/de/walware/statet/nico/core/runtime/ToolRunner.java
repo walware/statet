@@ -81,7 +81,7 @@ public class ToolRunner {
 			}
 		};
 		background.setDaemon(true);
-		background.setName("StatET Thread '"+process.getLabel()+"'"); //$NON-NLS-1$ //$NON-NLS-2$
+		background.setName(process.getMainType() + " Engine '"+process.getLabel()+"'"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		background.start();
 	}

@@ -42,14 +42,29 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	public static final String ID = "de.walware.statet.r.launching.RNewConsoleConnector"; //$NON-NLS-1$
 	
 	
+	public static interface CommandsCreator {
+		
+		IStatus submitTo(final ToolController controller);
+		
+	}
+	
+	
 	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
+		return submit(new CommandsCreator() {
+			public IStatus submitTo(final ToolController controller) {
+				return controller.submit(rCommands, SubmitType.EDITOR);
+			}
+		}, gotoConsole);
+	}
+	
+	public boolean submit(final CommandsCreator rCommands, final boolean gotoConsole) throws CoreException {
 		final AtomicReference<Boolean> success = new AtomicReference<Boolean>(Boolean.FALSE);
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			public void run() throws CoreException {
 				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
 				final ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
-				final ToolController controller = NicoUITools.accessTool("R", info.getProcess()); //$NON-NLS-1$
-				final IStatus status = controller.submit(rCommands, SubmitType.EDITOR);
+				final ToolController controller = NicoUITools.accessController("R", info.getProcess()); //$NON-NLS-1$
+				final IStatus status = rCommands.submitTo(controller);
 				if (status.getSeverity() >= IStatus.ERROR) {
 					throw new CoreException(status);
 				}

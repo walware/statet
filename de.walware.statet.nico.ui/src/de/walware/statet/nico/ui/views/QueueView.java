@@ -26,6 +26,10 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.TableDragSourceEffect;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.graphics.Image;
@@ -40,6 +44,8 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.ecommons.ui.util.UIAccess;
@@ -49,13 +55,13 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.internal.ui.LocalTaskTransfer;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
-import de.walware.statet.nico.ui.actions.PauseAction;
 import de.walware.statet.nico.ui.util.ToolProgressGroup;
 
 
@@ -75,12 +81,9 @@ public class QueueView extends ViewPart {
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			if (oldInput != null && newInput == null) {
 				unregister();
-				fPauseAction.setTool(null);
 			}
 			if (newInput != null) {
 				final ToolProcess newProcess = (ToolProcess) newInput;
-				
-				fPauseAction.setTool(newProcess);
 				
 				final DebugPlugin manager = DebugPlugin.getDefault();
 				if (manager != null) {
@@ -139,12 +142,6 @@ public class QueueView extends ViewPart {
 			EVENT: for (int i = 0; i < events.length; i++) {
 				final DebugEvent event = events[i];
 				final Object source = event.getSource();
-				if (source == process) {
-					if (event.getKind() == DebugEvent.TERMINATE) {
-						fPauseAction.setTool(null);
-					}
-					continue EVENT;
-				}
 				if (source == queue) {
 					switch (event.getKind()) {
 					
@@ -155,6 +152,7 @@ public class QueueView extends ViewPart {
 						final Queue.Delta delta = (Queue.Delta) event.getData();
 						switch (delta.type) {
 						case Queue.ENTRIES_ADD:
+						case Queue.ENTRIES_MOVE_ADD:
 							if (!fExpectInfoEvent) {
 								if (events.length > i+1 && delta.data.length == 1) {
 									// Added and removed in same set
@@ -186,6 +184,7 @@ public class QueueView extends ViewPart {
 							updateProgress = true;
 							// no break, continue with delete
 						case Queue.ENTRIES_DELETE:
+						case Queue.ENTRIES_MOVE_DELETE:
 							if (!fExpectInfoEvent) {
 								UIAccess.getDisplay().syncExec(new Runnable() {
 									public void run() {
@@ -312,8 +311,6 @@ public class QueueView extends ViewPart {
 	private ToolProcess fProcess;
 	private IToolRegistryListener fToolRegistryListener;
 	
-	private PauseAction fPauseAction;
-	
 	private static final String M_SHOW_DESCRIPTION = "QueueView.ShowDescription"; //$NON-NLS-1$
 	private boolean fShowDescription;
 	private Action fShowDescriptionAction;
@@ -393,21 +390,22 @@ public class QueueView extends ViewPart {
 		
 		createActions();
 		contributeToActionBars();
+		hookDND();
 		
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
 		fToolRegistryListener = new IToolRegistryListener() {
-			public void toolSessionActivated(final ToolSessionUIData info) {
-				final ToolProcess process = info.getProcess();
+			public void toolSessionActivated(final ToolSessionUIData sessionData) {
+				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						connect(process);
 					}
 				});
 			}
-			public void toolSessionClosed(final ToolSessionUIData info) {
-				disconnect(info.getProcess());
+			public void toolTerminated(final ToolSessionUIData sessionData) {
+				// handled by debug events
 			}
 		};
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
@@ -430,8 +428,6 @@ public class QueueView extends ViewPart {
 	}
 	
 	private void createActions() {
-		fPauseAction = new PauseAction();
-		
 		fShowDescriptionAction = new ShowDescriptionAction();
 		fShowProgressAction = new ShowProgressAction();
 		
@@ -470,7 +466,44 @@ public class QueueView extends ViewPart {
 	}
 	
 	private void fillLocalToolBar(final IToolBarManager manager) {
-		manager.add(fPauseAction);
+		manager.add(new CommandContributionItem(new CommandContributionItemParameter(
+				getSite(), null, NicoUI.PAUSE_COMMAND_ID, null,
+				null, null, null,
+				null, null, null,
+				CommandContributionItem.STYLE_CHECK, null, false)));
+	}
+	
+	private void hookDND() {
+		fTableViewer.addDragSupport(DND.DROP_MOVE, 
+				new Transfer[] { LocalTaskTransfer.getTransfer() }, 
+				new TableDragSourceEffect(fTableViewer.getTable()) {
+			@Override
+			public void dragStart(final DragSourceEvent event) {
+				if (fTableViewer.getTable().getSelectionCount() > 0) {
+					event.doit = true;
+				} else {
+					event.doit = false;
+				}
+				LocalTaskTransfer.getTransfer().init(fProcess);
+				super.dragStart(event);
+			}
+			@Override
+			public void dragSetData(final DragSourceEvent event) {
+				super.dragSetData(event);
+				final LocalTaskTransfer.Data data = LocalTaskTransfer.getTransfer().createData();
+				if (data.process != fProcess) {
+					event.doit = false;
+					return;
+				}
+				data.tasks = ((IStructuredSelection) fTableViewer.getSelection()).toArray();
+				event.data = data;
+			}
+			@Override
+			public void dragFinished(final DragSourceEvent event) {
+				super.dragFinished(event);
+				LocalTaskTransfer.getTransfer().finished();
+			}
+		});
 	}
 	
 	private void disconnect(final ToolProcess process) {
@@ -492,7 +525,6 @@ public class QueueView extends ViewPart {
 				}
 				fProcess = process;
 				updateContentDescription(process);
-				fPauseAction.setTool(process);
 				if (fProgressControl != null) {
 					fProgressControl.setTool(process, true);
 				}
@@ -527,9 +559,6 @@ public class QueueView extends ViewPart {
 	
 	@Override
 	public void dispose() {
-		fPauseAction.dispose();
-		fPauseAction = null;
-		
 		super.dispose();
 	}
 	

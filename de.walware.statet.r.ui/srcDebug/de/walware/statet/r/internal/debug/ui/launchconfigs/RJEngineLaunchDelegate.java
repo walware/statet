@@ -37,6 +37,7 @@ import org.osgi.framework.Bundle;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -49,9 +50,12 @@ import de.walware.statet.r.ui.RUI;
 public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	
+	private static final String RJ_SERVER_BUNDLE_ID = "de.walware.rj.server"; //$NON-NLS-1$
+	
+	
 	public static void addPluginClasspath(final Set<String> classpath, final boolean desktop, final boolean is64) {
 		final List<Bundle> bundles = new ArrayList<Bundle>();
-		final Bundle rjBundle = Platform.getBundle("de.walware.rj"); //$NON-NLS-1$
+		final Bundle rjBundle = Platform.getBundle(RJ_SERVER_BUNDLE_ID); 
 		bundles.add(rjBundle);
 		Bundle[] fragments = Platform.getFragments(rjBundle);
 		if (fragments != null) {
@@ -145,7 +149,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (s.indexOf(" -Djava.security.policy=") < 0) { //$NON-NLS-1$
 			try {
-				final URL intern = Platform.getBundle("de.walware.rj").getEntry("/localhost.policy"); //$NON-NLS-1$ //$NON-NLS-2$
+				final URL intern = Platform.getBundle(RCore.PLUGIN_ID).getEntry("/localhost.policy"); //$NON-NLS-1$ 
 				final URL java = FileLocator.resolve(intern);
 				s.append(" -Djava.security.policy=\""); //$NON-NLS-1$
 				s.append(java.toString());
@@ -175,7 +179,9 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		args.append(' ');
 		args.append(fAddress);
 		
-		args.append(" -plugins:"); //$NON-NLS-1$
+		args.append(" -auth=none"); //$NON-NLS-1$
+		
+		args.append(" -plugins="); //$NON-NLS-1$
 		args.append("awt,"); //$NON-NLS-1$
 		if (Platform.getOS().equals(Platform.OS_WIN32)) { 
 			args.append("swt,"); //$NON-NLS-1$

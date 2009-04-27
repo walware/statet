@@ -539,16 +539,16 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
 		fToolRegistryListener = new IToolRegistryListener() {
-			public void toolSessionActivated(final ToolSessionUIData info) {
-				final ToolProcess process = info.getProcess();
+			public void toolSessionActivated(final ToolSessionUIData sessionData) {
+				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						connect(process);
 					}
 				});
 			}
-			public void toolSessionClosed(final ToolSessionUIData info) {
-				final ToolProcess process = info.getProcess();
+			public void toolTerminated(final ToolSessionUIData sessionData) {
+				final ToolProcess process = sessionData.getProcess();
 				UIAccess.getDisplay().syncExec(new Runnable() {
 					public void run() {
 						if (fProcess != null && fProcess == process) {
@@ -615,7 +615,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		fSearchPrevHandler = new AbstractHandler() {
 			public Object execute(final ExecutionEvent arg0) {
-				search(false);
+				search(false, -1);
 				return null;
 			}
 		};
@@ -624,7 +624,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		fSearchNextHandler = new AbstractHandler() {
 			public Object execute(final ExecutionEvent arg0) {
-				search(true);
+				search(true, -1);
 				return null;
 			}
 		};
@@ -699,7 +699,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 							}
 						}
 						if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-							search(true);
+							search(true, -1);
 						}
 					}
 				});
@@ -756,6 +756,10 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fToolActions.add(action);
 	}
 	
+	public void removeToolRetargetable(final IToolRetargetable action) {
+		fToolActions.remove(action);
+	}
+	
 	public void addFilter(final EntryFilter filter) {
 		fFilter.add(filter);
 		scheduleRefresh(false);
@@ -764,6 +768,11 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	public void removeFilter(final EntryFilter filter) {
 		fFilter.remove(filter);
 		scheduleRefresh(false);
+	}
+	
+	public void search(final String pattern, final boolean forward) {
+		fSearchText.setText(pattern);
+		search(forward, forward ? 0 : fTable.getItemCount()-1);
 	}
 	
 	
@@ -812,7 +821,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fSearchText.setFocus();
 	}
 	
-	private void search(final boolean forward) {
+	private void search(final boolean forward, final int startIdx) {
 		if (!UIAccess.isOkToUse(fTable)) {
 			return;
 		}
@@ -835,7 +844,13 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		} while (start < text.length());
 		fSearchPattern.setPattern(text.substring(start));
 		
-		int idx = fTable.getSelectionIndex();
+		int idx;
+		if (startIdx < 0) {
+			idx = fTable.getSelectionIndex();
+		}
+		else {
+			idx = (forward) ? startIdx-1 : startIdx+1;
+		}
 		if (forward) {
 			idx++;
 			while (idx < itemCount) {

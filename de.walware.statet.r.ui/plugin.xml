@@ -881,6 +881,10 @@
             id="de.walware.statet.r.actionSets.RToolbarExt1Set"
             label="%actionSets_RToolbarExt1_label">
       </actionSet>
+      <actionSet
+            id="de.walware.statet.r.actionSets.RSessionTools"
+            label="%actionSets_RSessionTools_label">
+      </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
@@ -894,19 +898,19 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="de.walware.statet.base.preferencePages.StatetBase"
-            class="de.walware.statet.r.internal.debug.ui.preferences.RInteractionPreferencePage"
             id="de.walware.statet.r.preferencePages.RInteraction"
+            category="de.walware.statet.base.preferencePages.RunDebug"
+            class="de.walware.statet.r.internal.debug.ui.preferences.RInteractionPreferencePage"
             name="%preferencePages.RInteraction.name"/>
       <page
-            category="de.walware.statet.r.preferencePages.RInteraction"
-            class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
             id="de.walware.statet.r.preferencePages.RInteractionPreferencePage"
+            category="de.walware.statet.base.preferencePages.RunDebug"
+            class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
             name="%preferencePages.REnvironments.name"/>
       <page
+            id="de.walware.statet.r.preferencePages.AdvancedIntegration"
             category="de.walware.statet.r.preferencePages.RInteraction"
             class="de.walware.statet.r.internal.debug.ui.preferences.ExtendedOptionsPreferencePage"
-            id="de.walware.statet.r.preferencePages.AdvancedIntegration"
             name="%preferencePages.RIntegrationExt.name">
       </page>
    </extension>

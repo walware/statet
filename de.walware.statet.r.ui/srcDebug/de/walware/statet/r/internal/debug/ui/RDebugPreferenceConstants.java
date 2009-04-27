@@ -30,6 +30,9 @@ public class RDebugPreferenceConstants {
 	public static final String CAT_RCONNECTOR_QUALIFIER = ROOT_QUALIFIER + "/RConnector"; //$NON-NLS-1$
 	public static final StringPref PREF_R_CONNECTOR = new StringPref(CAT_RCONNECTOR_QUALIFIER, "rconnector.id"); //$NON-NLS-1$
 	
+	public static final String CAT_RREMOTE_LAUNCHING_QUALIFIER = ROOT_QUALIFIER + "/r.remote.launching"; //$NON-NLS-1$
+	
+	
 	/**
 	 * Initializes the default values.
 	 */

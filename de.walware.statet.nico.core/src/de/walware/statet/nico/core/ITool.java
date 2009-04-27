@@ -18,6 +18,8 @@ package de.walware.statet.nico.core;
 public interface ITool {
 	
 	
+	String getMainType();
+	
 	boolean isProvidingFeatureSet(String featureSetId);
 	
 }

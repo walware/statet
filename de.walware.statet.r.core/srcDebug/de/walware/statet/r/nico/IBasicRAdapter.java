@@ -11,7 +11,9 @@
 
 package de.walware.statet.r.nico;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 
@@ -23,8 +25,10 @@ public interface IBasicRAdapter extends
 		IToolRunnableControllerAdapter, IAdaptable {
 	
 	
-//	public void voidEval(String );
-	
-//	public REXP eval(String );
+	/**
+	 * Quits R 
+	 * <code>q()</code>
+	 */
+	public void quit(final IProgressMonitor monitor) throws CoreException;
 	
 }

@@ -11,6 +11,13 @@
 
 package de.walware.statet.r.rserve;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,15 +35,12 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.IToolEventHandler.LoginEventData;
 
 import de.walware.statet.r.internal.rserve.launchconfigs.ConnectionConfig;
 import de.walware.statet.r.nico.AbstractRController;
 import de.walware.statet.r.nico.BasicR;
-import de.walware.statet.r.nico.IBasicRAdapter;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.nico.RWorkspace;
-import de.walware.statet.r.nico.impl.RQuitRunnable;
 
 
 /**
@@ -50,7 +54,7 @@ public class RServeClientController extends AbstractRController {
 	
 	
 	public RServeClientController(final ToolProcess process, final ConnectionConfig config) {
-		super(process);
+		super(process, null);
 		fConfig = config;
 		
 		fWorkspaceData = new RWorkspace(this);
@@ -78,16 +82,19 @@ public class RServeClientController extends AbstractRController {
 			fInfoStream.append("[RServe] Server version: "+fRconnection.getServerVersion()+"."+fWorkspaceData.getLineSeparator(), SubmitType.OTHER, 0);
 			
 			if (fRconnection.needLogin()) {
-				final LoginEventData login = new LoginEventData();
-				login.name = "guest";
-				login.password = "guest";
+				final NameCallback nameCallback = new NameCallback("Name");
+				final PasswordCallback passwordCallback = new PasswordCallback("Password", false);
+				final Callback[] callbacks = new Callback[] { nameCallback, passwordCallback };
+				final Map<String, Object> data = new HashMap<String, Object>();
+				data.put("callbacks", callbacks); //$NON-NLS-1$
 				int result = IToolEventHandler.OK;
-				final IToolEventHandler handler = getEventHandler(IToolEventHandler.LOGIN_EVENT_ID);
+				final IToolEventHandler handler = getEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID);
 				if (handler != null) {
-					result = handler.handle(this, login);
+					result = handler.handle(IToolEventHandler.LOGIN_REQUEST_EVENT_ID, this, data, monitor);
 				}
 				if (result == IToolEventHandler.OK) {
-					fRconnection.login(login.name, login.password);
+					final char[] password = passwordCallback.getPassword();
+					fRconnection.login(nameCallback.getName(), password != null ? new String(password) : ""); //$NON-NLS-1$
 				}
 				else {
 					killTool(new NullProgressMonitor());
@@ -139,18 +146,6 @@ public class RServeClientController extends AbstractRController {
 	}
 	
 	@Override
-	protected IToolRunnable createQuitRunnable() {
-		return new RQuitRunnable() {
-			@Override
-			public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
-					throws InterruptedException, CoreException {
-				fRconnection.close();
-				markAsTerminated();
-			}
-		};
-	}
-	
-	@Override
 	protected void killTool(final IProgressMonitor monitor) {
 		final Rconnection con = fRconnection;
 		if (con != null) {
@@ -193,6 +188,12 @@ public class RServeClientController extends AbstractRController {
 			setCurrentPrompt(fDefaultPrompt);
 			return;
 		}
+	}
+	
+	@Override
+	public void quit(final IProgressMonitor monitor) throws CoreException {
+		fRconnection.close();
+		markAsTerminated();
 	}
 	
 }

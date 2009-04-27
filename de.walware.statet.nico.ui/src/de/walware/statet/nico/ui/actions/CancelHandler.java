@@ -12,13 +12,11 @@
 package de.walware.statet.nico.ui.actions;
 
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Display;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.IToolProvider;
-import de.walware.statet.nico.core.util.ToolRetargetableHandler;
 
 
 /**
@@ -29,39 +27,38 @@ public class CancelHandler extends ToolRetargetableHandler {
 	
 	public static final String MENU_ID = "de.walware.statet.nico.menus.Cancel"; //$NON-NLS-1$
 	
-	public static final String COMMAND_CURRENT = "de.walware.statet.nico.commands.CancelCurrent"; //$NON-NLS-1$
-	public static final String COMMAND_ALL = "de.walware.statet.nico.commands.CancelAll"; //$NON-NLS-1$
-	public static final String COMMAND_CURRENTPAUSE = "de.walware.statet.nico.commands.CancelCurrentAndPause"; //$NON-NLS-1$
-	
 	public static final String PAR_OPTIONS = "options"; //$NON-NLS-1$
 	
 	
-	private int fOptions;
+	private final int fOptions;
 	
 	
 	public CancelHandler(final IToolProvider toolProvider) {
-		super(toolProvider, true);
+		super(toolProvider, null);
 		fOptions = 0;
+		init();
 	}
 	
 	public CancelHandler(final IToolProvider toolProvider, final int options) {
-		super(toolProvider, true);
+		super(toolProvider, null);
 		fOptions = options;
+		init();
 	}
 	
 	
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
+	@Override
+	protected Object doExecute(final ExecutionEvent event) {
 		final String optionsParameter = event.getParameter(PAR_OPTIONS);
 		int options = fOptions;
 		if (optionsParameter != null) {
 			try {
-				options = Integer.decode(PAR_OPTIONS);
+				options = Integer.decode(optionsParameter);
 			}
 			catch (final NumberFormatException e) {
 			}
 		}
 		
-		final ToolProcess tool = getTool();
+		final ToolProcess tool = getCheckedTool();
 		final ToolController controller = (tool != null) ? tool.getController() : null;
 		if (controller == null) {
 			return null;

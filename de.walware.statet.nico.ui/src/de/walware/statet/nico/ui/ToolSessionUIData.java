@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui;
 
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
@@ -22,12 +23,15 @@ public class ToolSessionUIData {
 	
 	private final ToolProcess fProcess;
 	private final NIConsole fConsole;
+	private final IWorkbenchPage fPage;
 	private final IViewPart fSource;
 	
 	
-	public ToolSessionUIData(final ToolProcess process, final NIConsole console, final IViewPart source) {
+	public ToolSessionUIData(final ToolProcess process, final NIConsole console, 
+			final IWorkbenchPage page, final IViewPart source) {
 		fProcess = process;
 		fConsole = console;
+		fPage = page;
 		fSource = source;
 	}
 	
@@ -37,6 +41,10 @@ public class ToolSessionUIData {
 	
 	public ToolProcess getProcess() {
 		return fProcess;
+	}
+	
+	public IWorkbenchPage getPage() {
+		return fPage;
 	}
 	
 	public IViewPart getSource() {

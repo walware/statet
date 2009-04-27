@@ -19,9 +19,16 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
  */
 public interface IToolRetargetable {
 	
-	
+	/**
+	 * Is called when the tool changed
+	 * 
+	 * @param tool the new tool
+	 */
 	void setTool(ToolProcess tool);
 	
-	void handleToolTerminated();
+	/**
+	 * Is called when the set tool is terminated
+	 */
+	void toolTerminated();
 	
 }

@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.nico;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -21,7 +23,14 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.statet.r.internal.nico.RNicoMessages;
 
+
+/**
+ * Abstract superclass of controllers for R.
+ * 
+ * All implementations of {@link ToolController} for R should extends this class.
+ */
 public abstract class AbstractRController
 		extends ToolController<RWorkspace>
 		implements IBasicRAdapter, ISetupRAdapter {
@@ -31,11 +40,37 @@ public abstract class AbstractRController
 	protected String fDefaultPromptText;
 	
 	
-	public AbstractRController(final ToolProcess process) {
-		super(process);
+	public AbstractRController(final ToolProcess process, final Map<String, Object> initData) {
+		super(process, initData);
 		process.registerFeatureSet(BasicR.FEATURESET_ID);
 	}
 	
+	
+	@Override
+	protected final IToolRunnable createQuitRunnable() {
+		return new IToolRunnable<IBasicRAdapter>() {
+			
+			public String getTypeId() {
+				return ToolController.QUIT_TYPE_ID;
+			}
+			
+			public String getLabel() {
+				return RNicoMessages.Quit_Task_label;
+			}
+			
+			public SubmitType getSubmitType() {
+				return SubmitType.TOOLS;
+			}
+			
+			public void changed(final int event, final ToolProcess process) {
+			}
+			
+			public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
+					throws InterruptedException, CoreException {
+				tools.quit(monitor);
+			}
+		};
+	}
 	
 	@Override
 	protected IToolRunnable createCancelPostRunnable(final int options) {
@@ -49,10 +84,12 @@ public abstract class AbstractRController
 			public String getLabel() {
 				return "Reset prompt";
 			}
-			public void changed(final int event) {
+			public void changed(final int event, final ToolProcess process) {
 			}
 			public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) throws InterruptedException, CoreException {
-				postCancelTask(options, monitor);
+				if (!isTerminated()) {
+					postCancelTask(options, monitor);
+				}
 			}
 		};
 	}
@@ -100,7 +137,8 @@ public abstract class AbstractRController
 				setCurrentPrompt(fDefaultPrompt);
 			}
 			else {
-				setCurrentPrompt(new Prompt(text, IToolRunnableControllerAdapter.META_HISTORY_DONTADD | IToolRunnableControllerAdapter.META_PROMPT_DEFAULT));
+				setCurrentPrompt(new Prompt(fDefaultPromptText,
+						IToolRunnableControllerAdapter.META_HISTORY_DONTADD | IToolRunnableControllerAdapter.META_PROMPT_DEFAULT));
 			}
 		}
 		else if (fIncompletePromptText.equals(text)) {
@@ -108,10 +146,19 @@ public abstract class AbstractRController
 					fCurrentPrompt, fCurrentInput+fLineSeparator, fIncompletePromptText,
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
-		else {
-			setCurrentPrompt(new Prompt(text, 
+		else if (text != null) {
+			setCurrentPrompt(new Prompt(text,
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
+		else { // TODO log warning / exception?
+			setCurrentPrompt(new Prompt("", //$NON-NLS-1$
+					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
+		}
+	}
+	
+	public void quit(final IProgressMonitor monitor) throws CoreException {
+		final String command = "q()"; //$NON-NLS-1$
+		submitToConsole(command, monitor);
 	}
 	
 }

@@ -11,27 +11,30 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.REPORT_STATUS_DATA_KEY;
+import static de.walware.statet.nico.core.runtime.IToolEventHandler.REPORT_STATUS_EVENT_ID;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.FastList;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
@@ -77,6 +80,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		 */
 		void controllerStatusChanged(ToolStatus oldStatus, ToolStatus newStatus, List<DebugEvent> eventCollection);
 		
+//		void controllerBusyChanged(boolean isBusy, final List<DebugEvent> eventCollection);
+		
 	}
 	
 	
@@ -110,7 +115,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return TYPE_ID;
 		}
 		
-		public void changed(final int event) {
+		public void changed(final int event, final ToolProcess process) {
 		}
 		
 		public SubmitType getSubmitType() {
@@ -151,7 +156,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return Messages.ToolController_CommonStartTask_label;
 		}
 		
-		public void changed(final int event) {
+		public void changed(final int event, final ToolProcess process) {
 		}
 		
 		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor)
@@ -174,7 +179,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	protected ToolStreamMonitor fErrorOutputStream;
 	
 	protected final ToolProcess fProcess;
-	private Queue fQueue;
+	protected final Queue fQueue;
 	
 	protected IToolRunnable fCurrentRunnable;
 	private IToolRunnable fControllerRunnable;
@@ -182,7 +187,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	private Thread fControllerThread;
 	private ToolStatus fStatus = ToolStatus.STARTING;
-	private IToolStatusListener[] fToolStatusListeners;
+	private final FastList<IToolStatusListener> fToolStatusListeners;
 	private List<DebugEvent> fEventCollector = new LinkedList<DebugEvent>();
 	private int fInternalTask = 0;
 	private boolean fPauseRequested = false;
@@ -201,8 +206,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	protected String fLineSeparator;
 	
 	
-	protected ToolController(final ToolProcess process) {
+	protected ToolController(final ToolProcess process, final Map<String, Object> initData) {
 		fProcess = process;
+		fProcess.fInitData = initData;
 		
 		fStreams = new ToolStreamProxy();
 		fInputStream = fStreams.getInputStreamMonitor();
@@ -210,8 +216,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fDefaultOutputStream = fStreams.getOutputStreamMonitor();
 		fErrorOutputStream = fStreams.getErrorStreamMonitor();
 		
-		fQueue = new Queue();
-		fToolStatusListeners = new IToolStatusListener[] { fProcess };
+		fQueue = process.getQueue();
+		fToolStatusListeners = new FastList<IToolStatusListener>(IToolStatusListener.class, FastList.IDENTITY);
+		fToolStatusListeners.add(fProcess);
 		
 		fStatus = ToolStatus.STARTING;
 		fRunnableProgressMonitor = new RunnableProgressMonitor(Messages.Progress_Starting_label);
@@ -230,20 +237,19 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	/**
 	 * Adds a tool status listener.
 	 * 
-	 * It's only allowed to do this in the tool lifecycle thread
-	 * (not checked)!
+	 * @param listener
+	 */
+	public final void addToolStatusListener(final IToolStatusListener listener) {
+		fToolStatusListeners.add(listener);
+	}
+	
+	/**
+	 * Removes the tool status listener.
 	 * 
 	 * @param listener
 	 */
-	protected final void addToolStatusListener(final IToolStatusListener listener) {
-		final IToolStatusListener[] list = new IToolStatusListener[fToolStatusListeners.length+1];
-		System.arraycopy(fToolStatusListeners, 0, list, 0, fToolStatusListeners.length);
-		list[fToolStatusListeners.length] = listener;
-		fToolStatusListeners = list;
-	}
-	
-	private final IToolStatusListener[] getToolStatusListeners() {
-		return fToolStatusListeners;
+	public final void removeToolStatusListener(final IToolStatusListener listener) {
+		fToolStatusListeners.remove(listener);
 	}
 	
 	
@@ -273,6 +279,11 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	}
 	
 	
+	protected Map<String, Object> getInitData() {
+		return fProcess.fInitData;
+	}
+	
+	
 	/**
 	 * Runs the tool.
 	 * 
@@ -290,7 +301,10 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			}
 			loop();
 		}
-		catch (final InterruptedException e) { // start interrupted
+		catch (final CoreException e) {
+			if (e.getStatus().getSeverity() != IStatus.CANCEL) {
+				throw e;
+			}
 		}
 		finally {
 			synchronized (fQueue) {
@@ -406,7 +420,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		try {
 			final IToolEventHandler handler = fHandlers.get(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID);
 			if (handler != null) {
-				final int answer = handler.handle(this, getQuitTasks());
+				final Map<String, Object> data = new HashMap<String, Object>();
+				data.put("scheduledQuitTasks", getQuitTasks()); //$NON-NLS-1$
+				final int answer = handler.handle(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, this, data, new NullProgressMonitor());
 				if (answer != IToolEventHandler.OK) {
 					schedule = false;
 				}
@@ -425,11 +441,11 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
-	private final void beginInternalTask() {
+	protected final void beginInternalTask() {
 		fInternalTask++;
 	}
 	
-	private final void endInternalTask() {
+	protected final void endInternalTask() {
 		fInternalTask--;
 		if (fControllerRunnable != null || fInternalTask == 0) {
 			fQueue.notifyAll();
@@ -491,7 +507,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * @param newStatus
 	 */
 	private final void statusRequested(final ToolStatus requestedStatus, final boolean on) {
-		final IToolStatusListener[] listeners = getToolStatusListeners();
+		final IToolStatusListener[] listeners = fToolStatusListeners.toArray();
 		if (on) {
 			for (int i = 0; i < listeners.length; i++) {
 				listeners[i].controllerStatusRequested(fStatus, requestedStatus, fEventCollector);
@@ -533,7 +549,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fStatus = newStatus;
 		
 		// send debug events
-		final IToolStatusListener[] listeners = getToolStatusListeners();
+		final IToolStatusListener[] listeners = fToolStatusListeners.toArray();
 		for (int i = 0; i < listeners.length; i++) {
 			listeners[i].controllerStatusChanged(oldStatus, newStatus, fEventCollector);
 		}
@@ -543,6 +559,18 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 		fEventCollector.clear();
 	}
+	
+//	protected final void loopBusyChanged(final boolean isBusy) {
+//		final IToolStatusListener[] listeners = getToolStatusListeners();
+//		for (int i = 0; i < listeners.length; i++) {
+//			listeners[i].controllerBusyChanged(isBusy, fEventCollector);
+//		}
+//		final DebugPlugin manager = DebugPlugin.getDefault();
+//		if (manager != null && !fEventCollector.isEmpty()) {
+//			manager.fireDebugEventSet(fEventCollector.toArray(new DebugEvent[fEventCollector.size()]));
+//		}
+//		fEventCollector.clear();
+//	}
 	
 //	public final boolean isStarted() {
 //		switch (fStatus) {
@@ -762,7 +790,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					continue;
 				}
 				if (fIsTerminated) {
-					finishTool();
+					fProcess.fExitValue = finishTool();
 					loopChangeStatus(ToolStatus.TERMINATED, null);
 					return;
 				}
@@ -815,8 +843,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					fQueue.internalFinished(fCurrentRunnable, Queue.OK);
 				}
 				catch (final Throwable e) {
-					if (e instanceof CoreException && ((CoreException) e)
-							.getStatus().getSeverity() == IStatus.CANCEL) {
+					final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
+					if (status != null && (
+							status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
 						fQueue.internalFinished(fCurrentRunnable, Queue.CANCEL);
 					}
 					else {
@@ -827,7 +856,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 								NicoPlugin.EXTERNAL_ERROR,
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
 										new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
-								e));
+								e), fRunnableProgressMonitor);
 					}
 					
 					if (!isToolAlive()) {
@@ -844,7 +873,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					fCurrentRunnable.run(this, fRunnableProgressMonitor);
 				}
 				catch (final Throwable e) {
-					NicoPlugin.logError(-1, "An Error occurred when running internal controller task.", e); // //$NON-NLS-1$
+					final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
+					if (status != null && (status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
+						// ignore
+					}
+					else {
+						NicoPlugin.logError(-1, "An Error occurred when running internal controller task.", e); // //$NON-NLS-1$
+					}
 					
 					if (!isToolAlive()) {
 						markAsTerminated();
@@ -868,6 +903,11 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fIsTerminated = true;
 	}
 	
+	protected final boolean isTerminated() {
+		return fIsTerminated;
+	}
+	
+	
 	/**
 	 * Implement here special functionality to start the tool.
 	 * 
@@ -875,11 +915,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * 
 	 * @param monitor a progress monitor
 	 * 
-	 * @throws InterruptedException if start was cancelled.
 	 * @throws CoreException with details, if start fails.
 	 */
-	protected abstract void startTool(IProgressMonitor monitor)
-			throws InterruptedException, CoreException;
+	protected abstract void startTool(IProgressMonitor monitor) throws CoreException;
 	
 	/**
 	 * Implement here special commands to kill the tool.
@@ -912,8 +950,11 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	/**
 	 * Is called, after termination is detected.
+	 * 
+	 * @return exit code
 	 */
-	protected void finishTool() {
+	protected int finishTool() {
+		return 0;
 	}
 	
 	/**
@@ -932,13 +973,14 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fErrorOutputStream = null;
 	}
 	
-	protected void handleStatus(final IStatus status) {
+	public void handleStatus(final IStatus status, final IProgressMonitor monitor) {
 		if (status == null || status.getSeverity() == IStatus.OK) {
 			return;
 		}
-		final IToolEventHandler eventHandler = getEventHandler(IToolEventHandler.REPORT_STATUS_EVENT_ID);
+		final IToolEventHandler eventHandler = getEventHandler(REPORT_STATUS_EVENT_ID);
 		if (eventHandler != null) {
-			eventHandler.handle(this, status);
+			final Map<String, Object> data = Collections.singletonMap(REPORT_STATUS_DATA_KEY, (Object) status);
+			eventHandler.handle(REPORT_STATUS_EVENT_ID, this, data, monitor);
 		}
 		else {
 			if (status.getSeverity() > IStatus.INFO) {
@@ -987,6 +1029,10 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fWorkspaceData.controlSetWorkspaceDir(directory);
 	}
 	
+	public void setRemoteWorkspaceDir(final IPath directory) {
+		fWorkspaceData.controlSetRemoteWorkspaceDir(directory);
+	}
+	
 	public void submitToConsole(final String input, final IProgressMonitor monitor)
 			throws CoreException {
 		fCurrentInput = input;
@@ -1011,60 +1057,5 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	protected abstract void doSubmit(IProgressMonitor monitor)
 			throws CoreException;
-	
-	
-	protected int loadHistory(final String filename, final IProgressMonitor monitor) {
-		try {
-			CoreException fileException = null;
-			IFileStore fileStore = null;
-			try {
-				fileStore = FileUtil.getFileStore(filename, getWorkspaceData().getWorkspaceDir());
-			}
-			catch (final CoreException e) {
-				fileException = e; 
-			}
-			final IStatus status;
-			if (fileStore == null) {
-				status = new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, NLS.bind(
-						Messages.ToolController_FileOperation_error_CannotResolve_message, filename), 
-						fileException);
-			}
-			else {
-				status = fProcess.getHistory().load(fileStore, fWorkspaceData.getEncoding(), false, monitor);
-			}
-			handleStatus(status);
-			return status.getSeverity();
-		}
-		catch (final OperationCanceledException e) {
-			return IStatus.CANCEL;
-		}
-	}
-	
-	protected int saveHistory(final String filename, final IProgressMonitor monitor) {
-		try {
-			CoreException fileException = null;
-			IFileStore fileStore = null;
-			try {
-				fileStore = FileUtil.getFileStore(filename, getWorkspaceData().getWorkspaceDir());
-			}
-			catch (final CoreException e) {
-				fileException = e; 
-			}
-			final IStatus status;
-			if (fileStore == null) {
-				status = new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, NLS.bind(
-						Messages.ToolController_FileOperation_error_CannotResolve_message, filename), 
-						fileException);
-			}
-			else {
-				status = fProcess.getHistory().save(fileStore, EFS.NONE, fWorkspaceData.getEncoding(), false, monitor);
-			}
-			handleStatus(status);
-			return status.getSeverity();
-		}
-		catch (final OperationCanceledException e) {
-			return IStatus.CANCEL;
-		}
-	}
 	
 }

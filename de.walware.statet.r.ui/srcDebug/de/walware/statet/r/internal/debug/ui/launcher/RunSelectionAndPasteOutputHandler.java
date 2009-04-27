@@ -138,7 +138,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			return SubmitType.TOOLS;
 		}
 		
-		public void changed(final int event) {
+		public void changed(final int event, ToolProcess process) {
 			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
@@ -273,7 +273,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			final ToolProcess process = NicoUI.getToolRegistry().getActiveToolSession(UIAccess.getActiveWorkbenchPage(true)).getProcess();
 			final ToolController controller; 
 			try {
-				controller = NicoUITools.accessTool("R", process); //$NON-NLS-1$
+				controller = NicoUITools.accessController("R", process); //$NON-NLS-1$
 			}
 			catch (final CoreException e) {
 				cancel(r, e.getStatus(), event);

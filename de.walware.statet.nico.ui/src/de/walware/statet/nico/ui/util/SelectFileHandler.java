@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.util;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -18,7 +19,7 @@ import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -29,7 +30,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ui.dialogs.DatabindingSupport;
 import de.walware.ecommons.ui.dialogs.TitleAreaStatusUpdater;
@@ -42,12 +42,13 @@ import de.walware.statet.nico.core.runtime.IProgressInfo;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
 
 /**
- * TODO: Test
+ * TODO: Test, Better support for remote engines, define constants, ...
  */
 public class SelectFileHandler implements IToolEventHandler {
 	
@@ -142,18 +143,22 @@ public class SelectFileHandler implements IToolEventHandler {
 	}
 	
 	
-	public int handle(final IToolRunnableControllerAdapter tools, final Object contextData) {
-		final SelectFileEventData data = (SelectFileEventData) contextData;
-		if (data.message == null) {
-			final IProgressInfo progressInfo = tools.getController().getProgressInfo();
-			data.message = NLS.bind("Select file (in {0}):", progressInfo.getLabel());
+	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+		final String message;
+		{	String s = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
+			if (s == null) {
+				final IProgressInfo progressInfo = tools.getController().getProgressInfo();
+				s = NLS.bind("Select file (in {0}):", progressInfo.getLabel());
+			}
+			message = s;
 		}
+		final Boolean newFile = ToolEventHandlerUtil.getCheckedData(data, "newResource", Boolean.class, true); //$NON-NLS-1$
 		final ToolProcess tool = tools.getController().getProcess();
 		final AtomicReference<IFileStore> file = new AtomicReference<IFileStore>();
 		final Runnable runnable = new Runnable() {
 			public void run() {
 				final SelectFileDialog dialog = new SelectFileDialog(UIAccess.getActiveWorkbenchShell(true),
-						tool, data.message, data.newFile);
+						tool, message, newFile.booleanValue());
 				dialog.setBlockOnOpen(true);
 				if (dialog.open() == Dialog.OK) {
 					file.set(dialog.getResource());
@@ -164,13 +169,8 @@ public class SelectFileHandler implements IToolEventHandler {
 		if (file.get() == null) {
 			return CANCEL;
 		}
-		data.filename = file.get().toURI().toString();
+		data.put("filename", file.get().toURI().toString()); //$NON-NLS-1$
 		return OK;
-	}
-	
-	protected int handleError(final IStatus status) {
-		StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.SHOW);
-		return ERROR;
 	}
 	
 }

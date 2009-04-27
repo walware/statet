@@ -50,7 +50,6 @@ public final class Queue {
 		public final IToolRunnable[] data;
 		
 		private Delta(final int pType, final IToolRunnable[] pData) {
-			
 			type = pType;
 			data = pData;
 		}
@@ -92,14 +91,24 @@ public final class Queue {
 	 */
 	public static final int ENTRIES_ADD = 0x0110;
 	
+	public static final int ENTRIES_MOVE_ADD = 0x0111;
+	
+	
 	public static final int MASK_UNFINISHED = 0x0120;
+	
+	/**
+	 * Constant for type of a Delta, signalising that
+	 * one or multiple entries (IToolRunnable) was moved
+	 * (normally by a user request) to another queue.
+	 */
+	public static final int ENTRIES_MOVE_DELETE = 0x0121;
 	
 	/**
 	 * Constant for type of a Delta, signalising that
 	 * one or multiple entries (IToolRunnable) was deleted
 	 * (normally by a user request) from the queue.
 	 */
-	public static final int ENTRIES_DELETE = 0x0121;
+	public static final int ENTRIES_DELETE = 0x0122;
 	
 	/**
 	 * Constant for type of a Delta, signalising that
@@ -107,7 +116,7 @@ public final class Queue {
 	 * queue is terminated.
 	 * In IDE: When launch/process removed (not when terminated).
 	 */
-	public static final int ENTRIES_ABANDONED = 0x0122;
+	public static final int ENTRIES_ABANDONED = 0x0123;
 	
 	/**
 	 * Constant for type of a Delta, signalising that
@@ -146,8 +155,11 @@ public final class Queue {
 	private int fFinishedCacheDetail = -1;
 	private List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
 	
+	private final ToolProcess fProcess;
 	
-	Queue() {
+	
+	Queue(final ToolProcess process) {
+		fProcess = process;
 	}
 	
 	
@@ -174,10 +186,69 @@ public final class Queue {
 //		addDebugEvent(COMPLETE_CHANGE, queueElements);
 		final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
 		for (int i = 0; i < array.length; i++) {
-			array[i].changed(ENTRIES_DELETE);
+			array[i].changed(ENTRIES_DELETE, fProcess);
 		}
 		addChangeEvent(ENTRIES_DELETE, array);
 		fireEvents();
+	}
+	
+	public void moveElements(final Object[] elements, final Queue to) {
+		final IToolRunnable[] array;
+		synchronized (this) {
+			checkFinishedCache();
+			checkIOCache();
+			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(elements.length);
+			for (final Object runnable : elements) {
+				if (fList.remove(runnable)) {
+					removed.add((IToolRunnable) runnable);
+				}
+			}
+			array = removed.toArray(new IToolRunnable[removed.size()]);
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_MOVE_DELETE, fProcess);
+			}
+			addChangeEvent(ENTRIES_MOVE_DELETE, array);
+			fireEvents();
+		}
+		
+		synchronized (to) {
+			to.checkFinishedCache();
+			to.checkIOCache();
+			to.fList.addAll(Arrays.asList(array));
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+			}
+			to.addChangeEvent(ENTRIES_MOVE_ADD, array);
+			to.fireEvents();
+			to.notifyAll();
+		}
+	}
+	
+	public void moveAllElements(final Queue to) {
+		final IToolRunnable[] array;
+		synchronized (this) {
+			checkFinishedCache();
+			checkIOCache();
+			array = fList.toArray(new IToolRunnable[fList.size()]);
+			fList.clear();
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_MOVE_DELETE, fProcess);
+			}
+			addChangeEvent(ENTRIES_MOVE_DELETE, array);
+			fireEvents();
+		}
+		
+		synchronized (to) {
+			to.checkFinishedCache();
+			to.checkIOCache();
+			to.fList.addAll(Arrays.asList(array));
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+			}
+			to.addChangeEvent(ENTRIES_MOVE_ADD, array);
+			to.fireEvents();
+			to.notifyAll();
+		}
 	}
 	
 	
@@ -251,7 +322,7 @@ public final class Queue {
 		if (!fList.isEmpty()) {
 			final IToolRunnable[] array = fList.toArray(new IToolRunnable[fList.size()]);
 			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_ABANDONED);
+				array[i].changed(ENTRIES_ABANDONED, fProcess);
 			}
 			addDebugEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED,
 					ENTRIES_ABANDONED, array);

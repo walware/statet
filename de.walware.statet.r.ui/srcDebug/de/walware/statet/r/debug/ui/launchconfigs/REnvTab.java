@@ -104,11 +104,9 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		validator.setOnDirectory(IStatus.OK);
 		validator.setOnFile(IStatus.ERROR);
 		validator.setResourceLabel(MessageUtil.removeMnemonics(RLaunchingMessages.REnv_Tab_WorkingDir_label));
-		if (validate && validator.validate(path).getSeverity() == IStatus.ERROR) {
+		validator.setExplicit(path);
+		if (validate && validator.validate(null).getSeverity() == IStatus.ERROR) {
 			throw new CoreException(validator.getStatus());
-		}
-		else {
-			validator.setExplicit(path);
 		}
 		return validator;
 	}
@@ -124,9 +122,13 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	private WritableValue fWorkingDirectoryValue;
 	private Binding fREnvBinding;
 	
+	private boolean fWithWD;
 	
-	public REnvTab() {
+	
+	public REnvTab(final boolean withWD) {
 		super();
+		
+		fWithWD = withWD;
 	}
 	
 	
@@ -153,12 +155,14 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		fREnvControl = new ChooseREnvComposite(group);
 		fREnvControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
-		fWorkingDirectoryControl = new ChooseResourceComposite(mainComposite,
-				ChooseResourceComposite.STYLE_GROUP | ChooseResourceComposite.STYLE_TEXT,
-				ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
-				RLaunchingMessages.REnv_Tab_WorkingDir_label);
-		fWorkingDirectoryControl.showInsertVariable(true);
-		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		if (fWithWD) {
+			fWorkingDirectoryControl = new ChooseResourceComposite(mainComposite,
+					ChooseResourceComposite.STYLE_GROUP | ChooseResourceComposite.STYLE_TEXT,
+					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
+					RLaunchingMessages.REnv_Tab_WorkingDir_label);
+			fWorkingDirectoryControl.showInsertVariable(true);
+			fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
@@ -173,11 +177,13 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fREnvControl.createValidator(dbc))),
 				null);
-		fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
-		dbc.bindValue(fWorkingDirectoryControl.createObservable(), fWorkingDirectoryValue,
-				new UpdateValueStrategy().setAfterGetValidator(
-						new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
-				null);
+		if (fWithWD) {
+			fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
+			dbc.bindValue(fWorkingDirectoryControl.createObservable(), fWorkingDirectoryValue,
+					new UpdateValueStrategy().setAfterGetValidator(
+							new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
+					null);
+		}
 	}
 	
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
@@ -196,11 +202,13 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 			logReadingError(e);
 		}
 		
-		try {
-			fWorkingDirectoryValue.setValue(configuration.getAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$
-		} catch (final CoreException e) {
-			fWorkingDirectoryValue.setValue(null);
-			logReadingError(e);
+		if (fWithWD) {
+			try {
+				fWorkingDirectoryValue.setValue(configuration.getAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "")); //$NON-NLS-1$
+			} catch (final CoreException e) {
+				fWorkingDirectoryValue.setValue(null);
+				logReadingError(e);
+			}
 		}
 	}
 	
@@ -209,7 +217,10 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		final String code = (String) fREnvSettingValue.getValue();
 		configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, code);
 		configuration.setAttribute(NEW_RENV_ID, code);
-		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, (String) fWorkingDirectoryValue.getValue());
+		
+		if (fWithWD) {
+			configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, (String) fWorkingDirectoryValue.getValue());
+		}
 	}
 	
 	

@@ -35,6 +35,18 @@ public class NicoUI {
 	public static final String IMG_LOCTOOLD_CANCEL = PLUGIN_ID+"/img.d/loctool/cancel";  //$NON-NLS-1$
 	
 	
+	public static final String HISTORY_VIEW_ID = "de.walware.statet.nico.views.HistoryView"; //$NON-NLS-1$
+	public static final String QUEUE_VIEW_ID = "de.walware.statet.nico.views.QueueView"; //$NON-NLS-1$
+	
+	public static final String PAUSE_COMMAND_ID = "de.walware.statet.nico.commands.PauseEngine"; //$NON-NLS-1$
+	public static final String DISCONNECT_COMMAND_ID = "de.walware.statet.nico.commands.DisconnectEngine"; //$NON-NLS-1$
+	public static final String RECONNECT_COMMAND_ID = "de.walware.statet.nico.commands.ReconnectEngine"; //$NON-NLS-1$
+	
+	public static final String CANCEL_CURRENT_COMMAND_ID = "de.walware.statet.nico.commands.CancelCurrent"; //$NON-NLS-1$
+	public static final String CANCEL_ALL_COMMAND_ID = "de.walware.statet.nico.commands.CancelAll"; //$NON-NLS-1$
+	public static final String CANCEL_PAUSE_COMMAND_ID = "de.walware.statet.nico.commands.CancelCurrentAndPause"; //$NON-NLS-1$
+	
+	
 	public static ImageDescriptor getImageDescriptor(final String key) {
 		return NicoUIPlugin.getDefault().getImageRegistry().getDescriptor(key);
 	}

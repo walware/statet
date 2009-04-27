@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -53,7 +54,7 @@ class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 		return null;
 	}
 	
-	public void changed(final int event) {
+	public void changed(final int event, ToolProcess process) {
 	}
 	
 	public void run(final IBasicRAdapter tools, final IProgressMonitor monitor) throws CoreException {

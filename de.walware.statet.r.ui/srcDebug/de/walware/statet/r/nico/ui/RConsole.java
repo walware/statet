@@ -38,7 +38,7 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 		
 		final RErrorLineTracker lineMatcher = new RErrorLineTracker(process);
 		addPatternMatchListener(lineMatcher);
-		fPrefs = NicoCore.getDefaultConsolePreferences();
+		fPrefs = NicoCore.getInstanceConsolePreferences();
 	}
 	
 	@Override

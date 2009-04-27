@@ -60,6 +60,13 @@ public class WorkbenchUIUtil {
 		return null;
 	}
 	
+	public static IWorkbenchPart getActivePart(final Object context) {
+		if (context instanceof IEvaluationContext) {
+			return (IWorkbenchPart) ((IEvaluationContext) context).getVariable(ISources.ACTIVE_PART_NAME);
+		}
+		return null;
+	}
+	
 	public static void openEditor(final IWorkbenchPage page, final IFile file, final IRegion initialSelection) {
 		final Display display = page.getWorkbenchWindow().getShell().getDisplay();
 		display.asyncExec(new Runnable() {

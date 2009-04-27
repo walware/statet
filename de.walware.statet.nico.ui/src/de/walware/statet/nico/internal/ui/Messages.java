@@ -36,8 +36,6 @@ public class Messages extends NLS {
 	public static String Console_SubmitButton_label;
 	public static String Console_error_UnexpectedException_message;
 	
-	public static String PauseAction_name;
-	public static String PauseAction_tooltip;
 	public static String CancelAction_name;
 	public static String CancelAction_tooltip;
 	public static String ShowToolDescription_name;
@@ -53,10 +51,14 @@ public class Messages extends NLS {
 	public static String TerminatingMonitor_Force_error_message;
 	public static String TerminatingMonitor_WaitButton_label;
 	
+	public static String Login_error_UnsupportedOperation_message;
 	public static String Login_Dialog_title;
 	public static String Login_Dialog_message;
 	public static String Login_Dialog_Name_label;
 	public static String Login_Dialog_Password_label;
+	public static String Login_Dialog_Save_label;
+	public static String Login_Safe_error_Saving_message;
+	public static String Login_Safe_error_Loading_message;
 	
 	public static String ExecuteHandler_error_message;
 	public static String Util_SelectFile_Dialog_title;

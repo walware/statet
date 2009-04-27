@@ -100,9 +100,6 @@ public class ProjectSelectionDialog extends SelectionStatusDialog {
 		fAllItems = all;
 		fFilteredItems = filtered;
 		
-		final int shellStyle = getShellStyle();
-		setShellStyle(shellStyle | SWT.MAX | SWT.RESIZE);
-		
 		fFilter = new ViewerFilter() {
 			@Override
 			public boolean select(final Viewer viewer, final Object parentElement, final Object element) {

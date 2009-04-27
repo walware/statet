@@ -28,11 +28,13 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -90,6 +92,15 @@ public class NicoUITools {
 		});
 	}
 	
+	public static ToolProcess getTool(final IWorkbenchPart part) {
+		final ToolProcess tool = (ToolProcess) part.getAdapter(ITool.class);
+		if (tool != null) {
+			return tool;
+		}
+		return NicoUIPlugin.getDefault().getToolRegistry().getActiveToolSession(part.getSite().getPage())
+				.getProcess();
+	}
+	
 	/**
 	 * 
 	 * Note: getting console does not affects UI.
@@ -109,15 +120,35 @@ public class NicoUITools {
 		return null;
 	}
 	
-	public static ToolController accessTool(final String type, final ToolProcess process) throws CoreException {
-		if (process == null) {
+	/**
+	 * 
+	 * @param type an optional expected main type
+	 * @param process the tool to check or <code>null</code>
+	 * @throws CoreException if tool is missing or the wrong type
+	 */
+	public static void accessTool(final String type, final ToolProcess process) throws CoreException {
+		if (process == null || (type != null && !type.equals(process.getMainType()))) {
 			throw new CoreException(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
-					NLS.bind("No session of R is active in the current workbench window.", type), null));
+					(type != null) ?
+							NLS.bind("No session of {0} is active in the current workbench window.", type) :
+							"No tool session is active in the current workbench window.", null)
+			);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param type an optional expected main type
+	 * @param process the tool to check or <code>null</code>
+	 * @return the controller of the tool
+	 * @throws CoreException if tool is missing, wrong type or terminated
+	 */
+	public static ToolController accessController(final String type, final ToolProcess process) throws CoreException {
+		accessTool(type, process);
 		final ToolController controller = process.getController();
 		if (controller == null) {
 			throw new CoreException(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
-					NLS.bind("The active session of R ''{0}'' was terminated.", process.getLabel()), null));
+					NLS.bind("The active session of {0} ''{1}'' was terminated.", type, process.getLabel()), null));
 		}
 		return controller;
 	}
@@ -145,11 +176,13 @@ public class NicoUITools {
 		try {
 			// would busycursor or job be better?
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
-		} catch (final InvocationTargetException e) {
+		}
+		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, NicoUI.PLUGIN_ID, -1,
 					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)), e),
 					StatusManager.LOG | StatusManager.SHOW);
-		} catch (final InterruptedException e) {
+		}
+		catch (final InterruptedException e) {
 			// something to do?
 		}
 	}

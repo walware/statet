@@ -17,13 +17,22 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 
 
 /**
- * 
+ * The tool registry tracks activation of tools. One Eclipse workbench page has
+ * one active tool session.
  */
 public interface IToolRegistry {
 	
-	
+	/**
+	 * 
+	 * @param listener the listener to register
+	 * @param page the workbench page or <code>null</code> if register to all pages
+	 */
 	public void addListener(IToolRegistryListener listener, IWorkbenchPage page);
 	
+	/**
+	 * 
+	 * @param listener the listener to remove
+	 */
 	public void removeListener(IToolRegistryListener listener);
 	
 	
@@ -33,6 +42,10 @@ public interface IToolRegistry {
 	 */
 	public ToolSessionUIData getActiveToolSession(IWorkbenchPage page);
 	
+	/**
+	 * 
+	 * @return best workbench page, never <code>null</code>
+	 */
 	public IWorkbenchPage findWorkbenchPage(ToolProcess process);
 	
 }

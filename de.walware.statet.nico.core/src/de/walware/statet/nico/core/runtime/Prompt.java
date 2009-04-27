@@ -25,11 +25,8 @@ public class Prompt {
 	public final int meta;
 	
 	
-	public Prompt(final String text) {
-		this(text, 0);
-	}
-	
 	public Prompt(final String text, final int meta) {
+		assert (text != null);
 		this.text = text;
 		this.meta = meta;
 	}

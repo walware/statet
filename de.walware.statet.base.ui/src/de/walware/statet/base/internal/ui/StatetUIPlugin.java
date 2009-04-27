@@ -189,6 +189,8 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 		util.register(StatetImages.OBJ_CLASS, ImageRegistryUtil.T_OBJ, "ltk-class.png"); //$NON-NLS-1$
 		util.register(StatetImages.OBJ_CLASS_EXT, ImageRegistryUtil.T_OBJ, "ltk-class_ext.png"); //$NON-NLS-1$
 		
+		util.register(StatetImages.OBJ_USER, ImageRegistryUtil.T_OBJ, "user.png"); //$NON-NLS-1$
+		
 		util.register(StatetImages.OVR_DEFAULT_MARKER, ImageRegistryUtil.T_OVR, "default_marker.gif"); //$NON-NLS-1$
 		
 		UIAccess.getDisplay().syncExec(new Runnable() {

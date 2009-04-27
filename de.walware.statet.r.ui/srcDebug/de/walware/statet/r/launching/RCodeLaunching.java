@@ -18,20 +18,26 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.debug.ui.IDebugUIConstants;
 
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolWorkspace;
+
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
+import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.nico.AbstractRController;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -111,28 +117,28 @@ public final class RCodeLaunching {
 			}
 		}
 		
-		runFileUsingCommand(command, file.getLocation(), gotoConsole);
+		runFileUsingCommand(command, file.getLocationURI(), gotoConsole);
 	}
 	
-	/**
-	 * Runs a file related command in R.
-	 * Use this method only, if you don't have an IFile object for your file
-	 * (e.g. external file).
-	 * <p>
-	 * The pattern ${file} in command string is replaced by the path of
-	 * the specified file.</p>
-	 * 
-	 * @param command the command, (at moment) should be single line.
-	 * @param file the file.
-	 * @throws CoreException if running failed.
-	 */
-	public static void runFileUsingCommand(final String command, final IPath filePath, final boolean gotoConsole) throws CoreException {
-		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
-		
-		final String fileString = RUtil.escapeCompletly(filePath.makeAbsolute().toOSString());
-		final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
-		connector.submit(new String[] { cmd }, gotoConsole);
-	}
+//	/**
+//	 * Runs a file related command in R.
+//	 * Use this method only, if you don't have an IFile object for your file
+//	 * (e.g. external file).
+//	 * <p>
+//	 * The pattern ${file} in command string is replaced by the path of
+//	 * the specified file.</p>
+//	 * 
+//	 * @param command the command, (at moment) should be single line.
+//	 * @param file the file.
+//	 * @throws CoreException if running failed.
+//	 */
+//	public static void runFileUsingCommand(final String command, final IPath filePath, final boolean gotoConsole) throws CoreException {
+//		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
+//		
+//		final String fileString = RUtil.escapeCompletly(filePath.makeAbsolute().toOSString());
+//		final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
+//		connector.submit(new String[] { cmd }, gotoConsole);
+//	}
 	
 	/**
 	 * Runs a file related command in R.
@@ -146,23 +152,47 @@ public final class RCodeLaunching {
 	 * @param file the file.
 	 * @throws CoreException if running failed.
 	 */
-	public static void runFileUsingCommand(final String command, final URI filePath, final boolean gotoConsole) throws CoreException {
+	public static void runFileUsingCommand(final String command, final URI fileURI, final boolean gotoConsole) throws CoreException {
 		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
-		
-		String fileString = null;
+		IFileStore fileStore = null;
 		try {
-			if (EFS.getLocalFileSystem().equals(EFS.getFileSystem(filePath.getScheme()))) {
-				fileString = EFS.getLocalFileSystem().getStore(filePath).toString();
-			}
-		} catch (final CoreException e) {
+			fileStore = EFS.getStore(fileURI);
 		}
-		if (fileString == null) {
-			fileString = filePath.toString();
+		catch (final CoreException e) {
+			fileStore = null;
 		}
 		
-		fileString = RUtil.escapeCompletly(fileString);
-		final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
-		connector.submit(new String[] { cmd }, gotoConsole);
+		if (fileStore != null && connector instanceof RControllerCodeLaunchConnector) {
+			final IFileStore store = fileStore;
+			((RControllerCodeLaunchConnector) connector).submit(new RControllerCodeLaunchConnector.CommandsCreator() {
+				public IStatus submitTo(final ToolController controller) {
+					final ToolWorkspace workspaceData = controller.getWorkspaceData();
+					final String path = workspaceData.toToolPath(store);
+					if (path == null) {
+						return new Status(IStatus.ERROR, RUI.PLUGIN_ID, "Resolving path for R failed.");
+					}
+					final String fileString = RUtil.escapeCompletly(path);
+					final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
+					return controller.submit(cmd, SubmitType.EDITOR);
+				}
+			}, gotoConsole);
+		}
+		else {
+			String fileString = null;
+			try {
+				if (EFS.getLocalFileSystem().equals(EFS.getFileSystem(fileURI.getScheme()))) {
+					fileString = EFS.getLocalFileSystem().getStore(fileURI).toString();
+				}
+			} catch (final CoreException e) {
+			}
+			if (fileString == null) {
+				fileString = fileURI.toString();
+			}
+			
+			fileString = RUtil.escapeCompletly(fileString);
+			final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
+			connector.submit(new String[] { cmd }, gotoConsole);
+		}
 	}
 	
 	private static boolean saveBeforeLaunch(final IProject[] projects) throws CoreException {

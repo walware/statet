@@ -26,6 +26,7 @@ public class RNicoMessages extends NLS {
 	public static String ChangeWorkingDir_SelectDialog_message;
 	public static String ChangeWorkingDir_SelectDialog_title;
 	public static String ChangeWorkingDir_Resource_label;
+	public static String ChangeWorkingDir_error_ResolvingFailed_message;
 	
 	
 	static {

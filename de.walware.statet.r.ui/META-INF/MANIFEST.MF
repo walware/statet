@@ -28,9 +28,13 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[0.8.0,0.9.0)",
  org.eclipse.debug.ui,
  de.walware.statet.nico.ui,
  de.walware.statet.r.core;visibility:=reexport,
+ de.walware.rj.server,
  org.eclipse.jdt.core;resolution:=optional,
  org.eclipse.jdt.debug.ui;resolution:=optional,
- org.eclipse.jdt.launching;resolution:=optional
+ org.eclipse.jdt.launching;resolution:=optional,
+ com.jcraft.jsch,
+ org.eclipse.jsch.core,
+ org.eclipse.jsch.ui
 Import-Package: com.ibm.icu.text;version="3.6.1"
 Export-Package: de.walware.statet.r.codegeneration,
  de.walware.statet.r.debug.ui.launchconfigs,

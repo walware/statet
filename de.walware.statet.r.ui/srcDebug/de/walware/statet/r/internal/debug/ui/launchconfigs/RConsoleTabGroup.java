@@ -51,12 +51,13 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 	
 	public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
 		final RConsoleMainTab mainTab = new RConsoleMainTab();
-		final REnvTab renvTab = new REnvTab();
+		final REnvTab renvTab = new REnvTab(false);
 		final boolean jdt = true;
 		
 		final ILaunchConfigurationTab[] tabs = jdt ? new ILaunchConfigurationTab[] {
 				mainTab,
 				renvTab,
+				new RConsoleOptionsTab(),
 				new EnvironmentTab(),
 				
 				new ExtJavaJRETab(mainTab, renvTab),
@@ -66,7 +67,7 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 				new CommonTabForNico()
 		} : new ILaunchConfigurationTab[] {
 				mainTab,
-				new REnvTab(),
+				renvTab,
 				new EnvironmentTab(),
 				
 				new CommonTabForNico()

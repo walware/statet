@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.internal.ui;
 
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageRegistry;
@@ -20,11 +19,15 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
+import de.walware.ecommons.ui.util.WindowContributionsProvider;
 
 import de.walware.statet.base.ui.StatetUIServices;
 
 import de.walware.statet.nico.core.NicoCore;
+import de.walware.statet.nico.internal.ui.actions.NicoWindowContributions;
+import de.walware.statet.nico.ui.IToolRegistryListener;
 import de.walware.statet.nico.ui.NicoUI;
+import de.walware.statet.nico.ui.ToolSessionUIData;
 
 
 /**
@@ -52,6 +55,7 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	
 	
 	private ToolRegistry fToolRegistry;
+	private WindowContributionsProvider fContributionProvider;
 	
 	
 	/**
@@ -67,6 +71,19 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 		super.start(context);
 		
 		fToolRegistry = new ToolRegistry();
+		fToolRegistry.addListener(new IToolRegistryListener() {
+			public void toolSessionActivated(final ToolSessionUIData sessionData) {
+				if (sessionData.getProcess() != null) {
+					fToolRegistry.removeListener(this);
+					
+					if (fContributionProvider == null) {
+						fContributionProvider = new NicoWindowContributions();
+					}
+				}
+			}
+			public void toolTerminated(final ToolSessionUIData sessionData) {
+			}
+		}, null);
 	}
 	
 	@Override
@@ -75,6 +92,10 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 			if (fToolRegistry != null) {
 				fToolRegistry.dispose();
 				fToolRegistry = null;
+			}
+			if (fContributionProvider != null) {
+				fContributionProvider.dispose();
+				fContributionProvider = null;
 			}
 		}
 		finally {

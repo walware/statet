@@ -482,7 +482,6 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 			}
 		});
 		
-		updatePrompt(null);
 		return fComposite;
 	}
 	
@@ -494,6 +493,9 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		fSourceViewerDecorationSupport = new de.walware.epatches.ui.SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
 		fConfigurator.configureSourceViewerDecorationSupport(fSourceViewerDecorationSupport);
+//		fSourceViewerDecorationSupport.setCursorLinePainterPreferenceKeys(
+//				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE,
+//				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_CURRENT_LINE_COLOR);
 		final MarkerAnnotationPreferences markerAnnotationPreferences = EditorsPlugin.getDefault().getMarkerAnnotationPreferences();
 		for (final Object pref : markerAnnotationPreferences.getAnnotationPreferences()) {
 			fSourceViewerDecorationSupport.setAnnotationPreference((AnnotationPreference) pref);

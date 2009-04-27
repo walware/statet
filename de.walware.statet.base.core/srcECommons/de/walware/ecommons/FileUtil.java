@@ -67,6 +67,17 @@ public abstract class FileUtil {
 		return getLocalFileStore(s, null);
 	}
 	
+	/**
+	 * Resolves a string presentation of a path to an IFileStore in the local file system,
+	 * if possible.
+	 * 
+	 * As usual the IFileStore is a resource handle only and the resource must not exists.
+	 * 
+	 * @param s string representation of a path
+	 * @param relativeParent optional folder used as parent if path is relative
+	 * @return an IFileStore in the local file system
+	 * @throws CoreException if path is not a valid local path
+	 */
 	public static IFileStore getLocalFileStore(final String s, final IFileStore relativeParent) throws CoreException {
 		if (s.length() > 0) {
 			final IFileSystem localFS = EFS.getLocalFileSystem();
@@ -100,13 +111,37 @@ public abstract class FileUtil {
 				return relativeParent.getFileStore(path);
 			}
 		}
+		else if (relativeParent != null) { // && s.length() == 0
+			return relativeParent;
+		}
 		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No local filesystem resource."));
 	}
 	
+	/**
+	 * Resolves a string presentation of a path to an IFileStore in the local file system,
+	 * if possible.
+	 * 
+	 * As usual the IFileStore is a resource handle only and the resource must not exists.
+	 * 
+	 * @param s string representation of a path
+	 * @return an IFileStore in the local file system
+	 * @throws CoreException if path is not a valid local path
+	 */
 	public static IFileStore getFileStore(final String location) throws CoreException {
 		return getFileStore(location, null);
 	}
 	
+	/**
+	 * Resolves a string presentation of a path to an IFileStore, if possible.
+	 * 
+	 * The resource must not be in the local file system (URI with scheme).
+	 * As usual the IFileStore is a resource handle only and the resource must not exists.
+	 * 
+	 * @param s string representation of a path
+	 * @param relativeParent optional folder used as parent if path is relative
+	 * @return an IFileStore in the local file system
+	 * @throws CoreException if path is not a valid local path
+	 */
 	public static IFileStore getFileStore(final String location, final IFileStore relativeParent) throws CoreException {
 		try {
 			return FileUtil.getLocalFileStore(location, relativeParent);

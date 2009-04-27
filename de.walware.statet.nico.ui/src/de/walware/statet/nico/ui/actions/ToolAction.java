@@ -17,7 +17,6 @@ import org.eclipse.swt.SWT;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
-import de.walware.statet.nico.core.util.ToolRetargetableHandler;
 
 
 /**
@@ -54,7 +53,7 @@ public class ToolAction extends Action implements IToolRetargetable {
 		update();
 	}
 	
-	public void handleToolTerminated() {
+	public void toolTerminated() {
 		update();
 	}
 	

@@ -15,12 +15,21 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
+import org.eclipse.swt.dnd.TextTransfer;
 
 import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.internal.ui.LocalTaskTransfer;
+import de.walware.statet.nico.internal.ui.LocalTaskTransfer.Data;
 import de.walware.statet.nico.ui.NicoUITools;
 
 
 public class SubmitDropAdapter implements DropTargetListener {
+	
+	
+	public static class TaskSet {
+		public ToolProcess process;
+	}
 	
 	
 	private NIConsolePage fPage;
@@ -51,25 +60,47 @@ public class SubmitDropAdapter implements DropTargetListener {
 	}
 	
 	public void drop(final DropTargetEvent event) {
-		final String text = (String) event.data;
-		final ToolController controller = fPage.getConsole().getProcess().getController();
-		
-		if (text == null || controller == null)
+		if (LocalTaskTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+			final LocalTaskTransfer.Data data = (Data) event.data;
+			final ToolProcess process = fPage.getConsole().getProcess();
+			if (data == null || process.isTerminated()) {
+				return;
+			}
+			data.process.getQueue().moveElements(data.tasks, process.getQueue());
 			return;
-		
-		final IRunnableWithProgress runnable = SubmitPasteAction.createRunnable(controller, text);
-		NicoUITools.runSubmitInBackground(controller.getProcess(), runnable, fPage.getSite().getShell());
+		}
+		if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+			final String text = (String) event.data;
+			final ToolController controller = fPage.getConsole().getProcess().getController();
+			
+			if (text == null || controller == null)
+				return;
+			
+			final IRunnableWithProgress runnable = SubmitPasteAction.createRunnable(controller, text);
+			NicoUITools.runSubmitInBackground(controller.getProcess(), runnable, fPage.getSite().getShell());
+			return;
+		}
 	}
 	
 	
 	private void validate(final DropTargetEvent event) {
-		if (( (event.operations & DND.DROP_COPY) == DND.DROP_COPY) 
-				&& !fPage.getConsole().getProcess().isTerminated() ) {
-			event.detail = DND.DROP_COPY;
+		final ToolProcess process = fPage.getConsole().getProcess();
+		if (LocalTaskTransfer.getTransfer().isSupportedType(event.currentDataType)) {
+			if (( (event.operations & DND.DROP_MOVE) == DND.DROP_MOVE)
+					&& process.getMainType().equals(LocalTaskTransfer.getTransfer().getMainType())
+					&& !process.isTerminated() ) {
+				event.detail = DND.DROP_MOVE;
+				return;
+			}
 		}
-		else {
-			event.detail = DND.DROP_NONE;
+		if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
+			if (( (event.operations & DND.DROP_COPY) == DND.DROP_COPY) 
+					&& !fPage.getConsole().getProcess().isTerminated() ) {
+				event.detail = DND.DROP_COPY;
+				return;
+			}
 		}
+		event.detail = DND.DROP_NONE;
 	}
 	
 }

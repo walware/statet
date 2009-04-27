@@ -12,21 +12,25 @@
 package de.walware.statet.r.nico.ui.tools;
 
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.nico.IBasicRAdapter;
-import de.walware.statet.r.nico.ISetupRAdapter;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
  * ToolRunnable to change the working directory of R.
+ * 
+ * Supports path mapping (e.g. for remote console).
  */
 public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
 	
@@ -41,7 +45,7 @@ public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
 	}
 	
 	
-	public void changed(final int event) {
+	public void changed(final int event, final ToolProcess process) {
 	}
 	
 	public String getTypeId() {
@@ -58,12 +62,14 @@ public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
 	
 	public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
 			throws InterruptedException, CoreException {
-		final String path = URIUtil.toPath(fWorkingDir.toURI()).toOSString();
-		final String command = "setwd(\"" + RUtil.escapeCompletly(path) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
-		tools.submitToConsole(command, monitor);
-		if (tools instanceof ISetupRAdapter) {
-			((ISetupRAdapter) tools).setWorkspaceDir(fWorkingDir);
+		final String toolPath = tools.getWorkspaceData().toToolPath(fWorkingDir);
+		if (toolPath == null) {
+			tools.handleStatus(new Status(IStatus.ERROR, RUI.PLUGIN_ID, RNicoMessages.ChangeWorkingDir_error_ResolvingFailed_message), monitor);
+			return;
 		}
+		final String command = "setwd(\"" + RUtil.escapeCompletly(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+		tools.submitToConsole(command, monitor);
+		tools.refreshWorkspaceData(monitor);
 	}
 	
 }

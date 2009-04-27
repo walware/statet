@@ -32,22 +32,16 @@ below.</p>
 <p>The launch type allows to specify how the connection to R will
 be managed. The default is the Java-based RJ console connection 
 which is fully cross-platform (requires R package <code>rJava</code> with JRI).
-An older connection type Rterm is provided as well (Windows only).</p>
-<p>The options field allows to specify R startup-options, such as 
+An older connection type Rterm is provided as well.</p>
+<p>The 'Working Directory' specifies the initial <b>working directory</b> of your R session.</p>
+<p>The 'Options' field allows to specify R <b>startup-options</b>, such as 
 <code>--no-environ</code>,<code> --no-init-file</code> etc.</p>
-<p>The console option 'Pin initial console automatically' will pin the initial
-console. This means that when one opens additional R consoles, these
-will be opened in separate Console Views.</p>
 
 <h4>R Config</h4>
 <img style="width: 862px; height: 581px;" alt="Screenshot r console run config r config" src="../images/screenshot_r_console_run_config_R_config.png"/>
-<p>The R Config tab allows to specify</p>
-<ul>
-	<li>which R environment to use;</li>
-	<li>in which working directory to launch R.</li>
-</ul>
+<p>The R Config tab allows to specify which <b>R environment</b> to use.</p>
 <p>An R environment is simply a given version of R linked to a certain path
-on your filesystem. One can either choose the default R environment that you
+on your file system. One can either choose the default R environment that you
 set for the workbench or a specific environment (Selected Configuration). When
 one presses the 'Configure...' button, the R Environments window will show up.
 This window is part of the StatET preferences and is displayed below.</p>
@@ -62,6 +56,11 @@ and to specify whether it is a 32-bit or 64-bit version of R.</p>
 <p>Upon clicking 'OK' the configuration will be added to the list of R
 environments, so the user can make use of them when configuring the 'R Config'
 tab of an R Console launch configuration.</p>
+
+<h4>Other Configuration Options</h4>
+<p>The console option 'Pin initial console automatically' will pin the initial
+console. This means that when one opens additional R consoles, these
+will be opened in separate Console Views.</p>
 
 <h2 id="launch">Launch Console</h2>
 <p>To launch a run configuration such as an R console, one can accede the Run

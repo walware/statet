@@ -15,7 +15,8 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 
 
 /**
- * Allows access to tool instance. Counterpart of {@link IToolRetargetable}.
+ * Provides access to a selected (the active) tool instance. 
+ * Counterpart of {@link IToolRetargetable}.
  */
 public interface IToolProvider {
 	
@@ -23,5 +24,7 @@ public interface IToolProvider {
 	public ToolProcess getTool();
 	
 	public void addToolRetargetable(IToolRetargetable action);
+	
+	public void removeToolRetargetable(IToolRetargetable action);
 	
 }

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
@@ -115,6 +116,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
+	public static final int EXITCODE_DISCONNECTED = 101;
+	
 	
 	private final ILaunch fLaunch;
 	private final String fMainType;
@@ -122,19 +125,26 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private final String fName;
 	private String fToolLabelShort;
 	
+	Map<String, Object> fInitData;
+	
 	private ToolController<WorkspaceType> fController;
-	private Queue fQueue;
-	private History fHistory;
+	private final Queue fQueue;
+	private final History fHistory;
 	private WorkspaceType fWorkspaceData;
+	
+	private final Object fDisposeLock = new Object();
+	private int fRetain;
+	private boolean fIsDisposed;
 	
 	private final Map<String, String> fAttributes;
 	private final boolean fCaptureOutput;
 	
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
-	protected volatile int fExitValue = 0;
+	volatile int fExitValue = 0;
 	
 	
-	public ToolProcess(final ILaunch launch, final String mainType, final String labelPrefix, final String name) {
+	public ToolProcess(final ILaunch launch, final String mainType,
+			final String labelPrefix, final String name) {
 		fLaunch = launch;
 		fMainType = mainType;
 		fName = name;
@@ -162,16 +172,18 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 						}
 					}
 				}
-				
 			}
 		});
+		
+		fQueue = new Queue(this);
+		fHistory = new History(this);
 	}
 	
 	public void init(final ToolController<WorkspaceType> controller) {
 		fController = controller;
-		fHistory = new History(this);
-		fQueue = fController.getQueue();
 		fWorkspaceData = fController.fWorkspaceData;
+		
+		fHistory.init();
 		
 		fLaunch.addProcess(this);
 		fireEvent(new DebugEvent(ToolProcess.this, DebugEvent.CREATE));
@@ -372,11 +384,76 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 //				isBusy ? (ToolProcess.BUSY | 0x1) : (ToolProcess.BUSY | 0x0)));
 //	}
 //	
-	protected void dispose() {
+	private final void dispose() {
+		synchronized (fDisposeLock) {
+			fIsDisposed = true;
+			if (fRetain > 0) {
+				return;
+			}
+		}
+		doDispose();
+	}
+	
+	public void prepareRestart(final Map<String, Object> data) {
+		if (fStatus != ToolStatus.TERMINATED) {
+			throw new IllegalStateException();
+		}
+		if (data == null) {
+			throw new NullPointerException();
+		}
+		data.put("process", this);
+		data.put("processDispose", poseponeDispose());
+		data.put("initData", fInitData);
+	}
+	
+	public void restartCompleted(final Map<String, Object> data) {
+		if (data == null) {
+			throw new NullPointerException();
+		}
+		if (data.get("process") != this) {
+			throw new IllegalArgumentException();
+		}
+		approveDispose(data.get("processDispose"));
+	}
+	
+	/**
+	 * Prevents to dispose the resources so you can still access the tool
+	 * and its queue.
+	 * It is important to call #approveDispose later to release the resources.
+	 * 
+	 * @return ticket to approve the disposal
+	 */
+	private final Object poseponeDispose() {
+		synchronized (fDisposeLock) {
+			if (fRetain <= 0 && fIsDisposed) {
+				return null;
+			}
+			fRetain++;
+		}
+		return new AtomicBoolean(true);
+	}
+	
+	/**
+	 * @see #poseponeDispone
+	 */
+	private final void approveDispose(final Object ticket) {
+		if (ticket instanceof AtomicBoolean && ((AtomicBoolean) ticket).getAndSet(false)) {
+			synchronized (fDisposeLock) {
+				fRetain--;
+				if (fRetain > 0 || !fIsDisposed) {
+					return;
+				}
+			}
+			doDispose();
+		}
+	}
+	
+	protected void doDispose() {
 		if (fQueue != null) {
 			fQueue.dispose();
 		}
 	}
+	
 	
 	/**
 	 * Fires the given debug events.

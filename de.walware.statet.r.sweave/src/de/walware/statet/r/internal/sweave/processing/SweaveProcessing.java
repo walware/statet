@@ -17,7 +17,9 @@ import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDele
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -28,7 +30,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchConfigurationType;
-import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -42,6 +43,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
@@ -62,8 +64,8 @@ public class SweaveProcessing implements ILaunchConfigurationListener {
 	private static final Comparator<ILaunchConfiguration> CONFIG_COMPARATOR = new LaunchConfigUtil.LaunchConfigurationComparator();
 	
 	
-	public static boolean isEnabled(final int toCheck, final int currentFlags) {
-		return ((currentFlags & 0xf) == 0 || (currentFlags & toCheck) != 0);
+	public static boolean isEnabled(final int expectedFlag, final int currentFlags) {
+		return ((currentFlags & 0xf) == 0 || (currentFlags & expectedFlag) != 0);
 	}
 	
 	
@@ -245,11 +247,11 @@ public class SweaveProcessing implements ILaunchConfigurationListener {
 			public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 				monitor.beginTask(label, 1);
 				try {
-					final ILaunchConfigurationWorkingCopy config = configuration.getWorkingCopy();
-					config.setAttribute(SweaveProcessing.ATT_BUILDSTEPS, flags);
+					final Map<String, Object> attributes = Collections.singletonMap(SweaveProcessing.ATT_BUILDSTEPS, (Object) new Integer(flags));
+					final ILaunchConfiguration config = new OverlayLaunchConfiguration(configuration, attributes);
 					final String mode = ILaunchManager.RUN_MODE;
-					// TODO E-3.4 bug #200997 if fixed, set register to false
-					if ((flags & 0xf) == 0 || (flags & 0x1) != 0) {
+					// TODO E-3.5 bug #200997, set register to false
+					if (isEnabled(0x1, flags)) {
 						config.launch(mode, new SubProgressMonitor(monitor, 1), true, true);
 					}
 					else {

@@ -16,16 +16,20 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 
 /**
- * 
+ * R Tool Workspace
  */
 public class RWorkspace extends ToolWorkspace {
 	
 	
-	public RWorkspace(AbstractRController controller) {
-		
+	public RWorkspace(final AbstractRController controller) {
+		this(controller, null);
+	}
+	
+	public RWorkspace(final AbstractRController controller, final String remoteHost) {
 		super(  controller,
 				new Prompt("> ", IBasicRAdapter.META_PROMPT_DEFAULT),  //$NON-NLS-1$
-				"\n"); //$NON-NLS-1$
+				"\n", //$NON-NLS-1$
+				remoteHost);
 	}
 	
 }

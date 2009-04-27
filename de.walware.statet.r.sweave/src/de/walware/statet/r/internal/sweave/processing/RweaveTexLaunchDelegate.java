@@ -11,7 +11,9 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -39,6 +41,7 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -133,7 +136,12 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		if (sweaveProcessing.startsWith(RweaveTexLaunchDelegate.SWEAVE_LAUNCH)) {
 			final String[] split = sweaveProcessing.split(":", 2); //$NON-NLS-1$
 			final String sweaveConfigName = (split.length == 2) ? split[1] : ""; //$NON-NLS-1$
-			final ILaunchConfigurationWorkingCopy sweaveConfig = getRCmdSweaveConfig(sweaveConfigName, sweaveFile);
+			
+			final Map<String, Object> attributes = new HashMap<String, Object>();
+			attributes.put(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, sweaveFile.getLocation().toOSString());
+			attributes.put(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
+			
+			final ILaunchConfiguration sweaveConfig = getRCmdSweaveConfig(sweaveConfigName, attributes);
 			if (sweaveConfig == null && SweaveProcessing.isEnabled(STEP_WEAVE, buildFlags)) {
 				throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						NLS.bind(Messages.ProcessingConfig_error_MissingRCmdConfig_message, sweaveConfigName), null));
@@ -141,7 +149,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 			thread.fSweaveConfig = sweaveConfig;
 			
 			final FileValidator workingDirectory = REnvTab.getWorkingDirectoryValidator(sweaveConfig, true);
-			sweaveConfig.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, workingDirectory.getFileStore().toURI().toString());
+			attributes.put(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, workingDirectory.getFileStore().toURI().toString());
 			final IStatus status = thread.setWorkingDir(workingDirectory.getFileStore(), (IContainer) workingDirectory.getWorkspaceResource(), false);
 			if (status.getSeverity() >= IStatus.ERROR && SweaveProcessing.isEnabled(STEP_WEAVE, buildFlags)) {
 				throw new CoreException(status);
@@ -192,28 +200,19 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 //		}
 	}
 	
-	private ILaunchConfigurationWorkingCopy getRCmdSweaveConfig(final String name, final IFile sweaveFile) throws CoreException {
+	private OverlayLaunchConfiguration getRCmdSweaveConfig(final String name, final Map<String, Object> attributes) throws CoreException {
 		final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		final ILaunchConfigurationType launchType = launchManager.getLaunchConfigurationType(RLaunchConfigurations.ID_R_CMD_CONFIGURATION_TYPE); //$NON-NLS-1
 		final ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(launchType);
 		
-		ILaunchConfigurationWorkingCopy sweaveConfig = null;
 		if (name != null && name.length() > 0) {
 			for (final ILaunchConfiguration config : launchConfigurations) {
 				if (config.getName().equals(name)) {
-					sweaveConfig = config.getWorkingCopy();
-					break;
+					return new OverlayLaunchConfiguration(config, attributes);
 				}
 			}
 		}
-		if (sweaveConfig == null) {
-			return null;
-		}
-		
-		sweaveConfig.setAttribute(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, sweaveFile.getLocation().toOSString());
-		sweaveConfig.setAttribute(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
-		
-		return sweaveConfig;
+		return null;
 	}
 	
 }

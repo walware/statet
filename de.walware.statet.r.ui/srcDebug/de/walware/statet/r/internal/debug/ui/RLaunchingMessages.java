@@ -45,13 +45,13 @@ public class RLaunchingMessages extends NLS {
 	public static String RMI_status_RegistryStartFailedWithExitValue_message;
 	public static String RMI_status_RegistryStopFailedNotFound_message;
 	
-	public static String LaunchDelegate_task;
-	public static String LaunchDelegate_Init_subtask;
 	public static String LaunchDelegate_error_StartingExec;
 	public static String LaunchDelegate_error_ProcessHandle;
 	public static String LaunchDelegate_error_InvalidUnsupportedConsoleEncoding_message;
 	public static String RJLaunchDelegate_StartR_subtask;
 	public static String RJLaunchDelegate_WaitForR_subtask;
+	public static String RJLaunchDelegate_error_MissingAddress_message;
+	public static String RJLaunchDelegate_error_InvalidAddress_message;
 	
 	public static String REnv_Tab_REnvConfig_label;
 	public static String REnv_Tab_title;
@@ -66,6 +66,8 @@ public class RLaunchingMessages extends NLS {
 	public static String RConsole_MainTab_error_WhileRunningHelp_message;
 	public static String RConsole_MainTab_ConsoleOptions_label;
 	public static String RConsole_MainTab_ConsoleOptions_Pin_label;
+	
+	public static String RConsole_OptionsTab_name;
 	
 	public static String RCmd_MainTab_name;
 	public static String RCmd_MainTab_Cmd_label;
@@ -99,6 +101,18 @@ public class RLaunchingMessages extends NLS {
 	public static String RErrorLineTracker_error_GetFile_message;
 	public static String RErrorLineTracker_error_OpeningFile_message;
 	public static String RErrorLineTracker_File_name;
+	
+	public static String RRemoteConsoleSelectionDialog_title;
+	public static String RRemoteConsoleSelectionDialog_message;
+	public static String RRemoteConsoleSelectionDialog_Hostname_label;
+	public static String RRemoteConsoleSelectionDialog_Update_label;
+	public static String RRemoteConsoleSelectionDialog_Table_UserOrEngine_label;
+	public static String RRemoteConsoleSelectionDialog_Table_Host_label;
+	public static String RRemoteConsoleSelectionDialog_task_Connecting_message;
+	public static String RRemoteConsoleSelectionDialog_task_Gathering_message;
+	public static String RRemoteConsoleSelectionDialog_task_Resolving_message;
+	public static String RRemoteConsoleSelectionDialog_info_ListRestored_message;
+	public static String RRemoteConsoleSelectionDialog_error_ConnectionFailed_message;
 	
 	
 	static {

@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -180,7 +182,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 			}
 		}
 		
-		public void changed(final int event) {
+		public void changed(final int event, final ToolProcess process) {
 		}
 		
 	}
@@ -197,7 +199,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	
 	
 	public RTermController(final ToolProcess process, final ProcessBuilder config, final Charset charset) {
-		super(process);
+		super(process, null);
 		fConfig = config;
 		fCharset = charset;
 		
@@ -226,11 +228,6 @@ public class RTermController extends AbstractRController implements IRequireSync
 				return RNicoMessages.Rterm_StartTask_label;
 			}
 		};
-	}
-	
-	@Override
-	protected IToolRunnable createQuitRunnable() {
-		return new RQuitRunnable();
 	}
 	
 	@Override
@@ -319,7 +316,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 		final IToolEventHandler handler = getEventHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID);
 		if (handler != null) {
 			final RTermCancelRunnable cancelRunnable = new RTermCancelRunnable();
-			return (handler.handle(this, cancelRunnable) == IToolEventHandler.OK);
+			final Map<String, Object> data = Collections.singletonMap(IToolEventHandler.RUN_RUNNABLE_DATA_KEY, (Object) cancelRunnable); 
+			return (handler.handle(IToolEventHandler.RUN_BLOCKING_EVENT_ID, this, data, null) == IToolEventHandler.OK);
 		}
 		return false;
 	}

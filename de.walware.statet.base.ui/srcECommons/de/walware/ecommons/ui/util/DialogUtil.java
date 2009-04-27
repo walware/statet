@@ -12,13 +12,16 @@
 package de.walware.ecommons.ui.util;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 /**
- * 
+ * Util methods for dialogs
  */
 public class DialogUtil {
 	
@@ -36,17 +39,110 @@ public class DialogUtil {
 		return section;
 	}
 	
+	/**
+	 * Combines existing items and new item of a history setting
+	 * and saves it to the dialog settings section
+	 * 
+	 * @param settings settings section
+	 * @param key settings key
+	 * @param newItem optional new item
+	 */
 	public static void saveHistorySettings(final IDialogSettings settings, final String key,
-			final String newValue) {
+			final String newItem) {
+		final String[] items = combineHistoryItems(settings.getArray(key), newItem);
+		settings.put(key, items);
+	}
+	
+	/**
+	 * Combines existing items and new item of a history setting
+	 * 
+	 * @param existingItems optional array of existing items
+	 * @param newItem optional new item
+	 */
+	public static String[] combineHistoryItems(final String[] existingItems, final String newItem) {
 		final LinkedHashSet<String> history = new LinkedHashSet<String>(HISTORY_MAX);
-		history.add(newValue);
-		final String[] oldHistory = settings.getArray(key);
-		if (oldHistory != null) {
-			for (int i = 0; i < oldHistory.length && history.size() < HISTORY_MAX; i++) {
-				history.add(oldHistory[i]);
+		if (newItem != null) {
+			history.add(newItem);
+		}
+		if (existingItems != null) {
+			for (int i = 0; i < existingItems.length && history.size() < HISTORY_MAX; i++) {
+				history.add(existingItems[i]);
 			}
 		}
-		settings.put(key, history.toArray(new String[history.size()]));
+		return history.toArray(new String[history.size()]);
+	}
+	
+	
+	/**
+	 * Recursively enables/disables all controls and their children.
+	 * {@link Control#setEnabled(boolean)}
+	 * 
+	 * @param control a control
+	 * @param exceptions
+	 * @param enable
+	 */
+	public static void setEnabled(final Control control, final List exceptions, final boolean enable) {
+		setEnabled(new Control[] { control }, exceptions, enable);
+	}
+	
+	/**
+	 * Recursively enables/disables all controls and their children.
+	 * {@link Control#setEnabled(boolean)}
+	 * 
+	 * @param control array of controls
+	 * @param exceptions
+	 * @param enable
+	 */
+	public static void setEnabled(final Control[] controls, final List exceptions, final boolean enable) {
+		for (final Control control : controls) {
+			if ((exceptions != null && exceptions.contains(control))) {
+				continue;
+			}
+			control.setEnabled(enable);
+			if (control instanceof Composite) {
+				final Composite c = (Composite) control;
+				final Control[] children = c.getChildren();
+				if (children.length > 0) {
+					setEnabled(children, exceptions, enable);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Recursively sets visible/invisible to the control and its children.
+	 * {@link Control#setVisible(boolean)}
+	 * 
+	 * @param control a control
+	 * @param exceptions
+	 * @param enable
+	 */
+	public static void setVisible(final Control control, final List exceptions, final boolean enable) {
+		setVisible(new Control[] { control }, exceptions, enable);
+	}
+	
+	/**
+	 * Recursively sets visible/invisible to all controls and their children.
+	 * {@link Control#setVisible(boolean)}
+	 * 
+	 * @param control array of controls
+	 * @param exceptions
+	 * @param enable
+	 */
+	public static void setVisible(final Control[] controls, final List exceptions, final boolean enable) {
+		for (final Control control : controls) {
+			if ((exceptions != null && exceptions.contains(control))) {
+				continue;
+			}
+			control.setVisible(enable);
+			if (control instanceof Composite) {
+				final Composite c = (Composite) control;
+				final Control[] children = c.getChildren();
+				if (children.length > 0) {
+					setVisible(children, exceptions, enable);
+				}
+			}
+		}
 	}
 	
 	

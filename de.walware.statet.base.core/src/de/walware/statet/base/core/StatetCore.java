@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.net.ISshSessionService;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
@@ -65,6 +66,10 @@ public class StatetCore {
 			}
 		}
 		return null;
+	}
+	
+	public static ISshSessionService getSshSessionManager() {
+		return BaseCorePlugin.getDefault().getSshSessionManager();
 	}
 	
 	private static void logError(final CoreException e) {

@@ -60,7 +60,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public abstract class PathCompletionComputor implements IContentAssistComputer {
 	
 	
-	private class ResourceProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension3 {
+	protected class ResourceProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension3 {
 		
 		private IFileStore fFileStore;
 		private boolean fIsDirectory;
@@ -77,12 +77,21 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		private IRegion fSelectionToSet;
 		
 		
-		public ResourceProposal(final int offset, final IFileStore fileStore, final String prefix, final IContainer workspaceRef) {
+		/**
+		 * Creates a new completion proposal for a resource
+		 * 
+		 * @param offset the offset in the document where to insert the completion
+		 * @param fileStore the EFS resource handle
+		 * @param explicitName optional explicit name used instead of the name of the fileStore
+		 * @param prefix optional prefix to prefix before the name
+		 * @param workspaceRef the workspace resource handle, if the resource is in the workspace
+		 */
+		public ResourceProposal(final int offset, final IFileStore fileStore, final String explicitName, final String prefix, final IContainer workspaceRef) {
 			fCompletionOffset = offset;
 			fFileStore = fileStore;
 			fIsDirectory = fFileStore.fetchInfo().isDirectory();
 			fWorkspaceRef = workspaceRef;
-			final StringBuilder name = new StringBuilder(fFileStore.getName());
+			final StringBuilder name = new StringBuilder((explicitName != null) ? explicitName : fFileStore.getName());
 			if (prefix != null) {
 				name.insert(0, prefix);
 			}
@@ -252,7 +261,6 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	
 	
 	public PathCompletionComputor() {
-		 fPathSeparator = System.getProperty("file.separator"); //$NON-NLS-1$
 	}
 	
 	
@@ -260,12 +268,18 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public void sessionStarted(final ISourceEditor editor) {
+		fPathSeparator = getDefaultFileSeparator();
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public void sessionEnded() {
+	}
+	
+	protected String getDefaultFileSeparator() {
+		// use backslash only for local window systems
+		return isWin() ? "\\" : "/"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public char[] getCompletionProposalAutoActivationCharacters() {
@@ -291,83 +305,77 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 			String prefix = checkPrefix(
 					document.get(partition.getOffset(), offset-partition.getOffset()) );
 			
+			if (prefix == null) {
+				return null;
+			}
+			
 			boolean needSeparatorBeforeStart = false; // including virtual separator
 			String start = ""; //$NON-NLS-1$
 			IFileStore baseStore = null;
-			if (prefix != null) {
-				final char lastChar = (prefix.length() > 0) ? prefix.charAt(prefix.length()-1) : 0;
-				
-				IPath path = null;
-				switch (lastChar) {
-				case ':':
-					prefix = prefix+fPathSeparator;
+			IPath path = null;
+			
+			final char lastChar = (prefix.length() > 0) ? prefix.charAt(prefix.length()-1) : 0;
+			switch (lastChar) {
+			case ':':
+				prefix = prefix+fPathSeparator;
+				if (Path.ROOT.isValidPath(prefix)) {
+					path = new Path(prefix);
+					needSeparatorBeforeStart = true;
+				}
+				break;
+			case '.':
+				// prevent that path segments '.' and '..' at end are resolved
+				if (prefix.equals(".") || prefix.endsWith("\\.") || prefix.endsWith("/.")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					prefix = prefix.substring(0, prefix.length()-1);
 					if (Path.ROOT.isValidPath(prefix)) {
+						start = "."; //$NON-NLS-1$
 						path = new Path(prefix);
-						needSeparatorBeforeStart = true;
-					}
-					break;
-				case '.':
-					// prevent that path segments '.' and '..' at end are resolved
-					if (prefix.equals(".") || prefix.endsWith("\\.") || prefix.endsWith("/.")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						prefix = prefix.substring(0, prefix.length()-1);
-						if (Path.ROOT.isValidPath(prefix)) {
-							start = "."; //$NON-NLS-1$
-							path = new Path(prefix);
-						}
-						break;
-					}
-					else if (prefix.equals("..") || prefix.endsWith("\\..") || prefix.endsWith("/..")) { // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						prefix = prefix.substring(0, prefix.length()-2);
-						if (Path.ROOT.isValidPath(prefix)) {
-							start = ".."; //$NON-NLS-1$
-							path = new Path(prefix);
-						}
-						break;
-					}
-					// continue with default
-				default:
-					if (Path.ROOT.isValidPath(prefix)) {
-						path = new Path(prefix);
-						if (path.segmentCount() > 0 && lastChar != '\\' && lastChar != '/') {
-							start = path.lastSegment();
-							path = path.removeLastSegments(1);
-							if (path == null) {
-								path = new Path(""); //$NON-NLS-1$
-							}
-						}
 					}
 					break;
 				}
-				
-				if (path != null) {
-					if (path.isAbsolute()) {
-						// on Windows, path starting with path separator are relative to the device of current directory
-						if (Platform.getOS().startsWith("win") && path.getDevice() == null && !path.isUNC()) { //$NON-NLS-1$
-							final IFileStore workspace = getRelativeBase();
-							if (workspace != null) {
-								path = path.setDevice(URIUtil.toPath(workspace.toURI()).getDevice());
-							}
-						}
-						baseStore = EFS.getStore(URIUtil.toURI(path));
+				else if (prefix.equals("..") || prefix.endsWith("\\..") || prefix.endsWith("/..")) { // //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					prefix = prefix.substring(0, prefix.length()-2);
+					if (Path.ROOT.isValidPath(prefix)) {
+						start = ".."; //$NON-NLS-1$
+						path = new Path(prefix);
 					}
-					else {
-						final IFileStore workspace = getRelativeBase();
-						if (workspace != null) {
-							path = URIUtil.toPath(workspace.toURI()).append(path).makeAbsolute();
-							baseStore = EFS.getStore(URIUtil.toURI(path));
+					break;
+				}
+				// continue with default
+			default:
+				if (Path.ROOT.isValidPath(prefix)) {
+					path = new Path(prefix);
+					if (path.segmentCount() > 0 && lastChar != '\\' && lastChar != '/') {
+						start = path.lastSegment();
+						path = path.removeLastSegments(1);
+						if (path == null) {
+							path = new Path(""); //$NON-NLS-1$
 						}
 					}
 				}
+				break;
 			}
 			
-			if (baseStore == null || !baseStore.fetchInfo().exists()) {
-				return null;
+			if (path != null) {
+				// on Windows, path starting with path separator are relative to the device of current directory
+				if (path.isAbsolute() && isWin() && path.getDevice() == null && !path.isUNC()) { 
+					final IPath workspace = getRelativeBase();
+					if (workspace != null) {
+						path = path.setDevice(workspace.getDevice());
+					}
+				}
+				baseStore = resolveStore(path);
 			}
 			
 			updatePathSeparator(prefix);
 			
 			String completionPrefix = (needSeparatorBeforeStart) ? fPathSeparator : null;
-			doAdd(tenders, baseStore, offset-start.length(), start, completionPrefix);
+			
+			if ((baseStore == null || !baseStore.fetchInfo().exists()) && path != null) {
+				return tryAlternative(tenders, path, offset-start.length(), start, prefix, completionPrefix);
+			}
+			
+			doAddChildren(tenders, baseStore, offset-start.length(), start, completionPrefix);
 			if (start != null && start.length() > 0 && !start.equals(".")) { //$NON-NLS-1$
 				baseStore = baseStore.getChild(start);
 				if (baseStore.fetchInfo().exists()) {
@@ -378,7 +386,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 					prefixBuilder.append(baseStore.getName());
 					prefixBuilder.append(fPathSeparator);
 					completionPrefix = prefixBuilder.toString();
-					doAdd(tenders, baseStore, offset-start.length(), null, completionPrefix);
+					doAddChildren(tenders, baseStore, offset-start.length(), null, completionPrefix);
 				}
 			}
 			return Status.OK_STATUS;
@@ -430,7 +438,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		}
 	}
 	
-	protected void doAdd(final List<ICompletionProposal> matches, final IFileStore baseStore, 
+	protected void doAddChildren(final List<ICompletionProposal> matches, final IFileStore baseStore, 
 			final int startOffset, final String startsWith, final String prefix) throws CoreException {
 		final IContainer[] workspaceRefs = ResourcesPlugin.getWorkspace().getRoot().findContainersForLocationURI(baseStore.toURI());
 		final IContainer workspaceRef = (workspaceRefs.length > 0) ? workspaceRefs[0] : null;
@@ -438,7 +446,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		Arrays.sort(names, Collator.getInstance());
 		for (final String name : names) {
 			if (startsWith == null || name.regionMatches(true, 0, startsWith, 0, startsWith.length())) {
-				matches.add(new ResourceProposal(startOffset, baseStore.getChild(name), prefix, workspaceRef));
+				matches.add(new ResourceProposal(startOffset, baseStore.getChild(name), null, prefix, workspaceRef));
 			}
 		}
 	}
@@ -453,8 +461,31 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	
 	protected abstract IRegion getContentRange(IDocument document, int offset) throws BadLocationException;
 	
-	protected IFileStore getRelativeBase() {
+	protected IPath getRelativeBase() {
 		return null;
+	}
+	
+	protected IFileStore resolveStore(IPath path) throws CoreException {
+		if (!path.isAbsolute()) {
+			final IPath workspace = getRelativeBase();
+			if (workspace != null) {
+				path =  workspace.append(path).makeAbsolute();
+				return EFS.getStore(URIUtil.toURI(path));
+			}
+		}
+		else {
+			return EFS.getStore(URIUtil.toURI(path));
+		}
+		return null;
+	}
+	
+	protected IStatus tryAlternative(final List<ICompletionProposal> matches, final IPath path,
+			final int startOffset, final String startsWith, final String prefix, final String completionPrefix) throws CoreException {
+		return null;
+	}
+	
+	protected boolean isWin() {
+		return Platform.getOS().startsWith("win"); //$NON-NLS-1$
 	}
 	
 	/**

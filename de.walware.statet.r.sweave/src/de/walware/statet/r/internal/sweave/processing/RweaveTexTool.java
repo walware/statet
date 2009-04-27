@@ -99,7 +99,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		R() {
 		}
 		
-		public void changed(final int event) {
+		public void changed(final int event, final ToolProcess process) {
 			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
 				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, -1,
 						Messages.RweaveTexProcessing_Sweave_Task_info_Canceled_message, null));
@@ -427,7 +427,7 @@ class RweaveTexTool implements Runnable, IProcess {
 				if (fRunSweave) {
 					final SubMonitor progress = parentProgress.newChild(TICKS_RWEAVE);
 					progress.beginTask(Messages.RweaveTexProcessing_Sweave_InConsole_label, 100);
-					final ToolController rController = NicoUITools.accessTool("R", rProcess); //$NON-NLS-1$
+					final ToolController rController = NicoUITools.accessController("R", rProcess); //$NON-NLS-1$
 					progress.worked(10);
 					final IStatus submitStatus = rController.submit(rTask);
 					if (submitStatus.getSeverity() > IStatus.OK) {

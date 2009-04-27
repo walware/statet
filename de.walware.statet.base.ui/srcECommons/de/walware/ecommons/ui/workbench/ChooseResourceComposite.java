@@ -398,7 +398,10 @@ public class ChooseResourceComposite extends Composite {
 		String wsPath;
 		String appendPath;
 		IResource resource = null;
-		if (mode == MODE_DIRECTORY) { 
+		if (mode == MODE_DIRECTORY) {
+			if (res instanceof IFile) {
+				res = res.getParent();
+			}
 			final ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), 
 					(IContainer) res, (fValidator.getOnNotExisting() != IStatus.ERROR), getTaskLabel());
 			dialog.open();

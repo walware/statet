@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugEvent;
@@ -230,19 +231,14 @@ public class LaunchConfigUtil {
 	}
 	
 	
-	public static IProgressMonitor initProgressMonitor(final ILaunchConfiguration configuration,
+	public static SubMonitor initProgressMonitor(final ILaunchConfiguration configuration,
 			IProgressMonitor monitor, final int taskTotalWork) {
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
-		if (CommonTab.isLaunchInBackground(configuration)) {
-			monitor.beginTask(Messages.LaunchDelegate_LaunchingTask_label, taskTotalWork);
-		}
-		else {
-			monitor.beginTask(Messages.LaunchDelegate_RunningTask_label, taskTotalWork*2);
-			monitor.subTask(Messages.LaunchDelegate_LaunchingTask_label);
-		}
-		return monitor;
+		final SubMonitor progress = SubMonitor.convert(monitor, Messages.LaunchDelegate_LaunchingTask_label, taskTotalWork);
+		progress.subTask(Messages.LaunchDelegate_Init_subtask);
+		return progress;
 	}
 	
 	public static String createProcessTimestamp() {

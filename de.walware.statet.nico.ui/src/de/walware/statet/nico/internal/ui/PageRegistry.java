@@ -18,9 +18,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.ui.DebugUITools;
@@ -38,6 +41,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.progress.WorkbenchJob;
 
+import de.walware.ecommons.FastList;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -50,7 +54,7 @@ import de.walware.statet.nico.ui.console.NIConsole;
 /**
  * part of tool registry per workbench
  */
-class PageRegistry {
+class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	
 	static final String SHOW_CONSOLE_JOB_NAME = "Show NIConsole"; //$NON-NLS-1$
 	
@@ -76,15 +80,6 @@ class PageRegistry {
 	}
 	
 	
-	private IWorkbenchPage fPage;
-	private IDebugContextListener fDebugContextListener;
-	
-	private ToolProcess fActiveProcess;
-	private NIConsole fActiveConsole;
-	
-	final ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
-	
-	
 	private class ShowConsoleViewJob extends WorkbenchJob {
 		
 		private final int fDelay;
@@ -92,14 +87,16 @@ class PageRegistry {
 		private volatile NIConsole fConsoleToShow;
 		private volatile boolean fActivate;
 		
-		ShowConsoleViewJob(final int delay) {
+		
+		public ShowConsoleViewJob(final int delay) {
 			super(SHOW_CONSOLE_JOB_NAME);
 			setSystem(true);
 			setPriority(Job.SHORT);
 			fDelay = delay;
 		}
 		
-		void schedule(final NIConsole console, final boolean activate) {
+		
+		public void schedule(final NIConsole console, final boolean activate) {
 			cancel();
 			fConsoleToShow = console;
 			fActivate = activate;
@@ -204,26 +201,60 @@ class PageRegistry {
 		}
 		
 	}
-	private ShowConsoleViewJob fShowConsoleViewJob = new ShowConsoleViewJob(100);
 	
-	private class UpdateConsoleJob extends Job {
+	private class OnConsoleChangedJob extends Job implements ISchedulingRule {
 		
 		private volatile NIConsole fConsole;
 		private volatile IViewPart fSource;
 		private volatile List<ToolProcess> fExclude;
 		
-		public UpdateConsoleJob() {
-			super("Update Console");
+		public OnConsoleChangedJob() {
+			super("NicoUI Registry - On Console Changed");
 			setSystem(true);
 			setPriority(Job.SHORT);
 		}
 		
-		void schedule(final NIConsole console, final IViewPart source, final List<ToolProcess> exclude) {
-			cancel();
-			fConsole = console;
-			fSource = source;
-			fExclude = exclude;
-			schedule(50);
+		@Override
+		public boolean belongsTo(final Object family) {
+			return (family == PageRegistry.this);
+		}
+		
+		public boolean contains(final ISchedulingRule rule) {
+			return false;
+		}
+		
+		public boolean isConflicting(final ISchedulingRule rule) {
+			if (rule instanceof Job) {
+				return ((Job) rule).belongsTo(PageRegistry.this);
+			}
+			return false;
+		}
+		
+		
+		public void scheduleActivated(final NIConsole console, final IViewPart source) {
+			synchronized (PageRegistry.this) {
+				if (fExclude != null && console != null && fExclude.contains(console.getProcess())) {
+					return;
+				}
+				cancel(); // ensure delay
+				fConsole = console;
+				fSource = source;
+				schedule(50);
+			}
+		}
+		
+		public void scheduleRemoved(final List<ToolProcess> exclude) {
+			synchronized (PageRegistry.this) {
+				if (fConsole != null && exclude.contains(fConsole.getProcess())) {
+					fConsole = null;
+				}
+				else if (fActiveProcess == null && !exclude.contains(fActiveProcess)) {
+					return;
+				}
+				cancel(); // ensure delay
+				fExclude = exclude;
+				schedule(200);
+			}
 		}
 		
 		@Override
@@ -249,8 +280,12 @@ class PageRegistry {
 				if (monitor.isCanceled()) {
 					return Status.CANCEL_STATUS;
 				}
-				if ((console == fActiveConsole)
-						|| (console != null && console.equals(fActiveConsole)) ) {
+				if (fConsole == console) {
+					fConsole = null;
+					fExclude = null;
+				}
+				
+				if ((console == fActiveConsole) || (console == null && fActiveConsole == null)) {
 					return Status.OK_STATUS;
 				}
 				fActiveProcess = (console != null) ? console.getProcess() : null;
@@ -263,72 +298,131 @@ class PageRegistry {
 			return Status.OK_STATUS;
 		}
 		
-		private void notifyActiveToolSessionChanged(final IViewPart source) {
-			final ToolSessionUIData info = new ToolSessionUIData(fActiveProcess, fActiveConsole, source);
-			if (ToolRegistry.DEBUG) {
-				System.out.println("[tool registry] session activated: " + info.toString());
-			}
-			
-			final Object[] listeners = fListeners.getListeners();
-			for (final Object obj : listeners) {
-				((IToolRegistryListener) obj).toolSessionActivated(info);
-			}
+	}
+	
+	private class OnToolTerminatedJob extends Job implements ISchedulingRule {
+		
+		private volatile ToolProcess fTool;
+		
+		public OnToolTerminatedJob() {
+			super("NicoUI Registry - On Tool Terminated"); //$NON-NLS-1$
+			setSystem(true);
+			setPriority(Job.SHORT);
 		}
 		
-	}
-	private UpdateConsoleJob fConsoleUpdateJob = new UpdateConsoleJob();
-	
-	
-	PageRegistry(final IWorkbenchPage page) {
-		fPage = page;
+		@Override
+		public boolean belongsTo(final Object family) {
+			return (family == PageRegistry.this);
+		}
 		
-		fDebugContextListener = new IDebugContextListener() {
-			public void debugContextChanged(final DebugContextEvent event) {
-				final ISelection selection = event.getContext();
-				if (selection instanceof IStructuredSelection) {
-					final IStructuredSelection sel = (IStructuredSelection) selection;
-					if (sel.size() == 1) {
-						final Object element = sel.getFirstElement();
-						ToolProcess tool = null;
-						if (element instanceof IAdaptable) {
-							final IProcess process = (IProcess) ((IAdaptable) element).getAdapter(IProcess.class);
-							if (process instanceof ToolProcess) {
-								tool = (ToolProcess) process;
-							}
-						}
-						if (tool == null && element instanceof ILaunch) {
-							final IProcess[] processes = ((ILaunch) element).getProcesses();
-							for (int i = 0; i < processes.length; i++) {
-								if (processes[i] instanceof ToolProcess) {
-									tool = (ToolProcess) processes[i];
-									break;
-								}
-							}
-						}
-						if (tool != null) {
-							showConsole(NicoUITools.getConsole(tool), false);
-						}
-					}
-				}
+		public boolean contains(final ISchedulingRule rule) {
+			return false;
+		}
+		
+		public boolean isConflicting(final ISchedulingRule rule) {
+			if (rule instanceof Job) {
+				return ((Job) rule).belongsTo(PageRegistry.this);
 			}
-		};
-		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).addDebugContextListener(fDebugContextListener);
+			return false;
+		}
+		
+		
+		public void scheduleTerminated(final ToolProcess tool) {
+			fTool = tool;
+			schedule(0);
+		}
+		
+		@Override
+		public synchronized IStatus run(final IProgressMonitor monitor) {
+			final ToolProcess tool = fTool;
+			fTool = null;
+			
+			if (getActiveProcess() == tool) {
+				notifyToolTerminated();
+			}
+			return Status.OK_STATUS;
+		}
+		
+	};
+	
+	
+	private final IWorkbenchPage fPage;
+	private IDebugContextListener fDebugContextListener;
+	
+	private ToolProcess fActiveProcess;
+	private NIConsole fActiveConsole;
+	
+	final FastList<IToolRegistryListener> fListeners;
+	
+	private final ShowConsoleViewJob fShowConsoleViewJob = new ShowConsoleViewJob(100);
+	private final OnConsoleChangedJob fConsoleUpdateJob = new OnConsoleChangedJob();
+	private final OnToolTerminatedJob fTerminatedJob = new OnToolTerminatedJob();
+	
+	
+	PageRegistry(final IWorkbenchPage page, final IToolRegistryListener[] initial) {
+		fPage = page;
+		fListeners = new FastList<IToolRegistryListener>(IToolRegistryListener.class, FastList.IDENTITY, initial);
+		
+		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).addDebugContextListener(this);
+		DebugPlugin.getDefault().addDebugEventListener(this);
 	}
 	
 	
-	public synchronized void  dispose() {
-		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).removeDebugContextListener(fDebugContextListener);
+	public synchronized void dispose() {
+		DebugPlugin.getDefault().removeDebugEventListener(this);
+		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).removeDebugContextListener(this);
 		fShowConsoleViewJob.cancel();
-		fShowConsoleViewJob = null;
 		fConsoleUpdateJob.cancel();
-		fConsoleUpdateJob = null;
+		fTerminatedJob.cancel();
+		
 		fListeners.clear();
 		fActiveProcess = null;
 		fActiveConsole = null;
-		fPage = null;
 	}
 	
-	public synchronized IWorkbenchPage getPage() {
+	
+	public void debugContextChanged(final DebugContextEvent event) {
+		final ISelection selection = event.getContext();
+		if (selection instanceof IStructuredSelection) {
+			final IStructuredSelection sel = (IStructuredSelection) selection;
+			if (sel.size() == 1) {
+				final Object element = sel.getFirstElement();
+				ToolProcess tool = null;
+				if (element instanceof IAdaptable) {
+					final IProcess process = (IProcess) ((IAdaptable) element).getAdapter(IProcess.class);
+					if (process instanceof ToolProcess) {
+						tool = (ToolProcess) process;
+					}
+				}
+				if (tool == null && element instanceof ILaunch) {
+					final IProcess[] processes = ((ILaunch) element).getProcesses();
+					for (int i = 0; i < processes.length; i++) {
+						if (processes[i] instanceof ToolProcess) {
+							tool = (ToolProcess) processes[i];
+							break;
+						}
+					}
+				}
+				if (tool != null) {
+					showConsole(NicoUITools.getConsole(tool), false);
+				}
+			}
+		}
+	}
+	
+	public void handleDebugEvents(final DebugEvent[] events) {
+		final ToolProcess tool = fActiveProcess;
+		if (tool == null) {
+			return;
+		}
+		for (final DebugEvent event : events) {
+			if (event.getSource() == tool && event.getKind() == DebugEvent.TERMINATE) {
+				fTerminatedJob.scheduleTerminated(tool);
+			}
+		}
+	}
+	
+	public IWorkbenchPage getPage() {
 		return fPage;
 	}
 	
@@ -337,25 +431,23 @@ class PageRegistry {
 	}
 	
 	public synchronized ToolSessionUIData createSessionInfo(final IViewPart source) {
-		return new ToolSessionUIData(fActiveProcess,
-				fActiveConsole, null);
+		return new ToolSessionUIData(fActiveProcess, fActiveConsole, fPage, null);
 	}
 	
-	public synchronized void reactOnConsolesRemoved(final List<ToolProcess> consoles) {
-		if (consoles.contains(fActiveProcess)) {
-			doActiveConsoleChanged(null, null, consoles);
-		}
+	void handleConsolesRemoved(final List<ToolProcess> consoles) {
+		fConsoleUpdateJob.scheduleRemoved(consoles);
 	}
 	
-	public synchronized void doActiveConsoleChanged(final NIConsole console, final IViewPart source, final List<ToolProcess> exclude) {
-		fConsoleUpdateJob.schedule(console, source, exclude);
+	void handleActiveConsoleChanged(final NIConsole console, final IViewPart source) {
+		fConsoleUpdateJob.scheduleActivated(console, source);
 	}
 	
-	public synchronized void showConsole(final NIConsole console, final boolean activate) {
+	void showConsole(final NIConsole console, final boolean activate) {
 		fShowConsoleViewJob.schedule(console, activate);
 	}
 	
-	public void showConsoleExplicitly(final NIConsole console, final boolean pin) {
+	void showConsoleExplicitly(final NIConsole console, final boolean pin) {
+		fShowConsoleViewJob.cancel();
 		new ShowConsoleViewJob(0) {
 			@Override
 			protected void finish(final IConsoleView view) {
@@ -397,6 +489,33 @@ class PageRegistry {
 			}
 		}
 		return secondChoice;
+	}
+	
+	
+	private void notifyActiveToolSessionChanged(final IViewPart source) {
+		final ToolSessionUIData sessionData = new ToolSessionUIData(fActiveProcess, fActiveConsole, 
+				fPage, source);
+		if (ToolRegistry.DEBUG) {
+			System.out.println("[tool registry] tool session activated: " + sessionData.toString());
+		}
+		
+		final Object[] listeners = fListeners.toArray();
+		for (final Object obj : listeners) {
+			((IToolRegistryListener) obj).toolSessionActivated(sessionData);
+		}
+	}
+	
+	private void notifyToolTerminated() {
+		final ToolSessionUIData sessionData = new ToolSessionUIData(fActiveProcess, fActiveConsole, 
+				fPage, null);
+		if (ToolRegistry.DEBUG) {
+			System.out.println("[tool registry] activate tool terminated: " + sessionData.toString());
+		}
+		
+		final Object[] listeners = fListeners.toArray();
+		for (final Object obj : listeners) {
+			((IToolRegistryListener) obj).toolTerminated(sessionData);
+		}
 	}
 	
 }

@@ -54,7 +54,10 @@ public interface IToolRunnable<T extends IToolRunnableControllerAdapter> {
 	 */
 	public String getLabel();
 	
-	public void changed(int event);
+	/**
+	 * Is called when the state of the runnable has changed
+	 */
+	public void changed(int event, ToolProcess process);
 	
 	/**
 	 * This method is called by the tool controller, when it is one's turn.

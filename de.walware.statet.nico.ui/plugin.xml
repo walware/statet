@@ -18,25 +18,25 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.nico.internal.ui.preferences.ConsolePreferences"/>
    </extension>
-
+   
    <extension
          point="org.eclipse.ui.views">
       <view
-            allowMultiple="false"
+            id="de.walware.statet.nico.views.HistoryView"
             category="de.walware.statet.base.views.StatetCategory"
+            allowMultiple="false"
             class="de.walware.statet.nico.ui.views.HistoryView"
             icon="icons/view_16/history.png"
-            id="de.walware.statet.nico.views.HistoryView"
             name="%views_History_name"/>
       <view
-           allowMultiple="false"
+           id="de.walware.statet.nico.views.QueueView"
            category="de.walware.statet.base.views.StatetCategory"
+           allowMultiple="false"
            class="de.walware.statet.nico.ui.views.QueueView"
            icon="icons/view_16/queue.png"
-           id="de.walware.statet.nico.views.QueueView"
            name="%views_Queue_name"/>
-
    </extension>
+   
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
@@ -45,50 +45,69 @@
          <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
       </factory>
    </extension>
+   
    <extension
          point="org.eclipse.ui.contexts">
       <context
-            description="%contexts.ConsoleEditorScope.description"
             id="de.walware.statet.base.contexts.ConsoleEditor"
-            name="%contexts.ConsoleEditorScope.name"
-            parentId="de.walware.statet.base.contexts.TextEditor">
+            parentId="de.walware.statet.base.contexts.TextEditor"
+            name="%contexts_ConsoleEditorScope_name"
+            description="%contexts_ConsoleEditorScope_description">
       </context>
    </extension>
    
    <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
             id="de.walware.statet.nico.commands.CancelCurrent"
+            categoryId="org.eclipse.debug.ui.category.run"
             name="%commands_CancelCurrent_name">
       </command>
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
             id="de.walware.statet.nico.commands.CancelCurrentAndPause"
+            categoryId="org.eclipse.debug.ui.category.run"
             name="%commands_CancelCurrentAndPause_name">
       </command>
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
             id="de.walware.statet.nico.commands.CancelAll"
+            categoryId="org.eclipse.debug.ui.category.run"
             name="%commands_CancelAll_name">
       </command>
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands_SearchHistoryOlder_description"
+            id="de.walware.statet.nico.commands.PauseEngine"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_PauseEngine_name">
+      </command>
+      <command
+            id="de.walware.statet.nico.commands.DisconnectEngine"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_DisconnectEngine_name"
+            description="%commands_DisconnectEngine_description">
+      </command>
+      <command
+            id="de.walware.statet.nico.commands.ReconnectEngine"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_ReconnectEngine_name"
+            description="%commands_ReconnectEngine_description">
+      </command>
+      
+      <command
             id="de.walware.statet.nico.commands.SearchHistoryOlder"
-            name="%commands_SearchHistoryOlder_name">
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_SearchHistoryOlder_name"
+            description="%commands_SearchHistoryOlder_description">
       </command>
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands_SearchHistoryNewer_description"
             id="de.walware.statet.nico.commands.SearchHistoryNewer"
-            name="%commands_SearchHistoryNewer_name">
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_SearchHistoryNewer_name"
+            description="%commands_SearchHistoryNewer_description">
       </command>
       <command
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            description="%commands_GotoHistoryNewest_description"
             id="de.walware.statet.nico.commands.GotoHistoryNewest"
-            name="%commands_GotoHistoryNewest_name">
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_GotoHistoryNewest_name"
+            description="%commands_GotoHistoryNewest_description">
       </command>
    </extension>
    <extension
@@ -162,6 +181,30 @@
             commandId="de.walware.statet.nico.commands.CancelCurrent"
             icon="icons/loctool_16/cancel.png">
       </image>
+      <image
+            commandId="de.walware.statet.nico.commands.PauseEngine"
+            icon="icons/loctool_16/pause.png"
+            disabledIcon="icons/loctool_16_d/pause.png">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.ui.services">
+      <sourceProvider
+            provider="de.walware.statet.nico.internal.ui.ToolSourceProvider">
+         <variable
+               name="statet_activeTool"
+               priorityLevel="workbench">
+         </variable>
+      </sourceProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            id="de.walware.statet.nico.preferencePages.ResourceMappings"
+            category="de.walware.statet.base.preferencePages.RunDebug"
+            class="de.walware.statet.nico.internal.ui.preferences.ResourceMappingPreferencePage"
+            name="%preferencePages_RunDebug_name">
+      </page>
    </extension>
 
 </plugin>

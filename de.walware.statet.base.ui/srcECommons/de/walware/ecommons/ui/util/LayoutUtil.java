@@ -36,9 +36,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 
 
-/**
- * 
- */
 public class LayoutUtil {
 	
 	private static class DialogValues {
@@ -120,12 +117,27 @@ public class LayoutUtil {
 	public static int hintWidth(final Text text, final int numChars) {
 		return hintWidth(text, JFaceResources.DIALOG_FONT, numChars);
 	}
+	
 	public static int hintWidth(final Text text, final String symbolicName, final int numChars) {
 		text.setFont(JFaceResources.getFontRegistry().get(symbolicName));
 		if (numChars == -1) {
 			return getDialogValues().defaultEntryFieldWidth;
 		}
 		final PixelConverter converter = new PixelConverter(text);
+		final int widthHint = converter.convertWidthInCharsToPixels(numChars);
+		return widthHint;
+	}
+	
+	public static int hintWidth(final Combo combo, final int numChars) {
+		return hintWidth(combo, JFaceResources.DIALOG_FONT, numChars);
+	}
+	
+	public static int hintWidth(final Combo combo, final String symbolicName, final int numChars) {
+		combo.setFont(JFaceResources.getFontRegistry().get(symbolicName));
+		if (numChars == -1) {
+			return getDialogValues().defaultEntryFieldWidth;
+		}
+		final PixelConverter converter = new PixelConverter(combo);
 		final int widthHint = converter.convertWidthInCharsToPixels(numChars);
 		return widthHint;
 	}
@@ -213,9 +225,12 @@ public class LayoutUtil {
 	}
 		
 	public static void addGDDummy(final Composite composite) {
+		addGDDummy(composite, false);
+	}
+	public static void addGDDummy(final Composite composite, final boolean grab) {
 		final Label dummy = new Label(composite, SWT.NONE);
 		dummy.setVisible(false);
-		dummy.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
+		dummy.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, grab, false));
 	}
 	
 	public static void addSmallFiller(final Composite composite, final boolean grab) {

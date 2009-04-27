@@ -108,6 +108,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
+import de.walware.statet.nico.internal.ui.LocalTaskTransfer;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUI;
@@ -445,7 +446,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fControl = new Composite(parent, SWT.NONE) {
 			@Override
 			public boolean setFocus() {
-				return false; // our page handles focus
+				NIConsolePage.this.setFocus();
+				return true;
 			}
 		};
 		final GridLayout layout = new GridLayout(1, false);
@@ -607,11 +609,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fRemoveAllAction = new ConsoleRemoveAllTerminatedAction();
 		fTerminateAction = new TerminateToolAction(fConsole.getProcess());
 		fCancelCurrentHandler = new CancelHandler(this, ToolController.CANCEL_CURRENT);
-		pageCommands.activateHandler(CancelHandler.COMMAND_CURRENT, fCancelCurrentHandler);
+		pageCommands.activateHandler(NicoUI.CANCEL_CURRENT_COMMAND_ID, fCancelCurrentHandler);
 		fCancelAllHandler = new CancelHandler(this, ToolController.CANCEL_ALL);
-		pageCommands.activateHandler(CancelHandler.COMMAND_ALL, fCancelAllHandler);
+		pageCommands.activateHandler(NicoUI.CANCEL_ALL_COMMAND_ID, fCancelAllHandler);
 		fCancelPauseHandler = new CancelHandler(this, ToolController.CANCEL_CURRENT | ToolController.CANCEL_PAUSE);
-		pageCommands.activateHandler(CancelHandler.COMMAND_CURRENTPAUSE, fCancelPauseHandler);
+		pageCommands.activateHandler(NicoUI.CANCEL_PAUSE_COMMAND_ID, fCancelPauseHandler);
 // Conflict with binding CTRL+Z (in console EOF)
 //		pageKeys.activateContext("org.eclipse.debug.ui.console");  //$NON-NLS-1$
 		
@@ -688,7 +690,10 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	protected void hookDND() {
 		DNDUtil.addDropSupport(fOutputViewer.getControl(),
 				new SubmitDropAdapter(this),
-				new Transfer[] { TextTransfer.getInstance() } );
+				new Transfer[] { 
+					TextTransfer.getInstance(), 
+					LocalTaskTransfer.getTransfer()
+				} );
 	}
 	
 	protected void contributeToActionBars() {
@@ -702,7 +707,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, new HandlerContributionItem(
 				new CommandContributionItemParameter(getSite(), CancelHandler.MENU_ID,
-						CancelHandler.COMMAND_CURRENT, null,
+						NicoUI.CANCEL_CURRENT_COMMAND_ID, null,
 						NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOL_CANCEL), NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOLD_CANCEL), null,
 						Messages.CancelAction_name, null, Messages.CancelAction_tooltip,
 						CommandContributionItem.STYLE_PULLDOWN, null, false), fCancelCurrentHandler));
@@ -827,8 +832,12 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		return fConsole.getProcess();
 	}
 	
-	public void addToolRetargetable(final IToolRetargetable action) {
-		fToolActions.add(action);
+	public void addToolRetargetable(final IToolRetargetable listener) {
+		fToolActions.add(listener);
+	}
+	
+	public void removeToolRetargetable(final IToolRetargetable listener) {
+		fToolActions.remove(listener);
 	}
 	
 	public IMenuManager getOutputContextMenuManager() {
@@ -917,7 +926,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		if (fIsCreated) {
 			fTerminateAction.update();
 			for (final Object action : fToolActions.getListeners()) {
-				((IToolRetargetable) action).handleToolTerminated();
+				((IToolRetargetable) action).toolTerminated();
 			}
 			fOutputPasteAction.setEnabled(false);
 			final Button button = fInputGroup.getSubmitButton();

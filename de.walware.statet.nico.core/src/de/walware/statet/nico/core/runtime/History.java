@@ -145,36 +145,43 @@ public class History {
 		
 		fPreferenceListener = new IPreferenceChangeListener() {
 			public void preferenceChange(final PreferenceChangeEvent event) {
-				checkSettings();
+				checkSettings(false);
 			}
 		};
 		final IEclipsePreferences[] nodes = PreferencesUtil.getInstancePrefs().getPreferenceNodes(NicoPreferenceNodes.CAT_HISTORY_QUALIFIER);
 		for (final IEclipsePreferences node : nodes) {
 			node.addPreferenceChangeListener(fPreferenceListener);
 		}
-		checkSettings();
+		checkSettings(false);
+	}
+	
+	void init() {
+		checkSettings(true);
 	}
 	
 	
-	public Lock getReadLock() {
+	public final Lock getReadLock() {
 		return fLock.readLock();
 	}
 	
-	private void checkSettings() {
+	private void checkSettings(final boolean force) {
 		final HistoryPreferences prefs = new HistoryPreferences(PreferencesUtil.getInstancePrefs());
-		if (prefs.equals(fCurrentPreferences)) {
-			return;
-		}
-		final ToolController controller = fProcess.getController();
-		if (controller != null) {
-			final ToolStreamProxy streams = controller.getStreams();
-			fIgnoreCommentLines = prefs.filterComments();
+		synchronized (this) {
+			if (!force && prefs.equals(fCurrentPreferences)) {
+				return;
+			}
+			fCurrentPreferences = prefs;
+			final ToolController controller = fProcess.getController();
+			if (controller != null) {
+				final ToolStreamProxy streams = controller.getStreams();
+				fIgnoreCommentLines = prefs.filterComments();
+				
+				final EnumSet<SubmitType> types = prefs.getSelectedTypes();
+				streams.getInputStreamMonitor().addListener(fStreamListener, types);
+			}
 			
-			final EnumSet<SubmitType> types = prefs.getSelectedTypes();
-			streams.getInputStreamMonitor().addListener(fStreamListener, types);
+			fLock.writeLock().lock();
 		}
-		
-		fLock.writeLock().lock();
 		try {
 			fMaxSize = prefs.getLimitCount();
 			if (fCurrentSize > fMaxSize) {
@@ -229,12 +236,16 @@ public class History {
 						timeStamp = System.currentTimeMillis();
 					}
 					if (reader.ready()) {
-						exch.oldest = new Entry(null, reader.readLine(), timeStamp);
+						String line = reader.readLine();
+						timeStamp = checkTimeStamp(line, timeStamp);
+						exch.oldest = new Entry(null, line, timeStamp);
 						exch.newest = exch.oldest;
 						exch.size = 1;
 						final int maxSize = fMaxSize;
 						while (reader.ready()) {
-							exch.newest = new Entry(exch.newest, reader.readLine(), timeStamp);
+							line = reader.readLine();
+							timeStamp = checkTimeStamp(line, timeStamp);
+							exch.newest = new Entry(exch.newest, line, timeStamp);
 							if (exch.size < maxSize) {
 								exch.size++;
 							}
@@ -275,6 +286,18 @@ public class History {
 		} finally {
 			monitor.done();
 		}
+	}
+	
+	
+	/**
+	 * Allows to parse for timestamp when loading a history (from file)
+	 * 
+	 * @param line line to parse
+	 * @param current currently used timestamp
+	 * @return new timestamp or current from param
+	 */
+	protected long checkTimeStamp(final String line, final long current) {
+		return current;
 	}
 	
 	/**
@@ -331,16 +354,18 @@ public class History {
 			
 			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
 					Messages.SaveHistory_ok_message, fileUtil.getFileLabel()));
-		} catch (final CoreException e) {
+		}
+		catch (final CoreException e) {
 			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
 					Messages.SaveHistory_error_message,
 					new Object[] { fProcess.getLabel(), file.toString() }), e);
-		} finally {
+		}
+		finally {
 			monitor.done();
 		}
 	}
 	
-	private void addCommand(final String command) {
+	final void addCommand(final String command) {
 		assert(command != null);
 		final long stamp = System.currentTimeMillis();
 		
@@ -383,9 +408,9 @@ public class History {
 	 * Return the newest history entry.
 	 * 
 	 * @return newest entry
-	 * 		or <code>null</null>, if history is empty.
+	 *     or <code>null</null>, if history is empty.
 	 */
-	public Entry getNewest() {
+	public final Entry getNewest() {
 		return fNewest;
 	}
 	
@@ -395,9 +420,9 @@ public class History {
 	 * Make shure, that you have a read lock.
 	 * 
 	 * @return array with all entries
-	 * 		or an array with length 0, if history is empty.
+	 *     or an array with length 0, if history is empty.
 	 */
-	public Entry[] toArray() {
+	public final Entry[] toArray() {
 		Entry[] array = fArrayCache;
 		if (array != null) {
 			return array;
@@ -418,7 +443,7 @@ public class History {
 	 * 
 	 * @param listener the listener
 	 */
-	public void addListener(final IHistoryListener listener) {
+	public final void addListener(final IHistoryListener listener) {
 		fListeners.add(listener);
 	}
 	
@@ -428,7 +453,7 @@ public class History {
 	 * 
 	 * @param listener the listener
 	 */
-	public void removeListener(final IHistoryListener listener) {
+	public final void removeListener(final IHistoryListener listener) {
 		fListeners.remove(listener);
 	}
 	

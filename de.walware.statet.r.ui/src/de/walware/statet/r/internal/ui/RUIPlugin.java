@@ -129,6 +129,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public void start(final BundleContext context) throws Exception {
 		fPrefUpdaters = new ArrayList<PreferencesManageListener>();
 		fDisposables = new ArrayList<IDisposable>();
+		
 		super.start(context);
 	}
 	
@@ -235,7 +236,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 				if (fConsoleSettings== null) {
 					fConsoleSettings = new REditorOptions(1);
 					fPrefUpdaters.add(new PreferencesManageListener(
-							fConsoleSettings, NicoCore.getDefaultConsolePreferences(), REditorOptions.GROUP_ID));
+							fConsoleSettings, NicoCore.getInstanceConsolePreferences(), REditorOptions.GROUP_ID));
 				}
 				return fConsoleSettings;
 			}

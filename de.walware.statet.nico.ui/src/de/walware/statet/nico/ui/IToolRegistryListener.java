@@ -15,8 +15,8 @@ package de.walware.statet.nico.ui;
 public interface IToolRegistryListener {
 	
 	
-	void toolSessionActivated(ToolSessionUIData informations);
+	void toolSessionActivated(ToolSessionUIData sessionData);
 	
-	void toolSessionClosed(ToolSessionUIData informations);
+	void toolTerminated(ToolSessionUIData sessionData);
 	
 }

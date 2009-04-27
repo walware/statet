@@ -11,6 +11,12 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.Map;
+
+import javax.security.auth.callback.Callback;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 
@@ -30,27 +36,47 @@ public interface IToolEventHandler {
 	
 	
 	/**
+	 * Called when a login is required
 	 * 
-	 * data:    LoginEventData
 	 * return:  OK = try login, CANCEL = cancel
 	 */
-	public static final String LOGIN_EVENT_ID = "common/login"; //$NON-NLS-1$
+	public static final String LOGIN_REQUEST_EVENT_ID = "common/login.request"; //$NON-NLS-1$
 	
+	/**
+	 * Called when a login was successful
+	 * 
+	 * return:  OK = try login, CANCEL = cancel
+	 */
+	public static final String LOGIN_OK_EVENT_ID = "common/login.ok"; //$NON-NLS-1$
 	
-	public static final class LoginEventData {
-		public String name;
-		public String password;
-	};
+	/** {@link String} = message to show (e.g. previous login error) (optional) */
+	public static final String LOGIN_MESSAGE_DATA_KEY = "message"; //$NON-NLS-1$
+	/** {@link String} = address to identify login (optional) */
+	public static final String LOGIN_ADDRESS_DATA_KEY = "address"; //$NON-NLS-1$
+	/** {@link Callback}[] = callbacks to answer (required) */
+	public static final String LOGIN_CALLBACKS_DATA_KEY = "callbacks"; //$NON-NLS-1$
+	/** {@link String} = username proposal (optional) */
+	public static final String LOGIN_USERNAME_DATA_KEY = "username"; //$NON-NLS-1$
+	/** {@link String} = flag to force usage of username (optional) */
+	public static final String LOGIN_USERNAME_FORCE_DATA_KEY = "username.force"; //$NON-NLS-1$
+	/** {@link String} = SSH host (when using SSH) */
+	public static final String LOGIN_SSH_HOST_DATA_KEY = "ssh.host"; //$NON-NLS-1$
+	/** {@link Integer} = SSH port (when using SSH) */
+	public static final String LOGIN_SSH_PORT_DATA_KEY = "ssh.port"; //$NON-NLS-1$
+	
 	
 	/**
 	 * 
-	 * data:    IStatus 
+	 * data:    IStatus status
 	 */
 	public static final String REPORT_STATUS_EVENT_ID = "common/reportStatus"; //$NON-NLS-1$
 	
+	/** {@link IStatus} = status to report (required) */
+	public static final String REPORT_STATUS_DATA_KEY = "status"; //$NON-NLS-1$
+	
 	/**
 	 * 
-	 * data:    IToolRunnable<IToolRunnableControllerAdapter>[*] = existing scheduled runnables
+	 * data:    IToolRunnable<IToolRunnableControllerAdapter>[*] schedulesQuitTasks = existing scheduled runnables
 	 * return:  OK = schedule, CANCEL = do nothing
 	 */
 	public static final String SCHEDULE_QUIT_EVENT_ID = "common/scheduleQuit"; //$NON-NLS-1$
@@ -58,10 +84,12 @@ public interface IToolEventHandler {
 	/**
 	 * Should try to block other actions (e.g. modal dialog)
 	 * 
-	 * data:    IRunnableWithProgress = existing scheduled runnables
 	 * return:  OK, ERROR, CANCEL
 	 */
 	public static final String RUN_BLOCKING_EVENT_ID = "common/runBlocking"; //$NON-NLS-1$
+	
+	/** {@link IToolRunnable} = runnable to run */
+	public static final String RUN_RUNNABLE_DATA_KEY = "runnable"; //$NON-NLS-1$
 	
 	/**
 	 * 
@@ -69,13 +97,11 @@ public interface IToolEventHandler {
 	 */
 	public static final String SELECTFILE_EVENT_ID = "common/selectFile"; //$NON-NLS-1$
 	
-	public static final class SelectFileEventData {
-		public boolean newFile;
-		public String message;
-		public String filename;
-	};
+	public static final String SHOW_FILE_ID = "common/showFile"; //$NON-NLS-1$
+	
+	public static final String SHOW_HISTORY_ID = "common/showHistory"; //$NON-NLS-1$
 	
 	
-	public int handle(IToolRunnableControllerAdapter tools, Object data);
+	public int handle(String id, IToolRunnableControllerAdapter tools, Map<String, Object> data, IProgressMonitor monitor);
 	
 }

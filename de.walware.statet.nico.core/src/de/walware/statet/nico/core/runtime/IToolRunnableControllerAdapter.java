@@ -13,6 +13,7 @@ package de.walware.statet.nico.core.runtime;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
 
 /**
@@ -25,7 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * 
  * For implementations:
  * The lifecycle is the same as the ToolController (not ToolProcess!).
- * The methods should only be used in the tool lifecycle thread.
+ * The methods must only be used in the tool lifecycle thread.
  */
 public interface IToolRunnableControllerAdapter {
 	
@@ -35,14 +36,45 @@ public interface IToolRunnableControllerAdapter {
 	public static final int META_PROMPT_DEFAULT = 1 << 1;
 	
 	
+	/**
+	 * Returns the controller the runnable is currently running in
+	 * @return the tool controller
+	 */
 	public ToolController getController();
 	
+	/**
+	 * Returns the process handler of controller the runnable is currently running in
+	 * @return the tool process
+	 */
+	public ToolProcess getProcess();
+	
+	/**
+	 * Returns the workspace data of controller the runnable is currently running in
+	 * @return the tool workspace
+	 */
 	public ToolWorkspace getWorkspaceData();
+	
 	
 	public void refreshWorkspaceData(IProgressMonitor monitor) 
 			throws CoreException;
 	
+	/**
+	 * Submits the text to the tool console
+	 * 
+	 * @param input the text to submit
+	 * @param monitor the progress monitor of the current run (or a child)
+	 * @throws CoreException
+	 * @throws InterruptedException
+	 */
 	public void submitToConsole(String input, IProgressMonitor monitor)
 			throws CoreException, InterruptedException;
+	
+	/**
+	 * Reports a status to the user
+	 * 
+	 * @param status the status to handle
+	 * @param monitor the progress monitor of the current run (or a child)
+	 */
+	public void handleStatus(final IStatus status, IProgressMonitor monitor);
 	
 }

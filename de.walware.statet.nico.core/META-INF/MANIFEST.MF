@@ -10,11 +10,11 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0";visibility:=reexport,
  org.eclipse.debug.core;visibility:=reexport,
- org.eclipse.core.expressions;visibility:=reexport,
- org.eclipse.core.filesystem,
- org.eclipse.core.commands;resolution:=optional
+ org.eclipse.core.expressions,
+ org.eclipse.core.filesystem
 Import-Package: de.walware.ecommons,
  de.walware.ecommons.preferences
 Export-Package: de.walware.statet.nico.core,
  de.walware.statet.nico.core.runtime,
- de.walware.statet.nico.core.util
+ de.walware.statet.nico.core.util,
+ de.walware.statet.nico.internal.core;x-friends:="de.walware.statet.nico.ui"

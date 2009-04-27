@@ -28,10 +28,10 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="de.walware.statet.nico.internal.core.ToolPropertyTester"
             id="de.walware.statet.nico.ToolPropertyTester"
+            class="de.walware.statet.nico.internal.core.ToolPropertyTester"
             namespace="de.walware.statet.nico"
-            properties="isProvidingFeatureSet"
+            properties="isMainType,isProvidingFeatureSet,isTerminated"
             type="org.eclipse.core.runtime.IAdaptable"/>
    </extension>
 

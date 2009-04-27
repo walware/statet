@@ -24,17 +24,24 @@ import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsoleViewer;
+import org.eclipse.ui.contexts.IContextService;
+import org.eclipse.ui.menus.CommandContributionItem;
+import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.console.InputGroup;
@@ -66,7 +73,7 @@ public class RConsolePage extends NIConsolePage {
 		@Override
 		public void run() {
 			try {
-				final ToolController controller = NicoUITools.accessTool("R", getConsole().getProcess()); //$NON-NLS-1$
+				final ToolController controller = NicoUITools.accessController("R", getConsole().getProcess()); //$NON-NLS-1$
 				controller.submit(this);
 			}
 			catch (final CoreException e) {
@@ -74,7 +81,7 @@ public class RConsolePage extends NIConsolePage {
 		}
 		
 		
-		public void changed(final int event) {
+		public void changed(final int event, final ToolProcess process) {
 		}
 		
 		public String getTypeId() {
@@ -127,6 +134,11 @@ public class RConsolePage extends NIConsolePage {
 	
 	
 	@Override
+	public void createControl(final Composite parent) {
+		super.createControl(parent);
+	}
+	
+	@Override
 	protected RInputConfigurator createInputEditorConfigurator() {
 		return new RInputConfigurator(this, getInputGroup());
 	}
@@ -139,6 +151,9 @@ public class RConsolePage extends NIConsolePage {
 	@Override
 	protected void createActions() {
 		super.createActions();
+		
+		final IContextService contextService = (IContextService) getSite().getService(IContextService.class);
+		contextService.activateContext("de.walware.statet.r.actionSets.RSessionTools"); //$NON-NLS-1$
 		
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(
 				getInputGroup().getViewer(), IRUIHelpContextIds.R_CONSOLE);
@@ -154,6 +169,24 @@ public class RConsolePage extends NIConsolePage {
 		super.contributeToActionBars();
 		
 		final IMenuManager menuManager = getSite().getActionBars().getMenuManager();
+		
+		menuManager.add(new CommandContributionItem(new CommandContributionItemParameter(
+				getSite(), null, NicoUI.PAUSE_COMMAND_ID, null,
+				null, null, null,
+				null, null, null,
+				CommandContributionItem.STYLE_CHECK, null, false)));
+		if (getConsole().getProcess().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
+			menuManager.add(new CommandContributionItem(new CommandContributionItemParameter(
+					getSite(), null, NicoUI.DISCONNECT_COMMAND_ID, null,
+					null, null, null,
+					null, null, null,
+					CommandContributionItem.STYLE_PUSH, null, false)));
+			menuManager.add(new CommandContributionItem(new CommandContributionItemParameter(
+					getSite(), null, NicoUI.RECONNECT_COMMAND_ID, null,
+					null, null, null,
+					null, null, null,
+					CommandContributionItem.STYLE_PUSH, null, false)));
+		}
 		menuManager.add(new Separator("workspace")); //$NON-NLS-1$
 		menuManager.add(new ChangeWorkingDirectoryWizard.ChangeAction(this));
 		menuManager.add(new Separator("console")); //$NON-NLS-1$

@@ -237,31 +237,37 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="de.walware.statet.base.internal.ui.preferences.StatetBasePreferencePage"
             id="de.walware.statet.base.preferencePages.StatetBase"
+            class="de.walware.statet.base.internal.ui.preferences.StatetBasePreferencePage"
             name="%preferencePages_StatetBase_name">
          <keywordReference id="de.walware.statet.base.keywords.StatetGeneral"/>
       </page>
       <page
+            id="de.walware.statet.base.preferencePages.Editors"
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.EditorsPreferencePage"
-            id="de.walware.statet.base.preferencePages.Editors"
             name="%preferencePages_Editors_name">
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
       </page>
       <page
+            id="de.walware.statet.base.preferencePages.RunDebug"
+            category="de.walware.statet.base.preferencePages.StatetBase"
+            class="de.walware.statet.base.internal.ui.preferences.EmptyPreferencePage"
+            name="%preferencePages_RunDebug_name">
+      </page>
+      <page
+            id="de.walware.statet.base.preferencePages.CodeGenerationTemplates"
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.CodeGenerationTemplatesPreferencePage"
-            id="de.walware.statet.base.preferencePages.CodeGenerationTemplates"
             name="%preferencePages_CodeGenerationTemplates_name">
          <keywordReference id="de.walware.statet.base.keywords.Template"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>
       </page>
       <page
+            id="de.walware.statet.base.ui.preferencePages.TaskTags"
             category="de.walware.statet.base.preferencePages.StatetBase"
             class="de.walware.statet.base.internal.ui.preferences.TaskTagsPreferencePage"
-            id="de.walware.statet.base.ui.preferencePages.TaskTags"
             name="%preferencePages_TaskTags_name">
          <keywordReference id="de.walware.statet.base.keywords.TaskTag"/>
          <keywordReference id="de.walware.statet.base.keywords.ProjectSpecific"/>

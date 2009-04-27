@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.util;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,6 +28,7 @@ import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
 
 
@@ -36,9 +38,9 @@ import de.walware.statet.nico.internal.ui.Messages;
 public class RunBlockingHandler implements IToolEventHandler {
 	
 	
-	public int handle(final IToolRunnableControllerAdapter tools, final Object contextData) {
+	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
-		final IToolRunnable toolRunnable = (IToolRunnable) contextData;
+		final IToolRunnable toolRunnable = ToolEventHandlerUtil.getCheckedData(data, RUN_RUNNABLE_DATA_KEY, IToolRunnable.class, true); 
 		try {
 			progressService.busyCursorWhile(new IRunnableWithProgress() {
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -50,14 +52,16 @@ public class RunBlockingHandler implements IToolEventHandler {
 				}
 			});
 			return OK;
-		} catch (final InvocationTargetException e) {
+		}
+		catch (final InvocationTargetException e) {
 			final Throwable targetException = e.getTargetException();
 //			if (targetException instanceof CoreException) {
 //				return handleError(((CoreException) targetException).getStatus());
 //			}
 			return handleError(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID,
 					NLS.bind(Messages.ExecuteHandler_error_message, toolRunnable.getLabel()), targetException));
-		} catch (final InterruptedException e) {
+		}
+		catch (final InterruptedException e) {
 			Thread.interrupted();
 			return CANCEL;
 		}

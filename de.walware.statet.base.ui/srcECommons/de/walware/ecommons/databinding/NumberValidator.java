@@ -29,12 +29,18 @@ public class NumberValidator implements IValidator {
 	private NumberFormat fFormatter;
 	private int fMin;
 	private int fMax;
+	private boolean fAllowEmpty;
 	private String fMessage;
 	
 	
 	public NumberValidator(final int min, final int max, final String message) {
+		this(min, max, false, message);
+	}
+	
+	public NumberValidator(final int min, final int max, final boolean allowEmpty, final String message) {
 		fMin = min;
 		fMax = max;
+		fAllowEmpty = allowEmpty;
 		fMessage = message;
 		fFormatter = NumberFormat.getIntegerInstance();
 		fFormatter.setParseIntegerOnly(true);
@@ -44,6 +50,9 @@ public class NumberValidator implements IValidator {
 	public IStatus validate(final Object value) {
 		if (value instanceof String) {
 			final String s = ((String) value).trim();
+			if (fAllowEmpty && s.length() == 0) {
+				return Status.OK_STATUS;
+			}
 			final ParsePosition result = new ParsePosition(0);
 			final Number number = fFormatter.parse(s, result);
 			if (result.getIndex() == s.length() && result.getErrorIndex() < 0) {

@@ -49,6 +49,8 @@ public class StatetImages {
 	public static final String OBJ_CLASS = StatetUIPlugin.PLUGIN_ID + "/image/obj/class"; //$NON-NLS-1$
 	public static final String OBJ_CLASS_EXT = StatetUIPlugin.PLUGIN_ID + "/image/obj/class_ext"; //$NON-NLS-1$
 	
+	public static final String OBJ_USER = StatetUIPlugin.PLUGIN_ID + "/image/obj/user"; //$NON-NLS-1$
+	
 	public static final String OVR_DEFAULT_MARKER = StatetUIPlugin.PLUGIN_ID + "/image/ovr/default_marker"; //$NON-NLS-1$
 	
 	

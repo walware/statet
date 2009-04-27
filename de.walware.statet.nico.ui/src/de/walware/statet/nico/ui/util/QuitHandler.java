@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.util;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -78,8 +79,8 @@ public class QuitHandler implements IToolEventHandler {
 		
 	}
 	
-	public int handle(final IToolRunnableControllerAdapter tools, final Object contextData) {
-		final IToolRunnable<IToolRunnableControllerAdapter>[] quitRunnables = (IToolRunnable<IToolRunnableControllerAdapter>[]) contextData;
+	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+		final IToolRunnable<IToolRunnableControllerAdapter>[] quitRunnables = (IToolRunnable<IToolRunnableControllerAdapter>[]) data.get("scheduledQuitTasks");
 		if (quitRunnables.length == 0) {
 			return OK; // run default = schedule quit
 		}
