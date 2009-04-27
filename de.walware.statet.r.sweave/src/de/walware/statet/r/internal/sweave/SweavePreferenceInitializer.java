@@ -12,6 +12,11 @@
 package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+
+import de.walware.ecommons.preferences.PreferencesUtil;
+
+import de.walware.statet.r.internal.sweave.editors.SweaveEditorOptions;
 
 
 public class SweavePreferenceInitializer extends AbstractPreferenceInitializer {
@@ -20,8 +25,11 @@ public class SweavePreferenceInitializer extends AbstractPreferenceInitializer {
 	public SweavePreferenceInitializer() {
 	}
 	
+	
 	@Override
 	public void initializeDefaultPreferences() {
+		final DefaultScope defaults = new DefaultScope();
+		PreferencesUtil.setPrefValue(defaults, SweaveEditorOptions.PREF_SPELLCHECKING_ENABLED, false);
 	}
 	
 }
