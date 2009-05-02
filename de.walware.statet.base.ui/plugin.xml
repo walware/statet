@@ -31,11 +31,19 @@
    <extension
          point="org.eclipse.ui.contexts">
       <context
-            description="%contexts_TextEditorScope_description"
             id="de.walware.statet.base.contexts.TextEditor"
+            parentId="org.eclipse.ui.textEditorScope"
             name="%contexts_TextEditorScope_name"
-            parentId="org.eclipse.ui.textEditorScope"/>
+            description="%contexts_TextEditorScope_description">
+      </context>
+      <context
+            id="de.walware.statet.base.contexts.StructuredElementViewer"
+            parentId="org.eclipse.ui.contexts.window"
+            name="%contexts_StructuredElementViewer_name">
+            description="%contexts_StructuredElementViewer_description">
+      </context>
    </extension>
+   
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -232,6 +240,13 @@
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M2+K">
+      </key>
+      
+      <key
+            commandId="org.eclipse.ui.edit.text.showInformation"
+            contextId="de.walware.statet.base.contexts.StructuredElementViewer"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F2">
       </key>
    </extension>
    <extension
