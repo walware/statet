@@ -203,14 +203,14 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 	}
 	
-	private class SizeControl implements Listener {
+	private class SizeController implements Listener {
 		
 		private final Sash fSash;
 		private final GridData fOutputGD;
 		private final GridData fInputGD;
 		private int fLastExplicit;
 		
-		public SizeControl(final Sash sash, final GridData outputGD, final GridData inputGD) {
+		public SizeController(final Sash sash, final GridData outputGD, final GridData inputGD) {
 			fSash = sash;
 			fOutputGD = outputGD;
 			fInputGD = inputGD;
@@ -366,7 +366,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	private OutputViewer fOutputViewer;
 	private InputGroup fInputGroup;
-	private SizeControl fResizer;
+	private SizeController fResizer;
 	private MenuManager fOutputMenuManager;
 	private MenuManager fInputMenuManager;
 	
@@ -495,7 +495,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		fOutputViewer.getTextWidget().getHorizontalBar().setVisible(false);
 		
-		fResizer = new SizeControl(sash, outputGD, inputGD);
+		fResizer = new SizeController(sash, outputGD, inputGD);
 		sash.addListener(SWT.Selection, fResizer);
 		fControl.addListener(SWT.Resize, fResizer);
 		
@@ -708,7 +708,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, new HandlerContributionItem(
 				new CommandContributionItemParameter(getSite(), CancelHandler.MENU_ID,
 						NicoUI.CANCEL_CURRENT_COMMAND_ID, null,
-						NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOL_CANCEL), NicoUI.getImageDescriptor(NicoUI.IMG_LOCTOOLD_CANCEL), null,
+						null, null, null,
 						Messages.CancelAction_name, null, Messages.CancelAction_tooltip,
 						CommandContributionItem.STYLE_PULLDOWN, null, false), fCancelCurrentHandler));
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Remote Console - R Server</title>
+	<meta name="copyright" content="Copyright (c) 2009 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>R Server (RJ)</h1>
+
+<h2 id="general">General</h2>
+<p>The RJ server is an R server using Java for process control and communication.  
+It uses Java <b>R</b>MI technology [<a href="#ref1">1</a>] for the client server communication 
+and <b>J</b>RI [<a href="#ref2">2</a>] for the integration of R in Java.  
+One server provides a single R session.  You can start multiple servers for the same or
+different user on one machine without problems.  The different R sessions are
+registered in the RMI registry and distinguishable by their names.</p>
+<p>In general, the RJ server is designed for usage in an intranet.</p>
+
+<h4>Security</h4>
+<p>Because of the single session approach of the RJ server, one usually starts the server
+under the user account of the R user.  So the R users have the same permissions like in a
+SSH shell.  The login name of the user account defines the "owner" of the R session.</p>
+<p>To make sure that no other user obtains the rights of the R session owner, the client
+server protocol supports login authentication.  The default package provides several methods
+e.g. using PAM of the host system.  See the startup script for a list of available methods
+and their configuration.  You may also develop and use your custom methods.  It is possible to 
+disable the authentication by setting it to the method 'none'.  All methods provided by the 
+package uses public key mechanism to encrypt the login data (but no host validation).</p>
+<p>The R data like user input and result output are not encrypted.</p>
+
+<h4>Requirements</h4>
+<p>Because the server is based on Java, it works theoretically on any platform 
+fulfilling the requirements:</p>
+<ul>
+<li>Java: Java version &ge; 5.0, Standard Edition (SE) or greater</li>
+<li>R</li>
+<li>R package rJava with JRI: JRI version &ge; 0.4 (rJava 0.5)</li>
+</ul>
+
+<h4>Setup / Startup</h4>
+<p>A server bundle containing all files is provided on the homepage. Please look into the
+file <code>startup.sh</code>, how to use this script to start the server. Besides this,
+it is a good example how to control the server in general.</p>
+
+<p>
+<a id="ref1">[1]</a> Java Remote Method Invocation (RMI), http://java.sun.com/javase/technologies/core/basic/rmi<br/>
+<a id="ref1">[2]</a> Java/R Interface (JRI), http://www.rforge.net/JRI<br/>
+</p>
+
+</body>
+</html>

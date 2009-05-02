@@ -516,7 +516,7 @@ public class QueueView extends ViewPart {
 		});
 	}
 	
-	/** Should only be called inside UI Thread */
+	/** May only be called in UI thread */
 	public void connect(final ToolProcess process) {
 		final Runnable runnable = new Runnable() {
 			public void run() {

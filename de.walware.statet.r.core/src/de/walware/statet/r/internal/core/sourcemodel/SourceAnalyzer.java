@@ -2485,8 +2485,10 @@ public class SourceAnalyzer extends RAstVisitor {
 						b.add(argName, 0, sig.classNames[i]);
 						continue ITER_ARGS;
 					}
-					b.add(argName, 0, null);
-					continue ITER_ARGS;
+					else {
+						b.add(argName, 0, null);
+						continue ITER_ARGS;
+					}
 				}
 			}
 			else { // (sig == null || sigClasses == null)

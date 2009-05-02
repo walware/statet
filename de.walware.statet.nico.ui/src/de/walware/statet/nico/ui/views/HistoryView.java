@@ -693,7 +693,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		manager.add(fScrollLockAction);
 	}
 	
-	/** Should only be called inside UI Thread */
+	/** May only be called in UI thread */
 	public void connect(final ToolProcess process) {
 		if (fProcess == process) {
 			return;
