@@ -160,26 +160,11 @@
       </menuContribution>
    </extension>
    <extension
-         point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension
-            targetID="de.walware.statet.base.perspectives.StatetPerspective">
-         <viewShortcut
-               id="de.walware.statet.nico.views.HistoryView">
-         </viewShortcut>
-         <view
-               id="de.walware.statet.nico.views.HistoryView"
-               ratio="0.75"
-               relationship="bottom"
-               relative="left"
-               visible="false">
-         </view>
-      </perspectiveExtension>
-   </extension>
-   <extension
          point="org.eclipse.ui.commandImages">
       <image
             commandId="de.walware.statet.nico.commands.CancelCurrent"
-            icon="icons/loctool_16/cancel.png">
+            icon="icons/loctool_16/cancel.png"
+            disabledIcon="icons/loctool_16_d/cancel.png">
       </image>
       <image
             commandId="de.walware.statet.nico.commands.PauseEngine"
