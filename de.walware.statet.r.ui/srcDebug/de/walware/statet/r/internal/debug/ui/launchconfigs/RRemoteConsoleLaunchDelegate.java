@@ -484,6 +484,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 					controller.submit(RUtil.LINE_SEPARATOR_PATTERN.split(startupSnippet), SubmitType.OTHER);
 				}
 			}
+			controller.setRObjectDB(!configuration.getAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, false));
 			
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 			NicoUITools.startConsoleLazy(console, page,

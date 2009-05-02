@@ -77,6 +77,11 @@ public class RConsoleLaunching {
 	 */
 	public static final String ATTR_INIT_SCRIPT_SNIPPET = ATTR_ROOT+"init.script.snippet"; //$NON-NLS-1$
 	
+	/**
+	 * Attribute key for disable object db
+	 */
+	public static final String ATTR_DISABLE_OBJECTDB = ATTR_ROOT+"objectdb.disabled"; //$NON-NLS-1$
+	
 	
 	public static void registerDefaultHandlerTo(final AbstractRController controller) {
 		controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());

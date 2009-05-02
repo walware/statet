@@ -15,19 +15,19 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 
-/**
- * Feature set for R, providing basic methods independent 
- * of the implementation of integration in the controller.
- * <p>
- * Feature Set:
- * <ul>
- * <li>{@link IToolRunnableControllerAdapter} implements {@link IBasicRAdapter}</li>
- * <li>{@link ToolWorkspace} instance of {@link RWorkspace}</li>
- * </ul>
- */
-public final class BasicR {
+public final class RTool {
 	
-	public static final String FEATURESET_ID = "de.walware.statet.r.basic"; //$NON-NLS-1$
+	/**
+	 * Feature set for R, providing basic methods independent 
+	 * of the implementation of integration in the controller.
+	 * <p>
+	 * Feature Set:
+	 * <ul>
+	 * <li>{@link IToolRunnableControllerAdapter} implements {@link IRBasicAdapter}</li>
+	 * <li>{@link ToolWorkspace} instance of {@link RWorkspace}</li>
+	 * </ul>
+	 */
+	public static final String R_BASIC_FEATURESET_ID = "de.walware.statet.r.basic"; //$NON-NLS-1$
 	
 	
 	/**
@@ -36,5 +36,8 @@ public final class BasicR {
 	 * The prompt have to be a instance of {@link IncompleteInputPrompt<RunnableAdapterType, WorkspaceType>}.
 	 */
 	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
+	
+	
+	public static final String R_DATA_FEATURESET_ID = "de.walware.statet.r.data";
 	
 }

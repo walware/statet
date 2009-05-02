@@ -80,14 +80,14 @@ public class QuitHandler implements IToolEventHandler {
 	}
 	
 	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
-		final IToolRunnable<IToolRunnableControllerAdapter>[] quitRunnables = (IToolRunnable<IToolRunnableControllerAdapter>[]) data.get("scheduledQuitTasks");
+		final IToolRunnable[] quitRunnables = (IToolRunnable[]) data.get("scheduledQuitTasks");
 		if (quitRunnables.length == 0) {
 			return OK; // run default = schedule quit
 		}
 		
 		final UIRunnable runner = new UIRunnable();
 		runner.fController = tools.getController();
-		final ToolProcess process = runner.fController.getProcess();
+		final ToolProcess<?> process = runner.fController.getProcess();
 		runner.fDialogTitle = NLS.bind(Messages.TerminatingMonitor_title, process.getToolLabel(false));
 		runner.fDialogMessage = NLS.bind(Messages.TerminatingMonitor_message, process.getToolLabel(true));
 		runner.fDialogOptions = new String[] { Messages.TerminatingMonitor_WaitButton_label, Messages.TerminatingMonitor_ForceButton_label, Messages.TerminatingMonitor_CancelButton_label };

@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IEnvirInSource;
+import de.walware.statet.r.core.model.IFrame;
 import de.walware.statet.r.core.model.RElementName;
 
 
@@ -36,7 +36,7 @@ abstract class SubAbstractElementAccess extends RElementName implements IElement
 		return fNextSub;
 	}
 	
-	public final IEnvirInSource getFrame() {
+	public final IFrame getFrame() {
 		return fRoot.getFrame();
 	}
 	

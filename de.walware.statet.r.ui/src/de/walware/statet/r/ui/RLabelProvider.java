@@ -16,12 +16,15 @@ import java.util.List;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.swt.graphics.Image;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 
 import de.walware.statet.base.ui.StatetImages;
+
+import de.walware.rj.data.RList;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRClass;
@@ -36,6 +39,20 @@ import de.walware.statet.r.core.model.ArgsDefinition.Arg;
  * Label Provider for R elements
  */
 public class RLabelProvider extends StyledCellLabelProvider implements IElementLabelProvider {
+	
+	
+	private Styler fDefaultStyler;
+	
+	
+	public RLabelProvider() {
+		this(false);
+	}
+	
+	public RLabelProvider(final boolean title) {
+		if (title) {
+			fDefaultStyler = IElementLabelProvider.TITLE_STYLER;
+		}
+	}
 	
 	
 	public String getText(final IModelElement element) {
@@ -137,6 +154,10 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	}
 	
 	public void decorateStyledText(final StyledString text, final IModelElement element) {
+		decorateStyledText(text, element, null);
+	}
+	
+	public void decorateStyledText(final StyledString text, final IModelElement element, final RList elementAttr) {
 		switch (element.getElementType() & IModelElement.MASK_C1) {
 		
 		case IModelElement.C1_METHOD:
@@ -283,37 +304,46 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	protected void appendMethodDetail(final StyledString text, final IRMethod method) {
 		final ArgsDefinition args = method.getArgsDefinition();
 		final boolean showTypes = (method.getElementType() == IRLangElement.R_S4METHOD);
-		text.append('(');
-		if (args != null && args.size() > 0) {
+		text.append('(', fDefaultStyler);
+		if (args == null) {
+			text.append("<unknown>", fDefaultStyler);
+		}
+		else if (args.size() > 0) {
 			final int last = args.size() - 1;
 			if (showTypes) {
 				for (int i = 0; i < last; i++) {
 					appendArgWithType(text, args.get(i));
-					text.append(", "); //$NON-NLS-1$
+					text.append(", ", fDefaultStyler); //$NON-NLS-1$
 				}
 				appendArgWithType(text, args.get(last));
 			}
 			else {
 				for (int i = 0; i < last; i++) {
 					appendArg(text, args.get(i));
-					text.append(", "); //$NON-NLS-1$
+					text.append(", ", fDefaultStyler); //$NON-NLS-1$
 				}
 				appendArg(text, args.get(last));
 			}
 		}
-		text.append(')');
+		text.append(')', fDefaultStyler);
 	}
 	
 	private void appendArg(final StyledString text, final Arg arg) {
-		text.append(arg.name);
+		if (arg.name != null) {
+			text.append(arg.name, fDefaultStyler);
+		}
 	}
 	
 	private void appendArg(final StringBuilder text, final Arg arg) {
-		text.append(arg.name);
+		if (arg.name != null) {
+			text.append(arg.name);
+		}
 	}
 	
 	private void appendArgWithType(final StyledString text, final Arg arg) {
-		text.append(arg.name);
+		if (arg.name != null) {
+			text.append(arg.name, fDefaultStyler);
+		}
 		if (arg.className != null) {
 			text.append(" : "+arg.className, StyledString.DECORATIONS_STYLER); //$NON-NLS-1$
 		}
@@ -343,7 +373,9 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	}
 	
 	private void appendArgLong(final StringBuilder sb, final Arg arg) {
-		sb.append(arg.name);
+		if (arg.name != null) {
+			sb.append(arg.name);
+		}
 		if (arg.className != null) {
 			sb.append(" : "); //$NON-NLS-1$
 			sb.append(arg.className);

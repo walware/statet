@@ -34,7 +34,8 @@ import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
 import de.walware.ecommons.ui.text.sourceediting.SimpleCompletionProposal;
 
-import de.walware.statet.r.core.model.IEnvirInSource;
+import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -96,11 +97,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		
 		// Get envir
-		final IEnvirInSource envir = RModel.searchEnvir((RAstNode) node);
+		final IFrameInSource envir = RModel.searchEnvir((RAstNode) node);
 		if (envir == null) {
 			return null;
 		}
-		final IEnvirInSource[] envirList = RModel.createEnvirList(envir);
+		final IFrameInSource[] envirList = RModel.createEnvirList(envir);
 		
 		// Get prefix
 		final String prefix = context.getIdentifierPrefix();
@@ -123,26 +124,26 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return null;
 	}
 	
-	protected void doComputeMainProposals(final AssistInvocationContext context, final IEnvirInSource[] envirList, final String orgPrefix, final String namePrefix,
+	protected void doComputeMainProposals(final AssistInvocationContext context, final IFrameInSource[] envirList, final String orgPrefix, final String namePrefix,
 			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
 		final Set<String> methodNames = new HashSet<String>();
 		final Set<String> mainNames = new HashSet<String>();
 		
 		int sourceLevel = -1;
-		for (final IEnvirInSource envir : envirList) {
+		for (final IFrameInSource envir : envirList) {
 			int distance;
-			switch (envir.getType()) {
-			case IEnvirInSource.T_CLASS:
-			case IEnvirInSource.T_FUNCTION:
+			switch (envir.getFrameType()) {
+			case IFrame.T_CLASS:
+			case IFrame.T_FUNCTION:
 				distance = Math.min(++sourceLevel, 7);
 				break;
-			case IEnvirInSource.T_PROJ:
+			case IFrame.T_PROJ:
 				distance = 8;
 				break;
-			case IEnvirInSource.T_PKG:
+			case IFrame.T_PKG:
 				distance = 9;
 				break;
-			case IEnvirInSource.T_EXPLICIT:
+			case IFrame.T_EXPLICIT:
 				continue;
 			default:
 				distance = 10;
@@ -175,7 +176,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		
 		mainNames.addAll(methodNames);
-		for (final IEnvirInSource envir : envirList) {
+		for (final IFrameInSource envir : envirList) {
 			final Set<String> elementNames = envir.getElementNames();
 			for (final String name : elementNames) {
 				if (name != null && name.regionMatches(true, 0, namePrefix, 0, namePrefix.length()) 
@@ -221,7 +222,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	protected void doComputeSubProposals(final AssistInvocationContext context, final IEnvirInSource[] envirList, final RElementName prefixSegments,
+	protected void doComputeSubProposals(final AssistInvocationContext context, final IFrame[] envirList, final RElementName prefixSegments,
 			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
 	}
 	

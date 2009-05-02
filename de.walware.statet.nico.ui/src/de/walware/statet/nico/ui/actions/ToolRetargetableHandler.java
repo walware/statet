@@ -55,7 +55,9 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 		
 		public void run() {
 			final ICommandService commandService = (ICommandService) getServiceLocator().getService(ICommandService.class);
-			commandService.refreshElements(fCommandId, null);
+			if (commandService != null) {
+				commandService.refreshElements(fCommandId, null);
+			}
 		}
 		
 		public void schedule() {
@@ -210,7 +212,12 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 	 * @return if {@link #doRefresh()} should be called
 	 */
 	public boolean handleToolChanged() {
-		setBaseEnabled(evaluateEnabled());
+		final boolean wasEnabled = isEnabled();
+		final boolean isEnabled = evaluateEnabled();
+		if (wasEnabled != isEnabled) {
+			setBaseEnabled(isEnabled);
+			return true;
+		}
 		return false;
 	}
 	

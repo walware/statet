@@ -26,12 +26,12 @@ public class RModel {
 	public static final String TYPE_ID = "r"; //$NON-NLS-1$
 	
 	
-	public static IEnvirInSource searchEnvir(RAstNode node) {
+	public static IFrameInSource searchEnvir(RAstNode node) {
 		while (node != null) {
 			final Object[] attachments = node.getAttachments();
 			for (final Object attachment : attachments) {
-				if (attachment instanceof IEnvirInSource) {
-					return (IEnvirInSource) attachment;
+				if (attachment instanceof IFrame) {
+					return (IFrameInSource) attachment;
 				}
 			}
 			node = node.getRParent();
@@ -39,19 +39,19 @@ public class RModel {
 		return null;
 	}
 	
-	public static IEnvirInSource[] createEnvirList(final IEnvirInSource envir) {
-		final ArrayList<IEnvirInSource> list = new ArrayList<IEnvirInSource>();
+	public static IFrameInSource[] createEnvirList(final IFrameInSource envir) {
+		final ArrayList<IFrameInSource> list = new ArrayList<IFrameInSource>();
 		int idx = 0;
 		list.add(envir);
 		while (idx < list.size()) {
-			final List<? extends IEnvirInSource> ps = list.get(idx++).getUnderneathEnvirs();
-			for (final IEnvirInSource p : ps) {
+			final List<? extends IFrameInSource> ps = list.get(idx++).getUnderneathEnvirs();
+			for (final IFrameInSource p : ps) {
 				if (!list.contains(p)) {
 					list.add(p);
 				}
 			}
 		}
-		return list.toArray(new IEnvirInSource[list.size()]);
+		return list.toArray(new IFrameInSource[list.size()]);
 	}
 	
 	

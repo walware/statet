@@ -172,6 +172,8 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 		util.register(StatetImages.LOCTOOL_EXPANDALL, ImageRegistryUtil.T_LOCTOOL, "expandall.gif"); //$NON-NLS-1$
 		util.register(StatetImages.LOCTOOL_COLLAPSEALL, ImageRegistryUtil.T_LOCTOOL, "collapseall.gif"); //$NON-NLS-1$
 		util.register(StatetImages.LOCTOOL_SCROLLLOCK, ImageRegistryUtil.T_LOCTOOL, "scrolllock.gif"); //$NON-NLS-1$
+		util.register(StatetImages.LOCTOOL_CLEARSEARCH, ImageRegistryUtil.T_LOCTOOL, "clearsearch.gif"); //$NON-NLS-1$
+		util.register(StatetImages.LOCTOOLD_CLEARSEARCH, ImageRegistryUtil.T_LOCTOOL_D, "clearsearch.gif"); //$NON-NLS-1$
 		util.register(StatetImages.LOCTOOL_PAUSE, ImageRegistryUtil.T_LOCTOOL, "pause.gif"); //$NON-NLS-1$
 		util.register(StatetImages.LOCTOOLD_PAUSE, ImageRegistryUtil.T_LOCTOOL_D, "pause.gif"); //$NON-NLS-1$
 		util.register(StatetImages.lOCTOOL_SYNCHRONIZED, ImageRegistryUtil.T_LOCTOOL, "synced.png"); //$NON-NLS-1$
@@ -231,6 +233,11 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 				final ImageData data = new ImageData(16, 16, 8, palette);
 				data.transparentPixel = 0;
 				
+				{	// Dummy
+					final Image image = new Image(display, data);
+					
+					reg.put(StatetImages.OBJ_PLACEHOLDER, image);
+				}
 				{	// Close
 					final Image image = new Image(display, data);
 					image.setBackground(transparent);

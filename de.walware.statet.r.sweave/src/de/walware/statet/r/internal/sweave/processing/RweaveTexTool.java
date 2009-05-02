@@ -55,6 +55,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
@@ -73,7 +74,6 @@ import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.nico.IBasicRAdapter;
 
 
 class RweaveTexTool implements Runnable, IProcess {
@@ -90,7 +90,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	private static final int TICKS_REST = 10;
 	
 	
-	private class R implements IToolRunnable<IBasicRAdapter> {
+	private class R implements IToolRunnable {
 		
 		
 		private boolean finished = false;
@@ -119,18 +119,18 @@ class RweaveTexTool implements Runnable, IProcess {
 			return "r/sweave/commands"; //$NON-NLS-1$
 		}
 		
-		public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
 			try {
-				tools.refreshWorkspaceData(monitor);
-				updatePathInformations(tools.getWorkspaceData());
+				adapter.refreshWorkspaceData(0, monitor);
+				updatePathInformations(adapter.getWorkspaceData());
 				if (fStatus.getSeverity() >= IStatus.ERROR) {
 					return;
 				}
 				if (beginSchedulingRule(monitor)) {
-					tools.submitToConsole(fSweaveCommands, monitor);
-					if (tools instanceof IRequireSynch) {
-						((IRequireSynch) tools).synch(monitor);
+					adapter.submitToConsole(fSweaveCommands, monitor);
+					if (adapter instanceof IRequireSynch) {
+						((IRequireSynch) adapter).synch(monitor);
 					}
 				}
 			}

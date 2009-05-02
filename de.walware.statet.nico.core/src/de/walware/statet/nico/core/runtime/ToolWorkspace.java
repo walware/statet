@@ -11,7 +11,9 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
@@ -22,6 +24,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
+import de.walware.ecommons.FastList;
 import de.walware.ecommons.FileUtil;
 
 import de.walware.statet.nico.core.NicoCore;
@@ -33,7 +36,15 @@ import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
  */
 public class ToolWorkspace {
 	
-	protected class ControllerListener implements IToolStatusListener {
+	
+	public static interface Listener {
+		
+		public void propertyChanged(ToolWorkspace workspace, Map<String, Object> properties);
+		
+	}
+	
+	
+	private class ControllerListener implements IToolStatusListener {
 		
 		public void controllerStatusRequested(final ToolStatus currentStatus, final ToolStatus requestedStatus, final List<DebugEvent> eventCollection) {
 		}
@@ -42,6 +53,13 @@ public class ToolWorkspace {
 		}
 		
 		public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
+			if (newStatus == ToolStatus.STARTED_PROCESSING || oldStatus == ToolStatus.STARTING) {
+				internalUpdate();
+			}
+			if (newStatus == ToolStatus.TERMINATED) {
+				dispose();
+			}
+			
 			// by definition in tool lifecycle thread
 			if (isPublishPromptStatus(newStatus)) {
 				if (fCurrentPrompt == null || fCurrentPrompt == fPublishedPrompt) {
@@ -59,9 +77,36 @@ public class ToolWorkspace {
 		
 	}
 	
+	private class AutoUpdater implements IToolRunnable {
+		
+		
+		public String getTypeId() {
+			return "common/workspace/update.auto";
+		}
+		
+		public SubmitType getSubmitType() {
+			return SubmitType.OTHER;
+		}
+		
+		public String getLabel() {
+			return "Auto Update";
+		}
+		
+		public void changed(final int event, final ToolProcess process) {
+		}
+		
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+			autoRefreshFromTool(adapter, monitor);
+			fUpdateScheduled = false;
+		}
+		
+	}
+	
 	
 	public static final int DETAIL_PROMPT = 1;
 	public static final int DETAIL_LINE_SEPARTOR = 2;
+	
+	protected final ToolProcess fProcess;
 	
 	private volatile String fLineSeparator;
 	private volatile String fFileSeparator;
@@ -75,10 +120,17 @@ public class ToolWorkspace {
 	private String fRemoteHost;
 	private IPath fRemoteWorkspaceDir;
 	
+	private final Map<String, Object> fProperties = new HashMap<String, Object>();
+	private final FastList<Listener> fPropertyListener = new FastList<Listener>(Listener.class);
+	
+	private IToolRunnable fUpdateRunnable;
+	private boolean fUpdateScheduled;
+	
 	
 	public ToolWorkspace(final ToolController controller,
 			Prompt prompt, final String lineSeparator,
 			final String remoteHost) {
+		fProcess = controller.getProcess();
 		if (prompt == null) {
 			prompt = Prompt.DEFAULT;
 		}
@@ -87,15 +139,21 @@ public class ToolWorkspace {
 		controlSetLineSeparator(lineSeparator);
 		controlSetFileSeparator(null);
 		
-		controller.addToolStatusListener(createToolStatusListener());
-	}
-	
-	protected IToolStatusListener createToolStatusListener() {
-		return new ControllerListener();
+		fUpdateRunnable = new AutoUpdater();
+		controller.addToolStatusListener(new ControllerListener());
 	}
 	
 	
-	protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
+	public final ToolProcess getProcess() {
+		return fProcess;
+	}
+	
+	
+	protected void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+		refreshFromTool(0, adapter, monitor);
+	}
+	
+	protected void refreshFromTool(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 	}
 	
 	public final String getLineSeparator() {
@@ -159,9 +217,18 @@ public class ToolWorkspace {
 	}
 	
 	
-	final void controlRefresh(final IProgressMonitor monitor) throws CoreException {
-		refreshFromTool(monitor);
+	final void controlRefresh(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+		refreshFromTool(options, adapter, monitor);
 	}
+	
+	private void internalUpdate() { // only with Queue lock
+		if (fUpdateScheduled) {
+			return;
+		}
+		fProcess.getQueue().internalScheduleIdle(fUpdateRunnable);
+		fUpdateScheduled = true;
+	}
+	
 	
 	/**
 	 * Use only in tool main thread.
@@ -238,11 +305,11 @@ public class ToolWorkspace {
 		}
 	}
 	
-	final void controlSetWorkspaceDir(final IFileStore directory) {
+	protected final void controlSetWorkspaceDir(final IFileStore directory) {
 		fWorkspaceDir = directory;
 	}
 	
-	final void controlSetRemoteWorkspaceDir(final IPath path) {
+	protected final void controlSetRemoteWorkspaceDir(final IPath path) {
 		fRemoteWorkspaceDir = path;
 		try {
 			controlSetWorkspaceDir(toFileStore(path));
@@ -274,6 +341,32 @@ public class ToolWorkspace {
 		if (manager != null) {
 			manager.fireDebugEventSet(new DebugEvent[] { event });
 		}
+	}
+	
+	public final void addPropertyListener(final Listener listener) {
+		fPropertyListener.add(listener);
+	}
+	
+	public final void removePropertyListener(final Listener listener) {
+		fPropertyListener.remove(listener);
+	}
+	
+	protected final void addPropertyChanged(final String property, final Object attr) {
+		fProperties.put(property, attr);
+	}
+	
+	protected final void firePropertiesChanged() {
+		if (fProperties.isEmpty()) {
+			return;
+		}
+		final Listener[] listeners = fPropertyListener.toArray();
+		for (final Listener listener : listeners) {
+			listener.propertyChanged(ToolWorkspace.this, fProperties);
+		}
+		fProperties.clear();
+	}
+	
+	protected void dispose() {
 	}
 	
 }

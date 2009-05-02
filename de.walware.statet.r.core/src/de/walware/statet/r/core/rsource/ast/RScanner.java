@@ -93,7 +93,7 @@ public class RScanner {
 	}
 	
 	public RScanner(final SourceParseInput input, final AstInfo ast, final IStringCache stringCache) {
-		if (ast.level <= RAst.LEVEL_MINIMAL) {
+		if (ast != null && ast.level <= RAst.LEVEL_MINIMAL) {
 			fLexer = new RScannerLexer(input);
 		}
 		else {
@@ -133,6 +133,20 @@ public class RScanner {
 			dummy.fStatus = STATUS_RUNTIME_ERROR;
 			return dummy;
 		}
+	}
+	
+	public FDef scanFDef() {
+		try {
+			fLexer.setFull();
+			init();
+			if (fNextType == RTerminal.FUNCTION) {
+				return scanFDef(null);
+			}
+		}
+		catch (final Exception e) {
+			RCorePlugin.logError(-1, "Error occured while parsing R code", e);
+		}
+		return null;
 	}
 	
 	private void init() {

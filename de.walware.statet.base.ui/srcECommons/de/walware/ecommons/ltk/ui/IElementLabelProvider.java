@@ -12,7 +12,10 @@
 package de.walware.ecommons.ltk.ui;
 
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.TextStyle;
 
 import de.walware.ecommons.ltk.IModelElement;
 
@@ -21,6 +24,14 @@ import de.walware.ecommons.ltk.IModelElement;
  * Provides labels for model elements
  */
 public interface IElementLabelProvider {
+	
+	
+	public final static StyledString.Styler TITLE_STYLER = new StyledString.Styler() {
+		@Override
+		public void applyStyles(final TextStyle style) {
+			((StyleRange) style).fontStyle = SWT.BOLD;
+		};
+	};
 	
 	
 	public String getText(IModelElement element);

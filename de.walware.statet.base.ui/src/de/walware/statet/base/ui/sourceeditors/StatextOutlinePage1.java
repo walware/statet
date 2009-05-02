@@ -406,6 +406,13 @@ public abstract class StatextOutlinePage1 extends Page
 			}
 		});
 		
+		hookContextMenu();
+		
+		fEditor.getModelInputProvider().addListener(this);
+		viewer.setInput(fInputUnit);
+	}
+	
+	private void hookContextMenu() {
 		final MenuManager menuManager = new MenuManager(fContextMenuID, fContextMenuID);
 		menuManager.setRemoveAllWhenShown(true);
 		menuManager.addMenuListener(new IMenuListener() {
@@ -413,12 +420,9 @@ public abstract class StatextOutlinePage1 extends Page
 				contextMenuAboutToShow(m);
 			}
 		});
-		fContextMenu = menuManager.createContextMenu(viewer.getTree());
-		viewer.getTree().setMenu(fContextMenu);
+		fContextMenu = menuManager.createContextMenu(fTreeViewer.getTree());
+		fTreeViewer.getTree().setMenu(fContextMenu);
 		getSite().registerContextMenu(fContextMenuID, menuManager, fTreeViewer);
-		
-		fEditor.getModelInputProvider().addListener(this);
-		viewer.setInput(fInputUnit);
 	}
 	
 	@Override

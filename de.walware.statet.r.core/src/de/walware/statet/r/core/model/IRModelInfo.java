@@ -22,6 +22,6 @@ import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 public interface IRModelInfo extends ISourceUnitModelInfo {
 	
 	
-	public Map<String, ? extends IEnvirInSource> getSourceFrames();
+	public Map<String, ? extends IFrameInSource> getSourceFrames();
 	
 }

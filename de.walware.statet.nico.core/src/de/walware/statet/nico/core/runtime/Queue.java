@@ -148,7 +148,7 @@ public final class Queue {
 	public static final int ENTRY_FINISH_PROCESSING_ERROR = MASK_FINISHED | ERROR;
 	
 	
-	private LinkedList<IToolRunnable> fList = new LinkedList<IToolRunnable>();
+	private final LinkedList<IToolRunnable> fList = new LinkedList<IToolRunnable>();
 	private IToolRunnable[] fSingleIOCache = null;
 	private IToolRunnable[] fFinishedExpected = null;
 	private IToolRunnable[] fFinishedCache = null;
@@ -156,6 +156,8 @@ public final class Queue {
 	private List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
 	
 	private final ToolProcess fProcess;
+	
+	private final LinkedList<IToolRunnable> fIdleList = new LinkedList<IToolRunnable>();
 	
 	
 	Queue(final ToolProcess process) {
@@ -253,6 +255,14 @@ public final class Queue {
 	
 	
 	void internalAdd(final IToolRunnable[] runnables, final boolean allowCache) {
+		if (runnables == null) {
+			throw new NullPointerException();
+		}
+		for (int i = 0; i < runnables.length; i++) {
+			if (runnables[i] == null) {
+				throw new NullPointerException();
+			}
+		}
 		if (allowCache && internalIsEmpty() && runnables.length == 1) {
 			fSingleIOCache = runnables;
 			return;
@@ -270,8 +280,15 @@ public final class Queue {
 		fireEvents();
 	}
 	
+	void internalScheduleIdle(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException();
+		}
+		fIdleList.add(runnable);
+	}
+	
 	boolean internalIsEmpty() {
-		return (fSingleIOCache == null && fList.isEmpty());
+		return (fSingleIOCache == null && fList.isEmpty() && fIdleList.isEmpty());
 	}
 	
 	void internalCheck() {
@@ -289,8 +306,11 @@ public final class Queue {
 			addChangeEvent(ENTRIES_ADD, fSingleIOCache);
 			fSingleIOCache = null;
 		}
-		else {
+		else if (!fList.isEmpty()) {
 			runnable = new IToolRunnable[] { fList.poll() };
+		}
+		else {
+			runnable = new IToolRunnable[] { fIdleList.poll() };
 		}
 		addChangeEvent(ENTRY_START_PROCESSING, runnable);
 		

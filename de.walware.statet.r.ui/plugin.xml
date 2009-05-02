@@ -1537,5 +1537,17 @@
             id="de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"
             name="%rConnector_EclipseTextConsole_name"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="de.walware.statet.base.views.StatetCategory"
+            class="de.walware.statet.r.internal.objectbrowser.ObjectBrowserView"
+            icon="icons/view_16/objectbrowser.png"
+            id="de.walware.statet.nico.views.ObjectBrowser"
+            name="%views_RObjectBrowserView_name"
+            restorable="true">
+      </view>
+   </extension>
 
 </plugin>

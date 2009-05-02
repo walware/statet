@@ -420,8 +420,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		gd.verticalIndent = 1;
 		fPrefix.setLayoutData(gd);
 		fPrefixBackground = createImage(Display.getCurrent());
-		fIsPrefixHighlighted = true;
-		fPrefix.setBackgroundImage(fPrefixBackground);
+		fIsPrefixHighlighted = false;
 		fPrefix.setText("> "); //$NON-NLS-1$
 		fPrefix.addMouseListener(new MouseAdapter() {
 			@Override

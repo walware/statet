@@ -138,7 +138,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	@Override
 	public Image getImage() {
-		return RUI.getImage(RUI.IMG_OBJ_R_ENVIRONMENT);
+		return RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV);
 	}
 	
 	public void createControl(final Composite parent) {

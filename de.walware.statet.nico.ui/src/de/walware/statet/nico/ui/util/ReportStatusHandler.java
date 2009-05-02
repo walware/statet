@@ -34,7 +34,7 @@ public class ReportStatusHandler implements IToolEventHandler {
 		final IStatus status = ToolEventHandlerUtil.getCheckedData(data, REPORT_STATUS_DATA_KEY, IStatus.class, false); 
 		if (status != null) {
 			final String br = tools.getWorkspaceData().getLineSeparator();
-			final StringBuilder msg = new StringBuilder();
+			final StringBuilder msg = new StringBuilder(br);
 			switch (status.getSeverity()) {
 			case IStatus.ERROR:
 				msg.append("[ERROR] ");

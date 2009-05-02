@@ -99,4 +99,9 @@ public interface IStatetUICommandIds {
 	 */
 	public static final String CORRECT_INDENT =        "de.walware.statet.base.commands.CorrectIndent"; //$NON-NLS-1$
 	
+	/**
+	 * E-3.5 -> IWorkbenchCommandConstants
+	 */
+	public static final String REFRESH = "org.eclipse.ui.file.refresh"; //$NON-NLS-1$
+	
 }

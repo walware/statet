@@ -16,19 +16,27 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.ToolController;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 
 
 /**
  * Interface to access R by a ToolRunnable.
  */
-public interface IBasicRAdapter extends
+public interface IRBasicAdapter extends
 		IToolRunnableControllerAdapter, IAdaptable {
 	
+	
+	public ToolProcess<? extends RWorkspace> getProcess();
+	
+	public ToolController<? extends RWorkspace> getController();
 	
 	/**
 	 * Quits R 
 	 * <code>q()</code>
 	 */
 	public void quit(final IProgressMonitor monitor) throws CoreException;
+	
+	public void briefAboutChange(int o);
 	
 }

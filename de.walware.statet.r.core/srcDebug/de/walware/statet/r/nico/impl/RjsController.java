@@ -24,41 +24,42 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.net.RMIAddress;
 
 import de.walware.statet.nico.core.runtime.HistoryOperationsHandler;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.rj.data.RObject;
+import de.walware.rj.data.RObjectFactory;
+import de.walware.rj.data.RReference;
 import de.walware.rj.server.ConsoleCmdItem;
+import de.walware.rj.server.DataCmdItem;
 import de.walware.rj.server.ExtUICmdItem;
 import de.walware.rj.server.FxCallback;
+import de.walware.rj.server.MainC2SCmdList;
 import de.walware.rj.server.MainCmdItem;
-import de.walware.rj.server.MainCmdList;
+import de.walware.rj.server.MainS2CCmdList;
 import de.walware.rj.server.RjException;
 import de.walware.rj.server.RjsComObject;
 import de.walware.rj.server.RjsPing;
@@ -68,18 +69,27 @@ import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerLogin;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RUtil;
+import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.rdata.CombinedElement;
+import de.walware.statet.r.internal.rdata.CombinedFactory;
 import de.walware.statet.r.nico.AbstractRController;
+import de.walware.statet.r.nico.IRCombinedDataAdapter;
+import de.walware.statet.r.nico.IRDataAdapter;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 
 
 /**
  * Controller for RJ-Server
  */
-public class RjsController extends AbstractRController implements IRemoteEngineController {
+public class RjsController extends AbstractRController implements IRemoteEngineController, IRDataAdapter, IRCombinedDataAdapter {
 	
 	
-	private static final Pattern STRING_OUTPUT_PATTERN = Pattern.compile("\\Q[1] \"\\E((?:\\Q\\\"\\E|[^\"])*)\\\""); //$NON-NLS-1$
+	static {
+		DataCmdItem.registerRObjectFactory(CombinedFactory.FACTORY_ID, CombinedFactory.INSTANCE);
+	}
 	
 	
 	private RMIAddress fAddress;
@@ -87,11 +97,18 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	private Server fRjServer;
 	private int fTicket;
-	private ConsoleCmdItem fServerCallback;
-	private boolean fIsBusy;
+	private final MainCmdC2SList fC2SList = new MainCmdC2SList();
+	private boolean fConsoleReadCallbackRequest;
+	private MainCmdItem fConsoleReadCallback;
+	private int fDataLevelRequest = 0;
+	private int fDataLevelAnswer = 0;
+	private final DataCmdItem[] fDataAnswer = new DataCmdItem[16];
+	private boolean fIsBusy = true;
+	
 	
 	private boolean fEmbedded;
 	private boolean fStartup;
+	private String fStartupSnippet;
 	private boolean fIsDisconnected = false;
 	
 	
@@ -114,6 +131,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		if (address == null) {
 			throw new IllegalArgumentException();
 		}
+		process.registerFeatureSet(RTool.R_DATA_FEATURESET_ID);
 		if (!embedded) {
 			process.registerFeatureSet(IRemoteEngineController.FEATURE_SET_ID);
 		}
@@ -123,26 +141,13 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		fRArgs = rArgs;
 		
 		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
-				address.getHostAddress().getHostAddress()) {
-			@Override
-			protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
-				final StringBuilder output = readOutput("getwd()", monitor); //$NON-NLS-1$
-				if (output != null) {
-					final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
-					if (matcher.find()) {
-						final String wd = matcher.group(1);
-						if (!isRemote()) {
-							setWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
-						}
-						else {
-							setRemoteWorkspaceDir(new Path(wd));
-						}
-					}
-				}
-			}
-		};
+				address.getHostAddress().getHostAddress());
 		setWorkspaceDir(initialWD);
 		initRunnableAdapter();
+	}
+	
+	public void setStartupSnippet(final String code) {
+		fStartupSnippet = code;
 	}
 	
 	
@@ -189,7 +194,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			}
 			finally {
 				synchronized (fQueue) {
-					scheduleControllerRunnable(new IToolRunnable<RjsController>() {
+					scheduleControllerRunnable(new IToolRunnable() {
 						public SubmitType getSubmitType() {
 							return SubmitType.OTHER;
 						}
@@ -201,7 +206,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						}
 						public void changed(final int event, final ToolProcess process) {
 						}
-						public void run(final RjsController tools, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
 							if (!isTerminated()) {
 								try {
 									rjsSendPing(true, monitor);
@@ -233,8 +238,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	@Override
 	protected void startTool(final IProgressMonitor monitor) throws CoreException {
 		final Server server;
+		int[] version;
 		try {
 			server = (Server) Naming.lookup(fAddress.getAddress());
+			version = server.getVersion();
 		}
 		catch (final MalformedURLException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
@@ -254,10 +261,16 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		catch (final ClassCastException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					"The specified R engine is incompatibel to this client.", e));
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.2.x).", RjsUtil.getVersionString(null)), e));
 		}
+		if (version.length != 3 || version[0] != 0 || version[1] != 2) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
+					ICommonStatusConstants.LAUNCHING,
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.2.x).", RjsUtil.getVersionString(version)),
+					null));
+		}
+		
 		try {
-			
 			final Map<String, Object> data = new HashMap<String, Object>();
 			final IToolEventHandler loginHandler = getEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID);
 			String msg = null;
@@ -330,7 +343,34 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				}
 			}
 			
-			rjsRunMainLoop(null, monitor);
+			if (fStartup && fStartupSnippet != null && fStartupSnippet.length() > 0) {
+				submit(RUtil.LINE_SEPARATOR_PATTERN.split(fStartupSnippet), SubmitType.OTHER);
+			}
+			fStartupSnippet = null;
+			
+			rjsRunMainLoop(null, null, monitor);
+			if (fConsoleReadCallback == null) {
+				fConsoleReadCallbackRequest = true;
+			}
+			
+			scheduleControllerRunnable(new IToolRunnable() {
+				public SubmitType getSubmitType() {
+					return SubmitType.OTHER;
+				}
+				public String getTypeId() {
+					return "r/rj/start2";
+				}
+				public String getLabel() {
+					return "Finish Initialization / Read Output";
+				}
+				public void changed(final int event, final ToolProcess process) {
+				}
+				public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+					if (fConsoleReadCallback == null) {
+						rjsRunMainLoop(null, null, monitor);
+					}
+				}
+			});
 		}
 		catch (final RemoteException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
@@ -380,14 +420,23 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 //		}
 //	}
 	
-	protected void rjsRunMainLoop(RjsComObject sendCom, final IProgressMonitor monitor) throws CoreException {
+	protected void rjsRunMainLoop(RjsComObject sendCom, MainCmdItem sendItem, final IProgressMonitor monitor) throws CoreException {
 		int ok = 0;
 		while (true) {
 			try {
 				RjsComObject receivedCom = null;
-				fServerCallback = null;
+				if (sendItem != null) {
+					if (sendItem.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM) {
+						fConsoleReadCallback = null;
+//						fConsoleReadCallbackRequest = true;
+					}
+					fC2SList.setObjects(sendItem);
+					sendCom = fC2SList;
+					sendItem = null;
+				}
 //				System.out.println("client *-> server: " + sendCom);
 				receivedCom = ensureServer().runMainLoop(fTicket, sendCom);
+				sendCom = null;
 //				System.out.println("client *<- server: " + receivedCom);
 				switch (receivedCom.getComType()) {
 				case RjsComObject.T_PING:
@@ -395,9 +444,11 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					ok = 0;
 					continue;
 				case RjsComObject.T_MAIN_LIST:
-					sendCom = rjsHandleMainList((MainCmdList) receivedCom, monitor);
+					sendItem = rjsHandleMainList((MainCmdS2CList) receivedCom, monitor);
 					ok = 0;
-					if (fServerCallback != null) {
+					if (sendItem == null
+							&& (!fConsoleReadCallbackRequest || fConsoleReadCallback != null)
+							&& (fDataLevelRequest == fDataLevelAnswer) ) {
 						return;
 					}
 					continue;
@@ -408,10 +459,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				}
 			}
 			catch (final RemoteException e) {
-				RCorePlugin.logError(-1, "Communication error detail\nSEND="+sendCom, e);
+				RCorePlugin.logError(-1, "Communication error detail\nSEND="+sendItem, e);
 //				e.printStackTrace(System.out);
 				if (ping()) {
-					if (fServerCallback == null && ok == 0) {
+					if (fConsoleReadCallback == null && ok == 0) {
 						ok++;
 						handleStatus(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Communication error, see Eclipse log for detail."), monitor);
 						continue;
@@ -459,46 +510,53 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		throw new CoreException(status);
 	}
 	
-	private RjsComObject rjsHandleMainList(final MainCmdList list, final IProgressMonitor monitor) throws RemoteException, CoreException {
+	private MainCmdItem rjsHandleMainList(final MainCmdS2CList list, final IProgressMonitor monitor) throws RemoteException, CoreException {
 		try {
 			final boolean isBusy = list.isBusy();
 			if (fIsBusy != isBusy) {
 				fIsBusy = isBusy;
 //				loopBusyChanged(isBusy);
 			}
-			final MainCmdItem[] items = list.getItems();
-			ITER_ITEMS : for (int i = 0; i < items.length; i++) {
-				switch (items[i].getComType()) {
+			ITER_ITEMS : for (MainCmdItem item = list.getItems(); (item != null); item = item.next) {
+				switch (item.getCmdType()) {
 				case MainCmdItem.T_CONSOLE_WRITE_ITEM:
-					((items[i].getOption() == RjsComObject.V_OK) ?
+					((item.getCmdOption() == RjsComObject.V_OK) ?
 							fDefaultOutputStream : fErrorOutputStream)
-							.append(items[i].getDataText(), fCurrentRunnable.getSubmitType(), 0);
+							.append(item.getDataText(), fCurrentRunnable.getSubmitType(), 0);
 					continue ITER_ITEMS;
 				case MainCmdItem.T_CONSOLE_READ_ITEM: {
-					final ConsoleCmdItem item = (ConsoleCmdItem) items[i];
-					setCurrentPrompt(item.getDataText(), (item.getOption() & 0xf) == RjsComObject.V_TRUE);
-					if (items.length > 1) {
+					setCurrentPrompt(item.getDataText(), (item.getCmdOption() & 0xf) == RjsComObject.V_TRUE);
+					if (item != list.getItems()) {
 						rjsSendPing(false, monitor);
 					}
-					fServerCallback = item;
+					fConsoleReadCallback = item;
+//					if (fDataLevelRequest > 0) {
+//						throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Illegal nested console read"));
+//					}
 					return null;
 				}
 				case MainCmdItem.T_MESSAGE_ITEM:
-					fInfoStream.append(items[i].getDataText(), fCurrentRunnable.getSubmitType(), 0);
+					fInfoStream.append(item.getDataText(), fCurrentRunnable.getSubmitType(), 0);
 					continue ITER_ITEMS;
 				case MainCmdItem.T_EXTENDEDUI_ITEM:
-					if (items[i].waitForClient()) {
-						return rjsHandleUICallback((ExtUICmdItem) items[i], monitor);
+					if (item.waitForClient()) {
+						return rjsHandleUICallback((ExtUICmdItem) item, monitor);
 					}
 					else {
-						rjsHandleUICallback((ExtUICmdItem) items[i], monitor);
+						rjsHandleUICallback((ExtUICmdItem) item, monitor);
 						continue ITER_ITEMS;
 					}
+				case MainCmdItem.T_DATA_ITEM:
+					if (fDataLevelRequest > 0) {
+						if (addDataAnswer((DataCmdItem) item)) {
+							rjsSendPing(false, monitor);
+						}
+					}
+					continue ITER_ITEMS;
 				default:
-					throw new RemoteException("Illegal command from server: " + items[i].toString());
+					throw new RemoteException("Illegal command from server: " + item.toString());
 				}
 			}
-			fServerCallback = null;
 			return null;
 		}
 		catch (final RemoteException e) {
@@ -511,16 +569,15 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			rjsComErrorRestore(e, monitor);
 			// try to recover
 			rjsSendPing(true, monitor);
-			final MainCmdItem[] items = list.getItems();
-			for (int i = items.length-1; i >= 0; i++) {
-				if (items[i] != null && items[i].waitForClient()) {
-					if (items[i].getComType() == RjsComObject.T_CONSOLE_READ_ITEM && items[i] instanceof ConsoleCmdItem) {
-						fServerCallback = (ConsoleCmdItem) items[i];
+			ITER_ITEMS : for (MainCmdItem item = list.getItems(); (item != null); item = item.next) {
+				if (item.waitForClient()) {
+					if (item.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM && item instanceof ConsoleCmdItem) {
+						fConsoleReadCallback = item;
 						return null;
 					}
 					else {
-						items[i].setAnswer(RjsComObject.V_ERROR);
-						return items[i];
+						item.setAnswer(RjsComObject.V_ERROR);
+						return item;
 					}
 				}
 			}
@@ -540,7 +597,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		}
 	}
 	
-	private RjsComObject rjsHandleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
+	private ExtUICmdItem rjsHandleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
 		final String command = cmd.getCommand();
 		// if we have more commands, we should create a hashmap
 		try {
@@ -548,9 +605,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				final IToolEventHandler handler = getEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID);
 				if (handler != null) {
 					final Map<String, Object> data = new HashMap<String, Object>();
-					data.put("newResource", ((cmd.getOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); //$NON-NLS-1$
+					data.put("newResource", ((cmd.getCmdOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); 
 					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, this, data, monitor) == IToolEventHandler.OK) {
-						cmd.setAnswer((String) data.get("filename")); //$NON-NLS-1$
+						cmd.setAnswer((String) data.get("filename")); 
 						return cmd;
 					}
 				}
@@ -558,32 +615,32 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); 
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_SAVE_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); 
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_ADDTO_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); 
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_SHOW_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); 
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_OPENIN_EDITOR)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); 
 				return cmd;
 			}
 			throw new Exception("Unknown command.");
 		}
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					NLS.bind("An error occurred when exec RJ UI command ''{0}''.", command), e)); //$NON-NLS-1$
+					NLS.bind("An error occurred when exec RJ UI command ''{0}''.", command), e)); 
 			if (cmd.waitForClient()) {
-				cmd.setAnswer(ExtUICmdItem.V_ERROR);
+				cmd.setAnswer(RjsStatus.ERROR);
 				return cmd;
 			}
 			else {
@@ -601,7 +658,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			return;
 		}
 		RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
-				NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); //$NON-NLS-1$
+				NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); 
 		cmd.setAnswer(RjsComObject.V_CANCEL);
 	}
 	
@@ -629,7 +686,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	@Override
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
 		super.postCancelTask(options, monitor);
-		fCurrentInput = ""; //$NON-NLS-1$
+		fCurrentInput = ""; 
 		doSubmit(monitor);
 	}
 	
@@ -638,7 +695,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		if (!ping()) {
 			return false;
 		}
-		if (Thread.currentThread() == getControllerThread() && fServerCallback == null) {
+		if (Thread.currentThread() == getControllerThread() && fConsoleReadCallback == null) {
 			return false;
 		}
 		return true;
@@ -707,30 +764,104 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected void doSubmit(final IProgressMonitor monitor) throws CoreException {
-		fServerCallback.setAnswer(fCurrentInput + fLineSeparator);
-		rjsRunMainLoop(fServerCallback, monitor);
+		fConsoleReadCallback.setAnswer(fCurrentInput + fLineSeparator);
+		rjsRunMainLoop(null, fConsoleReadCallback, monitor);
 	}
 	
 	
-	// workaround, until we have eval implemented
-	private StringBuilder readOutput(final String command, final IProgressMonitor monitor) throws CoreException {
-		final StringBuilder output = new StringBuilder();
-		final IStreamListener listener = new IStreamListener() {
-			public void streamAppended(final String text, final IStreamMonitor monitor) {
-				output.append(text);
-			}
-		};
+	private int newDataLevel() {
+		final int level = ++fDataLevelRequest;
+		if (level >= fDataAnswer.length) {
+			fDataLevelRequest--;
+			throw new UnsupportedOperationException("too much nested operations");
+		}
+		fDataLevelAnswer = 0;
+		return level;
+	}
+	
+	private void finalizeDataLevel() {
+		final int level = fDataLevelRequest--;
+		fDataAnswer[level] = null;
+		fDataLevelAnswer = 0;
+	}
+	
+	private boolean addDataAnswer(final DataCmdItem item) {
+		fDataAnswer[fDataLevelRequest] = item;
+		if (item.waitForClient()) {
+			fDataLevelAnswer = fDataLevelRequest;
+			return true;
+		}
+		return false;
+	}
+	
+	public void evalVoid(final String command, final IProgressMonitor monitor) throws CoreException {
+		newDataLevel();
 		try {
-			fDefaultOutputStream.addListener(listener);
-			if (monitor.isCanceled()) {
-				return null;
-			}
-			submitToConsole(command, monitor);
-			return output;
+			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.EVAL_VOID, 0, 0, command, null), monitor);
+			return;
 		}
 		finally {
-			fDefaultOutputStream.removeListener(listener);
+			finalizeDataLevel();
 		}
+	}
+	
+	public RObject evalData(final String command, final IProgressMonitor monitor) throws CoreException {
+		return evalData(command, null, 0, -1, monitor);
+	}
+	
+	public RObject evalData(final String command, final String factoryId,
+			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
+		final int level = newDataLevel();
+		try {
+			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
+					DataCmdItem.EVAL_STRUCT : DataCmdItem.EVAL_DATA, 0, depth, command, factoryId), monitor);
+			final RObject data = (fDataAnswer[level] != null) ? (RObject) fDataAnswer[level].getData() : null;
+			return data;
+		}
+		finally {
+			finalizeDataLevel();
+		}
+	}
+	
+	public RObject evalData(final RReference reference, final IProgressMonitor monitor) throws CoreException {
+		return evalData(reference, null, 0, -1, monitor);
+	}
+	
+	public RObject evalData(final RReference reference, final String factoryId,
+			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
+		final int level = newDataLevel();
+		try {
+			final long handle = reference.getHandle();
+			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
+					DataCmdItem.RESOLVE_STRUCT : DataCmdItem.RESOLVE_DATA, 0, depth, Long.toString(handle), factoryId), monitor);
+			final RObject data = (fDataAnswer[level] != null) ? (RObject) fDataAnswer[level].getData() : null;
+			return data;
+		}
+		finally {
+			finalizeDataLevel();
+		}
+	}
+	
+	public ICombinedRElement evalCombinedStruct(final String command,
+			final int options, final int depth, final IElementName name, final IProgressMonitor monitor) throws CoreException {
+		final RObject data = evalData(command, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
+		if (data instanceof CombinedElement) {
+			final CombinedElement e = (CombinedElement) data;
+			CombinedFactory.INSTANCE.setElementName(e, name);
+			return e;
+		}
+		return null;
+	}
+	
+	public ICombinedRElement evalCombinedStruct(final RReference reference,
+			final int options, final int depth, final IElementName name, final IProgressMonitor monitor) throws CoreException {
+		final RObject data = evalData(reference, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
+		if (data instanceof CombinedElement) {
+			final CombinedElement e = (CombinedElement) data;
+			CombinedFactory.INSTANCE.setElementName(e, name);
+			return e;
+		}
+		return null;
 	}
 	
 }

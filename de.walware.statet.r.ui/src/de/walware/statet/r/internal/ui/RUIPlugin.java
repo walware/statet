@@ -181,7 +181,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png");  //$NON-NLS-1$
 		util.register(IMG_WIZBAN_NEWRDFILE, ImageRegistryUtil.T_WIZBAN, "new_rd-file.png");  //$NON-NLS-1$
 		
-		util.register(RUI.IMG_OBJ_R_ENVIRONMENT, ImageRegistryUtil.T_OBJ, "r-env.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_RUNTIME_ENV, ImageRegistryUtil.T_OBJ, "r-env.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_SCRIPT, ImageRegistryUtil.T_OBJ, "r-file_obj.gif"); //$NON-NLS-1$
 		
 		util.register(RUI.IMG_OBJ_COMMON_FUNCTION, ImageRegistryUtil.T_OBJ, "function.png"); //$NON-NLS-1$
@@ -191,6 +191,19 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_GENERAL_VARIABLE, ImageRegistryUtil.T_OBJ, "var.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_GENERAL_LOCAL_VARIABLE, ImageRegistryUtil.T_OBJ, "var-local.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_SLOT, ImageRegistryUtil.T_OBJ, "slot.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_PACKAGEENV, ImageRegistryUtil.T_OBJ, "package.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_GLOBALENV, ImageRegistryUtil.T_OBJ, "globalenv.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_EMPTYENV, ImageRegistryUtil.T_OBJ, "emptyenv.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_OTHERENV, ImageRegistryUtil.T_OBJ, "otherenv.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_DATAFRAME, ImageRegistryUtil.T_OBJ, "dataframe.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_DATAFRAME_COLUMN, ImageRegistryUtil.T_OBJ, "dataframe_col.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_LIST, ImageRegistryUtil.T_OBJ, "list.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "vector.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_ARRAY, ImageRegistryUtil.T_OBJ, "array.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_NULL, ImageRegistryUtil.T_OBJ, "null.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_S4OBJ, ImageRegistryUtil.T_OBJ, "s4obj.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_S4OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "s4obj-vector.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN, ImageRegistryUtil.T_OBJ, "s4obj-dataframe_col.png"); //$NON-NLS-1$
 		
 		util.register(IMG_LOCTOOL_FILTER_GENERAL, ImageRegistryUtil.T_LOCTOOL, "filter-general.png"); //$NON-NLS-1$
 		util.register(IMG_LOCTOOL_FILTER_LOCAL, ImageRegistryUtil.T_LOCTOOL, "filter-local.png"); //$NON-NLS-1$

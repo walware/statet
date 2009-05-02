@@ -26,7 +26,8 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IEnvirInSource;
+import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IFrameInSource;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRClassExtension;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -93,7 +94,7 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 		@Override
 		public Object getAdapter(final Class required) {
-			if (IEnvirInSource.class.equals(required)) {
+			if (IFrameInSource.class.equals(required)) {
 				return fEnvir;
 			}
 			return super.getAdapter(required);
@@ -147,7 +148,7 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 		@Override
 		public Object getAdapter(final Class required) {
-			if (IEnvirInSource.class.equals(required)) {
+			if (IFrameInSource.class.equals(required)) {
 				return fEnvir;
 			}
 			return super.getAdapter(required);
@@ -158,14 +159,14 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 	static class RClassExt extends RSourceElementByElementAccess implements IRClassExtension {
 		
 		
-		private IEnvirInSource fEnvir;
+		private IFrame fEnvir;
 		
 		private String fExtCommand;
 		private String fExtTypeName;
 		
 		
 		public RClassExt(final AbstractRModelElement parent, 
-				final ElementAccess defAccess, final IEnvirInSource envir, final String command) {
+				final ElementAccess defAccess, final IFrame envir, final String command) {
 			super(parent, IRLangElement.R_S4CLASS_EXTENSION, defAccess);
 			fExtCommand = command;
 			fEnvir = envir;
@@ -185,7 +186,7 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 		@Override
 		public Object getAdapter(final Class required) {
-			if (IEnvirInSource.class.equals(required)) {
+			if (IFrameInSource.class.equals(required)) {
 				return fEnvir;
 			}
 			return super.getAdapter(required);

@@ -59,7 +59,7 @@ public interface IModelElement extends IAdaptable {
 	public boolean isReadOnly();
 	
 	public IModelElement getParent();
-	public boolean hasChildren(Filter filter);
+	public boolean hasChildren(Filter filter); // can also be used to visit children
 	public List<? extends IModelElement> getChildren(Filter filter);
 	
 	

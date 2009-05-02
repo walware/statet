@@ -19,7 +19,7 @@ import de.walware.statet.r.launching.AbstractRCommandHandler;
 
 
 /**
- * Command handler for help("...")
+ * Command handler for print(...)
  */
 public class RunPrintInR extends AbstractRCommandHandler {
 	

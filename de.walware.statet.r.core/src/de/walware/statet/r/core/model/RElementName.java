@@ -12,6 +12,7 @@
 package de.walware.statet.r.core.model;
 
 import java.util.Comparator;
+import java.util.List;
 
 import com.ibm.icu.text.Collator;
 
@@ -26,16 +27,18 @@ import de.walware.statet.r.core.RSymbolComparator;
 public abstract class RElementName implements IElementName {
 	
 	
-	public static final int RESOURCE =       0x011;
+	public static final int RESOURCE =        0x011;
 	
-	public static final int MAIN_DEFAULT =   0x021;
-	public static final int MAIN_PACKAGE =   0x022;
-	public static final int MAIN_CLASS =     0x023;
-	public static final int MAIN_SLOT =      0x024;
-	public static final int SUB_NAMEDSLOT =  0x028;
-	public static final int SUB_NAMEDPART =  0x029;
-	public static final int SUB_INDEXED_S =  0x02A;
-	public static final int SUB_INDEXED_D =  0x02B;
+	public static final int MAIN_OTHER =      0x020;
+	public static final int MAIN_DEFAULT =    0x021;
+	public static final int MAIN_PACKAGE =    0x022;
+	public static final int MAIN_CLASS =      0x023;
+	public static final int MAIN_SLOT =       0x024;
+	public static final int MAIN_SEARCH_ENV = 0x025;
+	public static final int SUB_NAMEDSLOT =   0x028;
+	public static final int SUB_NAMEDPART =   0x029;
+	public static final int SUB_INDEXED_S =   0x02A;
+	public static final int SUB_INDEXED_D =   0x02B;
 	
 	
 	public static String createDisplayName(IElementName a) {
@@ -43,12 +46,36 @@ public abstract class RElementName implements IElementName {
 		StringBuilder sb = null;
 		
 		switch (a.getType()) {
-		case RElementName.MAIN_DEFAULT:
-		case RElementName.MAIN_CLASS:
-		case RElementName.MAIN_SLOT:
-		case RElementName.MAIN_PACKAGE:
-		case RElementName.SUB_NAMEDPART:
-		case RElementName.SUB_NAMEDSLOT:
+		case MAIN_SEARCH_ENV:
+			firstName = a.getSegmentName();
+			if (firstName != null) {
+				sb = new StringBuilder(firstName.length());
+				sb.append("as.environment(\""); //$NON-NLS-1$
+				sb.append(firstName);
+				sb.append("\")"); //$NON-NLS-1$
+			}
+			else {
+				return null;
+			}
+			a = a.getNextSegment();
+			if (a != null && a.getType() == MAIN_DEFAULT) {
+				sb.append('$');
+				final String name = a.getSegmentName();
+				if (name != null) {
+					appendSymbol(sb, name);
+				}
+				a = a.getNextSegment();
+			}
+			else {
+				return sb.toString();
+			}
+			break;
+		case MAIN_DEFAULT:
+		case MAIN_CLASS:
+		case MAIN_SLOT:
+		case MAIN_PACKAGE:
+		case SUB_NAMEDPART:
+		case SUB_NAMEDSLOT:
 			firstName = a.getSegmentName();
 			if (firstName != null) {
 				sb = appendSymbol(sb, firstName);
@@ -61,7 +88,17 @@ public abstract class RElementName implements IElementName {
 				sb = (firstName != null) ? new StringBuilder(firstName) : new StringBuilder();
 			}
 			break;
-		case RElementName.RESOURCE:
+		case SUB_INDEXED_D:
+			if (a instanceof DefaultImpl) {
+				sb = new StringBuilder("[["); //$NON-NLS-1$
+				sb.append(a.getSegmentName());
+				sb.append("]]"); //$NON-NLS-1$
+				a = a.getNextSegment();
+				break;
+			}
+			return null;
+		case RESOURCE:
+		case MAIN_OTHER:
 			return a.getSegmentName();
 		default:
 			return null;
@@ -70,17 +107,17 @@ public abstract class RElementName implements IElementName {
 		APPEND_SUB : while (a != null) {
 			String name;
 			switch (a.getType()) {
-			case RElementName.MAIN_DEFAULT:
-			case RElementName.MAIN_CLASS:
-			case RElementName.MAIN_SLOT:
-			case RElementName.MAIN_PACKAGE:
+			case MAIN_DEFAULT:
+			case MAIN_CLASS:
+			case MAIN_SLOT:
+			case MAIN_PACKAGE:
 				name = a.getSegmentName();
 				if (name != null) {
 					appendSymbol(sb, name);
 				}
 				a = a.getNextSegment();
 				continue APPEND_SUB;
-			case RElementName.SUB_NAMEDPART:
+			case SUB_NAMEDPART:
 				sb.append('$');
 				name = a.getSegmentName();
 				if (name != null) {
@@ -88,7 +125,7 @@ public abstract class RElementName implements IElementName {
 				}
 				a = a.getNextSegment();
 				continue APPEND_SUB;
-			case RElementName.SUB_NAMEDSLOT:
+			case SUB_NAMEDSLOT:
 				sb.append('@');
 				name = a.getSegmentName();
 				if (name != null) {
@@ -96,10 +133,17 @@ public abstract class RElementName implements IElementName {
 				}
 				a = a.getNextSegment();
 				continue APPEND_SUB;
-			case RElementName.SUB_INDEXED_S:
+			case SUB_INDEXED_S:
 				sb.append("[…]"); //$NON-NLS-1$
 				break APPEND_SUB;
-			case RElementName.SUB_INDEXED_D:
+			case SUB_INDEXED_D:
+				if (a instanceof DefaultImpl) {
+					sb.append("[["); //$NON-NLS-1$
+					sb.append(a.getSegmentName());
+					sb.append("]]"); //$NON-NLS-1$
+					a = a.getNextSegment();
+					continue APPEND_SUB;
+				}
 				sb.append("[[…]]"); //$NON-NLS-1$
 				break APPEND_SUB;
 			default:
@@ -338,6 +382,26 @@ public abstract class RElementName implements IElementName {
 		return main;
 	}
 	
+	public static IElementName cloneSegment(final IElementName segment) {
+		return new DefaultImpl(segment.getType(), segment.getSegmentName(), null);
+	}
+	
+	public static IElementName concat(final IElementName[] segments) {
+		IElementName next = null;
+		for (int i = segments.length-1; i >= 0; i--) {
+			next = new DefaultImpl(segments[i].getType(), segments[i].getSegmentName(), next);
+		}
+		return next;
+	}
+	
+	public static IElementName concat(final List<IElementName> segments) {
+		IElementName next = null;
+		for (int i = segments.size()-1; i >= 0; i--) {
+			next = new DefaultImpl(segments.get(i).getType(), segments.get(i).getSegmentName(), next);
+		}
+		return next;
+	}
+	
 	
 	public String getDisplayName() {
 		return createDisplayName(this);
@@ -359,13 +423,18 @@ public abstract class RElementName implements IElementName {
 		final IElementName other = (RElementName) obj;
 		final String thisName = getSegmentName();
 		final String otherName = other.getSegmentName();
-		return ((getType() == other.getType()) &&
-				((thisName != null) ? 
+		return ((getType() == other.getType())
+				&& ((thisName != null) ? 
 						(thisName == otherName || (otherName != null && thisName.hashCode() == otherName.hashCode() && thisName.equals(otherName)) ) : 
-						(other.getSegmentName() == null) ) &&
-				((getNextSegment() != null) ? 
+						(other.getSegmentName() == null) )
+				&& ((getNextSegment() != null) ? 
 						(getNextSegment().equals(other.getNextSegment())) :
 						(other.getNextSegment() == null) ) );
+	}
+	
+	@Override
+	public String toString() {
+		return getDisplayName();
 	}
 	
 }

@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.IStatus;
  * 
  * For implementations:
  * The lifecycle is the same as the ToolController (not ToolProcess!).
- * The methods must only be used in the tool lifecycle thread.
+ * The methods may only be used in the tool lifecycle thread.
  */
 public interface IToolRunnableControllerAdapter {
 	
@@ -55,7 +55,7 @@ public interface IToolRunnableControllerAdapter {
 	public ToolWorkspace getWorkspaceData();
 	
 	
-	public void refreshWorkspaceData(IProgressMonitor monitor) 
+	public void refreshWorkspaceData(int options, IProgressMonitor monitor)
 			throws CoreException;
 	
 	/**

@@ -87,6 +87,14 @@ public class LayoutUtil {
 	}
 	
 	
+	public static int defaultHMargin() {
+		return getDialogValues().defaultHMargin;
+	}
+	
+	public static int defaultVMargin() {
+		return getDialogValues().defaultVMargin;
+	}
+	
 	public static Point defaultSpacing() {
 		return new Point(getDialogValues().defaultHSpacing, getDialogValues().defaultVSpacing);
 	}
@@ -119,7 +127,21 @@ public class LayoutUtil {
 	}
 	
 	public static int hintWidth(final Text text, final String symbolicName, final int numChars) {
-		text.setFont(JFaceResources.getFontRegistry().get(symbolicName));
+		if (symbolicName != null) {
+			text.setFont(JFaceResources.getFontRegistry().get(symbolicName));
+		}
+		if (numChars == -1) {
+			return getDialogValues().defaultEntryFieldWidth;
+		}
+		final PixelConverter converter = new PixelConverter(text);
+		final int widthHint = converter.convertWidthInCharsToPixels(numChars);
+		return widthHint;
+	}
+	
+	public static int hintWidth(final StyledText text, final String symbolicName, final int numChars) {
+		if (symbolicName != null) {
+			text.setFont(JFaceResources.getFontRegistry().get(symbolicName));
+		}
 		if (numChars == -1) {
 			return getDialogValues().defaultEntryFieldWidth;
 		}
@@ -215,15 +237,24 @@ public class LayoutUtil {
 	public static GridLayout applyTabDefault(final GridLayout gl, final int numColumns) {
 		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
-		gl.horizontalSpacing = dialogValues.defaultHSpacing;
-		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		gl.marginTop = dialogValues.defaultVSpacing / 2;
 		gl.marginBottom = dialogValues.defaultVSpacing / 2;
 		gl.marginLeft = dialogValues.defaultHSpacing / 2;
 		gl.marginRight = dialogValues.defaultHSpacing / 2;
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		return gl;
 	}
-		
+	
+	public static GridLayout applySashDefaults(final GridLayout gl, final int numColumns) {
+		gl.numColumns = numColumns;
+		gl.marginHeight = 0;
+		gl.marginWidth = 0;
+		gl.horizontalSpacing = 0;
+		gl.verticalSpacing = 0;
+		return gl;
+	}
+	
 	public static void addGDDummy(final Composite composite) {
 		addGDDummy(composite, false);
 	}

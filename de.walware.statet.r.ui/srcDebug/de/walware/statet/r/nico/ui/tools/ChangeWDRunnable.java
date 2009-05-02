@@ -18,12 +18,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
-import de.walware.statet.r.nico.IBasicRAdapter;
+import de.walware.statet.r.nico.IRBasicAdapter;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -32,7 +33,7 @@ import de.walware.statet.r.ui.RUI;
  * 
  * Supports path mapping (e.g. for remote console).
  */
-public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
+public class ChangeWDRunnable implements IToolRunnable {
 	
 	public static final String TYPE_ID = "r/tools/changeWorkingDir"; //$NON-NLS-1$
 	
@@ -60,16 +61,17 @@ public class ChangeWDRunnable implements IToolRunnable<IBasicRAdapter> {
 		return SubmitType.TOOLS;
 	}
 	
-	public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
+	public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 			throws InterruptedException, CoreException {
-		final String toolPath = tools.getWorkspaceData().toToolPath(fWorkingDir);
+		final IRBasicAdapter r = (IRBasicAdapter) adapter;
+		final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
 		if (toolPath == null) {
-			tools.handleStatus(new Status(IStatus.ERROR, RUI.PLUGIN_ID, RNicoMessages.ChangeWorkingDir_error_ResolvingFailed_message), monitor);
+			r.handleStatus(new Status(IStatus.ERROR, RUI.PLUGIN_ID, RNicoMessages.ChangeWorkingDir_error_ResolvingFailed_message), monitor);
 			return;
 		}
 		final String command = "setwd(\"" + RUtil.escapeCompletly(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
-		tools.submitToConsole(command, monitor);
-		tools.refreshWorkspaceData(monitor);
+		r.submitToConsole(command, monitor);
+		r.refreshWorkspaceData(0, monitor);
 	}
 	
 }

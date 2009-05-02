@@ -36,6 +36,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.Bundle;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.net.RMIAddress;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -51,13 +52,20 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	
 	private static final String RJ_SERVER_BUNDLE_ID = "de.walware.rj.server"; //$NON-NLS-1$
+	private static final String RJ_DATA_BUNDLE_ID = "de.walware.rj.data"; //$NON-NLS-1$
 	
 	
 	public static void addPluginClasspath(final Set<String> classpath, final boolean desktop, final boolean is64) {
 		final List<Bundle> bundles = new ArrayList<Bundle>();
-		final Bundle rjBundle = Platform.getBundle(RJ_SERVER_BUNDLE_ID); 
-		bundles.add(rjBundle);
-		Bundle[] fragments = Platform.getFragments(rjBundle);
+		final Bundle rjServerBundle = Platform.getBundle(RJ_SERVER_BUNDLE_ID);
+		bundles.add(rjServerBundle);
+		Bundle[] fragments = Platform.getFragments(rjServerBundle);
+		if (fragments != null) {
+			bundles.addAll(Arrays.asList(fragments));
+		}
+		final Bundle rjDataBundle = Platform.getBundle(RJ_DATA_BUNDLE_ID);
+		bundles.add(rjDataBundle);
+		fragments = Platform.getFragments(rjDataBundle);
 		if (fragments != null) {
 			bundles.addAll(Arrays.asList(fragments));
 		}
@@ -160,7 +168,8 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			}
 		}
 		if (s.indexOf(" -Djava.rmi.server.hostname=") < 0) { //$NON-NLS-1$
-			s.append(" -Djava.rmi.server.hostname=localhost"); //$NON-NLS-1$
+			s.append(" -Djava.rmi.server.hostname="); //$NON-NLS-1$
+			s.append(RMIAddress.LOOPBACK.getHostAddress());
 		}
 		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
 			s.append(" -Xss").append(fRenv.getRBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -97,8 +97,8 @@ public class NicoUITools {
 		if (tool != null) {
 			return tool;
 		}
-		return NicoUIPlugin.getDefault().getToolRegistry().getActiveToolSession(part.getSite().getPage())
-				.getProcess();
+		return NicoUIPlugin.getDefault().getToolRegistry().getActiveToolSession(
+				part.getSite().getPage()).getProcess();
 	}
 	
 	/**
@@ -138,17 +138,55 @@ public class NicoUITools {
 	
 	/**
 	 * 
-	 * @param type an optional expected main type
+	 * @param type the expected main type (optional)
 	 * @param process the tool to check or <code>null</code>
 	 * @return the controller of the tool
 	 * @throws CoreException if tool is missing, wrong type or terminated
 	 */
 	public static ToolController accessController(final String type, final ToolProcess process) throws CoreException {
+		return accessController(type, null, process);
+	}
+	
+	/**
+	 * 
+	 * @param type the expected main type (optional)
+	 * @param type the id of the expected feature set (optional)
+	 * @param process the tool to check or <code>null</code>
+	 * @return the controller of the tool
+	 * @throws CoreException if tool is missing, wrong type or terminated
+	 */
+	public static ToolController accessController(final String type, final String featureSetId, final ToolProcess process) throws CoreException {
 		accessTool(type, process);
 		final ToolController controller = process.getController();
 		if (controller == null) {
 			throw new CoreException(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 					NLS.bind("The active session of {0} ''{1}'' was terminated.", type, process.getLabel()), null));
+		}
+		if (featureSetId != null && !process.isProvidingFeatureSet(featureSetId)) {
+			throw new CoreException(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
+					NLS.bind("The active session of {0} ''{1}'' doesn't support allow required features.", type, process.getLabel()), null));
+		}
+		return controller;
+	}
+	
+	/**
+	 * 
+	 * @param type the expected main type (optional)
+	 * @param type the id of the expected feature set (optional)
+	 * @param process the tool to check or <code>null</code>
+	 * @return the controller of the tool
+	 * @throws CoreException if tool is missing, wrong type or terminated
+	 */
+	public static ToolController getController(final String type, final String featureSetId, final ToolProcess process) {
+		if (process == null || (type != null && !type.equals(process.getMainType()))) {
+			return null;
+		}
+		final ToolController controller = process.getController();
+		if (controller == null) {
+			return null;
+		}
+		if (featureSetId != null && !process.isProvidingFeatureSet(featureSetId)) {
+			return null;
 		}
 		return controller;
 	}

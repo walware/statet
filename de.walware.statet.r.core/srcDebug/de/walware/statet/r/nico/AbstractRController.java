@@ -33,22 +33,40 @@ import de.walware.statet.r.internal.nico.RNicoMessages;
  */
 public abstract class AbstractRController
 		extends ToolController<RWorkspace>
-		implements IBasicRAdapter, ISetupRAdapter {
+		implements IRBasicAdapter, ISetupRAdapter {
+	
+	
+	public static class RCommandRunnable extends ConsoleCommandRunnable {
+		
+		protected RCommandRunnable(final String text, final SubmitType type) {
+			super(text, type);
+		}
+		
+		@Override
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+			super.run(adapter, monitor);
+			((IRBasicAdapter) adapter).briefAboutChange(RWorkspace.REFRESH_AUTO);
+		}
+		
+	}
 	
 	
 	protected String fIncompletePromptText;
 	protected String fDefaultPromptText;
 	
+	int fChanged;
+	
 	
 	public AbstractRController(final ToolProcess process, final Map<String, Object> initData) {
 		super(process, initData);
-		process.registerFeatureSet(BasicR.FEATURESET_ID);
+		process.registerFeatureSet(RTool.R_BASIC_FEATURESET_ID);
+		fChanged = RWorkspace.REFRESH_COMPLETE;
 	}
 	
 	
 	@Override
 	protected final IToolRunnable createQuitRunnable() {
-		return new IToolRunnable<IBasicRAdapter>() {
+		return new IToolRunnable() {
 			
 			public String getTypeId() {
 				return ToolController.QUIT_TYPE_ID;
@@ -65,9 +83,8 @@ public abstract class AbstractRController
 			public void changed(final int event, final ToolProcess process) {
 			}
 			
-			public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
-					throws InterruptedException, CoreException {
-				tools.quit(monitor);
+			public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+				((IRBasicAdapter) adapter).quit(monitor);
 			}
 		};
 	}
@@ -96,7 +113,7 @@ public abstract class AbstractRController
 	
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
 		final String text = fCurrentPrompt.text + (
-				((fCurrentPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
+				((fCurrentPrompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
 						"(Input cancelled)" : "(Command cancelled)") + 
 						fLineSeparator;
 		fInfoStream.append(text,
@@ -120,11 +137,20 @@ public abstract class AbstractRController
 		fIncompletePromptText = "+ "; //$NON-NLS-1$
 	}
 	
+	public void setRObjectDB(final boolean enable) {
+		fWorkspaceData.enableRObjectDB(enable);
+	}
+	
 	public Object getAdapter(final Class adapter) {
 		if (ISetupRAdapter.class.equals(adapter)) {
 			return this;
 		}
 		return null;
+	}
+	
+	@Override
+	public IToolRunnable createCommandRunnable(final String command, final SubmitType type) {
+		return new RCommandRunnable(command, type);
 	}
 	
 	public void setIncompletePromptText(final String text) {
@@ -154,6 +180,10 @@ public abstract class AbstractRController
 			setCurrentPrompt(new Prompt("", //$NON-NLS-1$
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
+	}
+	
+	public void briefAboutChange(final int o) {
+		fChanged |= o;
 	}
 	
 	public void quit(final IProgressMonitor monitor) throws CoreException {

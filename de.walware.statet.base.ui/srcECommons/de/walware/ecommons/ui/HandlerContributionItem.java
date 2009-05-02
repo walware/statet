@@ -335,9 +335,6 @@ public final class HandlerContributionItem extends ContributionItem {
 		if (command == null && !noCommandMode) {
 			return;
 		}
-		if (command == null) {
-			return;
-		}
 		if (widget != null || parent == null) {
 			return;
 		}
@@ -639,7 +636,8 @@ public final class HandlerContributionItem extends ContributionItem {
 		}
 		
 		try {
-			final ExecutionEvent executionEvent = handlerService.createExecutionEvent(command, event);
+			final ExecutionEvent executionEvent = command != null ?
+					handlerService.createExecutionEvent(command, event) : new ExecutionEvent();
 			commandHandler.execute(executionEvent);
 		} catch (final ExecutionException e) {
 			WorkbenchPlugin.log("Failed to execute item " + getId(), e); //$NON-NLS-1$

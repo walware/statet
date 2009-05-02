@@ -31,7 +31,7 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IEnvirInSource;
+import de.walware.statet.r.core.model.IFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -334,7 +334,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		final IResource res = u.getResource();
 		final String projId = (res != null) ? res.getProject().getName() : "<noproject:"+u.getElementName(); //$NON-NLS-1$
 		
-		final Envir fileEnvir = new Envir.DefScope(IEnvirInSource.T_PROJ, Envir.createId(IEnvirInSource.T_PROJ, projId, 0), new Envir[0]); // ref projects
+		final Envir fileEnvir = new Envir.DefScope(IFrame.T_PROJ, Envir.createId(IFrame.T_PROJ, projId, 0), new Envir[0]); // ref projects
 		fCurrentEnvironments.add(fileEnvir);
 		fEnvironments.put(fileEnvir.getId(), fileEnvir);
 		fGenericDefaultEnvir = fTopLevelEnvir = fGlobalEnvir = fileEnvir;
@@ -449,10 +449,10 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	
 	private Envir getPkgEnvir(final String name) {
-		final String id = Envir.createId(IEnvirInSource.T_PKG, name, ++fAnonymCount);
+		final String id = Envir.createId(IFrame.T_PKG, name, ++fAnonymCount);
 		Envir envir = fDependencyEnvironments.get(id);
 		if (envir == null) {
-			envir = new Envir.DefScope(IEnvirInSource.T_PKG, id, new Envir[0]);
+			envir = new Envir.DefScope(IFrame.T_PKG, id, new Envir[0]);
 			fDependencyEnvironments.put(id, envir);
 		}
 		return envir;
@@ -518,8 +518,8 @@ public class SourceAnalyzer extends RAstVisitor {
 	private void registerFunctionElement(final RMethod rMethod, int type,
 			final ElementAccess access, final Signature sig) {
 		if (rMethod.getElementType() == IRLangElement.R_COMMON_FUNCTION) {
-			final IEnvirInSource frame = access.getFrame();
-			if (frame != null && (frame.getType() == IEnvirInSource.T_FUNCTION || frame.getType() == IEnvirInSource.T_CLASS)) {
+			final IFrame frame = access.getFrame();
+			if (frame != null && (frame.getFrameType() == IFrame.T_FUNCTION || frame.getFrameType() == IFrame.T_CLASS)) {
 				// make sure it is marked as local
 				type |= 0x1;
 			}
@@ -616,7 +616,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef node) throws InvocationTargetException {
-		final Envir envir = new Envir.DefScope(IEnvirInSource.T_FUNCTION, Envir.createId(IEnvirInSource.T_FUNCTION, null, ++fAnonymCount),
+		final Envir envir = new Envir.DefScope(IFrame.T_FUNCTION, Envir.createId(IFrame.T_FUNCTION, null, ++fAnonymCount),
 				new Envir[] { fTopScope });
 		fCurrentEnvironments.add(envir);
 		fTopScope = envir;
@@ -1486,7 +1486,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				fArgValueToIgnore.add(fNameNode);
 				
-				final Envir envir = new Envir.RunScope(IEnvirInSource.T_FUNCTION, Envir.createId(IEnvirInSource.T_FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
+				final Envir envir = new Envir.RunScope(IFrame.T_FUNCTION, Envir.createId(IFrame.T_FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
 				final RMethod rMethod = new RMethod(fCurrentSourceContainerBuilder.element, 
 						IRLangElement.R_GENERIC_FUNCTION, access, envir);
 				registerFunctionElement(rMethod);
@@ -1672,7 +1672,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			fGenericDefaultEnvir.addClass(name, access);
 			
-			final Envir envir = new Envir.RunScope(IEnvirInSource.T_CLASS, Envir.createId(IEnvirInSource.T_CLASS, access.getSegmentName(), ++fAnonymCount), 
+			final Envir envir = new Envir.RunScope(IFrame.T_CLASS, Envir.createId(IFrame.T_CLASS, access.getSegmentName(), ++fAnonymCount), 
 					fTopScope);
 			fEnvironments.put(envir.getId(), envir);
 			node.addAttachment(envir);
@@ -1759,7 +1759,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			fGenericDefaultEnvir.addClass(name, access);
 			
-			final Envir envir = new Envir.RunScope(IEnvirInSource.T_CLASS, Envir.createId(IEnvirInSource.T_CLASS, access.getSegmentName(), ++fAnonymCount), 
+			final Envir envir = new Envir.RunScope(IFrame.T_CLASS, Envir.createId(IFrame.T_CLASS, access.getSegmentName(), ++fAnonymCount), 
 					fTopScope);
 			fEnvironments.put(envir.getId(), envir);
 			node.addAttachment(envir);
@@ -1951,7 +1951,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				fArgValueToIgnore.add(classNameNode);
 				
-				envir = new Envir.RunScope(IEnvirInSource.T_FUNCTION, Envir.createId(IEnvirInSource.T_FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
+				envir = new Envir.RunScope(IFrame.T_FUNCTION, Envir.createId(IFrame.T_FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
 				rClassExt = new RClassExt(fCurrentSourceContainerBuilder.element, access, envir, "setIs");
 				registerClassExtElement(rClassExt);
 			}
@@ -2464,7 +2464,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		return null;
 	}
 	
-	private ArgsDefinition createMethodArgDef(final FDef fdefNode, final Signature sig) {
+	public static ArgsDefinition createMethodArgDef(final FDef fdefNode, final Signature sig) {
 		final FDef.Args argList = (fdefNode != null) ? fdefNode.getArgsChild() : null;
 		final ArgsBuilder b = new ArgsBuilder();
 		if (argList != null) {

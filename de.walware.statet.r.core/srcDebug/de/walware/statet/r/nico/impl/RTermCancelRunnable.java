@@ -23,19 +23,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
-import de.walware.statet.r.nico.IBasicRAdapter;
 
 
 /**
  * Cancel support for windows/rterm.
  */
-class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
+class RTermCancelRunnable implements IToolRunnable {
 	
 	
 	RTermCancelRunnable() {
@@ -54,10 +54,10 @@ class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 		return null;
 	}
 	
-	public void changed(final int event, ToolProcess process) {
+	public void changed(final int event, final ToolProcess process) {
 	}
 	
-	public void run(final IBasicRAdapter tools, final IProgressMonitor monitor) throws CoreException {
+	public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 		final URL dir = RCorePlugin.getDefault().getBundle().getEntry("/win32/SendSignal.exe"); //$NON-NLS-1$
 		try {
 			monitor.beginTask(RNicoMessages.RTerm_CancelTask_SendSignal_label, 10);
@@ -67,7 +67,7 @@ class RTermCancelRunnable implements IToolRunnable<IBasicRAdapter> {
 				throw new IOException("Missing File '"+file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			monitor.worked(1);
-			final RTermController controller = (RTermController) tools.getController();
+			final RTermController controller = (RTermController) adapter.getController();
 			final Long processId = controller.fProcessId;
 			if (processId == null) {
 				RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, "Cannot run cancel command: process-id of Rterm process is missing.")); //$NON-NLS-1$

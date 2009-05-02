@@ -12,7 +12,7 @@
 package de.walware.statet.r.internal.core.sourcemodel;
 
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IEnvirInSource;
+import de.walware.statet.r.core.model.IFrame;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
@@ -102,7 +102,7 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 		return RElementName.createDisplayName(this);
 	}
 	
-	public final IEnvirInSource getFrame() {
+	public final IFrame getFrame() {
 		return fShared.frame;
 	}
 	

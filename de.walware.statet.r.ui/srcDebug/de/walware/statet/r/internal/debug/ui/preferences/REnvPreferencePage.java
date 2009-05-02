@@ -194,7 +194,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	}
 	
 	private void createImages() {
-		final Image baseImage = RUI.getImage(RUI.IMG_OBJ_R_ENVIRONMENT);
+		final Image baseImage = RUI.getImage(RUI.IMG_OBJ_R_RUNTIME_ENV);
 		fEnvIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
 				null, null, null, null, null},
 				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();

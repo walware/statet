@@ -23,10 +23,11 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IEnvirInSource;
+import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IFrameInSource;
 
 
-abstract class Envir implements IEnvirInSource {
+abstract class Envir implements IFrameInSource {
 	
 	
 	public static String createId(final int type, final String name, final int alt) {
@@ -39,7 +40,7 @@ abstract class Envir implements IEnvirInSource {
 		
 		final String name;
 		final List<ElementAccess> entries;
-		IEnvirInSource frame;
+		IFrame frame;
 		int isCreated; // 0=no, 1=search, 2=explicit 
 		
 		public ElementAccessList(final String name) {
@@ -179,7 +180,7 @@ abstract class Envir implements IEnvirInSource {
 			
 			Map<String, ElementAccessList> map = fLateWrite;
 			if (map != null) {
-				final IEnvirInSource defaultScope = this;
+				final IFrame defaultScope = this;
 				ITER_NAMES : for (final ElementAccessList detail : map.values()) {
 					for (int requiredCreation = 1; requiredCreation >= 0; requiredCreation--) {
 						for (int i = 0; i < searchList.length; i++) {
@@ -262,6 +263,10 @@ abstract class Envir implements IEnvirInSource {
 	
 	abstract void runLateResolve(final boolean onlyWrite);
 	
+	public String getName() {
+		return null;
+	}
+	
 	void setModelElement(final IModelElement element) {
 		fModelElement = element;
 	}
@@ -289,7 +294,7 @@ abstract class Envir implements IEnvirInSource {
 		return null;
 	}
 	
-	public int getType() {
+	public int getFrameType() {
 		return fType;
 	}
 	
@@ -318,6 +323,9 @@ abstract class Envir implements IEnvirInSource {
 		return Collections.unmodifiableList(list.entries);
 	}
 	
+	public Object getAdapter(final Class adapter) {
+		return null;
+	}
 	
 //	@Override
 //	public String toString() {

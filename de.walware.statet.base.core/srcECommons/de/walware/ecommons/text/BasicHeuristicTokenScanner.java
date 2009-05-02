@@ -674,7 +674,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 	
 	/**
-	 * Returns the partition at <code>position</code>.
+	 * Returns the partition at current position of the scanner (#fPos).
 	 * 
 	 * @param position the position to get the partition for
 	 * @return the partition at <code>position</code> or a dummy zero-length
@@ -683,6 +683,22 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	protected final ITypedRegion getPartition() {
 		try {
 			return TextUtilities.getPartition(fDocument, fPartitioning.getPartitioning(), fPos, false);
+		}
+		catch (final BadLocationException e) {
+			return new TypedRegion(fPos, 0, "__no_partition_at_all"); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+	 * Returns the partition at <code>position</code>.
+	 * 
+	 * @param position the position to get the partition for
+	 * @return the partition at <code>position</code> or a dummy zero-length
+	 *     partition if accessing the document fails
+	 */
+	public final ITypedRegion getPartition(final int position) {
+		try {
+			return TextUtilities.getPartition(fDocument, fPartitioning.getPartitioning(), position, false);
 		}
 		catch (final BadLocationException e) {
 			return new TypedRegion(fPos, 0, "__no_partition_at_all"); //$NON-NLS-1$

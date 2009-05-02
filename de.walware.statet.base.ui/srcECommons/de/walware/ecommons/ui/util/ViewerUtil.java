@@ -156,12 +156,12 @@ public class ViewerUtil {
 		public Tree tree;
 		public TreeColumnLayout layout;
 		
-		public TreeComposite(final Composite parent, final int tableStyle) {
+		public TreeComposite(final Composite parent, final int treeStyle) {
 			super(parent, SWT.NONE);
 			
 			layout = new TreeColumnLayout();
 			setLayout(layout);
-			tree = new Tree(this, tableStyle);
+			tree = new Tree(this, treeStyle);
 			viewer = new TreeViewer(tree);
 		}
 	}

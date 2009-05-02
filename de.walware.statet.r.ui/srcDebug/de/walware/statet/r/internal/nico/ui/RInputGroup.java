@@ -24,7 +24,7 @@ import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.InputGroup;
 
-import de.walware.statet.r.nico.BasicR;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.nico.ui.RConsolePage;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
@@ -49,7 +49,7 @@ public class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	
 	@Override
 	protected void onPromptUpdate(final Prompt prompt) {
-		if ((prompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+		if ((prompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			final IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
 			fDocument.setPrefix(p.previousInput);
 		}

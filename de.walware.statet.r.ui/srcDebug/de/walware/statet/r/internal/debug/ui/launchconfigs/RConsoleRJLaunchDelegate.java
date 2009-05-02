@@ -37,7 +37,6 @@ import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -45,7 +44,6 @@ import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
-import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
@@ -178,10 +176,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		progress.worked(5);
 		
-		final String startupSnippet = configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null);
-		if (startupSnippet != null && startupSnippet.length() > 0) {
-			controller.submit(RUtil.LINE_SEPARATOR_PATTERN.split(startupSnippet), SubmitType.OTHER);
-		}
+		controller.setStartupSnippet(configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null));
+		controller.setRObjectDB(!configuration.getAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, false));
 		
 		final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page, 

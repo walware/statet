@@ -94,8 +94,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * 
 	 * Usage: This class is intend to be subclassed.
 	 */
-	public static class ConsoleCommandRunnable<T extends IToolRunnableControllerAdapter>
-			extends PlatformObject implements IToolRunnable {
+	public static class ConsoleCommandRunnable extends PlatformObject implements IToolRunnable {
 		
 		public static final String TYPE_ID = "console.text"; //$NON-NLS-1$
 		
@@ -122,9 +121,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return fType;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor)
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
-			tools.submitToConsole(fText, monitor);
+			adapter.submitToConsole(fText, monitor);
 		}
 		
 		public String getCommand() {
@@ -141,6 +140,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	}
 	
 	protected class StartRunnable implements IToolRunnable {
+		
 		public StartRunnable() {
 		}
 		
@@ -162,6 +162,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
 		}
+		
 	};
 	
 	
@@ -297,7 +298,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			fCurrentRunnable = createStartRunnable();
 			startTool(fRunnableProgressMonitor);
 			synchronized (fQueue) {
-				loopChangeStatus(ToolStatus.STARTED_IDLING, null);
+				loopChangeStatus((fControllerRunnable != null) ? ToolStatus.STARTED_PROCESSING : ToolStatus.STARTED_IDLING, null);
 			}
 			loop();
 		}
@@ -1002,8 +1003,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return this;
 	}
 	
-	public final void refreshWorkspaceData(final IProgressMonitor monitor) throws CoreException {
-		fWorkspaceData.controlRefresh(monitor);
+	public final void refreshWorkspaceData(final int options, final IProgressMonitor monitor) throws CoreException {
+		fWorkspaceData.controlRefresh(options, this, monitor);
 	}
 	
 	public ToolWorkspace getWorkspaceData() {

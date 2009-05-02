@@ -58,6 +58,9 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private WritableValue fPinValue;
 	private WritableValue fStartupSnippetValue;
 	
+	private Button fDisableObjectDBControl;
+	private WritableValue fDisableObjectDBValue;
+	
 	
 	public RConsoleOptionsTab() {
 	}
@@ -87,6 +90,10 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			group.setText("R snippet run after startup:");
 			createSnippetOptions(group);
 		}
+		
+		fDisableObjectDBControl = new Button(mainComposite, SWT.CHECK);
+		fDisableObjectDBControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fDisableObjectDBControl.setText("Disabled &Object DB (for Browser)");
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
@@ -155,6 +162,9 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		fStartupSnippetValue = new WritableValue(realm, String.class);
 		dbc.bindValue(new SnippetEditorObservable(realm, fStartupSnippetEditor, SWT.Modify), fStartupSnippetValue, null, null);
+		
+		fDisableObjectDBValue = new WritableValue(realm, Boolean.class);
+		dbc.bindValue(SWTObservables.observeSelection(fDisableObjectDBControl), fDisableObjectDBValue, null, null);
 	}
 	
 	
@@ -182,6 +192,16 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			logReadingError(e);
 		}
 		fStartupSnippetValue.setValue(startupSnippet);
+		
+		boolean disableDB;
+		try {
+			disableDB = configuration.getAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, false);
+		}
+		catch (final CoreException e) {
+			disableDB = false; 
+			logReadingError(e);
+		}
+		fDisableObjectDBValue.setValue(disableDB);
 	}
 	
 	@Override
@@ -194,6 +214,14 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		}
 		else {
 			configuration.removeAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET);
+		}
+		
+		final Boolean disableDB = (Boolean) fDisableObjectDBValue.getValue();
+		if (disableDB != null) {
+			configuration.setAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, disableDB.booleanValue());
+		}
+		else {
+			configuration.removeAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB);
 		}
 	}
 	

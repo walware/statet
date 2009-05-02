@@ -171,4 +171,14 @@ public class RjsUtil {
 		}
 	}
 	
+	public static String getVersionString(final int[] version) {
+		if (version == null) {
+			return "no version information";
+		}
+		if (version.length >= 3) {
+			return ""+version[0]+'.'+version[1]+'.'+version[3];
+		}
+		return "invalid version information";
+	}
+	
 }

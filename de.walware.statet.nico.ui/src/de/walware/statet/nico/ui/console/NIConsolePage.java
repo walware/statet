@@ -105,6 +105,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
@@ -287,11 +288,31 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		private boolean fCurrentBusy = false;
 		private boolean fNewBusy = false;
 		
+		public void init() {
+			final ToolController controller = getConsole().getProcess().getController();
+			synchronized (StatusListener.this) {
+				if (controller != null) {
+					final ToolStatus status = controller.getStatus();
+					isProcessing = (status == ToolStatus.STARTED_PROCESSING || status == ToolStatus.STARTING);
+					isTerminated = (status == ToolStatus.TERMINATED);
+					fCurrentBusy = fNewBusy = (isProcessing || isTerminated);
+				}
+				else {
+					isProcessing = false;
+					isTerminated = true;
+					fCurrentBusy = fNewBusy = true;
+				}
+				fInputGroup.updatePrompt(null);
+				fInputGroup.updateBusy(fCurrentBusy);
+			}
+		}
+		
 		public void handleDebugEvents(final DebugEvent[] events) {
 			final ToolProcess process = getConsole().getProcess();
 			final ToolWorkspace data = process.getWorkspaceData();
 			
 			Prompt prompt = null;
+			boolean match = false;
 			
 			for (final DebugEvent event : events) {
 				final Object source = event.getSource();
@@ -299,10 +320,12 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				if (source == process) {
 					switch (event.getKind()) {
 					case DebugEvent.TERMINATE:
+						match = true;
 						isTerminated = true;
 						onToolTerminated();
 						break;
 					case DebugEvent.MODEL_SPECIFIC:
+						match = true;
 						final int type = (event.getDetail() & ToolProcess.TYPE_MASK);
 						if (type == ToolProcess.STATUS) {
 							isProcessing = (event.getDetail() == ToolProcess.STATUS_PROCESS);
@@ -313,9 +336,13 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				else if (source == data) {
 					if (event.getKind() == DebugEvent.CHANGE
 							&& event.getDetail() == ToolWorkspace.DETAIL_PROMPT) {
+						match = true;
 						prompt = (Prompt) event.getData();
 					}
 				}
+			}
+			if (!match) {
+				return;
 			}
 			final int thisId;
 			final long schedule;
@@ -397,7 +424,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private TextViewerAction fInputRedoAction;
 	
 	// Process control actions
-	private IDebugEventSetListener fDebugListener;
+	private StatusListener fDebugListener;
 	private ConsoleRemoveLaunchAction fRemoveAction;
 	private ConsoleRemoveAllTerminatedAction fRemoveAllAction;
 	private TerminateToolAction fTerminateAction;
@@ -507,7 +534,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		new ConsoleActivationNotifier();
 		fIsCreated = true;
-		fInputGroup.updatePrompt(null);
+		fDebugListener.init();
 		
 		final IDialogSettings dialogSettings = DialogUtil.getDialogSettings(NicoUIPlugin.getDefault(), DIALOG_ID);
 		try {

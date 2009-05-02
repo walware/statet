@@ -11,9 +11,12 @@
 
 package de.walware.statet.base.internal.ui.preferences;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+
+import de.walware.ecommons.ui.SearchContributionItem;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -26,7 +29,8 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 		super(GRID);
 		
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
-		setDescription(Messages.StatetBase_description);
+//		setDescription(Messages.StatetBase_description);
+		setDescription("Special StatET/Eclipse 3.4 Options:");
 	}
 	
 	
@@ -35,30 +39,8 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 	
 	@Override
 	public void createFieldEditors() {
-//		addField(new DirectoryFieldEditor(PreferenceConstants.R_DIRECTORY, 
-//				NicoMessages.getString(I.RES, "RootPage.rDirectory"), getFieldEditorParent()));
-//		
-//		Label label = new Label(getFieldEditorParent(), SWT.LEFT);
-//		label.setText(NicoMessages.getString(I.RES, "RootPage.rDirectory.info"));
-//		GridData gd = new GridData();
-//		gd.horizontalSpan = 2;
-//		label.setLayoutData(gd);
-		
-//		addField(
-//			new BooleanFieldEditor(
-//				P_BOOLEAN,
-//				"&An example of a boolean preference",
-//				getFieldEditorParent()));
-//		
-//		addField(new RadioGroupFieldEditor(
-//			P_CHOICE,
-//			"An example of a multiple-choice preference",
-//			1,
-//			new String[][] { { "&Choice 1", "choice1" }, {
-//				"C&hoice 2", "choice2" }
-//		}, getFieldEditorParent()));
-//		addField(
-//			new StringFieldEditor(P_STRING, "A &text preference:", getFieldEditorParent()));
+		addField(new BooleanFieldEditor(SearchContributionItem.WORKAROUND, 
+				"Enabled search field workaround (requires reopen of the view)", getFieldEditorParent()));
 	}
 	
 }

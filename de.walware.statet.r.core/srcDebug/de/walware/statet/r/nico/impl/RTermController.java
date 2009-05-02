@@ -141,7 +141,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		}
 	}
 	
-	private class UpdateProcessIdTask implements IToolRunnable<IToolRunnableControllerAdapter> {
+	private class UpdateProcessIdTask implements IToolRunnable {
 		
 		
 		public UpdateProcessIdTask() {
@@ -160,7 +160,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 			return "Fetch Process Id";
 		}
 		
-		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor)
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
 			final StringBuilder output = readOutputLine("Sys.getpid()", monitor); //$NON-NLS-1$
 			if (output != null) {
@@ -205,7 +205,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		fWorkspaceData = new RWorkspace(this) {
 			@Override
-			protected void refreshFromTool(final IProgressMonitor monitor) throws CoreException {
+			protected void refreshFromTool(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 				final StringBuilder output = readOutputLine("getwd()", monitor); //$NON-NLS-1$
 				if (output != null) {
 					final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);

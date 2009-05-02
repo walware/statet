@@ -30,6 +30,7 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
@@ -162,6 +163,62 @@ public abstract class SourceEditorViewerConfiguration extends TextSourceViewerCo
 			handler.handleSettingsChanged(groupIds, options);
 		}
 	}
+	public List<ISourceEditorAddon> getAddOns() {
+		return new ArrayList<ISourceEditorAddon>();
+	}
+	
+	
+	@Override
+	public IContentAssistant getContentAssistant(final ISourceViewer sourceViewer) {
+		if (fContentAssistant == null) {
+			fContentAssistant = createContentAssistant(sourceViewer);
+			if (fContentAssistant != null) {
+				ContentAssistPreference.configure(fContentAssistant);
+				fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
+				fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
+				fContentAssistant.setInformationControlCreator(getAssistInformationControlCreator(sourceViewer));
+			}
+		}
+		return fContentAssistant;
+	}
+	
+	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
+		return null;
+	}
+	
+	
+	@Override
+	public IQuickAssistAssistant getQuickAssistAssistant(final ISourceViewer sourceViewer) {
+		if (fQuickAssistant == null) {
+			fQuickAssistant = createQuickAssistant(sourceViewer);
+			if (fQuickAssistant != null) {
+				ContentAssistPreference.configure(fQuickAssistant);
+				fQuickAssistant.setInformationControlCreator(getAssistInformationControlCreator(sourceViewer));
+			}
+		}
+		return fQuickAssistant;
+	}
+	
+	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
+		return super.getQuickAssistAssistant(sourceViewer);
+	}
+	
+	protected IInformationControlCreator getAssistInformationControlCreator(final ISourceViewer sourceViewer) {
+		if (ASSIST_INFO_CREATOR == null) {
+			ASSIST_INFO_CREATOR = new AssistInformationControlCreator();
+		}
+		return ASSIST_INFO_CREATOR;
+	}
+	
+	@Override
+	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType) {
+		return getTextHover(sourceViewer, contentType, ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK);
+	}
+	
+	@Override
+	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType, final int stateMask) {
+		return null;
+	}
 	
 /* For TemplateEditors ********************************************************/
 	
@@ -207,25 +264,6 @@ public abstract class SourceEditorViewerConfiguration extends TextSourceViewerCo
 		
 	}
 	
-	
-	@Override
-	public IContentAssistant getContentAssistant(final ISourceViewer sourceViewer) {
-		if (fContentAssistant == null) {
-			fContentAssistant = createContentAssistant(sourceViewer);
-			if (fContentAssistant != null) {
-				ContentAssistPreference.configure(fContentAssistant);
-				fContentAssistant.setProposalPopupOrientation(IContentAssistant.PROPOSAL_OVERLAY);
-				fContentAssistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
-				fContentAssistant.setInformationControlCreator(getAssistInformationControlCreator(sourceViewer));
-			}
-		}
-		return fContentAssistant;
-	}
-	
-	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
-		return null;
-	}
-	
 	protected ContentAssistant createTemplateVariableContentAssistant(final ISourceViewer sourceViewer, final TemplateVariableProcessor processor) {
 		final ContentAssistant assistant = new ContentAssistant();
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
@@ -234,34 +272,6 @@ public abstract class SourceEditorViewerConfiguration extends TextSourceViewerCo
 			assistant.setContentAssistProcessor(processor, contentType);
 		}
 		return assistant;
-	}
-	
-	
-	@Override
-	public IQuickAssistAssistant getQuickAssistAssistant(final ISourceViewer sourceViewer) {
-		if (fQuickAssistant == null) {
-			fQuickAssistant = createQuickAssistant(sourceViewer);
-			if (fQuickAssistant != null) {
-				ContentAssistPreference.configure(fQuickAssistant);
-				fQuickAssistant.setInformationControlCreator(getAssistInformationControlCreator(sourceViewer));
-			}
-		}
-		return fQuickAssistant;
-	}
-	
-	protected IQuickAssistAssistant createQuickAssistant(final ISourceViewer sourceViewer) {
-		return super.getQuickAssistAssistant(sourceViewer);
-	}
-	
-	protected IInformationControlCreator getAssistInformationControlCreator(final ISourceViewer sourceViewer) {
-		if (ASSIST_INFO_CREATOR == null) {
-			ASSIST_INFO_CREATOR = new AssistInformationControlCreator();
-		}
-		return ASSIST_INFO_CREATOR;
-	}
-	
-	public List<ISourceEditorAddon> getAddOns() {
-		return new ArrayList<ISourceEditorAddon>();
 	}
 	
 }

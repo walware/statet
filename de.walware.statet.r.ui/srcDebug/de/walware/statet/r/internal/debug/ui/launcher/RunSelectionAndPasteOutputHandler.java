@@ -44,6 +44,7 @@ import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
@@ -55,7 +56,8 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.nico.IBasicRAdapter;
+import de.walware.statet.r.nico.IRBasicAdapter;
+import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -65,7 +67,7 @@ import de.walware.statet.r.ui.RUI;
 public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 	
 	
-	private static class R implements IToolRunnable<IBasicRAdapter>, Runnable {
+	private static class R implements IToolRunnable, Runnable {
 		
 		private ISourceEditor fEditor;
 		private IDocument fDocument;
@@ -138,7 +140,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			return SubmitType.TOOLS;
 		}
 		
-		public void changed(final int event, ToolProcess process) {
+		public void changed(final int event, final ToolProcess process) {
 			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
@@ -148,15 +150,16 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 		}
 		
-		public void run(final IBasicRAdapter tools, final IProgressMonitor monitor)
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
+			final IRBasicAdapter r = (IRBasicAdapter) adapter;
 			fOutput = new StringBuilder(200);
 			final IStreamListener listener = new IStreamListener() {
 				public void streamAppended(final String text, final IStreamMonitor monitor) {
 					fOutput.append(text);
 				}
 			};
-			final ToolController controller = tools.getController();
+			final ToolController<? extends RWorkspace> controller = r.getController();
 			try {
 				controller.getStreams().getOutputStreamMonitor().addListener(listener);
 				controller.getStreams().getErrorStreamMonitor().addListener(listener);
@@ -165,9 +168,9 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 						return;
 					}
 					monitor.subTask(fLines[i]);
-					tools.submitToConsole(fLines[i], monitor);
-					if (tools instanceof IRequireSynch) {
-						final Pattern pattern = ((IRequireSynch) tools).synch(monitor);
+					r.submitToConsole(fLines[i], monitor);
+					if (r instanceof IRequireSynch) {
+						final Pattern pattern = ((IRequireSynch) r).synch(monitor);
 						if (pattern != null) {
 							final Matcher matcher = pattern.matcher(fOutput);
 							int idx = -1;
@@ -179,6 +182,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 							}
 						}
 					}
+					r.briefAboutChange(RWorkspace.REFRESH_AUTO);
 				}
 			}
 			finally {

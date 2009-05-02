@@ -18,6 +18,8 @@ import java.util.Set;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
+import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
@@ -52,6 +54,7 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.RContentAssistProcessor;
+import de.walware.statet.r.internal.ui.editors.REditorHover;
 import de.walware.statet.r.internal.ui.editors.RQuickAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.text.r.RCodeScanner2;
@@ -81,6 +84,8 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	private IRCoreAccess fRCoreAccess;
 	
 	private boolean fHandleDefaultContentType;
+	
+	private ITextHover fTextHover;
 	
 	
 	public RSourceViewerConfiguration(
@@ -139,6 +144,15 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		fCommentScanner = new RCommentScanner(colorManager, store, fRCoreAccess.getPrefs());
 		fRoxygenScanner = new RoxygenScanner(colorManager, store, fRCoreAccess.getPrefs());
 		return new ITokenScanner[] { fCodeScanner, fInfixScanner, fStringScanner, fCommentScanner, fRoxygenScanner };
+	}
+	
+	@Override
+	public List<ISourceEditorAddon> getAddOns() {
+		final List<ISourceEditorAddon> addons = super.getAddOns();
+		if (fRAutoEditStrategy != null) {
+			addons.add(fRAutoEditStrategy);
+		}
+		return addons;
 	}
 	
 	
@@ -323,12 +337,16 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	@Override
-	public List<ISourceEditorAddon> getAddOns() {
-		final List<ISourceEditorAddon> addons = super.getAddOns();
-		if (fRAutoEditStrategy != null) {
-			addons.add(fRAutoEditStrategy);
+	public int[] getConfiguredTextHoverStateMasks(final ISourceViewer sourceViewer, final String contentType) {
+		return new int[] { ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK };
+	}
+	
+	@Override
+	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType, final int stateMask) {
+		if (fTextHover == null) {
+			fTextHover = new REditorHover(fEditor);
 		}
-		return addons;
+		return fTextHover;
 	}
 	
 }

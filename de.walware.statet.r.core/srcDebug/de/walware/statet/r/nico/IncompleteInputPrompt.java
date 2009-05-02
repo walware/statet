@@ -30,8 +30,8 @@ public class IncompleteInputPrompt extends Prompt {
 	
 	
 	IncompleteInputPrompt(final Prompt previousPrompt, String lastInput, final String promptText, final int meta) {
-		super(promptText, BasicR.META_PROMPT_INCOMPLETE_INPUT | meta);
-		if ((previousPrompt.meta & BasicR.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+		super(promptText, RTool.META_PROMPT_INCOMPLETE_INPUT | meta);
+		if ((previousPrompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			lastInput = ((IncompleteInputPrompt) previousPrompt).previousInput + lastInput;
 		}
 		previousInput = lastInput;
