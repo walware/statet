@@ -20,11 +20,9 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -37,7 +35,6 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -54,9 +51,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
@@ -74,6 +68,7 @@ import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 import de.walware.ecommons.FastArrayCacheList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ui.HandlerContributionItem;
+import de.walware.ecommons.ui.SearchContributionItem;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -397,7 +392,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private boolean fDoAutoscroll;
 	private Action fScrollLockAction;
 	
-	private ListenerList fToolActions = new ListenerList();
+	private final FastList<IToolRetargetable> fToolListenerList = new FastList<IToolRetargetable>(IToolRetargetable.class);
 	
 	private Action fSelectAllAction;
 	private Action fCopyAction;
@@ -406,8 +401,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private IHandler2 fSearchStartHandler;
 	private IHandler2 fSearchNextHandler;
 	private IHandler2 fSearchPrevHandler;
-	private Text fSearchText;
-	private ToolItem fSearchTextItem;
+	private SearchContributionItem fSearchTextItem;
 	private final SearchPattern fSearchPattern = new SearchPattern(
 			SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH | 
 			SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
@@ -459,10 +453,19 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	public void createPartControl(final Composite parent) {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "de.walware.statet.nico.ui.cmd_history_view"); //$NON-NLS-1$
 		
-		final GridLayout layout = new GridLayout();
-		LayoutUtil.applyCompositeDefaults(layout, 1);
-		layout.verticalSpacing = 0;
-		parent.setLayout(layout);
+		parent.setLayout(LayoutUtil.applySashDefaults(new GridLayout(), 1));
+		
+		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
+			@Override
+			protected void search() {
+				HistoryView.this.search(true, -1);
+			}
+		};
+		
+		if (SearchContributionItem.requiresWorkaround()) {
+			final Control item = fSearchTextItem.create(parent);
+			item.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
 		
 		fTable = new Table(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		fTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -503,7 +506,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			public void keyPressed(final KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_UP && 
 						fTable.getSelectionCount() == 1 && fTable.getSelectionIndex() == 0) {
-					showSearch();
+					fSearchTextItem.show();
 					fTable.deselectAll();
 					e.doit = false;
 				}
@@ -515,22 +518,6 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		createActions();
 		hookContextMenu();
 		contributeToActionBars();
-		
-		parent.addListener(SWT.Resize, new Listener() {
-			public void handleEvent(final Event event) {
-				final int viewWidth = parent.getClientArea().width;
-				if (viewWidth == 0) {
-					return;
-				}
-				final ToolBar toolBar = fSearchTextItem.getParent();
-				final int toolBarWidth = toolBar.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
-				final int minWidth = LayoutUtil.hintWidth(fSearchText, 8);
-				fSearchTextItem.setWidth(Math.max(minWidth,
-						viewWidth - toolBarWidth + fSearchTextItem.getWidth() - 26));
-				toolBar.layout(new Control[] { fSearchText });
-				toolBar.getParent().layout(true, true);
-			}
-		});
 		
 		final DragSource dragSource = new DragSource(fTable, DND.DROP_COPY);
 		dragSource.setTransfer(new Transfer[] { TextTransfer.getInstance() });
@@ -607,7 +594,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		fSearchStartHandler = new AbstractHandler() {
 			public Object execute(final ExecutionEvent arg0) {
-				showSearch();
+				fSearchTextItem.show();
 				return null;
 			}
 		};
@@ -679,36 +666,19 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	private void fillLocalToolBar(final IToolBarManager manager) {
-		manager.add(new ContributionItem("search.text") { //$NON-NLS-1$
-			
-			@Override
-			public void fill(final ToolBar parent, final int index) {
-				fSearchText = new Text(parent, SWT.BORDER | SWT.LEFT | SWT.SINGLE | SWT.SEARCH);
-				fSearchText.setToolTipText(Messages.HistorySearch_Pattern_tooltip);
-				
-				fSearchText.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyPressed(final KeyEvent e) {
-						if (e.keyCode == SWT.ARROW_DOWN) {
-							fTable.setFocus();
-							if (fTable.getSelectionCount() == 0) {
-								final int idx = fTable.getTopIndex();
-								if (idx >= 0) {
-									fTable.setSelection(idx);
-								}
-							}
-						}
-						if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-							search(true, -1);
-						}
-					}
-				});
-				
-				fSearchTextItem = new ToolItem(parent, SWT.SEPARATOR, index);
-				fSearchTextItem.setControl(fSearchText);
-				fSearchTextItem.setWidth(10000); // high value prevents that the toolbar is moved to tabs
-			}
-		});
+//		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
+//			@Override
+//			protected void search() {
+//				HistoryView.this.search(true, -1);
+//			}
+//		};
+		fSearchTextItem.setToolTip(Messages.HistorySearch_Pattern_tooltip);
+		fSearchTextItem.setSizeControl(fTable.getParent());
+		fSearchTextItem.setResultControl(fTable);
+		if (!SearchContributionItem.requiresWorkaround()) {
+			manager.add(fSearchTextItem);
+		}
+		
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 				getSite(), "search.next", IWorkbenchActionDefinitionIds.FIND_NEXT, null, //$NON-NLS-1$
 				StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN_H),
@@ -736,8 +706,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			fProcess.getHistory().addListener(fContentProvider);
 		}
 		scheduleRefresh(true);
-		for (final Object action : fToolActions.getListeners()) {
-			((IToolRetargetable) action).setTool(fProcess);
+		for (final IToolRetargetable action : fToolListenerList.toArray()) {
+			action.setTool(fProcess);
 		}
 	}
 	
@@ -753,11 +723,11 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	public void addToolRetargetable(final IToolRetargetable action) {
-		fToolActions.add(action);
+		fToolListenerList.add(action);
 	}
 	
 	public void removeToolRetargetable(final IToolRetargetable action) {
-		fToolActions.remove(action);
+		fToolListenerList.remove(action);
 	}
 	
 	public void addFilter(final EntryFilter filter) {
@@ -771,7 +741,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	public void search(final String pattern, final boolean forward) {
-		fSearchText.setText(pattern);
+		fSearchTextItem.getSearchText().setText(pattern);
 		search(forward, forward ? 0 : fTable.getItemCount()-1);
 	}
 	
@@ -813,21 +783,13 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fTable.setFocus();
 	}
 	
-	private void showSearch() {
-		if (!UIAccess.isOkToUse(fSearchText)) {
-			return;
-		}
-		
-		fSearchText.setFocus();
-	}
-	
 	private void search(final boolean forward, final int startIdx) {
 		if (!UIAccess.isOkToUse(fTable)) {
 			return;
 		}
 		
 		final int itemCount = fTable.getItemCount();
-		final String text = fSearchText.getText();
+		final String text = fSearchTextItem.getText();
 		if (itemCount == 0 || text.length() == 0) {
 			return;
 		}
@@ -891,7 +853,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		if (process != null) {
 			process.getHistory().removeListener(fContentProvider);
 		}
-		fToolActions.clear();
+		fToolListenerList.clear();
 		fProcess = null;
 		fCopyAction = null;
 		fSubmitAction = null;

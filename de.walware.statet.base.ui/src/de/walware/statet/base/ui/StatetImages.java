@@ -30,6 +30,8 @@ public class StatetImages {
 	
 	public static final String LOCTOOL_SCROLLLOCK = StatetUIPlugin.PLUGIN_ID + "/image/loctool/scrolllock"; //$NON-NLS-1$
 	
+	public static final String LOCTOOL_CLEARSEARCH = StatetUIPlugin.PLUGIN_ID + "/image/loctool/clearsearch"; //$NON-NLS-1$
+	public static final String LOCTOOLD_CLEARSEARCH = StatetUIPlugin.PLUGIN_ID + "/image/loctoold/clearsearch"; //$NON-NLS-1$
 	public static final String lOCTOOL_SYNCHRONIZED = StatetUIPlugin.PLUGIN_ID + "/image/loctool/synchronized"; //$NON-NLS-1$
 	
 	public static final String LOCTOOL_PAUSE = StatetUIPlugin.PLUGIN_ID + "/image/loctool/pause"; //$NON-NLS-1$
