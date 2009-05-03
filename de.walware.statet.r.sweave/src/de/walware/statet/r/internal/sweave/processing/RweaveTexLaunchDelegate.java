@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -39,6 +38,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
+import de.walware.ecommons.FileLocationVariableText;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
@@ -47,7 +47,6 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import net.sourceforge.texlipse.Texlipse;
 
-import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.sweave.Messages;
@@ -158,8 +157,9 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		else if (sweaveProcessing.startsWith(RweaveTexLaunchDelegate.SWEAVE_CONSOLE)) {
 			final String[] split = sweaveProcessing.split(":", 2); //$NON-NLS-1$
 			final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : DEFAULT_CONSOLE_COMMAND;
-			thread.fSweaveCommands = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(command, true);
-			thread.fSweaveCommands = RUtil.escapeBackslash(thread.fSweaveCommands);
+			final FileLocationVariableText text = new FileLocationVariableText(command);
+			text.performPlatformStringSubstitution(true);
+			thread.fSweaveCommands = text;
 		}
 		else {
 			thread.setWorkingDir(null, sweaveFile.getParent(), true);

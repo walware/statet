@@ -29,8 +29,22 @@
 		<topic href="reference/r_console-page.xhtml"
 				label="R Console" />
 	</context>
+	<context id="r_console-launch">
+		<description>The R Console enables command based interaction with R.</description>
+		<topic href="reference/r_console-launch.xhtml"
+				label="Configuration &amp; Launching" />
+		<topic href="reference/r_console-page.xhtml"
+				label="R Console" />
+	</context>
 	<context id="run_in_r">
 		<topic href="reference/r_editor-codesubmit.xhtml"
 				label="Submit Actions" />
+	</context>
+	<context id="r_remote_console-launch">
+		<description>The R Console enables command based interaction with R running on a server.</description>
+		<topic href="reference/r_remote_console-launch.xhtml"
+				label="Configuration &amp; Launching" />
+		<topic href="reference/r_console-page.xhtml"
+				label="R Console" />
 	</context>
 </contexts>

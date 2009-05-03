@@ -18,7 +18,9 @@ import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.WritableValue;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.Dialog;
@@ -38,6 +40,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.ui.dialogs.ButtonGroup;
@@ -124,7 +127,9 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 		}
 		
 		fList.addAll(NicoPlugin.getDefault().getMappingManager().getList());
-		fListViewer.refresh();
+		
+		updateControls();
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(pageComposite, "de.walware.statet.nico.ui.resourcemapping"); //$NON-NLS-1$
 	}
 	
 	protected Composite createTable(final Composite parent) {
@@ -140,7 +145,8 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 				@Override
 				public void update(final ViewerCell cell) {
 					final IResourceMapping mapping = (IResourceMapping) cell.getElement();
-					cell.setText(mapping.getFileStore().toString());
+					final IFileStore fileStore = mapping.getFileStore();
+					cell.setText((fileStore != null) ? fileStore.toString() : "<invalid>");
 				}
 			});
 		}
@@ -162,7 +168,8 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 				@Override
 				public void update(final ViewerCell cell) {
 					final IResourceMapping mapping = (IResourceMapping) cell.getElement();
-					cell.setText(mapping.getRemotePath().toString());
+					final IPath path = mapping.getRemotePath();
+					cell.setText((path != null) ? path.toString() : "<invalid>");
 				}
 			});
 		}
@@ -212,6 +219,7 @@ class EditMappingDialog extends ExtStatusDialog {
 	
 	public EditMappingDialog(final Shell shell, final ResourceMapping mapping, final boolean newMapping) {
 		super(shell);
+		setTitle("Edit Resource Mapping");
 		
 		fMappingId = (!newMapping) ? mapping.getId() : null;
 		fLocalValue = new WritableValue(mapping != null ? mapping.getLocalText() : null, String.class);
@@ -285,7 +293,9 @@ class EditMappingDialog extends ExtStatusDialog {
 					(String) fHostValue.getValue(),
 					(String) fRemoteValue.getValue());
 		}
-		catch (final CoreException e) { return null; }
+		catch (final CoreException e) {
+			return null;
+		}
 	}
 	
 }

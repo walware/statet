@@ -28,11 +28,15 @@
       </topic>
    </topic>
    <topic label="R Console">
-      <topic href="reference/r_console-launch.xhtml" label="Launchning">
+      <topic href="reference/r_console-launch.xhtml" label="Launching">
       </topic>
       <topic href="reference/r_console-page.xhtml" label="The Console">
       </topic>
-      <topic href="reference/r_remote_console-launch.xhtml" label="Launching Remote Console">
+      <topic href="reference/r_remote_console-launch.xhtml" label="Remote Console">
+         <topic href="reference/r_remote_console-rj.xhtml" label="RJ Server">
+         </topic>
+         <topic href="reference/r_remote_console-resourcemapping.xhtml" label="Resource Mapping">
+         </topic>
       </topic>
    </topic>
 </toc>

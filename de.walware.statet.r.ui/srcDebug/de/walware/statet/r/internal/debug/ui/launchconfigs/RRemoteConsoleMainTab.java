@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.net.RMIAddress;
@@ -62,6 +63,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RConsoleLaunching;
 
 
@@ -166,6 +168,7 @@ public class RRemoteConsoleMainTab extends RConsoleMainTab {
 	public void createControl(final Composite parent) {
 		fUpdateJob = new UpdateJob();
 		super.createControl(parent);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IRUIHelpContextIds.R_REMOTE_CONSOLE_LAUNCH);
 	}
 	
 	@Override

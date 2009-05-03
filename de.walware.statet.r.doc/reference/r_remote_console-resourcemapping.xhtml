@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Remote Console - Folder Mapping</title>
+	<meta name="copyright" content="Copyright (c) 2009 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>Remote Folders / Folder Mapping</h1>
+
+<h4>Idea</h4>
+<p>If the same file system directory is accessible locally (on the client) and on the server,
+folder mapping allows to make use of this match. The folder mapping specifies the translation
+of both paths.</p>
+<p>Remote Folders are configured in the preference page
+<span class="uisequence">StatET &gt; Run/Debug &gt; Remote Folders</span>.</p>
+
+<h4>Example</h4>
+<p>For example the working data are store in a directory <code>/home/stephan/mydata</code> 
+on the server with the IP <code>192.168.10.19</code>. This directory is mounted on the Windows 
+client to <code>L:\mydata</code>.
+So you create a folder mapping entry:
+<img alt="Screenshot remote folders preferences" src="../images/screenshot_preferences_remotefolders.png"/>
+</p>
+
+<h4>Detail</h4>
+<p>The Remote Host can also be specified by the host name, but the name must be resolvable
+to an IP address.</p>
+<p>It is irrelevant where the real directory is stored. It can be a client directory, server
+directory or another third storage system. A folder mapping works the directory itself, all 
+subdirectories and all containing files.</p>
+
+<h4>How It Works</h4>
+<p>The mapping works completely transparently for the user.</p>
+<p>For example when sourcing a file (e.g. <code>L:\mydata\project1\script.R</code>), usually
+StatET knows only the local file path, but R on the server needs the path in the file system 
+of the server.  If the file is inside a directory with a configured folder mapping,  StatET 
+can translate automatically the path (to <code>/home/stephan/mydata/project1/script.R</code>).</p>
+<p>Note: not yet all functions of the R console supports path mapping.</p>
+
+</body>
+</html>

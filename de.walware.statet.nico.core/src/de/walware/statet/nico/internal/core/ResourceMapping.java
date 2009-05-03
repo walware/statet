@@ -63,7 +63,7 @@ public class ResourceMapping implements IResourceMapping {
 	 */
 	public ResourceMapping(final String id, final String localPath, final String hostname, final String remotePath) throws CoreException {
 		fId = id;
-		fLocalText = cleanDirectory(localPath);
+		fLocalText = localPath;
 		fFileStore = FileUtil.getFileStore(fLocalText);
 		fHostName = hostname;
 		fRemotePath = new Path(cleanDirectory(remotePath));

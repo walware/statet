@@ -14,4 +14,7 @@
    <context id="cmd_history_view">
       <topic href="reference/cmd_history.xhtml" label="Cmd History"/>
    </context>
+   <context id="resourcemapping">
+      <topic href="reference/r_remote_console-resourcemapping.xhtml" label="Resource Mapping"/>
+   </context>
 </contexts>

@@ -168,7 +168,7 @@ public abstract class FileUtil {
 			}
 		}
 		
-		return null;
+		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No supported filesystem resource."));
 	}
 	
 	

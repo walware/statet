@@ -50,6 +50,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.FileLocationVariableText;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -72,6 +73,7 @@ import net.sourceforge.texlipse.builder.BuilderRegistry;
 import net.sourceforge.texlipse.builder.TexlipseBuilder;
 import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 
@@ -119,18 +121,42 @@ class RweaveTexTool implements Runnable, IProcess {
 			return "r/sweave/commands"; //$NON-NLS-1$
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
+		public void run(final IToolRunnableControllerAdapter r, final IProgressMonitor monitor)
 				throws InterruptedException, CoreException {
 			try {
-				adapter.refreshWorkspaceData(0, monitor);
-				updatePathInformations(adapter.getWorkspaceData());
+				final ToolWorkspace workspace = r.getWorkspaceData();
+				r.refreshWorkspaceData(0, monitor);
+				updatePathInformations(r.getWorkspaceData());
 				if (fStatus.getSeverity() >= IStatus.ERROR) {
 					return;
 				}
 				if (beginSchedulingRule(monitor)) {
-					adapter.submitToConsole(fSweaveCommands, monitor);
-					if (adapter instanceof IRequireSynch) {
-						((IRequireSynch) adapter).synch(monitor);
+					String file = null;
+					String project = null;
+					try {
+						if (fSweaveCommands.requireFile()) {
+							final IFileStore store = EFS.getStore(fSweaveFile.getLocationURI());
+							file = workspace.toToolPath(store);
+							file = RUtil.escapeBackslash(file);
+						}
+						if (fSweaveCommands.requireFile()) {
+							final IFileStore store = EFS.getStore(fSweaveFile.getProject().getLocationURI());
+							project = workspace.toToolPath(store);
+							project = RUtil.escapeBackslash(project);
+						}
+						fSweaveCommands.performResourceStringSubstitution(file, project);
+					}
+					catch (final NullPointerException e) {
+						throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+								Messages.RweaveTexProcessing_Sweave_error_ResourceVariable_message));
+					}
+					catch (final CoreException e) {
+						throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+								Messages.RweaveTexProcessing_Sweave_error_ResourceVariable_message + ' ' + e.getLocalizedMessage()));
+					}
+					r.submitToConsole(fSweaveCommands.getText(), monitor);
+					if (r instanceof IRequireSynch) {
+						((IRequireSynch) r).synch(monitor);
 					}
 				}
 			}
@@ -174,7 +200,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	private String fTexFileExtension;
 	
 	boolean fRunSweave;
-	String fSweaveCommands;
+	FileLocationVariableText fSweaveCommands;
 	ILaunchConfiguration fSweaveConfig;
 	
 	boolean fRunTex;

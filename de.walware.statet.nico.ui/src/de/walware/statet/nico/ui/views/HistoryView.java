@@ -451,8 +451,6 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	@Override
 	public void createPartControl(final Composite parent) {
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "de.walware.statet.nico.ui.cmd_history_view"); //$NON-NLS-1$
-		
 		parent.setLayout(LayoutUtil.applySashDefaults(new GridLayout(), 1));
 		
 		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
@@ -547,6 +545,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		};
 		toolRegistry.addListener(fToolRegistryListener, getViewSite().getPage());
 		connect(toolRegistry.getActiveToolSession(getViewSite().getPage()).getProcess());
+		
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "de.walware.statet.nico.ui.cmd_history_view"); //$NON-NLS-1$
 	}
 	
 	private void updateItem(final TableItem item) {

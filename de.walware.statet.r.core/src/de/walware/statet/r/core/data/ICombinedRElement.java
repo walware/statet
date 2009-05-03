@@ -11,9 +11,9 @@
 
 package de.walware.statet.r.core.data;
 
-import de.walware.statet.r.core.model.IRLangElement;
-
 import de.walware.rj.data.RObject;
+
+import de.walware.statet.r.core.model.IRLangElement;
 
 
 public interface ICombinedRElement extends IRLangElement, RObject {

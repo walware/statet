@@ -71,6 +71,7 @@ public class Messages extends NLS {
 	public static String RweaveTexProcessing_error_UnexpectedError_message;
 	public static String RweaveTexProcessing_info_Canceled_message;
 	public static String RweaveTexProcessing_Sweave_InConsole_label;
+	public static String RweaveTexProcessing_Sweave_error_ResourceVariable_message;
 	public static String RweaveTexProcessing_Sweave_Task_label;
 	public static String RweaveTexProcessing_Sweave_Task_info_Canceled_message;
 	public static String RweaveTexProcessing_Sweave_RCmd_label;

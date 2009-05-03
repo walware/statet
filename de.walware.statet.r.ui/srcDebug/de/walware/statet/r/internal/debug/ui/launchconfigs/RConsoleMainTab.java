@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.debug.ui.HelpRequestor;
@@ -67,6 +68,7 @@ import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.ui.RUI;
 
@@ -208,6 +210,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
+		
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), IRUIHelpContextIds.R_CONSOLE_LAUNCH);
 	}
 	
 	private Composite createROptionsGroup(final Composite parent) {
