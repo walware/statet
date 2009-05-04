@@ -1184,9 +1184,9 @@ public class SourceAnalyzer extends RAstVisitor {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			
-			if (args.ellisisArgs.length > 0) {
-				for (int i = 0; i < args.ellisisArgs.length; i++) {
-					final FCall.Arg argNode = args.ellisisArgs[i];
+			if (args.ellipsisArgs.length > 0) {
+				for (int i = 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg argNode = args.ellipsisArgs[i];
 					if (argNode.hasValue()) {
 						final RAstNode valueNode = argNode.getValueChild();
 						switch (valueNode.getNodeType()) {
@@ -1274,9 +1274,9 @@ public class SourceAnalyzer extends RAstVisitor {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			
-			if (args.ellisisArgs.length > 0) {
-				for (int i = 0; i < args.ellisisArgs.length; i++) {
-					final FCall.Arg argNode = args.ellisisArgs[i];
+			if (args.ellipsisArgs.length > 0) {
+				for (int i = 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg argNode = args.ellipsisArgs[i];
 					if (argNode.hasValue()) {
 						final RAstNode valueNode = argNode.getValueChild();
 						switch (valueNode.getNodeType()) {
@@ -1429,9 +1429,9 @@ public class SourceAnalyzer extends RAstVisitor {
 			REQUEST: for (int i = 0; i < fRequest.length; i++) {
 				if (fRequest[i] == RETURN_STRING_ARRAY) {
 					final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
-					final RAstNode[] array = new RAstNode[args.ellisisArgs.length];
+					final RAstNode[] array = new RAstNode[args.ellipsisArgs.length];
 					for (int j = 0; j < array.length; j++) {
-						final FCall.Arg argNode = args.ellisisArgs[j];
+						final FCall.Arg argNode = args.ellipsisArgs[j];
 						if (argNode.hasValue()) {
 							final RAstNode valueNode = argNode.getValueChild();
 							if (valueNode.getNodeType() == NodeType.STRING_CONST) {
@@ -1612,11 +1612,11 @@ public class SourceAnalyzer extends RAstVisitor {
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			Object returnValue = null;
 			
-			if (args.ellisisArgs.length > 0) {
-				final String[] argNames = new String[args.ellisisArgs.length];
-				final String[] classNames = new String[args.ellisisArgs.length];
-				for (int i = 0; i < args.ellisisArgs.length; i++) {
-					final FCall.Arg arg = args.ellisisArgs[i];
+			if (args.ellipsisArgs.length > 0) {
+				final String[] argNames = new String[args.ellipsisArgs.length];
+				final String[] classNames = new String[args.ellipsisArgs.length];
+				for (int i = 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg arg = args.ellipsisArgs[i];
 					if (arg.hasName()) {
 						argNames[i] = arg.getNameChild().getText();
 					}
@@ -1810,13 +1810,13 @@ public class SourceAnalyzer extends RAstVisitor {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			
-			if (args.ellisisArgs.length > 0) {
+			if (args.ellipsisArgs.length > 0) {
 				final RSourceElementByElementAccess.RClass rClass = requested ?
 								(RSourceElementByElementAccess.RClass) fCurrentSourceContainerBuilder.element : null;
-				final String[] superClassNames = new String[args.ellisisArgs.length];
+				final String[] superClassNames = new String[args.ellipsisArgs.length];
 				
-				for (int i = 0; i < args.ellisisArgs.length; i++) {
-					final FCall.Arg arg = args.ellisisArgs[i];
+				for (int i = 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg arg = args.ellipsisArgs[i];
 					if (arg.hasName()) { // slot
 						final RAstNode nameNode = arg.getNameChild();
 						RSlot slot = null;
@@ -1877,11 +1877,11 @@ public class SourceAnalyzer extends RAstVisitor {
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			
-			if (args.ellisisArgs.length > 0) {
+			if (args.ellipsisArgs.length > 0) {
 				final RSourceElementByElementAccess.RClass classDef = requested ?
 						(RSourceElementByElementAccess.RClass) fCurrentSourceContainerBuilder.element : null;
-				for (int i = 0; i < args.ellisisArgs.length; i++) {
-					final FCall.Arg arg = args.ellisisArgs[i];
+				for (int i = 0; i < args.ellipsisArgs.length; i++) {
+					final FCall.Arg arg = args.ellipsisArgs[i];
 					if (arg.hasName()) { // slot
 						final RAstNode slotNameNode = arg.getNameChild();
 						final String slotName = slotNameNode.getText();

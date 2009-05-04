@@ -13,7 +13,7 @@ package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -354,21 +354,24 @@ public class RAst {
 		public final ArgsDefinition argsDef;
 		public final FCall.Args argsNode;
 		public final FCall.Arg[] allocatedArgs;
-		public final FCall.Arg[] ellisisArgs;
+		public final FCall.Arg[] ellipsisArgs;
 		public final FCall.Arg[] otherArgs;
+		public final int[] argsNode2argsDef;
 		
 		
 		private ReadedFCallArgs(
 				final ArgsDefinition argsDef, 
 				final FCall.Args argsNode, 
 				final FCall.Arg[] allocatedArgs, 
-				final FCall.Arg[] ellisisArgs, 
-				final FCall.Arg[] otherArgs) {
+				final FCall.Arg[] ellipsisArgs, 
+				final FCall.Arg[] otherArgs,
+				final int[] argsNode2argsDef) {
 			this.argsDef = argsDef;
 			this.argsNode = argsNode;
 			this.allocatedArgs = allocatedArgs;
-			this.ellisisArgs = ellisisArgs;
+			this.ellipsisArgs = ellipsisArgs;
 			this.otherArgs = otherArgs;
+			this.argsNode2argsDef = argsNode2argsDef;
 		}
 		
 		
@@ -410,71 +413,183 @@ public class RAst {
 			}
 		}
 		
+		
+		@Override
+		public String toString() {
+			return Arrays.toString(argsNode2argsDef);
+		}
+		
 	}
 	
 	public static final FCall.Arg[] NO_ARGS = new FCall.Arg[0];
 	
+	private static final int FAIL = -1;
+	private static final int ELLIPSIS = -2;
+	private static final int TEST_PARTIAL = -3;
+	private static final int TEST_POSITION = -4;
+		
+	/**
+	 * Reads the arguments of a function call for the given function definition
+	 * 
+	 * If follows mainly the R rules expect if R would fail.
+	 * 
+	 * 1) Exact matching on tags. 
+	 *    a) First supplied named argument matching exactly a formal name
+	 *       is assigned to its formal arguments (position) in <code>argsNode</code>
+	 *    b) Additional supplied arguments matching exactly the formal name
+	 *       with an assignment of a) (error) are added to <code>otherArgs</code>
+	 * 2) Partial matching on tags
+	 *    a) If the name of the supplied argument matches partially more than one 
+	 *       unmatched formal name (error), it is added to <code>otherArgs</code>
+	 *    b) First supplied argument matching partially one unmatched formal name
+	 *       is assigned to its formal arguments (position) in <code>argsNode</code>
+	 *    c) Additional supplied arguments matching partially the unmatched formal name 
+	 *       with an assignment of b) (error) are treated like arguments without any match
+	 *       in 1) and 2) continue with 3).
+	 * 3) Positional matching.
+	 *    a) Any unnamed supplied argument is assigned to unmatched formal
+	 *       arguments (empty positions) in <code>argsNode</code>, in order.
+	 *       Until all If there is a ‘...’ argument or there is no more empty position.
+	 *    b) If there is a ‘...’ argument, all remaining supplied arguments
+	 *       are added to <code>ellipsisArgs</code>
+	 * 4) Remaining supplied arguments (error) are assigned to <code>otherArgs</code>
+	 * 
+	 * (see paragraph 'Argument matching' in 'R Language Definition')
+	 * 
+	 * @param argsNode the arguments of the call
+	 * @param argsDef the arguments definition
+	 * @return
+	 */
 	public static ReadedFCallArgs readArgs(final FCall.Args argsNode, final ArgsDefinition argsDef) {
 		final int nodeArgsCount = argsNode.getChildCount();
 		final int defArgsCount = argsDef.size();
 		final FCall.Arg[] allocatedArgs = (defArgsCount > 0) ? new FCall.Arg[defArgsCount] : NO_ARGS;
-		List<FCall.Arg> autoArgs = null;
-		final int ellipsisIdx = argsDef.indexOf("..."); //$NON-NLS-1$
-		List<FCall.Arg> ellipsisArgs = null;
-		for (int i = 0; i < nodeArgsCount; i++) {
-			final FCall.Arg argNode = argsNode.getChild(i);
+		final int ellipsisDefIdx = argsDef.indexOf("..."); //$NON-NLS-1$
+		
+		final int[] match = new int[nodeArgsCount];
+		int ellipsisCount = 0;
+		int failCount = 0;
+		boolean testPartial = false;
+		boolean testPosition = false;
+		
+		for (int nodeIdx = 0; nodeIdx < nodeArgsCount; nodeIdx++) {
+			final FCall.Arg argNode = argsNode.getChild(nodeIdx);
 			if (argNode.hasName()) {
-				final RAstNode nameNode = argNode.getNameChild();
-				final Arg arg = argsDef.get(nameNode.getText());
-				if (arg != null && arg.index != ellipsisIdx) {
-					allocatedArgs[arg.index] = argNode;
+				final Arg arg = argsDef.get(argNode.getNameChild().getText());
+				if (arg != null && arg.index != ellipsisDefIdx) {
+					if (allocatedArgs[arg.index] == null) {
+						allocatedArgs[arg.index] = argNode;
+						match[nodeIdx] = arg.index;
+					}
+					else {
+						failCount++;
+						match[nodeIdx] = FAIL;
+					}
 				}
 				else {
-					if (ellipsisArgs == null) {
-						ellipsisArgs = new ArrayList<FCall.Arg>(argsNode.getChildCount()-i);
-					}
-					ellipsisArgs.add(argNode);
+					testPartial = true;
+					match[nodeIdx] = TEST_PARTIAL;
 				}
 			}
 			else {
-				if (autoArgs == null) {
-					autoArgs = new ArrayList<FCall.Arg>(argsNode.getChildCount()-i);
-				}
-				autoArgs.add(argNode);
+				testPosition = true;
+				match[nodeIdx] = TEST_POSITION;
 			}
 		}
-		if (autoArgs != null) {
-			final Iterator<FCall.Arg> iter = autoArgs.iterator();
-			int idx = 0;
-			ITER_ARGS: while (iter.hasNext()) {
-				while (idx < defArgsCount) {
-					if (allocatedArgs[idx] == null) {
-						if (ellipsisIdx == idx) {
-							if (ellipsisArgs == null) {
-								ellipsisArgs = autoArgs.subList(idx, autoArgs.size());
-								break ITER_ARGS;
+		
+		final int ellipsisType = (ellipsisDefIdx >= 0) ? ELLIPSIS : FAIL;
+		final int testStop = (ellipsisDefIdx >= 0) ? ellipsisDefIdx : defArgsCount;
+		if (testPartial) {
+			FCall.Arg[] partialArgs = null;
+			ITER_ARGS: for (int nodeIdx = 0; nodeIdx < nodeArgsCount; nodeIdx++) {
+				if (match[nodeIdx] == TEST_PARTIAL) {
+					final FCall.Arg argNode = argsNode.getChild(nodeIdx);
+					final String name = argNode.getNameChild().getText();
+					int matchIdx = -1;
+					for (int defIdx = 0; defIdx < testStop; defIdx++) {
+						if (allocatedArgs[defIdx] == null && argsDef.get(defIdx).name.startsWith(name)) {
+							if (matchIdx < 0) {
+								matchIdx = defIdx;
 							}
 							else {
-								ellipsisArgs.addAll(autoArgs.subList(idx, autoArgs.size()));
-								break ITER_ARGS;
+								failCount++;
+								match[nodeIdx] = FAIL;
+								continue ITER_ARGS;
 							}
 						}
-						else {
-							allocatedArgs[idx++] = iter.next();
+					}
+					if (matchIdx >= 0) {
+						if (partialArgs == null) {
+							partialArgs = new FCall.Arg[testStop];
+							partialArgs[matchIdx] = argNode;
+							match[nodeIdx] = matchIdx;
+							continue ITER_ARGS;
+						}
+						if (partialArgs[matchIdx] == null) {
+							partialArgs[matchIdx] = argNode;
+							match[nodeIdx] = matchIdx;
 							continue ITER_ARGS;
 						}
 					}
-					else {
-						idx++;
+					ellipsisCount++;
+					match[nodeIdx] = ellipsisType;
+					continue ITER_ARGS;
+				}
+			}
+			if (partialArgs != null) {
+				for (int i = 0; i < testStop; i++) {
+					if (partialArgs[i] != null) {
+						allocatedArgs[i] = partialArgs[i];
 					}
 				}
-				break ITER_ARGS;
 			}
 		}
-		return new ReadedFCallArgs(
-				argsDef, argsNode, allocatedArgs,
-				(ellipsisIdx >= 0 && ellipsisArgs != null) ? ellipsisArgs.toArray(new FCall.Arg[ellipsisArgs.size()]) : NO_ARGS,
-				(ellipsisIdx < 0 && ellipsisArgs != null) ? ellipsisArgs.toArray(new FCall.Arg[ellipsisArgs.size()]) : NO_ARGS);
+		
+		if (testPosition) {
+			int defIdx = 0;
+			ITER_ARGS: for (int nodeIdx = 0; nodeIdx < nodeArgsCount; nodeIdx++) {
+				if (match[nodeIdx] == TEST_POSITION) {
+					ITER_DEFS: while (defIdx < testStop) {
+						if (allocatedArgs[defIdx] == null) {
+							match[nodeIdx] = defIdx;
+							allocatedArgs[defIdx++] = argsNode.getChild(nodeIdx);
+							continue ITER_ARGS;
+						}
+						else {
+							defIdx++;
+							continue ITER_DEFS;
+						}
+					}
+					match[nodeIdx] = ellipsisType;
+					ellipsisCount++;
+					continue ITER_ARGS;
+				}
+			}
+			if (ellipsisType != ELLIPSIS) {
+				failCount += ellipsisCount;
+				ellipsisCount = 0;
+			}
+		}
+		
+		final FCall.Arg[] ellipsisArgs = (ellipsisCount > 0) ? new FCall.Arg[ellipsisCount] : NO_ARGS;
+		final FCall.Arg[] otherArgs = (failCount > 0) ? new FCall.Arg[failCount] : NO_ARGS;
+		if (ellipsisCount > 0 || failCount > 0) {
+			int ellipsisIdx = 0;
+			int otherIdx = 0;
+			ITER_ARGS: for (int nodeIdx = 0; nodeIdx < nodeArgsCount; nodeIdx++) {
+				switch (match[nodeIdx]) {
+				case ELLIPSIS:
+					ellipsisArgs[ellipsisIdx++] = argsNode.getChild(nodeIdx);
+					match[nodeIdx] = ellipsisDefIdx;
+					continue ITER_ARGS;
+				case FAIL:
+					otherArgs[otherIdx++] = argsNode.getChild(nodeIdx);
+					continue ITER_ARGS;
+				}
+			}
+		}
+		return new ReadedFCallArgs(argsDef, argsNode,
+				allocatedArgs, ellipsisArgs, otherArgs, match);
 	}
 	
 	/**
