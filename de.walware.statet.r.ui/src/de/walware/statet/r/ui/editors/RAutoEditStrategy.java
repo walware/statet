@@ -38,7 +38,6 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.StringParseInput;
@@ -55,7 +54,7 @@ import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
@@ -564,7 +563,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 		
 		// Compute indent
-		final AstInfo<RAstNode> ast = new AstInfo<RAstNode>(RAst.LEVEL_MINIMAL, 0);
+		final RAstInfo ast = new RAstInfo(RAst.LEVEL_MINIMAL, 0);
 		final RScanner scanner = new RScanner(parseInput, ast);
 		ast.root = scanner.scanSourceUnit();
 		final TextEdit edit = fIndenter.getIndentEdits(dummyDoc, ast, 0,

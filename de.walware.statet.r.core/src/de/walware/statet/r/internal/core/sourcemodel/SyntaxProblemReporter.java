@@ -53,7 +53,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IProblem;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -83,6 +82,7 @@ import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.NullConst;
 import de.walware.statet.r.core.rsource.ast.NumberConst;
 import de.walware.statet.r.core.rsource.ast.Power;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RAstVisitor;
 import de.walware.statet.r.core.rsource.ast.Relational;
@@ -124,7 +124,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	}
 	
 	
-	public void run(final IRSourceUnit unit, final AstInfo<RAstNode> ast, final IProblemRequestor problemRequestor) {
+	public void run(final IRSourceUnit unit, final RAstInfo ast, final IProblemRequestor problemRequestor) {
 		try {
 			fCurrentUnit = unit;
 			fCurrentDoc = unit.getDocument(null);

@@ -23,9 +23,9 @@ import org.eclipse.core.runtime.IAdaptable;
 public interface IModelElement extends IAdaptable {
 	
 	
-	public interface Filter {
+	public interface Filter<T extends IModelElement> {
 		
-		boolean include(IModelElement element);
+		boolean include(T element);
 		
 	}
 	
@@ -59,8 +59,8 @@ public interface IModelElement extends IAdaptable {
 	public boolean isReadOnly();
 	
 	public IModelElement getParent();
-	public boolean hasChildren(Filter filter); // can also be used to visit children
-	public List<? extends IModelElement> getChildren(Filter filter);
+	public boolean hasChildren(Filter<? extends IModelElement> filter); // can also be used to visit children
+	public List<? extends IModelElement> getChildren(Filter<? extends IModelElement> filter);
 	
 	
 }

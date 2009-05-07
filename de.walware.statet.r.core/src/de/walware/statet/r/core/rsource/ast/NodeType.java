@@ -57,12 +57,9 @@ public enum NodeType {
 	
 	MODEL ("~", 1001, Assoc.LEFTSTD), //$NON-NLS-1$
 	
-	A_RIGHT_S ("->", 10001, Assoc.LEFTSTD), //$NON-NLS-1$
-	A_RIGHT_D ("->>", 10001, Assoc.LEFTSTD), //$NON-NLS-1$
-	A_LEFT_E ("=", 10002, Assoc.RIGHTSTD), //$NON-NLS-1$
-	ITEM_EQUAL ("=", 10002, Assoc.RIGHTSTD), //$NON-NLS-1$
-	A_LEFT_S ("<-", 10003, Assoc.RIGHTSTD), //$NON-NLS-1$
-	A_LEFT_D ("<<-", 10003, Assoc.RIGHTSTD), //$NON-NLS-1$
+	A_RIGHT ("->", 10001, Assoc.LEFTSTD), //$NON-NLS-1$
+	A_EQUALS ("=", 10002, Assoc.RIGHTSTD), //$NON-NLS-1$
+	A_LEFT ("<-", 10003, Assoc.RIGHTSTD), //$NON-NLS-1$
 	
 	C_IF ("if", 100001, Assoc.RIGHTSTD), //$NON-NLS-1$
 	C_FOR ("for", 100002, Assoc.LEFTSTD), //$NON-NLS-1$

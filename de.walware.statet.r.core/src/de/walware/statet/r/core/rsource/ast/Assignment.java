@@ -34,7 +34,7 @@ public abstract class Assignment extends StdBinary {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.A_LEFT_S;
+			return NodeType.A_LEFT;
 		}
 		
 		@Override
@@ -63,15 +63,8 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			switch (element.getNodeType()) {
-			case A_LEFT_S:
-			case A_RIGHT_S:
-			case A_LEFT_E:
-				return super.equalsSingle(element);
-			default:
-				return false;
-			}
+		public final boolean isSearchOperator() {
+			return false;
 		}
 		
 	}
@@ -86,7 +79,7 @@ public abstract class Assignment extends StdBinary {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.A_LEFT_D;
+			return NodeType.A_LEFT;
 		}
 		
 		@Override
@@ -111,18 +104,12 @@ public abstract class Assignment extends StdBinary {
 		
 		@Override
 		public final RTerminal getOperator(final int index) {
-			return RTerminal.ARROW_LEFT_S;
+			return RTerminal.ARROW_LEFT_D;
 		}
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			switch (element.getNodeType()) {
-			case A_LEFT_D:
-			case A_RIGHT_D:
-				return super.equalsSingle(element);
-			default:
-				return false;
-			}
+		public final boolean isSearchOperator() {
+			return true;
 		}
 		
 	}
@@ -137,7 +124,7 @@ public abstract class Assignment extends StdBinary {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.A_LEFT_E;
+			return NodeType.A_EQUALS;
 		}
 		
 		@Override
@@ -166,15 +153,8 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			switch (element.getNodeType()) {
-			case A_LEFT_S:
-			case A_RIGHT_S:
-			case A_LEFT_E:
-				return super.equalsSingle(element);
-			default:
-				return false;
-			}
+		public final boolean isSearchOperator() {
+			return false;
 		}
 		
 	}
@@ -189,7 +169,7 @@ public abstract class Assignment extends StdBinary {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.A_RIGHT_S;
+			return NodeType.A_RIGHT;
 		}
 		
 		@Override
@@ -218,15 +198,8 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			switch (element.getNodeType()) {
-			case A_LEFT_S:
-			case A_RIGHT_S:
-			case A_LEFT_E:
-				return super.equalsSingle(element);
-			default:
-				return false;
-			}
+		public final boolean isSearchOperator() {
+			return false;
 		}
 		
 	}
@@ -241,7 +214,7 @@ public abstract class Assignment extends StdBinary {
 		
 		@Override
 		public final NodeType getNodeType() {
-			return NodeType.A_RIGHT_D;
+			return NodeType.A_RIGHT;
 		}
 		
 		@Override
@@ -270,14 +243,8 @@ public abstract class Assignment extends StdBinary {
 		}
 		
 		@Override
-		public final boolean equalsSingle(final RAstNode element) {
-			switch (element.getNodeType()) {
-			case A_LEFT_D:
-			case A_RIGHT_D:
-				return super.equalsSingle(element);
-			default:
-				return false;
-			}
+		public final boolean isSearchOperator() {
+			return true;
 		}
 		
 	}
@@ -293,15 +260,22 @@ public abstract class Assignment extends StdBinary {
 	}
 	
 	
+	public abstract boolean isSearchOperator();
+	
 	abstract Expression getTargetExpr();
 	
 	abstract Expression getSourceExpr();
 	
 	@Override
-	public boolean equalsSingle(final RAstNode element) {
+	public final boolean equalsSingle(final RAstNode element) {
+		if (!(element instanceof Assignment)) {
+			return false;
+		}
+		final Assignment other = (Assignment) element;
 		final RAstNode thisTarget = getTargetExpr().node;
-		final RAstNode otherTarget = ((Assignment) element).getTargetExpr().node;
-		return (	((thisTarget == otherTarget)
+		final RAstNode otherTarget = other.getTargetExpr().node;
+		return (	(isSearchOperator() == other.isSearchOperator())
+				&& 	((thisTarget == otherTarget)
 						|| (thisTarget != null && otherTarget != null && thisTarget.equalsSingle(otherTarget)) )
 				);
 	}

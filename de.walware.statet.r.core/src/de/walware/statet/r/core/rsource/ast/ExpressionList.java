@@ -24,7 +24,7 @@ import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 /**
  * <code>expr; expr; ...</code>
  */
-public abstract class ExpressionList extends RAstNode {
+abstract class ExpressionList extends RAstNode {
 	
 	
 	final List<Expression> fExpressions = new ArrayList<Expression>();

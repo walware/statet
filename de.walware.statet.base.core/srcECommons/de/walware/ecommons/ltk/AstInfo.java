@@ -20,6 +20,9 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 public class AstInfo<NodeT extends IAstNode> {
 	
 	
+	public static final int DEFAULT_LEVEL_MASK = 0xf;
+	
+	
 	public final int level;
 	public final long stamp;
 	public NodeT root;

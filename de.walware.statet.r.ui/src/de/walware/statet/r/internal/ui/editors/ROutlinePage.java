@@ -122,7 +122,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		
 	}
 	
-	private class ContentFilter implements Filter {
+	private class ContentFilter implements Filter<IModelElement> {
 		
 		private boolean hideCommonVariables;
 		private boolean hideLocalDefinitions;

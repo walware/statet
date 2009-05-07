@@ -370,7 +370,7 @@ public abstract class StatextOutlinePage1 extends Page
 	
 	protected abstract IDialogSettings getSettings();
 	
-	protected IModelElement.Filter getContentFilter() {
+	protected IModelElement.Filter<ISourceStructElement> getContentFilter() {
 		return null;
 	}
 	

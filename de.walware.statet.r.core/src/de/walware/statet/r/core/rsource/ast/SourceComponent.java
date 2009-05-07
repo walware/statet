@@ -18,9 +18,6 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.statet.r.core.rlang.RTerminal;
 
 
-/**
- * 
- */
 public class SourceComponent extends ExpressionList {
 	
 	

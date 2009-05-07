@@ -36,7 +36,7 @@ public interface IAstNode extends IRegion {
 	public boolean hasChildren();
 	public int getChildCount();
 	public IAstNode getChild(int index);
-	public IAstNode[] getChildren();
+//	public IAstNode[] getChildren();
 	public int getChildIndex(IAstNode element);
 	
 }

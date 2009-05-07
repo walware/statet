@@ -33,7 +33,7 @@ public interface IRLangElement extends IModelElement {
 	public static final int R_S4SLOT =                 C1_VARIABLE | 0x80;
 	
 	
-	public static final Filter R_S4SLOT_FILTER = new Filter() {
+	public static final Filter<IModelElement> R_S4SLOT_FILTER = new Filter<IModelElement>() {
 		public boolean include(final IModelElement element) {
 			return (element.getElementType() == R_S4SLOT);
 		}

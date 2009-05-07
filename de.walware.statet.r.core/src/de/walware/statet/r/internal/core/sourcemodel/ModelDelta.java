@@ -11,12 +11,12 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElementDelta;
 import de.walware.ecommons.ltk.IModelManager;
 
 import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
 
 /**
@@ -28,9 +28,9 @@ public class ModelDelta implements IModelElementDelta {
 	private final int fLevel;
 	private final IModelElement fElement;
 	private final IRModelInfo fOldInfo;
-	private final AstInfo fOldAst;
+	private final RAstInfo fOldAst;
 	private final IRModelInfo fNewInfo;
-	private final AstInfo fNewAst;
+	private final RAstInfo fNewAst;
 	
 	
 	public ModelDelta(final IModelElement element,
@@ -38,9 +38,9 @@ public class ModelDelta implements IModelElementDelta {
 		fLevel = IModelManager.MODEL_FILE;
 		fElement = element;
 		fOldInfo = oldInfo;
-		fOldAst = (oldInfo != null) ? oldInfo.getAst() : null;
+		fOldAst = (RAstInfo) ((oldInfo != null) ? oldInfo.getAst() : null);
 		fNewInfo = newInfo;
-		fNewAst = (newInfo != null) ? newInfo.getAst() : null;
+		fNewAst = (RAstInfo) ((newInfo != null) ? newInfo.getAst() : null);
 	}
 	
 	
@@ -48,11 +48,11 @@ public class ModelDelta implements IModelElementDelta {
 		return fElement;
 	}
 	
-	public AstInfo getOldAst() {
+	public RAstInfo getOldAst() {
 		return fOldAst;
 	}
 	
-	public AstInfo getNewAst() {
+	public RAstInfo getNewAst() {
 		return fNewAst;
 	}
 	

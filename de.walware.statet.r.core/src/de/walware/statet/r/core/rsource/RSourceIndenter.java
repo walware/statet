@@ -40,6 +40,7 @@ import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.Group;
 import de.walware.statet.r.core.rsource.ast.NodeType;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
@@ -497,7 +498,7 @@ public class RSourceIndenter {
 //		}
 //	}
 	
-	public TextEdit getIndentEdits(final AbstractDocument document, final AstInfo<RAstNode> ast, final int codeOffset, final int firstLine, final int lastLine,
+	public TextEdit getIndentEdits(final AbstractDocument document, final RAstInfo ast, final int codeOffset, final int firstLine, final int lastLine,
 			final IRCoreAccess access) throws CoreException {
 		try {
 			setup(document, ast, access);
@@ -521,7 +522,7 @@ public class RSourceIndenter {
 		fLineLevels = null;
 	}
 	
-	protected void setup(final AbstractDocument document, final AstInfo<RAstNode> ast, final IRCoreAccess access) {
+	protected void setup(final AbstractDocument document, final RAstInfo ast, final IRCoreAccess access) {
 		fCodeStyle = access.getRCodeStyle();
 		fDocument = document;
 		fAst = ast;
@@ -864,11 +865,9 @@ class ScopeFactory {
 			ITER_OPS : while (true) {
 				node = node.getRParent();
 				switch (node.getNodeType()) {
-				case A_LEFT_E:
-				case A_LEFT_S:
-				case A_LEFT_D:
-				case A_RIGHT_S:
-				case A_RIGHT_D:
+				case A_LEFT:
+				case A_EQUALS:
+				case A_RIGHT:
 					continue ITER_OPS;
 				case BLOCK:
 				case SOURCELINES:

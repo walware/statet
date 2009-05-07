@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,23 +9,16 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.model;
+package de.walware.statet.r.core.rsource.ast;
 
-import java.util.Map;
-
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import de.walware.ecommons.ltk.AstInfo;
 
 
-/**
- * Container for model information of a R source unit
- */
-public interface IRModelInfo extends ISourceUnitModelInfo {
+public class RAstInfo extends AstInfo<SourceComponent> {
 	
 	
-	Map<String, ? extends IFrameInSource> getSourceFrames();
-	
-	RAstInfo getAst();
+	public RAstInfo(final int level, final long stamp) {
+		super(level, stamp);
+	}
 	
 }

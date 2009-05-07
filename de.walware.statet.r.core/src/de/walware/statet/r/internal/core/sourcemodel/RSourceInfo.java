@@ -14,22 +14,21 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.IRModelInfo;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
 
 public class RSourceInfo implements IRModelInfo {
 	
 	
-	private final AstInfo<RAstNode> fAst;
+	private final RAstInfo fAst;
 	private final LinkedHashMap<String, Envir> fScope;
 	private final ISourceStructElement fSourceElement;
 	
 	
-	RSourceInfo(final AstInfo<RAstNode> ast, final LinkedHashMap<String, Envir> scopes, final ISourceStructElement unitElement) {
+	RSourceInfo(final RAstInfo ast, final LinkedHashMap<String, Envir> scopes, final ISourceStructElement unitElement) {
 		fAst = ast;
 		fScope = scopes;
 		fSourceElement = unitElement;
@@ -39,7 +38,7 @@ public class RSourceInfo implements IRModelInfo {
 		return fAst.stamp;
 	}
 	
-	public final AstInfo<RAstNode> getAst() {
+	public final RAstInfo getAst() {
 		return fAst;
 	}
 	

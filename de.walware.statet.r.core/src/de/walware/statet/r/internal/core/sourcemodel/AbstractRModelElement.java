@@ -15,26 +15,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.walware.ecommons.ltk.ISourceStructElement;
-
 import de.walware.statet.r.core.model.RModel;
 
 
-public abstract class AbstractRModelElement implements ISourceStructElement {
+public abstract class AbstractRModelElement implements IRLangElementWithSource {
 	
 	
-	private List<ISourceStructElement> NO_CHILDREN = Arrays.asList(new ISourceStructElement[0]);
+	private List<IRLangElementWithSource> NO_CHILDREN = Arrays.asList(new IRLangElementWithSource[0]);
 	
 	
-	List<? extends ISourceStructElement> fChildrenProtected = NO_CHILDREN;
+	List<? extends IRLangElementWithSource> fChildrenProtected = NO_CHILDREN;
 	
 	
-	public boolean hasChildren(final ISourceStructElement.Filter filter) {
+	public boolean hasChildren(final Filter filter) {
 		if (filter == null) {
 			return (!fChildrenProtected.isEmpty());
 		}
 		else {
-			fChildrenProtected.iterator();
 			for (int i = 0; i < fChildrenProtected.size(); i++) {
 				if (filter.include(fChildrenProtected.get(i))) {
 					return true;
@@ -44,13 +41,13 @@ public abstract class AbstractRModelElement implements ISourceStructElement {
 		}
 	}
 	
-	public List<? extends ISourceStructElement> getChildren(final ISourceStructElement.Filter filter) {
+	public List<? extends IRLangElementWithSource> getChildren(final Filter filter) {
 		if (filter == null) {
 			return fChildrenProtected;
 		}
 		else {
-			final ArrayList<ISourceStructElement> filtered = new ArrayList<ISourceStructElement>(fChildrenProtected.size());
-			for (final ISourceStructElement child : fChildrenProtected) {
+			final ArrayList<IRLangElementWithSource> filtered = new ArrayList<IRLangElementWithSource>(fChildrenProtected.size());
+			for (final IRLangElementWithSource child : fChildrenProtected) {
 				if (filter.include(child)) {
 					filtered.add(child);
 				}

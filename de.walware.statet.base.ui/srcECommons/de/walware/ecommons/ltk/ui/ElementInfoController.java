@@ -81,7 +81,7 @@ public class ElementInfoController implements IModelElementInputProvider {
 				}
 				else {
 					final AstInfo<? extends IAstNode> astInfo = fNewInput.getAstInfo(null, false, null);
-					if (astInfo == null || astInfo.level < 1) {
+					if (astInfo == null || (astInfo.level & AstInfo.DEFAULT_LEVEL_MASK) < 1) {
 						return Status.CANCEL_STATUS;
 					}
 					fInput = fNewInput;

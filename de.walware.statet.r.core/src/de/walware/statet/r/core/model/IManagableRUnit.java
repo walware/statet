@@ -11,10 +11,8 @@
 
 package de.walware.statet.r.core.model;
 
-import de.walware.ecommons.ltk.AstInfo;
-
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
 
 /**
@@ -26,8 +24,8 @@ public interface IManagableRUnit extends IRSourceUnit {
 	
 	public Object getModelLockObject();
 	
-	public void setRAst(AstInfo ast);
-	public AstInfo<RAstNode> getCurrentRAst();
+	public void setRAst(RAstInfo ast);
+	public RAstInfo getCurrentRAst();
 	
 	public void setRModel(IRModelInfo model);
 	public IRModelInfo getCurrentRModel();

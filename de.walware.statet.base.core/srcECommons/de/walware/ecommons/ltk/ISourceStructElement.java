@@ -24,7 +24,8 @@ public interface ISourceStructElement extends IModelElement {
 	
 	public IRegion getNameSourceRange();
 	public IRegion getSourceRange();
+	public boolean hasChildren(Filter<? extends IModelElement> filter);
+	public List<? extends ISourceStructElement> getChildren(Filter<? extends IModelElement> filter);
 	
-	public List<? extends ISourceStructElement> getChildren(Filter filter);
 	
 }

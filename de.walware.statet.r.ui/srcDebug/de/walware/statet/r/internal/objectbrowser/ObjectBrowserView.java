@@ -166,7 +166,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 	}
 	
-	private static class ContentFilter implements Filter {
+	private static class ContentFilter implements Filter<IModelElement> {
 		
 		private final boolean fFilterInternal;
 		private final boolean fFilterNoPattern;

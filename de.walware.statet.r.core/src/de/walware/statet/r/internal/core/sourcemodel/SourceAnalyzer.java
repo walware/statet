@@ -26,7 +26,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
@@ -58,6 +57,7 @@ import de.walware.statet.r.core.rsource.ast.NullConst;
 import de.walware.statet.r.core.rsource.ast.NumberConst;
 import de.walware.statet.r.core.rsource.ast.Power;
 import de.walware.statet.r.core.rsource.ast.RAst;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RAstVisitor;
 import de.walware.statet.r.core.rsource.ast.Relational;
@@ -169,10 +169,10 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private IRSourceUnit fCurrentUnit;
 	private int fAnonymCount;
-	private final ArrayList<String> fIdComponents = new ArrayList<String>();
+	private final ArrayList<String> fIdComponents = new ArrayList<String>(32);
 	private LinkedHashMap<String, Envir> fEnvironments;
 	private Map<String, Envir> fDependencyEnvironments;
-	private final ArrayList<Envir> fCurrentEnvironments = new ArrayList<Envir>();
+	private final ArrayList<Envir> fCurrentEnvironments = new ArrayList<Envir>(32);
 	private Envir fGlobalEnvir;
 	private Envir fGenericDefaultEnvir;
 	private Envir fTopLevelEnvir;
@@ -326,7 +326,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
-	public IRModelInfo update(final IRSourceUnit u, final AstInfo<RAstNode> ast) {
+	public IRModelInfo update(final IRSourceUnit u, final RAstInfo ast) {
 		fAnonymCount = 0;
 		fCurrentUnit = u;
 		fEnvironments = new LinkedHashMap<String, Envir>();
@@ -358,7 +358,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			for (final Envir si : fEnvironments.values()) {
 				si.runLateResolve(false);
 			}
-			final AstInfo<RAstNode> newAst = new AstInfo<RAstNode>(RAst.LEVEL_MODEL_DEFAULT, ast.stamp);
+			final RAstInfo newAst = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, ast.stamp);
 			newAst.root = ast.root;
 			final RSourceInfo model = new RSourceInfo(newAst, fEnvironments, fileElement);
 			
@@ -437,10 +437,10 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	private void clean(final ArrayList<?> list) {
-		if (list.size() > 1024) {
+		if (list.size() > 2048) {
 			list.clear();
 			list.trimToSize();
-			list.ensureCapacity(128);
+			list.ensureCapacity(1024);
 		}
 		else {
 			list.clear();
@@ -579,9 +579,9 @@ public class SourceAnalyzer extends RAstVisitor {
 		// Resolve
 		int mode;
 		if (access.getNextSegment() == null) {
-			switch (node.getNodeType()) {
-			case A_LEFT_D:
-			case A_RIGHT_D:
+			switch (node.getOperator(0)) {
+			case ARROW_LEFT_D:
+			case ARROW_RIGHT_D:
 				mode = S_SEARCH;
 				break;
 			default:

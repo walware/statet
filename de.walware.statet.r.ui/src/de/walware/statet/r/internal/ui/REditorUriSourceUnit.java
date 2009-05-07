@@ -36,13 +36,13 @@ import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
 
 public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSourceUnit, IManagableRUnit {
 	
 	
-	private AstInfo<RAstNode> fAst;
+	private RAstInfo fAst;
 	private IRModelInfo fModelInfo;
 	private final Object fModelLock = new Object();
 	
@@ -126,11 +126,11 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 		return fModelLock;
 	}
 	
-	public void setRAst(final AstInfo ast) {
+	public void setRAst(final RAstInfo ast) {
 		fAst = ast;
 	}
 	
-	public AstInfo<RAstNode> getCurrentRAst() {
+	public RAstInfo getCurrentRAst() {
 		return fAst;
 	}
 	

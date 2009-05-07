@@ -316,19 +316,16 @@ public class RAst {
 	
 	public static AssignExpr checkAssign(final RAstNode node) {
 		switch (node.getNodeType()) {
-		case A_LEFT_S:
-		case A_LEFT_E:
-		case A_RIGHT_S:
-		{
+		case A_LEFT:
+		case A_EQUALS:
+		case A_RIGHT:
 			final Assignment assignNode = (Assignment) node;
-			return new AssignExpr(node, AssignExpr.LOCAL, assignNode.getTargetChild(), assignNode.getSourceChild());
-		}
-		case A_LEFT_D:
-		case A_RIGHT_D:
-		{
-			final Assignment assignNode = (Assignment) node;
-			return new AssignExpr(node, AssignExpr.GLOBAL, assignNode.getTargetChild(), assignNode.getSourceChild());
-		}
+			if (assignNode.isSearchOperator()) {
+				return new AssignExpr(node, AssignExpr.GLOBAL, assignNode.getTargetChild(), assignNode.getSourceChild());
+			}
+			else {
+				return new AssignExpr(node, AssignExpr.LOCAL, assignNode.getTargetChild(), assignNode.getSourceChild());
+			}
 		case F_CALL:
 			final FCall callNode = (FCall) node;
 			final RAstNode refChild = callNode.getRefChild();

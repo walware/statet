@@ -33,7 +33,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IUpdate;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -46,7 +45,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.internal.ui.RUIMessages;
 import de.walware.statet.r.ui.RUI;
 
@@ -111,7 +110,7 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 			throws Exception {
 		monitor.subTask(RUIMessages.CorrectIndent_task_UpdateStructure);
 		final AbstractDocument document = su.getDocument(monitor);
-		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) su.getAstInfo(RModel.TYPE_ID, true, monitor);
+		final RAstInfo ast = (RAstInfo) su.getAstInfo(RModel.TYPE_ID, true, monitor);
 		
 		if (monitor.isCanceled()) {
 			return;

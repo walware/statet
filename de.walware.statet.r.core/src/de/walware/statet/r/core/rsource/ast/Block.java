@@ -39,6 +39,10 @@ public class Block extends ExpressionList {
 		return RTerminal.BLOCK_OPEN;
 	}
 	
+	public int getBlockCloseOffset() {
+		return fBlockCloseOffset;
+	}
+	
 	
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {

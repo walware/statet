@@ -15,7 +15,6 @@ import com.ibm.icu.text.DecimalFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.SourceContent;
@@ -28,7 +27,7 @@ import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAst;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 
 
@@ -63,7 +62,7 @@ public class RReconciler {
 	
 	void reconcile(final IManagableRUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
 		// Update AST
-		final AstInfo<RAstNode> ast;
+		final RAstInfo ast;
 		final int type = (u.getModelTypeId().equals(RModel.TYPE_ID) ? u.getElementType() : 0);
 		if (type == 0) {
 			return;
@@ -73,16 +72,16 @@ public class RReconciler {
 				return;
 			}
 			final SourceContent content = u.getContent(monitor);
-			final AstInfo<RAstNode> old = u.getCurrentRAst();
+			final RAstInfo old = u.getCurrentRAst();
 			
 			if (old == null || old.stamp != content.stamp) {
+				ast = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, content.stamp);
 				long startAst;
 				if (LOG_TIME) {
 					startAst = System.nanoTime();
 				}
 				
 				final SourceParseInput input = new StringParseInput(content.text);
-				ast = new AstInfo<RAstNode>(RAst.LEVEL_MODEL_DEFAULT, content.stamp);
 				ast.root = new RScanner(input, ast, fAstStringCache1).scanSourceUnit();
 				
 				if (LOG_TIME) {
@@ -127,10 +126,10 @@ public class RReconciler {
 				synchronized (u.getModelLockObject()) {
 					if (isOK) {
 						oldModel = u.getCurrentRModel();
-						final AstInfo<RAstNode> oldAst = u.getCurrentRAst();
+						final RAstInfo oldAst = u.getCurrentRAst();
 						if (oldAst == null || oldAst.stamp == newModel.getStamp()) {
 							// otherwise, the ast is probably newer
-							u.setRAst(newModel.getAst());
+							u.setRAst((RAstInfo) newModel.getAst());
 						}
 						u.setRModel(newModel);
 					}

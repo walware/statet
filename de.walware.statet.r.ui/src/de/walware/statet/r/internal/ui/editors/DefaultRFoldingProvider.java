@@ -28,7 +28,6 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 
-import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElementDelta;
 import de.walware.ecommons.ltk.ui.IModelElementInputListener;
@@ -48,6 +47,7 @@ import de.walware.statet.r.core.rsource.ast.CWhileLoop;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.ui.editors.REditor;
 
@@ -213,12 +213,12 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		
 		public final ProjectionAnnotationModel fModel;
 		public final AbstractDocument fDocument;
-		public final AstInfo<RAstNode> fAst;
+		public final RAstInfo fAst;
 		public final LinkedHashMap<Position, ProjectionAnnotation> fTable = new LinkedHashMap<Position, ProjectionAnnotation>();
 		
 		public final boolean fIsInitial;
 		
-		protected FoldingStructureComputationContext(final AbstractDocument document, final AstInfo<RAstNode> ast, final ProjectionAnnotationModel model,
+		protected FoldingStructureComputationContext(final AbstractDocument document, final RAstInfo ast, final ProjectionAnnotationModel model,
 				final boolean isInitial) {
 			fModel = model;
 			fAst = ast;
@@ -329,7 +329,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 			return null;
 		}
 		final IProgressMonitor monitor = new NullProgressMonitor();
-		final AstInfo<RAstNode> ast = (AstInfo<RAstNode>) input.fUnit.getAstInfo(RModel.TYPE_ID, false, monitor);
+		final RAstInfo ast = (RAstInfo) input.fUnit.getAstInfo(RModel.TYPE_ID, false, monitor);
 		final AbstractDocument document = input.fUnit.getDocument(monitor);
 		if (ast == null || document == null || ast.stamp != document.getModificationStamp()) {
 			return null;

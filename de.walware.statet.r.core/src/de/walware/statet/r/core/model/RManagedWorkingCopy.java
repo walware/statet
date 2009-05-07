@@ -19,7 +19,8 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
@@ -29,7 +30,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy implements IRSourceUnit, IManagableRUnit {
 	
 	
-	private AstInfo<RAstNode> fAst;
+	private RAstInfo fAst;
 	private IRModelInfo fModelInfo;
 	private final Object fModelLock = new Object();
 	
@@ -72,7 +73,7 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 		RCorePlugin.getDefault().getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
 	
-	public AstInfo<RAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
+	public AstInfo<SourceComponent> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync) {
 				RCorePlugin.getDefault().getRModelManager().reconcile(this, IModelManager.AST, false, monitor);
@@ -97,11 +98,11 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 		return fModelLock;
 	}
 	
-	public void setRAst(final AstInfo ast) {
+	public void setRAst(final RAstInfo ast) {
 		fAst = ast;
 	}
 	
-	public AstInfo<RAstNode> getCurrentRAst() {
+	public RAstInfo getCurrentRAst() {
 		return fAst;
 	}
 	
