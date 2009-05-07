@@ -20,7 +20,8 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.ui.services.IDisposable;
+
+import de.walware.ecommons.IDisposable;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

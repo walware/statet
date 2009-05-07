@@ -27,10 +27,10 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.services.IDisposable;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ui.util.ColorManager;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 import de.walware.ecommons.ui.util.UIAccess;

@@ -82,7 +82,6 @@ public final class BaseCorePlugin extends Plugin {
 		try {
 			if (fSettingsNotifier != null) {
 				fSettingsNotifier.dispose();
-				fSettingsNotifier = null;
 			}
 			if (fContentTypeServices != null) {
 				fContentTypeServices.dispose();

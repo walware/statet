@@ -31,9 +31,9 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.editors.text.ForwardingDocumentProvider;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.services.IDisposable;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
+import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IDocumentModelProvider;
 import de.walware.ecommons.ltk.IProblem;

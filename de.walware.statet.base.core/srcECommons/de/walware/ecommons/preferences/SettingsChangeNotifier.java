@@ -97,8 +97,18 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 	private ListenerList fListeners = new ListenerList();
 	private Map<String, NotifyJob> fPendingJobs = new HashMap<String, NotifyJob>();
 	
+	private boolean fIsDisposed;
+	
+	
+	public SettingsChangeNotifier() {
+		fIsDisposed = false;
+	}
+	
 	
 	public Job getNotifyJob(String source, final String[] groupIds) {
+		if (fIsDisposed) {
+			return null;
+		}
 		if (source == null) {
 			source = "direct"; //$NON-NLS-1$
 		}
@@ -123,22 +133,31 @@ public class SettingsChangeNotifier implements ISchedulingRule {
 	}
 	
 	public void addChangeListener(final ChangeListener listener) {
-		fListeners.add(listener);
+		if (!fIsDisposed) {
+			fListeners.add(listener);
+		}
 	}
 	
 	public void removeChangeListener(final ChangeListener listener) {
-		fListeners.remove(listener);
+		if (!fIsDisposed) {
+			fListeners.remove(listener);
+		}
 	}
 	
 	public void addManageListener(final ManageListener listener) {
-		fManagers.add(listener);
+		if (!fIsDisposed) {
+			fManagers.add(listener);
+		}
 	}
 	
 	public void removeManageListener(final ManageListener listener) {
-		fManagers.remove(listener);
+		if (!fIsDisposed) {
+			fManagers.remove(listener);
+		}
 	}
 	
 	public void dispose() {
+		fIsDisposed = true;
 		fManagers.clear();
 		fListeners.clear();
 	}
