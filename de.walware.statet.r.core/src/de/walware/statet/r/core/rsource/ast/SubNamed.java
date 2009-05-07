@@ -145,8 +145,8 @@ public abstract class SubNamed extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fExpr.node.accept(visitor);
-		fSubname.accept(visitor);
+		visitor.visit(fExpr.node);
+		visitor.visit(fSubname);
 	}
 	
 	

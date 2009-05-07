@@ -148,10 +148,10 @@ public class CIfElse extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fCondExpr.node.accept(visitor);
-		fThenExpr.node.accept(visitor);
+		visitor.visit(fCondExpr.node);
+		visitor.visit(fThenExpr.node);
 		if (fWithElse) {
-			fElseExpr.node.accept(visitor);
+			visitor.visit(fElseExpr.node);
 		}
 	}
 	

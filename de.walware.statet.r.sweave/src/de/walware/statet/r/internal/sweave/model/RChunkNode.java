@@ -85,7 +85,7 @@ public class RChunkNode implements IAstNode {
 	}
 	
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fRSource.accept(visitor);
+		visitor.visit(fRSource);
 	}
 	
 	

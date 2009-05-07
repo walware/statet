@@ -76,7 +76,9 @@ abstract class SpecList extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		acceptChildren(visitor, fSpecs);
+		for (final RAstNode child : fSpecs) {
+			visitor.visit(child);
+		}
 	}
 	
 	

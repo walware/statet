@@ -75,7 +75,9 @@ abstract class ExpressionList extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		acceptChildrenExpr(visitor, fExpressions);
+		for (final Expression expr : fExpressions) {
+			visitor.visit(expr.node);
+		}
 	}
 	
 	

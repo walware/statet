@@ -151,7 +151,7 @@ public abstract class Sign extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fRightExpr.node.accept(visitor);
+		visitor.visit(fRightExpr.node);
 	}
 	
 	

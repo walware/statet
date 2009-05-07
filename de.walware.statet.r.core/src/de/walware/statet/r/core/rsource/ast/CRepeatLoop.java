@@ -94,7 +94,7 @@ public class CRepeatLoop extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fLoopExpr.node.accept(visitor);
+		visitor.visit(fLoopExpr.node);
 	}
 	
 	

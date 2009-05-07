@@ -98,7 +98,9 @@ public class FCall extends RAstNode {
 		}
 		
 		public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-			acceptChildren(visitor, fSpecs);
+			for (final RAstNode child : fSpecs) {
+				visitor.visit(child);
+			}
 		}
 		
 		
@@ -248,8 +250,8 @@ public class FCall extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fRefExpr.node.accept(visitor);
-		fArgs.accept(visitor);
+		visitor.visit(fRefExpr.node);
+		visitor.visit(fArgs);
 	}
 	
 	

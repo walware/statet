@@ -81,22 +81,49 @@ public abstract class SourceParseInput {
 	}
 	
 	public final boolean subequals(final int num, final char c1) {
-		return (fBuffer[fIndexInBuffer+num-1] == c1);
+		int idx = fIndexInBuffer+num-1; // -1
+		if (idx < fBufferLength) {
+			return (fBuffer[idx] == c1);
+		}
+		updateBuffer();
+		idx = fIndexInBuffer+num;
+		return (idx < fBufferLength
+				&& fBuffer[idx] == c1);
 	}
 	
 	public final boolean subequals(final int num, final char c1, final char c2) {
-		int idx = fIndexInBuffer+num-1;
-		return (fBuffer[idx] == c1 && fBuffer[++idx] == c2);
+		int idx = fIndexInBuffer+num; // -1 +1
+		if (idx < fBufferLength) {
+			return (fBuffer[idx] == c2 && fBuffer[--idx] == c1);
+		}
+		updateBuffer();
+		idx = fIndexInBuffer+num;
+		return (idx < fBufferLength
+				&& fBuffer[idx] == c2 && fBuffer[++idx] == c1);
 	}
 	
 	public final boolean subequals(final int num, final char c1, final char c2, final char c3) {
-		int idx = fIndexInBuffer+num-1;
-		return (fBuffer[idx] == c1 && fBuffer[++idx] == c2 && fBuffer[++idx] == c3);
+		int idx = fIndexInBuffer+num+1; // -1 +2
+		if (idx < fBufferLength) {
+			return (fBuffer[idx] == c3 && fBuffer[--idx] == c2 && fBuffer[--idx] == c1);
+		}
+		updateBuffer();
+		idx = fIndexInBuffer+num+1;
+		return (idx < fBufferLength
+				&& fBuffer[idx] == c3 && fBuffer[--idx] == c2 && fBuffer[--idx] == c1);
 	}
 	
 	public final boolean subequals(final int num, final char[] sequence, int start) {
+		int idx = fIndexInBuffer+num-1;
 		final int length = sequence.length;
-		for (int idx = fIndexInBuffer+num-1; start < length; ) {
+		if (idx+length > fBufferLength) {
+			updateBuffer();
+			idx = fIndexInBuffer+num-1;
+			if (idx+length > fBufferLength) {
+				return false;
+			}
+		}
+		while (start < length) {
 			if (fBuffer[idx++] != sequence[start++]) {
 				return false;
 			}

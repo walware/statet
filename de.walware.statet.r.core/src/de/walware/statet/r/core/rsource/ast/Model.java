@@ -120,9 +120,9 @@ public class Model extends RAstNode {
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		if (fLeftExpr.node != null) {
-			fLeftExpr.node.accept(visitor);
+			visitor.visit(fLeftExpr.node);
 		}
-		fRightExpr.node.accept(visitor);
+		visitor.visit(fRightExpr.node);
 	}
 	
 	

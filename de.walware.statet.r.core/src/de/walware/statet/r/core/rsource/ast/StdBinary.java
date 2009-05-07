@@ -87,8 +87,8 @@ abstract class StdBinary extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fLeftExpr.node.accept(visitor);
-		fRightExpr.node.accept(visitor);
+		visitor.visit(fLeftExpr.node);
+		visitor.visit(fRightExpr.node);
 	}
 	
 	

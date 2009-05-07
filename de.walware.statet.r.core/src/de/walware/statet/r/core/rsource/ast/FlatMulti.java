@@ -80,6 +80,7 @@ abstract class FlatMulti extends RAstNode {
 		return fMultExpr.get(i-1).node;
 	}
 	
+	@Override
 	public final RTerminal getOperator(final int i) {
 		if (i == 0) {
 			return null;
@@ -94,8 +95,10 @@ abstract class FlatMulti extends RAstNode {
 	}
 	
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fLeftExpr.node.accept(visitor);
-		acceptChildrenExpr(visitor, fMultExpr);
+		visitor.visit(fLeftExpr.node);
+		for (final Expression expr : fMultExpr) {
+			visitor.visit(expr.node);
+		}
 	}
 	
 	

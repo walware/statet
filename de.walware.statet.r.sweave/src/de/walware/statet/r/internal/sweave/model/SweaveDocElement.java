@@ -85,7 +85,7 @@ public class SweaveDocElement implements IAstNode {
 	
 	public void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		for (final IAstNode child : fChildren) {
-			child.accept(visitor);
+			visitor.visit(child);
 		}
 	}
 	

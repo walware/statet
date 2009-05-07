@@ -148,21 +148,9 @@ public abstract class RAstNode implements IAstNode {
 		}
 	}
 	
-	protected final void acceptChildren(final ICommonAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {
-		for (final RAstNode child : children) {
-			child.accept(visitor);
-		}
-	}
-	
 	protected final void acceptChildrenExpr(final RAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
 		for (final Expression expr : children) {
 			expr.node.acceptInR(visitor);
-		}
-	}
-	
-	protected final void acceptChildrenExpr(final ICommonAstVisitor visitor, final List<Expression> children) throws InvocationTargetException {
-		for (final Expression expr : children) {
-			expr.node.accept(visitor);
 		}
 	}
 	

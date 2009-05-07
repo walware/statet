@@ -124,8 +124,8 @@ public class CWhileLoop extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fCondExpr.node.accept(visitor);
-		fLoopExpr.node.accept(visitor);
+		visitor.visit(fCondExpr.node);
+		visitor.visit(fLoopExpr.node);
 	}
 	
 	

@@ -137,8 +137,8 @@ public abstract class NSGet extends RAstNode {
 	}
 	
 	public final void acceptInChildren(final ICommonAstVisitor visitor) throws InvocationTargetException {
-		fNamespace.accept(visitor);
-		fElement.accept(visitor);
+		visitor.visit(fNamespace);
+		visitor.visit(fElement);
 	}
 	
 	

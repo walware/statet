@@ -40,12 +40,16 @@ public class BufferedDocumentParseInput extends SourceParseInput {
 	@Override
 	protected void updateBuffer() {
 		final int start = getIndex();
-		final int length = Math.min(getStopIndex()-start, BUFFER_SIZE);
+		int stop = getStopIndex();
+		if (stop < 0) {
+			stop = fDocument.getLength();
+		}
+		final int length = Math.min(stop-start, BUFFER_SIZE);
 		try {
 			fDocument.get(start, length).getChars(0, length, fBuffer, 0);
 			setBuffer(fBuffer, length, 0);
-		} catch (final BadLocationException e) {
-			assert (false);
+		}
+		catch (final BadLocationException e) {
 		}
 	}
 	
@@ -57,7 +61,8 @@ public class BufferedDocumentParseInput extends SourceParseInput {
 	public int getDocumentChar(final int offset) {
 		try {
 			return fDocument.getChar(offset);
-		} catch (final BadLocationException e) {
+		}
+		catch (final BadLocationException e) {
 			return -1;
 		}
 	}
