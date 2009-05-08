@@ -53,4 +53,10 @@ public interface ITextPresentationConstants {
 	
 	public static final String SETTINGSCHANGE_AFFECTSPRESENTATION_KEY = "affects.Presentation"; //$NON-NLS-1$
 	
+	
+	public static final String ANNOTATIONS_COMMON_OCCURRENCES_TYPE = "de.walware.ecommons.editorAnnotations.CommonOccurrences"; //$NON-NLS-1$
+	
+	public static final String ANNOTATIONS_WRITE_OCCURRENCES_TYPE = "de.walware.ecommons.editorAnnotations.WriteOccurrences"; //$NON-NLS-1$
+	
+	
 }

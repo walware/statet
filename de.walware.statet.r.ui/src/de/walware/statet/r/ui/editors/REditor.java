@@ -55,6 +55,7 @@ import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
 import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.ecommons.ltk.ui.LTKInputData;
+import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
@@ -94,10 +95,6 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	
 	private class MarkOccurrencesProvider implements ISourceEditorAddon, ISelectionWithElementInfoListener {
-		
-		// CHECK: Eclipse Bug #205585
-		private static final String READ_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences"; //$NON-NLS-1$
-		private static final String WRITE_ANNOTATION_KEY = "org.eclipse.jdt.ui.occurrences.write"; //$NON-NLS-1$
 		
 		private final class RunData {
 			
@@ -205,7 +202,10 @@ public class REditor extends StatextEditor1<RProject> {
 						final IElementAccess item = accessList[i];
 						final String message = run.doc.get(item.getNode().getOffset(), item.getNode().getLength());
 						annotations.put(
-								new Annotation(item.isWriteAccess() ? WRITE_ANNOTATION_KEY : READ_ANNOTATION_KEY, false, message),
+								new Annotation(item.isWriteAccess() ? 
+										ITextPresentationConstants.ANNOTATIONS_WRITE_OCCURRENCES_TYPE:
+										ITextPresentationConstants.ANNOTATIONS_COMMON_OCCURRENCES_TYPE,
+										false, message),
 								RAst.getElementNamePosition(item.getNameNode()));
 					}
 					return annotations;

@@ -497,11 +497,44 @@
    </extension>
 
    <extension
-         id="de.walware.statet.base.markers.InitialSelection"
+         id="de.walware.ecommons.resourceMarkers.InitialSelection"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="false">
       </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            name="de.walware.ecommons.editorAnnotations.CommonOccurrences"
+            super="org.eclipse.jdt.ui.occurrences">
+      </type>
+      <type
+            name="de.walware.ecommons.editorAnnotations.WriteOccurrences"
+            super="org.eclipse.jdt.ui.occurrences.write">
+      </type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <!-- Preferences are copy of JDT values, but increased priority -->
+      <specification
+            annotationType="de.walware.ecommons.editorAnnotations.WriteOccurrences"
+            includeOnPreferencePage="false"
+            presentationLayer="5"
+            
+            colorPreferenceKey="writeOccurrenceIndicationColor"
+            colorPreferenceValue="240,216,168"
+            overviewRulerPreferenceKey="writeOccurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            verticalRulerPreferenceKey="writeOccurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false"
+            highlightPreferenceKey="writeOccurrenceHighlighting"
+            highlightPreferenceValue="true"
+            textPreferenceKey="writeOccurrenceIndication"
+            textPreferenceValue="false"
+            textStylePreferenceKey="writeOccurrenceTextStyle"
+            textStylePreferenceValue="NONE">
+      </specification>
    </extension>
 
    <extension

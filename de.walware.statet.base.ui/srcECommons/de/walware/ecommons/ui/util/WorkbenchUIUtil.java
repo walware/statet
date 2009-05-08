@@ -73,7 +73,7 @@ public class WorkbenchUIUtil {
 			public void run() {
 				IMarker marker;
 				try { 
-					marker = file.createMarker("de.walware.statet.base.markers.InitialSelection"); //$NON-NLS-1$
+					marker = file.createMarker("de.walware.ecommons.resourceMarkers.InitialSelection"); //$NON-NLS-1$
 					if (initialSelection != null) {
 						marker.setAttribute(IMarker.CHAR_START, initialSelection.getOffset());
 						marker.setAttribute(IMarker.CHAR_END, initialSelection.getOffset() + initialSelection.getLength());
