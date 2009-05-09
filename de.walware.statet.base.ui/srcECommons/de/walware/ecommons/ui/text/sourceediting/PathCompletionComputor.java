@@ -379,7 +379,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 			if (path != null) {
 				// on Windows, path starting with path separator are relative to the device of current directory
 				if (path.isAbsolute() && isWin() && path.getDevice() == null && !path.isUNC()) { 
-					final IPath workspace = getRelativeBase();
+					final IPath workspace = getRelativeBasePath();
 					if (workspace != null) {
 						path = path.setDevice(workspace.getDevice());
 					}
@@ -391,8 +391,11 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 			
 			String completionPrefix = (needSeparatorBeforeStart) ? fPathSeparator : null;
 			
-			if ((baseStore == null || !baseStore.fetchInfo().exists()) && path != null) {
-				return tryAlternative(context, tenders, path, offset-start.length(), start, prefix, completionPrefix);
+			if (baseStore == null || !baseStore.fetchInfo().exists()) {
+				if (path != null) {
+					return tryAlternative(context, tenders, path, offset-start.length(), start, prefix, completionPrefix);
+				}
+				return null;
 			}
 			
 			doAddChildren(context, tenders, baseStore, offset-start.length(), start, completionPrefix);
@@ -481,22 +484,25 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	
 	protected abstract IRegion getContentRange(IDocument document, int offset) throws BadLocationException;
 	
-	protected IPath getRelativeBase() {
+	protected IPath getRelativeBasePath() {
 		return null;
 	}
 	
-	protected IFileStore resolveStore(IPath path) throws CoreException {
+	protected IFileStore getRelativeBaseStore() {
+		return null;
+	}
+	
+	protected IFileStore resolveStore(final IPath path) throws CoreException {
 		if (!path.isAbsolute()) {
-			final IPath workspace = getRelativeBase();
-			if (workspace != null) {
-				path =  workspace.append(path).makeAbsolute();
-				return EFS.getStore(URIUtil.toURI(path));
+			final IFileStore base = getRelativeBaseStore();
+			if (base != null) {
+				return base.getFileStore(path);
 			}
+			return null;
 		}
 		else {
 			return EFS.getStore(URIUtil.toURI(path));
 		}
-		return null;
 	}
 	
 	protected IStatus tryAlternative(final AssistInvocationContext context, final List<IAssistCompletionProposal> matches, final IPath path,

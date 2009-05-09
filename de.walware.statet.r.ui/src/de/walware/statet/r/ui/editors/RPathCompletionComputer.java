@@ -14,8 +14,12 @@ package de.walware.statet.r.ui.editors;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -27,6 +31,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -37,6 +42,7 @@ import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
+import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -52,6 +58,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	
 	private ToolProcess<ToolWorkspace> fAssociatedTool;
+	private IFile fFileResource;
+	private IFileStore fFileStore;
 	
 	
 	public RPathCompletionComputer() {
@@ -65,7 +73,27 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	@Override
 	public void sessionStarted(final ISourceEditor editor) {
-		fAssociatedTool = (ToolProcess<ToolWorkspace>) editor.getAdapter(ITool.class);
+		fAssociatedTool = null;
+		fFileResource = null;
+		fFileStore = null;
+		if (editor instanceof ConsolePageEditor) {
+			fAssociatedTool = (ToolProcess<ToolWorkspace>) editor.getAdapter(ITool.class);
+		}
+		else {
+			final ISourceUnit su = editor.getSourceUnit();
+			if (su != null) {
+				final IResource resource = su.getResource();
+				if (resource instanceof IFile) {
+					fFileResource = (IFile) resource;
+					try {
+						fFileStore = EFS.getStore(fFileResource.getLocationURI());
+					}
+					catch (final CoreException e) {
+					}
+				}
+			}
+		}
+		
 		super.sessionStarted(editor);
 	}
 	
@@ -113,12 +141,30 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	}
 	
 	@Override
-	protected IPath getRelativeBase() {
+	protected IPath getRelativeBasePath() {
 		if (fAssociatedTool != null) {
 			final IFileStore wd = fAssociatedTool.getWorkspaceData().getWorkspaceDir();
 			if (wd != null) {
 				return URIUtil.toPath(wd.toURI());
 			}
+			return null;
+		}
+		if (fFileResource != null) {
+			final IContainer parent = fFileResource.getParent();
+			if (parent != null) {
+				return parent.getRawLocation();
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	protected IFileStore getRelativeBaseStore() {
+		if (fAssociatedTool != null) {
+			return fAssociatedTool.getWorkspaceData().getWorkspaceDir();
+		}
+		if (fFileStore != null) {
+			return fFileStore.getParent();
 		}
 		return null;
 	}
