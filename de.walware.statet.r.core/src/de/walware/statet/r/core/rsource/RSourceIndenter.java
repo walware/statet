@@ -534,15 +534,15 @@ public class RSourceIndenter {
 			fFirstLine = firstLine;
 			fLastLine = lastLine;
 			
-			fScanner.configure(fDocument, null);
+			fScanner.configure(fDocument);
 			
 			fRefLine = -1;
 			int cand = fFirstLine;
 			SEARCH_REF_LINE : while (cand > 0) {
-				int refOffset = fScanner.findNonBlankBackward(fDocument.getLineOffset(cand)-1, RHeuristicTokenScanner.UNBOUND, true);
+				int refOffset = fScanner.findAnyNonBlankBackward(fDocument.getLineOffset(cand)-1, RHeuristicTokenScanner.UNBOUND, true);
 				if (refOffset >= codeOffset) { // line found
 					cand = fDocument.getLineOfOffset(refOffset);
-					refOffset = fScanner.findNonBlankForward(fDocument.getLineOffset(cand), refOffset+1, true);
+					refOffset = fScanner.findAnyNonBlankForward(fDocument.getLineOffset(cand), refOffset+1, true);
 					if (fDocument.getChar(refOffset) != '#' || fDocument.getChar(refOffset+1) == '#') {
 						fRefLine = cand;
 						break SEARCH_REF_LINE;

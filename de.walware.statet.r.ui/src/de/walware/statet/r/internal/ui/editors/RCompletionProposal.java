@@ -13,7 +13,6 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.source.SourceViewer;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
@@ -21,38 +20,41 @@ import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ui.text.sourceediting.ElementNameCompletionProposal;
 
+import de.walware.statet.r.ui.RUI;
+
 
 public class RCompletionProposal extends ElementNameCompletionProposal {
 	
 	
 	public RCompletionProposal(final AssistInvocationContext context, final IElementName elementName, 
-			final int replacementOffset, final IModelElement element, final int defDistance, 
-			final IElementLabelProvider labelProvider) {
-		super(context, elementName, replacementOffset, element, defDistance, labelProvider);
+			final int replacementOffset, final IModelElement replacementName,
+			final int defDistance, final IElementLabelProvider labelProvider) {
+		super(context, elementName, replacementOffset, replacementName, defDistance, labelProvider);
 	}
 	
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void apply(final char trigger, final int stateMask, final int offset) throws BadLocationException {
-		final int length = offset - fReplacementOffset;
-		final SourceViewer viewer = fContext.getSourceViewer();
-		final IDocument document = viewer.getDocument();
+	protected String getPluginId() {
+		return RUI.PLUGIN_ID;
+	}
+	
+	@Override
+	protected void doApply(final char trigger, final int stateMask, final int caretOffset, final int replacementOffset, final int replacementLength) throws BadLocationException {
+		final IDocument document = fContext.getSourceViewer().getDocument();
+		
 		final StringBuilder replacement = new StringBuilder(fReplacementName.getDisplayName());
 		int cursor = replacement.length();
-		if (length > 0 && document.getChar(fReplacementOffset) == '`' && replacement.charAt(0) != '`') {
+		if (replacementLength > 0 && document.getChar(replacementOffset) == '`' && replacement.charAt(0) != '`') {
 			if (replacement.length() != fReplacementName.getSegmentName().length() ||
-					fReplacementOffset+length >= document.getLength() || 
-					document.getChar(fReplacementOffset+length) != '`') {
+					replacementOffset+replacementLength >= document.getLength() || 
+					document.getChar(replacementOffset+replacementLength) != '`') {
 				replacement.insert(fReplacementName.getSegmentName().length(), '`');
 			}
 			replacement.insert(0, '`');
 			cursor += 2;
 		}
-		document.replace(fReplacementOffset, length, replacement.toString());
-		setCursorPosition(fReplacementOffset + cursor);
+		document.replace(replacementOffset, replacementLength, replacement.toString());
+		setCursorPosition(replacementOffset + cursor);
 	}
 	
 }

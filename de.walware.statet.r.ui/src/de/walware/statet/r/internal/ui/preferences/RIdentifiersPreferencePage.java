@@ -379,11 +379,11 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
-	public void onBeforeSave() {
+	public void updatePreferences() {
 		for (int i = 0; i < fCategories.length; i++) {
 			fCategories[i].save();
 		}
-		super.onBeforeSave();
+		super.updatePreferences();
 	}
 	
 	@Override

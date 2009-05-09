@@ -21,14 +21,14 @@ import com.ibm.icu.text.Collator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
+import de.walware.ecommons.ui.text.sourceediting.IAssistInformationProposal;
 import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
@@ -81,7 +81,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+			final int mode, final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+		if (mode == IContentAssistComputer.INFORMATION_MODE) {
+			return null;
+		}
+		
 		if (context.getModelInfo() == null) {
 			return null;
 		}
@@ -125,7 +129,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	}
 	
 	protected void doComputeMainProposals(final AssistInvocationContext context, final IFrameInSource[] envirList, final String orgPrefix, final String namePrefix,
-			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		final Set<String> methodNames = new HashSet<String>();
 		final Set<String> mainNames = new HashSet<String>();
 		
@@ -163,7 +167,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						if ((distance > 0) && names.contains(elementName.getSegmentName()) ) {
 							continue;
 						}
-						final ICompletionProposal proposal = createProposal(context, orgPrefix, elementName, element, distance);
+						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, elementName, element, distance);
 						if (proposal != null) {
 							if (elementName.getNextSegment() == null) {
 								names.add(elementName.getSegmentName());
@@ -184,7 +188,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					if (name.equals(namePrefix) && envir.getAllAccessOfElement(name).size() <= 1) {
 						continue; // prefix itself
 					}
-					final ICompletionProposal proposal = createProposal(context, orgPrefix, name);
+					final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, name);
 					if (proposal != null) {
 						mainNames.add(name);
 						tenders.add(proposal);
@@ -210,7 +214,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	}
 	
 	private void doComputeKeywordProposals(final AssistInvocationContext context, final String prefix,
-			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		if (prefix.length() > 0) {
 			final int offset = context.getInvocationOffset()-prefix.length();
 			final List<String> keywords = fgKeywords;
@@ -223,15 +227,15 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	}
 	
 	protected void doComputeSubProposals(final AssistInvocationContext context, final IFrame[] envirList, final RElementName prefixSegments,
-			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 	}
 	
-	protected ICompletionProposal createProposal(final AssistInvocationContext context, final String prefix, final String name) {
+	protected IAssistCompletionProposal createProposal(final AssistInvocationContext context, final String prefix, final String name) {
 		final int offset = context.getInvocationOffset()-prefix.length();
 		return new SimpleCompletionProposal(name, offset);
 	}
 	
-	protected ICompletionProposal createProposal(final AssistInvocationContext context, final String prefix, final IElementName elementName, final IModelElement element, final int distance) {
+	protected IAssistCompletionProposal createProposal(final AssistInvocationContext context, final String prefix, final IElementName elementName, final IModelElement element, final int distance) {
 		final int offset = context.getInvocationOffset()-prefix.length();
 		return new RCompletionProposal(context, elementName, offset, element, distance, fLabelProvider);
 	}
@@ -240,7 +244,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final List<IContextInformation> tenders, final IProgressMonitor monitor) {
+			final List<IAssistInformationProposal> tenders, final IProgressMonitor monitor) {
 		return null;
 	}
 	

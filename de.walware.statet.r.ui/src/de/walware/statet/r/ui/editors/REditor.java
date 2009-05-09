@@ -38,6 +38,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
@@ -59,6 +60,7 @@ import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.SpecificContentAssistHandler;
 
 import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.base.ui.StatetUIServices;
@@ -73,6 +75,7 @@ import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -418,7 +421,7 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	@Override
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] { "de.walware.statet.r.contexts.REditorScope" }); //$NON-NLS-1$
+		setKeyBindingScopes(new String[] { RSourceViewerConfiguration.R_EDITING_CONTEXT }); 
 	}
 	
 	@Override
@@ -432,6 +435,7 @@ public class REditor extends StatextEditor1<RProject> {
 	@Override
 	protected void createActions() {
 		super.createActions();
+		final IHandlerService handlerService = (IHandlerService) getServiceLocator().getService(IHandlerService.class);
 		
 		Action action = new ContentAssistAction(
 				EditorMessages.getCompatibilityBundle(), "ContentAssistProposal_", this); //$NON-NLS-1$
@@ -445,6 +449,9 @@ public class REditor extends StatextEditor1<RProject> {
 		action = new RDoubleCommentAction(this, getRCoreAccess());
 		setAction(action.getId(), action);
 		markAsContentDependentAction(action.getId(), true);
+		
+		final SpecificContentAssistHandler handler = new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
+		handlerService.activateHandler("de.walware.statet.r.commands.SpecificContentAssist", handler); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -482,6 +489,9 @@ public class REditor extends StatextEditor1<RProject> {
 		}
 		if (IRCoreAccess.class.equals(required)) {
 			return getRCoreAccess();
+		}
+		if (RHeuristicTokenScanner.class.equals(required)) {
+			return new RHeuristicTokenScanner();
 		}
 		return super.getAdapter(required);
 	}

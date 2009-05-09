@@ -26,6 +26,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
+import de.walware.ecommons.ltk.IModelManager;
+
 
 /**
  *
@@ -76,7 +78,7 @@ public class QuickAssistProcessor implements IQuickAssistProcessor {
 	 * @return the context to be passed to the computers
 	 */
 	protected AssistInvocationContext createContext() {
-		return new AssistInvocationContext(getEditor(), -1);
+		return new AssistInvocationContext(getEditor(), -1, IModelManager.MODEL_FILE);
 	}
 	
 	public ICompletionProposal[] computeQuickAssistProposals(final IQuickAssistInvocationContext invocationContext) {

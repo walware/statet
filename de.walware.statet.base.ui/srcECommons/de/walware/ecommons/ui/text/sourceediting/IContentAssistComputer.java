@@ -16,8 +16,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 
 
 /**
@@ -25,6 +23,12 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
  * Contributions to the editor specific extension point must implement this interface.
  */
 public interface IContentAssistComputer {
+	
+	
+	public static final int COMBINED_MODE = 0x1;
+	public static final int SPECIFIC_MODE = 0x2;
+	public static final int INFORMATION_MODE = 0x4;
+	
 	
 	/**
 	 * Informs the computer that a content assist session has started. This call will always be
@@ -39,21 +43,22 @@ public interface IContentAssistComputer {
 	 * Returns a list of completion proposals valid at the given invocation context.
 	 * 
 	 * @param context the context of the content assist invocation
+	 * @param mode one of the mode constant defined in {@link IContentAssistComputer}
+	 * @param tenders a list collecting the completion proposals
 	 * @param monitor a progress monitor to report progress. The monitor is private to this
 	 *     invocation, i.e. there is no need for the receiver to spawn a sub monitor.
-	 * @param tenders a list collecting the completion proposals
 	 */
-	public IStatus computeCompletionProposals(AssistInvocationContext context, List<ICompletionProposal> tenders, IProgressMonitor monitor);
+	public IStatus computeCompletionProposals(AssistInvocationContext context, int mode, List<IAssistCompletionProposal> tenders, IProgressMonitor monitor);
 	
 	/**
 	 * Returns context information objects valid at the given invocation context.
 	 * 
 	 * @param context the context of the content assist invocation
+	 * @param tenders a list collecting the context information objects
 	 * @param monitor a progress monitor to report progress. The monitor is private to this
 	 *     invocation, i.e. there is no need for the receiver to spawn a sub monitor.
-	 * @param tenders a list collecting the context information objects
 	 */
-	public IStatus computeContextInformation(AssistInvocationContext context, List<IContextInformation> tenders, IProgressMonitor monitor);
+	public IStatus computeContextInformation(AssistInvocationContext context, List<IAssistInformationProposal> tenders, IProgressMonitor monitor);
 	
 	/**
 	 * Informs the computer that a content assist session has ended. This call will always be after

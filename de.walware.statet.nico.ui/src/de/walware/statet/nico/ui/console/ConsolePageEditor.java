@@ -25,6 +25,7 @@ import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
@@ -98,7 +99,7 @@ import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 /**
  * The input line (prompt, input, submit button) of the console page.
  */
-public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
+public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor {
 	
 	
 	final static int KEY_HIST_UP = SWT.ARROW_UP;
@@ -398,7 +399,7 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 	private boolean fInHistoryChange = false;
 	
 	
-	public InputGroup(final NIConsolePage page) {
+	public ConsolePageEditor(final NIConsolePage page) {
 		fConsolePage = page;
 		fProcess = page.getConsole().getProcess();
 		
@@ -807,6 +808,9 @@ public class InputGroup implements ISettingsChangedHandler, ISourceEditor {
 		}
 		if (IEditorStatusLine.class.equals(required)) {
 			return fStatusLine;
+		}
+		if (ITextOperationTarget.class.equals(required)) {
+			return fSourceViewer;
 		}
 		return fConsolePage.getAdapter(required);
 	}

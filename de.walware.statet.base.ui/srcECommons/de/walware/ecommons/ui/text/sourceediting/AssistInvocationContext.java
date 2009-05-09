@@ -17,7 +17,6 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Point;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
@@ -41,7 +40,7 @@ public class AssistInvocationContext implements IQuickAssistInvocationContext {
 	private String fPrefix;
 	
 	
-	public AssistInvocationContext(final ISourceEditor editor, final int offset) {
+	public AssistInvocationContext(final ISourceEditor editor, final int offset, final int synch) {
 		fEditor = editor;
 		
 		fSourceViewer = editor.getViewer();
@@ -56,7 +55,7 @@ public class AssistInvocationContext implements IQuickAssistInvocationContext {
 			final NullProgressMonitor monitor = new NullProgressMonitor();
 			final String type = null;
 			// TODO check if/how we can reduce model requirement in content assistant
-			fModelInfo = fSourceUnit.getModelInfo(type, IModelManager.MODEL_FILE, monitor);
+			fModelInfo = fSourceUnit.getModelInfo(type, synch, monitor);
 			fAstInfo = fModelInfo != null ? fModelInfo.getAst() : fSourceUnit.getAstInfo(type, true, monitor);
 			if (fAstInfo != null && fAstInfo.root != null) {
 				fAstSelection = AstSelection.search(fAstInfo.root, getOffset(), getOffset(), AstSelection.MODE_COVERING_SAME_LAST);
@@ -119,7 +118,7 @@ public class AssistInvocationContext implements IQuickAssistInvocationContext {
 	
 	public String getIdentifierPrefix() {
 		if (fPrefix == null) {
-			fPrefix = computeIdentifierPrefix();
+			fPrefix = computeIdentifierPrefix(getInvocationOffset());
 			if (fPrefix == null) {
 				fPrefix = ""; // prevent recomputing //$NON-NLS-1$
 			}
@@ -133,7 +132,7 @@ public class AssistInvocationContext implements IQuickAssistInvocationContext {
 	 * @return the prefix preceding the content assist invocation offset, <code>null</code> if
 	 *     there is no document
 	 */
-	protected String computeIdentifierPrefix() {
+	protected String computeIdentifierPrefix(final int offset) {
 		return null;
 	}
 	

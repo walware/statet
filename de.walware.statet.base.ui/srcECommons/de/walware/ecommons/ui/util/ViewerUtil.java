@@ -13,6 +13,7 @@ package de.walware.ecommons.ui.util;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -147,6 +148,22 @@ public class ViewerUtil {
 			setLayout(layout);
 			table = new Table(this, tableStyle);
 			viewer = new TableViewer(table);
+		}
+	}
+	
+	public static class CheckboxTableComposite extends Composite {
+		
+		public CheckboxTableViewer viewer;
+		public Table table;
+		public TableColumnLayout layout;
+		
+		public CheckboxTableComposite(final Composite parent, final int tableStyle) {
+			super(parent, SWT.NONE);
+			
+			layout = new TableColumnLayout();
+			setLayout(layout);
+			viewer = CheckboxTableViewer.newCheckList(this, tableStyle);
+			table = viewer.getTable();
 		}
 	}
 	

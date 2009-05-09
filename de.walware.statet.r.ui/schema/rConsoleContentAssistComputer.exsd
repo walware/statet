@@ -65,6 +65,16 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="icon" type="string">
+            <annotation>
+               <documentation>
+                  The icon of this category.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="resource"/>
+               </appinfo>
+            </annotation>
+         </attribute>
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
@@ -75,6 +85,25 @@
                </appinfo>
             </annotation>
          </attribute>
+<!--         <attribute name="enableInDefault" type="boolean">
+            <annotation>
+               <documentation>
+                  If the category is enabled in default assist by default.
+               </documentation>
+               <appinfo>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="enableInCircling" type="boolean">
+            <annotation>
+               <documentation>
+                  If the category is enabled in circling assist by default.
+               </documentation>
+               <appinfo>
+               </appinfo>
+            </annotation>
+         </attribute>
+-->
       </complexType>
    </element>
 

@@ -36,6 +36,11 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 public abstract class ConfigurationBlock {
 	
 	
+	public static GridData applyWrapWidth(final GridData gd) {
+		gd.widthHint = 300;
+		return gd;
+	}
+	
 	public static void scheduleChangeNotification(final IWorkbenchPreferenceContainer container, final String[] groupIds, final boolean directly) {
 		if (groupIds != null) {
 			final String source = (directly) ? null : container.toString();
@@ -99,9 +104,7 @@ public abstract class ConfigurationBlock {
 	
 	protected void addLinkHeader(final Composite pageComposite, final String text) {
 		final Link link = addLinkControl(pageComposite, text);
-		final GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gridData.widthHint = 150; // only expand further if anyone else requires it
-		link.setLayoutData(gridData);
+		link.setLayoutData(applyWrapWidth(new GridData(SWT.FILL, SWT.FILL, true, false)));
 		LayoutUtil.addSmallFiller(pageComposite, false);
 	}
 	

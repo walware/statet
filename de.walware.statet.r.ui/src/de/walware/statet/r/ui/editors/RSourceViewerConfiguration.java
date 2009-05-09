@@ -36,6 +36,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.ecommons.ui.text.EcoReconciler;
 import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -69,6 +70,12 @@ import de.walware.statet.r.ui.text.r.RoxygenScanner;
  * Default Configuration for SourceViewer of R code.
  */
 public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration {
+	
+	
+	/**
+	 * Context id (for keybinding etc)
+	 */
+	public static final String R_EDITING_CONTEXT = "de.walware.statet.r.contexts.REditorScope"; //$NON-NLS-1$
 	
 	
 	protected RCodeScanner2 fCodeScanner;
@@ -291,7 +298,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	@Override
 	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
 		if (getSourceEditor() != null) {
-			final ContentAssistant assistant = new ContentAssistant();
+			final ContentAssist assistant = new ContentAssist();
 			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 			
 			initDefaultContentAssist(assistant);
@@ -300,7 +307,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		return null;
 	}
 	
-	public void initDefaultContentAssist(final ContentAssistant assistant) {
+	public void initDefaultContentAssist(final ContentAssist assistant) {
 		final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getREditorContentAssistRegistry();
 		
 		final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,

@@ -392,7 +392,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private Clipboard fClipboard;
 	
 	private OutputViewer fOutputViewer;
-	private InputGroup fInputGroup;
+	private ConsolePageEditor fInputGroup;
 	private SizeController fResizer;
 	private MenuManager fOutputMenuManager;
 	private MenuManager fInputMenuManager;
@@ -454,11 +454,11 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		DebugPlugin.getDefault().addDebugEventListener(fDebugListener);
 	}
 	
-	protected InputGroup createInputGroup() {
-		return new InputGroup(this);
+	protected ConsolePageEditor createInputGroup() {
+		return new ConsolePageEditor(this);
 	}
 	
-	protected InputGroup getInputGroup() {
+	protected ConsolePageEditor getInputGroup() {
 		return fInputGroup;
 	}
 	

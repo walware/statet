@@ -12,8 +12,11 @@
 package de.walware.ecommons.preferences;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 
@@ -414,6 +417,43 @@ public abstract class Preference<T> {
 			}
 			final StringBuilder sb = new StringBuilder();
 			for (final String s : array) {
+				sb.append(s);
+				sb.append(',');
+			}
+			return sb.substring(0, sb.length()-1);
+		}
+	}
+	
+	/**
+	 * Default implementation for preferences of type String-Set
+	 */
+	public static class StringSetPref extends Preference<Set<String>> {
+		
+		public StringSetPref(final String qualifier, final String key) {
+			super(qualifier, key, Type.STRING);
+		}
+		
+		@Override
+		public Class<Set<String>> getUsageType() {
+			final Object o = Set.class;
+			return (Class<Set<String>>) o;
+		}
+		@Override
+		public Set<String> store2Usage(final Object storedValue) {
+			final String s = (String) storedValue;
+			if (s.length() == 0) {
+				return new HashSet<String>(0);
+			}
+			final String[] strings = LIST_SEPARATOR_PATTERN.split(s);
+			return new HashSet<String>(Arrays.asList(strings));
+		}
+		@Override
+		public String usage2Store(final Set<String> set) {
+			if (set.size() == 0) {
+				return ""; //$NON-NLS-1$
+			}
+			final StringBuilder sb = new StringBuilder();
+			for (final String s : set) {
 				sb.append(s);
 				sb.append(',');
 			}

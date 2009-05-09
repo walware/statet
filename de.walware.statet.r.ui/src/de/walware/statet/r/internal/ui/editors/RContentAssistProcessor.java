@@ -11,9 +11,8 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
-import org.eclipse.jface.text.contentassist.ContentAssistant;
-
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -21,15 +20,21 @@ import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 public class RContentAssistProcessor extends ContentAssistProcessor {
 	
-	public RContentAssistProcessor(final ContentAssistant assistant, final String partition, 
+	
+	public RContentAssistProcessor(final ContentAssist assistant, final String partition, 
 			final ContentAssistComputerRegistry registry, final ISourceEditor editor) {
 		super(assistant, partition, registry, editor);
 	}
 	
 	
 	@Override
-	protected AssistInvocationContext createContext(final int offset) {
-		return new RAssistInvocationContext(getEditor(), offset);
+	protected AssistInvocationContext createCompletionProposalContext(final int offset) {
+		return new RAssistInvocationContext(getEditor(), offset, true);
+	}
+	
+	@Override
+	protected AssistInvocationContext createContextInformationContext(final int offset) {
+		return new RAssistInvocationContext(getEditor(), offset, false);
 	}
 	
 }

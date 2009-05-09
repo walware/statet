@@ -79,7 +79,7 @@ public class RDoubleCommentAction extends Action implements IUpdate {
 		final int offset = selection.getOffset();
 		
 		final RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
-		scanner.configure(document, null);
+		scanner.configure(document);
 		if (selection.getLength() == 0 && scanner.isBlankLine(selection.getOffset())) {
 			document.replace(offset, 0, "## "); //$NON-NLS-1$
 			sourceViewer.setSelectedRange(offset+3, 0);

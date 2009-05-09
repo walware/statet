@@ -29,7 +29,6 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension3;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension5;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -63,8 +62,8 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
  * Like default {@link TemplateProposal}, but 
  *   <li>supports {@link ITextEditToolSynchronizer}</li>
  */
-public class TemplateProposal implements ICompletionProposal, ICompletionProposalExtension, ICompletionProposalExtension2, ICompletionProposalExtension3, ICompletionProposalExtension5,
-		IRatedProposal {
+public class TemplateProposal implements IAssistCompletionProposal,
+		ICompletionProposalExtension, ICompletionProposalExtension3, ICompletionProposalExtension5 {
 	
 	public static class TemplateComparator implements Comparator<TemplateProposal> {
 		
@@ -171,6 +170,14 @@ public class TemplateProposal implements ICompletionProposal, ICompletionProposa
 	 */
 	public int getRelevance() {
 		return fRelevance;
+	}
+	
+	public String getSortingString() {
+		return fTemplate.getName();
+	}
+	
+	public boolean isAutoInsertable() {
+		return fTemplate.isAutoInsertable();
 	}
 	
 	/**

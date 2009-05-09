@@ -19,11 +19,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.swt.graphics.Image;
 
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
+import de.walware.ecommons.ui.text.sourceediting.IAssistInformationProposal;
 import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
@@ -137,7 +137,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+			final int mode, final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		final String tagPrefix = getTagPrefix(context);
 		if (tagPrefix != null) {
 			doComputeTagProposals(context, tagPrefix, tenders, monitor);
@@ -178,7 +178,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	}
 	
 	private void doComputeTagProposals(final AssistInvocationContext context, final String prefix,
-		final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+		final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		final int offset = context.getInvocationOffset()-prefix.length();
 		final List<String> keywords = TAG_COMMANDS;
 		for (final String keyword : keywords) {
@@ -192,7 +192,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final List<IContextInformation> tenders, final IProgressMonitor monitor) {
+			final List<IAssistInformationProposal> tenders, final IProgressMonitor monitor) {
 		return null;
 	}
 	

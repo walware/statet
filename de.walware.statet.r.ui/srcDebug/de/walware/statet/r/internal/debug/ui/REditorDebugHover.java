@@ -240,7 +240,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 		init();
 		try {
 			final IDocument document = fEditor.getViewer().getDocument();
-			fScanner.configure(document, null);
+			fScanner.configure(document);
 			final IRegion word = fScanner.findRWord(offset, false, true);
 			if (word != null) {
 				final ITypedRegion partition = fScanner.getPartition(word.getOffset());

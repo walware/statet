@@ -39,7 +39,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 /**
  * Composite with buttons to manipulate list items.
  */
-public abstract class ButtonGroup<ItemType> extends Composite {
+public class ButtonGroup<ItemType> extends Composite {
 	
 	
 	private StructuredViewer fViewer;
@@ -50,6 +50,9 @@ public abstract class ButtonGroup<ItemType> extends Composite {
 	private Button fDeleteButton;
 	
 	private Button fDefaultButton;
+	
+	private Button fUpButton;
+	private Button fDownButton;
 	
 	// Model
 	private IObservableList fList;
@@ -134,33 +137,65 @@ public abstract class ButtonGroup<ItemType> extends Composite {
 		});
 	}
 	
+	public void addUpButton() {
+		fUpButton = new Button(this, SWT.PUSH);
+		fUpButton.setText(SharedMessages.CollectionEditing_MoveItemUp_label);
+		fUpButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fUpButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
+				final ItemType item = getItemToEdit((IStructuredSelection) fViewer.getSelection());
+				if (item != null) {
+					move(item, -1);
+				}
+			}
+		});
+	}
+	
+	public void addDownButton() {
+		fDownButton = new Button(this, SWT.PUSH);
+		fDownButton.setText(SharedMessages.CollectionEditing_MoveItemDown_label);
+		fDownButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fDownButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
+				final ItemType item = getItemToEdit((IStructuredSelection) fViewer.getSelection());
+				if (item != null) {
+					move(item, 1);
+				}
+			}
+		});
+	}
+	
 	public void addSeparator() {
 		LayoutUtil.addSmallFiller(this, false);
 	}
 	
 	public void connectTo(final StructuredViewer viewer, final IObservableList list, final IObservableValue defaultValue) {
 		fViewer = viewer;
-		fViewer.getControl().addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(final KeyEvent event) {
-				if (event.character == SWT.DEL && event.stateMask == 0 && fDeleteButton != null) {
-					final List<ItemType> items = getItemsToDelete((IStructuredSelection) fViewer.getSelection());
-					if (items != null) {
-						delete0(items);
-					}
-				} 
-			}	
-		});
-		fViewer.addDoubleClickListener(new IDoubleClickListener() {
-			public void doubleClick(final DoubleClickEvent event) {
-				if (fEditButton != null) {
+		if (fDeleteButton != null) {
+			fViewer.getControl().addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(final KeyEvent event) {
+					if (event.character == SWT.DEL && event.stateMask == 0 && fDeleteButton != null) {
+						final List<ItemType> items = getItemsToDelete((IStructuredSelection) fViewer.getSelection());
+						if (items != null) {
+							delete0(items);
+						}
+					} 
+				}	
+			});
+		}
+		if (fEditButton != null) {
+			fViewer.addDoubleClickListener(new IDoubleClickListener() {
+				public void doubleClick(final DoubleClickEvent event) {
 					final ItemType item = getItemToEdit((IStructuredSelection) event.getSelection());
 					if (item != null) {
 						edit0(item, false);
 					}
 				}
-			}
-		});
+			});
+		}
 		fViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(final SelectionChangedEvent event) {
 				updateState();
@@ -188,6 +223,13 @@ public abstract class ButtonGroup<ItemType> extends Composite {
 		
 		if (fDefaultButton != null) {
 			fDefaultButton.setEnabled(item != null);
+		}
+		
+		if (fUpButton != null) {
+			fUpButton.setEnabled(item != null);
+		}
+		if (fDownButton != null) {
+			fDownButton.setEnabled(item != null);
 		}
 	}
 	
@@ -252,6 +294,19 @@ public abstract class ButtonGroup<ItemType> extends Composite {
 		if (fDefault != null && item != null) {
 			fDefault.setValue(item);
 		}
+		refresh0();
+	}
+	
+	public void move(final ItemType item, final int direction) {
+		final int oldIdx = fList.indexOf(item);
+		if (oldIdx < 0) {
+			return;
+		}
+		final int newIdx = oldIdx+direction;
+		if (newIdx < 0 || newIdx >= fList.size()) {
+			return;
+		}
+		fList.move(oldIdx, newIdx);
 		refresh0();
 	}
 	

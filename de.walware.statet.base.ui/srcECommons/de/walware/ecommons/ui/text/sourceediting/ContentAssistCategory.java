@@ -36,9 +36,9 @@ public final class ContentAssistCategory {
 	/** The image descriptor for this category, or <code>null</code> if none specified. */
 	private final ImageDescriptor fImage;
 	
-	private boolean fIsEnabledAsSeparate = true;
+	boolean fIsEnabledAsSeparate = false;
 	
-	private boolean fIsIncludedInDefault = true;
+	boolean fIsIncludedInDefault = false;
 	
 	private int fSortOrder = 0x10000;
 	
@@ -55,6 +55,13 @@ public final class ContentAssistCategory {
 		fComputersByPartition = new HashMap<String, List<IContentAssistComputer>>();
 	}
 	
+	ContentAssistCategory(final ContentAssistCategory template) {
+		fId = template.fId;
+		fName = template.fName;
+		fImage = template.fImage;
+		fComputerDescriptors = template.fComputerDescriptors;
+		fComputersByPartition = template.fComputersByPartition;
+	}
 	
 	/**
 	 * Returns the identifier of the described extension.
@@ -98,14 +105,14 @@ public final class ContentAssistCategory {
 		return fIsIncludedInDefault;
 	}
 	
-	public boolean isEnabledAsSeparate() {
+	public boolean isEnabledInCircling() {
 		return fIsEnabledAsSeparate;
 	}
 	
-	public int getSortOrder() {
-		return fSortOrder;
-	}
-	
+//	public int getSortOrder() {
+//		return fSortOrder;
+//	}
+//	
 	public boolean hasComputers(final String contentTypeId) {
 		final List<IContentAssistComputer> computers = fComputersByPartition.get(contentTypeId);
 		if (computers == null) {

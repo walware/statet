@@ -60,6 +60,8 @@ public class SharedMessages extends NLS {
 	public static String CollectionEditing_EditItem_label;
 	public static String CollectionEditing_RemoveItem_label;
 	public static String CollectionEditing_DefaultItem_label;
+	public static String CollectionEditing_MoveItemUp_label;
+	public static String CollectionEditing_MoveItemDown_label;
 	
 	public static String Note_label;
 	

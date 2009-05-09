@@ -16,6 +16,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.ITypedRegion;
 
+import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
@@ -29,49 +30,48 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 public class RAssistInvocationContext extends AssistInvocationContext {
 	
 	
-	public RAssistInvocationContext(final ISourceEditor editor, final int offset) {
-		super(editor, offset);
+	public RAssistInvocationContext(final ISourceEditor editor, final int offset, final boolean isProposal) {
+		super(editor, offset, (isProposal) ? IModelManager.MODEL_FILE : IModelManager.NONE);
 	}
 	
 	
 	@Override
-	protected String computeIdentifierPrefix() {
-		int idx = getInvocationOffset();
+	protected String computeIdentifierPrefix(int offset) {
 		final AbstractDocument document = (AbstractDocument) getSourceViewer().getDocument();
-		if (idx <= 0 || idx > document.getLength()) {
+		if (offset <= 0 || offset > document.getLength()) {
 			return ""; //$NON-NLS-1$
 		}
 		try {
-			ITypedRegion partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), idx, true);
+			ITypedRegion partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset, true);
 			if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
-				idx = partition.getOffset();
+				offset = partition.getOffset();
 			}
-			int goodStart = idx;
-			SEARCH_START: while (idx > 0) {
-				final char c = document.getChar(idx - 1);
+			int goodStart = offset;
+			SEARCH_START: while (offset > 0) {
+				final char c = document.getChar(offset - 1);
 				if (RTokens.isRobustSeparator(c, false)) {
 					switch (c) {
 					case ':':
 					case '$':
 					case '@':
-						idx --;
+						offset --;
 						continue SEARCH_START;
 					case ' ':
 					case '\t':
-						if (idx >= 2) {
-							final char c2 = document.getChar(idx - 2);
-							if ((idx == getInvocationOffset()) ? 
+						if (offset >= 2) {
+							final char c2 = document.getChar(offset - 2);
+							if ((offset == getInvocationOffset()) ? 
 									!RTokens.isRobustSeparator(c, false) :
 									(c2 == ':' && c2 == '$' && c2 == '@')) {
-								idx -= 2;
+								offset -= 2;
 								continue SEARCH_START;
 							}
 						}
 						break SEARCH_START;
 					case '`':
-						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), idx, false);
+						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset, false);
 						if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
-							idx = goodStart = partition.getOffset();
+							offset = goodStart = partition.getOffset();
 							continue SEARCH_START;
 						}
 						else {
@@ -83,13 +83,13 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 					}
 				}
 				else {
-					idx --;
-					goodStart = idx;
+					offset --;
+					goodStart = offset;
 					continue SEARCH_START;
 				}
 			}
 			
-			return document.get(idx, getInvocationOffset() - goodStart);
+			return document.get(offset, getInvocationOffset() - goodStart);
 		}
 		catch (final BadLocationException e) {
 		}

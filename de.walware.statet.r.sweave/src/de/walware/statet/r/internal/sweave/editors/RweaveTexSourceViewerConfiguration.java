@@ -37,6 +37,7 @@ import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.ecommons.ui.text.EcoReconciler;
+import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
@@ -307,7 +308,7 @@ public class RweaveTexSourceViewerConfiguration extends SourceEditorViewerConfig
 	@Override
 	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
 		if (fEditor != null) {
-			final ContentAssistant assistant = new ContentAssistant();
+			final ContentAssist assistant = new ContentAssist();
 			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 			
 			final RChunkTemplatesCompletionProcessor controlProcessor = new RChunkTemplatesCompletionProcessor(fEditor);

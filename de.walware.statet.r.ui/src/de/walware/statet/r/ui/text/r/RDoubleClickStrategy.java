@@ -84,7 +84,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 						|| offset == partitionEnd || offset == partitionEnd-1) {
 					selectRegion(textViewer, getStringContent(document, partition));
 				} else {
-					fScanner.configure(document, null);
+					fScanner.configure(document);
 					final IRegion region = fScanner.findCommonWord(offset);
 					if (region != null) {
 						textViewer.setSelectedRange(region.getOffset(), region.getLength());
@@ -116,7 +116,7 @@ public class RDoubleClickStrategy implements ITextDoubleClickStrategy {
 				return;
 			}
 			
-			fScanner.configure(document, null);
+			fScanner.configure(document);
 			IRegion region = fScanner.findRWord(offset, true, false);
 			if (region != null) {
 				textViewer.setSelectedRange(region.getOffset(), region.getLength());

@@ -52,13 +52,16 @@ import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
  * Allows load, save, restore of managed preferences, including:
  * <p><ul>
  * <li>Connected databinding context:<ul>
- *   <li>use {@link #initBindings()} to create dbc</li>
- *   <li>use {@link #createObservable(Object)} to create observables for model</li>
- *   <li>override {@link #addBindings(DataBindingContext, Realm)}) to register bindings</li>
- * </ul></li>
- * <li>optional project scope</li>
- * <li>change settings groups ({@link SettingsChangeNotifier})</li>
+ *     <li>use {@link #initBindings()} to create dbc</li>
+ *     <li>use {@link #createObservable(Object)} to create observables for model</li>
+ *     <li>override {@link #addBindings(DataBindingContext, Realm)}) to register bindings</li>
+ *   </ul></li>
+ *   <li>optional project scope</li>
+ *   <li>change settings groups ({@link SettingsChangeNotifier})</li>
  * </ul>
+ * Instead of data binding, it is possible to overwrite
+ *   {@link #updatePreferences()} and {@link #updateControls()}
+ * to map the preferences to UI.
  */
 public abstract class ManagedConfigurationBlock extends ConfigurationBlock
 		implements IPreferenceAccess, IObservableFactory {
@@ -413,13 +416,13 @@ public abstract class ManagedConfigurationBlock extends ConfigurationBlock
 	 * Point to hook, before the managed preference values are saved to store.
 	 * E.g. you can set some additional (or all) values.
 	 */
-	protected void onBeforeSave() {
+	protected void updatePreferences() {
 	}
 	
 	@Override
 	public void performApply() {
 		if (fPreferenceManager != null) {
-			onBeforeSave();
+			updatePreferences();
 			fPreferenceManager.processChanges(true);
 		}
 	}
@@ -427,7 +430,7 @@ public abstract class ManagedConfigurationBlock extends ConfigurationBlock
 	@Override
 	public boolean performOk() {
 		if (fPreferenceManager != null) {
-			onBeforeSave();
+			updatePreferences();
 			return fPreferenceManager.processChanges(false);
 		}
 		return false;

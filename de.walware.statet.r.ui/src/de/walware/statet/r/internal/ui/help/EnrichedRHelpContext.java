@@ -99,7 +99,7 @@ public class EnrichedRHelpContext implements IContext3 {
 	private static String getPlaintextFromDocument(final IDocument document, final ISelectionProvider selectionProvider) throws BadLocationException {
 		final ITextSelection textSelection = (ITextSelection) selectionProvider.getSelection();
 		final RHeuristicTokenScanner scanner = new RHeuristicTokenScanner();
-		scanner.configure(document, null);
+		scanner.configure(document);
 		final IRegion region = scanner.findRWord(textSelection.getOffset(), false, true);
 		if (region != null) {
 			return document.get(region.getOffset(), region.getLength());

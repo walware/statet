@@ -134,7 +134,6 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		assert (fOptions != null);
 		
 		fViewer = fEditor.getViewer();
-		// note: at moment, (fEditor3 == null) indicates "console mode"
 		fEditor3 = eclipseEditor;
 		fMyListener = new RealTypeListener();
 	}
@@ -186,7 +185,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
 	private final boolean isClosedString(int offset, final int end, final boolean endVirtual, final char sep) {
-		fScanner.configure(fDocument, null);
+		fScanner.configure(fDocument);
 		boolean in = true; // we start always inside after a sep
 		final char[] chars = new char[] { sep, '\\' };
 		while (offset < end) {
@@ -209,7 +208,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private final boolean isClosedBracket(final int backwardOffset, final int forwardOffset, final int searchType) {
 		int[] balance = new int[3];
 		balance[searchType]++;
-		fScanner.configure(fDocument, IRDocumentPartitions.R_DEFAULT);
+		fScanner.configureDefaultParitions(fDocument);
 		balance = fScanner.computeBracketBalance(backwardOffset, forwardOffset, balance, searchType);
 		return (balance[searchType] <= 0);
 	}
@@ -228,9 +227,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
 	private boolean isAfterRoxygen(final int offset) throws BadLocationException {
-		fScanner.configure(fDocument, null);
+		fScanner.configure(fDocument);
 		final int line = fDocument.getLineOfOffset(offset);
-		if (line > 0 && fScanner.findNonBlankBackward(offset-1, fDocument.getLineOffset(line)-1, false) == ITokenScanner.NOT_FOUND) {
+		if (line > 0 && fScanner.findAnyNonBlankBackward(offset-1, fDocument.getLineOffset(line)-1, false) == ITokenScanner.NOT_FOUND) {
 			final IRegion prevLineInfo = fDocument.getLineInformation(line-1);
 			if (prevLineInfo.getLength() > 0 && TextUtilities.getPartition(fDocument, fPartitioning.getPartitioning(),
 						prevLineInfo.getOffset()+prevLineInfo.getLength()-1, false).getType() == IRDocumentPartitions.R_ROXYGEN) {
@@ -482,14 +481,14 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		if (cEnd > validRegion.getOffset()+validRegion.getLength()) {
 			return tracePos;
 		}
-		fScanner.configure(fDocument, null);
+		fScanner.configure(fDocument);
 		final int smartEnd;
 		final String smartAppend;
 		if (endsWithNewLine(c.text)) {
 			final IRegion cEndLine = fDocument.getLineInformationOfOffset(cEnd);
 			final int validEnd = (cEndLine.getOffset()+cEndLine.getLength() <= validRegion.getOffset()+validRegion.getLength()) ?
 					cEndLine.getOffset()+cEndLine.getLength() : validRegion.getOffset()+validRegion.getLength();
-			final int next = fScanner.findNonBlankForward(cEnd, validEnd, false);
+			final int next = fScanner.findAnyNonBlankForward(cEnd, validEnd, false);
 			smartEnd = (next >= 0) ? next : validEnd;
 			switch(fScanner.getChar()) {
 			case '}':
@@ -655,8 +654,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		int column = util.getLineIndent(line, false)[RIndentUtil.COLUMN_IDX];
 		if (checkOffset >= 0) {
 			// new block?:
-			fScanner.configure(fDocument, null);
-			final int match = fScanner.findNonBlankBackward(checkOffset, fDocument.getLineOffset(line)-1, false);
+			fScanner.configure(fDocument);
+			final int match = fScanner.findAnyNonBlankBackward(checkOffset, fDocument.getLineOffset(line)-1, false);
 			if (match >= 0 && fDocument.getChar(match) == '{') {
 				column = util.getNextLevelColumn(column, 1);
 			}
@@ -669,8 +668,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			return;
 		}
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
-		fScanner.configure(fDocument, null);
-		if (fScanner.findNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
+		fScanner.configure(fDocument);
+		if (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
 			return;
 		}
@@ -681,8 +680,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private void smartIndentOnClosingBracket(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
-		fScanner.configure(fDocument, null);
-		if (fScanner.findNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
+		fScanner.configure(fDocument);
+		if (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
 			return;
 		}
@@ -714,8 +713,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private int smartIndentOnFirstLineCharDefault2(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
-		fScanner.configure(fDocument, null);
-		if (fScanner.findNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
+		fScanner.configure(fDocument);
+		if (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
 			return c.offset;
 		}
@@ -733,8 +732,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private void smartPaste(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
-		fScanner.configure(fDocument, null);
-		final boolean firstLine = (fScanner.findNonBlankBackward(c.offset-1, lineOffset-1, false) == ITokenScanner.NOT_FOUND);
+		fScanner.configure(fDocument);
+		final boolean firstLine = (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) == ITokenScanner.NOT_FOUND);
 		try {
 			smartIndentLine2(c, firstLine, 0, null);
 		}

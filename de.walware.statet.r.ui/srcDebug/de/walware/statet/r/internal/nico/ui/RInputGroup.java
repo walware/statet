@@ -22,19 +22,21 @@ import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
-import de.walware.statet.nico.ui.console.InputGroup;
+import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.nico.IncompleteInputPrompt;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.ui.RConsolePage;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
+import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
 
 /**
  * R Console input line
  */
-public class RInputGroup extends InputGroup implements ISettingsChangedHandler {
+public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHandler {
 	
 	
 	private RSourceViewerConfigurator fRConfig;
@@ -69,11 +71,19 @@ public class RInputGroup extends InputGroup implements ISettingsChangedHandler {
 	public void configureServices(final IHandlerService commands, final IContextService keys) {
 		super.configureServices(commands, keys);
 		
-		keys.activateContext("de.walware.statet.r.contexts.REditorScope"); //$NON-NLS-1$
+		keys.activateContext(RSourceViewerConfiguration.R_EDITING_CONTEXT); 
 		
 		IAction action;
 		action = new InsertAssignmentAction(this);
 		commands.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));
+	}
+	
+	@Override
+	public Object getAdapter(final Class required) {
+		if (RHeuristicTokenScanner.class.equals(required)) {
+			return new RHeuristicTokenScanner();
+		}
+		return super.getAdapter(required);
 	}
 	
 }

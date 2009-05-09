@@ -26,8 +26,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.PathCompletionComputor;
 
@@ -39,6 +40,7 @@ import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -55,6 +57,11 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	public RPathCompletionComputer() {
 	}
 	
+	
+	@Override
+	public String getPluginId() {
+		return RUI.PLUGIN_ID;
+	}
 	
 	@Override
 	public void sessionStarted(final ISourceEditor editor) {
@@ -125,7 +132,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	}
 	
 	@Override
-	protected IStatus tryAlternative(final List<ICompletionProposal> matches, final IPath path,
+	protected IStatus tryAlternative(final AssistInvocationContext context, final List<IAssistCompletionProposal> matches, final IPath path,
 			final int startOffset, final String startsWith, final String prefix, final String completionPrefix) throws CoreException {
 		if (fAssociatedTool != null) {
 			final String address = fAssociatedTool.getWorkspaceData().getRemoteAddress();
@@ -138,7 +145,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 						continue;
 					}
 					if (root) {
-						matches.add(new ResourceProposal(startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
+						matches.add(new ResourceProposal(context, startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
 					}
 					else {
 						final int matching = path.matchingFirstSegments(remotePath);
@@ -154,7 +161,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 				return Status.OK_STATUS;
 			}
 		}
-		return super.tryAlternative(matches, path, startOffset, startsWith, prefix, completionPrefix);
+		return super.tryAlternative(context, matches, path, startOffset, startsWith, prefix, completionPrefix);
 	}
 	
 	@Override

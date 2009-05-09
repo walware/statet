@@ -36,14 +36,12 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextOperationTarget;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension3;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
@@ -60,7 +58,7 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public abstract class PathCompletionComputor implements IContentAssistComputer {
 	
 	
-	protected class ResourceProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension3 {
+	protected class ResourceProposal extends CompletionProposalWithOverwrite implements ICompletionProposalExtension3 {
 		
 		private IFileStore fFileStore;
 		private boolean fIsDirectory;
@@ -69,8 +67,6 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		
 		private String fName;
 		
-		/** Offset where the name starts and where to insert the completion */
-		private int fCompletionOffset;
 		/** Final completion string */
 		private String fCompletion;
 		
@@ -86,8 +82,9 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		 * @param prefix optional prefix to prefix before the name
 		 * @param workspaceRef the workspace resource handle, if the resource is in the workspace
 		 */
-		public ResourceProposal(final int offset, final IFileStore fileStore, final String explicitName, final String prefix, final IContainer workspaceRef) {
-			fCompletionOffset = offset;
+		public ResourceProposal(final AssistInvocationContext context, 
+				final int offset, final IFileStore fileStore, final String explicitName, final String prefix, final IContainer workspaceRef) {
+			super(context, offset);
 			fFileStore = fileStore;
 			fIsDirectory = fFileStore.fetchInfo().isDirectory();
 			fWorkspaceRef = workspaceRef;
@@ -101,16 +98,56 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 			fName = name.toString();
 		}
 		
+		
+		@Override
+		protected String getPluginId() {
+			return PathCompletionComputor.this.getPluginId();
+		}
+		
+		public int getRelevance() {
+			return 40;
+		}
+		
+		public String getSortingString() {
+			return fName;
+		}
+		
+		public boolean isAutoInsertable() {
+			return false;
+		}
+		
 		private void createCompletion(final IDocument document) {
 			if (fCompletion == null) {
 				try {
-					fCompletion = checkPathCompletion(document, fCompletionOffset, fName);
+					fCompletion = checkPathCompletion(document, getReplacementOffset(), fName);
 				}
 				catch (final BadLocationException e) {
 					StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
 							"An error occurred while creating the final path completion.", e), StatusManager.LOG);
 				}
 			}
+		}
+		
+		@Override
+		protected int computeReplacementLength(final int replacementOffset, final Point selection, final int caretOffset, final boolean overwrite) throws BadLocationException {
+			int end = Math.max(caretOffset, selection.x + selection.y);
+			if (overwrite) {
+				final IDocument document = fContext.getSourceViewer().getDocument();
+				final int length = document.getLength();
+				while (end < length) {
+					final char c = document.getChar(end);
+					if (Character.isLetterOrDigit(c) || c == '_' || c == '.') {
+						end++;
+					}
+					else {
+						break;
+					}
+				}
+				if (end >= length) {
+					end = length;
+				}
+			}
+			return (end - replacementOffset);
 		}
 		
 		
@@ -139,18 +176,6 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		/**
 		 * {@inheritDoc}
 		 */
-		public void selected(final ITextViewer viewer, final boolean smartToggle) {
-		}
-		
-		/**
-		 * {@inheritDoc}
-		 */
-		public void unselected(final ITextViewer viewer) {
-		}
-		
-		/**
-		 * {@inheritDoc}
-		 */
 		public String getAdditionalProposalInfo() {
 			return null;
 		}
@@ -173,11 +198,12 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		 * {@inheritDoc}
 		 */
 		public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
-			if (offset < fCompletionOffset) {
+			final int replacementOffset = getReplacementOffset();
+			if (offset < replacementOffset) {
 				return false;
 			}
 			try {
-				final String startsWith = document.get(fCompletionOffset, offset-fCompletionOffset);
+				final String startsWith = document.get(replacementOffset, offset-replacementOffset);
 				return fName.regionMatches(true, 0, startsWith, 0, startsWith.length());
 			}
 			catch (final BadLocationException e) {
@@ -188,17 +214,17 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		/**
 		 * {@inheritDoc}
 		 */
-		public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
+		@Override
+		protected void doApply(final char trigger, final int stateMask, final int caretOffset, final int replacementOffset, final int replacementLength)
+				throws BadLocationException {
+			final SourceViewer viewer = fContext.getSourceViewer();
 			final IDocument document = viewer.getDocument();
 			final Point selectedRange = viewer.getSelectedRange();
-			if (selectedRange.x != offset) {
-				return;
-			}
 			createCompletion(document);
-			final Position newSelectionOffset = new Position(selectedRange.x+selectedRange.y, 0);
+			final Position newSelectionOffset = new Position(replacementOffset+replacementLength, 0);
 			try {
 				document.addPosition(newSelectionOffset);
-				document.replace(fCompletionOffset, newSelectionOffset.getOffset()-fCompletionOffset, fCompletion);
+				document.replace(replacementOffset, newSelectionOffset.getOffset()-replacementOffset, fCompletion);
 				fSelectionToSet = new Region(newSelectionOffset.getOffset(), 0);
 			}
 			catch (final BadLocationException e) {
@@ -224,13 +250,6 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		/**
 		 * {@inheritDoc}
 		 */
-		public void apply(final IDocument document) {
-			// not called anymore
-		}
-		
-		/**
-		 * {@inheritDoc}
-		 */
 		public Point getSelection(final IDocument document) {
 			if (fSelectionToSet != null) {
 				return new Point(fSelectionToSet.getOffset(), fSelectionToSet.getLength());
@@ -242,7 +261,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		 * {@inheritDoc}
 		 */
 		public int getPrefixCompletionStart(final IDocument document, final int completionOffset) {
-			return fCompletionOffset;
+			return getReplacementOffset();
 		}
 		
 		/**
@@ -264,6 +283,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	}
 	
 	
+	public abstract String getPluginId();
 	/**
 	 * {@inheritDoc}
 	 */
@@ -293,7 +313,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
-	public IStatus computeCompletionProposals(final AssistInvocationContext context, final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+	public IStatus computeCompletionProposals(final AssistInvocationContext context, final int mode, final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		try {
 			final IDocument document = context.getSourceViewer().getDocument();
 			final int offset = context.getInvocationOffset();
@@ -372,10 +392,10 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 			String completionPrefix = (needSeparatorBeforeStart) ? fPathSeparator : null;
 			
 			if ((baseStore == null || !baseStore.fetchInfo().exists()) && path != null) {
-				return tryAlternative(tenders, path, offset-start.length(), start, prefix, completionPrefix);
+				return tryAlternative(context, tenders, path, offset-start.length(), start, prefix, completionPrefix);
 			}
 			
-			doAddChildren(tenders, baseStore, offset-start.length(), start, completionPrefix);
+			doAddChildren(context, tenders, baseStore, offset-start.length(), start, completionPrefix);
 			if (start != null && start.length() > 0 && !start.equals(".")) { //$NON-NLS-1$
 				baseStore = baseStore.getChild(start);
 				if (baseStore.fetchInfo().exists()) {
@@ -386,7 +406,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 					prefixBuilder.append(baseStore.getName());
 					prefixBuilder.append(fPathSeparator);
 					completionPrefix = prefixBuilder.toString();
-					doAddChildren(tenders, baseStore, offset-start.length(), null, completionPrefix);
+					doAddChildren(context, tenders, baseStore, offset-start.length(), null, completionPrefix);
 				}
 			}
 			return Status.OK_STATUS;
@@ -438,7 +458,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		}
 	}
 	
-	protected void doAddChildren(final List<ICompletionProposal> matches, final IFileStore baseStore, 
+	protected void doAddChildren(final AssistInvocationContext context, final List<IAssistCompletionProposal> matches, final IFileStore baseStore, 
 			final int startOffset, final String startsWith, final String prefix) throws CoreException {
 		final IContainer[] workspaceRefs = ResourcesPlugin.getWorkspace().getRoot().findContainersForLocationURI(baseStore.toURI());
 		final IContainer workspaceRef = (workspaceRefs.length > 0) ? workspaceRefs[0] : null;
@@ -446,7 +466,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		Arrays.sort(names, Collator.getInstance());
 		for (final String name : names) {
 			if (startsWith == null || name.regionMatches(true, 0, startsWith, 0, startsWith.length())) {
-				matches.add(new ResourceProposal(startOffset, baseStore.getChild(name), null, prefix, workspaceRef));
+				matches.add(new ResourceProposal(context, startOffset, baseStore.getChild(name), null, prefix, workspaceRef));
 			}
 		}
 	}
@@ -454,7 +474,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 	/**
 	 * {@inheritDoc}
 	 */
-	public IStatus computeContextInformation(final AssistInvocationContext context, final List<IContextInformation> tenders, final IProgressMonitor monitor) {
+	public IStatus computeContextInformation(final AssistInvocationContext context, final List<IAssistInformationProposal> tenders, final IProgressMonitor monitor) {
 		return null;
 	}
 	
@@ -479,7 +499,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 		return null;
 	}
 	
-	protected IStatus tryAlternative(final List<ICompletionProposal> matches, final IPath path,
+	protected IStatus tryAlternative(final AssistInvocationContext context, final List<IAssistCompletionProposal> matches, final IPath path,
 			final int startOffset, final String startsWith, final String prefix, final String completionPrefix) throws CoreException {
 		return null;
 	}

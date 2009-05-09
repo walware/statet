@@ -53,8 +53,8 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		private boolean open;
 		
 		@Override
-		protected boolean matchesChar(final char c) {
-			switch (c) {
+		protected boolean matchesChar() {
+			switch (fChar) {
 			case '{':
 				type = 0;
 				open = true;
@@ -86,6 +86,17 @@ public class RHeuristicTokenScanner extends BasicHeuristicTokenScanner {
 		
 	};
 	
+	/**
+	 * 
+	 * @param backwardOffset searching backward before this offset
+	 * @param forwardOffset searching forward after (including) this offset
+	 * @param initial initial balance (e.g. known or not yet inserted between backward and forward offset)
+	 * @param searchType
+	 *     0 = { }
+	 *     1 = ( )
+	 *     2 = [ ]
+	 * @return
+	 */
 	public int[] computeBracketBalance(int backwardOffset, int forwardOffset, final int[] initial, final int searchType) {
 		final int[] compute = new int[3];
 		final BracketBalanceCondition condition = new BracketBalanceCondition();

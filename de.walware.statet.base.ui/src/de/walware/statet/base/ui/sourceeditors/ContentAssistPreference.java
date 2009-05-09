@@ -132,15 +132,27 @@ public class ContentAssistPreference {
 		assistant.enablePrefixCompletion(statet.getPreferenceValue(AUTOINSERT_COMMON));
 		assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(PROPOSALS_FOREGROUND)));
 		assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(PROPOSALS_BACKGROUND)));
-		final Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
-		assistant.setContextInformationPopupForeground(c);
-		assistant.setContextSelectorForeground(c);
-		manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
-		assistant.setContextInformationPopupBackground(c);
-		assistant.setContextSelectorBackground(c);
+		{	final Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_FOREGROUND));
+			assistant.setContextInformationPopupForeground(c);
+			assistant.setContextSelectorForeground(c);
+		}
+		{	final Color c = manager.getColor(statet.getPreferenceValue(PARAMETERS_BACKGROUND));
+			assistant.setContextInformationPopupBackground(c);
+			assistant.setContextSelectorBackground(c);
+		}
 		
 //		assistant.enableColoredLabels(true);
 	}
+	
+//	public static void configureInformationProposalMode(final ContentAssist assistant, final boolean enable) {
+//		final ColorManager manager = StatetUIPlugin.getDefault().getColorManager();
+//		final IPreferenceAccess statet = PreferencesUtil.getInstancePrefs();
+//		
+//		assistant.setProposalSelectorForeground(manager.getColor(statet.getPreferenceValue(enable ?
+//				PARAMETERS_FOREGROUND : PROPOSALS_FOREGROUND)));
+//		assistant.setProposalSelectorBackground(manager.getColor(statet.getPreferenceValue(enable ?
+//				PARAMETERS_BACKGROUND : PROPOSALS_BACKGROUND)));
+//	}
 	
 	/**
 	 * Configure the given quick assistant according common StatET settings.

@@ -24,7 +24,12 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.texteditor.AnnotationPreference;
+
+import de.walware.ecommons.internal.ui.text.OverwriteTextStyleStrategy;
+
+import de.walware.statet.base.ui.StatetUIServices;
 
 
 // Uses patch AnnotationPainter
@@ -128,6 +133,9 @@ public class SourceViewerDecorationSupport extends org.eclipse.ui.texteditor.Sou
 	 */
 	private static ITextStyleStrategy fgProblemUnderlineStrategy= new AnnotationPainter.UnderlineStrategy(SWT.UNDERLINE_ERROR);
 	
+	private static ITextStyleStrategy fgOverwriteStrytegy = new OverwriteTextStyleStrategy();
+	
+	
 	/** The viewer */
 	private ISourceViewer fSourceViewer;
 	/** The annotation access */
@@ -160,6 +168,11 @@ public class SourceViewerDecorationSupport extends org.eclipse.ui.texteditor.Sou
 		painter.addTextStyleStrategy(AnnotationPreference.STYLE_BOX, fgBoxStrategy);
 		painter.addTextStyleStrategy(AnnotationPreference.STYLE_DASHED_BOX, fgDashedBoxStrategy);
 		painter.addTextStyleStrategy(AnnotationPreference.STYLE_UNDERLINE, fgUnderlineStrategy);
+		
+		painter.addTextStyleStrategy("de.walware.overwrite", fgOverwriteStrytegy);
+		painter.addAnnotationType("de.walware.ecommons.editorAnnotations.ContentAssistOverwrite", "de.walware.overwrite");
+		final Color color = StatetUIServices.getSharedColorManager().getColor(new RGB(255, 0, 0));
+		painter.setAnnotationTypeColor("de.walware.ecommons.editorAnnotations.ContentAssistOverwrite", color);
 		
 		return painter;
 	}

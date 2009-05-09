@@ -11,13 +11,16 @@
 
 package de.walware.ecommons.ui.text.sourceediting;
 
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
+import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 
-/**
- * 
- */
-public interface IRatedProposal {
+
+public interface IAssistCompletionProposal extends ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension4 {
 	
 	
 	int getRelevance();
+	
+	String getSortingString();
 	
 }

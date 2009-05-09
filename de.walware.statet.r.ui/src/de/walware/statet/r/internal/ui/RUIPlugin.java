@@ -157,6 +157,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 			fRdCodeTemplatesContextTypeRegistry = null;
 			fREditorTemplatesStore = null;
 			fREditorContextTypeRegistry = null;
+			fREditorContentAssistRegistry = null;
+			fRConsoleContentAssistRegistry = null;
 			final Iterator<PreferencesManageListener> iter = fPrefUpdaters.iterator();
 			while (iter.hasNext()) {
 				iter.next().dispose();
@@ -365,18 +367,24 @@ public class RUIPlugin extends AbstractUIPlugin {
 		return fREditorTemplatesStore;
 	}
 	
-	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
-		if (fRConsoleContentAssistRegistry == null) {
-			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID, "rConsoleContentAssistComputer"); //$NON-NLS-1$
-		}
-		return fRConsoleContentAssistRegistry;
-	}
-	
 	public synchronized ContentAssistComputerRegistry getREditorContentAssistRegistry() {
 		if (fREditorContentAssistRegistry == null) {
-			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID, "rEditorContentAssistComputer"); //$NON-NLS-1$
+			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID, 
+					RUIPreferenceInitializer.REDITOR_NODE, RUIPreferenceInitializer.REDITOR_ASSIST_GROUP_ID, 
+					"rEditorContentAssistComputer"); //$NON-NLS-1$
+			fDisposables.add(fREditorContentAssistRegistry);
 		}
 		return fREditorContentAssistRegistry;
+	}
+	
+	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
+		if (fRConsoleContentAssistRegistry == null) {
+			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID,
+					RUIPreferenceInitializer.RCONSOLE_NODE, RUIPreferenceInitializer.REDITOR_ASSIST_GROUP_ID, 
+					"rConsoleContentAssistComputer"); //$NON-NLS-1$
+			fDisposables.add(fRConsoleContentAssistRegistry);
+		}
+		return fRConsoleContentAssistRegistry;
 	}
 	
 	public void registerPluginDisposable(final IDisposable d) {

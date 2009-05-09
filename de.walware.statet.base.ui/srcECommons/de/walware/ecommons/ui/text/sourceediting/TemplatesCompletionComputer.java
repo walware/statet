@@ -22,8 +22,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
@@ -71,10 +69,13 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	 * {@inheritDoc}
 	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final List<ICompletionProposal> tenders, final IProgressMonitor monitor) {
+			final int mode, final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		final ISourceViewer viewer = context.getSourceViewer();
 		
 		String prefix = extractPrefix(context);
+		if (prefix.length() == 0 && mode != IContentAssistComputer.SPECIFIC_MODE) {
+			return null;
+		}
 		IRegion region;
 		if (context.getLength() == 0) {
 			region = new Region(context.getInvocationOffset() - prefix.length(), prefix.length());
@@ -104,7 +105,7 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 		return null;
 	}
 	
-	private int doComputeProposals(final List<ICompletionProposal> tenders, final DocumentTemplateContext context, final String prefix, final IRegion replacementRegion) {
+	private int doComputeProposals(final List<IAssistCompletionProposal> tenders, final DocumentTemplateContext context, final String prefix, final IRegion replacementRegion) {
 		// Add Templates
 		int count = 0;
 		final Template[] templates = getTemplates(context.getContextType().getId());
@@ -131,7 +132,7 @@ public abstract class TemplatesCompletionComputer implements IContentAssistCompu
 	}
 	
 	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final List<IContextInformation> tenders, final IProgressMonitor monitor) {
+			final List<IAssistInformationProposal> tenders, final IProgressMonitor monitor) {
 		return null;
 	}
 	

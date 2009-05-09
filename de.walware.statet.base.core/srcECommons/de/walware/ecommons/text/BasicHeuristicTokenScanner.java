@@ -90,14 +90,14 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		@Override
 		public boolean stop() {
 			if (fCurrentPartitionMatched && fCurrentPartitionStart <= fPos && fPos < fCurrentPartitionEnd) {
-				return matchesChar(fChar);
+				return matchesChar();
 			}
 			fCurrentPartition = getPartition();
 			fCurrentPartitionStart = fCurrentPartition.getOffset();
 			fCurrentPartitionEnd = fCurrentPartitionStart+fCurrentPartition.getLength();
 			if (fPartitionConstraint.matches(fCurrentPartition.getType())) {
 				fCurrentPartitionMatched = true;
-				return matchesChar(fChar);
+				return matchesChar();
 			}
 			else {
 				fCurrentPartitionMatched = false;
@@ -106,7 +106,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 			
 		}
 		
-		protected abstract boolean matchesChar(char c);
+		protected abstract boolean matchesChar();
 		
 		@Override
 		public int nextPositionForward() {
@@ -155,7 +155,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		}
 		
 		@Override
-		protected boolean matchesChar(final char c) {
+		protected boolean matchesChar() {
 			for (int i = 0; i < fChars.length; i++) {
 				if (fChars[i] == fChar) {
 					return true;
@@ -246,25 +246,52 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 		return fChar;
 	}
 	
-	protected StopCondition getNonWSCondition() {
+	protected boolean isWhitespace() {
+		return (Character.getType(fChar) == Character.SPACE_SEPARATOR || fChar == '\t');
+	}
+	
+	protected final StopCondition getAnyNonWSCondition() {
 		if (fNonWSCondition == null) {
 			fNonWSCondition = new StopCondition() {
 				@Override
 				public boolean stop() {
-					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t');
+					return (!isWhitespace());
 				}
 			};
 		}
 		return fNonWSCondition;
 	}
 	
-	protected StopCondition getNonWSorLRCondition() {
+	protected final StopCondition getAnyNonWSorLRCondition() {
 		if (fNonWSorLRCondition == null) {
 			fNonWSorLRCondition = new StopCondition() {
 				@Override
 				public boolean stop() {
-					return (Character.getType(fChar) != Character.SPACE_SEPARATOR && fChar != '\t'
-						&& fChar != '\r' && fChar != '\n');
+					return (!isWhitespace() && fChar != '\r' && fChar != '\n');
+				}
+			};
+		}
+		return fNonWSorLRCondition;
+	}
+	
+	protected final StopCondition getNonWSCondition() {
+		if (fNonWSCondition == null) {
+			fNonWSCondition = new PartitionBasedCondition() {
+				@Override
+				protected boolean matchesChar() {
+					return (!isWhitespace());
+				}
+			};
+		}
+		return fNonWSCondition;
+	}
+	
+	protected final StopCondition getNonWSorLRCondition() {
+		if (fNonWSorLRCondition == null) {
+			fNonWSorLRCondition = new PartitionBasedCondition() {
+				@Override
+				protected boolean matchesChar() {
+					return (!isWhitespace() && fChar != '\r' && fChar != '\n');
 				}
 			};
 		}
@@ -272,18 +299,57 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 	
 	/**
+	 * Configures the scanner for the given document
+	 * and the given partition type as partition constraint
 	 * 
 	 * @param document the document to scan
 	 * @param partition the partition to scan in
 	 */
 	public void configure(final IDocument document, final String partitionType) {
-		Assert.isNotNull(document);
+		assert (document != null && partitionType != null);
 		fDocument = document;
-		fPartitionConstraint = (partitionType != null) ? new IPartitionConstraint() {
+		fPartitionConstraint = new IPartitionConstraint() {
 			public boolean matches(final String partitionTypeToTest) {
 				return partitionType == partitionTypeToTest;
 			}
-		} : ALL_PARTITIONS_CONSTRAINT;
+		};
+	}
+	
+	/**
+	 * Configures the scanner for the given document
+	 * and no partition constraint
+	 * 
+	 * @param document the document to scan
+	 */
+	public void configure(final IDocument document) {
+		assert (document != null);
+		fDocument = document;
+		fPartitionConstraint = ALL_PARTITIONS_CONSTRAINT;
+	}
+	
+	/**
+	 * Configures the scanner for the given document
+	 * and the partition constraint for default partitions
+	 * 
+	 * @param document the document to scan
+	 */
+	public void configureDefaultParitions(final IDocument document) {
+		assert (document != null);
+		fDocument = document;
+		fPartitionConstraint = getDefaultPartitionConstraint();
+	}
+	
+	/**
+	 * Configures the scanner for the given document
+	 * and the given partition constraint
+	 * 
+	 * @param document the document to scan
+	 * @param partition the partition to scan in
+	 */
+	public void configure(final IDocument document, final IPartitionConstraint partitionConstraint) {
+		assert (document != null && partitionConstraint != null);
+		fDocument = document;
+		fPartitionConstraint = partitionConstraint;
 	}
 	
 //	public void configure(IDocument document, int offset) throws BadLocationException {
@@ -424,25 +490,35 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	 * @param bound the first position in <code>fDocument</code> to not consider any more, with <code>bound</code> &gt; <code>position</code>, or <code>UNBOUND</code>
 	 * @return the smallest position of a non-whitespace character in [<code>position</code>, <code>bound</code>), or <code>NOT_FOUND</code> if none can be found
 	 */
-	public int findNonBlankForward(final int position, final int bound, final boolean linebreakIsBlank) {
+	public final int findAnyNonBlankForward(final int position, final int bound, final boolean linebreakIsBlank) {
+		return scanForward(position, bound, linebreakIsBlank ?
+				getAnyNonWSorLRCondition() : getAnyNonWSCondition());
+	}
+	
+	public final int findAnyNonBlankBackward(final int position, final int bound, final boolean linebreakIsBlank) {
+		return scanBackward(position, bound, linebreakIsBlank ?
+				getAnyNonWSorLRCondition() : getAnyNonWSCondition());
+	}
+	
+	public final int findNonBlankForward(final int position, final int bound, final boolean linebreakIsBlank) {
 		return scanForward(position, bound, linebreakIsBlank ?
 				getNonWSorLRCondition() : getNonWSCondition());
 	}
 	
-	public int findNonBlankBackward(final int position, final int bound, final boolean linebreakIsBlank) {
+	public final int findNonBlankBackward(final int position, final int bound, final boolean linebreakIsBlank) {
 		return scanBackward(position, bound, linebreakIsBlank ?
 				getNonWSorLRCondition() : getNonWSCondition());
 	}
 	
 	public IRegion findBlankRegion(final int position, final boolean linebreakIsBlank) {
 		return findRegion(position, linebreakIsBlank ?
-				getNonWSorLRCondition() : getNonWSCondition());
+				getAnyNonWSorLRCondition() : getAnyNonWSCondition());
 	}
 		
 	public boolean isBlankLine(final int position) throws BadLocationException {
 		final IRegion line = fDocument.getLineInformationOfOffset(position);
 		if (line.getLength() > 0) {
-			final int nonWhitespace = findNonBlankForward(line.getOffset(), line.getOffset()+line.getLength(), false);
+			final int nonWhitespace = findAnyNonBlankForward(line.getOffset(), line.getOffset()+line.getLength(), false);
 			return (nonWhitespace == NOT_FOUND);
 		}
 		return true;

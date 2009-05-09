@@ -513,6 +513,9 @@
             name="de.walware.ecommons.editorAnnotations.WriteOccurrences"
             super="org.eclipse.jdt.ui.occurrences.write">
       </type>
+      <type
+            name="de.walware.ecommons.editorAnnotations.ContentAssistOverwrite">
+      </type>
    </extension>
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">

@@ -11,8 +11,7 @@
 
 package de.walware.statet.r.internal.nico.ui;
 
-import org.eclipse.jface.text.contentassist.ContentAssistant;
-
+import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -41,7 +40,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 		}
 		
 		@Override
-		public void initDefaultContentAssist(final ContentAssistant assistant) {
+		public void initDefaultContentAssist(final ContentAssist assistant) {
 			final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getRConsoleContentAssistRegistry();
 			
 			final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,

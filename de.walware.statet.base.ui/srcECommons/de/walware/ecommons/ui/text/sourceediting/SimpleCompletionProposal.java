@@ -27,7 +27,7 @@ import org.eclipse.swt.graphics.Point;
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */
 public class SimpleCompletionProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension4, 
-		IRatedProposal {
+		IAssistCompletionProposal {
 	
 	/** The replacement string. */
 	private String fReplacementString;
@@ -96,10 +96,14 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	
 	/**
 	 * {@inheritDoc}
-	 * {@value 50}
+	 * {@value}
 	 */
 	public int getRelevance() {
 		return 50;
+	}
+	
+	public String getSortingString() {
+		return fReplacementString;
 	}
 	
 	/**

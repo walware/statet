@@ -44,7 +44,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.actions.ToolAction;
-import de.walware.statet.nico.ui.console.InputGroup;
+import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
@@ -144,7 +144,7 @@ public class RConsolePage extends NIConsolePage {
 	}
 	
 	@Override
-	protected InputGroup createInputGroup() {
+	protected ConsolePageEditor createInputGroup() {
 		return new RInputGroup(this);
 	}
 	

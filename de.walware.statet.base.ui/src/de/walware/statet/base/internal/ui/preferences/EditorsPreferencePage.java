@@ -138,15 +138,15 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 				ContentAssistPreference.REPLACEMENT_FOREGROUND);
 		colors.add(color);
 		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
-		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
-				ContentAssistPreference.REPLACEMENT_BACKGROUND);
-		colors.add(color);
-		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+//		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
+//				ContentAssistPreference.REPLACEMENT_BACKGROUND);
+//		colors.add(color);
+//		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
 		
 		// Matching Bracket
 		fMatchingBracketsPref = new BooleanPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
 		prefs.put(fMatchingBracketsPref, null);
-		colors.add(new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor,
+		color = (new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor,
 				new RGBPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR)));
 		colors.add(color);
 		prefs.put(color.pref, null);

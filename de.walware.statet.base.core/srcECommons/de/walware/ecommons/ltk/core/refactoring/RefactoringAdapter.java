@@ -183,7 +183,7 @@ public abstract class RefactoringAdapter {
 		// check if no other code is between the elements
 		// and create one single range including comments at line end
 		try {
-			fScanner.configure(doc, null);
+			fScanner.configure(doc);
 			final int start = elements[0].getSourceRange().getOffset();
 			int end = elements[0].getSourceRange().getOffset() + elements[0].getSourceRange().getLength();
 			
@@ -198,7 +198,7 @@ public abstract class RefactoringAdapter {
 				}
 				int match;
 				while (end < elementStart &&
-						(match = fScanner.findNonBlankForward(end, elementStart, true)) >= 0) {
+						(match = fScanner.findAnyNonBlankForward(end, elementStart, true)) >= 0) {
 					final ITypedRegion partition = doc.getPartition(fPartitioning.getPartitioning(), match, false);
 					if (isCommentContent(partition)) {
 						end = partition.getOffset() + partition.getLength();
@@ -210,7 +210,7 @@ public abstract class RefactoringAdapter {
 				end = elementEnd;
 			}
 			final IRegion lastLine = doc.getLineInformationOfOffset(end);
-			final int match = fScanner.findNonBlankForward(end, lastLine.getOffset()+lastLine.getLength(), true);
+			final int match = fScanner.findAnyNonBlankForward(end, lastLine.getOffset()+lastLine.getLength(), true);
 			if (match >= 0) {
 				final ITypedRegion partition = doc.getPartition(fPartitioning.getPartitioning(), match, false);
 				if (isCommentContent(partition)) {
@@ -278,12 +278,12 @@ public abstract class RefactoringAdapter {
 			throws BadLocationException, BadPartitioningException {
 		final int start = orgRange.getOffset();
 		int end = start + orgRange.getLength();
-		fScanner.configure(doc, null);
+		fScanner.configure(doc);
 		
 		IRegion lastLineInfo;
 		int match;
 		lastLineInfo = doc.getLineInformationOfOffset(end);
-		match = fScanner.findNonBlankForward(end, lastLineInfo.getOffset()+lastLineInfo.getLength(), true);
+		match = fScanner.findAnyNonBlankForward(end, lastLineInfo.getOffset()+lastLineInfo.getLength(), true);
 		if (match >= 0) {
 			final ITypedRegion partition = doc.getPartition(fPartitioning.getPartitioning(), match, false);
 			if (isCommentContent(partition)) {
@@ -293,7 +293,7 @@ public abstract class RefactoringAdapter {
 		final int checkLine = doc.getLineOfOffset(end)+1;
 		if (checkLine < doc.getNumberOfLines()) {
 			final IRegion checkLineInfo = doc.getLineInformation(checkLine);
-			match = fScanner.findNonBlankForward(
+			match = fScanner.findAnyNonBlankForward(
 					end, checkLineInfo.getOffset()+checkLineInfo.getLength(), true);
 			if (match < 0) {
 				end = checkLineInfo.getOffset()+checkLineInfo.getLength();

@@ -229,7 +229,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
-	protected void onBeforeSave() {
+	protected void updatePreferences() {
 		if (fModel.isDirty()) {
 			fModel.resetDirty();
 			setPrefValues(fModel.toPreferencesMap());

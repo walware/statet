@@ -35,7 +35,7 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 	
 	@Override
 	protected AssistInvocationContext createContext() {
-		return new RAssistInvocationContext(getEditor(), -1);
+		return new RAssistInvocationContext(getEditor(), -1, false);
 	}
 	
 	@Override
