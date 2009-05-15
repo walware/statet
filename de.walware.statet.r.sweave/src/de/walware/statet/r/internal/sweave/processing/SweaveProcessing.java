@@ -250,12 +250,11 @@ public class SweaveProcessing implements ILaunchConfigurationListener {
 					final Map<String, Object> attributes = Collections.singletonMap(SweaveProcessing.ATT_BUILDSTEPS, (Object) new Integer(flags));
 					final ILaunchConfiguration config = new OverlayLaunchConfiguration(configuration, attributes);
 					final String mode = ILaunchManager.RUN_MODE;
-					// TODO E-3.5 bug #200997, set register to false
 					if (isEnabled(0x1, flags)) {
-						config.launch(mode, new SubProgressMonitor(monitor, 1), true, true);
+						config.launch(mode, new SubProgressMonitor(monitor, 1), true, false);
 					}
 					else {
-						config.launch(mode, new SubProgressMonitor(monitor, 1), false, true);
+						config.launch(mode, new SubProgressMonitor(monitor, 1), false, false);
 					}
 				}
 				catch (final CoreException e) {
