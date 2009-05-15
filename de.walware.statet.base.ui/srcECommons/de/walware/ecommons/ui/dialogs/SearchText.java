@@ -27,6 +27,8 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -43,38 +45,67 @@ import de.walware.statet.base.ui.StatetImages;
 
 /**
  * Search text custom widget (with clear button)
- * 
- * E-3.5 use optional the new native support
  */
 public class SearchText extends Composite {
-	// org.eclipse.ui.dialogs.FilteredTree
+	// see org.eclipse.ui.dialogs.FilteredTree
+	
+	private static Boolean useNativeSearchField;
+	
+	private static boolean useNativeSearchField(final Composite composite) {
+		if (useNativeSearchField == null) {
+			useNativeSearchField = Boolean.FALSE;
+			Text testText = null;
+			try {
+				testText = new Text(composite, SWT.SEARCH | SWT.ICON_CANCEL);
+				useNativeSearchField = new Boolean((testText.getStyle() & SWT.ICON_CANCEL) != 0);
+			}
+			finally {
+				if (testText != null) {
+					testText.dispose();
+				}
+			}
+		}
+		return useNativeSearchField.booleanValue();
+	}
+	
 	
 	private Text fTextControl;
-	private Label fClearButtonControl;
 	
 	
 	public SearchText(final Composite parent) {
-		super(parent, SWT.BORDER);
+		super(parent, useNativeSearchField(parent) ? SWT.NONE : SWT.BORDER);
+		final boolean nativeMode = useNativeSearchField.booleanValue();
 		
 		setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-		final GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
+		final GridLayout layout = LayoutUtil.applyCompositeDefaults(new GridLayout(),
+				(nativeMode) ? 1 : 2);
 		layout.horizontalSpacing = 0;
 		setLayout(layout);
 		
-		fTextControl = new Text(this, SWT.LEFT | SWT.SINGLE);
+		fTextControl = new Text(this, (nativeMode) ?
+				(SWT.LEFT | SWT.SINGLE | SWT.BORDER | SWT.SEARCH | SWT.ICON_CANCEL) :
+				(SWT.LEFT | SWT.SINGLE));
 		fTextControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
+		fTextControl.getAccessible().addAccessibleListener(
+				new AccessibleAdapter() {
+					@Override
+					public void getName(final AccessibleEvent e) {
+						e.result = getAccessibleMessage();
+					}
+				});
 		fTextControl.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(final KeyEvent e) {
 				if (e.keyCode == SWT.ARROW_DOWN) {
 					downPressed();
+					e.doit = false;
+					return;
 				}
 				if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 					okPressed();
-				}
-				if (e.keyCode == SWT.ESC) {
-					setText(null);
+					e.doit = false;
+					return;
 				}
 			}
 		});
@@ -84,7 +115,11 @@ public class SearchText extends Composite {
 			}
 		});
 		
-		createClearTextNew(this);
+		createClearTextButtonSupport(this, nativeMode);
+	}
+	
+	protected String getAccessibleMessage() {
+		return fTextControl.getText();
 	}
 	
 	private void textChanged0() {
@@ -134,14 +169,33 @@ public class SearchText extends Composite {
 	 * 
 	 * @param parent parent <code>Composite</code> of toolbar button
 	 */
-	private void createClearTextNew(final Composite parent) {
-		// only create the button if the text widget doesn't support one natively
-//		if ((filterText.getStyle() & SWT.ICON_CANCEL) == 0) {
+	private void createClearTextButtonSupport(final Composite parent, final boolean nativeMode) {
+		fTextControl.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(final KeyEvent e) {
+				if (e.keyCode == SWT.ESC) {
+					setText(null);
+					e.doit = false;
+					return;
+				}
+			}
+		});
+		if (nativeMode) {
+			fTextControl.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetDefaultSelected(final SelectionEvent e) {
+					if (e.detail == SWT.ICON_CANCEL) {
+						clearText();
+					}
+				}
+			});
+		}
+		else {
 			final Image activeImage = StatetImages.getImage(StatetImages.LOCTOOL_CLEARSEARCH);
 			final Image inactiveImage = StatetImages.getImage(StatetImages.LOCTOOLD_CLEARSEARCH);
 			final Image pressedImage = new Image(Display.getCurrent(), activeImage, SWT.IMAGE_GRAY);
 			
-			final Label clearButton= new Label(parent, SWT.NONE);
+			final Label clearButton = new Label(parent, SWT.NONE);
 			clearButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 			clearButton.setImage(inactiveImage);
 			clearButton.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
@@ -152,13 +206,13 @@ public class SearchText extends Composite {
 				@Override
 				public void mouseDown(final MouseEvent e) {
 					clearButton.setImage(pressedImage);
-					fMoveListener= new MouseMoveListener() {
-						private boolean fMouseInButton= true;
+					fMoveListener = new MouseMoveListener() {
+						private boolean fMouseInButton = true;
 						
 						public void mouseMove(final MouseEvent e) {
 							final boolean mouseInButton= isMouseInButton(e);
 							if (mouseInButton != fMouseInButton) {
-								fMouseInButton= mouseInButton;
+								fMouseInButton = mouseInButton;
 								clearButton.setImage(mouseInButton ? pressedImage : inactiveImage);
 							}
 						}
@@ -170,7 +224,7 @@ public class SearchText extends Composite {
 				public void mouseUp(final MouseEvent e) {
 					if (fMoveListener != null) {
 						clearButton.removeMouseMoveListener(fMoveListener);
-						fMoveListener= null;
+						fMoveListener = null;
 						final boolean mouseInButton= isMouseInButton(e);
 						clearButton.setImage(mouseInButton ? activeImage : inactiveImage);
 						if (mouseInButton) {
@@ -213,8 +267,7 @@ public class SearchText extends Composite {
 						e.detail = ACC.ROLE_PUSHBUTTON;
 					}
 			});
-			fClearButtonControl= clearButton;
-//		}
+		}
 	}
 
 }
