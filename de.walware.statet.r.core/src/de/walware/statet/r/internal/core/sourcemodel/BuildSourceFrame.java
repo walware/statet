@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,15 +20,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.walware.ecommons.ltk.IModelElement;
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IFrame;
-import de.walware.statet.r.core.model.IFrameInSource;
+import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRFrameInSource;
+import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
-abstract class Envir implements IFrameInSource {
+abstract class BuildSourceFrame implements IRFrameInSource {
+	
+	
+	static final int CREATED_NO = 0;
+	static final int CREATED_SEARCH = 1;
+	static final int CREATED_RESOLVED = 2;
+	static final int CREATED_EXPLICIT = 3;
+	static final int CREATED_IMPORTED = 4;
 	
 	
 	public static String createId(final int type, final String name, final int alt) {
@@ -40,36 +50,42 @@ abstract class Envir implements IFrameInSource {
 		
 		final String name;
 		final List<ElementAccess> entries;
-		IFrame frame;
-		int isCreated; // 0=no, 1=search, 2=explicit 
+		IRFrame frame;
+		int isCreated;
 		
 		public ElementAccessList(final String name) {
 			this.name = name;
 			this.entries = new ArrayList<ElementAccess>(4);
-			this.isCreated = 0;
+			this.isCreated = CREATED_NO;
 		}
 		
 	}
 	
-	static class RunScope extends Envir {
+	static class RunScope extends BuildSourceFrame {
 		
 		
-		public RunScope(final int type, final String id, final Envir parent) {
-			super(type, id, new Envir[] { parent });
+		public RunScope(final int type, final String id, final BuildSourceFrame parent) {
+			super(type, id, new BuildSourceFrame[] { parent });
 		}
 		
+		
+		public IElementName getElementName() {
+			return null;
+		}
+		
+		
 		@Override
-		void add(final String name, final ElementAccess access) {
+		public void add(final String name, final ElementAccess access) {
 			fParents.get(0).add(name, access);
 		}
 		
 		@Override
-		void addLateResolve(final String name, final ElementAccess access) {
+		public void addLateResolve(final String name, final ElementAccess access) {
 			fParents.get(0).addLateResolve(name, access);
 		}
 		
 		@Override
-		void addRunResolve(final String name, final ElementAccess access) {
+		public void addRunResolve(final String name, final ElementAccess access) {
 			ElementAccessList detail = fData.get(name);
 			if (detail == null) {
 				detail = new ElementAccessList(name);
@@ -78,7 +94,10 @@ abstract class Envir implements IFrameInSource {
 			}
 			detail.entries.add(access);
 			if (access.isWriteAccess() && !access.isDeletion()) {
-				detail.isCreated = 2;
+				detail.isCreated = CREATED_EXPLICIT;
+			}
+			else if (access.isImport()) {
+				detail.isCreated = CREATED_IMPORTED;
 			}
 			access.fShared = detail;
 			
@@ -96,18 +115,38 @@ abstract class Envir implements IFrameInSource {
 		
 	}
 	
-	static class DefScope extends Envir {
+	static class DefScope extends BuildSourceFrame {
 		
 		private Map<String, ElementAccessList> fLateWrite;
 		private Map<String, ElementAccessList> fLateRead;
 		
 		private Map<String, ElementAccessList> fClasses;
 		
+		private IElementName fElementName;
 		
-		DefScope(final int type, final String id, final Envir[] parents) {
+		
+		DefScope(final int type, final String id, final String name, final BuildSourceFrame[] parents) {
 			super(type, id, parents);
 			fLateWrite = new HashMap<String, ElementAccessList>();
 			fLateRead = new HashMap<String, ElementAccessList>();
+			switch (type) {
+			case PROJECT:
+				fElementName = null;
+//				fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv");
+				fClasses = new HashMap<String, ElementAccessList>();
+				break;
+			case PACKAGE:
+				fElementName = RElementName.create(RElementName.MAIN_PACKAGE, name);
+				fClasses = new HashMap<String, ElementAccessList>();
+				break;
+			default:
+				fClasses = null;
+			}
+		}
+		
+		
+		public IElementName getElementName() {
+			return fElementName;
 		}
 		
 		
@@ -121,7 +160,10 @@ abstract class Envir implements IFrameInSource {
 			}
 			detail.entries.add(access);
 			if (access.isWriteAccess() && !access.isDeletion()) {
-				detail.isCreated = 2;
+				detail.isCreated = CREATED_EXPLICIT;
+			}
+			else if (access.isImport()) {
+				detail.isCreated = CREATED_IMPORTED;
 			}
 			access.fShared = detail;
 			
@@ -135,7 +177,7 @@ abstract class Envir implements IFrameInSource {
 				return;
 			}
 			ElementAccessList detail = fData.get(name);
-			if (detail != null && detail.isCreated <= 0) {
+			if (detail != null && detail.isCreated <= CREATED_NO) {
 				detail = null;
 			}
 			if (detail == null) {
@@ -156,7 +198,8 @@ abstract class Envir implements IFrameInSource {
 		@Override
 		void addClass(final String name, final ElementAccess access) {
 			if (fClasses == null) {
-				fClasses = new HashMap<String, ElementAccessList>();
+				fParents.get(0).addClass(name, access);
+				return;
 			}
 			ElementAccessList detail = fClasses.get(name);
 			if (detail == null) {
@@ -176,13 +219,13 @@ abstract class Envir implements IFrameInSource {
 		
 		@Override
 		void runLateResolve(final boolean onlyWrite) {
-			final Envir[] searchList = createSearchList();
+			final BuildSourceFrame[] searchList = createSearchList();
 			
 			Map<String, ElementAccessList> map = fLateWrite;
 			if (map != null) {
-				final IFrame defaultScope = this;
+				final IRFrame defaultScope = this;
 				ITER_NAMES : for (final ElementAccessList detail : map.values()) {
-					for (int requiredCreation = 1; requiredCreation >= 0; requiredCreation--) {
+					for (int requiredCreation = CREATED_SEARCH; requiredCreation >= 0; requiredCreation--) {
 						for (int i = 0; i < searchList.length; i++) {
 							final ElementAccessList exist = searchList[i].fData.get(detail.name);
 							if (exist != null && exist.isCreated >= requiredCreation) {
@@ -195,7 +238,7 @@ abstract class Envir implements IFrameInSource {
 						}
 					}
 					detail.frame = defaultScope;
-					detail.isCreated = 1;
+					detail.isCreated = CREATED_SEARCH;
 					fData.put(detail.name, detail);
 					continue ITER_NAMES;
 				}
@@ -208,15 +251,15 @@ abstract class Envir implements IFrameInSource {
 			
 			map = fLateRead;
 			if (map != null) {
-				Envir defaultScope = this;
+				BuildSourceFrame defaultScope = this;
 				for (int i = 0; i < searchList.length; i++) {
-					if (searchList[i].fType == T_PROJ) {
+					if (searchList[i].fType <= IRFrame.PACKAGE) { // package or project
 						defaultScope = searchList[i];
 						break;
 					}
 				}
 				ITER_NAMES : for (final ElementAccessList detail : map.values()) {
-					for (int requiredCreation = 1; requiredCreation >= 0; requiredCreation--) {
+					for (int requiredCreation = CREATED_SEARCH; requiredCreation >= 0; requiredCreation--) {
 						for (int i = 0; i < searchList.length; i++) {
 							final ElementAccessList exist = searchList[i].fData.get(detail.name);
 							if (exist != null && exist.isCreated >= requiredCreation) {
@@ -242,19 +285,34 @@ abstract class Envir implements IFrameInSource {
 	protected final Map<String, ElementAccessList> fData;
 	protected final int fType;
 	protected final String fId;
-	protected final List<Envir> fParents;
+	protected final List<BuildSourceFrame> fParents;
+	private List<IBuildSourceFrameElement> fElements = Collections.EMPTY_LIST;
+	private WeakReference<List<IRLangSourceElement>> fModelChildren;
 	
-	private IModelElement fModelElement;
 	
-	
-	Envir(final int type, final String id, final Envir[] parents) {
+	BuildSourceFrame(final int type, final String id, final BuildSourceFrame[] parents) {
 		fType = type;
 		fId = id;
-		fParents = new ArrayList<Envir>(parents.length);
-		fParents.addAll(Arrays.asList(parents));
+		if (parents != null) {
+			fParents = new ArrayList<BuildSourceFrame>(parents.length);
+			fParents.addAll(Arrays.asList(parents));
+		}
+		else {
+			fParents = Collections.EMPTY_LIST;
+		}
 		fData = new HashMap<String, ElementAccessList>();
 	}
 	
+	
+	void addFrameElement(final IBuildSourceFrameElement element) {
+		final int length = fElements.size();
+		final IBuildSourceFrameElement[] elements = new IBuildSourceFrameElement[length+1];
+		for (int i = 0; i < length; i++) {
+			elements[i] = fElements.get(i);
+		}
+		elements[length] = element;
+		fElements = Arrays.asList(elements);
+	}
 	
 	abstract void add(final String name, final ElementAccess access);
 	abstract void addLateResolve(final String name, final ElementAccess access);
@@ -263,55 +321,36 @@ abstract class Envir implements IFrameInSource {
 	
 	abstract void runLateResolve(final boolean onlyWrite);
 	
-	public String getName() {
-		return null;
-	}
 	
-	void setModelElement(final IModelElement element) {
-		fModelElement = element;
-	}
-	
-	public IModelElement getModelElement() {
-		return fModelElement;
-	}
-	
-	protected Envir[] createSearchList() {
-		final ArrayList<Envir> list = new ArrayList<Envir>();
+	protected BuildSourceFrame[] createSearchList() {
+		final ArrayList<BuildSourceFrame> list = new ArrayList<BuildSourceFrame>();
 		int idx = 0;
 		list.add(this);
 		while (idx < list.size()) {
-			final List<Envir> ps = list.get(idx++).fParents;
-			for (final Envir p : ps) {
+			final List<BuildSourceFrame> ps = list.get(idx++).fParents;
+			for (final BuildSourceFrame p : ps) {
 				if (!list.contains(p)) {
 					list.add(p);
 				}
 			}
 		}
-		return list.toArray(new Envir[list.size()]);
-	}
-	
-	public ISourceUnit getSourceUnit() {
-		return null;
+		return list.toArray(new BuildSourceFrame[list.size()]);
 	}
 	
 	public int getFrameType() {
 		return fType;
 	}
 	
-	public String getId() {
+	public String getFrameId() {
 		return fId;
 	}
 	
-	public List<Envir> getUnderneathEnvirs() {
+	public List<? extends IRFrame> getPotentialParents() {
 		return fParents;
 	}
 	
 	
-	public boolean containsElement(final String name) {
-		return fData.containsKey(name);
-	}
-	
-	public Set<String> getElementNames() {
+	public Set<String> getAllAccessNames() {
 		return Collections.unmodifiableSet(fData.keySet());
 	}
 	
@@ -323,25 +362,52 @@ abstract class Envir implements IFrameInSource {
 		return Collections.unmodifiableList(list.entries);
 	}
 	
-	public Object getAdapter(final Class adapter) {
-		return null;
+	
+	public List<? extends IRLangElement> getModelElements() {
+		return fElements;
 	}
 	
-//	@Override
-//	public String toString() {
-//		switch (fType) {
-//		case IScope.T_PKG:
-//			return "package:"+id;
-//		case IScope.T_PROJ:
-//			return ".GlobalEnv";
-//		case IScope.T_CLASS:
-//			return "class:"+id;
-//		case IScope.T_FUNCTION:
-//			return "function:"+id;
-//		case IScope.T_EXPLICIT:
-//			return "env:"+id;
-//		}
-//		return getId();
-//	}
+	public boolean hasModelChildren(final Filter filter) {
+		for (final ElementAccessList list : fData.values()) {
+			for (final ElementAccess access : list.entries) {
+				if (access.fModelElement != null 
+						&& (filter == null || filter.include(access.fModelElement)) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		if (fData.isEmpty()) {
+			return IRLangSourceElement.NO_R_SOURCE_CHILDREN;
+		}
+		List<IRLangSourceElement> children = (fModelChildren != null) ? fModelChildren.get() : null;
+		if (children != null) {
+			if (filter == null) {
+				return children;
+			}
+			else {
+				return RSourceElements.getChildren(children, filter);
+			}
+		}
+		else {
+			children = new ArrayList<IRLangSourceElement>();
+			for (final ElementAccessList list : fData.values()) {
+				for (final ElementAccess access : list.entries) {
+					if (access.fModelElement != null 
+							&& (filter == null || filter.include(access.fModelElement)) ) {
+						children.add(access.fModelElement);
+					}
+				}
+			}
+			children = Collections.unmodifiableList(children);
+			if (filter == null) {
+				fModelChildren = new WeakReference<List<IRLangSourceElement>>(children);
+			}
+			return children;
+		}
+	}
 	
 }

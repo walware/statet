@@ -11,12 +11,8 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
-
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -57,16 +53,6 @@ public final class RSourceUnit extends RResourceUnit implements IRSourceUnit {
 	@Override
 	public IRSourceUnit getUnderlyingUnit() {
 		return null;
-	}
-	
-	@Override
-	public boolean hasChildren(final Filter filter) {
-		return false;
-	}
-	
-	@Override
-	public List<? extends IModelElement> getChildren(final Filter filter) {
-		return NO_CHILDREN;
 	}
 	
 	

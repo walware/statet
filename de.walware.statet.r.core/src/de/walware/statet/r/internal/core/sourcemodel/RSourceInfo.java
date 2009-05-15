@@ -11,11 +11,14 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.walware.ecommons.ltk.ISourceStructElement;
 
+import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
@@ -24,13 +27,31 @@ public class RSourceInfo implements IRModelInfo {
 	
 	
 	private final RAstInfo fAst;
-	private final LinkedHashMap<String, Envir> fScope;
+	
+	private BuildSourceFrame fTopFrame;
+	final LinkedHashMap<String, BuildSourceFrame> fLocalFrames;
+	private final Map<String, ? extends IRFrameInSource> fProtectedLocalFrames;
+	
+	private final PackageReferences fPackageRefs;
+	final Map<String, BuildSourceFrame> fNamespaceFrames;
+	private final Map<String, ? extends IRFrame> fProtectedNamespaceFrames;
+	
 	private final ISourceStructElement fSourceElement;
 	
 	
-	RSourceInfo(final RAstInfo ast, final LinkedHashMap<String, Envir> scopes, final ISourceStructElement unitElement) {
+	RSourceInfo(final RAstInfo ast,
+			final LinkedHashMap<String, BuildSourceFrame> localFrames,
+			final BuildSourceFrame topFrame,
+			final PackageReferences packageRefs,
+			final Map<String, BuildSourceFrame> namespaceFrames,
+			final ISourceStructElement unitElement) {
 		fAst = ast;
-		fScope = scopes;
+		fLocalFrames = localFrames;
+		fTopFrame = topFrame;
+		fProtectedLocalFrames = Collections.unmodifiableMap(localFrames);
+		fPackageRefs = packageRefs;
+		fNamespaceFrames = namespaceFrames;
+		fProtectedNamespaceFrames = Collections.unmodifiableMap(namespaceFrames);
 		fSourceElement = unitElement;
 	}
 	
@@ -46,8 +67,20 @@ public class RSourceInfo implements IRModelInfo {
 		return fSourceElement;
 	}
 	
-	public final Map<String, Envir> getSourceFrames() {
-		return fScope;
+	public BuildSourceFrame getTopFrame() {
+		return fTopFrame;
+	}
+	
+	public final Map<String, ? extends IRFrameInSource> getSourceFrames() {
+		return fProtectedLocalFrames;
+	}
+	
+	public PackageReferences getReferencedPackages() {
+		return fPackageRefs;
+	}
+	
+	public final Map<String, ? extends IRFrame> getReferencedFrames() {
+		return fProtectedNamespaceFrames;
 	}
 	
 }

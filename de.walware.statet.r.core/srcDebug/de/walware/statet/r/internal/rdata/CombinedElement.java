@@ -55,7 +55,7 @@ public abstract class CombinedElement implements ICombinedRElement {
 		return false;
 	}
 	
-	public final CombinedElement getParent() {
+	public final CombinedElement getModelParent() {
 		return fParent;
 	}
 	
@@ -97,7 +97,7 @@ public abstract class CombinedElement implements ICombinedRElement {
 		}
 		final ICombinedRElement other = (ICombinedRElement) obj;
 		return (   getElementName().equals(other.getElementName())
-				&& ((fParent != null) ? fParent.equals(other.getParent()) : (other.getParent() == null)));
+				&& ((fParent != null) ? fParent.equals(other.getModelParent()) : (other.getModelParent() == null)));
 	}
 	
 }

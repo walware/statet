@@ -11,8 +11,10 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import de.walware.ecommons.ltk.IElementName;
+
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
@@ -23,12 +25,14 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	public static final int A_READ =    0x0;
 	public static final int A_WRITE =   0x000002;
 	public static final int A_DELETE =  0x000003;
+	public static final int A_IMPORT =  0x000004;
 	
 	public static final int A_SUB =     0x000100;
 	public static final int A_S4 =      0x000200;
 	
 	public static final int A_FUNC =    0x000010;
 	public static final int A_ARG =     0x000020;
+	
 	
 	
 	public final static class Default extends ElementAccess {
@@ -83,8 +87,9 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	int fFlags;
 	RAstNode fFullNode;
 	RAstNode fNameNode;
-	Envir.ElementAccessList fShared;
+	BuildSourceFrame.ElementAccessList fShared;
 	SubAbstractElementAccess fNextSegment;
+	IRLangSourceElement fModelElement;
 	
 	
 	private ElementAccess(final RAstNode node, final RAstNode nameNode) {
@@ -99,11 +104,15 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	
 	@Override
 	public String getDisplayName() {
-		return RElementName.createDisplayName(this);
+		return RElementName.createDisplayName(this, false);
 	}
 	
-	public final IFrame getFrame() {
+	public final IRFrame getFrame() {
 		return fShared.frame;
+	}
+	
+	public IElementName getNamespace() {
+		return (fShared.frame != null) ? fShared.frame.getElementName() : null;
 	}
 	
 	public final IElementAccess[] getAllInUnit() {
@@ -118,7 +127,11 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 		return ((fFlags & A_DELETE) == A_DELETE);
 	}
 	
-	public final boolean isFunction() {
+	public final boolean isImport() {
+		return ((fFlags & A_IMPORT) != 0);
+	}
+	
+	public final boolean isMethodAccess() {
 		return ((fFlags & A_FUNC) == A_FUNC);
 	}
 	

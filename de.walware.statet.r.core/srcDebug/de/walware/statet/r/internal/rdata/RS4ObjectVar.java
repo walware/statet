@@ -19,16 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.rj.data.RCharacterStore;
-import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RS4Object;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 
 
@@ -132,11 +131,6 @@ public final class RS4ObjectVar extends CombinedElement
 		throw new UnsupportedOperationException();
 	}
 	
-	@Override
-	public RList getAttributes() {
-		return null;
-	}
-	
 	public RObject[] toArray() {
 		return null;
 	}
@@ -146,7 +140,8 @@ public final class RS4ObjectVar extends CombinedElement
 		return R_GENERAL_VARIABLE;
 	}
 	
-	public boolean hasChildren(final Filter filter) {
+	
+	public boolean hasModelChildren(final Filter filter) {
 		if (filter == null) {
 			return (fSlotValues.length > 0);
 		}
@@ -160,7 +155,7 @@ public final class RS4ObjectVar extends CombinedElement
 		}
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (filter == null) {
 			return Arrays.asList(fSlotValues);
 		}

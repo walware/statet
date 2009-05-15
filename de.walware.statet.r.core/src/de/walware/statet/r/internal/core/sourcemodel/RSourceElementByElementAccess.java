@@ -21,66 +21,94 @@ import org.eclipse.jface.text.Region;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IFrame;
-import de.walware.statet.r.core.model.IFrameInSource;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRClassExtension;
+import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRPackageLoad;
 import de.walware.statet.r.core.model.IRSlot;
+import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RAst;
 
 
-abstract class RSourceElementByElementAccess extends AbstractRModelElement
-		implements IRLangElement, IRLangElementWithSource {
+abstract class RSourceElementByElementAccess
+		implements IRLangElement, IRLangSourceElement, IModelElement.Filter<IModelElement> {
 	
 	
-	static class RPkgImport extends RSourceElementByElementAccess implements IRPackageLoad {
+	static final class RPkgImport extends RSourceElementByElementAccess implements IRPackageLoad {
 		
 		
-		public RPkgImport(final AbstractRModelElement parent, final IElementAccess access) {
+		public RPkgImport(final IRLangSourceElement parent, final ElementAccess access) {
 			super(parent, IRLangElement.R_PACKAGE_LOAD, access);
+		}
+		
+		
+		public boolean hasModelChildren(final Filter filter) {
+			return false;
+		}
+		
+		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+			return NO_R_SOURCE_CHILDREN;
+		}
+		
+		public boolean hasSourceChildren(final Filter filter) {
+			return false;
+		}
+		
+		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+			return NO_R_SOURCE_CHILDREN;
 		}
 		
 	}
 	
-	static class RMethod extends RSourceElementByElementAccess implements IRMethod {
+	static final class RMethod extends RSourceElementByElementAccess implements IRMethod, IBuildSourceFrameElement {
 		
 		
-		private Envir fEnvir;
+		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+		private List<? extends IRLangSourceElement> fModelChildrenProtected;
+		private final BuildSourceFrame fEnvir;
 		
 		private FDef fFDefNode;
 		private ArgsDefinition fArgs;
 		
 		
-		public RMethod(final AbstractRModelElement parent, final Envir envir, final FDef fdefNode) {
+		public RMethod(final IRLangSourceElement parent, final BuildSourceFrame envir, final FDef fdefNode) {
 			super(parent, IRLangElement.R_COMMON_FUNCTION, null);
 			fEnvir = envir;
 			fFDefNode = fdefNode;
 		}
 		
-		void complete(final int type, final IElementAccess defAccess, final ArgsDefinition args) {
+		void complete(final int type, final ElementAccess defAccess, final ArgsDefinition args) {
 			fType = type;
-			fAccess = defAccess;
+			setAccess(defAccess);
 			fArgs = args;
 		}
 		
 		
-		public RMethod(final AbstractRModelElement parent, final int type, final IElementAccess access, final Envir envir) {
+		public RMethod(final IRLangSourceElement parent, final int type, final ElementAccess access, final BuildSourceFrame envir) {
 			super(parent, type, access);
-			fFDefNode = null;
 			fEnvir = envir;
+			fFDefNode = null;
 		}
 		
-		void complete(final ArgsDefinition args) {
+		public void complete(final ArgsDefinition args) {
 			fArgs = args;
+		}
+		
+		public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
+			fSourceChildrenProtected = children;
+		}
+		
+		public BuildSourceFrame getBuildFrame() {
+			return fEnvir;
 		}
 		
 		
@@ -92,9 +120,33 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 			return fArgs;
 		}
 		
+		
+		public boolean hasModelChildren(final Filter filter) {
+			if (fModelChildrenProtected == null) {
+				fModelChildrenProtected = fEnvir.getModelChildren(this);
+			}
+			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
+		}
+		
+		public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+			if (fModelChildrenProtected == null) {
+				fModelChildrenProtected = fEnvir.getModelChildren(this);
+			}
+			return RSourceElements.getChildren(fModelChildrenProtected, filter);
+		}
+		
+		public boolean hasSourceChildren(final Filter filter) {
+			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
+		}
+		
+		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
+		}
+		
+		
 		@Override
 		public Object getAdapter(final Class required) {
-			if (IFrameInSource.class.equals(required)) {
+			if (IRFrame.class.equals(required)) {
 				return fEnvir;
 			}
 			return super.getAdapter(required);
@@ -102,25 +154,26 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 	}
 	
-	static class RClass extends RSourceElementByElementAccess implements IRClass {
+	static final class RClass extends RSourceElementByElementAccess implements IRClass, IBuildSourceFrameElement {
 		
 		
 		private static final List<String> NO_PARENTS = Arrays.asList(new String[0]);
 		
 		
-		private Envir fEnvir;
+		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+		private List<? extends IRLangSourceElement> fModelChildrenProtected;
+		private final BuildSourceFrame fEnvir;
 		
 		private List<String> fSuperClassesTypeNames = NO_PARENTS;
 		private List<String> fSuperClassesTypeNamesProtected = NO_PARENTS;
 		
 		
-		public RClass(final AbstractRModelElement parent, final ElementAccess defAccess, final Envir envir) {
+		public RClass(final IRLangSourceElement parent, final ElementAccess defAccess, final BuildSourceFrame envir) {
 			super(parent, IRLangElement.R_S4CLASS, defAccess);
 			fEnvir = envir;
 		}
 		
-		
-		void addSuperClasses(final String[] typeNames) {
+		public void addSuperClasses(final String[] typeNames) {
 			if (fSuperClassesTypeNames == NO_PARENTS) {
 				int count = 0;
 				for (final String name : typeNames) {
@@ -141,14 +194,46 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 			}
 		}
 		
+		public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
+			fSourceChildrenProtected = children;
+		}
+		
+		public BuildSourceFrame getBuildFrame() {
+			return fEnvir;
+		}
+		
 		
 		public List<String> getExtendedClassNames() {
 			return fSuperClassesTypeNamesProtected;
 		}
 		
+		
+		public boolean hasModelChildren(final Filter filter) {
+			if (fModelChildrenProtected == null) {
+				fModelChildrenProtected = fEnvir.getModelChildren(this);
+			}
+			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
+		}
+		
+		public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+			if (fModelChildrenProtected == null) {
+				fModelChildrenProtected = fEnvir.getModelChildren(this);
+			}
+			return RSourceElements.getChildren(fModelChildrenProtected, filter);
+		}
+		
+		public boolean hasSourceChildren(final Filter filter) {
+			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
+		}
+		
+		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
+		}
+		
+		
 		@Override
 		public Object getAdapter(final Class required) {
-			if (IFrameInSource.class.equals(required)) {
+			if (IRFrame.class.equals(required)) {
 				return fEnvir;
 			}
 			return super.getAdapter(required);
@@ -156,25 +241,36 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 	}
 	
-	static class RClassExt extends RSourceElementByElementAccess implements IRClassExtension {
+	static final class RClassExt extends RSourceElementByElementAccess implements IRClassExtension, IBuildSourceFrameElement {
 		
 		
-		private IFrame fEnvir;
+		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+		private List<? extends IRLangSourceElement> fModelChildrenProtected;
+		private final BuildSourceFrame fEnvir;
 		
 		private String fExtCommand;
 		private String fExtTypeName;
 		
 		
-		public RClassExt(final AbstractRModelElement parent, 
-				final ElementAccess defAccess, final IFrame envir, final String command) {
+		public RClassExt(final IRLangSourceElement parent, 
+				final ElementAccess defAccess, final BuildSourceFrame envir, final String command) {
 			super(parent, IRLangElement.R_S4CLASS_EXTENSION, defAccess);
-			fExtCommand = command;
 			fEnvir = envir;
+			fExtCommand = command;
 		}
 		
-		void complete(final String extTypeName) {
+		public void complete(final String extTypeName) {
 			fExtTypeName = extTypeName;
 		}
+		
+		public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
+			fSourceChildrenProtected = children;
+		}
+		
+		public BuildSourceFrame getBuildFrame() {
+			return fEnvir;
+		}
+		
 		
 		public String getExtCommand() {
 			return fExtCommand;
@@ -184,9 +280,33 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 			return fExtTypeName;
 		}
 		
+		
+		public boolean hasModelChildren(final Filter filter) {
+			if (fModelChildrenProtected == null) {
+				fModelChildrenProtected = fEnvir.getModelChildren(this);
+			}
+			return RSourceElements.hasChildren(fModelChildrenProtected, filter);
+		}
+		
+		public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+			if (fModelChildrenProtected == null) {
+				fModelChildrenProtected = fEnvir.getModelChildren(this);
+			}
+			return RSourceElements.getChildren(fModelChildrenProtected, filter);
+		}
+		
+		public boolean hasSourceChildren(final Filter filter) {
+			return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
+		}
+		
+		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+			return RSourceElements.getChildren(fSourceChildrenProtected, filter);
+		}
+		
+		
 		@Override
 		public Object getAdapter(final Class required) {
-			if (IFrameInSource.class.equals(required)) {
+			if (IRFrame.class.equals(required)) {
 				return fEnvir;
 			}
 			return super.getAdapter(required);
@@ -194,23 +314,40 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		
 	}
 	
-	static class RVariable extends RSourceElementByElementAccess {
+	static final class RVariable extends RSourceElementByElementAccess {
 		
 		
-		public RVariable(final AbstractRModelElement parent, final int elementType, final ElementAccess defAccess) {
+		public RVariable(final IRLangSourceElement parent, final int elementType, final ElementAccess defAccess) {
 			super(parent, elementType, defAccess);
+		}
+		
+		
+		public boolean hasModelChildren(final Filter filter) {
+			return false;
+		}
+		
+		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+			return NO_R_SOURCE_CHILDREN;
+		}
+		
+		public boolean hasSourceChildren(final Filter filter) {
+			return false;
+		}
+		
+		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+			return NO_R_SOURCE_CHILDREN;
 		}
 		
 	}
 	
-	static class RSlot extends RSourceElementByElementAccess implements IRSlot {
+	static final class RSlot extends RSourceElementByElementAccess implements IRSlot {
 		
 		
 		private String fTypeName;
 		private String fPrototypeCode;
 		
 		
-		public RSlot(final AbstractRModelElement parent, final ElementAccess defAccess) {
+		public RSlot(final IRLangSourceElement parent, final ElementAccess defAccess) {
 			super(parent, IRLangElement.R_S4SLOT, defAccess);
 		}
 		
@@ -222,43 +359,85 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 			return fTypeName;
 		}
 		
+		
+		public boolean hasModelChildren(final Filter filter) {
+			return false;
+		}
+		
+		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+			return NO_R_SOURCE_CHILDREN;
+		}
+		
+		public boolean hasSourceChildren(final Filter filter) {
+			return false;
+		}
+		
+		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+			return NO_R_SOURCE_CHILDREN;
+		}
+		
 	}
 	
 	
-	private final AbstractRModelElement fParent;
-	protected IElementAccess fAccess;
+	private final ISourceStructElement fParent;
+	private ElementAccess fAccess;
 	int fType;
 	int fOccurenceCount;
 	
 	
-	public RSourceElementByElementAccess(final AbstractRModelElement parent, final int elementType, final IElementAccess defAccess) {
+	public RSourceElementByElementAccess(final IRLangSourceElement parent, final int elementType, final ElementAccess defAccess) {
 		fParent = parent;
 		fType = elementType;
-		fAccess = defAccess;
+		setAccess(defAccess);
 	}
 	
 	
-	public IElementAccess getAccess() {
+	protected void setAccess(final ElementAccess access) {
+		if (access != null) {
+			access.fModelElement = this;
+			fAccess = access;
+		}
+	}
+	
+	public final String getModelTypeId() {
+		return RModel.TYPE_ID;
+	}
+	
+	public final IElementAccess getAccess() {
 		return fAccess;
 	}
 	
-	public IModelElement getParent() {
+	public boolean include(final IModelElement element) {
+		return (element == this);
+	}
+	
+	public final IRLangElement getModelParent() {
+		final List<? extends IRLangElement> elements = fAccess.getFrame().getModelElements();
+		for (final IRLangElement element : elements) {
+			if (element.hasModelChildren(this)) {
+				return element;
+			}
+		}
+		return null;
+	}
+	
+	public final ISourceStructElement getSourceParent() {
 		return fParent;
 	}
 	
-	public ISourceUnit getSourceUnit() {
+	public final ISourceUnit getSourceUnit() {
 		return fParent.getSourceUnit();
 	}
 	
-	public int getElementType() {
+	public final int getElementType() {
 		return fType;
 	}
 	
-	public IElementName getElementName() {
+	public final IElementName getElementName() {
 		return fAccess;
 	}
 	
-	public String getId() {
+	public final String getId() {
 		final String name = getElementName().getDisplayName();
 		final StringBuilder sb = new StringBuilder(name.length() + 10);
 		sb.append(Integer.toHexString(fType & MASK_C2));
@@ -269,16 +448,20 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		return sb.toString();
 	}
 	
-	public boolean exists() {
+	public final boolean exists() {
 		return fParent.exists();
 	}
 	
-	public boolean isReadOnly() {
+	public final boolean isReadOnly() {
 		return fParent.isReadOnly();
 	}
 	
 	
-	public IRegion getNameSourceRange() {
+	public final IRegion getSourceRange() {
+		return fAccess.getNode();
+	}
+	
+	public final IRegion getNameSourceRange() {
 		IElementAccess access = fAccess;
 		while (access.getNextSegment() != null) {
 			access = access.getNextSegment();
@@ -291,10 +474,6 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		}
 	}
 	
-	public IRegion getSourceRange() {
-		return fAccess.getNode();
-	}
-	
 	
 	public Object getAdapter(final Class required) {
 		if (IAstNode.class.equals(required)) {
@@ -305,6 +484,7 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		}
 		return null;
 	}
+	
 	
 	@Override
 	public int hashCode() {
@@ -319,7 +499,7 @@ abstract class RSourceElementByElementAccess extends AbstractRModelElement
 		final RSourceElementByElementAccess other = (RSourceElementByElementAccess) obj;
 		return ((fType & MASK_C2) == (other.fType & MASK_C2))
 				&& (fOccurenceCount == other.fOccurenceCount)
-				&& ( ((fType & MASK_C1) == C1_SOURCE) || (getParent().equals(other.getParent())) )
+				&& ( ((fType & MASK_C1) == C1_SOURCE) || (getSourceParent().equals(other.getSourceParent())) )
 				&& (getElementName().equals(other.getElementName()));
 	}
 	

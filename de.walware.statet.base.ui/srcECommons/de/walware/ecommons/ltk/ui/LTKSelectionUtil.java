@@ -102,7 +102,7 @@ public class LTKSelectionUtil {
 	public static ISourceStructElement getSelectedSourceStructElement(final ISourceStructElement root, final int offset, final int endOffset) {
 		ISourceStructElement ok = root;
 		CHECK: while (ok != null) {
-			final List<? extends ISourceStructElement> children = ok.getChildren(null);
+			final List<? extends ISourceStructElement> children = ok.getSourceChildren(null);
 			for (final ISourceStructElement child : children) {
 				final IRegion cand = child.getSourceRange();
 				if (offset >= cand.getOffset()) {

@@ -41,23 +41,25 @@ public abstract class RElementName implements IElementName {
 	public static final int SUB_INDEXED_D =   0x02B;
 	
 	
-	public static String createDisplayName(IElementName a) {
-		final String firstName;
+	public static String createDisplayName(IElementName a, final boolean withNamespace) {
 		StringBuilder sb = null;
 		
-		switch (a.getType()) {
-		case MAIN_SEARCH_ENV:
-			firstName = a.getSegmentName();
-			if (firstName != null) {
-				sb = new StringBuilder(firstName.length());
+		final IElementName namespace = (withNamespace) ? a.getNamespace() : null;
+		if ((withNamespace && namespace != null && namespace.getType() == MAIN_SEARCH_ENV)
+				|| a.getType() == MAIN_SEARCH_ENV) {
+			final String namespaceName = (namespace != null) ? namespace.getSegmentName() : a.getSegmentName();
+			if (namespaceName != null) {
+				sb = new StringBuilder(namespaceName.length());
 				sb.append("as.environment(\""); //$NON-NLS-1$
-				sb.append(firstName);
+				sb.append(namespaceName);
 				sb.append("\")"); //$NON-NLS-1$
 			}
 			else {
 				return null;
 			}
-			a = a.getNextSegment();
+			if (namespace == null) {
+				a = a.getNextSegment();
+			}
 			if (a != null && a.getType() == MAIN_DEFAULT) {
 				sb.append('$');
 				final String name = a.getSegmentName();
@@ -66,42 +68,49 @@ public abstract class RElementName implements IElementName {
 				}
 				a = a.getNextSegment();
 			}
-			else {
+			else if (a == null) {
 				return sb.toString();
 			}
-			break;
-		case MAIN_DEFAULT:
-		case MAIN_CLASS:
-		case MAIN_SLOT:
-		case MAIN_PACKAGE:
-		case SUB_NAMEDPART:
-		case SUB_NAMEDSLOT:
-			firstName = a.getSegmentName();
-			if (firstName != null) {
-				sb = appendSymbol(sb, firstName);
+			else {
+				return null;
 			}
-			a = a.getNextSegment();
-			if (a == null) {
-				return (sb != null) ? sb.toString() : firstName;
-			}
-			if (sb == null) {
-				sb = (firstName != null) ? new StringBuilder(firstName) : new StringBuilder();
-			}
-			break;
-		case SUB_INDEXED_D:
-			if (a instanceof DefaultImpl) {
-				sb = new StringBuilder("[["); //$NON-NLS-1$
-				sb.append(a.getSegmentName());
-				sb.append("]]"); //$NON-NLS-1$
+		}
+		else {
+			final String firstName;
+			switch (a.getType()) {
+			case MAIN_DEFAULT:
+			case MAIN_CLASS:
+			case MAIN_SLOT:
+			case MAIN_PACKAGE:
+			case SUB_NAMEDPART:
+			case SUB_NAMEDSLOT:
+				firstName = a.getSegmentName();
+				if (firstName != null) {
+					sb = appendSymbol(sb, firstName);
+				}
 				a = a.getNextSegment();
+				if (a == null) {
+					return (sb != null) ? sb.toString() : firstName;
+				}
+				if (sb == null) {
+					sb = (firstName != null) ? new StringBuilder(firstName) : new StringBuilder();
+				}
 				break;
+			case SUB_INDEXED_D:
+				if (a instanceof DefaultImpl) {
+					sb = new StringBuilder("[["); //$NON-NLS-1$
+					sb.append(a.getSegmentName());
+					sb.append("]]"); //$NON-NLS-1$
+					a = a.getNextSegment();
+					break;
+				}
+				return null;
+			case RESOURCE:
+			case MAIN_OTHER:
+				return a.getSegmentName();
+			default:
+				return null;
 			}
-			return null;
-		case RESOURCE:
-		case MAIN_OTHER:
-			return a.getSegmentName();
-		default:
-			return null;
 		}
 		
 		APPEND_SUB : while (a != null) {
@@ -252,6 +261,7 @@ public abstract class RElementName implements IElementName {
 		
 		private final int fType;
 		private final String fSegmentName;
+		private IElementName fNamespace;
 		private IElementName fNextSegment;
 		
 		
@@ -259,6 +269,13 @@ public abstract class RElementName implements IElementName {
 			fType = type;
 			fSegmentName = segmentName;
 			fNextSegment = null;
+		}
+		
+		public DefaultImpl(final int type, final IElementName namespace, final String segmentName, final IElementName next) {
+			fType = type;
+			fSegmentName = segmentName;
+			fNamespace = namespace;
+			fNextSegment = next;
 		}
 		
 		public DefaultImpl(final int type, final String segmentName, final IElementName next) {
@@ -274,6 +291,10 @@ public abstract class RElementName implements IElementName {
 		
 		public String getSegmentName() {
 			return fSegmentName;
+		}
+		
+		public IElementName getNamespace() {
+			return fNamespace;
 		}
 		
 		public IElementName getNextSegment() {
@@ -386,25 +407,29 @@ public abstract class RElementName implements IElementName {
 		return new DefaultImpl(segment.getType(), segment.getSegmentName(), null);
 	}
 	
-	public static IElementName concat(final IElementName[] segments) {
-		IElementName next = null;
-		for (int i = segments.length-1; i >= 0; i--) {
-			next = new DefaultImpl(segments[i].getType(), segments[i].getSegmentName(), next);
-		}
-		return next;
-	}
-	
 	public static IElementName concat(final List<IElementName> segments) {
-		IElementName next = null;
-		for (int i = segments.size()-1; i >= 0; i--) {
-			next = new DefaultImpl(segments.get(i).getType(), segments.get(i).getSegmentName(), next);
+		if (segments.size() > 0) {
+			int first = 0;
+			IElementName namespace = null;
+			if (segments.get(first).getType() == MAIN_SEARCH_ENV) {
+				namespace = segments.get(first);
+				first++;
+			}
+			if (segments.size() > first) {
+				IElementName next = null;
+				for (int i = segments.size()-1; i > first; i--) {
+					next = new DefaultImpl(segments.get(i).getType(), segments.get(i).getSegmentName(), next);
+				}
+				next = new DefaultImpl(segments.get(first).getType(), namespace, segments.get(first).getSegmentName(), next);
+				return next;
+			}
 		}
-		return next;
+		return null;
 	}
 	
 	
 	public String getDisplayName() {
-		return createDisplayName(this);
+		return createDisplayName(this, false);
 	}
 	
 	

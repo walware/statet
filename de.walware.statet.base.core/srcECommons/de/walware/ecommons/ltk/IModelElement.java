@@ -23,44 +23,44 @@ import org.eclipse.core.runtime.IAdaptable;
 public interface IModelElement extends IAdaptable {
 	
 	
-	public interface Filter<T extends IModelElement> {
+	interface Filter<T extends IModelElement> {
 		
 		boolean include(T element);
 		
 	}
 	
 	
-	public static final int MASK_C1 =            0xf00;
-	public static final int MASK_C2 =            0xff0;
-	public static final int MASK_C3 =            0xfff;
+	static final int MASK_C1 =            0xf00;
+	static final int MASK_C2 =            0xff0;
+	static final int MASK_C3 =            0xfff;
 	
-	public static final int C1_BUNDLE =          0x100;
-	public static final int C1_SOURCE =          0x200;
-	public static final int C1_IMPORT =          0x300;
-	public static final int C1_CLASS =           0x400;
-	public static final int C1_METHOD =          0x500;
-	public static final int C1_VARIABLE =        0x600;
+	static final int C1_BUNDLE =          0x100;
+	static final int C1_SOURCE =          0x200;
+	static final int C1_IMPORT =          0x300;
+	static final int C1_CLASS =           0x400;
+	static final int C1_METHOD =          0x500;
+	static final int C1_VARIABLE =        0x600;
 	
-	public static final int C2_SOURCE_FILE =     C1_SOURCE | 0x10;
-	public static final int C2_SOURCE_CHUNK =    C1_SOURCE | 0x80;
-	
-	
-	public static final List<IModelElement> NO_CHILDREN = Arrays.asList(new IModelElement[0]);
+	static final int C2_SOURCE_FILE =     C1_SOURCE | 0x10;
+	static final int C2_SOURCE_CHUNK =    C1_SOURCE | 0x80;
 	
 	
-	public String getModelTypeId();
+	static final List<IModelElement> NO_CHILDREN = Arrays.asList(new IModelElement[0]);
 	
-	public int getElementType();
-	public IElementName getElementName();
-	public String getId();
-	public ISourceUnit getSourceUnit();
 	
-	public boolean exists();
-	public boolean isReadOnly();
+	String getModelTypeId();
 	
-	public IModelElement getParent();
-	public boolean hasChildren(Filter<? extends IModelElement> filter); // can also be used to visit children
-	public List<? extends IModelElement> getChildren(Filter<? extends IModelElement> filter);
+	int getElementType();
+	IElementName getElementName();
+	String getId();
+	ISourceUnit getSourceUnit();
+	
+	boolean exists();
+	boolean isReadOnly();
+	
+	IModelElement getModelParent();
+	boolean hasModelChildren(Filter<? super IModelElement> filter); // can also be used to visit children
+	List<? extends IModelElement> getModelChildren(Filter<? super IModelElement> filter);
 	
 	
 }

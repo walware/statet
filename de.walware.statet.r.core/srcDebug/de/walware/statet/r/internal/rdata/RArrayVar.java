@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.rj.data.RArray;
 import de.walware.rj.data.RList;
@@ -135,11 +134,6 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		return fData;
 	}
 	
-	@Override
-	public RList getAttributes() {
-		return null;
-	}
-	
 	
 	public void setData(final DataType data) {
 		throw new UnsupportedOperationException();
@@ -167,11 +161,11 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	
-	public boolean hasChildren(final Filter filter) {
+	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}
 	

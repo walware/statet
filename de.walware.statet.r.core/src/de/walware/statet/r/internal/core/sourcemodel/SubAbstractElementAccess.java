@@ -15,8 +15,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.walware.ecommons.ltk.IElementName;
+
 import de.walware.statet.r.core.model.IElementAccess;
-import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.RElementName;
 
 
@@ -29,14 +31,18 @@ abstract class SubAbstractElementAccess extends RElementName implements IElement
 	
 	@Override
 	public String getDisplayName() {
-		return RElementName.createDisplayName(this);
+		return RElementName.createDisplayName(this, false);
+	}
+	
+	public IElementName getNamespace() {
+		return null;
 	}
 	
 	public final IElementAccess getNextSegment() {
 		return fNextSub;
 	}
 	
-	public final IFrame getFrame() {
+	public final IRFrame getFrame() {
 		return fRoot.getFrame();
 	}
 	

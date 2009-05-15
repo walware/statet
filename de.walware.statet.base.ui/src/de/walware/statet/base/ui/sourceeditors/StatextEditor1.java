@@ -698,23 +698,19 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 		if (info == null) {
 			return null;
 		}
-		IModelElement modelElement = state.getModelSelection();
-		TRY_MODEL: while (modelElement != null) {
-			switch (modelElement.getElementType() & IModelElement.MASK_C1) {
+		ISourceStructElement element = state.getModelSelection();
+		TRY_MODEL: while (element != null) {
+			switch (element.getElementType() & IModelElement.MASK_C1) {
 			case IModelElement.C1_CLASS:
 			case IModelElement.C1_METHOD:
-				if (modelElement instanceof ISourceStructElement) {
-					return ((ISourceStructElement) modelElement).getSourceRange();
-				}
-				break TRY_MODEL;
+				return element.getSourceRange();
 			case IModelElement.C1_SOURCE:
-				if ((modelElement.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_CHUNK
-						&& modelElement instanceof ISourceStructElement) {
-					return ((ISourceStructElement) modelElement).getSourceRange();
+				if ((element.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_CHUNK) {
+					return element.getSourceRange();
 				}
 				break TRY_MODEL;
 			default:
-				modelElement = modelElement.getParent();
+				element = element.getSourceParent();
 				continue TRY_MODEL;
 			}
 		}

@@ -48,6 +48,9 @@ public abstract class GenericUriSourceUnit implements ISourceUnit {
 			public String getSegmentName() {
 				return fId;
 			}
+			public IElementName getNamespace() {
+				return null;
+			}
 			public IElementName getNextSegment() {
 				return null;
 			}
@@ -151,21 +154,21 @@ public abstract class GenericUriSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public IModelElement getParent() {
-		return null; // directory
+	public IModelElement getModelParent() {
+		return null;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean hasChildren(final Filter filter) {
+	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IModelElement> getModelChildren(final Filter filter) {
 		return NO_CHILDREN;
 	}
 	

@@ -160,16 +160,16 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return C2_SOURCE_FILE;
 	}
 	
-	public IModelElement getParent() {
+	public IModelElement getModelParent() {
 		return null; // directory
 	}
 	
-	public boolean hasChildren(final Filter filter) {
-		return true;
+	public boolean hasModelChildren(final Filter filter) {
+		throw new UnsupportedOperationException(); 
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
-		return NO_CHILDREN;
+	public List<? extends IModelElement> getModelChildren(final Filter filter) {
+		throw new UnsupportedOperationException(); 
 	}
 	
 	

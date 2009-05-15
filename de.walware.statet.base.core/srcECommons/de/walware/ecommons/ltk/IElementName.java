@@ -24,6 +24,7 @@ public interface IElementName {
 	
 	public String getDisplayName();
 	
+	public IElementName getNamespace();
 	public IElementName getNextSegment();
 	
 }

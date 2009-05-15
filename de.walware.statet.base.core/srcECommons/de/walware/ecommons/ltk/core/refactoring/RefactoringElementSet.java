@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
 
@@ -270,15 +271,16 @@ public class RefactoringElementSet {
 	}
 	
 	protected boolean isDescendantOf(final IModelElement subElement, final IModelElement superElement) {
-		if (subElement.equals(superElement)) {
+		if (subElement.equals(superElement)
+				|| !(subElement instanceof ISourceStructElement)) {
 			return false;
 		}
-		IModelElement parent = subElement.getParent();
+		ISourceStructElement parent = ((ISourceStructElement) subElement).getSourceParent();
 		while (parent != null){
 			if (parent.equals(superElement)) {
 				return true;
 			}
-			parent = parent.getParent();
+			parent = parent.getSourceParent();
 		}
 		return false;
 	}

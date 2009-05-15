@@ -20,11 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.REnvironment;
-import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
@@ -33,12 +31,13 @@ import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.data.defaultImpl.RUniqueCharacterDataWithHashImpl;
 
-import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 
 
-public class REnvironmentVar extends CombinedElement
+public final class REnvironmentVar extends CombinedElement
 		implements ICombinedEnvironment, ExternalizableRObject {
 	
 	
@@ -125,7 +124,7 @@ public class REnvironmentVar extends CombinedElement
 				fCombinedName = "base";
 				fEnvironmentName = ENVNAME_BASE;
 				fSpecialType = ENVTYPE_BASE;
-				fFrameType = IFrame.T_PKG;
+				fFrameType = IRFrame.PACKAGE;
 				if (fElementName == null) {
 					fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, "package:base");
 				}
@@ -135,7 +134,7 @@ public class REnvironmentVar extends CombinedElement
 				fCombinedName = id.substring(8);
 				fEnvironmentName = id;
 				fSpecialType = ENVTYPE_PACKAGE;
-				fFrameType = IFrame.T_PKG;
+				fFrameType = IRFrame.PACKAGE;
 				if (fElementName == null) {
 					fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, id);
 				}
@@ -145,7 +144,7 @@ public class REnvironmentVar extends CombinedElement
 				fCombinedName = ".GlobalEnv";
 				fEnvironmentName = ENVNAME_GLOBAL;
 				fSpecialType = ENVTYPE_GLOBAL;
-				fFrameType = IFrame.T_PROJ;
+				fFrameType = IRFrame.PROJECT;
 				if (fElementName == null) {
 					fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, ".GlobalEnv");
 				}
@@ -155,7 +154,7 @@ public class REnvironmentVar extends CombinedElement
 				fCombinedName = ENVNAME_AUTOLOADS;
 				fEnvironmentName = ENVNAME_AUTOLOADS;
 				fSpecialType = ENVTYPE_AUTOLOADS;
-				fFrameType = IFrame.T_EXPLICIT;
+				fFrameType = IRFrame.EXPLICIT;
 				if (fElementName == null) {
 					fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, ENVNAME_AUTOLOADS);
 				}
@@ -165,7 +164,7 @@ public class REnvironmentVar extends CombinedElement
 		fCombinedName = id;
 		fEnvironmentName = id;
 		fSpecialType = 0;
-		fFrameType = IFrame.T_EXPLICIT;
+		fFrameType = IRFrame.EXPLICIT;
 		if (fElementName == null) {
 			fElementName = RElementName.create(isSearch ? RElementName.MAIN_SEARCH_ENV : RElementName.MAIN_OTHER, id);
 		}
@@ -244,11 +243,6 @@ public class REnvironmentVar extends CombinedElement
 		return null;
 	}
 	
-	@Override
-	public RList getAttributes() {
-		return null;
-	}
-	
 	public RObject[] toArray() {
 		final RObject[] array = new RObject[fComponents.length];
 		System.arraycopy(fComponents, 0, array, 0, fComponents.length);
@@ -260,7 +254,8 @@ public class REnvironmentVar extends CombinedElement
 		return R_GENERAL_VARIABLE;
 	}
 	
-	public boolean hasChildren(final Filter filter) {
+	
+	public boolean hasModelChildren(final Filter filter) {
 		if (filter == null) {
 			return (fComponents.length > 0);
 		}
@@ -274,7 +269,7 @@ public class REnvironmentVar extends CombinedElement
 		}
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (filter == null) {
 			return Arrays.asList(fComponents);
 		}
@@ -288,6 +283,7 @@ public class REnvironmentVar extends CombinedElement
 			return list;
 		}
 	}
+	
 	
 	public int getFrameType() {
 		return fFrameType;

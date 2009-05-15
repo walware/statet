@@ -134,28 +134,21 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object getAdapter(final Class adapter) {
-		return fFrom.getAdapter(adapter);
+	public IModelElement getModelParent() {
+		return null;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public IModelElement getParent() {
-		return null; // directory
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean hasChildren(final Filter filter) {
+	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IModelElement> getModelChildren(final Filter filter) {
 		return NO_CHILDREN;
 	}
 	
@@ -194,5 +187,12 @@ public abstract class GenericSourceUnitWorkingCopy implements ISourceUnit {
 	protected abstract void register();
 	
 	protected abstract void unregister();
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Object getAdapter(final Class adapter) {
+		return fFrom.getAdapter(adapter);
+	}
 	
 }

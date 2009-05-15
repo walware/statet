@@ -116,7 +116,7 @@ public abstract class StatextOutlinePage1 extends Page
 				final ISourceUnitModelInfo info = ((ISourceUnit) inputElement).getModelInfo(fMainType, 0, null); 
 				if (info != null) {
 					fCurrentModelStamp = info.getStamp();
-					final List<? extends ISourceStructElement> children = info.getSourceElement().getChildren(getContentFilter());
+					final List<? extends ISourceStructElement> children = info.getSourceElement().getSourceChildren(getContentFilter());
 					return children.toArray(new ISourceStructElement[children.size()]);
 				}
 			}
@@ -128,17 +128,17 @@ public abstract class StatextOutlinePage1 extends Page
 		
 		public Object getParent(final Object element) {
 			final ISourceStructElement o = (ISourceStructElement) element;
-			return o.getParent();
+			return o.getSourceParent();
 		}
 		
 		public boolean hasChildren(final Object element) {
 			final ISourceStructElement o = (ISourceStructElement) element;
-			return o.hasChildren(getContentFilter());
+			return o.hasSourceChildren(getContentFilter());
 		}
 		
 		public Object[] getChildren(final Object parentElement) {
 			final ISourceStructElement o = (ISourceStructElement) parentElement;
-			final List<? extends ISourceStructElement> children = o.getChildren(getContentFilter());
+			final List<? extends ISourceStructElement> children = o.getSourceChildren(getContentFilter());
 			return children.toArray(new ISourceStructElement[children.size()]);
 		}
 	}
@@ -586,7 +586,7 @@ public abstract class StatextOutlinePage1 extends Page
 							return;
 						}
 					}
-					final IModelElement parent = element.getParent();
+					final IModelElement parent = element.getSourceParent();
 					if (parent instanceof ISourceStructElement) {
 						element = (ISourceStructElement) parent;
 						continue;

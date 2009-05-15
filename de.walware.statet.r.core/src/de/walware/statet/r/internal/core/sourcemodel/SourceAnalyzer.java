@@ -30,7 +30,7 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IFrame;
+import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -136,13 +136,13 @@ public class SourceAnalyzer extends RAstVisitor {
 	private static class SourceElementBuilder extends ReturnValue {
 		
 		private final SourceElementBuilder parent;
-		private final AbstractRModelElement element;
+		private final IBuildSourceFrameElement element;
 		private final List<RSourceElementByElementAccess> children;
 		
 		private final List<ElementAccess> toCheck;
-		private final Envir envir;
+		private final BuildSourceFrame envir;
 		
-		SourceElementBuilder(final AbstractRModelElement element, final SourceElementBuilder parent, final Envir envir) {
+		SourceElementBuilder(final IBuildSourceFrameElement element, final SourceElementBuilder parent, final BuildSourceFrame envir) {
 			super(RETURN_SOURCE_CONTAINTER);
 			this.element = element;
 			this.parent = parent;
@@ -170,14 +170,14 @@ public class SourceAnalyzer extends RAstVisitor {
 	private IRSourceUnit fCurrentUnit;
 	private int fAnonymCount;
 	private final ArrayList<String> fIdComponents = new ArrayList<String>(32);
-	private LinkedHashMap<String, Envir> fEnvironments;
-	private Map<String, Envir> fDependencyEnvironments;
-	private final ArrayList<Envir> fCurrentEnvironments = new ArrayList<Envir>(32);
-	private Envir fGlobalEnvir;
-	private Envir fGenericDefaultEnvir;
-	private Envir fTopLevelEnvir;
-	private Envir fTopScope;
-	private Envir fPkgEnvir;
+	private LinkedHashMap<String, BuildSourceFrame> fFrames;
+	private Map<String, BuildSourceFrame> fDependencyEnvironments;
+	private final ArrayList<BuildSourceFrame> fCurrentEnvironments = new ArrayList<BuildSourceFrame>(32);
+	private BuildSourceFrame fGlobalEnvir;
+	private BuildSourceFrame fGenericDefaultEnvir;
+	private BuildSourceFrame fTopLevelEnvir;
+	private BuildSourceFrame fTopScope;
+	private PackageReferences fPkgRefs;
 	
 	private final LinkedList<RAstNode> fArgValueToIgnore = new LinkedList<RAstNode>();
 	private int[] fRequest = NO_REQUESTS;
@@ -329,40 +329,39 @@ public class SourceAnalyzer extends RAstVisitor {
 	public IRModelInfo update(final IRSourceUnit u, final RAstInfo ast) {
 		fAnonymCount = 0;
 		fCurrentUnit = u;
-		fEnvironments = new LinkedHashMap<String, Envir>();
-		fDependencyEnvironments = new HashMap<String, Envir>();
+		fFrames = new LinkedHashMap<String, BuildSourceFrame>();
+		fDependencyEnvironments = new HashMap<String, BuildSourceFrame>();
 		final IResource res = u.getResource();
 		final String projId = (res != null) ? res.getProject().getName() : "<noproject:"+u.getElementName(); //$NON-NLS-1$
 		
-		final Envir fileEnvir = new Envir.DefScope(IFrame.T_PROJ, Envir.createId(IFrame.T_PROJ, projId, 0), new Envir[0]); // ref projects
+		final BuildSourceFrame fileEnvir = new BuildSourceFrame.DefScope(IRFrame.PROJECT, BuildSourceFrame.createId(IRFrame.PROJECT, projId, 0), null, new BuildSourceFrame[0]); // ref projects
+		
 		fCurrentEnvironments.add(fileEnvir);
-		fEnvironments.put(fileEnvir.getId(), fileEnvir);
 		fGenericDefaultEnvir = fTopLevelEnvir = fGlobalEnvir = fileEnvir;
-		fPkgEnvir = new Envir.DefScope(0, "pkgAccessInUnit", new Envir[0]);
+		fPkgRefs = new PackageReferences();
 		fTopScope = fCurrentEnvironments.get(fCurrentEnvironments.size()-1);
 		
 		fIdComponents.add(projId);
 		
-		final RSourceUnitElement fileElement = new RSourceUnitElement(u, ast.root);
+		final RSourceUnitElement fileElement = new RSourceUnitElement(u, fileEnvir, ast.root);
 		
 		try {
-			ast.root.addAttachment(fileElement);
-			enterElement(fileElement, fileEnvir);
+			enterElement(fileElement, fileEnvir, ast.root);
 			ast.root.acceptInR(this);
 			leaveElement();
 			
-			for (final Envir si : fDependencyEnvironments.values()) {
+			for (final BuildSourceFrame si : fDependencyEnvironments.values()) {
 				si.runLateResolve(false);
 			}
 			fTopLevelEnvir.fParents.addAll(0, fDependencyEnvironments.values());
-			for (final Envir si : fEnvironments.values()) {
+			for (final BuildSourceFrame si : fFrames.values()) {
 				si.runLateResolve(false);
 			}
 			final RAstInfo newAst = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, ast.stamp);
 			newAst.root = ast.root;
-			final RSourceInfo model = new RSourceInfo(newAst, fEnvironments, fileElement);
+			final RSourceInfo model = new RSourceInfo(newAst, fFrames, fileEnvir, fPkgRefs, fDependencyEnvironments, fileElement);
 			
-			fEnvironments = null;
+			fFrames = null;
 			fDependencyEnvironments = null;
 			
 			final HashMap<String, Integer> commonNames = new HashMap<String, Integer>();
@@ -403,7 +402,9 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
 				Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
-				seb.element.fChildrenProtected = Arrays.asList(finalChildren);
+				if (finalChildren.length > 0) {
+					seb.element.setSourceChildren(Arrays.asList(finalChildren));
+				}
 				commonNames.clear();
 				classNames.clear();
 				importNames.clear();
@@ -428,7 +429,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		fGenericDefaultEnvir = null;
 		fGlobalEnvir = null;
-		fPkgEnvir = null;
+		fPkgRefs = null;
 		fTopLevelEnvir = null;
 		
 		fReturnValue = null;
@@ -448,11 +449,11 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
-	private Envir getPkgEnvir(final String name) {
-		final String id = Envir.createId(IFrame.T_PKG, name, ++fAnonymCount);
-		Envir envir = fDependencyEnvironments.get(id);
+	private BuildSourceFrame getPkgEnvir(final String name) {
+		final String id = BuildSourceFrame.createId(IRFrame.PACKAGE, name, ++fAnonymCount);
+		BuildSourceFrame envir = fDependencyEnvironments.get(id);
 		if (envir == null) {
-			envir = new Envir.DefScope(IFrame.T_PKG, id, new Envir[0]);
+			envir = new BuildSourceFrame.DefScope(IRFrame.PACKAGE, id, name, new BuildSourceFrame[0]);
 			fDependencyEnvironments.put(id, envir);
 		}
 		return envir;
@@ -486,9 +487,11 @@ public class SourceAnalyzer extends RAstVisitor {
 		return access;
 	}
 	
-	protected final void enterElement(final AbstractRModelElement element, final Envir envir) {
+	protected final void enterElement(final IBuildSourceFrameElement element, final BuildSourceFrame envir, final RAstNode node) {
 		fCurrentSourceContainerBuilder = new SourceElementBuilder(element, fCurrentSourceContainerBuilder, envir);
-		envir.setModelElement(element);
+		envir.addFrameElement(element);
+		fFrames.put(envir.getFrameId(), envir);
+		node.addAttachment(envir);
 		fSourceContainerBuilders.add(fCurrentSourceContainerBuilder);
 	}
 	
@@ -504,7 +507,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				return null;
 			}
 			
-			element.fAccess = access;
+			element.setAccess(access);
 			fCurrentSourceContainerBuilder.children.add(element);
 			access.getNode().addAttachment(element);
 			return null;
@@ -518,8 +521,8 @@ public class SourceAnalyzer extends RAstVisitor {
 	private void registerFunctionElement(final RMethod rMethod, int type,
 			final ElementAccess access, final Signature sig) {
 		if (rMethod.getElementType() == IRLangElement.R_COMMON_FUNCTION) {
-			final IFrame frame = access.getFrame();
-			if (frame != null && (frame.getFrameType() == IFrame.T_FUNCTION || frame.getFrameType() == IFrame.T_CLASS)) {
+			final IRFrame frame = access.getFrame();
+			if (frame != null && (frame.getFrameType() == IRFrame.FUNCTION || frame.getFrameType() == IRFrame.CLASS)) {
 				// make sure it is marked as local
 				type |= 0x1;
 			}
@@ -616,15 +619,13 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef node) throws InvocationTargetException {
-		final Envir envir = new Envir.DefScope(IFrame.T_FUNCTION, Envir.createId(IFrame.T_FUNCTION, null, ++fAnonymCount),
-				new Envir[] { fTopScope });
+		final BuildSourceFrame envir = new BuildSourceFrame.DefScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, null, ++fAnonymCount),
+				null, new BuildSourceFrame[] { fTopScope });
 		fCurrentEnvironments.add(envir);
 		fTopScope = envir;
-		fEnvironments.put(envir.getId(), envir);
-		node.addAttachment(envir);
 		
 		final RMethod rMethod = new RMethod(fCurrentSourceContainerBuilder.element, envir, node);
-		enterElement(rMethod, envir);
+		enterElement(rMethod, envir, node);
 		
 		fRequest = NO_REQUESTS;
 		node.acceptInRChildren(this);
@@ -1000,10 +1001,10 @@ public class SourceAnalyzer extends RAstVisitor {
 		if (isValidPackageName(namespaceChild)) {
 			namespaceName = namespaceChild.getText();
 			final ElementAccess packageAccess = new ElementAccess.Package(access.fFullNode, namespaceChild);
-			fPkgEnvir.add(namespaceName, packageAccess);
+			fPkgRefs.add(namespaceName, packageAccess);
 		}
 		// register explicit
-		Envir envir;
+		BuildSourceFrame envir;
 		if (namespaceName != null &&
 				((node.getElementChild().getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) == 0)) {
 			envir = getPkgEnvir(namespaceName);
@@ -1056,7 +1057,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ;
 				access.fNameNode = nameValue;
-				final Envir envir = readScopeArgs(args.getArgValueNode(fArgIdx_scope), fTopScope);
+				final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode(fArgIdx_scope), fTopScope);
 				if (evalBoolean(args.getArgValueNode("inherits"), false)) {
 					envir.addLateResolve(nameValue.getText(), access);
 				}
@@ -1156,7 +1157,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				access.fFlags = ElementAccess.A_WRITE;
 				access.fNameNode = xNode;
 				
-				final Envir envir = readScopeArgs(args.getArgValueNode("pos"), fTopScope);
+				final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode("pos"), fTopScope);
 				if (evalBoolean(args.getArgValueNode("inherits"), false)) {
 					envir.addLateResolve(xNode.getText(), access);
 				}
@@ -1195,7 +1196,7 @@ public class SourceAnalyzer extends RAstVisitor {
 							final ElementAccess access = new ElementAccess.Default(node);
 							access.fFlags = ElementAccess.A_DELETE;
 							access.fNameNode = valueNode;
-							final Envir envir = readScopeArgs(args.getArgValueNode("pos"), fTopScope);
+							final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode("pos"), fTopScope);
 							if (evalBoolean(args.getArgValueNode("inherits"), false)) {
 								envir.addLateResolve(valueNode.getText(), access);
 							}
@@ -1245,7 +1246,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_READ;
 				access.fNameNode = xNode;
-				final Envir envir = readScopeArgs(args.getArgValueNode(fArgIdx_scope), fTopScope);
+				final BuildSourceFrame envir = readScopeArgs(args.getArgValueNode(fArgIdx_scope), fTopScope);
 				if (evalBoolean(args.getArgValueNode("inherits"), true)) {
 					envir.addLateResolve(xNode.getText(), access);
 				}
@@ -1354,11 +1355,12 @@ public class SourceAnalyzer extends RAstVisitor {
 				final String packageName = nameValue.getText();
 				final ElementAccess access = new ElementAccess.Package(
 						node, nameValue);
-				fPkgEnvir.add(packageName, access);
+				access.fFlags |= ElementAccess.A_IMPORT;
+				fPkgRefs.add(packageName, access);
 				final RPkgImport rImport = new RPkgImport(fCurrentSourceContainerBuilder.element, access);
 				fCurrentSourceContainerBuilder.children.add(rImport);
 				
-				final Envir envir = getPkgEnvir(packageName);
+				final BuildSourceFrame envir = getPkgEnvir(packageName);
 				if (!fGlobalEnvir.fParents.contains(envir)) {
 					fGlobalEnvir.fParents.add(0, envir);
 				}
@@ -1486,12 +1488,12 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				fArgValueToIgnore.add(fNameNode);
 				
-				final Envir envir = new Envir.RunScope(IFrame.T_FUNCTION, Envir.createId(IFrame.T_FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
+				final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
 				final RMethod rMethod = new RMethod(fCurrentSourceContainerBuilder.element, 
 						IRLangElement.R_GENERIC_FUNCTION, access, envir);
 				registerFunctionElement(rMethod);
 				
-				enterElement(rMethod, envir);
+				enterElement(rMethod, envir, node);
 				
 				final RMethod defMethod = visitAndCheckValue(args.getArgNode(fArgIdx_def), "def");
 				final RMethod defaultMethod = visitAndCheckValue(args.getArgNode(fArgIdx_useAsDefault), "useAsDefault");
@@ -1672,14 +1674,12 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			fGenericDefaultEnvir.addClass(name, access);
 			
-			final Envir envir = new Envir.RunScope(IFrame.T_CLASS, Envir.createId(IFrame.T_CLASS, access.getSegmentName(), ++fAnonymCount), 
+			final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++fAnonymCount), 
 					fTopScope);
-			fEnvironments.put(envir.getId(), envir);
-			node.addAttachment(envir);
 			
 			final RClass rClass = new RSourceElementByElementAccess.RClass(fCurrentSourceContainerBuilder.element, access, envir);
 			registerClassElement(rClass);
-			enterElement(rClass, envir);
+			enterElement(rClass, envir, node);
 			
 			final RAstNode representationValue = args.getArgValueNode(fArgIdx_representation);
 			if (representationValue != null) {
@@ -1759,14 +1759,11 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			fGenericDefaultEnvir.addClass(name, access);
 			
-			final Envir envir = new Envir.RunScope(IFrame.T_CLASS, Envir.createId(IFrame.T_CLASS, access.getSegmentName(), ++fAnonymCount), 
+			final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.CLASS, BuildSourceFrame.createId(IRFrame.CLASS, access.getSegmentName(), ++fAnonymCount), 
 					fTopScope);
-			fEnvironments.put(envir.getId(), envir);
-			node.addAttachment(envir);
-			
 			final RClass rClass = new RSourceElementByElementAccess.RClass(fCurrentSourceContainerBuilder.element, access, envir);
 			registerClassElement(rClass);
-			enterElement(rClass, envir);
+			enterElement(rClass, envir, node);
 			
 			if (superClassNamesValue != null) {
 				fRequest = STRING_ARRAY_REQUEST;
@@ -1941,7 +1938,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			final RAstNode classNameNode = args.getArgValueNode(fArgIdx_className);
 			final RAstNode cToExtendNameNode = args.getArgValueNode(fArgIdx_classToExtendName);
 			RClassExt rClassExt = null;
-			Envir envir = null;
+			BuildSourceFrame envir = null;
 			
 			if (classNameNode != null && classNameNode.getNodeType() == NodeType.STRING_CONST) {
 				final ElementAccess access = new ElementAccess.Class(node);
@@ -1951,7 +1948,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				fArgValueToIgnore.add(classNameNode);
 				
-				envir = new Envir.RunScope(IFrame.T_FUNCTION, Envir.createId(IFrame.T_FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
+				envir = new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
 				rClassExt = new RClassExt(fCurrentSourceContainerBuilder.element, access, envir, "setIs");
 				registerClassExtElement(rClassExt);
 			}
@@ -1969,7 +1966,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			
 			if (rClassExt != null) {
-				enterElement(rClassExt, envir);
+				enterElement(rClassExt, envir, node);
 				
 				visitAndCheckValue(args.allocatedArgs[fArgIdx_testF], "test");
 				visitAndCheckValue(args.allocatedArgs[fArgIdx_coerceF], "coerce");
@@ -2527,9 +2524,9 @@ public class SourceAnalyzer extends RAstVisitor {
 		return defaultValue;
 	}
 	
-	private Envir readScopeArgs(final RAstNode pos, final Envir defaultScope) throws InvocationTargetException {
+	private BuildSourceFrame readScopeArgs(final RAstNode pos, final BuildSourceFrame defaultScope) throws InvocationTargetException {
 		fReturnValue = null;
-		Envir envir = null;
+		BuildSourceFrame envir = null;
 		if (pos != null) {
 			switch (pos.getNodeType()) {
 			case NUM_CONST:
@@ -2551,8 +2548,8 @@ public class SourceAnalyzer extends RAstVisitor {
 			default:
 				// check for environment
 				pos.acceptInR(SourceAnalyzer.this);
-				if (fReturnValue instanceof Envir) {
-					envir = (Envir) fReturnValue;
+				if (fReturnValue instanceof BuildSourceFrame) {
+					envir = (BuildSourceFrame) fReturnValue;
 					break;
 				}
 				break;

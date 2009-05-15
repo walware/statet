@@ -17,16 +17,15 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.rj.data.RFunction;
-import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RScanner;
@@ -85,10 +84,6 @@ public final class RFunction2 extends CombinedElement
 		return null;
 	}
 	
-	public RList getAttributes() {
-		return null;
-	}
-	
 	
 	public int getElementType() {
 		return IRMethod.R_COMMON_FUNCTION;
@@ -98,11 +93,12 @@ public final class RFunction2 extends CombinedElement
 		return fArgs;
 	}
 	
-	public boolean hasChildren(final Filter filter) {
+	
+	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}
 	

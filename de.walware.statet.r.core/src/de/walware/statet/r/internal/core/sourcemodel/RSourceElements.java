@@ -1,0 +1,51 @@
+/*******************************************************************************
+ * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     Stephan Wahlbrink - initial API and implementation
+ *******************************************************************************/
+
+package de.walware.statet.r.internal.core.sourcemodel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.walware.ecommons.ltk.IModelElement;
+
+
+public class RSourceElements {
+	
+	static final List<? extends IRLangSourceElement> getChildren(final List<? extends IRLangSourceElement> children, final IModelElement.Filter filter) {
+		if (filter == null) {
+			return children;
+		}
+		else {
+			final ArrayList<IRLangSourceElement> filtered = new ArrayList<IRLangSourceElement>(children.size());
+			for (final IRLangSourceElement child : children) {
+				if (filter.include(child)) {
+					filtered.add(child);
+				}
+			}
+			return filtered;
+		}
+	}
+	
+	static final boolean hasChildren(final List<? extends IRLangSourceElement> children, final IModelElement.Filter filter) {
+		if (filter == null) {
+			return (!children.isEmpty());
+		}
+		else {
+			for (final IRLangSourceElement child : children) {
+				if (filter.include(child)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+	
+}

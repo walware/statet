@@ -181,7 +181,7 @@ public class CodeGeneration {
 			
 			if (slotPositions.length > 0) {
 				String[] tags = null;
-				final List<? extends IModelElement> slots = rClass.getChildren(IRLangElement.R_S4SLOT_FILTER);
+				final List<? extends IModelElement> slots = rClass.getModelChildren(IRLangElement.R_S4SLOT_FILTER);
 				final int count = slots.size();
 				tags = new String[count];
 				for (int i = 0; i < count; i++) {

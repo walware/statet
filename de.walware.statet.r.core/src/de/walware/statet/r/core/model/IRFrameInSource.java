@@ -11,24 +11,14 @@
 
 package de.walware.statet.r.core.model;
 
-import java.util.Map;
-
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-
-import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import java.util.List;
+import java.util.Set;
 
 
-/**
- * Container for model information of a R source unit
- */
-public interface IRModelInfo extends ISourceUnitModelInfo {
+public interface IRFrameInSource extends IRFrame {
 	
 	
-	Map<String, ? extends IRFrameInSource> getSourceFrames();
-	IRFrameInSource getTopFrame();
-	IPackageReferences getReferencedPackages();
-	Map<String, ? extends IRFrame> getReferencedFrames();
-	
-	RAstInfo getAst();
+	Set<String> getAllAccessNames();
+	List<? extends IElementAccess> getAllAccessOfElement(final String name);
 	
 }

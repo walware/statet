@@ -17,16 +17,16 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.rj.data.RCharacterStore;
-import de.walware.rj.data.RList;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
+
+import de.walware.statet.r.core.model.IRLangElement;
 
 
 public class RVectorVar<DataType extends RStore> extends CombinedElement
@@ -128,21 +128,17 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 		throw new UnsupportedOperationException();
 	}
 	
-	@Override
-	public RList getAttributes() {
-		return null;
-	}
-	
 	
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
-	public boolean hasChildren(final Filter filter) {
+	
+	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}
 	

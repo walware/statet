@@ -404,8 +404,9 @@ public abstract class RefactoringAdapter {
 				checkFinalToDelete(result, resource);
 			}
 		}
-		else if ((element.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_BUNDLE) {
-			final List<? extends IModelElement> children = element.getChildren(null);
+		else if ((element.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_BUNDLE
+				&& element instanceof ISourceStructElement) {
+			final List<? extends IModelElement> children = ((ISourceStructElement) element).getSourceChildren(null);
 			for (final IModelElement child : children) {
 				checkFinalToDeletion(result, child);
 			}

@@ -30,7 +30,6 @@ import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
-import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.ui.RLabelProvider;
 import de.walware.statet.r.ui.RUI;
@@ -119,13 +118,13 @@ public class CombinedLabelProvider extends StyledCellLabelProvider {
 		case RObject.TYPE_DATAFRAME:
 			return RUI.getImage(RUI.IMG_OBJ_DATAFRAME);
 		case RObject.TYPE_VECTOR:
-			return (element.getParent() != null && ((ICombinedRElement) element.getParent()).getRObjectType() == RObject.TYPE_DATAFRAME) ?
+			return (element.getModelParent() != null && element.getModelParent().getRObjectType() == RObject.TYPE_DATAFRAME) ?
 					RUI.getImage(RUI.IMG_OBJ_DATAFRAME_COLUMN) : RUI.getImage(RUI.IMG_OBJ_VECTOR);
 		case RObject.TYPE_ARRAY:
 			return RUI.getImage(RUI.IMG_OBJ_ARRAY);
 		case RObject.TYPE_S4OBJECT:
 			if (element.getData() != null) {
-				return (element.getParent() != null && ((ICombinedRElement) element.getParent()).getRObjectType() == RObject.TYPE_DATAFRAME) ?
+				return (element.getModelParent() != null && element.getModelParent().getRObjectType() == RObject.TYPE_DATAFRAME) ?
 						RUI.getImage(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN) : RUI.getImage(RUI.IMG_OBJ_S4OBJ_VECTOR);
 			}
 			return RUI.getImage(RUI.IMG_OBJ_S4OBJ);
@@ -150,26 +149,12 @@ public class CombinedLabelProvider extends StyledCellLabelProvider {
 	
 	public StyledString getStyleString(final ICombinedRElement element, final RList attributes) {
 		final IElementName elementName = element.getElementName();
-		String name;
-		final boolean envInfo;
-		if (elementName.getType() == RElementName.MAIN_SEARCH_ENV
-				&& elementName.getNextSegment() != null) {
-			envInfo = true;
-			name = elementName.getNextSegment().getDisplayName();
-		}
-		else {
-			envInfo = false;
-			name = elementName.getSegmentName();
-		}
-		if (name == null) {
-			name = ""; //$NON-NLS-1$
-		}
-		final StyledString text = new StyledString(name, fDefaultStyler);
+		final StyledString text = new StyledString(elementName.getDisplayName(), fDefaultStyler);
 		decorateStyledText(text, element, attributes);
-		if (fLong && envInfo) {
+		if (fLong && elementName.getNamespace() != null) {
 			final StringBuilder textBuilder = getTextBuilder();
-			textBuilder.append(" - ");
-			textBuilder.append(elementName.getSegmentName());
+			textBuilder.append(" - "); //$NON-NLS-1$
+			textBuilder.append(elementName.getNamespace().getSegmentName());
 			text.append(textBuilder.toString(), StyledString.QUALIFIER_STYLER);
 		}
 		return text;

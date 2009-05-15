@@ -12,6 +12,7 @@
 package de.walware.statet.r.internal.debug.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -106,13 +107,13 @@ public class REditorDebugHover implements ISourceEditorHover {
 				if (fCancelled || monitor.isCanceled()) {
 					throw new CoreException(Status.CANCEL_STATUS);
 				}
-				if (fElementRef.getType() != RElementName.MAIN_SEARCH_ENV) {
+				if (fElementRef.getNamespace() == null) {
 					fElementRef = checkName(r, monitor);
 				}
-				if (fElementRef == null || fElementRef.getNextSegment() == null) {
+				if (fElementRef == null) {
 					return;
 				}
-				final String name = fElementRef.getDisplayName();
+				final String name = RElementName.createDisplayName(fElementRef, true);
 				if (r instanceof IRCombinedDataAdapter) {
 					final IRCombinedDataAdapter r2 = (IRCombinedDataAdapter) r;
 					final String cmd = name;
@@ -339,7 +340,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 					}
 					segment = segment.getNextSegment();
 				}
-				return RElementName.concat(segments);
+				return RElementName.concat(Arrays.asList(segments));
 			}
 			current = current.getNextSegment();
 		}

@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RList;
@@ -30,6 +29,7 @@ import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 
 
@@ -129,24 +129,24 @@ public class RListVar extends CombinedElement
 		return fComponents[idx];
 	}
 	
-	public boolean set(final int idx, final RObject component) {
+	public final boolean set(final int idx, final RObject component) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void insert(final int idx, final String label, final RObject component) {
+	public final void insert(final int idx, final String label, final RObject component) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void add(final String name, final RObject component) {
+	public final void add(final String name, final RObject component) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void remove(final int idx) {
+	public final void remove(final int idx) {
 		throw new UnsupportedOperationException();
 	}
 	
 	
-	public RObject get(final String name) {
+	public final RObject get(final String name) {
 		final int idx = fNamesAttribute.getIdx(name);
 		if (idx >= 0) {
 			return fComponents[idx];
@@ -154,22 +154,22 @@ public class RListVar extends CombinedElement
 		return null;
 	}
 	
-	public boolean set(final String name, final RObject component) {
+	public final boolean set(final String name, final RObject component) {
 		throw new UnsupportedOperationException();
 	}
 	
-	public RStore getData() {
+	public final RStore getData() {
 		return null;
 	}
 	
-	public RObject[] toArray() {
+	public final RObject[] toArray() {
 		final RObject[] array = new RObject[fComponents.length];
 		System.arraycopy(fComponents, 0, array, 0, fComponents.length);
 		return array;
 	}
 	
 	
-	public int getLength() {
+	public final int getLength() {
 		return fComponents.length;
 	}
 	
@@ -177,7 +177,8 @@ public class RListVar extends CombinedElement
 		return R_GENERAL_VARIABLE;
 	}
 	
-	public boolean hasChildren(final Filter filter) {
+	
+	public final boolean hasModelChildren(final Filter filter) {
 		if (filter == null) {
 			return (fComponents.length > 0);
 		}
@@ -191,7 +192,7 @@ public class RListVar extends CombinedElement
 		}
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public final List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (filter == null) {
 			return Arrays.asList(fComponents);
 		}

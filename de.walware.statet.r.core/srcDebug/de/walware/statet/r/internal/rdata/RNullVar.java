@@ -15,10 +15,11 @@ import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.IModelElement;
 
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RStore;
+
+import de.walware.statet.r.core.model.IRLangElement;
 
 
 public final class RNullVar extends CombinedElement {
@@ -49,6 +50,7 @@ public final class RNullVar extends CombinedElement {
 		return null;
 	}
 	
+	@Override
 	public RList getAttributes() {
 		return null;
 	}
@@ -58,11 +60,11 @@ public final class RNullVar extends CombinedElement {
 		return R_GENERAL_VARIABLE;
 	}
 	
-	public boolean hasChildren(final Filter filter) {
+	public boolean hasModelChildren(final Filter filter) {
 		return false;
 	}
 	
-	public List<? extends IModelElement> getChildren(final Filter filter) {
+	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}
 	

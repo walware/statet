@@ -34,7 +34,7 @@ public interface IElementAccess extends IElementName {
 	};
 	
 	
-	public IFrame getFrame();
+	public IRFrame getFrame();
 	
 	public boolean isWriteAccess();
 	

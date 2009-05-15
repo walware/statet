@@ -19,13 +19,12 @@ import de.walware.ecommons.ltk.IElementName;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataFrame;
-import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 
 
-public class RDataFrameVar extends RListVar
+public final class RDataFrameVar extends RListVar
 		implements RDataFrame, ExternalizableRObject {
 	
 	
@@ -71,24 +70,9 @@ public class RDataFrameVar extends RListVar
 		return fComponents[idx].getData();
 	}
 	
-	public void setColumn(final int idx, final RStore column) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean set(final int idx, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public boolean set(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public void remove(final int idx) {
-		throw new UnsupportedOperationException();
-	}
+//	public void setColumn(final int idx, final RStore column) {
+//		throw new UnsupportedOperationException();
+//	}
 	
 	
 	public int getRowCount() {

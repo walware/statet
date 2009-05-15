@@ -34,8 +34,8 @@ import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
 import de.walware.ecommons.ui.text.sourceediting.SimpleCompletionProposal;
 
-import de.walware.statet.r.core.model.IFrame;
-import de.walware.statet.r.core.model.IFrameInSource;
+import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -101,11 +101,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 		
 		// Get envir
-		final IFrameInSource envir = RModel.searchEnvir((RAstNode) node);
+		final IRFrameInSource envir = RModel.searchEnvir((RAstNode) node);
 		if (envir == null) {
 			return null;
 		}
-		final IFrameInSource[] envirList = RModel.createEnvirList(envir);
+		final IRFrame[] envirList = RModel.createEnvirList(envir);
 		
 		// Get prefix
 		final String prefix = context.getIdentifierPrefix();
@@ -128,70 +128,70 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return null;
 	}
 	
-	protected void doComputeMainProposals(final AssistInvocationContext context, final IFrameInSource[] envirList, final String orgPrefix, final String namePrefix,
+	protected void doComputeMainProposals(final AssistInvocationContext context, final IRFrame[] envirList, final String orgPrefix, final String namePrefix,
 			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 		final Set<String> methodNames = new HashSet<String>();
 		final Set<String> mainNames = new HashSet<String>();
 		
 		int sourceLevel = -1;
-		for (final IFrameInSource envir : envirList) {
+		for (final IRFrame envir : envirList) {
 			int distance;
 			switch (envir.getFrameType()) {
-			case IFrame.T_CLASS:
-			case IFrame.T_FUNCTION:
+			case IRFrame.CLASS:
+			case IRFrame.FUNCTION:
 				distance = Math.min(++sourceLevel, 7);
 				break;
-			case IFrame.T_PROJ:
+			case IRFrame.PROJECT:
 				distance = 8;
 				break;
-			case IFrame.T_PKG:
+			case IRFrame.PACKAGE:
 				distance = 9;
 				break;
-			case IFrame.T_EXPLICIT:
+			case IRFrame.EXPLICIT:
 				continue;
 			default:
 				distance = 10;
 				break;
 			}
-			final IModelElement envirElement = envir.getModelElement();
-			if (envirElement != null) {
-				final List<? extends IModelElement> elements = envirElement.getChildren(null);
-				for (final IModelElement element : elements) {
-					final IElementName elementName = element.getElementName();
-					final int c1type = (element.getElementType() & IModelElement.MASK_C1);
-					if ((c1type == IModelElement.C1_METHOD || c1type == IModelElement.C1_VARIABLE)
-							&& isCompletable(elementName)
-							&& elementName.getSegmentName().regionMatches(true, 0, namePrefix, 0, namePrefix.length())) {
-						final Set<String> names = (element.getElementType() == IRLangElement.R_S4METHOD) ?
-								methodNames : mainNames;
-						if ((distance > 0) && names.contains(elementName.getSegmentName()) ) {
-							continue;
+			final List<? extends IRLangElement> elements = envir.getModelChildren(null);
+			for (final IModelElement element : elements) {
+				final IElementName elementName = element.getElementName();
+				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
+				if ((c1type == IModelElement.C1_METHOD || c1type == IModelElement.C1_VARIABLE)
+						&& isCompletable(elementName)
+						&& elementName.getSegmentName().regionMatches(true, 0, namePrefix, 0, namePrefix.length())) {
+					final Set<String> names = (element.getElementType() == IRLangElement.R_S4METHOD) ?
+							methodNames : mainNames;
+					if ((distance > 0) && names.contains(elementName.getSegmentName()) ) {
+						continue;
+					}
+					final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, elementName, element, distance);
+					if (proposal != null) {
+						if (elementName.getNextSegment() == null) {
+							names.add(elementName.getSegmentName());
 						}
-						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, elementName, element, distance);
-						if (proposal != null) {
-							if (elementName.getNextSegment() == null) {
-								names.add(elementName.getSegmentName());
-							}
-							tenders.add(proposal);
-						}
+						tenders.add(proposal);
 					}
 				}
 			}
 		}
 		
 		mainNames.addAll(methodNames);
-		for (final IFrameInSource envir : envirList) {
-			final Set<String> elementNames = envir.getElementNames();
-			for (final String name : elementNames) {
-				if (name != null && name.regionMatches(true, 0, namePrefix, 0, namePrefix.length()) 
-						&& !mainNames.contains(name)) {
-					if (name.equals(namePrefix) && envir.getAllAccessOfElement(name).size() <= 1) {
-						continue; // prefix itself
-					}
-					final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, name);
-					if (proposal != null) {
-						mainNames.add(name);
-						tenders.add(proposal);
+		for (final IRFrame envir : envirList) {
+			if (envir instanceof IRFrameInSource) {
+				final IRFrameInSource sframe = (IRFrameInSource) envir;
+				final Set<String> elementNames = sframe.getAllAccessNames();
+				for (final String name : elementNames) {
+					if (name != null && name.regionMatches(true, 0, namePrefix, 0, namePrefix.length()) 
+							&& !mainNames.contains(name)) {
+						if (name.equals(namePrefix) && sframe.getAllAccessOfElement(name).size() <= 1) {
+							continue; // prefix itself
+						}
+						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, name);
+						if (proposal != null) {
+							mainNames.add(name);
+							tenders.add(proposal);
+						}
 					}
 				}
 			}
@@ -226,7 +226,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	protected void doComputeSubProposals(final AssistInvocationContext context, final IFrame[] envirList, final RElementName prefixSegments,
+	protected void doComputeSubProposals(final AssistInvocationContext context, final IRFrame[] envirList, final RElementName prefixSegments,
 			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
 	}
 	

@@ -11,25 +11,20 @@
 
 package de.walware.statet.r.core.model;
 
+import java.util.List;
 import java.util.Set;
 
 
-public interface IFrame {
+/**
+ * 
+ */
+public interface IPackageReferences {
 	
-	public static final int T_PROJ = 1;
-	public static final int T_PKG = 2;
-	public static final int T_EXPLICIT = 3;
-	public static final int T_FUNCTION = 4;
-	public static final int T_CLASS = 5;
+	public Set<String> getAllPackageNames();
 	
+	public boolean isImported(final String name);
 	
-	public int getFrameType();
-	public String getName();
-	
-	/** Combination of frametype and name */
-	public String getId();
-	
-	public Set<String> getElementNames();
-	public boolean containsElement(final String name);
+	public List<? extends IElementAccess> getAllAccessOfPackage(
+			final String name);
 	
 }

@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
+import java.util.List;
+
 import org.eclipse.jface.text.IRegion;
 
 import de.walware.ecommons.ltk.IElementName;
@@ -20,29 +22,39 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
+import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-class RSourceUnitElement extends AbstractRModelElement {
+final class RSourceUnitElement implements IBuildSourceFrameElement {
 	
 	
-	private ISourceUnit fUnit;
+	private ISourceUnit fSourceUnit;
+	
 	private final RAstNode fSourceNode;
+	private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+	private BuildSourceFrame fEnvir;
 	
 	
-	public RSourceUnitElement(final ISourceUnit unit, final RAstNode node) {
+	public RSourceUnitElement(final ISourceUnit unit, final BuildSourceFrame envir, final RAstNode node) {
 		fSourceNode = node;
-		fUnit = unit;
+		fSourceUnit = unit;
 	}
 	
 	
-	public IModelElement getParent() {
-		return null;
+	public void setSourceChildren(final List<? extends IRLangSourceElement> children) {
+		fSourceChildrenProtected = children;
 	}
 	
-	public ISourceUnit getSourceUnit() {
-		return fUnit;
+	public BuildSourceFrame getBuildFrame() {
+		return fEnvir;
+	}
+	
+	
+	public String getModelTypeId() {
+		return RModel.TYPE_ID;
 	}
 	
 	public int getElementType() {
@@ -50,11 +62,11 @@ class RSourceUnitElement extends AbstractRModelElement {
 	}
 	
 	public IElementName getElementName() {
-		return fUnit.getElementName();
+		return fSourceUnit.getElementName();
 	}
 	
 	public String getId() {
-		return fUnit.getId();
+		return fSourceUnit.getId();
 	}
 	
 	public boolean exists() {
@@ -63,7 +75,36 @@ class RSourceUnitElement extends AbstractRModelElement {
 	}
 	
 	public boolean isReadOnly() {
-		return fUnit.isReadOnly();
+		return fSourceUnit.isReadOnly();
+	}
+	
+	
+	public IRLangElement getModelParent() {
+		return null;
+	}
+	
+	public boolean hasModelChildren(final Filter filter) {
+		return false;
+	}
+	
+	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
+		return null;
+	}
+	
+	public ISourceStructElement getSourceParent() {
+		return null;
+	}
+	
+	public boolean hasSourceChildren(final Filter filter) {
+		return RSourceElements.hasChildren(fSourceChildrenProtected, filter);
+	}
+	
+	public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
+		return RSourceElements.getChildren(fSourceChildrenProtected, filter);
+	}
+	
+	public ISourceUnit getSourceUnit() {
+		return fSourceUnit;
 	}
 	
 	
@@ -75,17 +116,24 @@ class RSourceUnitElement extends AbstractRModelElement {
 		return null;
 	}
 	
+	public IRegion getDocumentationRange() {
+		return null;
+	}
 	
-	public Object getAdapter(final Class adapter) {
-		if (IAstNode.class.equals(adapter)) {
+	
+	public Object getAdapter(final Class required) {
+		if (IAstNode.class.equals(required)) {
 			return fSourceNode;
+		}
+		if (IRFrame.class.equals(required)) {
+			return fEnvir;
 		}
 		return null;
 	}
 	
 	@Override
 	public int hashCode() {
-		return fUnit.hashCode();
+		return fSourceUnit.hashCode();
 	}
 	
 	@Override
@@ -95,7 +143,7 @@ class RSourceUnitElement extends AbstractRModelElement {
 		}
 		final ISourceStructElement other = (ISourceStructElement) obj;
 		return ((other.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_FILE)
-				&& fUnit.equals(other.getSourceUnit());
+				&& fSourceUnit.equals(other.getSourceUnit());
 	}
 	
 }

@@ -122,6 +122,7 @@ import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.RElementComparator;
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.debug.ui.CombinedLabelProvider;
 import de.walware.statet.r.internal.debug.ui.REditorDebugHover;
@@ -150,13 +151,13 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		boolean processChanged;
 		boolean inputChanged;
 		final boolean filterUserspace;
-		final Filter envFilter;
-		final Filter otherFilter;
+		final Filter<IRLangElement> envFilter;
+		final Filter<IRLangElement> otherFilter;
 		ICombinedRElement[] rootElements;
 		Map<ICombinedRElement, ICombinedRElement[]> envirElements;
 		
 		
-		public ContentInput(final boolean processChanged, final boolean inputChanged, final boolean filterUserspace, final Filter envFilter, final Filter otherFilter) {
+		public ContentInput(final boolean processChanged, final boolean inputChanged, final boolean filterUserspace, final Filter<IRLangElement> envFilter, final Filter<IRLangElement> otherFilter) {
 			this.processChanged = processChanged;
 			this.inputChanged = inputChanged;
 			this.filterUserspace = filterUserspace;
@@ -166,7 +167,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 	}
 	
-	private static class ContentFilter implements Filter<IModelElement> {
+	private static class ContentFilter implements Filter<IRLangElement> {
 		
 		private final boolean fFilterInternal;
 		private final boolean fFilterNoPattern;
@@ -180,7 +181,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		
-		public boolean include(final IModelElement element) {
+		public boolean include(final IRLangElement element) {
 			final String name = element.getElementName().getSegmentName();
 			if (name != null) {
 				if (fFilterInternal && name.length() > 0 && name.charAt(0) == '.') {
@@ -420,7 +421,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			int length = 0;
 			int failed = 0;
 			for (int i = 0; i < treePaths.length; i++) {
-				final String name = getSimplifiedName(getElementName(treePaths[i]));
+				final IElementName elementName = getElementName(treePaths[i]);
+				final String name = (elementName != null) ? elementName.getDisplayName() : null;
 				if (name != null) {
 					length += name.length();
 					list.add(name);
@@ -480,15 +482,17 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			if (treePaths.length != 1) {
 				return null;
 			}
-			final String name = getSimplifiedName(getElementName(treePaths[0]));
-//			final String cmd = "print("+name+")";
-			
-			final ToolProcess process = fProcess;
-			try {
-				final ToolController controller = NicoUITools.accessController("R", process);
-				controller.submit(name, SubmitType.TOOLS);
-			}
-			catch (final CoreException e) {
+			final IElementName elementName = getElementName(treePaths[0]);
+			if (elementName != null) {
+				final String name = RElementName.createDisplayName(elementName, true);
+				
+				final ToolProcess process = fProcess;
+				try {
+					final ToolController controller = NicoUITools.accessController("R", process);
+					controller.submit(name, SubmitType.TOOLS);
+				}
+				catch (final CoreException e) {
+				}
 			}
 			
 			return null;
@@ -663,8 +667,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			final boolean processChanged = ((process != null) ? process != fLastProcess : fLastProcess != null);
 			final boolean filterInternal = !fFilterIncludeInternal;
 			final String filterText = fFilterText;
-			Filter envFilter;
-			Filter otherFilter;
+			Filter<IRLangElement> envFilter;
+			Filter<IRLangElement> otherFilter;
 			if (filterText != null && filterText.length() > 0) {
 				final SearchPattern filterPattern = new SearchPattern(
 						SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH | 
@@ -732,7 +736,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					}
 					final List<IModelElement> elements = new ArrayList<IModelElement>(length);
 					for (final ICombinedEnvironment entry : userEntries) {
-						elements.addAll(entry.getChildren(null));
+						elements.addAll(entry.getModelChildren((IModelElement.Filter<IRLangElement>) null));
 					}
 					
 					final ICombinedRElement[] array = elements.toArray(new ICombinedRElement[elements.size()]);
@@ -759,7 +763,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					input.envirElements = new HashMap<ICombinedRElement, ICombinedRElement[]>(fInput.size());
 					for (int i = 0; i < fInput.size(); i++) {
 						final ICombinedEnvironment envir = fInput.get(i);
-						final List<? extends IModelElement> children = envir.getChildren(input.envFilter);
+						final List<? extends IModelElement> children = envir.getModelChildren(input.envFilter);
 						input.envirElements.put(envir, children.toArray(new ICombinedRElement[children.size()]));
 					}
 				}
@@ -796,7 +800,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		public Object getParent(final Object element) {
 			if (element instanceof ICombinedRElement) {
-				return ((ICombinedRElement) element).getParent();
+				return ((ICombinedRElement) element).getModelParent();
 			}
 			return null;
 		}
@@ -815,7 +819,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 							return (children.length > 0);
 						}
 					}
-					return object.hasChildren(fActiveInput.envFilter);
+					return object.hasModelChildren(fActiveInput.envFilter);
 				case RObject.TYPE_REFERENCE: {
 					final RObject realObject = ((RReference) object).getResolvedRObject();
 					if (realObject != null) {
@@ -823,7 +827,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					}
 					return false; }
 				default:
-					return object.hasChildren(fActiveInput.otherFilter);
+					return object.hasModelChildren(fActiveInput.otherFilter);
 				}
 			}
 			return false;
@@ -840,7 +844,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 							return children;
 						}
 					}
-					return object.getChildren(fActiveInput.envFilter).toArray(); }
+					return object.getModelChildren(fActiveInput.envFilter).toArray(); }
 				case RObject.TYPE_REFERENCE: {
 					final RObject realObject = ((RReference) object).getResolvedRObject();
 					if (realObject != null) {
@@ -848,7 +852,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					}
 					return new Object[0]; }
 				default:
-					return object.getChildren(fActiveInput.otherFilter).toArray();
+					return object.getModelChildren(fActiveInput.otherFilter).toArray();
 				}
 			}
 			return null;
@@ -872,7 +876,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		protected Object prepareHoverInformation(final ViewerCell cell) {
 			final TreePath treePath = cell.getViewerRow().getTreePath();
 			final IElementName elementName = getElementName(treePath);
-			if (elementName != null && elementName.getNextSegment() != null) {
+			if (elementName != null && elementName.getType() != RElementName.MAIN_SEARCH_ENV) {
 				return elementName;
 			}
 			return null;
@@ -1309,7 +1313,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				}
 				for (int j = count-1; j >= 0; j--) {
 					newPath[j] = entry;
-					entry = (ICombinedRElement) entry.getParent();
+					entry = (ICombinedRElement) entry.getModelParent();
 				}
 				paths[i] = new TreePath(newPath);
 			}
@@ -1347,7 +1351,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		if (selection.size() == 1) {
 			fCurrentInfoObject = selection.getFirstElement();
 			final TreePath treePath = selection.getPaths()[0];
-			final String name = getSimplifiedName(getElementName(treePath));
+			final IElementName elementName = getElementName(treePath);
+			final String name = (elementName != null) ? elementName.getDisplayName() : null;
 			if (name != null) {
 				if (fCurrentInfoObject.equals(previousInfoObject)) {
 					clearInfo();
@@ -1429,21 +1434,21 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	
 	protected IElementName getElementName(final TreePath treePath) {
+		if (treePath.getSegmentCount() == 0) {
+			return null;
+		}
 		int segmentIdx = 0;
 		if (!fFilterUserspaceActivated) {
-			if (treePath.getSegmentCount() == 1) {
+			if (treePath.getSegmentCount() == 1) { // search path item
 				return ((ICombinedRElement) treePath.getFirstSegment()).getElementName();
 			}
-			else {
+			else { // main name at 1
 				segmentIdx = 1;
 			}
 		}
-		if (treePath.getSegmentCount() <= segmentIdx) {
-			return null;
-		}
 		final IElementName[] names = new IElementName[treePath.getSegmentCount()-segmentIdx+1];
 		final ICombinedRElement first = (ICombinedRElement) treePath.getSegment(segmentIdx++);
-		names[0] = first.getParent().getElementName();
+		names[0] = first.getModelParent().getElementName();
 		names[1] = first.getElementName();
 		for (int namesIdx = 2; namesIdx < names.length; namesIdx++) {
 			final Object element = treePath.getSegment(segmentIdx++);
@@ -1454,17 +1459,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				return null;
 			}
 		}
-		return RElementName.concat(names);
-	}
-	
-	public String getSimplifiedName(final IElementName elementName) {
-		if (elementName == null) {
-			return null;
-		}
-		if (elementName.getNextSegment() == null) {
-			return elementName.getDisplayName();
-		}
-		return elementName.getNextSegment().getDisplayName();
+		return RElementName.concat(Arrays.asList(names));
 	}
 	
 }
