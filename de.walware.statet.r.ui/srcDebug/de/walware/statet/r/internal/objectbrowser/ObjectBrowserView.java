@@ -67,7 +67,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
@@ -1212,19 +1211,6 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	public void createPartControl(final Composite parent) {
 		parent.setLayout(LayoutUtil.applySashDefaults(new GridLayout(), 1));
 		
-		fSearchTextItem = new SearchContributionItem("search.text", true) { //$NON-NLS-1$
-			@Override
-			protected void search() {
-				fFilterText = getText();
-				updateFilter();
-			}
-		};
-		
-		if (SearchContributionItem.requiresWorkaround()) {
-			final Control item = fSearchTextItem.create(parent);
-			item.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		}
-		
 		fTreeViewer = new TreeViewer(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI);
 		fTreeViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
 		fTreeViewer.setUseHashlookup(true);
@@ -1331,13 +1317,13 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		final InformationDispatchHandler infoHandler = new InformationDispatchHandler(fTokenOwner);
 		handlerService.activateHandler(InformationDispatchHandler.COMMAND_ID, infoHandler);
 		
-//		fSearchTextItem = new SearchContributionItem("search.text", true) { //$NON-NLS-1$
-//			@Override
-//			protected void search() {
-//				fFilterText = getText();
-//				updateFilter();
-//			}
-//		};
+		fSearchTextItem = new SearchContributionItem("search.text", true) { //$NON-NLS-1$
+			@Override
+			protected void search() {
+				fFilterText = getText();
+				updateFilter();
+			}
+		};
 		fSearchTextItem.setToolTip("Filter elements");
 		fSearchTextItem.setSizeControl(fTreeViewer.getControl().getParent());
 		fSearchTextItem.setResultControl(fTreeViewer.getTree());
@@ -1385,7 +1371,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				autoRefreshHandler );
 		viewMenu.add(autoRefreshItem);
 		fRefreshMenuItem = new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
-				null, ORG_ECLIPSE_UI_REFRESH, null, 
+				null, IWorkbenchCommandConstants.FILE_REFRESH, null, 
 				StatetImages.getDescriptor(StatetImages.TOOL_REFRESH), StatetImages.getDescriptor(StatetImages.TOOLD_REFRESH), null,
 				"&Refresh", null, null,
 				HandlerContributionItem.STYLE_PUSH, null, false),
@@ -1398,12 +1384,10 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		});
 		
-		if (!SearchContributionItem.requiresWorkaround()) {
-			viewToolbar.add(fSearchTextItem);
-			viewToolbar.add(new Separator());
-		}
+		viewToolbar.add(fSearchTextItem);
+		viewToolbar.add(new Separator());
 		fRefreshToolbarItem = new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
-				"Refresh", ORG_ECLIPSE_UI_REFRESH, null, //$NON-NLS-1$
+				"Refresh", IWorkbenchCommandConstants.FILE_REFRESH, null, //$NON-NLS-1$
 				StatetImages.getDescriptor(StatetImages.TOOL_REFRESH), StatetImages.getDescriptor(StatetImages.TOOLD_REFRESH), null,
 				null, null, null,
 				HandlerContributionItem.STYLE_PUSH, null, false),

@@ -43,7 +43,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -454,18 +453,6 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	public void createPartControl(final Composite parent) {
 		parent.setLayout(LayoutUtil.applySashDefaults(new GridLayout(), 1));
 		
-		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
-			@Override
-			protected void search() {
-				HistoryView.this.search(true, -1);
-			}
-		};
-		
-		if (SearchContributionItem.requiresWorkaround()) {
-			final Control item = fSearchTextItem.create(parent);
-			item.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		}
-		
 		fTable = new Table(parent, SWT.MULTI | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		fTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fTable.setLinesVisible(false);
@@ -667,18 +654,17 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	}
 	
 	private void fillLocalToolBar(final IToolBarManager manager) {
-//		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
-//			@Override
-//			protected void search() {
-//				HistoryView.this.search(true, -1);
-//			}
-//		};
+		fSearchTextItem = new SearchContributionItem("search.text", false) { //$NON-NLS-1$
+			@Override
+			protected void search() {
+				HistoryView.this.search(true, -1);
+			}
+		};
 		fSearchTextItem.setToolTip(Messages.HistorySearch_Pattern_tooltip);
 		fSearchTextItem.setSizeControl(fTable.getParent());
 		fSearchTextItem.setResultControl(fTable);
-		if (!SearchContributionItem.requiresWorkaround()) {
-			manager.add(fSearchTextItem);
-		}
+		
+		manager.add(fSearchTextItem);
 		
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 				getSite(), "search.next", IWorkbenchActionDefinitionIds.FIND_NEXT, null, //$NON-NLS-1$

@@ -11,12 +11,9 @@
 
 package de.walware.statet.base.internal.ui.preferences;
 
-import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
-import de.walware.ecommons.ui.SearchContributionItem;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -29,8 +26,7 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 		super(GRID);
 		
 		setPreferenceStore(StatetUIPlugin.getDefault().getPreferenceStore());
-//		setDescription(Messages.StatetBase_description);
-		setDescription("Special StatET/Eclipse 3.4 Options:");
+		setDescription(Messages.StatetBase_description);
 	}
 	
 	
@@ -39,8 +35,6 @@ public class StatetBasePreferencePage extends FieldEditorPreferencePage implemen
 	
 	@Override
 	public void createFieldEditors() {
-		addField(new BooleanFieldEditor(SearchContributionItem.WORKAROUND, 
-				"Enabled search field workaround (requires reopen of the view)", getFieldEditorParent()));
 	}
 	
 }

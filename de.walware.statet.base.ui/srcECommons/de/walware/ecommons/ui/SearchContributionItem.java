@@ -27,18 +27,8 @@ import de.walware.ecommons.ui.dialogs.SearchText;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
-
 
 public class SearchContributionItem extends ContributionItem {
-	
-	
-	// E-3.5 remove workaround
-	public static final String WORKAROUND = StatetUIPlugin.PLUGIN_ID + "/" + "searchbar-workaround";
-	
-	public static boolean requiresWorkaround() {
-		return StatetUIPlugin.getDefault().getPluginPreferences().getBoolean(WORKAROUND);
-	}
 	
 	
 	private SearchText fControl;
