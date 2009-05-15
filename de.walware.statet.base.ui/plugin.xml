@@ -584,4 +584,24 @@
             type="org.eclipse.jface.viewers.ISelection"/>
    </extension>
 
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:window?after=newEditor">
+         <dynamic
+               id="de.walware.statet.base.menus.DocShareContributions"
+               class="org.eclipse.ecf.docshare.menu.DocShareRosterMenuContributionItem">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeEditor">
+                  <instanceof
+                        value="org.eclipse.ui.texteditor.ITextEditor">
+                  </instanceof>
+               </with>
+            </visibleWhen>
+         </dynamic>
+      </menuContribution>
+   </extension>
+
 </plugin>

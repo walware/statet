@@ -22,7 +22,8 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[0.8.0,0.9.0)";visib
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.debug.ui,
- org.eclipse.compare
+ org.eclipse.compare,
+ org.eclipse.ecf.docshare;bundle-version="2.1.0";resolution:=optional
 Import-Package: com.ibm.icu.text;version="4.0.1"
 Export-Package: de.walware.ecommons.databinding,
  de.walware.ecommons.debug.ui,
