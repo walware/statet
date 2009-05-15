@@ -73,6 +73,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.contexts.IContextService;
@@ -83,7 +84,6 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
-import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ltk.IElementName;
@@ -143,7 +143,6 @@ import de.walware.statet.r.ui.RLabelProvider;
 
 public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
-	private static final String ORG_ECLIPSE_UI_REFRESH = "org.eclipse.ui.file.refresh"; // E-3.5 -> IWorkbenchCommandConstants
 	
 	private static final String FILTER_USERSPACEONLY_SETTINGS_KEY = "filter.only_userspace.enabled"; //$NON-NLS-1$
 	private static final String FILTER_INTERNALINCLUDE_SETTINGS_KEY = "filter.include_internal.enabled"; //$NON-NLS-1$
@@ -327,7 +326,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private class RefreshHandler extends ToolRetargetableHandler {
 		
-		private final ElementUpdater fUpdater = new ElementUpdater(ORG_ECLIPSE_UI_REFRESH);
+		private final ElementUpdater fUpdater = new ElementUpdater(IWorkbenchCommandConstants.FILE_REFRESH);
 		
 		public RefreshHandler() {
 			super(ObjectBrowserView.this, ObjectBrowserView.this.getSite());
@@ -1319,14 +1318,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		contexts.activateContext("de.walware.statet.base.contexts.StructuredElementViewer"); //$NON-NLS-1$
 		
 		final RefreshHandler refreshHandler = new RefreshHandler();
-		handlerService.activateHandler(ORG_ECLIPSE_UI_REFRESH, refreshHandler);
+		handlerService.activateHandler(IWorkbenchCommandConstants.FILE_REFRESH, refreshHandler);
 		final CollapseAllHandler collapseAllHandler = new CollapseAllHandler(fTreeViewer);
 		handlerService.activateHandler(CollapseAllHandler.COMMAND_ID, collapseAllHandler);
 		fCopyElementNameHandler = new CopyElementNameHandler();
 		handlerService.activateHandler(IStatetUICommandIds.COPY_ELEMENT_NAME, fCopyElementNameHandler);
-		handlerService.activateHandler(IWorkbenchActionDefinitionIds.COPY, fCopyElementNameHandler);
+		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_COPY, fCopyElementNameHandler);
 		fDeleteElementHandler = new DeleteHandler();
-		handlerService.activateHandler(IWorkbenchActionDefinitionIds.DELETE, fDeleteElementHandler);
+		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_DELETE, fDeleteElementHandler);
 		fPrintElementHandler = new PrintHandler();
 		handlerService.activateHandler(RunPrintInR.COMMAND_ID, fPrintElementHandler);
 		final InformationDispatchHandler infoHandler = new InformationDispatchHandler(fTokenOwner);
@@ -1349,7 +1348,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				return null;
 			}
 		};
-		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_REPLACE, fSearchStartHandler);
+		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, fSearchStartHandler);
 		// add next/previous handler
 		
 		final ToggleAutoRefreshHandler autoRefreshHandler = new ToggleAutoRefreshHandler();
@@ -1475,7 +1474,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				HandlerContributionItem.STYLE_PUSH, null, false),
 				fCopyElementNameHandler));
 		m.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
-				"Delete", IWorkbenchActionDefinitionIds.DELETE, null, //$NON-NLS-1$
+				"Delete", IWorkbenchCommandConstants.EDIT_DELETE, null, //$NON-NLS-1$
 				null, null, null,
 				null, null, null,
 				HandlerContributionItem.STYLE_PUSH, null, false),

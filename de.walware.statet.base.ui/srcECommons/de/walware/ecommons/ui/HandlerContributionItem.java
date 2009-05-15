@@ -29,6 +29,8 @@ import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.bindings.BindingManagerEvent;
+import org.eclipse.jface.bindings.IBindingManagerListener;
 import org.eclipse.jface.bindings.TriggerSequence;
 import org.eclipse.jface.resource.DeviceResourceException;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -156,6 +158,15 @@ public final class HandlerContributionItem extends ContributionItem {
 	private int mode = 0;
 	
 	private final UIElement callback;
+	
+	private IBindingManagerListener bindingManagerListener = new IBindingManagerListener() {
+		public void bindingManagerChanged(final BindingManagerEvent event) {
+			if (event.isActiveBindingsChanged()
+					&& event.isActiveBindingsChangedFor(getCommand())) {
+				update();
+			}
+		}
+	};
 	
 	
 	/**
@@ -368,6 +379,8 @@ public final class HandlerContributionItem extends ContributionItem {
 		
 		update(null);
 		updateIcons();
+		
+		bindingService.addBindingManagerListener(bindingManagerListener);
 	}
 	
 	@Override
@@ -394,6 +407,8 @@ public final class HandlerContributionItem extends ContributionItem {
 		
 		update(null);
 		updateIcons();
+		
+		bindingService.addBindingManagerListener(bindingManagerListener);
 	}
 	
 	@Override
@@ -421,6 +436,8 @@ public final class HandlerContributionItem extends ContributionItem {
 		
 		update(null);
 		updateIcons();
+		
+		bindingService.addBindingManagerListener(bindingManagerListener);
 	}
 	
 	@Override
@@ -633,6 +650,9 @@ public final class HandlerContributionItem extends ContributionItem {
 		if (commandListener != null) {
 			commandHandler.removeHandlerListener(commandListener);
 			commandListener = null;
+		}
+		if (bindingService != null) {
+			bindingService.removeBindingManagerListener(bindingManagerListener);
 		}
 		
 		command = null;

@@ -26,6 +26,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.databinding.DirtyTracker;
@@ -130,6 +132,23 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 				}
 			}
 		};
+		
+		getControl().addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(final DisposeEvent e) {
+				disposeBindings();
+			}
+		});
+	}
+	
+	private void disposeBindings() {
+		if (fAggregateStatus != null) {
+			fAggregateStatus.dispose();
+			fAggregateStatus = null;
+		}
+		if (fDbc != null) {
+			fDbc.dispose();
+			fDbc = null;
+		}
 	}
 	
 	protected DataBindingContext getDataBindingContext() {
@@ -145,15 +164,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 	@Override
 	public void dispose() {
 		super.dispose();
-		
-		if (fAggregateStatus != null) {
-			fAggregateStatus.dispose();
-			fAggregateStatus = null;
-		}
-		if (fDbc != null) {
-			fDbc.dispose();
-			fDbc = null;
-		}
+		disposeBindings();
 	}
 	
 	protected void logReadingError(final CoreException e) {

@@ -13,6 +13,7 @@ package de.walware.ecommons.debug.ui;
 
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,7 +28,6 @@ import org.eclipse.swt.widgets.Text;
 import de.walware.ecommons.debug.internal.ui.Messages;
 import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.PixelConverter;
 
 
 /**

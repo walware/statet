@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -62,7 +63,6 @@ import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.ui.text.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
-import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.EditTemplateDialog;
 

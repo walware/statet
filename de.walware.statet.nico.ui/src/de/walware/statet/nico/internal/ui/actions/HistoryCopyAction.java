@@ -14,8 +14,8 @@ package de.walware.statet.nico.internal.ui.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.DNDUtil;
@@ -34,7 +34,7 @@ public class HistoryCopyAction extends Action {
 		setToolTipText(SharedMessages.CopyAction_tooltip);
 		
 		setId(ActionFactory.COPY.getId());
-		setActionDefinitionId(IWorkbenchActionDefinitionIds.COPY);
+		setActionDefinitionId(IWorkbenchCommandConstants.EDIT_COPY);
 		
 		fView = view;
 	}

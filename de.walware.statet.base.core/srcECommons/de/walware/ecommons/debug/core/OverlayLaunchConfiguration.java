@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -39,7 +40,7 @@ public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	
 	
 	public OverlayLaunchConfiguration(final ILaunchConfiguration orginal, final Map<String, Object> additional) {
-		super(orginal.getLocation());
+		super(orginal.getName(), null);
 		fLaunchConfiguration = orginal;
 		fAdditionalAttributes = additional;
 	}
@@ -150,6 +151,14 @@ public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	@Override
 	public IPath getLocation() {
 		return fLaunchConfiguration.getLocation();
+	}
+	
+	@Override
+	public IFileStore getFileStore() throws CoreException {
+		if (fLaunchConfiguration instanceof LaunchConfiguration) {
+			return ((LaunchConfiguration) fLaunchConfiguration).getFileStore();
+		}
+		return super.getFileStore();
 	}
 	
 	@Override

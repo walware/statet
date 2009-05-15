@@ -55,6 +55,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
@@ -598,7 +599,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 				return null;
 			}
 		};
-		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_REPLACE, fSearchStartHandler);
+		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, fSearchStartHandler);
 		
 		fSearchPrevHandler = new AbstractHandler() {
 			public Object execute(final ExecutionEvent arg0) {

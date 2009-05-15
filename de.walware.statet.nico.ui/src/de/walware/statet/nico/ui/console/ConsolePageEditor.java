@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.commands.ActionHandler;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
@@ -80,7 +81,6 @@ import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.ui.text.sourceediting.TextViewerAction;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
-import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;

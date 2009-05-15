@@ -314,6 +314,17 @@ public class AnnotationPainter extends org.eclipse.jface.text.source.AnnotationP
 				return;
 		}
 		
+		if (fModel == null) {
+			// annotation model is null -> clear all
+			synchronized (fDecorationMapLock) {
+				fDecorationsMap.clear();
+			}
+			synchronized (fHighlightedDecorationsMapLock) {
+				fHighlightedDecorationsMap.clear();
+			}
+			return;
+		}
+		
 		final IRegion clippingRegion= computeClippingRegion(null, true);
 		final IDocument document= fSourceViewer.getDocument();
 		
@@ -323,162 +334,150 @@ public class AnnotationPainter extends org.eclipse.jface.text.source.AnnotationP
 		int drawRangeStart= Integer.MAX_VALUE;
 		int drawRangeEnd= -1;
 		
-		if (fModel != null) {
+		Map decorationsMap;
+		Map highlightedDecorationsMap;
+		
+		// Clone decoration maps
+		synchronized (fDecorationMapLock) {
+			decorationsMap= new HashMap(fDecorationsMap);
+		}
+		synchronized (fHighlightedDecorationsMapLock) {
+			highlightedDecorationsMap= new HashMap(fHighlightedDecorationsMap);
+		}
+		
+		boolean isWorldChange= false;
+		
+		Iterator e;
+		if (event == null || event.isWorldChange()) {
+			isWorldChange= true;
 			
-			Map decorationsMap;
-			Map highlightedDecorationsMap;
+			if (DEBUG && event == null)
+				System.out.println("AP: INTERNAL CHANGE"); //$NON-NLS-1$
 			
-			// Clone decoration maps
-			synchronized (fDecorationMapLock) {
-				decorationsMap= new HashMap(fDecorationsMap);
-			}
-			synchronized (fHighlightedDecorationsMapLock) {
-				highlightedDecorationsMap= new HashMap(fHighlightedDecorationsMap);
+			final Iterator iter= decorationsMap.entrySet().iterator();
+			while (iter.hasNext()) {
+				final Map.Entry entry= (Map.Entry)iter.next();
+				final Annotation annotation= (Annotation)entry.getKey();
+				final Decoration decoration= (Decoration)entry.getValue();
+				drawDecoration(decoration, null, annotation, clippingRegion, document);
 			}
 			
-			boolean isWorldChange= false;
+			decorationsMap.clear();
 			
-			Iterator e;
-			if (event == null || event.isWorldChange()) {
-				isWorldChange= true;
-				
-				if (DEBUG && event == null)
-					System.out.println("AP: INTERNAL CHANGE"); //$NON-NLS-1$
-				
-				final Iterator iter= decorationsMap.entrySet().iterator();
-				while (iter.hasNext()) {
-					final Map.Entry entry= (Map.Entry)iter.next();
-					final Annotation annotation= (Annotation)entry.getKey();
-					final Decoration decoration= (Decoration)entry.getValue();
-					drawDecoration(decoration, null, annotation, clippingRegion, document);
-				}
-				
-				decorationsMap.clear();
-				
-				highlightedDecorationsMap.clear();
-				
-				e= fModel.getAnnotationIterator();
-				
-			} else {
-				// Remove annotations
-				final Annotation[] removedAnnotations= event.getRemovedAnnotations();
-				for (int i=0, length= removedAnnotations.length; i < length; i++) {
-					final Annotation annotation= removedAnnotations[i];
-					Decoration decoration= (Decoration)highlightedDecorationsMap.remove(annotation);
-					if (decoration != null) {
-						final Position position= decoration.fPosition;
-						if (position != null) {
-							highlightAnnotationRangeStart= Math.min(highlightAnnotationRangeStart, position.offset);
-							highlightAnnotationRangeEnd= Math.max(highlightAnnotationRangeEnd, position.offset + position.length);
-						}
-					}
-					decoration= (Decoration)decorationsMap.remove(annotation);
-					if (decoration != null) {
-						drawDecoration(decoration, null, annotation, clippingRegion, document);
-						final Position position= decoration.fPosition;
-						if (position != null) {
-							drawRangeStart= Math.min(drawRangeStart, position.offset);
-							drawRangeEnd= Math.max(drawRangeEnd, position.offset + position.length);
-						}
-					}
-					
-				}
-				
-				// Update existing annotations
-				final Annotation[] changedAnnotations= event.getChangedAnnotations();
-				for (int i=0, length= changedAnnotations.length; i < length; i++) {
-					final Annotation annotation= changedAnnotations[i];
-					
-					boolean isHighlighting= false;
-					
-					Decoration decoration= (Decoration)highlightedDecorationsMap.get(annotation);
-					
-					if (decoration != null) {
-						isHighlighting= true;
-						// The call below updates the decoration - no need to create new decoration
-						decoration= getDecoration(annotation, decoration);
-						if (decoration == null)
-							highlightedDecorationsMap.remove(annotation);
-					} else {
-						decoration= getDecoration(annotation, decoration);
-						if (decoration != null && decoration.fPaintingStrategy instanceof ITextStyleStrategy) {
-							highlightedDecorationsMap.put(annotation, decoration);
-							isHighlighting= true;
-						}
-					}
-
-					final boolean usesDrawingStrategy= !isHighlighting && decoration != null;
-
-					Position position= null;
-					if (decoration == null)
-						position= fModel.getPosition(annotation);
-					else
-						position= decoration.fPosition;
-
-					if (position != null && !position.isDeleted()) {
-						if (isHighlighting) {
-							highlightAnnotationRangeStart= Math.min(highlightAnnotationRangeStart, position.offset);
-							highlightAnnotationRangeEnd= Math.max(highlightAnnotationRangeEnd, position.offset + position.length);
-						}
-						if (usesDrawingStrategy) {
-							drawRangeStart= Math.min(drawRangeStart, position.offset);
-							drawRangeEnd= Math.max(drawRangeEnd, position.offset + position.length);
-						}
-					} else {
-						highlightedDecorationsMap.remove(annotation);
-					}
-
-					if (usesDrawingStrategy) {
-						final Decoration oldDecoration= (Decoration)decorationsMap.get(annotation);
-						if (oldDecoration != null) {
-							drawDecoration(oldDecoration, null, annotation, clippingRegion, document);
-						
-						if (decoration != null)
-							decorationsMap.put(annotation, decoration);
-						else if (oldDecoration != null)
-							decorationsMap.remove(annotation);
-						}
-					}
-				}
-
-				e= Arrays.asList(event.getAddedAnnotations()).iterator();
-			}
-
-			// Add new annotations
-			while (e.hasNext()) {
-				final Annotation annotation= (Annotation) e.next();
-				final Decoration pp= getDecoration(annotation, null);
-				if (pp != null) {
-					if (pp.fPaintingStrategy instanceof IDrawingStrategy) {
-						decorationsMap.put(annotation, pp);
-						drawRangeStart= Math.min(drawRangeStart, pp.fPosition.offset);
-						drawRangeEnd= Math.max(drawRangeEnd, pp.fPosition.offset + pp.fPosition.length);
-					} else if (pp.fPaintingStrategy instanceof ITextStyleStrategy) {
-						highlightedDecorationsMap.put(annotation, pp);
-						highlightAnnotationRangeStart= Math.min(highlightAnnotationRangeStart, pp.fPosition.offset);
-						highlightAnnotationRangeEnd= Math.max(highlightAnnotationRangeEnd, pp.fPosition.offset + pp.fPosition.length);
-					}
-					
-				}
-			}
-
-			synchronized (fDecorationMapLock) {
-				fDecorationsMap= decorationsMap;
-				updateDrawRanges(drawRangeStart, drawRangeEnd, isWorldChange);
-			}
-
-			synchronized (fHighlightedDecorationsMapLock) {
-				fHighlightedDecorationsMap= highlightedDecorationsMap;
-				updateHighlightRanges(highlightAnnotationRangeStart, highlightAnnotationRangeEnd, isWorldChange);
-			}
+			highlightedDecorationsMap.clear();
+			
+			e= fModel.getAnnotationIterator();
+			
 		} else {
-			// annotation model is null -> clear all
-			synchronized (fDecorationMapLock) {
-				fDecorationsMap.clear();
+			// Remove annotations
+			final Annotation[] removedAnnotations= event.getRemovedAnnotations();
+			for (int i=0, length= removedAnnotations.length; i < length; i++) {
+				final Annotation annotation= removedAnnotations[i];
+				Decoration decoration= (Decoration)highlightedDecorationsMap.remove(annotation);
+				if (decoration != null) {
+					final Position position= decoration.fPosition;
+					if (position != null) {
+						highlightAnnotationRangeStart= Math.min(highlightAnnotationRangeStart, position.offset);
+						highlightAnnotationRangeEnd= Math.max(highlightAnnotationRangeEnd, position.offset + position.length);
+					}
+				}
+				decoration= (Decoration)decorationsMap.remove(annotation);
+				if (decoration != null) {
+					drawDecoration(decoration, null, annotation, clippingRegion, document);
+					final Position position= decoration.fPosition;
+					if (position != null) {
+						drawRangeStart= Math.min(drawRangeStart, position.offset);
+						drawRangeEnd= Math.max(drawRangeEnd, position.offset + position.length);
+					}
+				}
+				
 			}
-			synchronized (fHighlightedDecorationsMapLock) {
-				fHighlightedDecorationsMap.clear();
+			
+			// Update existing annotations
+			final Annotation[] changedAnnotations= event.getChangedAnnotations();
+			for (int i=0, length= changedAnnotations.length; i < length; i++) {
+				final Annotation annotation= changedAnnotations[i];
+				
+				boolean isHighlighting= false;
+				
+				Decoration decoration= (Decoration)highlightedDecorationsMap.get(annotation);
+				
+				if (decoration != null) {
+					isHighlighting= true;
+					// The call below updates the decoration - no need to create new decoration
+					decoration= getDecoration(annotation, decoration);
+					if (decoration == null)
+						highlightedDecorationsMap.remove(annotation);
+				} else {
+					decoration= getDecoration(annotation, decoration);
+					if (decoration != null && decoration.fPaintingStrategy instanceof ITextStyleStrategy) {
+						highlightedDecorationsMap.put(annotation, decoration);
+						isHighlighting= true;
+					}
+				}
+
+				final boolean usesDrawingStrategy= !isHighlighting && decoration != null;
+
+				Position position= null;
+				if (decoration == null)
+					position= fModel.getPosition(annotation);
+				else
+					position= decoration.fPosition;
+
+				if (position != null && !position.isDeleted()) {
+					if (isHighlighting) {
+						highlightAnnotationRangeStart= Math.min(highlightAnnotationRangeStart, position.offset);
+						highlightAnnotationRangeEnd= Math.max(highlightAnnotationRangeEnd, position.offset + position.length);
+					}
+					if (usesDrawingStrategy) {
+						drawRangeStart= Math.min(drawRangeStart, position.offset);
+						drawRangeEnd= Math.max(drawRangeEnd, position.offset + position.length);
+					}
+				} else {
+					highlightedDecorationsMap.remove(annotation);
+				}
+
+				if (usesDrawingStrategy) {
+					final Decoration oldDecoration= (Decoration)decorationsMap.get(annotation);
+					if (oldDecoration != null) {
+						drawDecoration(oldDecoration, null, annotation, clippingRegion, document);
+					
+					if (decoration != null)
+						decorationsMap.put(annotation, decoration);
+					else if (oldDecoration != null)
+						decorationsMap.remove(annotation);
+					}
+				}
 			}
+			e= Arrays.asList(event.getAddedAnnotations()).iterator();
+		}
+		
+		// Add new annotations
+		while (e.hasNext()) {
+			final Annotation annotation= (Annotation) e.next();
+			final Decoration pp= getDecoration(annotation, null);
+			if (pp != null) {
+				if (pp.fPaintingStrategy instanceof IDrawingStrategy) {
+					decorationsMap.put(annotation, pp);
+					drawRangeStart= Math.min(drawRangeStart, pp.fPosition.offset);
+					drawRangeEnd= Math.max(drawRangeEnd, pp.fPosition.offset + pp.fPosition.length);
+				} else if (pp.fPaintingStrategy instanceof ITextStyleStrategy) {
+					highlightedDecorationsMap.put(annotation, pp);
+					highlightAnnotationRangeStart= Math.min(highlightAnnotationRangeStart, pp.fPosition.offset);
+					highlightAnnotationRangeEnd= Math.max(highlightAnnotationRangeEnd, pp.fPosition.offset + pp.fPosition.length);
+				}
+				
+			}
+		}
+		
+		synchronized (fDecorationMapLock) {
+			fDecorationsMap= decorationsMap;
+			updateDrawRanges(drawRangeStart, drawRangeEnd, isWorldChange);
+		}
+		
+		synchronized (fHighlightedDecorationsMapLock) {
+			fHighlightedDecorationsMap= highlightedDecorationsMap;
+			updateHighlightRanges(highlightAnnotationRangeStart, highlightAnnotationRangeEnd, isWorldChange);
 		}
 	}
 

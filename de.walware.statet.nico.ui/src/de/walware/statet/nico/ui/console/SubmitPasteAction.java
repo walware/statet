@@ -22,8 +22,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
@@ -44,7 +44,7 @@ class SubmitPasteAction extends Action {
 		super(NicoUIMessages.PasteSubmitAction_name);
 		
 		setId(ActionFactory.PASTE.getId());
-		setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);
+		setActionDefinitionId(IWorkbenchCommandConstants.EDIT_PASTE);
 		
 		fView = consolePage;
 	}

@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Control;
 public class PixelConverter {
 	
 	
+	// TODO: check if still required
 	private final static double FONT_WS_FACTOR;
 	static {
 		final String ws = Platform.getWS();

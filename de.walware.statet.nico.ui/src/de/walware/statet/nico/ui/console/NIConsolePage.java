@@ -66,6 +66,7 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
@@ -87,7 +88,6 @@ import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.services.IDisposable;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.FindReplaceAction;
-import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
@@ -650,7 +650,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputCopyAction = TextViewerAction.createCopyAction(fOutputViewer);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.COPY.getId(), fOutputCopyAction);
 		fOutputPasteAction = new SubmitPasteAction(this);
-		fOutputPasteAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.PASTE);
+		fOutputPasteAction.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_PASTE);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.PASTE.getId(), fOutputPasteAction);
 		fOutputSelectAllAction = TextViewerAction.createSelectAllAction(fOutputViewer);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.SELECT_ALL.getId(), fOutputSelectAllAction);
@@ -676,7 +676,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		final ResourceBundle bundle = SharedMessages.getCompatibilityBundle();
 		fFindReplaceAction = new FindReplaceAction(bundle, "FindReplaceAction_", fConsoleView);  //$NON-NLS-1$
-		fFindReplaceAction.setActionDefinitionId(IWorkbenchActionDefinitionIds.FIND_REPLACE);
+		fFindReplaceAction.setActionDefinitionId(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE);
 		fMultiActionHandler.addGlobalAction(outputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
 		fMultiActionHandler.addGlobalAction(inputControl, ActionFactory.FIND.getId(), fFindReplaceAction);
 		fFindReplaceUpdater = new FindReplaceUpdater();

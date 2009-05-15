@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlListener;
@@ -40,7 +41,6 @@ import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;

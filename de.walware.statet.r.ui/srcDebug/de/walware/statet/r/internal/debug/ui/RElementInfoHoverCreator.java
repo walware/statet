@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.debug.ui;
 
+import static org.eclipse.debug.ui.IDebugUIConstants.PREF_DETAIL_PANE_FONT;
+
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
@@ -95,9 +98,6 @@ public class RElementInfoHoverCreator extends AbstractReusableInformationControl
 class RElementInfoControl extends AbstractInformationControl implements IInformationControlExtension2, IPropertyChangeListener {
 	
 	
-	private static final String INFO_FONT = "org.eclipse.debug.ui.DetailPaneFont"; // E-3.5 -> IDebugUIConstants
-	
-	
 	private static Point gScrollbarSize;
 	
 	
@@ -158,7 +158,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		fContentComposite.setBackground(parent.getBackground());
 		
 		final GridLayout gridLayout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
-		gridLayout.horizontalSpacing = (int) (((double) gridLayout.horizontalSpacing) / 1.5);
+		gridLayout.horizontalSpacing = (int) ((gridLayout.horizontalSpacing) / 1.5);
 		fContentComposite.setLayout(gridLayout);
 		
 		final int vIndent = Math.max(1, LayoutUtil.defaultVSpacing() / 4);
@@ -197,7 +197,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			imageGd.horizontalIndent = hIndent;
 			final int textHeight = fontMetrics.getAscent() + fontMetrics.getLeading();
 			final int imageHeight = image.getBounds().height;
-			final int shift = Math.max(3, (int) (((double) fontMetrics.getDescent()) / 1.5));
+			final int shift = Math.max(3, (int) ((fontMetrics.getDescent()) / 1.5));
 			if (textHeight+shift < imageHeight) {
 				imageGd.verticalIndent = vIndent+shift;
 				textGd.verticalIndent = vIndent+(imageHeight-textHeight);
@@ -221,7 +221,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		fInfoText.setForeground(fContentComposite.getForeground());
 		fInfoText.setBackground(fContentComposite.getBackground());
 		fInfoText.setIndent(hIndent);
-		fInfoText.setFont(JFaceResources.getFont(INFO_FONT));
+		fInfoText.setFont(JFaceResources.getFont(PREF_DETAIL_PANE_FONT));
 		
 		if (gScrollbarSize == null) {
 			computeScrollbarSize(fContentComposite);
@@ -237,7 +237,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		final StyledText test = new StyledText(parent, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
 		try {
 			if (test instanceof Scrollable) {
-				final Scrollable scroll = (Scrollable) test;
+				final Scrollable scroll = test;
 				final ScrollBar horizontalBar = scroll.getHorizontalBar();
 				final ScrollBar verticalBar = scroll.getVerticalBar();
 				if (horizontalBar != null && verticalBar != null) {
@@ -277,7 +277,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 //			}
 //		}
 		int widthHint = fInfoText.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x + LayoutUtil.defaultHSpacing();
-		final int widthMax2 = LayoutUtil.hintWidth(fInfoText, INFO_FONT, 80);
+		final int widthMax2 = LayoutUtil.hintWidth(fInfoText, PREF_DETAIL_PANE_FONT, 80);
 		final int widthMax = ((sizeConstraints != null && sizeConstraints.x != SWT.DEFAULT) ?
 				sizeConstraints.x : widthMax2) - trim.x;
 		fLayoutHint = true;
@@ -312,7 +312,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		final int titleWidth = gc.getFontMetrics().getAverageCharWidth() * widthInChars;
 		final int titleHeight = fTitleText.getLineHeight();
 		gc.dispose();
-		final int infoWidth = LayoutUtil.hintWidth(fInfoText, INFO_FONT, widthInChars);
+		final int infoWidth = LayoutUtil.hintWidth(fInfoText, PREF_DETAIL_PANE_FONT, widthInChars);
 		final int infoHeight = fInfoText.getLineHeight() * (heightInChars);
 		return new Point(Math.max(titleWidth, infoWidth), titleHeight + LayoutUtil.defaultVSpacing() + infoHeight);
 	}
@@ -378,7 +378,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	
 	public void propertyChange(final PropertyChangeEvent event) {
 		final String property = event.getProperty();
-		if (property.equals(INFO_FONT) || property.equals(JFaceResources.DEFAULT_FONT)) {
+		if (property.equals(PREF_DETAIL_PANE_FONT) || property.equals(JFaceResources.DEFAULT_FONT)) {
 			dispose();
 		}
 	}

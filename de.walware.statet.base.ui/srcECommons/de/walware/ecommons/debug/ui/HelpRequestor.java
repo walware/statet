@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.dialogs.DialogTray;
 import org.eclipse.jface.dialogs.TrayDialog;
+import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.osgi.util.NLS;
@@ -44,7 +45,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.internal.ui.Messages;
-import de.walware.ecommons.ui.util.PixelConverter;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;

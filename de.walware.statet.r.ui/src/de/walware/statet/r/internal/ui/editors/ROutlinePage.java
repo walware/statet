@@ -17,11 +17,11 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.IPageSite;
-import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
@@ -180,17 +180,17 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		final IHandlerService handlerSvc = (IHandlerService) site.getService(IHandlerService.class);
 		final AbstractElementsHandler cutHandler = new CutElementsHandler(fLTK, RRefactoring.getFactory());
 		registerHandlerToUpdate(cutHandler);
-		handlerSvc.activateHandler(IWorkbenchActionDefinitionIds.CUT, cutHandler);
+		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_CUT, cutHandler);
 		final AbstractElementsHandler copyHandler = new CopyElementsHandler(fLTK);
 		registerHandlerToUpdate(copyHandler);
-		handlerSvc.activateHandler(IWorkbenchActionDefinitionIds.COPY, copyHandler);
+		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_COPY, copyHandler);
 		final AbstractElementsHandler copyNamesHandler = new CopyNamesHandler(fLTK);
 		registerHandlerToUpdate(copyNamesHandler);
 		handlerSvc.activateHandler(IStatetUICommandIds.COPY_ELEMENT_NAME, copyNamesHandler);
 		final AbstractElementsHandler pasteHandler = new PasteElementsHandler(fEditor, fLTK);
-		handlerSvc.activateHandler(IWorkbenchActionDefinitionIds.PASTE, pasteHandler);
+		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_PASTE, pasteHandler);
 		final AbstractElementsHandler deleteHandler = new DeleteElementsHandler(fLTK, RRefactoring.getFactory());
-		handlerSvc.activateHandler(IWorkbenchActionDefinitionIds.DELETE, deleteHandler);
+		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_DELETE, deleteHandler);
 		
 		final IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
 		final IMenuManager menuManager = site.getActionBars().getMenuManager();
@@ -212,13 +212,13 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		
 		m.add(new Separator(IStatetUIMenuIds.GROUP_EDIT_COPYPASTE_ID));
 		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IWorkbenchActionDefinitionIds.CUT, CommandContributionItem.STYLE_PUSH)));
+				site, null, IWorkbenchCommandConstants.EDIT_CUT, CommandContributionItem.STYLE_PUSH)));
 		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IWorkbenchActionDefinitionIds.COPY, CommandContributionItem.STYLE_PUSH)));
+				site, null, IWorkbenchCommandConstants.EDIT_COPY, CommandContributionItem.STYLE_PUSH)));
 		m.add(new CommandContributionItem(new CommandContributionItemParameter(
 				site, null, IStatetUICommandIds.COPY_ELEMENT_NAME, CommandContributionItem.STYLE_PUSH)));
 		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IWorkbenchActionDefinitionIds.PASTE, CommandContributionItem.STYLE_PUSH)));
+				site, null, IWorkbenchCommandConstants.EDIT_PASTE, CommandContributionItem.STYLE_PUSH)));
 //		m.add(new CommandContributionItem(new CommandContributionItemParameter(
 //				site, null, IWorkbenchActionDefinitionIds.DELETE, CommandContributionItem.STYLE_PUSH)));
 		
