@@ -12,7 +12,7 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[0.8.0,0.9.0)";visib
  org.eclipse.jface.text;visibility:=reexport,
  org.eclipse.core.databinding.beans,
  org.eclipse.jface.databinding,
- org.eclipse.ui;bundle-version="3.4.0";visibility:=reexport,
+ org.eclipse.ui;bundle-version="3.5.0";visibility:=reexport,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.views,
@@ -23,7 +23,7 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[0.8.0,0.9.0)";visib
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.debug.ui,
  org.eclipse.compare
-Import-Package: com.ibm.icu.text;version="3.6.1"
+Import-Package: com.ibm.icu.text;version="4.0.1"
 Export-Package: de.walware.ecommons.databinding,
  de.walware.ecommons.debug.ui,
  de.walware.ecommons.ltk.ui,

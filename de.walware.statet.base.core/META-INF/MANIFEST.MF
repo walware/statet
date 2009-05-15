@@ -8,7 +8,7 @@ Bundle-Activator: de.walware.statet.base.internal.core.BaseCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0";visibility:=reexport,
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0";visibility:=reexport,
  org.eclipse.core.resources;visibility:=reexport,
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
@@ -32,4 +32,4 @@ Export-Package: de.walware.ecommons,
  de.walware.statet.base.core,
  de.walware.statet.base.core.preferences,
  org.apache.commons.collections.primitives
-Import-Package: com.ibm.icu.text;version="3.8.1"
+Import-Package: com.ibm.icu.text;version="4.0.1"

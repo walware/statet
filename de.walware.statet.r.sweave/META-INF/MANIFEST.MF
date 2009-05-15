@@ -18,4 +18,4 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[0.8.0,0.9.0)",
  de.walware.statet.nico.ui,
  de.walware.statet.r.ui,
  net.sourceforge.texlipse;bundle-version="10200.2.0"
-Import-Package: com.ibm.icu.text;version="3.6.1"
+Import-Package: com.ibm.icu.text;version="4.0.1"
