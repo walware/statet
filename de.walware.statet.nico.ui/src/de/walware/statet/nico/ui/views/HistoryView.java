@@ -402,9 +402,9 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private IHandler2 fSearchNextHandler;
 	private IHandler2 fSearchPrevHandler;
 	private SearchContributionItem fSearchTextItem;
-	private final SearchPattern fSearchPattern = new SearchPattern(
-			SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH | 
-			SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
+	private final SearchPattern fSearchPattern = new SearchPattern(SearchPattern.RULE_EXACT_MATCH
+			| SearchPattern.RULE_PREFIX_MATCH | SearchPattern.RULE_CAMELCASE_MATCH
+			| SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
 	
 	private LoadHistoryAction fLoadHistoryAction;
 	private SaveHistoryAction fSaveHistoryAction;

@@ -670,9 +670,9 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			Filter<IRLangElement> envFilter;
 			Filter<IRLangElement> otherFilter;
 			if (filterText != null && filterText.length() > 0) {
-				final SearchPattern filterPattern = new SearchPattern(
-						SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH | 
-						SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
+				final SearchPattern filterPattern = new SearchPattern(SearchPattern.RULE_EXACT_MATCH
+						| SearchPattern.RULE_PREFIX_MATCH | SearchPattern.RULE_CAMELCASE_MATCH
+						| SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_BLANK_MATCH);
 				filterPattern.setPattern(filterText);
 				envFilter = new ContentFilter(filterInternal, filterPattern);
 				otherFilter = (filterInternal) ? new ContentFilter(filterInternal, null) : null;
