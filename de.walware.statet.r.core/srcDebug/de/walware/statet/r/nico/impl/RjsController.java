@@ -349,9 +349,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			fStartupSnippet = null;
 			
 			rjsRunMainLoop(null, null, monitor);
-			if (fConsoleReadCallback == null) {
-				fConsoleReadCallbackRequest = true;
-			}
+			fConsoleReadCallbackRequest = true;
 			
 			scheduleControllerRunnable(new IToolRunnable() {
 				public SubmitType getSubmitType() {
@@ -428,7 +426,6 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				if (sendItem != null) {
 					if (sendItem.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM) {
 						fConsoleReadCallback = null;
-//						fConsoleReadCallbackRequest = true;
 					}
 					fC2SList.setObjects(sendItem);
 					sendCom = fC2SList;
