@@ -46,6 +46,8 @@ public class EditingMessages extends NLS {
 	public static String ContentAssistAdvancedConfig_Cicling_label;
 	public static String ContentAssistAdvancedConfig_CiclingTable_label;
 	
+	public static String OpenFileHyperlink_label;
+	
 	
 	static {
 		NLS.initializeMessages(EditingMessages.class.getName(), EditingMessages.class);

@@ -141,6 +141,27 @@
    </extension>
 
    <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            id="de.walware.statet.r.editorHyperlinks.REditorTarget"
+            name="%editorHyperlinks.REditorTarget.name">
+         <context
+               type="de.walware.ecommons.ui.text.sourceediting.ISourceEditor">
+         </context>
+      </target>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            id="de.walware.statet.r.editorHyperlinks.FileDetector"
+            targetId="de.walware.statet.r.editorHyperlinks.REditorTarget"
+            name="%editorHyperlinks.FileDetector.name"
+            class="de.walware.statet.r.internal.ui.editors.RFileHyperlinkDetector"
+            activate="true">
+      </hyperlinkDetector>
+   </extension>
+
+   <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
             id="de.walware.statet.r.expressions.RSourceElement">

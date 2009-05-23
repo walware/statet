@@ -27,6 +27,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.filesystem.URIUtil;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -64,7 +65,7 @@ public abstract class FileUtil {
 	
 /*-- Local files --*/
 	public static IFileStore getLocalFileStore(final String s) throws CoreException {
-		return getLocalFileStore(s, null);
+		return getLocalFileStore(s, (IFileStore) null);
 	}
 	
 	/**
@@ -113,6 +114,56 @@ public abstract class FileUtil {
 		}
 		else if (relativeParent != null) { // && s.length() == 0
 			return relativeParent;
+		}
+		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No local filesystem resource."));
+	}
+	
+	/**
+	 * Resolves a string presentation of a path to an IFileStore in the local file system,
+	 * if possible.
+	 * 
+	 * As usual the IFileStore is a resource handle only and the resource must not exists.
+	 * 
+	 * @param s string representation of a path
+	 * @param relativeParent optional folder used as parent if path is relative
+	 * @return an IFileStore in the local file system
+	 * @throws CoreException if path is not a valid local path
+	 */
+	public static IFileStore getLocalFileStore(final String s, final IContainer relativeParent) throws CoreException {
+		if (s.length() > 0) {
+			final IFileSystem localFS = EFS.getLocalFileSystem();
+			if (s.startsWith(EFS.SCHEME_FILE)) {
+				try {
+					return localFS.getStore(new URI(s).normalize());
+				}
+				catch (final URISyntaxException e) {
+					throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, e.getReason()));
+				}
+			}
+			final IPath path = Path.fromOSString(s);
+			if (path.isUNC()) {
+				final URI uri = URIUtil.toURI(path);
+				if (uri != null) {
+					return localFS.getStore(uri);
+				}
+			}
+			if (path.isAbsolute()) {
+				final String device = path.getDevice();
+				if (device == null || device.length() <= 2) {
+//					return localFS.getStore(URIUtil.toURI(path));
+					final URI uri = URIUtil.toURI(s);
+					if (uri != null) {
+						return localFS.getStore(uri);
+					}
+				}
+			}
+			else if (relativeParent != null && // !path.isAbsolute() &&
+					path.getDevice() == null) {
+				return EFS.getStore(relativeParent.getFile(path).getLocationURI().normalize());
+			}
+		}
+		else if (relativeParent != null) { // && s.length() == 0
+			return EFS.getStore(relativeParent.getLocationURI().normalize());
 		}
 		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No local filesystem resource."));
 	}

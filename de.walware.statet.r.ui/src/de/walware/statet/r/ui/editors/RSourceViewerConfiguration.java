@@ -361,4 +361,11 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		return fTextHover;
 	}
 	
+	@Override
+	protected Map getHyperlinkDetectorTargets(final ISourceViewer sourceViewer) {
+		final Map targets = super.getHyperlinkDetectorTargets(sourceViewer);
+		targets.put("de.walware.statet.r.editorHyperlinks.REditorTarget", getSourceEditor()); //$NON-NLS-1$
+		return targets;
+	}
+	
 }
