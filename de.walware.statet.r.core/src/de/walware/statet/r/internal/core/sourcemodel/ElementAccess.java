@@ -112,7 +112,7 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	
 	@Override
 	public String getDisplayName() {
-		return RElementName.createDisplayName(this, false);
+		return RElementName.createDisplayName(this, 0);
 	}
 	
 	public final IRFrame getFrame() {
@@ -120,7 +120,7 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	}
 	
 	public IElementName getNamespace() {
-		return (fShared.frame != null) ? fShared.frame.getElementName() : null;
+		return (fShared.frame != null && fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ? fShared.frame.getElementName() : null;
 	}
 	
 	public final IElementAccess[] getAllInUnit() {

@@ -27,6 +27,10 @@ public interface IRCombinedDataAdapter extends IRDataAdapter {
 			final int options, final int depth, final IElementName name,
 			final IProgressMonitor monitor) throws CoreException;
 	
+	public ICombinedRElement evalCombinedStruct(final IElementName name,
+			final int options, final int depth,
+			final IProgressMonitor monitor) throws CoreException;
+	
 	public ICombinedRElement evalCombinedStruct(final RReference reference,
 			final int options, final int depth, final IElementName name,
 			final IProgressMonitor monitor) throws CoreException;

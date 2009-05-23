@@ -45,6 +45,7 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.rj.data.RList;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.ui.RLabelProvider;
 
 
 public class RElementInfoHoverCreator extends AbstractReusableInformationControlCreator {
@@ -100,7 +101,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	private static Point gScrollbarSize;
 	
 	
-	private CombinedLabelProvider fLabelProvider;
+	private RLabelProvider fLabelProvider;
 	
 	private int fMode;
 	
@@ -339,12 +340,12 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			return;
 		}
 		if (fLabelProvider == null) {
-			fLabelProvider = new CombinedLabelProvider(true, true);
+			fLabelProvider = new RLabelProvider(RLabelProvider.LONG | RLabelProvider.TITLE | RLabelProvider.NAMESPACE);
 		}
 		if (fInput != null) {
 			final Image image = fLabelProvider.getImage(fInput.element);
 			fTitleImage.setImage((image != null) ? image : StatetImages.getImage(StatetImages.OBJ_PLACEHOLDER));
-			final StyledString styleString = fLabelProvider.getStyleString(fInput.element, fInput.elementAttr);
+			final StyledString styleString = fLabelProvider.getStyledText(fInput.element, fInput.element.getElementName(), fInput.elementAttr);
 			fTitleText.setText(styleString.getString());
 			fTitleText.setStyleRanges(styleString.getStyleRanges());
 			if (fInput.detailTitle != null) {

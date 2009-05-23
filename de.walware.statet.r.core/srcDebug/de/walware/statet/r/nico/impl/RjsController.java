@@ -71,6 +71,7 @@ import de.walware.rj.server.ServerLogin;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.rdata.CombinedElement;
 import de.walware.statet.r.internal.rdata.CombinedFactory;
@@ -848,6 +849,11 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			return e;
 		}
 		return null;
+	}
+	
+	public ICombinedRElement evalCombinedStruct(final IElementName name,
+			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
+		return evalCombinedStruct(RElementName.createDisplayName(name, RElementName.DISPLAY_NS_PREFIX), options, depth, name, monitor);
 	}
 	
 	public ICombinedRElement evalCombinedStruct(final RReference reference,

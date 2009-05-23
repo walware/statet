@@ -31,7 +31,7 @@ abstract class SubAbstractElementAccess extends RElementName implements IElement
 	
 	@Override
 	public String getDisplayName() {
-		return RElementName.createDisplayName(this, false);
+		return RElementName.createDisplayName(this, 0);
 	}
 	
 	public IElementName getNamespace() {

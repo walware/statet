@@ -57,8 +57,6 @@ public class RWorkspace extends ToolWorkspace {
 	
 	public static interface ICombinedEnvironment extends REnvironment, ICombinedRElement {
 		
-		public String getName(); // IFrame#getName()
-		
 	}
 	
 	
@@ -159,7 +157,7 @@ public class RWorkspace extends ToolWorkspace {
 					// Regular code
 					final IElementName elementName = envir.getElementName();
 					try {
-						final RObject robject = r.evalCombinedStruct("as.environment(\""+elementName.getSegmentName()+"\")", 0, -1, elementName, monitor);
+						final RObject robject = r.evalCombinedStruct(elementName, 0, -1, monitor);
 	//					System.out.println(robject);
 						if (robject != null && robject.getRObjectType() == RObject.TYPE_ENV) {
 							final REnvironmentVar renv = (REnvironmentVar) robject;

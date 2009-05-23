@@ -113,7 +113,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 				if (fElementRef == null) {
 					return;
 				}
-				final String name = RElementName.createDisplayName(fElementRef, true);
+				final String name = RElementName.createDisplayName(fElementRef, RElementName.DISPLAY_NS_PREFIX);
 				if (r instanceof IRCombinedDataAdapter) {
 					final IRCombinedDataAdapter r2 = (IRCombinedDataAdapter) r;
 					final String cmd = name;

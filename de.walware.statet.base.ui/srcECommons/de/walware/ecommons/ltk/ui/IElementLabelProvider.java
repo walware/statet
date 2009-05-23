@@ -36,11 +36,11 @@ public interface IElementLabelProvider {
 	
 	public String getText(IModelElement element);
 	
-	public void decorateText(final StringBuilder text, final IModelElement element);
+//	public void decorateText(final StringBuilder text, final IModelElement element);
 	
 	public StyledString getStyledText(IModelElement element);
 	
-	public void decorateStyledText(StyledString text, IModelElement element);
+//	public void decorateStyledText(StyledString text, IModelElement element);
 	
 	public Image getImage(IModelElement element);
 	

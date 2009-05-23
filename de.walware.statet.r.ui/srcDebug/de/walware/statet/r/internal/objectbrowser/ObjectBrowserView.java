@@ -124,7 +124,6 @@ import de.walware.statet.r.core.RElementComparator;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.internal.debug.ui.CombinedLabelProvider;
 import de.walware.statet.r.internal.debug.ui.REditorDebugHover;
 import de.walware.statet.r.internal.debug.ui.RElementInfoHoverCreator;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -132,6 +131,7 @@ import de.walware.statet.r.internal.ui.rtools.RunPrintInR;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
+import de.walware.statet.r.ui.RLabelProvider;
 
 
 public class ObjectBrowserView extends ViewPart implements IToolProvider {
@@ -484,7 +484,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 			final IElementName elementName = getElementName(treePaths[0]);
 			if (elementName != null) {
-				final String name = RElementName.createDisplayName(elementName, true);
+				final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_NS_PREFIX);
 				
 				final ToolProcess process = fProcess;
 				try {
@@ -876,7 +876,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		protected Object prepareHoverInformation(final ViewerCell cell) {
 			final TreePath treePath = cell.getViewerRow().getTreePath();
 			final IElementName elementName = getElementName(treePath);
-			if (elementName != null && elementName.getType() != RElementName.MAIN_SEARCH_ENV) {
+			if (elementName != null && elementName.getNamespace() != null) {
 				return elementName;
 			}
 			return null;
@@ -1021,7 +1021,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fTreeViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3));
 		fTreeViewer.setUseHashlookup(true);
 		
-		fTreeViewer.setLabelProvider(new CombinedLabelProvider() {
+		fTreeViewer.setLabelProvider(new RLabelProvider(RLabelProvider.COUNT) {
 			@Override
 			protected String getEnvCountInfo(final ICombinedEnvironment envir) {
 				final StringBuilder textBuilder = getTextBuilder();

@@ -121,27 +121,24 @@ public final class REnvironmentVar extends CombinedElement
 	protected void setEnvName(final String id, final boolean isSearch) {
 		if (id != null) {
 			if (id.equals("base") || id.equals("package:base")) {
-				fCombinedName = "base";
 				fEnvironmentName = ENVNAME_BASE;
 				fSpecialType = ENVTYPE_BASE;
 				fFrameType = IRFrame.PACKAGE;
 				if (fElementName == null) {
-					fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, "package:base");
+					fElementName = RElementName.create(RElementName.MAIN_PACKAGE, "base");
 				}
 				return;
 			}
 			else if (id.startsWith("package:")) {
-				fCombinedName = id.substring(8);
 				fEnvironmentName = id;
 				fSpecialType = ENVTYPE_PACKAGE;
 				fFrameType = IRFrame.PACKAGE;
 				if (fElementName == null) {
-					fElementName = RElementName.create(RElementName.MAIN_SEARCH_ENV, id);
+					fElementName = RElementName.create(RElementName.MAIN_PACKAGE, id.substring(8));
 				}
 				return;
 			}
 			else if (id.equals(".GlobalEnv") || id.equals("R_GlobalEnv")){
-				fCombinedName = ".GlobalEnv";
 				fEnvironmentName = ENVNAME_GLOBAL;
 				fSpecialType = ENVTYPE_GLOBAL;
 				fFrameType = IRFrame.PROJECT;
@@ -151,7 +148,6 @@ public final class REnvironmentVar extends CombinedElement
 				return;
 			}
 			else if (id.equals("Autoloads")){
-				fCombinedName = ENVNAME_AUTOLOADS;
 				fEnvironmentName = ENVNAME_AUTOLOADS;
 				fSpecialType = ENVTYPE_AUTOLOADS;
 				fFrameType = IRFrame.EXPLICIT;
@@ -161,7 +157,6 @@ public final class REnvironmentVar extends CombinedElement
 				return;
 			}
 		}
-		fCombinedName = id;
 		fEnvironmentName = id;
 		fSpecialType = 0;
 		fFrameType = IRFrame.EXPLICIT;
@@ -184,10 +179,6 @@ public final class REnvironmentVar extends CombinedElement
 	
 	public String getEnvironmentName() {
 		return fEnvironmentName;
-	}
-	
-	public String getName() {
-		return fCombinedName;
 	}
 	
 	public int getSpecialType() {

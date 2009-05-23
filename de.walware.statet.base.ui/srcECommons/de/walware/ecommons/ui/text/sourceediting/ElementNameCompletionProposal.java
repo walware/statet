@@ -75,18 +75,14 @@ public abstract class ElementNameCompletionProposal extends CompletionProposalWi
 	 * {@inheritDoc}
 	 */
 	public String getDisplayString() {
-		final StringBuilder text = new StringBuilder(fElement.getElementName().getDisplayName());
-		fLabelProvider.decorateText(text, fElement);
-		return text.toString();
+		return fLabelProvider.getText(fElement);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public StyledString getStyledDisplayString() {
-		final StyledString text = new StyledString(fElement.getElementName().getDisplayName());
-		fLabelProvider.decorateStyledText(text, fElement);
-		return text;
+		return fLabelProvider.getStyledText(fElement);
 	}
 	
 	/**
