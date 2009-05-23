@@ -82,6 +82,9 @@ public class ContainerContentProvider implements ITreeContentProvider {
 				}
 			}
 		}
+		else if (element instanceof IContainer[]) {
+			return (IContainer[]) element;
+		}
 		return new Object[0];
 	}
 	

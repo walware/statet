@@ -44,6 +44,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
+import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUI;
@@ -58,8 +59,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	
 	private ToolProcess<ToolWorkspace> fAssociatedTool;
-	private IFile fFileResource;
-	private IFileStore fFileStore;
+	private IContainer fBaseResource;
+	private IFileStore fBaseFileStore;
 	
 	
 	public RPathCompletionComputer() {
@@ -74,8 +75,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	@Override
 	public void sessionStarted(final ISourceEditor editor) {
 		fAssociatedTool = null;
-		fFileResource = null;
-		fFileStore = null;
+		fBaseResource = null;
+		fBaseFileStore = null;
 		if (editor instanceof ConsolePageEditor) {
 			fAssociatedTool = (ToolProcess<ToolWorkspace>) editor.getAdapter(ITool.class);
 		}
@@ -84,11 +85,17 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			if (su != null) {
 				final IResource resource = su.getResource();
 				if (resource instanceof IFile) {
-					fFileResource = (IFile) resource;
-					try {
-						fFileStore = EFS.getStore(fFileResource.getLocationURI());
+					final RProject project = RProject.getRProject(resource.getProject());
+					fBaseResource = project.getBaseContainer();
+					if (fBaseResource == null) {
+						fBaseResource = resource.getParent();
 					}
-					catch (final CoreException e) {
+					if (fBaseResource != null) {
+						try {
+							fBaseFileStore = EFS.getStore(fBaseResource.getLocationURI());
+						}
+						catch (final CoreException e) {
+						}
 					}
 				}
 			}
@@ -149,11 +156,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			}
 			return null;
 		}
-		if (fFileResource != null) {
-			final IContainer parent = fFileResource.getParent();
-			if (parent != null) {
-				return parent.getRawLocation();
-			}
+		if (fBaseResource != null) {
+			return fBaseResource.getRawLocation();
 		}
 		return null;
 	}
@@ -163,8 +167,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 		if (fAssociatedTool != null) {
 			return fAssociatedTool.getWorkspaceData().getWorkspaceDir();
 		}
-		if (fFileStore != null) {
-			return fFileStore.getParent();
+		if (fBaseFileStore != null) {
+			return fBaseFileStore;
 		}
 		return null;
 	}

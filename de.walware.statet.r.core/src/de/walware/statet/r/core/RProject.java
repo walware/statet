@@ -12,14 +12,18 @@
 package de.walware.statet.r.core;
 
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
+import de.walware.ecommons.preferences.Preference.StringPref2;
 
 import de.walware.statet.base.core.StatetExtNature;
 import de.walware.statet.base.core.StatetProject;
@@ -33,6 +37,11 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	
 	
 	public static final String NATURE_ID = "de.walware.statet.r.RNature"; //$NON-NLS-1$
+	
+	private static final String RPROJECT_QUALIFIER = "de.walware.r.core/RProjectBuild";
+	private static final String BASE_FOLDER_KEY = "BaseFolder.path"; //$NON-NLS-1$
+	
+	public static final StringPref2 PREF_BASE_FOLDER = new StringPref2(RPROJECT_QUALIFIER, BASE_FOLDER_KEY);
 	
 	
 	public static RProject getRProject(final IProject project) {
@@ -159,6 +168,20 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	
 	public RCodeStyleSettings getRCodeStyle() {
 		return fRCodeStyle;
+	}
+	
+	public IContainer getBaseContainer() {
+		final String value = getPrefs().getPreferenceValue(PREF_BASE_FOLDER);
+		if (value != null) {
+			final IPath path = Path.fromPortableString(value);
+			if (path.segmentCount() == 0) {
+				return getProject();
+			}
+			else {
+				return getProject().getFolder(path);
+			}
+		}
+		return null;
 	}
 	
 }

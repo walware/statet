@@ -346,6 +346,24 @@
       </page>
    </extension>
    <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            id="de.walware.statet.r.propertyPages.RProject"
+            name="%propertyPages.RProject.name"
+            class="de.walware.statet.r.internal.ui.RProjectPropertyPage">
+         <filter
+               name="nature"
+               value="de.walware.statet.r.RNature">
+         </filter>
+         <enabledWhen>
+            <instanceof
+                  value="org.eclipse.core.resources.IProject">
+            </instanceof>
+         </enabledWhen>
+      </page>
+   </extension>
+
+   <extension
          point="de.walware.statet.base.ui.codeGenerationTemplatesCategory">
       <category
             id="de.walware.statet.r.codegenerationCategory.RCodeTemplates"
