@@ -192,7 +192,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 				return;
 			}
 			final int sourceline = Integer.parseInt(number.substring(0, result));
-			fConsole.addHyperlink(new SourceLink(getWorkingDirectory(), path, sourceline-1), event.getOffset(), event.getLength());
+			fConsole.addHyperlink(new SourceLink(getWorkingDirectory(), path, sourceline-1), event.getOffset(), result+1);
 		}
 		catch (final BadLocationException e) {
 			RUIPlugin.logError(-1, "Error while searching error line informations.", e); //$NON-NLS-1$
@@ -241,7 +241,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 			if (s.charAt(1) != ' ') {
 				return -2;
 			}
-			final int found = s.indexOf(": ", 4); //$NON-NLS-1$
+			final int found = s.indexOf(":", 4); //$NON-NLS-1$
 			if (found >= 0) {
 				return offset+found;
 			}
@@ -249,7 +249,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 		}
 		if (char0 == '\t') {
 			final String s = doc.get(offset, end-offset);
-			final int found = s.indexOf(": ", 3); //$NON-NLS-1$
+			final int found = s.indexOf(":", 3); //$NON-NLS-1$
 			if (found >= 0) {
 				return offset+found;
 			}
