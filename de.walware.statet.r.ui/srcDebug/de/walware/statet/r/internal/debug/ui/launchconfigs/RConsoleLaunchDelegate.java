@@ -29,6 +29,20 @@ import de.walware.statet.r.ui.RUI;
 public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
+	public RConsoleLaunchDelegate() {
+	}
+	
+	
+	@Override
+	protected boolean saveBeforeLaunch(final ILaunchConfiguration configuration, final String mode, final IProgressMonitor monitor) throws CoreException {
+		return true; // continue launch
+	}
+	
+	@Override
+	public boolean buildForLaunch(final ILaunchConfiguration configuration, final String mode, final IProgressMonitor monitor) throws CoreException {
+		return false; // no incremental build
+	}
+	
 	public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
 			IProgressMonitor monitor) throws CoreException {
 		try {
@@ -52,13 +66,6 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		finally {
 			monitor.done();
 		}
-	}
-	
-	
-	@Override
-	protected boolean saveBeforeLaunch(final ILaunchConfiguration configuration, final String mode, 
-			final IProgressMonitor monitor) throws CoreException {
-		return true;
 	}
 	
 }

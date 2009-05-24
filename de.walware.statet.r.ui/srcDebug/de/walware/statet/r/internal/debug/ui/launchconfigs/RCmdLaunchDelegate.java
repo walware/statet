@@ -57,9 +57,12 @@ import de.walware.statet.r.ui.RUI;
 public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
+	public RCmdLaunchDelegate() {
+	}
+	
+	
 	public void launch(final ILaunchConfiguration configuration, final String mode,	final ILaunch launch,
 			IProgressMonitor monitor) throws CoreException {
-		
 		try {
 			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
 			if (monitor.isCanceled()) {
