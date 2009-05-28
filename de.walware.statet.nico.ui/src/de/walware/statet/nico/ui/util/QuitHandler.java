@@ -22,10 +22,12 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
@@ -80,6 +82,25 @@ public class QuitHandler implements IToolEventHandler {
 	}
 	
 	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+		if (PlatformUI.getWorkbench().isClosing()) {
+			final ToolController controller = tools.getController();
+			if (controller != null) {
+				if (tools.getProcess().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
+					try {
+						((IRemoteEngineController) controller).disconnect(monitor);
+						return NO;
+					}
+					catch (final CoreException e) {}
+				}
+				try {
+					controller.kill(monitor);
+					return NO;
+				}
+				catch (final CoreException e) {}
+			}
+			return CANCEL;
+		}
+		
 		final IToolRunnable[] quitRunnables = (IToolRunnable[]) data.get("scheduledQuitTasks");
 		if (quitRunnables.length == 0) {
 			return OK; // run default = schedule quit
