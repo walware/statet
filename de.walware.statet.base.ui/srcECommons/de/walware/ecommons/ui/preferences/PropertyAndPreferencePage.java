@@ -78,8 +78,12 @@ public abstract class PropertyAndPreferencePage<Block extends ConfigurationBlock
 	protected abstract boolean hasProjectSpecificSettings(IProject project);
 	
 	
-	protected final boolean supportsProjectSpecificOptions() {
+	protected final boolean supportsProjectSpecificSettings() {
 		return getPropertyPageID() != null;
+	}
+	
+	protected final boolean supportsInstanceSettings() {
+		return getPreferencePageID() != null;
 	}
 	
 	protected boolean offerLink() {
@@ -91,7 +95,8 @@ public abstract class PropertyAndPreferencePage<Block extends ConfigurationBlock
 	}
 	
 	protected final boolean useProjectSettings() {
-		return isProjectPreferencePage() && fUseProjectSettings != null && fUseProjectSettings.getSelection();
+		return isProjectPreferencePage()
+				&& (!supportsInstanceSettings() || fUseProjectSettings.getSelection());
 	}
 	
 	protected final boolean isProjectPreferencePage() {
@@ -108,26 +113,30 @@ public abstract class PropertyAndPreferencePage<Block extends ConfigurationBlock
 		fParentComposite = parent;
 		
 		if (isProjectPreferencePage()) {
-			final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
-			layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			
-			fUseProjectSettings = layouter.addCheckBox(Messages.PropertyAndPreference_UseProjectSettings_label, 0, 1);
-			fUseProjectSettings.addSelectionListener(new SelectionListener() {
-				public void widgetDefaultSelected(final SelectionEvent e) {
+			if (supportsInstanceSettings() && offerLink()) {
+				final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), 2);
+				layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+				
+				fUseProjectSettings = layouter.addCheckBox(Messages.PropertyAndPreference_UseProjectSettings_label, 0, 1);
+				fUseProjectSettings.addSelectionListener(new SelectionListener() {
+					public void widgetDefaultSelected(final SelectionEvent e) {
+					}
+					public void widgetSelected(final SelectionEvent e) {
+						doEnableProjectSpecificSettings(fUseProjectSettings.getSelection());
+					};
+				});
+				
+				if (offerLink()) {
+					fChangeWorkspaceSettings = createLink(layouter.composite, Messages.PropertyAndPreference_ShowWorkspaceSettings_label);
 				}
-				public void widgetSelected(final SelectionEvent e) {
-					doEnableProjectSpecificSettings(fUseProjectSettings.getSelection());
-				};
-			});
-			
-			if (offerLink()) {
-				fChangeWorkspaceSettings = createLink(layouter.composite, Messages.PropertyAndPreference_ShowWorkspaceSettings_label);
+				
+				layouter.addHorizontalLine();
 			}
-			
-			layouter.addHorizontalLine();
 		}
-		else if (supportsProjectSpecificOptions() && offerLink()) {
-			fChangeWorkspaceSettings = createLink(parent, Messages.PropertyAndPreference_ShowProjectSpecificSettings_label);
+		else { 
+			if (supportsProjectSpecificSettings() && offerLink()) {
+				fChangeWorkspaceSettings = createLink(parent, Messages.PropertyAndPreference_ShowProjectSpecificSettings_label);
+			}
 		}
 		
 		return super.createDescriptionLabel(parent);
@@ -214,17 +223,19 @@ public abstract class PropertyAndPreferencePage<Block extends ConfigurationBlock
 	
 	
 	protected void doEnableProjectSpecificSettings(final boolean useProjectSpecificSettings) {
-		
-		if (fBlock != null)
+		if (fBlock != null) {
 			fBlock.setUseProjectSpecificSettings(useProjectSpecificSettings);
-		
-		fUseProjectSettings.setSelection(useProjectSpecificSettings);
+		}
+		if (fUseProjectSettings != null) {
+			fUseProjectSettings.setSelection(useProjectSpecificSettings);
+		}
 		if (useProjectSpecificSettings) {
 			if (fBlockEnableState != null) {
 				fBlockEnableState.restore();
 				fBlockEnableState = null;
 			}
-		} else {
+		}
+		else {
 			if (fBlockEnableState == null) {
 				fBlockEnableState = ControlEnableState.disable(fBlockControl);
 			}
@@ -290,7 +301,6 @@ public abstract class PropertyAndPreferencePage<Block extends ConfigurationBlock
 	
 	@Override
 	public void performDefaults() {
-		
 		if (isProjectPreferencePage() && !useProjectSettings()) {
 			return;
 		}

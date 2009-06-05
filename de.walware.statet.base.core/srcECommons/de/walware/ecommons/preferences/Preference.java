@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.Preferences;
+
 
 /**
  * Representing a single preference.
@@ -134,8 +136,34 @@ public abstract class Preference<T> {
 		}
 		@Override
 		public String store2Usage(final Object obj) {
+			if (obj == null) {
+				return Preferences.STRING_DEFAULT_DEFAULT;
+			}
 			return (String) obj;
 		}
+		
+	}
+	
+	/**
+	 * Default implementation for preferences of type String
+	 * 
+	 * Usage value can be null
+	 */
+	public static class StringPref2 extends Preference<String> {
+		
+		public StringPref2(final String qualifier, final String key) {
+			super(qualifier, key, Type.STRING);
+		}
+		
+		@Override
+		public Class<String> getUsageType() {
+			return String.class;
+		}
+		@Override
+		public String store2Usage(final Object obj) {
+			return (String) obj;
+		}
+		
 	}
 	
 	/**
@@ -161,7 +189,7 @@ public abstract class Preference<T> {
 					return Boolean.valueOf((String) obj);
 				}
 			}
-			return null;
+			return Preferences.BOOLEAN_DEFAULT_DEFAULT;
 		}
 	}
 	
@@ -188,7 +216,7 @@ public abstract class Preference<T> {
 					return Integer.valueOf((String) obj);
 				}
 			}
-			return null;
+			return Preferences.INT_DEFAULT_DEFAULT;
 		}
 	}
 	
@@ -215,7 +243,7 @@ public abstract class Preference<T> {
 					return Long.valueOf((String) obj);
 				}
 			}
-			return null;
+			return Preferences.LONG_DEFAULT_DEFAULT;
 		}
 	}
 	
@@ -242,7 +270,7 @@ public abstract class Preference<T> {
 					return Float.valueOf((String) obj);
 				}
 			}
-			return null;
+			return Preferences.FLOAT_DEFAULT_DEFAULT;
 		}
 	}
 	
@@ -269,7 +297,7 @@ public abstract class Preference<T> {
 					return Double.valueOf((String) obj);
 				}
 			}
-			return null;
+			return Preferences.DOUBLE_DEFAULT_DEFAULT;
 		}
 	}
 	
@@ -323,11 +351,13 @@ public abstract class Preference<T> {
 		}
 		@Override
 		public EnumSet<E> store2Usage(final Object storedValue) {
-			final String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
 			final EnumSet<E> set = EnumSet.noneOf(fEnumType);
-			for (final String s : values) {
-				if (s.length() > 0) {
-					set.add(Enum.valueOf(fEnumType, s));
+			if (storedValue != null) {
+				final String[] values = LIST_SEPARATOR_PATTERN.split((String) storedValue);
+				for (final String s : values) {
+					if (s.length() > 0) {
+						set.add(Enum.valueOf(fEnumType, s));
+					}
 				}
 			}
 			return set;
@@ -405,7 +435,7 @@ public abstract class Preference<T> {
 		@Override
 		public String[] store2Usage(final Object storedValue) {
 			final String s = (String) storedValue;
-			if (s.length() == 0) {
+			if (s == null || s.length() == 0) {
 				return new String[0];
 			}
 			return LIST_SEPARATOR_PATTERN.split(s);
@@ -441,7 +471,7 @@ public abstract class Preference<T> {
 		@Override
 		public Set<String> store2Usage(final Object storedValue) {
 			final String s = (String) storedValue;
-			if (s.length() == 0) {
+			if (s == null || s.length() == 0) {
 				return new HashSet<String>(0);
 			}
 			final String[] strings = LIST_SEPARATOR_PATTERN.split(s);

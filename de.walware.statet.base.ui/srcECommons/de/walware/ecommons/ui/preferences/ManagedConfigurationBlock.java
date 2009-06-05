@@ -370,6 +370,10 @@ public abstract class ManagedConfigurationBlock extends ConfigurationBlock
 	}
 	
 	
+	public IProject getProject() {
+		return fProject;
+	}
+	
 	/**
 	 * initialize preference management
 	 * 
@@ -530,7 +534,6 @@ public abstract class ManagedConfigurationBlock extends ConfigurationBlock
 	@SuppressWarnings("unchecked")
 	public <T> T setPrefValue(final Preference<T> key, final T value) {
 		assert (fPreferenceManager != null);
-		assert (value != null);
 		
 		if (fPreferenceManager.fDisabledProjectSettings != null)
 			return (T) fPreferenceManager.fDisabledProjectSettings.put(key, value);

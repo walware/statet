@@ -157,28 +157,6 @@ public class PreferencesUtil {
 			}
 		}
 		
-		if (storedValue == null) {
-			switch (key.getStoreType()) {
-			case BOOLEAN:
-				storedValue = Preferences.BOOLEAN_DEFAULT_DEFAULT;
-				break;
-			case INT:
-				storedValue = Preferences.INT_DEFAULT_DEFAULT;
-				break;
-			case LONG:
-				storedValue = Preferences.LONG_DEFAULT_DEFAULT;
-				break;
-			case DOUBLE:
-				storedValue = Preferences.DOUBLE_DEFAULT_DEFAULT;
-				break;
-			case FLOAT:
-				storedValue = Preferences.FLOAT_DEFAULT_DEFAULT;
-				break;
-			default:
-				storedValue = Preferences.STRING_DEFAULT_DEFAULT;
-				break;
-			}
-		}
 		return key.store2Usage(storedValue);
 	}
 	

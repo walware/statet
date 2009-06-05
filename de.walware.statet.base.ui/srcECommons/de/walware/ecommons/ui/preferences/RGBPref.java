@@ -35,7 +35,7 @@ public class RGBPref extends Preference<RGB> {
 	
 	@Override
 	public RGB store2Usage(final Object obj) {
-		if (obj != null) {
+		if (obj instanceof String) {
 			return StringConverter.asRGB((String) obj);
 		}
 		return null;
