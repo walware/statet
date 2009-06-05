@@ -55,4 +55,11 @@ public class Power extends StdBinary {
 		return (element.getNodeType() == NodeType.POWER);
 	}
 	
+	@Override
+	public final boolean equalsValue(final RAstNode element) {
+		return ((NodeType.POWER == element.getNodeType())
+				&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+				&& fRightExpr.node.equalsValue(element.getRightExpr().node) );
+	}
+	
 }

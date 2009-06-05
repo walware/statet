@@ -36,6 +36,7 @@ public abstract class Logical extends FlatMulti {
 			return NodeType.OR;
 		}
 		
+		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.OR);
@@ -55,6 +56,7 @@ public abstract class Logical extends FlatMulti {
 		public final NodeType getNodeType() {
 			return NodeType.AND;
 		}
+		
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {

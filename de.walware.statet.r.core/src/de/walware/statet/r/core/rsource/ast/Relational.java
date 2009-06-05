@@ -39,6 +39,18 @@ public abstract class Relational extends StdBinary {
 			return RTerminal.REL_LT;
 		}
 		
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
+			return ((NodeType.RELATIONAL == element.getNodeType())
+					&& ((	(element.getOperator(0) == RTerminal.REL_LT)
+								&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+								&& fRightExpr.node.equalsValue(element.getRightExpr().node) )
+						||	(element.getOperator(0) == RTerminal.REL_GE)
+								&& fLeftExpr.node.equalsValue(element.getRightExpr().node)
+								&& fRightExpr.node.equalsValue(element.getLeftExpr().node) ) );
+		}
+		
 	}
 	
 	static class LE extends Relational {
@@ -51,6 +63,18 @@ public abstract class Relational extends StdBinary {
 		@Override
 		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_LE;
+		}
+		
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
+			return ((NodeType.RELATIONAL == element.getNodeType())
+					&& ((	(element.getOperator(0) == RTerminal.REL_LE)
+								&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+								&& fRightExpr.node.equalsValue(element.getRightExpr().node) )
+						||	(element.getOperator(0) == RTerminal.REL_GT)
+								&& fLeftExpr.node.equalsValue(element.getRightExpr().node)
+								&& fRightExpr.node.equalsValue(element.getLeftExpr().node) ) );
 		}
 		
 	}
@@ -67,6 +91,15 @@ public abstract class Relational extends StdBinary {
 			return RTerminal.REL_EQ;
 		}
 		
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
+			return ((NodeType.RELATIONAL == element.getNodeType())
+					&& (element.getOperator(0) == RTerminal.REL_EQ)
+					&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+					&& fRightExpr.node.equalsValue(element.getRightExpr().node) );
+		}
+		
 	}
 	
 	static class GE extends Relational {
@@ -79,6 +112,18 @@ public abstract class Relational extends StdBinary {
 		@Override
 		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_GE;
+		}
+		
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
+			return ((NodeType.RELATIONAL == element.getNodeType())
+					&& ((	(element.getOperator(0) == RTerminal.REL_GE)
+								&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+								&& fRightExpr.node.equalsValue(element.getRightExpr().node) )
+						||	(element.getOperator(0) == RTerminal.REL_LT)
+								&& fLeftExpr.node.equalsValue(element.getRightExpr().node)
+								&& fRightExpr.node.equalsValue(element.getLeftExpr().node) ) );
 		}
 		
 	}
@@ -95,6 +140,18 @@ public abstract class Relational extends StdBinary {
 			return RTerminal.REL_GT;
 		}
 		
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
+			return ((NodeType.RELATIONAL == element.getNodeType())
+					&& ((	(element.getOperator(0) == RTerminal.REL_GT)
+								&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+								&& fRightExpr.node.equalsValue(element.getRightExpr().node) )
+						||	(element.getOperator(0) == RTerminal.REL_LE)
+								&& fLeftExpr.node.equalsValue(element.getRightExpr().node)
+								&& fRightExpr.node.equalsValue(element.getLeftExpr().node) ) );
+		}
+		
 	}
 	
 	static class NE extends Relational {
@@ -107,6 +164,15 @@ public abstract class Relational extends StdBinary {
 		@Override
 		public final RTerminal getOperator(final int index) {
 			return RTerminal.REL_NE;
+		}
+		
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
+			return ((NodeType.RELATIONAL == element.getNodeType())
+					&& (element.getOperator(0) == RTerminal.REL_NE)
+					&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+					&& fRightExpr.node.equalsValue(element.getRightExpr().node) );
 		}
 		
 	}

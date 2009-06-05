@@ -155,4 +155,24 @@ abstract class FlatMulti extends RAstNode {
 		}
 	}
 	
+	
+	@Override
+	public final boolean equalsValue(final RAstNode element) {
+		if (getNodeType() != element.getNodeType()) {
+			return false;
+		}
+		final int count = getChildCount();
+		if ((count != element.getChildCount())
+				|| !getChild(0).equalsValue(element.getChild(0))) {
+			return false;
+		}
+		for (int i = 1; i < count; i++) {
+			if ((getOperator(i) != element.getOperator(i))
+					|| !getChild(i).equalsValue(element.getChild(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 }

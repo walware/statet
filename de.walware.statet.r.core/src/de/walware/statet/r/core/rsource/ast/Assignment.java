@@ -21,6 +21,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
  * <code>§target§ &lt;&lt;- §source§</code>
  * <code>§source§ -&gt; §target§</code>
  * <code>§source§ -&gt;&gt; §target§</code>
+ * <code>§target§ = §source§</code>
  */
 public abstract class Assignment extends StdBinary {
 	
@@ -278,6 +279,13 @@ public abstract class Assignment extends StdBinary {
 				&& 	((thisTarget == otherTarget)
 						|| (thisTarget != null && otherTarget != null && thisTarget.equalsSingle(otherTarget)) )
 				);
+	}
+	
+	@Override
+	public final boolean equalsValue(final RAstNode element) {
+		return ((getOperator(0) == element.getOperator(0))
+				&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+				&& fRightExpr.node.equalsValue(element.getRightExpr().node) );
 	}
 	
 }

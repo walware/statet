@@ -47,4 +47,11 @@ public class Seq extends StdBinary {
 		return (element.getNodeType() == NodeType.SEQ);
 	}
 	
+	@Override
+	public final boolean equalsValue(final RAstNode element) {
+		return ((element.getNodeType() == NodeType.SEQ)
+				&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+				&& fRightExpr.node.equalsValue(element.getRightExpr().node) );
+	}
+	
 }

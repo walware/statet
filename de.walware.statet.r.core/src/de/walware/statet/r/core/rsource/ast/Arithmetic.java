@@ -56,6 +56,7 @@ public abstract class Arithmetic extends FlatMulti {
 			return NodeType.MULT;
 		}
 		
+		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.MULT);

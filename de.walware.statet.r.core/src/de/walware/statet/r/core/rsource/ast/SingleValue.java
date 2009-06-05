@@ -83,6 +83,12 @@ abstract class SingleValue extends RAstNode {
 	
 	
 	@Override
+	public boolean equalsValue(final RAstNode element) {
+		return ((element.getNodeType() == getNodeType())
+				&& ((fText != null) ? fText.equals(element.getText()) : element.getText() == null) );
+	}
+	
+	@Override
 	public String toString() {
 		final StringBuilder s = new StringBuilder(super.toString());
 		if (fText != null) {

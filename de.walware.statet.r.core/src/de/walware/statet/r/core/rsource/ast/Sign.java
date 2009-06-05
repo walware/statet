@@ -187,4 +187,12 @@ public abstract class Sign extends RAstNode {
 		fStopOffset = fRightExpr.node.fStopOffset;
 	}
 	
+	
+	@Override
+	public boolean equalsValue(final RAstNode element) {
+		return (element.getNodeType() == getNodeType()
+				&& element.getOperator(0) == getOperator(0)
+				&& element.getChild(0).equals(getChild(0)));
+	}
+	
 }

@@ -50,6 +50,11 @@ public abstract class CLoopCommand extends RAstNode {
 		}
 		
 		@Override
+		public final boolean equalsValue(final RAstNode element) {
+			return (element.getNodeType() == NodeType.C_BREAK);
+		}
+		
+		@Override
 		public final RTerminal getTerminal() {
 			return RTerminal.BREAK;
 		}
@@ -76,6 +81,11 @@ public abstract class CLoopCommand extends RAstNode {
 		
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.C_NEXT);
+		}
+		
+		@Override
+		public boolean equalsValue(final RAstNode element) {
 			return (element.getNodeType() == NodeType.C_NEXT);
 		}
 		

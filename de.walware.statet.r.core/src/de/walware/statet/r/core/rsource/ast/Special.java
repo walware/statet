@@ -48,4 +48,12 @@ public class Special extends StdBinary {
 		return (element.getNodeType() == NodeType.SPECIAL);
 	}
 	
+	@Override
+	public boolean equalsValue(final RAstNode element) {
+		return ((NodeType.SPECIAL == element.getNodeType())
+				&& ((fQualifier != null) ? fQualifier.equals(((Special) element).fQualifier) : (((Special) element).fQualifier == null))
+				&& fLeftExpr.node.equalsValue(element.getLeftExpr().node)
+				&& fRightExpr.node.equalsValue(element.getRightExpr().node) );
+	}
+	
 }

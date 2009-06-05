@@ -186,6 +186,22 @@ public abstract class RAstNode implements IAstNode {
 	
 	abstract boolean equalsSingle(RAstNode element);
 	
+	public boolean equalsValue(final RAstNode element) {
+		if (getNodeType() != element.getNodeType()) {
+			return false;
+		}
+		final int count = getChildCount();
+		if (count != element.getChildCount()) {
+			return false;
+		}
+		for (int i = 0; i < count; i++) {
+			if (!getChild(i).equalsValue(element.getChild(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	
 	void appendPathElement(final StringBuilder s) {
 //		if (fParent != null) {

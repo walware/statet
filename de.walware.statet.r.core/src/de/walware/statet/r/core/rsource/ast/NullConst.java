@@ -109,4 +109,10 @@ public class NullConst extends RAstNode {
 		fStopOffset = fStartOffset+4;
 	}
 	
+	
+	@Override
+	public boolean equalsValue(final RAstNode element) {
+		return (element.getNodeType() == NodeType.NULL_CONST);
+	}
+	
 }

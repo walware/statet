@@ -47,6 +47,13 @@ public abstract class NSGet extends RAstNode {
 			return (element.getNodeType() == NodeType.NS_GET);
 		}
 		
+		@Override
+		public final boolean equalsValue(final RAstNode element) {
+			return ((element.getNodeType() == NodeType.NS_GET)
+					&& fNamespace.equalsValue(element.getChild(0))
+					&& fElement.equalsValue(element.getChild(1)) );
+		}
+		
 	}
 	
 	static class Internal extends NSGet {
@@ -69,6 +76,13 @@ public abstract class NSGet extends RAstNode {
 		@Override
 		public final boolean equalsSingle(final RAstNode element) {
 			return (element.getNodeType() == NodeType.NS_GET_INT);
+		}
+		
+		@Override
+		public final boolean equalsValue(final RAstNode element) {
+			return ((element.getNodeType() == NodeType.NS_GET_INT)
+					&& fNamespace.equalsValue(element.getChild(0))
+					&& fElement.equalsValue(element.getChild(1)) );
 		}
 		
 	}
