@@ -20,7 +20,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
  * The flag IBasicRAdapter.META_PROMPT_INCOMPLETE_INPUT is setted.
  * The previous incomplete input accesible as field.
  */
-public class IncompleteInputPrompt extends Prompt {
+public class ContinuePrompt extends Prompt {
 	
 	
 	/**
@@ -29,10 +29,10 @@ public class IncompleteInputPrompt extends Prompt {
 	public final String previousInput;
 	
 	
-	IncompleteInputPrompt(final Prompt previousPrompt, String lastInput, final String promptText, final int meta) {
+	ContinuePrompt(final Prompt previousPrompt, String lastInput, final String promptText, final int meta) {
 		super(promptText, RTool.META_PROMPT_INCOMPLETE_INPUT | meta);
 		if ((previousPrompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-			lastInput = ((IncompleteInputPrompt) previousPrompt).previousInput + lastInput;
+			lastInput = ((ContinuePrompt) previousPrompt).previousInput + lastInput;
 		}
 		previousInput = lastInput;
 	}

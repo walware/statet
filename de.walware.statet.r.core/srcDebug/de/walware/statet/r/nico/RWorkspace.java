@@ -32,6 +32,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 import de.walware.rj.data.RCharacterStore;
+import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.REnvironment;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
@@ -335,6 +336,7 @@ public class RWorkspace extends ToolWorkspace {
 		if (adapter.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
 			final IRDataAdapter r = (IRDataAdapter) adapter;
 			updateWorkspaceDir(r, monitor);
+			updateOptions(r, monitor);
 			if (fRSearchEnabled) {
 				updateREnvironments(r, envirs, ((options & REFRESH_COMPLETE) != 0), monitor);
 			}
@@ -343,13 +345,32 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	private void updateWorkspaceDir(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
-		final RVector<RCharacterStore> robj = (RVector<RCharacterStore>) r.evalData("getwd()", monitor); //$NON-NLS-1$
-		final String wd = robj.getData().getChar(0);
-		if (!isRemote()) {
-			controlSetWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+		final RObject rWd = (RVector<RCharacterStore>) r.evalData("getwd()", monitor); //$NON-NLS-1$
+		if (RDataUtil.isSingleString(rWd)) {
+			final String wd = rWd.getData().getChar(0);
+			if (!isRemote()) {
+				controlSetWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+			}
+			else {
+				controlSetRemoteWorkspaceDir(new Path(wd));
+			}
 		}
-		else {
-			controlSetRemoteWorkspaceDir(new Path(wd));
+	}
+	
+	private void updateOptions(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
+		final IRSetupAdapter rsetup = ((IRSetupAdapter) r);
+		final RList rOptions = (RList) r.evalData("options(\"prompt\", \"continue\")", monitor); //$NON-NLS-1$
+		final RObject rPrompt = rOptions.get("prompt"); //$NON-NLS-1$
+		if (RDataUtil.isSingleString(rPrompt)) {
+			if (!rPrompt.getData().isNA(0)) {
+				rsetup.setDefaultPromptText(rPrompt.getData().getChar(0));
+			}
+		}
+		final RObject rContinue = rOptions.get("continue"); //$NON-NLS-1$
+		if (RDataUtil.isSingleString(rContinue)) {
+			if (!rContinue.getData().isNA(0)) {
+				rsetup.setContinuePromptText(rContinue.getData().getChar(0));
+			}
 		}
 	}
 	

@@ -26,7 +26,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
-import de.walware.statet.r.nico.IncompleteInputPrompt;
+import de.walware.statet.r.nico.ContinuePrompt;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.ui.RConsolePage;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
@@ -57,7 +57,7 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 	@Override
 	protected void onPromptUpdate(final Prompt prompt) {
 		if ((prompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) {
-			final IncompleteInputPrompt p = (IncompleteInputPrompt) prompt;
+			final ContinuePrompt p = (ContinuePrompt) prompt;
 			fDocument.setPrefix(p.previousInput);
 		}
 		else {

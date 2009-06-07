@@ -19,11 +19,11 @@ import org.eclipse.core.filesystem.IFileStore;
  * Note: the methods sets the properties at java side. The caller is
  * responsible for the synchronization of the properties with R.
  */
-public interface ISetupRAdapter {
+public interface IRSetupAdapter {
 	
 	
 	public void setDefaultPromptText(String text);
-	public void setIncompletePromptText(String text);
+	public void setContinuePromptText(String text);
 	
 	public void setLineSeparator(String newSeparator);
 	public void setWorkspaceDir(IFileStore directory);

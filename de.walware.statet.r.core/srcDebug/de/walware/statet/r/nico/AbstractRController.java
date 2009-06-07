@@ -37,7 +37,7 @@ import de.walware.statet.r.internal.nico.RNicoMessages;
  */
 public abstract class AbstractRController
 		extends ToolController<RWorkspace>
-		implements IRBasicAdapter, ISetupRAdapter {
+		implements IRBasicAdapter, IRSetupAdapter {
 	
 	
 	public static class RCommandRunnable extends ConsoleCommandRunnable {
@@ -55,7 +55,7 @@ public abstract class AbstractRController
 	}
 	
 	
-	protected String fIncompletePromptText;
+	protected String fContinuePromptText;
 	protected String fDefaultPromptText;
 	
 	int fChanged;
@@ -138,8 +138,8 @@ public abstract class AbstractRController
 	@Override
 	protected void initRunnableAdapter() {
 		super.initRunnableAdapter();
-		fDefaultPromptText = "> "; //$NON-NLS-1$
-		fIncompletePromptText = "+ "; //$NON-NLS-1$
+		setDefaultPromptText("> "); //$NON-NLS-1$
+		setContinuePromptText("+ "); //$NON-NLS-1$
 	}
 	
 	public void setRObjectDB(final boolean enable) {
@@ -147,7 +147,7 @@ public abstract class AbstractRController
 	}
 	
 	public Object getAdapter(final Class adapter) {
-		if (ISetupRAdapter.class.equals(adapter)) {
+		if (IRSetupAdapter.class.equals(adapter)) {
 			return this;
 		}
 		return null;
@@ -158,8 +158,22 @@ public abstract class AbstractRController
 		return new RCommandRunnable(command, type);
 	}
 	
-	public void setIncompletePromptText(final String text) {
-		fIncompletePromptText = text.intern();
+	@Override
+	public void setDefaultPromptText(String text) {
+		if (text == null || text.equals(fDefaultPromptText)) {
+			return;
+		}
+		text = text.intern();
+		fDefaultPromptText = text;
+		super.setDefaultPromptText(text);
+	}
+	
+	public void setContinuePromptText(String text) {
+		if (text == null || text.equals(fContinuePromptText)) {
+			return;
+		}
+		text = text.intern();
+		fContinuePromptText = text;
 	}
 	
 	protected final void setCurrentPrompt(final String text, final boolean addToHistory) {
@@ -172,9 +186,9 @@ public abstract class AbstractRController
 						IToolRunnableControllerAdapter.META_HISTORY_DONTADD | IToolRunnableControllerAdapter.META_PROMPT_DEFAULT));
 			}
 		}
-		else if (fIncompletePromptText.equals(text)) {
-			setCurrentPrompt(new IncompleteInputPrompt(
-					fCurrentPrompt, fCurrentInput+fLineSeparator, fIncompletePromptText,
+		else if (fContinuePromptText.equals(text)) {
+			setCurrentPrompt(new ContinuePrompt(
+					fCurrentPrompt, fCurrentInput+fLineSeparator, fContinuePromptText,
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
 		else if (text != null) {
