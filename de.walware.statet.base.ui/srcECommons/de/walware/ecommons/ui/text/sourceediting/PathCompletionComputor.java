@@ -49,6 +49,8 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ui.ECommonsUI;
+
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
@@ -122,7 +124,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 					fCompletion = checkPathCompletion(document, getReplacementOffset(), fName);
 				}
 				catch (final BadLocationException e) {
-					StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+					StatusManager.getManager().handle(new Status(Status.ERROR, ECommonsUI.PLUGIN_ID, -1,
 							"An error occurred while creating the final path completion.", e), StatusManager.LOG);
 				}
 			}
@@ -228,7 +230,7 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 				fSelectionToSet = new Region(newSelectionOffset.getOffset(), 0);
 			}
 			catch (final BadLocationException e) {
-				StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+				StatusManager.getManager().handle(new Status(Status.ERROR, ECommonsUI.PLUGIN_ID, -1,
 						"An error occurred while inserting the path completion.", e), StatusManager.SHOW | StatusManager.LOG);
 				return;
 			}
@@ -415,11 +417,11 @@ public abstract class PathCompletionComputor implements IContentAssistComputer {
 			return Status.OK_STATUS;
 		}
 		catch (final BadLocationException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+			StatusManager.getManager().handle(new Status(Status.ERROR, ECommonsUI.PLUGIN_ID, -1,
 					"An error occurred while preparing path completions.", e), StatusManager.LOG);
 		}
 		catch (final CoreException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+			StatusManager.getManager().handle(new Status(Status.ERROR, ECommonsUI.PLUGIN_ID, -1,
 					"An error occurred while preparing path completions.", e), StatusManager.LOG);
 		}
 		restorePathSeparator();

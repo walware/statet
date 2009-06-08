@@ -41,8 +41,7 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.Preference.StringSetPref;
-
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.ecommons.ui.ECommonsUI;
 
 
 /**
@@ -83,7 +82,7 @@ public class ContentAssistComputerRegistry implements SettingsChangeNotifier.Cha
 	static final String getCheckedString(final IConfigurationElement element, final String attrName) throws CoreException {
 		final String s = element.getAttribute(attrName);
 		if (s == null || s.length() == 0) {
-			throw new CoreException(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+			throw new CoreException(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID, -1,
 					NLS.bind("missing value for attribute ''{0}''", attrName), null));
 		}
 		return s;

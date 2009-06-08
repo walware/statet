@@ -33,7 +33,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.texteditor.IEditorStatusLine;
 
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.ecommons.ui.ECommonsUI;
 
 
 /**
@@ -91,7 +91,7 @@ public class WorkbenchUIUtil {
 					}
 				}
 				catch (final PartInitException e) {
-					StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+					StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID, -1,
 							NLS.bind("Could not open editor for ''{0}''", file.getName()), e));
 				}
 				if (marker != null) {

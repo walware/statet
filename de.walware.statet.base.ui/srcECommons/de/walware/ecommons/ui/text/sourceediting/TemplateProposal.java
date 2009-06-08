@@ -52,10 +52,9 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ui.ECommonsUI;
 
 import de.walware.statet.ext.templates.IExtTemplateContext;
-
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
@@ -331,8 +330,8 @@ public class TemplateProposal implements IAssistCompletionProposal,
 	
 	
 	private void handleError(final Exception e) {
-		StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.INTERNAL_TEMPLATE,
-				"Template Evaluation Error", e));
+		StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+				ICommonStatusConstants.INTERNAL_TEMPLATE, "Template Evaluation Error", e));
 		fSelectionToSet = fRegion;
 	}
 	

@@ -29,11 +29,10 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.internal.ui.preferences.Messages;
+import de.walware.ecommons.ui.ECommonsUI;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.dialogs.StatusInfo;
 import de.walware.ecommons.ui.util.LayoutUtil;
-
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 /**
@@ -63,7 +62,7 @@ public abstract class ConfigurationBlockPreferencePage<Block extends Configurati
 		try {
 			fBlock = createConfigurationBlock();
 		} catch (final CoreException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+			StatusManager.getManager().handle(new Status(Status.ERROR, ECommonsUI.PLUGIN_ID, -1,
 					NLS.bind(Messages.ConfigurationPage_error_message, getTitle()), e),
 					StatusManager.LOG | StatusManager.SHOW);
 		}

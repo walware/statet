@@ -54,7 +54,6 @@ import org.eclipse.ui.commands.IElementReference;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.help.IWorkbenchHelpSystem;
-import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.internal.services.IWorkbenchLocationService;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
@@ -119,10 +118,10 @@ public final class HandlerContributionItem extends ContributionItem {
 	private IMenuService menuService;
 	
 	private ICommandService commandService;
-	
 	private IHandlerService handlerService;
-	
 	private IBindingService bindingService;
+	
+	private Display display;
 	
 	private ParameterizedCommand command;
 	private boolean noCommandMode;
@@ -186,6 +185,9 @@ public final class HandlerContributionItem extends ContributionItem {
 				.getService(IHandlerService.class);
 		bindingService = (IBindingService) contributionParameters.serviceLocator
 				.getService(IBindingService.class);
+		final IWorkbenchLocationService workbenchLocationService = (IWorkbenchLocationService) contributionParameters.serviceLocator.getService(IWorkbenchLocationService.class);
+		display = workbenchLocationService.getWorkbench().getDisplay();
+		
 		createCommand(contributionParameters.commandId,
 				contributionParameters.parameters);
 		commandHandler = handler;
@@ -250,10 +252,10 @@ public final class HandlerContributionItem extends ContributionItem {
 				if (workbench != null && helpContextId != null) {
 					this.workbenchHelpSystem = workbench.getHelpSystem();
 				}
-			} catch (final NotDefinedException e) {
-				WorkbenchPlugin
-						.log("Unable to register menu item \"" + getId() //$NON-NLS-1$
-								+ "\", command \"" + contributionParameters.commandId + "\" not defined"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			catch (final NotDefinedException e) {
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+						"Unable to register menu item \"" + getId() + "\", command \"" + contributionParameters.commandId + "\" not defined")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
 	}
@@ -291,10 +293,6 @@ public final class HandlerContributionItem extends ContributionItem {
 		if (commandEvent.isHandledChanged()) {
 			dropDownMenuOverride = null;
 		}
-		if (widget == null || widget.isDisposed()) {
-			return;
-		}
-		final Display display = widget.getDisplay();
 		final Runnable update = new Runnable() {
 			public void run() {
 				update(null);
@@ -307,14 +305,23 @@ public final class HandlerContributionItem extends ContributionItem {
 		}
 	}
 	
-	ParameterizedCommand getCommand() {
+	/**
+	 * Returns the ParameterizedCommand for this contribution.
+	 * <p>
+	 * <strong>NOTE:</strong> The returned object should be treated
+	 * as 'read-only', do <b>not</b> execute this instance or attempt
+	 * to modify its state.
+	 * </p>
+	 * @return The parameterized command for this contribution.
+	 */
+	public ParameterizedCommand getCommand() {
 		return command;
 	}
 	
 	void createCommand(final String commandId, final Map parameters) {
 		if (commandId == null) {
-			WorkbenchPlugin.log("Unable to create menu item \"" + getId() //$NON-NLS-1$
-					+ "\", no command id"); //$NON-NLS-1$
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+					"Unable to create menu item \"" + getId() + "\", no command id")); //$NON-NLS-1$ //$NON-NLS-2$
 			return;
 		}
 		if (commandId == NO_COMMAND_ID) {
@@ -323,8 +330,8 @@ public final class HandlerContributionItem extends ContributionItem {
 		}
 		final Command cmd = commandService.getCommand(commandId);
 		if (!cmd.isDefined()) {
-			WorkbenchPlugin.log("Unable to create menu item \"" + getId() //$NON-NLS-1$
-					+ "\", command \"" + commandId + "\" not defined"); //$NON-NLS-1$ //$NON-NLS-2$
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+					"Unable to create menu item \"" + getId() + "\", command \"" + commandId + "\" not defined")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			return;
 		}
 		command = ParameterizedCommand.generateCommand(cmd, parameters);
@@ -436,14 +443,21 @@ public final class HandlerContributionItem extends ContributionItem {
 	private void updateMenuItem() {
 		final MenuItem item = (MenuItem) widget;
 		
+		final boolean shouldBeEnabled = isEnabled();
+		
+		// disabled command + visibility follows enablement == disposed
+		if (item.isDisposed()) {
+			return;
+		}
+		
 		String text = label;
 		if (text == null) {
 			if (command != null) {
 				try {
 					text = command.getCommand().getName();
 				} catch (final NotDefinedException e) {
-					WorkbenchPlugin.log("Update item failed " //$NON-NLS-1$
-							+ getId(), e);
+					StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+							"Update item failed " + getId(), e)); //$NON-NLS-1$
 				}
 			}
 		}
@@ -468,10 +482,10 @@ public final class HandlerContributionItem extends ContributionItem {
 			item.setSelection(checkedState);
 		}
 		
-		final boolean shouldBeEnabled = isEnabled();
 		if (item.getEnabled() != shouldBeEnabled) {
 			item.setEnabled(shouldBeEnabled);
 		}
+		
 		if (noCommandMode && commandHandler instanceof IElementUpdater) {
 			((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
 		}
@@ -480,13 +494,21 @@ public final class HandlerContributionItem extends ContributionItem {
 	private void updateToolItem() {
 		final ToolItem item = (ToolItem) widget;
 		
+		final boolean shouldBeEnabled = isEnabled();
+		
+		// disabled command + visibility follows enablement == disposed
+		if (item.isDisposed()) {
+			return;
+		}
+		
 		String text = label;
 		if (text == null) {
 			if (command != null) {
 				try {
 					text = command.getCommand().getName();
 				} catch (final NotDefinedException e) {
-					WorkbenchPlugin.log("Update item failed " + getId(), e); //$NON-NLS-1$
+					StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+							"Update item failed " + getId(), e)); //$NON-NLS-1$
 				}
 			}
 		}
@@ -503,10 +525,10 @@ public final class HandlerContributionItem extends ContributionItem {
 			item.setSelection(checkedState);
 		}
 		
-		final boolean shouldBeEnabled = isEnabled();
 		if (item.getEnabled() != shouldBeEnabled) {
 			item.setEnabled(shouldBeEnabled);
 		}
+		
 		if (noCommandMode && commandHandler instanceof IElementUpdater) {
 			((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
 		}
@@ -515,15 +537,42 @@ public final class HandlerContributionItem extends ContributionItem {
 	private void updateButton() {
 		final Button item = (Button) widget;
 		
+		final boolean shouldBeEnabled = isEnabled();
+		
+		// disabled command + visibility follows enablement == disposed
+		if (item.isDisposed()) {
+			return;
+		}
+		
 		String text = label;
 		if (text == null) {
 			if (command != null) {
 				try {
 					text = command.getCommand().getName();
 				} catch (final NotDefinedException e) {
-					WorkbenchPlugin.log("Update item failed " + getId(), e); //$NON-NLS-1$
+					StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+							"Update item failed " + getId(), e)); //$NON-NLS-1$
 				}
 			}
+		}
+		
+		if (text != null) {
+			item.setText(text);
+		}
+		
+		final String toolTipText = getToolTipText(text);
+		item.setToolTipText(toolTipText);
+		
+		if (item.getSelection() != checkedState) {
+			item.setSelection(checkedState);
+		}
+		
+		if (item.getEnabled() != shouldBeEnabled) {
+			item.setEnabled(shouldBeEnabled);
+		}
+		
+		if (noCommandMode && commandHandler instanceof IElementUpdater) {
+			((IElementUpdater) commandHandler).updateElement(callback, Collections.EMPTY_MAP);
 		}
 	}
 	
@@ -640,7 +689,8 @@ public final class HandlerContributionItem extends ContributionItem {
 					handlerService.createExecutionEvent(command, event) : new ExecutionEvent();
 			commandHandler.execute(executionEvent);
 		} catch (final ExecutionException e) {
-			WorkbenchPlugin.log("Failed to execute item " + getId(), e); //$NON-NLS-1$
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+					"Failed to execute item " + getId(), e)); //$NON-NLS-1$
 //		} catch (NotDefinedException e) {
 //			WorkbenchPlugin.log("Failed to execute item " //$NON-NLS-1$
 //					+ getId(), e);
@@ -716,9 +766,8 @@ public final class HandlerContributionItem extends ContributionItem {
 				icon = ImageDescriptor.getMissingImageDescriptor();
 				item.setImage(m.createImage(icon));
 				// as we replaced the failed icon, log the message once.
-				StatusManager.getManager().handle(
-						new Status(IStatus.ERROR, WorkbenchPlugin.PI_WORKBENCH,
-								"Failed to load image", e)); //$NON-NLS-1$
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+						"Failed to load image", e)); //$NON-NLS-1$
 			}
 			disposeOldImages();
 			localResourceManager = m;

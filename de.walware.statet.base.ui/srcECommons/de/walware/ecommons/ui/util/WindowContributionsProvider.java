@@ -27,8 +27,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
-
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.ecommons.ui.ECommonsUI;
 
 
 /**
@@ -161,7 +160,7 @@ public abstract class WindowContributionsProvider implements IWindowListener {
 			contributions = createWindowContributions(window);
 		}
 		catch (final Exception e) {
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
 					"Failed to create contributions for workbench window.", e));
 			return;
 		}
@@ -173,7 +172,7 @@ public abstract class WindowContributionsProvider implements IWindowListener {
 			contributions.dispose();
 		}
 		catch (final Exception e) {
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
 					"Failed to dipose contributions for workbench window.", e));
 		}
 	}

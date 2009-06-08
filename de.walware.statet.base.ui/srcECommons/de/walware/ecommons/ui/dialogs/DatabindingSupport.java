@@ -24,8 +24,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.databinding.DirtyTracker;
-
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.ecommons.ui.ECommonsUI;
 
 
 /**
@@ -59,7 +58,7 @@ public class DatabindingSupport {
 				fDbc.dispose();
 			}
 			catch (final Throwable e) {
-				StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID,
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
 						"An error occurend when dispose databinding", e)); //$NON-NLS-1$
 			}
 			fDbc = null;

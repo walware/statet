@@ -23,9 +23,8 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.internal.ui.text.EditingMessages;
+import de.walware.ecommons.ui.ECommonsUI;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
 public class OpenFileHyperlink implements IHyperlink {
@@ -59,7 +58,7 @@ public class OpenFileHyperlink implements IHyperlink {
 		}
 		catch (final PartInitException e) {
 			Display.getCurrent().beep();
-			StatusManager.getManager().handle(new Status(IStatus.INFO, StatetUIPlugin.PLUGIN_ID, -1,
+			StatusManager.getManager().handle(new Status(IStatus.INFO, ECommonsUI.PLUGIN_ID, -1,
 					NLS.bind("An error occurred when opening file under hyperlink ''{0}''", fStore.toString()), e));
 		}
 	}

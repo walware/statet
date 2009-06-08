@@ -16,8 +16,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.ecommons.ui.ECommonsUI;
 
 
 /**
@@ -40,7 +41,8 @@ public abstract class PartitionerDocumentSetupParticipant implements IDocumentSe
 				final Partitioner partitioner = createDocumentPartitioner();
 				partitioner.connect(document, true);
 				if (!Partitioner.equalPartitioner(partitioner, extension3.getDocumentPartitioner(getPartitioningId()))) {
-					StatetUIPlugin.log(new Status(IStatus.WARNING, StatetUIPlugin.PLUGIN_ID, "Different partitioner for same partitioning!")); //$NON-NLS-1$
+					StatusManager.getManager().handle(new Status(IStatus.WARNING, ECommonsUI.PLUGIN_ID,
+							"Different partitioner for same partitioning!")); //$NON-NLS-1$
 				}
 				partitioner.disconnect();
 			}

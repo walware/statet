@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
+import de.walware.ecommons.ui.ECommonsUI;
 
 
 /**
@@ -137,8 +137,9 @@ public abstract class ColumnHoverManager extends AbstractHoverInformationControl
 							setInfo(information, area);
 						}
 					}
-					catch (final RuntimeException ex) {
-						StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, IStatus.OK, "Unexpected runtime error while computing a element hover", ex)); //$NON-NLS-1$
+					catch (final RuntimeException e) {
+						StatusManager.getManager().handle(new Status(IStatus.ERROR, ECommonsUI.PLUGIN_ID,
+								IStatus.OK, "Unexpected runtime error while computing a element hover", e)); //$NON-NLS-1$
 					}
 					finally {
 						synchronized (fMutex) {
