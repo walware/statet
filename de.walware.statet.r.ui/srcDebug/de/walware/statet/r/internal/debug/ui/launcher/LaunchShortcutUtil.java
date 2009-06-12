@@ -100,48 +100,49 @@ public class LaunchShortcutUtil {
 	}
 	
 	public static String[] getCodeLines(final IFile file) throws CoreException {
-		final InputStream input;
-		final String charset;
+		InputStream input = null;
 		try {
-			input = file.getContents();
-			charset = file.getCharset();
-		}
-		catch (final CoreException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
-		}
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new InputStreamReader(input, charset));
-			final StringBuilder buffer = new StringBuilder();
-			final char[] readBuffer = new char[2048];
-			int n;
-			while ((n = reader.read(readBuffer)) > 0) {
-				buffer.append(readBuffer, 0, n);
+			final String charset;
+			try {
+				input = file.getContents();
+				charset = file.getCharset();
 			}
-			
-			final ICodeLaunchContentHandler handler = RCodeLaunching.getCodeLaunchContentHandler(
-					LaunchShortcutUtil.getContentTypeId(file));
-			final String[] lines = handler.getCodeLines(new Document(buffer.toString()));
-			return lines;
-		}
-		catch (final CoreException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
-		}
-		catch (final IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
-		}
-		catch (final BadLocationException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
-					RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+			catch (final CoreException e) {
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
+						RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+			}
+			try {
+				final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
+				final StringBuilder buffer = new StringBuilder();
+				final char[] readBuffer = new char[2048];
+				int n;
+				while ((n = reader.read(readBuffer)) > 0) {
+					buffer.append(readBuffer, 0, n);
+				}
+				
+				final ICodeLaunchContentHandler handler = RCodeLaunching.getCodeLaunchContentHandler(
+						LaunchShortcutUtil.getContentTypeId(file));
+				final String[] lines = handler.getCodeLines(new Document(buffer.toString()));
+				return lines;
+			}
+			catch (final CoreException e) {
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN,
+						RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+			}
+			catch (final IOException e) {
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.IO_ERROR,
+						RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+			}
+			catch (final BadLocationException e) {
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+						RLaunchingMessages.RunCode_error_WhenAnalyzingAndCollecting_message, e));
+			}
 		}
 		finally {
-			if (reader != null) {
+			if (input != null) {
 				try {
-					reader.close();
-				} catch (final IOException e) {}
+					input.close();
+				} catch (final IOException ignore) {}
 			}
 		}
 	}

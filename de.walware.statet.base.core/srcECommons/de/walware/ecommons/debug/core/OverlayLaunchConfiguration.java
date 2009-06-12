@@ -71,6 +71,14 @@ public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	}
 	
 	@Override
+	public boolean hasAttribute(final String attributeName) throws CoreException {
+		if (fAdditionalAttributes.containsKey(attributeName)) {
+			return true;
+		}
+		return fLaunchConfiguration.hasAttribute(attributeName);
+	}
+	
+	@Override
 	public boolean getAttribute(final String attributeName, final boolean defaultValue) throws CoreException {
 		final Object obj = fAdditionalAttributes.get(attributeName);
 		if (obj instanceof Boolean) {
@@ -109,7 +117,7 @@ public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	@Override
 	public Map getAttribute(final String attributeName, final Map defaultValue) throws CoreException {
 		final Object obj = fAdditionalAttributes.get(attributeName);
-		if (obj instanceof Boolean) {
+		if (obj instanceof Map) {
 			return (Map) obj;
 		}
 		return fLaunchConfiguration.getAttribute(attributeName, defaultValue);
@@ -177,11 +185,6 @@ public class OverlayLaunchConfiguration extends LaunchConfiguration {
 	@Override
 	public ILaunchConfigurationWorkingCopy getWorkingCopy() throws CoreException {
 		return fLaunchConfiguration.getWorkingCopy();
-	}
-	
-	@Override
-	public boolean hasAttribute(final String attributeName) throws CoreException {
-		return fLaunchConfiguration.hasAttribute(attributeName);
 	}
 	
 	@Override

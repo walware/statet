@@ -65,7 +65,7 @@ public class WorkspaceUtilImpl extends FileUtil {
 			protected FileInput getInput(final IProgressMonitor monitor) throws CoreException, IOException {
 				try {
 					final InputStream raw = fFile.getContents(true);
-					return new FileInput(raw, fFile.getCharset(false));
+					return new FileInput(raw, fFile.getCharset(true));
 				}
 				finally {
 					monitor.done();

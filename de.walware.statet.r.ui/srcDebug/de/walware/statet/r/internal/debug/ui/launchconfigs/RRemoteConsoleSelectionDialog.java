@@ -563,6 +563,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				catch (final NotBoundException e) {
 				}
 				catch (final RemoteException e) {
+					e.printStackTrace();
 				}
 			}
 			return Status.OK_STATUS;

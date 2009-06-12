@@ -159,9 +159,10 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			try {
 				final URL intern = Platform.getBundle(RCore.PLUGIN_ID).getEntry("/localhost.policy"); //$NON-NLS-1$ 
 				final URL java = FileLocator.resolve(intern);
-				s.append(" -Djava.security.policy=\""); //$NON-NLS-1$
+				s.append(" -Djava.security.policy="); //$NON-NLS-1$
+				s.append('"');
 				s.append(java.toString());
-				s.append("\""); //$NON-NLS-1$
+				s.append('"');
 			}
 			catch (final IOException e) {
 				RUIPlugin.logError(-1, "Error trying to resolve path to security policy", e); //$NON-NLS-1$

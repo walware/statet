@@ -256,7 +256,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						RLaunchingMessages.RJLaunchDelegate_error_MissingAddress_message, null));
 			}
-			if (!address.startsWith("//")) { //$NON-NLS-1$
+			if (!(address.startsWith("//") || address.startsWith("rmi:"))) { //$NON-NLS-1$
 				address = "//" + address; //$NON-NLS-1$
 			}
 			// Working directory

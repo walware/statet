@@ -269,29 +269,33 @@ public class REditorDebugHover implements ISourceEditorHover {
 		try {
 			// we are not in UI thread
 			final ISourceUnit su = fEditor.getSourceUnit();
-			if (su != null) {
-				final ISourceUnitModelInfo modelInfo = su.getModelInfo(RModel.TYPE_ID, IModelManager.MODEL_FILE, new NullProgressMonitor());
-				final AstSelection astSelection = AstSelection.search(modelInfo.getAst().root, hoverRegion.getOffset(), hoverRegion.getOffset()+hoverRegion.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
-				RAstNode node = (RAstNode) astSelection.getCovering();
-				if (node != null) {
-					RElementAccess access = null;
-					while (node != null && access == null) {
-						if (Thread.interrupted()) {
-							return null;
-						}
-						final Object[] attachments = node.getAttachments();
-						for (int i = 0; i < attachments.length; i++) {
-							if (attachments[i] instanceof RElementAccess) {
-								access = (RElementAccess) attachments[i];
-								final RElementName e = getElementAccessOfRegion(access, hoverRegion);
-								if (Thread.interrupted() || e == null) {
-									return null;
-								}
-								return getElementDetail(e, fEditor.getViewer().getTextWidget(), fEditor.getWorkbenchPart());
-							}
-						}
-						node = node.getRParent();
+			if (su == null) {
+				return null;
+			}
+			final ISourceUnitModelInfo modelInfo = su.getModelInfo(RModel.TYPE_ID, IModelManager.MODEL_FILE, new NullProgressMonitor());
+			if (modelInfo == null) {
+				return null;
+			}
+			final AstSelection astSelection = AstSelection.search(modelInfo.getAst().root, hoverRegion.getOffset(), hoverRegion.getOffset()+hoverRegion.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
+			RAstNode node = (RAstNode) astSelection.getCovering();
+			if (node != null) {
+				RElementAccess access = null;
+				while (node != null && access == null) {
+					if (Thread.interrupted()) {
+						return null;
 					}
+					final Object[] attachments = node.getAttachments();
+					for (int i = 0; i < attachments.length; i++) {
+						if (attachments[i] instanceof RElementAccess) {
+							access = (RElementAccess) attachments[i];
+							final RElementName e = getElementAccessOfRegion(access, hoverRegion);
+							if (Thread.interrupted() || e == null) {
+								return null;
+							}
+							return getElementDetail(e, fEditor.getViewer().getTextWidget(), fEditor.getWorkbenchPart());
+						}
+					}
+					node = node.getRParent();
 				}
 			}
 		}

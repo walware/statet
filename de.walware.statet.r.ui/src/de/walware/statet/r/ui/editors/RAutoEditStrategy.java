@@ -531,8 +531,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 			dummyDocEnd = validRegion.getOffset()+validRegion.getLength();
 		}
 		final String text;
-		{
-			final StringBuilder s = new StringBuilder(
+		{	final StringBuilder s = new StringBuilder(
 					(c.offset-shift) +
 					c.text.length() +
 					(smartEnd-cEnd) +
@@ -644,12 +643,22 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private void smartIndentAfterNewLine1(final DocumentCommand c) throws BadLocationException, BadPartitioningException, CoreException {
 		final int line = fDocument.getLineOfOffset(c.offset);
 		int checkOffset = Math.max(0, c.offset);
+		String append = "";
 		final ITypedRegion partition = fDocument.getPartition(fPartitioning.getPartitioning(), checkOffset, true);
 		if (partition.getType() == IRDocumentPartitions.R_COMMENT) {
 			checkOffset = partition.getOffset();
 		}
-		if (partition.getType() == IRDocumentPartitions.R_ROXYGEN) {
-			checkOffset = 0;
+		else if (partition.getType() == IRDocumentPartitions.R_ROXYGEN) {
+			checkOffset = -1;
+			if (c.length == 0 && line+1 < fDocument.getNumberOfLines()) {
+				int offset = fDocument.getLineOffset(line+1);
+				fScanner.configure(fDocument);
+				int next = fScanner.findAnyNonBlankForward(offset, ITokenScanner.UNBOUND, true);
+				if (next >= 0 && fScanner.getPartition(next).getType() == IRDocumentPartitions.R_ROXYGEN) {
+					append = "#' ";
+				}
+			}
+			fScanner.configure(fDocument);
 		}
 		final RIndentUtil util = new RIndentUtil(fDocument, fRCodeStyle);
 		int column = util.getLineIndent(line, false)[RIndentUtil.COLUMN_IDX];
@@ -661,7 +670,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 				column = util.getNextLevelColumn(column, 1);
 			}
 		}
-		c.text += util.createIndentString(column);
+		c.text += util.createIndentString(column) + append;
 	}
 	
 	private void smartIndentOnTab(final DocumentCommand c) throws BadLocationException {

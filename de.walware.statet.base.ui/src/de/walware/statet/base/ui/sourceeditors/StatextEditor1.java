@@ -311,7 +311,6 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 					fPrefixesMap.put(type, prefixes);
 				}
 			}
-			
 			fDocumentPartitioning = configuration.getConfiguredDocumentPartitioning(sourceViewer);
 		}
 		
@@ -460,6 +459,9 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 	
 	private List<IUpdate> fUpdateables = new ArrayList<IUpdate>();
 	
+	private ProjectT[] fInputChange;
+	private int fInputUpdate = Integer.MAX_VALUE;
+	
 	
 /*- Contructors ------------------------------------------------------------*/
 	
@@ -523,22 +525,57 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 		if (sourceViewer != null) {
 			fConfigurator.unconfigureTarget();
 		}
+		else {
+			fLazySetup = true;
+		}
 		
+		fInputChange = (ProjectT[]) new StatetExtNature[] { prevProject, fProject };
+		fInputUpdate = 1;
 		super.doSetInput(input);
+		// setup in 
+		//   1) setDocumentProvider -> setupConfiguration(..., input)
+		//   2) handleInsertModeChanged -> setupConfiguration(..., input, SourceViewer)
+		fInputChange = null;
+		fInputUpdate = Integer.MAX_VALUE;
 		
-		if (input != null) {
-			setupConfiguration(prevProject, fProject, input);
-			if (sourceViewer != null) {
-				setupConfiguration(prevProject, fProject, input, sourceViewer);
+		if (input != null && fOutlinePage != null) {
+			updateOutlinePageInput(fOutlinePage);
+		}
+	}
+	
+	@Override
+	protected void setPartName(final String partName) {
+		super.setPartName(partName);
+		
+		// see doSetInput
+		if (fInputChange != null) {
+			if (fInputUpdate != 1) {
+				return;
+			}
+			fInputUpdate = 2;
+			final IEditorInput input = getEditorInput();
+			setupConfiguration(fInputChange[0], fInputChange[1], input);
+		}
+	}
+	
+	@Override
+	protected void handleInsertModeChanged() {
+		// see doSetInput
+		if (fInputChange != null && !fLazySetup) {
+			if (fInputUpdate != 2) {
+				return;
+			}
+			fInputUpdate = 3;
+			final IEditorInput input = getEditorInput();
+			final ISourceViewer sourceViewer = getSourceViewer();
+			if (input != null && sourceViewer != null) {
+				setupConfiguration(fInputChange[0], fInputChange[1], input, sourceViewer);
 				fConfigurator.configureTarget();
 			}
-			else {
-				fLazySetup = true;
-			}
-			if (fOutlinePage != null) {
-				updateOutlinePageInput(fOutlinePage);
-			}
+			fInputChange = null;
 		}
+		
+		super.handleInsertModeChanged();
 	}
 	
 	/**

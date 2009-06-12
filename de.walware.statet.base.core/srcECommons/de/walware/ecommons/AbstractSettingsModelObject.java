@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 
  */
 public abstract class AbstractSettingsModelObject {
+	// Use EMF in future?
 	
 	
 	private ReadWriteLock fLock;

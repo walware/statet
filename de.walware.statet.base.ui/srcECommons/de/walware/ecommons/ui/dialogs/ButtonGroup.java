@@ -54,6 +54,8 @@ public class ButtonGroup<ItemType> extends Composite {
 	private Button fUpButton;
 	private Button fDownButton;
 	
+	private int fCachedWidthHint;
+	
 	// Model
 	private IObservableList fList;
 	private IObservableValue fDefault;
@@ -67,10 +69,19 @@ public class ButtonGroup<ItemType> extends Composite {
 	}
 	
 	
+	protected void addLayoutData(final Button button) {
+		if (fCachedWidthHint == 0) {
+			fCachedWidthHint = LayoutUtil.hintWidth(button);
+		}
+		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.widthHint = fCachedWidthHint;
+		button.setLayoutData(gd);
+	}
+	
 	public void addAddButton() {
 		fAddButton = new Button(this, SWT.PUSH);
+		addLayoutData(fAddButton);
 		fAddButton.setText(SharedMessages.CollectionEditing_AddItem_label);
-		fAddButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fAddButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
@@ -81,8 +92,8 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	public void addCopyButton() {
 		fCopyButton = new Button(this, SWT.PUSH);
+		addLayoutData(fCopyButton);
 		fCopyButton.setText(SharedMessages.CollectionEditing_CopyItem_label);
-		fCopyButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fCopyButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
@@ -96,8 +107,8 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	public void addEditButton() {
 		fEditButton = new Button(this, SWT.PUSH);
+		addLayoutData(fEditButton);
 		fEditButton.setText(SharedMessages.CollectionEditing_EditItem_label);
-		fEditButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fEditButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
@@ -111,8 +122,8 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	public void addDeleteButton() {
 		fDeleteButton = new Button(this, SWT.PUSH);
+		addLayoutData(fDeleteButton);
 		fDeleteButton.setText(SharedMessages.CollectionEditing_RemoveItem_label);
-		fDeleteButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fDeleteButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
@@ -124,8 +135,8 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	public void addDefaultButton() {
 		fDefaultButton = new Button(this, SWT.PUSH);
+		addLayoutData(fDefaultButton);
 		fDefaultButton.setText(SharedMessages.CollectionEditing_DefaultItem_label);
-		fDefaultButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fDefaultButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
@@ -139,8 +150,8 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	public void addUpButton() {
 		fUpButton = new Button(this, SWT.PUSH);
+		addLayoutData(fUpButton);
 		fUpButton.setText(SharedMessages.CollectionEditing_MoveItemUp_label);
-		fUpButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fUpButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
@@ -154,6 +165,7 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	public void addDownButton() {
 		fDownButton = new Button(this, SWT.PUSH);
+		addLayoutData(fDownButton);
 		fDownButton.setText(SharedMessages.CollectionEditing_MoveItemDown_label);
 		fDownButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fDownButton.addSelectionListener(new SelectionAdapter() {

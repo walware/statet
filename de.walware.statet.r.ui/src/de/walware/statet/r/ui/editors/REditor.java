@@ -445,6 +445,7 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	@Override
 	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput) {
+		super.setupConfiguration(prevProject, newProject, newInput);
 		fRUnit = ((RDocumentProvider) getDocumentProvider()).getWorkingCopy(newInput);
 		fRConfig.setSource((fRUnit != null) ? (IRCoreAccess) fRUnit.getRCoreAccess() : null);
 		fModelProvider.setInput(fRUnit);

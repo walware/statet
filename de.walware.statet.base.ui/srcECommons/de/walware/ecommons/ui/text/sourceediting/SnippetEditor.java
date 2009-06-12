@@ -39,6 +39,7 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.ecommons.ui.ControlServicesUtil;
 import de.walware.ecommons.ui.preferences.SettingsUpdater;
+import de.walware.ecommons.ui.util.UIAccess;
 
 
 /**
@@ -77,7 +78,7 @@ public class SnippetEditor extends Object {
 		
 		public void run() {
 			fActionUpdateScheduled = false;
-			if (fSourceViewer != null && !fSourceViewer.getControl().isDisposed()) {
+			if (UIAccess.isOkToUse(fSourceViewer)) {
 				for (final Action action : fGlobalActions.values()) {
 					if (action instanceof IUpdate) {
 						((IUpdate) action).update();
