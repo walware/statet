@@ -28,6 +28,7 @@ import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
@@ -302,6 +303,13 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		final TextEdit edits = indenter.getIndentEdits(doc, ast, 0, 1, doc.getNumberOfLines()-1);
 		edits.apply(doc, 0);
 		return doc.get(prefix.length(), doc.getLength()-prefix.length());
+	}
+	
+	static RCodeStyleSettings getCodeStyle(final ISourceUnit su) {
+		if (su instanceof IRSourceUnit) {
+			return ((IRSourceUnit) su).getRCoreAccess().getRCodeStyle();
+		}
+		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}
 	
 }

@@ -47,6 +47,7 @@ import de.walware.ecommons.ltk.core.refactoring.RefactoringMessages;
 import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 
+import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -326,6 +327,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 		fSourceUnit.connect(progress.newChild(1));
 		try {
 			final AbstractDocument document = fSourceUnit.getDocument(progress.newChild(1));
+			final RCodeStyleSettings codeStyle = RRefactoringAdapter.getCodeStyle(fSourceUnit);
 			
 			RAstNode firstParentChild = (RAstNode) fFunction.getAdapter(IAstNode.class);
 			while (true) {
@@ -348,7 +350,13 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 					new DeleteEdit(region.getOffset(), region.getLength()));
 			
 			final String nl = document.getDefaultLineDelimiter();
-			final String argAssign = " = ";
+			String argAssign = "=";
+			if (codeStyle.getWhitespaceArgAssignBefore()) {
+				argAssign = " " + argAssign;
+			}
+			if (codeStyle.getWhitespaceArgAssignBehind()) {
+				argAssign = argAssign + " ";
+			}
 			
 			final StringBuilder sb = new StringBuilder();
 			sb.append("setGeneric(\""); //$NON-NLS-1$
@@ -370,7 +378,14 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 				sb.append("..., "); //$NON-NLS-1$
 			}
 			sb.delete(sb.length()-2, sb.length());
-			sb.append(") {"); //$NON-NLS-1$
+			sb.append(')');
+			if (codeStyle.getNewlineFDefBodyBlockBefore()) {
+				sb.append(nl);
+			}
+			else {
+				sb.append(' ');
+			}
+			sb.append('{');
 			sb.append(nl);
 			sb.append("standardGeneric(\""); //$NON-NLS-1$
 			sb.append(fFunctionName);
@@ -419,7 +434,14 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 			if (!fVariablesList.isEmpty()) {
 				sb.delete(sb.length()-2, sb.length());
 			}
-			sb.append(") "); //$NON-NLS-1$
+			sb.append(')');
+			if (codeStyle.getNewlineFDefBodyBlockBefore()
+					|| fdefNode.getContChild().getNodeType() != NodeType.BLOCK) {
+				sb.append(nl);
+			}
+			else {
+				sb.append(' ');
+			}
 			sb.append(document.get(fbodyRegion.getOffset(), fbodyRegion.getLength()).trim());
 			sb.append(")"); //$NON-NLS-1$
 			sb.append(nl);

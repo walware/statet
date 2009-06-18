@@ -49,6 +49,7 @@ import de.walware.ecommons.ltk.core.refactoring.RefactoringMessages;
 import de.walware.ecommons.ltk.core.refactoring.SourceUnitChange;
 import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 
+import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
@@ -381,6 +382,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 		fSourceUnit.connect(progress.newChild(1));
 		try {
 			final AbstractDocument document = fSourceUnit.getDocument(progress.newChild(1));
+			final RCodeStyleSettings codeStyle = RRefactoringAdapter.getCodeStyle(fSourceUnit);
 			
 			final String nl = document.getDefaultLineDelimiter();
 			final String defAssign = " <- ";
@@ -430,7 +432,14 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			if (hasArguments) {
 				sb.delete(sb.length()-2, sb.length());
 			}
-			sb.append(") {"); //$NON-NLS-1$
+			sb.append(')');
+			if (codeStyle.getNewlineFDefBodyBlockBefore()) {
+				sb.append(nl);
+			}
+			else {
+				sb.append(' ');
+			}
+			sb.append('{');
 			sb.append(nl);
 			if (startOffset < stopOffset) {
 				final IRegion lastLine = document.getLineInformationOfOffset(stopOffset-1);

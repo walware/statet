@@ -109,7 +109,7 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	public void setProject(final IProject project) {
 		super.setProject(project);
 		fRCodeStyle = new RCodeStyleSettings();
-		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.GROUP_ID);
+		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.ALL_GROUP_IDS);
 		
 		fRPackageName = getPrefs().getPreferenceValue(PREF_PACKAGE_NAME);
 	}

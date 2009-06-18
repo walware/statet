@@ -25,16 +25,23 @@ public class PreferencesManageListener implements SettingsChangeNotifier.ManageL
 	
 	private AbstractPreferencesModelObject fModel;
 	private IPreferenceAccess fPrefAccess;
-	private String fGroupId;
+	private String[] fGroupIds;
 	
 	
 	/**
-	 * Creates a new listener.
+	 * Creates a new listener for a single group id.
 	 */
 	public PreferencesManageListener(final AbstractPreferencesModelObject model, final IPreferenceAccess prefs, final String groupId) {
+		this(model, prefs, new String[] { groupId });
+	}
+	
+	/**
+	 * Creates a new listener for multiple group ids.
+	 */
+	public PreferencesManageListener(final AbstractPreferencesModelObject model, final IPreferenceAccess prefs, final String[] groupIds) {
 		fModel = model;
 		fPrefAccess = prefs;
-		fGroupId = groupId;
+		fGroupIds = groupIds;
 		final Lock lock = fModel.getWriteLock();
 		lock.lock();
 		try {
@@ -47,14 +54,17 @@ public class PreferencesManageListener implements SettingsChangeNotifier.ManageL
 	}
 	
 	public void beforeSettingsChangeNotification(final Set<String> groupIds) {
-		if (groupIds.contains(fGroupId)) {
-			final Lock lock = fModel.getWriteLock();
-			lock.lock();
-			try {
-				fModel.load(fPrefAccess);
-			}
-			finally {
-				lock.unlock();
+		for (final String id : fGroupIds) {
+			if (groupIds.contains(id)) {
+				final Lock lock = fModel.getWriteLock();
+				lock.lock();
+				try {
+					fModel.load(fPrefAccess);
+				}
+				finally {
+					lock.unlock();
+				}
+				return;
 			}
 		}
 	}

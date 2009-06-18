@@ -204,7 +204,7 @@ public class RConsolePage extends NIConsolePage {
 	@Override
 	protected void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		super.handleSettingsChanged(groupIds, options);
-		if (groupIds.contains(RCodeStyleSettings.GROUP_ID) 
+		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID) 
 				&& UIAccess.isOkToUse(getOutputViewer())) {
 			final RCodeStyleSettings codeStyle = ((RConsole) getConsole()).getRCodeStyle();
 			if (codeStyle.isDirty()) {

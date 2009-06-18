@@ -120,6 +120,10 @@ public class Messages extends NLS {
 	public static String RCodeStyle_Indent_IndentOfWrappedCommands_error_message;
 	public static String RCodeStyle_Indent_Strategy_Levels_label;
 	
+	public static String RCodeStyle_Whitespace_ArgAssign_Before_message;
+	public static String RCodeStyle_Whitespace_ArgAssign_Behind_message;
+	public static String RCodeStyle_Newline_FDefBodyBlock_Before_message;
+	
 	public static String REditorTemplates_title;
 	
 	public static String REditorOptions_SmartInsert_label;

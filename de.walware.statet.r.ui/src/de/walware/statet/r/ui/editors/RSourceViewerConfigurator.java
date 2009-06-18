@@ -49,7 +49,7 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	
 	
 	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(Arrays.asList(new String[] {
-			RCodeStyleSettings.GROUP_ID,
+			RCodeStyleSettings.INDENT_GROUP_ID,
 			TaskTagsPreferences.GROUP_ID,
 	}));
 	
@@ -149,7 +149,7 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		}
 		final Point selectedRange = viewer.getSelectedRange();
 		
-		if (groupIds.contains(RCodeStyleSettings.GROUP_ID)) {
+		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID) || groupIds.contains(RCodeStyleSettings.WS_GROUP_ID)) {
 			fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		}
 		if (groupIds.contains(REditorOptions.GROUP_ID) && fRealEditor != null) {

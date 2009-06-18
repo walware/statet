@@ -27,7 +27,11 @@ import de.walware.ecommons.preferences.Preference.IntPref;
  */
 public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	
-	public static final String GROUP_ID = "r.codestyle"; //$NON-NLS-1$
+	public static final String INDENT_GROUP_ID = "r.codestyle.indent"; //$NON-NLS-1$
+	public static final String WS_GROUP_ID = "r.codestyle.ws"; //$NON-NLS-1$
+	
+	public static final String[] ALL_GROUP_IDS = new String[] { INDENT_GROUP_ID, WS_GROUP_ID };
+	
 	
 	public static enum IndentationType {
 		TAB, SPACES,
@@ -66,6 +70,19 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	public static final String PROP_INDENT_WRAPPED_COMMAND_DEPTH = "indentWrappedCommandDepth"; //$NON-NLS-1$
 	
 	
+	public static final BooleanPref PREF_WS_ARGASSIGN_BEFORE = new BooleanPref(
+			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "ws.arg_assign.before"); //$NON-NLS-1$
+	public static final String PROP_WS_ARGASSIGN_BEFORE = "whitespaceArgAssignBefore"; //$NON-NLS-1$
+	
+	public static final BooleanPref PREF_WS_ARGASSIGN_BEHIND = new BooleanPref(
+			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "ws.arg_assign.behind"); //$NON-NLS-1$
+	public static final String PROP_WS_ARGASSIGN_BEHIND = "whitespaceArgAssignBehind"; //$NON-NLS-1$
+	
+	public static final BooleanPref PREF_NL_FDEF_BODYBLOCK_BEFORE = new BooleanPref(
+			RCorePreferenceNodes.CAT_R_CODESTYLE_QUALIFIER, "nl.fdef_bodyblock.before"); //$NON-NLS-1$
+	public static final String PROP_NL_FDEF_BODYBLOCK_BEFORE = "newlineFDefBodyBlockBefore"; //$NON-NLS-1$
+	
+	
 	private boolean fEditMode;
 	
 	private int fTabSize;
@@ -76,6 +93,10 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	private int fIndentWrappedCommandDepth;
 	private boolean fReplaceOtherTabsWithSpaces;
 	private boolean fReplaceConservative;
+	
+	private boolean fWSArgAssignBefore;
+	private boolean fWSArgAssignBehind;
+	private boolean fNLFDefBodyBlockBefore;
 	
 	
 	/**
@@ -113,6 +134,10 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		setIndentWrappedCommandDepth(2);
 		setReplaceOtherTabsWithSpaces(false);
 		setReplaceConservative(false);
+		
+		setWhitespaceArgAssignBefore(true);
+		setWhitespaceArgAssignBehind(true);
+		setNewlineFDefBodyBlockBefore(false);
 	}
 	
 	@Override
@@ -125,6 +150,10 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		setIndentGroupDepth(prefs.getPreferenceValue(PREF_INDENT_GROUP_DEPTH));
 		setIndentWrappedCommandDepth(prefs.getPreferenceValue(PREF_INDENT_WRAPPED_COMMAND_DEPTH));
 		setReplaceConservative(prefs.getPreferenceValue(PREF_REPLACE_CONVERSATIVE));
+		
+		setWhitespaceArgAssignBefore(prefs.getPreferenceValue(PREF_WS_ARGASSIGN_BEFORE));
+		setWhitespaceArgAssignBehind(prefs.getPreferenceValue(PREF_WS_ARGASSIGN_BEHIND));
+		setNewlineFDefBodyBlockBefore(prefs.getPreferenceValue(PREF_NL_FDEF_BODYBLOCK_BEFORE));
 	}
 	
 	public void load(final RCodeStyleSettings source) {
@@ -142,6 +171,10 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 			setIndentGroupDepth(source.fIndentGroupDepth);
 			setIndentWrappedCommandDepth(source.fIndentWrappedCommandDepth);
 			setReplaceConservative(source.fReplaceConservative);
+			
+			setWhitespaceArgAssignBefore(source.fWSArgAssignBefore);
+			setWhitespaceArgAssignBehind(source.fWSArgAssignBehind);
+			setNewlineFDefBodyBlockBefore(source.fNLFDefBodyBlockBefore);
 		}
 		finally {
 			sourceLock.unlock();
@@ -159,6 +192,10 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		map.put(PREF_INDENT_GROUP_DEPTH, getIndentGroupDepth());
 		map.put(PREF_INDENT_WRAPPED_COMMAND_DEPTH, getIndentWrappedCommandDepth());
 		map.put(PREF_REPLACE_CONVERSATIVE, getReplaceConservative());
+		
+		map.put(PREF_WS_ARGASSIGN_BEFORE, getWhitespaceArgAssignBefore());
+		map.put(PREF_WS_ARGASSIGN_BEHIND, getWhitespaceArgAssignBehind());
+		map.put(PREF_NL_FDEF_BODYBLOCK_BEFORE, getNewlineFDefBodyBlockBefore());
 		return map;
 	}
 	
@@ -238,6 +275,34 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 	}
 	public boolean getReplaceConservative() {
 		return fReplaceConservative;
+	}
+	
+	
+	public void setWhitespaceArgAssignBefore(final boolean enable) {
+		final boolean oldValue = fWSArgAssignBefore;
+		fWSArgAssignBefore = enable;
+		firePropertyChange(PROP_WS_ARGASSIGN_BEFORE, oldValue, enable);
+	}
+	public boolean getWhitespaceArgAssignBefore() {
+		return fWSArgAssignBefore;
+	}
+	
+	public void setWhitespaceArgAssignBehind(final boolean enable) {
+		final boolean oldValue = fWSArgAssignBehind;
+		fWSArgAssignBehind = enable;
+		firePropertyChange(PROP_WS_ARGASSIGN_BEFORE, oldValue, enable);
+	}
+	public boolean getWhitespaceArgAssignBehind() {
+		return fWSArgAssignBehind;
+	}
+	
+	public void setNewlineFDefBodyBlockBefore(final boolean enable) {
+		final boolean oldValue = fNLFDefBodyBlockBefore;
+		fNLFDefBodyBlockBefore = enable;
+		firePropertyChange(PROP_NL_FDEF_BODYBLOCK_BEFORE, oldValue, enable);
+	}
+	public boolean getNewlineFDefBodyBlockBefore() {
+		return fNLFDefBodyBlockBefore;
 	}
 	
 }

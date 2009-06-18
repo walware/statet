@@ -69,7 +69,7 @@ public class RCorePlugin extends Plugin {
 			fRCodeStyle = new RCodeStyleSettings();
 			fRCodeStyle.load(prefs);
 			fRCodeStyle.resetDirty();
-			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.GROUP_ID);
+			fListener = new PreferencesManageListener(fRCodeStyle, fPrefs, RCodeStyleSettings.ALL_GROUP_IDS);
 		}
 		
 		public IPreferenceAccess getPrefs() {
