@@ -37,6 +37,9 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_ERROR;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
@@ -45,13 +48,14 @@ import de.walware.ecommons.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.ast.RAstNode.Assoc;
+import de.walware.statet.r.core.rsource.ast.RScannerLexer.ScannerToken;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
  * Scanner to create a R AST.
  */
-public class RScanner {
+public final class RScanner {
 	
 	
 	private static final class ExprContext {
@@ -78,14 +82,65 @@ public class RScanner {
 		}
 	}
 	
+	private static final class RoxygenCollector {
+		
+		private Comment[] fLines = new Comment[64];
+		private int fLineCount;
+		private DocuComment fCurrent;
+		
+		void add(final Comment comment) {
+			if (fCurrent == null) {
+				fCurrent = new DocuComment();
+			}
+			comment.fRParent = fCurrent;
+			
+			if (fLineCount == fLines.length) {
+				final Comment[] lines = new Comment[fLineCount+64];
+				System.arraycopy(fLines, 0, lines, 0, fLineCount);
+				fLines = lines;
+			}
+			fLines[fLineCount++] = comment;
+		}
+		
+		boolean hasComment() {
+			return (fCurrent != null);
+		}
+		
+		DocuComment finish(final ScannerToken next) {
+			final DocuComment comment = new DocuComment();
+			final Comment[] lines = new Comment[fLineCount];
+			System.arraycopy(fLines, 0, lines, 0, fLineCount);
+			comment.fLines = lines;
+			comment.fStartOffset = lines[0].fStartOffset;
+			comment.fStopOffset = lines[fLineCount-1].fStopOffset;
+			comment.fNextOffset = (next != null && next.type != RTerminal.EOF) ? next.offset : Integer.MIN_VALUE;
+			
+			fLineCount = 0;
+			fCurrent = null;
+			return comment;
+		}
+		
+		void clear() {
+			for (int i = 0; i < fLines.length; i++) {
+				fLines[i] = null;
+			}
+		}
+		
+	}
+	
+	private final static RScannerPostExprVisitor POST_VISITOR = new RScannerPostExprVisitor();
+	
 	
 	private final RScannerLexer fLexer;
 	private final RScannerLexer.ScannerToken fNext;
-	private final RScannerPostExprVisitor fPostVisitor = new RScannerPostExprVisitor();
 	private final AstInfo fAst;
 	
 	private RTerminal fNextType;
 	private boolean fWasLinebreak;
+	
+	private List<RAstNode> fComments;
+	private RoxygenCollector fRoxygen;
+	private int fCommentsLevel;
 	
 	
 	public RScanner(final SourceParseInput input, final AstInfo ast) {
@@ -93,7 +148,7 @@ public class RScanner {
 	}
 	
 	public RScanner(final SourceParseInput input, final AstInfo ast, final IStringCache stringCache) {
-		if (ast != null && ast.level <= RAst.LEVEL_MINIMAL) {
+		if (ast != null && (ast.level & AstInfo.DEFAULT_LEVEL_MASK) <= RAst.LEVEL_MINIMAL) {
 			fLexer = new RScannerLexer(input);
 		}
 		else {
@@ -103,6 +158,16 @@ public class RScanner {
 		fAst = ast;
 	}
 	
+	
+	public void setCommentLevel(final int level) {
+		fCommentsLevel = level;
+		if (level > 0) {
+			fComments = new ArrayList<RAstNode>();
+			if (level > 0x4) {
+				fRoxygen = new RoxygenCollector();
+			}
+		}
+	}
 	
 	public SourceComponent scanSourceUnit() {
 		try {
@@ -161,6 +226,9 @@ public class RScanner {
 //		if (fNextType == RTerminal.EOF) {
 //			fNext.type = null;
 //		}
+		if (fCommentsLevel > 0) {
+			node.fComments = Collections.unmodifiableList(fComments);
+		}
 		node.updateStartOffset();
 		node.updateStopOffset();
 		return node;
@@ -1203,7 +1271,7 @@ public class RScanner {
 	Dummy.Terminal errorNonExistExpression(final RAstNode parent, final int stopHint, final int status) {
 		final Dummy.Terminal error = new Dummy.Terminal(status);
 		error.fRParent = parent;
-		error.fStartOffset = error.fStopOffset = (stopHint >= 0) ? stopHint : parent.fStopOffset;
+		error.fStartOffset = error.fStopOffset = (stopHint != Integer.MIN_VALUE) ? stopHint : parent.fStopOffset;
 		error.fText = ""; //$NON-NLS-1$
 		return error;
 	}
@@ -1467,7 +1535,7 @@ public class RScanner {
 			state = -1;
 		}
 		try {
-			context.rootExpr.node.acceptInR(fPostVisitor);
+			context.rootExpr.node.acceptInR(POST_VISITOR);
 		}
 		catch (final InvocationTargetException e) {
 		}
@@ -1482,20 +1550,95 @@ public class RScanner {
 	
 	private final void consumeToken() {
 		fWasLinebreak = (fNextType == RTerminal.LINEBREAK);
-		FILTER_TOKEN : while (true) {
-			fLexer.nextToken();
-			fNextType = fNext.type;
+		fLexer.nextToken();
+		fNextType = fNext.type;
+		switch (fNextType) {
+		case COMMENT:
+		case ROXYGEN_COMMENT:
+			if (fCommentsLevel > 0x4) {
+				consumeCommentWithRoxygen();
+			}
+			else {
+				consumeComment();
+			}
+			return;
+		default:
+			return;
+		}
+	}
+	
+	
+	private void consumeCommentWithRoxygen() {
+		while (true) {
+			final Comment comment;
 			switch (fNextType) {
 			case COMMENT:
-				handleComment();
-				continue FILTER_TOKEN;
+				if (fRoxygen.hasComment()) {
+					fComments.add(fRoxygen.finish(fNext));
+				}
+				comment = new Comment.CommonLine();
+				setupFromSourceToken(comment);
+				fComments.add(comment);
+				
+				fLexer.nextToken();
+				fNextType = fNext.type;
+				continue;
+				
+			case ROXYGEN_COMMENT:
+				comment = new Comment.RoxygenLine();
+				setupFromSourceToken(comment);
+				fRoxygen.add(comment);
+				
+				fLexer.nextToken();
+				fNextType = fNext.type;
+				continue;
+				
+			case LINEBREAK:
+				fLexer.nextToken();
+				fNextType = fNext.type;
+				if (fNextType == RTerminal.LINEBREAK && fRoxygen.hasComment()) {
+					fComments.add(fRoxygen.finish(null));
+				}
+				continue;
+				
 			default:
-				break FILTER_TOKEN;
+				if (fRoxygen.hasComment()) {
+					fComments.add(fRoxygen.finish(fNext));
+				}
+				
+				fWasLinebreak = true;
+				return;
 			}
 		}
 	}
 	
-	protected void handleComment() {
+	private void consumeComment() {
+		while (true) {
+			switch (fNextType) {
+			case COMMENT:
+			case ROXYGEN_COMMENT:
+				if (fCommentsLevel > 0) {
+					final Comment comment = (fNextType == RTerminal.ROXYGEN_COMMENT) ?
+							new Comment.RoxygenLine() :
+							new Comment.CommonLine();
+					setupFromSourceToken(comment);
+					fComments.add(comment);
+				} // no break
+				
+				fLexer.nextToken();
+				fNextType = fNext.type;
+				continue;
+				
+			case LINEBREAK:
+				fLexer.nextToken();
+				fNextType = fNext.type;
+				continue;
+				
+			default:
+				fWasLinebreak = true;
+				return;
+			}
+		}
 	}
 	
 }

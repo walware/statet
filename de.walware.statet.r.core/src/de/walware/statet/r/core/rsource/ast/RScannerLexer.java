@@ -57,7 +57,7 @@ class RScannerLexer extends RLexer {
 	protected void createFix(final RTerminal type) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = STATUS_OK;
 	}
@@ -66,7 +66,7 @@ class RScannerLexer extends RLexer {
 	protected void createSpecialToken(final int status) {
 		fNextToken.type = RTerminal.SPECIAL;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = status;
 	}
@@ -75,7 +75,7 @@ class RScannerLexer extends RLexer {
 	protected void createSymbolToken() {
 		fNextToken.type = RTerminal.SYMBOL;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = STATUS_OK;
 	}
@@ -84,7 +84,7 @@ class RScannerLexer extends RLexer {
 	protected void createQuotedSymbolToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = status;
 	}
@@ -93,7 +93,7 @@ class RScannerLexer extends RLexer {
 	protected void createStringToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = status;
 	}
@@ -102,7 +102,7 @@ class RScannerLexer extends RLexer {
 	protected void createNumberToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = status;
 	}
@@ -113,10 +113,10 @@ class RScannerLexer extends RLexer {
 	}
 	
 	@Override
-	protected void createCommentToken() {
-		fNextToken.type = RTerminal.COMMENT;
+	protected void createCommentToken(final RTerminal type) {
+		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = null;
 		fNextToken.status = STATUS_OK;
 	}
@@ -125,7 +125,7 @@ class RScannerLexer extends RLexer {
 	protected void createLinebreakToken(final String text) {
 		fNextToken.type = RTerminal.LINEBREAK;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = text;
 		fNextToken.status = STATUS_OK;
 	}
@@ -134,7 +134,7 @@ class RScannerLexer extends RLexer {
 	protected void createUnknownToken(final String text) {
 		fNextToken.type = RTerminal.UNKNOWN;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = text;
 		fNextToken.status = STATUS_OK;
 	}

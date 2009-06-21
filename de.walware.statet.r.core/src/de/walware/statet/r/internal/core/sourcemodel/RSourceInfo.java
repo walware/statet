@@ -28,13 +28,13 @@ public class RSourceInfo implements IRModelInfo {
 	
 	private final RAstInfo fAst;
 	
-	private BuildSourceFrame fTopFrame;
+	final BuildSourceFrame fTopFrame;
 	final LinkedHashMap<String, BuildSourceFrame> fLocalFrames;
-	private final Map<String, ? extends IRFrameInSource> fProtectedLocalFrames;
+	private final Map<String, BuildSourceFrame> fProtectedLocalFrames;
 	
-	private final PackageReferences fPackageRefs;
+	final PackageReferences fPackageRefs;
 	final Map<String, BuildSourceFrame> fNamespaceFrames;
-	private final Map<String, ? extends IRFrame> fProtectedNamespaceFrames;
+	private final Map<String, BuildSourceFrame> fProtectedNamespaceFrames;
 	
 	private final ISourceStructElement fSourceElement;
 	
@@ -46,8 +46,8 @@ public class RSourceInfo implements IRModelInfo {
 			final Map<String, BuildSourceFrame> namespaceFrames,
 			final ISourceStructElement unitElement) {
 		fAst = ast;
-		fLocalFrames = localFrames;
 		fTopFrame = topFrame;
+		fLocalFrames = localFrames;
 		fProtectedLocalFrames = Collections.unmodifiableMap(localFrames);
 		fPackageRefs = packageRefs;
 		fNamespaceFrames = namespaceFrames;

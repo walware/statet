@@ -15,47 +15,49 @@ package de.walware.ecommons.text;
 /**
  * The string represents a range of the source.
  */
-public class PartialStringParseInput extends SourceParseInput {
+public class PartialStringParseInput extends SourceParseInput implements CharSequence {
 	
 	
-	private final int fShift;
-	private final char[] fStringContent;
+	private final int fOffset;
+	private final char[] fContent;
 	
 	
 	public PartialStringParseInput(final String content, final int offsetInSource) {
-		fShift = offsetInSource;
-		fStringContent = content.toCharArray();
+		fOffset = offsetInSource;
+		fContent = content.toCharArray();
 	}
 	
 	
 	@Override
-	protected void updateBuffer() {
-		if (getIndex() < fShift) {
+	protected void updateBuffer(final int index, final int min) {
+		if (index < fOffset) {
 			throw new IllegalStateException();
 		}
-		setBuffer(fStringContent, fStringContent.length, getIndex()-fShift);
+		setBuffer(fContent, fContent.length, index-fOffset);
 	}
 	
 	
 	public int length() {
-		return fShift+fStringContent.length;
+		return fOffset+fContent.length;
 	}
 	
 	public char charAt(final int index) {
-		return fStringContent[index-fShift];
+		return fContent[index-fOffset];
 	}
 	
 	public CharSequence subSequence(final int start, final int end) {
-		return new String(fStringContent, start-fShift, end-(start-fShift));
+		return new String(fContent, start-fOffset, end-(start-fOffset));
+	}
+	
+	
+	@Override
+	protected char[] getCharInput() {
+		return fContent;
 	}
 	
 	@Override
-	public String toString() {
-		final StringBuilder s = new StringBuilder();
-		s.ensureCapacity(fShift+fStringContent.length);
-		s.setLength(fShift);
-		s.append(fStringContent);
-		return s.toString();
+	protected int getInputOffset() {
+		return fOffset;
 	}
 	
 }

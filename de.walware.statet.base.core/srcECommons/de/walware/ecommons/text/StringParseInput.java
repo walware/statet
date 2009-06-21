@@ -18,22 +18,22 @@ package de.walware.ecommons.text;
 public class StringParseInput extends SourceParseInput implements CharSequence {
 	
 	
-	private final char[] fStringContent;
+	final char[] fContent;
 	
 	
 	public StringParseInput(final String content) {
-		fStringContent = content.toCharArray();
+		fContent = content.toCharArray();
 	}
 	
 	
 	@Override
-	protected void updateBuffer() {
-		setBuffer(fStringContent, fStringContent.length, getIndex());
+	protected void updateBuffer(final int index, final int min) {
+		setBuffer(fContent, fContent.length, index);
 	}
 	
 	
 	public int length() {
-		return fBufferLength;
+		return fContent.length;
 	}
 	
 	public char charAt(final int index) {
@@ -44,9 +44,10 @@ public class StringParseInput extends SourceParseInput implements CharSequence {
 		return new String(fBuffer, start, end-start);
 	}
 	
+	
 	@Override
-	public String toString() {
-		return new String(fBuffer);
+	protected char[] getCharInput() {
+		return fContent;
 	}
 	
 }

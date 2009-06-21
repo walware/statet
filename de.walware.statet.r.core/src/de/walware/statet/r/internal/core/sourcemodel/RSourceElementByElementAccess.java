@@ -35,6 +35,7 @@ import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRPackageLoad;
 import de.walware.statet.r.core.model.IRSlot;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.rsource.ast.DocuComment;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RAst;
 
@@ -48,6 +49,11 @@ abstract class RSourceElementByElementAccess
 		
 		public RPkgImport(final IRLangSourceElement parent, final ElementAccess access) {
 			super(parent, IRLangElement.R_PACKAGE_LOAD, access);
+		}
+		
+		
+		public IRegion getDocumentationRange() {
+			return null;
 		}
 		
 		
@@ -78,6 +84,8 @@ abstract class RSourceElementByElementAccess
 		
 		private FDef fFDefNode;
 		private ArgsDefinition fArgs;
+		
+		DocuComment fDocu;
 		
 		
 		public RMethod(final IRLangSourceElement parent, final BuildSourceFrame envir, final FDef fdefNode) {
@@ -111,6 +119,10 @@ abstract class RSourceElementByElementAccess
 			return fEnvir;
 		}
 		
+		
+		public IRegion getDocumentationRange() {
+			return fDocu;
+		}
 		
 		public FDef getFDefNode() {
 			return fFDefNode;
@@ -167,6 +179,8 @@ abstract class RSourceElementByElementAccess
 		private List<String> fSuperClassesTypeNames = NO_PARENTS;
 		private List<String> fSuperClassesTypeNamesProtected = NO_PARENTS;
 		
+		DocuComment fDocu;
+		
 		
 		public RClass(final IRLangSourceElement parent, final ElementAccess defAccess, final BuildSourceFrame envir) {
 			super(parent, IRLangElement.R_S4CLASS, defAccess);
@@ -202,6 +216,10 @@ abstract class RSourceElementByElementAccess
 			return fEnvir;
 		}
 		
+		
+		public DocuComment getDocumentationRange() {
+			return fDocu;
+		}
 		
 		public List<String> getExtendedClassNames() {
 			return fSuperClassesTypeNamesProtected;
@@ -280,6 +298,10 @@ abstract class RSourceElementByElementAccess
 			return fExtTypeName;
 		}
 		
+		public IRegion getDocumentationRange() {
+			return null;
+		}
+		
 		
 		public boolean hasModelChildren(final Filter filter) {
 			if (fModelChildrenProtected == null) {
@@ -317,8 +339,15 @@ abstract class RSourceElementByElementAccess
 	static final class RVariable extends RSourceElementByElementAccess {
 		
 		
+		DocuComment fDocu;
+		
 		public RVariable(final IRLangSourceElement parent, final int elementType, final ElementAccess defAccess) {
 			super(parent, elementType, defAccess);
+		}
+		
+		
+		public DocuComment getDocumentationRange() {
+			return fDocu;
 		}
 		
 		
@@ -355,8 +384,13 @@ abstract class RSourceElementByElementAccess
 			fTypeName = name;
 		}
 		
+		
 		public String getTypeName() {
 			return fTypeName;
+		}
+		
+		public IRegion getDocumentationRange() {
+			return null;
 		}
 		
 		
@@ -382,7 +416,7 @@ abstract class RSourceElementByElementAccess
 	private final ISourceStructElement fParent;
 	private ElementAccess fAccess;
 	int fType;
-	int fOccurenceCount;
+	int fOccurrenceCount;
 	
 	
 	public RSourceElementByElementAccess(final IRLangSourceElement parent, final int elementType, final ElementAccess defAccess) {
@@ -403,7 +437,7 @@ abstract class RSourceElementByElementAccess
 		return RModel.TYPE_ID;
 	}
 	
-	public final IElementAccess getAccess() {
+	public final ElementAccess getAccess() {
 		return fAccess;
 	}
 	
@@ -444,7 +478,7 @@ abstract class RSourceElementByElementAccess
 		sb.append(':');
 		sb.append(name);
 		sb.append('#');
-		sb.append(fOccurenceCount);
+		sb.append(fOccurrenceCount);
 		return sb.toString();
 	}
 	
@@ -488,7 +522,7 @@ abstract class RSourceElementByElementAccess
 	
 	@Override
 	public int hashCode() {
-		return (fType & MASK_C2) * getElementName().hashCode() + fOccurenceCount;
+		return (fType & MASK_C2) * getElementName().hashCode() + fOccurrenceCount;
 	}
 	
 	@Override
@@ -498,7 +532,7 @@ abstract class RSourceElementByElementAccess
 		}
 		final RSourceElementByElementAccess other = (RSourceElementByElementAccess) obj;
 		return ((fType & MASK_C2) == (other.fType & MASK_C2))
-				&& (fOccurenceCount == other.fOccurenceCount)
+				&& (fOccurrenceCount == other.fOccurrenceCount)
 				&& ( ((fType & MASK_C1) == C1_SOURCE) || (getSourceParent().equals(other.getSourceParent())) )
 				&& (getElementName().equals(other.getElementName()));
 	}

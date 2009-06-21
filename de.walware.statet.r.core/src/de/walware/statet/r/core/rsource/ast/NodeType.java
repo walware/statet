@@ -21,6 +21,9 @@ public enum NodeType {
 	
 	SOURCELINES ("R", 100000000, Assoc.CONTAINER), //$NON-NLS-1$
 	COMMENT ("#", -1, -1), //$NON-NLS-1$
+	DOCU_AGGREGATION ("#'", -1, -1), //$NON-NLS-1$
+	DOCU_TAG ("@", -1, -1), //$NON-NLS-1$
+	DOCU_TEXT ("abc", -1, -1), //$NON-NLS-1$
 	ERROR ("‼", 99, Assoc.LEFTSTD), //$NON-NLS-1$
 	ERROR_TERM ("‼", 1, Assoc.TERM), //$NON-NLS-1$
 	DUMMY ("", 1, Assoc.CONTAINER), //$NON-NLS-1$

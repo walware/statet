@@ -152,4 +152,18 @@ public class RAstVisitor {
 		node.acceptInRChildren(this);
 	}
 	
+	
+	public void visit(final Comment node) throws InvocationTargetException {
+	}
+	
+	public void visit(final DocuComment node) throws InvocationTargetException {
+		node.acceptInRChildren(this);
+	}
+	
+	public void visit(final DocuTag node) throws InvocationTargetException {
+	}
+	
+	public void visit(final DocuText node) throws InvocationTargetException {
+	}
+	
 }

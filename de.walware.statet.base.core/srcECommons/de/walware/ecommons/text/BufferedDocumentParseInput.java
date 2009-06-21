@@ -38,15 +38,14 @@ public class BufferedDocumentParseInput extends SourceParseInput {
 	}
 	
 	@Override
-	protected void updateBuffer() {
-		final int start = getIndex();
+	protected void updateBuffer(final int index, final int min) {
 		int stop = getStopIndex();
 		if (stop < 0) {
 			stop = fDocument.getLength();
 		}
-		final int length = Math.min(stop-start, BUFFER_SIZE);
+		final int length = Math.min(stop-index, BUFFER_SIZE);
 		try {
-			fDocument.get(start, length).getChars(0, length, fBuffer, 0);
+			fDocument.get(index, length).getChars(0, length, fBuffer, 0);
 			setBuffer(fBuffer, length, 0);
 		}
 		catch (final BadLocationException e) {

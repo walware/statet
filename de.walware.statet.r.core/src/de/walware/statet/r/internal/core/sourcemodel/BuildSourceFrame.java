@@ -59,6 +59,12 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			this.isCreated = CREATED_NO;
 		}
 		
+		
+		public void postAdd(final ElementAccess access) {
+			access.fShared = this;
+			entries.add(access);
+			access.fFullNode.addAttachment(access);
+		}
 	}
 	
 	static class RunScope extends BuildSourceFrame {

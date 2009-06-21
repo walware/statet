@@ -42,14 +42,25 @@ public abstract class RLexer {
 	private StringBuilder fUnknownString = new StringBuilder();
 	
 	
+	/**
+	 * Creates and initializes new lexer
+	 */
 	public RLexer(final SourceParseInput input) {
 		reset(input);
+	}
+	
+	/**
+	 * Creates new lexer
+	 * 
+	 * Use {@link #reset(SourceParseInput)} to initialize the lexer
+	 */
+	protected RLexer() {
 	}
 	
 	
 	protected void reset(final SourceParseInput input) {
 		fInput = input;
-		fNextIndex = 0;
+		fNextIndex = input.getIndex();
 		fNextNum = 0;
 		fUnknownState = -1;
 	}
@@ -543,13 +554,21 @@ public abstract class RLexer {
 	
 	private final void consumeComment() {
 		// 1 == '#'
+		final RTerminal type;
+		if (fInput.subequals(2, '\'')) {
+			type = RTerminal.ROXYGEN_COMMENT;
+			fNextNum++;
+		}
+		else {
+			type = RTerminal.COMMENT;
+		}
 		LOOP : while (true) {
 			switch (fInput.get(++fNextNum)) {
 			case SourceParseInput.EOF:
 			case '\r':
 			case '\n':
 				fNextNum--;
-				createCommentToken();
+				createCommentToken(type);
 				return;
 			default:
 				continue LOOP;
@@ -771,19 +790,17 @@ public abstract class RLexer {
 		}
 	}
 	
-	private final void scanIdentifier() {
+	protected final void scanIdentifier() {
 		// after legal start
 		LOOP : while (true) {
 			final int next = fInput.get(++fNextNum);
-			if (next >= 'a' && next <= 'z') { // most frequent cases
-				continue LOOP;
-			}
-			if (next <= 'Z' && (
-					(next >= 'A')
-					||	(next <= '9' && (next >= '0' || next == '.') )
-					)
-				|| next == '_'
-				) {
+			if (next <= 'z' && (
+					(next >= 'a')
+					|| (next <= 'Z' && (
+							(next >= 'A')
+							||	(next <= '9' && (next >= '0' || next == '.')) ))
+					|| (next == '_')
+					)) {
 				continue LOOP;
 			}
 			if (Character.isLetterOrDigit(next)) {
@@ -821,7 +838,7 @@ public abstract class RLexer {
 	protected abstract void createStringToken(RTerminal type, int status);
 	protected abstract void createNumberToken(RTerminal type, int status);
 	protected abstract void createWhitespaceToken();
-	protected abstract void createCommentToken();
+	protected abstract void createCommentToken(RTerminal type);
 	protected abstract void createLinebreakToken(String text);
 	protected abstract void createUnknownToken(String text);
 	

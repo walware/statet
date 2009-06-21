@@ -17,27 +17,21 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public abstract class RSourceToken {
 	
 	
-	public static RSourceToken createFix(final RTerminal type, final int start, final int status) {
-		final FixToken token = new FixToken(type, start, type.text.length(), status);
+	public static RSourceToken createFix(final RTerminal type, final int start, final int length, final int status) {
+		final FixToken token = new FixToken(type, start, length, status);
 		return token;
 	}
 	
-	public static RSourceToken create(final RTerminal type, final int start, final String text, final int status) {
-		final IndToken token = new IndToken(type, start, text.length(), status);
+	public static RSourceToken create(final RTerminal type, final int start, final int length, final String text, final int status) {
+		final IndToken token = new IndToken(type, start, length, status);
 		token.fText = text;
 		return token;
 	}
 	
-	public static RSourceToken create(final RTerminal type, final int start, final int length, final CharSequence source, final int status) {
-		final IndToken token = new IndToken(type, start, length, status);
-		token.fInput = source;
-		return token;
-	}
 	
 	public static class IndToken extends RSourceToken {
 		
 		private String fText;
-		private CharSequence fInput;
 		
 		public IndToken(final RTerminal type, final int start, final int length, final int status) {
 			super(type, start, length, status);
@@ -45,9 +39,6 @@ public abstract class RSourceToken {
 		
 		@Override
 		public String getText() {
-			if (fText == null && fInput != null) {
-				fText = fInput.subSequence(fStart, fLength).toString();
-			}
 			return fText;
 		}
 		

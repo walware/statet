@@ -12,6 +12,7 @@
 package de.walware.statet.r.core.rsource.ast;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import de.walware.ecommons.ltk.ast.IAstNode;
 
@@ -22,6 +23,7 @@ public class SourceComponent extends ExpressionList {
 	
 	
 	IAstNode fParent;
+	List<RAstNode> fComments;
 	
 	
 	SourceComponent() {
@@ -39,6 +41,16 @@ public class SourceComponent extends ExpressionList {
 	}
 	
 	
+	/**
+	 * The comment nodes in this source component
+	 * 
+	 * @return the comments or <code>null</code>, if disabled
+	 */
+	public List<RAstNode> getComments() {
+		return fComments;
+	}
+	
+	
 	@Override
 	public IAstNode getParent() {
 		return fParent;
@@ -47,6 +59,15 @@ public class SourceComponent extends ExpressionList {
 	@Override
 	public final void acceptInR(final RAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
+	}
+	
+	public void acceptInRComments(final RAstVisitor visitor) throws InvocationTargetException {
+		if (fComments == null) {
+			return;
+		}
+		for (int i = 0; i < fComments.size(); i++) {
+			fComments.get(i).acceptInR(visitor);
+		}
 	}
 	
 	

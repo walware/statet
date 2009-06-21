@@ -123,7 +123,7 @@ public interface IRTextTokens {
 		RTerminal.UNKNOWN,
 	};
 	public static final RTerminal[] COMMENT = new RTerminal[] {
-		RTerminal.COMMENT,
+		RTerminal.COMMENT, RTerminal.ROXYGEN_COMMENT,
 	};
 	
 	

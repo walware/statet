@@ -24,6 +24,7 @@ public interface ISourceStructElement extends IModelElement {
 	
 	IRegion getNameSourceRange();
 	IRegion getSourceRange();
+	IRegion getDocumentationRange();
 	
 	ISourceStructElement getSourceParent();
 	boolean hasSourceChildren(Filter<? extends IModelElement> filter);

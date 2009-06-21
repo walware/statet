@@ -34,6 +34,8 @@ public interface IRLangElement extends IModelElement {
 	static final int R_ARGUMENT =               C1_VARIABLE | 0x31;
 	static final int R_S4SLOT =                 C1_VARIABLE | 0x80;
 	
+	static final int R_DOC_EXAMPLE_CHUNK =      C2_SOURCE_CHUNK | 0x4;
+	
 	
 	static final Filter<IModelElement> R_S4SLOT_FILTER = new Filter<IModelElement>() {
 		public boolean include(final IModelElement element) {

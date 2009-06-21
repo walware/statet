@@ -22,9 +22,9 @@ import de.walware.statet.r.core.rlang.RTerminal;
 
 
 /**
- * 
+ * Lexer for RScanner
  */
-final class RScannerDefaultLexer extends RScannerLexer {
+class RScannerDefaultLexer extends RScannerLexer {
 	
 	
 	private final IStringCache fStringCache;
@@ -45,7 +45,7 @@ final class RScannerDefaultLexer extends RScannerLexer {
 	protected void createNumberToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = fInput.substring(1, fNextNum);
 		fNextToken.status = status;
 	}
@@ -54,7 +54,7 @@ final class RScannerDefaultLexer extends RScannerLexer {
 	protected void createSymbolToken() {
 		fNextToken.type = RTerminal.SYMBOL;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = fInput.substring(1, fNextNum);
 		if (fStringCache != null && fNextToken.text.length() <= 20) {
 			fNextToken.text = fStringCache.get(fNextToken.text);
@@ -66,7 +66,7 @@ final class RScannerDefaultLexer extends RScannerLexer {
 	protected void createQuotedSymbolToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
 		if (fStringCache != null && fNextToken.text.length() <= 20) {
@@ -79,7 +79,7 @@ final class RScannerDefaultLexer extends RScannerLexer {
 	protected void createStringToken(final RTerminal type, final int status) {
 		fNextToken.type = type;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
 		fNextToken.status = status;
@@ -89,7 +89,7 @@ final class RScannerDefaultLexer extends RScannerLexer {
 	protected void createSpecialToken(final int status) {
 		fNextToken.type = RTerminal.SPECIAL;
 		fNextToken.offset = fNextIndex;
-		fNextToken.length = fNextNum;
+		fNextToken.length = fInput.getLength(fNextNum);
 		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
 				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
 		if (fStringCache != null && fNextToken.text.length() <= 3) {

@@ -20,15 +20,19 @@ import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.text.FixInterningStringCache;
 import de.walware.ecommons.text.IStringCache;
+import de.walware.ecommons.text.PartialStringParseInput;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.model.SpecialParseContent;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RScanner;
+import de.walware.statet.r.core.rsource.ast.RoxygenScanner;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 
 
 /**
@@ -39,64 +43,64 @@ public class RReconciler {
 	
 	private static final boolean LOG_TIME = false;
 	
+	protected static class Data {
+		
+		public final IManagableRUnit su;
+		public final SourceContent content;
+		
+		public SourceParseInput parseInput;
+		public int parseOffset;
+		
+		public RAstInfo ast;
+		
+		public IRModelInfo oldModel;
+		public IRModelInfo newModel;
+		
+		public Data(final IManagableRUnit su, final IProgressMonitor monitor) {
+			this.su = su;
+			this.content = su.getParseContent(monitor);
+		}
+		
+	}
+	
 	
 	private final RModelManager fManager;
 	
 	private final Object fAstLock = new Object();
-	private final IStringCache fAstStringCache1;
+	private final IStringCache f1AstStringCache;
+	private final RoxygenScanner f1RoxygenScanner;
 	
 	private final Object fModelLock = new Object();
-	private final SourceAnalyzer fScopeAnalyzer;
-	private final SyntaxProblemReporter fSyntaxReporter;
+	private final SourceAnalyzer f2ScopeAnalyzer;
+	private final SyntaxProblemReporter f2SyntaxReporter;
 	
-	private boolean fStop = false;
+	protected boolean fStop = false;
 	
 	
 	public RReconciler(final RModelManager manager) {
 		fManager = manager;
-		fScopeAnalyzer = new SourceAnalyzer();
-		fSyntaxReporter = new SyntaxProblemReporter();
-		fAstStringCache1 = new FixInterningStringCache();
+		f1AstStringCache = new FixInterningStringCache();
+		f1RoxygenScanner = new RoxygenScanner(f1AstStringCache);
+		f2ScopeAnalyzer = new SourceAnalyzer();
+		f2SyntaxReporter = new SyntaxProblemReporter();
 	}
 	
 	
-	void reconcile(final IManagableRUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
-		// Update AST
-		final RAstInfo ast;
-		final int type = (u.getModelTypeId().equals(RModel.TYPE_ID) ? u.getElementType() : 0);
+	/** for editor reconciling */
+	public void reconcile(final IManagableRUnit su, final int level, final boolean reconciler, final IProgressMonitor monitor) {
+		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return;
+		}
+		final Data data = new Data(su, monitor);
+		if (data.content == null) {
+			return null;
 		}
 		synchronized (fAstLock) {
 			if (fStop) {
 				return;
 			}
-			final SourceContent content = u.getContent(monitor);
-			final RAstInfo old = u.getCurrentRAst();
-			
-			if (old == null || old.stamp != content.stamp) {
-				ast = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, content.stamp);
-				long startAst;
-				if (LOG_TIME) {
-					startAst = System.nanoTime();
-				}
-				
-				final SourceParseInput input = new StringParseInput(content.text);
-				ast.root = new RScanner(input, ast, fAstStringCache1).scanSourceUnit();
-				
-				if (LOG_TIME) {
-					System.out.println(fAstStringCache1.toString());
-					final long stopAst = System.nanoTime();
-					System.out.println("RReconciler/createAST   : " + DecimalFormat.getInstance().format(stopAst-startAst)); //$NON-NLS-1$
-				}
-				
-				synchronized (u.getModelLockObject()) {
-					u.setRAst(ast);
-				}
-			}
-			else {
-				ast = old;
-			}
+			updateAst(data, monitor);
 		}
 		if (level <= IModelManager.AST) {
 			return;
@@ -106,46 +110,17 @@ public class RReconciler {
 			if (fStop) {
 				return;
 			}
-			// Update Model
-			IRModelInfo oldModel = null;
-			IRModelInfo newModel = isUpToDate(u, ast.stamp);
-			if (newModel == null) {
-				long startModel;
-				if (LOG_TIME) {
-					startModel = System.nanoTime();
-				}
-				
-				newModel = fScopeAnalyzer.update(u, ast);
-				final boolean isOK = (newModel != null);
-				
-				if (LOG_TIME) {
-					final long stopModel = System.nanoTime();
-					System.out.println("RReconciler/createMODEL : " + DecimalFormat.getInstance().format(stopModel-startModel)); //$NON-NLS-1$
-				}
-				
-				synchronized (u.getModelLockObject()) {
-					if (isOK) {
-						oldModel = u.getCurrentRModel();
-						final RAstInfo oldAst = u.getCurrentRAst();
-						if (oldAst == null || oldAst.stamp == newModel.getStamp()) {
-							// otherwise, the ast is probably newer
-							u.setRAst((RAstInfo) newModel.getAst());
-						}
-						u.setRModel(newModel);
-					}
-				}
-				
-			}
+			updateModel(data);
 			
 			if (fStop) {
 				return;
 			}
 			// Report problems
 			if (reconciler) {
-				final IProblemRequestor problemRequestor = u.getProblemRequestor();
+				final IProblemRequestor problemRequestor = su.getProblemRequestor();
 				if (problemRequestor != null) {
 					problemRequestor.beginReportingSequence();
-					fSyntaxReporter.run(u, ast, problemRequestor);
+					f2SyntaxReporter.run(su, data.ast, problemRequestor);
 					problemRequestor.endReportingSequence();
 				}
 			}
@@ -154,10 +129,93 @@ public class RReconciler {
 				return;
 			}
 			// Throw event
-			if (newModel != null && (oldModel == null || oldModel.getStamp() != newModel.getStamp())) {
-				fManager.getEventJob().addUpdate(u, oldModel, newModel);
+			if (data.newModel != null && (data.oldModel == null || data.oldModel.getStamp() != data.newModel.getStamp())) {
+				fManager.getEventJob().addUpdate(su, data.oldModel, data.newModel);
 			}
 		}
+	}
+	
+	protected void initParseInput(final Data data) {
+		if (data.parseInput == null) {
+			if (data.content instanceof SpecialParseContent) {
+				final SpecialParseContent parseContent = (SpecialParseContent) data.content;
+				data.parseInput = new PartialStringParseInput(data.content.text, parseContent.offset);
+				data.parseOffset = parseContent.offset;
+			}
+			else {
+				data.parseInput = new StringParseInput(data.content.text);
+				data.parseOffset = 0;
+			}
+		}
+	}
+	
+	protected final void updateAst(final Data data, final IProgressMonitor monitor) {
+		final RAstInfo old = data.su.getCurrentRAst();
+		
+		if (old == null || old.stamp != data.content.stamp) {
+			final long startAst;
+			final long stopAst;
+			startAst = System.nanoTime();
+			
+			initParseInput(data);
+			final RAstInfo ast = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, data.content.stamp);
+			final RScanner scanner = new RScanner(data.parseInput, ast, f1AstStringCache);
+			scanner.setCommentLevel(100);
+			final SourceComponent sourceComponent = scanner.scanSourceRange(null, data.parseOffset, data.content.text.length());
+			ast.root = sourceComponent;
+			
+			stopAst = System.nanoTime();
+			
+			f1RoxygenScanner.init(data.parseInput);
+			f1RoxygenScanner.update(ast.root);
+			
+			if (LOG_TIME) {
+				System.out.println(f1AstStringCache.toString());
+				System.out.println("RReconciler/createAST   : " + DecimalFormat.getInstance().format(stopAst-startAst)); //$NON-NLS-1$
+			}
+			
+			synchronized (data.su.getModelLockObject()) {
+				data.su.setRAst(ast);
+			}
+			data.ast = ast;
+		}
+		else {
+			data.ast = old;
+		}
+	}
+	
+	protected final void updateModel(final Data data) {
+		// Update Model
+		IRModelInfo oldModel = null;
+		IRModelInfo newModel = isUpToDate(data.su, data.ast.stamp);
+		if (newModel == null) {
+			final long startModel;
+			final long stopModel;
+			startModel = System.nanoTime();
+			
+			newModel = f2ScopeAnalyzer.update(data.su, data.ast);
+			final boolean isOK = (newModel != null);
+			
+			stopModel = System.nanoTime();
+			
+			if (LOG_TIME) {
+				System.out.println("RReconciler/createMODEL : " + DecimalFormat.getInstance().format(stopModel-startModel)); 
+			}
+			
+			synchronized (data.su.getModelLockObject()) {
+				if (isOK) {
+					oldModel = data.su.getCurrentRModel();
+					final RAstInfo oldAst = data.su.getCurrentRAst();
+					if (oldAst == null || oldAst.stamp == newModel.getStamp()) {
+						// otherwise, the ast is probably newer
+						data.su.setRAst((RAstInfo) newModel.getAst());
+					}
+					data.su.setRModel(newModel);
+				}
+			}
+		}
+		data.oldModel = oldModel;
+		data.newModel = newModel;
 	}
 	
 	private IRModelInfo isUpToDate(final IManagableRUnit u, final long stamp) {

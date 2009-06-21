@@ -78,21 +78,21 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		protected final void createFix(final RTerminal type) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 		@Override
 		protected final void createSpecialToken(final int status) {
 			fNextToken.type = RTerminal.SPECIAL;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 		@Override
 		protected final void createSymbolToken() {
 			fNextToken.type = RTerminal.SYMBOL;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 			if (fNextNum < 50) {
 				fNextToken.text = fInput.substring(1, fNextNum);
 			}
@@ -102,21 +102,21 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		protected final void createQuotedSymbolToken(final RTerminal type, final int status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 		@Override
 		protected final void createStringToken(final RTerminal type, final int status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 		@Override
 		protected final void createNumberToken(final RTerminal type, final int status) {
 			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 		@Override
@@ -130,17 +130,17 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 		}
 		
 		@Override
-		protected final void createCommentToken() {
-			fNextToken.type = RTerminal.COMMENT;
+		protected final void createCommentToken(final RTerminal type) {
+			fNextToken.type = type;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 		@Override
 		protected final void createUnknownToken(final String text) {
 			fNextToken.type = RTerminal.UNKNOWN;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 	}

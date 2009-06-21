@@ -25,17 +25,19 @@ public abstract class SourceParseInput {
 	
 	public final static int EOF = -1;
 	
+	protected final static char[] NO_INPUT = new char[0];
 	
-	protected char[] fBuffer = new char[0];
-	protected int fBufferLength = 0;
+	
+	protected char[] fBuffer = NO_INPUT;
+	private int fBufferLength = 0;
 	private int fIndexInBuffer = 0;
 	private int fIndex;
 	private int fStop;
 	
 	
 	protected SourceParseInput() {
-		fIndex = -1;
-		fStop = -1;
+		fIndex = Integer.MIN_VALUE;
+		fStop = Integer.MIN_VALUE;
 	}
 	
 //	protected SourceParseInput(final int initialIndex) {
@@ -43,12 +45,8 @@ public abstract class SourceParseInput {
 //		fStop = -1;
 //	}
 	
-	public void init() {
-		fIndex = 0;
-		fStop = -1;
-		fIndexInBuffer = 0;
-		fBufferLength = 0;
-		updateBuffer();
+	public final void init() {
+		init(0, Integer.MIN_VALUE);
 	}
 	
 	public void init(final int start, final int stop) {
@@ -56,7 +54,7 @@ public abstract class SourceParseInput {
 		fStop = stop;
 		fIndexInBuffer = 0;
 		fBufferLength = 0;
-		updateBuffer();
+		updateBuffer(fIndex, 0);
 	}
 	
 	public final int getIndex() {
@@ -72,7 +70,7 @@ public abstract class SourceParseInput {
 		if (idx < fBufferLength) {
 			return fBuffer[idx];
 		}
-		updateBuffer();
+		updateBuffer(fIndex, num);
 		idx = fIndexInBuffer+num-1;
 		if (idx < fBufferLength) {
 			return fBuffer[idx];
@@ -85,7 +83,7 @@ public abstract class SourceParseInput {
 		if (idx < fBufferLength) {
 			return (fBuffer[idx] == c1);
 		}
-		updateBuffer();
+		updateBuffer(fIndex, num);
 		idx = fIndexInBuffer+num;
 		return (idx < fBufferLength
 				&& fBuffer[idx] == c1);
@@ -96,7 +94,7 @@ public abstract class SourceParseInput {
 		if (idx < fBufferLength) {
 			return (fBuffer[idx] == c2 && fBuffer[--idx] == c1);
 		}
-		updateBuffer();
+		updateBuffer(fIndex, num);
 		idx = fIndexInBuffer+num;
 		return (idx < fBufferLength
 				&& fBuffer[idx] == c2 && fBuffer[++idx] == c1);
@@ -107,7 +105,7 @@ public abstract class SourceParseInput {
 		if (idx < fBufferLength) {
 			return (fBuffer[idx] == c3 && fBuffer[--idx] == c2 && fBuffer[--idx] == c1);
 		}
-		updateBuffer();
+		updateBuffer(fIndex, num);
 		idx = fIndexInBuffer+num+1;
 		return (idx < fBufferLength
 				&& fBuffer[idx] == c3 && fBuffer[--idx] == c2 && fBuffer[--idx] == c1);
@@ -117,7 +115,7 @@ public abstract class SourceParseInput {
 		int idx = fIndexInBuffer+num-1;
 		final int length = sequence.length;
 		if (idx+length > fBufferLength) {
-			updateBuffer();
+			updateBuffer(fIndex, num);
 			idx = fIndexInBuffer+num-1;
 			if (idx+length > fBufferLength) {
 				return false;
@@ -135,19 +133,86 @@ public abstract class SourceParseInput {
 		return new String(fBuffer, fIndexInBuffer+num-1, length);
 	}
 	
+	public int getLength(final int num) {
+		return num;
+	}
+	
 	public final void consume(final int num) {
-		fIndex += num;
+		fIndex += getLength(num);
 		fIndexInBuffer += num;
 	}
 	
-	protected abstract void updateBuffer();
+	protected abstract void updateBuffer(int index, int min);
 	
-	protected void setBuffer(final char[] buffer, final int length, final int indexPosition) {
-		fIndexInBuffer = indexPosition;
+	protected final void setBuffer(final char[] buffer, final int length, final int indexInBuffer) {
+		fIndexInBuffer = indexInBuffer;
 		fBuffer = buffer;
 		final int stopInBuffer = fIndexInBuffer+fStop-fIndex;
 		fBufferLength = (fStop > 0 && stopInBuffer < length) ?
 			stopInBuffer : length;
+	}
+	
+	protected int getIndexInBuffer() {
+		return fIndexInBuffer;
+	}
+	
+	/**
+	 * Underlying input if it is a string
+	 */
+	protected String getStringInput() {
+		return null;
+	}
+	
+	/**
+	 * Underlying input if it is a char array
+	 */
+	protected char[] getCharInput() {
+		return null;
+	}
+	
+	/**
+	 * Offset of underlying input (string or char array).
+	 * @return offset of the input as index {@link #getIndex()}
+	 */
+	protected int getInputOffset() {
+		return 0;
+	}
+	
+	@Override
+	public String toString() {
+		if (getCharInput() != null) {
+			final int offset = getInputOffset();
+			if (offset == 0) {
+				return new String(getCharInput());
+			}
+			if (offset > 0) {
+				final StringBuilder s = new StringBuilder();
+				s.ensureCapacity(offset+getCharInput().length);
+				s.setLength(offset);
+				s.append(getCharInput());
+				return s.toString();
+			}
+			else {
+				return new String(getCharInput(), -offset, getCharInput().length+offset);
+			}
+		}
+		else if (getStringInput() != null) {
+			final int offset = getInputOffset();
+			if (offset == 0) {
+				return getStringInput();
+			}
+			else if (offset > 0) {
+				final StringBuilder s = new StringBuilder();
+				s.ensureCapacity(offset+getStringInput().length());
+				s.setLength(offset);
+				s.append(getStringInput());
+				return s.toString();
+			}
+			else {
+				return getStringInput().substring(-offset);
+			}
+		}
+		return super.toString();
 	}
 	
 }

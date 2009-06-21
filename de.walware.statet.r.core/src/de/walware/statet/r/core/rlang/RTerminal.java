@@ -18,6 +18,7 @@ public enum RTerminal {
 	BLANK (" "), //$NON-NLS-1$
 	LINEBREAK ("\n"), //$NON-NLS-1$
 	COMMENT ("#"), //$NON-NLS-1$
+	ROXYGEN_COMMENT ("#'"), //$NON-NLS-1$
 	UNKNOWN (""), //$NON-NLS-1$
 	OTHER (""), //$NON-NLS-1$
 	

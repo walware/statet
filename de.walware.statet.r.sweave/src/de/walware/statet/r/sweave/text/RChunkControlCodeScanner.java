@@ -66,7 +66,7 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 			}
 			super.searchNext1(c1);
 		}
-			
+		
 		private boolean isNewLine() {
 			final int offset = fNextIndex-1;
 			if (offset < 0) {
@@ -79,7 +79,7 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 		protected void createChunk(final String text) {
 			fNextToken.type = RTerminal.OTHER;
 			fNextToken.offset = fNextIndex;
-			fNextToken.length = fNextNum;
+			fNextToken.length = fInput.getLength(fNextNum);
 		}
 		
 	}

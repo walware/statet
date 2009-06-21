@@ -17,11 +17,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -31,6 +33,7 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -70,6 +73,7 @@ import de.walware.statet.r.core.rsource.ast.SubIndexed;
 import de.walware.statet.r.core.rsource.ast.SubNamed;
 import de.walware.statet.r.core.rsource.ast.Symbol;
 import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
+import de.walware.statet.r.internal.core.sourcemodel.BuildSourceFrame.ElementAccessList;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClass;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClassExt;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RMethod;
@@ -166,8 +170,162 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 	}
 	
+	private class RoxygenAdapter implements IRoxygenAnalyzeContext {
+		
+		
+		private RSourceInfo fModelInfo;
+		private int fCounter;
+		
+		
+		public IRModelInfo getModelInfo() {
+			return fModelInfo;
+		}
+		
+		public void createSelfAccess(final IRLangSourceElement element, final RAstNode symbol) {
+			final String text = symbol.getText();
+			if (text == null) {
+				return;
+			}
+			final ElementAccess elementAccess = ((RSourceElementByElementAccess) element).getAccess();
+			if (elementAccess == null) {
+				return;
+			}
+			if (text.equals(elementAccess.getSegmentName()) && elementAccess.getNextSegment() == null) {
+				final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
+				elementAccess.fShared.postAdd(access);
+				return;
+			}
+		}
+		
+		public void createNamespaceImportAccess(final RAstNode symbol) {
+			final String text = symbol.getText();
+			if (text == null) {
+				return;
+			}
+			final ElementAccess access = new ElementAccess.Package(symbol.getRParent(), symbol);
+			access.fFlags |= ElementAccess.A_IMPORT;
+			fModelInfo.fPackageRefs.add(text, access);
+		}
+		
+		public void createNamespaceObjectImportAccess(final IRFrameInSource namespace, final RAstNode symbol) {
+			final String text = symbol.getText();
+			if (text == null) {
+				return;
+			}
+			if (namespace instanceof BuildSourceFrame) {
+				final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
+				
+				final BuildSourceFrame namespaceFrame = (BuildSourceFrame) namespace;
+				final ElementAccessList namespaceList = namespaceFrame.fData.get(text);
+				
+				final BuildSourceFrame next = fModelInfo.fLocalFrames.values().iterator().next();
+				final ElementAccessList defaultList = next.fData.get(text);
+				if (defaultList != null && defaultList.isCreated < BuildSourceFrame.CREATED_RESOLVED) {
+					next.fData.remove(text);
+					if (namespaceList != null) {
+						namespaceList.entries.addAll(defaultList.entries);
+						for (final ElementAccess defaultAccess : defaultList.entries) {
+							defaultAccess.fShared = namespaceList;
+						}
+						namespaceList.postAdd(access);
+					}
+					else {
+						defaultList.frame = namespaceFrame;
+						defaultList.postAdd(access);
+						namespaceFrame.fData.put(text, defaultList);
+					}
+				}
+				else {
+					if (namespaceList != null) {
+						namespaceList.postAdd(access);
+					}
+					else {
+						final ElementAccessList accessList = new BuildSourceFrame.ElementAccessList(text);
+						accessList.frame = namespaceFrame;
+						accessList.postAdd(access);
+						namespaceFrame.fData.put(text, accessList);
+					}
+				}
+			}
+		}
+		
+		public IRFrameInSource getNamespaceFrame(final String name) {
+			final String id = BuildSourceFrame.createId(IRFrame.PACKAGE, name, -1);
+			BuildSourceFrame frame = fModelInfo.fNamespaceFrames.get(id);
+			if (frame == null) {
+				frame = new BuildSourceFrame.DefScope(IRFrame.PACKAGE, id, name, null);
+				fModelInfo.fNamespaceFrames.put(id, frame);
+				return frame;
+			}
+			return null;
+		}
+		
+		public void createSlotAccess(final RClass rClass, final RAstNode symbol) {
+			final String text = symbol.getText();
+			if (text == null) {
+				return;
+			}
+			final ElementAccessList accessList = rClass.getBuildFrame().fData.get(text);
+			if (accessList == null) {
+				return;
+			}
+			final List<? extends IRLangSourceElement> children = rClass.getSourceChildren(null);
+			for (final IRLangSourceElement child : children) {
+				if (child.getElementType() == IRLangElement.R_S4SLOT
+						&& text.equals(child.getElementName().getSegmentName())) {
+					final ElementAccess access = new ElementAccess.Slot(symbol.getRParent(), symbol);
+					accessList.postAdd(access);
+					return;
+				}
+			}
+		}
+		
+		public void createArgAccess(final RMethod rMethod, final RAstNode symbol) {
+			final String text = symbol.getText();
+			if (text == null) {
+				return;
+			}
+			final ElementAccessList accessList = rMethod.getBuildFrame().fData.get(text);
+			if (accessList == null) {
+				return;
+			}
+			final List<? extends IRLangSourceElement> children = rMethod.getSourceChildren(null);
+			for (final IRLangSourceElement child : children) {
+				if (child.getElementType() == IRLangElement.R_ARGUMENT
+						&& text.equals(child.getElementName().getSegmentName())) {
+					final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
+					access.fFlags |= ElementAccess.A_ARG;
+					accessList.postAdd(access);
+					return;
+				}
+			}
+		}
+		
+		public void createRSourceRegion(RAstNode node) {
+			if (!fRoxygenExamples) {
+				fCounter = 0;
+				cleanup();
+				init();
+				fRoxygenExamples = true;
+			}
+			try {
+				RoxygenRCodeElement element = new RoxygenRCodeElement(fModelInfo.getSourceElement(), fCounter++, fTopLevelEnvir, node);
+				enterElement(element, fTopLevelEnvir, node);
+				node.acceptInRChildren(SourceAnalyzer.this);
+				leaveElement();
+			}
+			catch (InvocationTargetException unused) {}
+		}
+		
+		public void update(RSourceInfo modelInfo) {
+			fModelInfo = modelInfo;
+			fRoxygenAnalyzer.updateModel(fRoxygenAdapter);
+		}
+		
+	}
 	
-	private IRSourceUnit fCurrentUnit;
+	
+	private IRSourceUnit fSourceUnit;
 	private int fAnonymCount;
 	private final ArrayList<String> fIdComponents = new ArrayList<String>(32);
 	private LinkedHashMap<String, BuildSourceFrame> fFrames;
@@ -177,7 +335,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	private BuildSourceFrame fGenericDefaultEnvir;
 	private BuildSourceFrame fTopLevelEnvir;
 	private BuildSourceFrame fTopScope;
-	private PackageReferences fPkgRefs;
+	private PackageReferences fPackageRefs;
 	
 	private final LinkedList<RAstNode> fArgValueToIgnore = new LinkedList<RAstNode>();
 	private int[] fRequest = NO_REQUESTS;
@@ -197,10 +355,15 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 	};
 	
+	private final RoxygenAnalyzer fRoxygenAnalyzer;
+	private final RoxygenAdapter fRoxygenAdapter;
+	private boolean fRoxygenExamples;
+	
 	
 	public SourceAnalyzer() {
-		
 		configure(RCoreFunctions.DEFAULT);
+		fRoxygenAnalyzer = new RoxygenAnalyzer();
+		fRoxygenAdapter = new RoxygenAdapter();
 	}
 	
 	public void configure(final RCoreFunctions rdef) {
@@ -328,98 +491,147 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	public IRModelInfo update(final IRSourceUnit u, final RAstInfo ast) {
 		fAnonymCount = 0;
-		fCurrentUnit = u;
-		fFrames = new LinkedHashMap<String, BuildSourceFrame>();
-		fDependencyEnvironments = new HashMap<String, BuildSourceFrame>();
-		final IResource res = u.getResource();
-		final String projId = (res != null) ? res.getProject().getName() : "<noproject:"+u.getElementName(); //$NON-NLS-1$
-		
-		final BuildSourceFrame fileEnvir = new BuildSourceFrame.DefScope(IRFrame.PROJECT, BuildSourceFrame.createId(IRFrame.PROJECT, projId, 0), null, new BuildSourceFrame[0]); // ref projects
-		
-		fCurrentEnvironments.add(fileEnvir);
-		fGenericDefaultEnvir = fTopLevelEnvir = fGlobalEnvir = fileEnvir;
-		fPkgRefs = new PackageReferences();
-		fTopScope = fCurrentEnvironments.get(fCurrentEnvironments.size()-1);
-		
-		fIdComponents.add(projId);
-		
-		final RSourceUnitElement fileElement = new RSourceUnitElement(u, fileEnvir, ast.root);
+		fSourceUnit = u;
 		
 		try {
-			enterElement(fileElement, fileEnvir, ast.root);
-			ast.root.acceptInR(this);
+			init();
+			
+			final RSourceUnitElement fileElement = new RSourceUnitElement(fSourceUnit, fTopLevelEnvir, ast.root);
+			enterElement(fileElement, fTopLevelEnvir, ast.root);
+			ast.root.acceptInRChildren(this);
 			leaveElement();
 			
-			for (final BuildSourceFrame si : fDependencyEnvironments.values()) {
-				si.runLateResolve(false);
-			}
-			fTopLevelEnvir.fParents.addAll(0, fDependencyEnvironments.values());
-			for (final BuildSourceFrame si : fFrames.values()) {
-				si.runLateResolve(false);
-			}
+			finish();
 			final RAstInfo newAst = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, ast.stamp);
-			newAst.root = ast.root;
-			final RSourceInfo model = new RSourceInfo(newAst, fFrames, fileEnvir, fPkgRefs, fDependencyEnvironments, fileElement);
+			RSourceInfo modelInfo = new RSourceInfo(newAst, fFrames, fTopLevelEnvir, fPackageRefs, fDependencyEnvironments, fileElement);
 			
-			fFrames = null;
-			fDependencyEnvironments = null;
-			
-			final HashMap<String, Integer> commonNames = new HashMap<String, Integer>();
-			final HashMap<String, Integer> classNames = new HashMap<String, Integer>();
-			final HashMap<String, Integer> importNames = new HashMap<String, Integer>();
-			for (final SourceElementBuilder seb : fSourceContainerBuilders) {
-				for (final RSourceElementByElementAccess element : seb.children) {
-					final String name = element.getElementName().getDisplayName();
-					final HashMap<String, Integer> names;
-					switch (element.fType & IRLangElement.MASK_C1) {
-					case IRLangElement.C1_CLASS:
-						names = classNames;
-						break;
-					case IRLangElement.C1_IMPORT:
-						names = importNames;
-						break;
-					default:
-						names = commonNames;
-						break;
-					}
-					final Integer count = names.get(name);
-					names.put(name, (element.fOccurenceCount = (count != null) ? count.intValue()+1 : 0) );
-				}
-				for (final ElementAccess access : seb.toCheck) {
-					if (seb.envir == access.getFrame()) {
-						if (commonNames.containsKey(access.getSegmentName())) {
-							continue;
+			fRoxygenExamples = false;
+			fRoxygenAdapter.update(modelInfo);
+			if (fRoxygenExamples) {
+				finish();
+				for (Iterator<Entry<String, ElementAccessList>> iter = fTopLevelEnvir.fData.entrySet().iterator(); iter.hasNext(); ) {
+					Entry<String, ElementAccessList> entry = iter.next();
+					String name = entry.getKey();
+					ElementAccessList docuList = entry.getValue();
+					if (docuList.isCreated == BuildSourceFrame.CREATED_NO) {
+						iter.remove();
+						ElementAccessList modelList = modelInfo.fTopFrame.fData.get(name);
+						if (modelList != null) {
+							for (ElementAccess access : docuList.entries) {
+								access.fShared = modelList;
+							}
+							modelList.entries.addAll(docuList.entries);
 						}
-						commonNames.put(access.getSegmentName(), null);
-						seb.children.add(new RSourceElementByElementAccess.RVariable(seb.element,
-								(seb.envir != fTopLevelEnvir) ? IRLangElement.R_GENERAL_LOCAL_VARIABLE : IRLangElement.R_GENERAL_VARIABLE, access));
-					}
-					else {
-//						seb.children.add(new RSourceElementFromElementAccess.RVariable(seb.element,
-//								IRLangElement.R_COMMON_VARIABLE, access));
+						else {
+							docuList.frame = modelInfo.fTopFrame;
+							modelInfo.fTopFrame.fData.put(name, docuList);
+						}
 					}
 				}
-				
-				final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
-				Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
-				if (finalChildren.length > 0) {
-					seb.element.setSourceChildren(Arrays.asList(finalChildren));
+				for (Iterator<Entry<String, ElementAccessList>> iter = fPackageRefs.fData.entrySet().iterator(); iter.hasNext(); ) {
+					Entry<String, ElementAccessList> entry = iter.next();
+					String name = entry.getKey();
+					ElementAccessList docuList = entry.getValue();
+					if (docuList.isCreated == BuildSourceFrame.CREATED_NO) {
+						iter.remove();
+						ElementAccessList modelList = modelInfo.fPackageRefs.fData.get(name);
+						if (modelList != null) {
+							for (ElementAccess access : docuList.entries) {
+								access.fShared = modelList;
+							}
+							modelList.entries.addAll(docuList.entries);
+						}
+						else {
+							docuList.frame = modelInfo.fTopFrame;
+							modelInfo.fPackageRefs.fData.put(name, docuList);
+						}
+					}
 				}
-				commonNames.clear();
-				classNames.clear();
-				importNames.clear();
 			}
 			
-			return model;
+			return modelInfo;
 		}
 		catch (final OperationCanceledException e) {}
 		catch (final InvocationTargetException e) {}
 		finally {
 			cleanup();
+			fSourceUnit = null;
 		}
 		return null;
 	}
 	
+	
+	private void init() {
+		fFrames = new LinkedHashMap<String, BuildSourceFrame>();
+		fDependencyEnvironments = new HashMap<String, BuildSourceFrame>();
+		final IResource res = fSourceUnit.getResource();
+		final String projId = (res != null) ? res.getProject().getName() : "<noproject:"+fSourceUnit.getElementName(); //$NON-NLS-1$
+		
+		final BuildSourceFrame fileEnvir = new BuildSourceFrame.DefScope(IRFrame.PROJECT, BuildSourceFrame.createId(IRFrame.PROJECT, projId, 0), null, new BuildSourceFrame[0]); // ref projects
+		
+		fCurrentEnvironments.add(fileEnvir);
+		fGenericDefaultEnvir = fTopLevelEnvir = fGlobalEnvir = fileEnvir;
+		fPackageRefs = new PackageReferences();
+		fTopScope = fCurrentEnvironments.get(fCurrentEnvironments.size()-1);
+		
+		fIdComponents.add(projId);
+	}
+	
+	private void finish() {
+		for (final BuildSourceFrame si : fDependencyEnvironments.values()) {
+			si.runLateResolve(false);
+		}
+		fTopLevelEnvir.fParents.addAll(0, fDependencyEnvironments.values());
+		for (final BuildSourceFrame si : fFrames.values()) {
+			si.runLateResolve(false);
+		}
+		
+		final HashMap<String, Integer> commonNames = new HashMap<String, Integer>();
+		final HashMap<String, Integer> classNames = new HashMap<String, Integer>();
+		final HashMap<String, Integer> importNames = new HashMap<String, Integer>();
+		for (final SourceElementBuilder seb : fSourceContainerBuilders) {
+			for (final RSourceElementByElementAccess element : seb.children) {
+				final String name = element.getElementName().getDisplayName();
+				final HashMap<String, Integer> names;
+				switch (element.fType & IRLangElement.MASK_C1) {
+				case IRLangElement.C1_CLASS:
+					names = classNames;
+					break;
+				case IRLangElement.C1_IMPORT:
+					names = importNames;
+					break;
+				default:
+					names = commonNames;
+					break;
+				}
+				final Integer count = names.get(name);
+				names.put(name, (element.fOccurrenceCount = (count != null) ? count.intValue()+1 : 0) );
+			}
+			for (final ElementAccess access : seb.toCheck) {
+				if (seb.envir == access.getFrame()) {
+					if (commonNames.containsKey(access.getSegmentName())) {
+						continue;
+					}
+					commonNames.put(access.getSegmentName(), null);
+					seb.children.add(new RSourceElementByElementAccess.RVariable(seb.element,
+							(seb.envir != fTopLevelEnvir) ? IRLangElement.R_GENERAL_LOCAL_VARIABLE : IRLangElement.R_GENERAL_VARIABLE, access));
+				}
+				else {
+//					seb.children.add(new RSourceElementFromElementAccess.RVariable(seb.element,
+//							IRLangElement.R_COMMON_VARIABLE, access));
+				}
+			}
+			
+			final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
+			Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
+			if (finalChildren.length > 0) {
+				seb.element.setSourceChildren(Arrays.asList(finalChildren));
+			}
+			commonNames.clear();
+			classNames.clear();
+			importNames.clear();
+		}
+	}
 	
 	private void cleanup() {
 		clean(fCurrentEnvironments);
@@ -429,11 +641,12 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		fGenericDefaultEnvir = null;
 		fGlobalEnvir = null;
-		fPkgRefs = null;
+		fPackageRefs = null;
 		fTopLevelEnvir = null;
+		fFrames = null;
+		fDependencyEnvironments = null;
 		
 		fReturnValue = null;
-		fCurrentUnit = null;
 		fCurrentSourceContainerBuilder = null;
 	}
 	
@@ -1001,7 +1214,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		if (isValidPackageName(namespaceChild)) {
 			namespaceName = namespaceChild.getText();
 			final ElementAccess packageAccess = new ElementAccess.Package(access.fFullNode, namespaceChild);
-			fPkgRefs.add(namespaceName, packageAccess);
+			fPackageRefs.add(namespaceName, packageAccess);
 		}
 		// register explicit
 		BuildSourceFrame envir;
@@ -1356,7 +1569,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				final ElementAccess access = new ElementAccess.Package(
 						node, nameValue);
 				access.fFlags |= ElementAccess.A_IMPORT;
-				fPkgRefs.add(packageName, access);
+				fPackageRefs.add(packageName, access);
 				final RPkgImport rImport = new RPkgImport(fCurrentSourceContainerBuilder.element, access);
 				fCurrentSourceContainerBuilder.children.add(rImport);
 				
