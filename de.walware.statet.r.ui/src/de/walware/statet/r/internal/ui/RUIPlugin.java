@@ -206,6 +206,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_S4OBJ, ImageRegistryUtil.T_OBJ, "s4obj.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "s4obj-vector.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN, ImageRegistryUtil.T_OBJ, "s4obj-dataframe_col.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_ARGUMENT_ASSIGN, ImageRegistryUtil.T_OBJ, "arg-assign.png"); //$NON-NLS-1$
 		
 		util.register(IMG_LOCTOOL_FILTER_GENERAL, ImageRegistryUtil.T_LOCTOOL, "filter-general.png"); //$NON-NLS-1$
 		util.register(IMG_LOCTOOL_FILTER_LOCAL, ImageRegistryUtil.T_LOCTOOL, "filter-local.png"); //$NON-NLS-1$
@@ -380,7 +381,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
 		if (fRConsoleContentAssistRegistry == null) {
 			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID,
-					RUIPreferenceInitializer.RCONSOLE_NODE, RUIPreferenceInitializer.REDITOR_ASSIST_GROUP_ID, 
+					RUIPreferenceInitializer.RCONSOLE_NODE, RUIPreferenceInitializer.RCONSOLE_ASSIST_GROUP_ID, 
 					"rConsoleContentAssistComputer"); //$NON-NLS-1$
 			fDisposables.add(fRConsoleContentAssistRegistry);
 		}

@@ -20,19 +20,19 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.text.ILineInformation;
+
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 
 import de.walware.statet.r.core.RProject;
 
 
-public class MarkerHandler {
+public class TaskMarkerHandler {
 	
 	
 	public static final String TASK_MARKER_ID = "de.walware.statet.r.markers.Tasks"; //$NON-NLS-1$
 	
-	
-	private RProject fProject;
 	
 	private Pattern fTaskTagPattern;
 	private Map<String, TaskPriority> fTaskTagMap;
@@ -40,18 +40,16 @@ public class MarkerHandler {
 	private IResource fResource;
 	
 	
-	public MarkerHandler(final RProject project) throws CoreException {
-		fProject = project;
-		loadTaskPattern();
+	public TaskMarkerHandler() {
+	}
+	
+	
+	public void init(final RProject project) throws CoreException {
+		loadTaskPattern(project);
 	}
 	
 	public void setup(final IResource resource) {
-		
 		fResource = resource;
-	}
-	
-	public void clean() throws CoreException {
-		removeTaskMarkers();
 	}
 	
 	public void addTaskMarker(final String message, final int offset, int lineNumber, final String match) 
@@ -78,11 +76,11 @@ public class MarkerHandler {
 		fResource.deleteMarkers(TASK_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
 	
-	private void loadTaskPattern() throws CoreException {
+	private void loadTaskPattern(final RProject project) throws CoreException {
 		fTaskTagPattern = null;
 		fTaskTagMap = null;
 		
-		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(fProject.getPrefs());
+		final TaskTagsPreferences taskPrefs = new TaskTagsPreferences(project.getPrefs());
 		final String[] tags = taskPrefs.getTags();
 		final TaskPriority[] prios = taskPrefs.getPriorities();
 		
@@ -105,12 +103,12 @@ public class MarkerHandler {
 	}
 	
 	
-	public void checkForTasks(final String content, final int offset, final ILineResolver lines) throws CoreException {
+	public void checkForTasks(final String content, final int offset, final ILineInformation lines) throws CoreException {
 		if (fTaskTagPattern != null) {
 			final Matcher matcher = fTaskTagPattern.matcher(content);
 			if (matcher.find()) {
 				final int start = matcher.start(1);
-				final String text = content.substring(start);
+				final String text = new String(content.substring(start));
 				addTaskMarker(text, offset+start, lines.getLineOfOffset(offset)+1, matcher.group(1));
 			}
 		}

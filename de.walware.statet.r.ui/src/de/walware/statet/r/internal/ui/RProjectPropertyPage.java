@@ -19,7 +19,9 @@ import java.util.Map;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,12 +29,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.preferences.PropertyAndPreferencePage;
 import de.walware.ecommons.ui.util.LayoutUtil;
+
+import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.ui.RUI;
 
 
 public class RProjectPropertyPage extends PropertyAndPreferencePage<RProjectConfigurationBlock> {
@@ -70,9 +78,15 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private RProjectContainerComposite fProjectComposite;
 	
+	private Text fPackageNameControl;
+	
+	private RProject fRProject;
+	
 	
 	public RProjectConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
 		super(project, statusListener);
+		
+		fRProject = RProject.getRProject(project);
 	}
 	
 	
@@ -85,6 +99,20 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		final Composite composite = new Composite(pageComposite, SWT.NONE);
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			
+		{	final Composite packageComposite = new Composite(composite, SWT.NONE);
+			packageComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			packageComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			
+			final Label label = new Label(packageComposite, SWT.NONE);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			label.setText("Package &Name:");
+			
+			fPackageNameControl = new Text(packageComposite, SWT.BORDER);
+			fPackageNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			
+			LayoutUtil.addGDDummy(composite);
+		}
 		
 		fProjectComposite = new RProjectContainerComposite(composite, getProject());
 		fProjectComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -117,6 +145,10 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		else {
 			fProjectComposite.setBaseContainer(null);
 		}
+		
+		final String packageName = fRProject.getPackageName();
+		fPackageNameControl.setText((packageName != null) ? packageName : "");
+		super.updateControls();
 	}
 	
 	@Override
@@ -128,7 +160,30 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		else {
 			setPrefValue(PREF_BASE_FOLDER, null);
 		}
+		
 		super.updatePreferences();
+	}
+	
+	@Override
+	public void performApply() {
+		saveProjectConfig();
+		super.performApply();
+	}
+	
+	@Override
+	public boolean performOk() {
+		saveProjectConfig();
+		return super.performOk();
+	}
+	
+	private void saveProjectConfig() {
+		try {
+			final String packageName = fPackageNameControl.getText();
+			fRProject.setPackageConfig((packageName.trim().length() != 0) ? packageName : null);
+		}
+		catch (final CoreException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, "Failed to apply R project configuration."), StatusManager.SHOW);
+		}
 	}
 	
 }

@@ -18,11 +18,16 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.StringPref2;
 
 import de.walware.statet.base.core.StatetExtNature;
@@ -42,6 +47,8 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	private static final String BASE_FOLDER_KEY = "BaseFolder.path"; //$NON-NLS-1$
 	
 	public static final StringPref2 PREF_BASE_FOLDER = new StringPref2(RPROJECT_QUALIFIER, BASE_FOLDER_KEY);
+	
+	private static final StringPref2 PREF_PACKAGE_NAME = new StringPref2(RPROJECT_QUALIFIER, "Package.name");
 	
 	
 	public static RProject getRProject(final IProject project) {
@@ -87,7 +94,35 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	}
 	
 	
-/* IProjectNature *************************************************************/
+	private RCodeStyleSettings fRCodeStyle;
+	private PreferencesManageListener fPreferenceListener;
+	
+	private String fRPackageName;
+	
+	
+	public RProject() {
+		super();
+	}
+	
+	
+	@Override
+	public void setProject(final IProject project) {
+		super.setProject(project);
+		fRCodeStyle = new RCodeStyleSettings();
+		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.GROUP_ID);
+		
+		fRPackageName = getPrefs().getPreferenceValue(PREF_PACKAGE_NAME);
+	}
+	
+	@Override
+	protected void dispose() {
+		if (fPreferenceListener != null) {
+			fPreferenceListener.dispose();
+			fPreferenceListener = null;
+		}
+		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfigClosed(fProject);
+		super.dispose();
+	}
 	
 	@Override
 	public void configure() throws CoreException {
@@ -96,7 +131,9 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 	
 	@Override
 	public void deconfigure() throws CoreException {
+		super.deconfigure();
 		removeBuilders();
+		RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfigRemoved(fProject);
 	}
 	
 	public void addBuilders() throws CoreException {
@@ -135,32 +172,6 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 		}
 	}
 	
-/* **/
-	
-	private RCodeStyleSettings fRCodeStyle;
-	private PreferencesManageListener fPreferenceListener;
-	
-	
-	public RProject() {
-		super();
-	}
-	
-	
-	@Override
-	public void setProject(final IProject project) {
-		super.setProject(project);
-		fRCodeStyle = new RCodeStyleSettings();
-		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.GROUP_ID);
-	}
-	
-	@Override
-	protected void dispose() {
-		if (fPreferenceListener != null) {
-			fPreferenceListener.dispose();
-			fPreferenceListener = null;
-		}
-		super.dispose();
-	}
 	
 	public IPreferenceAccess getPrefs() {
 		return getStatetProject();
@@ -182,6 +193,24 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 			}
 		}
 		return null;
+	}
+	
+	
+	public String getPackageName() {
+		return fRPackageName;
+	}
+	
+	public void setPackageConfig(final String name) throws CoreException {
+		try {
+			final IScopeContext context = getStatetProject().getProjectContext();
+			PreferencesUtil.setPrefValue(context, PREF_PACKAGE_NAME, name);
+			context.getNode(PREF_PACKAGE_NAME.getQualifier()).flush();
+			RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, name);
+			fRPackageName = name;
+		}
+		catch (final BackingStoreException e) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "An error occurred when saving the R project configuration."));
+		}
 	}
 	
 }

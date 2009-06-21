@@ -18,15 +18,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ui.text.sourceediting.IAssistInformationProposal;
 import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.KeywordCompletionProposal;
 
 import de.walware.statet.base.ui.StatetImages;
 
@@ -81,11 +81,13 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		TAG_COMMANDS = Arrays.asList(commands);
 	}
 	
-	private static class TagProposal extends KeywordCompletionProposal {
+	private static class TagProposal extends RKeywordCompletionProposal {
 		
-		public TagProposal(final String keyword, final int replacementOffset) {
-			super(keyword, replacementOffset);
+		
+		public TagProposal(final AssistInvocationContext context, final String keyword, final int replacementOffset) {
+			super(context, keyword, replacementOffset);
 		}
+		
 		
 		/**
 		 * {@inheritDoc}
@@ -95,20 +97,35 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 			return StatetImages.getImage(StatetImages.OBJ_TEXT_AT_TAG);
 		}
 		
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
-		public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
+		protected int computeReplacementLength(final int replacementOffset, final Point selection, final int caretOffset, final boolean overwrite) throws BadLocationException {
+			int end = Math.max(caretOffset, selection.x + selection.y);
+			if (overwrite) {
+				final IDocument document = fContext.getSourceViewer().getDocument();
+				while (end < document.getLength()) {
+					if (Character.isLetterOrDigit(document.getChar(end))) {
+						end++;
+						continue;
+					}
+					break;
+				}
+			}
+			return (end - replacementOffset);
+		}
+		
+		@Override
+		protected void doApply(final char trigger, final int stateMask,
+				final int caretOffset, final int replacementOffset, final int replacementLength) throws BadLocationException {
 			try {
+				final SourceViewer viewer = fContext.getSourceViewer();
 				final IDocument document = viewer.getDocument();
-				final int replacementOffset = getReplacementOffset();
 				String replacementString = getReplacementString();
-				if (offset == document.getLength() || document.getChar(offset) != ' ') {
+				final int newCaretOffset = replacementOffset+replacementString.length()+1;
+				if (replacementOffset+replacementLength == document.getLength() || document.getChar(replacementOffset+replacementLength) != ' ') {
 					replacementString = replacementString + ' ';
 				}
-				document.replace(replacementOffset, offset-replacementOffset, replacementString);
-				setCursorPosition(replacementOffset + replacementString.length());
+				document.replace(replacementOffset, replacementLength, replacementString);
+				setCursorPosition(newCaretOffset);
 			}
 			catch (final BadLocationException e) {
 			}
@@ -183,7 +200,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		final List<String> keywords = TAG_COMMANDS;
 		for (final String keyword : keywords) {
 			if (keyword.regionMatches(true, 0, prefix, 0, prefix.length())) {
-				tenders.add(new TagProposal(keyword, offset));
+				tenders.add(new TagProposal(context, keyword, offset));
 			}
 		}
 	}

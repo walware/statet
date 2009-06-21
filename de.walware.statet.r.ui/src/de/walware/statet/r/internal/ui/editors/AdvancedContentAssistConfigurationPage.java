@@ -19,15 +19,38 @@ import de.walware.ecommons.ui.text.sourceediting.AdvancedContentAssistConfigurat
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class AdvancedContentAssistConfigurationPage extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
+public class AdvancedContentAssistConfigurationPage {
 	
 	
-	@Override
-	protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
-		return new AdvancedContentAssistConfigurationBlock(
-				RUIPlugin.getDefault().getREditorContentAssistRegistry(),
-				"de.walware.statet.r.commands.SpecificContentAssist", //$NON-NLS-1$
-				createStatusChangedListener());
+	public static class ForREditor extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
+		
+		public ForREditor() {
+		}
+		
+		@Override
+		protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
+			return new AdvancedContentAssistConfigurationBlock(
+					RUIPlugin.getDefault().getREditorContentAssistRegistry(),
+					"de.walware.statet.r.commands.SpecificContentAssist", //$NON-NLS-1$
+					createStatusChangedListener());
+		}
+		
 	}
+	
+	public static class ForRConsole extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
+		
+		public ForRConsole() {
+		}
+		
+		@Override
+		protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
+			return new AdvancedContentAssistConfigurationBlock(
+					RUIPlugin.getDefault().getRConsoleContentAssistRegistry(),
+					"de.walware.statet.r.commands.SpecificContentAssist", //$NON-NLS-1$
+					createStatusChangedListener());
+		}
+		
+	}
+	
 	
 }

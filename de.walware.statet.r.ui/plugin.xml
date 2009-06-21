@@ -90,9 +90,9 @@
             name="%contentAssist_TemplateCategory_name">
       </category>
       <computer
+            id="de.walware.statet.r.contentAssistComputers.TemplateCompletion"
             categoryId="templates"
-            class="de.walware.statet.r.internal.ui.editors.REditorTemplatesCompletionComputer"
-            id="de.walware.statet.r.contentAssistComputers.TemplateCompletion">
+            class="de.walware.statet.r.internal.ui.editors.REditorTemplatesCompletionComputer">
          <partition
                partitionType="__r_default">
          </partition>
@@ -108,9 +108,9 @@
             name="%contentAssist_ResourceCategory_name">
       </category>
       <computer
+            id="de.walware.statet.r.contentAssistComputers.PathCompletion"
             categoryId="paths"
-            class="de.walware.statet.r.ui.editors.RPathCompletionComputer"
-            id="de.walware.statet.r.contentAssistComputers.PathCompletion">
+            class="de.walware.statet.r.ui.editors.RPathCompletionComputer">
          <partition
                partitionType="__r_string">
          </partition>
@@ -120,9 +120,24 @@
             name="%contentAssist_RCategory_name">
       </category>
       <computer
+            id="de.walware.statet.r.contentAssistComputers.RCompletion"
             categoryId="r-elements"
-            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer"
-            id="de.walware.statet.r.contentAssistComputers.RCompletion">
+            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer">
+         <partition
+               partitionType="__r_default">
+         </partition>
+         <partition
+               partitionType="__r_symbol_quoted">
+         </partition>
+      </computer>
+      <category
+            id="r-elements.runtime"
+            name="%contentAssist_RRuntimeCategory_name">
+      </category>
+      <computer
+            id="de.walware.statet.r.contentAssistComputers.RCompletionFromRuntime"
+            categoryId="r-elements.runtime"
+            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer$CompleteRuntime">
          <partition
                partitionType="__r_default">
          </partition>
@@ -352,10 +367,16 @@
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
       </page>
       <page
-            id="de.walware.statet.r.preferencePages.RContentAssistPreferencePage"
+            id="de.walware.statet.r.preferencePages.REditorContentAssistPreferencePage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Editor Content Assist"
-            class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage">
+            class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForREditor">
+      </page>
+      <page
+            id="de.walware.statet.r.preferencePages.RConsoleContentAssistPreferencePage"
+            category="de.walware.statet.base.preferencePages.Editors"
+            name="R Console Content Assist"
+            class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForRConsole">
       </page>
       <page
             category="de.walware.statet.base.preferencePages.Editors"
@@ -744,15 +765,30 @@
    <extension
          point="de.walware.statet.r.ui.rConsoleContentAssistComputer">
       <category
-            id="templates"
-            name="%contentAssist_TemplateCategory_name">
+            id="paths"
+            name="%contentAssist_ResourceCategory_name">
       </category>
       <computer
+            id="de.walware.statet.r.contentAssistComputers.PathCompletion"
             categoryId="paths"
-            class="de.walware.statet.r.ui.editors.RPathCompletionComputer"
-            id="de.walware.statet.r.contentAssistComputers.PathCompletion">
+            class="de.walware.statet.r.ui.editors.RPathCompletionComputer">
          <partition
                partitionType="__r_string">
+         </partition>
+      </computer>
+      <category
+            id="r-elements"
+            name="%contentAssist_RCategory_name">
+      </category>
+      <computer
+            id="de.walware.statet.r.contentAssistComputers.RCompletion"
+            categoryId="r-elements"
+            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer">
+         <partition
+               partitionType="__r_default">
+         </partition>
+         <partition
+               partitionType="__r_symbol_quoted">
          </partition>
       </computer>
    </extension>

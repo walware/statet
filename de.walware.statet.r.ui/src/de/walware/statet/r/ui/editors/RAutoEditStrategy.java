@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
-import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentCommand;
@@ -42,9 +41,12 @@ import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.StringParseInput;
 import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.ui.text.sourceediting.BracketLevel;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.util.UIAccess;
+
+import de.walware.statet.nico.ui.console.InputSourceViewer;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -368,7 +370,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 					if (fOptions.isSmartSquareBracketsEnabled() && !isValueChar(cEnd)) {
 						if (!isClosedBracket(command.offset, cEnd, 2)) {
 							command.text = "[]"; //$NON-NLS-1$
-							if (countBackward('[', command.offset) % 2 == 1) {
+							if (countBackward('[', command.offset) % 2 == 1 && isCharAt(cEnd, ']')) {
 								linkedModeType = 2;
 							}
 							else {
@@ -742,7 +744,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	}
 	
 	
-	private LinkedModeUI createLinkedMode(int offset, final char type, final int stopChars) throws BadLocationException, BadPositionCategoryException {
+	private LinkedModeUI createLinkedMode(int offset, final char type, final int stopChars) throws BadLocationException {
 		int pos = 0;
 		offset++;
 		final LinkedPositionGroup group1 = new LinkedPositionGroup();
@@ -754,8 +756,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		model.addGroup(group1);
 		model.forceInstall();
 		
-		final BracketLevel level = new BracketLevel(fDocument, fPartitioning, position,
-				BracketLevel.getType(type), fEditor3 == null);
+		final BracketLevel level = RBracketLevel.createBracketLevel(type, fDocument, fPartitioning, position, (fViewer instanceof InputSourceViewer));
 		
 		/* create UI */
 		final LinkedModeUI ui = new LinkedModeUI(model, fViewer);

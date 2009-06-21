@@ -174,7 +174,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 			try {
 				final int line = fCurrentDoc.getLineOfOffset(node.getOffset());
 				final IRegion lineInfo = fCurrentDoc.getLineInformation(line);
-				message += "  Line "+line+" at offset "+lineInfo.getOffset()+"(can be wrong, if out of synch): \n    "+ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				message += "  Line "+line+" at offset "+lineInfo.getOffset()+" (can be wrong, if out of synch): \n    "+ //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						fCurrentDoc.get(lineInfo.getOffset(), lineInfo.getLength());
 			}
 			catch (final BadLocationException e) {

@@ -17,6 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.primitives.ArrayIntList;
+import org.apache.commons.collections.primitives.IntList;
+
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
@@ -33,17 +36,19 @@ public class FCall extends RAstNode {
 		
 		
 		final List<FCall.Arg> fSpecs;
+		final IntList fSepList;
 		
 		
 		Args(final FCall parent) {
 			fRParent = parent;
-			fSpecs = new ArrayList<FCall.Arg>(0);
+			fSpecs = new ArrayList<FCall.Arg>(1);
+			fSepList = new ArrayIntList(1);
 		}
 		
-		Args(final List<FCall.Arg> args) {
-			fRParent = null;
-			fSpecs = args;
-		}
+//		Args(final List<FCall.Arg> args) {
+//			fRParent = null;
+//			fSpecs = args;
+//		}
 		
 		
 		@Override
@@ -54,6 +59,10 @@ public class FCall extends RAstNode {
 		@Override
 		public final RTerminal getOperator(final int index) {
 			return null;
+		}
+		
+		public int getSeparatorOffset(final int index) {
+			return fSepList.get(index);
 		}
 		
 		@Override

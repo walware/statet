@@ -13,18 +13,46 @@
 <h1>Content Assist</h1>
 
 <h2>Use of Content Assist</h2>
-<p>Content Assist is a mechanism within Eclipse that offers to insert predefined
-code snippets from a menu that is activated on a simple keyboard shortcut,
+<p>Content Assist is a mechanism within Eclipse that offers to insert code 
+from a menu that is activated on a simple keyboard shortcut,
 <kbd>Ctrl+Space</kbd> by default. After pressing the shortcut, the following menu
 appears:</p>
 <img style="width: 1014px; height: 484px;" alt="Screenshot content assist" src="../images/screenshot_content_assist.png"/>
-<p>As can be seen above, the snippet to insert can be chosen from the window.
-Right from the items in the menu a popup displays the code that will be inserted 
-for the particular snippet that is selected from the menu.
-Pressing Enter will insert the snippet in the editor and allow you to
-further edit the snippet.</p>
+<p>As can be seen above, the proposal to insert can be chosen from the window.
+There are different kind of proposals, the available proposals depends on the context.
+Right from the items in the menu a popup displays information like
+the code that will be inserted for the particular snippet that is selected from the menu.
+Pressing <kbd>Enter</kbd> will insert the proposal in the editor and allow you to
+further edit the text. Some proposals supports the additional replacement mode.
+It is activated by holding the <kbd>Ctrl</kbd>.</p>
 
-<h2>Configuration of snippet templates</h2>
+
+<h2>R Element (Names)</h2>
+
+<h4>Proposals from other projects</h4>
+<p>To get proposals for R elements of other R projects in the Eclipse workspace,
+you have to add that projects to the list of referenced projects. The list can be
+edited at the project property page "Project References" of the selected project.
+Note, that closed projects cannot contribute R elements to the "R search path".</p>
+
+<h4>Proposals from packages</h4>
+<p>To get proposals for R elements of R packages, you have to import the packages to the
+R script file by</p>
+<ul>
+	<li>Roxygen <code>@import</code> tags</li>
+	<li>R commands <code>load</code> and <code>require</code></li>
+</ul>
+<p>in the this file. The 'base' package is always imported.
+StatET searches for the packages at first in the references projects (recursively).
+A project can be configured as package in the project property page "R Project" by entering
+the package name. In a second step, the package is used in the currently active R instance
+(console), if available.</p>
+
+
+<h2>Templates</h2>
+<p>Templates proposals allows to insert predefined source snippets.</p>
+
+<h4>Configuration of snippet templates</h4>
 <p>The content of the predefined snippets can be configured in <span class="uisequence">Window &gt; Preferences</span> at
 <span class="uisequence indent">StatET &gt; Source Editors &gt; R Templates</span></p>
 <img style="width: 776px; height: 536px;" alt="Screenshot preferences content assist templates" src="../images/screenshot_preferences_content_assist_templates.png"/>

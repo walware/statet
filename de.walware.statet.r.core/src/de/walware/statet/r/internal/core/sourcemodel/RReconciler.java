@@ -158,11 +158,11 @@ public class RReconciler {
 			startAst = System.nanoTime();
 			
 			initParseInput(data);
-			final RAstInfo ast = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, data.content.stamp);
+			final RAstInfo2 ast = new RAstInfo2(RAst.LEVEL_MODEL_DEFAULT, data.content.stamp);
 			final RScanner scanner = new RScanner(data.parseInput, ast, f1AstStringCache);
 			scanner.setCommentLevel(100);
 			final SourceComponent sourceComponent = scanner.scanSourceRange(null, data.parseOffset, data.content.text.length());
-			ast.root = sourceComponent;
+			ast.set(sourceComponent, scanner.getLineOffsets());
 			
 			stopAst = System.nanoTime();
 			

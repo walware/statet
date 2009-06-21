@@ -264,4 +264,17 @@ public abstract class RResourceUnit implements ISourceUnit {
 		return null;
 	}
 	
+	
+	@Override
+	public boolean equals(final Object obj) {
+		if (!(obj instanceof ISourceUnit)) {
+			return false;
+		}
+		final ISourceUnit other = (ISourceUnit) obj;
+		return (getElementType() == other.getElementType()
+				&& getWorkingContext() == other.getWorkingContext()
+				&& getId().equals(other.getId())
+				&& getModelTypeId().equals(other.getModelTypeId()) );
+	}
+	
 }

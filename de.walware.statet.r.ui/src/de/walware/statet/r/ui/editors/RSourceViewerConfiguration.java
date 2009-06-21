@@ -43,6 +43,7 @@ import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
@@ -305,6 +306,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		if (getSourceEditor() != null) {
 			final ContentAssist assistant = new ContentAssist();
 			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+			assistant.setRestoreCompletionProposalSize(DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "RContentAssist.Proposal.size")); //$NON-NLS-1$
 			
 			initDefaultContentAssist(assistant);
 			return assistant;
@@ -355,7 +357,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	@Override
 	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType, final int stateMask) {
-		if (fTextHover == null) {
+		if (fTextHover == null && fEditor != null) {
 			fTextHover = new REditorHover(fEditor);
 		}
 		return fTextHover;

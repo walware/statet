@@ -118,4 +118,8 @@ public class StatetProject implements IProjectNature, IPreferenceAccess {
 		}
 	}
 	
+	public IScopeContext getProjectContext() {
+		return fContexts[0];
+	}
+	
 }

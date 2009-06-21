@@ -41,6 +41,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.primitives.ArrayIntList;
+import org.apache.commons.collections.primitives.IntList;
+
 import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.text.IStringCache;
@@ -138,6 +141,7 @@ public final class RScanner {
 	private RTerminal fNextType;
 	private boolean fWasLinebreak;
 	
+	private IntList fLineOffset = new ArrayIntList();
 	private List<RAstNode> fComments;
 	private RoxygenCollector fRoxygen;
 	private int fCommentsLevel;
@@ -214,9 +218,34 @@ public final class RScanner {
 		return null;
 	}
 	
+	public FCall.Args scanFCallArgs(final boolean expand, final int offset, final int length) {
+		try {
+			fLexer.setRange(offset, length);
+			init();
+			final FCall call = new FCall();
+			call.fStopOffset = Integer.MIN_VALUE;
+			scanInSpecArgs(call.fArgs);
+			if (expand) {
+				call.fArgs.fStartOffset = 0;
+				call.fArgs.fStopOffset = fNext.offset;
+			}
+			return call.fArgs;
+		}
+		catch (final Exception e) {
+			RCorePlugin.logError(-1, "Error occured while parsing R code", e);
+		}
+		return null;
+	}
+	
 	private void init() {
 		fNextType = fNext.type = RTerminal.LINEBREAK;
+		fLineOffset.clear();
+		fLineOffset.add(fNext.offset);
 		consumeToken();
+	}
+	
+	public int[] getLineOffsets() {
+		return fLineOffset.toArray();
 	}
 	
 	final SourceComponent scanSourceUnit(final RAstNode parent) {
@@ -1093,6 +1122,7 @@ public final class RScanner {
 			
 			if (fNextType == RTerminal.COMMA) {
 				args.fSpecs.add(arg);
+				args.fSepList.add(fNext.offset);
 				args.fStopOffset = fNext.offset+1;
 				consumeToken();
 				readLines();
@@ -1562,6 +1592,8 @@ public final class RScanner {
 				consumeComment();
 			}
 			return;
+		case LINEBREAK:
+			fLineOffset.add(fNext.offset+fNext.length);
 		default:
 			return;
 		}
@@ -1594,6 +1626,7 @@ public final class RScanner {
 				continue;
 				
 			case LINEBREAK:
+				fLineOffset.add(fNext.offset+fNext.length);
 				fLexer.nextToken();
 				fNextType = fNext.type;
 				if (fNextType == RTerminal.LINEBREAK && fRoxygen.hasComment()) {
@@ -1630,6 +1663,7 @@ public final class RScanner {
 				continue;
 				
 			case LINEBREAK:
+				fLineOffset.add(fNext.offset+fNext.length);
 				fLexer.nextToken();
 				fNextType = fNext.type;
 				continue;

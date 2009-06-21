@@ -15,26 +15,46 @@ import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.text.ILineInformation;
+
 
 public class RdParser {
 	
-	private static class LineManager implements ILineResolver {
+	public class LineInformation implements ILineInformation {
 		
-		IntList fList = new ArrayIntList();
 		
-		public void addLine(int startOffset) {
-			
-			fList.add(startOffset);
+		private final IntList fOffsets;
+		
+		
+		public LineInformation() {
+			fOffsets = new ArrayIntList();
 		}
 		
-		public int getLineOfOffset(int offset) {
-			
-			for (int i = 0; i < fList.size(); i++) {
-				if (fList.get(i) > offset)
-					return i;
+		public void addLine(final int offset) {
+			fOffsets.add(offset);
+		}
+		
+		public int getLineOfOffset(final int offset) {
+			if (fOffsets.size() == 0) {
+				return -1;
 			}
-			return fList.size();
+			int low = 0;
+			int high = fOffsets.size()-1;
+			
+			while (low <= high) {
+				final int mid = (low + high) >> 1;
+				final int lineOffset = fOffsets.get(mid);
+				
+				if (lineOffset < offset)
+					low = mid + 1;
+				else if (lineOffset > offset)
+					high = mid - 1;
+				else
+					return mid;
+			}
+			return low-1;
 		}
+		
 	}
 	
 	
@@ -43,24 +63,22 @@ public class RdParser {
 	
 	private enum Last { NONE, NEWLINE, BACKSLASH };
 	
-	private MarkerHandler fMarkers;
+	private TaskMarkerHandler fMarkers;
 	private char[] fContent;
 	
 	private int fCurrentOffset = 0;
 	private int fCurrentLine = 1;
 	private Last fLastChar = Last.NONE;
-	private LineManager fLineStructure;
+	private LineInformation fLineStructure;
 	
 	
-	public RdParser(char[] content, MarkerHandler markers) {
-		
+	public RdParser(final char[] content, final TaskMarkerHandler markers) {
 		fContent = content;
 		fMarkers = markers;
-		fLineStructure = new LineManager();
+		fLineStructure = new LineInformation();
 	}
 	
 	public void check() throws CoreException {
-		
 		READ: for (; fCurrentOffset < fContent.length; fCurrentOffset++) {
 				
 			if (checkNewLine())
@@ -69,7 +87,7 @@ public class RdParser {
 			if (checkBackslash())
 				continue READ;
 					
-			char current = fContent[fCurrentOffset];
+			final char current = fContent[fCurrentOffset];
 			switch (current) {
 			case '%':
 				readComment();
@@ -92,9 +110,8 @@ public class RdParser {
 		}
 	}
 	
-	private void readPlatformInstruction(char[] keyword) {
-		
-		int start = fCurrentOffset;
+	private void readPlatformInstruction(final char[] keyword) {
+		final int start = fCurrentOffset;
 		int end = fCurrentOffset;
 		
 		READ: for (fCurrentOffset++; fCurrentOffset < fContent.length; fCurrentOffset++) {
@@ -106,12 +123,10 @@ public class RdParser {
 	}
 	
 	private void readComment() throws CoreException {
-		
-		int start = fCurrentOffset;
+		final int start = fCurrentOffset;
 		int end = fCurrentOffset;
 		
 		READ: for (fCurrentOffset++; fCurrentOffset < fContent.length; fCurrentOffset++) {
-			
 			end = fCurrentOffset;
 			if (checkNewLine()) {
 				end--;
@@ -122,8 +137,7 @@ public class RdParser {
 	}
 	
 	private boolean checkNewLine() {
-		
-		char current = fContent[fCurrentOffset];
+		final char current = fContent[fCurrentOffset];
 		if (current == '\r' || current == '\n') {
 			
 			if (current == '\r' && fCurrentOffset+1 < fContent.length && fContent[fCurrentOffset+1] == '\n') {
@@ -138,7 +152,6 @@ public class RdParser {
 	}
 	
 	private boolean checkBackslash() {
-		
 		if (fContent[fCurrentOffset] == '\\') {
 			fLastChar = Last.BACKSLASH;
 			return true;

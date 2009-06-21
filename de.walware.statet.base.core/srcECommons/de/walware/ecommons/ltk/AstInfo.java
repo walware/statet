@@ -12,6 +12,7 @@
 package de.walware.ecommons.ltk;
 
 import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.text.ILineInformation;
 
 
 /**
@@ -26,11 +27,17 @@ public class AstInfo<NodeT extends IAstNode> {
 	public final int level;
 	public final long stamp;
 	public NodeT root;
+	protected ILineInformation fLines;
 	
 	
 	public AstInfo(final int level, final long stamp) {
 		this.level = level;
 		this.stamp = stamp;
+	}
+	
+	
+	public ILineInformation getLineInformation() {
+		return fLines;
 	}
 	
 }

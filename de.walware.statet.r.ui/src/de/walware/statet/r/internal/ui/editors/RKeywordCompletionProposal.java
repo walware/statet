@@ -9,22 +9,32 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.ui.text.sourceediting;
+package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.swt.graphics.Image;
 
+import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ui.text.sourceediting.SimpleCompletionProposal;
 
-public class KeywordCompletionProposal extends SimpleCompletionProposal {
+import de.walware.statet.r.ui.RUI;
+
+
+public class RKeywordCompletionProposal extends SimpleCompletionProposal {
 	
 	
 	/**
 	 * @param keyworkd
 	 * @param replacementOffset
 	 */
-	public KeywordCompletionProposal(final String keyword, final int replacementOffset) {
-		super(keyword, replacementOffset);
+	public RKeywordCompletionProposal(final AssistInvocationContext context, final String keyword, final int replacementOffset) {
+		super(context, keyword, replacementOffset);
 	}
 	
+	
+	@Override
+	protected String getPluginId() {
+		return RUI.PLUGIN_ID;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -41,6 +51,10 @@ public class KeywordCompletionProposal extends SimpleCompletionProposal {
 	@Override
 	public Image getImage() {
 		return null;
+	}
+	
+	public boolean isAutoInsertable() {
+		return true;
 	}
 	
 }

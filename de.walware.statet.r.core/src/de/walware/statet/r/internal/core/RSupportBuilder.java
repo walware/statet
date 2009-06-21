@@ -45,9 +45,9 @@ import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.internal.core.builder.MarkerHandler;
-import de.walware.statet.r.internal.core.builder.RParser;
+import de.walware.statet.r.internal.core.builder.RBuilder;
 import de.walware.statet.r.internal.core.builder.RdParser;
+import de.walware.statet.r.internal.core.builder.TaskMarkerHandler;
 
 
 public class RSupportBuilder extends IncrementalProjectBuilder {
@@ -58,30 +58,24 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	static class ExceptionCollector {
 		
-		private ArrayList<CoreException> fExceptionList = new ArrayList<CoreException>(20);
+		private ArrayList<IStatus> fExceptionList = new ArrayList<IStatus>(20);
 		
 		public void reset() {
-			
 			fExceptionList.clear();
 			if (fExceptionList.size() > 20)
 				fExceptionList.trimToSize();
 		}
 		
-		private void add(final CoreException e) {
-			
+		private void add(final IStatus e) {
 			fExceptionList.add(e);
 		}
 		
 		void checkException() throws CoreException {
-			
 			if (fExceptionList != null && fExceptionList.size() > 0) {
-				final IStatus[] allStatus = new IStatus[fExceptionList.size()];
-				for (int i = 0; i < allStatus.length; i++) {
-					allStatus[i] = fExceptionList.get(i).getStatus();
-				}
+				final IStatus[] allStatus = fExceptionList.toArray(new IStatus[fExceptionList.size()]);
 				
 				final IStatus status = new MultiStatus(
-						RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,	allStatus,
+						RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR, allStatus,
 						NLS.bind(Messages.Builder_error_MultipleErrors_message, Integer.toString(allStatus.length)),
 						null);
 				
@@ -93,10 +87,8 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	class RResourceVisitor implements IResourceVisitor {
 		
 		public boolean visit(final IResource resource) {
-			try {
-				check(resource);
-			} catch (final CoreException e) {
-				fExceptions.add(e);
+			if (resource instanceof IFile) {
+				check((IFile) resource);
 			}
 			//return true to continue visiting children.
 			return true;
@@ -106,23 +98,21 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	class RResourceDeltaVisitor implements IResourceDeltaVisitor {
 		
 		public boolean visit(final IResourceDelta delta) throws CoreException {
-			try {
-				final IResource resource = delta.getResource();
-				switch (delta.getKind()) {
-				
-				case IResourceDelta.ADDED:
-				case IResourceDelta.CHANGED:
-					// handle added resource
-					check(resource);
-					break;
-				
-				case IResourceDelta.REMOVED:
-					// handle removed resource
-					// markers are automatically removed
-					break;
+			final IResource resource = delta.getResource();
+			switch (delta.getKind()) {
+			
+			case IResourceDelta.ADDED:
+			case IResourceDelta.CHANGED:
+				// handle added resource
+				if (resource instanceof IFile) {
+					check((IFile) resource);
 				}
-			} catch (final CoreException e) {
-				fExceptions.add(e);
+				break;
+			
+			case IResourceDelta.REMOVED:
+				// handle removed resource
+				// markers are automatically removed
+				break;
 			}
 			//return true to continue visiting children.
 			return true;
@@ -132,7 +122,6 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	private class SettingsListener implements IEclipsePreferences.IPreferenceChangeListener {
 		
 		public void preferenceChange(final PreferenceChangeEvent event) {
-			
 			fInitialized = false;
 		}
 	}
@@ -141,26 +130,25 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	private RProject fRProject;
 	private SettingsListener fSettingsListener;
 	private ExceptionCollector fExceptions;
-	private MarkerHandler fResourceMarkers;
+	private TaskMarkerHandler fResourceMarkers;
 	
 	private boolean fStartupSuccessfull = false;
 	private boolean fInitialized = false;
 	
+	private RBuilder fRBuilder;
+	
 	
 	public RSupportBuilder() {
-		
 		super();
 	}
 	
 	@Override
 	public void setInitializationData(final IConfigurationElement config, final String propertyName, final Object data) throws CoreException {
-		
 		super.setInitializationData(config, propertyName, data);
 	}
 	
 	@Override
 	protected void startupOnInitialize() {
-		
 		fStartupSuccessfull = false;
 		super.startupOnInitialize();
 		
@@ -172,27 +160,29 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			if (fRProject == null) {
 				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "R Project Nature is missing", null)); //$NON-NLS-1$
 			}
-			final IEclipsePreferences[] nodes = fRProject.getStatetProject().getPreferenceNodes(
-					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER);
-			for (final IEclipsePreferences node : nodes) {
-				node.addPreferenceChangeListener(fSettingsListener);
-			}
+			fRProject.getStatetProject().addPreferenceNodeListener(
+					StatetCorePreferenceNodes.CAT_MANAGMENT_QUALIFIER,
+					fSettingsListener);
+			fRBuilder = new RBuilder();
 			fStartupSuccessfull = true;
-		} catch (final CoreException e) {
+		}
+		catch (final CoreException e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind("Error occured while initizalizing the builder (''{0}'').", ID), e)); //$NON-NLS-1$
 		}
 	}
 	
 	private void init() throws CoreException {
-		
 		if (!fStartupSuccessfull)
 			throw new CoreException(new Status(
 					IStatus.ERROR, RCore.PLUGIN_ID,	ICommonStatusConstants.BUILD_ERROR,
 					Messages.Builder_error_OnStartup_message, null));
 		
 		fExceptions = new ExceptionCollector();
-		fResourceMarkers = new MarkerHandler(fRProject);
+		if (fResourceMarkers == null) {
+			fResourceMarkers = new TaskMarkerHandler();
+		}
+		fResourceMarkers.init(fRProject);
 		
 		fInitialized = true;
 	}
@@ -200,7 +190,6 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(final int kind, final Map args, final IProgressMonitor monitor)
 			throws CoreException {
-		
 		if (!fInitialized)
 			init();
 		
@@ -211,7 +200,8 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			final IResourceDelta delta = getDelta(getProject());
 			if (delta == null) {
 				doFullBuild(monitor);
-			} else {
+			}
+			else {
 				doIncrementalBuild(delta, monitor);
 			}
 		}
@@ -219,21 +209,24 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		return null;
 	}
 	
-	protected void doFullBuild(final IProgressMonitor monitor)
-			throws CoreException {
-		
+	protected void doFullBuild(final IProgressMonitor monitor) throws CoreException {
 		fExceptions.reset();
 		
-		final RResourceVisitor visitor = new RResourceVisitor();
-		getProject().accept(visitor);
+		fRBuilder.buildFull(getProject(), monitor);
+		
+		getProject().accept(new RResourceVisitor());
 		
 		fExceptions.checkException();
 	}
 	
 	protected void doIncrementalBuild(final IResourceDelta delta, final IProgressMonitor monitor)
 			throws CoreException {
-		
 		fExceptions.reset();
+		
+		final IStatus status = fRBuilder.buildIncremental(getProject(), delta, monitor);
+		if (!status.isOK()) {
+			fExceptions.add(status);
+		}
 		
 		delta.accept(new RResourceDeltaVisitor());
 		
@@ -242,55 +235,41 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	
 	@Override
 	protected void clean(final IProgressMonitor monitor) throws CoreException {
-		
 //		if (!fInitialized)
 		init();
 		
-		fResourceMarkers.setup(getProject());
-		fResourceMarkers.clean();
+		fRBuilder.clean(getProject(), monitor);
 	}
 	
-	protected void check(final IResource resource) throws CoreException {
-		
-		fResourceMarkers.setup(resource);
-		
-		if (resource instanceof IFile) {
-			
-			final IFile file = (IFile) resource;
-			fResourceMarkers.clean();
-				
+	protected void check(final IFile file) {
+		try {
 			final IContentDescription description = file.getContentDescription();
-			if (description == null)
+			if (description == null) {
 				return;
+			}
 			final IContentType type = description.getContentType();
-			if (type == null)
+			if (type == null) {
 				return;
-			
-			if (IRSourceUnit.R_CONTENT.equals(type.getId()))
-				doParseR(file);
-			else
-			if (IRSourceUnit.RD_CONTENT.equals(type.getId()))
+			}
+			if (IRSourceUnit.RD_CONTENT.equals(type.getId())) {
 				doParseRd(file);
+			}
+		}
+		catch (final CoreException e) {
+			fExceptions.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
+					NLS.bind("An error occurred when checking ''{0}''", file.getFullPath().toString()), e));
 		}
 	}
 	
 /* **/
 	
 	
-	
-	
-	protected void doParseR(final IFile file) throws CoreException {
-		
-		new RParser(readFile(file), fResourceMarkers).check();
-	}
-	
 	protected void doParseRd(final IFile file) throws CoreException {
-		
+		fResourceMarkers.setup(file);
 		new RdParser(readFile(file), fResourceMarkers).check();
 	}
 	
 	protected char[] readFile(final IFile file) throws CoreException {
-		
 		String charset = null;
 		try {
 			final InputStream input = file.getContents();
@@ -308,12 +287,14 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			text.getChars(0, chars.length, chars, 0);
 			return chars;
 			
-		} catch (final UnsupportedEncodingException e) {
+		}
+		catch (final UnsupportedEncodingException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind(Messages.Builder_error_UnsupportedEncoding_message, new String[] {
 							charset, file.getName() } ), e));
-		} catch (final IOException e) {
+		}
+		catch (final IOException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
 					NLS.bind(Messages.Builder_error_IOReadingFile_message, file.getName() ), e));

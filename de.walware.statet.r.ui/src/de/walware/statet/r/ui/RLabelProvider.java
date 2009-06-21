@@ -13,6 +13,7 @@ package de.walware.statet.r.ui;
 
 import java.util.List;
 
+import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.ViewerCell;
@@ -497,6 +498,27 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			appendArg(text, args.get(last));
 		}
 		text.append(')');
+	}
+	
+	public void appendArgumentInformation(final StringBuilder text, final IntList idxs, final ArgsDefinition args) {
+		if (args != null) {
+			if (args.size() == 0) {
+				text.append("<no arguments>");
+			}
+			else {
+				final int last = args.size() - 1;
+				idxs.add(text.length());
+				for (int i = 0; i < last; i++) {
+					appendArg(text, args.get(i));
+					text.append(", "); //$NON-NLS-1$
+					idxs.add(text.length()-1);
+				}
+				appendArg(text, args.get(last));
+			}
+		}
+		else {
+			text.append("<unkown>");
+		}
 	}
 	
 	protected void appendMethodDetail(final StyledString text, final IRMethod method) {

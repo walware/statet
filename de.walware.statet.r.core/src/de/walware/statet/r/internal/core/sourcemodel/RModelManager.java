@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -31,15 +32,14 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
+import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RManagedWorkingCopy;
 import de.walware.statet.r.core.model.RModel;
 
 
-/**
- * 
- */
-public class RModelManager implements IModelManager {
+public class RModelManager implements IRModelManager {
 	
 	
 	private static class ContextItem {
@@ -185,10 +185,12 @@ public class RModelManager implements IModelManager {
 	}
 	
 	
-	private FastList<ContextItem> fContexts = new FastList<ContextItem>(ContextItem.class, FastList.EQUALITY);
-	private RReconciler fReconciler = new RReconciler(this);
-	private RModelEventJob fEventJob = new RModelEventJob(this);
-	private CleanupJob fCleanupJob = new CleanupJob();
+	private final FastList<ContextItem> fContexts = new FastList<ContextItem>(ContextItem.class, FastList.EQUALITY);
+	private final RReconciler fReconciler = new RReconciler(this);
+	private final RModelEventJob fEventJob = new RModelEventJob(this);
+	private final CleanupJob fCleanupJob = new CleanupJob();
+	
+	private final RModelIndex fIndex = new RModelIndex(this);
 	
 	
 	public RModelManager() {
@@ -202,6 +204,10 @@ public class RModelManager implements IModelManager {
 	public void dispose() {
 		fCleanupJob.dispose();
 		fEventJob.dispose();
+	}
+	
+	public RModelIndex getIndex() {
+		return fIndex;
 	}
 	
 	public void addElementChangedListener(final IElementChangedListener listener, final WorkingContext context) {
@@ -410,6 +416,11 @@ public class RModelManager implements IModelManager {
 			return new IElementChangedListener[0];
 		}
 		return contextItem.modelListeners.toArray();
+	}
+	
+	
+	public IRFrame getProjectFrame(final IProject project) {
+		return fIndex.getProjectFrame(project);
 	}
 	
 }

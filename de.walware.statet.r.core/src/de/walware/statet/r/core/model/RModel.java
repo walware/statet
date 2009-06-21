@@ -39,7 +39,7 @@ public class RModel {
 		return null;
 	}
 	
-	public static IRFrame[] createEnvirList(final IRFrame envir) {
+	public static List<IRFrame> createEnvirList(final IRFrame envir) {
 		final ArrayList<IRFrame> list = new ArrayList<IRFrame>();
 		int idx = 0;
 		list.add(envir);
@@ -51,7 +51,7 @@ public class RModel {
 				}
 			}
 		}
-		return list.toArray(new IRFrame[list.size()]);
+		return list;
 	}
 	
 	

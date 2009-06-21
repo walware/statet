@@ -502,7 +502,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			leaveElement();
 			
 			finish();
-			final RAstInfo newAst = new RAstInfo(RAst.LEVEL_MODEL_DEFAULT, ast.stamp);
+			final RAstInfo2 newAst = new RAstInfo2(RAst.LEVEL_MODEL_DEFAULT, ast);
 			RSourceInfo modelInfo = new RSourceInfo(newAst, fFrames, fTopLevelEnvir, fPackageRefs, fDependencyEnvironments, fileElement);
 			
 			fRoxygenExamples = false;
@@ -775,8 +775,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	@Override
 	public void visit(final SourceComponent node) throws InvocationTargetException {
-		node.addAttachment(fTopScope);
-		node.acceptInRChildren(this);
+		throw new IllegalArgumentException();
 	}
 	
 	@Override

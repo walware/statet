@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.core.model;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
@@ -18,8 +21,12 @@ import java.util.List;
 import com.ibm.icu.text.Collator;
 
 import de.walware.ecommons.ltk.IElementName;
+import de.walware.ecommons.text.SourceParseInput;
+import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.statet.r.core.RSymbolComparator;
+import de.walware.statet.r.core.rlang.RTerminal;
+import de.walware.statet.r.core.rsource.RLexer;
 
 
 /**
@@ -374,104 +381,231 @@ public abstract class RElementName implements IElementName {
 		
 	}
 	
+	/**
+	 * Lexer for RScanner.
+	 */
+	private static class ParseLexer extends RLexer {
+		
+		
+		RTerminal type;
+		String text;
+		
+		
+		public ParseLexer(final SourceParseInput input) {
+			super(input);
+		}
+		
+		public void nextToken() {
+			do {
+				searchNext();
+			} while (this.type == null);
+		}
+		
+		
+		@Override
+		protected void createFix(final RTerminal type) {
+			this.type = type;
+			this.text = null;
+		}
+		
+		@Override
+		protected void createSpecialToken(final int status) {
+			this.type = RTerminal.SPECIAL;
+			this.text = null;
+		}
+		
+		@Override
+		protected void createSymbolToken() {
+			this.type = RTerminal.SYMBOL;
+			this.text = fInput.substring(1, fNextNum);
+		}
+		
+		@Override
+		protected void createQuotedSymbolToken(final RTerminal type, final int status) {
+			this.type = type;
+			this.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+					fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+		}
+		
+		@Override
+		protected void createStringToken(final RTerminal type, final int status) {
+			this.type = type;
+			this.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+					fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+		}
+		
+		@Override
+		protected void createNumberToken(final RTerminal type, final int status) {
+			this.type = type;
+			this.text = fInput.substring(1, fNextNum);
+		}
+		
+		@Override
+		protected void createWhitespaceToken() {
+			this.type = null;
+		}
+		
+		@Override
+		protected void createCommentToken(final RTerminal type) {
+			this.type = null;
+		}
+		
+		@Override
+		protected void createLinebreakToken(final String text) {
+			this.type = null;
+		}
+		
+		@Override
+		protected void createUnknownToken(final String text) {
+			this.type = RTerminal.UNKNOWN;
+			this.text = text;
+		}
+		
+	}
+	
 	public static RElementName create(final int type, final String segmentName) {
 		return new DefaultImpl(type, segmentName);
 	}
 	
 	public static RElementName parseDefault(final String code) {
-		final char[] chars = code.toCharArray();
-		boolean quoted = false;
-		int symbolStart = -1;
+		final ParseLexer lexer = new ParseLexer(new StringParseInput(code));
+		lexer.setFull();
+		
 		int mode = MAIN_DEFAULT;
 		DefaultImpl main = null;
-		DefaultImpl element = null;
-		
-		int idx = 0;
-		while (idx < code.length()) {
-			final char c = code.charAt(idx++);
-			switch (c) {
-			case '`':
-				if (symbolStart >= 0) {
-					if (!quoted) {
-						return null;
-					}
-					final DefaultImpl next = new DefaultImpl(mode, new String(chars, symbolStart, idx - symbolStart - 1));
+		DefaultImpl last = null;
+		while (true) {
+			DefaultImpl tmp = null;
+			lexer.nextToken();
+			if (lexer.type == null || lexer.type == RTerminal.EOF) {
+				if (mode >= 0) {
+					tmp = new DefaultImpl(mode, ""); //$NON-NLS-1$
 					if (main == null) {
-						main = element = next;
+						main = last = tmp;
 					}
 					else {
-						element.fNextSegment = next;
-						element = next;
+						last.fNextSegment = tmp;
+						last = tmp;
 					}
-					symbolStart = -1;
-					mode = -1;
-					continue;
 				}
-				else {
-					if (mode < 0) {
-						return null;
-					}
-					symbolStart = idx;
-					quoted = true;
-					continue;
-				}
-			case ' ':
-			case '\t':
-				if (symbolStart >= 0 && !quoted) {
-					final DefaultImpl next = new DefaultImpl(mode, new String(chars, symbolStart, idx - symbolStart));
-					if (main == null) {
-						main = element = next;
-					}
-					else {
-						element.fNextSegment = next;
-						element = next;
-					}
-					symbolStart = -1;
-					mode = -1;
-					continue;
-				}
-				else {
-					continue;
-				}
-			case ':':
-				return null; // TODO
-			case '$':
-				if (main == null) {
-					return null;
-				}
-				mode = SUB_NAMEDPART;
-				continue;
-			case '@':
-				if (main == null) {
-					return null;
-				}
-				mode = SUB_NAMEDSLOT;
-				continue;
-			default:
-				if (symbolStart < 0) {
-					if (mode < 0) {
-						return null;
-					}
-					symbolStart = idx-1;
-					quoted = false;
-					continue;
-				}
-				else {
-					continue;
-				}
-			}
-		}
-		if (mode >= 0) {
-			final DefaultImpl next = new DefaultImpl(mode, symbolStart >= 0 ? new String(chars, symbolStart, idx - symbolStart) : ""); //$NON-NLS-1$
-			if (main == null) {
-				main = element = next;
+				return main;
 			}
 			else {
-				element.fNextSegment = next;
-				element = next;
+				switch(lexer.type) {
+				case IF:
+				case ELSE:
+				case FOR:
+				case IN:
+				case WHILE:
+				case REPEAT:
+				case NEXT:
+				case BREAK:
+				case FUNCTION:
+				case TRUE:
+				case FALSE:
+				case NA:
+				case NA_INT:
+				case NA_REAL:
+				case NA_CPLX:
+				case NA_CHAR:
+				case NULL:
+				case NAN:
+				case INF:
+					if (mode != MAIN_DEFAULT && mode != MAIN_PACKAGE
+							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
+						return null;
+					}
+					tmp = new DefaultImpl(mode, lexer.type.text);
+					if (main == null) {
+						main = last = tmp;
+					}
+					else {
+						last.fNextSegment = tmp;
+						last = tmp;
+					}
+					lexer.nextToken();
+					if (lexer.type == null || lexer.type == RTerminal.EOF) {
+						return main; // valid prefix
+					}
+					else {
+						return null; // invalid
+					}
+				case SYMBOL:
+				case SYMBOL_G:
+					if (mode != MAIN_DEFAULT && mode != MAIN_PACKAGE
+							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
+						return null;
+					}
+					tmp = new DefaultImpl(mode, lexer.text);
+					if (main == null) {
+						main = last = tmp;
+					}
+					else {
+						last.fNextSegment = tmp;
+						last = tmp;
+					}
+					mode = -1;
+					continue;
+				case NUM_INT:
+				case NUM_NUM:
+					if (mode != SUB_INDEXED_S && mode != SUB_INDEXED_D) {
+						return null;
+					}
+					tmp = new DefaultImpl(mode, lexer.text);
+					lexer.nextToken();
+					if (lexer.type != RTerminal.SUB_INDEXED_CLOSE) {
+						return null;
+					}
+					if (main == null) {
+						main = last = tmp;
+					}
+					else {
+						last.fNextSegment = tmp;
+						last = tmp;
+					}
+					mode = -2;
+					continue;
+				case SUB_NAMED_PART:
+					if (main == null || mode >= 0) {
+						return null;
+					}
+					mode = SUB_NAMEDPART;
+					continue;
+				case SUB_NAMED_SLOT:
+					if (main == null || mode >= 0) {
+						return null;
+					}
+					mode = SUB_NAMEDSLOT;
+					continue;
+				case SUB_INDEXED_S_OPEN:
+					if (main == null || mode >= 0) {
+						return null;
+					}
+					mode = SUB_INDEXED_S;
+					continue;
+				case SUB_INDEXED_D_OPEN:
+					if (main == null || mode >= 0) {
+						return null;
+					}
+					mode = SUB_INDEXED_S;
+					continue;
+				case SUB_INDEXED_CLOSE:
+					if (mode != -2) {
+						return null;
+					}
+					continue;
+				case NS_GET:
+				case NS_GET_INT:
+					if (main != null || mode >= 0) {
+						return null;
+					}
+					mode = MAIN_PACKAGE;
+					continue;
+				default:
+					return null;
+				}
 			}
 		}
-		return main;
 	}
 	
 	public static IElementName cloneSegment(final IElementName segment) {

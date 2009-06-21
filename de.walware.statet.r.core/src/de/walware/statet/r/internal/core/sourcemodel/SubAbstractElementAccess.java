@@ -50,6 +50,10 @@ abstract class SubAbstractElementAccess extends RElementName implements IElement
 		return fRoot.isWriteAccess();
 	}
 	
+	public boolean isMethodAccess() {
+		return fRoot.isMethodAccess();
+	}
+	
 	public IElementAccess[] getAllInUnit() {
 		final List<ElementAccess> all = fRoot.fShared.entries;
 		final List<IElementAccess> elements = new ArrayList<IElementAccess>();

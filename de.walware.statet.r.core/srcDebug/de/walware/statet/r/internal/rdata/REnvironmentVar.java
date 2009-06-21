@@ -38,7 +38,7 @@ import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 
 
 public final class REnvironmentVar extends CombinedElement
-		implements ICombinedEnvironment, ExternalizableRObject {
+		implements ICombinedEnvironment, ExternalizableRObject, IRFrame {
 	
 	
 	private String fCombinedName;
@@ -321,11 +321,32 @@ public final class REnvironmentVar extends CombinedElement
 		return sb.toString();
 	}
 	
+	@Override
+	public Object getAdapter(final Class required) {
+		if (IRFrame.class.equals(required)) {
+			return this;
+		}
+		return super.getAdapter(required);
+	}
+	
 	public void setError(final String message) {
 		fElementName = RElementName.create(RElementName.MAIN_OTHER, fEnvironmentName);
 		fComponents = new CombinedElement[0];
 		fNamesAttribute = new RCharacterDataImpl();
 		fCombinedName = fCombinedName + " ("+message+")";
+	}
+	
+	
+	public String getFrameId() {
+		return null;
+	}
+	
+	public List<? extends IRLangElement> getModelElements() {
+		return null;
+	}
+	
+	public List<? extends IRFrame> getPotentialParents() {
+		return null;
 	}
 	
 }

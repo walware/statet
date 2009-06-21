@@ -31,7 +31,7 @@ import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 public class RInputConfigurator extends RSourceViewerConfigurator {
 	
 	
-	private class RConsoleConfiguration extends RSourceViewerConfiguration {
+	private static class RConsoleConfiguration extends RSourceViewerConfiguration {
 		
 		public RConsoleConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess coreAccess) {
 			super(sourceEditor, coreAccess,
@@ -43,9 +43,18 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 		public void initDefaultContentAssist(final ContentAssist assistant) {
 			final ContentAssistComputerRegistry registry = RUIPlugin.getDefault().getRConsoleContentAssistRegistry();
 			
+			final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
+					IRDocumentPartitions.R_DEFAULT_EXPL, registry, getSourceEditor());
+			codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$', '@' });
+			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT_EXPL);
+			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT);
+			
+			final ContentAssistProcessor symbolProcessor = new RContentAssistProcessor(assistant,
+					IRDocumentPartitions.R_QUOTED_SYMBOL, registry, getSourceEditor());
+			assistant.setContentAssistProcessor(symbolProcessor, IRDocumentPartitions.R_QUOTED_SYMBOL);
+			
 			final ContentAssistProcessor stringProcessor = new RContentAssistProcessor(assistant,
 					IRDocumentPartitions.R_STRING, registry, getSourceEditor());
-			stringProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '/' });
 			assistant.setContentAssistProcessor(stringProcessor, IRDocumentPartitions.R_STRING);
 		}
 		

@@ -50,13 +50,13 @@ public abstract class ElementNameCompletionProposal extends CompletionProposalWi
 	
 	public ElementNameCompletionProposal(final AssistInvocationContext context, 
 			final IElementName replacementName, final int replacementOffset,
-			final IModelElement element, final int defDistance, 
+			final IModelElement element, final int relevance, 
 			final IElementLabelProvider labelProvider) {
 		super(context, replacementOffset);
 		fReplacementName = replacementName;
 		fElement = element;
 		fLabelProvider = labelProvider;
-		fRelevance = 60 - defDistance;
+		fRelevance = relevance;
 	}
 	
 	

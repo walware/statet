@@ -50,6 +50,7 @@ public class RUI {
 	public static final String IMG_OBJ_S4OBJ = RUI.PLUGIN_ID + "/image/obj/s4obj"; //$NON-NLS-1$
 	public static final String IMG_OBJ_S4OBJ_VECTOR = RUI.PLUGIN_ID + "/image/obj/s4obj.vector"; //$NON-NLS-1$
 	public static final String IMG_OBJ_S4OBJ_DATAFRAME_COLUMN = RUI.PLUGIN_ID + "/image/obj/s4obj.dataframe_col"; //$NON-NLS-1$
+	public static final String IMG_OBJ_ARGUMENT_ASSIGN = RUI.PLUGIN_ID + "/image/obj/argument.assign"; //$NON-NLS-1$
 	
 	
 	public static ImageDescriptor getImageDescriptor(final String key) {

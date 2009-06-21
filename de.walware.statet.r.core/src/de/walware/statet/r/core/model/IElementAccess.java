@@ -37,6 +37,7 @@ public interface IElementAccess extends IElementName {
 	public IRFrame getFrame();
 	
 	public boolean isWriteAccess();
+	public boolean isMethodAccess();
 	
 	public RAstNode getNode();
 	

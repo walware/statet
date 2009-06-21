@@ -11,11 +11,16 @@
 
 package de.walware.statet.r.core.model;
 
+import java.io.Serializable;
+
 
 /**
  * Formals of an R function
  */
-public final class ArgsDefinition {
+public final class ArgsDefinition implements Serializable {
+	
+	
+	private static final long serialVersionUID = -3536570586490553543L;
 	
 	
 	public static final int UNKNOWN = 0;
@@ -28,7 +33,11 @@ public final class ArgsDefinition {
 	public static final int FILE_NAME =          0x100;
 	
 	
-	public static final class Arg {
+	public static final class Arg implements Serializable {
+		
+		
+		private static final long serialVersionUID = 5880323434513504465L;
+		
 		
 		public final int index;
 		public final String name;

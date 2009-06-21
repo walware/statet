@@ -15,10 +15,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
-import org.eclipse.jface.text.contentassist.ICompletionProposalExtension4;
 import org.eclipse.jface.text.contentassist.IContextInformation;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
@@ -26,32 +24,21 @@ import org.eclipse.swt.graphics.Point;
 /**
  * The standard implementation of the <code>ICompletionProposal</code> interface.
  */
-public class SimpleCompletionProposal implements ICompletionProposal, ICompletionProposalExtension2, ICompletionProposalExtension4, 
-		IAssistCompletionProposal {
+public abstract class SimpleCompletionProposal extends CompletionProposalWithOverwrite {
+	
 	
 	/** The replacement string. */
 	private String fReplacementString;
 	
-	/** The replacement offset. */
-	private int fReplacementOffset;
-	
 	/** The cursor position after this proposal has been applied. */
 	private int fCursorPosition = -1;
 	
-	/** The context information of this proposal. */
-	private IContextInformation fContextInformation;
 	
-	
-	public SimpleCompletionProposal(final String replacementString, 
-			final int replacementOffset) {
+	public SimpleCompletionProposal(final AssistInvocationContext context, final String replacementString, final int replacementOffset) {
+		super(context, replacementOffset);
 		fReplacementString = replacementString;
-		fReplacementOffset = replacementOffset;
 	}
 	
-	
-	protected final int getReplacementOffset() {
-		return fReplacementOffset;
-	}
 	
 	protected final String getReplacementString() {
 		return fReplacementString;
@@ -84,18 +71,6 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	
 	/**
 	 * {@inheritDoc}
-	 */
-	public void selected(final ITextViewer viewer, final boolean smartToggle) {
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void unselected(final ITextViewer viewer) {
-	}
-	
-	/**
-	 * {@inheritDoc}
 	 * {@value}
 	 */
 	public int getRelevance() {
@@ -111,7 +86,8 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	 */
 	public boolean validate(final IDocument document, final int offset, final DocumentEvent event) {
 		try {
-			final String content = document.get(fReplacementOffset, offset - fReplacementOffset);
+			final int replacementOffset = getReplacementOffset();
+			final String content = document.get(replacementOffset, offset - replacementOffset);
 			if (fReplacementString.regionMatches(true, 0, content, 0, content.length())) {
 				return true;
 			}
@@ -122,26 +98,22 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 		return false;
 	}
 	
-	public boolean isAutoInsertable() {
-		return true;
-	}
-	
 	/**
 	 * not supported, use {@link #apply(ITextViewer, char, int, int)}
 	 */
+	@Override
 	public void apply(final IDocument document) {
 		throw new UnsupportedOperationException();
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void apply(final ITextViewer viewer, final char trigger, final int stateMask, final int offset) {
+	@Override
+	protected void doApply(final char trigger, final int stateMask,
+			final int caretOffset, final int replacementOffset, final int replacementLength) throws BadLocationException {
 		try {
+			final SourceViewer viewer = fContext.getSourceViewer();
 			final IDocument document = viewer.getDocument();
-			final int replacementOffset = getReplacementOffset();
 			final String replacementString = getReplacementString();
-			document.replace(replacementOffset, offset-replacementOffset, replacementString);
+			document.replace(replacementOffset, replacementLength, replacementString);
 			setCursorPosition(replacementOffset + replacementString.length());
 		}
 		catch (final BadLocationException x) {
@@ -151,17 +123,14 @@ public class SimpleCompletionProposal implements ICompletionProposal, ICompletio
 	/**
 	 * {@inheritDoc}
 	 */
-	public IContextInformation getContextInformation() {
-		return fContextInformation;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public Point getSelection(final IDocument document) {
 		if (fCursorPosition >= 0) {
 			return new Point(fCursorPosition, 0);
 		}
+		return null;
+	}
+	
+	public IContextInformation getContextInformation() {
 		return null;
 	}
 	
