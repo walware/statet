@@ -230,7 +230,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private boolean isAfterRoxygen(final int offset) throws BadLocationException {
 		fScanner.configure(fDocument);
 		final int line = fDocument.getLineOfOffset(offset);
-		if (line > 0 && fScanner.findAnyNonBlankBackward(offset-1, fDocument.getLineOffset(line)-1, false) == ITokenScanner.NOT_FOUND) {
+		if (line > 0 && fScanner.findAnyNonBlankBackward(offset, fDocument.getLineOffset(line)-1, false) == ITokenScanner.NOT_FOUND) {
 			final IRegion prevLineInfo = fDocument.getLineInformation(line-1);
 			if (prevLineInfo.getLength() > 0 && TextUtilities.getPartition(fDocument, fPartitioning.getPartitioning(),
 						prevLineInfo.getOffset()+prevLineInfo.getLength()-1, false).getType() == IRDocumentPartitions.R_ROXYGEN) {
@@ -568,8 +568,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		final RAstInfo ast = new RAstInfo(RAst.LEVEL_MINIMAL, 0);
 		final RScanner scanner = new RScanner(parseInput, ast);
 		ast.root = scanner.scanSourceUnit();
-		final TextEdit edit = fIndenter.getIndentEdits(dummyDoc, ast, 0,
-				dummyFirstLine, dummyLastLine, fRCoreAccess);
+		fIndenter.setup(fRCoreAccess);
+		final TextEdit edit = fIndenter.getIndentEdits(dummyDoc, ast, 0, dummyFirstLine, dummyLastLine);
 		
 		// Apply indent to temp doc
 		final Position cPos = new Position(dummyCoffset, c.text.length());
@@ -643,17 +643,17 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private void smartIndentAfterNewLine1(final DocumentCommand c) throws BadLocationException, BadPartitioningException, CoreException {
 		final int line = fDocument.getLineOfOffset(c.offset);
-		int checkOffset = Math.max(0, c.offset-1);
+		int checkOffset = Math.max(0, c.offset);
 		final ITypedRegion partition = fDocument.getPartition(fPartitioning.getPartitioning(), checkOffset, true);
 		if (partition.getType() == IRDocumentPartitions.R_COMMENT) {
-			checkOffset = partition.getOffset()-1;
+			checkOffset = partition.getOffset();
 		}
 		if (partition.getType() == IRDocumentPartitions.R_ROXYGEN) {
-			checkOffset = -1;
+			checkOffset = 0;
 		}
 		final RIndentUtil util = new RIndentUtil(fDocument, fRCodeStyle);
 		int column = util.getLineIndent(line, false)[RIndentUtil.COLUMN_IDX];
-		if (checkOffset >= 0) {
+		if (checkOffset > 0) {
 			// new block?:
 			fScanner.configure(fDocument);
 			final int match = fScanner.findAnyNonBlankBackward(checkOffset, fDocument.getLineOffset(line)-1, false);
@@ -670,7 +670,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
 		fScanner.configure(fDocument);
-		if (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
+		if (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
 			return;
 		}
@@ -682,7 +682,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private void smartIndentOnClosingBracket(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
 		fScanner.configure(fDocument);
-		if (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
+		if (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
 			return;
 		}
@@ -715,7 +715,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private int smartIndentOnFirstLineCharDefault2(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
 		fScanner.configure(fDocument);
-		if (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
+		if (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
 			// not first char
 			return c.offset;
 		}
@@ -734,7 +734,7 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private void smartPaste(final DocumentCommand c) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
 		fScanner.configure(fDocument);
-		final boolean firstLine = (fScanner.findAnyNonBlankBackward(c.offset-1, lineOffset-1, false) == ITokenScanner.NOT_FOUND);
+		final boolean firstLine = (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) == ITokenScanner.NOT_FOUND);
 		try {
 			smartIndentLine2(c, firstLine, 0, null);
 		}

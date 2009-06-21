@@ -12,6 +12,9 @@
 package de.walware.statet.r.internal.core;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
@@ -28,6 +31,9 @@ import de.walware.statet.r.internal.core.sourcemodel.RSourceUnit;
 public class RSourceUnitFactory implements ISourceUnitFactory {
 	
 	
+	final String prefix = "platform:/resource/";
+	
+	
 	public ISourceUnit getUnit(final Object from, final String typeId, final WorkingContext context, final boolean create) {
 		if (context == ECommonsLTK.PERSISTENCE_CONTEXT) {
 			if (from instanceof IFile) {
@@ -38,6 +44,16 @@ public class RSourceUnitFactory implements ISourceUnitFactory {
 				}
 				IRSourceUnit u = RCorePlugin.getDefault().getRModelManager().getWorkingCopy(id, ECommonsLTK.PERSISTENCE_CONTEXT);
 				if (u == null && create) {
+					u = new RSourceUnit(file);
+				}
+				return u;
+			}
+			if (from instanceof String) {
+				final String id = (String) from;
+				IRSourceUnit u = RCorePlugin.getDefault().getRModelManager().getWorkingCopy(id, ECommonsLTK.PERSISTENCE_CONTEXT);
+				if (u == null && create && id.startsWith(prefix)) {
+					final IPath path = new Path(id.substring(prefix.length()));
+					final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
 					u = new RSourceUnit(file);
 				}
 				return u;

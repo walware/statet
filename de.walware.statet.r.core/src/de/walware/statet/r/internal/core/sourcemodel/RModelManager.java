@@ -33,8 +33,10 @@ import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RManagedWorkingCopy;
 import de.walware.statet.r.core.model.RModel;
 
@@ -204,6 +206,7 @@ public class RModelManager implements IRModelManager {
 	public void dispose() {
 		fCleanupJob.dispose();
 		fEventJob.dispose();
+		fIndex.dispose();
 	}
 	
 	public RModelIndex getIndex() {
@@ -406,6 +409,13 @@ public class RModelManager implements IRModelManager {
 		}
 	}
 	
+	public IRModelInfo reconcile2(final ISourceUnit u, final int level, final boolean reconciler, final IProgressMonitor monitor) {
+		if (u instanceof IManagableRUnit) {
+			return fReconciler.reconcile((IManagableRUnit) u, level, reconciler, monitor);
+		}
+		return null;
+	}
+	
 	public RModelEventJob getEventJob() {
 		return fEventJob;
 	}
@@ -421,6 +431,10 @@ public class RModelManager implements IRModelManager {
 	
 	public IRFrame getProjectFrame(final IProject project) {
 		return fIndex.getProjectFrame(project);
+	}
+	
+	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) {
+		return fIndex.findReferencingSourceUnits(project, name);
 	}
 	
 }

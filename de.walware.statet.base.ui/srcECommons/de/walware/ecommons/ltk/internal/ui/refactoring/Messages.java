@@ -14,7 +14,7 @@ package de.walware.ecommons.ltk.internal.ui.refactoring;
 import org.eclipse.osgi.util.NLS;
 
 
-public class RefactoringMessages extends NLS {
+public class Messages extends NLS {
 	
 	
 	public static String CutElements_error_message;
@@ -24,10 +24,15 @@ public class RefactoringMessages extends NLS {
 	
 	public static String ExecutionHelper_CannotExecute_message;
 	
+	public static String RefactoringStarter_ConfirmSave_Always_message;
+	public static String RefactoringStarter_ConfirmSave_message;
+	public static String RefactoringStarter_ConfirmSave_title;
+	public static String RefactoringStarter_UnexpectedException;
+	
 	
 	static {
-		initializeMessages(RefactoringMessages.class.getName(), RefactoringMessages.class);
+		initializeMessages(Messages.class.getName(), Messages.class);
 	}
-	private RefactoringMessages() {}
+	private Messages() {}
 	
 }

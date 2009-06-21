@@ -83,7 +83,7 @@ public enum NodeType {
 	
 	
 	public final String label;
-	final int opPrec;
+	public final int opPrec;
 	final int opAssoc;
 	
 	

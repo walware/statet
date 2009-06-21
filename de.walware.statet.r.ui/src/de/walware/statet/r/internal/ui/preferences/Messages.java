@@ -23,8 +23,6 @@ public class Messages extends NLS {
 	public static String RIdentifiers_RemoveAction_label;
 	public static String RIdentifiers_Identifier_error_AlreadyExistingInSameGroup_message;
 	public static String RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message;
-	public static String RIdentifiers_Identifier_error_Empty_message;
-	public static String RIdentifiers_Identifier_error_Invalid_message;
 	
 	public static String RSyntaxColoring_CodeCategory_label;
 	public static String RSyntaxColoring_CommentsCategory_label;

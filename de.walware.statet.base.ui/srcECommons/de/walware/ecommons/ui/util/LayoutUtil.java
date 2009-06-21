@@ -198,6 +198,11 @@ public class LayoutUtil {
 		return heightHint;
 	}
 	
+	public static int hintHeight(final Label control, final int lines) {
+		final PixelConverter converter = new PixelConverter(control);
+		return converter.convertHeightInCharsToPixels(lines);
+	}
+	
 	public static int hintHeight(final StyledText control, final int lines) {
 		final PixelConverter converter = new PixelConverter(control);
 		return converter.convertHeightInCharsToPixels(lines);

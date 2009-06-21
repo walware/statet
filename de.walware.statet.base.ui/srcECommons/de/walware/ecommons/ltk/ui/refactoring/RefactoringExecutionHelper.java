@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.progress.IProgressService;
 
 import de.walware.ecommons.ltk.core.refactoring.IScheduledRefactoring;
-import de.walware.ecommons.ltk.internal.ui.refactoring.RefactoringMessages;
+import de.walware.ecommons.ltk.internal.ui.refactoring.Messages;
 
 
 /**
@@ -177,7 +177,7 @@ public class RefactoringExecutionHelper {
 						final RefactoringStatus validationStatus = operation.getValidationStatus();
 						if (validationStatus != null && validationStatus.hasFatalError()) {
 							MessageDialog.openError(fParent, fRefactoring.getName(), NLS.bind(
-									RefactoringMessages.ExecutionHelper_CannotExecute_message, 
+									Messages.ExecutionHelper_CannotExecute_message, 
 									validationStatus.getMessageMatchingSeverity(RefactoringStatus.FATAL) ));
 							return;
 						}

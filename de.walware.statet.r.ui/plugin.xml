@@ -251,6 +251,95 @@
             </visibleWhen>
          </command>
       </menuContribution>
+      <menuContribution
+            locationURI="menu:de.walware.statet.base.menus.MainStatSource?after=additions">
+         <separator
+               name="refactor"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.walware.statet.base.commands.RefactorRenameInWorkspace"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.walware.statet.base.commands.RefactorRenameInSelectedRegion"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.walware.statet.base.commands.RefactorInlineLocalVariable"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.walware.statet.base.commands.RefactorExtractLocalVariable"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+         <separator
+               name="refactor.methods"
+               visible="true">
+         </separator>
+         <command
+               commandId="de.walware.statet.base.r.RefactorExtractFunction"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+         <command
+               commandId="de.walware.statet.base.r.RefactorFunctionToS4Method"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <reference
+                     definitionId="de.walware.statet.r.expressions.RSourceElement">
+               </reference>
+            </visibleWhen>
+         </command>
+         <separator
+               name="refactoring.add"
+               visible="false">
+         </separator>
+      </menuContribution>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="de.walware.statet.base.r.RefactorExtractFunction"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_RefactorExtractFunction_name"
+            description="%commands_RefactorExtractFunction_description"/>
+      <command
+            id="de.walware.statet.base.r.RefactorFunctionToS4Method"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_RefactorFunctionToS4Method_name"
+            description="%commands_RefactorFunctionToS4Method_description"/>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -258,8 +347,7 @@
             class="de.walware.statet.r.internal.ui.editors.RToggleMarkOccurrencesHandler"
             commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences">
          <activeWhen>
-            <with
-                  variable="activePartId">
+            <with variable="activePartId">
                <equals
                      value="de.walware.statet.r.editors.R">
                </equals>
@@ -270,8 +358,7 @@
             class="de.walware.statet.r.internal.ui.editors.RToggleFoldingHandler"
             commandId="org.eclipse.ui.edit.text.folding.toggle">
          <activeWhen>
-            <with
-                  variable="activePartId">
+            <with variable="activePartId">
                <equals
                      value="de.walware.statet.r.editors.R">
                </equals>
@@ -282,8 +369,7 @@
             class="de.walware.statet.r.internal.ui.editors.RToggleLiveReportProblemsHandler"
             commandId="de.walware.statet.base.commands.ToggleLiveReportProblems">
          <activeWhen>
-            <with
-                  variable="activePartId">
+            <with variable="activePartId">
                <equals
                      value="de.walware.statet.r.editors.R">
                </equals>
@@ -299,8 +385,7 @@
             </reference>
          </activeWhen>
          <enabledWhen>
-            <with
-                  variable="selection">
+            <with variable="selection">
                <or>
                   <instanceof
                         value="org.eclipse.jface.text.ITextSelection">
@@ -314,6 +399,73 @@
                </or>
             </with>
          </enabledWhen>
+      </handler>
+
+      <handler
+            commandId="de.walware.statet.base.commands.RefactorRenameInWorkspace"
+            class="de.walware.statet.r.internal.ui.refactoring.RenameInWorkspaceHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.base.commands.RefactorRenameInSelectedRegion"
+            class="de.walware.statet.r.internal.ui.refactoring.RenameInRegionHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.base.commands.RefactorInlineLocalVariable"
+            class="de.walware.statet.r.internal.ui.refactoring.InlineTempHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.base.commands.RefactorExtractLocalVariable"
+            class="de.walware.statet.r.internal.ui.refactoring.ExtractTempHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.base.r.RefactorExtractFunction"
+            class="de.walware.statet.r.internal.ui.refactoring.ExtractFunctionHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="de.walware.statet.base.r.RefactorFunctionToS4Method"
+            class="de.walware.statet.r.internal.ui.refactoring.FunctionToS4MethodHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
       </handler>
    </extension>
 
@@ -538,16 +690,18 @@
    <extension
          point="org.eclipse.compare.contentMergeViewers">
       <viewer
+            id="de.walware.statet.r.compareContentMergeViewer.R"
             class="de.walware.statet.r.internal.ui.compare.RMergeViewerCreator"
-            id="de.walware.statet.r.compareContentMergeViewer.R">
+            extensions="R">
       </viewer>
       <contentTypeBinding
             contentMergeViewerId="de.walware.statet.r.compareContentMergeViewer.R"
             contentTypeId="de.walware.statet.r.contentTypes.R">
       </contentTypeBinding>
       <viewer
+            id="de.walware.statet.r.compareContentMergeViewer.Rd"
             class="de.walware.statet.r.internal.ui.compare.RdMergeViewerCreator"
-            id="de.walware.statet.r.compareContentMergeViewer.Rd">
+            extensions="Rd">
       </viewer>
       <contentTypeBinding
             contentMergeViewerId="de.walware.statet.r.compareContentMergeViewer.Rd"

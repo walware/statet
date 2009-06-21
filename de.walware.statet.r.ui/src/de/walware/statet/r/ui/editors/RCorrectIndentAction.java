@@ -40,7 +40,6 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 
-import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
@@ -136,9 +135,8 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 				rEndLine--;
 			}
 			if (rStartLine <= rEndLine) {
-				final IRCoreAccess coreAccess = (su instanceof IRSourceUnit) ?
-						((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
-				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine, coreAccess);
+				fIndenter.setup((su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess());
+				final TextEdit rEdits = fIndenter.getIndentEdits(document, ast, range.getOffset(), rStartLine, rEndLine);
 				if (rEdits.getChildrenSize() > 0) {
 					edits.addChild(rEdits);
 				}

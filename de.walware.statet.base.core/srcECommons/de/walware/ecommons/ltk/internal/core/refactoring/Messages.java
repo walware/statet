@@ -14,13 +14,8 @@ package de.walware.ecommons.ltk.internal.core.refactoring;
 import org.eclipse.osgi.util.NLS;
 
 
-public class RefactoringMessages extends NLS {
+public class Messages extends NLS {
 	
-	
-	public static String Common_FinalCheck_label;
-	public static String Common_CreateChanges_label;
-	public static String Common_Source_Project_label;
-	public static String Common_Source_Workspace_label;
 	
 	public static String Common_error_CannotCreateFromDescr_message;
 	public static String Common_error_AnalyzingSourceDocument_message;
@@ -37,8 +32,8 @@ public class RefactoringMessages extends NLS {
 	
 	
 	static {
-		initializeMessages(RefactoringMessages.class.getName(), RefactoringMessages.class);
+		initializeMessages(Messages.class.getName(), Messages.class);
 	}
-	private RefactoringMessages() {}
+	private Messages() {}
 	
 }

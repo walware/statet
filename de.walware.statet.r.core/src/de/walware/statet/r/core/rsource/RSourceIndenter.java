@@ -48,7 +48,7 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
- * 
+ * Indents R source code in a document
  */
 public class RSourceIndenter {
 	
@@ -435,6 +435,12 @@ public class RSourceIndenter {
 		fComputeVisitor = new ComputeIndentVisitor();
 	}
 	
+	public RSourceIndenter(final IRCoreAccess access) {
+		this();
+		setup(access);
+	}
+	
+	
 	public int getNewIndentColumn(final int line) throws BadLocationException {
 		final int lineOffset = fDocument.getLineOffset(line);
 		if (getDocumentChar(lineOffset) == '#' && getDocumentChar(lineOffset+1) != '#') {
@@ -498,16 +504,8 @@ public class RSourceIndenter {
 //		}
 //	}
 	
-	public TextEdit getIndentEdits(final AbstractDocument document, final RAstInfo ast, final int codeOffset, final int firstLine, final int lastLine,
-			final IRCoreAccess access) throws CoreException {
-		try {
-			setup(document, ast, access);
-			computeIndent(codeOffset, firstLine, lastLine);
-			return createEdits();
-		}
-		catch (final BadLocationException e) {
-			throw createFailedException(e);
-		}
+	public void setup(final IRCoreAccess access) {
+		fCodeStyle = access.getRCodeStyle();
 	}
 	
 	/**
@@ -522,10 +520,16 @@ public class RSourceIndenter {
 		fLineLevels = null;
 	}
 	
-	protected void setup(final AbstractDocument document, final RAstInfo ast, final IRCoreAccess access) {
-		fCodeStyle = access.getRCodeStyle();
-		fDocument = document;
-		fAst = ast;
+	public TextEdit getIndentEdits(final AbstractDocument document, final RAstInfo ast, final int codeOffset, final int firstLine, final int lastLine) throws CoreException {
+		try {
+			fDocument = document;
+			fAst = ast;
+			computeIndent(codeOffset, firstLine, lastLine);
+			return createEdits();
+		}
+		catch (final BadLocationException e) {
+			throw createFailedException(e);
+		}
 	}
 	
 	protected void computeIndent(final int codeOffset, final int firstLine, final int lastLine) throws BadLocationException {
@@ -540,7 +544,7 @@ public class RSourceIndenter {
 			fRefLine = -1;
 			int cand = fFirstLine;
 			SEARCH_REF_LINE : while (cand > 0) {
-				int refOffset = fScanner.findAnyNonBlankBackward(fDocument.getLineOffset(cand)-1, RHeuristicTokenScanner.UNBOUND, true);
+				int refOffset = fScanner.findAnyNonBlankBackward(fDocument.getLineOffset(cand), RHeuristicTokenScanner.UNBOUND, true);
 				if (refOffset >= codeOffset) { // line found
 					cand = fDocument.getLineOfOffset(refOffset);
 					refOffset = fScanner.findAnyNonBlankForward(fDocument.getLineOffset(cand), refOffset+1, true);

@@ -86,10 +86,11 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 	
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
-			if (syncLevel > IModelManager.NONE) {
-				RCorePlugin.getDefault().getRModelManager().reconcile(this, syncLevel, false, monitor);
+			final RCorePlugin plugin = RCorePlugin.getDefault();
+			if (plugin != null && syncLevel > IModelManager.NONE) {
+				plugin.getRModelManager().reconcile(this, syncLevel, false, monitor);
 			}
-			return fModelInfo;
+			return getCurrentRModel();
 		}
 		return null;
 	}

@@ -147,6 +147,28 @@
             name="%commands_ToggleReportProblemWhenTyping_name"
             description="%commands_ToggleReportProblemWhenTyping_description"
             />
+      
+      <!-- refactor -->
+      <command
+            id="de.walware.statet.base.commands.RefactorRenameInWorkspace"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_RefactorRenameInWorkspace_name"
+            description="%commands_RefactorRenameInWorkspace_description"/>
+      <command
+            id="de.walware.statet.base.commands.RefactorRenameInSelectedRegion"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_RefactorRenameInSelectedRegion_name"
+            description="%commands_RefactorRenameInSelectedRegion_description"/>
+      <command
+            id="de.walware.statet.base.commands.RefactorInlineLocalVariable"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_RefactorInlineLocalVariable_name"
+            description="%commands_RefactorInlineLocalVariable_description"/>
+      <command
+            id="de.walware.statet.base.commands.RefactorExtractLocalVariable"
+            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%commands_RefactorExtractLocalVariable_name"
+            description="%commands_RefactorExtractLocalVariable_description"/>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -247,6 +269,12 @@
             contextId="de.walware.statet.base.contexts.StructuredElementViewer"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F2">
+      </key>
+      <key
+            commandId="de.walware.statet.base.commands.RefactorRenameInWorkspace"
+            contextId="de.walware.statet.base.contexts.TextEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+R">
       </key>
    </extension>
    <extension

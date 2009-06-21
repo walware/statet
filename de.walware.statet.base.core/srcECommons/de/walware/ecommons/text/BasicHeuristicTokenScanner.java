@@ -496,7 +496,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 	
 	public final int findAnyNonBlankBackward(final int position, final int bound, final boolean linebreakIsBlank) {
-		return scanBackward(position, bound, linebreakIsBlank ?
+		return scanBackward(position-1, bound, linebreakIsBlank ?
 				getAnyNonWSorLRCondition() : getAnyNonWSCondition());
 	}
 	
@@ -506,7 +506,7 @@ public class BasicHeuristicTokenScanner implements ITokenScanner {
 	}
 	
 	public final int findNonBlankBackward(final int position, final int bound, final boolean linebreakIsBlank) {
-		return scanBackward(position, bound, linebreakIsBlank ?
+		return scanBackward(position-1, bound, linebreakIsBlank ?
 				getNonWSorLRCondition() : getNonWSCondition());
 	}
 	

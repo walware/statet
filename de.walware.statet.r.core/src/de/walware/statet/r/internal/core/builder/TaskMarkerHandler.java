@@ -44,7 +44,7 @@ public class TaskMarkerHandler {
 	}
 	
 	
-	public void init(final RProject project) throws CoreException {
+	public void init(final RProject project) {
 		loadTaskPattern(project);
 	}
 	
@@ -76,7 +76,7 @@ public class TaskMarkerHandler {
 		fResource.deleteMarkers(TASK_MARKER_ID, false, IResource.DEPTH_INFINITE);
 	}
 	
-	private void loadTaskPattern(final RProject project) throws CoreException {
+	private void loadTaskPattern(final RProject project) {
 		fTaskTagPattern = null;
 		fTaskTagMap = null;
 		

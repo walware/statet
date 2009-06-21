@@ -235,20 +235,26 @@ public abstract class RResourceUnit implements ISourceUnit {
 	
 	
 	protected final void register() {
-		if (getModelTypeId().equals(RModel.TYPE_ID)) {
-			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy((IRSourceUnit) this);
-		}
-		else {
-			RCorePlugin.getDefault().getRModelManager().registerDependentUnit(this);
+		final RCorePlugin plugin = RCorePlugin.getDefault();
+		if (plugin != null) {
+			if (getModelTypeId().equals(RModel.TYPE_ID)) {
+				plugin.getRModelManager().registerWorkingCopy((IRSourceUnit) this);
+			}
+			else {
+				plugin.getRModelManager().registerDependentUnit(this);
+			}
 		}
 	}
 	
 	protected final void unregister() {
-		if (getModelTypeId().equals(RModel.TYPE_ID)) {
-			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy((IRSourceUnit) this);
-		}
-		else {
-			RCorePlugin.getDefault().getRModelManager().deregisterDependentUnit(this);
+		final RCorePlugin plugin = RCorePlugin.getDefault();
+		if (plugin != null) {
+			if (getModelTypeId().equals(RModel.TYPE_ID)) {
+				plugin.getRModelManager().removeWorkingCopy((IRSourceUnit) this);
+			}
+			else {
+				plugin.getRModelManager().deregisterDependentUnit(this);
+			}
 		}
 	}
 	

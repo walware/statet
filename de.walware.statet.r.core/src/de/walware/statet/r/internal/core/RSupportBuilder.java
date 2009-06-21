@@ -11,20 +11,11 @@
 
 package de.walware.statet.r.internal.core;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -32,8 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.content.IContentDescription;
-import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.osgi.util.NLS;
@@ -44,10 +33,7 @@ import de.walware.statet.base.core.preferences.StatetCorePreferenceNodes;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.core.builder.RBuilder;
-import de.walware.statet.r.internal.core.builder.RdParser;
-import de.walware.statet.r.internal.core.builder.TaskMarkerHandler;
 
 
 public class RSupportBuilder extends IncrementalProjectBuilder {
@@ -84,41 +70,6 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		}
 	}
 	
-	class RResourceVisitor implements IResourceVisitor {
-		
-		public boolean visit(final IResource resource) {
-			if (resource instanceof IFile) {
-				check((IFile) resource);
-			}
-			//return true to continue visiting children.
-			return true;
-		}
-	}
-	
-	class RResourceDeltaVisitor implements IResourceDeltaVisitor {
-		
-		public boolean visit(final IResourceDelta delta) throws CoreException {
-			final IResource resource = delta.getResource();
-			switch (delta.getKind()) {
-			
-			case IResourceDelta.ADDED:
-			case IResourceDelta.CHANGED:
-				// handle added resource
-				if (resource instanceof IFile) {
-					check((IFile) resource);
-				}
-				break;
-			
-			case IResourceDelta.REMOVED:
-				// handle removed resource
-				// markers are automatically removed
-				break;
-			}
-			//return true to continue visiting children.
-			return true;
-		}
-	}
-	
 	private class SettingsListener implements IEclipsePreferences.IPreferenceChangeListener {
 		
 		public void preferenceChange(final PreferenceChangeEvent event) {
@@ -130,7 +81,6 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	private RProject fRProject;
 	private SettingsListener fSettingsListener;
 	private ExceptionCollector fExceptions;
-	private TaskMarkerHandler fResourceMarkers;
 	
 	private boolean fStartupSuccessfull = false;
 	private boolean fInitialized = false;
@@ -179,10 +129,6 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 					Messages.Builder_error_OnStartup_message, null));
 		
 		fExceptions = new ExceptionCollector();
-		if (fResourceMarkers == null) {
-			fResourceMarkers = new TaskMarkerHandler();
-		}
-		fResourceMarkers.init(fRProject);
 		
 		fInitialized = true;
 	}
@@ -212,9 +158,10 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 	protected void doFullBuild(final IProgressMonitor monitor) throws CoreException {
 		fExceptions.reset();
 		
-		fRBuilder.buildFull(getProject(), monitor);
-		
-		getProject().accept(new RResourceVisitor());
+		final IStatus status = fRBuilder.buildFull(fRProject, monitor);
+		if (!status.isOK()) {
+			fExceptions.add(status);
+		}
 		
 		fExceptions.checkException();
 	}
@@ -223,12 +170,10 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 			throws CoreException {
 		fExceptions.reset();
 		
-		final IStatus status = fRBuilder.buildIncremental(getProject(), delta, monitor);
+		final IStatus status = fRBuilder.buildIncremental(fRProject, delta, monitor);
 		if (!status.isOK()) {
 			fExceptions.add(status);
 		}
-		
-		delta.accept(new RResourceDeltaVisitor());
 		
 		fExceptions.checkException();
 	}
@@ -239,66 +184,6 @@ public class RSupportBuilder extends IncrementalProjectBuilder {
 		init();
 		
 		fRBuilder.clean(getProject(), monitor);
-	}
-	
-	protected void check(final IFile file) {
-		try {
-			final IContentDescription description = file.getContentDescription();
-			if (description == null) {
-				return;
-			}
-			final IContentType type = description.getContentType();
-			if (type == null) {
-				return;
-			}
-			if (IRSourceUnit.RD_CONTENT.equals(type.getId())) {
-				doParseRd(file);
-			}
-		}
-		catch (final CoreException e) {
-			fExceptions.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
-					NLS.bind("An error occurred when checking ''{0}''", file.getFullPath().toString()), e));
-		}
-	}
-	
-/* **/
-	
-	
-	protected void doParseRd(final IFile file) throws CoreException {
-		fResourceMarkers.setup(file);
-		new RdParser(readFile(file), fResourceMarkers).check();
-	}
-	
-	protected char[] readFile(final IFile file) throws CoreException {
-		String charset = null;
-		try {
-			final InputStream input = file.getContents();
-			charset = file.getCharset();
-			final BufferedReader reader = new BufferedReader(new InputStreamReader(input, charset));
-			
-			final StringBuilder text = new StringBuilder(1000);
-			final char[] readBuffer = new char[2048];
-			int n;
-			while ((n = reader.read(readBuffer)) > 0) {
-				text.append(readBuffer, 0, n);
-			}
-			
-			final char[] chars = new char[text.length()];
-			text.getChars(0, chars.length, chars, 0);
-			return chars;
-			
-		}
-		catch (final UnsupportedEncodingException e) {
-			throw new CoreException(new Status(
-					IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
-					NLS.bind(Messages.Builder_error_UnsupportedEncoding_message, new String[] {
-							charset, file.getName() } ), e));
-		}
-		catch (final IOException e) {
-			throw new CoreException(new Status(
-					IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.BUILD_ERROR,
-					NLS.bind(Messages.Builder_error_IOReadingFile_message, file.getName() ), e));
-		}
 	}
 	
 }

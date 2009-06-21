@@ -84,7 +84,7 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 			return false;
 		}
 		fScanner.configure(document, NONE_COMMENT_CONSTRAINT);
-		final int previousOffset = fScanner.findNonBlankBackward(offset-1, RHeuristicTokenScanner.UNBOUND, true);
+		final int previousOffset = fScanner.findNonBlankBackward(offset, RHeuristicTokenScanner.UNBOUND, true);
 		if (previousOffset > 0) {
 			try {
 				final char c = document.getChar(previousOffset);

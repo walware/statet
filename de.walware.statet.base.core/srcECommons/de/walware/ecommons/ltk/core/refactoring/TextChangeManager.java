@@ -59,15 +59,15 @@ public class TextChangeManager {
 	 * Returns the <code>TextChange</code> associated with the given source unit.
 	 * If the manager does not already manage an association it creates a one.
 	 * 
-	 * @param cu the source unit for which the text buffer change is requested
+	 * @param su the source unit for which the text buffer change is requested
 	 * @return the text change associated with the given source unit. 
 	 */
-	public TextFileChange get(final ISourceUnit cu) {
-		TextFileChange result = fMap.get(cu);
+	public TextFileChange get(final ISourceUnit su) {
+		TextFileChange result = fMap.get(su);
 		if (result == null) {
-			result = new SourceUnitChange(cu);
+			result = new SourceUnitChange(su);
 			result.setKeepPreviewEdits(fKeepExecutedTextEdits);
-			fMap.put(cu, result);
+			fMap.put(su, result);
 		}
 		return result;
 	}
@@ -88,7 +88,7 @@ public class TextChangeManager {
 	 * 
 	 * @return all source units managed by this instance
 	 */	
-	public ISourceUnit[] getAllCompilationUnits(){
+	public ISourceUnit[] getAllSourceUnits(){
 		return fMap.keySet().toArray(new ISourceUnit[fMap.keySet().size()]);
 	}
 	

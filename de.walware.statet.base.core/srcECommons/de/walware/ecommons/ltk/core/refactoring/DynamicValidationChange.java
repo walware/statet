@@ -22,7 +22,7 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.CompositeChange;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
-import de.walware.ecommons.ltk.internal.core.refactoring.RefactoringMessages;
+import de.walware.ecommons.ltk.internal.core.refactoring.Messages;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
@@ -101,7 +101,7 @@ public class DynamicValidationChange extends CompositeChange implements IResourc
 			return;
 		}
 		fValidationState = RefactoringStatus.createFatalErrorStatus(
-				RefactoringMessages.DynamicValidationState_WorkspaceChanged_message);
+				Messages.DynamicValidationState_WorkspaceChanged_message);
 		
 		// remove listener from workspace tracker
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);

@@ -161,6 +161,9 @@ abstract class RSourceElementByElementAccess
 			if (IRFrame.class.equals(required)) {
 				return fEnvir;
 			}
+			if (FDef.class.equals(required)) {
+				return fFDefNode;
+			}
 			return super.getAdapter(required);
 		}
 		

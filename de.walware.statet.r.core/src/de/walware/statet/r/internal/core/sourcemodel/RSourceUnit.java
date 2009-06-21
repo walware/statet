@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.core.sourcemodel;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceContent;
 
@@ -23,6 +24,7 @@ import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import de.walware.statet.r.internal.core.RCorePlugin;
 
 
 /**
@@ -82,12 +84,17 @@ public final class RSourceUnit extends RResourceUnit implements IRSourceUnit, IM
 	
 	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
-		final IRModelInfo model = getCurrentRModel();
-		final long stamp = getResource().getModificationStamp();
-		if (model != null && model.getStamp() == stamp) {
-			return model;
+		if (type == null || type.equals(RModel.TYPE_ID)) {
+			final IRModelInfo model = getCurrentRModel();
+			final long stamp = getResource().getModificationStamp();
+			if (model != null && model.getStamp() == stamp) {
+				return model;
+			}
+			final RCorePlugin plugin = RCorePlugin.getDefault();
+			if (plugin != null && syncLevel > IModelManager.NONE) {
+				return plugin.getRModelManager().reconcile2(this, syncLevel, false, monitor);
+			}
 		}
-		// TODO ask saved
 		return null;
 	}
 	
@@ -115,9 +122,7 @@ public final class RSourceUnit extends RResourceUnit implements IRSourceUnit, IM
 	}
 	
 	public void setRModel(final IRModelInfo model) {
-		if (fModelInfo != null) {
-			fModelInfo = model;
-		}
+//		fModelInfo = model;
 	}
 	
 	public IRModelInfo getCurrentRModel() {

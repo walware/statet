@@ -14,6 +14,8 @@
 package de.walware.ecommons;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -112,6 +114,26 @@ public class CoreUtility {
 	 */
 	public static void startBuildInBackground(final IProject project) {
 		getBuildJob(project).schedule();
+	}
+	
+	/**
+	 * Sets whether building automatically is enabled in the workspace or not and returns 
+	 * the old value.
+	 * 
+	 * @param state <code>true</code> if automatically building is enabled, 
+	 *     <code>false</code> otherwise
+	 * @return the old state
+	 * @throws CoreException thrown if the operation failed
+	 */
+	public static boolean setAutoBuilding(final boolean state) throws CoreException {
+		final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IWorkspaceDescription desc = workspace.getDescription();
+		final boolean isAutoBuilding = desc.isAutoBuilding();
+		if (isAutoBuilding != state) {
+			desc.setAutoBuilding(state);
+			workspace.setDescription(desc);
+		}
+		return isAutoBuilding;
 	}
 	
 }

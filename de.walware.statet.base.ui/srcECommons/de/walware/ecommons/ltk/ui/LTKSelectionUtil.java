@@ -12,18 +12,25 @@
 package de.walware.ecommons.ltk.ui;
 
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jface.text.IRegion;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchPart;
 
+import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceStructElement;
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.LTKUtil;
+import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.ast.IAstNode;
+import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 
 public class LTKSelectionUtil {
@@ -49,6 +56,31 @@ public class LTKSelectionUtil {
 			}
 		}
 		return elements;
+	}
+	
+	public static ISourceUnit getSingleSourceUnit(final IWorkbenchPart part) {
+		final ISourceEditor editor = (ISourceEditor) part.getAdapter(ISourceEditor.class);
+		if (editor == null) {
+			return null;
+		}
+		return editor.getSourceUnit();
+	}
+	
+	public static IAstNode getSelectedAstNode(final ISourceUnit su, final String type, final ISelection selection, final IProgressMonitor monitor) {
+		if (selection instanceof ITextSelection) {
+			final ITextSelection textSelection = (ITextSelection) selection;
+			final ISourceUnitModelInfo modelInfo = su.getModelInfo(type, IModelManager.MODEL_FILE, monitor);
+			if (modelInfo == null) {
+				return null;
+			}
+			final AstInfo<? extends IAstNode> info = modelInfo.getAst();
+			if (info == null || info.root == null) {
+				return null;
+			}
+			final AstSelection astSelection = AstSelection.search(info.root, textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
+			return astSelection.getCovering();
+		}
+		return null;
 	}
 	
 	public static ISourceStructElement[] getSelectedSourceStructElements(final ISelection selection) {
@@ -99,35 +131,6 @@ public class LTKSelectionUtil {
 		return elements;
 	}
 	
-	public static ISourceStructElement getCoveringSourceElement(final ISourceStructElement root, final int offset, final int endOffset) {
-		ISourceStructElement ok = root;
-		CHECK: while (ok != null) {
-			final List<? extends ISourceStructElement> children = ok.getSourceChildren(null);
-			for (final ISourceStructElement child : children) {
-				final IRegion sourceRange = child.getSourceRange();
-				final IRegion docRange = child.getDocumentationRange();
-				final int childOffset = (docRange != null) ?
-						Math.min(sourceRange.getOffset(), docRange.getOffset()) :
-						sourceRange.getOffset();
-				if (offset >= childOffset) {
-					final int childEnd = (docRange != null) ?
-							Math.max(sourceRange.getOffset()+sourceRange.getLength(), docRange.getOffset()+docRange.getLength()) :
-							sourceRange.getOffset()+sourceRange.getLength();
-					if (offset < endOffset ? 
-							(endOffset < childEnd) : (endOffset <= childEnd)) {
-						ok = child;
-						continue CHECK;
-					}
-				}
-				else {
-					break CHECK;
-				}
-			}
-			break CHECK;
-		}
-		return ok;
-	}
-	
 	public static ISourceStructElement[] getSelectedSourceStructElement(final ISourceUnitModelInfo suModel, final ITextSelection selection) {
 		if (suModel != null) {
 			final ISourceStructElement root = suModel.getSourceElement();
@@ -135,7 +138,7 @@ public class LTKSelectionUtil {
 			final int selectionEnd = selectionStart + selection.getLength();
 			if (selectionStart >= root.getSourceRange().getOffset() 
 					&& selectionEnd <= root.getSourceRange().getOffset()+root.getSourceRange().getLength()) {
-				return new ISourceStructElement[] { getCoveringSourceElement(root, selectionStart, selectionEnd) };
+				return new ISourceStructElement[] { LTKUtil.getCoveringSourceElement(root, selectionStart, selectionEnd) };
 			}
 		}
 		return null;

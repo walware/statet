@@ -87,10 +87,10 @@ public class RReconciler {
 	
 	
 	/** for editor reconciling */
-	public void reconcile(final IManagableRUnit su, final int level, final boolean reconciler, final IProgressMonitor monitor) {
+	public IRModelInfo reconcile(final IManagableRUnit su, final int level, final boolean reconciler, final IProgressMonitor monitor) {
 		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
-			return;
+			return null;
 		}
 		final Data data = new Data(su, monitor);
 		if (data.content == null) {
@@ -98,22 +98,22 @@ public class RReconciler {
 		}
 		synchronized (fAstLock) {
 			if (fStop) {
-				return;
+				return null;
 			}
 			updateAst(data, monitor);
 		}
 		if (level <= IModelManager.AST) {
-			return;
+			return null;
 		}
 		
 		synchronized (fModelLock) {
 			if (fStop) {
-				return;
+				return null;
 			}
 			updateModel(data);
 			
 			if (fStop) {
-				return;
+				return null;
 			}
 			// Report problems
 			if (reconciler) {
@@ -126,13 +126,14 @@ public class RReconciler {
 			}
 			
 			if (fStop) {
-				return;
+				return null;
 			}
 			// Throw event
 			if (data.newModel != null && (data.oldModel == null || data.oldModel.getStamp() != data.newModel.getStamp())) {
 				fManager.getEventJob().addUpdate(su, data.oldModel, data.newModel);
 			}
 		}
+		return data.newModel;
 	}
 	
 	protected void initParseInput(final Data data) {

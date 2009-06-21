@@ -213,4 +213,17 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 		}
 	}
 	
+	
+	@Override
+	public int hashCode() {
+		return getProject().hashCode()+1;
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		return (obj != null
+				&& getClass().equals(obj.getClass())
+				&& getProject().equals(((RProject) obj).getProject()) );
+	}
+	
 }

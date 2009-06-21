@@ -15,13 +15,13 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.ContentStamp;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.text.edits.UndoEdit;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
@@ -47,7 +47,11 @@ public final class SourceUnitChange extends TextFileChange {
 		super(su.getElementName().getDisplayName(), (IFile) su.getResource());
 		assert (su != null);
 		fSourceUnit = su;
-		setTextType(ECommonsLTK.getExtContentTypeManager().getContentTypeForModelType(su.getModelTypeId()));
+		try {
+			setTextType(getFile().getContentDescription().getContentType()
+					.getFileSpecs(IContentType.FILE_EXTENSION_SPEC | IContentType.IGNORE_USER_DEFINED)[0]);
+		} catch (final Exception e) {}
+//		setTextType(ECommonsLTK.getExtContentTypeManager().getContentTypeForModelType(su.getModelTypeId()));
 	}
 	
 	

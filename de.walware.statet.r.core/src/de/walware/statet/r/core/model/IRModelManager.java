@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.core.model;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 
 import de.walware.ecommons.ltk.IModelManager;
@@ -20,5 +22,7 @@ public interface IRModelManager extends IModelManager {
 	
 	
 	IRFrame getProjectFrame(IProject project);
+	
+	List<String> findReferencingSourceUnits(IProject project, RElementName name);
 	
 }

@@ -32,7 +32,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringFactory;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
-import de.walware.ecommons.ltk.internal.ui.refactoring.RefactoringMessages;
+import de.walware.ecommons.ltk.internal.ui.refactoring.Messages;
 import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
@@ -84,7 +84,7 @@ public class DeleteElementsHandler extends AbstractElementsHandler {
 			catch (final InvocationTargetException e) {
 				StatusManager.getManager().handle(new Status(
 						IStatus.ERROR, getRefactoringAdapter().getPluginIdentifier(), -1,
-						RefactoringMessages.DeleteElements_error_message, 
+						Messages.DeleteElements_error_message, 
 						e.getCause()),
 						StatusManager.LOG | StatusManager.SHOW);
 			}

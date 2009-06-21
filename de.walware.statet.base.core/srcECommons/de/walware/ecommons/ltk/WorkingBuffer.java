@@ -20,6 +20,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -145,8 +146,13 @@ public class WorkingBuffer implements IWorkingBuffer {
 		}
 		else if (detectMode()) {
 			if (getMode() == IFILE) {
-				final IResource resource = fUnit.getResource();
-				return !resource.getResourceAttributes().isReadOnly();
+				final IFile resource = (IFile) fUnit.getResource();
+				if (!validate) {
+					return !resource.getResourceAttributes().isReadOnly();
+				}
+				else {
+					return resource.getWorkspace().validateEdit(new IFile[] { resource }, IWorkspace.VALIDATE_PROMPT).isOK();
+				}
 			}
 			if (getMode() == FILESTORE) {
 				final IFileStore store = (IFileStore) fUnit.getAdapter(IFileStore.class);

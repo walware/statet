@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.core;
+package de.walware.statet.r.internal.core.refactoring;
 
 import org.eclipse.ltk.core.refactoring.participants.DeleteProcessor;
 

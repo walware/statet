@@ -146,7 +146,7 @@ public class ButtonGroup<ItemType> extends Composite {
 			public void widgetSelected(final SelectionEvent e) {
 				final ItemType item = getItemToEdit((IStructuredSelection) fViewer.getSelection());
 				if (item != null) {
-					move(item, -1);
+					move0(item, -1);
 				}
 			}
 		});
@@ -161,7 +161,7 @@ public class ButtonGroup<ItemType> extends Composite {
 			public void widgetSelected(final SelectionEvent e) {
 				final ItemType item = getItemToEdit((IStructuredSelection) fViewer.getSelection());
 				if (item != null) {
-					move(item, 1);
+					move0(item, 1);
 				}
 			}
 		});
@@ -297,7 +297,7 @@ public class ButtonGroup<ItemType> extends Composite {
 		refresh0();
 	}
 	
-	public void move(final ItemType item, final int direction) {
+	public void move0(final ItemType item, final int direction) {
 		final int oldIdx = fList.indexOf(item);
 		if (oldIdx < 0) {
 			return;
@@ -306,8 +306,12 @@ public class ButtonGroup<ItemType> extends Composite {
 		if (newIdx < 0 || newIdx >= fList.size()) {
 			return;
 		}
-		fList.move(oldIdx, newIdx);
+		move1(oldIdx, newIdx);
 		refresh0();
+	}
+	
+	protected void move1(final int oldIdx, final int newIdx) {
+		fList.move(oldIdx, newIdx);
 	}
 	
 	public void refresh0() {

@@ -44,11 +44,17 @@ public class RCorePlugin extends Plugin {
 	}
 	
 	public static final void log(final IStatus status) {
-		getDefault().getLog().log(status);
+		final Plugin plugin = getDefault();
+		if (plugin != null) {
+			plugin.getLog().log(status);
+		}
 	}
 	
 	public static final void logError(final int code, final String message, final Throwable e) {
-		getDefault().getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, code, message, e));
+		final Plugin plugin = getDefault();
+		if (plugin != null) {
+			plugin.getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, code, message, e));
+		}
 	}
 	
 	

@@ -22,6 +22,7 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.AstSelection;
 
 
@@ -100,7 +101,7 @@ public class LTKInputData implements ISelection {
 		if (fModelSelection == null) {
 			if (fSelection instanceof ITextSelection && getInputInfo() != null) {
 				final ITextSelection textSelection = (ITextSelection) fSelection;
-				fModelSelection = LTKSelectionUtil.getCoveringSourceElement(getInputInfo().getSourceElement(), textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength());
+				fModelSelection = LTKUtil.getCoveringSourceElement(getInputInfo().getSourceElement(), textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength());
 			}
 		}
 		return fModelSelection;

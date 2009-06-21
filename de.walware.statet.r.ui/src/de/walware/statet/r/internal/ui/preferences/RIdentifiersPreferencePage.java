@@ -25,7 +25,6 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ICellEditorListener;
-import org.eclipse.jface.viewers.ICellEditorValidator;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -48,7 +47,6 @@ import org.eclipse.swt.widgets.Label;
 
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
-import de.walware.ecommons.text.StringParseInput;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
@@ -58,8 +56,7 @@ import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 
 import de.walware.statet.r.core.RSymbolComparator;
-import de.walware.statet.r.core.rlang.RTerminal;
-import de.walware.statet.r.core.rsource.RSourceTokenLexer;
+import de.walware.statet.r.internal.ui.RIdentifierCellValidator;
 import de.walware.statet.r.internal.ui.RIdentifierGroups;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
@@ -149,12 +146,9 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 					fStatusListener.statusChanged(Status.OK_STATUS);
 				}
 			});
-			fCellEditor.setValidator(new ICellEditorValidator() {
-				private RSourceTokenLexer fLexer = new RSourceTokenLexer();
-				public String isValid(final Object value) {
-					if (value == null || value.equals("")) { //$NON-NLS-1$
-						return Messages.RIdentifiers_Identifier_error_Empty_message;
-					}
+			fCellEditor.setValidator(new RIdentifierCellValidator() {
+				@Override
+				protected String isValidInContext(final String value) {
 					if (!value.equals(fLast) && fActiveCategory.fSet.contains(value)) {
 						return Messages.RIdentifiers_Identifier_error_AlreadyExistingInSameGroup_message;
 					}
@@ -162,11 +156,6 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 						if (fCategories[i] != fActiveCategory && fCategories[i].fSet.contains(value)) {
 							return NLS.bind(Messages.RIdentifiers_Identifier_error_AlreadyExistingInOtherGroup_message, fCategories[i].fLabel);
 						}
-					}
-					fLexer.reset(new StringParseInput((String) value), null);
-					if (fLexer.nextToken().getTokenType() != RTerminal.SYMBOL
-							|| fLexer.nextToken().getTokenType() != RTerminal.EOF) {
-						return Messages.RIdentifiers_Identifier_error_Invalid_message;
 					}
 					return null;
 				}

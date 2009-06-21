@@ -20,7 +20,7 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 
-import de.walware.ecommons.ltk.internal.core.refactoring.RefactoringMessages;
+import de.walware.ecommons.ltk.internal.core.refactoring.Messages;
 
 
 /**
@@ -65,7 +65,7 @@ public final class CommonRefactoringDescriptor extends RefactoringDescriptor {
 	@Override
 	public Refactoring createRefactoring(final RefactoringStatus status) throws CoreException {
 		status.merge(RefactoringStatus.createFatalErrorStatus(
-				RefactoringMessages.Common_error_CannotCreateFromDescr_message)); // default refactoring descriptor
+				Messages.Common_error_CannotCreateFromDescr_message)); // default refactoring descriptor
 		return null;
 	}
 	

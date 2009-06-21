@@ -31,7 +31,7 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.ltk.core.refactoring.participants.SharableParticipants;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ltk.internal.core.refactoring.RefactoringMessages;
+import de.walware.ecommons.ltk.internal.core.refactoring.Messages;
 
 
 public abstract class CommonDeleteProcessor extends DeleteProcessor {
@@ -60,7 +60,7 @@ public abstract class CommonDeleteProcessor extends DeleteProcessor {
 	
 	@Override
 	public String getProcessorName() {
-		return RefactoringMessages.DeleteRefactoring_label; 
+		return Messages.DeleteRefactoring_label; 
 	}
 	
 	@Override
@@ -140,7 +140,7 @@ public abstract class CommonDeleteProcessor extends DeleteProcessor {
 			monitor.beginTask(RefactoringMessages.Common_CreateChanges_label, 1);
 			final Map<String, String> arguments = new HashMap<String, String>();
 			final String description = (fElementsToDelete.getElementCount() == 1) ? 
-					RefactoringMessages.DeleteRefactoring_description_singular : RefactoringMessages.DeleteRefactoring_description_plural;
+					Messages.DeleteRefactoring_description_singular : Messages.DeleteRefactoring_description_plural;
 			final IProject resource = fElementsToDelete.getSingleProject();
 			final String project = (resource != null) ? resource.getName() : null;
 			final String source = (project != null) ? NLS.bind(RefactoringMessages.Common_Source_Project_label, project) : RefactoringMessages.Common_Source_Workspace_label;
@@ -166,7 +166,7 @@ public abstract class CommonDeleteProcessor extends DeleteProcessor {
 					getIdentifier(), project, description, comment, arguments, flags);
 			
 			return new DynamicValidationRefactoringChange(descriptor,
-					RefactoringMessages.DeleteRefactoring_label, 
+					Messages.DeleteRefactoring_label, 
 					new Change[] { fDeleteChange });
 		}
 		finally {

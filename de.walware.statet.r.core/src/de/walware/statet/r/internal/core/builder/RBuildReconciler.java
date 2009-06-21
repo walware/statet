@@ -12,7 +12,10 @@
 package de.walware.statet.r.internal.core.builder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,13 +25,13 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ltk.IProblemRequestor;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.RModel;
@@ -39,6 +42,19 @@ import de.walware.statet.r.internal.core.sourcemodel.RReconciler;
 
 
 public class RBuildReconciler extends RReconciler {
+	
+	
+	public static class Result {
+		
+		public final RUnitElement exportedElement;
+		public final Set<String> defaultNames;
+		
+		public Result(final RUnitElement root, final Set<String> defaultNames) {
+			this.exportedElement = root;
+			this.defaultNames = defaultNames;
+		}
+		
+	}
 	
 	
 	private RModelIndex fIndex;
@@ -60,30 +76,37 @@ public class RBuildReconciler extends RReconciler {
 		fStatusCollector = status;
 	}
 	
-	/** for file build */
-	public RUnitElement build(final IManagableRUnit su, final IProgressMonitor monitor) {
+	/** for file build 
+	 * @throws CoreException
+	 **/
+	public Result build(final IManagableRUnit su, final IProgressMonitor monitor) {
 		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return null;
 		}
-		if (fStop) {
+		if (fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
+		
 		final Data data = new Data(su, monitor);
+		
+		if (fStop || monitor.isCanceled()) {
+			throw new OperationCanceledException();
+		}
 		
 		updateAst(data, monitor);
 		
-		if (fStop) {
+		if (fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
 		updateModel(data);
 		
-		if (fStop) {
+		if (fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
 		
-		final IProblemRequestor problemRequestor = su.getProblemRequestor();
+//		final IProblemRequestor problemRequestor = su.getProblemRequestor();
 //		if (problemRequestor != null) {
 			initParseInput(data);
 //			problemRequestor.beginReportingSequence();
@@ -104,20 +127,20 @@ public class RBuildReconciler extends RReconciler {
 //			problemRequestor.endReportingSequence();
 //		}
 		
-		if (fStop) {
+		if (fStop || monitor.isCanceled()) {
 			throw new OperationCanceledException();
 		}
-		return collectExports(data);
+		return createResult(data);
 	}
 	
-	private RUnitElement collectExports(final Data data) {
+	private Result createResult(final Data data) {
 		if (data.newModel == null) {
 			return null;
 		}
 		
 		final IRFrame topFrame = data.newModel.getTopFrame();
 		final List<? extends IRLangElement> children = topFrame.getModelChildren(null);
-		if (children == null || children.size() == 0) {
+		if (children == null) {
 			return null;
 		}
 		final ArrayList<IRLangElement> exports = new ArrayList<IRLangElement>(children.size());
@@ -138,7 +161,14 @@ public class RBuildReconciler extends RReconciler {
 				continue;
 			}
 		}
-		return root;
+		final Set<String> names = new HashSet<String>();
+		names.addAll(data.newModel.getTopFrame().getAllAccessNames());
+		final Map<String, ? extends IRFrame> frames = data.newModel.getReferencedFrames();
+		for (final IRFrame frame : frames.values()) {
+			names.addAll(((IRFrameInSource) frame).getAllAccessNames());
+		}
+		
+		return new Result(root, names);
 	}
 	
 }

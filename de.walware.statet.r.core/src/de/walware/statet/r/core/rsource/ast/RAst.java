@@ -635,4 +635,21 @@ public class RAst {
 		}
 	}
 	
+	public static boolean hasErrors(final RAstNode node) {
+		final int statusCode = node.getStatusCode();
+		try {
+			node.acceptInChildren(new ICommonAstVisitor() {
+				public void visit(final IAstNode node) throws InvocationTargetException {
+					if ((statusCode & IRSourceConstants.STATUSFLAG_REAL_ERROR) != 0) {
+						throw new InvocationTargetException(null);
+					}
+				}
+			});
+		}
+		catch (final InvocationTargetException e) {
+			return true;
+		}
+		return false;
+	}
+	
 }

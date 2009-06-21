@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.mapping.IResourceChangeDescriptionFactory;
 import org.eclipse.core.runtime.CoreException;
@@ -64,7 +65,7 @@ import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.internal.core.refactoring.RefactoringMessages;
+import de.walware.ecommons.ltk.internal.core.refactoring.Messages;
 import de.walware.ecommons.text.BasicHeuristicTokenScanner;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.TextUtil;
@@ -111,8 +112,8 @@ public abstract class RefactoringAdapter {
 	};
 	
 	
-	private BasicHeuristicTokenScanner fScanner;
-	private PartitioningConfiguration fPartitioning;
+	protected final BasicHeuristicTokenScanner fScanner;
+	protected final PartitioningConfiguration fPartitioning;
 	
 	
 	public RefactoringAdapter(final BasicHeuristicTokenScanner scanner) {
@@ -250,7 +251,7 @@ public abstract class RefactoringAdapter {
 					}
 					u.connect(progress.newChild(1));
 					lastUnit = u;
-					doc = u.getDocument(null);
+					doc = u.getDocument(monitor);
 				}
 				final IRegion range = expandElementRange((ISourceStructElement) element, doc);
 				sb.append(doc.get(range.getOffset(), range.getLength()));
@@ -316,6 +317,27 @@ public abstract class RefactoringAdapter {
 		return new Region(start, end-start);
 	}
 	
+	public IRegion expandWhitespaceBlock(final AbstractDocument document, final IRegion region) throws BadLocationException {
+		fScanner.configure(document);
+		final int firstLine = document.getLineOfOffset(region.getOffset());
+		int lastLine = document.getLineOfOffset(region.getOffset()+region.getLength());
+		if (lastLine > firstLine && document.getLineOffset(lastLine) == region.getOffset()+region.getLength()) {
+			lastLine--;
+		}
+		int result;
+		final int min = document.getLineOffset(firstLine);
+		final int max = document.getLineOffset(lastLine)+document.getLineLength(lastLine);
+		result = fScanner.findAnyNonBlankForward(region.getOffset()+region.getLength(), max, true);
+		final int end = (result >= 0) ? result : max;
+		result = fScanner.findAnyNonBlankBackward(region.getOffset(), min, true);
+		if (result >= 0) {
+			return new Region(result+1, end-(result+1));
+		}
+		else {
+			return new Region(min, end-min);
+		}
+	}
+	
 	
 	public boolean canDelete(final RefactoringElementSet elements) {
 		if (elements.getInitialObjects().length == 0) {
@@ -375,13 +397,31 @@ public abstract class RefactoringAdapter {
 				resources.add(resource);
 			}
 			else {
-				result.addFatalError(RefactoringMessages.Check_ElementNotInWS_message);
+				result.addFatalError(Messages.Check_ElementNotInWS_message);
 				return;
 			}
 		}
 		result.merge(RefactoringStatus.create(
 				Resources.checkInSync(resources.toArray(new IResource[resources.size()]))
 				));
+	}
+	
+	public void checkFinalForModification(final RefactoringStatus result, final RefactoringElementSet elements, final IProgressMonitor monitor) {
+		final Set<IResource> resources = new HashSet<IResource>();
+		resources.addAll(elements.getResources());
+		for(final IModelElement element : elements.getModelElements()) {
+			final IResource resource = element.getSourceUnit().getResource();
+			if (resource != null) {
+				resources.add(resource);
+			}
+			else {
+				result.addFatalError(Messages.Check_ElementNotInWS_message);
+				return;
+			}
+		}
+		final IResource[] array = resources.toArray(new IResource[resources.size()]);
+		result.merge(RefactoringStatus.create(Resources.checkInSync(array)));
+		result.merge(RefactoringStatus.create(Resources.makeCommittable(array, IWorkspace.VALIDATE_PROMPT)));
 	}
 	
 	public void checkFinalToDelete(final RefactoringStatus result, final RefactoringElementSet elements) throws CoreException {
@@ -434,11 +474,11 @@ public abstract class RefactoringAdapter {
 		if (buffer != null && buffer.isDirty()) {
 			if (buffer.isStateValidated() && buffer.isSynchronized()) {
 				result.addWarning(NLS.bind(
-					RefactoringMessages.Check_FileUnsavedChanges_message,
+					Messages.Check_FileUnsavedChanges_message,
 					FileUtil.getFileUtil(file).getFileLabel()) );
 			} else {
 				result.addFatalError(NLS.bind(
-					RefactoringMessages.Check_FileUnsavedChanges_message, 
+					Messages.Check_FileUnsavedChanges_message, 
 					FileUtil.getFileUtil(file).getFileLabel()) );
 			}
 		}
@@ -551,7 +591,7 @@ public abstract class RefactoringAdapter {
 			final RefactoringElementSet elementsToDelete,
 			final TextChangeManager manager, final IProgressMonitor monitor) throws CoreException {
 		final SubMonitor progress = SubMonitor.convert(monitor);
-		final DynamicValidationChange result = new DynamicValidationChange(changeName);
+		final CompositeChange result = new CompositeChange(changeName);
 		
 		addChangesToDelete(result, elementsToDelete, manager, progress);
 		
@@ -649,11 +689,11 @@ public abstract class RefactoringAdapter {
 	}
 	
 	protected IStatus failDocAnalyzation(final Throwable e) {
-		return new Status(IStatus.ERROR, ECommonsLTK.PLUGIN_ID, RefactoringMessages.Common_error_AnalyzingSourceDocument_message);
+		return new Status(IStatus.ERROR, ECommonsLTK.PLUGIN_ID, Messages.Common_error_AnalyzingSourceDocument_message);
 	}
 	
 	protected IStatus failCreation(final Throwable e) {
-		return new Status(IStatus.ERROR, ECommonsLTK.PLUGIN_ID, RefactoringMessages.Common_error_CreatingElementChange_message);
+		return new Status(IStatus.ERROR, ECommonsLTK.PLUGIN_ID, Messages.Common_error_CreatingElementChange_message);
 	}
 	
 }

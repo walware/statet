@@ -785,31 +785,36 @@ public class SourceAnalyzer extends RAstVisitor {
 		node.getSourceChild().acceptInR(this);
 		final Object returnValue = fReturnValue;
 		
+		// TODO add direct support for fcall() <- source
 		final RAstNode target = node.getTargetChild();
 		final ElementAccess access = new ElementAccess.Default(node);
 		access.fFlags = ElementAccess.A_WRITE;
 		
 		final String name = resolveElementName(target, access, true);
-		
-		// Resolve
-		int mode;
-		if (access.getNextSegment() == null) {
-			switch (node.getOperator(0)) {
-			case ARROW_LEFT_D:
-			case ARROW_RIGHT_D:
-				mode = S_SEARCH;
-				break;
-			default:
-				mode = S_LOCAL;
-				break;
+		if (name != null || returnValue instanceof RSourceElementByElementAccess) {
+			// Resolve
+			int mode;
+			if (access.getNextSegment() == null) {
+				switch (node.getOperator(0)) {
+				case ARROW_LEFT_D:
+				case ARROW_RIGHT_D:
+					mode = S_SEARCH;
+					break;
+				default:
+					mode = S_LOCAL;
+					break;
+				}
 			}
+			else {
+				mode = S_SEARCH;
+			}
+			registerInEnvir(mode, name, access);
+			
+			fReturnValue = registerSourceElement(returnValue, access);
 		}
 		else {
-			mode = S_SEARCH;
+			fReturnValue = null;
 		}
-		registerInEnvir(mode, name, access);
-		
-		fReturnValue = registerSourceElement(returnValue, access);
 	}
 	
 	@Override
@@ -1227,7 +1232,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		access.fNameNode = node.getElementChild();
 		final String name = access.fNameNode.getText();
 		envir.add(name, access);
-		return name;
+		return null; // prevent registering in top env
 	}
 	
 	private boolean isValidPackageName(final RAstNode node) {

@@ -13,18 +13,34 @@ package de.walware.ecommons.ui.util;
 
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.layout.TreeColumnLayout;
+import org.eclipse.jface.viewers.CellNavigationStrategy;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.ColumnLayoutData;
+import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnViewerEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
 import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.FocusCellOwnerDrawHighlighter;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TableViewerEditor;
+import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerEditor;
+import org.eclipse.jface.viewers.TreeViewerFocusCellManager;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.swt.widgets.Table;
@@ -149,6 +165,40 @@ public class ViewerUtil {
 			table = new Table(this, tableStyle);
 			viewer = new TableViewer(table);
 		}
+		
+		
+		public TableViewerColumn addColumn(final String title, final int style, final ColumnLayoutData layoutData) {
+			final TableViewerColumn column = new TableViewerColumn(viewer, style);
+			column.getColumn().setText(title);
+			layout.setColumnData(column.getColumn(), layoutData);
+			return column;
+		}
+		
+	}
+	
+	public static class CheckTableComposite extends Composite {
+		
+		public CheckboxTableViewer viewer;
+		public Table table;
+		public TableColumnLayout layout;
+		
+		public CheckTableComposite(final Composite parent, final int tableStyle) {
+			super(parent, SWT.NONE);
+			
+			layout = new TableColumnLayout();
+			setLayout(layout);
+			table = new Table(this, tableStyle | SWT.CHECK);
+			viewer = new CheckboxTableViewer(table);
+		}
+		
+		
+		public TableViewerColumn addColumn(final String title, final int style, final ColumnLayoutData layoutData) {
+			final TableViewerColumn column = new TableViewerColumn(viewer, style);
+			column.getColumn().setText(title);
+			layout.setColumnData(column.getColumn(), layoutData);
+			return column;
+		}
+		
 	}
 	
 	public static class CheckboxTableComposite extends Composite {
@@ -165,6 +215,15 @@ public class ViewerUtil {
 			viewer = CheckboxTableViewer.newCheckList(this, tableStyle);
 			table = viewer.getTable();
 		}
+		
+		
+		public TableViewerColumn addColumn(final String title, final int style, final ColumnLayoutData layoutData) {
+			final TableViewerColumn column = new TableViewerColumn(viewer, style);
+			column.getColumn().setText(title);
+			layout.setColumnData(column.getColumn(), layoutData);
+			return column;
+		}
+		
 	}
 	
 	public static class TreeComposite extends Composite {
@@ -181,6 +240,67 @@ public class ViewerUtil {
 			tree = new Tree(this, treeStyle);
 			viewer = new TreeViewer(tree);
 		}
+	}
+	
+	public static void installDefaultEditBehaviour(final TableViewer tableViewer) {
+		final CellNavigationStrategy naviStrat = new CellNavigationStrategy() {
+			@Override
+			public ViewerCell findSelectedCell(final ColumnViewer viewer, final ViewerCell currentSelectedCell, final Event event) {
+				final ViewerCell cell = super.findSelectedCell(viewer, currentSelectedCell, event);
+				if(cell != null ) {
+					tableViewer.getTable().showColumn(tableViewer.getTable().getColumn(cell.getColumnIndex()));
+				}
+				return cell;
+			}
+			
+		};
+		final TableViewerFocusCellManager focusCellManager = new TableViewerFocusCellManager(
+				tableViewer, new FocusCellOwnerDrawHighlighter(tableViewer), naviStrat);
+		TableViewerEditor.create(tableViewer, focusCellManager, createActivationStrategy(tableViewer),
+				ColumnViewerEditor.TABBING_HORIZONTAL | ColumnViewerEditor.TABBING_VERTICAL
+					| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR | ColumnViewerEditor.KEYBOARD_ACTIVATION);
+	}
+	
+	public static void installDefaultEditBehaviour(final TreeViewer treeViewer) {
+		final CellNavigationStrategy naviStrat = new CellNavigationStrategy() {
+			@Override
+			public ViewerCell findSelectedCell(final ColumnViewer viewer, final ViewerCell currentSelectedCell, final Event event) {
+				final ViewerCell cell = super.findSelectedCell(viewer, currentSelectedCell, event);
+				if(cell != null ) {
+					treeViewer.getTree().showColumn(treeViewer.getTree().getColumn(cell.getColumnIndex()));
+				}
+				return cell;
+			}
+			
+		};
+		final TreeViewerFocusCellManager focusCellManager = new TreeViewerFocusCellManager(
+				treeViewer, new FocusCellOwnerDrawHighlighter(treeViewer), naviStrat);
+		TreeViewerEditor.create(treeViewer, focusCellManager, createActivationStrategy(treeViewer),
+				ColumnViewerEditor.TABBING_HORIZONTAL | ColumnViewerEditor.TABBING_VERTICAL
+				| ColumnViewerEditor.TABBING_MOVE_TO_ROW_NEIGHBOR | ColumnViewerEditor.KEYBOARD_ACTIVATION);
+	}
+	
+	private static ColumnViewerEditorActivationStrategy createActivationStrategy(final ColumnViewer viewer) {
+		viewer.getControl().addTraverseListener(new TraverseListener() {
+			public void keyTraversed(final TraverseEvent e) {
+				if (e.detail == SWT.TRAVERSE_RETURN && e.stateMask == SWT.NONE) {
+					e.doit = false;
+				}
+			}
+		});
+		return new ColumnViewerEditorActivationStrategy(viewer) {
+			@Override
+			protected boolean isEditorActivationEvent(
+					final ColumnViewerEditorActivationEvent event) {
+				return event.eventType == ColumnViewerEditorActivationEvent.TRAVERSAL
+				|| event.eventType == ColumnViewerEditorActivationEvent.MOUSE_CLICK_SELECTION
+				|| event.eventType == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION
+				|| (event.eventType == ColumnViewerEditorActivationEvent.KEY_PRESSED
+						&& (event.keyCode == SWT.CR || event.keyCode == SWT.KEYPAD_CR || event.keyCode == SWT.F2) )
+						|| event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
+			}
+		};
+		
 	}
 	
 	

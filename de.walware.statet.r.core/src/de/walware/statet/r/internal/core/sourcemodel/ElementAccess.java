@@ -120,7 +120,9 @@ public abstract class ElementAccess extends RElementAccess {
 	
 	@Override
 	public RElementName getNamespace() {
-		return (fShared.frame != null && fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ? fShared.frame.getElementName() : null;
+		return (fShared.frame != null
+				&& (fShared.frame.getFrameType() == IRFrame.PACKAGE || fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ) ?
+						fShared.frame.getElementName() : null;
 	}
 	
 	@Override

@@ -40,6 +40,9 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	
 	
 	public static String createId(final int type, final String name, final int alt) {
+		if (type == IRFrame.PACKAGE && name != null) {
+			return "package:"+name;
+		}
 		return (name != null) ? 
 				Integer.toHexString(type)+":`"+name+'`' : //$NON-NLS-1$
 				Integer.toHexString(type)+":#"+Integer.toHexString(alt); //$NON-NLS-1$
@@ -365,6 +368,11 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			return null;
 		}
 		return Collections.unmodifiableList(list.entries);
+	}
+	
+	public boolean isResolved(final String name) {
+		final ElementAccessList accessList = fData.get(name);
+		return (accessList != null && accessList.isCreated >= CREATED_RESOLVED); 
 	}
 	
 	
