@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
@@ -47,7 +47,7 @@ final class SubIndexedSElementAccess extends SubAbstractElementAccess {
 	
 	
 	@Override
-	public final IElementAccess[] getAllInUnit() {
+	public final RElementAccess[] getAllInUnit() {
 		return null;
 	}
 	

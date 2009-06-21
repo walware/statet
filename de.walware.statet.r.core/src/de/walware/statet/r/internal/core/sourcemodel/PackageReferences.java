@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IPackageReferences;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.internal.core.sourcemodel.BuildSourceFrame.ElementAccessList;
 
 
@@ -47,7 +47,7 @@ public class PackageReferences implements IPackageReferences {
 		return (list.isCreated == CREATED_IMPORTED);
 	}
 	
-	public List<? extends IElementAccess> getAllAccessOfPackage(final String name) {
+	public List<? extends RElementAccess> getAllAccessOfPackage(final String name) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {
 			return null;

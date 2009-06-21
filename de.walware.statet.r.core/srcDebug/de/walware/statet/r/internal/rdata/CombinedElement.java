@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.rdata;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
@@ -19,13 +18,14 @@ import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 public abstract class CombinedElement implements ICombinedRElement {
 	
 	
 	CombinedElement fParent;
-	protected IElementName fElementName;
+	protected RElementName fElementName;
 	
 	protected RList fAttributes;
 	
@@ -43,7 +43,7 @@ public abstract class CombinedElement implements ICombinedRElement {
 		return null; // not yet implemented
 	}
 	
-	public final IElementName getElementName() {
+	public final RElementName getElementName() {
 		return fElementName;
 	}
 	

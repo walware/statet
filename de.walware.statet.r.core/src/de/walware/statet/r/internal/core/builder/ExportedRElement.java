@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
@@ -63,7 +62,7 @@ public class ExportedRElement implements IRLangElement, Serializable {
 	
 	private IRLangElement fParent;
 	private int fElementType;
-	private IElementName fElementName;
+	private RElementName fElementName;
 	private String fElementId;
 	
 	
@@ -90,7 +89,7 @@ public class ExportedRElement implements IRLangElement, Serializable {
 		return fElementType;
 	}
 	
-	public IElementName getElementName() {
+	public RElementName getElementName() {
 		return fElementName;
 	}
 	

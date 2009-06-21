@@ -20,13 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 
 
@@ -75,7 +74,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		}
 		
 		
-		public IElementName getElementName() {
+		public RElementName getElementName() {
 			return null;
 		}
 		
@@ -128,7 +127,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		
 		private Map<String, ElementAccessList> fClasses;
 		
-		private IElementName fElementName;
+		private RElementName fElementName;
 		
 		
 		DefScope(final int type, final String id, final String name, final BuildSourceFrame[] parents) {
@@ -151,7 +150,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		}
 		
 		
-		public IElementName getElementName() {
+		public RElementName getElementName() {
 			return fElementName;
 		}
 		
@@ -360,7 +359,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		return Collections.unmodifiableSet(fData.keySet());
 	}
 	
-	public List<? extends IElementAccess> getAllAccessOfElement(final String name) {
+	public List<? extends RElementAccess> getAllAccessOfElement(final String name) {
 		final ElementAccessList list = fData.get(name);
 		if (list == null) {
 			return null;

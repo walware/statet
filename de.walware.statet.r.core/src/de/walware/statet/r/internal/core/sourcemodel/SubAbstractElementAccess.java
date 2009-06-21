@@ -15,14 +15,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 
 
-abstract class SubAbstractElementAccess extends RElementName implements IElementAccess {
+abstract class SubAbstractElementAccess extends RElementAccess {
 	
 	
 	SubAbstractElementAccess fNextSub;
@@ -34,33 +32,39 @@ abstract class SubAbstractElementAccess extends RElementName implements IElement
 		return RElementName.createDisplayName(this, 0);
 	}
 	
-	public IElementName getNamespace() {
+	@Override
+	public RElementName getNamespace() {
 		return null;
 	}
 	
-	public final IElementAccess getNextSegment() {
+	@Override
+	public final RElementAccess getNextSegment() {
 		return fNextSub;
 	}
 	
+	@Override
 	public final IRFrame getFrame() {
 		return fRoot.getFrame();
 	}
 	
+	@Override
 	public final boolean isWriteAccess() {
 		return fRoot.isWriteAccess();
 	}
 	
+	@Override
 	public boolean isMethodAccess() {
 		return fRoot.isMethodAccess();
 	}
 	
-	public IElementAccess[] getAllInUnit() {
+	@Override
+	public RElementAccess[] getAllInUnit() {
 		final List<ElementAccess> all = fRoot.fShared.entries;
-		final List<IElementAccess> elements = new ArrayList<IElementAccess>();
+		final List<RElementAccess> elements = new ArrayList<RElementAccess>();
 		final Iterator<ElementAccess> iter = all.iterator();
 		ITER_ACCESS: while (iter.hasNext()) {
-			IElementAccess other = iter.next();
-			IElementAccess me = fRoot;
+			RElementAccess other = iter.next();
+			RElementAccess me = fRoot;
 			while (true) {
 				me = me.getNextSegment();
 				if (me == null || me.getSegmentName() == null) {
@@ -77,7 +81,7 @@ abstract class SubAbstractElementAccess extends RElementName implements IElement
 				}
 			}
 		}
-		return elements.toArray(new IElementAccess[elements.size()]);
+		return elements.toArray(new RElementAccess[elements.size()]);
 	}
 	
 }

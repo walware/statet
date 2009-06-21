@@ -16,7 +16,6 @@ import java.io.ObjectInput;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.rj.data.RFunction;
@@ -27,6 +26,7 @@ import de.walware.rj.data.RStore;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.core.sourcemodel.SourceAnalyzer;
@@ -39,13 +39,13 @@ public final class RFunction2 extends CombinedElement
 	private ArgsDefinition fArgs;
 	
 	
-	public RFunction2(final IElementName name, final ArgsDefinition args) {
+	public RFunction2(final RElementName name, final ArgsDefinition args) {
 		fElementName = name;
 		fArgs = args;
 	}
 	
 	
-	public RFunction2(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RFunction2(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.REnvironment;
 import de.walware.rj.data.RObject;
@@ -70,7 +68,7 @@ public final class REnvironmentVar extends CombinedElement
 		fClassName = RObject.CLASSNAME_ENV;
 	}
 	
-	public REnvironmentVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public REnvironmentVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

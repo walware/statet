@@ -16,8 +16,6 @@ import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
@@ -27,6 +25,7 @@ import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 public class RVectorVar<DataType extends RStore> extends CombinedElement
@@ -58,7 +57,7 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 		}
 	}
 	
-	public RVectorVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RVectorVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

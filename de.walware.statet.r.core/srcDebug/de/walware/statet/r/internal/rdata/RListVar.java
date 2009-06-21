@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
@@ -52,7 +50,7 @@ public class RListVar extends CombinedElement
 //		fNamesAttribute = new RCharacterDataImpl(initialNames, fComponents.length);
 //	}
 //	
-	public RListVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RListVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);
@@ -72,7 +70,7 @@ public class RListVar extends CombinedElement
 			fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
 					(fNamesAttribute.isNA(i) || fNamesAttribute.getChar(i).length() == 0) ? 
 							RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1)) :
-							RElementName.create(RElementName.SUB_NAMEDPART, fNamesAttribute.getChar(i)));
+							RElementName.create(RElementName.SUB_NAMEDPART, fNamesAttribute.getChar(i), i+1) );
 		}
 		
 		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {

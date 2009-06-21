@@ -15,13 +15,13 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
+
+import de.walware.statet.r.core.model.RElementName;
 
 
 public final class RDataFrameVar extends RListVar
@@ -31,7 +31,7 @@ public final class RDataFrameVar extends RListVar
 	private int fRowCount;
 	
 	
-	public RDataFrameVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RDataFrameVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		super(in, flags, factory, parent, name);
 	}
 	

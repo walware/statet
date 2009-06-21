@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
@@ -41,7 +39,7 @@ public final class RS4ObjectVar extends CombinedElement
 	private CombinedElement[] fSlotValues;
 	
 	
-	public RS4ObjectVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RS4ObjectVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

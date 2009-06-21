@@ -38,5 +38,6 @@ public interface IRBasicAdapter extends
 	public void quit(final IProgressMonitor monitor) throws CoreException;
 	
 	public void briefAboutChange(int o);
+	public void briefAboutChange(Object changed, int o);
 	
 }

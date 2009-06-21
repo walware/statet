@@ -11,7 +11,10 @@
 
 package de.walware.statet.r.nico;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +26,7 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.nico.RNicoMessages;
 
 
@@ -55,6 +59,7 @@ public abstract class AbstractRController
 	protected String fDefaultPromptText;
 	
 	int fChanged;
+	final Set<RElementName> fChangedEnvirs = new HashSet<RElementName>();
 	
 	
 	public AbstractRController(final ToolProcess process, final Map<String, Object> initData) {
@@ -184,6 +189,21 @@ public abstract class AbstractRController
 	
 	public void briefAboutChange(final int o) {
 		fChanged |= o;
+	}
+	
+	public void briefAboutChange(Object changed, int o) {
+		if (changed instanceof Collection) {
+			Collection collection = (Collection) changed;
+			for (Object object : collection) {
+				briefAboutChange(object, o);
+			}
+		}
+		if (changed instanceof RElementName) {
+			RElementName name = (RElementName) changed;
+			if (name.getType() == RElementName.MAIN_SEARCH_ENV) {
+				fChangedEnvirs.add(name);
+			}
+		}
 	}
 	
 	public void quit(final IProgressMonitor monitor) throws CoreException {

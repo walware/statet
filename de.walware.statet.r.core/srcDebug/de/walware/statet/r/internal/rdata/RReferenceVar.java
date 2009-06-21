@@ -17,14 +17,13 @@ import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.nico.RWorkspace;
 
 
@@ -42,7 +41,7 @@ public final class RReferenceVar extends CombinedElement
 		fClassName = className;
 	}
 	
-	public RReferenceVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RReferenceVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

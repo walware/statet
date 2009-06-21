@@ -17,14 +17,13 @@ import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 public final class ROtherVar extends CombinedElement {
@@ -42,7 +41,7 @@ public final class ROtherVar extends CombinedElement {
 		fClassName = className;
 	}
 	
-	public ROtherVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public ROtherVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

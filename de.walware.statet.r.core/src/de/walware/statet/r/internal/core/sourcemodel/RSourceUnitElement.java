@@ -24,6 +24,7 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
@@ -61,8 +62,12 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 		return IRLangElement.C2_SOURCE_FILE;
 	}
 	
-	public IElementName getElementName() {
-		return fSourceUnit.getElementName();
+	public RElementName getElementName() {
+		final IElementName elementName = fSourceUnit.getElementName();
+		if (elementName instanceof RElementName) {
+			return (RElementName) elementName;
+		}
+		return RElementName.create(RElementName.RESOURCE, elementName.getSegmentName());
 	}
 	
 	public String getId() {

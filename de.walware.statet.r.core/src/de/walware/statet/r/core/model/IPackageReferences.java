@@ -24,7 +24,7 @@ public interface IPackageReferences {
 	
 	public boolean isImported(final String name);
 	
-	public List<? extends IElementAccess> getAllAccessOfPackage(
+	public List<? extends RElementAccess> getAllAccessOfPackage(
 			final String name);
 	
 }

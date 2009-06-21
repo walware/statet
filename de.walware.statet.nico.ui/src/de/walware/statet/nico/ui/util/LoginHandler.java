@@ -75,11 +75,10 @@ public class LoginHandler implements IToolEventHandler {
 	private static final String SECURE_PREF_PASSWORD_KEY = "password"; //$NON-NLS-1$
 	
 	
-	private static class LoginDialog extends MessageDialog {
+	private static class LoginDialog extends ToolMessageDialog {
 		
 		private String fMessage;
 		private Callback[] fCallbacks;
-		private ToolProcess fProcess;
 		
 		private boolean fAllowSave;
 		private Button fSaveControl;
@@ -90,8 +89,8 @@ public class LoginHandler implements IToolEventHandler {
 		private final List<Runnable> fOkRunners = new ArrayList<Runnable>();
 		
 		
-		public LoginDialog(final Shell shell) {
-			super(shell,
+		public LoginDialog(final ToolProcess process, final Shell shell) {
+			super(process, shell,
 					Messages.Login_Dialog_title, null,
 					Messages.Login_Dialog_message, MessageDialog.QUESTION,
 					new String[] { IDialogConstants.OK_LABEL, IDialogConstants.CANCEL_LABEL }, 0);
@@ -223,17 +222,6 @@ public class LoginHandler implements IToolEventHandler {
 		}
 		
 		@Override
-		protected Control createCustomArea(final Composite parent) {
-			LayoutUtil.addSmallFiller(parent, true);
-			
-			final ToolInfoGroup info = new ToolInfoGroup(parent, fProcess);
-			info.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			
-			applyDialogFont(parent);
-			return parent;
-		}
-		
-		@Override
 		protected void buttonPressed(final int buttonId) {
 			if (buttonId == Dialog.OK) {
 				okPressed();
@@ -291,10 +279,9 @@ public class LoginHandler implements IToolEventHandler {
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
 					final IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
-					final LoginDialog dialog = new LoginDialog(window.getShell());
+					final LoginDialog dialog = new LoginDialog(process, window.getShell());
 					dialog.fMessage = message;
 					dialog.fCallbacks = callbacks;
-					dialog.fProcess = process;
 					dialog.fAllowSave = saveAllowed;
 					dialog.fSave = saveActivated;
 					if (dialog.open() == Dialog.OK) {

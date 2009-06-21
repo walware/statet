@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.r.core.model.IRFrame;
@@ -32,7 +31,7 @@ public class CompositeFrame implements IRFrame {
 	
 	
 	private final int fFrameType;
-	private final IElementName fElementName;
+	private final RElementName fElementName;
 	
 	public final Map<String, RUnitElement> fModelElements;
 	private final Lock fLock;
@@ -53,7 +52,7 @@ public class CompositeFrame implements IRFrame {
 	}
 	
 	
-	public IElementName getElementName() {
+	public RElementName getElementName() {
 		return fElementName;
 	}
 	

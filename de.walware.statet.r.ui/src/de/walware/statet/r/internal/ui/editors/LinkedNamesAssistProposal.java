@@ -41,7 +41,7 @@ import de.walware.ecommons.ui.text.sourceediting.DefaultBrowserInformationInput;
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
-import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.internal.ui.RUIMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -95,7 +95,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	
 	private int fMode;
 	private AssistInvocationContext fContext;
-	private IElementAccess fAccess;
+	private RElementAccess fAccess;
 	private String fLabel;
 	private String fDescription;
 	private String fValueSuggestion;
@@ -103,7 +103,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	
 	
 	public LinkedNamesAssistProposal(final int mode,
-			final AssistInvocationContext invocationContext, final IElementAccess access) {
+			final AssistInvocationContext invocationContext, final RElementAccess access) {
 		fMode = mode;
 		switch (mode) {
 		case IN_FILE:
@@ -158,8 +158,8 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 			
 			final IDocument document = viewer.getDocument();
 			final LinkedPositionGroup group = new LinkedPositionGroup();
-			final IElementAccess[] allInUnit = fAccess.getAllInUnit();
-			Arrays.sort(allInUnit, IElementAccess.NAME_POSITION_COMPARATOR);
+			final RElementAccess[] allInUnit = fAccess.getAllInUnit();
+			Arrays.sort(allInUnit, RElementAccess.NAME_POSITION_COMPARATOR);
 			int current = -1;
 			for (int i = 0; i < allInUnit.length; i++) {
 				if (fAccess == allInUnit[i]) {
@@ -212,7 +212,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 		}
 	}
 	
-	private int add(final LinkedPositionGroup group, final IDocument document, final IElementAccess access, final int idx) throws BadLocationException {
+	private int add(final LinkedPositionGroup group, final IDocument document, final RElementAccess access, final int idx) throws BadLocationException {
 		final Position position = RAst.getElementNamePosition(access.getNameNode());
 		if (position != null) {
 			group.addPosition(new LinkedPosition(document, position.getOffset(), position.getLength(), idx));

@@ -13,8 +13,6 @@ package de.walware.statet.r.core.model;
 
 import java.util.Comparator;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
@@ -23,28 +21,29 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
  * 
  * Is created by code analysis, not indent to implement by clients.
  */
-public interface IElementAccess extends IElementName {
+public abstract class RElementAccess extends RElementName {
 	
 	
-	public static final Comparator<IElementAccess> NAME_POSITION_COMPARATOR = 
-		new Comparator<IElementAccess>() {
-			public int compare(final IElementAccess o1, final IElementAccess o2) {
+	public static final Comparator<RElementAccess> NAME_POSITION_COMPARATOR = 
+		new Comparator<RElementAccess>() {
+			public int compare(final RElementAccess o1, final RElementAccess o2) {
 				return (o1.getNameNode().getOffset() - o2.getNameNode().getOffset()); 
 			}
 	};
 	
 	
-	public IRFrame getFrame();
+	public abstract IRFrame getFrame();
 	
-	public boolean isWriteAccess();
-	public boolean isMethodAccess();
+	public abstract boolean isWriteAccess();
+	public abstract boolean isMethodAccess();
 	
-	public RAstNode getNode();
+	public abstract RAstNode getNode();
 	
-	public RAstNode getNameNode();
+	public abstract RAstNode getNameNode();
 	
-	public IElementAccess getNextSegment();
+	@Override
+	public abstract RElementAccess getNextSegment();
 	
-	public IElementAccess[] getAllInUnit();
+	public abstract RElementAccess[] getAllInUnit();
 	
 }

@@ -54,7 +54,6 @@ import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IPackageReferences;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
@@ -62,6 +61,7 @@ import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTokens;
@@ -182,9 +182,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	private static class FCallInfo {
 		
 		final FCall node;
-		final IElementAccess access;
+		final RElementAccess access;
 		
-		public FCallInfo(final FCall node, final IElementAccess access) {
+		public FCallInfo(final FCall node, final RElementAccess access) {
 			this.node = node;
 			this.access = access;
 		}
@@ -718,9 +718,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			final IRFrame envir = iter.next();
 			if (envir instanceof IRFrameInSource) {
 				final IRFrameInSource sframe = (IRFrameInSource) envir;
-				final List<? extends IElementAccess> allAccess = sframe.getAllAccessOfElement(prefixSegments.getSegmentName());
+				final List<? extends RElementAccess> allAccess = sframe.getAllAccessOfElement(prefixSegments.getSegmentName());
 				if (allAccess != null) {
-					ITER_ELEMENTS: for (final IElementAccess elementAccess : allAccess) {
+					ITER_ELEMENTS: for (final RElementAccess elementAccess : allAccess) {
 						IElementName elementSegment = elementAccess;
 						ITER_SEGMENTS: for (int i = 0; i < count-1; i++) {
 							if (isCompletable(elementSegment)
@@ -816,8 +816,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					&& (fcallOpen == (fcallNode = ((FCall) rnode)).getArgsOpenOffset())) {
 				final Object[] attachments = fcallNode.getRefChild().getAttachments();
 				for (int i = 0; i < attachments.length; i++) {
-					if (attachments[i] instanceof IElementAccess) {
-						final IElementAccess fcallAccess = (IElementAccess) attachments[i];
+					if (attachments[i] instanceof RElementAccess) {
+						final RElementAccess fcallAccess = (RElementAccess) attachments[i];
 						if (fcallAccess.isMethodAccess() && !fcallAccess.isWriteAccess()) {
 							final FCallInfo info = new FCallInfo(fcallNode, fcallAccess);
 							if (initEnvirList(context, fcallNode)) {

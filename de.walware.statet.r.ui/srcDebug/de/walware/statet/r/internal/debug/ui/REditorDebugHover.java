@@ -27,7 +27,6 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPart;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
@@ -49,7 +48,7 @@ import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.RListImpl;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
-import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -67,7 +66,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 	private static class RUpdater implements IToolRunnable {
 		
 		
-		private IElementName fElementRef;
+		private RElementName fElementRef;
 		private boolean fCancelled;
 		
 		private ICombinedRElement fElementStruct;
@@ -76,7 +75,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 		private String fElementDetailInfo;
 		
 		
-		public RUpdater(final IElementName elementRef) {
+		public RUpdater(final RElementName elementRef) {
 			fElementRef = elementRef;
 		}
 		
@@ -162,16 +161,16 @@ public class REditorDebugHover implements ISourceEditorHover {
 			}
 		}
 		
-		private IElementName checkName(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
-			final IElementName mainName = RElementName.cloneSegment(fElementRef);
+		private RElementName checkName(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
+			final RElementName mainName = RElementName.cloneSegment(fElementRef);
 			final String name = mainName.getDisplayName();
 			if (name != null) {
 				final RObject found = r.evalData("find(\""+name+"\")", monitor);
 				if (found != null && found.getRObjectType() == RObject.TYPE_VECTOR && found.getData().getStoreType() == RStore.CHARACTER
 						&& found.getLength() > 0) {
-					final List<IElementName> segments = new ArrayList<IElementName>();
+					final List<RElementName> segments = new ArrayList<RElementName>();
 					segments.add(RElementName.create(RElementName.MAIN_SEARCH_ENV, found.getData().getChar(0)));
-					IElementName a = fElementRef;
+					RElementName a = fElementRef;
 					while (a != null) {
 						segments.add(a);
 						a = a.getNextSegment();
@@ -184,7 +183,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 		
 	}
 	
-	public static Object getElementDetail(final IElementName name, final Control control, final IWorkbenchPart part) {
+	public static Object getElementDetail(final RElementName name, final Control control, final IWorkbenchPart part) {
 		if (name == null || part == null) {
 			return null;
 		}
@@ -275,16 +274,16 @@ public class REditorDebugHover implements ISourceEditorHover {
 				final AstSelection astSelection = AstSelection.search(modelInfo.getAst().root, hoverRegion.getOffset(), hoverRegion.getOffset()+hoverRegion.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
 				RAstNode node = (RAstNode) astSelection.getCovering();
 				if (node != null) {
-					IElementAccess access = null;
+					RElementAccess access = null;
 					while (node != null && access == null) {
 						if (Thread.interrupted()) {
 							return null;
 						}
 						final Object[] attachments = node.getAttachments();
 						for (int i = 0; i < attachments.length; i++) {
-							if (attachments[i] instanceof IElementAccess) {
-								access = (IElementAccess) attachments[i];
-								final IElementName e = getElementAccessOfRegion(access, hoverRegion);
+							if (attachments[i] instanceof RElementAccess) {
+								access = (RElementAccess) attachments[i];
+								final RElementName e = getElementAccessOfRegion(access, hoverRegion);
 								if (Thread.interrupted() || e == null) {
 									return null;
 								}
@@ -303,26 +302,25 @@ public class REditorDebugHover implements ISourceEditorHover {
 		return null;
 	}
 	
-	private IElementName getElementAccessOfRegion(final IElementAccess access, final IRegion region) {
+	private RElementName getElementAccessOfRegion(final RElementAccess access, final IRegion region) {
 		int segmentCount = 0;
-		IElementAccess current = access;
+		RElementAccess current = access;
 		while (current != null) {
 			segmentCount++;
 			final RAstNode nameNode = current.getNameNode();
 			if (nameNode != null
 					&& (nameNode.getOffset() <= region.getOffset() && nameNode.getStopOffset() >= region.getOffset()+region.getLength()) ) {
-				final IElementName[] segments = new IElementName[segmentCount];
-				IElementAccess segment = access;
+				final RElementName[] segments = new RElementName[segmentCount];
+				RElementAccess segment = access;
 				for (int i = 0; i < segments.length; i++) {
 					if (segment.getSegmentName() == null) {
 						return null;
 					}
 					switch (segment.getType()) {
 					case RElementName.MAIN_DEFAULT:
-					case RElementName.MAIN_SLOT:
 					case RElementName.SUB_NAMEDSLOT:
 					case RElementName.SUB_NAMEDPART:
-						segments[i] = segment;
+						segments[i] = (RElementName) segment;
 						break;
 					case RElementName.SUB_INDEXED_S:
 					case RElementName.SUB_INDEXED_D:
@@ -331,7 +329,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 						if (segmentCount != 1) {
 							return null;
 						}
-						segments[i] = segment;
+						segments[i] = (RElementName) segment;
 						break;
 					default:
 //					case RElementName.MAIN_PACKAGE:

@@ -44,6 +44,8 @@ public interface IRLangElement extends IModelElement {
 	};
 	
 	
+	RElementName getElementName();
+	
 	IRLangElement getModelParent();
 	
 	boolean hasModelChildren(Filter<? super IRLangElement> filter);

@@ -21,7 +21,7 @@ import de.walware.ecommons.ui.text.sourceediting.QuickAssistProcessor;
 
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
-import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
@@ -50,8 +50,8 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 		SEARCH_ACCESS : while (candidate != null) {
 			final Object[] attachments = candidate.getAttachments();
 			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof IElementAccess) {
-					IElementAccess access = (IElementAccess) attachments[i]; 
+				if (attachments[i] instanceof RElementAccess) {
+					RElementAccess access = (RElementAccess) attachments[i]; 
 					SUB: while (access != null) {
 						if (access.getSegmentName() == null) {
 							break SUB;
@@ -69,11 +69,11 @@ public class RQuickAssistProcessor extends QuickAssistProcessor {
 	}
 	
 	protected void addAccessAssistProposals(final List<ICompletionProposal> proposals,
-			final AssistInvocationContext invocationContext, final IElementAccess access) {
-		final IElementAccess[] allInUnit = access.getAllInUnit();
+			final AssistInvocationContext invocationContext, final RElementAccess access) {
+		final RElementAccess[] allInUnit = access.getAllInUnit();
 		proposals.add(new LinkedNamesAssistProposal(LinkedNamesAssistProposal.IN_FILE, invocationContext, access));
 		if (allInUnit.length > 2) {
-			Arrays.sort(allInUnit, IElementAccess.NAME_POSITION_COMPARATOR);
+			Arrays.sort(allInUnit, RElementAccess.NAME_POSITION_COMPARATOR);
 			int current = 0;
 			for (; current < allInUnit.length; current++) {
 				if (access == allInUnit[current]) {

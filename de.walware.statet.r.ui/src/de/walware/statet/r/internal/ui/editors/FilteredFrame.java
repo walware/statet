@@ -13,13 +13,13 @@ package de.walware.statet.r.internal.ui.editors;
 
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 public class FilteredFrame implements IRFrame, IModelElement.Filter<IRLangElement> {
@@ -43,7 +43,7 @@ public class FilteredFrame implements IRFrame, IModelElement.Filter<IRLangElemen
 		return fFrame.getFrameType();
 	}
 	
-	public IElementName getElementName() {
+	public RElementName getElementName() {
 		return null;
 	}
 	

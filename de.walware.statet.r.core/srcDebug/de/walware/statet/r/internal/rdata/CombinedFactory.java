@@ -14,11 +14,11 @@ package de.walware.statet.r.internal.rdata;
 import java.io.IOException;
 import java.io.ObjectInput;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
+
+import de.walware.statet.r.core.model.RElementName;
 
 
 public class CombinedFactory extends RObjectFactoryImpl {
@@ -34,7 +34,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 		return readObject(in, flags, null, null);
 	}
 	
-	public CombinedElement readObject(final ObjectInput in, final int flags, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public CombinedElement readObject(final ObjectInput in, final int flags, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		final int type = in.readInt();
 		switch (type) {
 		case -1:
@@ -69,7 +69,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 		return readAttributeList(in, flags, null, null);
 	}
 	
-	public RList readAttributeList(final ObjectInput in, final int flags, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RList readAttributeList(final ObjectInput in, final int flags, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		return new RListVar(in, flags, this, parent, name);
 	}
 	
@@ -79,7 +79,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 //		}
 //	}
 	
-	public void setElementName(final CombinedElement element, final IElementName name) {
+	public void setElementName(final CombinedElement element, final RElementName name) {
 		element.fElementName = name;
 	}
 	

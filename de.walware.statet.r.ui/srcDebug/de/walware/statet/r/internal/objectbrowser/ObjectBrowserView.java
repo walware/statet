@@ -39,9 +39,11 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -113,6 +115,7 @@ import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.actions.ToolRetargetableHandler;
+import de.walware.statet.nico.ui.util.ToolMessageDialog;
 
 import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.REnvironment;
@@ -128,6 +131,7 @@ import de.walware.statet.r.internal.debug.ui.REditorDebugHover;
 import de.walware.statet.r.internal.debug.ui.RElementInfoHoverCreator;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunPrintInR;
+import de.walware.statet.r.nico.IRDataAdapter;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
@@ -273,18 +277,6 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				objectType = RObject.TYPE_VECTOR;
 			}
 			return objectType;
-		}
-		
-	}
-	
-	private static class Scriptlet {
-		
-		final String name;
-		final String fdef;
-		
-		public Scriptlet(final String name, final String command) {
-			this.name = name;
-			this.fdef = command;
 		}
 		
 	}
@@ -482,14 +474,161 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			if (treePaths.length != 1) {
 				return null;
 			}
-			final IElementName elementName = getElementName(treePaths[0]);
+			final RElementName elementName = getElementName(treePaths[0]);
 			if (elementName != null) {
-				final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_NS_PREFIX);
+				final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
 				
 				final ToolProcess process = fProcess;
 				try {
 					final ToolController controller = NicoUITools.accessController("R", process);
 					controller.submit(name, SubmitType.TOOLS);
+				}
+				catch (final CoreException e) {
+				}
+			}
+			
+			return null;
+		}
+		
+	}
+	
+	private class DeleteHandler extends AbstractHandler {
+		
+		
+		public DeleteHandler() {
+		}
+		
+		
+		@Override
+		public void setEnabled(final Object evaluationContext) {
+			final ToolProcess process = fProcess;
+			setBaseEnabled(process != null && !process.isTerminated()
+					&& ((TreeSelection) fTreeViewer.getSelection()).size() >= 1);
+		}
+		
+		public Object execute(final ExecutionEvent event) throws ExecutionException {
+			if (!UIAccess.isOkToUse(fTreeViewer)) {
+				return null;
+			}
+			final TreeSelection selection = (TreeSelection) fTreeViewer.getSelection();
+			if (selection == null) {
+				return null;
+			}
+			final TreePath[] treePaths = selection.getPaths();
+			Arrays.sort(treePaths, new Comparator<TreePath>() {
+				public int compare(final TreePath o1, final TreePath o2) {
+					return o1.getSegmentCount()-o2.getSegmentCount();
+				}
+			});
+			final IElementComparer comparer = new IElementComparer() {
+				public int hashCode(final Object e) {
+					return e.hashCode();
+				}
+				public boolean equals(final Object e1, final Object e2) {
+					return (e1 == e2);
+				}
+			};
+			final List<String> commands = new ArrayList<String>(treePaths.length);
+			final List<String> names = new ArrayList<String>(treePaths.length);
+			final Set<IElementName> topEnvirs = new HashSet<IElementName>(treePaths.length);
+			ITER_ELEMENTS: for (int i = 0; i < treePaths.length; i++) {
+				for (int j = 0; j < i; j++) {
+					if (treePaths[j] != null && treePaths[i].startsWith(treePaths[j], comparer)) {
+						treePaths[i] = null;
+						continue ITER_ELEMENTS;
+					}
+				}
+				
+				final TreePath treePath = treePaths[i];
+				final ICombinedRElement element = (ICombinedRElement) treePath.getLastSegment();
+				final ICombinedRElement parent = element.getModelParent();
+				
+				final IElementName elementName = getElementName(treePath);
+				if (parent != null && elementName != null) {
+					switch (parent.getRObjectType()) {
+					case RObject.TYPE_ENV: {
+						final IElementName envirName = (treePath.getSegmentCount() > 1) ? getElementName(treePath.getParentPath()) : parent.getElementName();
+						final IElementName itemName = element.getElementName();
+						final IElementName topName = elementName.getNamespace();
+						if (envirName != null) { // elementName ok => segmentName ok
+							commands.add("rm(`"+itemName.getSegmentName()+"`,"+ //$NON-NLS-1$ 
+									"pos="+RElementName.createDisplayName(envirName, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT)+ //$NON-NLS-1$
+									")"); //$NON-NLS-1$
+							names.add(elementName.getDisplayName());
+							topEnvirs.add(topName);
+							continue ITER_ELEMENTS;
+						}
+						break; }
+					case RObject.TYPE_LIST:
+					case RObject.TYPE_DATAFRAME:
+					case RObject.TYPE_S4OBJECT:
+						final IElementName topName = elementName.getNamespace();
+						final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_EXACT);
+						commands.add("with("+RElementName.createDisplayName(topName, RElementName.DISPLAY_NS_PREFIX)+","+ //$NON-NLS-1$ 
+								name+"<-NULL"+ //$NON-NLS-1$
+								")"); //$NON-NLS-1$
+						names.add(elementName.getDisplayName());
+						topEnvirs.add(topName);
+						continue ITER_ELEMENTS;
+					}
+				}
+				
+				final StringBuilder message = new StringBuilder("Selection contains unsupported object");
+				if (elementName != null) {
+					message.append("\n\t"); //$NON-NLS-1$
+					message.append(elementName.getDisplayName());
+				}
+				else {
+					message.append("."); //$NON-NLS-1$
+				}
+				MessageDialog.openError(getSite().getShell(), "Delete", message.toString());
+				return null;
+			}
+			
+			final StringBuilder message = new StringBuilder(names.size() == 1 ?
+					"Are you sure you want to deleting the object" :
+					NLS.bind("Are you sure you want to delete these {0} objects", names.size()));
+			final int show = (names.size() > 5) ? 3 : names.size();
+			for (int i = 0; i < show; i++) {
+				message.append("\n\t"); //$NON-NLS-1$
+				message.append(names.get(i));
+			}
+			if (show < names.size()) {
+				message.append("\n\t..."); //$NON-NLS-1$
+			}
+			
+			final ToolProcess process = fProcess;
+			if (ToolMessageDialog.openConfirm(process, getSite().getShell(), "Delete", message.toString())) {
+				try {
+					final ToolController controller = NicoUITools.accessController("R", process); //$NON-NLS-1$
+					controller.submit(new IToolRunnable() {
+						public String getTypeId() {
+							return "r/objectbrowser/delete";
+						}
+						public SubmitType getSubmitType() {
+							return SubmitType.TOOLS;
+						}
+						public String getLabel() {
+							return "Delete Elements";
+						}
+						public void changed(int event, ToolProcess process) {
+						}
+						public void run(IToolRunnableControllerAdapter adapter, IProgressMonitor monitor)
+								throws InterruptedException, CoreException {
+							if (adapter.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
+								IRDataAdapter r = (IRDataAdapter) adapter;
+								for (int i = 0; i < names.size(); i++) {
+									r.evalVoid(commands.get(i), monitor);
+								}
+								r.briefAboutChange(topEnvirs, 0);
+							}
+							else {
+								for (int i = 0; i < names.size(); i++) {
+									adapter.submitToConsole(commands.get(i), monitor);
+								}
+							}
+						}
+					});
 				}
 				catch (final CoreException e) {
 				}
@@ -885,7 +1024,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		@Override
 		protected Object getHoverInformation(final Object element) {
 			if (element instanceof IElementName) {
-				return REditorDebugHover.getElementDetail((IElementName) element, getSubjectControl(), ObjectBrowserView.this);
+				return REditorDebugHover.getElementDetail((RElementName) element, getSubjectControl(), ObjectBrowserView.this);
 			}
 			return null;
 		}
@@ -969,6 +1108,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	private boolean fFilterUserspaceActivated;
 	
 	private CopyElementNameHandler fCopyElementNameHandler;
+	private DeleteHandler fDeleteElementHandler;
 	private PrintHandler fPrintElementHandler;
 	
 	private Object fCurrentInfoObject;
@@ -1117,6 +1257,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fCopyElementNameHandler = new CopyElementNameHandler();
 		handlerService.activateHandler(IStatetUICommandIds.COPY_ELEMENT_NAME, fCopyElementNameHandler);
 		handlerService.activateHandler(IWorkbenchActionDefinitionIds.COPY, fCopyElementNameHandler);
+		fDeleteElementHandler = new DeleteHandler();
+		handlerService.activateHandler(IWorkbenchActionDefinitionIds.DELETE, fDeleteElementHandler);
 		fPrintElementHandler = new PrintHandler();
 		handlerService.activateHandler(RunPrintInR.COMMAND_ID, fPrintElementHandler);
 		final InformationDispatchHandler infoHandler = new InformationDispatchHandler(fTokenOwner);
@@ -1197,6 +1339,12 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				null, null, null,
 				HandlerContributionItem.STYLE_PUSH, null, false),
 				fCopyElementNameHandler));
+		m.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
+				"Delete", IWorkbenchActionDefinitionIds.DELETE, null, //$NON-NLS-1$
+				null, null, null,
+				null, null, null,
+				HandlerContributionItem.STYLE_PUSH, null, false),
+				fDeleteElementHandler));
 		m.add(new Separator());
 		m.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
 				null, RunPrintInR.COMMAND_ID, null, 
@@ -1220,11 +1368,16 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					((process != null && process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) ?
 							process : null);
 		}
-		fHoveringController.stop();
+		if (fHoveringController != null) {
+			fHoveringController.stop();
+		}
 		if (oldProcess != null) {
 			clearInfo();
 			oldProcess.getQueue().removeElements(new Object[] { 
 					fManualRefreshRunnable });
+		}
+		if (!UIAccess.isOkToUse(fTreeViewer)) {
+			return;
 		}
 		for (final IToolRetargetable listener : fToolListenerList.toArray()) {
 			listener.setTool(fProcess);
@@ -1433,7 +1586,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	
-	protected IElementName getElementName(final TreePath treePath) {
+	protected RElementName getElementName(final TreePath treePath) {
 		if (treePath.getSegmentCount() == 0) {
 			return null;
 		}
@@ -1446,14 +1599,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				segmentIdx = 1;
 			}
 		}
-		final IElementName[] names = new IElementName[treePath.getSegmentCount()-segmentIdx+1];
+		final RElementName[] names = new RElementName[treePath.getSegmentCount()-segmentIdx+1];
 		final ICombinedRElement first = (ICombinedRElement) treePath.getSegment(segmentIdx++);
 		names[0] = first.getModelParent().getElementName();
 		names[1] = first.getElementName();
 		for (int namesIdx = 2; namesIdx < names.length; namesIdx++) {
-			final Object element = treePath.getSegment(segmentIdx++);
-			if (element instanceof ICombinedRElement) {
-				names[namesIdx] = ((ICombinedRElement) element).getElementName();
+			final Object segment = treePath.getSegment(segmentIdx++);
+			if (segment instanceof ICombinedRElement) {
+				names[namesIdx] = ((ICombinedRElement) segment).getElementName();
 			}
 			if (names[namesIdx] == null) {
 				return null;

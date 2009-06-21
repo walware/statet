@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RArray;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
@@ -30,6 +28,7 @@ import de.walware.rj.data.defaultImpl.RArrayImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 public final class RArrayVar<DataType extends RStore> extends CombinedElement
@@ -54,7 +53,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		fData = data;
 	}
 	
-	public RArrayVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final IElementName name) throws IOException, ClassNotFoundException {
+	public RArrayVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
 		fParent = parent;
 		fElementName = name;
 		readExternal(in, flags, factory);

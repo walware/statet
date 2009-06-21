@@ -365,6 +365,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 						Display.getCurrent().timerExec((int) diff, this);
 						return;
 					}
+					if (!fIsCreated) {
+						return;
+					}
 					synchronized (StatusListener.this) {
 						if (thisId != updateId) {
 							return;

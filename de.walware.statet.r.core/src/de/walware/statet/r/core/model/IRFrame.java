@@ -13,7 +13,6 @@ package de.walware.statet.r.core.model;
 
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 
 
@@ -36,7 +35,7 @@ public interface IRFrame {
 //	String getFrameName();
 	/** Combination of frametype and name */
 	String getFrameId();
-	IElementName getElementName();
+	RElementName getElementName();
 	
 	List<? extends IRLangElement> getModelElements();
 	boolean hasModelChildren(final IModelElement.Filter<? super IRLangElement> filter);

@@ -19,6 +19,6 @@ public interface IRFrameInSource extends IRFrame {
 	
 	
 	Set<String> getAllAccessNames();
-	List<? extends IElementAccess> getAllAccessOfElement(final String name);
+	List<? extends RElementAccess> getAllAccessOfElement(final String name);
 	
 }

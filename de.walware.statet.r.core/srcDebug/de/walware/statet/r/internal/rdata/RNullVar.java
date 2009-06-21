@@ -14,12 +14,11 @@ package de.walware.statet.r.internal.rdata;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ltk.IElementName;
-
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.RElementName;
 
 
 public final class RNullVar extends CombinedElement {
@@ -28,7 +27,7 @@ public final class RNullVar extends CombinedElement {
 	public RNullVar() {
 	}
 	
-	public RNullVar(final CombinedElement parent, final IElementName name) {
+	public RNullVar(final CombinedElement parent, final RElementName name) {
 		fParent = parent;
 		fElementName = name;
 	}

@@ -39,7 +39,6 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.net.RMIAddress;
 
 import de.walware.statet.nico.core.runtime.HistoryOperationsHandler;
@@ -684,7 +683,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	@Override
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
 		super.postCancelTask(options, monitor);
-		fCurrentInput = ""; 
+		fCurrentInput = ""; //$NON-NLS-1$
+		doSubmit(monitor);
+		fCurrentInput = ""; //$NON-NLS-1$
 		doSubmit(monitor);
 	}
 	
@@ -841,7 +842,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	}
 	
 	public ICombinedRElement evalCombinedStruct(final String command,
-			final int options, final int depth, final IElementName name, final IProgressMonitor monitor) throws CoreException {
+			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
 		final RObject data = evalData(command, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
@@ -851,13 +852,17 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		return null;
 	}
 	
-	public ICombinedRElement evalCombinedStruct(final IElementName name,
+	public ICombinedRElement evalCombinedStruct(final RElementName name,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
-		return evalCombinedStruct(RElementName.createDisplayName(name, RElementName.DISPLAY_NS_PREFIX), options, depth, name, monitor);
+		final String command = RElementName.createDisplayName(name, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT);
+		if (command == null) {
+			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, 0, "Illegal R element name.", null));
+		}
+		return evalCombinedStruct(command, options, depth, name, monitor);
 	}
 	
 	public ICombinedRElement evalCombinedStruct(final RReference reference,
-			final int options, final int depth, final IElementName name, final IProgressMonitor monitor) throws CoreException {
+			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
 		final RObject data = evalData(reference, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;

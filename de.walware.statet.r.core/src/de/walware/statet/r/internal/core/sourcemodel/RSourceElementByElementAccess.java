@@ -19,14 +19,12 @@ import java.util.List;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRClassExtension;
 import de.walware.statet.r.core.model.IRFrame;
@@ -34,6 +32,8 @@ import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRPackageLoad;
 import de.walware.statet.r.core.model.IRSlot;
+import de.walware.statet.r.core.model.RElementAccess;
+import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.DocuComment;
 import de.walware.statet.r.core.rsource.ast.FDef;
@@ -467,7 +467,7 @@ abstract class RSourceElementByElementAccess
 		return fType;
 	}
 	
-	public final IElementName getElementName() {
+	public final RElementName getElementName() {
 		return fAccess;
 	}
 	
@@ -496,7 +496,7 @@ abstract class RSourceElementByElementAccess
 	}
 	
 	public final IRegion getNameSourceRange() {
-		IElementAccess access = fAccess;
+		RElementAccess access = fAccess;
 		while (access.getNextSegment() != null) {
 			access = access.getNextSegment();
 		}
@@ -513,7 +513,7 @@ abstract class RSourceElementByElementAccess
 		if (IAstNode.class.equals(required)) {
 			return fAccess.getNode();
 		}
-		if (IElementAccess.class.equals(required)) {
+		if (RElementAccess.class.equals(required)) {
 			return fAccess;
 		}
 		return null;

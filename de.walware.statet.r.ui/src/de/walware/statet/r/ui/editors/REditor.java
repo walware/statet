@@ -70,9 +70,9 @@ import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
@@ -220,8 +220,8 @@ public class REditor extends StatextEditor1<RProject> {
 		private boolean checkForAccess(final RunData run, final RAstNode node) throws BadLocationException {
 			final Object[] attachments = node.getAttachments();
 			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof IElementAccess) {
-					final IElementAccess access = (IElementAccess) attachments[i];
+				if (attachments[i] instanceof RElementAccess) {
+					final RElementAccess access = (RElementAccess) attachments[i];
 					final Map<Annotation, Position> annotations = checkDefault(run, access);
 					
 					if (annotations != null) {
@@ -233,7 +233,7 @@ public class REditor extends StatextEditor1<RProject> {
 			return false;
 		}
 		
-		private Map<Annotation, Position> checkDefault(final RunData run, IElementAccess access) throws BadLocationException {
+		private Map<Annotation, Position> checkDefault(final RunData run, RElementAccess access) throws BadLocationException {
 			while (access != null) {
 				final RAstNode nameNode = access.getNameNode();
 				if (nameNode == null) {
@@ -242,10 +242,10 @@ public class REditor extends StatextEditor1<RProject> {
 				run.range = new Point(nameNode.getOffset(), nameNode.getStopOffset());
 				if (isValid(run)) {
 					run.name = new String[] { access.getSegmentName() };
-					final IElementAccess[] accessList = access.getAllInUnit();
+					final RElementAccess[] accessList = access.getAllInUnit();
 					final Map<Annotation, Position> annotations = new LinkedHashMap<Annotation, Position>(accessList.length);
 					for (int i = 0; i < accessList.length; i++) {
-						final IElementAccess item = accessList[i];
+						final RElementAccess item = accessList[i];
 						final String message = run.doc.get(item.getNode().getOffset(), item.getNode().getLength());
 						annotations.put(
 								new Annotation(item.isWriteAccess() ? 

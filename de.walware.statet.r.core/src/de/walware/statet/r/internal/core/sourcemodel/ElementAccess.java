@@ -11,15 +11,13 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import de.walware.ecommons.ltk.IElementName;
-
-import de.walware.statet.r.core.model.IElementAccess;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 
 
-public abstract class ElementAccess extends RElementName implements IElementAccess {
+public abstract class ElementAccess extends RElementAccess {
 	
 	
 	public static final int A_READ =    0x0;
@@ -62,7 +60,7 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 		}
 		
 		public int getType() {
-			return RElementName.MAIN_SLOT;
+			return RElementName.SUB_NAMEDSLOT;
 		}
 		
 	}
@@ -115,18 +113,22 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 		return RElementName.createDisplayName(this, 0);
 	}
 	
+	@Override
 	public final IRFrame getFrame() {
 		return fShared.frame;
 	}
 	
-	public IElementName getNamespace() {
+	@Override
+	public RElementName getNamespace() {
 		return (fShared.frame != null && fShared.isCreated >= BuildSourceFrame.CREATED_RESOLVED) ? fShared.frame.getElementName() : null;
 	}
 	
-	public final IElementAccess[] getAllInUnit() {
-		return fShared.entries.toArray(new IElementAccess[fShared.entries.size()]);
+	@Override
+	public final RElementAccess[] getAllInUnit() {
+		return fShared.entries.toArray(new RElementAccess[fShared.entries.size()]);
 	}
 	
+	@Override
 	public final boolean isWriteAccess() {
 		return ((fFlags & A_WRITE) != 0);
 	}
@@ -139,19 +141,23 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 		return ((fFlags & A_IMPORT) != 0);
 	}
 	
+	@Override
 	public final boolean isMethodAccess() {
 		return ((fFlags & A_FUNC) == A_FUNC);
 	}
 	
+	@Override
 	public final RAstNode getNode() {
 		return fFullNode;
 	}
 	
+	@Override
 	public final RAstNode getNameNode() {
 		return fNameNode;
 	}
 	
-	public final IElementAccess getNextSegment() {
+	@Override
+	public final RElementAccess getNextSegment() {
 		return fNextSegment;
 	}
 	
