@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
@@ -42,10 +43,14 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 	private RSourceViewerConfigurator fRConfig;
 	
 	
-	/**
-	 */
 	public RInputGroup(final RConsolePage page) {
 		super(page);
+	}
+	
+	
+	@Override
+	protected ISourceUnit createSourceUnit() {
+		return new RConsoleSourceUnit((RConsolePage) getConsolePage(), fDocument);
 	}
 	
 	

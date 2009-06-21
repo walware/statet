@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.core.model;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
+import de.walware.ecommons.ltk.SourceContent;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
@@ -22,12 +26,14 @@ import de.walware.statet.r.core.rsource.ast.RAstInfo;
 public interface IManagableRUnit extends IRSourceUnit {
 	
 	
-	public Object getModelLockObject();
+	Object getModelLockObject();
 	
-	public void setRAst(RAstInfo ast);
-	public RAstInfo getCurrentRAst();
+	void setRAst(RAstInfo ast);
+	RAstInfo getCurrentRAst();
 	
-	public void setRModel(IRModelInfo model);
-	public IRModelInfo getCurrentRModel();
+	void setRModel(IRModelInfo model);
+	IRModelInfo getCurrentRModel();
+	
+	SourceContent getParseContent(IProgressMonitor monitor);
 	
 }

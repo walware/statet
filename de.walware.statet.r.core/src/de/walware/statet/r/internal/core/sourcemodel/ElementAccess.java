@@ -37,8 +37,12 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	
 	public final static class Default extends ElementAccess {
 		
-		public Default(final RAstNode node) {
-			super(node, null);
+		public Default(final RAstNode fullNode) {
+			super(fullNode, null);
+		}
+		
+		public Default(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
 		}
 		
 		public int getType() {
@@ -49,8 +53,12 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	
 	public final static class Slot extends ElementAccess {
 		
-		public Slot(final RAstNode node) {
-			super(node, null);
+		public Slot(final RAstNode fullNode) {
+			super(fullNode, null);
+		}
+		
+		public Slot(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
 		}
 		
 		public int getType() {
@@ -61,8 +69,8 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	
 	public final static class Class extends ElementAccess {
 		
-		public Class(final RAstNode node) {
-			super(node, null);
+		public Class(final RAstNode fullNode) {
+			super(fullNode, null);
 		}
 		
 		public int getType() {
@@ -73,8 +81,8 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	
 	public final static class Package extends ElementAccess {
 		
-		public Package(final RAstNode node, final RAstNode nameNode) {
-			super(node, nameNode);
+		public Package(final RAstNode fullNode, final RAstNode nameNode) {
+			super(fullNode, nameNode);
 		}
 		
 		public int getType() {
@@ -92,8 +100,8 @@ public abstract class ElementAccess extends RElementName implements IElementAcce
 	IRLangSourceElement fModelElement;
 	
 	
-	private ElementAccess(final RAstNode node, final RAstNode nameNode) {
-		fFullNode = node;
+	private ElementAccess(final RAstNode fullNode, final RAstNode nameNode) {
+		fFullNode = fullNode;
 		fNameNode = nameNode;
 	}
 	

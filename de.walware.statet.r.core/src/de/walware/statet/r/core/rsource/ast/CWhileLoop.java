@@ -161,13 +161,13 @@ public class CWhileLoop extends RAstNode {
 		if (fLoopExpr.node != null) {
 			fStopOffset = fLoopExpr.node.fStopOffset;
 		}
-		else if (fCondCloseOffset >= 0) {
+		else if (fCondCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fCondCloseOffset+1;
 		}
 		else if (fCondExpr.node != null) {
 			fStopOffset = fCondExpr.node.fStopOffset;
 		}
-		else if (fCondOpenOffset >= 0) {
+		else if (fCondOpenOffset != Integer.MIN_VALUE) {
 			fStopOffset = fCondOpenOffset+1;
 		}
 		else {

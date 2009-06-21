@@ -177,7 +177,7 @@ abstract class SpecItem extends RAstNode {
 		if (fValueExpr.node != null) {
 			fStopOffset = fValueExpr.node.fStopOffset;
 		}
-		else if (fEqualsOffset >= 0) {
+		else if (fEqualsOffset != Integer.MIN_VALUE) {
 			fStopOffset = fEqualsOffset+1;
 		}
 		else if (fArgName != null) {

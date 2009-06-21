@@ -175,6 +175,10 @@ public class InputDocument extends AbstractDocument {
 		return fMaster;
 	}
 	
+	public int getOffsetInMasterDocument() {
+		return fOffsetInMaster;
+	}
+	
 	
 	@Override
 	public void set(final String text) {

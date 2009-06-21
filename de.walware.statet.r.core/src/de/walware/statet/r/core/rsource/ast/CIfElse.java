@@ -208,19 +208,19 @@ public class CIfElse extends RAstNode {
 		if (fWithElse && fElseExpr.node != null) {
 			fStopOffset = fElseExpr.node.fStopOffset;
 		}
-		else if (fWithElse && fElseOffset >= 0) {
+		else if (fWithElse && fElseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fElseOffset+4;
 		}
 		else if (fThenExpr.node != null) {
 			fStopOffset = fThenExpr.node.fStopOffset;
 		}
-		else if (fCondCloseOffset >= 0) {
+		else if (fCondCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fCondCloseOffset+1;
 		}
 		else if (fCondExpr.node != null) {
 			fStopOffset = fCondExpr.node.fStopOffset;
 		}
-		else if (fCondOpenOffset != 0) {
+		else if (fCondOpenOffset != Integer.MIN_VALUE) {
 			fStopOffset = fCondOpenOffset+1;
 		}
 		else {

@@ -418,13 +418,13 @@ public class FDef extends RAstNode {
 		if (fExpr.node != null) {
 			fStopOffset = fExpr.node.fStopOffset;
 		}
-		else if (fArgsCloseOffset >= 0) {
+		else if (fArgsCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fArgsCloseOffset+1;
 		}
 		else if (fArgs != null) {
 			fStopOffset = fArgs.fStopOffset;
 		}
-		else if (fArgsOpenOffset >= 0) {
+		else if (fArgsOpenOffset != Integer.MIN_VALUE) {
 			fStopOffset = fArgsOpenOffset+1;
 		}
 		else {

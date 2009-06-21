@@ -375,6 +375,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private ToolProcess fProcess;
 	private History.Entry fCurrentHistoryEntry;
 	private IHistoryListener fHistoryListener;
+	private ISourceUnit fSourceUnit;
 	
 	private Composite fComposite;
 	private Label fPrefix;
@@ -404,8 +405,13 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fProcess = page.getConsole().getProcess();
 		
 		fDocument = new InputDocument();
+		fSourceUnit = createSourceUnit();
 	}
 	
+	
+	protected ISourceUnit createSourceUnit() {
+		return null;
+	}
 	
 	public Composite createControl(final Composite parent, final SourceEditorViewerConfigurator editorConfig) {
 		fComposite = new Composite(parent, SWT.NONE);
@@ -772,7 +778,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 /*- Complete ISourceEditor --------------------------------------------------*/
 	
 	public ISourceUnit getSourceUnit() {
-		return null;
+		return fSourceUnit;
 	}
 	
 	public IWorkbenchPart getWorkbenchPart() {

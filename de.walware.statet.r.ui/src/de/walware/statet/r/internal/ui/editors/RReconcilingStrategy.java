@@ -17,20 +17,20 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.reconciler.DirtyRegion;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
-import org.eclipse.ui.IEditorInput;
 
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ui.text.IEditorInputAcceptor;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ui.text.EcoReconciler2.ISourceUnitStrategy;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension, IEditorInputAcceptor {
+public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension, ISourceUnitStrategy {
 	
 	
 	private RDocumentProvider fDocumentProvider;
-	private IEditorInput fEditorInput;
+	private ISourceUnit fInput;
 	private IProgressMonitor fMonitor;
 	
 	
@@ -45,8 +45,8 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 	public void setDocument(final IDocument document) {
 	}
 	
-	public void setEditorInput(final IEditorInput input) {
-		fEditorInput = input;
+	public void setInput(final ISourceUnit input) {
+		fInput = input;
 	}
 	
 	public void reconcile(final IRegion partition) {
@@ -63,11 +63,11 @@ public class RReconcilingStrategy implements IReconcilingStrategy, IReconcilingS
 	
 	
 	protected void reconcile() {
-		final IRSourceUnit u = fDocumentProvider.getWorkingCopy(fEditorInput);
-		if (u == null || fMonitor.isCanceled()) {
+		final ISourceUnit su = fInput;
+		if (!(su instanceof IRSourceUnit) || fMonitor.isCanceled()) {
 			return;
 		}
-		u.reconcileRModel(IModelManager.MODEL_FILE, fMonitor);
+		((IRSourceUnit) su).reconcileRModel(IModelManager.MODEL_FILE, fMonitor);
 	}
 	
 }

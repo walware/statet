@@ -9,78 +9,59 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui;
+package de.walware.statet.r.internal.nico.ui;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jface.text.ISynchronizable;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.ECommonsLTK;
-import de.walware.ecommons.ltk.GenericUriSourceUnit;
+import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.IWorkingBuffer;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
-import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.ast.IAstNode;
-import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
+
+import de.walware.statet.nico.ui.console.GenericConsoleSourceUnit;
+import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.model.SpecialParseContent;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
+import de.walware.statet.r.nico.ui.RConsole;
+import de.walware.statet.r.nico.ui.RConsolePage;
 
 
-public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSourceUnit, IManagableRUnit {
+public class RConsoleSourceUnit extends GenericConsoleSourceUnit 
+		implements IRSourceUnit, IManagableRUnit {
 	
 	
+	private IRCoreAccess fRCoreAccess;
+	
+	private final Object fModelLock = new Object();
 	private RAstInfo fAst;
 	private IRModelInfo fModelInfo;
-	private final Object fModelLock = new Object();
 	
 	
-	public REditorUriSourceUnit(final String id, final IFileStore store) {
-		super(id, store);
+	public RConsoleSourceUnit(final RConsolePage page, final InputDocument document) {
+		super(page.toString(), document);
+		fRCoreAccess = (RConsole) page.getConsole();
 	}
 	
-	
-	public WorkingContext getWorkingContext() {
-		return ECommonsLTK.EDITOR_CONTEXT;
-	}
 	
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
 	
-	@Override
-	public int getElementType() {
-		return IRSourceUnit.R_OTHER_SU;
-	}
-	
-	
-	@Override
-	protected IWorkingBuffer createWorkingBuffer(final SubMonitor progress) {
-		return new FileBufferWorkingBuffer(this);
-	}
-	
-	@Override
-	protected void register() {
-		RCore.getRModelManager().registerDependentUnit(this);
-	}
-	
-	@Override
-	protected void unregister() {
-		RCore.getRModelManager().deregisterDependentUnit(this);
-	}
 	
 	public void reconcileRModel(final int reconcileLevel, final IProgressMonitor monitor) {
 		RCore.getRModelManager().reconcile(this, reconcileLevel, true, monitor);
@@ -107,7 +88,7 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	}
 	
 	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {
-		FileBufferWorkingBuffer.syncExec(runnable);
+		throw new UnsupportedOperationException();
 	}
 	
 	public IProblemRequestor getProblemRequestor() {
@@ -115,10 +96,16 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	}
 	
 	public IRCoreAccess getRCoreAccess() {
-		return RCore.getWorkbenchAccess();
+		return fRCoreAccess;
 	}
 	
-	public RProject getRProject() {
+	@Override
+	public boolean hasModelChildren(final Filter filter) {
+		return false;
+	}
+	
+	@Override
+	public List<? extends IModelElement> getModelChildren(final Filter filter) {
 		return null;
 	}
 	
@@ -128,7 +115,19 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	}
 	
 	public SourceContent getParseContent(final IProgressMonitor monitor) {
-		return getContent(monitor);
+		Object lock = null;
+		if (fDocument instanceof ISynchronizable) {
+			lock = ((ISynchronizable) fDocument).getLockObject();
+		}
+		if (lock == null) {
+			lock = new Object();
+		}
+		synchronized (lock) {
+			return new SpecialParseContent(
+					fDocument.getModificationStamp(),
+					fDocument.getMasterDocument().get(),
+					-fDocument.getOffsetInMasterDocument() );
+		}
 	}
 	
 	public void setRAst(final RAstInfo ast) {

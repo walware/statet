@@ -136,7 +136,7 @@ public class Group extends RAstNode {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fGroupCloseOffset >= 0) {
+		if (fGroupCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fGroupCloseOffset+1;
 		}
 		else if (fExpr.node != null){

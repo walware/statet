@@ -140,7 +140,7 @@ abstract class FlatMulti extends RAstNode {
 		if (fLeftExpr == expr) {
 			return STATUS2_SYNTAX_EXPR_BEFORE_OP_MISSING;
 		}
-		// if (fMultExpr.indexOf(expr) >= 0) {
+		// if (fMultExpr.indexOf(expr) != Integer.MIN_VALUE) {
 		return STATUS2_SYNTAX_EXPR_AFTER_OP_MISSING;
 	}
 	

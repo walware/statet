@@ -335,10 +335,10 @@ public abstract class SubIndexed extends RAstNode {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fClose2Offset >= 0) {
+		if (fClose2Offset != Integer.MIN_VALUE) {
 			fStopOffset = fClose2Offset+1;
 		}
-		else if (fCloseOffset >= 0) {
+		else if (fCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fCloseOffset+1;
 		}
 		else {

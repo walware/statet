@@ -34,7 +34,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
-import de.walware.ecommons.ui.text.EcoReconciler;
+import de.walware.ecommons.ui.text.EcoReconciler2;
 import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
 import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
@@ -45,7 +45,9 @@ import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration
 import de.walware.ecommons.ui.util.ColorManager;
 import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 
+import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 import de.walware.statet.ext.ui.text.CommentScanner;
+import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
@@ -253,16 +255,19 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	
 	@Override
 	public IReconciler getReconciler(final ISourceViewer sourceViewer) {
-		if (fEditor == null) { // at moment only for editors
+		final ISourceEditor editor = getSourceEditor();
+		if (!(editor instanceof StatextEditor1 || editor instanceof ConsolePageEditor)) {
 			return null;
 		}
-		final EcoReconciler reconciler = new EcoReconciler(fEditor);
+		final EcoReconciler2 reconciler = new EcoReconciler2(editor);
 		reconciler.setDelay(500);
 		reconciler.addReconcilingStrategy(new RReconcilingStrategy());
 		
-		final IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
-		if (spellingStrategy != null) {
-			reconciler.addReconcilingStrategy(spellingStrategy);
+		if (editor instanceof REditor) {
+			final IReconcilingStrategy spellingStrategy = getSpellingStrategy(sourceViewer);
+			if (spellingStrategy != null) {
+				reconciler.addReconcilingStrategy(spellingStrategy);
+			}
 		}
 		
 		return reconciler;

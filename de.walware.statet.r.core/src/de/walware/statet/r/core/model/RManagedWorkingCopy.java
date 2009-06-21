@@ -17,6 +17,7 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
@@ -30,9 +31,9 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy implements IRSourceUnit, IManagableRUnit {
 	
 	
+	private final Object fModelLock = new Object();
 	private RAstInfo fAst;
 	private IRModelInfo fModelInfo;
-	private final Object fModelLock = new Object();
 	
 	
 	public RManagedWorkingCopy(final IRSourceUnit from) {
@@ -96,6 +97,10 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 	
 	public Object getModelLockObject() {
 		return fModelLock;
+	}
+	
+	public SourceContent getParseContent(final IProgressMonitor monitor) {
+		return getContent(monitor);
 	}
 	
 	public void setRAst(final RAstInfo ast) {

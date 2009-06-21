@@ -708,7 +708,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 								getStartText(node)),
 								node.getStopOffset()-1, node.getStopOffset()+1);
 					}
-					else if (node.getSublistCloseOffset() >= 0) {
+					else if (node.getSublistCloseOffset() != Integer.MIN_VALUE) {
 						addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
 								ProblemMessages.Syntax_SubindexedNotClosed_Done_message,
 								getStartText(node)),

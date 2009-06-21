@@ -58,7 +58,7 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 	}
 	
 	public int getElementType() {
-		return IModelElement.C2_SOURCE_FILE;
+		return IRLangElement.C2_SOURCE_FILE;
 	}
 	
 	public IElementName getElementName() {
@@ -142,7 +142,7 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 			return false;
 		}
 		final ISourceStructElement other = (ISourceStructElement) obj;
-		return ((other.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_FILE)
+		return ((other.getElementType() & IModelElement.MASK_C2) == IRLangElement.C2_SOURCE_FILE)
 				&& fSourceUnit.equals(other.getSourceUnit());
 	}
 	

@@ -298,7 +298,7 @@ public class FCall extends RAstNode {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fArgsCloseOffset >= 0) {
+		if (fArgsCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fArgsCloseOffset+1;
 		}
 		else {

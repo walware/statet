@@ -42,6 +42,25 @@ public class WorkingBuffer implements IWorkingBuffer {
 	/** Mode for IFileStore (URI) */
 	protected static final int FILESTORE = 2;
 	
+	
+	public static SourceContent createContentFromDocument(final IDocument doc) {
+		Object lock = null;
+		if (doc instanceof ISynchronizable) {
+			lock = ((ISynchronizable) doc).getLockObject();
+		}
+		if (lock != null && doc instanceof IDocumentExtension4) {
+			synchronized (lock) {
+				return new SourceContent(
+						((IDocumentExtension4) doc).getModificationStamp(),
+						doc.get() );
+			}
+		}
+		else {
+			return new SourceContent(System.currentTimeMillis(), doc.get());
+		}
+	}
+	
+	
 	protected final ISourceUnit fUnit;
 	private AbstractDocument fDocument;
 	
@@ -205,23 +224,6 @@ public class WorkingBuffer implements IWorkingBuffer {
 				loadContentFromFile((IFile) resource, content, progress);
 			}
 			return content.get();
-		}
-	}
-	
-	protected SourceContent createContentFromDocument(final IDocument doc) {
-		Object lock = null;
-		if (doc instanceof ISynchronizable) {
-			lock = ((ISynchronizable) doc).getLockObject();
-		}
-		if (lock != null && doc instanceof IDocumentExtension4) {
-			synchronized (lock) {
-				return new SourceContent(
-						((IDocumentExtension4) doc).getModificationStamp(),
-						doc.get() );
-			}
-		}
-		else {
-			return new SourceContent(System.currentTimeMillis(), doc.get());
 		}
 	}
 	

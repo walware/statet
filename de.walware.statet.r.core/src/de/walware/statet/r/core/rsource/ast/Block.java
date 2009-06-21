@@ -58,7 +58,7 @@ public class Block extends ExpressionList {
 	
 	@Override
 	final void updateStopOffset() {
-		if (fBlockCloseOffset >= 0) {
+		if (fBlockCloseOffset != Integer.MIN_VALUE) {
 			fStopOffset = fBlockCloseOffset+1;
 		}
 		else {
