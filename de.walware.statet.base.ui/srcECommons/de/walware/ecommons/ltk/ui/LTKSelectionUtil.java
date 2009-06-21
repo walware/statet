@@ -99,15 +99,22 @@ public class LTKSelectionUtil {
 		return elements;
 	}
 	
-	public static ISourceStructElement getSelectedSourceStructElement(final ISourceStructElement root, final int offset, final int endOffset) {
+	public static ISourceStructElement getCoveringSourceElement(final ISourceStructElement root, final int offset, final int endOffset) {
 		ISourceStructElement ok = root;
 		CHECK: while (ok != null) {
 			final List<? extends ISourceStructElement> children = ok.getSourceChildren(null);
 			for (final ISourceStructElement child : children) {
-				final IRegion cand = child.getSourceRange();
-				if (offset >= cand.getOffset()) {
+				final IRegion sourceRange = child.getSourceRange();
+				final IRegion docRange = child.getDocumentationRange();
+				final int childOffset = (docRange != null) ?
+						Math.min(sourceRange.getOffset(), docRange.getOffset()) :
+						sourceRange.getOffset();
+				if (offset >= childOffset) {
+					final int childEnd = (docRange != null) ?
+							Math.max(sourceRange.getOffset()+sourceRange.getLength(), docRange.getOffset()+docRange.getLength()) :
+							sourceRange.getOffset()+sourceRange.getLength();
 					if (offset < endOffset ? 
-							endOffset < cand.getOffset()+cand.getLength() : endOffset <= cand.getOffset()+cand.getLength()) {
+							(endOffset < childEnd) : (endOffset <= childEnd)) {
 						ok = child;
 						continue CHECK;
 					}
@@ -128,7 +135,7 @@ public class LTKSelectionUtil {
 			final int selectionEnd = selectionStart + selection.getLength();
 			if (selectionStart >= root.getSourceRange().getOffset() 
 					&& selectionEnd <= root.getSourceRange().getOffset()+root.getSourceRange().getLength()) {
-				return new ISourceStructElement[] { getSelectedSourceStructElement(root, selectionStart, selectionEnd) };
+				return new ISourceStructElement[] { getCoveringSourceElement(root, selectionStart, selectionEnd) };
 			}
 		}
 		return null;

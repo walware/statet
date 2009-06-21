@@ -372,7 +372,7 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_TASK_TAG_UNDERLINE, false);
 		store.setDefault(R.TS_TASK_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_ROXYGEN_COLOR, new RGB(31, 127, 167));
+		PreferenceConverter.setDefault(store, R.TS_ROXYGEN_COLOR, new RGB(15, 127, 159));
 		store.setDefault(R.TS_ROXYGEN_BOLD, false);
 		store.setDefault(R.TS_ROXYGEN_ITALIC, false);
 		store.setDefault(R.TS_ROXYGEN_UNDERLINE, false);

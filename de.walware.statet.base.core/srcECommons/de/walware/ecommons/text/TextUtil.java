@@ -178,4 +178,14 @@ public class TextUtil {
 		return new Region(start, length);
 	}
 	
+	public final static IRegion expand(final IRegion region1, final IRegion region2) {
+		if (region2 == null) {
+			return region1;
+		}
+		final int offset = Math.min(region1.getOffset(), region2.getOffset());
+		return new Region(offset, Math.max(
+				region1.getOffset()+region1.getLength(), region2.getOffset()+region2.getLength())
+						- offset);
+	}
+	
 }

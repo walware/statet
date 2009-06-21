@@ -234,11 +234,12 @@ public abstract class RefactoringAdapter {
 			elements.removeElementsWithAncestorsOnList();
 			Collections.sort(elements.getModelElements(), getModelElementComparator());
 			final String lineDelimiter = TextUtil.getPlatformLineDelimiter();
-			final StringBuilder sb = new StringBuilder();
 			
 			AbstractDocument doc = null;
 			final List<IModelElement> modelElements = elements.getModelElements();
 			int todo = modelElements.size();
+			
+			final StringBuilder sb = new StringBuilder(todo*100);
 			for (final IModelElement element : modelElements) {
 				final ISourceUnit u = element.getSourceUnit();
 				if (u != lastUnit) {
@@ -251,7 +252,7 @@ public abstract class RefactoringAdapter {
 					lastUnit = u;
 					doc = u.getDocument(null);
 				}
-				final IRegion range = expandElementRange(((ISourceStructElement) element).getSourceRange(), doc);
+				final IRegion range = expandElementRange((ISourceStructElement) element, doc);
 				sb.append(doc.get(range.getOffset(), range.getLength()));
 				sb.append(lineDelimiter);
 				
@@ -274,10 +275,22 @@ public abstract class RefactoringAdapter {
 		}
 	}
 	
-	public IRegion expandElementRange(final IRegion orgRange, final AbstractDocument doc) 
+	public IRegion expandElementRange(final ISourceStructElement element, final AbstractDocument doc) 
 			throws BadLocationException, BadPartitioningException {
-		final int start = orgRange.getOffset();
-		int end = start + orgRange.getLength();
+		final IRegion sourceRange = element.getSourceRange();
+		int start = sourceRange.getOffset();
+		int end = start + sourceRange.getLength();
+		
+		final IRegion docRange = element.getDocumentationRange();
+		if (docRange != null) {
+			if (docRange.getOffset() < start) {
+				start = docRange.getOffset();
+			}
+			if (docRange.getOffset()+docRange.getLength() > end) {
+				end = docRange.getOffset()+docRange.getLength();
+			}
+		}
+		
 		fScanner.configure(doc);
 		
 		IRegion lastLineInfo;
@@ -592,8 +605,7 @@ public abstract class RefactoringAdapter {
 			for (final IModelElement element : elementsInUnit) {
 				final AbstractDocument doc = element.getSourceUnit().getDocument(null);
 				if (element instanceof ISourceStructElement) {
-					final IRegion sourceRange = expandElementRange(
-							((ISourceStructElement) element).getSourceRange(), doc);
+					final IRegion sourceRange = expandElementRange((ISourceStructElement) element, doc);
 					final DeleteEdit edit = new DeleteEdit(sourceRange.getOffset(), sourceRange.getLength());
 					rootEdit.addChild(edit);
 				}

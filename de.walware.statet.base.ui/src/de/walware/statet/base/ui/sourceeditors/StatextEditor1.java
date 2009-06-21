@@ -89,6 +89,7 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
 import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.sourceediting.GotoMatchingBracketHandler;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -703,12 +704,17 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 			switch (element.getElementType() & IModelElement.MASK_C1) {
 			case IModelElement.C1_CLASS:
 			case IModelElement.C1_METHOD:
-				return element.getSourceRange();
+				return TextUtil.expand(element.getSourceRange(), element.getDocumentationRange());
 			case IModelElement.C1_SOURCE:
 				if ((element.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_CHUNK) {
-					return element.getSourceRange();
+					return TextUtil.expand(element.getSourceRange(), element.getDocumentationRange());
 				}
 				break TRY_MODEL;
+			case IModelElement.C1_VARIABLE:
+				if ((element.getSourceParent().getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_FILE) {
+					return TextUtil.expand(element.getSourceRange(), element.getDocumentationRange());
+				}
+				// no break
 			default:
 				element = element.getSourceParent();
 				continue TRY_MODEL;

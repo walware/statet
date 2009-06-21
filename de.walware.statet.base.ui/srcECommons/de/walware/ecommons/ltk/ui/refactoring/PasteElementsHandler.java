@@ -81,7 +81,7 @@ public class PasteElementsHandler extends AbstractElementsHandler {
 					final Object object = structuredSelection.getFirstElement();
 					if (object instanceof ISourceStructElement) {
 						final IRegion range = getRefactoringAdapter().expandElementRange(
-								((ISourceStructElement) object).getSourceRange(), document);
+								((ISourceStructElement) object), document);
 						offset = range.getOffset()+range.getLength();
 					}
 					final int line = document.getLineOfOffset(offset);

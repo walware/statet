@@ -51,7 +51,6 @@ import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
 import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
@@ -72,10 +71,14 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IElementAccess;
+import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
+import de.walware.statet.r.core.rsource.ast.DocuComment;
+import de.walware.statet.r.core.rsource.ast.DocuTag;
+import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -148,7 +151,7 @@ public class REditor extends StatextEditor1<RProject> {
 				return false;
 			}
 			try {
-				final ISourceUnitModelInfo info = inputElement.getModelInfo(RModel.TYPE_ID, IModelManager.NONE, new NullProgressMonitor());
+				final IRModelInfo info = (IRModelInfo) inputElement.getModelInfo(RModel.TYPE_ID, IModelManager.NONE, new NullProgressMonitor());
 				if (getSourceUnit() != inputElement || info == null || astSelection == null) {
 					return false;
 				}
@@ -161,24 +164,48 @@ public class REditor extends StatextEditor1<RProject> {
 				}
 				
 				RAstNode node = (RAstNode) astSelection.getCovering();
-				if (node != null) {
-					IElementAccess access = null;
-					while (node != null && access == null) {
-						final Object[] attachments = node.getAttachments();
-						for (int i = 0; i < attachments.length; i++) {
-							if (attachments[i] instanceof IElementAccess) {
-								access = (IElementAccess) attachments[i];
-								final Map<Annotation, Position> annotations = checkDefault(run, access);
-								
-								if (annotations != null) {
-									updateAnnotations(run, annotations);
-									return true;
+				while (node != null) {
+					if (checkForAccess(run, node)) {
+						return true;
+					}
+					node = node.getRParent();
+				}
+				
+				if (orgSelection instanceof ITextSelection) {
+					final ITextSelection textSelection = (ITextSelection) orgSelection;
+					final int start = textSelection.getOffset();
+					final int stop = start + textSelection.getLength();
+					final List<RAstNode> comments = info.getAst().root.getComments();
+					for (final RAstNode comment : comments) {
+						if (comment.getStopOffset() < start) {
+							continue;
+						}
+						if (comment.getOffset() > stop) {
+							break;
+						}
+						if (comment.getNodeType() == NodeType.DOCU_AGGREGATION) {
+							final DocuComment docuComment = (DocuComment) comment;
+							final List<DocuTag> tags = docuComment.getTags();
+							for (final DocuTag tag : tags) {
+								if (tag.getStopOffset() < start) {
+									continue;
+								}
+								if (tag.getOffset() > stop) {
+									break;
+								}
+								AstSelection selection = AstSelection.search(tag, start, stop, AstSelection.MODE_COVERING_SAME_LAST);
+								node = (RAstNode) selection.getCovering();
+								while (node != null) {
+									if (checkForAccess(run, node)) {
+										return true;
+									}
+									node = node.getRParent();
 								}
 							}
 						}
-						node = node.getRParent();
 					}
 				}
+				
 				return checkClear(run, orgSelection);
 			}
 			catch (final BadLocationException e) {
@@ -186,6 +213,22 @@ public class REditor extends StatextEditor1<RProject> {
 			catch (final BadPartitioningException e) {
 			}
 			catch (final UnsupportedOperationException e) {
+			}
+			return false;
+		}
+		
+		private boolean checkForAccess(final RunData run, final RAstNode node) throws BadLocationException {
+			final Object[] attachments = node.getAttachments();
+			for (int i = 0; i < attachments.length; i++) {
+				if (attachments[i] instanceof IElementAccess) {
+					final IElementAccess access = (IElementAccess) attachments[i];
+					final Map<Annotation, Position> annotations = checkDefault(run, access);
+					
+					if (annotations != null) {
+						updateAnnotations(run, annotations);
+						return true;
+					}
+				}
 			}
 			return false;
 		}

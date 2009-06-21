@@ -100,7 +100,7 @@ public class LTKInputData implements ISelection {
 		if (fModelSelection == null) {
 			if (fSelection instanceof ITextSelection && getInputInfo() != null) {
 				final ITextSelection textSelection = (ITextSelection) fSelection;
-				fModelSelection = LTKSelectionUtil.getSelectedSourceStructElement(getInputInfo().getSourceElement(), textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength());
+				fModelSelection = LTKSelectionUtil.getCoveringSourceElement(getInputInfo().getSourceElement(), textSelection.getOffset(), textSelection.getOffset()+textSelection.getLength());
 			}
 		}
 		return fModelSelection;
