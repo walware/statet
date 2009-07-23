@@ -17,6 +17,7 @@ public interface IRSourceConstants {
 	public static final int STATUS_MASK_1 =                    0x00ff00;
 	public static final int STATUS_MASK_12 =                   0x0ffff0;
 	public static final int STATUS_MASK_3 =                    0x00000f;
+	public static final int STATUS_MASK_123 =                  0x0fffff;
 	
 	public static final int STATUS_OK =                          0x0000;
 	public static final int STATUS_RUNTIME_ERROR =               0xf000;
@@ -32,6 +33,7 @@ public interface IRSourceConstants {
 	public static final int STATUS2_SYNTAX_FLOAT_EXP_INVALID =                 0x1140 | STATUSFLAG_REAL_ERROR;
 	public static final int STATUS2_SYNTAX_TOKEN_UNKNOWN =                     0x1150 | STATUSFLAG_REAL_ERROR;
 	public static final int STATUS2_SYNTAX_TOKEN_UNEXPECTED =                  0x1160 | STATUSFLAG_REAL_ERROR;
+	public static final int STATUS_SYNTAX_SEQREL_UNEXPECTED =                  0x1161 | STATUSFLAG_REAL_ERROR;
 	
 	/**
 	 * A token (represented by an node) is missing.

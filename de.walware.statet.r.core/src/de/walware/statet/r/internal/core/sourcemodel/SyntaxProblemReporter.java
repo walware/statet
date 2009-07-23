@@ -36,6 +36,7 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_UNKNOWN;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_SUBSEQUENT;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_123;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_3;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_ERROR;
@@ -156,9 +157,8 @@ public class SyntaxProblemReporter extends RAstVisitor {
 							null)));
 		
 		case STATUS2_SYNTAX_TOKEN_UNEXPECTED:
-			addProblem(IProblem.SEVERITY_ERROR, code, NLS.bind(
-					ProblemMessages.Syntax_TokenUnexpected_message,
-					getFullText(node)),
+			addProblem(IProblem.SEVERITY_ERROR, code,
+					NLS.bind(ProblemMessages.Syntax_TokenUnexpected_message, getFullText(node)),
 					node.getOffset(), node.getStopOffset());
 			return;
 		}
@@ -560,11 +560,17 @@ public class SyntaxProblemReporter extends RAstVisitor {
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
+				if ((code & STATUS_MASK_123) == (IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED & STATUS_MASK_123)) {
+					addProblem(IProblem.SEVERITY_ERROR, code,
+							NLS.bind(ProblemMessages.Syntax_TokenUnexpected_SeqRel_message, node.getOperator(0).text),
+							node.getOffset(), node.getStopOffset());
+				}
+				else {
 //				switch ((code & STATUS_MASK_12)) {
 //				default:
 					handleCommonCodes(node);
 //					break;
-//				}
+				}
 			}
 			catch (final BadLocationException e) {
 				throw new InvocationTargetException(e);

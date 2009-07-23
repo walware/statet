@@ -29,6 +29,7 @@ public class ProblemMessages extends NLS {
 	
 	public static String Syntax_TokenUnknown_message;
 	public static String Syntax_TokenUnexpected_message;
+	public static String Syntax_TokenUnexpected_SeqRel_message;
 	
 	public static String Syntax_ExprInGroupMissing_message;
 	public static String Syntax_ExprBeforeOpMissing_message;

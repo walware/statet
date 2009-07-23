@@ -32,9 +32,11 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FDEF;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FOR;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_IF;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_WHILE;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_REAL_ERROR;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_SUBSEQUENT;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_ERROR;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -1259,8 +1261,13 @@ public final class RScanner {
 			final NodeType candType = cand.getNodeType();
 			if (candType.opPrec == newP) {
 				switch (candType.opAssoc) {
-				case Assoc.LEFTSTD:
 				case Assoc.NOSTD:
+					left = cand;
+					if ((newNode.fStatus & STATUSFLAG_REAL_ERROR) == 0) {
+						newNode.fStatus = STATUS_SYNTAX_SEQREL_UNEXPECTED;
+					}
+					break ITER_CAND;
+				case Assoc.LEFTSTD:
 				case Assoc.LEFTMULTI:
 					left = cand;
 					break ITER_CAND;
