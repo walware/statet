@@ -34,6 +34,9 @@ import de.walware.ecommons.ui.text.sourceediting.ElementNameCompletionProposal;
 
 import de.walware.statet.nico.ui.console.InputSourceViewer;
 
+import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
@@ -244,8 +247,10 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		int fmode = 0;
 		if (isArgumentName()) {
 			if (!isFollowedByEqualAssign(data, replacementOffset+replacementLength)) {
-				replacement.append(" = ");
-				cursor += 3;
+				final RCodeStyleSettings codeStyle = getCodeStyleSettings();
+				final String argAssign = codeStyle.getArgAssignString();
+				replacement.append(argAssign);
+				cursor += argAssign.length();
 			}
 		}
 		else if (isFunction()) {
@@ -364,6 +369,14 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 			return (scanner.getChar() == '=' || scanner.getChar() == '<');
 		}
 		return false;
+	}
+	
+	protected RCodeStyleSettings getCodeStyleSettings() {
+		final IRCoreAccess access = (IRCoreAccess) fContext.getEditor().getAdapter(IRCoreAccess.class);
+		if (access != null) {
+			return access.getRCodeStyle();
+		}
+		return RCore.getWorkbenchAccess().getRCodeStyle();
 	}
 	
 	@Override

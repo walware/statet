@@ -305,4 +305,11 @@ public class RCodeStyleSettings extends AbstractPreferencesModelObject {
 		return fNLFDefBodyBlockBefore;
 	}
 	
+	
+	public String getArgAssignString() {
+		return (fWSArgAssignBefore ?
+				(fWSArgAssignBehind ? " = " : " =") :
+				(fWSArgAssignBefore ? "= " : "=") ); 
+	}
+	
 }

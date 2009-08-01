@@ -350,13 +350,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 					new DeleteEdit(region.getOffset(), region.getLength()));
 			
 			final String nl = document.getDefaultLineDelimiter();
-			String argAssign = "=";
-			if (codeStyle.getWhitespaceArgAssignBefore()) {
-				argAssign = " " + argAssign;
-			}
-			if (codeStyle.getWhitespaceArgAssignBehind()) {
-				argAssign = argAssign + " ";
-			}
+			final String argAssign = codeStyle.getArgAssignString();
 			
 			final StringBuilder sb = new StringBuilder();
 			sb.append("setGeneric(\""); //$NON-NLS-1$
