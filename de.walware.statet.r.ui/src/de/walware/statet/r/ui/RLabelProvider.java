@@ -31,6 +31,7 @@ import de.walware.rj.data.RDataFrame;
 import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.REnvironment;
 import de.walware.rj.data.RFactorStore;
+import de.walware.rj.data.RIntegerStore;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
@@ -739,7 +740,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	}
 	
 	protected void appendVectorDetail(final StyledString text, final ICombinedRElement element, final RList elementAttr) {
-		final int datatype = element.getData().getStoreType();
+		final byte datatype = element.getData().getStoreType();
 		final StringBuilder textBuilder;
 		if ((fStyle & LONG) != 0) {
 			appendLongClassInfo(text, element, elementAttr);
@@ -790,12 +791,13 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			}
 		}
 		textBuilder.append(" ["); 
-		final int[] dim = ((RArray<?>) element).getDim();
-		if (dim.length > 0) {
-			textBuilder.append(Integer.toString(dim[0]));
-			for (int i = 1; i < dim.length; i++) {
+		final RIntegerStore dim = ((RArray<?>) element).getDim();
+		final int dimLength = dim.getLength();
+		if (dimLength > 0) {
+			textBuilder.append(Integer.toString(dim.getInt(0)));
+			for (int i = 1; i < dimLength; i++) {
 				textBuilder.append('×');
-				textBuilder.append(Integer.toString(dim[i]));
+				textBuilder.append(Integer.toString(dim.getInt(i)));
 			}
 		}
 		textBuilder.append(']');

@@ -49,7 +49,7 @@ public final class RDataFrameVar extends RListVar
 	
 	
 	@Override
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_DATAFRAME;
 	}
 	

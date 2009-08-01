@@ -58,8 +58,8 @@ public abstract class AbstractRController
 	protected String fContinuePromptText;
 	protected String fDefaultPromptText;
 	
-	int fChanged;
-	final Set<RElementName> fChangedEnvirs = new HashSet<RElementName>();
+	protected int fChanged;
+	protected final Set<RElementName> fChangedEnvirs = new HashSet<RElementName>();
 	
 	
 	public AbstractRController(final ToolProcess process, final Map<String, Object> initData) {

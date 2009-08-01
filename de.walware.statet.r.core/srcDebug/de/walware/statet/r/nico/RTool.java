@@ -38,6 +38,17 @@ public final class RTool {
 	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
 	
 	
+	/**
+	 * Feature set for R, providing methods to work directly with R data
+	 * 
+	 * Data are exchanged as RObject by the RJ data library. Operations usually 
+	 * doesn't appears in the console output.
+	 * <p>
+	 * Feature Set:
+	 * <ul>
+	 * <li>{@link IToolRunnableControllerAdapter} implements {@link IRDataAdapter}</li>
+	 * </ul>
+	 */
 	public static final String R_DATA_FEATURESET_ID = "de.walware.statet.r.data";
 	
 }

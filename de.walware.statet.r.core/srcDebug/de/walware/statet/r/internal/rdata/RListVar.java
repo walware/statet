@@ -16,6 +16,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.walware.rj.data.RCharacterStore;
@@ -29,13 +30,15 @@ import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.nico.RWorkspace;
 
 
 public class RListVar extends CombinedElement
-		implements RList, ExternalizableRObject {
+		implements RList, RWorkspace.ICombinedList, ExternalizableRObject {
 	
 	
 	protected CombinedElement[] fComponents;
+	private int fLength;
 	
 	private String fClassName;
 	private RCharacterDataImpl fNamesAttribute;
@@ -62,15 +65,17 @@ public class RListVar extends CombinedElement
 		fClassName = ((options & RObjectFactoryImpl.O_CLASS_NAME) != 0) ?
 				in.readUTF() : ((getRObjectType() == RObject.TYPE_DATAFRAME) ?
 						RObject.CLASSNAME_DATAFRAME : RObject.CLASSNAME_LIST);
-		fNamesAttribute = new RCharacterDataImpl(in);
+		final int length = fLength = in.readInt();
 		
-		final int length = in.readInt();
-		fComponents = new CombinedElement[length];
-		for (int i = 0; i < length; i++) {
-			fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
-					(fNamesAttribute.isNA(i) || fNamesAttribute.getChar(i).length() == 0) ? 
-							RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1)) :
-							RElementName.create(RElementName.SUB_NAMEDPART, fNamesAttribute.getChar(i), i+1) );
+		if ((options & RObjectFactory.O_NOCHILDREN) == 0) {
+			fNamesAttribute = new RCharacterDataImpl(in);
+			fComponents = new CombinedElement[length];
+			for (int i = 0; i < length; i++) {
+				fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
+						(fNamesAttribute.isNA(i) || fNamesAttribute.getChar(i).length() == 0) ? 
+								RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1)) :
+								RElementName.create(RElementName.SUB_NAMEDPART, fNamesAttribute.getChar(i), i+1) );
+			}
 		}
 		
 		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {
@@ -89,15 +94,22 @@ public class RListVar extends CombinedElement
 		if (withAttr) {
 			options |= RObjectFactory.O_WITH_ATTR;
 		}
+		if (fComponents == null) {
+			options |= RObjectFactory.F_NOCHILDREN;
+		}
 		out.writeInt(options);
 		
 		if (customClass) {
 			out.writeUTF(fClassName);
 		}
-		fNamesAttribute.writeExternal(out);
+		out.writeInt(fLength);
 		
-		for (int i = 0; i < fComponents.length; i++) {
-			factory.writeObject(fComponents[i], out, flags);
+		if (fComponents != null) {
+			fNamesAttribute.writeExternal(out);
+			
+			for (int i = 0; i < fLength; i++) {
+				factory.writeObject(this.fComponents[i], out, flags);
+			}
 		}
 		
 		if (withAttr) {
@@ -106,7 +118,7 @@ public class RListVar extends CombinedElement
 	}
 	
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_LIST;
 	}
 	
@@ -145,7 +157,7 @@ public class RListVar extends CombinedElement
 	
 	
 	public final RObject get(final String name) {
-		final int idx = fNamesAttribute.getIdx(name);
+		final int idx = fNamesAttribute.indexOf(name);
 		if (idx >= 0) {
 			return fComponents[idx];
 		}
@@ -168,7 +180,7 @@ public class RListVar extends CombinedElement
 	
 	
 	public final int getLength() {
-		return fComponents.length;
+		return fLength;
 	}
 	
 	public int getElementType() {
@@ -177,8 +189,11 @@ public class RListVar extends CombinedElement
 	
 	
 	public final boolean hasModelChildren(final Filter filter) {
+		if (fComponents == null) {
+			return false;
+		}
 		if (filter == null) {
-			return (fComponents.length > 0);
+			return (fLength > 0);
 		}
 		else {
 			for (final CombinedElement component : fComponents) {
@@ -191,6 +206,9 @@ public class RListVar extends CombinedElement
 	}
 	
 	public final List<? extends IRLangElement> getModelChildren(final Filter filter) {
+		if (fComponents == null) {
+			return Collections.EMPTY_LIST;
+		}
 		if (filter == null) {
 			return Arrays.asList(fComponents);
 		}
@@ -210,16 +228,21 @@ public class RListVar extends CombinedElement
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("RObject type=list, class=").append(getRClassName());
-		sb.append("\n\tlength=").append(fComponents.length);
-		sb.append("\n\tdata: ");
-		for (int i = 0; i < fComponents.length; i++) {
-			if (fNamesAttribute.isNA(i)) {
-				sb.append("\n[[").append(i).append("]]\n");
+		sb.append("\n\tlength=").append(fLength);
+		if (fComponents != null) {
+			sb.append("\n\tdata: ");
+			for (int i = 0; i < fLength; i++) {
+				if (fNamesAttribute.isNA(i)) {
+					sb.append("\n[[").append(i).append("]]\n");
+				}
+				else {
+					sb.append("\n$").append(fNamesAttribute.getChar(i)).append("\n");
+				}
+				sb.append(fComponents[i]);
 			}
-			else {
-				sb.append("\n$").append(fNamesAttribute.getChar(i)).append("\n");
-			}
-			sb.append(fComponents[i]);
+		}
+		else {
+			sb.append("\n<NODATA/>");
 		}
 		return sb.toString();
 	}

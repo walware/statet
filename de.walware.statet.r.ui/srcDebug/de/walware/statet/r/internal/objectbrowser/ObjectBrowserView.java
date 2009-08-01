@@ -223,8 +223,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		public int compare(final ICombinedRElement e1, final ICombinedRElement e2) {
-				final ICombinedRElement o1 = (ICombinedRElement) e1;
-				final ICombinedRElement o2 = (ICombinedRElement) e2;
+				final ICombinedRElement o1 = e1;
+				final ICombinedRElement o2 = e2;
 				final int cat1 = category(o1);
 				final int cat2 = category(o2);
 				if (cat1 != cat2) {
@@ -266,7 +266,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		public int category(final ICombinedRElement element) {
-			int objectType = element.getRObjectType();
+			byte objectType = element.getRObjectType();
 			if (objectType == RObject.TYPE_REFERENCE) {
 				final RObject realObject = ((RReference) element).getResolvedRObject();
 				if (realObject != null) {
@@ -611,12 +611,12 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 						public String getLabel() {
 							return "Delete Elements";
 						}
-						public void changed(int event, ToolProcess process) {
+						public void changed(final int event, final ToolProcess process) {
 						}
-						public void run(IToolRunnableControllerAdapter adapter, IProgressMonitor monitor)
+						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 								throws InterruptedException, CoreException {
 							if (adapter.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
-								IRDataAdapter r = (IRDataAdapter) adapter;
+								final IRDataAdapter r = (IRDataAdapter) adapter;
 								for (int i = 0; i < names.size(); i++) {
 									r.evalVoid(commands.get(i), monitor);
 								}
@@ -1466,7 +1466,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				}
 				for (int j = count-1; j >= 0; j--) {
 					newPath[j] = entry;
-					entry = (ICombinedRElement) entry.getModelParent();
+					entry = entry.getModelParent();
 				}
 				paths[i] = new TreePath(newPath);
 			}

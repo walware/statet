@@ -176,7 +176,7 @@ public class RjsUtil {
 			return "no version information";
 		}
 		if (version.length >= 3) {
-			return ""+version[0]+'.'+version[1]+'.'+version[3];
+			return ""+version[0]+'.'+version[1]+'.'+version[2];
 		}
 		return "invalid version information";
 	}

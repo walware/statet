@@ -27,10 +27,11 @@ import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.nico.RWorkspace;
 
 
 public final class RS4ObjectVar extends CombinedElement
-		implements RS4Object {
+		implements RS4Object, RWorkspace.ICombinedList {
 	
 	
 	private String fClassName;
@@ -68,7 +69,7 @@ public final class RS4ObjectVar extends CombinedElement
 		}
 	}
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_S4OBJECT;
 	}
 	
@@ -82,6 +83,10 @@ public final class RS4ObjectVar extends CombinedElement
 	
 	public boolean hasDataSlot() {
 		return (fDataSlotIdx >= 0);
+	}
+	
+	public RObject getDataSlot() {
+		return (fDataSlotIdx >= 0) ? fSlotValues[fDataSlotIdx] : null;
 	}
 	
 	public RStore getData() {
@@ -102,7 +107,7 @@ public final class RS4ObjectVar extends CombinedElement
 	}
 	
 	public RObject get(final String name) {
-		final int idx = fSlotNames.getIdx(name);
+		final int idx = fSlotNames.indexOf(name);
 		if (idx >= 0) {
 			return fSlotValues[idx];
 		}

@@ -14,10 +14,9 @@ package de.walware.statet.r.internal.debug.ui.launchconfigs;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +37,8 @@ import org.osgi.framework.Bundle;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.net.RMIAddress;
 
+import de.walware.rj.server.srvext.ServerUtil;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
@@ -56,62 +57,66 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	
 	public static void addPluginClasspath(final Set<String> classpath, final boolean desktop, final boolean is64) {
-		final List<Bundle> bundles = new ArrayList<Bundle>();
 		final Bundle rjServerBundle = Platform.getBundle(RJ_SERVER_BUNDLE_ID);
-		bundles.add(rjServerBundle);
+		addPath(rjServerBundle, classpath, is64);
 		Bundle[] fragments = Platform.getFragments(rjServerBundle);
 		if (fragments != null) {
-			bundles.addAll(Arrays.asList(fragments));
+			for (Bundle bundle : fragments) {
+				addPath(bundle, classpath, is64);
+			}
 		}
 		final Bundle rjDataBundle = Platform.getBundle(RJ_DATA_BUNDLE_ID);
-		bundles.add(rjDataBundle);
+		addPath(rjDataBundle, classpath, is64);
 		fragments = Platform.getFragments(rjDataBundle);
 		if (fragments != null) {
-			bundles.addAll(Arrays.asList(fragments));
+			for (Bundle bundle : fragments) {
+				addPath(bundle, classpath, is64);
+			}
 		}
 		final Bundle swtBundle = Platform.getBundle("org.eclipse.swt"); //$NON-NLS-1$
-		bundles.add(swtBundle);
+		addPath(swtBundle, classpath, is64);
 		fragments = Platform.getFragments(swtBundle);
 		if (fragments != null && fragments.length > 0) {
-			bundles.addAll(Arrays.asList(fragments));
+			for (Bundle bundle : fragments) {
+				addPath(bundle, classpath, is64);
+			}
 		}
-		
-		final URL platform = Platform.getInstallLocation().getURL();
-		for (final Bundle bundle : bundles) {
-			String location = bundle.getLocation();
-			if (location.startsWith("reference:file:")) { //$NON-NLS-1$
-				location = location.substring(15);
-				IPath path = new Path(location);
-				if (!path.isAbsolute()) {
-					path = new Path(platform.getFile()).append(path);
+	}
+	
+	private static void addPath(final Bundle bundle, final Set<String> classpath, final boolean is64) {
+		String location = bundle.getLocation();
+		if (location.startsWith("reference:file:")) { //$NON-NLS-1$
+			location = location.substring(15);
+			IPath path = new Path(location);
+			if (!path.isAbsolute()) {
+				path = new Path(Platform.getInstallLocation().getURL().getFile()).append(path);
+			}
+			String checked = path.lastSegment();
+			if (checked.contains("motif")) { //$NON-NLS-1$
+				checked = checked.replaceAll("motif", "gtk"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			if (checked.contains("gtk")) { //$NON-NLS-1$
+				if (is64 && !checked.contains("64")) { //$NON-NLS-1$
+					checked = checked.replaceAll("x86", "x86_64"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				String checked = path.lastSegment();
-				if (checked.contains("motif")) { //$NON-NLS-1$
-					checked = checked.replaceAll("motif", "gtk"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (!is64 && checked.contains("64")) { //$NON-NLS-1$
+					checked = checked.replaceAll("x86_64", "x86"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				if (checked.contains("gtk")) { //$NON-NLS-1$
-					if (is64 && !checked.contains("64")) { //$NON-NLS-1$
-						checked = checked.replaceAll("x86", "x86_64"); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					if (!is64 && checked.contains("64")) { //$NON-NLS-1$
-						checked = checked.replaceAll("x86_64", "x86"); //$NON-NLS-1$ //$NON-NLS-2$
-					}
+			}
+			final String s = path.removeLastSegments(1).append(checked).makeAbsolute().toOSString();
+			if (location.endsWith("/")) { // //$NON-NLS-1$
+				if (Platform.inDevelopmentMode()) {
+					classpath.add(s+File.separatorChar+"bin"+File.separatorChar); //$NON-NLS-1$
 				}
-				final String s = path.removeLastSegments(1).append(checked).makeAbsolute().toOSString();
-				if (location.endsWith("/")) { // //$NON-NLS-1$
-					if (Platform.inDevelopmentMode()) {
-						classpath.add(s+File.separatorChar+"bin"+File.separatorChar); //$NON-NLS-1$
-					}
-					classpath.add(s+File.separatorChar);
-				}
-				else {
-					classpath.add(s);
-				}
+				classpath.add(s+File.separatorChar);
 			}
 			else {
-				StatusManager.getManager().handle(new Status(IStatus.WARNING, RUI.PLUGIN_ID, 
-						"Unknown type for plug-in location: '"+location+"'. May cause fail to startup RJ (RMI/JRI)")); //$NON-NLS-1$ //$NON-NLS-2$
+				classpath.add(s);
 			}
+		}
+		else {
+			StatusManager.getManager().handle(new Status(IStatus.WARNING, RUI.PLUGIN_ID, 
+					"Unknown type for plug-in location: '"+location+"'. May cause fail to startup RJ (RMI/JRI)")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	
@@ -171,6 +176,13 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		if (s.indexOf(" -Djava.rmi.server.hostname=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.hostname="); //$NON-NLS-1$
 			s.append(RMIAddress.LOOPBACK.getHostAddress());
+		}
+		if (s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
+			s.append(" -Djava.rmi.server.codebase=\""); //$NON-NLS-1$
+			Set<String> codebase = new HashSet<String>();
+			addPath(Platform.getBundle(RJ_SERVER_BUNDLE_ID), codebase, fRenv.getRBits() == 64);
+			s.append(ServerUtil.concatCodebase(codebase.toArray(new String[codebase.size()])));
+			s.append("\""); //$NON-NLS-1$
 		}
 		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
 			s.append(" -Xss").append(fRenv.getRBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$

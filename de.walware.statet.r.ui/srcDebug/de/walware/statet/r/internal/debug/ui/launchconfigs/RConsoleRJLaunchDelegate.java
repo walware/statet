@@ -123,7 +123,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		String name = rmiAddress.toString();
 		name += ' ' + LaunchConfigUtil.createProcessTimestamp();
 		final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, "R", //$NON-NLS-1$
-				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " : R Console/RJ ~ " + name); //$NON-NLS-1$
+				LaunchConfigUtil.createLaunchPrefix(configuration),
+				renv.getName() + " : R Console/RJ ~ " + name, //$NON-NLS-1$
+				rmiAddress.toString());
 		process.setAttribute(IProcess.ATTR_CMDLINE, name + " " + Arrays.toString(rArgs)); //$NON-NLS-1$
 		
 		// Wait until the engine is started or died

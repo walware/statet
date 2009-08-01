@@ -60,7 +60,7 @@ public final class RReferenceVar extends CombinedElement
 	}
 	
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_REFERENCE;
 	}
 	

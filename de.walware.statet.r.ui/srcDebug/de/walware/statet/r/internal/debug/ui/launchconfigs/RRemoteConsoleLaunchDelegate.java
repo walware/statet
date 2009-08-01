@@ -184,6 +184,11 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 				return;
 			}
 			if (type.equals(RConsoleLaunching.REMOTE_RJS_RECONNECT)) {
+				if (configuration.hasAttribute(IRemoteEngineController.LAUNCH_RECONNECT_ATTRIBUTE)) {
+					launchRjsJriRemote(configuration, mode, launch, monitor);
+					return;
+				}
+				
 				final AtomicReference<String> address = new AtomicReference<String>();
 				final String username = configuration.getAttribute(RConsoleLaunching.ATTR_LOGIN_NAME, (String) null);
 				UIAccess.getDisplay().syncExec(new Runnable() {
@@ -251,7 +256,13 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 //			}
 			
 			// arguments
-			String address = configuration.getAttribute(RConsoleLaunching.ATTR_ADDRESS, (String) null);
+			String address;
+			if (reconnect != null && reconnect.containsKey("address")) {
+				address = (String) reconnect.get("address"); //$NON-NLS-1$
+			}
+			else {
+				address = configuration.getAttribute(RConsoleLaunching.ATTR_ADDRESS, (String) null);
+			}
 			if (address == null || address.length() == 0) {
 				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						RLaunchingMessages.RJLaunchDelegate_error_MissingAddress_message, null));
@@ -357,7 +368,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			loginData.put(LOGIN_SSH_PORT_DATA_KEY, Integer.valueOf(sshPort));
 			
 			if (reconnect != null) {
-				final Map<String, String> reconnectData = (Map<String, String>) reconnect.get("initData");
+				final Map<String, String> reconnectData = (Map<String, String>) reconnect.get("initData"); //$NON-NLS-1$
 				if (reconnectData != null) {
 					loginData.putAll(reconnectData);
 				}
@@ -455,7 +466,9 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			String name = rmiAddress.toString();
 			name += ' ' + LaunchConfigUtil.createProcessTimestamp();
 			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, "R", //$NON-NLS-1$
-					LaunchConfigUtil.createLaunchPrefix(configuration), " (Remote) : R Console/RJ ~ " + name); //$NON-NLS-1$
+					LaunchConfigUtil.createLaunchPrefix(configuration),
+					" (Remote) : R Console/RJ ~ " + name, //$NON-NLS-1$
+					rmiAddress.toString()); 
 			if (command == null) {
 				command = "rjs-connect" + name; //$NON-NLS-1$
 			}

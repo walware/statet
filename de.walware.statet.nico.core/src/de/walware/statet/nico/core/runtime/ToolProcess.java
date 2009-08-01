@@ -125,6 +125,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private final String fName;
 	private String fToolLabelShort;
 	
+	private String fAddress;
 	Map<String, Object> fInitData;
 	
 	private ToolController<WorkspaceType> fController;
@@ -144,10 +145,11 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	
 	public ToolProcess(final ILaunch launch, final String mainType,
-			final String labelPrefix, final String name) {
+			final String labelPrefix, final String name, String address) {
 		fLaunch = launch;
 		fMainType = mainType;
 		fName = name;
+		fAddress = address;
 		fAttributes = new HashMap<String, String>(5);
 		fToolLabelShort = labelPrefix;
 		doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
@@ -403,6 +405,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		}
 		data.put("process", this);
 		data.put("processDispose", poseponeDispose());
+		data.put("address", fAddress);
 		data.put("initData", fInitData);
 	}
 	

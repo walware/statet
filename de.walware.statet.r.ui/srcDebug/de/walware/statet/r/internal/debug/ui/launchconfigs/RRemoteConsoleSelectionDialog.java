@@ -123,8 +123,8 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				break;
 			case Server.S_CONNECTED:
 				sb.append("Running & Connected (username is ");
-				sb.append((info.getCurrentUsername() != null) ? 
-						info.getCurrentUsername()  : "unknown").append(')'); 
+				sb.append((info.getUsername(ServerInfo.USER_CONSOLE) != null) ? 
+						info.getUsername(ServerInfo.USER_CONSOLE)  : "<unknown>").append(')'); 
 				break;
 			case Server.S_LOST:
 				sb.append("Running & Connection lost / Ready to reconnect");
@@ -157,7 +157,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			fMapping.clear();
 			final HashMap mapping = fMapping; 
 			for (final RemoteR r : all) {
-				final String username = r.info.getOwnerUsername().toLowerCase();
+				final String username = r.info.getUsername(ServerInfo.USER_OWNER).toLowerCase();
 				List<RemoteR> list = (List<RemoteR>) mapping.get(username);
 				if (list == null) {
 					list = new ArrayList<RemoteR>();
@@ -176,7 +176,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		
 		public Object getParent(final Object element) {
 			if (element instanceof RemoteR) {
-				return ((RemoteR) element).info.getOwnerUsername();
+				return ((RemoteR) element).info.getUsername(ServerInfo.USER_OWNER);
 			}
 			return null;
 		}

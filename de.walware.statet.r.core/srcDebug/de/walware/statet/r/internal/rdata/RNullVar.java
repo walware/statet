@@ -33,7 +33,7 @@ public final class RNullVar extends CombinedElement {
 	}
 	
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_NULL;
 	}
 	

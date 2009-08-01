@@ -35,7 +35,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 	}
 	
 	public CombinedElement readObject(final ObjectInput in, final int flags, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
-		final int type = in.readInt();
+		final byte type = in.readByte();
 		switch (type) {
 		case -1:
 			return null;

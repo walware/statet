@@ -11,25 +11,15 @@
 
 package de.walware.statet.r.nico;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-
-import de.walware.rj.data.RObject;
-import de.walware.rj.data.RReference;
+import de.walware.rj.services.RService;
 
 
 /**
+ * Adapter interface for {@link RTool#R_DATA_FEATURESET_ID}.
  * 
+ * Makes {@link RService} available.
  */
-public interface IRDataAdapter extends IRBasicAdapter {
+public interface IRDataAdapter extends IRBasicAdapter, RService {
 	
-	
-	public void evalVoid(String command, IProgressMonitor monitor) throws CoreException;
-	
-	public RObject evalData(String command, IProgressMonitor monitor) throws CoreException;
-	public RObject evalData(String command, String factoryId, int options, int depth, IProgressMonitor monitor) throws CoreException;
-	
-	public RObject evalData(RReference reference, IProgressMonitor monitor) throws CoreException;
-	public RObject evalData(RReference reference, String factoryId, int options, int depth, IProgressMonitor monitor) throws CoreException;
 	
 }

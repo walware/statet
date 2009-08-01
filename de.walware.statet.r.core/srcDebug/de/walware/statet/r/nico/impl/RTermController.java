@@ -205,15 +205,19 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		fWorkspaceData = new RWorkspace(this) {
 			@Override
-			protected void refreshFromTool(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
-				final StringBuilder output = readOutputLine("getwd()", monitor); //$NON-NLS-1$
-				if (output != null) {
-					final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
-					if (matcher.find()) {
-						final String wd = matcher.group(1);
-						setWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+			protected void refreshFromTool(AbstractRController controller, int options, IProgressMonitor monitor) throws CoreException {
+				if ((options & RWorkspace.REFRESH_COMPLETE) != 0 || (options & RWorkspace.REFRESH_AUTO) == 0) {
+					final StringBuilder output = readOutputLine("getwd()", monitor); //$NON-NLS-1$
+					if (output != null) {
+						final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
+						if (matcher.find()) {
+							final String wd = matcher.group(1);
+							setWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+						}
 					}
 				}
+				fChanged = 0;
+				fChangedEnvirs.clear();
 			}
 		};
 		setWorkspaceDir(EFS.getLocalFileSystem().fromLocalFile(config.directory()));

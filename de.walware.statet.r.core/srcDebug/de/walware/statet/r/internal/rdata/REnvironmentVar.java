@@ -16,6 +16,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -32,17 +33,18 @@ import de.walware.rj.data.defaultImpl.RUniqueCharacterDataWithHashImpl;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
+import de.walware.statet.r.nico.RWorkspace;
 
 
 public final class REnvironmentVar extends CombinedElement
-		implements ICombinedEnvironment, ExternalizableRObject, IRFrame {
+		implements REnvironment, RWorkspace.ICombinedEnvironment, ExternalizableRObject, IRFrame {
 	
 	
 	private String fCombinedName;
 	protected String fEnvironmentName;
 	private int fSpecialType;
 	private long fHandle;
+	private int fLength;
 	protected CombinedElement[] fComponents;
 	protected RCharacterDataImpl fNamesAttribute;
 	private int fFrameType;
@@ -85,12 +87,15 @@ public final class REnvironmentVar extends CombinedElement
 				
 		fHandle = in.readLong();
 		setEnvName(in.readUTF(), false);
-		final int length = in.readInt();
-		fNamesAttribute = new RUniqueCharacterDataWithHashImpl(in);
-		fComponents = new CombinedElement[length];
-		for (int i = 0; i < length; i++) {
-			fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
-					RElementName.create(RElementName.MAIN_DEFAULT, fNamesAttribute.getChar(i)) );
+		final int length = fLength = in.readInt();
+		
+		if ((options & RObjectFactory.O_NOCHILDREN) == 0) {
+			fNamesAttribute = new RUniqueCharacterDataWithHashImpl(in);
+			fComponents = new CombinedElement[length];
+			for (int i = 0; i < length; i++) {
+				fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
+						RElementName.create(RElementName.MAIN_DEFAULT, fNamesAttribute.getChar(i)) );
+			}
 		}
 	}
 	
@@ -100,6 +105,9 @@ public final class REnvironmentVar extends CombinedElement
 		if (customClass) {
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
+		if (fComponents == null) {
+			options |= RObjectFactory.F_NOCHILDREN;
+		}
 		out.writeInt(options);
 		
 		if (customClass) {
@@ -108,10 +116,13 @@ public final class REnvironmentVar extends CombinedElement
 		
 		out.writeLong(fHandle);
 		out.writeUTF(fCombinedName);
-		out.writeInt(fComponents.length);
-		fNamesAttribute.writeExternal(out);
-		for (int i = 0; i < fComponents.length; i++) {
-			factory.writeObject(fComponents[i], out, flags);
+		out.writeInt(fLength);
+		
+		if (fComponents != null) {
+			fNamesAttribute.writeExternal(out);
+			for (int i = 0; i < fComponents.length; i++) {
+				factory.writeObject(fComponents[i], out, flags);
+			}
 		}
 	}
 	
@@ -163,7 +174,7 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
-	public final int getRObjectType() {
+	public final byte getRObjectType() {
 		return TYPE_ENV;
 	}
 	
@@ -184,7 +195,7 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	public int getLength() {
-		return fComponents.length;
+		return fLength;
 	}
 	
 	public RCharacterStore getNames() {
@@ -217,7 +228,7 @@ public final class REnvironmentVar extends CombinedElement
 	
 	
 	public RObject get(final String name) {
-		final int idx = fNamesAttribute.getIdx(name);
+		final int idx = fNamesAttribute.indexOf(name);
 		if (idx >= 0) {
 			return fComponents[idx];
 		}
@@ -245,6 +256,9 @@ public final class REnvironmentVar extends CombinedElement
 	
 	
 	public boolean hasModelChildren(final Filter filter) {
+		if (fComponents == null) {
+			return false;
+		}
 		if (filter == null) {
 			return (fComponents.length > 0);
 		}
@@ -259,6 +273,9 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
+		if (fComponents == null) {
+			return Collections.EMPTY_LIST;
+		}
 		if (filter == null) {
 			return Arrays.asList(fComponents);
 		}
@@ -310,11 +327,16 @@ public final class REnvironmentVar extends CombinedElement
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("RObject type=environment, class=").append(getRClassName());
-		sb.append("\n\tlength=").append(fComponents.length);
-		sb.append("\n\tdata: ");
-		for (int i = 0; i < fComponents.length; i++) {
-			sb.append("\n$").append(fNamesAttribute.getChar(i)).append("\n");
-			sb.append(fComponents[i]);
+		sb.append("\n\tlength=").append(fLength);
+		if (fComponents != null) {
+			sb.append("\n\tdata: ");
+			for (int i = 0; i < fLength; i++) {
+				sb.append("\n$").append(fNamesAttribute.getChar(i)).append("\n");
+				sb.append(fComponents[i]);
+			}
+		}
+		else {
+			sb.append("\n<NODATA/>");
 		}
 		return sb.toString();
 	}

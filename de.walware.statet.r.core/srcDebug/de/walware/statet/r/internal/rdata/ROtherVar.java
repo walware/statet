@@ -65,7 +65,7 @@ public final class ROtherVar extends CombinedElement {
 	}
 	
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_OTHER;
 	}
 	

@@ -16,11 +16,15 @@ import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_CALLBA
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_MESSAGE_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNAME_DATA_KEY;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.rmi.ConnectException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,23 +53,25 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.rj.RjException;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
-import de.walware.rj.server.ConsoleCmdItem;
+import de.walware.rj.server.ConsoleEngine;
+import de.walware.rj.server.ConsoleReadCmdItem;
 import de.walware.rj.server.DataCmdItem;
 import de.walware.rj.server.ExtUICmdItem;
 import de.walware.rj.server.FxCallback;
 import de.walware.rj.server.MainCmdC2SList;
 import de.walware.rj.server.MainCmdItem;
 import de.walware.rj.server.MainCmdS2CList;
-import de.walware.rj.server.RjException;
 import de.walware.rj.server.RjsComObject;
 import de.walware.rj.server.RjsPing;
 import de.walware.rj.server.RjsStatus;
-import de.walware.rj.server.RjsStatusImpl1;
 import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerLogin;
+import de.walware.rj.services.FunctionCall;
+import de.walware.rj.services.RPlatform;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RUtil;
@@ -92,11 +98,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	}
 	
 	
-	private RMIAddress fAddress;
-	private String[] fRArgs;
+	private final RMIAddress fAddress;
+	private final String[] fRArgs;
 	
-	private Server fRjServer;
-	private int fTicket;
+	private ConsoleEngine fRjServer;
 	private final MainCmdC2SList fC2SList = new MainCmdC2SList();
 	private boolean fConsoleReadCallbackRequest;
 	private MainCmdItem fConsoleReadCallback;
@@ -106,9 +111,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	private boolean fIsBusy = true;
 	
 	
-	private boolean fEmbedded;
-	private boolean fStartup;
+	private final boolean fEmbedded;
+	private final boolean fStartup;
 	private String fStartupSnippet;
+	
 	private boolean fIsDisconnected = false;
 	
 	
@@ -123,7 +129,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	 * @param rArgs R arguments (required only if startup is <code>true</code>)
 	 * @param initialWD
 	 */
-	public RjsController(final ToolProcess<RWorkspace> process, 
+	public RjsController(final ToolProcess<RWorkspace> process,
 			final RMIAddress address, final Map<String, Object> initData,
 			final boolean embedded, final boolean startup, final String[] rArgs,
 			final IFileStore initialWD) {
@@ -181,9 +187,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				beginInternalTask();
 			}
 			try {
-				final Server server = fRjServer;
+				final ConsoleEngine server = fRjServer;
 				if (server != null) {
-					server.disconnect(fTicket);
+					server.disconnect();
 				}
 				fIsDisconnected = true;
 			}
@@ -210,9 +216,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 							if (!isTerminated()) {
 								try {
 									rjsSendPing(true, monitor);
+									rjsHandleStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
 								}
 								catch (final RemoteException e) {
-									rjsHandleStatus(new RjsStatusImpl1(RjsStatus.INFO, Server.S_LOST), monitor);
+									rjsHandleStatus(new RjsStatus(RjsStatus.INFO, Server.S_LOST), monitor);
 								}
 							}
 						}
@@ -261,12 +268,12 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		catch (final ClassCastException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.2.x).", RjsUtil.getVersionString(null)), e));
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.3.x).", RjsUtil.getVersionString(null)), e));
 		}
-		if (version.length != 3 || version[0] != 0 || version[1] != 2) {
+		if (version.length != 3 || version[0] != 0 || version[1] != 3) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.2.x).", RjsUtil.getVersionString(version)),
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.3.x).", RjsUtil.getVersionString(version)),
 					null));
 		}
 		
@@ -276,7 +283,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			String msg = null;
 			TRY_LOGIN: while (fRjServer == null) {
 				final Map<String, Object> initData = getInitData();
-				final ServerLogin login = server.createLogin();
+				final ServerLogin login = server.createLogin(Server.C_CONSOLE_CONNECT);
 				try {
 					final Callback[] callbacks = login.getCallbacks();
 					if (callbacks != null) {
@@ -318,13 +325,11 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					}
 					
 					if (fStartup) {
-						fTicket = server.start(login.createAnswer(), fRArgs);
+						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, Collections.singletonMap("args", fRArgs), login.createAnswer());
 					}
 					else {
-						fTicket = server.connect(login.createAnswer());
+						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, null, login.createAnswer());
 					}
-					
-					fRjServer = server;
 					
 					if (callbacks != null) {
 						loginHandler.handle(IToolEventHandler.LOGIN_OK_EVENT_ID, this, data, monitor);
@@ -382,8 +387,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		}
 	}
 	
-	protected final Server ensureServer() {
-		final Server server = fRjServer;
+	protected final ConsoleEngine ensureServer() {
+		final ConsoleEngine server = fRjServer;
 		if (server == null) {
 			throw new IllegalStateException();
 		}
@@ -432,7 +437,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					sendItem = null;
 				}
 //				System.out.println("client *-> server: " + sendCom);
-				receivedCom = ensureServer().runMainLoop(fTicket, sendCom);
+				receivedCom = ensureServer().runMainLoop(sendCom);
+				fC2SList.clear();
 				sendCom = null;
 //				System.out.println("client *<- server: " + receivedCom);
 				switch (receivedCom.getComType()) {
@@ -455,6 +461,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					return;
 				}
 			}
+			catch (final ConnectException e) {
+				rjsHandleStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
+			}
 			catch (final RemoteException e) {
 				RCorePlugin.logError(-1, "Communication error detail\nSEND="+sendItem, e);
 //				e.printStackTrace(System.out);
@@ -467,7 +476,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Communication error.", e));
 				}
 				else {
-					rjsHandleStatus(new RjsStatusImpl1(RjsComObject.V_INFO, Server.S_LOST), monitor);
+					rjsHandleStatus(new RjsStatus(RjsComObject.V_INFO, Server.S_LOST), monitor);
 					// throws CoreException
 				}
 			}
@@ -476,45 +485,48 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	private void rjsHandleStatus(final RjsStatus serverStatus, final IProgressMonitor monitor)
 			throws CoreException {
-		IStatus status;
-		switch(serverStatus.getCode()) {
+		String specialMessage = null;
+		switch (serverStatus.getCode()) {
 		case 0:
 			return;
 		case Server.S_DISCONNECTED:
 			fIsDisconnected = true;
 		case Server.S_LOST:
 			if (fIsDisconnected) {
-				status = new Status(IStatus.INFO, RCore.PLUGIN_ID, "R disconnected.");
+				specialMessage = "R disconnected.";
 				markAsTerminated();
 				break;
 			}
 			else if (!fEmbedded) {
-				status = new Status(IStatus.INFO, RCore.PLUGIN_ID, "R connection lost.");
+				specialMessage = "R connection lost.";
 				fIsDisconnected = true;
 				markAsTerminated();
 				break;
 			}
 			// continue stopped
 		case Server.S_STOPPED:
-			status = new Status(IStatus.INFO, RCore.PLUGIN_ID, "R stopped.");
+			specialMessage = "R stopped.";
 			markAsTerminated();
 			break;
 		default:
 			throw new IllegalStateException();
 		}
 		
-		handleStatus(status, monitor);
-		throw new CoreException(status);
+		handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID, specialMessage), monitor);
+		throw new CoreException(new Status(IStatus.CANCEL, RCore.PLUGIN_ID, specialMessage));
 	}
 	
 	private MainCmdItem rjsHandleMainList(final MainCmdS2CList list, final IProgressMonitor monitor) throws RemoteException, CoreException {
+		MainCmdItem item = list.getItems();
+		MainCmdItem tmp;
 		try {
+			List<MainCmdItem> returnList = null;
 			final boolean isBusy = list.isBusy();
 			if (fIsBusy != isBusy) {
 				fIsBusy = isBusy;
 //				loopBusyChanged(isBusy);
 			}
-			ITER_ITEMS : for (MainCmdItem item = list.getItems(); (item != null); item = item.next) {
+			ITER_ITEMS : for (; (item != null); tmp = item, item = item.next, tmp.next = null) {
 				switch (item.getCmdType()) {
 				case MainCmdItem.T_CONSOLE_WRITE_ITEM:
 					((item.getCmdOption() == RjsComObject.V_OK) ?
@@ -526,23 +538,27 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					if (item != list.getItems()) {
 						rjsSendPing(false, monitor);
 					}
+					if (returnList != null) {
+						System.out.println("Requests below console prompt discarded.");
+						returnList = null;
+					}
 					fConsoleReadCallback = item;
-//					if (fDataLevelRequest > 0) {
-//						throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Illegal nested console read"));
-//					}
-					return null;
+					continue ITER_ITEMS;
 				}
 				case MainCmdItem.T_MESSAGE_ITEM:
 					fInfoStream.append(item.getDataText(), fCurrentRunnable.getSubmitType(), 0);
 					continue ITER_ITEMS;
 				case MainCmdItem.T_EXTENDEDUI_ITEM:
 					if (item.waitForClient()) {
-						return rjsHandleUICallback((ExtUICmdItem) item, monitor);
+						if (returnList == null) {
+							returnList = new ArrayList<MainCmdItem>();
+						}
+						returnList.add(rjsHandleUICallback((ExtUICmdItem) item, monitor));
 					}
 					else {
 						rjsHandleUICallback((ExtUICmdItem) item, monitor);
-						continue ITER_ITEMS;
 					}
+					continue ITER_ITEMS;
 				case MainCmdItem.T_DATA_ITEM:
 					if (fDataLevelRequest > 0) {
 						if (addDataAnswer((DataCmdItem) item)) {
@@ -553,6 +569,16 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				default:
 					throw new RemoteException("Illegal command from server: " + item.toString());
 				}
+			}
+			if (returnList != null) {
+				item = null;
+				for (int i = 0; i < returnList.size(); i++) {
+					// requests are a stack => backwards
+					tmp = item;
+					item = returnList.get(i);
+					item.next = tmp;
+				}
+				return item;
 			}
 			return null;
 		}
@@ -566,9 +592,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			rjsComErrorRestore(e, monitor);
 			// try to recover
 			rjsSendPing(true, monitor);
-			ITER_ITEMS : for (MainCmdItem item = list.getItems(); (item != null); item = item.next) {
+			ITER_ITEMS : for (; (item != null); tmp = item, item = item.next, tmp.next = null) {
 				if (item.waitForClient()) {
-					if (item.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM && item instanceof ConsoleCmdItem) {
+					if (item.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM && item instanceof ConsoleReadCmdItem) {
 						fConsoleReadCallback = item;
 						return null;
 					}
@@ -584,7 +610,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	private void rjsSendPing(final boolean checkAnswer, final IProgressMonitor monitor) throws RemoteException, CoreException {
 //		System.out.println("client *-> server: " + RjsPing.INSTANCE);
-		final RjsComObject receivedCom = ensureServer().runMainLoop(fTicket, RjsPing.INSTANCE);
+		final RjsComObject receivedCom = ensureServer().runMainLoop(RjsPing.INSTANCE);
 //		System.out.println("client *<- server: " + receivedCom);
 		if (checkAnswer) {
 			if (receivedCom.getComType() != RjsComObject.T_STATUS) {
@@ -666,10 +692,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
-		final Server server = fRjServer;
+		final ConsoleEngine server = fRjServer;
 		if (server != null) {
 			try {
-				server.interrupt(fTicket);
+				server.interrupt();
 			} catch (final RemoteException e) {
 				RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 						"An error occurred when trying to interrupt R.", e));
@@ -701,10 +727,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	}
 	
 	private boolean ping() {
-		final Server server = fRjServer;
+		final ConsoleEngine server = fRjServer;
 		if (server != null) {
 			try {
-				return (RjsStatus.OK_STATUS.equals(server.runAsync(fTicket, RjsPing.INSTANCE)));
+				return (RjsStatus.OK_STATUS.equals(server.runAsync(RjsPing.INSTANCE)));
 			}
 			catch (final RemoteException e) {
 				// no need to log here
@@ -786,17 +812,24 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	private boolean addDataAnswer(final DataCmdItem item) {
 		fDataAnswer[fDataLevelRequest] = item;
-		if (item.waitForClient()) {
-			fDataLevelAnswer = fDataLevelRequest;
-			return true;
-		}
-		return false;
+		fDataLevelAnswer = fDataLevelRequest;
+		return true;
+	}
+	
+	public RPlatform getPlatform() {
+		return null;
 	}
 	
 	public void evalVoid(final String command, final IProgressMonitor monitor) throws CoreException {
-		newDataLevel();
+		final int level = newDataLevel();
 		try {
-			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.EVAL_VOID, 0, 0, command, null), monitor);
+			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.EVAL_VOID, 0, (byte) 0, command, null), monitor);
+			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
+				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Evaluation failed."));
+			}
+			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
+				throw new CoreException(Status.CANCEL_STATUS);
+			}
 			return;
 		}
 		finally {
@@ -810,12 +843,18 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	public RObject evalData(final String command, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
+		final byte checkedDepth = (depth < Byte.MAX_VALUE) ? (byte) depth : Byte.MAX_VALUE;
 		final int level = newDataLevel();
 		try {
 			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
-					DataCmdItem.EVAL_STRUCT : DataCmdItem.EVAL_DATA, 0, depth, command, factoryId), monitor);
-			final RObject data = (fDataAnswer[level] != null) ? (RObject) fDataAnswer[level].getData() : null;
-			return data;
+					DataCmdItem.EVAL_STRUCT : DataCmdItem.EVAL_DATA, 0, checkedDepth, command, factoryId), monitor);
+			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
+				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Evaluation failed."));
+			}
+			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
+				throw new CoreException(Status.CANCEL_STATUS);
+			}
+			return fDataAnswer[level].getData();
 		}
 		finally {
 			finalizeDataLevel();
@@ -828,13 +867,19 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	public RObject evalData(final RReference reference, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
+		final byte checkedDepth = (depth < Byte.MAX_VALUE) ? (byte) depth : Byte.MAX_VALUE;
 		final int level = newDataLevel();
 		try {
 			final long handle = reference.getHandle();
 			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
-					DataCmdItem.RESOLVE_STRUCT : DataCmdItem.RESOLVE_DATA, 0, depth, Long.toString(handle), factoryId), monitor);
-			final RObject data = (fDataAnswer[level] != null) ? (RObject) fDataAnswer[level].getData() : null;
-			return data;
+					DataCmdItem.RESOLVE_STRUCT : DataCmdItem.RESOLVE_DATA, 0, checkedDepth, Long.toString(handle), factoryId), monitor);
+			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
+				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Evaluation failed."));
+			}
+			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
+				throw new CoreException(Status.CANCEL_STATUS);
+			}
+			return fDataAnswer[level].getData();
 		}
 		finally {
 			finalizeDataLevel();
@@ -870,6 +915,39 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			return e;
 		}
 		return null;
+	}
+	
+	public void assignData(final String expression, final RObject data, final IProgressMonitor monitor) throws CoreException {
+		final int level = newDataLevel();
+		try {
+			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.ASSIGN_DATA, 0, expression, data), monitor);
+			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
+				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Assignment failed."));
+			}
+			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
+				throw new CoreException(Status.CANCEL_STATUS);
+			}
+			return;
+		}
+		finally {
+			finalizeDataLevel();
+		}
+	}
+	
+	public void downloadFile(final OutputStream out, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
+		throw new UnsupportedOperationException();
+	}
+	
+	public byte[] downloadFile(final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
+		throw new UnsupportedOperationException();
+	}
+	
+	public void uploadFile(final InputStream in, final long length, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
+		throw new UnsupportedOperationException();
+	}
+	
+	public FunctionCall createFunctionCall(final String name) {
+		throw new UnsupportedOperationException();
 	}
 	
 }

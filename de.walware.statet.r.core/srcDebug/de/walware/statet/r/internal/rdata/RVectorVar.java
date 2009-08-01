@@ -95,7 +95,7 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return TYPE_VECTOR;
 	}
 	

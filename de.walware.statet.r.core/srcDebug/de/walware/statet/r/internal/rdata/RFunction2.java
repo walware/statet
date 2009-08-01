@@ -61,7 +61,7 @@ public final class RFunction2 extends CombinedElement
 		}
 	}
 	
-	public int getRObjectType() {
+	public byte getRObjectType() {
 		return RObject.TYPE_FUNCTION;
 	}
 	

@@ -56,7 +56,11 @@ public class RWorkspace extends ToolWorkspace {
 	public static final int REFRESH_COMPLETE =      0x2;
 	
 	
-	public static interface ICombinedEnvironment extends REnvironment, ICombinedRElement {
+	public static interface ICombinedList extends RList, ICombinedRElement {
+		
+	}
+	
+	public static interface ICombinedEnvironment extends REnvironment, ICombinedList {
 		
 	}
 	
@@ -64,9 +68,9 @@ public class RWorkspace extends ToolWorkspace {
 	private static class REnvironments {
 		
 		
-		private RWorkspace fWorkspace;
-		private List<REnvironmentVar> fPreviousSearchEnvs;
-		private Map<Long, REnvironmentVar> fPreviousEnvMap;
+		private final RWorkspace fWorkspace;
+		private final List<REnvironmentVar> fPreviousSearchEnvs;
+		private final Map<Long, REnvironmentVar> fPreviousEnvMap;
 		
 		private boolean fForce;
 		
@@ -83,12 +87,15 @@ public class RWorkspace extends ToolWorkspace {
 		}
 		
 		
-		private void updateREnvironments(final IRCombinedDataAdapter adapter, Set<RElementName> envirs, final boolean force, final IProgressMonitor monitor) throws CoreException {
+		private void updateREnvironments(final IRCombinedDataAdapter adapter, final Set<RElementName> envirs, final boolean force, final IProgressMonitor monitor) throws CoreException {
 			fForce = (force || fPreviousSearchEnvs == EMPTY_LIST || fPreviousEnvMap == EMPTY_MAP);
+//			long start = System.currentTimeMillis();
 			createSearchEnvs(adapter, monitor);
 			final ArrayIntList updateList = createUpdateIdxs(envirs);
 			createUpdateEnvs(adapter, monitor);
 			createEnvMap(adapter, monitor);
+//			long end = System.currentTimeMillis();
+//			System.out.println("----\ncomplete: " + (end-start) + "\n");
 		}
 		
 		
@@ -108,7 +115,7 @@ public class RWorkspace extends ToolWorkspace {
 			}
 		}
 		
-		private ArrayIntList createUpdateIdxs(Set<RElementName> envirs) {
+		private ArrayIntList createUpdateIdxs(final Set<RElementName> envirs) {
 			fUpdateIdxs = new ArrayIntList(fSearchEnvs.size());
 			if (fForce) {
 				for (int newIdx = 0; newIdx < fSearchEnvs.size(); newIdx++) {
@@ -163,8 +170,11 @@ public class RWorkspace extends ToolWorkspace {
 					// Regular code
 					final RElementName elementName = envir.getElementName();
 					try {
+//						long start = System.currentTimeMillis();
 						final RObject robject = r.evalCombinedStruct(elementName, 0, -1, monitor);
-	//					System.out.println(robject);
+//						long end = System.currentTimeMillis();
+//						System.out.println("update " + elementName.getDisplayName() + ": " + (end-start));
+//						System.out.println(robject);
 						if (robject != null && robject.getRObjectType() == RObject.TYPE_ENV) {
 							final REnvironmentVar renv = (REnvironmentVar) robject;
 							fSearchEnvs.set(idx, renv);
@@ -187,7 +197,7 @@ public class RWorkspace extends ToolWorkspace {
 			}
 		}
 		
-		private void createEnvMap(final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) {
+		private void createEnvMap(final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 			if (monitor.isCanceled()) {
 				return;
 			}
@@ -215,7 +225,7 @@ public class RWorkspace extends ToolWorkspace {
 			return;
 		}
 		
-		private void search(final RList list, final boolean reuse, final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) {
+		private void search(final RList list, final boolean reuse, final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 			final int length = list.getLength();
 			ITER_CHILDREN : for (int i = 0; i < length; i++) {
 				final RObject object = list.get(i);
@@ -237,7 +247,7 @@ public class RWorkspace extends ToolWorkspace {
 			}
 		}
 		
-		private void resolveEnv(final RReferenceVar ref, final boolean reuse, final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) {
+		private void resolveEnv(final RReferenceVar ref, final boolean reuse, final IRCombinedDataAdapter r, final IProgressMonitor monitor) throws CoreException {
 			final Long handle = Long.valueOf(ref.getHandle());
 			ref.setResolver(fWorkspace);
 			if (fEnvMap.containsKey(handle)) {
@@ -247,12 +257,12 @@ public class RWorkspace extends ToolWorkspace {
 				final REnvironmentVar renv = fPreviousEnvMap.get(handle);
 				if (renv != null) {
 					fEnvMap.put(handle, renv);
-					search(renv, reuse, adapter, monitor);
+					search(renv, reuse, r, monitor);
 				}
 				return;
 			}
 			try {
-				final RObject robject = adapter.evalCombinedStruct(ref, 0, -1, null, monitor);
+				final RObject robject = r.evalCombinedStruct(ref, 0, -1, null, monitor);
 				if (robject != null && robject.getRObjectType() == RObject.TYPE_ENV) {
 					final REnvironmentVar renv = (REnvironmentVar) robject;
 					if (renv.getHandle() == handle.longValue()) {
@@ -264,6 +274,9 @@ public class RWorkspace extends ToolWorkspace {
 			}
 			catch (final CoreException e) {
 				RCorePlugin.logError(-1, "Error update environment ref "+ref.getElementName(), e);
+				if (r.getProcess().isTerminated() || monitor.isCanceled()) {
+					throw e;
+				}
 			}
 		}
 		
@@ -315,31 +328,44 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	@Override
-	protected void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	protected final void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController controller = (AbstractRController) adapter.getController();
 		if (controller.fChanged != 0 || !controller.fChangedEnvirs.isEmpty()) {
-			refreshFromTool(controller.fChanged, controller.fChangedEnvirs, adapter, monitor);
+			refreshFromTool(controller.fChanged, adapter, monitor);
 		}
-		controller.fChanged = 0;
-		controller.fChangedEnvirs.clear();
 	}
 	@Override
-	protected void refreshFromTool(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
-		refreshFromTool(options, null, adapter, monitor);
+	protected final void refreshFromTool(int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+		final AbstractRController controller = (AbstractRController) adapter.getController();
+		if ((options & (REFRESH_AUTO | REFRESH_COMPLETE)) != 0) {
+			options |= controller.fChanged;
+		}
+		refreshFromTool(controller, options, monitor);
 	}
-	protected void refreshFromTool(final int options, Set<RElementName> envirs,
-			final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
-		if (((AbstractRController) adapter.getController()).isBusy()) {
+	protected void refreshFromTool(final AbstractRController controller, final int options, final IProgressMonitor monitor) throws CoreException {
+		if (controller.isBusy()) {
 			return;
 		}
 		monitor.subTask("Update Workspace Data");
-		if (adapter.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
-			final IRDataAdapter r = (IRDataAdapter) adapter;
+		if (controller.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
+			final IRDataAdapter r = (IRDataAdapter) controller;
 			updateWorkspaceDir(r, monitor);
 			updateOptions(r, monitor);
 			if (fRSearchEnabled) {
-				updateREnvironments(r, envirs, ((options & REFRESH_COMPLETE) != 0), monitor);
+				if ((options & (REFRESH_AUTO | REFRESH_COMPLETE)) != 0 || !controller.fChangedEnvirs.isEmpty()) {
+					updateREnvironments(r, controller.fChangedEnvirs, ((options & REFRESH_COMPLETE) != 0), monitor);
+					controller.fChanged = 0;
+					controller.fChangedEnvirs.clear();
+				}
 			}
+			else {
+				controller.fChanged = 0;
+				controller.fChangedEnvirs.clear();
+			}
+		}
+		else {
+			controller.fChanged = 0;
+			controller.fChangedEnvirs.clear();
 		}
 		firePropertiesChanged();
 	}
@@ -379,12 +405,10 @@ public class RWorkspace extends ToolWorkspace {
 			return;
 		}
 		final REnvironments newEnvs = new REnvironments(this);
-//		final long time = System.nanoTime();
 		newEnvs.updateREnvironments((IRCombinedDataAdapter) r, envirs, force, monitor);
 		if (monitor.isCanceled()) {
 			return;
 		}
-//		System.out.println(System.nanoTime() - time);
 		fRSearchEnvsInternal = newEnvs.fSearchEnvs;
 		fREnvMap = newEnvs.fEnvMap;
 		fRSearchEnvsPublic = Collections.unmodifiableList(fRSearchEnvsInternal);
