@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -111,11 +112,11 @@ public class LaunchConfigUtil {
 	private static Pattern ENV_PATTERN = Pattern.compile("\\Q${env_var:\\E([^\\}]*)\\}"); //$NON-NLS-1$
 	
 	private static Map<String, String> check(final Map<String,String> current, final Map<String,String> add) throws CoreException {
-		final String[] keys = add.keySet().toArray(new String[add.keySet().size()]);
-		for (int i = 0; i < keys.length; i++) {
-			final String orgValue = add.get(keys[i]);
-			if (orgValue != null && orgValue.length() > 0) {
-				String value = orgValue;
+		final Map<String, String> resolved = new HashMap<String, String>();
+		final Set<Entry<String, String>> entries = add.entrySet();
+		for (final Entry<String, String> entry : entries) {
+			String value = entry.getValue();
+			if (value != null && value.length() > 0) {
 				if (value.contains("${env_var:")) { //$NON-NLS-1$
 					final StringBuffer sb = new StringBuffer(value.length()+32);
 					final Matcher matcher = ENV_PATTERN.matcher(value);
@@ -130,12 +131,10 @@ public class LaunchConfigUtil {
 				if (value.contains("${")) { //$NON-NLS-1$
 					value = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(value, true);
 				}
-				if (value != orgValue) {
-					add.put(keys[i], value);
-				}
 			}
+			resolved.put(entry.getKey(), value);
 		}
-		return add;
+		return resolved;
 	}
 	
 	
