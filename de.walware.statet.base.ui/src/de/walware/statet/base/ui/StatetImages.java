@@ -70,6 +70,9 @@ public class StatetImages {
 	public static final String LOCTOOL_DOWN = StatetUIPlugin.PLUGIN_ID + "/image/loctool/down"; //$NON-NLS-1$
 	public static final String LOCTOOL_DOWN_H = StatetUIPlugin.PLUGIN_ID + "/image/loctoolh/down"; //$NON-NLS-1$
 	
+	public static final String TOOL_REFRESH = StatetUIPlugin.PLUGIN_ID + "/image/tool/refresh"; //$NON-NLS-1$
+	public static final String TOOLD_REFRESH = StatetUIPlugin.PLUGIN_ID + "/image/toold/refresh"; //$NON-NLS-1$
+	
 	
 	public static ImageDescriptor getDescriptor(final String key) {
 		return StatetUIPlugin.getDefault().getImageRegistry().getDescriptor(key);

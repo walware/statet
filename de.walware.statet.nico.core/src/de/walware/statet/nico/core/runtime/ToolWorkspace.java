@@ -96,8 +96,12 @@ public class ToolWorkspace {
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
-			autoRefreshFromTool(adapter, monitor);
-			fUpdateScheduled = false;
+			try {
+				autoRefreshFromTool(adapter, monitor);
+			}
+			finally {
+				fUpdateScheduled = false;
+			}
 		}
 		
 	}
@@ -117,13 +121,14 @@ public class ToolWorkspace {
 	
 	private IFileStore fWorkspaceDir;
 	
-	private String fRemoteHost;
+	private final String fRemoteHost;
 	private IPath fRemoteWorkspaceDir;
 	
 	private final Map<String, Object> fProperties = new HashMap<String, Object>();
 	private final FastList<Listener> fPropertyListener = new FastList<Listener>(Listener.class);
 	
-	private IToolRunnable fUpdateRunnable;
+	private boolean fAutoRefreshEnabled = true;
+	private final IToolRunnable fUpdateRunnable;
 	private boolean fUpdateScheduled;
 	
 	
@@ -149,8 +154,34 @@ public class ToolWorkspace {
 	}
 	
 	
+	public void setAutoRefresh(final boolean enable) {
+		synchronized (fProcess.getQueue()) {
+			final ToolController controller = fProcess.getController();
+			if (fAutoRefreshEnabled != enable && controller != null) {
+				fAutoRefreshEnabled = enable;
+				if (enable) {
+					internalUpdate();
+					fProcess.getQueue().notifyAll();
+				}
+				else {
+					fProcess.getQueue().internalRemoveIdle(fUpdateRunnable);
+					fUpdateScheduled = false;
+				}
+				addPropertyChanged("AutoRefresh.enabled", enable);
+				firePropertiesChanged();
+			}
+		}
+	}
+	
+	public boolean isAutoRefreshEnabled() {
+		return fAutoRefreshEnabled;
+	}
+	
+	
 	protected void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
-		refreshFromTool(0, adapter, monitor);
+		if (fAutoRefreshEnabled) {
+			refreshFromTool(0, adapter, monitor);
+		}
 	}
 	
 	protected void refreshFromTool(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {

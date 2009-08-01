@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -40,6 +41,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
@@ -81,7 +83,6 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
-import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.FastList;
@@ -100,6 +101,8 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
+import de.walware.statet.base.ui.StatetImages;
+import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
@@ -326,8 +329,9 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		private final ElementUpdater fUpdater = new ElementUpdater(ORG_ECLIPSE_UI_REFRESH);
 		
-		public RefreshHandler(final IServiceLocator serviceLocator) {
-			super(ObjectBrowserView.this, serviceLocator);
+		public RefreshHandler() {
+			super(ObjectBrowserView.this, ObjectBrowserView.this.getSite());
+			init();
 		}
 		
 		@Override
@@ -386,6 +390,42 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		public void updateElement(final UIElement element, final Map parameters) {
 			element.setChecked(fSortByType);
+		}
+		
+	}
+	
+	private class ToggleAutoRefreshHandler extends ToolRetargetableHandler implements IElementUpdater {
+		
+		private boolean fCurrentState;
+		
+		public ToggleAutoRefreshHandler() {
+			super(ObjectBrowserView.this, ObjectBrowserView.this.getSite());
+			init();
+		}
+		
+		@Override
+		protected void setBaseEnabled(final boolean state) {
+			super.setBaseEnabled(state);
+		}
+		public void updateElement(final UIElement element, final Map parameters) {
+			fCurrentState = false;
+			if (fProcess != null) {
+				final RWorkspace workspace = fProcess.getWorkspaceData();
+				if (workspace != null) {
+					fCurrentState = workspace.isAutoRefreshEnabled();
+				}
+			}
+			element.setChecked(fCurrentState);
+		}
+		
+		@Override
+		protected Object doExecute(final ExecutionEvent event) {
+			final RWorkspace workspace = (RWorkspace) getCheckedTool().getWorkspaceData();
+			if (workspace != null) {
+				fCurrentState = !fCurrentState;
+				workspace.setAutoRefresh(fCurrentState);
+			}
+			return null;
 		}
 		
 	}
@@ -677,6 +717,31 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					final ToolProcess<? extends RWorkspace> process = workspace.getProcess();
 					final List<RWorkspace.ICombinedEnvironment> envirs = (List<RWorkspace.ICombinedEnvironment>) properties.get("REnvironments");
 					schedule(workspace.getProcess(), envirs);
+				}
+			}
+			
+			final Object autorefresh = properties.get("AutoRefresh.enabled");
+			if (autorefresh instanceof Boolean) {
+				UIAccess.getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						if (fProcess != workspace.getProcess()) {
+							return;
+						}
+						updateAutoRefresh(((Boolean) autorefresh).booleanValue());
+					}
+				});
+			}
+			else { // autorefresh already updates dirty
+				final Object dirty = properties.get("RObjectDB.dirty");
+				if (dirty instanceof Boolean) {
+					UIAccess.getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							if (fProcess != workspace.getProcess()) {
+								return;
+							}
+							updateDirty(((Boolean) dirty).booleanValue());
+						}
+					});
 				}
 			}
 		}
@@ -1117,6 +1182,10 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private AbstractHandler fSearchStartHandler;
 	
+	private HandlerContributionItem fRefreshToolbarItem;
+	private HandlerContributionItem fRefreshMenuItem;
+	private boolean fRefreshDirtyIndicator;
+	
 	
 	public ObjectBrowserView() {
 	}
@@ -1249,9 +1318,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		contexts.activateContext("de.walware.statet.base.contexts.StructuredElementViewer"); //$NON-NLS-1$
 		
-		final RefreshHandler refreshHandler = new RefreshHandler(getSite());
+		final RefreshHandler refreshHandler = new RefreshHandler();
 		handlerService.activateHandler(ORG_ECLIPSE_UI_REFRESH, refreshHandler);
-		addToolRetargetable(refreshHandler);
 		final CollapseAllHandler collapseAllHandler = new CollapseAllHandler(fTreeViewer);
 		handlerService.activateHandler(CollapseAllHandler.COMMAND_ID, collapseAllHandler);
 		fCopyElementNameHandler = new CopyElementNameHandler();
@@ -1284,6 +1352,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_REPLACE, fSearchStartHandler);
 		// add next/previous handler
 		
+		final ToggleAutoRefreshHandler autoRefreshHandler = new ToggleAutoRefreshHandler();
+		
 		final IActionBars actionBars = getViewSite().getActionBars();
 		final IMenuManager viewMenu = actionBars.getMenuManager();
 		final IToolBarManager viewToolbar = actionBars.getToolBarManager();
@@ -1307,10 +1377,40 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				HandlerContributionItem.STYLE_CHECK, null, false),
 				new SortByTypeHandler() ));
 		
+		viewMenu.add(new Separator());
+		final HandlerContributionItem autoRefreshItem = new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
+				null, HandlerContributionItem.NO_COMMAND_ID, null, 
+				null, null, null,
+				"Refresh &automatically", null, null,
+				HandlerContributionItem.STYLE_CHECK, null, false),
+				autoRefreshHandler );
+		viewMenu.add(autoRefreshItem);
+		fRefreshMenuItem = new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
+				null, ORG_ECLIPSE_UI_REFRESH, null, 
+				StatetImages.getDescriptor(StatetImages.TOOL_REFRESH), StatetImages.getDescriptor(StatetImages.TOOLD_REFRESH), null,
+				"&Refresh", null, null,
+				HandlerContributionItem.STYLE_PUSH, null, false),
+				refreshHandler );
+		viewMenu.add(fRefreshMenuItem);
+		
+		viewMenu.addMenuListener(new IMenuListener() {
+			public void menuAboutToShow(final IMenuManager manager) {
+				autoRefreshItem.update();
+			}
+		});
+		
 		if (!SearchContributionItem.requiresWorkaround()) {
 			viewToolbar.add(fSearchTextItem);
 			viewToolbar.add(new Separator());
 		}
+		fRefreshToolbarItem = new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
+				"Refresh", ORG_ECLIPSE_UI_REFRESH, null, //$NON-NLS-1$
+				StatetImages.getDescriptor(StatetImages.TOOL_REFRESH), StatetImages.getDescriptor(StatetImages.TOOLD_REFRESH), null,
+				null, null, null,
+				HandlerContributionItem.STYLE_PUSH, null, false),
+				refreshHandler);
+		fRefreshToolbarItem.setVisible(false);
+		viewToolbar.add(fRefreshToolbarItem);
 		viewToolbar.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
 				"Collapse.All", CollapseAllHandler.COMMAND_ID, null, //$NON-NLS-1$
 				null, null, null,
@@ -1318,6 +1418,41 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				HandlerContributionItem.STYLE_PUSH, null, false),
 				collapseAllHandler));
 	}
+	
+	private void updateAutoRefresh(final boolean enabled) {
+		if (fProcess == null || fProcess.isTerminated()) {
+			return;
+		}
+		
+		if (enabled) {
+			updateDirty(false);
+		}
+		else {
+			updateDirty(fProcess != null && !fProcess.isTerminated()
+					&& fProcess.getWorkspaceData().isROBjectDBDirty());
+		}
+		
+		if (fRefreshToolbarItem.isVisible() != enabled) {
+			return;
+		}
+		fRefreshToolbarItem.setVisible(!enabled);
+		final IContributionManager manager = fRefreshToolbarItem.getParent();
+		manager.update(true);
+		fSearchTextItem.resize();
+	}
+	
+	private void updateDirty(final boolean enabled) {
+		if (fRefreshDirtyIndicator == enabled) {
+			return;
+		}
+		final ImageDescriptor icon = (enabled) ?
+				RUIPlugin.getDefault().getImageRegistry().getDescriptor(RUIPlugin.IMG_LOCTOOL_REFRESH_RECOMMENDED) :
+				StatetUIServices.getSharedImageRegistry().getDescriptor(StatetImages.TOOL_REFRESH);
+		fRefreshToolbarItem.setIcon(icon);
+		fRefreshMenuItem.setIcon(icon);
+		fRefreshDirtyIndicator = enabled;
+	}
+	
 	
 	private void hookContextMenu() {
 		final MenuManager menuManager = new MenuManager("ContextMenu");
@@ -1385,6 +1520,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		fInputUpdater.forceUpdate(fProcess);
 		if (fProcess != null) {
 			fProcess.getWorkspaceData().addPropertyListener(fInputUpdater);
+			updateAutoRefresh(fProcess.getWorkspaceData().isAutoRefreshEnabled());
 		}
 		fInputUpdater.schedule();
 	}

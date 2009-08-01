@@ -195,6 +195,9 @@ public class StatetUIPlugin extends AbstractUIPlugin {
 		
 		util.register(StatetImages.OVR_DEFAULT_MARKER, ImageRegistryUtil.T_OVR, "default_marker.gif"); //$NON-NLS-1$
 		
+		util.register(StatetImages.TOOL_REFRESH, ImageRegistryUtil.T_TOOL, "refresh.png"); //$NON-NLS-1$
+		util.register(StatetImages.TOOLD_REFRESH, ImageRegistryUtil.T_TOOLD, "refresh.png"); //$NON-NLS-1$
+		
 		UIAccess.getDisplay().syncExec(new Runnable() {
 			public void run() {
 				final Display display = Display.getCurrent();

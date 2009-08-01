@@ -829,7 +829,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	
 	protected void appendEnvDetail(final StyledString text, final ICombinedRElement element, final RList elementAttr) {
 		final ICombinedEnvironment envir = (ICombinedEnvironment) element;
-		if ((fStyle & COUNT) != 0 && envir.getSpecialType() != REnvironment.ENVTYPE_AUTOLOADS) { // count info
+		if ((fStyle & COUNT) != 0) { // count info
 			final String countInfo = getEnvCountInfo(envir);
 			text.append(countInfo, StyledString.COUNTER_STYLER);
 		}

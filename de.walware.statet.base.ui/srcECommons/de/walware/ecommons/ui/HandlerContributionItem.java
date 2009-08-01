@@ -230,11 +230,12 @@ public final class HandlerContributionItem extends ContributionItem {
 				dropDownMenuOverride = id;
 			}
 		};
+		if (command != null || noCommandMode) {
+			commandHandler.addHandlerListener(getHandlerListener());
+		}
 		if (command != null) {
 			try {
-				elementRef = commandService.registerElementForCommand(command,
-						callback);
-				commandHandler.addHandlerListener(getHandlerListener());
+				elementRef = commandService.registerElementForCommand(command, callback);
 				setImages(contributionParameters.serviceLocator,
 						contributionParameters.iconStyle);
 				
@@ -750,7 +751,7 @@ public final class HandlerContributionItem extends ContributionItem {
 		return false;
 	}
 	
-	private void setIcon(final ImageDescriptor desc) {
+	public void setIcon(final ImageDescriptor desc) {
 		icon = desc;
 		updateIcons();
 	}

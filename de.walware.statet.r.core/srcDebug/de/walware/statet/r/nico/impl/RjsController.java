@@ -24,7 +24,6 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +113,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	private final boolean fEmbedded;
 	private final boolean fStartup;
 	private String fStartupSnippet;
+	private final Map<String, Object> fRjsProperties;
 	
 	private boolean fIsDisconnected = false;
 	
@@ -132,7 +132,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	public RjsController(final ToolProcess<RWorkspace> process,
 			final RMIAddress address, final Map<String, Object> initData,
 			final boolean embedded, final boolean startup, final String[] rArgs,
-			final IFileStore initialWD) {
+			final Map<String, Object> rjsProperties, final IFileStore initialWD) {
 		super(process, initData);
 		if (address == null) {
 			throw new IllegalArgumentException();
@@ -145,6 +145,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		fEmbedded = embedded;
 		fStartup = startup;
 		fRArgs = rArgs;
+		fRjsProperties = rjsProperties;
 		
 		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
 				address.getHostAddress().getHostAddress());
@@ -324,11 +325,16 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						throw new CoreException(Status.CANCEL_STATUS);
 					}
 					
+					final Map<String, Object> args = new HashMap<String, Object>();
+					if (fRjsProperties != null) {
+						args.putAll(fRjsProperties);
+					}
 					if (fStartup) {
-						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, Collections.singletonMap("args", fRArgs), login.createAnswer());
+						args.put("args", fRArgs);
+						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, args, login.createAnswer());
 					}
 					else {
-						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, null, login.createAnswer());
+						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, args, login.createAnswer());
 					}
 					
 					if (callbacks != null) {

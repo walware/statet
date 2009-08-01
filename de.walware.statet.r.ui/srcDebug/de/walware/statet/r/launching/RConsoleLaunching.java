@@ -78,9 +78,15 @@ public class RConsoleLaunching {
 	public static final String ATTR_INIT_SCRIPT_SNIPPET = ATTR_ROOT+"init.script.snippet"; //$NON-NLS-1$
 	
 	/**
-	 * Attribute key for disable object db
+	 * Attribute to enable object db
 	 */
-	public static final String ATTR_DISABLE_OBJECTDB = ATTR_ROOT+"objectdb.disabled"; //$NON-NLS-1$
+	public static final String ATTR_OBJECTDB_ENABLED = ATTR_ROOT+"objectdb.enabled"; //$NON-NLS-1$
+	
+	public static final String ATTR_OBJECTDB_AUTOREFRESH_ENABLED = ATTR_ROOT+"objectdb.autorefresh.enabled"; //$NON-NLS-1$
+	
+	public static final String ATTR_OBJECTDB_LISTS_MAX_LENGTH = ATTR_ROOT+"objectdb.lists.max_length"; //$NON-NLS-1$
+	public static final String ATTR_OBJECTDB_ENVS_MAX_LENGTH = ATTR_ROOT+"objectdb.envs.max_length"; //$NON-NLS-1$
+	
 	
 	
 	public static void registerDefaultHandlerTo(final AbstractRController controller) {

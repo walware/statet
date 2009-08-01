@@ -78,7 +78,7 @@ public abstract class CombinedElement implements ICombinedRElement {
 	@Override
 	public final int hashCode() {
 		if (fParent != null) {
-			return fParent.singleHash()+singleHash();
+			return singleHash()-fParent.singleHash();
 		}
 		return singleHash();
 	}

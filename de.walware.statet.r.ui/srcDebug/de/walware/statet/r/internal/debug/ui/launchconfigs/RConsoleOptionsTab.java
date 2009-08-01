@@ -11,12 +11,16 @@
 
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
 
+import java.util.Collections;
+
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -27,7 +31,10 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
@@ -58,8 +65,14 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private WritableValue fPinValue;
 	private WritableValue fStartupSnippetValue;
 	
-	private Button fDisableObjectDBControl;
-	private WritableValue fDisableObjectDBValue;
+	private Button fObjectDBEnabledControl;
+	private WritableValue fObjectDBEnabledValue;
+	private Button fObjectDBAutoEnabledControl;
+	private WritableValue fObjectDBAutoEnabledValue;
+	private Text fObjectDBListsChildrenControl;
+	private WritableValue fObjectDBListsChildrenValue;
+	private Text fObjectDBEnvsChildrenControl;
+	private WritableValue fObjectDBEnvsChildrenValue;
 	
 	
 	public RConsoleOptionsTab() {
@@ -91,9 +104,12 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			createSnippetOptions(group);
 		}
 		
-		fDisableObjectDBControl = new Button(mainComposite, SWT.CHECK);
-		fDisableObjectDBControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		fDisableObjectDBControl.setText("Disabled &Object DB (for Browser)");
+		{	// Object DB options:
+			final Group group = new Group(mainComposite, SWT.NONE);
+			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			group.setText("Object DB (for Object Browser etc.):");
+			createObjectDBOptions(group);
+		}
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
@@ -155,6 +171,46 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fStartupSnippetEditor.getControl().setLayoutData(gd);
 	}
 	
+	private void createObjectDBOptions(final Composite container) {
+		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		
+		{	fObjectDBEnabledControl = new Button(container, SWT.CHECK);
+			fObjectDBEnabledControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+			fObjectDBEnabledControl.setText("Enable");
+		}
+		
+		{	fObjectDBAutoEnabledControl = new Button(container, SWT.CHECK);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			fObjectDBAutoEnabledControl.setLayoutData(gd);
+			fObjectDBAutoEnabledControl.setText("Refresh DB automatically (initial setting).");
+		}
+		{	final Label label = new Label(container, SWT.NONE);
+			label.setText("Max length of R lists to fetch:");
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			label.setLayoutData(gd);
+		}
+		{	fObjectDBListsChildrenControl = new Text(container, SWT.BORDER);
+			fObjectDBListsChildrenControl.setTextLimit(10);
+			final GridData gd = new GridData(SWT.LEFT, SWT.FILL, true, false);
+			gd.widthHint = LayoutUtil.hintWidth(fObjectDBListsChildrenControl, 10);
+			fObjectDBListsChildrenControl.setLayoutData(gd);
+		}
+		{	final Label label = new Label(container, SWT.NONE);
+			label.setText("Max length of R environments to fetch:");
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			label.setLayoutData(gd);
+		}
+		{	fObjectDBEnvsChildrenControl = new Text(container, SWT.BORDER);
+			fObjectDBEnvsChildrenControl.setTextLimit(10);
+			final GridData gd = new GridData(SWT.LEFT, SWT.FILL, true, false);
+			gd.widthHint = LayoutUtil.hintWidth(fObjectDBEnvsChildrenControl, 10);
+			fObjectDBEnvsChildrenControl.setLayoutData(gd);
+		}
+	}
+	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		fPinValue = new WritableValue(realm, Boolean.class);
@@ -163,8 +219,20 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fStartupSnippetValue = new WritableValue(realm, String.class);
 		dbc.bindValue(new SnippetEditorObservable(realm, fStartupSnippetEditor, SWT.Modify), fStartupSnippetValue, null, null);
 		
-		fDisableObjectDBValue = new WritableValue(realm, Boolean.class);
-		dbc.bindValue(SWTObservables.observeSelection(fDisableObjectDBControl), fDisableObjectDBValue, null, null);
+		fObjectDBEnabledValue = new WritableValue(realm, Boolean.class);
+		fObjectDBAutoEnabledValue = new WritableValue(realm, Boolean.class);
+		fObjectDBListsChildrenValue = new WritableValue(realm, Integer.class);
+		fObjectDBEnvsChildrenValue = new WritableValue(realm, Integer.class);
+		final ISWTObservableValue dbObs = SWTObservables.observeSelection(fObjectDBEnabledControl);
+		dbc.bindValue(dbObs, fObjectDBEnabledValue, null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fObjectDBAutoEnabledControl), fObjectDBAutoEnabledValue, null, null);
+		dbc.bindValue(SWTObservables.observeText(fObjectDBListsChildrenControl, SWT.Modify), fObjectDBListsChildrenValue, 
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(100, Integer.MAX_VALUE, "Invalid max value for length of R lists to fetch (100-).")), null);
+		dbc.bindValue(SWTObservables.observeText(fObjectDBEnvsChildrenControl, SWT.Modify), fObjectDBEnvsChildrenValue, 
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(100, Integer.MAX_VALUE, "Invalid max value for length of R environments to fetch (100-).")), null);
+		
+		dbc.bindValue(new SWTMultiEnabledObservable(realm, fObjectDBEnabledControl.getParent().getChildren(), Collections.singletonList(fObjectDBEnabledControl)),
+				dbObs, null, null);
 	}
 	
 	
@@ -193,15 +261,42 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		}
 		fStartupSnippetValue.setValue(startupSnippet);
 		
-		boolean disableDB;
-		try {
-			disableDB = configuration.getAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, false);
+		{	boolean enabled = true;
+			try {
+				enabled = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, enabled);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fObjectDBEnabledValue.setValue(enabled);
 		}
-		catch (final CoreException e) {
-			disableDB = false; 
-			logReadingError(e);
+		{	boolean enabled = true;
+			try {
+				enabled = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, enabled);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fObjectDBAutoEnabledValue.setValue(enabled);
 		}
-		fDisableObjectDBValue.setValue(disableDB);
+		{	int max = 10000;
+			try {
+				max = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fObjectDBListsChildrenValue.setValue(max);
+		}
+		{	int max = 10000;
+			try {
+				max = configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fObjectDBEnvsChildrenValue.setValue(max);
+		}
 	}
 	
 	@Override
@@ -216,12 +311,17 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			configuration.removeAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET);
 		}
 		
-		final Boolean disableDB = (Boolean) fDisableObjectDBValue.getValue();
-		if (disableDB != null) {
-			configuration.setAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, disableDB.booleanValue());
+		{	final Boolean enabled = (Boolean) fObjectDBEnabledValue.getValue();
+			configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, enabled.booleanValue());
 		}
-		else {
-			configuration.removeAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB);
+		{	final Boolean enabled = (Boolean) fObjectDBAutoEnabledValue.getValue();
+			configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, enabled.booleanValue());
+		}
+		{	final Integer max = (Integer) fObjectDBListsChildrenValue.getValue();
+			configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, max.intValue());
+		}
+		{	final Integer max = (Integer) fObjectDBEnvsChildrenValue.getValue();
+		configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, max.intValue());
 		}
 	}
 	

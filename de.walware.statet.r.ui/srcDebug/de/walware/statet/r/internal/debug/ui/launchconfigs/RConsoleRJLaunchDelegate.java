@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -170,8 +171,13 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		progress.worked(5);
 		
+		final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
+		rjsProperties.put("rj.data.lists.structs.max_length",
+				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
+		rjsProperties.put("rj.data.envs.structs.max_length",
+				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 		final RjsController controller = new RjsController(process, rmiAddress, null,
-				true, true, rArgs,
+				true, true, rArgs, rjsProperties,
 				REnvTab.getWorkingDirectoryValidator(configuration, false).getFileStore());
 		process.init(controller);
 		RConsoleLaunching.registerDefaultHandlerTo(controller);
@@ -179,7 +185,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		progress.worked(5);
 		
 		controller.setStartupSnippet(configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null));
-		controller.setRObjectDB(!configuration.getAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, false));
+		controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
+		controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
 		
 		final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page, 

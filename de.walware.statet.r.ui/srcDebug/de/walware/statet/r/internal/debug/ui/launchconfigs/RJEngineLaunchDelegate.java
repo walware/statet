@@ -61,7 +61,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		addPath(rjServerBundle, classpath, is64);
 		Bundle[] fragments = Platform.getFragments(rjServerBundle);
 		if (fragments != null) {
-			for (Bundle bundle : fragments) {
+			for (final Bundle bundle : fragments) {
 				addPath(bundle, classpath, is64);
 			}
 		}
@@ -69,7 +69,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		addPath(rjDataBundle, classpath, is64);
 		fragments = Platform.getFragments(rjDataBundle);
 		if (fragments != null) {
-			for (Bundle bundle : fragments) {
+			for (final Bundle bundle : fragments) {
 				addPath(bundle, classpath, is64);
 			}
 		}
@@ -77,7 +77,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		addPath(swtBundle, classpath, is64);
 		fragments = Platform.getFragments(swtBundle);
 		if (fragments != null && fragments.length > 0) {
-			for (Bundle bundle : fragments) {
+			for (final Bundle bundle : fragments) {
 				addPath(bundle, classpath, is64);
 			}
 		}
@@ -121,8 +121,8 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	}
 	
 	
-	private String fAddress;
-	private REnvConfiguration fRenv;
+	private final String fAddress;
+	private final REnvConfiguration fRenv;
 	
 	
 	public RJEngineLaunchDelegate(final String address, final REnvConfiguration renv) throws CoreException {
@@ -179,7 +179,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.codebase=\""); //$NON-NLS-1$
-			Set<String> codebase = new HashSet<String>();
+			final Set<String> codebase = new HashSet<String>();
 			addPath(Platform.getBundle(RJ_SERVER_BUNDLE_ID), codebase, fRenv.getRBits() == 64);
 			s.append(ServerUtil.concatCodebase(codebase.toArray(new String[codebase.size()])));
 			s.append("\""); //$NON-NLS-1$

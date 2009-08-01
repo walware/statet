@@ -287,6 +287,13 @@ public final class Queue {
 		fIdleList.add(runnable);
 	}
 	
+	void internalRemoveIdle(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException();
+		}
+		fIdleList.remove(runnable);
+	}
+	
 	boolean internalIsEmpty() {
 		return (fSingleIOCache == null && fList.isEmpty() && fIdleList.isEmpty());
 	}

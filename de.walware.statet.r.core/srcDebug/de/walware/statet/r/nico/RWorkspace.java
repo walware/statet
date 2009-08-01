@@ -225,23 +225,25 @@ public class RWorkspace extends ToolWorkspace {
 			return;
 		}
 		
-		private void search(final RList list, final boolean reuse, final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) throws CoreException {
-			final int length = list.getLength();
-			ITER_CHILDREN : for (int i = 0; i < length; i++) {
-				final RObject object = list.get(i);
-				if (object != null) {
-					switch (object.getRObjectType()) {
-					case RObject.TYPE_REFERENCE:
-						if (object.getRClassName().equals("environment")) {
-							resolveEnv((RReferenceVar) object, reuse, adapter, monitor);
+		private void search(final ICombinedList list, final boolean reuse, final IRCombinedDataAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+			if (list.hasModelChildren(null)) {
+				final int length = list.getLength();
+				ITER_CHILDREN : for (int i = 0; i < length; i++) {
+					final RObject object = list.get(i);
+					if (object != null) {
+						switch (object.getRObjectType()) {
+						case RObject.TYPE_REFERENCE:
+							if (object.getRClassName().equals("environment")) {
+								resolveEnv((RReferenceVar) object, reuse, adapter, monitor);
+							}
+							continue ITER_CHILDREN;
+						case RObject.TYPE_LIST:
+						case RObject.TYPE_S4OBJECT:
+							search((ICombinedList) object, reuse, adapter, monitor);
+							continue ITER_CHILDREN;
+						default:
+							continue ITER_CHILDREN;
 						}
-						continue ITER_CHILDREN;
-					case RObject.TYPE_LIST:
-					case RObject.TYPE_S4OBJECT:
-						search((RList) object, reuse, adapter, monitor);
-						continue ITER_CHILDREN;
-					default:
-						continue ITER_CHILDREN;
 					}
 				}
 			}
@@ -287,6 +289,7 @@ public class RWorkspace extends ToolWorkspace {
 	private List<? extends ICombinedEnvironment> fRSearchEnvsPublic = EMPTY_LIST;
 	private List<REnvironmentVar> fRSearchEnvsInternal;
 	private Map<Long, REnvironmentVar> fREnvMap = EMPTY_MAP;
+	private boolean fAutoRefreshDirty;
 	
 	
 	public RWorkspace(final AbstractRController controller) {
@@ -327,13 +330,18 @@ public class RWorkspace extends ToolWorkspace {
 		return (fRSearchEnabled);
 	}
 	
+	public boolean isROBjectDBDirty() {
+		return fAutoRefreshDirty;
+	}
+	
 	@Override
 	protected final void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController controller = (AbstractRController) adapter.getController();
 		if (controller.fChanged != 0 || !controller.fChangedEnvirs.isEmpty()) {
-			refreshFromTool(controller.fChanged, adapter, monitor);
+			refreshFromTool(controller, controller.fChanged, monitor);
 		}
 	}
+	
 	@Override
 	protected final void refreshFromTool(int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController controller = (AbstractRController) adapter.getController();
@@ -342,6 +350,7 @@ public class RWorkspace extends ToolWorkspace {
 		}
 		refreshFromTool(controller, options, monitor);
 	}
+	
 	protected void refreshFromTool(final AbstractRController controller, final int options, final IProgressMonitor monitor) throws CoreException {
 		if (controller.isBusy()) {
 			return;
@@ -352,7 +361,9 @@ public class RWorkspace extends ToolWorkspace {
 			updateWorkspaceDir(r, monitor);
 			updateOptions(r, monitor);
 			if (fRSearchEnabled) {
-				if ((options & (REFRESH_AUTO | REFRESH_COMPLETE)) != 0 || !controller.fChangedEnvirs.isEmpty()) {
+				if ( ((options & REFRESH_COMPLETE) != 0)
+						|| ( ((((options & REFRESH_AUTO)) != 0) || !controller.fChangedEnvirs.isEmpty())
+								&& isAutoRefreshEnabled() ) ) {
 					updateREnvironments(r, controller.fChangedEnvirs, ((options & REFRESH_COMPLETE) != 0), monitor);
 					controller.fChanged = 0;
 					controller.fChangedEnvirs.clear();
@@ -367,11 +378,18 @@ public class RWorkspace extends ToolWorkspace {
 			controller.fChanged = 0;
 			controller.fChangedEnvirs.clear();
 		}
+		
+		final boolean dirty = !isAutoRefreshEnabled()
+				&& (controller.fChanged != 0 || !controller.fChangedEnvirs.isEmpty());
+		if (dirty != fAutoRefreshDirty) {
+			fAutoRefreshDirty = dirty;
+			addPropertyChanged("RObjectDB.dirty", dirty);
+		}
 		firePropertiesChanged();
 	}
 	
 	private void updateWorkspaceDir(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {
-		final RObject rWd = (RVector<RCharacterStore>) r.evalData("getwd()", monitor); //$NON-NLS-1$
+		final RObject rWd = r.evalData("getwd()", monitor); //$NON-NLS-1$
 		if (RDataUtil.isSingleString(rWd)) {
 			final String wd = rWd.getData().getChar(0);
 			if (!isRemote()) {

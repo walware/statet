@@ -26,6 +26,8 @@ public class ImageRegistryUtil {
 	public static final String T_VIEW = "view_16";             //$NON-NLS-1$
 	/** Icons for global tools */
 	public static final String T_TOOL = "tool_16";             //$NON-NLS-1$
+	/** Icons for deactivated global tools */
+	public static final String T_TOOLD = "tool_16_d";          //$NON-NLS-1$
 	/** Icons for object, e.g. files or model objects. */
 	public static final String T_OBJ = "obj_16";               //$NON-NLS-1$
 	/** Icon overlays */

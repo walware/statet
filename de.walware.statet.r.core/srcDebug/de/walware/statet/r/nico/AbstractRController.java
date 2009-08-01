@@ -205,15 +205,15 @@ public abstract class AbstractRController
 		fChanged |= o;
 	}
 	
-	public void briefAboutChange(Object changed, int o) {
+	public void briefAboutChange(final Object changed, final int o) {
 		if (changed instanceof Collection) {
-			Collection collection = (Collection) changed;
-			for (Object object : collection) {
+			final Collection collection = (Collection) changed;
+			for (final Object object : collection) {
 				briefAboutChange(object, o);
 			}
 		}
 		if (changed instanceof RElementName) {
-			RElementName name = (RElementName) changed;
+			final RElementName name = (RElementName) changed;
 			if (name.getType() == RElementName.MAIN_SEARCH_ENV) {
 				fChangedEnvirs.add(name);
 			}

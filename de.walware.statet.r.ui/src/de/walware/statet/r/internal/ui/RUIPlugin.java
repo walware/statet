@@ -67,6 +67,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public static final String IMG_LOCTOOL_FILTER_LOCAL = RUI.PLUGIN_ID + "/image/ltool/filter.local"; //$NON-NLS-1$
 	public static final String IMG_LOCTOOL_FILTER_GENERAL = RUI.PLUGIN_ID + "/image/ltool/filter.general"; //$NON-NLS-1$
 	
+	public static final String IMG_LOCTOOL_REFRESH_RECOMMENDED = RUI.PLUGIN_ID + "/image/ltool/refresh.recommended"; //$NON-NLS-1$
+	
 	
 	private static final String R_CODE_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_code_templates"; //$NON-NLS-1$
 	private static final String RD_CODE_TEMPLATES_KEY = "de.walware.statet.r.ui.text.rd_code_templates"; //$NON-NLS-1$
@@ -210,6 +212,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 		
 		util.register(IMG_LOCTOOL_FILTER_GENERAL, ImageRegistryUtil.T_LOCTOOL, "filter-general.png"); //$NON-NLS-1$
 		util.register(IMG_LOCTOOL_FILTER_LOCAL, ImageRegistryUtil.T_LOCTOOL, "filter-local.png"); //$NON-NLS-1$
+		
+		util.register(IMG_LOCTOOL_REFRESH_RECOMMENDED, ImageRegistryUtil.T_LOCTOOL, "refresh-rec.png"); //$NON-NLS-1$
 	}
 	
 	

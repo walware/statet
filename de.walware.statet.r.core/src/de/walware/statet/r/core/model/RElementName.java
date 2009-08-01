@@ -393,7 +393,7 @@ public abstract class RElementName implements IElementName {
 	
 	private static class DualImpl extends DefaultImpl {
 		
-		private int fIdx;
+		private final int fIdx;
 		
 		public DualImpl(final String segmentName, final int idx) {
 			super(SUB_NAMEDPART, segmentName);
@@ -710,7 +710,12 @@ public abstract class RElementName implements IElementName {
 	public final int hashCode() {
 		final String name = getSegmentName();
 		final IElementName next = getNextSegment();
-		return getType() * ((name != null) ? name.hashCode() : 1) * ((next != null) ? next.hashCode() : 1);
+		if (next != null) {
+			return getType() * ((name != null) ? name.hashCode() : 1) * (next.hashCode()+7);
+		}
+		else {
+			return getType() * ((name != null) ? name.hashCode() : 1);
+		}
 	}
 	
 	@Override

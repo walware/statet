@@ -124,7 +124,9 @@ public class REditorDebugHover implements ISourceEditorHover {
 						fElementAttr = new RListImpl(new RObject[] { robject }, null, new String[] { "class" });
 					}
 				}
-				{	final String infof = "function(x) str(x)";
+				{	final String infof = "function(x) str(x,max.level="+
+							((fElementStruct == null || fElementStruct.getRObjectType() != RObject.TYPE_LIST) ?
+									"NA" : (fElementStruct.getLength() < 1000) ? "1L" : "0L") + ")";
 					final String title = "str";
 					final String cmd = "evalq(expr={"
 							+ "savedOptions<-options(width=10000);"

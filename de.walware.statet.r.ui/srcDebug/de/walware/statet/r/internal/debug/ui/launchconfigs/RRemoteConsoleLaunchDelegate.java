@@ -474,8 +474,13 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, command + " \n" + Arrays.toString(args)); //$NON-NLS-1$
 			
+			final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
+			rjsProperties.put("rj.data.lists.structs.max_length",
+					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
+			rjsProperties.put("rj.data.envs.structs.max_length",
+					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 			final RjsController controller = new RjsController(process, rmiAddress, loginData,
-					false, startup, args, null);
+					false, startup, args, rjsProperties, null);
 			
 			// move all tasks, if started
 			if (reconnect != null && prevProcess != null) {
@@ -507,7 +512,8 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 					controller.submit(RUtil.LINE_SEPARATOR_PATTERN.split(startupSnippet), SubmitType.OTHER);
 				}
 			}
-			controller.setRObjectDB(!configuration.getAttribute(RConsoleLaunching.ATTR_DISABLE_OBJECTDB, false));
+			controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
+			controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
 			
 			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
 			NicoUITools.startConsoleLazy(console, page,
