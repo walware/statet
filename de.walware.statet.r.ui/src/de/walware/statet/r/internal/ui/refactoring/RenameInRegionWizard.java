@@ -49,9 +49,9 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.refactoring.RenameInRegionRefactoring;
 import de.walware.statet.r.core.refactoring.RenameInRegionRefactoring.Variable;
 import de.walware.statet.r.internal.ui.RIdentifierCellValidator;
@@ -67,7 +67,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 		
 		private static class NameEditing extends EditingSupport {
 			
-			private TextCellEditor fCellEditor;
+			private final TextCellEditor fCellEditor;
 			
 			public NameEditing(final ColumnViewer viewer) {
 				super(viewer);
@@ -220,7 +220,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 				column.getColumn().setText("Scope / Variable");
 				table.layout.setColumnData(column.getColumn(), new ColumnWeightData(1));
 				column.setLabelProvider(new CellLabelProvider() {
-					private RLabelProvider fFrameLabelProvider = new RLabelProvider();
+					private final RLabelProvider fFrameLabelProvider = new RLabelProvider();
 					@Override
 					public void update(final ViewerCell cell) {
 						cell.setBackground(null);
@@ -228,7 +228,7 @@ public class RenameInRegionWizard extends RefactoringWizard {
 						if (element instanceof IRFrame) {
 							cell.setFont(JFaceResources.getDialogFont());
 							final IRFrame frame = (IRFrame) element;
-							final List<? extends IRLangElement> modelElements = frame.getModelElements();
+							final List<? extends IRElement> modelElements = frame.getModelElements();
 							if (modelElements.size() > 0) {
 								fFrameLabelProvider.update(cell, modelElements.get(0));
 								return;

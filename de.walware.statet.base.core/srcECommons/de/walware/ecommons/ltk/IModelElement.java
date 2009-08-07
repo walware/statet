@@ -53,7 +53,6 @@ public interface IModelElement extends IAdaptable {
 	int getElementType();
 	IElementName getElementName();
 	String getId();
-	ISourceUnit getSourceUnit();
 	
 	boolean exists();
 	boolean isReadOnly();

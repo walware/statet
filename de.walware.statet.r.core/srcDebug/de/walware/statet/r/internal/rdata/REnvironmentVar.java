@@ -30,6 +30,7 @@ import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.data.defaultImpl.RUniqueCharacterDataWithHashImpl;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -361,7 +362,7 @@ public final class REnvironmentVar extends CombinedElement
 		return null;
 	}
 	
-	public List<? extends IRLangElement> getModelElements() {
+	public List<? extends IRElement> getModelElements() {
 		return null;
 	}
 	

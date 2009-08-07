@@ -58,7 +58,7 @@ import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.model.IRClass;
-import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
@@ -139,13 +139,13 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 			final String lineDelimiter = doc.getDefaultLineDelimiter();
 			Arrays.sort(elements, RRefactoring.getFactory().createAdapter().getModelElementComparator());
 			ITER_ELEMENTS: for (int i = 0; i < elements.length; i++) {
-				switch (elements[i].getElementType() & IRLangElement.MASK_C1) {
-				case IRLangElement.C1_CLASS:
+				switch (elements[i].getElementType() & IRElement.MASK_C1) {
+				case IRElement.C1_CLASS:
 					templates[i] = CodeGeneration.getClassRoxygenComment((IRClass) elements[i], lineDelimiter);
 					continue ITER_ELEMENTS;
-				case IRLangElement.C1_METHOD:
-					switch (elements[i].getElementType() & IRLangElement.MASK_C1) {
-					case IRLangElement.R_S4METHOD:
+				case IRElement.C1_METHOD:
+					switch (elements[i].getElementType() & IRElement.MASK_C1) {
+					case IRElement.R_S4METHOD:
 						templates[i] = CodeGeneration.getMethodRoxygenComment((IRMethod) elements[i], lineDelimiter);
 						continue ITER_ELEMENTS;
 					default:

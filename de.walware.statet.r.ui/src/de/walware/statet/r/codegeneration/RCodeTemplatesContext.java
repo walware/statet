@@ -16,7 +16,7 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.ext.templates.StatextCodeTemplatesContext;
 
-import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
@@ -35,7 +35,7 @@ public class RCodeTemplatesContext extends StatextCodeTemplatesContext {
 		setVariable(RCodeTemplatesContextType.FILENAME_VARIABLE, u.getElementName().getDisplayName());
 	}
 	
-	public void setRElement(final IRLangElement element) {
+	public void setRElement(final IRElement element) {
 		setVariable(RCodeTemplatesContextType.ELEMENT_NAME_VARIABLE, element.getElementName().getDisplayName());
 	}
 	

@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.internal.ui.editors;
+package de.walware.statet.r.internal.core;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -55,7 +56,7 @@ public class FilteredFrame implements IRFrame, IModelElement.Filter<IRLangElemen
 		return fFrame.getModelChildren((fExclude != null) ? this : null);
 	}
 	
-	public List<? extends IRLangElement> getModelElements() {
+	public List<? extends IRElement> getModelElements() {
 		return fFrame.getModelElements();
 	}
 	

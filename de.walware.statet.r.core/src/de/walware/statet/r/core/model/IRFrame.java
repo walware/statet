@@ -14,6 +14,7 @@ package de.walware.statet.r.core.model;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElement.Filter;
 
 
 public interface IRFrame {
@@ -37,8 +38,8 @@ public interface IRFrame {
 	String getFrameId();
 	RElementName getElementName();
 	
-	List<? extends IRLangElement> getModelElements();
-	boolean hasModelChildren(final IModelElement.Filter<? super IRLangElement> filter);
+	List<? extends IRElement> getModelElements();
+	boolean hasModelChildren(final Filter<? super IRLangElement> filter);
 	List<? extends IRLangElement> getModelChildren(final IModelElement.Filter<? super IRLangElement> filter);
 	List<? extends IRFrame> getPotentialParents();
 	

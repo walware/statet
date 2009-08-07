@@ -22,8 +22,8 @@ import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -32,7 +32,7 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 final class RSourceUnitElement implements IBuildSourceFrameElement {
 	
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	
 	private final RAstNode fSourceNode;
 	private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
@@ -59,7 +59,7 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 	}
 	
 	public int getElementType() {
-		return IRLangElement.C2_SOURCE_FILE;
+		return IModelElement.C2_SOURCE_FILE;
 	}
 	
 	public RElementName getElementName() {
@@ -84,7 +84,7 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 	}
 	
 	
-	public IRLangElement getModelParent() {
+	public IRElement getModelParent() {
 		return null;
 	}
 	
@@ -147,7 +147,7 @@ final class RSourceUnitElement implements IBuildSourceFrameElement {
 			return false;
 		}
 		final ISourceStructElement other = (ISourceStructElement) obj;
-		return ((other.getElementType() & IModelElement.MASK_C2) == IRLangElement.C2_SOURCE_FILE)
+		return ((other.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_FILE)
 				&& fSourceUnit.equals(other.getSourceUnit());
 	}
 	

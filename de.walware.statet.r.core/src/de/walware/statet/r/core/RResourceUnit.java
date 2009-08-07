@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.AbstractDocument;
 
@@ -80,8 +81,8 @@ public abstract class RResourceUnit implements ISourceUnit {
 	}
 	
 	
-	private String fId;
-	private IElementName fName;
+	private final String fId;
+	private final IElementName fName;
 	
 	private final IResource fFile;
 	
@@ -92,10 +93,8 @@ public abstract class RResourceUnit implements ISourceUnit {
 	public RResourceUnit(final IResource file) {
 		fFile = file;
 		fName = RElementName.create(RElementName.RESOURCE, (file != null) ? file.getName() : "<no file info>"); //$NON-NLS-1$
-		fId = createResourceId(fFile);
-		if (fId == null) {
-			fId = "xx:"+fName; //$NON-NLS-1$
-		}
+		final String id = createResourceId(fFile);
+		fId = (id != null) ? id : "xx:"+fName; //$NON-NLS-1$
 	}
 	
 	
@@ -145,10 +144,6 @@ public abstract class RResourceUnit implements ISourceUnit {
 			fBuffer.releaseDocument(monitor);
 			dispose();
 		}
-	}
-	
-	public ISourceUnit getSourceUnit() {
-		return this;
 	}
 	
 	public ISourceUnit getUnderlyingUnit() {
@@ -205,7 +200,7 @@ public abstract class RResourceUnit implements ISourceUnit {
 					return (RProject) proj.getNature(RProject.NATURE_ID);
 				}
 			} catch (final CoreException e) {
-				RCorePlugin.log(new Status(Status.ERROR, RCore.PLUGIN_ID, -1, "An error occurred while access R project nature.", e));
+				RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "An error occurred while access R project nature.", e));
 			}
 		}
 		return null;

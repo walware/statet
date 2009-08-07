@@ -28,7 +28,7 @@ public abstract class GenericUriSourceUnit implements ISourceUnit {
 	
 	
 	private final String fId;
-	private IElementName fName;
+	private final IElementName fName;
 	
 	private final IFileStore fStore;
 	private IWorkingBuffer fBuffer;
@@ -64,13 +64,6 @@ public abstract class GenericUriSourceUnit implements ISourceUnit {
 	 */
 	public ISourceUnit getUnderlyingUnit() {
 		return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public ISourceUnit getSourceUnit() {
-		return this;
 	}
 	
 	/**

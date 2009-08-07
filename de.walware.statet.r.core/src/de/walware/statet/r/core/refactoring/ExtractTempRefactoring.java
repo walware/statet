@@ -84,7 +84,7 @@ public class ExtractTempRefactoring extends Refactoring {
 	
 	
 	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
-	private RefactoringElementSet fElementSet;
+	private final RefactoringElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;

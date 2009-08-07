@@ -20,8 +20,8 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.IAstNode;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -38,7 +38,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	private BuildSourceFrame fEnvir;
 	
 	
-	public RoxygenRCodeElement(final ISourceStructElement parent, int number, final BuildSourceFrame envir, final RAstNode node) {
+	public RoxygenRCodeElement(final ISourceStructElement parent, final int number, final BuildSourceFrame envir, final RAstNode node) {
 		fParent = parent;
 		fNumber = number;
 		fSourceNode = node;
@@ -59,7 +59,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	}
 	
 	public int getElementType() {
-		return IRLangElement.R_DOC_EXAMPLE_CHUNK;
+		return IRElement.R_DOC_EXAMPLE_CHUNK;
 	}
 	
 	public RElementName getElementName() {
@@ -67,7 +67,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	}
 	
 	public String getId() {
-		return Integer.toHexString(IRLangElement.R_DOC_EXAMPLE_CHUNK) + ":#" + fNumber;
+		return Integer.toHexString(IRElement.R_DOC_EXAMPLE_CHUNK) + ":#" + fNumber;
 	}
 	
 	public boolean exists() {
@@ -79,7 +79,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	}
 	
 	
-	public IRLangElement getModelParent() {
+	public IRElement getModelParent() {
 		return null;
 	}
 	
@@ -142,7 +142,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 			return false;
 		}
 		final RoxygenRCodeElement other = (RoxygenRCodeElement) obj;
-		return ( ((other.getElementType() & IModelElement.MASK_C3) == IRLangElement.R_DOC_EXAMPLE_CHUNK)
+		return ( ((other.getElementType() & IModelElement.MASK_C3) == IRElement.R_DOC_EXAMPLE_CHUNK)
 				&& fNumber == other.fNumber
 				&& fParent.equals(other.fParent) );
 	}

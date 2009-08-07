@@ -27,8 +27,8 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRClassExtension;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRPackageLoad;
 import de.walware.statet.r.core.model.IRSlot;
@@ -41,14 +41,14 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 
 
 abstract class RSourceElementByElementAccess
-		implements IRLangElement, IRLangSourceElement, IModelElement.Filter<IModelElement> {
+		implements IRElement, IRLangSourceElement, IModelElement.Filter<IModelElement> {
 	
 	
 	static final class RPkgImport extends RSourceElementByElementAccess implements IRPackageLoad {
 		
 		
 		public RPkgImport(final IRLangSourceElement parent, final ElementAccess access) {
-			super(parent, IRLangElement.R_PACKAGE_LOAD, access);
+			super(parent, IRElement.R_PACKAGE_LOAD, access);
 		}
 		
 		
@@ -89,7 +89,7 @@ abstract class RSourceElementByElementAccess
 		
 		
 		public RMethod(final IRLangSourceElement parent, final BuildSourceFrame envir, final FDef fdefNode) {
-			super(parent, IRLangElement.R_COMMON_FUNCTION, null);
+			super(parent, IRElement.R_COMMON_FUNCTION, null);
 			fEnvir = envir;
 			fFDefNode = fdefNode;
 		}
@@ -186,7 +186,7 @@ abstract class RSourceElementByElementAccess
 		
 		
 		public RClass(final IRLangSourceElement parent, final ElementAccess defAccess, final BuildSourceFrame envir) {
-			super(parent, IRLangElement.R_S4CLASS, defAccess);
+			super(parent, IRElement.R_S4CLASS, defAccess);
 			fEnvir = envir;
 		}
 		
@@ -275,7 +275,7 @@ abstract class RSourceElementByElementAccess
 		
 		public RClassExt(final IRLangSourceElement parent, 
 				final ElementAccess defAccess, final BuildSourceFrame envir, final String command) {
-			super(parent, IRLangElement.R_S4CLASS_EXTENSION, defAccess);
+			super(parent, IRElement.R_S4CLASS_EXTENSION, defAccess);
 			fEnvir = envir;
 			fExtCommand = command;
 		}
@@ -380,7 +380,7 @@ abstract class RSourceElementByElementAccess
 		
 		
 		public RSlot(final IRLangSourceElement parent, final ElementAccess defAccess) {
-			super(parent, IRLangElement.R_S4SLOT, defAccess);
+			super(parent, IRElement.R_S4SLOT, defAccess);
 		}
 		
 		void completeType(final String name) {
@@ -448,9 +448,9 @@ abstract class RSourceElementByElementAccess
 		return (element == this);
 	}
 	
-	public final IRLangElement getModelParent() {
-		final List<? extends IRLangElement> elements = fAccess.getFrame().getModelElements();
-		for (final IRLangElement element : elements) {
+	public final IRElement getModelParent() {
+		final List<? extends IRElement> elements = fAccess.getFrame().getModelElements();
+		for (final IRElement element : elements) {
 			if (element.hasModelChildren(this)) {
 				return element;
 			}

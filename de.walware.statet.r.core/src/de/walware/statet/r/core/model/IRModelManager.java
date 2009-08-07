@@ -17,11 +17,13 @@ import org.eclipse.core.resources.IProject;
 
 import de.walware.ecommons.ltk.IModelManager;
 
+import de.walware.statet.r.core.RProject;
+
 
 public interface IRModelManager extends IModelManager {
 	
 	
-	IRFrame getProjectFrame(IProject project);
+	IRFrame getProjectFrame(RProject project);
 	
 	List<String> findReferencingSourceUnits(IProject project, RElementName name);
 	

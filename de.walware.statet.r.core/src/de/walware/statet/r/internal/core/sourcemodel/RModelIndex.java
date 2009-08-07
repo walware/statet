@@ -64,7 +64,7 @@ import de.walware.statet.r.internal.core.builder.RUnitElement;
 public class RModelIndex {
 	
 	
-	private static final String VERSION = "13";
+	private static final String VERSION = "14";
 	
 	private static final String DEFINE_PROPERTIES_1 = "create table RINDEX.PROPERTIES ("+
 				"NAME varchar(512) not null,"+
@@ -337,7 +337,7 @@ public class RModelIndex {
 	}
 	
 	
-	private RModelManager fModelManager;
+	private final RModelManager fModelManager;
 	private final RBuildReconciler fReconciler;
 	
 	private int fDBInitialized;

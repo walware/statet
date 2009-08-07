@@ -26,6 +26,7 @@ import de.walware.ecommons.ltk.IElementChangedListener;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElementDelta;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.r.core.RCore;
@@ -53,7 +54,7 @@ public class RModelEventJob extends Job {
 		}
 		
 		public void handleException(final Throwable exception) {
-			RCorePlugin.log(new Status(Status.ERROR, RCore.PLUGIN_ID, -1, "An error occured while notifying an ElementChangedListener.", exception));  //$NON-NLS-1$
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "An error occured while notifying an ElementChangedListener.", exception));  //$NON-NLS-1$
 		}
 		
 	}
@@ -147,7 +148,7 @@ public class RModelEventJob extends Job {
 	}
 	
 	private void fireDelta(final IModelElementDelta delta) {
-		final ISourceUnit su = delta.getModelElement().getSourceUnit();
+		final ISourceUnit su = LTKUtil.getSourceUnit(delta.getModelElement());
 		if (su == null) {
 			return;
 		}

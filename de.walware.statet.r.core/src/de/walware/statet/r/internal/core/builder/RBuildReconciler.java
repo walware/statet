@@ -30,6 +30,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRClass;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -57,7 +58,7 @@ public class RBuildReconciler extends RReconciler {
 	}
 	
 	
-	private RModelIndex fIndex;
+	private final RModelIndex fIndex;
 	private final TaskMarkerHandler fTaskScanner;
 	
 	private MultiStatus fStatusCollector;
@@ -138,7 +139,7 @@ public class RBuildReconciler extends RReconciler {
 			return null;
 		}
 		
-		final IRFrame topFrame = data.newModel.getTopFrame();
+		final IRFrameInSource topFrame = data.newModel.getTopFrame();
 		final List<? extends IRLangElement> children = topFrame.getModelChildren(null);
 		if (children == null) {
 			return null;
@@ -147,14 +148,14 @@ public class RBuildReconciler extends RReconciler {
 		final RUnitElement root = new RUnitElement(data.su, exports);
 		for (final IRLangElement element : children) {
 			final int type = element.getElementType();
-			switch (type & IRLangElement.MASK_C1) {
-			case IRLangElement.C1_METHOD:
+			switch (type & IRElement.MASK_C1) {
+			case IRElement.C1_METHOD:
 				exports.add(new ExportedRMethod(root, (IRMethod) element));
 				break;
-			case IRLangElement.C1_CLASS:
+			case IRElement.C1_CLASS:
 				exports.add(new ExportedRClass(root, (IRClass) element));
 				break;
-			case IRLangElement.C1_VARIABLE:
+			case IRElement.C1_VARIABLE:
 				exports.add(new ExportedRElement(root, element));
 				break;
 			default:

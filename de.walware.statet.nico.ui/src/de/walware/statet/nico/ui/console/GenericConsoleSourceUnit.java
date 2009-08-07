@@ -23,7 +23,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	
 	
 	private final String fId;
-	private IElementName fName;
+	private final IElementName fName;
 	
 	protected final InputDocument fDocument;
 	
@@ -65,13 +65,6 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 */
 	public ISourceUnit getUnderlyingUnit() {
 		return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public ISourceUnit getSourceUnit() {
-		return this;
 	}
 	
 	/**

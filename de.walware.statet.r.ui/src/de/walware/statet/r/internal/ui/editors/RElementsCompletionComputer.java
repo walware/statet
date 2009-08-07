@@ -470,7 +470,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				relevance = -10;
 				break;
 			}
-			final List<? extends IRLangElement> elements = envir.getModelChildren(null);
+			final List<? extends IRElement> elements = envir.getModelChildren(null);
 			for (final IModelElement element : elements) {
 				final IElementName elementName = element.getElementName();
 				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
@@ -639,7 +639,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				relevance = -10;
 				break;
 			}
-			final List<? extends IRLangElement> elements = envir.getModelChildren(null);
+			final List<? extends IRElement> elements = envir.getModelChildren(null);
 			ITER_ELEMENTS: for (final IModelElement rootElement : elements) {
 				final IElementName elementName = rootElement.getElementName();
 				final int c1type = (rootElement.getElementType() & IModelElement.MASK_C1);

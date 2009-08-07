@@ -22,6 +22,7 @@ import java.util.Set;
 
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -376,11 +377,11 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	}
 	
 	
-	public List<? extends IRLangElement> getModelElements() {
+	public List<? extends IRElement> getModelElements() {
 		return fElements;
 	}
 	
-	public boolean hasModelChildren(final Filter filter) {
+	public boolean hasModelChildren(final Filter<? super IRLangElement> filter) {
 		for (final ElementAccessList list : fData.values()) {
 			for (final ElementAccess access : list.entries) {
 				if (access.fModelElement != null 

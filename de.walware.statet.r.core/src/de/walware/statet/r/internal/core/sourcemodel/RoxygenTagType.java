@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.util.HashMap;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.rsource.ast.DocuTag;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -53,7 +53,7 @@ public abstract class RoxygenTagType {
 			}
 			@Override
 			public void analyze(final IRoxygenAnalyzeContext context, final DocuTag docuTag, final IRLangSourceElement element) {
-				if (element == null || (element.getElementType() & IRLangElement.MASK_C1) != IRLangElement.C1_METHOD) {
+				if (element == null || (element.getElementType() & IRElement.MASK_C1) != IRElement.C1_METHOD) {
 					return;
 				}
 				final int count = docuTag.getChildCount();
@@ -75,7 +75,7 @@ public abstract class RoxygenTagType {
 			}
 			@Override
 			public void analyze(final IRoxygenAnalyzeContext context, final DocuTag docuTag, final IRLangSourceElement element) {
-				if (element == null || (element.getElementType() & IRLangElement.MASK_C1) != IRLangElement.C1_CLASS) {
+				if (element == null || (element.getElementType() & IRElement.MASK_C1) != IRElement.C1_CLASS) {
 					return;
 				}
 				final int count = docuTag.getChildCount();
@@ -155,8 +155,8 @@ public abstract class RoxygenTagType {
 			@Override
 			public void analyze(final IRoxygenAnalyzeContext context, final DocuTag docuTag, final IRLangSourceElement element) {
 				if (element == null
-						|| ((element.getElementType() & IRLangElement.MASK_C1) != IRLangElement.C1_CLASS
-								&& (element.getElementType() & IRLangElement.MASK_C1) != IRLangElement.C1_VARIABLE) ) {
+						|| ((element.getElementType() & IRElement.MASK_C1) != IRElement.C1_CLASS
+								&& (element.getElementType() & IRElement.MASK_C1) != IRElement.C1_VARIABLE) ) {
 					return;
 				}
 				final int count = docuTag.getChildCount();
@@ -176,8 +176,8 @@ public abstract class RoxygenTagType {
 			@Override
 			public void analyze(final IRoxygenAnalyzeContext context, final DocuTag docuTag, final IRLangSourceElement element) {
 				if (element == null
-						|| ((element.getElementType() & IRLangElement.MASK_C1) != IRLangElement.C1_METHOD
-								&& (element.getElementType() & IRLangElement.MASK_C1) != IRLangElement.C1_VARIABLE) ) {
+						|| ((element.getElementType() & IRElement.MASK_C1) != IRElement.C1_METHOD
+								&& (element.getElementType() & IRElement.MASK_C1) != IRElement.C1_VARIABLE) ) {
 					return;
 				}
 				final int count = docuTag.getChildCount();

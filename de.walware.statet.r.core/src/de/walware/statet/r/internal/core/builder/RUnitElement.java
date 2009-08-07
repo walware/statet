@@ -20,10 +20,13 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.text.IRegion;
+
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -90,7 +93,7 @@ public class RUnitElement implements IRLangElement, Serializable {
 		return fSourceUnit;
 	}
 	
-	public IRLangElement getModelParent() {
+	public IRElement getModelParent() {
 		return null;
 	}
 	
@@ -114,6 +117,19 @@ public class RUnitElement implements IRLangElement, Serializable {
 		final ObjectOutputStream o = new ObjectOutputStream(outputStream);
 		o.writeObject(this);
 		o.flush();
+	}
+	
+	
+	public IRegion getSourceRange() {
+		return null;
+	}
+	
+	public IRegion getNameSourceRange() {
+		return null;
+	}
+	
+	public IRegion getDocumentationRange() {
+		return null;
 	}
 	
 }

@@ -16,9 +16,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Region;
+
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -50,7 +54,7 @@ public class ExportedRElement implements IRLangElement, Serializable {
 			return (!children.isEmpty());
 		}
 		else {
-			for (final IRLangElement child : children) {
+			for (final IRElement child : children) {
 				if (filter.include(child)) {
 					return true;
 				}
@@ -65,12 +69,37 @@ public class ExportedRElement implements IRLangElement, Serializable {
 	private RElementName fElementName;
 	private String fElementId;
 	
+	private int fSourceOffset;
+	private int fSourceLength;
+	private int fNameOffset;
+	private int fNameLength;
+	
 	
 	public ExportedRElement(final IRLangElement parent, final IRLangElement sourceElement) {
 		fParent = parent;
 		fElementType = sourceElement.getElementType();
 		fElementName = RElementName.cloneName(sourceElement.getElementName(), false);
 		fElementId = sourceElement.getId();
+		
+		{	final IRegion sourceRange = sourceElement.getSourceRange();
+			if (sourceRange != null) {
+				fSourceOffset = sourceRange.getOffset();
+				fSourceLength = sourceRange.getLength();
+			}
+			else {
+				fSourceOffset = -1;
+			}
+		}
+		{
+			final IRegion sourceRange = sourceElement.getNameSourceRange();
+			if (sourceRange != null) {
+				fNameOffset = sourceRange.getOffset();
+				fNameLength = sourceRange.getLength();
+			}
+			else {
+				fNameOffset = -1;
+			}
+		}
 	}
 	
 	public ExportedRElement() {
@@ -102,11 +131,7 @@ public class ExportedRElement implements IRLangElement, Serializable {
 	}
 	
 	
-	public ISourceUnit getSourceUnit() {
-		return fParent.getSourceUnit();
-	}
-	
-	public IRLangElement getModelParent() {
+	public IRElement getModelParent() {
 		return fParent;
 	}
 	
@@ -117,6 +142,30 @@ public class ExportedRElement implements IRLangElement, Serializable {
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		return Collections.EMPTY_LIST;
 	}
+	
+	
+	public ISourceUnit getSourceUnit() {
+		return fParent.getSourceUnit();
+	}
+	
+	public IRegion getSourceRange() {
+		if (fSourceOffset >= 0) {
+			return new Region(fSourceOffset, fSourceLength);
+		}
+		return null;
+	}
+	
+	public IRegion getNameSourceRange() {
+		if (fNameOffset >= 0) {
+			return new Region(fNameOffset, fNameLength);
+		}
+		return null;
+	}
+	
+	public IRegion getDocumentationRange() {
+		return null;
+	}
+	
 	
 	public Object getAdapter(final Class required) {
 		return null;

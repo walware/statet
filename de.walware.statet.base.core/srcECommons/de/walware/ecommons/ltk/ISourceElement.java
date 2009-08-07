@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008-2009 WalWare/StatET-Project (www.walware.de/goto/statet).
+ * Copyright (c) 2009 WalWare/StatET-Project (www.walware.de/goto/statet).
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,17 +11,18 @@
 
 package de.walware.ecommons.ltk;
 
-import java.util.List;
+import org.eclipse.jface.text.IRegion;
 
 
 /**
- * Represents Source structure instead of model structure
+ * A member in a {@link ISourceUnit}
  */
-public interface ISourceStructElement extends ISourceElement {
+public interface ISourceElement extends IModelElement {
 	
 	
-	ISourceStructElement getSourceParent();
-	boolean hasSourceChildren(Filter<? extends IModelElement> filter);
-	List<? extends ISourceStructElement> getSourceChildren(Filter<? extends IModelElement> filter);
+	ISourceUnit getSourceUnit();
+	IRegion getNameSourceRange();
+	IRegion getSourceRange();
+	IRegion getDocumentationRange();
 	
 }

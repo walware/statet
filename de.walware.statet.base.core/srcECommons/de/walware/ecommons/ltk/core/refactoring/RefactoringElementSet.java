@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTKUtil;
 
 
 public class RefactoringElementSet {
@@ -127,7 +128,7 @@ public class RefactoringElementSet {
 	}
 	
 	public IResource getResource(final IModelElement element) {
-		final ISourceUnit unit = element.getSourceUnit();
+		final ISourceUnit unit = LTKUtil.getSourceUnit(element);
 		if (unit != null) {
 			return unit.getResource();
 		}
