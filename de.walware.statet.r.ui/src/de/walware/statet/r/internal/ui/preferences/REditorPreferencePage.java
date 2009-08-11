@@ -70,6 +70,9 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 	private Button fFoldingEnableControl;
 	private Button fFoldingDefaultAllBlocksControl;
 	private Text fFoldingDefaultMinLines;
+	private Button fFoldingDefaultRoxygenControl;
+	private Button fFoldingDefaultRoxygenInitiallyControl;
+	private Text fFoldingDefaultRoxygenMinLines;
 	private Button fMarkOccurrencesControl;
 	private Button fProblemsEnableControl;
 	private Button fSpellEnableControl;
@@ -101,6 +104,9 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		prefs.put(REditorOptions.PREF_FOLDING_ENABLED, null);
 		prefs.put(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED, DefaultRFoldingPreferences.GROUP_ID);
 		prefs.put(DefaultRFoldingPreferences.PREF_MINLINES_NUM, DefaultRFoldingPreferences.GROUP_ID);
+		prefs.put(DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED, DefaultRFoldingPreferences.GROUP_ID);
+		prefs.put(DefaultRFoldingPreferences.PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED, DefaultRFoldingPreferences.GROUP_ID);
+		prefs.put(DefaultRFoldingPreferences.PREF_ROXYGEN_MINLINES_NUM, DefaultRFoldingPreferences.GROUP_ID);
 		
 		prefs.put(REditorOptions.PREF_MARKOCCURRENCES_ENABLED, null);
 		
@@ -110,10 +116,7 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		setupPreferenceManager(prefs);
 		
 		// Controls
-		Link link;
-		Label label;
 		Group group;
-		GridData gd;
 		int n;
 		
 		group = new Group(pageComposite, SWT.NONE);
@@ -124,19 +127,21 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertControl = new Button(group, SWT.CHECK);
 		fSmartInsertControl.setText(Messages.REditorOptions_SmartInsert_AsDefault_label);
 		fSmartInsertControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, n, 1));
-		link = addLinkControl(group, Messages.REditorOptions_SmartInsert_description);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false, n, 1);
-		gd.widthHint = 300;
-		link.setLayoutData(gd);
+		{	final Link link = addLinkControl(group, Messages.REditorOptions_SmartInsert_description);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, n, 1);
+			gd.widthHint = 300;
+			link.setLayoutData(gd);
+		}
 		
 		LayoutUtil.addGDDummy(group);
 		LayoutUtil.addGDDummy(group);
-		label = new Label(group, SWT.CENTER);
-		label.setText(Messages.REditorOptions_SmartInsert_ForEditor_header);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		label = new Label(group, SWT.CENTER);
-		label.setText(Messages.REditorOptions_SmartInsert_ForConsole_header);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		{	Label label = new Label(group, SWT.CENTER);
+			label.setText(Messages.REditorOptions_SmartInsert_ForEditor_header);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			label = new Label(group, SWT.CENTER);
+			label.setText(Messages.REditorOptions_SmartInsert_ForConsole_header);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		}
 		final Label dummy = new Label(group, SWT.NONE);
 		dummy.setVisible(false);
 		dummy.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 7));
@@ -148,50 +153,87 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 		fSmartInsertCloseSpecialControl = createOption(group, null, Messages.REditorOptions_SmartInsert_ClosePercent_label, true);
 		fSmartInsertCloseStringsControl = createOption(group, null, Messages.REditorOptions_SmartInsert_CloseString_label, true);
 		
+		// Code Folding
 		LayoutUtil.addSmallFiller(pageComposite, false);
-		fFoldingEnableControl = new Button(pageComposite, SWT.CHECK);
-		fFoldingEnableControl.setText(Messages.REditorOptions_Folding_Enable_label);
-		fFoldingEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		{	fFoldingEnableControl = new Button(pageComposite, SWT.CHECK);
+			fFoldingEnableControl.setText(Messages.REditorOptions_Folding_Enable_label);
+			fFoldingEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
 		final Composite foldingOptions = new Composite(pageComposite, SWT.NONE);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.horizontalIndent = LayoutUtil.defaultIndent();
-		foldingOptions.setLayoutData(gd);
-		foldingOptions.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
-		fFoldingDefaultAllBlocksControl = new Button(foldingOptions, SWT.CHECK);
-		fFoldingDefaultAllBlocksControl.setText(Messages.REditorOptions_Folding_EnableForAllBlocks_label);
-		fFoldingDefaultAllBlocksControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		label = new Label(foldingOptions, SWT.LEFT);
-		label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		fFoldingDefaultMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
-		gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
-		gd.widthHint = LayoutUtil.hintWidth(fFoldingDefaultMinLines, 2);
-		fFoldingDefaultMinLines.setLayoutData(gd);
+		{	final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			foldingOptions.setLayoutData(gd);
+			foldingOptions.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+		}
+		
+		{	fFoldingDefaultAllBlocksControl = new Button(foldingOptions, SWT.CHECK);
+			fFoldingDefaultAllBlocksControl.setText(Messages.REditorOptions_Folding_EnableForAllBlocks_label);
+			fFoldingDefaultAllBlocksControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		}
+		{	final Label label = new Label(foldingOptions, SWT.LEFT);
+			label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			fFoldingDefaultMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
+			final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+			gd.widthHint = LayoutUtil.hintWidth(fFoldingDefaultMinLines, 2);
+			fFoldingDefaultMinLines.setLayoutData(gd);
+		}
+		{	fFoldingDefaultRoxygenControl = new Button(foldingOptions, SWT.CHECK);
+			fFoldingDefaultRoxygenControl.setText(Messages.REditorOptions_Folding_EnableForRoxygen_label);
+			fFoldingDefaultRoxygenControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		}
+		{	final Label label = new Label(foldingOptions, SWT.LEFT);
+			label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			label.setLayoutData(gd);
+		}
+		{	fFoldingDefaultRoxygenMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
+			final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+			gd.widthHint = LayoutUtil.hintWidth(fFoldingDefaultRoxygenMinLines, 2);
+			fFoldingDefaultRoxygenMinLines.setLayoutData(gd);
+		}
+		{	fFoldingDefaultRoxygenInitiallyControl = new Button(foldingOptions, SWT.CHECK);
+			fFoldingDefaultRoxygenInitiallyControl.setText(Messages.REditorOptions_Folding_EnableForRoxygen_Initially_label);
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			fFoldingDefaultRoxygenInitiallyControl.setLayoutData(gd);
+		}
+		
+		// Annotation
+		LayoutUtil.addSmallFiller(pageComposite, false);
+		
+		{	fMarkOccurrencesControl = new Button(pageComposite, SWT.CHECK);
+			fMarkOccurrencesControl.setText(Messages.REditorOptions_MarkOccurrences_Enable_label);
+			fMarkOccurrencesControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			
+			final Link link = addLinkControl(pageComposite, Messages.REditorOptions_MarkOccurrences_Appearance_info);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+			gd.widthHint = 300;
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			link.setLayoutData(gd);
+		}
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
-		fMarkOccurrencesControl = new Button(pageComposite, SWT.CHECK);
-		fMarkOccurrencesControl.setText(Messages.REditorOptions_MarkOccurrences_Enable_label);
-		fMarkOccurrencesControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		link = addLinkControl(pageComposite, Messages.REditorOptions_MarkOccurrences_Appearance_info);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.widthHint = 300;
-		gd.horizontalIndent = LayoutUtil.defaultIndent();
-		link.setLayoutData(gd);
+		
+		{	fProblemsEnableControl = new Button(pageComposite, SWT.CHECK);
+			fProblemsEnableControl.setText(Messages.REditorOptions_ProblemChecking_Enable_label);
+			fProblemsEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
-		fProblemsEnableControl = new Button(pageComposite, SWT.CHECK);
-		fProblemsEnableControl.setText(Messages.REditorOptions_ProblemChecking_Enable_label);
-		fProblemsEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
-		LayoutUtil.addSmallFiller(pageComposite, false);
-		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
-		fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
-		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		link = addLinkControl(pageComposite, Messages.REditorOptions_SpellChecking_note);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.widthHint = 300;
-		gd.horizontalIndent = LayoutUtil.defaultIndent();
-		link.setLayoutData(gd);
+		{	fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
+			fSpellEnableControl.setText(Messages.REditorOptions_SpellChecking_Enable_label);
+			fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			
+			final Link link = addLinkControl(pageComposite, Messages.REditorOptions_SpellChecking_note);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+			gd.widthHint = 300;
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			link.setLayoutData(gd);
+		}
 		
 		// Binding
 		initBindings();
@@ -282,6 +324,15 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultMinLines, SWT.Modify),
 				createObservable(DefaultRFoldingPreferences.PREF_MINLINES_NUM),
+				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
+		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultRoxygenControl),
+				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED),
+				null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fFoldingDefaultRoxygenInitiallyControl),
+				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED),
+				null, null);
+		dbc.bindValue(SWTObservables.observeText(fFoldingDefaultRoxygenMinLines, SWT.Modify),
+				createObservable(DefaultRFoldingPreferences.PREF_ROXYGEN_MINLINES_NUM),
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(2, 1000, Messages.REditorOptions_Folding_MinNumOfLines_error_message)), null);
 		
 		dbc.bindValue(SWTObservables.observeSelection(fMarkOccurrencesControl),

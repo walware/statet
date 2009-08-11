@@ -12,6 +12,7 @@
 package de.walware.ecommons.text;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IProject;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
 
 
@@ -30,6 +32,21 @@ public class TextUtil {
 	public static final Pattern LINE_DELIMITER_PATTERN = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	private static final IScopeContext PLATFORM_SCOPE = new InstanceScope();
+	
+	
+	private static class PositionComparator implements Comparator<Position> {
+		
+		public int compare(final Position o1, final Position o2) {
+			final int diff = o1.offset - o2.offset;
+			if (diff != 0) {
+				return diff;
+			}
+			return o1.length - o2.length;
+		}
+		
+	}
+	
+	public static final Comparator<Position> POSITION_COMPARATOR = new PositionComparator();
 	
 	
 	/**

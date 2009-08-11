@@ -14,6 +14,7 @@ package de.walware.statet.r.ui;
 import java.util.List;
 
 import org.apache.commons.collections.primitives.IntList;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.ViewerCell;
@@ -53,7 +54,7 @@ import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 /**
  * Label Provider for R elements
  */
-public class RLabelProvider extends StyledCellLabelProvider implements IElementLabelProvider {
+public class RLabelProvider extends StyledCellLabelProvider implements IElementLabelProvider, ILabelProvider {
 	
 	
 	public static final int NAMESPACE = 0x01;
@@ -406,6 +407,27 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 //		}
 //	}
 	
+	
+	public Image getImage(final Object element) {
+		if (element instanceof ICombinedRElement) {
+			return getImage((ICombinedRElement) element);
+		}
+		if (element instanceof IModelElement) {
+			return getImage((IModelElement) element);
+		}
+		return null;
+	}
+	
+	public String getText(final Object element) {
+		if (element instanceof ICombinedRElement) {
+			return getText((ICombinedRElement) element);
+		}
+		if (element instanceof IModelElement) {
+			return getText((IModelElement) element);
+		}
+		return null;
+	}
+	
 	@Override
 	public void update(final ViewerCell cell) {
 		final Object cellElement = cell.getElement();
@@ -456,6 +478,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		cell.setText(cell.getElement().toString());
 		cell.setStyleRanges(null);
 	}
+	
 	
 	@Override
 	public String getToolTipText(final Object element) {

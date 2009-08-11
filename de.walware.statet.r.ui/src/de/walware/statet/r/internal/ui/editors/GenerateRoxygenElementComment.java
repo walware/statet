@@ -144,7 +144,7 @@ public class GenerateRoxygenElementComment extends AbstractHandler implements IE
 					templates[i] = CodeGeneration.getClassRoxygenComment((IRClass) elements[i], lineDelimiter);
 					continue ITER_ELEMENTS;
 				case IRElement.C1_METHOD:
-					switch (elements[i].getElementType() & IRElement.MASK_C1) {
+					switch (elements[i].getElementType() & IRElement.MASK_C2) {
 					case IRElement.R_S4METHOD:
 						templates[i] = CodeGeneration.getMethodRoxygenComment((IRMethod) elements[i], lineDelimiter);
 						continue ITER_ELEMENTS;

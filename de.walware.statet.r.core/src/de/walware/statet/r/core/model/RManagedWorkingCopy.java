@@ -76,7 +76,7 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 	
 	public AstInfo<SourceComponent> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
-			if (ensureSync) {
+			if (ensureSync || fAst == null) {
 				RCorePlugin.getDefault().getRModelManager().reconcile(this, IModelManager.AST, false, monitor);
 			}
 			return fAst;

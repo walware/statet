@@ -362,6 +362,7 @@ public class REditor extends StatextEditor1<RProject> {
 		configureInsertMode(SMART_INSERT, true);
 	}
 	
+	
 	@Override
 	protected SourceEditorViewerConfigurator createConfiguration() {
 		fModelProvider = new ElementInfoController(RCore.getRModelManager(), ECommonsLTK.EDITOR_CONTEXT);
@@ -381,6 +382,16 @@ public class REditor extends StatextEditor1<RProject> {
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
 				StatetUIServices.getSharedColorManager()));
 		return fRConfig;
+	}
+	
+	@Override
+	protected SourceEditorViewerConfigurator createInfoConfigurator() {
+		final RSourceViewerConfigurator config = new RSourceViewerConfigurator(getRCoreAccess());
+		config.setConfiguration(new RSourceViewerConfiguration(
+				config, 
+				RUIPlugin.getDefault().getEditorPreferenceStore(),
+				StatetUIServices.getSharedColorManager()));
+		return config;
 	}
 	
 	@Override

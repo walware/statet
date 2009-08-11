@@ -33,6 +33,12 @@ public class DefaultRFoldingPreferences {
 			DefaultRFoldingPreferences.NODE, "other_blocks.enabled"); //$NON-NLS-1$
 	public static final IntPref PREF_MINLINES_NUM = new IntPref(
 			DefaultRFoldingPreferences.NODE, "min_lines.num"); //$NON-NLS-1$
+	public static final BooleanPref PREF_ROXYGEN_ENABLED = new BooleanPref(
+			DefaultRFoldingPreferences.NODE, "roxygen.enabled"); //$NON-NLS-1$
+	public static final BooleanPref PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED = new BooleanPref(
+			DefaultRFoldingPreferences.NODE, "roxygen.collapse_initially.enabled"); //$NON-NLS-1$
+	public static final IntPref PREF_ROXYGEN_MINLINES_NUM = new IntPref(
+			DefaultRFoldingPreferences.NODE, "roxygen.min_lines.num"); //$NON-NLS-1$
 	
 	
 	/**
@@ -41,6 +47,9 @@ public class DefaultRFoldingPreferences {
 	public static void initializeDefaultValues(final IScopeContext context) {
 		PreferencesUtil.setPrefValue(context, DefaultRFoldingPreferences.PREF_MINLINES_NUM, 4);
 		PreferencesUtil.setPrefValue(context, DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED, false);
+		PreferencesUtil.setPrefValue(context, DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED, true);
+		PreferencesUtil.setPrefValue(context, DefaultRFoldingPreferences.PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED, false);
+		PreferencesUtil.setPrefValue(context, DefaultRFoldingPreferences.PREF_ROXYGEN_MINLINES_NUM, 2);
 	}
 	
 }

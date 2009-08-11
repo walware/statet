@@ -145,6 +145,8 @@ public class Messages extends NLS {
 	public static String REditorOptions_MarkOccurrences_Appearance_info;
 	public static String REditorOptions_Folding_Enable_label;
 	public static String REditorOptions_Folding_EnableForAllBlocks_label;
+	public static String REditorOptions_Folding_EnableForRoxygen_label;
+	public static String REditorOptions_Folding_EnableForRoxygen_Initially_label;
 	public static String REditorOptions_Folding_MinNumOfLines_label;
 	public static String REditorOptions_Folding_MinNumOfLines_error_message;
 	
