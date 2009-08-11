@@ -59,7 +59,7 @@ public class OpenFileHyperlink implements IHyperlink {
 		catch (final PartInitException e) {
 			Display.getCurrent().beep();
 			StatusManager.getManager().handle(new Status(IStatus.INFO, ECommonsUI.PLUGIN_ID, -1,
-					NLS.bind("An error occurred when opening file under hyperlink ''{0}''", fStore.toString()), e));
+					NLS.bind("An error occurred when following the hyperlink and opening the file ''{0}''", fStore.toString()), e));
 		}
 	}
 	

@@ -1702,7 +1702,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC;
 				access.fNameNode = fNameNode;
-				fGenericDefaultEnvir.add(fNameNode.getText(), access);
+				fTopLevelEnvir.add(fNameNode.getText(), access);
 				
 				fArgValueToIgnore.add(fNameNode);
 				

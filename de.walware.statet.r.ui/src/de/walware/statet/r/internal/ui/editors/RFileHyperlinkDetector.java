@@ -48,9 +48,9 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 	
 	public IHyperlink[] detectHyperlinks(final ITextViewer textViewer,
 			final IRegion region, final boolean canShowMultipleHyperlinks) {
-		final IDocument document = textViewer.getDocument();
 		try {
 			final List<IHyperlink> hyperlinks = new ArrayList<IHyperlink>();
+			final IDocument document = textViewer.getDocument();
 			int start = 0;
 			final ITypedRegion partition = TextUtilities.getPartition(document, IRDocumentPartitions.R_PARTITIONING, region.getOffset(), false);
 			if (partition != null && partition.getLength() > 3) {
@@ -114,7 +114,9 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 					}
 				}
 			}
-			return hyperlinks.toArray(new IHyperlink[hyperlinks.size()]);
+			if (!hyperlinks.isEmpty()) {
+				return hyperlinks.toArray(new IHyperlink[hyperlinks.size()]);
+			}
 		}
 		catch (final BadLocationException e) {}
 		catch (final CoreException e) {}

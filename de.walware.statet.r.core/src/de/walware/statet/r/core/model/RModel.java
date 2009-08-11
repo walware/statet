@@ -20,6 +20,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.ltk.ISourceElement;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -118,6 +120,49 @@ public class RModel {
 			} catch (final CoreException e) {}
 		}
 		return list;
+	}
+	
+	public static List<ISourceElement> searchDeclaration(final RElementAccess access, final IRSourceUnit su) {
+		assert (access != null);
+		final List<ISourceElement> list = new ArrayList<ISourceElement>();
+		
+		final IRFrame suFrame = access.getFrame();
+		final List<IRFrame> directFrames = RModel.createDirectFrameList(suFrame);
+		for (final IRFrame frame : directFrames) {
+			if (checkFrame(frame, access, list)) {
+				return list;
+			}
+		}
+		final List<IRFrame> projectFrames = RModel.createProjectFrameList(null, su, null);
+		for (final IRFrame frame : projectFrames) {
+			if (checkFrame(frame, access, list)) {
+				return list;
+			}
+		}
+		return list;
+	}
+	
+	private static boolean checkFrame(final IRFrame frame, final RElementAccess access, final List<ISourceElement> list) {
+		final List<? extends IRElement> elements = frame.getModelChildren(null);
+		for (final IRElement element : elements) {
+			final RElementName name = element.getElementName();
+			if (name != null && name.equals(access)
+					&& element instanceof ISourceElement) {
+				list.add((ISourceElement) element);
+			}
+		}
+		
+		if (!list.isEmpty()) {
+			final ISourceElement first = list.get(0);
+			switch (first.getElementType()  & IRElement.MASK_C2) {
+			case IRElement.R_S4METHOD:
+			case IRElement.R_GENERAL_VARIABLE:
+				return false;
+			default:
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	

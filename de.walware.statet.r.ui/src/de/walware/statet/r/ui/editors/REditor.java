@@ -164,11 +164,8 @@ public class REditor extends StatextEditor1<RProject> {
 				}
 				
 				RAstNode node = (RAstNode) astSelection.getCovering();
-				while (node != null) {
-					if (checkForAccess(run, node)) {
-						return true;
-					}
-					node = node.getRParent();
+				if (checkForAccess(run, node)) {
+					return true;
 				}
 				
 				if (orgSelection instanceof ITextSelection) {
@@ -193,13 +190,10 @@ public class REditor extends StatextEditor1<RProject> {
 								if (tag.getOffset() > stop) {
 									break;
 								}
-								AstSelection selection = AstSelection.search(tag, start, stop, AstSelection.MODE_COVERING_SAME_LAST);
+								final AstSelection selection = AstSelection.search(tag, start, stop, AstSelection.MODE_COVERING_SAME_LAST);
 								node = (RAstNode) selection.getCovering();
-								while (node != null) {
-									if (checkForAccess(run, node)) {
-										return true;
-									}
-									node = node.getRParent();
+								if (checkForAccess(run, node)) {
+									return true;
 								}
 							}
 						}
@@ -217,19 +211,27 @@ public class REditor extends StatextEditor1<RProject> {
 			return false;
 		}
 		
-		private boolean checkForAccess(final RunData run, final RAstNode node) throws BadLocationException {
-			final Object[] attachments = node.getAttachments();
-			for (int i = 0; i < attachments.length; i++) {
-				if (attachments[i] instanceof RElementAccess) {
-					final RElementAccess access = (RElementAccess) attachments[i];
-					final Map<Annotation, Position> annotations = checkDefault(run, access);
-					
-					if (annotations != null) {
-						updateAnnotations(run, annotations);
-						return true;
+		private boolean checkForAccess(final RunData run, RAstNode node) throws BadLocationException {
+			if (node == null
+					|| !(node.getNodeType() == NodeType.SYMBOL || node.getNodeType() == NodeType.STRING_CONST)) {
+				return false;
+			}
+			do {
+				final Object[] attachments = node.getAttachments();
+				for (int i = 0; i < attachments.length; i++) {
+					if (attachments[i] instanceof RElementAccess) {
+						final RElementAccess access = (RElementAccess) attachments[i];
+						final Map<Annotation, Position> annotations = checkDefault(run, access);
+						
+						if (annotations != null) {
+							updateAnnotations(run, annotations);
+							return true;
+						}
 					}
 				}
-			}
+				node = node.getRParent();
+			} while (node != null);
+			
 			return false;
 		}
 		
