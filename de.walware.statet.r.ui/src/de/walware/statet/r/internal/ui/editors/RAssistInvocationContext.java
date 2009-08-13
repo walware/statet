@@ -69,7 +69,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 						}
 						break SEARCH_START;
 					case '`':
-						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset, false);
+						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset - 1, false);
 						if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
 							offset = goodStart = partition.getOffset();
 							continue SEARCH_START;
