@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -175,8 +176,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		
 		/*-- Property-Access --*/
-		public UseStyle[] getAvailableUseStyles() {
-			return new UseStyle[0];
+		public List<UseStyle> getAvailableUseStyles() {
+			return Collections.EMPTY_LIST;
 		}
 		
 		public UseStyle getUseStyle() {
@@ -344,8 +345,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		/*-- Property-Access --*/
 		@Override
-		public UseStyle[] getAvailableUseStyles() {
-			return fAvailableStyles;
+		public List<UseStyle> getAvailableUseStyles() {
+			return Arrays.asList(fAvailableStyles);
 		}
 		
 		@Override
@@ -660,15 +661,15 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		});
 		// Bind use style selection
 		final IObservableList list = MasterDetailObservables.detailList(
-				BeansObservables.observeDetailValue(realm, selection, "availableUseStyles", UseStyle[].class), //$NON-NLS-1$
+				BeansObservables.observeDetailValue(selection, "availableUseStyles", List.class), //$NON-NLS-1$
 				new IObservableFactory() {
 					public IObservable createObservable(final Object target) {
-						return Observables.staticObservableList(realm, Arrays.asList((UseStyle[]) target));
+						return Observables.staticObservableList(realm, (List) target);
 					}
 				}, null);
 		fUseControl.setContentProvider(new ObservableListContentProvider());
 		fUseControl.setInput(list);
-		final IObservableValue useStyle = BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_USE, UseStyle.class);
+		final IObservableValue useStyle = BeansObservables.observeDetailValue(selection, SyntaxNode.PROP_USE, UseStyle.class);
 		useStyle.addValueChangeListener(new IValueChangeListener() {
 			public void handleValueChange(final ValueChangeEvent event) {
 				final IStructuredSelection selection = (IStructuredSelection) fSelectionViewer.getSelection();
@@ -681,26 +682,26 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 				null, null);
 		// Bind option widgets to the properties of the current selection.
 		fDbc.bindValue(new ColorSelectorObservableValue(fForegroundColorEditor),
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_COLOR, RGB.class),
+				BeansObservables.observeDetailValue(selection, SyntaxNode.PROP_COLOR, RGB.class),
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fBoldCheckbox),
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_BOLD, boolean.class),
+				BeansObservables.observeDetailValue(selection, SyntaxNode.PROP_BOLD, boolean.class),
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fItalicCheckbox),
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_ITALIC, boolean.class),
+				BeansObservables.observeDetailValue(selection, SyntaxNode.PROP_ITALIC, boolean.class),
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fStrikethroughCheckbox),
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_STRIKETHROUGH, boolean.class),
+				BeansObservables.observeDetailValue(selection, SyntaxNode.PROP_STRIKETHROUGH, boolean.class),
 				null, null);
 		fDbc.bindValue(SWTObservables.observeSelection(fUnderlineCheckbox),
-				BeansObservables.observeDetailValue(realm, selection, SyntaxNode.PROP_UNDERLINE, boolean.class),
+				BeansObservables.observeDetailValue(selection, SyntaxNode.PROP_UNDERLINE, boolean.class),
 				null, null);
 	}
 	
 	private void updateEnablement(final SyntaxNode node, final UseStyle useStyle) {
 		boolean enableOptions;
 		if (node instanceof StyleNode) {
-			fUseControl.getControl().setEnabled(node.getAvailableUseStyles().length > 1);
+			fUseControl.getControl().setEnabled(node.getAvailableUseStyles().size() > 1);
 			enableOptions = useStyle != null && useStyle.getRefRootKey().equals(""); 
 		}
 		else {

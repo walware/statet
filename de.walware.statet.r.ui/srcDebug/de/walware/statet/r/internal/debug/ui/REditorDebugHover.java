@@ -130,8 +130,48 @@ public class REditorDebugHover implements ISourceEditorHover {
 					final String title = "str";
 					final String cmd = "evalq(expr={"
 							+ "savedOptions<-options(width=10000);"
-							+ "infof<-"+infof+";"
-							+ "output<-capture.output(infof("+name+"));"
+							+ "strdepth<- function(x,max.elements=2000,max.level=10) {\n"
+								+ "deeplength <- function(x, level=0L) {\n"
+									+ "if (isS4(x)) {\n"
+										+ "xslots <- slotNames(class(x))\n"
+										+ "xlen <- length(xslots)\n"
+										+ "if (level == 0L || xlen == 0) {\n"
+											+ "return(xlen)\n"
+										+ "}\n"
+										+ "else {\n"
+											+ "s <- 0\n"
+											+ "for (xslot in xslots) {\n"
+												+ "s <- s + deeplength(slot(x, xslot), level=level-1)\n"
+											+ "}\n"
+											+ "return(s)\n"
+										+ "}\n"
+									+ "}\n"
+									+ "if (is.list(x)) {\n"
+										+ "xlen <- length(x)\n"
+										+ "if (level == 0L || xlen == 0) {\n"
+											+ "return(xlen)\n"
+										+ "}\n"
+										+ "else {\n"
+											+ "return(sum(sapply(x, deeplength, level=level-1, USE.NAMES=FALSE)))\n"
+										+ "}\n"
+									+ "}\n"
+									+ "return(0L)\n"
+								+ "}\n"
+								+ "\n"
+								+ "level <- -1L\n"
+								+ "s <- 0L\n"
+								+ "while (level < max.level && s <= max.elements) {\n"
+									+ "level <- level + 1\n"
+									+ "s.level <- deeplength(x, level)\n"
+									+ "if (s.level == 0L) {\n"
+										+ "return (NA)\n"
+									+ "}\n"
+									+ "s <- s + s.level\n"
+								+ "}\n"
+								+ "return(level)\n"
+							+ "};"
+							+ "levels<-strdepth("+name+");"
+							+ "output<-capture.output(str("+name+",max.level=levels));"
 							+ "options(savedOptions);"
 							+ "output},envir=new.env())";
 					final RObject robject = r.evalData(cmd, monitor);
@@ -326,7 +366,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 					case RElementName.MAIN_DEFAULT:
 					case RElementName.SUB_NAMEDSLOT:
 					case RElementName.SUB_NAMEDPART:
-						segments[i] = (RElementName) segment;
+						segments[i] = segment;
 						break;
 					case RElementName.SUB_INDEXED_S:
 					case RElementName.SUB_INDEXED_D:
@@ -335,7 +375,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 						if (segmentCount != 1) {
 							return null;
 						}
-						segments[i] = (RElementName) segment;
+						segments[i] = segment;
 						break;
 					default:
 //					case RElementName.MAIN_PACKAGE:

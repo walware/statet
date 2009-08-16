@@ -123,7 +123,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	private IRMethod fFunction;
 	
 //	private RAstNode fContainer;

@@ -171,7 +171,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	private RAstNode[] fExpressions;
 	
 //	private RAstNode fContainer;

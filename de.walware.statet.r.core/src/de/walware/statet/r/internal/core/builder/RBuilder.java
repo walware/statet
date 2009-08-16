@@ -135,7 +135,10 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 			
 			case IResourceDelta.REMOVED:
 				if ((delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
-					clearMarkers(resource);
+					final IResource movedTo = resource.getWorkspace().getRoot().findMember(delta.getMovedToPath());
+					if (movedTo != null && !movedTo.getProject().hasNature(RProject.NATURE_ID)) {
+						clearMarkers(movedTo);
+					}
 				}
 				if (resource instanceof IFile) {
 					fRemovedRSU.add(RResourceUnit.createResourceId(resource));

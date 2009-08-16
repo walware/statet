@@ -21,6 +21,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -160,23 +161,27 @@ public class LayoutUtil {
 			return getDialogValues().defaultEntryFieldWidth;
 		}
 		final PixelConverter converter = new PixelConverter(combo);
-		final int widthHint = converter.convertWidthInCharsToPixels(numChars);
+		int widthHint = converter.convertWidthInCharsToPixels(numChars+1);
+		
+		final Rectangle trim = combo.computeTrim(0, 0, 0, 0);
+		widthHint += trim.x + trim.width;
+		
+		if (trim.width == 0 && (combo.getStyle() & SWT.DROP_DOWN) == SWT.DROP_DOWN) {
+			final Button button = new Button(combo.getParent(), SWT.ARROW | SWT.DOWN);
+			widthHint += button.computeSize(SWT.DEFAULT, SWT.DEFAULT).x + 2;
+			button.dispose();
+//			widthHint += combo.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+		}
+		
 		return widthHint;
 	}
 	
 	public static int hintWidth(final Combo combo, final String[] items) {
-		combo.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
-		if (items == null || items.length == 0) {
-			return getDialogValues().defaultEntryFieldWidth;
-		}
 		int max = 0;
 		for (final String s : items) {
 			max = Math.max(max, s.length());
 		}
-		final PixelConverter converter = new PixelConverter(combo);
-		final int widthHint = (int) (converter.convertWidthInCharsToPixels(max+1) 
-				+ 1.5*combo.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-		return widthHint;
+		return hintWidth(combo, JFaceResources.DIALOG_FONT, max);
 	}
 	
 	public static int hintHeight(final List control, final int rows) {

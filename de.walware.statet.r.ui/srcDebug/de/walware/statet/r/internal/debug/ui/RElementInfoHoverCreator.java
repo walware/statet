@@ -13,7 +13,6 @@ package de.walware.statet.r.internal.debug.ui;
 
 import static org.eclipse.debug.ui.IDebugUIConstants.PREF_DETAIL_PANE_FONT;
 
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractInformationControl;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;

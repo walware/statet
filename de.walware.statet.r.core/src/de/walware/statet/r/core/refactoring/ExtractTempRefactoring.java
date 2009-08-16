@@ -61,7 +61,7 @@ public class ExtractTempRefactoring extends Refactoring {
 	
 	private class OccurrencesSearcher extends GenericVisitor {
 		
-		private int fStart = fExpression.getOffset();
+		private final int fStart = fExpression.getOffset();
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
@@ -89,7 +89,7 @@ public class ExtractTempRefactoring extends Refactoring {
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	private RAstNode fExpression;
 	
 	private RAstNode fContainer;

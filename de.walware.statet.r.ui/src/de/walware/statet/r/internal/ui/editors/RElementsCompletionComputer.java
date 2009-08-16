@@ -51,9 +51,9 @@ import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IPackageReferences;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -906,7 +906,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			}
 		}
 		if (fEnvirList[WS_ENVIR] == null) {
-			fEnvirList[WS_ENVIR] = Collections.EMPTY_LIST;
+			fEnvirList[WS_ENVIR] = new ArrayList<IRFrame>();
 		}
 		addRuntimeEnvirList(context);
 		return true;

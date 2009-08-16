@@ -29,7 +29,7 @@ public class PixelConverter {
 			FONT_WS_FACTOR = 0.95;
 		}
 		else if (ws.equals(Platform.WS_GTK)) {
-			FONT_WS_FACTOR = 1.10;
+			FONT_WS_FACTOR = 1.15;
 		}
 		else {
 			FONT_WS_FACTOR = 1.00;
@@ -37,13 +37,15 @@ public class PixelConverter {
 	}
 	
 	
-	private FontMetrics fFontMetrics;
+	private final FontMetrics fFontMetrics;
+	private final boolean fMonospace;
 	
 	
 	public PixelConverter(final Control control) {
 		final GC gc = new GC(control);
 		gc.setFont(control.getFont());
 		fFontMetrics= gc.getFontMetrics();
+		fMonospace = (gc.stringExtent("i").x == gc.stringExtent("W").x);
 		gc.dispose();
 	}
 	
@@ -73,8 +75,12 @@ public class PixelConverter {
 	 * @see org.eclipse.jface.dialogs.DialogPage#convertWidthInCharsToPixels(int)
 	 */
 	public int convertWidthInCharsToPixels(final int chars) {
-		// disable FONT_WS_FACTOR, if font is monospace/text font? 
-		return (int) (FONT_WS_FACTOR * Dialog.convertWidthInCharsToPixels(fFontMetrics, chars));
+		if (fMonospace) {
+			return Dialog.convertWidthInCharsToPixels(fFontMetrics, chars);
+		}
+		else {
+			return (int) (FONT_WS_FACTOR * Dialog.convertWidthInCharsToPixels(fFontMetrics, chars));
+		}
 	}	
 	
 }
