@@ -113,15 +113,16 @@ public abstract class ColumnHoverManager extends AbstractHoverInformationControl
 //		final int x2 = clientArea.width;
 		final Rectangle area = new Rectangle(x, textArea.y, x2 - x, textArea.height);
 		
-		if (fThread != null) {
-			setInformation(null, null);
-			return;
-		}
-		
 		synchronized (fMutex) {
+			if (fThread != null) {
+				setInfo(null, null);
+				return;
+			}
+			
 			fThread = new Thread("Structured Viewer Hover Presenter") { //$NON-NLS-1$
 				@Override
 				public void run() {
+					boolean ok = false;
 					try {
 						if (fThread == null) {
 							return;
@@ -133,8 +134,12 @@ public abstract class ColumnHoverManager extends AbstractHoverInformationControl
 	//					else
 	//						setCustomInformationControlCreator(null);
 						
-						if (fThread != null && information != null) {
-							setInfo(information, area);
+						synchronized (fMutex) {
+							if (fThread != null && information != null) {
+								setInfo(information, area);
+								fThread = null;
+								ok = true;
+							}
 						}
 					}
 					catch (final RuntimeException e) {
@@ -142,11 +147,9 @@ public abstract class ColumnHoverManager extends AbstractHoverInformationControl
 								IStatus.OK, "Unexpected runtime error while computing a element hover", e)); //$NON-NLS-1$
 					}
 					finally {
-						synchronized (fMutex) {
-							if (fThread == null) {
+						if (!ok) {
+							synchronized (fMutex) {
 								setInfo(null, null);
-							}
-							else {
 								fThread = null;
 							}
 						}

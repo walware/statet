@@ -844,20 +844,26 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					fQueue.internalFinished(fCurrentRunnable, Queue.OK);
 				}
 				catch (final Throwable e) {
-					final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
+					IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
 					if (status != null && (
 							status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
 						fQueue.internalFinished(fCurrentRunnable, Queue.CANCEL);
 					}
 					else {
 						fQueue.internalFinished(fCurrentRunnable, Queue.ERROR);
-						handleStatus(new Status(
+						status = new Status(
 								IStatus.ERROR,
 								NicoCore.PLUGIN_ID,
 								NicoPlugin.EXTERNAL_ERROR,
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
 										new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
-								e), fRunnableProgressMonitor);
+								e);
+						if (fCurrentRunnable.getSubmitType() != SubmitType.OTHER) {
+							handleStatus(status, fRunnableProgressMonitor);
+						}
+						else {
+							NicoPlugin.getDefault().getLog().log(status);
+						}
 					}
 					
 					if (!isToolAlive()) {
