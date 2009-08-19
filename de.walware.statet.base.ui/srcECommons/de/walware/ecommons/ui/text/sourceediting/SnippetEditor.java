@@ -30,6 +30,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -38,7 +40,9 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.ecommons.ui.ControlServicesUtil;
+import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
 import de.walware.ecommons.ui.preferences.SettingsUpdater;
+import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 
@@ -89,10 +93,14 @@ public class SnippetEditor extends Object {
 	}
 	
 	
+	private final boolean fWithToolButton;
+	
+	private Composite fComposite;
+	
 	private Document fDocument;
 	private SourceViewer fSourceViewer;
 	
-	private SourceEditorViewerConfigurator fConfigurator;
+	private final SourceEditorViewerConfigurator fConfigurator;
 	private Map<String, Action> fGlobalActions;
 	private Updater fUpdater;
 	
@@ -111,23 +119,52 @@ public class SnippetEditor extends Object {
 	 * Creates snippet editor with initial content.
 	 */
 	public SnippetEditor(final SourceEditorViewerConfigurator configurator, final String initialContent, final IServiceLocator serviceParent) {
+		this(configurator, initialContent, serviceParent, false);
+	}
+	
+	/**
+	 * Creates snippet editor with initial content.
+	 */
+	public SnippetEditor(final SourceEditorViewerConfigurator configurator, final String initialContent, final IServiceLocator serviceParent, final boolean withToolButton) {
 		fConfigurator = configurator;
 		fDocument = (initialContent != null) ? new Document(initialContent) : new Document();
 		fConfigurator.getDocumentSetupParticipant().setup(fDocument);
 		fServiceLocator = serviceParent;
+		fWithToolButton = withToolButton;
 	}
 	
 	
-	public SourceViewer create(final Composite parent, final int style) {
-		fSourceViewer = new SourceViewer(parent, null, style);
+	public void create(final Composite parent, final int style) {
+		if (fWithToolButton) {
+			fComposite = new Composite(parent, SWT.NONE) {
+				@Override
+				public boolean setFocus() {
+					return fSourceViewer.getTextWidget().setFocus();
+				}
+			};
+			fComposite.setLayout(LayoutUtil.applySashDefaults(new GridLayout(), 2));
+			
+			createSourceViewer(fComposite, style);
+			fSourceViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			
+			final WidgetToolsButton button = new WidgetToolsButton(fSourceViewer.getTextWidget()) {
+				@Override
+				protected void fillMenu(final Menu menu) {
+					SnippetEditor.this.fillToolMenu(menu);
+				}
+			}; 
+			button.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
+		}
+		else {
+			createSourceViewer(parent, style);
+			fComposite = fSourceViewer.getTextWidget();
+		}
+	}
+	
+	private void createSourceViewer(final Composite composite, final int style) {
+		fSourceViewer = new SourceViewer(composite, null, style);
 		fSourceViewer.setEditable(true);
 		
-		initSourceViewer();
-		
-		return fSourceViewer;
-	}
-	
-	protected void initSourceViewer() {
 		fSourceViewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
 		fSourceViewer.setDocument(fDocument);
 		
@@ -185,7 +222,7 @@ public class SnippetEditor extends Object {
 		text.setMenu(menu);
 	}
 	
-	private void fillContextMenu(final IMenuManager menu) {
+	protected void fillContextMenu(final IMenuManager menu) {
 		menu.add(new GroupMarker(ITextEditorActionConstants.GROUP_UNDO));
 		menu.appendToGroup(ITextEditorActionConstants.GROUP_UNDO, getAction(ITextEditorActionConstants.UNDO));
 		menu.appendToGroup(ITextEditorActionConstants.GROUP_UNDO, getAction(ITextEditorActionConstants.REDO));
@@ -203,6 +240,9 @@ public class SnippetEditor extends Object {
 		}
 	}
 	
+	protected void fillToolMenu(final Menu menu) {
+	}
+	
 	
 	public Document getDocument() {
 		return fDocument;
@@ -212,7 +252,11 @@ public class SnippetEditor extends Object {
 		return fSourceViewer;
 	}
 	
-	public StyledText getControl() {
+	public Composite getControl() {
+		return fComposite;
+	}
+	
+	public StyledText getTextControl() {
 		return fSourceViewer.getTextWidget();
 	}
 	

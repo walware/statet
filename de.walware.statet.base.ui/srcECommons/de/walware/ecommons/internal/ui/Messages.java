@@ -32,8 +32,6 @@ public class Messages extends NLS {
 	public static String ResourceSelectionDialog_title;
 	public static String ResourceSelectionDialog_message;
 	
-	public static String InsertVariable_label;
-	
 	public static String ContainerSelectionControl_label_EnterOrSelectFolder;
 	public static String ContainerSelectionControl_label_SelectFolder;
 	public static String ContainerSelectionControl_error_FolderEmpty;

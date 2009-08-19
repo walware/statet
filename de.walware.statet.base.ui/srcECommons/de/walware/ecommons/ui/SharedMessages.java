@@ -67,6 +67,8 @@ public class SharedMessages extends NLS {
 	
 	public static String Resources_File;
 	
+	public static String InsertVariable_label;
+	
 	
 	static {
 		NLS.initializeMessages(SharedMessages.class.getName(), SharedMessages.class);

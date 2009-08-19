@@ -33,14 +33,21 @@ public class Messages extends NLS {
 	public static String RweaveTab_RCmd_NewConfig_seed;
 	public static String RweaveTab_RCmd_error_NoConfigSelected_message;
 	
+	public static String Insert_SweaveDirVariable_label;
+	public static String Insert_LatexDirVariable_label;
+	public static String Insert_LatexFileVariable_label;
+	public static String Insert_OutputDirVariable_label;
+	
 	public static String Processing_TexTab_label;
 	public static String TexTab_label;
 	public static String TexTab_OpenTex_label;
 	public static String TexTab_OpenTex_OnlyOnErrors_label;
 	public static String TexTab_OutputDir_label;
-	public static String TexTab_OutputDir_InsertSweavePath_label;
-	public static String TexTab_OutputDir_InsertTexPath_label;
-	public static String TexTab_BuildTex_label;
+	public static String TexTab_OutputDir_longlabel;
+	public static String TexTab_OutputFormat_label;
+	public static String TexTab_BuildDisabled_label;
+	public static String TexTab_BuildEclipse_label;
+	public static String TexTab_BuildRConsole_label;
 	
 	public static String Processing_PreviewTab_label;
 	public static String PreviewTab_label;
@@ -81,6 +88,7 @@ public class Messages extends NLS {
 	public static String RweaveTexProcessing_Tex_error_OutputDir_message;
 	public static String RweaveTexProcessing_Tex_error_MustBeInWorkspace_message;
 	public static String RweaveTexProcessing_Tex_error_NotFound_message;
+	public static String RweaveTexProcessing_Tex_error_ResourceVariable_message;
 	public static String RweaveTexProcessing_Output_error_NotFound_message;
 	public static String RweaveTexProcessing_Output_info_SkipBecauseTex_message;
 	

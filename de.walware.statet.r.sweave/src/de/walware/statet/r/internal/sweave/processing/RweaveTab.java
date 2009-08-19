@@ -31,7 +31,6 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
@@ -53,7 +52,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -98,7 +99,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 					updateEnablement(RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
 					
 					final String[] split = s.split(":", 2); //$NON-NLS-1$
-					final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : RweaveTexLaunchDelegate.DEFAULT_CONSOLE_COMMAND;
+					final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : RweaveTexLaunchDelegate.DEFAULT_SWEAVE_R_COMMANDS;
 					if (!command.equals(fConsoleCommandEditor.getDocument().get())) {
 						fConsoleCommandEditor.getDocument().set(command);
 					}
@@ -199,7 +200,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			fConsoleSelectControl.setSelection(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
 			fCmdLaunchSelectControl.setSelection(selection == RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
 			
-			fConsoleCommandEditor.getControl().setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
+			fConsoleCommandEditor.getTextControl().setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
 			fConsoleCommandInsertButton.setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_CONSOLE);
 			fCmdLaunchTable.getControl().setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
 			fCmdLaunchNewButton.setEnabled(selection == RweaveTexLaunchDelegate.SWEAVE_LAUNCH);
@@ -285,7 +286,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		fConsoleCommandEditor = new SnippetEditor(configurator);
 		fConsoleCommandEditor.create(group, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
-		gd.heightHint = LayoutUtil.hintHeight(fConsoleCommandEditor.getControl(), 5);
+		gd.heightHint = LayoutUtil.hintHeight(fConsoleCommandEditor.getSourceViewer().getTextWidget(), 5);
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
 		fConsoleCommandEditor.getControl().setLayoutData(gd);
 		
@@ -295,7 +296,10 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		fConsoleCommandInsertButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-				final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
+				final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getShell());
+				dialog.addFilter(VariableFilter.EXCLUDE_JAVA_FILTER);
+				dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE);
+				dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE);
 				if (dialog.open() != Dialog.OK) {
 					return;
 				}
@@ -303,7 +307,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 				if (variable == null) {
 					return;
 				}
-				fConsoleCommandEditor.getControl().insert(variable);
+				fConsoleCommandEditor.getSourceViewer().getTextWidget().insert(variable);
 				fConsoleCommandEditor.getControl().setFocus();
 			}
 		});
@@ -403,7 +407,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 		} catch (final CoreException e) {
 			logReadingError(e);
 		}
-		fConsoleCommandEditor.getDocument().set(RweaveTexLaunchDelegate.DEFAULT_CONSOLE_COMMAND);
+		fConsoleCommandEditor.getDocument().set(RweaveTexLaunchDelegate.DEFAULT_SWEAVE_R_COMMANDS);
 		final Object firstConfig = fCmdLaunchTable.getElementAt(0);
 		fCmdLaunchTable.setSelection((firstConfig != null) ? new StructuredSelection(firstConfig) : new StructuredSelection());
 		fSelectionValue.setValue(value);

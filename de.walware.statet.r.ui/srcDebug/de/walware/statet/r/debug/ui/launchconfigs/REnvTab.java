@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Group;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
@@ -70,12 +71,12 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 			throws CoreException {
 		final REnvConfiguration config = REnvSetting.resolveREnv(readREnv(configuration));
 		if (config == null) {
-			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_CouldNotFound_message, null));
 		}
 		final IStatus status = config.validate();
 		if (status.getSeverity() == IStatus.ERROR) {
-			throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_Invalid_message+' '+status.getMessage(), null));
 		}
 		return config;
@@ -122,7 +123,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	private WritableValue fWorkingDirectoryValue;
 	private Binding fREnvBinding;
 	
-	private boolean fWithWD;
+	private final boolean fWithWD;
 	
 	
 	public REnvTab(final boolean withWD) {
@@ -160,7 +161,9 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 					ChooseResourceComposite.STYLE_GROUP | ChooseResourceComposite.STYLE_TEXT,
 					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
 					RLaunchingMessages.REnv_Tab_WorkingDir_label);
-			fWorkingDirectoryControl.showInsertVariable(true);
+			fWorkingDirectoryControl.showInsertVariable(true, new VariableFilter[] {
+					VariableFilter.EXCLUDE_JAVA_FILTER,
+			});
 			fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
 		

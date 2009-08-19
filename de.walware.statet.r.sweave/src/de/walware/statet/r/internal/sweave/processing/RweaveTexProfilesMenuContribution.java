@@ -74,8 +74,8 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 		private Menu fMenu;
 		private boolean fIsMenuInitialized;
 		
-		private int fNum;
-		private ILaunchConfiguration fConfig;
+		private final int fNum;
+		private final ILaunchConfiguration fConfig;
 		
 		
 		public ProfileContribution(final ILaunchConfiguration config, final int num) {
@@ -155,7 +155,7 @@ public class RweaveTexProfilesMenuContribution extends CompoundContributionItem 
 				}
 				
 				if (fConfig.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false)) {
-					final int id = fConfig.getAttribute(TexTab.ATTR_BUILDTEX_BUILDERID, 0);
+					final int id = fConfig.getAttribute(TexTab.ATTR_BUILDTEX_CLIPSE_BUILDERID, 0);
 					final Builder builder = BuilderRegistry.get(id);
 					if (builder != null) {
 						final String format = builder.getOutputFormat().toUpperCase();

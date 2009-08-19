@@ -57,6 +57,7 @@ import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
@@ -104,8 +105,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		}
 	}
 	
-	private RConsoleType[] fTypes;
-	private RConsoleType fDefaultType;
+	private final RConsoleType[] fTypes;
+	private final RConsoleType fDefaultType;
 	
 	private ComboViewer fTypesCombo;
 	
@@ -231,7 +232,10 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_TEXT,
 				ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
 				RLaunchingMessages.REnv_Tab_WorkingDir_label);
-		fWorkingDirectoryControl.showInsertVariable(true);
+		fWorkingDirectoryControl.showInsertVariable(true, new VariableFilter[] {
+				VariableFilter.EXCLUDE_JAVA_FILTER,
+				VariableFilter.EXCLUDE_BUILD_FILTER,
+		});
 		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		
 		fArgumentsControl = new RArgumentsComposite(group);
@@ -404,12 +408,12 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			updateLaunchConfigurationDialog();
 		}
 		catch (final CoreException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RConsole_MainTab_error_CannotRunHelp_message, e),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InvocationTargetException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RConsole_MainTab_error_WhileRunningHelp_message, e.getTargetException()),
 					StatusManager.LOG | StatusManager.SHOW);
 		}

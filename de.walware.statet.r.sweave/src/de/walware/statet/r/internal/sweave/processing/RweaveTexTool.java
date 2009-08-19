@@ -11,6 +11,14 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.BUILDTEX_TYPE_RCONSOLE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.SWEAVE_TYPE_RCMD;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.SWEAVE_TYPE_RCONSOLE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.VARNAME_LATEX_FILE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.VARNAME_OUTPUT_FILE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.VARNAME_SWEAVE_FILE;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +34,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
@@ -50,8 +57,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.FileLocationVariableText;
+import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.VariableText;
+import de.walware.ecommons.VariableText.LocationProcessor;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IRequireSynch;
@@ -69,7 +78,6 @@ import net.sourceforge.texlipse.TexPathConfig;
 import net.sourceforge.texlipse.Texlipse;
 import net.sourceforge.texlipse.builder.AbstractBuilder;
 import net.sourceforge.texlipse.builder.Builder;
-import net.sourceforge.texlipse.builder.BuilderRegistry;
 import net.sourceforge.texlipse.builder.TexlipseBuilder;
 import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
@@ -85,6 +93,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	public static final int AUTO = 1;
 	public static final int EXPLICITE = 2;
 	
+	private static final int TICKS_PREPARER = 5;
 	private static final int TICKS_RWEAVE = 30;
 	private static final int TICKS_TEX = 30;
 	private static final int TICKS_OPEN_TEX = 5;
@@ -131,32 +140,76 @@ class RweaveTexTool implements Runnable, IProcess {
 					return;
 				}
 				if (beginSchedulingRule(monitor)) {
-					String file = null;
-					String project = null;
-					try {
-						if (fSweaveCommands.requireFile()) {
-							final IFileStore store = EFS.getStore(fSweaveFile.getLocationURI());
-							file = workspace.toToolPath(store);
-							file = RUtil.escapeBackslash(file);
+					final LocationProcessor processor = new LocationProcessor() {
+						public String process(String path) throws CoreException {
+							final IFileStore store = FileUtil.getFileStore(path);
+							path = workspace.toToolPath(store);
+							path = RUtil.escapeBackslash(path);
+							return path;
 						}
-						if (fSweaveCommands.requireFile()) {
-							final IFileStore store = EFS.getStore(fSweaveFile.getProject().getLocationURI());
-							project = workspace.toToolPath(store);
-							project = RUtil.escapeBackslash(project);
+					};
+					
+					if (fRunSweave && fSweaveType == SWEAVE_TYPE_RCONSOLE) {
+						monitor.subTask("Sweave"); //$NON-NLS-1$
+						final SubMonitor progress = fProgress.newChild(TICKS_RWEAVE);
+						progress.beginTask(Messages.RweaveTexProcessing_Sweave_InConsole_label, 100);
+						
+						try {
+							fSweaveRCommands.performFinalStringSubstitution(processor);
 						}
-						fSweaveCommands.performResourceStringSubstitution(file, project);
+						catch (final NullPointerException e) {
+							throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+									Messages.RweaveTexProcessing_Sweave_error_ResourceVariable_message));
+						}
+						catch (final CoreException e) {
+							throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+									Messages.RweaveTexProcessing_Sweave_error_ResourceVariable_message + ' ' + e.getLocalizedMessage()));
+						}
+						final String[] commands = RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveRCommands.getText());
+						for (int i = 0; i < commands.length; i++) {
+							r.submitToConsole(commands[i], monitor);
+						}
+						if (r instanceof IRequireSynch) {
+							((IRequireSynch) r).synch(monitor);
+						}
 					}
-					catch (final NullPointerException e) {
-						throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
-								Messages.RweaveTexProcessing_Sweave_error_ResourceVariable_message));
-					}
-					catch (final CoreException e) {
-						throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
-								Messages.RweaveTexProcessing_Sweave_error_ResourceVariable_message + ' ' + e.getLocalizedMessage()));
-					}
-					r.submitToConsole(fSweaveCommands.getText(), monitor);
-					if (r instanceof IRequireSynch) {
-						((IRequireSynch) r).synch(monitor);
+					
+					if (fRunTex && fTexType == BUILDTEX_TYPE_RCONSOLE) {
+						monitor.subTask("LaTeX"); //$NON-NLS-1$
+						
+						doPrepareTex();
+						
+						final SubMonitor progress = fProgress.newChild(TICKS_TEX);
+						progress.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);
+						
+						try {
+							fTexRCommands.performFinalStringSubstitution(processor);
+							progress.setWorkRemaining(90);
+						}
+						catch (final NullPointerException e) {
+							throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+									Messages.RweaveTexProcessing_Tex_error_ResourceVariable_message));
+						}
+						catch (final CoreException e) {
+							throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
+									Messages.RweaveTexProcessing_Tex_error_ResourceVariable_message + ' ' + e.getLocalizedMessage()));
+						}
+						
+						Texlipse.getViewerManager().closeDocInViewer(fTexPathConfig);
+						
+						final String[] commands = RUtil.LINE_SEPARATOR_PATTERN.split(fTexRCommands.getText());
+						try {
+							for (int i = 0; i < commands.length; i++) {
+								r.submitToConsole(commands[i], monitor);
+								progress.setWorkRemaining(90-80/commands.length*(i+1));
+							}
+							if (r instanceof IRequireSynch) {
+								((IRequireSynch) r).synch(monitor);
+							}
+						}
+						finally {
+							finallyTex(progress);
+						}
 					}
 				}
 			}
@@ -184,30 +237,35 @@ class RweaveTexTool implements Runnable, IProcess {
 		
 	}
 	
-	private String fProfileName;
-	private String fName;
-	private MultiStatus fStatus;
-	private IProgressMonitor fMonitor;
+	private final String fProfileName;
+	private final String fName;
+	private final MultiStatus fStatus;
+	private final IWorkbenchPage fWorkbenchPage;
+	private final ILaunch fLaunch;
 	private Thread fThread;
 	private ISchedulingRule fSchedulingRule;
-	private IWorkbenchPage fWorkbenchPage;
-	private ILaunch fLaunch;
+	private SubMonitor fProgress;
 	
-	private IFile fSweaveFile;
+	private final IFile fSweaveFile;
 	private IContainer fWorkingFolderInWorkspace;
 	private IFileStore fWorkingFolder;
 	private String fBaseFileName;
 	private String fTexFileExtension;
 	
 	boolean fRunSweave;
-	FileLocationVariableText fSweaveCommands;
-	ILaunchConfiguration fSweaveConfig;
+	private int fSweaveType;
+	private VariableText fSweaveRCommands;
+	private ILaunchConfiguration fSweaveConfig;
+	
+	private String fOutputFormat;
+	private VariableText fOutputDir;
 	
 	boolean fRunTex;
 	private IFile fTexFile;
-	String fConfiguredOutputDir;
 	int fTexOpenEditor = 0;
-	int fTexBuilderId = -1;
+	private int fTexType;
+	private Builder fTexBuilder;
+	private VariableText fTexRCommands;
 	private TexPathConfig fTexPathConfig;
 	
 	int fRunPreview;
@@ -223,23 +281,65 @@ class RweaveTexTool implements Runnable, IProcess {
 		fWorkbenchPage = workbenchPage;
 		fLaunch = launch;
 		fSweaveFile = file;
-		fMonitor = new NullProgressMonitor();
 		fStatus = new MultiStatus(SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 				NLS.bind(Messages.RweaveTexProcessing_Status_label, fSweaveFile.getName()), null);
 	}
 	
-	public Thread createThread() {
-		final Thread thread = new Thread(this, fName);
-		thread.setDaemon(true);
-		fThread = thread;
-		return thread;
+	public void setOutput(final VariableText directory, final String format) throws CoreException {
+		fOutputDir = directory;
+		fOutputDir.performInitialStringSubstitution(true);
+		fOutputDir.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
+		fOutputFormat = format;
 	}
+	
+	public void setSweave(final VariableText rCommands) throws CoreException {
+		if (fSweaveType > 0 || rCommands == null) {
+			throw new IllegalArgumentException();
+		}
+		fSweaveType = SWEAVE_TYPE_RCONSOLE;
+		fSweaveRCommands = rCommands;
+		fSweaveRCommands.performInitialStringSubstitution(true);
+		fSweaveRCommands.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
+	}
+	
+	public void setSweave(final ILaunchConfiguration rCmd) {
+		if (fSweaveType > 0 || rCmd == null) {
+			throw new IllegalArgumentException();
+		}
+		fSweaveType = SWEAVE_TYPE_RCMD;
+		fSweaveConfig = rCmd;
+	}
+	
+	public void setBuildTex(final VariableText commands) throws CoreException {
+		if (fTexType > 0 || commands == null) {
+			throw new IllegalArgumentException();
+		}
+		fTexType = BUILDTEX_TYPE_RCONSOLE;
+		fTexRCommands = commands;
+		fTexRCommands.performInitialStringSubstitution(true);
+		fTexRCommands.set(VARNAME_SWEAVE_FILE, fSweaveFile.getFullPath().toString());
+	}
+	
+	public void setBuildTex(final Builder texBuilder) {
+		if (fTexType > 0 || texBuilder == null) {
+			throw new IllegalArgumentException();
+		}
+		fTexType = BUILDTEX_TYPE_ECLIPSE;
+		fTexBuilder = texBuilder;
+	}
+	
+//	public Thread createThread() {
+//		final Thread thread = new Thread(this, fName);
+//		thread.setDaemon(true);
+//		fThread = thread;
+//		return thread;
+//	}
 	
 	public Job createJob() {
 		final Job job = new Job(fName) {
 			@Override
 			protected IStatus run(final IProgressMonitor monitor) {
-				fMonitor = monitor;
+				fProgress = SubMonitor.convert(monitor);
 				fThread = Thread.currentThread();
 				RweaveTexTool.this.run();
 				if (fStatus.getSeverity() == IStatus.CANCEL) {
@@ -252,7 +352,8 @@ class RweaveTexTool implements Runnable, IProcess {
 			protected void canceling() {
 				try {
 					RweaveTexTool.this.terminate();
-				} catch (final DebugException e) {
+				}
+				catch (final DebugException e) {
 				}
 			}
 		};
@@ -291,83 +392,84 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 			
 		if (fTexFileExtension == null) {
-			fTexFileExtension = "tex"; //$NON-NLS-1$
+			fTexFileExtension = "tex";  //$NON-NLS-1$
 		}
 		fTexFile = fWorkingFolderInWorkspace.getFile(new Path(fBaseFileName + '.' + fTexFileExtension));
 		
-		final Builder builder = BuilderRegistry.get(fTexBuilderId);
-		if (builder != null) { // 21x
-			final IContainer outputDir;
-			try {
-				outputDir = TexPathConfig.resolveDirectory(fConfiguredOutputDir, fTexFile, fSweaveFile);
-			}
-			catch (final CoreException e) {
-				return new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
-						Messages.RweaveTexProcessing_Tex_error_OutputDir_message, null);
-			}
-			fTexPathConfig = new TexPathConfig(fTexFile, outputDir, builder.getOutputFormat());
-		}
-		else {
+		final String texFilePath = fTexFile.getFullPath().toString();
+		fOutputDir.set(VARNAME_LATEX_FILE, texFilePath);
+		
+		// 21x
+		if (fOutputFormat == null) {
 			return new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
 					Messages.RweaveTexProcessing_Tex_error_BuilderNotConfigured_message, null);
 		}
+		final IContainer outputDir;
+		try {
+			outputDir = TexPathConfig.resolveDirectory(fOutputDir.getText(), fTexFile, fSweaveFile);
+		}
+		catch (final CoreException e) {
+			return new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
+					Messages.RweaveTexProcessing_Tex_error_OutputDir_message, null);
+		}
+		fTexPathConfig = new TexPathConfig(fTexFile, outputDir, fOutputFormat);
+		
+		if (fSweaveRCommands != null) {
+			fSweaveRCommands.set(VARNAME_LATEX_FILE, texFilePath);
+			fSweaveRCommands.set(VARNAME_OUTPUT_FILE, fTexPathConfig.getOutputFile().getFullPath().toString());
+		}
+		if (fTexRCommands != null) {
+			fTexRCommands.set(VARNAME_LATEX_FILE, texFilePath);
+			fTexRCommands.set(VARNAME_OUTPUT_FILE, fTexPathConfig.getOutputFile().getFullPath().toString());
+		}
+		
 		return Status.OK_STATUS;
 	}
 	
 	public void run() {
 		try {
-			final SubMonitor progress = SubMonitor.convert(fMonitor, '\'' + fProfileName + '\'', calculateTicks());
-			if (progress.isCanceled()) {
+			fProgress.beginTask('\'' + fProfileName + '\'', calculateTicks());
+			if (fProgress.isCanceled()) {
 				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
 				return;
 			}
 			
-			doWeave(progress);
-			if (progress.isCanceled()) {
-				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
-			}
-			if (fStatus.getSeverity() >= IStatus.ERROR) {
-				return;
-			}
-			
-			// Prepare TeX processing
-			if ((fRunSweave || fRunTex) && fTexFile.exists() && fTexFile.getType() == IResource.FILE) {
-				fTexFile.deleteMarkers(TexlipseBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
-				fTexFile.deleteMarkers(TexlipseBuilder.LAYOUT_WARNING_TYPE, true, IResource.DEPTH_INFINITE);
-			}
-			progress.worked(1);
-			refreshDir(fWorkingFolderInWorkspace, progress.newChild(1));
-			if (progress.isCanceled()) {
-				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
-			}
-			if (fStatus.getSeverity() >= IStatus.ERROR) {
-				return;
-			}
-			if (fRunTex && !fTexFile.exists()) {
-				fExitValue = 199;
-				fStatus.add(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
-						NLS.bind(Messages.RweaveTexProcessing_Tex_error_NotFound_message, fTexFile.getFullPath().toString()), null));
-				return;
-			}
-			
-			doProcessTex(progress);
-			if (progress.isCanceled()) {
+			doWeave();
+			if (fProgress.isCanceled()) {
 				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
 			}
 			if (fStatus.getSeverity() >= IStatus.ERROR) {
 				return;
 			}
 			
-			doOpenOutput(progress);
+			if (!(fRunTex && fTexType == BUILDTEX_TYPE_RCONSOLE)) {
+				doPrepareTex();
+				if (fProgress.isCanceled()) {
+					fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
+				}
+				if (fStatus.getSeverity() >= IStatus.ERROR) {
+					return;
+				}
+				
+				doProcessTex();
+				if (fProgress.isCanceled()) {
+					fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
+				}
+				if (fStatus.getSeverity() >= IStatus.ERROR) {
+					return;
+				}
+			}
+			
+			doOpenOutput();
 			if (fStatus.getSeverity() >= IStatus.ERROR) {
 				return;
 			}
 			
-			progress.done();
+			fProgress.done();
 		}
-		catch (final CoreException e) {
-			fStatus.add(e.getStatus());
-		}
+//		catch (final CoreException e) {
+//			fStatus.add(e.getStatus());
+//		}
 		catch (final Throwable e) {
 			fStatus.add(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 					Messages.RweaveTexProcessing_error_UnexpectedError_message, e));
@@ -375,7 +477,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		finally {
 			endSchedulingRule();
 			exit();
-			fMonitor = null;
+			fProgress = null;
 			DebugPlugin.getDefault().fireDebugEventSet(new DebugEvent[] {
 				new DebugEvent(this, DebugEvent.TERMINATE),
 			});
@@ -386,6 +488,9 @@ class RweaveTexTool implements Runnable, IProcess {
 		int sum = 0;
 		if (fRunSweave) {
 			sum += TICKS_RWEAVE;
+		}
+		else {
+			sum += TICKS_RWEAVE/10;
 		}
 		if (fTexOpenEditor >= TexTab.OPEN_ALWAYS) {
 			sum += TICKS_OPEN_TEX;
@@ -414,7 +519,7 @@ class RweaveTexTool implements Runnable, IProcess {
 			return true;
 		}
 		catch (final OperationCanceledException e) {
-			fMonitor.setCanceled(true);
+			fProgress.setCanceled(true);
 		}
 		return false;
 	}
@@ -431,7 +536,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		if (fStatus.getSeverity() == 0) {
 			return;
 		}
-		fStatus.add(new Status(IStatus.INFO, SweavePlugin.PLUGIN_ID, "Exit code = " + fExitValue)); //$NON-NLS-1$
+		fStatus.add(new Status(IStatus.INFO, SweavePlugin.PLUGIN_ID, "Exit code = " + fExitValue)); 
 		if (fStatus.getSeverity() == IStatus.ERROR) {
 			StatusManager.getManager().handle(fStatus, StatusManager.LOG | StatusManager.SHOW);
 			return;
@@ -440,21 +545,20 @@ class RweaveTexTool implements Runnable, IProcess {
 	}
 	
 	
-	private void doWeave(final SubMonitor parentProgress) { // 1xx
-		if (fSweaveCommands != null) { // 11x
+	private void doWeave() { // 1xx
+		if (fSweaveType == SWEAVE_TYPE_RCONSOLE || fTexType == BUILDTEX_TYPE_RCONSOLE) { // 11x
 			try {
 	//			RCodeLaunchRegistry.runRCodeDirect(RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveCommands), false);
 				final ToolProcess rProcess = NicoUI.getToolRegistry().getActiveToolSession(fWorkbenchPage).getProcess();
 				if (rProcess == null) {
-					NicoUITools.accessTool("R", rProcess); // throws CoreException //$NON-NLS-1$
+					NicoUITools.accessTool("R", rProcess); // throws CoreException  //$NON-NLS-1$
 				}
 				
 				final R rTask = new R();
-				if (fRunSweave) {
-					final SubMonitor progress = parentProgress.newChild(TICKS_RWEAVE);
-					progress.beginTask(Messages.RweaveTexProcessing_Sweave_InConsole_label, 100);
+				if (fRunSweave || fRunTex) {
 					final ToolController rController = NicoUITools.accessController("R", rProcess); //$NON-NLS-1$
-					progress.worked(10);
+					fProgress.worked(TICKS_PREPARER);
+					
 					final IStatus submitStatus = rController.submit(rTask);
 					if (submitStatus.getSeverity() > IStatus.OK) {
 						fStatus.add(submitStatus);
@@ -466,7 +570,7 @@ class RweaveTexTool implements Runnable, IProcess {
 					while (true) {
 						synchronized (this) {
 							try {
-								if (progress.isCanceled()) {
+								if (fProgress.isCanceled()) {
 									rController.getProcess().getQueue().removeElements(new IToolRunnable[] { rTask });
 									break;
 								}
@@ -484,12 +588,11 @@ class RweaveTexTool implements Runnable, IProcess {
 						abort(null, 113);
 						return;
 					}
-					progress.done();
 				}
 				else { // we need the working directory
-					final SubMonitor monitor = parentProgress.newChild(TICKS_RWEAVE/10);
+					final SubMonitor progress = fProgress.newChild(TICKS_RWEAVE/10);
 					rTask.updatePathInformations(rProcess.getWorkspaceData());
-					monitor.done();
+					progress.done();
 				}
 			}
 			catch (final CoreException e) {
@@ -500,7 +603,7 @@ class RweaveTexTool implements Runnable, IProcess {
 		else if (fSweaveConfig != null) { // 12x
 			try {
 				if (fRunSweave) {
-					final SubMonitor monitor = parentProgress.newChild(TICKS_RWEAVE);
+					final SubMonitor monitor = fProgress.newChild(TICKS_RWEAVE);
 					monitor.beginTask(Messages.RweaveTexProcessing_Sweave_RCmd_label, 100);
 					if (!beginSchedulingRule(monitor)) {
 						return;
@@ -537,23 +640,46 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 	}
 	
-	private void doProcessTex(final SubMonitor parentProgress) { // 2xx
-		if (fTexOpenEditor == TexTab.OPEN_ALWAYS) {
-			openEditor(fTexFile);
-			parentProgress.worked(TICKS_OPEN_TEX);
+	private void doPrepareTex() {
+		if ((fRunSweave || fRunTex) && fTexFile.exists() && fTexFile.getType() == IResource.FILE) {
+			try {
+				fTexFile.deleteMarkers(TexlipseBuilder.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+				fTexFile.deleteMarkers(TexlipseBuilder.LAYOUT_WARNING_TYPE, true, IResource.DEPTH_INFINITE);
+			}
+			catch (final CoreException e) {}
+		}
+		fProgress.worked(1);
+		refreshDir(fWorkingFolderInWorkspace, fProgress.newChild(1));
+		if (fProgress.isCanceled()) {
+			fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
+		}
+		if (fStatus.getSeverity() >= IStatus.ERROR) {
+			return;
+		}
+		if (fRunTex && !fTexFile.exists()) {
+			fExitValue = 199;
+			fStatus.add(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
+					NLS.bind(Messages.RweaveTexProcessing_Tex_error_NotFound_message, fTexFile.getFullPath().toString()), null));
+			return;
 		}
 		
-		if (fRunTex) {
-			final SubMonitor progress = parentProgress.newChild(TICKS_TEX);
-			progress.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);
+		if (fTexOpenEditor == TexTab.OPEN_ALWAYS) {
+			openEditor(fTexFile);
+			fProgress.worked(TICKS_OPEN_TEX);
+		}
+	}
+	
+	private void doProcessTex() { // 2xx
+		if (fRunTex && fTexType == RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE) {
+			final SubMonitor progress = fProgress.newChild(TICKS_TEX);
+			fProgress.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);
 			if (!beginSchedulingRule(progress)) {
 				return;
 			}
 			Texlipse.getViewerManager().closeDocInViewer(fTexPathConfig);
 			try {
-				final Builder builder = BuilderRegistry.get(fTexBuilderId);
-				builder.reset(progress.newChild(60, SubMonitor.SUPPRESS_SUBTASK));
-				builder.build(fTexPathConfig);
+				fTexBuilder.reset(progress.newChild(60, SubMonitor.SUPPRESS_SUBTASK));
+				fTexBuilder.build(fTexPathConfig);
 				AbstractBuilder.checkOutput(fTexPathConfig, new SubProgressMonitor(progress, 10));
 			}
 			catch (final OperationCanceledException e) {
@@ -566,10 +692,7 @@ class RweaveTexTool implements Runnable, IProcess {
 				return;
 			}
 			finally {
-				refreshDir(fWorkingFolderInWorkspace, parentProgress.isCanceled() ? null : progress.newChild(5));
-				if (!fWorkingFolderInWorkspace.equals(fTexPathConfig.getOutputFile().getParent())) {
-					refreshDir(fTexPathConfig.getOutputFile(), progress.isCanceled() ? null : progress.newChild(5));
-				}
+				finallyTex(progress);
 			}
 			progress.done();
 		}
@@ -578,7 +701,7 @@ class RweaveTexTool implements Runnable, IProcess {
 			try { // 28x
 				if (fRunTex && fTexOpenEditor > TexTab.OPEN_ALWAYS && fTexFile.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_ZERO) >= fTexOpenEditor) {
 					openEditor(fTexFile);
-					parentProgress.worked(TICKS_OPEN_TEX);
+					fProgress.worked(TICKS_OPEN_TEX);
 				}
 			}
 			catch (final CoreException e) {
@@ -588,9 +711,16 @@ class RweaveTexTool implements Runnable, IProcess {
 		}
 	}
 	
-	private void doOpenOutput(final SubMonitor parentProgress) { // 3xx
+	private void finallyTex(final SubMonitor progress) {
+		refreshDir(fWorkingFolderInWorkspace, progress.isCanceled() ? null : progress.newChild(5));
+		if (!fWorkingFolderInWorkspace.equals(fTexPathConfig.getOutputFile().getParent())) {
+			refreshDir(fTexPathConfig.getOutputFile(), progress.isCanceled() ? null : progress.newChild(5));
+		}
+	}
+	
+	private void doOpenOutput() { // 3xx
 		if (fRunPreview > NO) {
-			final SubMonitor progress = parentProgress.newChild(TICKS_OPEN_OUTPUT);
+			final SubMonitor progress = fProgress.newChild(TICKS_OPEN_OUTPUT);
 			progress.setWorkRemaining(100);
 			if (!fTexPathConfig.getOutputFile().exists()) {
 				abort((fRunPreview == EXPLICITE) ? IStatus.ERROR : IStatus.INFO,
@@ -604,7 +734,8 @@ class RweaveTexTool implements Runnable, IProcess {
 							302);
 					return;
 				}
-			} catch (final CoreException e) {
+			}
+			catch (final CoreException e) {
 				abort(e.getStatus(), 303);
 				return;
 			}
@@ -652,7 +783,7 @@ class RweaveTexTool implements Runnable, IProcess {
 					IDE.openEditor(fWorkbenchPage, file);
 				}
 				catch (final PartInitException e) {
-					SweavePlugin.logError(-1, "An error occured when opening the document.", e); //$NON-NLS-1$
+					SweavePlugin.logError(-1, "An error occured when opening the document.", e); 
 				}
 			}
 		});
@@ -685,7 +816,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	public int getExitValue() throws DebugException {
 		if (!isTerminated()) {
 			throw new DebugException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
-					"The process has not yet terminated.", null)); //$NON-NLS-1$
+					"The process has not yet terminated.", null)); 
 		}
 		return fExitValue;
 	}
@@ -703,11 +834,11 @@ class RweaveTexTool implements Runnable, IProcess {
 	}
 	
 	public boolean canTerminate() {
-		return (fMonitor != null);
+		return (fProgress != null);
 	}
 	
 	public void terminate() throws DebugException {
-		final IProgressMonitor monitor = fMonitor;
+		final IProgressMonitor monitor = fProgress;
 		final Thread thread = fThread;
 		if (monitor != null) {
 			monitor.setCanceled(true);
@@ -718,7 +849,7 @@ class RweaveTexTool implements Runnable, IProcess {
 	}
 	
 	public boolean isTerminated() {
-		return (fMonitor == null);
+		return (fProgress == null);
 	}
 	
 }

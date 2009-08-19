@@ -11,7 +11,7 @@
 
 package de.walware.ecommons.ui.workbench;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -24,11 +24,8 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.variables.IDynamicVariable;
-import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
-import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.osgi.util.NLS;
@@ -55,7 +52,10 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog;
 
 import de.walware.ecommons.FileValidator;
+import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.internal.ui.Messages;
+import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
@@ -112,6 +112,7 @@ public class ChooseResourceComposite extends Composite {
 	private Label fLabel;
 	private WidgetToolsButton fTools;
 	private boolean fShowInsertVariable;
+	private List<VariableFilter> fShowInsertVariableFilters;
 	
 	
 	public ChooseResourceComposite(final Composite parent, final int style,
@@ -173,8 +174,9 @@ public class ChooseResourceComposite extends Composite {
 		return NLS.bind(Messages.ChooseResource_Task_description, fResourceLabel);
 	}
 	
-	public void showInsertVariable(final boolean enable) {
+	public void showInsertVariable(final boolean enable, final VariableFilter[] filters) {
 		fShowInsertVariable = enable;
+		fShowInsertVariableFilters = Arrays.asList(filters);
 		if (fTools != null) {
 			fTools.resetMenu();
 		}
@@ -335,7 +337,7 @@ public class ChooseResourceComposite extends Composite {
 		
 		if (fShowInsertVariable) {
 			final MenuItem item = new MenuItem(menu, SWT.PUSH);
-			item.setText(Messages.InsertVariable_label);
+			item.setText(SharedMessages.InsertVariable_label);
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
@@ -466,25 +468,10 @@ public class ChooseResourceComposite extends Composite {
 	}
 	
 	protected void handleVariablesButton() {
-		final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell()) {
-			@Override
-			public void setElements(final Object[] elements) {
-				
-				final IStringVariable[] orginals = (IStringVariable[]) elements;
-				final List<IStringVariable> filteredList = new ArrayList<IStringVariable>(elements.length);
-				
-				for (final IStringVariable variable : orginals) {
-					if (variable instanceof IDynamicVariable) {
-						if (excludeVariable(variable.getName())) {
-							continue;
-						}
-					}
-					filteredList.add(variable);
-				}
-				super.setElements(filteredList.toArray(new IStringVariable[filteredList.size()]));
-			}
-		};
-		
+		final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getShell());
+		if (fShowInsertVariableFilters != null) {
+			dialog.addFilters(fShowInsertVariableFilters);
+		}
 		if (dialog.open() != Dialog.OK) {
 			return;
 		}
@@ -542,22 +529,6 @@ public class ChooseResourceComposite extends Composite {
 	 */
 	protected String newVariableExpression(final String varName, final String arg) {
 		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(varName, arg);
-	}
-	
-	protected boolean excludeVariable(final String variableName) {
-		return excludeJavaVariable(variableName);
-	}
-	
-	protected boolean excludeInteractiveVariable(final String variableName) {
-		return (variableName.startsWith("selected_") || variableName.endsWith("_prompt")); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	protected boolean excludeJavaVariable(final String variableName) {
-		return (variableName.startsWith("java_") || variableName.startsWith("target_home")); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	protected boolean excludeBuildVariable(final String variableName) {
-		return (variableName.startsWith("build_")); //$NON-NLS-1$
 	}
 	
 }

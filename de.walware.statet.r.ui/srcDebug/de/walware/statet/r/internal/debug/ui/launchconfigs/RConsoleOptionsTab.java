@@ -167,7 +167,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fStartupSnippetEditor = new SnippetEditor(configurator);
 		fStartupSnippetEditor.create(container, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.heightHint = LayoutUtil.hintHeight(fStartupSnippetEditor.getControl(), 5);
+		gd.heightHint = LayoutUtil.hintHeight(fStartupSnippetEditor.getSourceViewer().getTextWidget(), 5);
 		fStartupSnippetEditor.getControl().setLayoutData(gd);
 	}
 	
