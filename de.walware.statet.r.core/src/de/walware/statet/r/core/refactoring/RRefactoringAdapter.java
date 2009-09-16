@@ -24,6 +24,7 @@ import org.eclipse.text.edits.TextEdit;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.text.IndentUtil;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringParseInput;
 
@@ -303,6 +304,38 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 		final TextEdit edits = indenter.getIndentEdits(doc, ast, 0, 1, doc.getNumberOfLines()-1);
 		edits.apply(doc, 0);
 		return doc.get(prefix.length(), doc.getLength()-prefix.length());
+	}
+	
+	/**
+	 * Prepare the insertion of a command (text) before another command (offset)
+	 * 
+	 * The method prepares the insertion by modifying the text and returning the offset
+	 * where to insert the modified text
+	 * 
+	 * @param text the command to insert, will be modified
+	 * @param orgDoc the document
+	 * @param offset the offset where to insert the command
+	 * @param su the source unit, if available
+	 * @return the offset to insert the modified text
+	 * @throws BadLocationException
+	 * @throws CoreException
+	 */
+	static int prepareInsertBefore(final StringBuilder text, final AbstractDocument orgDoc, final int offset,
+			final ISourceUnit su) throws BadLocationException, CoreException {
+		final IRCoreAccess coreConfig = (su instanceof IRSourceUnit) ? ((IRSourceUnit) su).getRCoreAccess() : RCore.getWorkbenchAccess();
+		
+		final RIndentUtil indentUtil = new RIndentUtil(orgDoc, coreConfig.getRCodeStyle());
+		final int line = orgDoc.getLineOfOffset(offset);
+		final int[] lineIndent = indentUtil.getLineIndent(line, false);
+		if (lineIndent[IndentUtil.OFFSET_IDX] == offset) { // first char/command in line
+			text.insert(0, indentUtil.createIndentString(lineIndent[IndentUtil.COLUMN_IDX]));
+			text.append(orgDoc.getDefaultLineDelimiter());
+			return orgDoc.getLineOffset(line);
+		}
+		else {
+			text.append("; "); //$NON-NLS-1$
+			return offset;
+		}
 	}
 	
 	static RCodeStyleSettings getCodeStyle(final ISourceUnit su) {

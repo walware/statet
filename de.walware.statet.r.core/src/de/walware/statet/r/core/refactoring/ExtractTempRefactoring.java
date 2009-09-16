@@ -325,7 +325,7 @@ public class ExtractTempRefactoring extends Refactoring {
 		}
 	}
 	
-	private void createChanges(final TextFileChange change, final SubMonitor progress) throws BadLocationException {
+	private void createChanges(final TextFileChange change, final SubMonitor progress) throws BadLocationException, CoreException {
 		fSourceUnit.connect(progress.newChild(1));
 		try {
 			final AbstractDocument doc = fSourceUnit.getDocument(progress.newChild(1));
@@ -333,14 +333,18 @@ public class ExtractTempRefactoring extends Refactoring {
 			final String defAssign = " <- ";
 			final String text = doc.get(fExpression.getOffset(), fExpression.getLength());
 			final String variableName = fTempName;
-			final String assignText = variableName + defAssign + text + doc.getDefaultLineDelimiter();
+			final StringBuilder assignText = new StringBuilder();
+			assignText.append(variableName);
+			assignText.append(defAssign);
+			assignText.append(text);
 			
 			RAstNode baseNode = fExpression;
 			while (baseNode.getRParent() != fContainer) {
 				baseNode = baseNode.getRParent();
 			}
+			final int assignOffset = RRefactoringAdapter.prepareInsertBefore(assignText, doc, baseNode.getOffset(), fSourceUnit);
 			TextChangeCompatibility.addTextEdit(change, Messages.ExtractTemp_Changes_AddVariable_name,
-					new InsertEdit(baseNode.getOffset(), assignText) );
+					new InsertEdit(assignOffset, assignText.toString()) );
 			
 			for (int i = 0; i < fOccurrencesList.size(); i++) {
 				final RAstNode node = fOccurrencesList.get(i);
