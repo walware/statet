@@ -46,7 +46,7 @@ import java.lang.reflect.Array;
  * This class can be used without OSGi running.
  * </p>
  */
-public class FastList<T> {
+public final class FastList<T> {
 	
 	/**
 	 * Mode constant (value 0) indicating that items should be considered

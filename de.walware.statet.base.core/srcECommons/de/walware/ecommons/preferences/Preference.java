@@ -12,7 +12,6 @@
 package de.walware.ecommons.preferences;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +19,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.Preferences;
+
+import de.walware.ecommons.ConstList;
 
 
 /**
@@ -475,7 +476,7 @@ public abstract class Preference<T> {
 				return new HashSet<String>(0);
 			}
 			final String[] strings = LIST_SEPARATOR_PATTERN.split(s);
-			return new HashSet<String>(Arrays.asList(strings));
+			return new HashSet<String>(new ConstList<String>(strings));
 		}
 		@Override
 		public String usage2Store(final Set<String> set) {

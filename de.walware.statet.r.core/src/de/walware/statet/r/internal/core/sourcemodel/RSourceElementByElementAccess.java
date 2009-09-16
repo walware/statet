@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -172,7 +171,7 @@ abstract class RSourceElementByElementAccess
 	static final class RClass extends RSourceElementByElementAccess implements IRClass, IBuildSourceFrameElement {
 		
 		
-		private static final List<String> NO_PARENTS = Arrays.asList(new String[0]);
+		private static final List<String> NO_PARENTS = Collections.emptyList();
 		
 		
 		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;

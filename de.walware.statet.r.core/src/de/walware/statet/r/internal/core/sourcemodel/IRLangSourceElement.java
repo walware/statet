@@ -11,7 +11,7 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.ISourceStructElement;
@@ -22,7 +22,7 @@ import de.walware.statet.r.core.model.IRLangElement;
 public interface IRLangSourceElement extends IRLangElement, ISourceStructElement {
 	
 	
-	static final List<IRLangSourceElement> NO_R_SOURCE_CHILDREN = Arrays.asList(new IRLangSourceElement[0]);
+	static final List<IRLangSourceElement> NO_R_SOURCE_CHILDREN = Collections.emptyList();
 	
 	
 	boolean hasModelChildren(Filter<? super IRLangSourceElement> filter);

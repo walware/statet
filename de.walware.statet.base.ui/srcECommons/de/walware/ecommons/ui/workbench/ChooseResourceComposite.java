@@ -11,7 +11,6 @@
 
 package de.walware.ecommons.ui.workbench;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -51,6 +50,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.debug.ui.VariableFilter;
@@ -176,7 +176,7 @@ public class ChooseResourceComposite extends Composite {
 	
 	public void showInsertVariable(final boolean enable, final VariableFilter[] filters) {
 		fShowInsertVariable = enable;
-		fShowInsertVariableFilters = Arrays.asList(filters);
+		fShowInsertVariableFilters = new ConstList<VariableFilter>(filters);
 		if (fTools != null) {
 			fTools.resetMenu();
 		}

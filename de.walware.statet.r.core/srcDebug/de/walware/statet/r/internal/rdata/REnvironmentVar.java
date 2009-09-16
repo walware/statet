@@ -15,10 +15,11 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import de.walware.ecommons.ConstList;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.REnvironment;
@@ -275,10 +276,10 @@ public final class REnvironmentVar extends CombinedElement
 	
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (fComponents == null) {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 		if (filter == null) {
-			return Arrays.asList(fComponents);
+			return new ConstList<IRLangElement>(fComponents);
 		}
 		else {
 			final List<CombinedElement> list = new ArrayList<CombinedElement>();

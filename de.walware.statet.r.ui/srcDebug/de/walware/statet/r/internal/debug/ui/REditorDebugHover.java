@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.debug.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -27,6 +26,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPart;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
@@ -384,7 +384,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 					}
 					segment = segment.getNextSegment();
 				}
-				return RElementName.concat(Arrays.asList(segments));
+				return RElementName.concat(new ConstList<RElementName>(segments));
 			}
 			current = current.getNextSegment();
 		}

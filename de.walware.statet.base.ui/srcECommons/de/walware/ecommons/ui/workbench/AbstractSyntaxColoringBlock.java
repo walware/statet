@@ -66,6 +66,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.preferences.ColorSelectorObservableValue;
@@ -177,7 +178,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		/*-- Property-Access --*/
 		public List<UseStyle> getAvailableUseStyles() {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 		
 		public UseStyle getUseStyle() {
@@ -252,7 +253,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		private String fDescription;
 		private String fRootKey;
-		private UseStyle[] fAvailableStyles;
+		private List<UseStyle> fAvailableStyles;
 		
 		/** tuple { pref : Preference, beanProperty : String } */
 		private Object[][] fPreferences;
@@ -262,13 +263,13 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		public StyleNode(final String name, final String description, final String rootKey, final UseStyle[] availableStyles, final SyntaxNode[] children) {
 			super(name, children);
+			assert (availableStyles != null && availableStyles.length > 0);
 			fDescription = description;
 			fRootKey = rootKey;
-			fAvailableStyles = availableStyles;
+			fAvailableStyles = new ConstList<UseStyle>(availableStyles);
 			
 			final List<Object[]> prefs = new ArrayList<Object[]>();
-			assert (fAvailableStyles != null && fAvailableStyles.length > 0);
-			if (fAvailableStyles.length > 1) {
+			if (fAvailableStyles.size() > 1) {
 				prefs.add(new Object[] { new UseStylePref(null, getUseKey()), PROP_USE });
 			}
 			prefs.add(new Object[] { new RGBPref(null, getColorKey()), PROP_COLOR });
@@ -346,7 +347,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		/*-- Property-Access --*/
 		@Override
 		public List<UseStyle> getAvailableUseStyles() {
-			return Arrays.asList(fAvailableStyles);
+			return fAvailableStyles;
 		}
 		
 		@Override
@@ -365,7 +366,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 					return style;
 				}
 			}
-			return fAvailableStyles[0];
+			return fAvailableStyles.get(0);
 		}
 		
 		@Override

@@ -15,8 +15,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import de.walware.ecommons.ConstList;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RObject;
@@ -160,7 +161,7 @@ public final class RS4ObjectVar extends CombinedElement
 	
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (filter == null) {
-			return Arrays.asList(fSlotValues);
+			return new ConstList<IRLangElement>(fSlotValues);
 		}
 		else {
 			final List<CombinedElement> list = new ArrayList<CombinedElement>();
