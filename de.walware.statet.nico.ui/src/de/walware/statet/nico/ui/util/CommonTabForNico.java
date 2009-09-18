@@ -13,8 +13,12 @@ package de.walware.statet.nico.ui.util;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationsMessages;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 
 /**
@@ -26,6 +30,33 @@ public class CommonTabForNico extends CommonTab {
 	public CommonTabForNico() {
 	}
 	
+	
+	@Override
+	public void createControl(final Composite parent) {
+		super.createControl(parent);
+		final Button button = searchButton((Composite) getControl());
+		if (button != null) {
+			button.setText("Allocate additional Debug Consoles");
+		}
+	}
+	
+	private static Button searchButton(final Composite composite) {
+		final Control[] children = composite.getChildren();
+		for (final Control control : children) {
+			if (control instanceof Button) {
+				if (((Button) control).getText().equals(LaunchConfigurationsMessages.CommonTab_5)) {
+					return (Button) control;
+				}
+			}
+			else if (control instanceof Composite) {
+				final Button button = searchButton((Composite) control);
+				if (button != null) {
+					return button;
+				}
+			}
+		}
+		return null;
+	}
 	
 	@Override
 	public void setDefaults(final ILaunchConfigurationWorkingCopy config) {

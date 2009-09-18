@@ -11,21 +11,16 @@
 
 package de.walware.ecommons.debug.ui;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.dialogs.DialogTray;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,11 +38,9 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.internal.ui.Messages;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.StatetImages;
 
 
@@ -59,7 +52,8 @@ public class HelpRequestor implements IRunnableWithProgress {
 	
 	private static class InfoTray extends DialogTray{
 		
-		private TrayDialog fDialog;
+		private final TrayDialog fDialog;
+		
 		private Text fTextControl;
 		private Label fCmdInfo;
 		
@@ -128,84 +122,15 @@ public class HelpRequestor implements IRunnableWithProgress {
 	}
 	
 	
-	private class HelpReader extends Thread {
-		
-		private InputStreamReader fOutputInput;
-		private StringBuilder fBuffer;
-		private Exception fReadException;
-		
-		public HelpReader() {
-			super("'--help'-Output Monitor"); //$NON-NLS-1$
-			fOutputInput = new InputStreamReader(fProcess.getInputStream());
-			fBuffer = new StringBuilder();
-		}
-		
-		@Override
-		public void run() {
-			try {
-				boolean canRead;
-				final char[] b = new char[512];
-				while (fIsRunning | (canRead = fOutputInput.ready())) {
-					if (fMonitor.isCanceled()) {
-						fProcess.destroy();
-						return;
-					}
-					if (canRead) {
-						final int n = fOutputInput.read(b);
-						if (n > 0) {
-							fBuffer.append(b, 0, n);
-							continue;
-						}
-						if (n < 0) {
-							return;
-						}
-					}
-					try {
-						Thread.sleep(50);
-					} catch (final InterruptedException e) {
-						Thread.interrupted();
-					}
-				}
-			}
-			catch (final IOException e) {
-				fReadException = e;
-			}
-			finally {
-				try {
-					fOutputInput.close();
-				} catch (final IOException e1) {}
-			}
-		}
-		
-		public String getText() throws CoreException {
-			while (true) {
-				try {
-					join();
-					if (fReadException != null) {
-						throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
-								Messages.HelpRequestor_error_WhenReadOutput_message, fReadException));
-					}
-					return fBuffer.toString();
-				} catch (final InterruptedException e) {
-					Thread.interrupted();
-				}
-			}
-		}
-	}
+	private final TrayDialog fDialog;
+	
+	private final ProcessBuilder fBuilder;
+	
+	boolean fIsRunning;
 	
 	
-	private TrayDialog fDialog;
-	private IProgressMonitor fMonitor;
-	private ProcessBuilder fBuilder;
-	private Process fProcess;
-	private boolean fIsRunning;
-	
-	private List<String> fCmdLine;
-	
-	
-	public HelpRequestor(final List<String> cmdLine, final TrayDialog dialog) {
-		fCmdLine = cmdLine;
-		fBuilder = new ProcessBuilder(cmdLine);
+	public HelpRequestor(final ProcessBuilder processBuilder, final TrayDialog dialog) {
+		fBuilder = processBuilder;
 		fDialog = dialog;
 	}
 	
@@ -216,41 +141,17 @@ public class HelpRequestor implements IRunnableWithProgress {
 	
 	public void run(final IProgressMonitor monitor) throws InvocationTargetException,
 			InterruptedException {
-		final String cmdInfo = LaunchConfigUtil.generateCommandLine(fCmdLine);
-		fMonitor = monitor;
-		fMonitor.beginTask(Messages.HelpRequestor_Task_name+cmdInfo, 10);
-		if (fMonitor.isCanceled()) {
+		final String cmdInfo = LaunchConfigUtil.generateCommandLine(fBuilder.command());
+		monitor.beginTask(Messages.HelpRequestor_Task_name+cmdInfo, 10);
+		if (monitor.isCanceled()) {
 			return;
 		}
 		try {
 			fBuilder.redirectErrorStream(true);
-			fMonitor.worked(1);
-			try {
-				fProcess = fBuilder.start();
-			}
-			catch (final IOException e) {
-				throw new CoreException(new Status(Status.ERROR, StatetUIPlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
-						NLS.bind(Messages.HelpRequestor_error_WhenRunProcess_message, cmdInfo), e));
-			}
-			fIsRunning = true;
-			fMonitor.worked(2);
+			monitor.worked(1);
 			
-			final HelpReader reader = new HelpReader();
-			reader.start();
-			fMonitor.worked(1);
-			while (fIsRunning) {
-				try {
-					fProcess.waitFor();
-					fIsRunning = false;
-				}
-				catch (final InterruptedException e) {
-					Thread.interrupted();
-				}
-			}
-			fMonitor.worked(2);
-			
-			final String helpText = reader.getText();
-			fMonitor.worked(2);
+			final ProcessOutputCollector reader = new ProcessOutputCollector(fBuilder, "'--help'", monitor);
+			final String helpText = reader.collect();
 			
 			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
@@ -273,7 +174,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 			throw new InvocationTargetException(e);
 		}
 		finally {
-			fMonitor.done();
+			monitor.done();
 		}
 	}
 	

@@ -30,6 +30,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TableViewerEditor;
 import org.eclipse.jface.viewers.TableViewerFocusCellManager;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.TreeViewerEditor;
 import org.eclipse.jface.viewers.TreeViewerFocusCellManager;
 import org.eclipse.jface.viewers.Viewer;
@@ -240,6 +241,21 @@ public class ViewerUtil {
 			tree = new Tree(this, treeStyle);
 			viewer = new TreeViewer(tree);
 		}
+		
+		
+		public TreeViewerColumn addColumn(final String title, final int style, final ColumnLayoutData layoutData) {
+			final TreeViewerColumn column = new TreeViewerColumn(viewer, style);
+			column.getColumn().setText(title);
+			layout.setColumnData(column.getColumn(), layoutData);
+			return column;
+		}
+		
+		public TreeViewerColumn addColumn(final int style, final ColumnLayoutData layoutData) {
+			final TreeViewerColumn column = new TreeViewerColumn(viewer, style);
+			layout.setColumnData(column.getColumn(), layoutData);
+			return column;
+		}
+		
 	}
 	
 	public static void installDefaultEditBehaviour(final TableViewer tableViewer) {

@@ -262,7 +262,6 @@ public class REnvManager implements IREnvManager, ManageListener {
 			}
 		}
 		return false;
-		
 	}
 	
 	private void add(final ManagedConfig config) {

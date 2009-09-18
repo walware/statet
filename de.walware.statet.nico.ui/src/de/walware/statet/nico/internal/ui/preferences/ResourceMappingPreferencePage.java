@@ -181,7 +181,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	}
 	
 	protected void updateControls() {
-		fListButtons.refresh0();
+		fListButtons.refresh();
 	}
 	
 	@Override

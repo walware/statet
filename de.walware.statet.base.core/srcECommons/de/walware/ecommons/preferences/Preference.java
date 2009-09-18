@@ -118,8 +118,16 @@ public abstract class Preference<T> {
 	
 /*-- Implementation for common types -----------------------------------------*/	
 	
-	private static final char LIST_SEPARATOR_CHAR = ',';
-	private static final Pattern LIST_SEPARATOR_PATTERN = Pattern.compile(",");  //$NON-NLS-1$
+	/**
+	 * Default separator for list preferences
+	 */
+	public static final char LIST_SEPARATOR_CHAR = ',';
+	private static final Pattern LIST_SEPARATOR_PATTERN = Pattern.compile(","); //$NON-NLS-1$
+	/**
+	 * Separator for file list preferences
+	 */
+	public static final char IS2_SEPARATOR_CHAR = '\u001e';
+	private static final Pattern IS2_SEPARATOR_PATTERN = Pattern.compile("\u001e"); //$NON-NLS-1$ 
 	
 	
 	/**
@@ -425,8 +433,16 @@ public abstract class Preference<T> {
 	 */
 	public static class StringArrayPref extends Preference<String[]> {
 		
+		private char fSeparator;
+		
 		public StringArrayPref(final String qualifier, final String key) {
 			super(qualifier, key, Type.STRING);
+			fSeparator = LIST_SEPARATOR_CHAR;
+		}
+		
+		public StringArrayPref(final String qualifier, final String key, final char separator) {
+			super(qualifier, key, Type.STRING);
+			fSeparator = separator;
 		}
 		
 		@Override
@@ -439,7 +455,14 @@ public abstract class Preference<T> {
 			if (s == null || s.length() == 0) {
 				return new String[0];
 			}
-			return LIST_SEPARATOR_PATTERN.split(s);
+			switch (fSeparator) {
+			case LIST_SEPARATOR_CHAR:
+				return LIST_SEPARATOR_PATTERN.split(s);
+			case IS2_SEPARATOR_CHAR:
+				return IS2_SEPARATOR_PATTERN.split(s);
+			}
+			return ((fSeparator == LIST_SEPARATOR_CHAR) ?
+					LIST_SEPARATOR_PATTERN : Pattern.compile("\\Q"+fSeparator+"\\E")).split(s);
 		}
 		@Override
 		public String usage2Store(final String[] array) {
@@ -449,7 +472,7 @@ public abstract class Preference<T> {
 			final StringBuilder sb = new StringBuilder();
 			for (final String s : array) {
 				sb.append(s);
-				sb.append(',');
+				sb.append(fSeparator);
 			}
 			return sb.substring(0, sb.length()-1);
 		}

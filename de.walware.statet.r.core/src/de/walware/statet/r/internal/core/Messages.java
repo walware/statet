@@ -22,6 +22,10 @@ public class Messages extends NLS {
 	public static String Builder_error_UnsupportedEncoding_message;
 	public static String Builder_error_IOReadingFile_message;
 	
+	public static String REnvConfiguration_DefaultLib_label;
+	public static String REnvConfiguration_SiteLibs_label;
+	public static String REnvConfiguration_OtherLibs_label;
+	public static String REnvConfiguration_UserLibs_label;
 	public static String REnvConfiguration_Validation_error_Removed_message;
 	public static String REnvConfiguration_Validation_error_InvalidRHome_message;
 	

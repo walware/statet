@@ -281,8 +281,10 @@ public class ChooseResourceComposite extends Composite {
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
+					beforeMenuAction();
 					handleSearchWorkspaceButton();
 					getTextControl().setFocus();
+					afterMenuAction();
 				}
 			});
 		}
@@ -292,8 +294,10 @@ public class ChooseResourceComposite extends Composite {
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
+					beforeMenuAction();
 					handleBrowseWorkspaceButton(MODE_FILE);
 					getTextControl().setFocus();
+					afterMenuAction();
 				}
 			});
 		}
@@ -303,8 +307,10 @@ public class ChooseResourceComposite extends Composite {
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
+					beforeMenuAction();
 					handleBrowseWorkspaceButton(MODE_DIRECTORY);
 					getTextControl().setFocus();
+					afterMenuAction();
 				}
 			});
 		}	
@@ -314,8 +320,10 @@ public class ChooseResourceComposite extends Composite {
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
+					beforeMenuAction();
 					handleBrowseFilesystemButton(MODE_FILE);
 					getTextControl().setFocus();
+					afterMenuAction();
 				}
 			});
 		}
@@ -325,8 +333,10 @@ public class ChooseResourceComposite extends Composite {
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
+					beforeMenuAction();
 					handleBrowseFilesystemButton(MODE_DIRECTORY);
 					getTextControl().setFocus();
+					afterMenuAction();
 				}
 			});
 		}
@@ -341,8 +351,10 @@ public class ChooseResourceComposite extends Composite {
 			item.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
+					beforeMenuAction();
 					handleVariablesButton();
 					getTextControl().setFocus();
+					afterMenuAction();
 				}
 			});
 		}
@@ -529,6 +541,18 @@ public class ChooseResourceComposite extends Composite {
 	 */
 	protected String newVariableExpression(final String varName, final String arg) {
 		return VariablesPlugin.getDefault().getStringVariableManager().generateVariableExpression(varName, arg);
+	}
+	
+	/**
+	 * Is called before a menu action is executed.
+	 */
+	protected void beforeMenuAction() {
+	}
+	
+	/**
+	 * Is called after a menu action is finish.
+	 */
+	protected void afterMenuAction() {
 	}
 	
 }

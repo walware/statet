@@ -13,6 +13,7 @@ package de.walware.statet.r.core.renv;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.osgi.service.prefs.BackingStoreException;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.r.core.RCore;
@@ -60,6 +63,51 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	public static final String PROP_RBITS = "RBits"; //$NON-NLS-1$
 	private static final String PREFKEY_RBITS = "env.r_bits.count"; //$NON-NLS-1$
 	
+	public static final String PROP_RLIBS = "RLibraries"; //$NON-NLS-1$
+	private static final String PREFKEY_RLIBS_PREFIX = "env.r_libs."; //$NON-NLS-1$
+	
+	
+	private static String getLibGroupLabel(final String id) {
+		if (id.equals(RLibraryGroup.R_DEFAULT)) {
+			return Messages.REnvConfiguration_DefaultLib_label;
+		}
+		if (id.equals(RLibraryGroup.R_SITE)) {
+			return Messages.REnvConfiguration_SiteLibs_label;
+		}
+		if (id.equals(RLibraryGroup.R_OTHER)) {
+			return Messages.REnvConfiguration_OtherLibs_label;
+		}
+		if (id.equals(RLibraryGroup.R_USER)) {
+			return Messages.REnvConfiguration_UserLibs_label;
+		}
+		return null;
+	}
+	
+	private static final List<RLibraryLocation> NO_LIBS = Collections.emptyList();
+	
+	private static final String[] DEFAULT_LIBS_IDS = new String[] {
+			RLibraryGroup.R_DEFAULT, RLibraryGroup.R_SITE,
+			RLibraryGroup.R_OTHER, RLibraryGroup.R_USER,
+	};
+	
+	private static final List<RLibraryGroup> DEFAULT_LIBS_INIT;
+	static {
+		final RLibraryGroup[] groups = new RLibraryGroup[DEFAULT_LIBS_IDS.length];
+		for (int i = 0; i < DEFAULT_LIBS_IDS.length; i++) {
+			groups[i] = new RLibraryGroup(DEFAULT_LIBS_IDS[i], getLibGroupLabel(DEFAULT_LIBS_IDS[i]), NO_LIBS);
+		}
+		DEFAULT_LIBS_INIT = new ConstList<RLibraryGroup>(groups);
+	}
+	
+	private static final List<RLibraryGroup> DEFAULT_LIBS_DEFAULTS = new ConstList<RLibraryGroup>(
+			new RLibraryGroup(RLibraryGroup.R_DEFAULT, getLibGroupLabel(RLibraryGroup.R_DEFAULT),
+				new ConstList<RLibraryLocation>(new RLibraryLocation(RLibraryGroup.DEFAULTLOCATION_R_DEFAULT)) ),
+			new RLibraryGroup(RLibraryGroup.R_SITE, getLibGroupLabel(RLibraryGroup.R_SITE),
+				new ConstList<RLibraryLocation>(new RLibraryLocation(RLibraryGroup.DEFAULTLOCATION_R_SITE)) ),
+			new RLibraryGroup(RLibraryGroup.R_OTHER, getLibGroupLabel(RLibraryGroup.R_OTHER), NO_LIBS),
+			new RLibraryGroup(RLibraryGroup.R_USER, getLibGroupLabel(RLibraryGroup.R_USER), NO_LIBS) );
+	
+	
 	public static enum Exec {
 		COMMON,
 		CMD,
@@ -81,6 +129,44 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	}
 	
 	
+	public static class WorkingCopy extends REnvConfiguration {
+		
+		public WorkingCopy() {
+			loadDefaults();
+		}
+		
+		private WorkingCopy(final REnvConfiguration config) {
+			setId(config.getId());
+			load(config);
+		}
+		
+		@Override
+		protected List<RLibraryGroup> copyLibs(final List<RLibraryGroup> source) {
+			final List<RLibraryGroup> list = new ArrayList<RLibraryGroup>(source.size());
+			for (final RLibraryGroup group : source) {
+				list.add(new RLibraryGroup(group, true));
+			}
+			return list;
+		}
+		
+		@Override
+		public void setName(final String label) {
+			super.setName(label);
+		}
+		
+		@Override
+		public void setRHome(final String label) {
+			super.setRHome(label);
+		}
+		
+		@Override
+		public void setRBits(final int bits) {
+			super.setRBits(bits);
+		}
+		
+	}
+	
+	
 	private String fNodeQualifier;
 	private String fCheckName;
 	private boolean fIsDisposed;
@@ -94,6 +180,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	private IntPref fPrefRBits;
 	private int fRBits;
 	
+	private List<RLibraryGroup> fRLibraries;
+	
 	
 	/**
 	 * Creates new empty configuration
@@ -106,6 +194,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		fIsDisposed = false;
 		setId(id);
 		fRBits = 32;
+		fRLibraries = DEFAULT_LIBS_INIT;
 	}
 	
 	protected void checkPrefs() {
@@ -126,11 +215,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		if (nodes.length > 0)  {
 			try {
 				if (!nodes[0].nodeExists(fName)) {
-					throw new IllegalArgumentException("A REnv configuration with this name does not exists."); //$NON-NLS-1$
+					throw new IllegalArgumentException("A REnv configuration with this name does not exists."); 
 				}
 			}
 			catch (final BackingStoreException e) {
-				throw new IllegalArgumentException("REnv Configuration could not be accessed."); //$NON-NLS-1$
+				throw new IllegalArgumentException("REnv Configuration could not be accessed."); 
 			}
 		}
 	}
@@ -155,6 +244,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	public void loadDefaults() {
 		setName("R"); //$NON-NLS-1$
 		setRHome(""); //$NON-NLS-1$
+		fRLibraries = copyLibs(DEFAULT_LIBS_DEFAULTS);
+		
+		resolveLibs();
 	}
 	
 	public void load(final REnvConfiguration from) {
@@ -167,6 +259,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		setName(from.getName());
 		setRHome(from.getRHome());
 		setRBits(from.getRBits());
+		fRLibraries = copyLibs(from.getRLibraryGroups());
+		
+		resolveLibs();
 	}
 	
 	@Override
@@ -182,6 +277,36 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		setName(prefs.getPreferenceValue(fPrefName));
 		setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
 		setRBits(prefs.getPreferenceValue(fPrefRBits));
+		
+		final String[] ids = DEFAULT_LIBS_IDS;
+		final List<RLibraryGroup> groups = new ArrayList<RLibraryGroup>(ids.length);
+		for (int i = 0; i < ids.length; i++) {
+			final String id = ids[i];
+			final String label = getLibGroupLabel(id);
+			if (label != null) {
+				final String[] locations = prefs.getPreferenceValue(
+						new StringArrayPref(fNodeQualifier, PREFKEY_RLIBS_PREFIX+id, Preference.IS2_SEPARATOR_CHAR));
+				final RLibraryLocation[] libs = new RLibraryLocation[(locations != null) ? locations.length : 0];
+				for (int j = 0; j < locations.length; j++) {
+					libs[j] = new RLibraryLocation(locations[j]);
+				}
+				groups.add(new RLibraryGroup(id, label, new ConstList<RLibraryLocation>(libs)));
+			}
+			else {
+				// unknown group
+			}
+		}
+		fRLibraries = Collections.unmodifiableList(groups);
+		
+		resolveLibs();
+	}
+	
+	protected List<RLibraryGroup> copyLibs(final List<RLibraryGroup> source) {
+		final RLibraryGroup[] groups = new RLibraryGroup[source.size()];
+		for (int i = 0; i < groups.length; i++) {
+			groups[i] = new RLibraryGroup(source.get(i), false);
+		}
+		return new ConstList<RLibraryGroup>(groups);
 	}
 	
 	@Override
@@ -192,7 +317,23 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		map.put(fPrefName, getName());
 		map.put(fPrefRHomeDirectory, getRHome());
 		map.put(fPrefRBits, getRBits());
+		
+		final List<RLibraryGroup> groups = fRLibraries;
+		for (final RLibraryGroup group : groups) {
+			final List<RLibraryLocation> libraries = group.getLibraries();
+			final String[] locations = new String[libraries.size()];
+			for (int i = 0; i < libraries.size(); i++) {
+				locations[i] = libraries.get(i).getDirectoryPath();
+			}
+			map.put(new StringArrayPref(fNodeQualifier, PREFKEY_RLIBS_PREFIX+group.getId(), Preference.IS2_SEPARATOR_CHAR),
+					locations);
+		}
+		
 		return map;
+	}
+	
+	public WorkingCopy createWorkingCopy() {
+		return new WorkingCopy(this);
 	}
 	
 	
@@ -246,7 +387,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	protected void setRHome(final String label) {
 		final String oldValue = fRHomeDirectory;
 		fRHomeDirectory = label;
-		firePropertyChange(PROP_RHOME, oldValue, fRHomeDirectory);
+		firePropertyChange(PROP_RHOME, oldValue, label);
 	}
 	public String getRHome() {
 		return fRHomeDirectory;
@@ -265,6 +406,19 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		return fRBits;
 	}
 	
+	
+	public List<RLibraryGroup> getRLibraryGroups() {
+		return fRLibraries;
+	}
+	
+	public RLibraryGroup getRLibraryGroup(final String id) {
+		for (final RLibraryGroup group : fRLibraries) {
+			if (group.getId().equals(id)) {
+				return group;
+			}
+		}
+		return null;
+	}
 	
 	public List<String> getExecCommand(String arg1, final Set<Exec> execTypes) throws CoreException {
 		final String test = (arg1 != null) ? arg1.trim().toUpperCase() : ""; //$NON-NLS-1$
@@ -319,9 +473,13 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 	}
 	
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
+		return getEnvironmentsVariables(true);
+	}
+	
+	public Map<String, String> getEnvironmentsVariables(final boolean configureRLibs) throws CoreException {
 		final Map<String, String> envp = new HashMap<String, String>();
-		envp.put("R_HOME", //$NON-NLS-1$
-				URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, null).toURI()).toOSString());
+		final String rHome = URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, null).toURI()).toOSString();
+		envp.put("R_HOME", rHome); //$NON-NLS-1$
 		envp.put("PATH", //$NON-NLS-1$
 				URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "bin").toURI()).toOSString() + //$NON-NLS-1$
 						File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
@@ -331,14 +489,60 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 		else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
 			envp.put("DYLD_LIBRARY_PATH", //$NON-NLS-1$
 					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "lib").toURI()).toOSString() + //$NON-NLS-1$
-							File.pathSeparatorChar + "${env_var:DYLD_LIBRARY_PATH}"); //$NON-NLS-1$ 
+							File.pathSeparatorChar + "${env_var:DYLD_LIBRARY_PATH}"); //$NON-NLS-1$
 		}
 		else {
 			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
 					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "lib").toURI()).toOSString() + //$NON-NLS-1$
-							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH}"); //$NON-NLS-1$ 
+							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH}"); //$NON-NLS-1$
+		}
+		if (configureRLibs) {
+			envp.put("R_LIBS_SITE", getLibPath(getRLibraryGroup(RLibraryGroup.R_SITE))); //$NON-NLS-1$
+			envp.put("R_LIBS", getLibPath(getRLibraryGroup(RLibraryGroup.R_OTHER))); //$NON-NLS-1$
+			envp.put("R_LIBS_USER", getLibPath(getRLibraryGroup(RLibraryGroup.R_USER))); //$NON-NLS-1$
 		}
 		return envp;
+	}
+	
+	private String getLibPath(final RLibraryGroup group) {
+		List<RLibraryLocation> libs;
+		if (group == null || (libs = group.getLibraries()).isEmpty()) {
+			return ""; //$NON-NLS-1$
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (final RLibraryLocation lib : libs) {
+			final IFileStore store = lib.getDirectoryStore();
+			if (store != null) {
+				sb.append(URIUtil.toPath(store.toURI()).toOSString());
+			}
+			sb.append(File.pathSeparatorChar);
+		}
+		return sb.substring(0, sb.length()-1);
+	}
+	
+	private void resolveLibs() {
+		String rHome;
+		try {
+			rHome = URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, null).toURI()).toOSString();
+		}
+		catch (final CoreException e) {
+			rHome = null;
+		}
+		for (final RLibraryGroup group : fRLibraries) {
+			for (final RLibraryLocation lib : group.getLibraries()) {
+				IFileStore store = null;
+				try {
+					String path = lib.fPath;
+					if (path != null && path.length() > 0
+							&& (rHome != null || !path.contains("${env_var:R_HOME}"))) { //$NON-NLS-1$
+						path = path.replace("${env_var:R_HOME}", rHome); //$NON-NLS-1$
+						store = FileUtil.expandToLocalFileStore(path, null, null);
+					}
+				}
+				catch (final Exception e) {};
+				lib.fStore = store;
+			}
+		}
 	}
 	
 }

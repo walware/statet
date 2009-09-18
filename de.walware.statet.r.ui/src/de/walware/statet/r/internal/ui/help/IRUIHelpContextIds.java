@@ -21,6 +21,8 @@ public interface IRUIHelpContextIds {
 	
 	public static final String R_EDITOR = RUI.PLUGIN_ID + ".r_editor";  //$NON-NLS-1$
 	
+	public static final String R_ENV = RUI.PLUGIN_ID + ".r_env"; //$NON-NLS-1$
+	
 	public static final String R_CONSOLE = RUI.PLUGIN_ID + ".r_console"; //$NON-NLS-1$
 	public static final String R_CONSOLE_LAUNCH = RUI.PLUGIN_ID + ".r_console-launch"; //$NON-NLS-1$
 	

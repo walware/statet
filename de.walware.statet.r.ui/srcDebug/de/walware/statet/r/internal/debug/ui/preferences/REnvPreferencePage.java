@@ -70,37 +70,8 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	public static final String PREF_PAGE_ID = "de.walware.statet.r.preferencePages.RInteractionPreferencePage"; //$NON-NLS-1$
 	
 	
-	static class REnvConfig extends REnvConfiguration {
-		
-		public REnvConfig() {
-			loadDefaults();
-		}
-		
-		public REnvConfig(final REnvConfiguration config) {
-			setId(config.getId());
-			load(config);
-		}
-		
-		@Override
-		public void setName(final String label) {
-			super.setName(label);
-		}
-		
-		@Override
-		public void setRHome(final String label) {
-			super.setRHome(label);
-		}
-		
-		@Override
-		public void setRBits(final int bits) {
-			super.setRBits(bits);
-		}
-		
-	}
-	
-	
 	private TableViewer fListViewer;
-	private ButtonGroup<REnvConfig> fListButtons;
+	private ButtonGroup<REnvConfiguration.WorkingCopy> fListButtons;
 	
 	private Image fEnvIcon;
 	private Image fEnvDefaultIcon;
@@ -140,19 +111,19 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			final Composite table = createTable(composite);
 			table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 			
-			fListButtons = new ButtonGroup<REnvConfig>(composite) {
+			fListButtons = new ButtonGroup<REnvConfiguration.WorkingCopy>(composite) {
 				@Override
-				protected REnvConfig edit1(final REnvConfig config, final boolean newConfig) {
-					REnvConfig editConfig;
+				protected REnvConfiguration.WorkingCopy edit1(final REnvConfiguration.WorkingCopy config, final boolean newConfig) {
+					REnvConfiguration.WorkingCopy editConfig;
 					final List<REnvConfiguration> existingConfigs = new ArrayList<REnvConfiguration>(fList);
 					if (newConfig) {
-						editConfig = new REnvConfig();
+						editConfig = new REnvConfiguration.WorkingCopy();
 						if (config != null) { // copy...
 							editConfig.load(config);
 						}
 					}
 					else {
-						editConfig = new REnvConfig(config);
+						editConfig = config.createWorkingCopy();
 						existingConfigs.remove(config);
 					}
 					final REnvConfigDialog dialog = new REnvConfigDialog(getShell(),
@@ -187,7 +158,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		}
 		
 		loadValues(PreferencesUtil.getInstancePrefs());
-		fListButtons.refresh0();
+		fListButtons.refresh();
 		
 		applyDialogFont(pageComposite);
 		return pageComposite;
@@ -248,7 +219,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 			@SuppressWarnings("unchecked")
 			@Override
 			public int compare(final Viewer viewer, final Object e1, final Object e2) {
-				return getComparator().compare(((REnvConfig) e1).getName(), ((REnvConfig) e2).getName());
+				return getComparator().compare(((REnvConfiguration.WorkingCopy) e1).getName(), ((REnvConfiguration.WorkingCopy) e2).getName());
 			}
 		});
 		
@@ -296,9 +267,9 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 	
 	private boolean saveValues(final boolean saveStore) {
 		try {
-			final REnvConfig defaultREnv = (REnvConfig) fDefault.getValue();
+			final REnvConfiguration.WorkingCopy defaultREnv = (REnvConfiguration.WorkingCopy) fDefault.getValue();
 			final String defaultConfigName = (defaultREnv != null) ? defaultREnv.getName() : null;
-			final String[] groupIds = RCore.getREnvManager().set((REnvConfiguration[]) fList.toArray(new REnvConfig[fList.size()]), defaultConfigName);
+			final String[] groupIds = RCore.getREnvManager().set((REnvConfiguration[]) fList.toArray(new REnvConfiguration.WorkingCopy[fList.size()]), defaultConfigName);
 			if (groupIds != null) {
 				ConfigurationBlock.scheduleChangeNotification(
 						(IWorkbenchPreferenceContainer) getContainer(), groupIds, saveStore);
@@ -322,7 +293,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		final REnvConfiguration defaultConfig = manager.getDefault();
 		final String defaultConfigName = (defaultConfig != null) ? defaultConfig.getName() : null;
 		for (final String name : names) {
-			final REnvConfig config = new REnvConfig(manager.get(null, name));
+			final REnvConfiguration.WorkingCopy config = manager.get(null, name).createWorkingCopy();
 			fList.add(config);
 			if (config.getName().equals(defaultConfigName)) {
 				fDefault.setValue(config);

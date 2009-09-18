@@ -398,10 +398,10 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			cmdLine.addAll(0, renv.getExecCommand(Exec.TERM));
 			
 			cmdLine.add("--help"); //$NON-NLS-1$
-			final HelpRequestor helper = new HelpRequestor(cmdLine, (TrayDialog) dialog);
+			final ProcessBuilder processBuilder = new ProcessBuilder(cmdLine);
+			final HelpRequestor helper = new HelpRequestor(processBuilder, (TrayDialog) dialog);
 			
-			helper.getProcessBuilder().environment();
-			final Map<String, String> envp = helper.getProcessBuilder().environment();
+			final Map<String, String> envp = processBuilder.environment();
 			LaunchConfigUtil.configureEnvironment(envp, fConfigCache, renv.getEnvironmentsVariables());
 			
 			dialog.run(true, true, helper);

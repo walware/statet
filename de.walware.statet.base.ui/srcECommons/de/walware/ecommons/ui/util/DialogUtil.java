@@ -11,6 +11,7 @@
 
 package de.walware.ecommons.ui.util;
 
+
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -77,6 +78,9 @@ public class DialogUtil {
 	 * Recursively enables/disables all controls and their children.
 	 * {@link Control#setEnabled(boolean)}
 	 * 
+	 * See {@link org.eclipse.jface.dialogs.ControlEnableState ControlEnableState}
+	 * if saving state is required.
+	 * 
 	 * @param control a control
 	 * @param exceptions
 	 * @param enable
@@ -88,6 +92,9 @@ public class DialogUtil {
 	/**
 	 * Recursively enables/disables all controls and their children.
 	 * {@link Control#setEnabled(boolean)}
+	 * 
+	 * See {@link org.eclipse.jface.dialogs.ControlEnableState ControlEnableState}
+	 * if saving state is required.
 	 * 
 	 * @param control array of controls
 	 * @param exceptions

@@ -130,6 +130,10 @@ public class WidgetToolsButton extends Composite {
 		setFont(null);
 	}
 	
+	public Control getButton() {
+		return fButton;
+	}
+	
 	public void showMenu() {
 		if (fMenu == null) {
 			fMenu = new Menu(fButton);

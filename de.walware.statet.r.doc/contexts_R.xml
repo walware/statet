@@ -24,6 +24,11 @@
 		<topic href="/org.eclipse.platform.doc.user/concepts/accessibility/navigation.htm"
 				label="Workbench - Navigating the user interface using the keyboard" />
 	</context>
+	<context id="r_env">
+		<description>An R environment is a given version of R linked to a certain path on your file system and its R library path.</description>
+		<topic href="reference/r_console-launch.xhtml"
+				label="Configuration &amp; Launching" />
+	</context>
 	<context id="r_console">
 		<description>The R Console enables command based interaction with R.</description>
 		<topic href="reference/r_console-page.xhtml"
