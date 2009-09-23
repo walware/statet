@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.internal.ui.editors;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -22,6 +21,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ui.text.sourceediting.IAssistInformationProposal;
@@ -78,7 +78,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		for (int i = 0; i < commands.length; i++) {
 			commands[i] = '@' + TAGS[i];
 		}
-		TAG_COMMANDS = Arrays.asList(commands);
+		TAG_COMMANDS = new ConstList<String>(commands);
 	}
 	
 	private static class TagProposal extends RKeywordCompletionProposal {

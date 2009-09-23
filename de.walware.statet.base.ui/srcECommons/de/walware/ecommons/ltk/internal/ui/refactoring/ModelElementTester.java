@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTKUtil;
 
 
 public class ModelElementTester extends PropertyTester {
@@ -57,12 +58,12 @@ public class ModelElementTester extends PropertyTester {
 					final IModelElement element = (IModelElement) obj;
 					if (first) {
 						first = false;
-						if ((su = element.getSourceUnit()) == null) {
+						if ((su = LTKUtil.getSourceUnit(element)) == null) {
 							return false;
 						}
 					}
 					else {
-						if (su != element.getSourceUnit()) {
+						if (su != LTKUtil.getSourceUnit(element)) {
 							return false;
 						}
 					}

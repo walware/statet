@@ -65,7 +65,7 @@ public class InlineTempRefactoring extends Refactoring {
 	
 	private IRegion fSelectionRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	
 	private RAstNode fSymbolNode;
 	private RElementAccess[] fAccessList;

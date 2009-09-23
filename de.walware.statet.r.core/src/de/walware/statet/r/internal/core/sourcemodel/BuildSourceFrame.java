@@ -13,15 +13,16 @@ package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -37,6 +38,9 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	static final int CREATED_RESOLVED = 2;
 	static final int CREATED_EXPLICIT = 3;
 	static final int CREATED_IMPORTED = 4;
+	
+	
+	private static final ConstList<BuildSourceFrame> NO_PARENTS = new ConstList<BuildSourceFrame>();
 	
 	
 	public static String createId(final int type, final String name, final int alt) {
@@ -293,8 +297,8 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	protected final Map<String, ElementAccessList> fData;
 	protected final int fType;
 	protected final String fId;
-	protected final List<BuildSourceFrame> fParents;
-	private List<IBuildSourceFrameElement> fElements = Collections.EMPTY_LIST;
+	ConstList<BuildSourceFrame> fParents;
+	private List<IBuildSourceFrameElement> fElements = Collections.emptyList();
 	private WeakReference<List<IRLangSourceElement>> fModelChildren;
 	
 	
@@ -302,11 +306,10 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 		fType = type;
 		fId = id;
 		if (parents != null) {
-			fParents = new ArrayList<BuildSourceFrame>(parents.length);
-			fParents.addAll(Arrays.asList(parents));
+			fParents = new ConstList<BuildSourceFrame>(parents);
 		}
 		else {
-			fParents = Collections.EMPTY_LIST;
+			fParents = NO_PARENTS;
 		}
 		fData = new HashMap<String, ElementAccessList>();
 	}
@@ -319,7 +322,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			elements[i] = fElements.get(i);
 		}
 		elements[length] = element;
-		fElements = Arrays.asList(elements);
+		fElements = new ConstList<IBuildSourceFrameElement>(elements);
 	}
 	
 	abstract void add(final String name, final ElementAccess access);
@@ -376,11 +379,11 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	}
 	
 	
-	public List<? extends IRLangElement> getModelElements() {
+	public List<? extends IRElement> getModelElements() {
 		return fElements;
 	}
 	
-	public boolean hasModelChildren(final Filter filter) {
+	public boolean hasModelChildren(final Filter<? super IRLangElement> filter) {
 		for (final ElementAccessList list : fData.values()) {
 			for (final ElementAccess access : list.entries) {
 				if (access.fModelElement != null 

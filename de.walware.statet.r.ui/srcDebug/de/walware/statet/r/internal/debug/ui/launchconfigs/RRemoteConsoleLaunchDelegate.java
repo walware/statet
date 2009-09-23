@@ -56,6 +56,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
+import de.walware.ecommons.debug.core.StringVariable;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.net.RMIAddress;
@@ -100,27 +101,6 @@ import de.walware.statet.r.ui.RUI;
  * TODO: externalize error message strings
  */
 public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
-	
-	
-	private static class StringVariable implements IStringVariable {
-		
-		private String fName;
-		private String fDescription;
-		
-		public StringVariable(final String name, final String description) {
-			fName = name;
-			fDescription = description;
-		}
-		
-		public String getName() {
-			return fName;
-		}
-		
-		public String getDescription() {
-			return fDescription;
-		}
-		
-	}
 	
 	
 	public static final int DEFAULT_SSH_PORT = 22;

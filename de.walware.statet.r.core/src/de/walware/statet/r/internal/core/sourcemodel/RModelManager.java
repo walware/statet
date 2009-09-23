@@ -31,6 +31,7 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.WorkingContext;
 
+import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRModelInfo;
@@ -79,7 +80,7 @@ public class RModelManager implements IRModelManager {
 	
 	private static final class SuItem<T> extends WeakReference<T> {
 		
-		private String fKey;
+		private final String fKey;
 		private T fStrongReference;
 		
 		public SuItem(final String key, final T su, final ReferenceQueue<T> queue) {
@@ -429,8 +430,8 @@ public class RModelManager implements IRModelManager {
 	}
 	
 	
-	public IRFrame getProjectFrame(final IProject project) {
-		return fIndex.getProjectFrame(project);
+	public IRFrame getProjectFrame(final RProject project) {
+		return fIndex.getProjectFrame(project.getProject());
 	}
 	
 	public List<String> findReferencingSourceUnits(final IProject project, final RElementName name) {

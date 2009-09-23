@@ -38,7 +38,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
@@ -324,7 +324,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 	
 	protected boolean isFunction() {
 		return (fElement != null
-				&& (fElement.getElementType() & IRLangElement.MASK_C1) == IRLangElement.C1_METHOD);
+				&& (fElement.getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
 	}
 	
 	protected boolean isArgumentName() {

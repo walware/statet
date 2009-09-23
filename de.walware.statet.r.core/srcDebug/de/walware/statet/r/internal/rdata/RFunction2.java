@@ -24,6 +24,7 @@ import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.RElementName;
@@ -86,7 +87,7 @@ public final class RFunction2 extends CombinedElement
 	
 	
 	public int getElementType() {
-		return IRMethod.R_COMMON_FUNCTION;
+		return IRElement.R_COMMON_FUNCTION;
 	}
 	
 	public ArgsDefinition getArgsDefinition() {

@@ -404,7 +404,9 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				status.compareAndSet(null, Status.CANCEL_STATUS);
 			}
 		}
-		updateStatus(status.get());
+		if (status.get() != null) {
+			updateStatus(status.get());
+		}
 		getOkButton().setEnabled(false);
 		if (fRServerList != null && fRServerList.size() > 0) {
 			fHostAddressControl.setItems(DialogUtil.combineHistoryItems(fHostAddressControl.getItems(), input));

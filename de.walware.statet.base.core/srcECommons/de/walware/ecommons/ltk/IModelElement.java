@@ -11,7 +11,7 @@
 
 package de.walware.ecommons.ltk;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -45,7 +45,7 @@ public interface IModelElement extends IAdaptable {
 	static final int C2_SOURCE_CHUNK =    C1_SOURCE | 0x80;
 	
 	
-	static final List<IModelElement> NO_CHILDREN = Arrays.asList(new IModelElement[0]);
+	static final List<IModelElement> NO_CHILDREN = Collections.emptyList();
 	
 	
 	String getModelTypeId();
@@ -53,7 +53,6 @@ public interface IModelElement extends IAdaptable {
 	int getElementType();
 	IElementName getElementName();
 	String getId();
-	ISourceUnit getSourceUnit();
 	
 	boolean exists();
 	boolean isReadOnly();

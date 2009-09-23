@@ -65,6 +65,7 @@ import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
@@ -93,7 +94,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		public final static int OTHER = 3;
 		public final static int CUSTOM = 4;
 		
-		private String fName;
+		private final String fName;
 		private String fCommand;
 		private int fType;
 		
@@ -250,7 +251,9 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_TEXT,
 				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN,
 				""); //$NON-NLS-1$
-		fResourceControl.showInsertVariable(true);
+		fResourceControl.showInsertVariable(true, new VariableFilter[] {
+				VariableFilter.EXCLUDE_JAVA_FILTER,
+		});
 		fResourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	
@@ -417,12 +420,12 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			updateLaunchConfigurationDialog();
 		}
 		catch (final CoreException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RCmd_MainTab_error_CannotRunHelp_message, e),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InvocationTargetException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 					-1, RLaunchingMessages.RCmd_MainTab_error_WhileRunningHelp_message, e.getTargetException()),
 					StatusManager.LOG | StatusManager.SHOW);
 		}

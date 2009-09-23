@@ -28,13 +28,15 @@ import java.util.Map.Entry;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
 
+import de.walware.ecommons.ConstList;
+import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RCoreFunctions;
@@ -271,7 +273,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			final List<? extends IRLangSourceElement> children = rClass.getSourceChildren(null);
 			for (final IRLangSourceElement child : children) {
-				if (child.getElementType() == IRLangElement.R_S4SLOT
+				if (child.getElementType() == IRElement.R_S4SLOT
 						&& text.equals(child.getElementName().getSegmentName())) {
 					final ElementAccess access = new ElementAccess.Slot(symbol.getRParent(), symbol);
 					accessList.postAdd(access);
@@ -291,7 +293,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 			final List<? extends IRLangSourceElement> children = rMethod.getSourceChildren(null);
 			for (final IRLangSourceElement child : children) {
-				if (child.getElementType() == IRLangElement.R_ARGUMENT
+				if (child.getElementType() == IRElement.R_ARGUMENT
 						&& text.equals(child.getElementName().getSegmentName())) {
 					final ElementAccess access = new ElementAccess.Default(symbol.getRParent(), symbol);
 					access.fFlags |= ElementAccess.A_ARG;
@@ -301,7 +303,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		
-		public void createRSourceRegion(RAstNode node) {
+		public void createRSourceRegion(final RAstNode node) {
 			if (!fRoxygenExamples) {
 				fCounter = 0;
 				cleanup();
@@ -309,15 +311,15 @@ public class SourceAnalyzer extends RAstVisitor {
 				fRoxygenExamples = true;
 			}
 			try {
-				RoxygenRCodeElement element = new RoxygenRCodeElement(fModelInfo.getSourceElement(), fCounter++, fTopLevelEnvir, node);
+				final RoxygenRCodeElement element = new RoxygenRCodeElement(fModelInfo.getSourceElement(), fCounter++, fTopLevelEnvir, node);
 				enterElement(element, fTopLevelEnvir, node);
 				node.acceptInRChildren(SourceAnalyzer.this);
 				leaveElement();
 			}
-			catch (InvocationTargetException unused) {}
+			catch (final InvocationTargetException unused) {}
 		}
 		
-		public void update(RSourceInfo modelInfo) {
+		public void update(final RSourceInfo modelInfo) {
 			fModelInfo = modelInfo;
 			fRoxygenAnalyzer.updateModel(fRoxygenAdapter);
 		}
@@ -503,21 +505,21 @@ public class SourceAnalyzer extends RAstVisitor {
 			
 			finish();
 			final RAstInfo2 newAst = new RAstInfo2(RAst.LEVEL_MODEL_DEFAULT, ast);
-			RSourceInfo modelInfo = new RSourceInfo(newAst, fFrames, fTopLevelEnvir, fPackageRefs, fDependencyEnvironments, fileElement);
+			final RSourceInfo modelInfo = new RSourceInfo(newAst, fFrames, fTopLevelEnvir, fPackageRefs, fDependencyEnvironments, fileElement);
 			
 			fRoxygenExamples = false;
 			fRoxygenAdapter.update(modelInfo);
 			if (fRoxygenExamples) {
 				finish();
-				for (Iterator<Entry<String, ElementAccessList>> iter = fTopLevelEnvir.fData.entrySet().iterator(); iter.hasNext(); ) {
-					Entry<String, ElementAccessList> entry = iter.next();
-					String name = entry.getKey();
-					ElementAccessList docuList = entry.getValue();
+				for (final Iterator<Entry<String, ElementAccessList>> iter = fTopLevelEnvir.fData.entrySet().iterator(); iter.hasNext(); ) {
+					final Entry<String, ElementAccessList> entry = iter.next();
+					final String name = entry.getKey();
+					final ElementAccessList docuList = entry.getValue();
 					if (docuList.isCreated == BuildSourceFrame.CREATED_NO) {
 						iter.remove();
-						ElementAccessList modelList = modelInfo.fTopFrame.fData.get(name);
+						final ElementAccessList modelList = modelInfo.fTopFrame.fData.get(name);
 						if (modelList != null) {
-							for (ElementAccess access : docuList.entries) {
+							for (final ElementAccess access : docuList.entries) {
 								access.fShared = modelList;
 							}
 							modelList.entries.addAll(docuList.entries);
@@ -528,15 +530,15 @@ public class SourceAnalyzer extends RAstVisitor {
 						}
 					}
 				}
-				for (Iterator<Entry<String, ElementAccessList>> iter = fPackageRefs.fData.entrySet().iterator(); iter.hasNext(); ) {
-					Entry<String, ElementAccessList> entry = iter.next();
-					String name = entry.getKey();
-					ElementAccessList docuList = entry.getValue();
+				for (final Iterator<Entry<String, ElementAccessList>> iter = fPackageRefs.fData.entrySet().iterator(); iter.hasNext(); ) {
+					final Entry<String, ElementAccessList> entry = iter.next();
+					final String name = entry.getKey();
+					final ElementAccessList docuList = entry.getValue();
 					if (docuList.isCreated == BuildSourceFrame.CREATED_NO) {
 						iter.remove();
-						ElementAccessList modelList = modelInfo.fPackageRefs.fData.get(name);
+						final ElementAccessList modelList = modelInfo.fPackageRefs.fData.get(name);
 						if (modelList != null) {
-							for (ElementAccess access : docuList.entries) {
+							for (final ElementAccess access : docuList.entries) {
 								access.fShared = modelList;
 							}
 							modelList.entries.addAll(docuList.entries);
@@ -581,7 +583,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		for (final BuildSourceFrame si : fDependencyEnvironments.values()) {
 			si.runLateResolve(false);
 		}
-		fTopLevelEnvir.fParents.addAll(0, fDependencyEnvironments.values());
+		fTopLevelEnvir.fParents = ConstList.concat(fDependencyEnvironments.values().toArray(), fTopLevelEnvir.fParents);
 		for (final BuildSourceFrame si : fFrames.values()) {
 			si.runLateResolve(false);
 		}
@@ -593,11 +595,11 @@ public class SourceAnalyzer extends RAstVisitor {
 			for (final RSourceElementByElementAccess element : seb.children) {
 				final String name = element.getElementName().getDisplayName();
 				final HashMap<String, Integer> names;
-				switch (element.fType & IRLangElement.MASK_C1) {
-				case IRLangElement.C1_CLASS:
+				switch (element.fType & IModelElement.MASK_C1) {
+				case IModelElement.C1_CLASS:
 					names = classNames;
 					break;
-				case IRLangElement.C1_IMPORT:
+				case IModelElement.C1_IMPORT:
 					names = importNames;
 					break;
 				default:
@@ -614,7 +616,7 @@ public class SourceAnalyzer extends RAstVisitor {
 					}
 					commonNames.put(access.getSegmentName(), null);
 					seb.children.add(new RSourceElementByElementAccess.RVariable(seb.element,
-							(seb.envir != fTopLevelEnvir) ? IRLangElement.R_GENERAL_LOCAL_VARIABLE : IRLangElement.R_GENERAL_VARIABLE, access));
+							(seb.envir != fTopLevelEnvir) ? IRElement.R_GENERAL_LOCAL_VARIABLE : IRElement.R_GENERAL_VARIABLE, access));
 				}
 				else {
 //					seb.children.add(new RSourceElementFromElementAccess.RVariable(seb.element,
@@ -625,7 +627,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			final RSourceElementByElementAccess[] finalChildren = seb.children.toArray(new RSourceElementByElementAccess[seb.children.size()]);
 			Arrays.sort(finalChildren, SOURCEELEMENT_SORTER);
 			if (finalChildren.length > 0) {
-				seb.element.setSourceChildren(Arrays.asList(finalChildren));
+				seb.element.setSourceChildren(new ConstList<IRLangSourceElement>(finalChildren));
 			}
 			commonNames.clear();
 			classNames.clear();
@@ -715,7 +717,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	private Object registerSourceElement(final Object value, final ElementAccess access) {
 		if (value instanceof RSourceElementByElementAccess) {
 			final RSourceElementByElementAccess element = (RSourceElementByElementAccess) value;
-			if ((element.getElementType() & IRLangElement.MASK_C1) == IRLangElement.C1_METHOD) {
+			if ((element.getElementType() & IModelElement.MASK_C1) == IModelElement.C1_METHOD) {
 				registerFunctionElement((RMethod) value, element.getElementType(), access, null);
 				return null;
 			}
@@ -733,7 +735,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private void registerFunctionElement(final RMethod rMethod, int type,
 			final ElementAccess access, final Signature sig) {
-		if (rMethod.getElementType() == IRLangElement.R_COMMON_FUNCTION) {
+		if (rMethod.getElementType() == IRElement.R_COMMON_FUNCTION) {
 			final IRFrame frame = access.getFrame();
 			if (frame != null && (frame.getFrameType() == IRFrame.FUNCTION || frame.getFrameType() == IRFrame.CLASS)) {
 				// make sure it is marked as local
@@ -865,7 +867,7 @@ public class SourceAnalyzer extends RAstVisitor {
 			registerInEnvir(S_LOCAL, nameNode.getText(), access);
 			
 			fCurrentSourceContainerBuilder.children.add(new RSourceElementByElementAccess.RVariable(
-					fCurrentSourceContainerBuilder.element, IRLangElement.R_ARGUMENT, access));
+					fCurrentSourceContainerBuilder.element, IRElement.R_ARGUMENT, access));
 		}
 		
 		if (node.hasDefault()) {
@@ -932,7 +934,7 @@ public class SourceAnalyzer extends RAstVisitor {
 					access.fNameNode = node.getNameChild();
 					fCurrentSourceContainerBuilder.envir.addRunResolve(name, access);
 					
-					registerFunctionElement(rMethod, IRLangElement.R_COMMON_LOCAL_FUNCTION, access, null);
+					registerFunctionElement(rMethod, IRElement.R_COMMON_LOCAL_FUNCTION, access, null);
 					fReturnValue = null;
 					return rMethod;
 				}
@@ -1579,7 +1581,7 @@ public class SourceAnalyzer extends RAstVisitor {
 				
 				final BuildSourceFrame envir = getPkgEnvir(packageName);
 				if (!fGlobalEnvir.fParents.contains(envir)) {
-					fGlobalEnvir.fParents.add(0, envir);
+					fGlobalEnvir.fParents = ConstList.concat(envir, fGlobalEnvir.fParents);
 				}
 				
 				fArgValueToIgnore.add(nameValue);
@@ -1701,13 +1703,13 @@ public class SourceAnalyzer extends RAstVisitor {
 				final ElementAccess access = new ElementAccess.Default(node);
 				access.fFlags = ElementAccess.A_WRITE | ElementAccess.A_FUNC;
 				access.fNameNode = fNameNode;
-				fGenericDefaultEnvir.add(fNameNode.getText(), access);
+				fTopLevelEnvir.add(fNameNode.getText(), access);
 				
 				fArgValueToIgnore.add(fNameNode);
 				
 				final BuildSourceFrame envir = new BuildSourceFrame.RunScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount), fTopScope);
 				final RMethod rMethod = new RMethod(fCurrentSourceContainerBuilder.element, 
-						IRLangElement.R_GENERIC_FUNCTION, access, envir);
+						IRElement.R_GENERIC_FUNCTION, access, envir);
 				registerFunctionElement(rMethod);
 				
 				enterElement(rMethod, envir, node);
@@ -2020,7 +2022,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			final boolean requested = (fRequest == REPRESENTATION_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
-					&& fCurrentSourceContainerBuilder.element.getElementType() == IRLangElement.R_S4CLASS);
+					&& fCurrentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			
@@ -2087,7 +2089,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		
 		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
 			final boolean requested = (fRequest == PROTOTYPE_REQUEST // || isRequested(REG_CLASS_REPRESENTATION)
-					&& fCurrentSourceContainerBuilder.element.getElementType() == IRLangElement.R_S4CLASS);
+					&& fCurrentSourceContainerBuilder.element.getElementType() == IRElement.R_S4CLASS);
 			fRequest = NO_REQUESTS;
 			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
 			
@@ -2106,7 +2108,7 @@ public class SourceAnalyzer extends RAstVisitor {
 							access.fNameNode = slotNameNode;
 							fCurrentSourceContainerBuilder.envir.addRunResolve(slotName, access);
 							for (final RSourceElementByElementAccess child : fCurrentSourceContainerBuilder.children) {
-								if (child.getElementType() == IRLangElement.R_S4SLOT
+								if (child.getElementType() == IRElement.R_S4SLOT
 										&& slotName.equals(child.getElementName().getSegmentName()) ) {
 									slot = (RSlot) child;
 									break;
@@ -2410,10 +2412,10 @@ public class SourceAnalyzer extends RAstVisitor {
 				RMethod rMethod;
 				if (fReturnValue instanceof RMethod) {
 					rMethod = (RMethod) fReturnValue;
-					registerFunctionElement(rMethod, IRLangElement.R_S4METHOD, access, sig);
+					registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
 				}
 				else {
-					rMethod = new RMethod(fCurrentSourceContainerBuilder.element, IRLangElement.R_S4METHOD, access, null);
+					rMethod = new RMethod(fCurrentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, null);
 					rMethod.complete(null);
 					registerFunctionElement(rMethod);
 				}

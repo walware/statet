@@ -42,7 +42,7 @@ import de.walware.statet.base.ui.IStatetUIMenuIds;
 import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
-import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.refactoring.RRefactoring;
@@ -129,13 +129,13 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		
 		public boolean include(final IModelElement element) {
 			switch (element.getElementType()) {
-			case IRLangElement.R_ARGUMENT:
+			case IRElement.R_ARGUMENT:
 				return false;
-			case IRLangElement.R_GENERAL_VARIABLE:
+			case IRElement.R_GENERAL_VARIABLE:
 				return !hideCommonVariables;
-			case IRLangElement.R_GENERAL_LOCAL_VARIABLE:
+			case IRElement.R_GENERAL_LOCAL_VARIABLE:
 				return !hideCommonVariables && !hideLocalDefinitions;
-			case IRLangElement.R_COMMON_LOCAL_FUNCTION:
+			case IRElement.R_COMMON_LOCAL_FUNCTION:
 				return !hideLocalDefinitions;
 			default:
 				return true;
@@ -145,7 +145,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 	}
 	
 	
-	private REditor fEditor;
+	private final REditor fEditor;
 	private final ContentFilter fFilter = new ContentFilter();
 	
 	private RefactoringAdapter fLTK;

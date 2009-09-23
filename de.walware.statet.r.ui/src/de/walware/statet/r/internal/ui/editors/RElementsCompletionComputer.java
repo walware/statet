@@ -20,9 +20,6 @@ import java.util.Set;
 
 import com.ibm.icu.text.Collator;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -52,15 +49,14 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.InputDocument;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IPackageReferences;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
-import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRModelInfo;
-import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -272,9 +268,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	
 	public RElementsCompletionComputer() {
-		for (int i = 1; i < fEnvirList.length; i++) {
-			fEnvirList[i] = new ArrayList<IRFrame>();
-		}
+		fEnvirList[RUNTIME_ENVIR] = new ArrayList<IRFrame>();
 	}
 	
 	
@@ -309,10 +303,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public void sessionEnded() {
-		fEnvirList[0] = null;
-		for (int i = 1; i < fEnvirList.length; i++) {
-			fEnvirList[i].clear();
-		}
+		fEnvirList[LOCAL_ENVIR] = null;
+		fEnvirList[WS_ENVIR] = null;
+		fEnvirList[RUNTIME_ENVIR].clear();
 		fEnvirListPackages = null;
 		fProcess = null;
 	}
@@ -470,7 +463,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				relevance = -10;
 				break;
 			}
-			final List<? extends IRLangElement> elements = envir.getModelChildren(null);
+			final List<? extends IRElement> elements = envir.getModelChildren(null);
 			for (final IModelElement element : elements) {
 				final IElementName elementName = element.getElementName();
 				final int c1type = (element.getElementType() & IModelElement.MASK_C1);
@@ -639,7 +632,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				relevance = -10;
 				break;
 			}
-			final List<? extends IRLangElement> elements = envir.getModelChildren(null);
+			final List<? extends IRElement> elements = envir.getModelChildren(null);
 			ITER_ELEMENTS: for (final IModelElement rootElement : elements) {
 				final IElementName elementName = rootElement.getElementName();
 				final int c1type = (rootElement.getElementType() & IModelElement.MASK_C1);
@@ -894,9 +887,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (fEnvirList[LOCAL_ENVIR] != null) {
 			return true;
 		}
-		final IRFrameInSource envir = RModel.searchEnvir(node);
+		final IRFrameInSource envir = RModel.searchFrame(node);
 		if (envir != null && !fCompleteRuntimeMode) {
-			fEnvirList[LOCAL_ENVIR] = RModel.createEnvirList(envir);
+			fEnvirList[LOCAL_ENVIR] = RModel.createDirectFrameList(envir);
 		}
 		else {
 			fEnvirList[LOCAL_ENVIR] = new ArrayList<IRFrame>();
@@ -904,61 +897,19 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		
 		fEnvirListPackages = new HashSet<String>();
 		if (!fCompleteRuntimeMode) {
-			addProjectEnvirList();
+			final ISourceUnit su = fEditor.getSourceUnit();
+			if ((su instanceof IRSourceUnit)) {
+				fEnvirList[WS_ENVIR] = RModel.createProjectFrameList(null, (IRSourceUnit) su, fEnvirListPackages);
+				if (fEnvirList[WS_ENVIR] != null && !fEnvirList[WS_ENVIR].isEmpty()) {
+					fEnvirList[LOCAL_ENVIR].add(fEnvirList[WS_ENVIR].remove(0));
+				}
+			}
+		}
+		if (fEnvirList[WS_ENVIR] == null) {
+			fEnvirList[WS_ENVIR] = new ArrayList<IRFrame>();
 		}
 		addRuntimeEnvirList(context);
 		return true;
-	}
-	
-	private void addProjectEnvirList() {
-		final ISourceUnit su = fEditor.getSourceUnit();
-		if (su == null) {
-			return;
-		}
-		final IResource resource = su.getResource();
-		if (resource == null) {
-			return;
-		}
-		final IProject suProject = resource.getProject();
-		if (suProject == null) {
-			return;
-		}
-		final IRModelManager manager = RCore.getRModelManager();
-		IRFrame frame;
-		
-		frame = manager.getProjectFrame(suProject);
-		if (frame != null) {
-			if (frame.getFrameType() == IRFrame.PACKAGE) {
-				fEnvirListPackages.add(frame.getElementName().getSegmentName());
-			}
-			fEnvirList[LOCAL_ENVIR].add(new FilteredFrame(frame, su));
-		}
-		
-		final List<IProject> projects = new ArrayList<IProject>();
-		try {
-			final IProject[] referencedProjects = suProject.getReferencedProjects();
-			for (final IProject referencedProject : referencedProjects) {
-				projects.add(referencedProject);
-			}
-		} catch (final CoreException e) {}
-		for (int i = 0; i < projects.size(); i++) {
-			final IProject project = projects.get(i);
-			frame = manager.getProjectFrame(project);
-			if (frame != null) {
-				if (frame.getFrameType() == IRFrame.PACKAGE) {
-					fEnvirListPackages.add(frame.getElementName().getSegmentName());
-				}
-				fEnvirList[WS_ENVIR].add(frame);
-			}
-			try {
-				final IProject[] referencedProjects = project.getReferencedProjects();
-				for (final IProject referencedProject : referencedProjects) {
-					if (!projects.contains(referencedProject)) {
-						projects.add(referencedProject);
-					}
-				}
-			} catch (final CoreException e) {}
-		}
 	}
 	
 	private void addRuntimeEnvirList(final AssistInvocationContext context) {

@@ -36,7 +36,7 @@ import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRClass;
-import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRSlot;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -181,7 +181,7 @@ public class CodeGeneration {
 			
 			if (slotPositions.length > 0) {
 				String[] tags = null;
-				final List<? extends IModelElement> slots = rClass.getModelChildren(IRLangElement.R_S4SLOT_FILTER);
+				final List<? extends IModelElement> slots = rClass.getModelChildren(IRElement.R_S4SLOT_FILTER);
 				final int count = slots.size();
 				tags = new String[count];
 				for (int i = 0; i < count; i++) {

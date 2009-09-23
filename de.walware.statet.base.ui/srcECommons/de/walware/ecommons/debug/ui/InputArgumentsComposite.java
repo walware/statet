@@ -11,7 +11,6 @@
 
 package de.walware.ecommons.debug.ui;
 
-import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -84,24 +83,19 @@ public class InputArgumentsComposite extends Composite {
 		item.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-				handleVariablesButton();
+				final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getShell());
+				if (dialog.open() != Dialog.OK) {
+					return;
+				}
+				final String variable = dialog.getVariableExpression();
+				if (variable == null) {
+					return;
+				}
+				fTextControl.insert(variable);
 				getTextControl().setFocus();
 			}
 		});
 	}
-	
-	private void handleVariablesButton() {
-		final StringVariableSelectionDialog dialog = new StringVariableSelectionDialog(getShell());
-		if (dialog.open() != Dialog.OK) {
-			return;
-		}
-		final String variable = dialog.getVariableExpression();
-		if (variable == null) {
-			return;
-		}
-		fTextControl.insert(variable);
-	}
-	
 	
 	public Text getTextControl() {
 		return fTextControl;

@@ -12,7 +12,6 @@
 package de.walware.ecommons.ui.preferences;
 
 import org.eclipse.core.databinding.observable.Diffs;
-import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.preference.ColorSelector;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -24,14 +23,14 @@ import de.walware.ecommons.databinding.AbstractSWTObservableValue;
 /**
  * ObservableValue for a JFace ColorSelector.
  */
-public class ColorSelectorObservableValue extends AbstractSWTObservableValue implements ISWTObservableValue {
+public class ColorSelectorObservableValue extends AbstractSWTObservableValue  {
 	
 	
 	private final ColorSelector fSelector;
 	
 	private RGB fValue;
 	
-	private IPropertyChangeListener fUpdateListener = new IPropertyChangeListener() {
+	private final IPropertyChangeListener fUpdateListener = new IPropertyChangeListener() {
 		public void propertyChange(final PropertyChangeEvent event) {
 			fValue = (RGB) event.getNewValue();
 			fireValueChange(Diffs.createValueDiff(event.getOldValue(), fValue));
@@ -57,6 +56,10 @@ public class ColorSelectorObservableValue extends AbstractSWTObservableValue imp
 	}
 	
 	
+	public Object getValueType() {
+		return RGB.class;
+	}
+	
 	@Override
 	public void doSetValue(final Object value) {
 		final RGB oldValue = fValue;
@@ -68,10 +71,6 @@ public class ColorSelectorObservableValue extends AbstractSWTObservableValue imp
 	@Override
 	public Object doGetValue() {
 		return fSelector.getColorValue();
-	}
-	
-	public Object getValueType() {
-		return RGB.class;
 	}
 	
 }

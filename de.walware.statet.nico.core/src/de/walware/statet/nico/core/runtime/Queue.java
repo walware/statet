@@ -12,12 +12,13 @@
 package de.walware.statet.nico.core.runtime;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
+
+import de.walware.ecommons.ConstList;
 
 
 /**
@@ -216,7 +217,7 @@ public final class Queue {
 		synchronized (to) {
 			to.checkFinishedCache();
 			to.checkIOCache();
-			to.fList.addAll(Arrays.asList(array));
+			to.fList.addAll(new ConstList<IToolRunnable>(array));
 			for (int i = 0; i < array.length; i++) {
 				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
 			}
@@ -243,7 +244,7 @@ public final class Queue {
 		synchronized (to) {
 			to.checkFinishedCache();
 			to.checkIOCache();
-			to.fList.addAll(Arrays.asList(array));
+			to.fList.addAll(new ConstList<IToolRunnable>(array));
 			for (int i = 0; i < array.length; i++) {
 				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
 			}
@@ -274,7 +275,7 @@ public final class Queue {
 			fList.add(runnables[0]);
 		}
 		else {
-			fList.addAll(Arrays.asList(runnables));
+			fList.addAll(new ConstList<IToolRunnable>(runnables));
 		}
 		addChangeEvent(ENTRIES_ADD, runnables);
 		fireEvents();

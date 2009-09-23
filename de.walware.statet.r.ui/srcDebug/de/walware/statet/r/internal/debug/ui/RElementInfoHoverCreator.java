@@ -23,6 +23,7 @@ import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -33,8 +34,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.swt.widgets.Shell;
 
 import de.walware.ecommons.ui.util.InformationDispatchHandler;
@@ -97,13 +96,13 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	
 	private static final String INFO_FONT = "org.eclipse.debug.ui.DetailPaneFont"; // E-3.5 -> IDebugUIConstants
 	
+	private static final int MODE_SIMPLE = 1;
+	private static final int MODE_FOCUS = 2;
 	
-	private static Point gScrollbarSize;
 	
+	private final int fMode;
 	
 	private RLabelProvider fLabelProvider;
-	
-	private int fMode;
 	
 	private Composite fContentComposite;
 	private Label fTitleImage;
@@ -119,7 +118,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	
 	public RElementInfoControl(final Shell shell, final String message) {
 		super(shell, message);
-		fMode = 1;
+		fMode = MODE_SIMPLE;
 		
 		JFaceResources.getFontRegistry().addListener(this);
 		create();
@@ -127,7 +126,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	
 	public RElementInfoControl(final Shell shell, final boolean rich) {
 		super(shell, rich);
-		fMode = 2;
+		fMode = MODE_FOCUS;
 		
 		create();
 	}
@@ -155,7 +154,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 				return super.computeSize(width, height, changed || width != getSize().x);
 			}
 		};
-		fContentComposite.setBackground(parent.getBackground());
+		fContentComposite.setBackgroundMode(SWT.INHERIT_FORCE);
 		
 		final GridLayout gridLayout = LayoutUtil.applyCompositeDefaults(new GridLayout(), 2);
 		gridLayout.horizontalSpacing = (int) (((double) gridLayout.horizontalSpacing) / 1.5);
@@ -166,8 +165,6 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		
 		{	// Title image
 			fTitleImage = new Label(fContentComposite, SWT.NULL);
-			fTitleImage.setForeground(fContentComposite.getForeground());
-			fTitleImage.setBackground(fContentComposite.getBackground());
 			final Image image = StatetImages.getImage(StatetImages.OBJ_PLACEHOLDER);
 			fTitleImage.setImage(image);
 			
@@ -187,8 +184,6 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 					return size;
 				}
 			};
-			fTitleText.setForeground(fContentComposite.getForeground());
-			fTitleText.setBackground(fContentComposite.getBackground());
 			
 			fTitleText.setFont(JFaceResources.getDialogFont());
 			final GC gc = new GC(fTitleText);
@@ -213,53 +208,46 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			gc.dispose();
 		}
 		
-		int style = SWT.MULTI | SWT.READ_ONLY;
-		if (fMode == 2) {
-			style |= SWT.V_SCROLL | SWT.H_SCROLL;
-		}
-		fInfoText = new StyledText(fContentComposite, style);
-		fInfoText.setForeground(fContentComposite.getForeground());
-		fInfoText.setBackground(fContentComposite.getBackground());
+		fInfoText = new StyledText(fContentComposite, fMode == MODE_FOCUS ?
+				(SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL) : (SWT.MULTI | SWT.READ_ONLY));
 		fInfoText.setIndent(hIndent);
 		fInfoText.setFont(JFaceResources.getFont(INFO_FONT));
-		
-		if (gScrollbarSize == null) {
-			computeScrollbarSize(fContentComposite);
-		}
 		
 		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 //		gd.widthHint = LayoutUtil.hintWidth(fInfoText, INFO_FONT, 50);
 		fInfoText.setLayoutData(gd);
+		
+		setBackgroundColor(getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+		setForegroundColor(getShell().getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
+		
 		updateInput();
 	}
 	
-	private void computeScrollbarSize(final Composite parent) {
-		final StyledText test = new StyledText(parent, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
-		try {
-			if (test instanceof Scrollable) {
-				final Scrollable scroll = (Scrollable) test;
-				final ScrollBar horizontalBar = scroll.getHorizontalBar();
-				final ScrollBar verticalBar = scroll.getVerticalBar();
-				if (horizontalBar != null && verticalBar != null) {
-					gScrollbarSize = new Point(verticalBar.getSize().x, horizontalBar.getSize().y);
-					return;
-				}
-			}
-			gScrollbarSize = new Point(0, 0);
-			return;
-		}
-		finally {
-			test.dispose();
-		}
+	@Override
+	public void setBackgroundColor(final Color background) {
+		super.setBackgroundColor(background);
+		fContentComposite.setBackground(background);
 	}
+	
+	@Override
+	public void setForegroundColor(final Color foreground) {
+		super.setForegroundColor(foreground);
+		fContentComposite.setForeground(foreground);
+		fTitleText.setForeground(foreground);
+		fInfoText.setForeground(foreground);
+	}
+	
 	
 	@Override
 	public Rectangle computeTrim() {
 		final Rectangle trim = super.computeTrim();
-		if (fMode == 2) {
-			trim.width += gScrollbarSize.x;
-			trim.height += gScrollbarSize.y;
-		}
+		
+		final Rectangle textTrim = fInfoText.computeTrim(0, 0, 0, 0);
+		trim.x += textTrim.x;
+		trim.y += textTrim.y;
+		trim.width += textTrim.width;
+		trim.height += textTrim.height;
+		
 		return trim;
 	}
 	
@@ -279,7 +267,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		int widthHint = fInfoText.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x + LayoutUtil.defaultHSpacing();
 		final int widthMax2 = LayoutUtil.hintWidth(fInfoText, INFO_FONT, 80);
 		final int widthMax = ((sizeConstraints != null && sizeConstraints.x != SWT.DEFAULT) ?
-				sizeConstraints.x : widthMax2) - trim.x;
+				sizeConstraints.x : widthMax2) - trim.width;
 		fLayoutHint = true;
 		final int titleHint = LayoutUtil.defaultHMargin() + fTitleImage.getSize().x + LayoutUtil.defaultHSpacing() + fTitleText.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
 		fLayoutHint = false;
@@ -290,7 +278,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			widthHint = widthMax;
 		}
 		// avoid change of wrapping caused by scrollbar
-		if (widthHint < titleHint && widthHint + gScrollbarSize.x >= titleHint) {
+		if (widthHint < titleHint && widthHint + fInfoText.computeTrim(0, 0, 0, 0).width >= titleHint) {
 			widthHint = titleHint;
 		}
 		
@@ -299,9 +287,9 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 				fInfoText.getLineHeight()*12) - trim.height;
 		
 		final Point size = fContentComposite.computeSize(widthHint, SWT.DEFAULT, true);
-		size.y += LayoutUtil.defaultVSpacing() + fInfoText.getLineHeight();
-		size.x = Math.max(Math.min(size.x, widthMax), 200);
-		size.y = Math.max(Math.min(size.y, heightMax), 100);
+		size.y += LayoutUtil.defaultVSpacing();
+		size.x = Math.max(Math.min(size.x, widthMax), 200) + trim.width;
+		size.y = Math.max(Math.min(size.y, heightMax), 100) + trim.height;
 		return size;
 	}
 	
@@ -314,6 +302,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		gc.dispose();
 		final int infoWidth = LayoutUtil.hintWidth(fInfoText, INFO_FONT, widthInChars);
 		final int infoHeight = fInfoText.getLineHeight() * (heightInChars);
+		
 		return new Point(Math.max(titleWidth, infoWidth), titleHeight + LayoutUtil.defaultVSpacing() + infoHeight);
 	}
 	
@@ -363,7 +352,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			fTitleText.setText(""); //$NON-NLS-1$
 			fInfoText.setText(""); //$NON-NLS-1$
 		}
-		if (fMode == 1) {
+		if (fMode == MODE_SIMPLE) {
 			setStatusText((fInput.control != null && fInput.control.isFocusControl()) ?
 					InformationDispatchHandler.getTooltipAffordanceString() : ""); //$NON-NLS-1$
 		}

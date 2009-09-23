@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.NotEmptyValidator;
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.dialogs.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.DatabindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
@@ -211,7 +212,7 @@ class EditMappingDialog extends ExtStatusDialog {
 	private Text fHostControl;
 	private Text fRemoteControl;
 	
-	private String fMappingId;
+	private final String fMappingId;
 	private final WritableValue fLocalValue;
 	private final WritableValue fHostValue;
 	private final WritableValue fRemoteValue;
@@ -247,7 +248,11 @@ class EditMappingDialog extends ExtStatusDialog {
 					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
 					"local directory");
 			fLocalControl.getValidator().setOnNotExisting(IStatus.WARNING);
-			fLocalControl.showInsertVariable(false);
+			fLocalControl.showInsertVariable(false, new VariableFilter[] {
+					VariableFilter.EXCLUDE_JAVA_FILTER,
+					VariableFilter.EXCLUDE_BUILD_FILTER,
+					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
+			});
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 50);
 			fLocalControl.setLayoutData(gd);

@@ -64,7 +64,7 @@ import de.walware.statet.r.internal.core.builder.RUnitElement;
 public class RModelIndex {
 	
 	
-	private static final String VERSION = "13";
+	private static final String VERSION = "14";
 	
 	private static final String DEFINE_PROPERTIES_1 = "create table RINDEX.PROPERTIES ("+
 				"NAME varchar(512) not null,"+
@@ -337,7 +337,7 @@ public class RModelIndex {
 	}
 	
 	
-	private RModelManager fModelManager;
+	private final RModelManager fModelManager;
 	private final RBuildReconciler fReconciler;
 	
 	private int fDBInitialized;
@@ -444,9 +444,14 @@ public class RModelIndex {
 			}
 			else { // remove != null
 				if (frame == null) {
-					final DbTools dbTools = getDbTools();
-					frame = getFrame(project, proj, rProject, dbTools.connection, progress);
-					dbTools.connection.commit();
+					if (fDBInitialized == 1) {
+						final DbTools dbTools = getDbTools();
+						frame = getFrame(project, proj, rProject, dbTools.connection, progress);
+						dbTools.connection.commit();
+					}
+					else {
+						frame = getFrame(project, proj, rProject, null, progress);
+					}
 				}
 				if (frame == null) {
 					return;
@@ -870,7 +875,8 @@ public class RModelIndex {
 			try {
 				fDbTools.connection.close();
 				fDbTools = null;
-			} catch (final SQLException ignore) {}
+			}
+			catch (final SQLException ignore) {}
 		}
 	}
 	
@@ -916,7 +922,8 @@ public class RModelIndex {
 		fLock.readLock().lock();
 		Connection connection = null;
 		try {
-			if (proj == null || proj.removed) {
+			if (proj == null || proj.removed
+					|| fDBInitialized != 1) {
 				return null;
 			}
 			connection = fConnectionPool.getConnection();

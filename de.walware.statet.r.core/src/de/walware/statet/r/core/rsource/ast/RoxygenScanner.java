@@ -18,12 +18,12 @@ import static de.walware.statet.r.internal.core.sourcemodel.RoxygenTagType.SCAN_
 import static de.walware.statet.r.internal.core.sourcemodel.RoxygenTagType.SCAN_MODE_SYMBOL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.text.IStringCache;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringRegionParseInput;
@@ -84,7 +84,7 @@ public class RoxygenScanner {
 			}
 			finishTag();
 			
-			comment.fTags = Arrays.asList(fList.toArray(new DocuTag[fList.size()]));
+			comment.fTags = new ConstList<DocuTag>(fList);
 		}
 		finally {
 			fList.clear();

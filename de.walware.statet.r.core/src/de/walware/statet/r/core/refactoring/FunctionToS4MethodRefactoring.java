@@ -50,7 +50,7 @@ import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
@@ -123,7 +123,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	private IRMethod fFunction;
 	
 //	private RAstNode fContainer;
@@ -230,8 +230,8 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	}
 	
 	private void checkFunction(final RefactoringStatus result) {
-		if ((fFunction.getElementType() & IRLangElement.MASK_C2) != IRLangElement.R_COMMON_FUNCTION
-				&& (fFunction.getElementType() & IRLangElement.MASK_C2) != IRLangElement.R_COMMON_FUNCTION) {
+		if ((fFunction.getElementType() & IRElement.MASK_C2) != IRElement.R_COMMON_FUNCTION
+				&& (fFunction.getElementType() & IRElement.MASK_C2) != IRElement.R_COMMON_FUNCTION) {
 			result.merge(RefactoringStatus.createFatalErrorStatus(Messages.FunctionToS4Method_error_SelectionAlreadyS4_message));
 			return;
 		}

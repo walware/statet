@@ -19,6 +19,16 @@ import org.eclipse.jface.text.IRegion;
 public class LTKUtil {
 	
 	
+	public static ISourceUnit getSourceUnit(final IModelElement element) {
+		if (element instanceof ISourceUnit) {
+			return (ISourceUnit) element;
+		}
+		if (element instanceof ISourceElement) {
+			return ((ISourceElement) element).getSourceUnit();
+		}
+		return null;
+	}
+	
 	public static ISourceStructElement getCoveringSourceElement(final ISourceStructElement root, final IRegion region) {
 		return getCoveringSourceElement(root, region.getOffset(), region.getOffset()+region.getLength());
 	}

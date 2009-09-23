@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -38,14 +39,18 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
-import de.walware.ecommons.FileLocationVariableText;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.VariableText;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
+import de.walware.ecommons.debug.core.StringVariable;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import net.sourceforge.texlipse.TexPathConfig;
 import net.sourceforge.texlipse.Texlipse;
+import net.sourceforge.texlipse.builder.Builder;
+import net.sourceforge.texlipse.builder.BuilderRegistry;
 
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
@@ -56,12 +61,43 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
+	public static final String VARNAME_SWEAVE_FILE = "source_file_path"; //$NON-NLS-1$
+	public static final String VARNAME_LATEX_FILE = "latex_file_path"; //$NON-NLS-1$
+	public static final String VARNAME_OUTPUT_FILE = "output_file_path"; //$NON-NLS-1$
+	
+	public static final IStringVariable VARIABLE_SWEAVE_FILE = new StringVariable(VARNAME_SWEAVE_FILE, "Returns the workspace relative path of the Sweave file.");
+	public static final IStringVariable VARIABLE_LATEX_FILE = new StringVariable(VARNAME_LATEX_FILE, "Returns the workspace relative path of the LaTeX file.");
+	public static final IStringVariable VARIABLE_OUTPUT_FILE = new StringVariable(VARNAME_OUTPUT_FILE, "Returns the workspace relative path of the output file.");
+	
+	public static final String[] SWEAVE_COMMAND_VARNAMES = new String[] {
+		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE,
+	};
+	public static final String[] OUTPUT_DIR_VARNAMES = new String[] {
+		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE,
+	};
+	public static final String[] TEX_COMMAND_VARNAMES = new String[] {
+		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE,
+	};
+	
+	
 	public static final int STEP_WEAVE = 0x1;
 	public static final int STEP_TEX = 0x2;
 	public static final int STEP_PREVIEW = 0x4;
 	
 	public static final String SWEAVE_CONSOLE = "console"; //$NON-NLS-1$
 	public static final String SWEAVE_LAUNCH = "cmdlaunch"; //$NON-NLS-1$
+	public static final String DEFAULT_SWEAVE_R_COMMANDS = "Sweave(file = \"${resource_loc:${"+VARNAME_SWEAVE_FILE+"}}\")"; //$NON-NLS-1$
+	public static final int SWEAVE_TYPE_DISABLED = 0;
+	public static final int SWEAVE_TYPE_RCMD = 1;
+	public static final int SWEAVE_TYPE_RCONSOLE = 2;
+	
+	public static final int BUILDTEX_TYPE_DISABLED = 0;
+	public static final int BUILDTEX_TYPE_ECLIPSE = 1;
+	public static final int BUILDTEX_TYPE_RCONSOLE = 2;
+	public static final int DEFAULT_BUILDTEX_TYPE = BUILDTEX_TYPE_ECLIPSE;
+	
+	public static final String DEFAULT_BUILDTEX_R_COMMANDS = "require(tools)\ntexi2dvi(file = \"${resource_loc:${"+VARNAME_LATEX_FILE+"}}\", pdf = TRUE)"; //$NON-NLS-1$
+	public static final String DEFAULT_BUILDTEX_FORMAT = "pdf"; //$NON-NLS-1$
 	
 	public static final String PREVIEW_IDE = "ide"; //$NON-NLS-1$
 	public static final String PREVIEW_SPECIAL = "tex"; //$NON-NLS-1$
@@ -85,9 +121,6 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 				"Missing Delegate", null)); //$NON-NLS-1$
 	}
-	
-	
-	static final String DEFAULT_CONSOLE_COMMAND = "Sweave(file = \"${resource_loc}\")"; //$NON-NLS-1$
 	
 	
 	public RweaveTexLaunchDelegate() {
@@ -126,9 +159,33 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		// Tex config (for output format, before sweave)
 		thread.fTexOpenEditor = configuration.getAttribute(TexTab.ATTR_OPENTEX_ENABLED, TexTab.OPEN_OFF);
-		thread.fTexBuilderId = configuration.getAttribute(TexTab.ATTR_BUILDTEX_BUILDERID, -1);
-		thread.fRunTex = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) && SweaveProcessing.isEnabled(STEP_TEX, buildFlags);
-		thread.fConfiguredOutputDir = configuration.getAttribute(TexTab.ATTR_BUILDTEX_OUTPUTDIR, (String) null);
+		
+		final VariableText outputDir = new VariableText(
+				replaceOldVariables(configuration.getAttribute(TexTab.ATTR_BUILDTEX_OUTPUTDIR, "")),
+				OUTPUT_DIR_VARNAMES);
+		final String outputFormat;
+		
+		int texType = configuration.getAttribute(TexTab.ATTR_BUILDTEX_TYPE, -2);
+		if (texType == -2) {
+			texType = configuration.getAttribute(TexTab.ATTR_BUILDTEX_ENABLED, false) ? BUILDTEX_TYPE_ECLIPSE : BUILDTEX_TYPE_DISABLED;
+		}
+		switch (texType) {
+		case BUILDTEX_TYPE_ECLIPSE:
+			final Builder builder = BuilderRegistry.get(configuration.getAttribute(TexTab.ATTR_BUILDTEX_CLIPSE_BUILDERID, -1));
+			thread.setBuildTex(builder);
+			outputFormat = (builder != null) ? builder.getOutputFormat() : null;
+			break;
+		case BUILDTEX_TYPE_RCONSOLE:
+			thread.setBuildTex(new VariableText(
+					configuration.getAttribute(TexTab.ATTR_BUILDTEX_R_COMMANDS, ""), //$NON-NLS-1$
+					TEX_COMMAND_VARNAMES) );
+			// continue
+		default:
+			outputFormat = configuration.getAttribute(TexTab.ATTR_BUILDTEX_FORMAT, ""); //$NON-NLS-1$
+		}
+		thread.setOutput(outputDir, outputFormat);
+		
+		thread.fRunTex = SweaveProcessing.isEnabled(STEP_TEX, buildFlags);
 		
 		// Sweave config
 		final String sweaveProcessing = configuration.getAttribute(RweaveTab.ATTR_SWEAVE_ID, (String) null);
@@ -145,7 +202,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 				throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 						NLS.bind(Messages.ProcessingConfig_error_MissingRCmdConfig_message, sweaveConfigName), null));
 			}
-			thread.fSweaveConfig = sweaveConfig;
+			thread.setSweave(sweaveConfig);
 			
 			final FileValidator workingDirectory = REnvTab.getWorkingDirectoryValidator(sweaveConfig, true);
 			attributes.put(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, workingDirectory.getFileStore().toURI().toString());
@@ -156,10 +213,9 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		else if (sweaveProcessing.startsWith(RweaveTexLaunchDelegate.SWEAVE_CONSOLE)) {
 			final String[] split = sweaveProcessing.split(":", 2); //$NON-NLS-1$
-			final String command = (split.length == 2 && split[1].length() > 0) ? split[1] : DEFAULT_CONSOLE_COMMAND;
-			final FileLocationVariableText text = new FileLocationVariableText(command);
-			text.performPlatformStringSubstitution(true);
-			thread.fSweaveCommands = text;
+			thread.setSweave(new VariableText(
+					(split.length == 2 && split[1].length() > 0) ? replaceOldVariables(split[1]) : DEFAULT_SWEAVE_R_COMMANDS,
+					SWEAVE_COMMAND_VARNAMES) );
 		}
 		else {
 			thread.setWorkingDir(null, sweaveFile.getParent(), true);
@@ -214,5 +270,14 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		return null;
 	}
+	
+	private String replaceOldVariables(String text) {
+		text = text.replaceAll(TexPathConfig.SOURCEFILE_LOC_VARIABLE, "${resource_loc:${"+VARNAME_SWEAVE_FILE+"}}");
+		text = text.replaceAll(TexPathConfig.SOURCEFILE_PATH_VARIABLE, "${"+VARNAME_SWEAVE_FILE+"}");
+		text = text.replaceAll(TexPathConfig.SOURCEFILE_LOC_VARIABLE, "${resource_loc:${"+VARNAME_LATEX_FILE+"}}");
+		text = text.replaceAll(TexPathConfig.SOURCEFILE_PATH_VARIABLE, "${"+VARNAME_LATEX_FILE+"}");
+		return text;
+	}
+	
 	
 }

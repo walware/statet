@@ -160,7 +160,7 @@ public class RenameInRegionRefactoring extends Refactoring {
 	
 	private IRegion fSelectionRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	
 	private Map<IRFrame, Map<String, Variable>> fVariablesList;
 	

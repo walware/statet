@@ -29,12 +29,13 @@ import de.walware.rj.data.defaultImpl.RArrayImpl;
 import de.walware.rj.data.defaultImpl.RIntegerDataImpl;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 
 
 public final class RArrayVar<DataType extends RStore> extends CombinedElement
-		implements RArray<DataType>, ExternalizableRObject, IRLangElement {
+		implements RArray<DataType>, ExternalizableRObject, IRElement {
 	
 	
 	private DataType fData;

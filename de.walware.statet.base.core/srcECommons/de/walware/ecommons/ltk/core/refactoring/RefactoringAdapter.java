@@ -63,8 +63,10 @@ import org.eclipse.text.edits.MultiTextEdit;
 import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.ISourceElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.internal.core.refactoring.Messages;
 import de.walware.ecommons.text.BasicHeuristicTokenScanner;
 import de.walware.ecommons.text.PartitioningConfiguration;
@@ -83,17 +85,26 @@ public abstract class RefactoringAdapter {
 		private final Collator ID_COMPARATOR = Collator.getInstance();
 		
 		public int compare(final IModelElement e1, final IModelElement e2) {
-			final ISourceUnit u1 = e1.getSourceUnit();
-			final ISourceUnit u2 = e2.getSourceUnit();
+			final ISourceUnit u1 = LTKUtil.getSourceUnit(e1);
+			final ISourceUnit u2 = LTKUtil.getSourceUnit(e2);
 			int result = 0;
 			if (u1 != null && u2 != null) {
 				if (u1 != u2) {
 					result = ID_COMPARATOR.compare(u1.getId(), u2.getId());
 				}
 				if (result == 0) {
-					if (e1 instanceof ISourceStructElement && e2 instanceof ISourceStructElement) {
+					if (e1 instanceof ISourceElement && e2 instanceof ISourceElement) {
 						return (((ISourceStructElement) e1).getSourceRange().getOffset() - 
 								((ISourceStructElement) e2).getSourceRange().getOffset());
+					}
+					if (e1 instanceof ISourceUnit) {
+						if (e2 instanceof ISourceUnit) {
+							return 0;
+						}
+						return -1000000;
+					}
+					else if (e2 instanceof ISourceUnit) {
+						return 1000000;
 					}
 				}
 				else {
@@ -242,16 +253,16 @@ public abstract class RefactoringAdapter {
 			
 			final StringBuilder sb = new StringBuilder(todo*100);
 			for (final IModelElement element : modelElements) {
-				final ISourceUnit u = element.getSourceUnit();
-				if (u != lastUnit) {
+				final ISourceUnit su = LTKUtil.getSourceUnit(element);
+				if (su != lastUnit) {
 					if (lastUnit != null) {
 						progress.setWorkRemaining(todo*2);
 						lastUnit.disconnect(progress.newChild(1));
 						lastUnit = null;
 					}
-					u.connect(progress.newChild(1));
-					lastUnit = u;
-					doc = u.getDocument(monitor);
+					su.connect(progress.newChild(1));
+					lastUnit = su;
+					doc = su.getDocument(monitor);
 				}
 				final IRegion range = expandElementRange((ISourceStructElement) element, doc);
 				sb.append(doc.get(range.getOffset(), range.getLength()));
@@ -276,7 +287,7 @@ public abstract class RefactoringAdapter {
 		}
 	}
 	
-	public IRegion expandElementRange(final ISourceStructElement element, final AbstractDocument doc) 
+	public IRegion expandElementRange(final ISourceElement element, final AbstractDocument doc) 
 			throws BadLocationException, BadPartitioningException {
 		final IRegion sourceRange = element.getSourceRange();
 		int start = sourceRange.getOffset();
@@ -392,14 +403,16 @@ public abstract class RefactoringAdapter {
 		final Set<IResource> resources = new HashSet<IResource>();
 		resources.addAll(elements.getResources());
 		for(final IModelElement element : elements.getModelElements()) {
-			final IResource resource = element.getSourceUnit().getResource();
-			if (resource != null) {
-				resources.add(resource);
+			final ISourceUnit su = LTKUtil.getSourceUnit(element);
+			if (su != null) {
+				final IResource resource = su.getResource();
+				if (resource != null) {
+					resources.add(resource);
+					continue;
+				}
 			}
-			else {
-				result.addFatalError(Messages.Check_ElementNotInWS_message);
-				return;
-			}
+			result.addFatalError(Messages.Check_ElementNotInWS_message);
+			return;
 		}
 		result.merge(RefactoringStatus.create(
 				Resources.checkInSync(resources.toArray(new IResource[resources.size()]))
@@ -410,14 +423,16 @@ public abstract class RefactoringAdapter {
 		final Set<IResource> resources = new HashSet<IResource>();
 		resources.addAll(elements.getResources());
 		for(final IModelElement element : elements.getModelElements()) {
-			final IResource resource = element.getSourceUnit().getResource();
-			if (resource != null) {
-				resources.add(resource);
+			final ISourceUnit su = LTKUtil.getSourceUnit(element);
+			if (su != null) {
+				final IResource resource = su.getResource();
+				if (resource != null) {
+					resources.add(resource);
+					continue;
+				}
 			}
-			else {
-				result.addFatalError(Messages.Check_ElementNotInWS_message);
-				return;
-			}
+			result.addFatalError(Messages.Check_ElementNotInWS_message);
+			return;
 		}
 		final IResource[] array = resources.toArray(new IResource[resources.size()]);
 		result.merge(RefactoringStatus.create(Resources.checkInSync(array)));
@@ -452,7 +467,7 @@ public abstract class RefactoringAdapter {
 	
 	public void checkFinalToDeletion(final RefactoringStatus result, final IModelElement element) throws CoreException {
 		if ((element.getElementType() & IModelElement.MASK_C2) == IModelElement.C2_SOURCE_FILE) {
-			final IResource resource = element.getSourceUnit().getResource();
+			final IResource resource = ((ISourceUnit) element).getResource();
 			if (resource != null) {
 				checkFinalToDelete(result, resource);
 			}
@@ -519,7 +534,7 @@ public abstract class RefactoringAdapter {
 	}
 	
 	public boolean hasReadOnlyElements(final IModelElement element) throws CoreException {
-		final ISourceUnit sourceUnit = element.getSourceUnit();
+		final ISourceUnit sourceUnit = LTKUtil.getSourceUnit(element);
 		IResource resource = null;
 		if (sourceUnit != null) {
 			resource = sourceUnit.getResource();
@@ -611,10 +626,11 @@ public abstract class RefactoringAdapter {
 				result.add(createChangeToDelete(elements, resource));
 			}
 			else {
-				List<IModelElement> list = suSubChanges.get(element.getSourceUnit());
+				final ISourceUnit su = LTKUtil.getSourceUnit(element);
+				List<IModelElement> list = suSubChanges.get(su);
 				if (list == null) {
 					list = new ArrayList<IModelElement>(1);
-					suSubChanges.put(element.getSourceUnit(), list);
+					suSubChanges.put(su, list);
 				}
 				list.add(element);
 			}
@@ -643,12 +659,10 @@ public abstract class RefactoringAdapter {
 			textFileChange.setEdit(rootEdit);
 			
 			for (final IModelElement element : elementsInUnit) {
-				final AbstractDocument doc = element.getSourceUnit().getDocument(null);
-				if (element instanceof ISourceStructElement) {
-					final IRegion sourceRange = expandElementRange((ISourceStructElement) element, doc);
-					final DeleteEdit edit = new DeleteEdit(sourceRange.getOffset(), sourceRange.getLength());
-					rootEdit.addChild(edit);
-				}
+				final ISourceElement member = (ISourceElement) element;
+				final IRegion sourceRange = expandElementRange(member, member.getSourceUnit().getDocument(null));
+				final DeleteEdit edit = new DeleteEdit(sourceRange.getOffset(), sourceRange.getLength());
+				rootEdit.addChild(edit);
 			}
 			progress.worked(1);
 			

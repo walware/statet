@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.rdata;
 
+import org.eclipse.jface.text.IRegion;
+
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 
@@ -60,6 +62,18 @@ public abstract class CombinedElement implements ICombinedRElement {
 	}
 	
 	public ISourceUnit getSourceUnit() {
+		return null;
+	}
+	
+	public IRegion getSourceRange() {
+		return null;
+	}
+	
+	public IRegion getNameSourceRange() {
+		return null;
+	}
+	
+	public IRegion getDocumentationRange() {
 		return null;
 	}
 	

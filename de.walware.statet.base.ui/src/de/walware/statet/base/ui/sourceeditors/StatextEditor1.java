@@ -30,6 +30,8 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.jface.text.ITextOperationTarget;
@@ -96,6 +98,7 @@ import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.text.sourceediting.SourceViewerInformationControl;
 import de.walware.ecommons.ui.text.sourceediting.StructureSelectHandler;
 import de.walware.ecommons.ui.text.sourceediting.StructureSelectionHistory;
 import de.walware.ecommons.ui.text.sourceediting.StructureSelectionHistoryBackHandler;
@@ -485,6 +488,10 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 	
 	protected abstract SourceEditorViewerConfigurator createConfiguration();
 	
+	protected SourceEditorViewerConfigurator createInfoConfigurator() {
+		return null;
+	}
+	
 	
 	protected void enableStructuralFeatures(final IModelElementInputProvider provider,
 			final Preference<Boolean> codeFoldingEnablement,
@@ -691,6 +698,20 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 			final ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
 			
 			fFoldingSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
+			final SourceEditorViewerConfigurator config = createInfoConfigurator();
+			if (config != null) {
+				final IInformationControlCreator presentationCreator = new IInformationControlCreator() {
+					public IInformationControl createInformationControl(final Shell parent) {
+						return new SourceViewerInformationControl(parent, createInfoConfigurator(), getOrientation());
+					}
+				};
+				fFoldingSupport.setHoverControlCreator(new IInformationControlCreator() {
+					public IInformationControl createInformationControl(final Shell parent) {
+						return new SourceViewerInformationControl(parent, createInfoConfigurator(), getOrientation(), presentationCreator);
+					}
+				});
+				fFoldingSupport.setInformationPresenterControlCreator(presentationCreator);
+			}
 			fFoldingSupport.install();
 			viewer.addProjectionListener(new IProjectionListener() {
 				public void projectionEnabled() {

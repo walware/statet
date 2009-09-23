@@ -85,6 +85,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
@@ -1748,7 +1749,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				return null;
 			}
 		}
-		return RElementName.concat(Arrays.asList(names));
+		return RElementName.concat(new ConstList<RElementName>(names));
 	}
 	
 }

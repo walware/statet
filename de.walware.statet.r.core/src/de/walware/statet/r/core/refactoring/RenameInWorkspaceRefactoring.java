@@ -82,7 +82,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	private IRegion fSelectionRegion;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	
 	private RAstNode fInitialSymbolNode;
 	private RElementAccess fInitialAccess;

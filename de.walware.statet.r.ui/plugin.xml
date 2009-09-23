@@ -174,6 +174,13 @@
             class="de.walware.statet.r.internal.ui.editors.RFileHyperlinkDetector"
             activate="true">
       </hyperlinkDetector>
+      <hyperlinkDetector
+            id="de.walware.statet.r.editorHyperlinks.RElementDetector"
+            targetId="de.walware.statet.r.editorHyperlinks.REditorTarget"
+            name="%editorHyperlinks.RElement.name"
+            class="de.walware.statet.r.internal.ui.editors.RElementHyperlinkDetector"
+            activate="true">
+      </hyperlinkDetector>
    </extension>
 
    <extension
@@ -343,6 +350,17 @@
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
+            class="de.walware.statet.r.internal.ui.editors.ROpenDeclarationHandler">
+         <activeWhen>
+            <with variable="activePartId">
+               <equals
+                     value="de.walware.statet.r.editors.R">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
       <handler
             class="de.walware.statet.r.internal.ui.editors.RToggleMarkOccurrencesHandler"
             commandId="org.eclipse.jdt.ui.edit.text.java.toggleMarkOccurrences">

@@ -11,12 +11,18 @@
 
 package de.walware.statet.r.internal.sweave.processing;
 
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE;
+import static de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate.BUILDTEX_TYPE_RCONSOLE;
+
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Diffs;
 import org.eclipse.core.databinding.observable.IChangeListener;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.AbstractObservableValue;
+import org.eclipse.core.databinding.observable.value.ComputedValue;
+import org.eclipse.core.databinding.observable.value.IValueChangeListener;
+import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
@@ -25,6 +31,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,23 +40,35 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import de.walware.ecommons.databinding.RadioGroupObservable;
+import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
+import de.walware.ecommons.databinding.StyledTextObservableValue;
+import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.debug.ui.VariableFilter;
+import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
 
-import net.sourceforge.texlipse.TexPathConfig;
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderChooser;
 import net.sourceforge.texlipse.builder.BuilderRegistry;
 
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
+import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
+import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
 
 
 public class TexTab extends LaunchConfigTabWithDbc {
@@ -97,26 +116,38 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	
 	
 	public static final String NS = "de.walware.statet.r.debug/Tex/"; //$NON-NLS-1$
+	
 	public static final String ATTR_OPENTEX_ENABLED = NS + "OpenTex.enabled"; //$NON-NLS-1$
+	/** @Deprecated replaced by {@link #ATTR_BUILDTEX_TYPE} */
 	public static final String ATTR_BUILDTEX_ENABLED = NS + "BuildTex.enabled"; //$NON-NLS-1$
-	public static final String ATTR_BUILDTEX_BUILDERID = NS + "BuildTex.builderId"; //$NON-NLS-1$
+	public static final String ATTR_BUILDTEX_TYPE = NS + "BuildTex.type"; //$NON-NLS-1$
+	public static final String ATTR_BUILDTEX_CLIPSE_BUILDERID = NS + "BuildTex.builderId"; //$NON-NLS-1$
+	public static final String ATTR_BUILDTEX_R_COMMANDS = NS + "BuildTex.rCommands"; //$NON-NLS-1$
+	public static final String ATTR_BUILDTEX_FORMAT = NS + "BuildTex.format"; //$NON-NLS-1$
 	public static final String ATTR_BUILDTEX_OUTPUTDIR = NS + "BuildTex.outputDir"; //$NON-NLS-1$
 	
 	public static final int OPEN_OFF = -1;
 	public static final int OPEN_ALWAYS = 0;
 	
-	
 	private Button fOpenTexFileControl;
 	private Button fOpenTexFileOnErrorsControl;
-	private Button fBuildTexFileControl;
-	private BuilderChooser fBuildTexTypeChooser;
+	
 	private ChooseResourceComposite fOutputDirControl;
 	
+	private Button fBuildTexFileDisabledControl;
+	private Button fBuildTexFileEclipseControl;
+	private BuilderChooser fBuildTexTypeChooser;
+	private Button fBuildTexFileRControl;
+	private SnippetEditor fConsoleCommandEditor;
+	private Combo fOutputFormatControl;
+	
+	private WritableValue fOutputDirValue;
+	private WritableValue fOutputFormatValue;
 	private WritableValue fOpenTexEnabledValue;
 	private WritableValue fOpenTexOnErrorsEnabledValue;
-	private WritableValue fBuildTexEnabledValue;
+	private WritableValue fBuildTexTypeValue;
 	private WritableValue fBuildTexBuilderIdValue;
-	private WritableValue fOutputDirValue;
+	private WritableValue fBuildTexRCommandsValue;
 	
 	
 	public TexTab() {
@@ -134,40 +165,43 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	
 	
 	public void createControl(final Composite parent) {
-		GridData gd;
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		mainComposite.setLayout(LayoutUtil.applyTabDefault(new GridLayout(), 1));
+		mainComposite.setLayout(new GridLayout());
 		
-		final Label label = new Label(mainComposite, SWT.NONE);
-		label.setText(Messages.TexTab_label);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		final Group group = new Group(mainComposite, SWT.NONE);
+		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+		group.setText(Messages.TexTab_label);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		LayoutUtil.addSmallFiller(mainComposite, false);
-		
-		fOpenTexFileControl = new Button(mainComposite, SWT.CHECK);
+		fOpenTexFileControl = new Button(group, SWT.CHECK);
 		fOpenTexFileControl.setText(Messages.TexTab_OpenTex_label);
 		fOpenTexFileControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		fOpenTexFileOnErrorsControl = new Button(mainComposite, SWT.CHECK);
+		fOpenTexFileOnErrorsControl = new Button(group, SWT.CHECK);
 		fOpenTexFileOnErrorsControl.setText(Messages.TexTab_OpenTex_OnlyOnErrors_label);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
 		fOpenTexFileOnErrorsControl.setLayoutData(gd);
 		
-		LayoutUtil.addSmallFiller(mainComposite, false);
+		LayoutUtil.addSmallFiller(group, false);
 		
-		fBuildTexFileControl = new Button(mainComposite, SWT.CHECK);
-		fBuildTexFileControl.setText(Messages.TexTab_BuildTex_label);
-		fBuildTexFileControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		createOutputOptions(group);
 		
-		fBuildTexTypeChooser = new BuilderChooser(mainComposite);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		gd.horizontalIndent = LayoutUtil.defaultIndent();
-		fBuildTexTypeChooser.getControl().setLayoutData(gd);
+		LayoutUtil.addSmallFiller(group, false);
 		
-		fOutputDirControl = new ChooseResourceComposite(mainComposite, 
-				ChooseResourceComposite.STYLE_TEXT | ChooseResourceComposite.STYLE_LABEL, 
+		createBuildOptions(group);
+		
+		initBindings();
+	}
+	
+	private void createOutputOptions(final Group composite) {
+		{	final Label label = new Label(composite, SWT.NONE);
+			label.setText(Messages.TexTab_OutputDir_longlabel);
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		}
+		fOutputDirControl = new ChooseResourceComposite(composite, 
+				ChooseResourceComposite.STYLE_TEXT, 
 				ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_SAVE, 
 				Messages.TexTab_OutputDir_label) {
 			
@@ -175,29 +209,51 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			protected void fillMenu(final Menu menu) {
 				super.fillMenu(menu);
 				
-				MenuItem item;
-				item = new MenuItem(menu, SWT.PUSH);
-				item.setText(Messages.TexTab_OutputDir_InsertTexPath_label);
-				item.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(final SelectionEvent e) {
-						insertText(TexPathConfig.TEXFILE_PATH_VARIABLE);
-						getTextControl().setFocus();
-					}
-				});
+				new MenuItem(menu, SWT.SEPARATOR);
 				
-				item = new MenuItem(menu, SWT.PUSH);
-				item.setText(Messages.TexTab_OutputDir_InsertSweavePath_label);
-				item.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(final SelectionEvent e) {
-						insertText(TexPathConfig.SOURCEFILE_PATH_VARIABLE);
-						getTextControl().setFocus();
-					}
-				});
+				{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+					item.setText(SharedMessages.InsertVariable_label);
+					item.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(final SelectionEvent e) {
+							final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getTextControl().getShell());
+							dialog.addFilter(VariableFilter.EXCLUDE_JAVA_FILTER);
+							dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE);
+							dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE);
+							if (dialog.open() != Dialog.OK) {
+								return;
+							}
+							final String variable = dialog.getVariableExpression();
+							if (variable == null) {
+								return;
+							}
+							insertText(variable);
+							getTextControl().setFocus();
+						}
+					});
+				}
+				{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+					item.setText(Messages.Insert_SweaveDirVariable_label);
+					item.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(final SelectionEvent e) {
+							insertText("${container_loc:${"+RweaveTexLaunchDelegate.VARNAME_SWEAVE_FILE+"}}"); //$NON-NLS-1$ //$NON-NLS-2$
+							getTextControl().setFocus();
+						}
+					});
+				}
+				{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+					item.setText(Messages.Insert_LatexDirVariable_label);
+					item.addSelectionListener(new SelectionAdapter() {
+						@Override
+						public void widgetSelected(final SelectionEvent e) {
+							insertText("${container_loc:${"+RweaveTexLaunchDelegate.VARNAME_LATEX_FILE+"}}"); //$NON-NLS-1$ //$NON-NLS-2$
+							getTextControl().setFocus();
+						}
+					});
+				}
 			}
 		};
-		fOutputDirControl.showInsertVariable(true);
 		fOutputDirControl.getValidator().setOnEmpty(IStatus.OK);
 		fOutputDirControl.getValidator().setOnExisting(IStatus.OK);
 		fOutputDirControl.getValidator().setOnFile(IStatus.ERROR);
@@ -206,43 +262,189 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		fOutputDirControl.getValidator().setIgnoreRelative(true);
 		fOutputDirControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		LayoutUtil.addSmallFiller(mainComposite, false);
+		{	final Composite lineComposite = new Composite(composite, SWT.NONE);
+			lineComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			lineComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+			{	final Label label = new Label(lineComposite, SWT.NONE);
+				label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+				label.setText(Messages.TexTab_OutputFormat_label);
+			}
+			{	fOutputFormatControl = new Combo(lineComposite, SWT.BORDER | SWT.DROP_DOWN);
+				final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, true, false);
+				gd.widthHint = LayoutUtil.hintWidth(fOutputFormatControl, 3);
+				fOutputFormatControl.setLayoutData(gd);
+				fOutputFormatControl.setItems(new String[] { "dvi", "pdf" }); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+	}
+	
+	private void createBuildOptions(final Composite composite) {
+		// Disabled
+		fBuildTexFileDisabledControl = new Button(composite, SWT.RADIO);
+		fBuildTexFileDisabledControl.setText(Messages.TexTab_BuildDisabled_label);
+		fBuildTexFileDisabledControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fBuildTexFileDisabledControl.setSelection(true);
 		
-		initBindings();
+		// Eclipse/TeXlipse
+		fBuildTexFileEclipseControl = new Button(composite, SWT.RADIO);
+		fBuildTexFileEclipseControl.setText(Messages.TexTab_BuildEclipse_label);
+		fBuildTexFileEclipseControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		{	fBuildTexTypeChooser = new BuilderChooser(composite);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			fBuildTexTypeChooser.getControl().setLayoutData(gd);
+		}
+		
+		// R Console
+		{	fBuildTexFileRControl = new Button(composite, SWT.RADIO);
+			fBuildTexFileRControl.setText(Messages.TexTab_BuildRConsole_label);
+			fBuildTexFileRControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
+		{	final TemplateVariableProcessor templateVariableProcessor = new TemplateVariableProcessor();
+			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
+			fConsoleCommandEditor = new SnippetEditor(configurator, null, null, true) {
+				@Override
+				protected void fillToolMenu(final Menu menu) {
+					{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+						item.setText(SharedMessages.InsertVariable_label);
+						item.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(final SelectionEvent e) {
+								final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getTextControl().getShell());
+								dialog.addFilter(VariableFilter.EXCLUDE_JAVA_FILTER);
+								dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE);
+								dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE);
+								dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_OUTPUT_FILE);
+								if (dialog.open() != Dialog.OK) {
+									return;
+								}
+								final String variable = dialog.getVariableExpression();
+								if (variable == null) {
+									return;
+								}
+								getTextControl().insert(variable);
+								getTextControl().setFocus();
+							}
+						});
+					}
+					{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+						item.setText(Messages.Insert_LatexFileVariable_label);
+						item.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(final SelectionEvent e) {
+								getTextControl().insert("${resource_loc:${"+RweaveTexLaunchDelegate.VARNAME_LATEX_FILE+"}}"); //$NON-NLS-1$ //$NON-NLS-2$
+								getTextControl().setFocus();
+							}
+						});
+					}
+					{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
+						item.setText(Messages.Insert_OutputDirVariable_label);
+						item.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(final SelectionEvent e) {
+								getTextControl().insert("${container_loc:${"+RweaveTexLaunchDelegate.VARNAME_OUTPUT_FILE+"}}"); //$NON-NLS-1$ //$NON-NLS-2$
+								getTextControl().setFocus();
+							}
+						});
+					}
+				}
+			};
+			fConsoleCommandEditor.create(composite, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+			gd.heightHint = LayoutUtil.hintHeight(fConsoleCommandEditor.getSourceViewer().getTextWidget(), 5);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			fConsoleCommandEditor.getControl().setLayoutData(gd);
+		}
 	}
 	
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		fOpenTexEnabledValue = new WritableValue(realm, false, Boolean.class);
 		fOpenTexOnErrorsEnabledValue = new WritableValue(realm, false, Boolean.class);
-		fBuildTexEnabledValue = new WritableValue(realm, false, Boolean.class);
-		fBuildTexBuilderIdValue = new WritableValue(realm, 0, Integer.class);
 		fOutputDirValue = new WritableValue(realm, null, String.class);
+		fBuildTexTypeValue = new WritableValue(realm, 0, Integer.class);
+		fBuildTexBuilderIdValue = new WritableValue(realm, 0, Integer.class);
+		fBuildTexRCommandsValue = new WritableValue(realm, "", String.class); //$NON-NLS-1$
+		fOutputFormatValue = new WritableValue(realm, "", String.class); //$NON-NLS-1$
 		
 		final ISWTObservableValue openObs = SWTObservables.observeSelection(fOpenTexFileControl);
 		dbc.bindValue(openObs, fOpenTexEnabledValue, null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fOpenTexFileOnErrorsControl), fOpenTexOnErrorsEnabledValue, null, null);
-		final ISWTObservableValue buildObs = SWTObservables.observeSelection(fBuildTexFileControl);
-		dbc.bindValue(buildObs, fBuildTexEnabledValue, null, null);
+		dbc.bindValue(new RadioGroupObservable(realm, new Button[] {
+				fBuildTexFileDisabledControl, fBuildTexFileEclipseControl, fBuildTexFileRControl
+		}), fBuildTexTypeValue, null, null);
 		dbc.bindValue(new BuildChooserObservable(fBuildTexTypeChooser), fBuildTexBuilderIdValue, null, null);
+		dbc.bindValue(new StyledTextObservableValue(fConsoleCommandEditor.getTextControl(), SWT.Modify), fBuildTexRCommandsValue, null, null);
+		dbc.bindValue(SWTObservables.observeText(fOutputFormatControl), fOutputFormatValue, null, null);
+		
+		fBuildTexBuilderIdValue.addValueChangeListener(new IValueChangeListener() {
+			public void handleValueChange(final ValueChangeEvent event) {
+				updateFormat();
+			}
+		});
+		fBuildTexTypeValue.addValueChangeListener(new IValueChangeListener() {
+			public void handleValueChange(final ValueChangeEvent event) {
+				final Object newValue = event.diff.getNewValue();
+				final int typeId = (newValue instanceof Integer) ? ((Integer) newValue).intValue() : -1;
+				switch (typeId) {
+				case BUILDTEX_TYPE_ECLIPSE:
+					updateFormat();
+					break;
+				case BUILDTEX_TYPE_RCONSOLE:
+					if (RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_R_COMMANDS.equals(fBuildTexRCommandsValue.getValue())) {
+						fOutputFormatValue.setValue(RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_FORMAT);
+					}
+					break;
+				}
+				
+			}
+		});
 		
 		// Enablement
 		dbc.bindValue(SWTObservables.observeEnabled(fOpenTexFileOnErrorsControl), openObs, null, null);
 		final Composite group = fBuildTexTypeChooser.getControl();
-		final Control[] controls = group.getChildren();
-		for (int i = 0; i < controls.length; i++) {
-			dbc.bindValue(SWTObservables.observeEnabled(controls[i]), buildObs, null, null);
-		}
+		dbc.bindValue(new SWTMultiEnabledObservable(realm, group.getChildren(), null), 
+				new ComputedValue(realm, Boolean.class) {
+					@Override
+					protected Object calculate() {
+						return (((Integer) fBuildTexTypeValue.getValue()) == RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE);
+					}
+				}, null, null);
+		dbc.bindValue(new SWTMultiEnabledObservable(realm, new Control[] { fConsoleCommandEditor.getControl() }, null),
+				new ComputedValue(realm, Boolean.class) {
+					@Override
+					protected Object calculate() {
+						return (((Integer) fBuildTexTypeValue.getValue()) == RweaveTexLaunchDelegate.BUILDTEX_TYPE_RCONSOLE);
+					}
+				}, null, null);
+		dbc.bindValue(new SWTMultiEnabledObservable(realm, new Control[] { fOutputFormatControl }, null),
+				new ComputedValue(realm, Boolean.class) {
+			@Override
+			protected Object calculate() {
+				return (((Integer) fBuildTexTypeValue.getValue()) != RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE);
+			}
+		}, null, null);
 		
 		dbc.bindValue(fOutputDirControl.createObservable(), fOutputDirValue, 
 				new UpdateValueStrategy().setAfterGetValidator(fOutputDirControl.getValidator()), null);
 	}
 	
+	private void updateFormat() {
+		final Object texBuilderId = fBuildTexBuilderIdValue.getValue();
+		if (texBuilderId instanceof Integer) {
+			final Builder builder = BuilderRegistry.get((Integer) texBuilderId);
+			if (builder != null) {
+				fOutputFormatValue.setValue(builder.getOutputFormat());
+			}
+		}
+	}
+	
 	
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(ATTR_OPENTEX_ENABLED, OPEN_OFF);
-		configuration.setAttribute(ATTR_BUILDTEX_ENABLED, true);
-		configuration.setAttribute(ATTR_BUILDTEX_BUILDERID, 0);
+		configuration.setAttribute(ATTR_BUILDTEX_TYPE, RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_TYPE);
+		configuration.setAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID, 0);
 		configuration.setAttribute(ATTR_BUILDTEX_OUTPUTDIR, ""); //$NON-NLS-1$
 	}
 	
@@ -250,33 +452,67 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	protected void doInitialize(final ILaunchConfiguration configuration) {
 		int open = OPEN_OFF;
 		try {
-			open = configuration.getAttribute(ATTR_OPENTEX_ENABLED, OPEN_OFF);
+			open = configuration.getAttribute(ATTR_OPENTEX_ENABLED, open);
 		} catch (final CoreException e) {
 			logReadingError(e);
 		}
 		fOpenTexEnabledValue.setValue(open >= OPEN_ALWAYS);
 		fOpenTexOnErrorsEnabledValue.setValue(open > OPEN_ALWAYS);
 		
-		boolean build = false;
+		int buildType = RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_TYPE;
 		try {
-			build = configuration.getAttribute(ATTR_BUILDTEX_ENABLED, false);
-		} catch (final CoreException e) {
+			buildType = configuration.getAttribute(ATTR_BUILDTEX_TYPE, -2);
+		}
+		catch (final CoreException e) {
 			logReadingError(e);
 		}
-		fBuildTexEnabledValue.setValue(build);
+		if (buildType == -2) {
+			try {
+				buildType = configuration.getAttribute(ATTR_BUILDTEX_ENABLED, false) ? RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE : RweaveTexLaunchDelegate.BUILDTEX_TYPE_DISABLED;
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+		}
+		fBuildTexTypeValue.setValue(buildType);
 		
 		int texBuilderId = 0;
 		try {
-			texBuilderId = configuration.getAttribute(ATTR_BUILDTEX_BUILDERID, 0);
-		} catch (final CoreException e) {
+			texBuilderId = configuration.getAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID, texBuilderId);
+		}
+		catch (final CoreException e) {
 			logReadingError(e);
 		}
 		fBuildTexBuilderIdValue.setValue(texBuilderId);
 		
+		String rCommands = RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_R_COMMANDS;
+		try {
+			rCommands = configuration.getAttribute(ATTR_BUILDTEX_R_COMMANDS, rCommands);
+		}
+		catch (final CoreException e) {
+			logReadingError(e);
+		}
+		fBuildTexRCommandsValue.setValue(rCommands);
+		
+		if (buildType == BUILDTEX_TYPE_ECLIPSE) {
+			updateFormat();
+		}
+		else {
+			String format = RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_FORMAT;
+			try {
+				format = configuration.getAttribute(ATTR_BUILDTEX_FORMAT, format);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fOutputFormatValue.setValue(format);
+		}
+		
 		String outputDir = ""; //$NON-NLS-1$
 		try {
-			outputDir = configuration.getAttribute(ATTR_BUILDTEX_OUTPUTDIR, ""); //$NON-NLS-1$
-		} catch (final CoreException e) {
+			outputDir = configuration.getAttribute(ATTR_BUILDTEX_OUTPUTDIR, outputDir);
+		}
+		catch (final CoreException e) {
 			logReadingError(e);
 		}
 		fOutputDirValue.setValue(outputDir);
@@ -290,38 +526,43 @@ public class TexTab extends LaunchConfigTabWithDbc {
 		}
 		configuration.setAttribute(ATTR_OPENTEX_ENABLED, open);
 		
-		final boolean build = (Boolean) fBuildTexEnabledValue.getValue();
-		configuration.setAttribute(ATTR_BUILDTEX_ENABLED, build);
+		final int buildType = (Integer) fBuildTexTypeValue.getValue();
+		configuration.setAttribute(ATTR_BUILDTEX_TYPE, buildType);
 		
-		final Object texBuilderId = fBuildTexBuilderIdValue.getValue();
-		if (texBuilderId instanceof Integer) {
-			configuration.setAttribute(ATTR_BUILDTEX_BUILDERID, ((Integer) texBuilderId).intValue());
+		final Integer texBuilderId = (Integer) fBuildTexBuilderIdValue.getValue();
+		if (texBuilderId != null
+				&& (buildType == RweaveTexLaunchDelegate.BUILDTEX_TYPE_ECLIPSE || texBuilderId.intValue() != 0) ) {
+			configuration.setAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID, texBuilderId.intValue());
 		}
 		else {
-			configuration.setAttribute(ATTR_BUILDTEX_BUILDERID, 0);
+			configuration.removeAttribute(ATTR_BUILDTEX_CLIPSE_BUILDERID);
 		}
+		
+		final String rCommands = (String) fBuildTexRCommandsValue.getValue();
+		if (buildType == RweaveTexLaunchDelegate.BUILDTEX_TYPE_RCONSOLE || !rCommands.equals(RweaveTexLaunchDelegate.DEFAULT_BUILDTEX_R_COMMANDS)) {
+			configuration.setAttribute(ATTR_BUILDTEX_R_COMMANDS, rCommands);
+		}
+		else {
+			configuration.removeAttribute(ATTR_BUILDTEX_R_COMMANDS);
+		}
+		
+		final String format = (String) fOutputFormatValue.getValue();
+		configuration.setAttribute(ATTR_BUILDTEX_FORMAT, format);
 		
 		configuration.setAttribute(ATTR_BUILDTEX_OUTPUTDIR, (String) fOutputDirValue.getValue());
 	}
 	
 	
 	public boolean addOutputFormatListener(final IChangeListener listener) {
-		if (fBuildTexBuilderIdValue != null) {
-			fBuildTexBuilderIdValue.addChangeListener(listener);
+		if (fOutputFormatValue != null) {
+			fOutputFormatValue.addChangeListener(listener);
 			return true;
 		}
 		return false;
 	}
 	
 	public String getOutputFormat() {
-		final Object texBuilderId = fBuildTexBuilderIdValue.getValue();
-		if (texBuilderId instanceof Integer) {
-			final Builder builder = BuilderRegistry.get((Integer) texBuilderId);
-			if (builder != null) {
-				return builder.getOutputFormat();
-			}
-		}
-		return "-"; //$NON-NLS-1$
+		return (String) fOutputFormatValue.getValue();
 	}
 	
 }

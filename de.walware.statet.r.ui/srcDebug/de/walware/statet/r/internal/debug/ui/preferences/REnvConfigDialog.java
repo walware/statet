@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.dialogs.DatabindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
 import de.walware.ecommons.ui.util.LayoutUtil;
@@ -77,14 +78,11 @@ public class REnvConfigDialog extends ExtStatusDialog {
 					ChooseResourceComposite.STYLE_TEXT,
 					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN, 
 					Messages.REnv_Detail_Location_label);
-			showInsertVariable(true);
-		}
-		
-		@Override
-		protected boolean excludeVariable(final String variableName) {
-			return (super.excludeVariable(variableName)
-				|| excludeBuildVariable(variableName)
-				|| excludeInteractiveVariable(variableName));
+			showInsertVariable(true, new VariableFilter[] {
+					VariableFilter.EXCLUDE_BUILD_FILTER,
+					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
+					VariableFilter.EXCLUDE_JAVA_FILTER
+			});
 		}
 		
 		@Override
@@ -120,9 +118,9 @@ public class REnvConfigDialog extends ExtStatusDialog {
 	}
 	
 	
-	private REnvPreferencePage.REnvConfig fConfigModel;
-	private boolean fIsNewConfig;
-	private Set<String> fExistingNames;
+	private final REnvPreferencePage.REnvConfig fConfigModel;
+	private final boolean fIsNewConfig;
+	private final Set<String> fExistingNames;
 	
 	private Text fNameControl;
 	private ChooseResourceComposite fRHomeControl;
@@ -209,7 +207,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 						if (s.contains("/")) { //$NON-NLS-1$
 							return ValidationStatus.error(Messages.REnv_Detail_Name_error_InvalidChar_message);
 						}
-						return ValidationStatus.OK_STATUS;
+						return ValidationStatus.ok();
 					}
 				}), null);
 		db.getContext().bindValue(fRHomeControl.createObservable(), 

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +66,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.preferences.ColorSelectorObservableValue;
@@ -175,8 +177,8 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		
 		/*-- Property-Access --*/
-		public UseStyle[] getAvailableUseStyles() {
-			return new UseStyle[0];
+		public List<UseStyle> getAvailableUseStyles() {
+			return Collections.emptyList();
 		}
 		
 		public UseStyle getUseStyle() {
@@ -251,7 +253,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		private String fDescription;
 		private String fRootKey;
-		private UseStyle[] fAvailableStyles;
+		private List<UseStyle> fAvailableStyles;
 		
 		/** tuple { pref : Preference, beanProperty : String } */
 		private Object[][] fPreferences;
@@ -261,13 +263,13 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		public StyleNode(final String name, final String description, final String rootKey, final UseStyle[] availableStyles, final SyntaxNode[] children) {
 			super(name, children);
+			assert (availableStyles != null && availableStyles.length > 0);
 			fDescription = description;
 			fRootKey = rootKey;
-			fAvailableStyles = availableStyles;
+			fAvailableStyles = new ConstList<UseStyle>(availableStyles);
 			
 			final List<Object[]> prefs = new ArrayList<Object[]>();
-			assert (fAvailableStyles != null && fAvailableStyles.length > 0);
-			if (fAvailableStyles.length > 1) {
+			if (fAvailableStyles.size() > 1) {
 				prefs.add(new Object[] { new UseStylePref(null, getUseKey()), PROP_USE });
 			}
 			prefs.add(new Object[] { new RGBPref(null, getColorKey()), PROP_COLOR });
@@ -344,7 +346,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		
 		/*-- Property-Access --*/
 		@Override
-		public UseStyle[] getAvailableUseStyles() {
+		public List<UseStyle> getAvailableUseStyles() {
 			return fAvailableStyles;
 		}
 		
@@ -364,7 +366,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 					return style;
 				}
 			}
-			return fAvailableStyles[0];
+			return fAvailableStyles.get(0);
 		}
 		
 		@Override
@@ -660,10 +662,10 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 		});
 		// Bind use style selection
 		final IObservableList list = MasterDetailObservables.detailList(
-				BeansObservables.observeDetailValue(realm, selection, "availableUseStyles", UseStyle[].class), //$NON-NLS-1$
+				BeansObservables.observeDetailValue(realm, selection, "availableUseStyles", List.class), //$NON-NLS-1$
 				new IObservableFactory() {
 					public IObservable createObservable(final Object target) {
-						return Observables.staticObservableList(realm, Arrays.asList((UseStyle[]) target));
+						return Observables.staticObservableList(realm, (List) target);
 					}
 				}, null);
 		fUseControl.setContentProvider(new ObservableListContentProvider());
@@ -700,7 +702,7 @@ public abstract class AbstractSyntaxColoringBlock extends OverlayStoreConfigurat
 	private void updateEnablement(final SyntaxNode node, final UseStyle useStyle) {
 		boolean enableOptions;
 		if (node instanceof StyleNode) {
-			fUseControl.getControl().setEnabled(node.getAvailableUseStyles().length > 1);
+			fUseControl.getControl().setEnabled(node.getAvailableUseStyles().size() > 1);
 			enableOptions = useStyle != null && useStyle.getRefRootKey().equals(""); 
 		}
 		else {

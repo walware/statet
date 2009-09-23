@@ -13,18 +13,12 @@ package de.walware.ecommons.ltk;
 
 import java.util.List;
 
-import org.eclipse.jface.text.IRegion;
-
 
 /**
  * Represents Source structure instead of model structure
  */
-public interface ISourceStructElement extends IModelElement {
+public interface ISourceStructElement extends ISourceElement {
 	
-	
-	IRegion getNameSourceRange();
-	IRegion getSourceRange();
-	IRegion getDocumentationRange();
 	
 	ISourceStructElement getSourceParent();
 	boolean hasSourceChildren(Filter<? extends IModelElement> filter);

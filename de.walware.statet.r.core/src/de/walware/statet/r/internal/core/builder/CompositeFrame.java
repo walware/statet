@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
+import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -64,11 +65,11 @@ public class CompositeFrame implements IRFrame {
 		return fFrameType;
 	}
 	
-	public List<? extends IRLangElement> getModelElements() {
+	public List<? extends IRElement> getModelElements() {
 		fLock.lock();
 		try {
 			final Collection<RUnitElement> values = fModelElements.values();
-			final List<IRLangElement> list = new ArrayList<IRLangElement>(values.size());
+			final List<IRElement> list = new ArrayList<IRElement>(values.size());
 			list.addAll(values);
 			return list;
 		}
@@ -77,13 +78,13 @@ public class CompositeFrame implements IRFrame {
 		}
 	}
 	
-	public boolean hasModelChildren(final Filter<? super IRLangElement> filter) {
+	public boolean hasModelChildren(final Filter filter) {
 		fLock.lock();
 		try {
 			if (fModelElements.isEmpty()) {
 				return false;
 			}
-			for (final IRLangElement element : fModelElements.values()) {
+			for (final IRElement element : fModelElements.values()) {
 				if (element.hasModelChildren(filter)) {
 					return true;
 				}

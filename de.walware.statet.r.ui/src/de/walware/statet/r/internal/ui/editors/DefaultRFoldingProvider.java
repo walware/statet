@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,6 +36,7 @@ import de.walware.ecommons.ltk.ui.IModelElementInputListener;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
 
@@ -44,11 +47,13 @@ import de.walware.statet.r.core.rsource.ast.CForLoop;
 import de.walware.statet.r.core.rsource.ast.CIfElse;
 import de.walware.statet.r.core.rsource.ast.CRepeatLoop;
 import de.walware.statet.r.core.rsource.ast.CWhileLoop;
+import de.walware.statet.r.core.rsource.ast.DocuComment;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.ui.editors.REditor;
 
 
@@ -57,12 +62,6 @@ import de.walware.statet.r.ui.editors.REditor;
  */
 public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElementInputListener, ChangeListener {
 	
-	
-	protected static final Position createPosition(final FoldingStructureComputationContext ctx, final int startLine, final int endLine) throws BadLocationException {
-		final int startOffset = ctx.fDocument.getLineOffset(startLine);
-		final int endOffset = ctx.fDocument.getLineOffset(endLine)+ctx.fDocument.getLineLength(endLine);
-		return new Position(startOffset, endOffset-startOffset);
-	}
 	
 	private static class ElementFinder extends GenericVisitor {
 		
@@ -74,7 +73,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 			fConfig = config;
 		}
 		
-		private void create(final int startOffset, final int stopOffset) throws InvocationTargetException {
+		private void createRCodeRegion(final int startOffset, final int stopOffset) throws InvocationTargetException {
 			try {
 				final AbstractDocument doc = fContext.fDocument;
 				final int startLine = doc.getLineOfOffset(startOffset);
@@ -84,21 +83,44 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 					stopLine--;
 				}
 				if (stopLine - startLine + 1 >= fConfig.minLines) {
+					final int offset = doc.getLineOffset(startLine);
 					fContext.addFoldingRegion(
-							createPosition(fContext, startLine, stopLine),
-							new ProjectionAnnotation());
+							new Position(offset, doc.getLineOffset(stopLine)+doc.getLineLength(stopLine) - offset),
+							new RProjectionAnnotation(RProjectionAnnotation.RCODE, false));
 				}
 			}
 			catch (final BadLocationException e) {
 				throw new InvocationTargetException(e);
 			}
-			
+		}
+		
+		private void createRoxygenRegion(final int startOffset, final int stopOffset) throws InvocationTargetException {
+			try {
+				final AbstractDocument doc = fContext.fDocument;
+				final int startLine = doc.getLineOfOffset(startOffset);
+				final int stopLine = doc.getLineOfOffset(stopOffset);
+				if (stopLine - startLine + 1 >= fConfig.minRoxygenLines) {
+					final int offset = doc.getLineOffset(startLine);
+					fContext.addFoldingRegion(
+							new Position(offset, doc.getLineOffset(stopLine)+doc.getLineLength(stopLine)-offset),
+							new RProjectionAnnotation(RProjectionAnnotation.ROXYGEN, fContext.fIsInitial && fConfig.collapseInitiallyRoxygen));
+				}
+			}
+			catch (final BadLocationException e) {
+				throw new InvocationTargetException(e);
+			}
+		}
+		
+		@Override
+		public void visit(final SourceComponent node) throws InvocationTargetException {
+			node.acceptInRChildren(this);
+			node.acceptInRComments(this);
 		}
 		
 		@Override
 		public void visit(final Block node) throws InvocationTargetException {
 			if (fConfig.enableOtherBlocks) {
-				create(node.getOffset(), node.getStopOffset());
+				createRCodeRegion(node.getOffset(), node.getStopOffset());
 			}
 			node.acceptInRChildren(this);
 		}
@@ -109,7 +131,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 			{
 				final RAstNode body = node.getContChild();
 				if (body.getNodeType() == NodeType.BLOCK) {
-					create(node.getArgsCloseOffset(), node.getStopOffset());
+					createRCodeRegion(node.getArgsCloseOffset(), node.getStopOffset());
 					body.acceptInRChildren(this);
 				}
 				else {
@@ -125,7 +147,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				{
 					final RAstNode body = node.getThenChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						create(node.getCondCloseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getCondCloseOffset(), body.getStopOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -135,7 +157,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				if (node.hasElse()) {
 					final RAstNode body = node.getElseChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						create(node.getElseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getElseOffset(), body.getStopOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -155,7 +177,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				{
 					final RAstNode body = node.getContChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						create(node.getCondCloseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getCondCloseOffset(), body.getStopOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -175,7 +197,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				{
 					final RAstNode body = node.getContChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						create(node.getCondCloseOffset(), body.getStopOffset());
+						createRCodeRegion(node.getCondCloseOffset(), body.getStopOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -194,7 +216,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				{
 					final RAstNode body = node.getContChild();
 					if (body.getNodeType() == NodeType.BLOCK) {
-						create(node.getOffset(), body.getStopOffset());
+						createRCodeRegion(node.getOffset(), body.getStopOffset());
 						body.acceptInRChildren(this);
 					}
 					else {
@@ -207,6 +229,13 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 			}
 		}
 		
+		@Override
+		public void visit(final DocuComment node) throws InvocationTargetException {
+			if (fConfig.enableRoxygen) {
+				createRoxygenRegion(node.getOffset(), node.getStopOffset());
+			}
+		}
+		
 	}
 	
 	protected static final class FoldingStructureComputationContext {
@@ -214,7 +243,7 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		public final ProjectionAnnotationModel fModel;
 		public final AbstractDocument fDocument;
 		public final RAstInfo fAst;
-		public final LinkedHashMap<Position, ProjectionAnnotation> fTable = new LinkedHashMap<Position, ProjectionAnnotation>();
+		public final SortedMap<Position, RProjectionAnnotation> fTable = new TreeMap<Position, RProjectionAnnotation>(TextUtil.POSITION_COMPARATOR);
 		
 		public final boolean fIsInitial;
 		
@@ -227,10 +256,27 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		}
 		
 		
-		public void addFoldingRegion(final Position position, final ProjectionAnnotation ann) {
+		public void addFoldingRegion(final Position position, final RProjectionAnnotation ann) {
 			if (!fTable.containsKey(position)) {
 				fTable.put(position, ann);
 			}
+		}
+		
+	}
+	
+	protected static final class RProjectionAnnotation extends ProjectionAnnotation {
+		
+		
+		public static final int RCODE = 0x1;
+		public static final int ROXYGEN = 0x2;
+		
+		
+		private int rtype;
+		
+		
+		public RProjectionAnnotation(final int type, final boolean collapse) {
+			super(collapse);
+			this.rtype = type;
 		}
 		
 	}
@@ -239,6 +285,11 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		
 		public boolean enableOtherBlocks;
 		public int minLines;
+		
+		public boolean enableRoxygen;
+		public int minRoxygenLines;
+		
+		public boolean collapseInitiallyRoxygen;
 		
 	}
 	
@@ -260,6 +311,10 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 	private REditor fEditor;
 	private FoldingConfiguration fConfig;
 	private volatile Input fInput;
+	
+	
+	public DefaultRFoldingProvider() {
+	}
 	
 	
 	public void install(final ISourceEditor editor) {
@@ -314,8 +369,14 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 		config.enableOtherBlocks = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_OTHERBLOCKS_ENABLED);
 		config.minLines = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_MINLINES_NUM);
 		if (config.minLines < 2) {
-			config.minLines = 3;
+			config.minLines = 2;
 		}
+		config.enableRoxygen = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_ROXYGEN_ENABLED);
+		config.minRoxygenLines = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_ROXYGEN_MINLINES_NUM);
+		if (config.minRoxygenLines < 2) {
+			config.minLines = 2;
+		}
+		config.collapseInitiallyRoxygen = prefs.getPreferenceValue(DefaultRFoldingPreferences.PREF_ROXYGEN_COLLAPSE_INITIALLY_ENABLED);
 		fConfig = config;
 	}
 	
@@ -364,24 +425,26 @@ public class DefaultRFoldingProvider implements ISourceEditorAddon, IModelElemen
 				input.fInitilized = true;
 			}
 			else {
-				final Iterator<ProjectionAnnotation> iter = ctx.fModel.getAnnotationIterator();
-				final List<ProjectionAnnotation> del = new ArrayList<ProjectionAnnotation>();
-				while (iter.hasNext()) {
-					final ProjectionAnnotation ann = iter.next();
-					final Position position = ctx.fModel.getPosition(ann);
-					if (ctx.fTable.remove(position) == null) {
-						del.add(ann);
+				final List<RProjectionAnnotation> del = new ArrayList<RProjectionAnnotation>();
+				for (final Iterator<RProjectionAnnotation> iter = ctx.fModel.getAnnotationIterator(); iter.hasNext(); ) {
+					final RProjectionAnnotation existingAnn = iter.next();
+					final Position position = ctx.fModel.getPosition(existingAnn);
+					final RProjectionAnnotation newAnn = ctx.fTable.remove(position);
+					if (newAnn != null) {
+						existingAnn.rtype = newAnn.rtype;
+					}
+					else {
+						del.add(existingAnn);
 					}
 				}
-				deletions = del.toArray(new ProjectionAnnotation[del.size()]);
+				deletions = del.toArray(new RProjectionAnnotation[del.size()]);
 				if (ctx.fDocument.getModificationStamp() != ctx.fAst.stamp || input != fInput) {
 					return;
 				}
 			}
-			final LinkedHashMap<ProjectionAnnotation, Position> additions = new LinkedHashMap<ProjectionAnnotation, Position>();
-			final Iterator<Entry<Position, ProjectionAnnotation>> iter = ctx.fTable.entrySet().iterator();
-			while (iter.hasNext()) {
-				final Entry<Position, ProjectionAnnotation> next = iter.next();
+			final LinkedHashMap<RProjectionAnnotation, Position> additions = new LinkedHashMap<RProjectionAnnotation, Position>();
+			for (final Iterator<Entry<Position, RProjectionAnnotation>> iter = ctx.fTable.entrySet().iterator(); iter.hasNext(); ) {
+				final Entry<Position, RProjectionAnnotation> next = iter.next();
 				additions.put(next.getValue(), next.getKey());
 			}
 			ctx.fModel.modifyAnnotations(deletions, additions, null);

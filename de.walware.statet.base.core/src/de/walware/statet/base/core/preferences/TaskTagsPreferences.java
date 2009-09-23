@@ -11,7 +11,6 @@
 
 package de.walware.statet.base.core.preferences;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.Assert;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.EnumListPref;
@@ -120,7 +120,7 @@ public class TaskTagsPreferences {
 	 */
 	public Map<Preference, Object> addPreferencesToMap(final Map<Preference, Object> map) {
 		map.put(PREF_TAGS, fTags);
-		map.put(PREF_PRIORITIES, Arrays.asList(fPrios));
+		map.put(PREF_PRIORITIES, new ConstList<TaskPriority>(fPrios));
 		return map;
 	}
 	

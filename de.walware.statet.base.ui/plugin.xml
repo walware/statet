@@ -102,19 +102,17 @@
             id="de.walware.statet.base.commands.GotoMatchingBracket"
             categoryId="org.eclipse.ui.category.navigate"
             name="%commands_GotoMatchingBracket_name"
-            description="%commands_GotoMatchingBracket_description"
-            />
+            description="%commands_GotoMatchingBracket_description" />
+      <!-- source -->
+      <category
+            id="de.walware.statet.base.commandCategorys.StatetSource"
+            name="%categorys_StatetSource_name"
+            description="%categorys_StatetSource_description" />
       <command
             id="de.walware.statet.base.commands.ToggleComment"
             categoryId="de.walware.statet.base.commandCategorys.StatetSource"
             name="%commands_ToggleComment_name"
             description="%commands_ToggleComment_description"
-            />
-      <!-- source -->
-      <category
-            id="de.walware.statet.base.commandCategorys.StatetSource"
-            name="%categorys_StatetSource_name"
-            description="%categorys_StatetSource_description"
             />
       <command
             id="de.walware.statet.base.commands.InsertAssignment"
@@ -481,6 +479,19 @@
                <reference
                      definitionId="de.walware.statet.base.expressions.EditSourceActionSet">
                </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:navigate?after=open.ext">
+         <command
+               commandId="org.eclipse.jdt.ui.edit.text.java.open.editor"
+               style="push">
+            <visibleWhen>
+               <and>
+                  <reference
+                        definitionId="de.walware.statet.base.expressions.EditSourceActionSet"/>
+               </and>
             </visibleWhen>
          </command>
       </menuContribution>
