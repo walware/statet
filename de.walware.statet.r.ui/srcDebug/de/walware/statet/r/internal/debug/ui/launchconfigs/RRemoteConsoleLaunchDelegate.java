@@ -399,7 +399,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 							throw new CoreException(Status.CANCEL_STATUS);
 						}
 						try {
-							final String[] list = Naming.list(rmiAddress.getRegistryAddress());
+							final String[] list = Naming.list(rmiAddress.getRegistryAddress().getAddress());
 							for (final String entry : list) {
 								try {
 									if (new RMIAddress(entry).equals(rmiAddress)) {

@@ -40,11 +40,6 @@ public class RLaunchingMessages extends NLS {
 	public static String RCodeLaunch_UpdateStructure_task;
 	
 	// Launch configurations (dialogs/delegates)
-	public static String RMI_status_RegistryAlreadyStarted_message;
-	public static String RMI_status_RegistryStartFailed_message;
-	public static String RMI_status_RegistryStartFailedWithExitValue_message;
-	public static String RMI_status_RegistryStopFailedNotFound_message;
-	
 	public static String LaunchDelegate_error_StartingExec;
 	public static String LaunchDelegate_error_ProcessHandle;
 	public static String LaunchDelegate_error_InvalidUnsupportedConsoleEncoding_message;

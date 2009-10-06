@@ -11,39 +11,33 @@
 
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
 
-import java.io.File;
+import static de.walware.rj.server.srvext.ServerUtil.RJ_DATA_ID;
+import static de.walware.rj.server.srvext.ServerUtil.RJ_SERVER_ID;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
-import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.Bundle;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.net.RMIAddress;
 
+import de.walware.rj.server.srvext.EServerUtil;
 import de.walware.rj.server.srvext.ServerUtil;
 
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -52,73 +46,12 @@ import de.walware.statet.r.ui.RUI;
 public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	
-	private static final String RJ_SERVER_BUNDLE_ID = "de.walware.rj.server"; //$NON-NLS-1$
-	private static final String RJ_DATA_BUNDLE_ID = "de.walware.rj.data"; //$NON-NLS-1$
-	
-	
-	public static void addPluginClasspath(final Set<String> classpath, final boolean desktop, final boolean is64) {
-		final Bundle rjServerBundle = Platform.getBundle(RJ_SERVER_BUNDLE_ID);
-		addPath(rjServerBundle, classpath, is64);
-		Bundle[] fragments = Platform.getFragments(rjServerBundle);
-		if (fragments != null) {
-			for (final Bundle bundle : fragments) {
-				addPath(bundle, classpath, is64);
-			}
-		}
-		final Bundle rjDataBundle = Platform.getBundle(RJ_DATA_BUNDLE_ID);
-		addPath(rjDataBundle, classpath, is64);
-		fragments = Platform.getFragments(rjDataBundle);
-		if (fragments != null) {
-			for (final Bundle bundle : fragments) {
-				addPath(bundle, classpath, is64);
-			}
-		}
-		final Bundle swtBundle = Platform.getBundle("org.eclipse.swt"); //$NON-NLS-1$
-		addPath(swtBundle, classpath, is64);
-		fragments = Platform.getFragments(swtBundle);
-		if (fragments != null && fragments.length > 0) {
-			for (final Bundle bundle : fragments) {
-				addPath(bundle, classpath, is64);
-			}
-		}
-	}
-	
-	private static void addPath(final Bundle bundle, final Set<String> classpath, final boolean is64) {
-		String location = bundle.getLocation();
-		if (location.startsWith("reference:file:")) { //$NON-NLS-1$
-			location = location.substring(15);
-			IPath path = new Path(location);
-			if (!path.isAbsolute()) {
-				path = new Path(Platform.getInstallLocation().getURL().getFile()).append(path);
-			}
-			String checked = path.lastSegment();
-			if (checked.contains("motif")) { //$NON-NLS-1$
-				checked = checked.replaceAll("motif", "gtk"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (checked.contains("gtk")) { //$NON-NLS-1$
-				if (is64 && !checked.contains("64")) { //$NON-NLS-1$
-					checked = checked.replaceAll("x86", "x86_64"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				if (!is64 && checked.contains("64")) { //$NON-NLS-1$
-					checked = checked.replaceAll("x86_64", "x86"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-			final String s = path.removeLastSegments(1).append(checked).makeAbsolute().toOSString();
-			if (location.endsWith("/")) { // //$NON-NLS-1$
-				if (Platform.inDevelopmentMode()) {
-					classpath.add(s+File.separatorChar+"bin"+File.separatorChar); //$NON-NLS-1$
-				}
-				classpath.add(s+File.separatorChar);
-			}
-			else {
-				classpath.add(s);
-			}
-		}
-		else {
-			StatusManager.getManager().handle(new Status(IStatus.WARNING, RUI.PLUGIN_ID, 
-					"Unknown type for plug-in location: '"+location+"'. May cause fail to startup RJ (RMI/JRI)")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-	}
+	private static final String[] CLASSPATH_LIBS = new String[] {
+			RJ_SERVER_ID, RJ_DATA_ID, "org.eclipse.swt", //$NON-NLS-1$
+	};
+	private static final String[] CODEBASE_LIBS = new String[] {
+			RJ_SERVER_ID,
+	};
 	
 	
 	private final String fAddress;
@@ -146,10 +79,11 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
-		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
-		addPluginClasspath(classpath, true, (fRenv.getRBits() == 64)); 
-		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
+		final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CLASSPATH_LIBS, (fRenv.getRBits() == 64));
 		
+		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
+		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
+		classpath.addAll(Arrays.asList(rjLibs));
 		return classpath.toArray(new String[classpath.size()]);
 	}
 	
@@ -162,7 +96,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (s.indexOf(" -Djava.security.policy=") < 0) { //$NON-NLS-1$
 			try {
-				final URL intern = Platform.getBundle(RCore.PLUGIN_ID).getEntry("/localhost.policy"); //$NON-NLS-1$ 
+				final URL intern = Platform.getBundle(RJ_SERVER_ID).getEntry("/localhost.policy"); //$NON-NLS-1$ 
 				final URL java = FileLocator.resolve(intern);
 				s.append(" -Djava.security.policy="); //$NON-NLS-1$
 				s.append('"');
@@ -179,9 +113,8 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.codebase=\""); //$NON-NLS-1$
-			final Set<String> codebase = new HashSet<String>();
-			addPath(Platform.getBundle(RJ_SERVER_BUNDLE_ID), codebase, fRenv.getRBits() == 64);
-			s.append(ServerUtil.concatCodebase(codebase.toArray(new String[codebase.size()])));
+			final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CODEBASE_LIBS, (fRenv.getRBits() == 64));
+			s.append(ServerUtil.concatCodebase(rjLibs));
 			s.append("\""); //$NON-NLS-1$
 		}
 		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$

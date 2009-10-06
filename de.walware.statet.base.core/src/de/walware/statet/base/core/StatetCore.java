@@ -73,7 +73,7 @@ public class StatetCore {
 	}
 	
 	private static void logError(final CoreException e) {
-		BaseCorePlugin.log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
+		BaseCorePlugin.getDefault().log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
 	}
 	
 	

@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.internal.debug.ui.preferences;
 
+import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED;
+import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_LOCAL_REGISTRY_PORT;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,13 +35,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.net.RMIUtil;
+import de.walware.ecommons.net.RMIUtil.StopRule;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
 import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
-import de.walware.statet.r.internal.debug.ui.launchconfigs.RMIUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
@@ -77,8 +81,8 @@ class ExtendedOptionsConfigurationBlock extends ManagedConfigurationBlock {
 	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		
-		prefs.put(RMIUtil.PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED, null);
-		prefs.put(RMIUtil.PREF_LOCAL_REGISTRY_PORT, null);
+		prefs.put(PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED, null);
+		prefs.put(PREF_LOCAL_REGISTRY_PORT, null);
 		
 		setupPreferenceManager(prefs);
 		
@@ -117,7 +121,7 @@ class ExtendedOptionsConfigurationBlock extends ManagedConfigurationBlock {
 		start.addSelectionListener(new SelectionAdapter() {
 			 @Override
 			public void widgetSelected(final SelectionEvent e) {
-				final IStatus status = RMIUtil.startRegistry(getPreferenceValue(RMIUtil.PREF_LOCAL_REGISTRY_PORT));
+				final IStatus status = RMIUtil.INSTANCE.startSeparateRegistry(getPreferenceValue(PREF_LOCAL_REGISTRY_PORT), StopRule.IF_EMPTY);
 				if (status.getSeverity() != IStatus.OK) {
 					StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.SHOW);
 				}
@@ -131,7 +135,7 @@ class ExtendedOptionsConfigurationBlock extends ManagedConfigurationBlock {
 		stop.addSelectionListener(new SelectionAdapter() {
 			 @Override
 			public void widgetSelected(final SelectionEvent e) {
-				final IStatus status = RMIUtil.stopRegistry(getPreferenceValue(RMIUtil.PREF_LOCAL_REGISTRY_PORT));
+				final IStatus status = RMIUtil.INSTANCE.stopSeparateRegistry(getPreferenceValue(PREF_LOCAL_REGISTRY_PORT));
 				if (status.getSeverity() != IStatus.OK) {
 					StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.SHOW);
 				}
@@ -144,10 +148,10 @@ class ExtendedOptionsConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		dbc.bindValue(SWTObservables.observeSelection(fRegistryAutostartControl),
-				createObservable(RMIUtil.PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED),
+				createObservable(PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED),
 				null, null);
 		dbc.bindValue(SWTObservables.observeText(fRegistryPortControl, SWT.Modify),
-				createObservable(RMIUtil.PREF_LOCAL_REGISTRY_PORT),
+				createObservable(PREF_LOCAL_REGISTRY_PORT),
 				new UpdateValueStrategy().setAfterGetValidator(new NumberValidator(1, 65535, Messages.RIntegrationExt_LocalRMI_RegistryPort_error_Invalid_message)),
 				null);
 	}

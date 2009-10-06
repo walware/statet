@@ -214,7 +214,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 			}).doOperation(progress);
 		} catch (final OperationCanceledException e) {
 		} catch (final CoreException e) {
-			BaseCorePlugin.log(e.getStatus());
+			ECommonsLTK.getPlugin().getLog().log(e.getStatus());
 		}
 	}
 	
@@ -250,7 +250,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 		catch (final OperationCanceledException e) {
 		}
 		catch (final CoreException e) {
-			BaseCorePlugin.log(e.getStatus());
+			ECommonsLTK.getPlugin().getLog().log(e.getStatus());
 		}
 	}
 	

@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.text.DateFormat;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -111,11 +113,13 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		
 		String createSummary() {
 			final StringBuilder sb = new StringBuilder(100);
-			sb.append("Address:   ").append(address).append("\n"); //$NON-NLS-2$
-			sb.append("\n"); //$NON-NLS-1$
-			sb.append("Host-Name: ").append(hostName).append("\n"); //$NON-NLS-2$
-			sb.append("Host-IP:   ").append(hostIP).append("\n"); //$NON-NLS-2$
-			sb.append("Directory: ").append(info.getDirectory()).append("\n"); //$NON-NLS-2$
+			sb.append("Address:   ").append(address).append('\n');
+			sb.append('\n'); //$NON-NLS-1$
+			sb.append("Host-Name: ").append(hostName).append('\n');
+			sb.append("Host-IP:   ").append(hostIP).append('\n');
+			sb.append("Date:      ").append((info.getTimestamp() != 0) ?
+					DateFormat.getDateInstance().format(info.getTimestamp()) : "<unknown>").append('\n');
+			sb.append("Directory: ").append(info.getDirectory()).append('\n');
 			sb.append("Status:    ");
 			switch (this.info.getState()) {
 			case Server.S_NOT_STARTED:

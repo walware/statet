@@ -11,6 +11,8 @@
 
 package de.walware.statet.base.internal.core;
 
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
@@ -18,6 +20,9 @@ import org.eclipse.jsch.core.IJSchService;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
+import de.walware.ecommons.ECommons;
+import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.ECommons.IAppEnvironment;
 import de.walware.ecommons.ltk.IExtContentTypeManager;
 import de.walware.ecommons.ltk.internal.ExtContentTypeServices;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
@@ -28,7 +33,7 @@ import de.walware.statet.base.core.StatetCore;
 /**
  * The activator class controls the plug-in life cycle
  */
-public final class BaseCorePlugin extends Plugin {
+public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 	
 	
 	/** The shared instance. */
@@ -43,14 +48,12 @@ public final class BaseCorePlugin extends Plugin {
 		return gPlugin;
 	}
 	
-	public static void log(final IStatus status) {
-		getDefault().getLog().log(status);
-	}
-	
 	public static void logError(final int code, final String message, final Throwable e) {
-		log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e));
+		getDefault().log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e));
 	}
 	
+	
+	private final CopyOnWriteArraySet<IDisposable> fStopListeners = new CopyOnWriteArraySet<IDisposable>();
 	
 	private SettingsChangeNotifier fSettingsNotifier;
 	private ExtContentTypeServices fContentTypeServices;
@@ -69,6 +72,7 @@ public final class BaseCorePlugin extends Plugin {
 	
 	@Override
 	public void start(final BundleContext context) throws Exception {
+		ECommons.init(StatetCore.PLUGIN_ID, this);
 		super.start(context);
 		
 		fSettingsNotifier = new SettingsChangeNotifier();
@@ -80,6 +84,15 @@ public final class BaseCorePlugin extends Plugin {
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
+			try {
+				for (final IDisposable listener : fStopListeners) {
+					listener.dispose();
+				}
+			}
+			finally {
+				fStopListeners.clear();
+			}
+			
 			if (fSettingsNotifier != null) {
 				fSettingsNotifier.dispose();
 			}
@@ -102,6 +115,18 @@ public final class BaseCorePlugin extends Plugin {
 		}
 	}
 	
+	
+	public void log(final IStatus status) {
+		getLog().log(status);
+	}
+	
+	public void addStoppingListener(final IDisposable listener) {
+		fStopListeners.add(listener);
+	}
+	
+	public void removeStoppingListener(final IDisposable listener) {
+		fStopListeners.remove(listener);
+	}
 	
 	public SettingsChangeNotifier getSettingsChangeNotifier() {
 		return fSettingsNotifier;

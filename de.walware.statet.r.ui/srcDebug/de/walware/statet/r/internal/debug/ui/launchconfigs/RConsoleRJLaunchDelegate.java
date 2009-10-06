@@ -11,9 +11,10 @@
 
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
 
+import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_LOCAL_REGISTRY_PORT;
+
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,6 +36,9 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.net.RMIAddress;
+import de.walware.ecommons.net.RMIRegistry;
+import de.walware.ecommons.net.RMIUtil;
+import de.walware.ecommons.net.RMIUtil.StopRule;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -75,7 +79,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		// r env
 		final REnvConfiguration renv = REnvTab.getREnv(configuration);
 		
-		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(RMIUtil.PREF_LOCAL_REGISTRY_PORT);
+		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_LOCAL_REGISTRY_PORT);
 		final String s = "//:"+port+"/rjs-local-"+System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$
 		final RMIAddress rmiAddress;
 		try {
@@ -98,7 +102,13 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		// start server
 		progress.subTask(RLaunchingMessages.RJLaunchDelegate_StartR_subtask);
-		RMIUtil.startRegistry(port);
+		// RMI registry
+		final IStatus registryStatus = RMIUtil.INSTANCE.startSeparateRegistry(port, StopRule.IF_EMPTY);
+		if (registryStatus.getSeverity() >= IStatus.ERROR) {
+			throw new CoreException(registryStatus);
+		}
+		final RMIRegistry registry = RMIUtil.INSTANCE.getRegistry(port);
+		
 		engineLaunchDelegate.launch(configuration, mode, launch, progress.newChild(10));
 		final IProcess[] processes = launch.getProcesses();
 		if (processes.length == 0) {
@@ -145,7 +155,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				throw new CoreException(Status.CANCEL_STATUS);
 			}
 			try {
-				final String[] list = Naming.list(rmiAddress.getRegistryAddress());
+				final String[] list = registry.getRegistry().list();
 				for (final String entry : list) {
 					try {
 						if (new RMIAddress(entry).equals(rmiAddress)) {
