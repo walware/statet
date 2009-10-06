@@ -183,6 +183,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	protected final Queue fQueue;
 	
 	protected IToolRunnable fCurrentRunnable;
+	protected IToolRunnable fLastPublicRunnable;
 	private IToolRunnable fControllerRunnable;
 	private RunnableProgressMonitor fRunnableProgressMonitor;
 	
@@ -467,7 +468,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	}
 	
 	/**
-	 * Cancels requests to termate the controller.
+	 * Cancels requests to terminate the controller.
 	 */
 	public final void cancelQuit() {
 		synchronized(fQueue) {
@@ -475,7 +476,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 		if (fStatus != ToolStatus.TERMINATED) {
 			// cancel task should not be synch
-			final IToolRunnable current = fCurrentRunnable;
+			final IToolRunnable current = fLastPublicRunnable;
 			if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
 				cancelTask(0);
 			}
@@ -484,13 +485,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	private final IToolRunnable[] getQuitTasks() {
 		final List<IToolRunnable> quit = new ArrayList<IToolRunnable>();
-		final IToolRunnable current = fCurrentRunnable;
+		final IToolRunnable current = fLastPublicRunnable;
 		if (current != null && current.getTypeId() == QUIT_TYPE_ID) {
 			quit.add(current);
 		}
 		final List<IToolRunnable> list = fQueue.internalGetList();
 		for (final IToolRunnable runnable : list) {
-			if (runnable.getTypeId().equals(QUIT_TYPE_ID)) {
+			if (runnable.getTypeId() == QUIT_TYPE_ID) {
 				quit.add(runnable);
 			}
 		}
@@ -818,12 +819,12 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	private final void loopRunTask() {
 		while (true) {
-			final boolean isPublic;
+			final int isPublic;
 			synchronized (fQueue) {
 				if (fControllerRunnable != null) {
 					fCurrentRunnable = fControllerRunnable;
 					fControllerRunnable = null;
-					isPublic = false;
+					isPublic = 0;
 				}
 				else {
 					if (fIsTerminated || fInternalTask > 0 || fQueue.internalIsEmpty()
@@ -832,12 +833,18 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					}
 					fIgnoreRequests = false;
 					fCurrentRunnable = fQueue.internalPoll();
-					isPublic = true;
+					if (fCurrentRunnable.getSubmitType() == SubmitType.OTHER) {
+						isPublic = 1;
+					}
+					else {
+						isPublic = 2;
+						fLastPublicRunnable = fCurrentRunnable;
+					}
 				}
 				loopChangeStatus(ToolStatus.STARTED_PROCESSING,
 						new RunnableProgressMonitor(fCurrentRunnable));
 			}
-			if (isPublic) {
+			if (isPublic >= 1) {
 				try {
 					// muss nicht synchronisiert werden, da Zugriff nur durch einen Thread
 					fCurrentRunnable.run(this, fRunnableProgressMonitor);
@@ -858,7 +865,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
 										new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
 								e);
-						if (fCurrentRunnable.getSubmitType() != SubmitType.OTHER) {
+						if (isPublic >= 2) {
 							handleStatus(status, fRunnableProgressMonitor);
 						}
 						else {
