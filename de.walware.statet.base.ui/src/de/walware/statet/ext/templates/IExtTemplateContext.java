@@ -15,6 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateException;
 
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.core.StatetProject;
@@ -30,6 +31,8 @@ public interface IExtTemplateContext {
 	public StatetProject getStatetProject();
 	
 	public ISourceEditor getEditor();
+	
+	public ISourceUnit getSourceUnit();
 	
 	public String evaluateInfo(Template template) throws BadLocationException, TemplateException;
 	

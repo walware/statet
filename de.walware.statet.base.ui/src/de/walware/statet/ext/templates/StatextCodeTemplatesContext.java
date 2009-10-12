@@ -26,6 +26,8 @@ import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
 
+import de.walware.ecommons.ltk.ISourceUnit;
+
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
 
@@ -52,6 +54,10 @@ public class StatextCodeTemplatesContext extends TemplateContext implements IExt
 	}
 	
 	public StatextEditor1 getEditor() {
+		return null;
+	}
+	
+	public ISourceUnit getSourceUnit() {
 		return null;
 	}
 	

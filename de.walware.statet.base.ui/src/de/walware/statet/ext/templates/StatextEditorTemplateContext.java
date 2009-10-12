@@ -30,6 +30,7 @@ import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
@@ -43,7 +44,7 @@ public class StatextEditorTemplateContext extends DocumentTemplateContext implem
 	private ISourceEditor fEditor;
 	
 	
-	public StatextEditorTemplateContext(final TemplateContextType type, final IDocument document,	final int offset, final int length,
+	public StatextEditorTemplateContext(final TemplateContextType type, final IDocument document, final int offset, final int length,
 			final ISourceEditor editor) {
 		super(type, document, offset, length);
 		fEditor = editor;
@@ -60,6 +61,10 @@ public class StatextEditorTemplateContext extends DocumentTemplateContext implem
 	
 	public ISourceEditor getEditor() {
 		return fEditor;
+	}
+	
+	public ISourceUnit getSourceUnit() {
+		return fEditor.getSourceUnit();
 	}
 	
 	public String evaluateInfo(final Template template) throws BadLocationException, TemplateException {
