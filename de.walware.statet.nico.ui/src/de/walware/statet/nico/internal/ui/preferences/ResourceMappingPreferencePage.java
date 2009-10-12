@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.dialogs.ButtonGroup;
@@ -53,7 +54,7 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.internal.core.NicoPlugin;
@@ -208,7 +209,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 class EditMappingDialog extends ExtStatusDialog {
 	
 	
-	private ChooseResourceComposite fLocalControl;
+	private ResourceInputComposite fLocalControl;
 	private Text fHostControl;
 	private Text fRemoteControl;
 	
@@ -244,15 +245,14 @@ class EditMappingDialog extends ExtStatusDialog {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("Path on &Local:");
 			
-			fLocalControl = new ChooseResourceComposite(composite, ChooseResourceComposite.STYLE_TEXT,
-					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
+			fLocalControl = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
+					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					"local directory");
 			fLocalControl.getValidator().setOnNotExisting(IStatus.WARNING);
-			fLocalControl.showInsertVariable(false, new VariableFilter[] {
+			fLocalControl.setShowInsertVariable(false, new ConstList<VariableFilter>(
 					VariableFilter.EXCLUDE_JAVA_FILTER,
 					VariableFilter.EXCLUDE_BUILD_FILTER,
-					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-			});
+					VariableFilter.EXCLUDE_INTERACTIVE_FILTER ), null);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 50);
 			fLocalControl.setLayoutData(gd);
@@ -281,7 +281,7 @@ class EditMappingDialog extends ExtStatusDialog {
 	}
 	
 	protected void addBindings(final DatabindingSupport db) {
-		db.getContext().bindValue(fLocalControl.createObservable(), fLocalValue,
+		db.getContext().bindValue(fLocalControl.getObservable(), fLocalValue,
 				new UpdateValueStrategy().setAfterGetValidator(fLocalControl.getValidator()), null);
 		db.getContext().bindValue(SWTObservables.observeText(fHostControl, SWT.Modify), fHostValue,
 				new UpdateValueStrategy().setAfterGetValidator(new NotEmptyValidator(

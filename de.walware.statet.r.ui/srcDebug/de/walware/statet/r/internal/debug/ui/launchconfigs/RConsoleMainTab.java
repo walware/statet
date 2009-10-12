@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
@@ -60,7 +61,7 @@ import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.base.ui.StatetImages;
 
@@ -110,7 +111,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 	
 	private ComboViewer fTypesCombo;
 	
-	private ChooseResourceComposite fWorkingDirectoryControl;
+	private ResourceInputComposite fWorkingDirectoryControl;
 	private RArgumentsComposite fArgumentsControl;
 	
 	private WritableValue fTypeValue;
@@ -228,14 +229,13 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 3));
 		group.setText("R options:");
 		
-		fWorkingDirectoryControl = new ChooseResourceComposite(group,
-				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_TEXT,
-				ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
+		fWorkingDirectoryControl = new ResourceInputComposite(group,
+				ResourceInputComposite.STYLE_LABEL | ResourceInputComposite.STYLE_TEXT,
+				ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 				RLaunchingMessages.REnv_Tab_WorkingDir_label);
-		fWorkingDirectoryControl.showInsertVariable(true, new VariableFilter[] {
+		fWorkingDirectoryControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
 				VariableFilter.EXCLUDE_JAVA_FILTER,
-				VariableFilter.EXCLUDE_BUILD_FILTER,
-		});
+				VariableFilter.EXCLUDE_BUILD_FILTER ), null);
 		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		
 		fArgumentsControl = new RArgumentsComposite(group);
@@ -272,7 +272,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 				fArgumentsValue, null, null);
 		
 		fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
-		dbc.bindValue(fWorkingDirectoryControl.createObservable(), fWorkingDirectoryValue,
+		dbc.bindValue(fWorkingDirectoryControl.getObservable(), fWorkingDirectoryValue,
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
 				null);

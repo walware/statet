@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Composite;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -79,7 +79,7 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 		private static final String SETTINGS_HISTORY = "statet:location.workingdir"; //$NON-NLS-1$
 		
 		
-		private ChooseResourceComposite fLocationGroup;
+		private ResourceInputComposite fLocationGroup;
 		private WritableValue fNewLocationString;
 		
 		private DataBindingContext fDbc;
@@ -113,9 +113,9 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 		}
 		
 		protected void createContents(final Composite container) {
-			fLocationGroup = new ChooseResourceComposite(container,
-					ChooseResourceComposite.STYLE_COMBO,
-					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
+			fLocationGroup = new ResourceInputComposite(container,
+					ResourceInputComposite.STYLE_COMBO,
+					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					RNicoMessages.ChangeWorkingDir_Resource_label);
 			fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
@@ -132,7 +132,7 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 			final Realm realm = Realm.getDefault();
 			fDbc = new DataBindingContext(realm);
 			fNewLocationString = new WritableValue(dir, String.class);
-			fDbc.bindValue(fLocationGroup.createObservable(), fNewLocationString,
+			fDbc.bindValue(fLocationGroup.getObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
 			
 			WizardPageSupport.create(this, fDbc);

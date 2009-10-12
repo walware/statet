@@ -12,6 +12,10 @@
 package de.walware.ecommons;
 
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.filesystem.EFS;
@@ -61,6 +65,7 @@ public class FileValidator implements IValidator {
 	private int fOnDirectory;
 	private int fOnNotLocal;
 	private boolean fIgnoreRelative;
+	private Map<Pattern, Integer> fOnPattern;
 	
 	
 	/**
@@ -152,6 +157,31 @@ public class FileValidator implements IValidator {
 		fStatus = null;
 	}
 	
+	/**
+	 * @param pattern pattern
+	 * @param severity at moment only OK_STATUS or -1
+	 */
+	public void setOnPattern(final Pattern pattern, final int severity) {
+		if (fOnPattern == null) {
+			fOnPattern = new LinkedHashMap<Pattern, Integer>();
+		}
+		if (severity >= 0) {
+			fOnPattern.put(pattern, severity);
+		}
+		else {
+			fOnPattern.remove(pattern);
+		}
+	}
+	public int getOnPattern(final Pattern pattern) {
+		if (fOnPattern != null) {
+			final Integer integer = fOnPattern.get(pattern);
+			if (integer != null) {
+				return integer.intValue();
+			}
+		}
+		return -1;
+	}
+	
 	public void setResourceLabel(final String label) {
 		fResourceLabel = " '" + label + "' "; //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -213,6 +243,13 @@ public class FileValidator implements IValidator {
 			String s = (String) value;
 			if (s.length() == 0) {
 				return createStatus(fOnEmpty, Messages.Resource_error_NoInput_message, null);
+			}
+			if (fOnPattern != null && !fOnPattern.isEmpty()) {
+				for (final Entry<Pattern, Integer> entry : fOnPattern.entrySet()) {
+					if (entry.getKey().matcher(s).find()) {
+						return Status.OK_STATUS;
+					}
+				}
 			}
 			try {
 				s = resolveExpression(s);

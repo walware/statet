@@ -61,6 +61,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.AbstractSettingsModelObject;
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
@@ -68,7 +69,7 @@ import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.base.ui.StatetImages;
 
@@ -130,7 +131,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	private Text fCmdText;
 	private Button fHelpButton;
 	private InputArgumentsComposite fArgumentsControl;
-	private ChooseResourceComposite fResourceControl;
+	private ResourceInputComposite fResourceControl;
 	
 	private WritableValue fCmdValue;
 	private WritableValue fArgumentsValue;
@@ -247,13 +248,12 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		fArgumentsControl = new InputArgumentsComposite(container);
 		fArgumentsControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		
-		fResourceControl = new ChooseResourceComposite(container,
-				ChooseResourceComposite.STYLE_LABEL | ChooseResourceComposite.STYLE_TEXT,
-				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN,
+		fResourceControl = new ResourceInputComposite(container,
+				ResourceInputComposite.STYLE_LABEL | ResourceInputComposite.STYLE_TEXT,
+				ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_OPEN,
 				""); //$NON-NLS-1$
-		fResourceControl.showInsertVariable(true, new VariableFilter[] {
-				VariableFilter.EXCLUDE_JAVA_FILTER,
-		});
+		fResourceControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
+				VariableFilter.EXCLUDE_JAVA_FILTER ), null);
 		fResourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	
@@ -284,7 +284,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 		fResourceControl.getValidator().setOnLateResolve(IStatus.WARNING);
 		fResourceControl.getValidator().setOnEmpty(IStatus.OK);
 		fResourceControl.getValidator().setIgnoreRelative(true);
-		final Binding resourceBinding = dbc.bindValue(fResourceControl.createObservable(), fResourceValue,
+		final Binding resourceBinding = dbc.bindValue(fResourceControl.getObservable(), fResourceValue,
 				new UpdateValueStrategy().setAfterGetValidator(
 						new SavableErrorValidator(fResourceControl.getValidator())), null);
 		cmdSelection.addValueChangeListener(new IValueChangeListener() {
@@ -297,19 +297,19 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 					switch (cmd.getType()) {
 					case Cmd.PACKAGE:
 						label = RLaunchingMessages.RCmd_Resource_Package_label;
-						mode = ChooseResourceComposite.MODE_DIRECTORY;
+						mode = ResourceInputComposite.MODE_DIRECTORY;
 						break;
 					case Cmd.DOC:
 						label = RLaunchingMessages.RCmd_Resource_Doc_label;
-						mode = ChooseResourceComposite.MODE_FILE;
+						mode = ResourceInputComposite.MODE_FILE;
 						break;
 					default: // Cmd.OTHER, Cmd.CUSTOM
 						label = RLaunchingMessages.RCmd_Resource_Other_label;
-						mode = ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_DIRECTORY;
+						mode = ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_DIRECTORY;
 						break;
 					}
 					fResourceControl.setResourceLabel(label);
-					fResourceControl.setMode(mode | ChooseResourceComposite.MODE_OPEN);
+					fResourceControl.setMode(mode | ResourceInputComposite.MODE_OPEN);
 					resourceBinding.validateTargetToModel();
 				}
 			} });

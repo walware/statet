@@ -36,7 +36,7 @@ import de.walware.ecommons.ui.dialogs.TitleAreaStatusUpdater;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.IProgressInfo;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
@@ -58,7 +58,7 @@ public class SelectFileHandler implements IToolEventHandler {
 		private ToolProcess fTool;
 		private int fMode;
 		
-		private ChooseResourceComposite fLocationGroup;
+		private ResourceInputComposite fLocationGroup;
 		private WritableValue fNewLocationString;
 		private final String fHistoryId;
 		
@@ -69,8 +69,8 @@ public class SelectFileHandler implements IToolEventHandler {
 			setTitle(message);
 			setMessage(message);
 			fTool = tool;
-			fMode = newFile ? (ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_SAVE)
-					: (ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN);
+			fMode = newFile ? (ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_SAVE)
+					: (ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_OPEN);
 			fHistoryId = "statet:"+fTool.getMainType()+":location.commonfile"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
@@ -93,8 +93,8 @@ public class SelectFileHandler implements IToolEventHandler {
 			inputComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			inputComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
-			fLocationGroup = new ChooseResourceComposite(inputComposite,
-					ChooseResourceComposite.STYLE_COMBO,
+			fLocationGroup = new ResourceInputComposite(inputComposite,
+					ResourceInputComposite.STYLE_COMBO,
 					fMode,
 					Messages.Util_SelectFile_File_label);
 			fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -122,7 +122,7 @@ public class SelectFileHandler implements IToolEventHandler {
 				}
 			}
 			fNewLocationString = new WritableValue(dir, String.class);
-			db.getContext().bindValue(fLocationGroup.createObservable(), fNewLocationString,
+			db.getContext().bindValue(fLocationGroup.getObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
 		}
 		

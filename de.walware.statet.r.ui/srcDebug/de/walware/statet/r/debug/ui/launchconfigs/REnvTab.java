@@ -31,13 +31,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvSetting;
@@ -117,7 +118,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	
 	
 	private ChooseREnvComposite fREnvControl;
-	private ChooseResourceComposite fWorkingDirectoryControl;
+	private ResourceInputComposite fWorkingDirectoryControl;
 	
 	private WritableValue fREnvSettingValue;
 	private WritableValue fWorkingDirectoryValue;
@@ -157,13 +158,12 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		fREnvControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		if (fWithWD) {
-			fWorkingDirectoryControl = new ChooseResourceComposite(mainComposite,
-					ChooseResourceComposite.STYLE_GROUP | ChooseResourceComposite.STYLE_TEXT,
-					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
+			fWorkingDirectoryControl = new ResourceInputComposite(mainComposite,
+					ResourceInputComposite.STYLE_GROUP | ResourceInputComposite.STYLE_TEXT,
+					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					RLaunchingMessages.REnv_Tab_WorkingDir_label);
-			fWorkingDirectoryControl.showInsertVariable(true, new VariableFilter[] {
-					VariableFilter.EXCLUDE_JAVA_FILTER,
-			});
+			fWorkingDirectoryControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
+					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
 			fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
 		
@@ -182,7 +182,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 				null);
 		if (fWithWD) {
 			fWorkingDirectoryControl.getValidator().setOnEmpty(IStatus.OK);
-			dbc.bindValue(fWorkingDirectoryControl.createObservable(), fWorkingDirectoryValue,
+			dbc.bindValue(fWorkingDirectoryControl.getObservable(), fWorkingDirectoryValue,
 					new UpdateValueStrategy().setAfterGetValidator(
 							new SavableErrorValidator(fWorkingDirectoryControl.getValidator())),
 					null);

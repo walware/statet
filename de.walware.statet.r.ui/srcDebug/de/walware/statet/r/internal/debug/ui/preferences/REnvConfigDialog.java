@@ -75,6 +75,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
 import de.walware.ecommons.debug.ui.VariableFilter;
@@ -86,7 +87,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.REnvConfiguration;
@@ -128,18 +129,17 @@ public class REnvConfigDialog extends ExtStatusDialog {
 	private static final Pattern DETECT_PATH_PATTERN = Pattern.compile(Pattern.quote(File.pathSeparator));
 	
 	
-	private class RHomeComposite extends ChooseResourceComposite {
+	private class RHomeComposite extends ResourceInputComposite {
 		
 		public RHomeComposite(final Composite parent) {
 			super (parent, 
-					ChooseResourceComposite.STYLE_TEXT,
-					ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN, 
+					ResourceInputComposite.STYLE_TEXT,
+					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN, 
 					Messages.REnv_Detail_Location_label);
-			showInsertVariable(true, new VariableFilter[] {
+			setShowInsertVariable(true, new ConstList<VariableFilter>(
 					VariableFilter.EXCLUDE_BUILD_FILTER,
 					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-					VariableFilter.EXCLUDE_JAVA_FILTER
-			});
+					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
 		}
 		
 		@Override
@@ -200,7 +200,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 	private final Set<String> fExistingNames;
 	
 	private Text fNameControl;
-	private ChooseResourceComposite fRHomeControl;
+	private ResourceInputComposite fRHomeControl;
 	private ComboViewer fRBitViewer;
 	private TreeViewer fRLibrariesViewer;
 	private ButtonGroup<RLibraryLocation> fRLibrariesButtons;
@@ -377,9 +377,9 @@ public class REnvConfigDialog extends ExtStatusDialog {
 					return new ExtensibleTextCellEditor(treeComposite.tree) {
 						@Override
 						protected Control createCustomControl(final Composite parent) {
-							final ChooseResourceComposite chooseResourceComposite = new ChooseResourceComposite(parent,
-									ChooseResourceComposite.STYLE_TEXT,
-									ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_OPEN,
+							final ResourceInputComposite chooseResourceComposite = new ResourceInputComposite(parent,
+									ResourceInputComposite.STYLE_TEXT,
+									ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 									Messages.REnv_Detail_LibraryLocation_label) {
 								@Override
 								protected void beforeMenuAction() {
@@ -390,11 +390,10 @@ public class REnvConfigDialog extends ExtStatusDialog {
 									getFocusGroup().continueTracking();
 								}
 							};
-							chooseResourceComposite.showInsertVariable(true, new VariableFilter[] {
+							chooseResourceComposite.setShowInsertVariable(true, new ConstList<VariableFilter>(
 									VariableFilter.EXCLUDE_BUILD_FILTER,
 									VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-									VariableFilter.EXCLUDE_JAVA_FILTER,
-							});
+									VariableFilter.EXCLUDE_JAVA_FILTER ), null);
 							fText = (Text) chooseResourceComposite.getTextControl();
 							return chooseResourceComposite;
 						}
@@ -497,7 +496,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 						return ValidationStatus.ok();
 					}
 				}), null);
-		final Binding rHomeBinding = db.getContext().bindValue(fRHomeControl.createObservable(), 
+		final Binding rHomeBinding = db.getContext().bindValue(fRHomeControl.getObservable(), 
 				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_RHOME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
 					public IStatus validate(final Object value) {

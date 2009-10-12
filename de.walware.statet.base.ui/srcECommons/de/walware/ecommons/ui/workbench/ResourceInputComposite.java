@@ -12,6 +12,7 @@
 package de.walware.ecommons.ui.workbench;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.IFileStore;
@@ -23,6 +24,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.databinding.swt.SWTObservables;
@@ -68,7 +70,7 @@ import de.walware.ecommons.ui.util.MessageUtil;
  * 
  * XXX: Not yet all combinations are tested!
  */
-public class ChooseResourceComposite extends Composite {
+public class ResourceInputComposite extends Composite {
 	
 	
 	private static final String VAR_WORKSPACE_LOC = "workspace_loc"; //$NON-NLS-1$
@@ -113,9 +115,10 @@ public class ChooseResourceComposite extends Composite {
 	private WidgetToolsButton fTools;
 	private boolean fShowInsertVariable;
 	private List<VariableFilter> fShowInsertVariableFilters;
+	private List<IStringVariable> fShowInsertVariableAdditionals;
 	
 	
-	public ChooseResourceComposite(final Composite parent, final int style,
+	public ResourceInputComposite(final Composite parent, final int style,
 			final int mode, final String resourceLabel) {
 		super(parent, SWT.NONE);
 		
@@ -174,9 +177,25 @@ public class ChooseResourceComposite extends Composite {
 		return NLS.bind(Messages.ChooseResource_Task_description, fResourceLabel);
 	}
 	
-	public void showInsertVariable(final boolean enable, final VariableFilter[] filters) {
+	public void setShowInsertVariable(final boolean enable,
+			final List<VariableFilter> filters, final List<IStringVariable> additionals) {
 		fShowInsertVariable = enable;
-		fShowInsertVariableFilters = new ConstList<VariableFilter>(filters);
+		fShowInsertVariableFilters = (filters != null) ? new ConstList<VariableFilter>(filters) : null;
+		if (fShowInsertVariableAdditionals != null) {
+			for (final IStringVariable variable : fShowInsertVariableAdditionals) {
+				final String name = variable.getName();
+				final Pattern pattern = Pattern.compile("\\Q${"+name+"\\E[\\}\\:]");
+				fValidator.setOnPattern(pattern, -1);
+			}
+		}
+		fShowInsertVariableAdditionals = (additionals != null) ? new ConstList<IStringVariable>(additionals) : null;
+		if (fShowInsertVariableAdditionals != null) {
+			for (final IStringVariable variable : fShowInsertVariableAdditionals) {
+				final String name = variable.getName();
+				final Pattern pattern = Pattern.compile("\\Q${"+name+"\\E[\\}\\:]");
+				fValidator.setOnPattern(pattern, IStatus.OK);
+			}
+		}
 		if (fTools != null) {
 			fTools.resetMenu();
 		}
@@ -267,7 +286,7 @@ public class ChooseResourceComposite extends Composite {
 		fTools = new WidgetToolsButton(inputField) {
 			@Override
 			protected void fillMenu(final Menu menu) {
-				ChooseResourceComposite.this.fillMenu(menu);
+				ResourceInputComposite.this.fillMenu(menu);
 			}
 		};
 		fTools.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false));
@@ -484,6 +503,9 @@ public class ChooseResourceComposite extends Composite {
 		if (fShowInsertVariableFilters != null) {
 			dialog.addFilters(fShowInsertVariableFilters);
 		}
+		if (fShowInsertVariableAdditionals != null) {
+			dialog.addAdditionals(fShowInsertVariableAdditionals);
+		}
 		if (dialog.open() != Dialog.OK) {
 			return;
 		}
@@ -519,8 +541,8 @@ public class ChooseResourceComposite extends Composite {
 	public IFileStore getResourceAsFileStore() {
 		return fValidator.getFileStore();
 	}
-		
-	public IObservableValue createObservable() {
+	
+	public IObservableValue getObservable() {
 		if (fAsCombo) {
 			return SWTObservables.observeText(fLocationComboField);
 		}

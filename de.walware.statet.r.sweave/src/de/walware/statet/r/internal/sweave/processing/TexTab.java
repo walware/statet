@@ -57,7 +57,7 @@ import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderChooser;
@@ -131,7 +131,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 	private Button fOpenTexFileControl;
 	private Button fOpenTexFileOnErrorsControl;
 	
-	private ChooseResourceComposite fOutputDirControl;
+	private ResourceInputComposite fOutputDirControl;
 	
 	private Button fBuildTexFileDisabledControl;
 	private Button fBuildTexFileEclipseControl;
@@ -199,9 +199,9 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			label.setText(Messages.TexTab_OutputDir_longlabel);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
-		fOutputDirControl = new ChooseResourceComposite(composite, 
-				ChooseResourceComposite.STYLE_TEXT, 
-				ChooseResourceComposite.MODE_DIRECTORY | ChooseResourceComposite.MODE_SAVE, 
+		fOutputDirControl = new ResourceInputComposite(composite, 
+				ResourceInputComposite.STYLE_TEXT, 
+				ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_SAVE, 
 				Messages.TexTab_OutputDir_label) {
 			
 			@Override
@@ -425,7 +425,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			}
 		}, null, null);
 		
-		dbc.bindValue(fOutputDirControl.createObservable(), fOutputDirValue, 
+		dbc.bindValue(fOutputDirControl.getObservable(), fOutputDirValue, 
 				new UpdateValueStrategy().setAfterGetValidator(fOutputDirControl.getValidator()), null);
 	}
 	

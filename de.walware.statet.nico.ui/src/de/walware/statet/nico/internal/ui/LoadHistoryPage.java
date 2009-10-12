@@ -14,7 +14,7 @@ package de.walware.statet.nico.internal.ui;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ui.dialogs.Layouter;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.actions.AbstractHistoryPage;
@@ -33,10 +33,10 @@ public class LoadHistoryPage extends AbstractHistoryPage {
 	
 	
 	@Override
-	protected ChooseResourceComposite createResourceComposite(final Layouter layouter) {
-		return new ChooseResourceComposite(layouter.composite, 
-				ChooseResourceComposite.STYLE_COMBO,
-				ChooseResourceComposite.MODE_FILE | ChooseResourceComposite.MODE_OPEN, 
+	protected ResourceInputComposite createResourceComposite(final Layouter layouter) {
+		return new ResourceInputComposite(layouter.composite, 
+				ResourceInputComposite.STYLE_COMBO,
+				ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_OPEN, 
 				Messages.LoadSaveHistoryPage_File_label);
 	}
 	

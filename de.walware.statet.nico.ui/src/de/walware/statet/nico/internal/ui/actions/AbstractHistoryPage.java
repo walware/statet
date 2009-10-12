@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Group;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.util.DialogUtil;
-import de.walware.ecommons.ui.workbench.ChooseResourceComposite;
+import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -43,7 +43,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	private static final String SETTINGS_HISTORY = "statet:location.history"; //$NON-NLS-1$
 	
 	
-	protected ChooseResourceComposite fLocationGroup;
+	protected ResourceInputComposite fLocationGroup;
 	private String fResourcePath;
 	public IFile fResourceInWorkspace;
 	public IFileStore fResourceInEFS;
@@ -101,7 +101,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 				fTool).getControl());
 	}
 	
-	protected abstract ChooseResourceComposite createResourceComposite(Layouter layouter);
+	protected abstract ResourceInputComposite createResourceComposite(Layouter layouter);
 	
 	protected void addAdditionalContent1(final Layouter layouter) {
 	}
