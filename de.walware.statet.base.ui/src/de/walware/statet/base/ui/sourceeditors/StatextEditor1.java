@@ -92,6 +92,7 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.ui.ECommonsUI;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.sourceediting.GotoMatchingBracketHandler;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
@@ -951,8 +952,8 @@ public abstract class StatextEditor1<ProjectT extends StatetExtNature> extends T
 	protected void editorContextMenuAboutToShow(final IMenuManager m) {
 		super.editorContextMenuAboutToShow(m);
 		
-		m.insertBefore(IStatetUIMenuIds.GROUP_ADDITIONS_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
-		final IContributionItem additions = m.find(IStatetUIMenuIds.GROUP_ADDITIONS_ID);
+		m.insertBefore(ECommonsUI.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
+		final IContributionItem additions = m.find(ECommonsUI.ADDITIONS_MENU_ID);
 		if (additions != null) {
 			additions.setVisible(false);
 		}

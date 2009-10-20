@@ -33,6 +33,7 @@ import de.walware.ecommons.ltk.ui.refactoring.CopyNamesHandler;
 import de.walware.ecommons.ltk.ui.refactoring.CutElementsHandler;
 import de.walware.ecommons.ltk.ui.refactoring.DeleteElementsHandler;
 import de.walware.ecommons.ltk.ui.refactoring.PasteElementsHandler;
+import de.walware.ecommons.ui.ECommonsUI;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -228,7 +229,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 				null, null, null,
 				null, "R", null, //$NON-NLS-1$
 				CommandContributionItem.STYLE_PUSH, null, false)));
-		final Separator additions = new Separator(IStatetUIMenuIds.GROUP_ADDITIONS_ID);
+		final Separator additions = new Separator(ECommonsUI.ADDITIONS_MENU_ID);
 		additions.setVisible(false);
 		m.add(additions);
 		m.add(new Separator(IStatetUIMenuIds.GROUP_ADD_MORE_ID));

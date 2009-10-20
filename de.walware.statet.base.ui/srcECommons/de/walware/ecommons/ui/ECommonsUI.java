@@ -19,4 +19,7 @@ public class ECommonsUI {
 	
 	public static final String PLUGIN_ID = StatetUIPlugin.PLUGIN_ID;
 	
+	
+	public static final String ADDITIONS_MENU_ID = "additions"; //$NON-NLS-1$
+	
 }
