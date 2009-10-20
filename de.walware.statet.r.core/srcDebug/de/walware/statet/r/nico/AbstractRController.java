@@ -118,7 +118,7 @@ public abstract class AbstractRController
 	
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
 		final String text = fCurrentPrompt.text + (
-				((fCurrentPrompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
+				((fCurrentPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
 						"(Input cancelled)" : "(Command cancelled)") + 
 						fLineSeparator;
 		fInfoStream.append(text,

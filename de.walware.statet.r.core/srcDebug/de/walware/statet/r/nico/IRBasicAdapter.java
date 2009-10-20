@@ -27,6 +27,14 @@ public interface IRBasicAdapter extends
 		IToolRunnableControllerAdapter, IAdaptable {
 	
 	
+	/**
+	 * This flag indicates that the current input is incomplete.
+	 * 
+	 * The prompt have to be a instance of {@link IncompleteInputPrompt<RunnableAdapterType, WorkspaceType>}.
+	 */
+	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
+	
+	
 	public ToolProcess<? extends RWorkspace> getProcess();
 	
 	public ToolController<? extends RWorkspace> getController();

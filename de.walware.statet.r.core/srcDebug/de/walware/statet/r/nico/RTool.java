@@ -12,10 +12,19 @@
 package de.walware.statet.r.nico;
 
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 
 public final class RTool {
+	
+	/**
+	 * Tool type of R instances.
+	 * 
+	 * @see ToolProcess#getMainType()
+	 */
+	public static final String TYPE = "R"; //$NON-NLS-1$
+	
 	
 	/**
 	 * Feature set for R, providing basic methods independent 
@@ -28,15 +37,6 @@ public final class RTool {
 	 * </ul>
 	 */
 	public static final String R_BASIC_FEATURESET_ID = "de.walware.statet.r.basic"; //$NON-NLS-1$
-	
-	
-	/**
-	 * This flag indicates that the current input is incomplete.
-	 * 
-	 * The prompt have to be a instance of {@link IncompleteInputPrompt<RunnableAdapterType, WorkspaceType>}.
-	 */
-	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
-	
 	
 	/**
 	 * Feature set for R, providing methods to work directly with R data

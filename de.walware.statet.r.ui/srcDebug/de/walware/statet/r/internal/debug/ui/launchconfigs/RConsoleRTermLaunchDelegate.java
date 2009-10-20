@@ -51,6 +51,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RTermController;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -128,7 +129,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		String name = cmdLine.get(0);
 		name += ' ' + LaunchConfigUtil.createProcessTimestamp();
-		final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, "R", //$NON-NLS-1$
+		final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, RTool.TYPE,
 				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " : R Console/Rterm ~ " + name, //$NON-NLS-1$
 				null);
 		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));

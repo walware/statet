@@ -67,6 +67,7 @@ import de.walware.statet.r.core.rsource.ast.FCall;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.FCall.Args;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.ui.RLabelProvider;
@@ -290,7 +291,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			tool = NicoUITools.getTool(fEditor.getWorkbenchPart());
 		}
 		if (tool != null
-				&& tool.getMainType() == "R") {
+				&& tool.getMainType() == RTool.TYPE) {
 			final ToolProcess<RWorkspace> rProcess = tool;
 			final RWorkspace workspace = rProcess.getWorkspaceData();
 			if (workspace.hasRObjectDB()) {

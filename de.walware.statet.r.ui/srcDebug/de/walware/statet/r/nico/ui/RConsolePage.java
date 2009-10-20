@@ -53,6 +53,7 @@ import de.walware.statet.r.internal.nico.ui.RInputConfigurator;
 import de.walware.statet.r.internal.nico.ui.RInputGroup;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.ui.RUIHelp;
 
@@ -73,7 +74,7 @@ public class RConsolePage extends NIConsolePage {
 		@Override
 		public void run() {
 			try {
-				final ToolController controller = NicoUITools.accessController("R", getConsole().getProcess()); //$NON-NLS-1$
+				final ToolController controller = NicoUITools.accessController(RTool.TYPE, getConsole().getProcess());
 				controller.submit(this);
 			}
 			catch (final CoreException e) {

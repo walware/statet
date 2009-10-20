@@ -519,7 +519,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				
 				final ToolProcess process = fProcess;
 				try {
-					final ToolController controller = NicoUITools.accessController("R", process);
+					final ToolController controller = NicoUITools.accessController(RTool.TYPE, process);
 					controller.submit(name, SubmitType.TOOLS);
 				}
 				catch (final CoreException e) {
@@ -639,7 +639,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			final ToolProcess process = fProcess;
 			if (ToolMessageDialog.openConfirm(process, getSite().getShell(), "Delete", message.toString())) {
 				try {
-					final ToolController controller = NicoUITools.accessController("R", process); //$NON-NLS-1$
+					final ToolController controller = NicoUITools.accessController(RTool.TYPE, process);
 					controller.submit(new IToolRunnable() {
 						public String getTypeId() {
 							return "r/objectbrowser/delete";

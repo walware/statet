@@ -88,6 +88,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.impl.RjsUtil;
@@ -445,7 +446,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			
 			String name = rmiAddress.toString();
 			name += ' ' + LaunchConfigUtil.createProcessTimestamp();
-			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, "R", //$NON-NLS-1$
+			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, RTool.TYPE,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
 					" (Remote) : R Console/RJ ~ " + name, //$NON-NLS-1$
 					rmiAddress.toString()); 

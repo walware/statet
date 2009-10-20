@@ -84,6 +84,7 @@ import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
+import de.walware.statet.r.nico.RTool;
 
 
 class RweaveTexTool implements Runnable, IProcess {
@@ -551,12 +552,12 @@ class RweaveTexTool implements Runnable, IProcess {
 	//			RCodeLaunchRegistry.runRCodeDirect(RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveCommands), false);
 				final ToolProcess rProcess = NicoUI.getToolRegistry().getActiveToolSession(fWorkbenchPage).getProcess();
 				if (rProcess == null) {
-					NicoUITools.accessTool("R", rProcess); // throws CoreException  //$NON-NLS-1$
+					NicoUITools.accessTool(RTool.TYPE, rProcess); // throws CoreException
 				}
 				
 				final R rTask = new R();
 				if (fRunSweave || fRunTex) {
-					final ToolController rController = NicoUITools.accessController("R", rProcess); //$NON-NLS-1$
+					final ToolController rController = NicoUITools.accessController(RTool.TYPE, rProcess);
 					fProgress.worked(TICKS_PREPARER);
 					
 					final IStatus submitStatus = rController.submit(rTask);

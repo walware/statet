@@ -230,7 +230,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 			return null;
 		}
 		final ToolProcess process = NicoUITools.getTool(part);
-		final ToolController controller = NicoUITools.getController("R", RTool.R_DATA_FEATURESET_ID, process);
+		final ToolController controller = NicoUITools.getController(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, process);
 		if (controller == null) {
 			return null;
 		}

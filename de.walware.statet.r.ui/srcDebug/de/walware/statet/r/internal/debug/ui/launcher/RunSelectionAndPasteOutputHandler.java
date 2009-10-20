@@ -57,6 +57,7 @@ import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.nico.IRBasicAdapter;
+import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.ui.RUI;
 
@@ -277,7 +278,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			final ToolProcess process = NicoUI.getToolRegistry().getActiveToolSession(UIAccess.getActiveWorkbenchPage(true)).getProcess();
 			final ToolController controller; 
 			try {
-				controller = NicoUITools.accessController("R", process); //$NON-NLS-1$
+				controller = NicoUITools.accessController(RTool.TYPE, process);
 			}
 			catch (final CoreException e) {
 				cancel(r, e.getStatus(), event);

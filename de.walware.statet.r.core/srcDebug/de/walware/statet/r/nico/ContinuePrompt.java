@@ -30,8 +30,8 @@ public class ContinuePrompt extends Prompt {
 	
 	
 	ContinuePrompt(final Prompt previousPrompt, String lastInput, final String promptText, final int meta) {
-		super(promptText, RTool.META_PROMPT_INCOMPLETE_INPUT | meta);
-		if ((previousPrompt.meta & RTool.META_PROMPT_INCOMPLETE_INPUT) != 0) {
+		super(promptText, IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT | meta);
+		if ((previousPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			lastInput = ((ContinuePrompt) previousPrompt).previousInput + lastInput;
 		}
 		previousInput = lastInput;
