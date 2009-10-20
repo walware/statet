@@ -26,7 +26,11 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.IStringVariable;
 
+import de.walware.ecommons.ConstList;
+
+import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
@@ -63,6 +67,13 @@ public class RWorkspace extends ToolWorkspace {
 	public static interface ICombinedEnvironment extends REnvironment, ICombinedList {
 		
 	}
+	
+	public static final List<IStringVariable> ADDITIONAL_R_VARIABLES = new ConstList<IStringVariable>(
+			NicoVariables.SESSION_STARTUP_DATE_VARIABLE,
+			NicoVariables.SESSION_STARTUP_TIME_VARIABLE,
+			NicoVariables.SESSION_CONNECTION_DATE_VARIABLE,
+			NicoVariables.SESSION_CONNECTION_TIME_VARIABLE,
+			NicoVariables.SESSION_STARTUP_WD_VARIABLE );
 	
 	
 	private static class REnvironments {

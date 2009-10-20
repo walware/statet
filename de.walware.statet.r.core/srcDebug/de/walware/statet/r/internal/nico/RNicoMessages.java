@@ -24,6 +24,12 @@ public class RNicoMessages extends NLS {
 	public static String RTerm_CancelTask_SendSignal_label;
 	public static String RTerm_error_Starting_message;
 	
+	public static String R_Info_Started_message;
+	public static String R_Info_Reconnected_message;
+	public static String R_Info_Disconnected_message;
+	public static String R_Info_ConnectionLost_message;
+	public static String R_Info_Stopped_message;
+	
 	
 	static {
 		NLS.initializeMessages(RNicoMessages.class.getName(), RNicoMessages.class);

@@ -17,6 +17,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
@@ -54,13 +55,35 @@ import de.walware.statet.base.core.StatetCore;
 
 /**
  * Utilities to work with files.
+ * 
+ * TODO: add write action (text stream)
  */
 public abstract class FileUtil {
 	
 	
 	public static final String UTF_8 = "UTF-8"; //$NON-NLS-1$
+	
 	public static final String UTF_16_BE = "UTF-16BE"; //$NON-NLS-1$
+	
 	public static final String UTF_16_LE = "UTF-16LE"; //$NON-NLS-1$
+	
+	/**
+	 * Constant that identifies the Byte-Order-Mark for contents encoded with 
+	 * the UTF-8 character encoding scheme. 
+	 */
+	public final static byte[] BOM_UTF_8 = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
+	
+	/**
+	 * Constant that identifies the Byte-Order-Mark for contents encoded with 
+	 * the UTF-16 Big Endian character encoding scheme. 
+	 */
+	public final static byte[] BOM_UTF_16BE = {(byte) 0xFE, (byte) 0xFF};
+	
+	/**
+	 * Constant that identifies the Byte-Order-Mark for contents encoded with 
+	 * the UTF-16 Little Endian character encoding scheme. 
+	 */
+	public final static byte[] BOM_UTF_16LE = {(byte) 0xFF, (byte) 0xFE};
 	
 	
 /*-- Local files --*/
@@ -222,6 +245,26 @@ public abstract class FileUtil {
 		throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "No supported filesystem resource."));
 	}
 	
+	/**
+	 * Returns a string for the given file store.
+	 * The string can be converted back to a file store by the methods
+	 * {@link #getFileStore(String)} etc. of this class.
+	 * 
+	 * @param fileStore the file store or <code>null</code>
+	 * @return the string for the file store or <code>null</code>, if the file store was <code>null</code>
+	 */
+	public static String toString(final IFileStore fileStore) {
+		if (fileStore == null) {
+			return null;
+		}
+		if (fileStore.getFileSystem().getScheme().equals(EFS.SCHEME_FILE)) {
+			return fileStore.toString();
+		}
+		else {
+			return fileStore.toURI().toString();
+		}
+	}
+	
 	
 	/**
 	 * Tries to resolves string to local file store handler.
@@ -258,6 +301,28 @@ public abstract class FileUtil {
 			return files[0];
 		}
 		return null;
+	}
+	
+	public static void prepareTextOutput(final OutputStream outputStream, final String encoding) throws IOException {
+		if (encoding == null) {
+			return;
+		}
+		final byte[] prefix;
+		if (encoding.equals(FileUtil.UTF_8)) {
+			prefix = FileUtil.BOM_UTF_8;
+		}
+		else if (encoding.equals(FileUtil.UTF_16_BE)) {
+			prefix = FileUtil.BOM_UTF_16BE;
+		}
+		else if (encoding.equals(FileUtil.UTF_16_LE)) {
+			prefix = FileUtil.BOM_UTF_16LE;
+		}
+		else {
+			return;
+		}
+		for (int i = 0; i < prefix.length; i++) {
+			outputStream.write(prefix[i]);
+		}
 	}
 	
 	
@@ -348,6 +413,11 @@ public abstract class FileUtil {
 		public FileInput(final InputStream input, final String expliciteCharsetHint) throws IOException, CoreException {
 			fStream = input;
 			if (expliciteCharsetHint != null) {
+				if (expliciteCharsetHint.equals(UTF_8)
+						|| expliciteCharsetHint.equals(UTF_16_BE)
+						|| expliciteCharsetHint.equals(UTF_16_LE)) {
+					read(input);
+				}
 				fDefaultEncoding = expliciteCharsetHint;
 			}
 			else {
@@ -357,7 +427,6 @@ public abstract class FileUtil {
 		}
 		
 		void read(final InputStream input) throws IOException {
-			
 			try {
 				final int n = 3;
 				final byte[] bytes = new byte[n];

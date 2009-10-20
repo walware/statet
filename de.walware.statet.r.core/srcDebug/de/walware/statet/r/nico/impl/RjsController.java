@@ -31,6 +31,8 @@ import java.util.Map;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
 
+import com.ibm.icu.text.DateFormat;
+
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,6 +43,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.net.RMIAddress;
 
@@ -51,6 +54,7 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.rj.RjException;
 import de.walware.rj.data.RObject;
@@ -68,6 +72,7 @@ import de.walware.rj.server.RjsComObject;
 import de.walware.rj.server.RjsPing;
 import de.walware.rj.server.RjsStatus;
 import de.walware.rj.server.Server;
+import de.walware.rj.server.ServerInfo;
 import de.walware.rj.server.ServerLogin;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RPlatform;
@@ -77,6 +82,7 @@ import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.core.RCorePlugin;
+import de.walware.statet.r.internal.nico.RNicoMessages;
 import de.walware.statet.r.internal.rdata.CombinedElement;
 import de.walware.statet.r.internal.rdata.CombinedFactory;
 import de.walware.statet.r.nico.AbstractRController;
@@ -132,7 +138,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	public RjsController(final ToolProcess<RWorkspace> process,
 			final RMIAddress address, final Map<String, Object> initData,
 			final boolean embedded, final boolean startup, final String[] rArgs,
-			final Map<String, Object> rjsProperties, final IFileStore initialWD) {
+			final Map<String, Object> rjsProperties, final IFileStore initialWD,
+			final List<TrackingConfiguration> trackingConfigurations) {
 		super(process, initData);
 		if (address == null) {
 			throw new IllegalArgumentException();
@@ -146,6 +153,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		fStartup = startup;
 		fRArgs = rArgs;
 		fRjsProperties = rjsProperties;
+		fTrackingConfigurations = trackingConfigurations;
 		
 		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
 				address.getHostAddress().getHostAddress());
@@ -269,12 +277,12 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		catch (final ClassCastException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.3.x).", RjsUtil.getVersionString(null)), e));
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.4.x).", RjsUtil.getVersionString(null)), e));
 		}
-		if (version.length != 3 || version[0] != 0 || version[1] != 3) {
+		if (version.length != 3 || version[0] != 0 || version[1] != 4) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.3.x).", RjsUtil.getVersionString(version)),
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.4.x).", RjsUtil.getVersionString(version)),
 					null));
 		}
 		
@@ -330,7 +338,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						args.putAll(fRjsProperties);
 					}
 					if (fStartup) {
-						args.put("args", fRArgs);
+						args.put("args", fRArgs); //$NON-NLS-1$
 						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, args, login.createAnswer());
 					}
 					else {
@@ -354,11 +362,38 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				}
 			}
 			
+			final ServerInfo info = server.getInfo();
+			if (fWorkspaceData.isRemote()) {
+				try {
+					final String wd = FileUtil.toString(fWorkspaceData.toFileStore(info.getDirectory()));
+					if (wd != null) {
+						setStartupWD(wd);
+					}
+				}
+				catch (final CoreException e) {}
+			}
+			else {
+				setStartupWD(info.getDirectory());
+			}
+			final long timestamp = info.getTimestamp();
+			if (timestamp != 0) {
+				setStartupTimestamp(timestamp);
+			}
+			
+			final List<IStatus> warnings = new ArrayList<IStatus>();
+			
+			initTracks(info.getDirectory(), monitor, warnings);
+			
 			if (fStartup && fStartupSnippet != null && fStartupSnippet.length() > 0) {
-				submit(RUtil.LINE_SEPARATOR_PATTERN.split(fStartupSnippet), SubmitType.OTHER);
+				submit(RUtil.LINE_SEPARATOR_PATTERN.split(fStartupSnippet), SubmitType.TOOLS);
 			}
 			fStartupSnippet = null;
 			
+			if (!fStartup) {
+				handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID,
+						addTimestampToMessage(RNicoMessages.R_Info_Reconnected_message, fProcess.getConnectionTimestamp())),
+						monitor);
+			}
 			rjsRunMainLoop(null, null, monitor);
 			fConsoleReadCallbackRequest = true;
 			
@@ -367,7 +402,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					return SubmitType.OTHER;
 				}
 				public String getTypeId() {
-					return "r/rj/start2";
+					return "r/rj/start2"; //$NON-NLS-1$
 				}
 				public String getLabel() {
 					return "Finish Initialization / Read Output";
@@ -377,6 +412,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
 					if (fConsoleReadCallback == null) {
 						rjsRunMainLoop(null, null, monitor);
+					}
+					for (final IStatus status : warnings) {
+						handleStatus(status, monitor);
 					}
 				}
 			});
@@ -499,27 +537,32 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			fIsDisconnected = true;
 		case Server.S_LOST:
 			if (fIsDisconnected) {
-				specialMessage = "R disconnected.";
+				specialMessage = RNicoMessages.R_Info_Disconnected_message;
 				markAsTerminated();
 				break;
 			}
 			else if (!fEmbedded) {
-				specialMessage = "R connection lost.";
+				specialMessage = RNicoMessages.R_Info_ConnectionLost_message;
 				fIsDisconnected = true;
 				markAsTerminated();
 				break;
 			}
 			// continue stopped
 		case Server.S_STOPPED:
-			specialMessage = "R stopped.";
+			specialMessage = RNicoMessages.R_Info_Stopped_message;
 			markAsTerminated();
 			break;
 		default:
 			throw new IllegalStateException();
 		}
 		
-		handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID, specialMessage), monitor);
+		handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID, addTimestampToMessage(specialMessage, System.currentTimeMillis())), monitor);
 		throw new CoreException(new Status(IStatus.CANCEL, RCore.PLUGIN_ID, specialMessage));
+	}
+	
+	protected String addTimestampToMessage(final String message, final long timestamp) {
+		final String datetime = DateFormat.getDateTimeInstance().format(System.currentTimeMillis());
+		return datetime + " - " + message; //$NON-NLS-1$
 	}
 	
 	private MainCmdItem rjsHandleMainList(final MainCmdS2CList list, final IProgressMonitor monitor) throws RemoteException, CoreException {
@@ -636,7 +679,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					final Map<String, Object> data = new HashMap<String, Object>();
 					data.put("newResource", ((cmd.getCmdOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); 
 					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, this, data, monitor) == IToolEventHandler.OK) {
-						cmd.setAnswer((String) data.get("filename")); 
+						cmd.setAnswer((String) data.get("filename")); //$NON-NLS-1$
 						return cmd;
 					}
 				}
@@ -644,23 +687,23 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); 
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_SAVE_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); 
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_ADDTO_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); 
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); //$NON-NLS-1$
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_SHOW_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); 
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); //$NON-NLS-1$
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_OPENIN_EDITOR)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); 
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); //$NON-NLS-1$
 				return cmd;
 			}
 			throw new Exception("Unknown command.");

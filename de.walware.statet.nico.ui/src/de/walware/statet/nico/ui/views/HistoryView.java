@@ -12,11 +12,13 @@
 package de.walware.statet.nico.ui.views;
 
 import java.util.Date;
+import java.util.EnumSet;
 
 import com.ibm.icu.text.DateFormat;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -67,8 +69,10 @@ import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.FastArrayCacheList;
 import de.walware.ecommons.FastList;
+import de.walware.ecommons.preferences.Preference.EnumSetPref;
 import de.walware.ecommons.ui.HandlerContributionItem;
 import de.walware.ecommons.ui.SearchContributionItem;
+import de.walware.ecommons.ui.SimpleContributionItem;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -76,6 +80,7 @@ import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.core.util.IToolProvider;
@@ -142,6 +147,24 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		}
 		
 	};
+	
+	private static final class SubmitTypeFilter implements EntryFilter {
+		
+		private final EnumSet<SubmitType> fSubmitTypes;
+		
+		public SubmitTypeFilter(final EnumSet<SubmitType> types) {
+			fSubmitTypes = types;
+		}
+		
+		public boolean select(final Entry e) {
+			final SubmitType type = e.getSubmitType();
+			return (type == null
+					|| fSubmitTypes.contains(type));
+		} 
+		
+	}
+	
+	private static final EnumSetPref<SubmitType> SOURCE_ENCODER = new EnumSetPref<SubmitType>(null, null, SubmitType.class);
 	
 	
 	private class ViewReloadJob extends Job {
@@ -358,7 +381,6 @@ public class HistoryView extends ViewPart implements IToolProvider {
 			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER));
 			
 			setChecked(fDoFilterEmpty);
-			run();
 		}
 		
 		@Override
@@ -375,6 +397,35 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 	}
 	
+	private class FilterBySourceAction extends SimpleContributionItem {
+		
+		private SubmitType fType;
+		
+		public FilterBySourceAction(final SubmitType type) {
+			super(type.getLabel(), null, SimpleContributionItem.STYLE_CHECK);
+			fType = type;
+			setChecked(fFilterBySource.fSubmitTypes.contains(type));
+		}
+		
+		@Override
+		protected void execute() throws ExecutionException {
+			final SubmitTypeFilter currentFilter = fFilterBySource;
+			final EnumSet<SubmitType> types = EnumSet.copyOf(currentFilter.fSubmitTypes);
+			if (types.contains(fType)) {
+				types.remove(fType);
+				setChecked(false);
+			}
+			else {
+				types.add(fType);
+				setChecked(true);
+			}
+			final SubmitTypeFilter newFilter = new SubmitTypeFilter(types);
+			fFilterBySource = newFilter;
+			replaceFilter(currentFilter, newFilter);
+		}
+		
+	}
+	
 	
 	private volatile ToolProcess fProcess; // note: we write only in ui thread
 	private IToolRegistryListener fToolRegistryListener;
@@ -383,14 +434,17 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private Table fTable;
 	private Clipboard fClipboard;
 	
-	private static final String M_FILTER_EMPTY = "HistoryView.FilterEmpty"; //$NON-NLS-1$
+	private static final String M_FILTER_EMPTY = "FilterEmpty.enabled"; //$NON-NLS-1$
 	private boolean fDoFilterEmpty;
 	private Action fFilterEmptyAction;
 	private final FastList<EntryFilter> fFilter = new FastList<EntryFilter>(EntryFilter.class, FastList.IDENTITY);
 	
-	private static final String M_AUTOSCROLL = "HistoryView.Autoscroll"; //$NON-NLS-1$
+	private static final String M_AUTOSCROLL = "Autoscroll.enabled"; //$NON-NLS-1$
 	private boolean fDoAutoscroll;
 	private Action fScrollLockAction;
+	
+	private static final String M_FILTER_BY_SOURCE = "FilterBySource.include"; //$NON-NLS-1$
+	private SubmitTypeFilter fFilterBySource;
 	
 	private final FastList<IToolRetargetable> fToolListenerList = new FastList<IToolRetargetable>(IToolRetargetable.class);
 	
@@ -428,17 +482,28 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		final String autoscroll = (memento != null) ? memento.getString(M_AUTOSCROLL) : null;
 		if (autoscroll == null || autoscroll.equals("on")) { // default  //$NON-NLS-1$
 			fDoAutoscroll = true;
-		} else {
+		}
+		else {
 			fDoAutoscroll = false;
 		}
+		
+		final String filterBySource = (memento != null) ? memento.getString(M_FILTER_BY_SOURCE) : null;
+		if (filterBySource == null) {
+			fFilterBySource = new SubmitTypeFilter(EnumSet.range(SubmitType.CONSOLE, SubmitType.TOOLS));
+		}
+		else {
+			fFilterBySource = new SubmitTypeFilter(SOURCE_ENCODER.store2Usage(filterBySource));
+		}
+		fFilter.add(fFilterBySource);
 		
 		final String filterEmpty = (memento != null) ? memento.getString(M_FILTER_EMPTY) : null;
 		if (filterEmpty == null || filterEmpty.equals("off")) { // default  //$NON-NLS-1$
 			fDoFilterEmpty = false;
-		} else {
-			fDoFilterEmpty = true;
 		}
-		
+		else {
+			fDoFilterEmpty = true;
+			fFilter.add(EMPTY_FILTER);
+		}
 	}
 	
 	@Override
@@ -446,6 +511,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		super.saveState(memento);
 		
 		memento.putString(M_AUTOSCROLL, (fDoAutoscroll) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
+		memento.putString(M_FILTER_BY_SOURCE, SOURCE_ENCODER.usage2Store(fFilterBySource.fSubmitTypes));
 		memento.putString(M_FILTER_EMPTY, (fDoFilterEmpty) ? "on" : "off"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
@@ -639,9 +705,20 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	private void fillLocalPullDown(final IMenuManager manager) {
 		manager.add(fLoadHistoryAction);
 		manager.add(fSaveHistoryAction);
+		
 		manager.add(new Separator());
+		final IMenuManager filterBySourceMenu = new MenuManager("Include Commands &From", StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER), null);
+//		final IMenuManager filterBySourceMenu = new MenuManager("Hide Commands &From", StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER), null);
+		final EnumSet<SubmitType> types = SubmitType.getDefaultSet();
+		for (final SubmitType submitType : types) {
+			filterBySourceMenu.add(new FilterBySourceAction(submitType));
+		}
+		manager.add(filterBySourceMenu);
 		manager.add(fFilterEmptyAction);
+		
+		manager.add(new Separator());
 		manager.add(fScrollLockAction);
+		
 		manager.add(new Separator());
 	}
 	
@@ -724,6 +801,11 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	public void removeFilter(final EntryFilter filter) {
 		fFilter.remove(filter);
+		scheduleRefresh(false);
+	}
+	
+	public void replaceFilter(final EntryFilter oldFilter, final EntryFilter newFilter) {
+		fFilter.replace(oldFilter, newFilter);
 		scheduleRefresh(false);
 	}
 	

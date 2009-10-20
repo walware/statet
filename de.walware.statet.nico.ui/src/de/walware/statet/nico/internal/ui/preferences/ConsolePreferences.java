@@ -18,7 +18,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.RGB;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
@@ -26,7 +25,9 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.EnumSetPref;
+import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.ui.preferences.CombinedPreferenceStore;
+import de.walware.ecommons.ui.preferences.RGBPref;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
@@ -38,18 +39,39 @@ import de.walware.statet.nico.ui.NicoUIPreferenceNodes;
 public class ConsolePreferences extends AbstractPreferenceInitializer {
 	
 	
-	public static final String INPUT_COLOR = "input.color"; //$NON-NLS-1$
-	public static final String INFO_COLOR = "info.color"; //$NON-NLS-1$
-	public static final String OUTPUT_COLOR = "output.color"; //$NON-NLS-1$
-	public static final String ERROR_COLOR = "error.color"; //$NON-NLS-1$
+	public static final String GROUP_ID = "nico.console"; //$NON-NLS-1$
 	
-	public static final String KEY_FILTER_SUBMIT_TYPES = "filter.submit_types"; //$NON-NLS-1$
-	public static final String KEY_FILTER_SHOW_ALL_ERRORS = "filter.show_all_errors"; //$NON-NLS-1$
+	public static final String KEY_FILTER_SUBMIT_TYPES = "Output.Filter.SubmitTypes.include"; //$NON-NLS-1$
+	public static final String KEY_FILTER_SHOW_ALL_ERRORS = "Output.Filter.ShowAllErrors.enable"; //$NON-NLS-1$
 	
-	private static final EnumSetPref<SubmitType> PREF_FILTER_SUBMIT_TYPES = new EnumSetPref<SubmitType>(
+	public static final String KEY_CHARLIMIT = "Output.CharLimit.num";
+	
+	public static final String KEY_OUTPUT_COLOR_INPUT = "Output.Input.color"; //$NON-NLS-1$
+	public static final String KEY_OUTPUT_COLOR_INFO = "Output.Info.color"; //$NON-NLS-1$
+	public static final String KEY_OUTPUT_COLOR_OUTPUT = "Output.Output.color"; //$NON-NLS-1$
+	public static final String KEY_OUTPUT_COLOR_ERROR = "Output.Error.color"; //$NON-NLS-1$
+	
+	public static final String KEY_HISTORYNAVIGATION_SUBMIT_TYPES = "HistoryNavigation.SubmitTypes.include"; //$NON-NLS-1$
+	
+	public static final Preference<EnumSet<SubmitType>> PREF_FILTER_SUBMIT_TYPES = new EnumSetPref<SubmitType>(
 			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_FILTER_SUBMIT_TYPES, SubmitType.class);
-	private static final BooleanPref PREF_FILTER_SHOW_ALL_ERRORS = new BooleanPref(
-			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_FILTER_SHOW_ALL_ERRORS); 
+	public static final Preference<Boolean> PREF_FILTER_SHOW_ALL_ERRORS = new BooleanPref(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_FILTER_SHOW_ALL_ERRORS);
+	
+	public static final Preference<Integer> PREF_CHARLIMIT = new IntPref(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_CHARLIMIT);
+	
+	public static final Preference<RGB> PREF_COLOR_INPUT = new RGBPref(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_OUTPUT_COLOR_INPUT);
+	public static final Preference<RGB> PREF_COLOR_INFO = new RGBPref(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_OUTPUT_COLOR_INFO);
+	public static final Preference<RGB> PREF_COLOR_OUTPUT = new RGBPref(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_OUTPUT_COLOR_OUTPUT);
+	public static final Preference<RGB> PREF_COLOR_ERROR = new RGBPref(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_OUTPUT_COLOR_ERROR);
+	
+	public static final Preference<EnumSet<SubmitType>> PREF_HISTORYNAVIGATION_SUBMIT_TYPES = new EnumSetPref<SubmitType>(
+			NicoUIPreferenceNodes.CAT_CONSOLE_QUALIFIER, KEY_HISTORYNAVIGATION_SUBMIT_TYPES, SubmitType.class);
 	
 	
 	public static IPreferenceStore getStore() {
@@ -145,14 +167,17 @@ public class ConsolePreferences extends AbstractPreferenceInitializer {
 	public void initializeDefaultPreferences() {
 		final DefaultScope defaultScope = new DefaultScope();
 		
-		final IPreferenceStore store = getStore();
-		PreferenceConverter.setDefault(store, INPUT_COLOR, new RGB(31, 167, 111));
-		PreferenceConverter.setDefault(store, INFO_COLOR, new RGB(31, 79, 175));
-		PreferenceConverter.setDefault(store, OUTPUT_COLOR, new RGB(0, 0, 0));
-		PreferenceConverter.setDefault(store, ERROR_COLOR, new RGB(255, 0, 8));
-		
 		PreferencesUtil.setPrefValue(defaultScope, PREF_FILTER_SUBMIT_TYPES, SubmitType.getDefaultSet());
 		PreferencesUtil.setPrefValue(defaultScope, PREF_FILTER_SHOW_ALL_ERRORS, false);
+		
+		PreferencesUtil.setPrefValue(defaultScope, PREF_CHARLIMIT, 500000);
+		
+		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_INFO, new RGB(31, 79, 175));
+		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_INPUT, new RGB(31, 167, 111));
+		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_OUTPUT, new RGB(0, 0, 0));
+		PreferencesUtil.setPrefValue(defaultScope, PREF_COLOR_ERROR, new RGB(255, 0, 8));
+		
+		PreferencesUtil.setPrefValue(defaultScope, PREF_HISTORYNAVIGATION_SUBMIT_TYPES, EnumSet.of(SubmitType.CONSOLE));
 	}
 	
 }

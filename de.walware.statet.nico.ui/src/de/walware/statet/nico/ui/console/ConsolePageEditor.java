@@ -11,6 +11,7 @@
 
 package de.walware.statet.nico.ui.console;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -71,6 +72,7 @@ import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.ui.text.PairMatcher;
 import de.walware.ecommons.ui.text.sourceediting.DeleteLineHandler;
@@ -94,6 +96,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
+import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences;
 
 
 /**
@@ -373,8 +376,11 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 	private NIConsolePage fConsolePage;
 	private ToolProcess fProcess;
+	
 	private History.Entry fCurrentHistoryEntry;
 	private IHistoryListener fHistoryListener;
+	private EnumSet<SubmitType> fHistoryTypesFilter;
+	
 	private ISourceUnit fSourceUnit;
 	
 	private Composite fComposite;
@@ -406,6 +412,13 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		
 		fDocument = new InputDocument();
 		fSourceUnit = createSourceUnit();
+		
+		updateSettings();
+	}
+	
+	
+	private void updateSettings() {
+		fHistoryTypesFilter = PreferencesUtil.getInstancePrefs().getPreferenceValue(ConsolePreferences.PREF_HISTORYNAVIGATION_SUBMIT_TYPES);
 	}
 	
 	
@@ -543,6 +556,9 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
 		fConfigurator.handleSettingsChanged(groupIds, options);
+		if (groupIds.contains(ConsolePreferences.GROUP_ID)) {
+			updateSettings();
+		}
 	}
 	
 	public void configureServices(final IHandlerService commands, final IContextService keys) {
@@ -647,8 +663,12 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		}
 		
 		History.Entry next = fCurrentHistoryEntry.getNewer();
+		final EnumSet<SubmitType> filter = fHistoryTypesFilter;
+		SubmitType type;
 		while (next != null
-				&& (next.getCommandMarker() < 0 || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
+				&& (   ((type = next.getSubmitType()) != null && !filter.contains(type))
+					|| (next.getCommandMarker() < 0)
+					|| (prefix != null && !next.getCommand().startsWith(prefix)) )) {
 			next = next.getNewer();
 		}
 		
@@ -670,8 +690,12 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		else {
 			next = fProcess.getHistory().getNewest();
 		}
+		final EnumSet<SubmitType> filter = fHistoryTypesFilter;
+		SubmitType type;
 		while (next != null
-				&& (next.getCommandMarker() < 0 || (prefix != null && !next.getCommand().startsWith(prefix)) )) {
+				&& (   ((type = next.getSubmitType()) != null && !filter.contains(type))
+					|| (next.getCommandMarker() < 0)
+					|| (prefix != null && !next.getCommand().startsWith(prefix)) )) {
 			next = next.getOlder();
 		}
 		

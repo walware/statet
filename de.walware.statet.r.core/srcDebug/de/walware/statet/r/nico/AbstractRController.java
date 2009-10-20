@@ -11,20 +11,26 @@
 
 package de.walware.statet.r.nico;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.ITrack;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.util.TrackWriter;
+import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.nico.RNicoMessages;
@@ -48,11 +54,16 @@ public abstract class AbstractRController
 		
 		@Override
 		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
-			super.run(adapter, monitor);
-			((IRBasicAdapter) adapter).briefAboutChange(RWorkspace.REFRESH_AUTO);
+			final AbstractRController r = (AbstractRController) adapter;
+			super.run(r, monitor);
+			if ((r.fCurrentPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) == 0) {
+				r.briefAboutChange(RWorkspace.REFRESH_AUTO);
+			}
 		}
 		
 	}
+	
+	public static final String SHOW_RHELP_HANDLER_ID = "r/showHelp"; //$NON-NLS-1$
 	
 	
 	protected String fContinuePromptText;
@@ -60,6 +71,8 @@ public abstract class AbstractRController
 	
 	protected int fChanged;
 	protected final Set<RElementName> fChangedEnvirs = new HashSet<RElementName>();
+	
+	protected List<TrackingConfiguration> fTrackingConfigurations;
 	
 	
 	public AbstractRController(final ToolProcess process, final Map<String, Object> initData) {
@@ -141,6 +154,26 @@ public abstract class AbstractRController
 		setDefaultPromptText("> "); //$NON-NLS-1$
 		setContinuePromptText("+ "); //$NON-NLS-1$
 	}
+	
+	protected void initTracks(final String directory, final IProgressMonitor monitor, final List<IStatus> warnings)
+			throws CoreException {
+		if (fTrackingConfigurations != null) {
+			final List<ITrack> tracks = new ArrayList<ITrack>(fTrackingConfigurations.size());
+			for (final TrackingConfiguration trackingConfig : fTrackingConfigurations) {
+				final TrackWriter tracker = new TrackWriter(this, trackingConfig);
+				final IStatus status = tracker.init(monitor);
+				if (status.getSeverity() == IStatus.OK) {
+					tracks.add(tracker);
+					addDisposable(tracker);
+				}
+				else {
+					warnings.add(status);
+				}
+			}
+			setTracks(tracks);
+		}
+	}
+	
 	
 	public void setRObjectDB(final boolean enable) {
 		fWorkspaceData.enableRObjectDB(enable);

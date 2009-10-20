@@ -39,6 +39,12 @@ public class Messages extends NLS {
 	public static String Progress_Canceled_label;
 	public static String Progress_Blocked_label;
 	
+	public static String SessionVariables_StartupDate_description;
+	public static String SessionVariables_StartupTime_description;
+	public static String SessionVariables_ConnectionDate_description;
+	public static String SessionVariables_ConnectionTime_description;
+	public static String SessionVariables_StartupWD_description;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

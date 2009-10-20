@@ -13,7 +13,10 @@ package de.walware.statet.nico.core.runtime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -51,9 +54,8 @@ import de.walware.statet.nico.internal.core.preferences.HistoryPreferences;
 public class History {
 	
 	
-	private int fMaxSize = 1000; // is usually overwritten by the preferences
+	private int fMaxSize = 10000; // is usually overwritten by the preferences
 	private int fCurrentSize = 0;
-	private boolean fIgnoreCommentLines;
 	
 	private volatile Entry fNewest;
 	private volatile Entry fOldest;
@@ -64,7 +66,7 @@ public class History {
 	private ToolProcess fProcess;
 	private IPreferenceChangeListener fPreferenceListener;
 	private HistoryPreferences fCurrentPreferences;
-	private IStreamListener fStreamListener;
+	private final Map<SubmitType, IStreamListener> fStreamListeners = new EnumMap(SubmitType.class);
 	
 	private volatile Entry[] fArrayCache;
 	
@@ -76,14 +78,16 @@ public class History {
 		
 		private final String fCommand;
 		private final long fTimeStamp;
+		private final SubmitType fSubmitType;
 		private final int fIsEmpty;
 		private volatile Entry fOlder;
 		private volatile Entry fNewer;
 		
-		private Entry(final Entry older, final String command, final long stamp) {
+		private Entry(final Entry older, final String command, final long stamp, final SubmitType submitType) {
 			fCommand = command;
 			fIsEmpty = createCommandMarker(command);
 			fTimeStamp = stamp;
+			fSubmitType = submitType;
 			fOlder = older;
 			if (older != null) {
 				older.fNewer = this;
@@ -96,6 +100,10 @@ public class History {
 		
 		public long getTimeStamp() {
 			return fTimeStamp;
+		}
+		
+		public SubmitType getSubmitType() {
+			return fSubmitType;
 		}
 		
 		/**
@@ -135,14 +143,6 @@ public class History {
 	public History(final ToolProcess process) {
 		fProcess = process;
 		
-		fStreamListener = new IStreamListener() {
-			public void streamAppended(final String text, final IStreamMonitor monitor) {
-				if ((((ToolStreamMonitor) monitor).getMeta() & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) == 0) {
-					addCommand(text);
-				}
-			}
-		};
-		
 		fPreferenceListener = new IPreferenceChangeListener() {
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				checkSettings(false);
@@ -156,7 +156,23 @@ public class History {
 	}
 	
 	void init() {
-		checkSettings(true);
+		final ToolController controller = fProcess.getController();
+		if (controller != null) {
+			final ToolStreamProxy streams = controller.getStreams();
+			
+			final EnumSet<SubmitType> set = SubmitType.getDefaultSet();
+			for (final SubmitType submitType : set) {
+				final IStreamListener listener = new IStreamListener() {
+					public void streamAppended(final String text, final IStreamMonitor monitor) {
+						if ((((ToolStreamMonitor) monitor).getMeta() & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) == 0) {
+							addCommand(text, submitType);
+						}
+					}
+				};
+				fStreamListeners.put(submitType, listener);
+				streams.getInputStreamMonitor().addListener(listener, EnumSet.of(submitType));
+			}
+		}
 	}
 	
 	
@@ -171,14 +187,6 @@ public class History {
 				return;
 			}
 			fCurrentPreferences = prefs;
-			final ToolController controller = fProcess.getController();
-			if (controller != null) {
-				final ToolStreamProxy streams = controller.getStreams();
-				fIgnoreCommentLines = prefs.filterComments();
-				
-				final EnumSet<SubmitType> types = prefs.getSelectedTypes();
-				streams.getInputStreamMonitor().addListener(fStreamListener, types);
-			}
 			
 			fLock.writeLock().lock();
 		}
@@ -238,14 +246,14 @@ public class History {
 					if (reader.ready()) {
 						String line = reader.readLine();
 						timeStamp = checkTimeStamp(line, timeStamp);
-						exch.oldest = new Entry(null, line, timeStamp);
+						exch.oldest = new Entry(null, line, timeStamp, null);
 						exch.newest = exch.oldest;
 						exch.size = 1;
 						final int maxSize = fMaxSize;
 						while (reader.ready()) {
 							line = reader.readLine();
 							timeStamp = checkTimeStamp(line, timeStamp);
-							exch.newest = new Entry(exch.newest, line, timeStamp);
+							exch.newest = new Entry(exch.newest, line, timeStamp, null);
 							if (exch.size < maxSize) {
 								exch.size++;
 							}
@@ -315,7 +323,28 @@ public class History {
 	 * @throws OperationCanceledException
 	 */
 	public IStatus save(final Object file, final int mode, final String charset, final boolean forceCharset,
-			IProgressMonitor monitor)
+			final IProgressMonitor monitor)
+	throws OperationCanceledException {
+		return save(file, mode, charset, forceCharset, null, monitor);
+	}
+	
+	/**
+	 * Save the history to a text file.
+	 * 
+	 * Note: The thread can be blocked because of workspace operations. So
+	 * it is a good idea, that the user have the chance to cancel the action.
+	 * 
+	 * @param file, type must be supported by IFileUtil impl.
+	 * @param mode allowed: EFS.OVERWRITE, EFS.APPEND
+	 * @param charset the charset (if not appended)
+	 * @param forceCharset use always the specified charset
+	 * @param submitTypes sources to export
+	 * @param monitor
+	 * 
+	 * @throws OperationCanceledException
+	 */
+	public IStatus save(final Object file, final int mode, final String charset, final boolean forceCharset,
+			final Set<SubmitType> submitTypes, IProgressMonitor monitor)
 			throws OperationCanceledException {
 		
 		if (monitor == null) {
@@ -325,19 +354,19 @@ public class History {
 		try {
 			final FileUtil fileUtil = FileUtil.getFileUtil(file);
 			final String newLine = fProcess.getWorkspaceData().getLineSeparator();
-			StringBuilder buffer;
-			fLock.readLock().lock();
-			try {
-				buffer = new StringBuilder(fCurrentSize * 10);
-				Entry e = fOldest;
-				while (e != null) {
+			StringBuilder buffer = new StringBuilder(fCurrentSize * 10);
+			Entry e = fOldest;
+			while (e != null) {
+				if (monitor.isCanceled()) {
+					return Status.CANCEL_STATUS;
+				}
+				
+				if (submitTypes == null || e.fSubmitType == null
+						|| submitTypes.contains(e.fSubmitType)) {
 					buffer.append(e.fCommand);
 					buffer.append(newLine);
-					e = e.fNewer;
 				}
-			}
-			finally {
-				fLock.readLock().unlock();
+				e = e.fNewer;
 			}
 			final String content = buffer.toString();
 			buffer = null;
@@ -365,7 +394,7 @@ public class History {
 		}
 	}
 	
-	final void addCommand(final String command) {
+	final void addCommand(final String command, final SubmitType submitType) {
 		assert(command != null);
 		final long stamp = System.currentTimeMillis();
 		
@@ -374,7 +403,7 @@ public class History {
 		
 		fLock.writeLock().lock();
 		try {
-			newEntry = new Entry(fNewest, command, stamp);
+			newEntry = new Entry(fNewest, command, stamp, submitType);
 			if (fNewest != null) {
 				fNewest.fNewer = newEntry;
 			}

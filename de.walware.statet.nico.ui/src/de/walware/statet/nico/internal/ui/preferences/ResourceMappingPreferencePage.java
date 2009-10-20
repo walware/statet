@@ -42,7 +42,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.ui.dialogs.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.DatabindingSupport;
@@ -56,6 +55,7 @@ import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 import de.walware.ecommons.variables.core.VariableFilter;
 
+import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.internal.core.NicoPlugin;
 import de.walware.statet.nico.internal.core.ResourceMapping;
@@ -249,10 +249,7 @@ class EditMappingDialog extends ExtStatusDialog {
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					"local directory");
 			fLocalControl.getValidator().setOnNotExisting(IStatus.WARNING);
-			fLocalControl.setShowInsertVariable(false, new ConstList<VariableFilter>(
-					VariableFilter.EXCLUDE_JAVA_FILTER,
-					VariableFilter.EXCLUDE_BUILD_FILTER,
-					VariableFilter.EXCLUDE_INTERACTIVE_FILTER ), null);
+			fLocalControl.setShowInsertVariable(false, NicoVariables.DEFAULT_FILTERS, null);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 50);
 			fLocalControl.setLayoutData(gd);

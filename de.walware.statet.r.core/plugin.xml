@@ -14,11 +14,12 @@
 -->
 
 <plugin>
-
+   
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.r.internal.core.RCorePreferenceInitializer"/>
    </extension>
+   
    <extension
          id="de.walware.statet.r.RNature"
          name="R Project Nature"
@@ -43,31 +44,42 @@
       </requires-nature>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.contentTypes">
+         point="org.eclipse.core.contenttype.contentTypes">
       <content-type
-            base-type="org.eclipse.core.runtime.text"
-            file-extensions="R"
             id="de.walware.statet.r.contentTypes.R"
+            base-type="org.eclipse.core.runtime.text"
             name="%contentTypes.R.name"
+            file-extensions="R,Rhistory"
             priority="normal">
-         <property name="bom"/>
+         <property name="org.eclipse.core.runtime.bom"/>
+         <property name="org.eclipse.core.runtime.charset"/>
       </content-type>
       <content-type
+            id="de.walware.statet.r.contentTypes.Rd"
             base-type="org.eclipse.core.runtime.text"
             describer="de.walware.statet.r.core.rdoc.RdTextContentDescriber"
-            file-extensions="Rd"
-            id="de.walware.statet.r.contentTypes.Rd"
             name="%contentTypes.Rd.name"
+            file-extensions="Rd"
             priority="normal">
-         <property name="org.eclipse.core.runtime.charset" />
+         <property name="org.eclipse.core.runtime.charset"/>
       </content-type>
       <content-type
-            file-extensions="RData"
             id="de.walware.statet.r.contentTypes.RData"
             name="%contentTypes.RData.name"
+            file-extensions="RData"
             priority="normal">
       </content-type>
+      <content-type
+            id="de.walware.statet.r.contentTypes.RTranscript"
+            base-type="org.eclipse.core.runtime.text"
+            name="%contentTypes.RTranscript.name"
+            file-extensions="Rtr"
+            priority="normal">
+         <property name="org.eclipse.core.runtime.bom"/>
+         <property name="org.eclipse.core.runtime.charset"/>
+      </content-type>
    </extension>
+   
    <extension
          id="de.walware.statet.r.markers.Tasks"
          name="%markers.Task.name"
@@ -75,6 +87,7 @@
       <super type="org.eclipse.core.resources.taskmarker"/>
       <persistent value="true"/>
    </extension>
+   
    <extension
          id="de.walware.statet.r.core.RInternalBuilder"
          name="Compatibility Builder"
@@ -105,8 +118,16 @@
             extension="RData"
             type="binary">
       </fileTypes>
+      <fileTypes
+            extension="Rtr"
+            type="text">
+      </fileTypes>
+      <fileTypes
+            extension="Rhistory"
+            type="text">
+      </fileTypes>
    </extension>
-
+   
    <extension
          point="de.walware.ecommons.ltk.workingContexts">
       <unitType modelTypeId="r"
@@ -120,5 +141,5 @@
             contentTypeId="de.walware.statet.r.contentTypes.R">
       </modelType>
    </extension>
-
+   
 </plugin>

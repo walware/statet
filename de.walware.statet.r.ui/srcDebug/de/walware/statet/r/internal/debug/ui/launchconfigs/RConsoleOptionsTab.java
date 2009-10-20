@@ -11,19 +11,33 @@
 
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
+import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.core.databinding.observable.set.WritableSet;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
 import org.eclipse.jface.databinding.swt.SWTObservables;
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
+import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.viewers.CellLabelProvider;
+import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -37,9 +51,17 @@ import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.dialogs.ButtonGroup;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditorObservable;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.ViewerUtil;
+
+import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
+import de.walware.statet.nico.core.util.TrackingConfiguration;
+import de.walware.statet.nico.core.util.TrackingConfiguration2LaunchConfiguration;
+import de.walware.statet.nico.ui.util.TrackingConfigurationComposite;
+import de.walware.statet.nico.ui.util.TrackingConfigurationDialog;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -59,10 +81,25 @@ import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
 public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	
 	
-	private Button fPinControl;
-	private SnippetEditor fStartupSnippetEditor;
+	static final String TRANSCRIPT_TRACKING_ID = "transcript"; //$NON-NLS-1$
+	static final String CUSTOM_TRACKING_ID_PREFIX = "custom"; //$NON-NLS-1$
 	
+	static final String TRACKING_IDS = "tracking.ids"; //$NON-NLS-1$
+	static final String TRACKING_ENABLED_IDS = "tracking.enabled.ids"; //$NON-NLS-1$
+	
+	static final TrackingConfiguration2LaunchConfiguration TRACKING_UTIL = new TrackingConfiguration2LaunchConfiguration();
+	
+	
+	private Button fPinControl;
 	private WritableValue fPinValue;
+	
+	private CheckboxTableViewer fTrackingTable;
+	private ButtonGroup<TrackingConfiguration> fTrackingButtons;
+	private WritableList fTrackingList;
+	private WritableSet fTrackingEnabledSet;
+	private int fTrackingMaxCustomId;
+	
+	private SnippetEditor fStartupSnippetEditor;
 	private WritableValue fStartupSnippetValue;
 	
 	private Button fObjectDBEnabledControl;
@@ -90,73 +127,129 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(GridLayoutFactory.swtDefaults().create());
 		
-		{	// Console options:
-			final Group group = new Group(mainComposite, SWT.NONE);
-			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			group.setText(RLaunchingMessages.RConsole_MainTab_ConsoleOptions_label);
-			createConsoleOptions(group);
+		final Composite consoleComposite = createConsoleOptions(mainComposite);
+		if (consoleComposite != null) {
+			consoleComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
+		final Composite trackingComposite = createTrackingOptions(mainComposite);
+		if (trackingComposite != null) {
+			trackingComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		}
 		
 		{	// Snippet options:
 			final Group group = new Group(mainComposite, SWT.NONE);
-			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 4));
 			group.setText("R snippet run after startup:");
 			createSnippetOptions(group);
 		}
 		
 		{	// Object DB options:
 			final Group group = new Group(mainComposite, SWT.NONE);
-			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 			group.setText("Object DB (for Object Browser etc.):");
 			createObjectDBOptions(group);
 		}
 		
 		Dialog.applyDialogFont(parent);
 		initBindings();
+		fTrackingButtons.updateState();
 	}
 	
-	private void createConsoleOptions(final Composite container) {
-		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+	private Composite createConsoleOptions(final Composite parent) {
+		final Group group = new Group(parent, SWT.NONE);
+		group.setText(RLaunchingMessages.RConsole_MainTab_ConsoleOptions_label);
+		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		
-		fPinControl = new Button(container, SWT.CHECK);
-		fPinControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fPinControl = new Button(group, SWT.CHECK);
+		fPinControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		fPinControl.setText(RLaunchingMessages.RConsole_MainTab_ConsoleOptions_Pin_label);
 		
-		LayoutUtil.addSmallFiller(container, false);
+		return group;
+	}
+	
+	private Composite createTrackingOptions(final Composite parent) {
+		final Group group = new Group(parent, SWT.NONE);
+		group.setText("History / Transcript / Tracking:");
+		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		
-		{	final Label label = new Label(container, SWT.NONE);
-			label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			label.setText("Load/Save Command &History Automatically:");
-			
-			final Button disabled = new Button(container, SWT.RADIO);
-			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-			gd.horizontalIndent = LayoutUtil.defaultIndent();
-			disabled.setLayoutData(gd);
-			disabled.setText("Disabled");
-			
-			final Button rwd = new Button(container, SWT.RADIO);
-			gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-			gd.horizontalIndent = LayoutUtil.defaultIndent();
-			rwd.setLayoutData(gd);
-			rwd.setText("'.RHistory' in R working directory");
-			
-			final Button user = new Button(container, SWT.RADIO);
-			gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-			gd.horizontalIndent = LayoutUtil.defaultIndent();
-			user.setLayoutData(gd);
-			user.setText("'.RHistory' in user home directory");
-			
-			final Button custom = new Button(container, SWT.RADIO);
-			gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-			gd.horizontalIndent = LayoutUtil.defaultIndent();
-			custom.setLayoutData(gd);
-			custom.setText("Specified file: ");
-			
-			disabled.setSelection(true);
-			rwd.setEnabled(false);
-			user.setEnabled(false);
-			custom.setEnabled(false);
+		final ViewerUtil.CheckboxTableComposite trackingTable;
+		{	trackingTable = new ViewerUtil.CheckboxTableComposite(group, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			gd.heightHint = LayoutUtil.hintHeight(trackingTable.table, 5);
+			trackingTable.setLayoutData(gd);
+			fTrackingTable = trackingTable.viewer;
 		}
+		{	final TableViewerColumn column = trackingTable.addColumn("Name", SWT.LEFT, new ColumnWeightData(100));
+			column.setLabelProvider(new CellLabelProvider() {
+				@Override
+				public void update(final ViewerCell cell) {
+					final TrackingConfiguration config = (TrackingConfiguration) cell.getElement();
+					cell.setText(config.getName());
+				}
+			});
+		}
+		
+		fTrackingButtons = new ButtonGroup<TrackingConfiguration>(group) {
+			@Override
+			protected List<? extends Object> getItemsToDelete(final IStructuredSelection selection) {
+				final List<? extends Object> list = super.getItemsToDelete(selection);
+				if (list != null) {
+					for (final Object obj : list) {
+						final String id = ((TrackingConfiguration) obj).getId();
+						if (!id.startsWith(CUSTOM_TRACKING_ID_PREFIX)) {
+							return null;
+						}
+					}
+				}
+				return list;
+			}
+			@Override
+			protected TrackingConfiguration edit1(TrackingConfiguration item, final boolean newItem) {
+				TrackingConfigurationDialog dialog;
+				if (!newItem && item != null && item.getId().equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
+					item = new HistoryTrackingConfiguration(item.getId(), (HistoryTrackingConfiguration) item);
+					dialog = new TrackingConfigurationDialog(RConsoleOptionsTab.this.getShell(), item, false) {
+						@Override
+						protected TrackingConfigurationComposite createConfigComposite(final Composite parent) {
+							return new RHistoryConfigurationComposite(parent);
+						}
+					};
+				}
+				else {
+					if (newItem) {
+						final String id = CUSTOM_TRACKING_ID_PREFIX + (fTrackingMaxCustomId + 1);
+						if (item == null) {
+							item = new TrackingConfiguration(id);
+						}
+						else {
+							item = new TrackingConfiguration(id, item);
+						}
+					}
+					else {
+						item = new TrackingConfiguration(item.getId(), item);
+					}
+					dialog = new TrackingConfigurationDialog(RConsoleOptionsTab.this.getShell(), item, newItem) {
+						@Override
+						protected TrackingConfigurationComposite createConfigComposite(final Composite parent) {
+							return new RTrackingConfigurationComposite(parent);
+						}
+					};
+				}
+				if (dialog.open() == Dialog.OK) {
+					if (newItem) {
+						fTrackingMaxCustomId++;
+					}
+					return item;
+				}
+				return null;
+			}
+		};
+		fTrackingButtons.addAddButton();
+		fTrackingButtons.addDeleteButton();
+		fTrackingButtons.addEditButton();
+		fTrackingButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+		
+		return group;
 	}
 	
 	private void createSnippetOptions(final Composite container) {
@@ -167,7 +260,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fStartupSnippetEditor = new SnippetEditor(configurator);
 		fStartupSnippetEditor.create(container, SnippetEditor.DEFAULT_MULTI_LINE_STYLE);
 		final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.heightHint = LayoutUtil.hintHeight(fStartupSnippetEditor.getSourceViewer().getTextWidget(), 5);
+		gd.heightHint = LayoutUtil.hintHeight(fStartupSnippetEditor.getSourceViewer().getTextWidget(), 8);
 		fStartupSnippetEditor.getControl().setLayoutData(gd);
 	}
 	
@@ -216,6 +309,10 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fPinValue = new WritableValue(realm, Boolean.class);
 		dbc.bindValue(SWTObservables.observeSelection(fPinControl), fPinValue, null, null);
 		
+		fTrackingList = new WritableList(realm, new ArrayList<Object>(), TrackingConfiguration.class);
+		fTrackingTable.setContentProvider(new ObservableListContentProvider());
+		fTrackingTable.setInput(fTrackingList);
+		
 		fStartupSnippetValue = new WritableValue(realm, String.class);
 		dbc.bindValue(new SnippetEditorObservable(realm, fStartupSnippetEditor, SWT.Modify), fStartupSnippetValue, null, null);
 		
@@ -233,6 +330,12 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		dbc.bindValue(new SWTMultiEnabledObservable(realm, fObjectDBEnabledControl.getParent().getChildren(), Collections.singletonList(fObjectDBEnabledControl)),
 				dbObs, null, null);
+		
+		fTrackingButtons.connectTo(fTrackingTable, fTrackingList, null);
+		
+		fTrackingEnabledSet = new WritableSet(realm, new HashSet<Object>(), TrackingConfiguration.class);
+		fTrackingButtons.setCheckedModel(fTrackingEnabledSet);
+		dbc.bindSet(ViewersObservables.observeCheckedElements(fTrackingTable, TrackingConfiguration.class), fTrackingEnabledSet);
 	}
 	
 	
@@ -297,6 +400,63 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			}
 			fObjectDBEnvsChildrenValue.setValue(max);
 		}
+		
+		{	fTrackingList.clear();
+			fTrackingMaxCustomId = 0;
+			List<String> trackingIds = Collections.EMPTY_LIST;
+			try {
+				trackingIds = configuration.getAttribute(TRACKING_IDS, Collections.EMPTY_LIST);
+				for (final String id : trackingIds) {
+					final TrackingConfiguration trackingConfig = id.equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID) ?
+							new HistoryTrackingConfiguration(id) : new TrackingConfiguration(id);
+					try {
+						TRACKING_UTIL.load(trackingConfig, configuration);
+						fTrackingList.add(trackingConfig);
+						if (id.startsWith(CUSTOM_TRACKING_ID_PREFIX)) {
+							try {
+								final int num = Integer.parseInt(id.substring(CUSTOM_TRACKING_ID_PREFIX.length()));
+								fTrackingMaxCustomId = Math.max(fTrackingMaxCustomId, num);
+							} catch (final Exception e) {}
+						}
+					}
+					catch (final CoreException e) {
+						trackingIds.remove(id);
+						logReadingError(e);
+					}
+				}
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			if (!trackingIds.contains(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
+				final TrackingConfiguration trackingConfig = new HistoryTrackingConfiguration(HistoryTrackingConfiguration.HISTORY_TRACKING_ID);
+				trackingConfig.setName("History");
+				trackingConfig.setFilePath(RHistoryConfigurationComposite.HISTORY_TRACKING_DEFAULT_PATH);
+				fTrackingList.add(trackingConfig);
+			}
+			if (!trackingIds.contains(TRANSCRIPT_TRACKING_ID)) {
+				final TrackingConfiguration trackingConfig = new TrackingConfiguration(TRANSCRIPT_TRACKING_ID);
+				trackingConfig.setName("Transcript");
+				trackingConfig.setFilePath(RTrackingConfigurationComposite.TRANSCRIPT_TRACKING_DEFAULT_PATH);
+				fTrackingList.add(trackingConfig);
+			}
+		}
+		
+		{	fTrackingEnabledSet.clear();
+			List<String> trackingEnabledIds = Collections.EMPTY_LIST;
+			try {
+				trackingEnabledIds = configuration.getAttribute(TRACKING_ENABLED_IDS, Collections.EMPTY_LIST);
+				final List<TrackingConfiguration> trackingList = fTrackingList;
+				for (final TrackingConfiguration trackingConfig : trackingList) {
+					if (trackingEnabledIds.contains(trackingConfig.getId())) {
+						fTrackingEnabledSet.add(trackingConfig);
+					}
+				}
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+		}
 	}
 	
 	@Override
@@ -321,8 +481,26 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 			configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, max.intValue());
 		}
 		{	final Integer max = (Integer) fObjectDBEnvsChildrenValue.getValue();
-		configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, max.intValue());
+			configuration.setAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, max.intValue());
 		}
+		
+		final List<String> trackingIds = new ArrayList<String>(fTrackingList.size());
+		
+		final List<TrackingConfiguration> trackingList = fTrackingList;
+		for (final TrackingConfiguration trackingConfig : trackingList) {
+			final String id = trackingConfig.getId();
+			trackingIds.add(id);
+			TRACKING_UTIL.save(trackingConfig, configuration);
+		}
+		configuration.setAttribute(TRACKING_IDS, trackingIds);
+		
+		final List<String> trackingEnabledIds = new ArrayList<String>(fTrackingEnabledSet.size());
+		final Set<TrackingConfiguration> trackingEnabledSet = fTrackingEnabledSet;
+		for (final TrackingConfiguration trackingConfig : trackingEnabledSet) {
+			final String id = trackingConfig.getId();
+			trackingEnabledIds.add(id);
+		}
+		configuration.setAttribute(TRACKING_ENABLED_IDS, trackingEnabledIds);
 	}
 	
 }

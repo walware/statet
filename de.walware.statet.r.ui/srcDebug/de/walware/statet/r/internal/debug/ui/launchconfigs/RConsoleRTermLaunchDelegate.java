@@ -51,7 +51,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
-import de.walware.statet.r.nico.RTool;
+import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RTermController;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -65,6 +65,8 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		final SubMonitor progress = SubMonitor.convert(monitor, 15);
+		
+		final long timestamp = System.currentTimeMillis();
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -128,10 +130,10 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
 		String name = cmdLine.get(0);
-		name += ' ' + LaunchConfigUtil.createProcessTimestamp();
-		final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, RTool.TYPE,
+		name += ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
+		final ToolProcess<RWorkspace> process = new RProcess(launch,
 				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " : R Console/Rterm ~ " + name, //$NON-NLS-1$
-				null);
+				null, workingDirectory.toString(), timestamp);
 		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
 		
 		final RTermController controller = new RTermController(process, builder, charset);

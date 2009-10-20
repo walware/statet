@@ -16,6 +16,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -184,6 +186,39 @@ public class LayoutUtil {
 		return hintWidth(combo, JFaceResources.DIALOG_FONT, max);
 	}
 	
+	public static int hintWidth(final Table table, final int numChars) {
+		table.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
+		final PixelConverter converter = new PixelConverter(table);
+		int heightHint = converter.convertWidthInCharsToPixels(numChars);
+		final ScrollBar scrollBar = table.getVerticalBar();
+		if (scrollBar != null) {
+			heightHint += scrollBar.getSize().x;
+		}
+		if ((table.getStyle() & SWT.CHECK) == SWT.CHECK) {
+			heightHint += 16 + converter.convertHorizontalDLUsToPixels(4) +  converter.convertWidthInCharsToPixels(1);
+		}
+		return heightHint;
+	}
+	
+	public static int hintWidth(final Table table, final String[] items) {
+		int max = 0;
+		for (final String s : items) {
+			max = Math.max(max, s.length());
+		}
+		return hintWidth(table, max);
+	}
+	
+	public static int hintWidth(final Table table, final Object[] input, final ILabelProvider labelProvider) {
+		int max = 0;
+		for (final Object o : input) {
+			final String s = labelProvider.getText(o);
+			if (s != null) {
+				max = Math.max(max, s.length());
+			}
+		}
+		return hintWidth(table, max);
+	}
+	
 	public static int hintHeight(final List control, final int rows) {
 		return hintHeightOfStructViewer(control, rows);
 	}
@@ -199,7 +234,10 @@ public class LayoutUtil {
 	private static int hintHeightOfStructViewer(final Control control, final int rows) {
 		control.setFont(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT));
 		final PixelConverter converter = new PixelConverter(control);
-		final int heightHint = converter.convertHeightInCharsToPixels(rows);
+		int heightHint = converter.convertHeightInCharsToPixels(rows);
+		if ((control.getStyle() & SWT.CHECK) == SWT.CHECK) {
+			heightHint += rows * 1;
+		}
 		return heightHint;
 	}
 	

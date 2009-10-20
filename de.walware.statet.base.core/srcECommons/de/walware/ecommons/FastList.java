@@ -13,6 +13,7 @@
 package de.walware.ecommons;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 
 /**
@@ -194,6 +195,67 @@ public final class FastList<T> {
 	}
 	
 	/**
+	 * Replaces an item from this list with a new item. If the old item is not in the list,
+	 * the new item is added to the list.
+	 * 
+	 * @param oldItem the item to replace
+	 * @param newItem the non-<code>null</code> item to add
+	 */
+	public synchronized void replace(final T oldItem, final T newItem) {
+		// This method is synchronized to protect against multiple threads adding
+		// or removing items concurrently. This does not block concurrent readers.
+		if (newItem == null) {
+			throw new IllegalArgumentException();
+		}
+		int remove = -1;
+		final int oldSize = items.length;
+		if (oldItem != null) {
+			if (identity ? oldItem != newItem : !oldItem.equals(newItem)) {
+				for (int i = 0; i < oldSize; ++i) {
+					final Object item2 = items[i];
+					if (identity ? newItem == item2 : newItem.equals(item2)) {
+						remove = i;
+						break;
+					}
+				}
+			}
+			for (int i = 0; i < oldSize; ++i) {
+				final Object item2 = items[i];
+				if (identity ? oldItem == item2 : oldItem.equals(item2)) {
+					// Thread safety: create new array to avoid affecting concurrent readers
+					if (remove >= 0 && remove != i) {
+						final T[] newListeners = (T[]) Array.newInstance(type, oldSize - 1);
+						System.arraycopy(items, 0, newListeners, 0, remove);
+						System.arraycopy(items, remove + 1, newListeners, remove, oldSize - remove - 1);
+						newListeners[i < remove ? i : (i - 1)] = newItem;
+						this.items = newListeners;
+					}
+					else {
+						final T[] newListeners = (T[]) Array.newInstance(type, oldSize);
+						System.arraycopy(items, 0, newListeners, 0, oldSize);
+						newListeners[i] = newItem;
+						this.items = newListeners;
+					}
+					return;
+				}
+			}
+		}
+		if (remove >= 0) {
+			final T[] newListeners = (T[]) Array.newInstance(type, oldSize);
+			System.arraycopy(items, 0, newListeners, 0, remove);
+			System.arraycopy(items, remove + 1, newListeners, remove, oldSize - remove - 1);
+			newListeners[oldSize - 1] = newItem;
+			this.items = newListeners;
+		}
+		else {
+			final T[] newListeners = (T[]) Array.newInstance(type, oldSize + 1);
+			System.arraycopy(items, 0, newListeners, 0, oldSize);
+			newListeners[oldSize] = newItem;
+			this.items = newListeners;
+		}
+	}
+	
+	/**
 	 * Returns the number of registered items.
 	 * 
 	 * @return the number of registered items
@@ -211,6 +273,12 @@ public final class FastList<T> {
 		final T[] oldListeners = items;
 		items = emptyArray;
 		return oldListeners;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return Arrays.toString(items);
 	}
 	
 }

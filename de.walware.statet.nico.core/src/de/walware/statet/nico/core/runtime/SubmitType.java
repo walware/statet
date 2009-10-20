@@ -17,21 +17,33 @@ import java.util.EnumSet;
 public enum SubmitType {
 	
 	/** Console interaction by user */
-	CONSOLE,
+	CONSOLE ("Console"),
 	/** Submit from editor and other code based views */
-	EDITOR,
+	EDITOR ("Editor"),
 	/** Submit from tools (GUI etc.) */
-	TOOLS,
+	TOOLS ("Tools"),
 	/** Others, e.g. by controller */
-	OTHER,
+	OTHER ("Other"),
 //	/** Use only, if you know, what you do */
 //	INTERNAL,
 	;
 	
 	
 	public static EnumSet<SubmitType> getDefaultSet() {
-		
 		return EnumSet.range(CONSOLE, OTHER);
+	}
+	
+	
+	private String fLabel;
+	
+	
+	SubmitType(final String label) {
+		fLabel = label;
+	}
+	
+	
+	public String getLabel() {
+		return fLabel;
 	}
 	
 }

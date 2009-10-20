@@ -55,6 +55,9 @@ public interface IToolRunnableControllerAdapter {
 	public ToolWorkspace getWorkspaceData();
 	
 	
+	public IToolRunnable getCurrentRunnable();
+	
+	
 	public void refreshWorkspaceData(int options, IProgressMonitor monitor)
 			throws CoreException;
 	

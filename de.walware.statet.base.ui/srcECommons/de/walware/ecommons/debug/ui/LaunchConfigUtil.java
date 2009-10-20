@@ -240,8 +240,8 @@ public class LaunchConfigUtil {
 		return progress;
 	}
 	
-	public static String createProcessTimestamp() {
-		return "("+DateFormat.getDateTimeInstance().format(new Date(System.currentTimeMillis()))+")"; //$NON-NLS-1$ //$NON-NLS-2$
+	public static String createProcessTimestamp(final long time) {
+		return "("+DateFormat.getDateTimeInstance().format(new Date(time))+")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public static String createLaunchPrefix(final ILaunchConfiguration config) {

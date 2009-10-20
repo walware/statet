@@ -12,6 +12,7 @@
 package de.walware.ecommons.ui.dialogs;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
@@ -68,6 +69,7 @@ public class ButtonGroup<ItemType> extends Composite {
 	
 	// Model
 	private IObservableList fList;
+	private Set<ItemType> fCheckedSet;
 	private IObservableValue fDefault;
 	
 	private boolean fIsDirty;
@@ -230,6 +232,10 @@ public class ButtonGroup<ItemType> extends Composite {
 		fDefault = defaultValue;
 	}
 	
+	public void setCheckedModel(final Set<ItemType> set) {
+		fCheckedSet = set;
+	}
+	
 	public void updateState() {
 		final IStructuredSelection selection = (IStructuredSelection) fViewer.getSelection();
 		if (fAddButton != null) {
@@ -359,6 +365,16 @@ public class ButtonGroup<ItemType> extends Composite {
 		}
 		final Object editElement = getViewerElement(editItem, parent);
 		refresh0(editElement);
+		if (fCheckedSet != null) {
+			if (newItem) {
+				fCheckedSet.add(editItem);
+			}
+			else {
+				if (fCheckedSet.remove(orgItem)) {
+					fCheckedSet.add(editItem);
+				}
+			}
+		}
 		if (fViewer instanceof ColumnViewer) {
 			((ColumnViewer) fViewer).editElement(editElement, 0);
 		}
@@ -383,6 +399,9 @@ public class ButtonGroup<ItemType> extends Composite {
 		}
 		else {
 			fList.removeAll(elements);
+		}
+		if (fCheckedSet != null) {
+			fCheckedSet.removeAll(elements);
 		}
 		refresh0(null);
 	}

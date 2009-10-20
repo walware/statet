@@ -27,5 +27,6 @@ Export-Package: de.walware.rj.services,
  de.walware.statet.r.core.rlang,
  de.walware.statet.r.core.rsource,
  de.walware.statet.r.core.rsource.ast,
+ de.walware.statet.r.debug,
  de.walware.statet.r.nico,
  de.walware.statet.r.nico.impl

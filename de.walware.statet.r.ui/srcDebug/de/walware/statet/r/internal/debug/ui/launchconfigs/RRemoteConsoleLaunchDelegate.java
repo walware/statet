@@ -22,6 +22,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,11 +70,12 @@ import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
+import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
+import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
@@ -82,13 +84,13 @@ import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
 import de.walware.rj.server.Server;
 
-import de.walware.statet.r.core.RUtil;
+import de.walware.statet.r.debug.RDebug;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
-import de.walware.statet.r.nico.RTool;
+import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.impl.RjsUtil;
@@ -106,9 +108,8 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	public static final int DEFAULT_SSH_PORT = 22;
 	
-	public static final String WD_VARIABLE_NAME = "r_wd"; //$NON-NLS-1$
-	public static final IStringVariable WD_VARIABLE = new StringVariable(WD_VARIABLE_NAME, "The configured R working directory (converted to remote path)");
-	private static final Pattern WD_PATTERN = Pattern.compile("\\Q${"+WD_VARIABLE_NAME+"}\\E"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final IStringVariable WD_VARIABLE = new StringVariable(RDebug.WORKING_DIRECTORY_VARNAME, "The configured R working directory (converted to remote path)");
+	private static final Pattern WD_PATTERN = Pattern.compile("\\Q${"+RDebug.WORKING_DIRECTORY_VARNAME+"}\\E"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 	public static final String ADDRESS_VARIABLE_NAME = "address"; //$NON-NLS-1$;
 	public static final IStringVariable ADDRESS_VARIABLE = new StringVariable(ADDRESS_VARIABLE_NAME, "The address of the remote R engine");
@@ -129,7 +130,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		DEFAULT_COMMAND = path
 				+ " \"${"+ADDRESS_VARIABLE_NAME+"}\"" //$NON-NLS-1$ //$NON-NLS-2$
-				+ " -wd=\"${"+WD_VARIABLE_NAME+"}\""; //$NON-NLS-1$ //$NON-NLS-2$
+				+ " -wd=\"${"+RDebug.WORKING_DIRECTORY_VARNAME+"}\""; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	
@@ -203,8 +204,32 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		final SubMonitor progress = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
 		
+		final long timestamp = System.currentTimeMillis();
+		
 		final String type = configuration.getAttribute(RConsoleLaunching.ATTR_TYPE, (String) null).trim();
 		final String username = configuration.getAttribute(RConsoleLaunching.ATTR_LOGIN_NAME, (String) null);
+		
+		progress.worked(1);
+		if (progress.isCanceled()) {
+			return;
+		}
+		
+		// load tracking configurations
+		final List<TrackingConfiguration> trackingConfigs;
+		{	final List<String> trackingIds = configuration.getAttribute(RConsoleOptionsTab.TRACKING_ENABLED_IDS, Collections.EMPTY_LIST);
+			trackingConfigs = new ArrayList<TrackingConfiguration>(trackingIds.size());
+			for (final String id : trackingIds) {
+				final TrackingConfiguration trackingConfig;
+				if (id.equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
+					trackingConfig = new HistoryTrackingConfiguration(id);
+				}
+				else {
+					trackingConfig = new TrackingConfiguration(id);
+				}
+				RConsoleOptionsTab.TRACKING_UTIL.load(trackingConfig, configuration);
+				trackingConfigs.add(trackingConfig);
+			}
+		}
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -445,11 +470,11 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			final boolean startup = (todo == TODO_START_R);
 			
 			String name = rmiAddress.toString();
-			name += ' ' + LaunchConfigUtil.createProcessTimestamp();
-			final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, RTool.TYPE,
+			name += ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
+			final ToolProcess<RWorkspace> process = new RProcess(launch,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
 					" (Remote) : R Console/RJ ~ " + name, //$NON-NLS-1$
-					rmiAddress.toString()); 
+					rmiAddress.toString(), (workingDirectory != null) ? workingDirectory.toString() : null, timestamp);
 			if (command == null) {
 				command = "rjs-connect" + name; //$NON-NLS-1$
 			}
@@ -460,8 +485,9 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
 			rjsProperties.put("rj.data.envs.structs.max_length",
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
+			rjsProperties.put("rj.session.startup.time", timestamp);
 			final RjsController controller = new RjsController(process, rmiAddress, loginData,
-					false, startup, args, rjsProperties, null);
+					false, startup, args, rjsProperties, null, trackingConfigs);
 			
 			// move all tasks, if started
 			if (reconnect != null && prevProcess != null) {
@@ -487,12 +513,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			
 			progress.worked(5);
 			
-			if (startup) {
-				final String startupSnippet = configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null);
-				if (startupSnippet != null && startupSnippet.length() > 0) {
-					controller.submit(RUtil.LINE_SEPARATOR_PATTERN.split(startupSnippet), SubmitType.OTHER);
-				}
-			}
+			controller.setStartupSnippet(configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null));
 			controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
 			controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
 			

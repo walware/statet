@@ -11,11 +11,14 @@
 
 package de.walware.statet.nico.ui.console;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.debug.core.DebugEvent;
@@ -43,6 +46,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.dnd.Clipboard;
@@ -63,6 +67,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -71,11 +76,10 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.console.IConsoleView;
-import org.eclipse.ui.console.TextConsole;
+import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.console.actions.ClearOutputAction;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
-import org.eclipse.ui.internal.console.IOConsoleViewer;
 import org.eclipse.ui.internal.services.IServiceLocatorCreator;
 import org.eclipse.ui.internal.services.ServiceLocator;
 import org.eclipse.ui.menus.CommandContributionItem;
@@ -91,8 +95,10 @@ import org.eclipse.ui.texteditor.FindReplaceAction;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
+import de.walware.ecommons.ui.ECommonsUI;
 import de.walware.ecommons.ui.HandlerContributionItem;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.SimpleContributionItem;
 import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.text.sourceediting.TextViewerAction;
@@ -112,8 +118,12 @@ import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.internal.ui.LocalTaskTransfer;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
+import de.walware.statet.nico.internal.ui.console.OutputViewer;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.actions.CancelHandler;
+import de.walware.statet.nico.ui.util.ExportConsoleOutputWizard;
+import de.walware.statet.nico.ui.util.NicoWizardDialog;
+import de.walware.statet.nico.ui.util.OpenTrackingFilesContributionItem;
 
 
 /**
@@ -130,39 +140,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private static final String DIALOG_ID = "Console"; //$NON-NLS-1$
 	private static final String SETTING_INPUTHEIGHT = "InputHeight"; //$NON-NLS-1$
 	
+	public static final String NICO_CONTROL_MENU_ID = "nico.control"; //$NON-NLS-1$
 	
-	private class OutputViewer extends IOConsoleViewer {
-		
-		
-		public OutputViewer(final Composite parent, final TextConsole console) {
-			super(parent, console);
-			setReadOnly();
-		}
-		
-		
-		@Override
-		public void revealEndOfDocument() {
-			UIAccess.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					final StyledText textWidget = fOutputViewer.getTextWidget();
-					if (UIAccess.isOkToUse(textWidget)) {
-						final int lineCount = textWidget.getLineCount();
-						final int lineToShow = ((lineCount > 1 && 
-								textWidget.getCharCount() == textWidget.getOffsetAtLine(lineCount - 1)) ?
-								(lineCount - 2) : (lineCount - 1));
-						final int visiblePixel = textWidget.getClientArea().height;
-						final int linePixel = textWidget.getLineHeight();
-						final int topPixel = linePixel * (lineToShow) - visiblePixel + 
-								(int) (linePixel * 1.33) + 2;
-						if (topPixel >= 0) {
-							textWidget.setTopPixel(topPixel);
-						}
-					}
-				}
-			});
-		}
-		
-	}
 	
 	private class FindReplaceUpdater implements IDocumentListener {
 		
@@ -384,7 +363,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				};
 			});
 		}
-	
+		
 	}
 	
 	
@@ -463,10 +442,6 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	protected ConsolePageEditor getInputGroup() {
 		return fInputGroup;
-	}
-	
-	protected IOConsoleViewer getOutputViewer() {
-		return fOutputViewer;
 	}
 	
 	public void createControl(final Composite parent) {
@@ -744,6 +719,46 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAction);
 		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAllAction);
+		
+		final IMenuManager menu = bars.getMenuManager();
+		menu.add(new Separator(NICO_CONTROL_MENU_ID));
+		menu.add(new Separator(ECommonsUI.ADDITIONS_MENU_ID));
+		
+		menu.add(new Separator("tracking")); //$NON-NLS-1$
+		final MenuManager trackingMenu= new MenuManager("Open In Editor") {
+			@Override
+			public boolean isVisible() {
+				return !getTool().getTracks().isEmpty();
+			}
+		};
+		trackingMenu.add(new OpenTrackingFilesContributionItem(getTool()));
+		menu.add(trackingMenu);
+		menu.add(new SimpleContributionItem("Export Console Output...", null) {
+			@Override
+			protected void execute() throws ExecutionException {
+				final ToolProcess tool = getTool();
+				if (tool == null) {
+					return;
+				}
+				final ExportConsoleOutputWizard wizard = new ExportConsoleOutputWizard(NIConsolePage.this);
+				final WizardDialog dialog = new NicoWizardDialog(getSite().getShell(), wizard);
+				dialog.setBlockOnOpen(false);
+				dialog.open();
+			}
+		});
+		
+		menu.add(new Separator("settings")); //$NON-NLS-1$
+		menu.add(new SimpleContributionItem("Preferences...", "P") {
+			@Override
+			protected void execute() throws ExecutionException {
+				final Shell shell = (fControl != null) ? fControl.getShell() : null;
+				final String[] preferencePages = collectContextMenuPreferencePages();
+				if (preferencePages.length > 0 && (shell == null || !shell.isDisposed()))
+					org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(shell, preferencePages[0], preferencePages, null).open();
+			}
+		});
+		
+		menu.add(new Separator());
 	}
 	
 	protected void fillInputContextMenu(final IMenuManager manager) {
@@ -868,6 +883,10 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	
 	public void removeToolRetargetable(final IToolRetargetable listener) {
 		fToolActions.remove(listener);
+	}
+	
+	public TextConsoleViewer getOutputViewer() {
+		return fOutputViewer;
 	}
 	
 	public IMenuManager getOutputContextMenuManager() {
@@ -1022,6 +1041,16 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		if (fInputGroup != null && UIAccess.isOkToUse(fControl)) {
 			fInputGroup.handleSettingsChanged(groupIds, options);
 		}
+	}
+	
+	private String[] collectContextMenuPreferencePages() {
+		final List<String> pageIds = new ArrayList<String>();
+		collectContextMenuPreferencePages(pageIds);
+		return pageIds.toArray(new String[pageIds.size()]);
+	}
+	
+	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
+		pageIds.add("de.walware.statet.nico.preferencePages.Console"); //$NON-NLS-1$
 	}
 	
 }

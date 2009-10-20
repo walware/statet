@@ -11,12 +11,15 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.ibm.icu.text.DateFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
@@ -126,6 +129,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private String fToolLabelShort;
 	
 	private String fAddress;
+	private long fStartupTimestamp;
+	private long fConnectionTimestamp;
+	private String fStartupWD;
 	Map<String, Object> fInitData;
 	
 	private ToolController<WorkspaceType> fController;
@@ -143,9 +149,12 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
 	volatile int fExitValue = 0;
 	
+	private List<ITrack> fTracks = Collections.emptyList();
+	
 	
 	public ToolProcess(final ILaunch launch, final String mainType,
-			final String labelPrefix, final String name, String address) {
+			final String labelPrefix, final String name,
+			final String address, final String wd, final long timestamp) {
 		fLaunch = launch;
 		fMainType = mainType;
 		fName = name;
@@ -155,6 +164,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
 				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
 		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, (mainType+PROCESS_TYPE_SUFFIX).intern());
+		fStartupWD = wd;
+		fStartupTimestamp = timestamp;
+		fConnectionTimestamp = timestamp;
 		
 		final String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
@@ -468,6 +480,38 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		if (manager != null) {
 			manager.fireDebugEventSet(new DebugEvent[] { event });
 		}
+	}
+	
+	void setTracks(final List<ITrack> tracks) {
+		fTracks = tracks;
+	}
+	
+	public List<ITrack> getTracks() {
+		return fTracks;
+	}
+	
+	void setStartupTimestamp(final long timestamp) {
+		fStartupTimestamp = timestamp;
+	}
+	
+	public long getStartupTimestamp() {
+		return fStartupTimestamp;
+	}
+	
+	public long getConnectionTimestamp() {
+		return fConnectionTimestamp;
+	}
+	
+	public String createTimestampComment(final long timestamp) {
+		return DateFormat.getDateTimeInstance().format(timestamp) + '\n';
+	}
+	
+	void setStartupWD(final String wd) {
+		fStartupWD = wd;
+	}
+	
+	public String getStartupWD() {
+		return fStartupWD;
 	}
 	
 }

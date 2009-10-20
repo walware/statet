@@ -21,13 +21,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.variables.core.DateVariable;
+import de.walware.ecommons.variables.core.DynamicVariable;
+import de.walware.ecommons.variables.core.TimeVariable;
 
 import de.walware.statet.nico.core.NicoCore;
+import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 
 
@@ -131,6 +137,8 @@ public class ToolWorkspace {
 	private final IToolRunnable fUpdateRunnable;
 	private boolean fUpdateScheduled;
 	
+	private FastList<IDynamicVariable> fStringVariables = new FastList<IDynamicVariable>(IDynamicVariable.class);
+	
 	
 	public ToolWorkspace(final ToolController controller,
 			Prompt prompt, final String lineSeparator,
@@ -146,6 +154,36 @@ public class ToolWorkspace {
 		
 		fUpdateRunnable = new AutoUpdater();
 		controller.addToolStatusListener(new ControllerListener());
+		
+		fStringVariables.add(new DateVariable(NicoVariables.SESSION_STARTUP_DATE_VARIABLE) {
+			@Override
+			protected long getTimestamp() {
+				return fProcess.getStartupTimestamp();
+			}
+		});
+		fStringVariables.add(new TimeVariable(NicoVariables.SESSION_STARTUP_TIME_VARIABLE) {
+			@Override
+			protected long getTimestamp() {
+				return fProcess.getStartupTimestamp();
+			}
+		});
+		fStringVariables.add(new DateVariable(NicoVariables.SESSION_CONNECTION_DATE_VARIABLE) {
+			@Override
+			protected long getTimestamp() {
+				return fProcess.getConnectionTimestamp();
+			}
+		});
+		fStringVariables.add(new TimeVariable(NicoVariables.SESSION_CONNECTION_TIME_VARIABLE) {
+			@Override
+			protected long getTimestamp() {
+				return fProcess.getStartupTimestamp();
+			}
+		});
+		fStringVariables.add(new DynamicVariable.LocationVariable(NicoVariables.SESSION_STARTUP_WD_VARIABLE) {
+			public String getValue(final String argument) throws CoreException {
+				return fProcess.getStartupWD();
+			}
+		});
 	}
 	
 	
@@ -217,7 +255,7 @@ public class ToolWorkspace {
 	}
 	
 	
-	public boolean isRemote() {
+	public final boolean isRemote() {
 		return (fRemoteHost != null);
 	}
 	
@@ -399,6 +437,10 @@ public class ToolWorkspace {
 			listener.propertyChanged(ToolWorkspace.this, fProperties);
 		}
 		fProperties.clear();
+	}
+	
+	public List<IDynamicVariable> getStringVariables() {
+		return new ConstList<IDynamicVariable>(fStringVariables.toArray());
 	}
 	
 	protected void dispose() {

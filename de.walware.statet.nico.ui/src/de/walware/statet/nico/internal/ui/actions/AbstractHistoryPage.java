@@ -23,16 +23,13 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 
 import de.walware.ecommons.FileValidator;
-import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.ui.util.ToolInfoGroup;
 
 
@@ -66,23 +63,11 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		
-		final GridLayout layout = LayoutUtil.applyContentDefaults(new GridLayout(), 1);
-		final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
-		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		setControl(layouter.composite);
+		final Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		composite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
 		
-		createContents(layouter);
-		
-		Dialog.applyDialogFont(layouter.composite);
-		initFields();
-		isIntialized = true;
-		validate();
-		setErrorMessage(null);
-		setMessage(null);
-	}
-	
-	protected void createContents(final Layouter contentLayouter) {
-		fLocationGroup = createResourceComposite(contentLayouter);
+		fLocationGroup = createResourceInputComposite(parent);
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
 		fLocationGroup.addModifyListener(new ModifyListener() {
@@ -90,23 +75,41 @@ public abstract class AbstractHistoryPage extends WizardPage {
 				validate();
 			}
 		});
-		addAdditionalContent1(contentLayouter);
+		final Composite contentOptions = createContentOptions(composite);
+		if (contentOptions != null) {
+			contentOptions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
+		final Composite saveOptions = createSaveOptions(composite);
+		if (saveOptions != null) {
+			saveOptions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		}
 		
-		final Group encodingGroup = contentLayouter.addGroup(Messages.LoadSaveHistoryPage_Encoding_label);
-		final Layouter encoding = new Layouter(encodingGroup, 1);
-		encoding.addLabel("Not yet implemented, UTF-8 is used, if no BOM is detected."); //$NON-NLS-1$
-		addAdditionalContent2(contentLayouter);
+		LayoutUtil.addSmallFiller(composite, true);
+		final ToolInfoGroup info = new ToolInfoGroup(composite, fTool);
+		info.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
-		contentLayouter.addSpaceGrabber();
-		contentLayouter.add(new ToolInfoGroup(contentLayouter.composite,
-				fTool).getControl());
+		Dialog.applyDialogFont(composite);
+		setControl(composite);
+		
+		initFields();
+		isIntialized = true;
+		validate();
+		setErrorMessage(null);
+		setMessage(null);
 	}
 	
-	protected abstract ResourceInputComposite createResourceComposite(Layouter layouter);
-	
-	protected void addAdditionalContent1(final Layouter layouter) {
+	protected Composite createOptions(final Composite parent) {
+		return fLocationGroup;
 	}
-	protected void addAdditionalContent2(final Layouter layouter) {
+	
+	protected abstract ResourceInputComposite createResourceInputComposite(Composite composite);
+	
+	protected Composite createContentOptions(final Composite parent) {
+		return null;
+	}
+	
+	protected Composite createSaveOptions(final Composite parent) {
+		return null;
 	}
 	
 	protected void initFields() {

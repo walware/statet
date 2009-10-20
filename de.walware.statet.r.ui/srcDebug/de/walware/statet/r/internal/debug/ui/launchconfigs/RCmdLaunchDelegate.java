@@ -65,6 +65,9 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			IProgressMonitor monitor) throws CoreException {
 		try {
 			monitor = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
+			
+			final long timestamp = System.currentTimeMillis();
+			
 			if (monitor.isCanceled()) {
 				return;
 			}
@@ -143,7 +146,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			// register process
 			final Map<String, String> processAttributes = new HashMap<String, String>();
 			processAttributes.put(IProcess.ATTR_PROCESS_TYPE, RLaunchConfigurations.ID_R_CMD_PROCESS_TYPE);
-			final String processName = cmdLine.get(0) + ' ' + LaunchConfigUtil.createProcessTimestamp();
+			final String processName = cmdLine.get(0) + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
 			final String label;
 			{
 				final StringBuilder sb = new StringBuilder(200);

@@ -13,6 +13,8 @@ package de.walware.ecommons.databinding;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.ChangeEvent;
+import org.eclipse.core.databinding.observable.IChangeListener;
 import org.eclipse.core.databinding.observable.IObservable;
 import org.eclipse.core.databinding.observable.list.IListChangeListener;
 import org.eclipse.core.databinding.observable.list.ListChangeEvent;
@@ -25,7 +27,7 @@ import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 /**
  * 
  */
-public class DirtyTracker implements IValueChangeListener {
+public class DirtyTracker implements IValueChangeListener, IChangeListener {
 	
 	
 	private boolean fDirty;
@@ -46,7 +48,7 @@ public class DirtyTracker implements IValueChangeListener {
 	
 	
 	private void track(final Binding binding, final boolean add) {
-		final IObservable obs = binding.getTarget();
+		final IObservable obs = binding.getModel();
 		if (obs instanceof IObservableValue) {
 			final IObservableValue value = (IObservableValue) obs;
 			if (add) {
@@ -57,10 +59,21 @@ public class DirtyTracker implements IValueChangeListener {
 			}
 			return;
 		}
-		// add more, if required
+		else {
+			if (add) {
+				obs.addChangeListener(this);
+			}
+			else {
+				obs.removeChangeListener(this);
+			}
+		}
 	}
 	
 	public void handleValueChange(final ValueChangeEvent event) {
+		handleChange();
+	}
+	
+	public void handleChange(final ChangeEvent event) {
 		handleChange();
 	}
 	
@@ -75,5 +88,4 @@ public class DirtyTracker implements IValueChangeListener {
 	public boolean isDirty() {
 		return fDirty;
 	}
-	
 }

@@ -11,6 +11,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.jface.databinding,
+ org.eclipse.core.databinding.beans,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
  org.eclipse.ui.console;visibility:=reexport,

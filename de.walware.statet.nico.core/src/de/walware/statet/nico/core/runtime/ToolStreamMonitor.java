@@ -95,7 +95,6 @@ public class ToolStreamMonitor implements IStreamMonitor {
 	
 	
 	void dispose() {
-		
 		fListeners.clear();
 	}
 	

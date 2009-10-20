@@ -11,18 +11,14 @@
 
 package de.walware.statet.nico.internal.core.preferences;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.preferences.Preference.EnumSetPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
-import de.walware.statet.nico.core.runtime.SubmitType;
 
 
 /**
@@ -31,20 +27,12 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 public class HistoryPreferences {
 	
 	
-	private static final String KEY_FILTER_SUBMIT_TYPES = "filter.submit_types"; //$NON-NLS-1$
-	private static final String KEY_FILTER_COMMENTS = "filter.comments"; //$NON-NLS-1$
 	private static final String KEY_LIMIT_COUNT = "limit.count"; //$NON-NLS-1$
 	
-	private static final EnumSetPref<SubmitType> PREF_FILTER_SUBMIT_TYPES = new EnumSetPref<SubmitType>(
-			NicoPreferenceNodes.CAT_HISTORY_QUALIFIER, KEY_FILTER_SUBMIT_TYPES, SubmitType.class);
-	private static final BooleanPref PREF_FILTER_COMMENTS = new BooleanPref(
-			NicoPreferenceNodes.CAT_HISTORY_QUALIFIER, KEY_FILTER_COMMENTS);
 	private static final IntPref PREF_LIMIT_COUNT = new IntPref(
 			NicoPreferenceNodes.CAT_HISTORY_QUALIFIER, KEY_LIMIT_COUNT);
 	
 	
-	private EnumSet<SubmitType> fSubmitTypes;
-	private boolean fFilterComments;
 	private int fLimitCount;
 	
 	
@@ -52,28 +40,21 @@ public class HistoryPreferences {
 	 * Creates preferences with default values.
 	 */
 	public HistoryPreferences() {
-		setup(	EnumSet.of(SubmitType.CONSOLE, SubmitType.EDITOR),
-				true,
-				10000
-		);
+		setup(10000);
 	}
 	
 	public HistoryPreferences(final IPreferenceAccess prefs) {
 		load(prefs);
 	}
 	
-	protected void setup(final EnumSet<SubmitType> selectedTypes, final boolean filterComments, final int limitCount) {
-		fSubmitTypes = selectedTypes;
-		fFilterComments = filterComments;
+	protected void setup(final int limitCount) {
 		fLimitCount = limitCount; 
 	}
 	
 	protected void load(final IPreferenceAccess prefs) {
-		final EnumSet<SubmitType> selectedTypes = prefs.getPreferenceValue(PREF_FILTER_SUBMIT_TYPES);
-		final boolean filterComments = prefs.getPreferenceValue(PREF_FILTER_COMMENTS);
 		final int limitCount = prefs.getPreferenceValue(PREF_LIMIT_COUNT);
 		
-		setup(selectedTypes, filterComments, limitCount);
+		setup(limitCount);
 	}
 	
 	
@@ -83,8 +64,6 @@ public class HistoryPreferences {
 	 * <p>Note: Intended to usage in preference/property page only.</p>
 	 */
 	public Map<Preference, Object> addPreferencesToMap(final Map<Preference, Object> map) {
-		map.put(PREF_FILTER_SUBMIT_TYPES, fSubmitTypes);
-		map.put(PREF_FILTER_COMMENTS, fFilterComments);
 		map.put(PREF_LIMIT_COUNT, fLimitCount);
 		return map;
 	}
@@ -99,14 +78,6 @@ public class HistoryPreferences {
 	}
 	
 	
-	public EnumSet<SubmitType> getSelectedTypes() {
-		return fSubmitTypes;
-	}
-	
-	public boolean filterComments() {
-		return fFilterComments;
-	}
-	
 	public int getLimitCount() {
 		return fLimitCount;
 	}
@@ -114,7 +85,7 @@ public class HistoryPreferences {
 	
 	@Override
 	public int hashCode() {
-		return fSubmitTypes.size() + fLimitCount;
+		return fLimitCount;
 	}
 	@Override
 	public boolean equals(final Object obj) {
@@ -123,10 +94,7 @@ public class HistoryPreferences {
 		}
 		
 		final HistoryPreferences other = (HistoryPreferences) obj;
-		return (fSubmitTypes.equals(other.fSubmitTypes)
-					&& (fFilterComments == other.fFilterComments)
-					&& (fLimitCount == other.fLimitCount)
-		);
+		return (fLimitCount == other.fLimitCount);
 	}
 	
 }

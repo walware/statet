@@ -18,7 +18,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -205,7 +207,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		fWorkspaceData = new RWorkspace(this) {
 			@Override
-			protected void refreshFromTool(AbstractRController controller, int options, IProgressMonitor monitor) throws CoreException {
+			protected void refreshFromTool(final AbstractRController controller, final int options, final IProgressMonitor monitor) throws CoreException {
 				if ((options & RWorkspace.REFRESH_COMPLETE) != 0 || (options & RWorkspace.REFRESH_AUTO) == 0) {
 					final StringBuilder output = readOutputLine("getwd()", monitor); //$NON-NLS-1$
 					if (output != null) {
@@ -252,7 +254,30 @@ public class RTermController extends AbstractRController implements IRequireSync
 			fProcessInputWriter = new OutputStreamWriter(processInput, fCharset);
 			setCurrentPrompt(fDefaultPrompt);
 			
+			final List<IStatus> warnings = new ArrayList<IStatus>();
+			
+			initTracks(fConfig.directory().toString(), monitor, warnings);
+			
 			submit(new UpdateProcessIdTask());
+			
+			scheduleControllerRunnable(new IToolRunnable() {
+				public SubmitType getSubmitType() {
+					return SubmitType.OTHER;
+				}
+				public String getTypeId() {
+					return "r/rj/start2"; //$NON-NLS-1$
+				}
+				public String getLabel() {
+					return "Finish Initialization";
+				}
+				public void changed(final int event, final ToolProcess process) {
+				}
+				public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+					for (final IStatus status : warnings) {
+						handleStatus(status, monitor);
+					}
+				}
+			});
 		}
 		catch (final IOException e) {
 			if (processInput != null) {

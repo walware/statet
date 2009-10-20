@@ -51,7 +51,7 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 		}
 		if (id.equals(ADDTO_HISTORY_ID)) {
 			final String item = ToolEventHandlerUtil.getCheckedData(data, "text", String.class, true); //$NON-NLS-1$
-			tools.getProcess().getHistory().addCommand(item);
+			tools.getProcess().getHistory().addCommand(item, tools.getCurrentRunnable().getSubmitType());
 			return IStatus.OK;
 		}
 		throw new UnsupportedOperationException();

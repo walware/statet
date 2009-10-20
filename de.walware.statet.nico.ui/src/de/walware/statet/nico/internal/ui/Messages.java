@@ -51,6 +51,22 @@ public class Messages extends NLS {
 	public static String TerminatingMonitor_Force_error_message;
 	public static String TerminatingMonitor_WaitButton_label;
 	
+	public static String Tracking_Name_label;
+	public static String Tracking_Name_error_Missing_message;
+	public static String Tracking_Content_label;
+	public static String Tracking_InfoStream_label;
+	public static String Tracking_InputStream_label;
+	public static String Tracking_InputStream_OnlyHistory_label;
+	public static String Tracking_OutputStream_label;
+	public static String Tracking_OutputStream_TruncateLines_label;
+	public static String Tracking_OutputStream_TruncateLines_error_Invalid_message;
+	public static String Tracking_Sources_label;
+	public static String Tracking_File_label;
+	public static String Tracking_File_Append_label;
+	public static String Tracking_File_Overwrite_label;
+	public static String Tracking_Actions_label;
+	public static String Tracking_Actions_PrependTimestamp_label;
+	
 	public static String Login_error_UnsupportedOperation_message;
 	public static String Login_Dialog_title;
 	public static String Login_Dialog_message;

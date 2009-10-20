@@ -16,8 +16,11 @@ import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PR
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -44,6 +47,8 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
+import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
+import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
@@ -54,7 +59,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
-import de.walware.statet.r.nico.RTool;
+import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -71,6 +76,30 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		final SubMonitor progress = LaunchConfigUtil.initProgressMonitor(configuration, monitor, 25);
+		
+		final long timestamp = System.currentTimeMillis();
+		
+		progress.worked(1);
+		if (progress.isCanceled()) {
+			return;
+		}
+		
+		// load tracking configurations
+		final List<TrackingConfiguration> trackingConfigs;
+		{	final List<String> trackingIds = configuration.getAttribute(RConsoleOptionsTab.TRACKING_ENABLED_IDS, Collections.EMPTY_LIST);
+			trackingConfigs = new ArrayList<TrackingConfiguration>(trackingIds.size());
+			for (final String id : trackingIds) {
+				final TrackingConfiguration trackingConfig;
+				if (id.equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
+					trackingConfig = new HistoryTrackingConfiguration(id);
+				}
+				else {
+					trackingConfig = new TrackingConfiguration(id);
+				}
+				RConsoleOptionsTab.TRACKING_UTIL.load(trackingConfig, configuration);
+				trackingConfigs.add(trackingConfig);
+			}
+		}
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -133,11 +162,11 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
 		String name = rmiAddress.toString();
-		name += ' ' + LaunchConfigUtil.createProcessTimestamp();
-		final ToolProcess<RWorkspace> process = new ToolProcess<RWorkspace>(launch, RTool.TYPE,
+		name += ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
+		final ToolProcess<RWorkspace> process = new RProcess(launch, 
 				LaunchConfigUtil.createLaunchPrefix(configuration),
 				renv.getName() + " : R Console/RJ ~ " + name, //$NON-NLS-1$
-				rmiAddress.toString());
+				rmiAddress.toString(), null, timestamp); // wd is set at rjs startup
 		process.setAttribute(IProcess.ATTR_CMDLINE, name + " " + Arrays.toString(rArgs)); //$NON-NLS-1$
 		
 		// Wait until the engine is started or died
@@ -187,9 +216,10 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
 		rjsProperties.put("rj.data.envs.structs.max_length",
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
+		rjsProperties.put("rj.session.startup.time", timestamp);
 		final RjsController controller = new RjsController(process, rmiAddress, null,
 				true, true, rArgs, rjsProperties,
-				REnvTab.getWorkingDirectoryValidator(configuration, false).getFileStore());
+				REnvTab.getWorkingDirectoryValidator(configuration, false).getFileStore(), trackingConfigs);
 		process.init(controller);
 		RConsoleLaunching.registerDefaultHandlerTo(controller);
 		

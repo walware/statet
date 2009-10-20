@@ -34,7 +34,9 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
+import de.walware.ecommons.IDisposable;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
@@ -207,6 +209,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	protected Prompt fDefaultPrompt;
 	protected String fLineSeparator;
 	
+	protected final FastList<IDisposable> fDisposables = new FastList<IDisposable>(IDisposable.class);
+	
 	
 	protected ToolController(final ToolProcess process, final Map<String, Object> initData) {
 		fProcess = process;
@@ -255,6 +259,17 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	}
 	
 	
+	protected void setStartupTimestamp(final long timestamp) {
+		fProcess.setStartupTimestamp(timestamp);
+	}
+	
+	protected void setStartupWD(final String wd) {
+		fProcess.setStartupWD(wd);
+	}
+	
+	protected void addDisposable(final IDisposable disposable) {
+		fDisposables.add(disposable);
+	}
 	protected final Queue getQueue() {
 		return fQueue;
 	}
@@ -441,6 +456,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 				endInternalTask();
 			}
 		}
+	}
+	
+	protected void setTracks(List<? extends ITrack> tracks) {
+		if (!(tracks instanceof ConstList<?>)) {
+			tracks = new ConstList<ITrack>(tracks);
+		}
+		fProcess.setTracks(tracks);
 	}
 	
 	protected final void beginInternalTask() {
@@ -985,6 +1007,17 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fInfoStream = null;
 		fDefaultOutputStream = null;
 		fErrorOutputStream = null;
+		
+		final IDisposable[] disposables = fDisposables.toArray();
+		for (final IDisposable disposable : disposables) {
+			try {
+				disposable.dispose();
+			}
+			catch (final Exception e) {
+				NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1, "An unexepected exception is thrown when disposing a controller extension.", e));
+			}
+		}
+		fDisposables.clear();
 	}
 	
 	public void handleStatus(final IStatus status, final IProgressMonitor monitor) {
@@ -1024,7 +1057,11 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return fWorkspaceData;
 	}
 	
-	protected void setCurrentPrompt(final Prompt prompt) {
+	public IToolRunnable getCurrentRunnable() {
+		return fCurrentRunnable;
+	}
+	
+	public void setCurrentPrompt(final Prompt prompt) {
 		fCurrentPrompt = prompt;
 		fWorkspaceData.controlSetCurrentPrompt(prompt, fStatus);
 	}

@@ -36,7 +36,7 @@ import de.walware.statet.nico.ui.NicoUIMessages;
 public class LoadHistoryWizard extends Wizard {
 	
 	
-	static final String STORE_SECTION = "common/tools/*History-Wizard"; //$NON-NLS-1$ shared with save
+	static final String STORE_SECTION = "tools/LoadSaveHistoryWizard"; //$NON-NLS-1$ shared with save
 	
 	
 	private ToolProcess fProcess;

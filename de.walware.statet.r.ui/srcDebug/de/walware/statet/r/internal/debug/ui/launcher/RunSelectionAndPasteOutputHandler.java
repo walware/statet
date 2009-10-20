@@ -138,7 +138,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		}
 		
 		public SubmitType getSubmitType() {
-			return SubmitType.TOOLS;
+			return SubmitType.EDITOR;
 		}
 		
 		public void changed(final int event, final ToolProcess process) {

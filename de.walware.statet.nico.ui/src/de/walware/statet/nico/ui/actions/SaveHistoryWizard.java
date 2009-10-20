@@ -12,6 +12,7 @@
 package de.walware.statet.nico.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
@@ -25,6 +26,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ui.util.DialogUtil;
 
 import de.walware.statet.nico.core.runtime.History;
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.internal.ui.SaveHistoryPage;
@@ -82,9 +84,11 @@ public class SaveHistoryWizard extends Wizard {
 			assert (file != null);
 			assert (charset != null);
 			
+			final Set<SubmitType> types = fPage.getContentSubmitTypes();
+			
 			getContainer().run(true, true, new IRunnableWithProgress() {
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
-					final IStatus status = history.save(file, fmode, charset, false, monitor);
+					final IStatus status = history.save(file, fmode, charset, false, types, monitor);
 					if (status.getSeverity() == IStatus.ERROR) {
 						throw new InvocationTargetException(new CoreException(status));
 					}
