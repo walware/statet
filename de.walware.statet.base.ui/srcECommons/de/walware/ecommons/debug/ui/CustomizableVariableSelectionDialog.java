@@ -19,6 +19,8 @@ import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.swt.widgets.Shell;
 
+import de.walware.ecommons.variables.core.VariableFilter;
+
 
 /**
  * {@link StringVariableSelectionDialog} with option to exclude and add variables.

@@ -13,6 +13,7 @@ package de.walware.statet.r.internal.sweave.processing;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,13 +40,14 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.VariableText;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
-import de.walware.ecommons.debug.core.StringVariable;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.variables.core.StringVariable;
+import de.walware.ecommons.variables.core.VariableText;
 
 import net.sourceforge.texlipse.TexPathConfig;
 import net.sourceforge.texlipse.Texlipse;
@@ -69,15 +71,12 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 	public static final IStringVariable VARIABLE_LATEX_FILE = new StringVariable(VARNAME_LATEX_FILE, "Returns the workspace relative path of the LaTeX file.");
 	public static final IStringVariable VARIABLE_OUTPUT_FILE = new StringVariable(VARNAME_OUTPUT_FILE, "Returns the workspace relative path of the output file.");
 	
-	public static final String[] SWEAVE_COMMAND_VARNAMES = new String[] {
-		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE,
-	};
-	public static final String[] OUTPUT_DIR_VARNAMES = new String[] {
-		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE,
-	};
-	public static final String[] TEX_COMMAND_VARNAMES = new String[] {
-		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE,
-	};
+	public static final List<String> SWEAVE_COMMAND_VARNAMES = new ConstList<String>(
+		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE );
+	public static final List<String> OUTPUT_DIR_VARNAMES = new ConstList<String>(
+			VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE );
+	public static final List<String> TEX_COMMAND_VARNAMES = new ConstList<String>(
+		VARNAME_SWEAVE_FILE, VARNAME_LATEX_FILE, VARNAME_OUTPUT_FILE );
 	
 	
 	public static final int STEP_WEAVE = 0x1;

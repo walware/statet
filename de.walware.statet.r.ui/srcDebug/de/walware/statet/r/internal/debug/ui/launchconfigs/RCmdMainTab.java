@@ -66,10 +66,10 @@ import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
-import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
+import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.base.ui.StatetImages;
 

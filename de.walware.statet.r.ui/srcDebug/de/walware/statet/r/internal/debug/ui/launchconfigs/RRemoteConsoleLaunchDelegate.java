@@ -56,7 +56,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
-import de.walware.ecommons.debug.core.StringVariable;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.net.RMIAddress;
@@ -64,6 +63,7 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.ui.util.UIAccess;
+import de.walware.ecommons.variables.core.StringVariable;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;

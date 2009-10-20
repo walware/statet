@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.debug.ui;
+package de.walware.ecommons.variables.core;
 
 import org.eclipse.core.variables.IStringVariable;
 

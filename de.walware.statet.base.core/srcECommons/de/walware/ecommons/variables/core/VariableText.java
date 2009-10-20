@@ -9,17 +9,27 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons;
+package de.walware.ecommons.variables.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.variables.IDynamicVariable;
+import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.osgi.util.NLS;
+
+import de.walware.ecommons.ECommons;
 
 
 /**
@@ -32,9 +42,10 @@ public class VariableText {
 		String process(String path) throws CoreException;
 	}
 	
+	
 	private static boolean isEscaped(final String text, final int offset) {
 		int count = 1;
-		while (offset >= 0) {
+		while (offset >= count) { // offset-count >= 0
 			final char c = text.charAt(offset-count);
 			if (c == '$') {
 				count++;
@@ -77,13 +88,27 @@ public class VariableText {
 	
 	private int fState;
 	
-	private final String[] fSpecialVariables;
+	private final List<String> fSpecialVariablesNames;
+	private List<IDynamicVariable> fSpecialVariables;
 	private final Set<String> fUnresolvedSpecial = new HashSet<String>();
 	private final Map<String, String> fLocationVariables = new HashMap<String, String>();
 	
 	
-	public VariableText(final String text, final String[] specialVariables) {
-		fSpecialVariables = specialVariables;
+	public VariableText(final String text, final List<String> specialVariablesNames) {
+		fSpecialVariablesNames = specialVariablesNames;
+		fText = text;
+		fState = 1;
+	}
+	
+	public VariableText(final String text, final List<IDynamicVariable> checkedVariables, final boolean useDirectly) {
+		final List<String> specialVariablesNames = new ArrayList<String>(checkedVariables.size());
+		for (final IStringVariable variable : checkedVariables) {
+			specialVariablesNames.add(variable.getName());
+		}
+		fSpecialVariablesNames = specialVariablesNames;
+		if (useDirectly) {
+			fSpecialVariables = checkedVariables;
+		}
 		fText = text;
 		fState = 1;
 	}
@@ -99,16 +124,31 @@ public class VariableText {
 		}
 		String text = fText;
 		
-		final Map<String, String> specialVariables = new HashMap<String, String>();
-		for (final String variableName : fSpecialVariables) {
-			final String pattern = "${"+variableName+"}"; //$NON-NLS-1$ //$NON-NLS-2$
+		final LinkedHashMap<String, String> specialVariables = new LinkedHashMap<String, String>();
+		for (final String variableName : fSpecialVariablesNames) {
+			final String pattern = "${"+variableName; //$NON-NLS-1$
 			int offset = -1;
-			while ((offset = text.indexOf(pattern, offset+1)) >= 0) {
+			while ((offset = text.indexOf(pattern, offset + 1)) >= 0) {
 				if (!isEscaped(text, offset)) {
+					final int length;
+					switch (offset+pattern.length() < text.length() ?
+							text.charAt(offset + pattern.length()) : 0) {
+					case '}':
+						length = pattern.length() + 1;
+						break;
+					case ':':
+						length = text.indexOf('}', offset + pattern.length()) - offset + 1;
+						if (length > 0) {
+							break;
+						}
+					default:
+						throw new CoreException(new Status(IStatus.ERROR, ECommons.PLUGIN_ID,
+								NLS.bind("Malformed variable expression: variable ''{0}'' not closed.", variableName)));
+					}
 					fUnresolvedSpecial.add(variableName);
-					final int[] region = new int[] { offset, offset + pattern.length() };
+					final int[] region = new int[] { offset, offset + length };
 					searchSurrounding(text, region);
-					final String key = "XX-SPECIALVAR-"+fLocationVariables.size()+"-XX"; //$NON-NLS-1$ //$NON-NLS-2$
+					final String key = "XX-SPECIALVAR-"+specialVariables.size()+"-XX"; //$NON-NLS-1$ //$NON-NLS-2$
 					specialVariables.put(key, new String(text.substring(region[0], region[1])));
 					text = text.substring(0, region[0]) + key + text.substring(region[1], text.length());
 				}
@@ -119,11 +159,21 @@ public class VariableText {
 		
 		text = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(text, reportUndefinedVariables);
 		
-		for (final Entry<String, String> entry : specialVariables.entrySet()) {
-			text = text.replace(entry.getKey(), entry.getValue());
+		final Entry<String, String>[] entries = specialVariables.entrySet().toArray(new Entry[specialVariables.size()]);
+		for (int i = entries.length - 1; i >= 0; i--) {
+			text = text.replace(entries[i].getKey(), entries[i].getValue());
 		}
 		
 		fText = text;
+		
+		if (fSpecialVariables != null) {
+			for (final IDynamicVariable variable : fSpecialVariables) {
+				if (require(variable.getName())) {
+					set(variable);
+				}
+			}
+		}
+		
 		fState = 2;
 	}
 	
@@ -131,7 +181,7 @@ public class VariableText {
 		final IStringVariableManager variableManager = VariablesPlugin.getDefault().getStringVariableManager();
 		
 		for (final String variableName : LOCATION_VARIABLES) {
-			final String pattern = "${"+variableName; //$NON-NLS-1$ 
+			final String pattern = "${"+variableName; //$NON-NLS-1$
 			int offset = -1;
 			while ((offset = text.indexOf(pattern, offset+1)) >= 0) {
 				if (!isEscaped(text, offset)) {
@@ -169,7 +219,45 @@ public class VariableText {
 		}
 	}
 	
+	public void set(final IDynamicVariable variable) throws CoreException {
+		if (fUnresolvedSpecial.remove(variable.getName())) {
+			final String pattern = "${"+variable.getName(); //$NON-NLS-1$
+			String text = fText;
+			
+			int offset = -1;
+			while ((offset = text.indexOf(pattern, offset+1)) >= 0) {
+				if (!isEscaped(text, offset)) {
+					final int length;
+					final String value;
+					switch (text.charAt(offset + pattern.length())) {
+					case '}':
+						length = pattern.length() + 1;
+						value = variable.getValue(null);
+						break;
+					case ':':
+						if (!variable.supportsArgument()) {
+							throw new CoreException(new Status(IStatus.ERROR, ECommons.PLUGIN_ID,
+									NLS.bind("Malformed variable expression: variable ''{0}'' doesn't support arguments.", variable.getName())));
+						}
+						length = text.indexOf('}', offset + pattern.length()) - offset + 1;
+						value = variable.getValue(
+								text.substring(offset + pattern.length() + 1, offset + length - 1) );
+						break;
+					default:
+						throw new IllegalStateException();
+					}
+					text = text.substring(0, offset) + value + text.substring(offset+length, text.length());
+				}
+			}
+			
+			fText = text;
+		}
+	}
+	
 	public void performFinalStringSubstitution(final LocationProcessor locationProcessor) throws CoreException {
+		if (!fUnresolvedSpecial.isEmpty()) {
+			throw new CoreException(new Status(IStatus.ERROR, ECommons.PLUGIN_ID, "Unresolved variable(s): " + fUnresolvedSpecial.toString() + "."));
+		}
 		if (fState == 1) {
 			performInitialStringSubstitution(true);
 		}

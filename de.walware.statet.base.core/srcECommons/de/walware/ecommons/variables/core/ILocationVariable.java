@@ -9,33 +9,12 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.debug.core;
-
-import org.eclipse.core.variables.IStringVariable;
+package de.walware.ecommons.variables.core;
 
 
 /**
- * Simple string value e.g. as additional entry in variable selection dialogs.
+ * Indicates that the variable resolves a location (path).
  */
-public class StringVariable implements IStringVariable {
-	
-	
-	private final String fName;
-	private final String fDescription;
-	
-	
-	public StringVariable(final String name, final String description) {
-		fName = name;
-		fDescription = description;
-	}
-	
-	
-	public String getName() {
-		return fName;
-	}
-	
-	public String getDescription() {
-		return fDescription;
-	}
+public interface ILocationVariable {
 	
 }

@@ -35,10 +35,10 @@ import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
-import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
+import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvSetting;

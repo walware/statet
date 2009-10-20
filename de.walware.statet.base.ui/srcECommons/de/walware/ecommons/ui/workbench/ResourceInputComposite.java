@@ -55,12 +55,12 @@ import org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog;
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
-import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.internal.ui.Messages;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
+import de.walware.ecommons.variables.core.VariableFilter;
 
 
 /**
@@ -178,7 +178,7 @@ public class ResourceInputComposite extends Composite {
 	}
 	
 	public void setShowInsertVariable(final boolean enable,
-			final List<VariableFilter> filters, final List<IStringVariable> additionals) {
+			final List<VariableFilter> filters, final List<? extends IStringVariable> additionals) {
 		fShowInsertVariable = enable;
 		fShowInsertVariableFilters = (filters != null) ? new ConstList<VariableFilter>(filters) : null;
 		if (fShowInsertVariableAdditionals != null) {

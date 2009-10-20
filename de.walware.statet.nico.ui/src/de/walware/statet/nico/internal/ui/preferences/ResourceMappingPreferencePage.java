@@ -44,7 +44,6 @@ import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.NotEmptyValidator;
-import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.dialogs.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.DatabindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
@@ -55,6 +54,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
+import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.internal.core.NicoPlugin;

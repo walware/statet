@@ -29,6 +29,7 @@ Export-Package: de.walware.ecommons,
  de.walware.ecommons.net,
  de.walware.ecommons.preferences,
  de.walware.ecommons.text,
+ de.walware.ecommons.variables.core,
  de.walware.statet.base.core,
  de.walware.statet.base.core.preferences,
  org.apache.commons.collections.primitives

@@ -52,12 +52,12 @@ import de.walware.ecommons.databinding.RadioGroupObservable;
 import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
-import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
+import de.walware.ecommons.variables.core.VariableFilter;
 
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderChooser;

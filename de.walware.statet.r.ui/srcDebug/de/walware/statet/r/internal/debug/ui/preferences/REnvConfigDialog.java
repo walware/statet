@@ -78,7 +78,6 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
-import de.walware.ecommons.debug.ui.VariableFilter;
 import de.walware.ecommons.ui.dialogs.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.DatabindingSupport;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
@@ -88,6 +87,7 @@ import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
+import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.REnvConfiguration;
