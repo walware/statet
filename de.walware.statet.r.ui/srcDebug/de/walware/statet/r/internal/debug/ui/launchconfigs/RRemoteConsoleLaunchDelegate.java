@@ -469,23 +469,19 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_REMOTE_CONSOLE_CONFIGURATION_TYPE);
 			final boolean startup = (todo == TODO_START_R);
 			
-			String name = rmiAddress.toString();
-			name += ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
 			final ToolProcess<RWorkspace> process = new RProcess(launch,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
-					" (Remote) : R Console/RJ ~ " + name, //$NON-NLS-1$
+					" / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 					rmiAddress.toString(), (workingDirectory != null) ? workingDirectory.toString() : null, timestamp);
-			if (command == null) {
-				command = "rjs-connect" + name; //$NON-NLS-1$
-			}
-			process.setAttribute(IProcess.ATTR_CMDLINE, command + " \n" + Arrays.toString(args)); //$NON-NLS-1$
+			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n'
+					+ ((startup) ? Arrays.toString(args) : "rjs-reconnect")); //$NON-NLS-1$
 			
 			final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
-			rjsProperties.put("rj.data.lists.structs.max_length",
+			rjsProperties.put("rj.data.lists.structs.max_length", //$NON-NLS-1$
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
-			rjsProperties.put("rj.data.envs.structs.max_length",
+			rjsProperties.put("rj.data.envs.structs.max_length", //$NON-NLS-1$
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
-			rjsProperties.put("rj.session.startup.time", timestamp);
+			rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
 			final RjsController controller = new RjsController(process, rmiAddress, loginData,
 					false, startup, args, rjsProperties, null, trackingConfigs);
 			

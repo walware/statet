@@ -15,15 +15,29 @@ import org.eclipse.core.filesystem.IFileStore;
 
 
 /**
- * 
+ * A tool session track.
  */
 public interface ITrack {
 	
 	
+	/**
+	 * A name of the track (usually the name from the configuration).
+	 * For the identification by the user.
+	 * 
+	 * @return the name
+	 */
 	String getName();
 	
+	/**
+	 * Flushes the buffer of the track, if available.
+	 */
 	void flush();
 	
+	/**
+	 * Returns the file the track is written to (if configured).
+	 * 
+	 * @return the current file or <code>null</code>
+	 */
 	IFileStore getFile();
 	
 }

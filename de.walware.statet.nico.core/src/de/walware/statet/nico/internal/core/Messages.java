@@ -17,6 +17,11 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	
 	
+	public static String SubmitType_Console_label;
+	public static String SubmitType_Editor_label;
+	public static String SubmitType_Tools_label;
+	public static String SubmitType_Other_label;
+	
 	public static String LoadHistory_AllocatingTask_label;
 	public static String LoadHistory_ok_message;
 	public static String LoadHistory_error_message;

@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
+import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ui.dialogs.ShortedLabel;
 
 import de.walware.statet.base.ui.StatetImages;
@@ -71,10 +72,11 @@ public class ToolInfoGroup {
 		
 		ShortedLabel detail;
 		detail = new ShortedLabel(info, SWT.NONE);
-		detail.setText(fProcess.getToolLabel(false));
+		detail.setText(fProcess.getToolLabel(true));
 		detail.getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		detail = new ShortedLabel(info, SWT.NONE);
-		detail.setText(fProcess.getLabel());
+		
+		detail.setText(FileUtil.toString(fProcess.getWorkspaceData().getWorkspaceDir()));
 		detail.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 	}
 	

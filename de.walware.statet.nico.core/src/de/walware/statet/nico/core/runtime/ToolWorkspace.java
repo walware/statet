@@ -28,6 +28,7 @@ import org.eclipse.debug.core.DebugPlugin;
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.variables.core.DateVariable;
 import de.walware.ecommons.variables.core.DynamicVariable;
 import de.walware.ecommons.variables.core.TimeVariable;
@@ -35,6 +36,7 @@ import de.walware.ecommons.variables.core.TimeVariable;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
+import de.walware.statet.nico.internal.core.NicoPlugin;
 
 
 /**
@@ -102,12 +104,15 @@ public class ToolWorkspace {
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+			fIsRefreshing = true;
 			try {
 				autoRefreshFromTool(adapter, monitor);
 			}
 			finally {
+				fIsRefreshing = false;
 				fUpdateScheduled = false;
 			}
+			firePropertiesChanged();
 		}
 		
 	}
@@ -136,6 +141,8 @@ public class ToolWorkspace {
 	private boolean fAutoRefreshEnabled = true;
 	private final IToolRunnable fUpdateRunnable;
 	private boolean fUpdateScheduled;
+	
+	private boolean fIsRefreshing;
 	
 	private FastList<IDynamicVariable> fStringVariables = new FastList<IDynamicVariable>(IDynamicVariable.class);
 	
@@ -291,7 +298,14 @@ public class ToolWorkspace {
 	
 	
 	final void controlRefresh(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
-		refreshFromTool(options, adapter, monitor);
+		fIsRefreshing = true;
+		try {
+			refreshFromTool(options, adapter, monitor);
+		}
+		finally {
+			fIsRefreshing = false;
+		}
+		firePropertiesChanged();
 	}
 	
 	private void internalUpdate() { // only with Queue lock
@@ -379,7 +393,13 @@ public class ToolWorkspace {
 	}
 	
 	protected final void controlSetWorkspaceDir(final IFileStore directory) {
-		fWorkspaceDir = directory;
+		if ((fWorkspaceDir != null) ? !fWorkspaceDir.equals(directory) : directory != null) {
+			fWorkspaceDir = directory;
+			fProperties.put("wd", directory);
+			if (!fIsRefreshing) {
+				firePropertiesChanged();
+			}
+		}
 	}
 	
 	protected final void controlSetRemoteWorkspaceDir(final IPath path) {
@@ -434,7 +454,12 @@ public class ToolWorkspace {
 		}
 		final Listener[] listeners = fPropertyListener.toArray();
 		for (final Listener listener : listeners) {
-			listener.propertyChanged(ToolWorkspace.this, fProperties);
+			try {
+				listener.propertyChanged(ToolWorkspace.this, fProperties);
+			}
+			catch (final Exception e) {
+				NicoPlugin.logError(ICommonStatusConstants.INTERNAL_PLUGGED_IN, "An unexpected exception was thrown when notifying a tool workspace listener about changes.", e);
+			}
 		}
 		fProperties.clear();
 	}

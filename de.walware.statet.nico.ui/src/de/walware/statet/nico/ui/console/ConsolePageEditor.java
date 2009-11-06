@@ -71,6 +71,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
+import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.PartitioningConfiguration;
@@ -93,6 +94,7 @@ import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
@@ -239,6 +241,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private class StatusLine implements IEditorStatusLine {
 		
 		private boolean fMessageSetted;
+		private String fMessage;
 		
 		public void setMessage(final boolean error, final String message, final Image image) {
 			final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
@@ -257,11 +260,29 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			if (fMessageSetted) {
 				final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
 				if (manager != null) {
-					manager.setMessage(null);
-					manager.setErrorMessage(null);
 					fMessageSetted = false;
+					manager.setErrorMessage(null);
+					updateWD();
 				}
 				
+			}
+		}
+		
+		void updateWD() {
+			if (!fMessageSetted) {
+				final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
+				if (manager != null) {
+					final String path = FileUtil.toString(fConsolePage.getTool().getWorkspaceData().getWorkspaceDir());
+					fMessage = path;
+					manager.setMessage(path);
+				}
+			}
+		}
+		
+		void refresh() {
+			final IStatusLineManager manager = fConsolePage.getSite().getActionBars().getStatusLineManager();
+			if (manager != null) {
+				manager.setMessage(fMessage);
 			}
 		}
 		
@@ -405,6 +426,8 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	/** Indicates that the document is change by a history action */
 	private boolean fInHistoryChange = false;
 	
+	private ToolWorkspace.Listener fWorkspaceListener;
+	
 	
 	public ConsolePageEditor(final NIConsolePage page) {
 		fConsolePage = page;
@@ -500,6 +523,25 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			public void documentChanged(final DocumentEvent event) {
 			}
 		});
+		
+		fWorkspaceListener = new ToolWorkspace.Listener() {
+			public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
+				if (properties.containsKey("wd")) {
+					UIAccess.getDisplay(null).asyncExec(new Runnable() {
+						public void run() {
+							fStatusLine.updateWD();
+						}
+					});
+				}
+			}
+		};
+		fConsolePage.getControl().addListener(SWT.Activate, new Listener() {
+			public void handleEvent(final Event event) {
+				fStatusLine.refresh();
+			}
+		});
+		fConsolePage.getTool().getWorkspaceData().addPropertyListener(fWorkspaceListener);
+		fStatusLine.updateWD();
 		
 		return fComposite;
 	}
@@ -785,6 +827,11 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fProcess.getHistory().removeListener(fHistoryListener);
 		fHistoryListener = null;
 		fCurrentHistoryEntry = null;
+		
+		if (fWorkspaceListener != null) {
+			fConsolePage.getTool().getWorkspaceData().removePropertyListener(fWorkspaceListener);
+			fWorkspaceListener = null;
+		}
 		
 		if (fSourceViewerDecorationSupport != null) {
 			fSourceViewerDecorationSupport.dispose();

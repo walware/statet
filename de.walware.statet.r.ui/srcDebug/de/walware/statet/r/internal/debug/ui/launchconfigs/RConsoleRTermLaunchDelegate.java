@@ -129,10 +129,8 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		// create process
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
-		String name = cmdLine.get(0);
-		name += ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
 		final ToolProcess<RWorkspace> process = new RProcess(launch,
-				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " : R Console/Rterm ~ " + name, //$NON-NLS-1$
+				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " / Rterm " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 				null, workingDirectory.toString(), timestamp);
 		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
 		

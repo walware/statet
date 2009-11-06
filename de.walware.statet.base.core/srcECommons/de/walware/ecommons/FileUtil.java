@@ -42,7 +42,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -435,16 +434,16 @@ public abstract class FileUtil {
 					return;
 				}
 				int next = 0;
-				if (startsWith(bytes, IContentDescription.BOM_UTF_8)) {
-					next = IContentDescription.BOM_UTF_8.length;
+				if (startsWith(bytes, BOM_UTF_8)) {
+					next = BOM_UTF_8.length;
 					fDefaultEncoding = FileUtil.UTF_8;
 				}
-				else if (startsWith(bytes, IContentDescription.BOM_UTF_16BE)) {
-					next = IContentDescription.BOM_UTF_16BE.length;
+				else if (startsWith(bytes, BOM_UTF_16BE)) {
+					next = BOM_UTF_16BE.length;
 					fDefaultEncoding = FileUtil.UTF_16_BE;
 				}
-				else if (startsWith(bytes, IContentDescription.BOM_UTF_16LE)) {
-					next = IContentDescription.BOM_UTF_16LE.length;
+				else if (startsWith(bytes, BOM_UTF_16LE)) {
+					next = BOM_UTF_16LE.length;
 					fDefaultEncoding = FileUtil.UTF_16_LE;
 				}
 				if (readed-next > 0) {

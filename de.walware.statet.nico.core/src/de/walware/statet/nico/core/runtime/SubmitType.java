@@ -13,17 +13,19 @@ package de.walware.statet.nico.core.runtime;
 
 import java.util.EnumSet;
 
+import de.walware.statet.nico.internal.core.Messages;
+
 
 public enum SubmitType {
 	
 	/** Console interaction by user */
-	CONSOLE ("Console"),
+	CONSOLE (Messages.SubmitType_Console_label),
 	/** Submit from editor and other code based views */
-	EDITOR ("Editor"),
+	EDITOR (Messages.SubmitType_Editor_label),
 	/** Submit from tools (GUI etc.) */
-	TOOLS ("Tools"),
+	TOOLS (Messages.SubmitType_Tools_label),
 	/** Others, e.g. by controller */
-	OTHER ("Other"),
+	OTHER (Messages.SubmitType_Other_label),
 //	/** Use only, if you know, what you do */
 //	INTERNAL,
 	;

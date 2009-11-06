@@ -161,13 +161,11 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		// create process
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
-		String name = rmiAddress.toString();
-		name += ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp);
 		final ToolProcess<RWorkspace> process = new RProcess(launch, 
 				LaunchConfigUtil.createLaunchPrefix(configuration),
-				renv.getName() + " : R Console/RJ ~ " + name, //$NON-NLS-1$
+				renv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 				rmiAddress.toString(), null, timestamp); // wd is set at rjs startup
-		process.setAttribute(IProcess.ATTR_CMDLINE, name + " " + Arrays.toString(rArgs)); //$NON-NLS-1$
+		process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
 		
 		// Wait until the engine is started or died
 		progress.subTask(RLaunchingMessages.RJLaunchDelegate_WaitForR_subtask);

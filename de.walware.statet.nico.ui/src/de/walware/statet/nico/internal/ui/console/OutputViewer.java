@@ -35,6 +35,7 @@ public class OutputViewer extends TextConsoleViewer {
 	
 	public OutputViewer(final Composite parent, final TextConsole console) {
 		super(parent, console);
+		setEditable(false);
 	}
 	
 	

@@ -33,9 +33,12 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
+import de.walware.ecommons.FileUtil;
+
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
+import de.walware.statet.nico.core.runtime.ToolWorkspace.Listener;
 
 
 /**
@@ -127,6 +130,8 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private final Set<String> fFeatureSets = new HashSet<String>();
 	private final String fName;
 	private String fToolLabelShort;
+	private String fToolLabelTrimmedWD;
+	private String fToolLabelStatus;
 	
 	private String fAddress;
 	private long fStartupTimestamp;
@@ -143,7 +148,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private int fRetain;
 	private boolean fIsDisposed;
 	
-	private final Map<String, String> fAttributes;
+	private final Map<String, String> fAttributes = new HashMap<String, String>(5);
 	private final boolean fCaptureOutput;
 	
 	private volatile ToolStatus fStatus = ToolStatus.STARTING;
@@ -159,14 +164,13 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fMainType = mainType;
 		fName = name;
 		fAddress = address;
-		fAttributes = new HashMap<String, String>(5);
-		fToolLabelShort = labelPrefix;
-		doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
-				computerConsoleLabel(ToolStatus.STARTING.getMarkedLabel()));
-		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, (mainType+PROCESS_TYPE_SUFFIX).intern());
 		fStartupWD = wd;
 		fStartupTimestamp = timestamp;
 		fConnectionTimestamp = timestamp;
+		
+		fToolLabelShort = labelPrefix;
+		fToolLabelStatus = ToolStatus.STARTING.getMarkedLabel();
+		fToolLabelTrimmedWD = trimPath(wd);
 		
 		final String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
 		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
@@ -196,6 +200,22 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	public void init(final ToolController<WorkspaceType> controller) {
 		fController = controller;
 		fWorkspaceData = fController.fWorkspaceData;
+		fWorkspaceData.addPropertyListener(new Listener() {
+			public void propertyChanged(final ToolWorkspace workspace, final Map<String, Object> properties) {
+				final DebugEvent nameEvent;
+				synchronized (fAttributes) {
+					fToolLabelTrimmedWD = null;
+					nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
+				}
+				if (nameEvent != null) {
+					fireEvent(nameEvent);
+				}
+			}
+		});
+		
+		fToolLabelTrimmedWD = null;
+		doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
+		doSetAttribute(IProcess.ATTR_PROCESS_TYPE, (fMainType+PROCESS_TYPE_SUFFIX).intern());
 		
 		fHistory.init();
 		
@@ -212,8 +232,55 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		return fFeatureSets.contains(featureSetID);
 	}
 	
-	private String computerConsoleLabel(final String statusLabel) {
-		return fToolLabelShort + " " + fName + " " + statusLabel; //$NON-NLS-1$ //$NON-NLS-2$
+	private String computeConsoleLabel() {
+		String wd = fToolLabelTrimmedWD;
+		if (wd == null) {
+			wd = fToolLabelTrimmedWD = trimPath(FileUtil.toString(fWorkspaceData.getWorkspaceDir()));
+		}
+		return fToolLabelShort + ' ' + fName + "  ∙  " + wd + "   \t " + fToolLabelStatus; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	
+	private String trimPath(final String path) {
+		if (path == null) {
+			return "–"; //$NON-NLS-1$
+		}
+		if (path.length() < 30) {
+			return path;
+		}
+		final int post1 = prevPathSeperator(path, path.length() - 1);
+		if (post1 < 25) {
+			return path;
+		}
+		final int post2 = prevPathSeperator(path, post1 - 1);
+		if (post2 < 20) {
+			return path;
+		}
+		final int pre1 = nextPathSeperator(path, 0);
+		int pre2 = nextPathSeperator(path, pre1 + 1);
+		if (pre2 > 12) {
+			pre2 = 10;
+		}
+		else {
+			pre2++;
+		}
+		if (post2 - pre2 < 10) {
+			return path;
+		}
+		return path.substring(0, pre2) + " ... " + path.substring(post2, path.length()); //$NON-NLS-1$
+	}
+	
+	private int prevPathSeperator(final String path, final int offset) {
+		final int idx1 = path.lastIndexOf('/', offset);
+		final int idx2 = path.lastIndexOf('\\', offset);
+		return (idx1 > idx2) ?
+				idx1 : idx2;
+	}
+	
+	private int nextPathSeperator(final String path, final int offset) {
+		final int idx1 = path.indexOf('/', offset);
+		final int idx2 = path.indexOf('\\', offset);
+		return (idx1 >= 0 && idx1 < idx2) ?
+				idx1 : idx2;
 	}
 	
 	public final String getMainType() {
@@ -384,12 +451,13 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 			break;
 		}
 		
+		final DebugEvent nameEvent;
 		synchronized (fAttributes) {
-			final DebugEvent nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL,
-					computerConsoleLabel(newStatus.getMarkedLabel()));
-			if (nameEvent != null) {
-				eventCollection.add(nameEvent);
-			}
+			fToolLabelStatus = newStatus.getMarkedLabel();
+			nameEvent = doSetAttribute(IProcess.ATTR_PROCESS_LABEL, computeConsoleLabel());
+		}
+		if (nameEvent != null) {
+			eventCollection.add(nameEvent);
 		}
 	}
 	
