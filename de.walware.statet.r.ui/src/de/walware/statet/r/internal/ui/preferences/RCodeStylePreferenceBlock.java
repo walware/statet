@@ -124,7 +124,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	private void createIndentControls(final Composite composite) {
-		composite.setLayout(LayoutUtil.applyTabDefault(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 2));
 		GridData gd;
 		Label label;
 		
@@ -203,7 +203,7 @@ public class RCodeStylePreferenceBlock extends ManagedConfigurationBlock {
 	}
 	
 	private void createMoreControls(final Composite composite) {
-		composite.setLayout(LayoutUtil.applyTabDefault(new GridLayout(), 2));
+		composite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 2));
 		
 		fWSArgAssignBefore = new Button(composite, SWT.CHECK);
 		fWSArgAssignBefore.setText(Messages.RCodeStyle_Whitespace_ArgAssign_Before_message);

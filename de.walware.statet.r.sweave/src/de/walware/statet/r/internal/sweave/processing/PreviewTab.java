@@ -230,7 +230,7 @@ public class PreviewTab extends LaunchConfigTabWithDbc {
 		final Composite mainComposite = new Composite(parent, SWT.NONE);
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		mainComposite.setLayout(LayoutUtil.applyTabDefault(new GridLayout(), 1));
+		mainComposite.setLayout(LayoutUtil.applyTabDefaults(new GridLayout(), 1));
 		
 		final Label label = new Label(mainComposite, SWT.NONE);
 		label.setText(Messages.PreviewTab_label);

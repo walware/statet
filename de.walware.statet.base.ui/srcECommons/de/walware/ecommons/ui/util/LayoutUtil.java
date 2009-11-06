@@ -217,18 +217,8 @@ public class LayoutUtil {
 	public static GridLayout applyDialogDefaults(final GridLayout gl, final int numColumns) {
 		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
-		gl.marginHeight = dialogValues.defaultVMargin;
 		gl.marginWidth = dialogValues.defaultHMargin;
-		gl.horizontalSpacing = dialogValues.defaultHSpacing;
-		gl.verticalSpacing = dialogValues.defaultVSpacing;
-		return gl;
-	}
-	
-	public static GridLayout applyGroupDefaults(final GridLayout gl, final int numColumns) {
-		final DialogValues dialogValues = getDialogValues();
-		gl.numColumns = numColumns;
-		gl.marginTop = dialogValues.defaultVSpacing / 2;
-		gl.marginBottom = dialogValues.defaultVSpacing / 2;
+		gl.marginHeight = dialogValues.defaultVMargin;
 		gl.horizontalSpacing = dialogValues.defaultHSpacing;
 		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		return gl;
@@ -237,20 +227,38 @@ public class LayoutUtil {
 	public static GridLayout applyCompositeDefaults(final GridLayout gl, final int numColumns) {
 		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
-		gl.marginHeight = 0;
 		gl.marginWidth = 0;
+		gl.marginHeight = 0;
 		gl.horizontalSpacing = dialogValues.defaultHSpacing;
 		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		return gl;
 	}
 	
-	public static GridLayout applyTabDefault(final GridLayout gl, final int numColumns) {
+	public static GridLayout applyGroupDefaults(final GridLayout gl, final int numColumns) {
 		final DialogValues dialogValues = getDialogValues();
 		gl.numColumns = numColumns;
-		gl.marginTop = dialogValues.defaultVSpacing / 2;
-		gl.marginBottom = dialogValues.defaultVSpacing / 2;
-		gl.marginLeft = dialogValues.defaultHSpacing / 2;
-		gl.marginRight = dialogValues.defaultHSpacing / 2;
+		gl.marginWidth = dialogValues.defaultHSpacing;
+		gl.marginHeight = dialogValues.defaultVSpacing;
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
+		return gl;
+	}
+	
+	public static GridLayout applyContentDefaults(final GridLayout gl, final int numColumns) {
+		final DialogValues dialogValues = getDialogValues();
+		gl.numColumns = numColumns;
+		gl.marginWidth = dialogValues.defaultHSpacing;
+		gl.marginHeight = dialogValues.defaultVSpacing;
+		gl.horizontalSpacing = dialogValues.defaultHSpacing;
+		gl.verticalSpacing = dialogValues.defaultVSpacing;
+		return gl;
+	}
+	
+	public static GridLayout applyTabDefaults(final GridLayout gl, final int numColumns) {
+		final DialogValues dialogValues = getDialogValues();
+		gl.numColumns = numColumns;
+		gl.marginWidth = dialogValues.defaultHSpacing;
+		gl.marginHeight = dialogValues.defaultVSpacing;
 		gl.horizontalSpacing = dialogValues.defaultHSpacing;
 		gl.verticalSpacing = dialogValues.defaultVSpacing;
 		return gl;
@@ -258,8 +266,8 @@ public class LayoutUtil {
 	
 	public static GridLayout applySashDefaults(final GridLayout gl, final int numColumns) {
 		gl.numColumns = numColumns;
-		gl.marginHeight = 0;
 		gl.marginWidth = 0;
+		gl.marginHeight = 0;
 		gl.horizontalSpacing = 0;
 		gl.verticalSpacing = 0;
 		return gl;

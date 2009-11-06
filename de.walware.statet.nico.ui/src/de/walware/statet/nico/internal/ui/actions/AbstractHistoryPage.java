@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Group;
 import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.util.DialogUtil;
+import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -65,7 +66,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 	public void createControl(final Composite parent) {
 		initializeDialogUnits(parent);
 		
-		final GridLayout layout = new GridLayout();
+		final GridLayout layout = LayoutUtil.applyContentDefaults(new GridLayout(), 1);
 		final Layouter layouter = new Layouter(new Composite(parent, SWT.NONE), layout);
 		layouter.composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		setControl(layouter.composite);
