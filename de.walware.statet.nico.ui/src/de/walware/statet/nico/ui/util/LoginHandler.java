@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
@@ -243,7 +243,7 @@ public class LoginHandler implements IToolEventHandler {
 	}
 	
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final boolean saveAllowed = ToolEventHandlerUtil.getCheckedData(data, "save.allowed", Boolean.TRUE); //$NON-NLS-1$
 		final boolean saveActivated = ToolEventHandlerUtil.getCheckedData(data, "save.activated", Boolean.FALSE); //$NON-NLS-1$
 		final Callback[] callbacks = ToolEventHandlerUtil.getCheckedData(data, LOGIN_CALLBACKS_DATA_KEY, Callback[].class, true); 
@@ -255,10 +255,11 @@ public class LoginHandler implements IToolEventHandler {
 					|| callback instanceof TextInputCallback) {
 				continue ITER_CALLBACKS;
 			}
-			StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
+			final IStatus status = new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 					Messages.Login_error_UnsupportedOperation_message,
-					new UnsupportedCallbackException(callback)), StatusManager.SHOW | StatusManager.LOG);
-			return ERROR;
+					new UnsupportedCallbackException(callback));
+			StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
+			return status;
 		}
 		
 		if (id.equals(IToolEventHandler.LOGIN_REQUEST_EVENT_ID)) {
@@ -267,14 +268,14 @@ public class LoginHandler implements IToolEventHandler {
 			data.put("attempt", attempt+1); //$NON-NLS-1$
 			if (saveAllowed && attempt == 1) {
 				if (readData(callbacks, getDataNode(tools.getProcess(), data, false), data)) {
-					return OK;
+					return Status.OK_STATUS;
 				}
 			}
 			final String message = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
 			if (callbacks.length == 0) {
-				return OK;
+				return Status.OK_STATUS;
 			}
-			final AtomicInteger result = new AtomicInteger(CANCEL);
+			final AtomicReference<IStatus> result = new AtomicReference<IStatus>(Status.CANCEL_STATUS);
 			final ToolProcess process = tools.getProcess();
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
@@ -287,7 +288,7 @@ public class LoginHandler implements IToolEventHandler {
 					if (dialog.open() == Dialog.OK) {
 						data.put("save.activated", Boolean.valueOf(dialog.fAllowSave && dialog.fSave)); //$NON-NLS-1$
 						data.put(LOGIN_USERNAME_DATA_KEY, dialog.fUsername);
-						result.set(OK);
+						result.set(Status.OK_STATUS);
 					}
 					else {
 						data.put("save.activated", null); //$NON-NLS-1$
@@ -300,10 +301,10 @@ public class LoginHandler implements IToolEventHandler {
 		if (id.equals(IToolEventHandler.LOGIN_OK_EVENT_ID)) {
 			if (saveAllowed && saveActivated) {
 				if (saveData(callbacks, getDataNode(tools.getProcess(), data, true))) {
-					return OK;
+					return Status.OK_STATUS;
 				}
 			}
-			return -1;
+			return Status.OK_STATUS;
 		}
 		throw new UnsupportedOperationException();
 	}

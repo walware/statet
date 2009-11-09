@@ -81,29 +81,29 @@ public class QuitHandler implements IToolEventHandler {
 		
 	}
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (PlatformUI.getWorkbench().isClosing()) {
 			final ToolController controller = tools.getController();
 			if (controller != null) {
 				if (tools.getProcess().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
 					try {
 						((IRemoteEngineController) controller).disconnect(monitor);
-						return NO;
+						return Status.CANCEL_STATUS;
 					}
 					catch (final CoreException e) {}
 				}
 				try {
 					controller.kill(monitor);
-					return NO;
+					return Status.CANCEL_STATUS;
 				}
 				catch (final CoreException e) {}
 			}
-			return CANCEL;
+			return Status.CANCEL_STATUS;
 		}
 		
 		final IToolRunnable[] quitRunnables = (IToolRunnable[]) data.get("scheduledQuitTasks");
 		if (quitRunnables.length == 0) {
-			return OK; // run default = schedule quit
+			return Status.OK_STATUS; // run default = schedule quit
 		}
 		
 		final UIRunnable runner = new UIRunnable();
@@ -117,7 +117,7 @@ public class QuitHandler implements IToolEventHandler {
 		if (runner.fResult == 2) {
 			runner.fController.cancelQuit();
 		}
-		return CANCEL; // do nothing
+		return Status.CANCEL_STATUS; // do nothing
 	}
 	
 }

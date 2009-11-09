@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.nico.impl;
 
+import static de.walware.rj.server.srvext.ServerUtil.MISSING_ANSWER_STATUS;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_ADDRESS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_CALLBACKS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_MESSAGE_DATA_KEY;
@@ -319,7 +320,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 									ICommonStatusConstants.LAUNCHING,
 									"Login requested but not supported by this configuration.", null));
 						}
-						if (loginHandler.handle(IToolEventHandler.LOGIN_REQUEST_EVENT_ID, this, data, monitor) != IToolEventHandler.OK) {
+						if (!loginHandler.handle(IToolEventHandler.LOGIN_REQUEST_EVENT_ID, this, data, monitor).isOK()) {
 							throw new CoreException(Status.CANCEL_STATUS);
 						}
 						
@@ -648,7 +649,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						return null;
 					}
 					else {
-						item.setAnswer(RjsComObject.V_ERROR);
+						item.setAnswer(new RjsStatus(RjsStatus.ERROR, 0, "Client error processing command list."));
 						return item;
 					}
 				}
@@ -678,12 +679,12 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				if (handler != null) {
 					final Map<String, Object> data = new HashMap<String, Object>();
 					data.put("newResource", ((cmd.getCmdOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); 
-					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, this, data, monitor) == IToolEventHandler.OK) {
+					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, this, data, monitor).isOK()) {
 						cmd.setAnswer((String) data.get("filename")); //$NON-NLS-1$
 						return cmd;
 					}
 				}
-				cmd.setAnswer(RjsComObject.V_CANCEL);
+				cmd.setAnswer(RjsStatus.CANCEL_STATUS);
 				return cmd;
 			}
 			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
@@ -712,7 +713,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					NLS.bind("An error occurred when exec RJ UI command ''{0}''.", command), e)); 
 			if (cmd.waitForClient()) {
-				cmd.setAnswer(RjsStatus.ERROR);
+				cmd.setAnswer(new RjsStatus(RjsStatus.ERROR, 0, "Client error processing current command."));
 				return cmd;
 			}
 			else {
@@ -726,12 +727,22 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		if (handler != null) {
 			final Map<String, Object> data = new HashMap<String, Object>();
 			data.put(textDataKey, cmd.getDataText());
-			cmd.setAnswer(handler.handle(handlerId, this, data, monitor));
-			return;
+			final IStatus status = handler.handle(handlerId, this, data, monitor);
+			switch (status.getSeverity()) {
+			case IStatus.OK:
+				cmd.setAnswer(RjsStatus.OK_STATUS);
+				return;
+			case IStatus.CANCEL:
+				cmd.setAnswer(RjsStatus.CANCEL_STATUS);
+				return;
+			default:
+				cmd.setAnswer(new RjsStatus(status.getSeverity(), status.getCode(), status.getMessage()));
+				return;
+			}
 		}
 		RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
 				NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); 
-		cmd.setAnswer(RjsComObject.V_CANCEL);
+		cmd.setAnswer(RjsStatus.CANCEL_STATUS);
 	}
 	
 	private void rjsComErrorRestore(final Throwable e, final IProgressMonitor monitor) {
@@ -873,11 +884,15 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		final int level = newDataLevel();
 		try {
 			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.EVAL_VOID, 0, (byte) 0, command, null), monitor);
-			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
-				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Evaluation failed."));
-			}
-			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
-				throw new CoreException(Status.CANCEL_STATUS);
+			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
+				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
+				if (status.getSeverity() == RjsStatus.CANCEL) {
+					throw new CoreException(Status.CANCEL_STATUS);
+				}
+				else {
+					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
+							"Evaluation failed: " + status.getMessage(), null));
+				}
 			}
 			return;
 		}
@@ -897,11 +912,15 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		try {
 			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
 					DataCmdItem.EVAL_STRUCT : DataCmdItem.EVAL_DATA, 0, checkedDepth, command, factoryId), monitor);
-			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
-				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Evaluation failed."));
-			}
-			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
-				throw new CoreException(Status.CANCEL_STATUS);
+			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
+				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
+				if (status.getSeverity() == RjsStatus.CANCEL) {
+					throw new CoreException(Status.CANCEL_STATUS);
+				}
+				else {
+					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
+							"Evaluation failed: " + status.getMessage(), null));
+				}
 			}
 			return fDataAnswer[level].getData();
 		}
@@ -922,11 +941,15 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			final long handle = reference.getHandle();
 			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
 					DataCmdItem.RESOLVE_STRUCT : DataCmdItem.RESOLVE_DATA, 0, checkedDepth, Long.toString(handle), factoryId), monitor);
-			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
-				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Evaluation failed."));
-			}
-			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
-				throw new CoreException(Status.CANCEL_STATUS);
+			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
+				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
+				if (status.getSeverity() == RjsStatus.CANCEL) {
+					throw new CoreException(Status.CANCEL_STATUS);
+				}
+				else {
+					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
+							"Evaluation failed: " + status.getMessage(), null));
+				}
 			}
 			return fDataAnswer[level].getData();
 		}
@@ -970,11 +993,15 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		final int level = newDataLevel();
 		try {
 			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.ASSIGN_DATA, 0, expression, data), monitor);
-			if (fDataAnswer[level] == null || fDataAnswer[level].getStatus() == RjsStatus.ERROR) {
-				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Assignment failed."));
-			}
-			if (fDataAnswer[level].getStatus() == RjsStatus.CANCEL) {
-				throw new CoreException(Status.CANCEL_STATUS);
+			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
+				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
+				if (status.getSeverity() == RjsStatus.CANCEL) {
+					throw new CoreException(Status.CANCEL_STATUS);
+				}
+				else {
+					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
+							"Assignment failed: " + status.getMessage(), null));
+				}
 			}
 			return;
 		}

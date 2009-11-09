@@ -42,7 +42,7 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 	public static final String ADDTO_HISTORY_ID = "common/addtoHistory"; //$NON-NLS-1$
 	
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(LOAD_HISTORY_ID)) {
 			return loadHistory(tools, data, monitor);
 		}
@@ -52,13 +52,13 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 		if (id.equals(ADDTO_HISTORY_ID)) {
 			final String item = ToolEventHandlerUtil.getCheckedData(data, "text", String.class, true); //$NON-NLS-1$
 			tools.getProcess().getHistory().addCommand(item, tools.getCurrentRunnable().getSubmitType());
-			return IStatus.OK;
+			return Status.OK_STATUS;
 		}
 		throw new UnsupportedOperationException();
 	}
 	
 	
-	protected int loadHistory(final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	protected IStatus loadHistory(final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		try {
 			CoreException fileException = null;
 			IFileStore fileStore = null;
@@ -80,14 +80,14 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 				status = tools.getProcess().getHistory().load(fileStore, workspaceData.getEncoding(), false, monitor);
 			}
 			tools.handleStatus(status, monitor);
-			return status.getSeverity();
+			return status;
 		}
 		catch (final OperationCanceledException e) {
-			return IStatus.CANCEL;
+			return Status.CANCEL_STATUS;
 		}
 	}
 	
-	protected int saveHistory(final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	protected IStatus saveHistory(final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		try {
 			CoreException fileException = null;
 			IFileStore fileStore = null;
@@ -110,10 +110,10 @@ public class HistoryOperationsHandler implements IToolEventHandler {
 				status = tools.getProcess().getHistory().save(fileStore, EFS.NONE, workspaceData.getEncoding(), false, monitor);
 			}
 			tools.handleStatus(status, monitor);
-			return status.getSeverity();
+			return status;
 		}
 		catch (final OperationCanceledException e) {
-			return IStatus.CANCEL;
+			return Status.CANCEL_STATUS;
 		}
 	}
 	

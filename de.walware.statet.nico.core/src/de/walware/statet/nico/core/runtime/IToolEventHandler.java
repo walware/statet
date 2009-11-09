@@ -102,6 +102,6 @@ public interface IToolEventHandler {
 	public static final String SHOW_HISTORY_ID = "common/showHistory"; //$NON-NLS-1$
 	
 	
-	public int handle(String id, IToolRunnableControllerAdapter tools, Map<String, Object> data, IProgressMonitor monitor);
+	public IStatus handle(String id, IToolRunnableControllerAdapter tools, Map<String, Object> data, IProgressMonitor monitor);
 	
 }

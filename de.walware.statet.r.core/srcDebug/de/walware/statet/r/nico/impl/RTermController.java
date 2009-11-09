@@ -346,7 +346,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		if (handler != null) {
 			final RTermCancelRunnable cancelRunnable = new RTermCancelRunnable();
 			final Map<String, Object> data = Collections.singletonMap(IToolEventHandler.RUN_RUNNABLE_DATA_KEY, (Object) cancelRunnable); 
-			return (handler.handle(IToolEventHandler.RUN_BLOCKING_EVENT_ID, this, data, null) == IToolEventHandler.OK);
+			return (handler.handle(IToolEventHandler.RUN_BLOCKING_EVENT_ID, this, data, null).isOK());
 		}
 		return false;
 	}

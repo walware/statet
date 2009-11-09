@@ -20,6 +20,8 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -143,7 +145,7 @@ public class SelectFileHandler implements IToolEventHandler {
 	}
 	
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final String message;
 		{	String s = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
 			if (s == null) {
@@ -167,10 +169,10 @@ public class SelectFileHandler implements IToolEventHandler {
 		};
 		UIAccess.getDisplay().syncExec(runnable);
 		if (file.get() == null) {
-			return CANCEL;
+			return Status.CANCEL_STATUS;
 		}
 		data.put("filename", file.get().toURI().toString()); //$NON-NLS-1$
-		return OK;
+		return Status.OK_STATUS;
 	}
 	
 }

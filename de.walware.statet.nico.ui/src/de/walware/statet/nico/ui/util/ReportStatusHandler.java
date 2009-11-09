@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
@@ -30,7 +31,7 @@ import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 public class ReportStatusHandler implements IToolEventHandler {
 	
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IStatus status = ToolEventHandlerUtil.getCheckedData(data, REPORT_STATUS_DATA_KEY, IStatus.class, false); 
 		if (status != null) {
 			final String br = tools.getWorkspaceData().getLineSeparator();
@@ -80,7 +81,7 @@ public class ReportStatusHandler implements IToolEventHandler {
 			}
 		}
 		
-		return 0;
+		return Status.OK_STATUS;
 	}
 	
 }

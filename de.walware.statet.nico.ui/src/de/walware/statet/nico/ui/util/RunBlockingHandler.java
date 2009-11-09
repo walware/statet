@@ -38,7 +38,7 @@ import de.walware.statet.nico.internal.ui.Messages;
 public class RunBlockingHandler implements IToolEventHandler {
 	
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		final IToolRunnable toolRunnable = ToolEventHandlerUtil.getCheckedData(data, RUN_RUNNABLE_DATA_KEY, IToolRunnable.class, true); 
 		try {
@@ -51,7 +51,7 @@ public class RunBlockingHandler implements IToolEventHandler {
 					}
 				}
 			});
-			return OK;
+			return Status.OK_STATUS;
 		}
 		catch (final InvocationTargetException e) {
 			final Throwable targetException = e.getTargetException();
@@ -63,13 +63,13 @@ public class RunBlockingHandler implements IToolEventHandler {
 		}
 		catch (final InterruptedException e) {
 			Thread.interrupted();
-			return CANCEL;
+			return Status.CANCEL_STATUS;
 		}
 	}
 	
-	protected int handleError(final IStatus status) {
+	protected IStatus handleError(final IStatus status) {
 		StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.SHOW);
-		return ERROR;
+		return status;
 	}
 	
 }

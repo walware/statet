@@ -439,8 +439,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			if (handler != null) {
 				final Map<String, Object> data = new HashMap<String, Object>();
 				data.put("scheduledQuitTasks", getQuitTasks()); //$NON-NLS-1$
-				final int answer = handler.handle(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, this, data, new NullProgressMonitor());
-				if (answer != IToolEventHandler.OK) {
+				final IStatus answer = handler.handle(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, this, data, new NullProgressMonitor());
+				if (!answer.isOK()) {
 					schedule = false;
 				}
 			}

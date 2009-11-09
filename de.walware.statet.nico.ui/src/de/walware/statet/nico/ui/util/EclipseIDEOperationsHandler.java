@@ -41,7 +41,7 @@ import de.walware.statet.nico.ui.views.HistoryView;
 public class EclipseIDEOperationsHandler implements IToolEventHandler {
 	
 	
-	public int handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(IToolEventHandler.SHOW_HISTORY_ID)) {
 			final String pattern = ToolEventHandlerUtil.getCheckedData(data, "pattern", String.class, false); //$NON-NLS-1$
 			final Display display = UIAccess.getDisplay();
@@ -60,7 +60,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 					}
 				}
 			});
-			return OK;
+			return Status.OK_STATUS;
 		}
 		if (id.equals(IToolEventHandler.SHOW_FILE_ID)) {
 			final IFileStore fileStore;
@@ -70,8 +70,9 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 				fileStore = workspaceData.toFileStore(filename);
 			}
 			catch (final CoreException e) {
-				tools.handleStatus(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1, "Could not resolve", e), monitor);
-				return ERROR;
+				final Status status = new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1, "Failed to resolve filename.", e);
+				tools.handleStatus(status, monitor);
+				return status;
 			}
 			final Display display = UIAccess.getDisplay();
 			display.syncExec(new Runnable() {
@@ -86,7 +87,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 					}
 				}
 			});
-			return OK;
+			return Status.OK_STATUS;
 		}
 		throw new UnsupportedOperationException();
 	}
