@@ -86,7 +86,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 				final IResource resource = su.getResource();
 				if (resource instanceof IFile) {
 					final RProject project = RProject.getRProject(resource.getProject());
-					fBaseResource = project.getBaseContainer();
+					fBaseResource = (project != null) ? project.getBaseContainer() : null;
 					if (fBaseResource == null) {
 						fBaseResource = resource.getParent();
 					}

@@ -240,7 +240,7 @@ public class WorkingBuffer implements IWorkingBuffer {
 					final StringBuilder buffer = new StringBuilder();
 					final char[] readBuffer = new char[2048];
 					int n;
-					while ((n = reader.read(readBuffer)) > 0) {
+					while ((n = reader.read(readBuffer)) >= 0) {
 						buffer.append(readBuffer, 0, n);
 					}
 					content.set(new SourceContent(file.getModificationStamp(), buffer.toString()));

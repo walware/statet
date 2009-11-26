@@ -33,12 +33,13 @@ import de.walware.ecommons.ui.ECommonsUI;
 public class DatabindingSupport {
 	
 	
+	private Realm fRealm;
 	private DataBindingContext fDbc;
 	
 	
 	public DatabindingSupport(final Control rootControl) {
-		final Realm realm = Realm.getDefault();
-		fDbc = new DataBindingContext(realm);
+		fRealm = Realm.getDefault();
+		fDbc = new DataBindingContext(fRealm);
 		
 		rootControl.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(final DisposeEvent e) {
@@ -50,6 +51,10 @@ public class DatabindingSupport {
 	
 	public DataBindingContext getContext() {
 		return fDbc;
+	}
+	
+	public Realm getRealm() {
+		return fRealm;
 	}
 	
 	private void dispose() {

@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
@@ -29,7 +30,6 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
-import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.events.HelpEvent;
@@ -465,9 +465,8 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput,
-			final ISourceViewer sourceViewer) {
-		super.setupConfiguration(prevProject, newProject, newInput, sourceViewer);
+	protected void doSetInput(final IEditorInput input) throws CoreException {
+		super.doSetInput(input);
 		if (fOptions.isSmartModeByDefaultEnabled()) {
 			setInsertMode(SMART_INSERT);
 		}
@@ -483,6 +482,7 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	@Override
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
+		super.collectContextMenuPreferencePages(pageIds);
 		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.RSyntaxColoring"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.REditorTemplates"); //$NON-NLS-1$

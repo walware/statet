@@ -24,13 +24,16 @@ public class SWTTextNullableObservableValue extends AbstractSWTObservableValue {
 	
 	private Object fValue;
 	
+	private boolean fUpdating = false;
+	
 	private ModifyListener fListener = new ModifyListener() {
 		public void modifyText(final ModifyEvent e) {
-			final Object newValue = doGetValue();
-			if ((newValue != null) ? (!newValue.equals(fValue)) : (fValue != null)) {
+			if (!fUpdating) {
 				final Object oldValue = fValue;
-				fValue = newValue;
-				fireValueChange(Diffs.createValueDiff(oldValue, newValue));
+				final Object newValue = doGetValue();
+				if ((newValue != null) ? (!newValue.equals(fValue)) : (fValue != null)) {
+					fireValueChange(Diffs.createValueDiff(oldValue, newValue));
+				}
 			}
 		}
 	};
@@ -58,20 +61,27 @@ public class SWTTextNullableObservableValue extends AbstractSWTObservableValue {
 	protected Object doGetValue() {
 		final String text = fTextWidget.getText();
 		if (text.trim().length() == 0) {
-			return null;
+			return (fValue = null);
 		}
 		else {
-			return text;
+			return (fValue = text);
 		}
 	}
 	
 	@Override
 	protected void doSetValue(final Object value) {
-		if (value == null) {
-			fTextWidget.setText("");
+		try {
+			fUpdating = true;
+			fValue = value;
+			if (value == null) {
+				fTextWidget.setText("");
+			}
+			else {
+				fTextWidget.setText((String) value);
+			}
 		}
-		else {
-			fTextWidget.setText((String) value);
+		finally {
+			fUpdating = false;
 		}
 	}
 	

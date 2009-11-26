@@ -196,8 +196,12 @@ public class ToolWorkspace {
 	}
 	
 	
-	public Prompt getPrompt() {
+	public final Prompt getPrompt() {
 		return fPublishedPrompt;
+	}
+	
+	protected final Prompt getCurrentPrompt() {
+		return fCurrentPrompt;
 	}
 	
 	public final Prompt getDefaultPrompt() {

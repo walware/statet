@@ -26,6 +26,7 @@ import com.ibm.icu.text.Collator;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.beans.BeansObservables;
+import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
 import org.eclipse.core.databinding.validation.IValidator;
@@ -468,7 +469,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 		applyDialogFont(dialogArea);
 		
 		final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
-		addBindings(databinding);
+		addBindings(databinding, databinding.getRealm());
 		databinding.installStatusListener(new StatusUpdater());
 		fRLibrariesButtons.updateState();
 		
@@ -477,7 +478,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 		return dialogArea;
 	}
 	
-	protected void addBindings(final DatabindingSupport db) {
+	protected void addBindings(final DatabindingSupport db, final Realm realm) {
 		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
 				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {

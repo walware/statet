@@ -23,15 +23,15 @@ import de.walware.statet.r.core.rlang.RTerminal;
 
 public abstract class RLexer {
 	
-	private final static char[] C_FALSE = RTerminal.S_FALSE.toCharArray();
-	private final static char[] C_NA_real_ = RTerminal.S_NA_REAL.toCharArray();
-	private final static char[] C_NA_integer_ = RTerminal.S_NA_INT.toCharArray();
-	private final static char[] C_NA_complex_ = RTerminal.S_NA_CPLX.toCharArray();
-	private final static char[] C_NA_character_ = RTerminal.S_NA_CHAR.toCharArray();
-	private final static char[] C_break = RTerminal.S_BREAK.toCharArray();
-	private final static char[] C_function = RTerminal.S_FUNCTION.toCharArray();
-	private final static char[] C_repeat = RTerminal.S_REPEAT.toCharArray();
-	private final static char[] C_while = RTerminal.S_WHILE.toCharArray();
+	private final static char[] C1_FALSE = RTerminal.S_FALSE.substring(1).toCharArray();
+	private final static char[] C1_NA_real_ = RTerminal.S_NA_REAL.substring(1).toCharArray();
+	private final static char[] C1_NA_integer_ = RTerminal.S_NA_INT.substring(1).toCharArray();
+	private final static char[] C1_NA_complex_ = RTerminal.S_NA_CPLX.substring(1).toCharArray();
+	private final static char[] C1_NA_character_ = RTerminal.S_NA_CHAR.substring(1).toCharArray();
+	private final static char[] C1_break = RTerminal.S_BREAK.substring(1).toCharArray();
+	private final static char[] C1_function = RTerminal.S_FUNCTION.substring(1).toCharArray();
+	private final static char[] C1_repeat = RTerminal.S_REPEAT.substring(1).toCharArray();
+	private final static char[] C1_while = RTerminal.S_WHILE.substring(1).toCharArray();
 	
 	
 	protected SourceParseInput fInput;
@@ -328,7 +328,7 @@ public abstract class RLexer {
 		case 'F':
 			scanIdentifier();
 			if (fNextNum == 5
-					&& fInput.subequals(2, C_FALSE, 1)) {
+					&& fInput.subequals(2, C1_FALSE)) {
 				createFix(RTerminal.FALSE);
 				return;
 			}
@@ -365,23 +365,23 @@ public abstract class RLexer {
 				}
 				break;
 			case 7:
-				if (fInput.subequals(2, C_NA_real_, 1)) {
+				if (fInput.subequals(2, C1_NA_real_)) {
 					createFix(RTerminal.NA_REAL);
 					return;
 				}
 				break;
 			case 11:
-				if (fInput.subequals(2, C_NA_integer_, 1)) {
+				if (fInput.subequals(2, C1_NA_integer_)) {
 					createFix(RTerminal.NA_INT);
 					return;
 				}
-				if (fInput.subequals(2, C_NA_complex_, 1)) {
+				if (fInput.subequals(2, C1_NA_complex_)) {
 					createFix(RTerminal.NA_CPLX);
 					return;
 				}
 				break;
 			case 13:
-				if (fInput.subequals(2, C_NA_character_, 1)) {
+				if (fInput.subequals(2, C1_NA_character_)) {
 					createFix(RTerminal.NA_CHAR);
 					return;
 				}
@@ -401,7 +401,7 @@ public abstract class RLexer {
 		case 'b':
 			scanIdentifier();
 			if (fNextNum == 5
-					&& fInput.subequals(2, C_break, 1)) {
+					&& fInput.subequals(2, C1_break)) {
 				createFix(RTerminal.BREAK);
 				return;
 			}
@@ -449,7 +449,7 @@ public abstract class RLexer {
 				}
 				break;
 			case 8:
-				if (fInput.subequals(2, C_function, 1)) {
+				if (fInput.subequals(2, C1_function)) {
 					createFix(RTerminal.FUNCTION);
 					return;
 				}
@@ -460,7 +460,7 @@ public abstract class RLexer {
 		case 'r':
 			scanIdentifier();
 			if (fNextNum == 6
-					&& fInput.subequals(2, C_repeat, 1)) {
+					&& fInput.subequals(2, C1_repeat)) {
 				createFix(RTerminal.REPEAT);
 				return;
 			}
@@ -469,7 +469,7 @@ public abstract class RLexer {
 		case 'w':
 			scanIdentifier();
 			if (fNextNum == 5
-					&& fInput.subequals(2, C_while, 1)) {
+					&& fInput.subequals(2, C1_while)) {
 				createFix(RTerminal.WHILE);
 				return;
 			}

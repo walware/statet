@@ -501,6 +501,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject {
 			envp.put("R_LIBS", getLibPath(getRLibraryGroup(RLibraryGroup.R_OTHER))); //$NON-NLS-1$
 			envp.put("R_LIBS_USER", getLibPath(getRLibraryGroup(RLibraryGroup.R_USER))); //$NON-NLS-1$
 		}
+		envp.put("LC_NUMERIC", "C"); //$NON-NLS-1$ //$NON-NLS-2$
 		return envp;
 	}
 	

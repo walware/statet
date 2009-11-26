@@ -285,7 +285,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	
-	private boolean fRSearchEnabled;
+	private boolean fRObjectDBEnabled;
 	private List<? extends ICombinedEnvironment> fRSearchEnvsPublic = EMPTY_LIST;
 	private List<REnvironmentVar> fRSearchEnvsInternal;
 	private Map<Long, REnvironmentVar> fREnvMap = EMPTY_MAP;
@@ -314,7 +314,7 @@ public class RWorkspace extends ToolWorkspace {
 	
 	
 	void enableRObjectDB(final boolean enable) {
-		fRSearchEnabled = enable;
+		fRObjectDBEnabled = enable;
 		if (enable) {
 			final AbstractRController controller = (AbstractRController) getProcess().getController();
 			controller.fChanged = REFRESH_COMPLETE;
@@ -327,7 +327,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	public boolean hasRObjectDB() {
-		return (fRSearchEnabled);
+		return (fRObjectDBEnabled);
 	}
 	
 	public boolean isROBjectDBDirty() {
@@ -352,7 +352,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	protected void refreshFromTool(final AbstractRController controller, final int options, final IProgressMonitor monitor) throws CoreException {
-		if (controller.isBusy()) {
+		if (controller.isBusy() || getCurrentPrompt().text.startsWith("Browse")) {
 			return;
 		}
 		monitor.subTask("Update Workspace Data");
@@ -360,7 +360,7 @@ public class RWorkspace extends ToolWorkspace {
 			final IRDataAdapter r = (IRDataAdapter) controller;
 			updateWorkspaceDir(r, monitor);
 			updateOptions(r, monitor);
-			if (fRSearchEnabled) {
+			if (fRObjectDBEnabled) {
 				if ( ((options & REFRESH_COMPLETE) != 0)
 						|| ( ((((options & REFRESH_AUTO)) != 0) || !controller.fChangedEnvirs.isEmpty())
 								&& isAutoRefreshEnabled() ) ) {
@@ -385,7 +385,6 @@ public class RWorkspace extends ToolWorkspace {
 			fAutoRefreshDirty = dirty;
 			addPropertyChanged("RObjectDB.dirty", dirty);
 		}
-		firePropertiesChanged();
 	}
 	
 	private void updateWorkspaceDir(final IRDataAdapter r, final IProgressMonitor monitor) throws CoreException {

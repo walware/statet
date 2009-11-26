@@ -111,7 +111,7 @@ public abstract class SourceParseInput {
 				&& fBuffer[idx] == c3 && fBuffer[--idx] == c2 && fBuffer[--idx] == c1);
 	}
 	
-	public final boolean subequals(final int num, final char[] sequence, int start) {
+	public final boolean subequals(final int num, final char[] sequence) {
 		int idx = fIndexInBuffer+num-1;
 		final int length = sequence.length;
 		if (idx+length > fBufferLength) {
@@ -121,8 +121,9 @@ public abstract class SourceParseInput {
 				return false;
 			}
 		}
-		while (start < length) {
-			if (fBuffer[idx++] != sequence[start++]) {
+		int offset = 0;
+		while (offset < length) {
+			if (fBuffer[idx++] != sequence[offset++]) {
 				return false;
 			}
 		}
