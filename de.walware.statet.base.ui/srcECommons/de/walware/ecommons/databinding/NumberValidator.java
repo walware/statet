@@ -11,8 +11,9 @@
 
 package de.walware.ecommons.databinding;
 
-import java.text.NumberFormat;
 import java.text.ParsePosition;
+
+import com.ibm.icu.text.NumberFormat;
 
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
