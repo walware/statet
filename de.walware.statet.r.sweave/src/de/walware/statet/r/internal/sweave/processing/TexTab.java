@@ -27,6 +27,7 @@ import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.variables.IStringVariable;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;
@@ -48,6 +49,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.RadioGroupObservable;
 import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
@@ -207,30 +209,6 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			@Override
 			protected void fillMenu(final Menu menu) {
 				super.fillMenu(menu);
-				
-				new MenuItem(menu, SWT.SEPARATOR);
-				
-				{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
-					item.setText(SharedMessages.InsertVariable_label);
-					item.addSelectionListener(new SelectionAdapter() {
-						@Override
-						public void widgetSelected(final SelectionEvent e) {
-							final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getTextControl().getShell());
-							dialog.addFilter(VariableFilter.EXCLUDE_JAVA_FILTER);
-							dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE);
-							dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE);
-							if (dialog.open() != Dialog.OK) {
-								return;
-							}
-							final String variable = dialog.getVariableExpression();
-							if (variable == null) {
-								return;
-							}
-							insertText(variable);
-							getTextControl().setFocus();
-						}
-					});
-				}
 				{	final MenuItem item = new MenuItem(menu, SWT.PUSH);
 					item.setText(Messages.Insert_SweaveDirVariable_label);
 					item.addSelectionListener(new SelectionAdapter() {
@@ -253,6 +231,12 @@ public class TexTab extends LaunchConfigTabWithDbc {
 				}
 			}
 		};
+		fOutputDirControl.setShowInsertVariable(true,
+				new ConstList<VariableFilter>(
+						VariableFilter.EXCLUDE_JAVA_FILTER ),
+				new ConstList<IStringVariable>(
+						RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE,
+						RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE) );
 		fOutputDirControl.getValidator().setOnEmpty(IStatus.OK);
 		fOutputDirControl.getValidator().setOnExisting(IStatus.OK);
 		fOutputDirControl.getValidator().setOnFile(IStatus.ERROR);

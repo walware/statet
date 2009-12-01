@@ -178,7 +178,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 			thread.setBuildTex(new VariableText(
 					configuration.getAttribute(TexTab.ATTR_BUILDTEX_R_COMMANDS, ""), //$NON-NLS-1$
 					TEX_COMMAND_VARNAMES) );
-			// continue
+			//$FALL-THROUGH$
 		default:
 			outputFormat = configuration.getAttribute(TexTab.ATTR_BUILDTEX_FORMAT, ""); //$NON-NLS-1$
 		}
@@ -271,10 +271,10 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 	}
 	
 	private String replaceOldVariables(String text) {
-		text = text.replaceAll(TexPathConfig.SOURCEFILE_LOC_VARIABLE, "${resource_loc:${"+VARNAME_SWEAVE_FILE+"}}");
-		text = text.replaceAll(TexPathConfig.SOURCEFILE_PATH_VARIABLE, "${"+VARNAME_SWEAVE_FILE+"}");
-		text = text.replaceAll(TexPathConfig.SOURCEFILE_LOC_VARIABLE, "${resource_loc:${"+VARNAME_LATEX_FILE+"}}");
-		text = text.replaceAll(TexPathConfig.SOURCEFILE_PATH_VARIABLE, "${"+VARNAME_LATEX_FILE+"}");
+		text = text.replace(TexPathConfig.SOURCEFILE_LOC_VARIABLE, "${resource_loc:${"+VARNAME_SWEAVE_FILE+"}}");
+		text = text.replace(TexPathConfig.SOURCEFILE_PATH_VARIABLE, "${"+VARNAME_SWEAVE_FILE+"}");
+		text = text.replace(TexPathConfig.TEXFILE_LOC_VARIABLE, "${resource_loc:${"+VARNAME_LATEX_FILE+"}}");
+		text = text.replace(TexPathConfig.TEXFILE_PATH_VARIABLE, "${"+VARNAME_LATEX_FILE+"}");
 		return text;
 	}
 	
