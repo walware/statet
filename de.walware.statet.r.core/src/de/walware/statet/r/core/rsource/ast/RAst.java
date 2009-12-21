@@ -562,12 +562,12 @@ public class RAst {
 					continue ITER_ARGS;
 				}
 			}
-			if (ellipsisType != ELLIPSIS) {
-				failCount += ellipsisCount;
-				ellipsisCount = 0;
-			}
 		}
 		
+		if (ellipsisType != ELLIPSIS) {
+			failCount += ellipsisCount;
+			ellipsisCount = 0;
+		}
 		final FCall.Arg[] ellipsisArgs = (ellipsisCount > 0) ? new FCall.Arg[ellipsisCount] : NO_ARGS;
 		final FCall.Arg[] otherArgs = (failCount > 0) ? new FCall.Arg[failCount] : NO_ARGS;
 		if (ellipsisCount > 0 || failCount > 0) {

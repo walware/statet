@@ -123,18 +123,18 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			sb.append("Status:    ");
 			switch (this.info.getState()) {
 			case Server.S_NOT_STARTED:
-				sb.append("New / Ready to connect and start R");
+				sb.append("New – Ready to connect and start R");
 				break;
 			case Server.S_CONNECTED:
-				sb.append("Running & Connected (username is ");
+				sb.append("Running – Connected (username is ");
 				sb.append((info.getUsername(ServerInfo.USER_CONSOLE) != null) ? 
 						info.getUsername(ServerInfo.USER_CONSOLE)  : "<unknown>").append(')'); 
 				break;
 			case Server.S_LOST:
-				sb.append("Running & Connection lost / Ready to reconnect");
+				sb.append("Running – Connection lost / Ready to reconnect");
 				break;
 			case Server.S_DISCONNECTED:
-				sb.append("Running & Disconnected / Ready to reconnect");
+				sb.append("Running – Disconnected / Ready to reconnect");
 				break;
 			case Server.S_STOPPED:
 				sb.append("Stopped");

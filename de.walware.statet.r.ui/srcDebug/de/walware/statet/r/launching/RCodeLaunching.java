@@ -37,7 +37,6 @@ import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.nico.AbstractRController;
-import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -167,13 +166,15 @@ public final class RCodeLaunching {
 			((RControllerCodeLaunchConnector) connector).submit(new RControllerCodeLaunchConnector.CommandsCreator() {
 				public IStatus submitTo(final ToolController controller) {
 					final ToolWorkspace workspaceData = controller.getWorkspaceData();
-					final String path = workspaceData.toToolPath(store);
-					if (path == null) {
-						return new Status(IStatus.ERROR, RUI.PLUGIN_ID, "Resolving path for R failed.");
+					try {
+						final String path = workspaceData.toToolPath(store);
+						final String fileString = RUtil.escapeCompletly(path);
+						final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
+						return controller.submit(cmd, SubmitType.EDITOR);
 					}
-					final String fileString = RUtil.escapeCompletly(path);
-					final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
-					return controller.submit(cmd, SubmitType.EDITOR);
+					catch (final CoreException e) {
+						return e.getStatus();
+					}
 				}
 			}, gotoConsole);
 		}

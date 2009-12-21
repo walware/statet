@@ -20,7 +20,9 @@ import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
@@ -288,10 +290,13 @@ public class ToolWorkspace {
 		return FileUtil.getFileStore(toolPath, fWorkspaceDir);
 	}
 	
-	public String toToolPath(final IFileStore fileStore) {
+	public String toToolPath(final IFileStore fileStore) throws CoreException {
 		if (fRemoteHost != null) {
 			final IPath path = NicoCore.mapFileStoreToRemoteResource(fRemoteHost, fileStore);
-			return (path != null) ? path.toString() : null;
+			if (path != null) {
+				return path.toString();
+			}
+			throw new CoreException(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, "Resolving path for the remote system failed."));
 		}
 		return URIUtil.toPath(fileStore.toURI()).toOSString();
 	}

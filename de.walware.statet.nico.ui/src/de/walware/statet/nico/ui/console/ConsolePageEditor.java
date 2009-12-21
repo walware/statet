@@ -302,7 +302,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			case KEY_SUBMIT_DEFAULT:
 			case KEY_SUBMIT_KEYPAD:
 				doSubmit();
-				break;
+				return; // e.doit = true, to exit linked mode
 			
 			case KEY_OUTPUT_LINEUP:
 				doOutputLineUp();

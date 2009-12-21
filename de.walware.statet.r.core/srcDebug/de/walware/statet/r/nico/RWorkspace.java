@@ -297,9 +297,9 @@ public class RWorkspace extends ToolWorkspace {
 	
 	
 	private boolean fRObjectDBEnabled;
-	private List<? extends ICombinedEnvironment> fRSearchEnvsPublic = EMPTY_LIST;
+	private List<? extends ICombinedEnvironment> fRSearchEnvsPublic = Collections.emptyList();
 	private List<REnvironmentVar> fRSearchEnvsInternal;
-	private Map<Long, REnvironmentVar> fREnvMap = EMPTY_MAP;
+	private Map<Long, REnvironmentVar> fREnvMap = Collections.emptyMap();
 	private boolean fAutoRefreshDirty;
 	
 	
@@ -332,8 +332,8 @@ public class RWorkspace extends ToolWorkspace {
 		}
 		else {
 			fRSearchEnvsInternal = null;
-			fRSearchEnvsPublic = Collections.EMPTY_LIST;
-			fREnvMap = Collections.EMPTY_MAP;
+			fRSearchEnvsPublic = Collections.emptyList();
+			fREnvMap = Collections.emptyMap();
 		}
 	}
 	

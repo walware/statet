@@ -64,13 +64,15 @@ public class ChangeWDRunnable implements IToolRunnable {
 	public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 			throws InterruptedException, CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) adapter;
-		final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
-		if (toolPath == null) {
-			r.handleStatus(new Status(IStatus.ERROR, RUI.PLUGIN_ID, RNicoMessages.ChangeWorkingDir_error_ResolvingFailed_message), monitor);
+		try {
+			final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
+			final String command = "setwd(\"" + RUtil.escapeCompletly(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+			r.submitToConsole(command, monitor);
+		}
+		catch (final CoreException e) {
+			r.handleStatus(new Status(IStatus.ERROR, RUI.PLUGIN_ID, RNicoMessages.ChangeWorkingDir_error_ResolvingFailed_message, e), monitor);
 			return;
 		}
-		final String command = "setwd(\"" + RUtil.escapeCompletly(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
-		r.submitToConsole(command, monitor);
 		r.refreshWorkspaceData(0, monitor);
 	}
 	
