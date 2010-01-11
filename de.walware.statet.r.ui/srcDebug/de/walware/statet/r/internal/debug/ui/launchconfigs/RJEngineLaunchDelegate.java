@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
@@ -94,6 +95,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		if (args != null) {
 			s.append(args);
 		}
+		
 		if (s.indexOf(" -Djava.security.policy=") < 0) { //$NON-NLS-1$
 			try {
 				final URL intern = Platform.getBundle(RJ_SERVER_ID).getEntry("/localhost.policy"); //$NON-NLS-1$ 
@@ -120,6 +122,12 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
 			s.append(" -Xss").append(fRenv.getRBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		
+		if (configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false)
+				&& s.indexOf(" -Dde.walware.rj.verbose=") < 0) {
+			s.append(" -Dde.walware.rj.verbose=true");
+		}
+		
 		return s.substring(1);
 	}
 	

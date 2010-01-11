@@ -36,7 +36,7 @@ public class CommonTabForNico extends CommonTab {
 		super.createControl(parent);
 		final Button button = searchButton((Composite) getControl());
 		if (button != null) {
-			button.setText("Allocate additional Debug Consoles");
+			button.setText("Allocate additional Error Log Consoles");
 		}
 	}
 	
