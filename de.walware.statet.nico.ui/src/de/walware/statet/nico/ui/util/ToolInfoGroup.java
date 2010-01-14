@@ -70,14 +70,14 @@ public class ToolInfoGroup {
 		gd.verticalSpan = 2;
 		text.setLayoutData(gd);
 		
-		ShortedLabel detail;
-		detail = new ShortedLabel(info, SWT.NONE);
-		detail.setText(fProcess.getToolLabel(true));
-		detail.getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		detail = new ShortedLabel(info, SWT.NONE);
+		final ShortedLabel detail1 = new ShortedLabel(info, SWT.NONE);
+		detail1.setText(fProcess.getToolLabel(true));
+		detail1.getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
-		detail.setText(FileUtil.toString(fProcess.getWorkspaceData().getWorkspaceDir()));
-		detail.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		final ShortedLabel detail2 = new ShortedLabel(info, SWT.NONE);
+		final String wd = FileUtil.toString(fProcess.getWorkspaceData().getWorkspaceDir());
+		detail2.setText((wd != null) ? wd : "");
+		detail2.getControl().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 	}
 	
 	public Control getControl() {
