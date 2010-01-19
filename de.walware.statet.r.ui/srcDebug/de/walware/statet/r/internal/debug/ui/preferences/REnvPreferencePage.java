@@ -67,7 +67,7 @@ import de.walware.statet.r.ui.RUI;
 public class REnvPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 	
 	
-	public static final String PREF_PAGE_ID = "de.walware.statet.r.preferencePages.RInteractionPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_PAGE_ID = "de.walware.statet.r.preferencePages.REnvironmentPage"; //$NON-NLS-1$
 	
 	
 	private TableViewer fListViewer;

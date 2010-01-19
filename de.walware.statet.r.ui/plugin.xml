@@ -1165,18 +1165,18 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            id="de.walware.statet.r.preferencePages.RInteraction"
+            id="de.walware.statet.r.preferencePages.RInteractionPage"
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.r.internal.debug.ui.preferences.RInteractionPreferencePage"
             name="%preferencePages.RInteraction.name"/>
       <page
-            id="de.walware.statet.r.preferencePages.RInteractionPreferencePage"
+            id="de.walware.statet.r.preferencePages.REnvironmentPage"
             category="de.walware.statet.base.preferencePages.RunDebug"
             class="de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage"
             name="%preferencePages.REnvironments.name"/>
       <page
             id="de.walware.statet.r.preferencePages.AdvancedIntegration"
-            category="de.walware.statet.r.preferencePages.RInteraction"
+            category="de.walware.statet.r.preferencePages.RInteractionPage"
             class="de.walware.statet.r.internal.debug.ui.preferences.ExtendedOptionsPreferencePage"
             name="%preferencePages.RIntegrationExt.name">
       </page>
