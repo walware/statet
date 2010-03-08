@@ -37,65 +37,50 @@ class RScannerDefaultLexer extends RScannerLexer {
 	
 	
 	@Override
-	protected void reset(final SourceParseInput input) {
-		super.reset(input);
-	}
-	
-	@Override
 	protected void createNumberToken(final RTerminal type, final int status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = fInput.substring(1, fNextNum);
-		fNextToken.status = status;
+		fFoundType = type;
+		fFoundText = fInput.substring(1, fFoundNum);
+		fFoundStatus = status;
 	}
 	
 	@Override
 	protected void createSymbolToken() {
-		fNextToken.type = RTerminal.SYMBOL;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = fInput.substring(1, fNextNum);
-		if (fStringCache != null && fNextToken.text.length() <= 20) {
-			fNextToken.text = fStringCache.get(fNextToken.text);
+		fFoundType = RTerminal.SYMBOL;
+		fFoundText = fInput.substring(1, fFoundNum);
+		if (fStringCache != null && fFoundText.length() <= 20) {
+			fFoundText = fStringCache.get(fFoundText);
 		}
-		fNextToken.status = STATUS_OK;
+		fFoundStatus = STATUS_OK;
 	}
 	
 	@Override
 	protected void createQuotedSymbolToken(final RTerminal type, final int status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
-		if (fStringCache != null && fNextToken.text.length() <= 20) {
-			fNextToken.text = fStringCache.get(fNextToken.text);
+		fFoundType = type;
+		fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+				fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
+		if (fStringCache != null && fFoundText.length() <= 20) {
+			fFoundText = fStringCache.get(fFoundText);
 		}
-		fNextToken.status = status;
+		fFoundStatus = status;
 	}
 	
 	@Override
 	protected void createStringToken(final RTerminal type, final int status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
-		fNextToken.status = status;
+		fFoundType = type;
+		fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+				fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
+		fFoundStatus = status;
 	}
 	
 	@Override
 	protected void createSpecialToken(final int status) {
-		fNextToken.type = RTerminal.SPECIAL;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-				fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
-		if (fStringCache != null && fNextToken.text.length() <= 3) {
-			fNextToken.text = fStringCache.get(fNextToken.text);
+		fFoundType = RTerminal.SPECIAL;
+		fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+				fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
+		if (fStringCache != null && fFoundText.length() <= 3) {
+			fFoundText = fStringCache.get(fFoundText);
 		}
-		fNextToken.status = status;
+		fFoundStatus = status;
 	}
 	
 }

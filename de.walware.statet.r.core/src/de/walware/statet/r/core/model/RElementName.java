@@ -13,6 +13,7 @@ package de.walware.statet.r.core.model;
 
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS2_SYNTAX_TOKEN_NOT_CLOSED;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_MASK_12;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -37,18 +38,18 @@ import de.walware.statet.r.core.rsource.RLexer;
 public abstract class RElementName implements IElementName {
 	
 	
-	public static final int RESOURCE =        0x011;
+	public static final int RESOURCE =        0x00f;
 	
-	public static final int MAIN_OTHER =      0x020;
-	public static final int MAIN_DEFAULT =    0x021;
-	public static final int MAIN_CLASS =      0x023;
-	public static final int MAIN_SEARCH_ENV = 0x025;
-	public static final int MAIN_PACKAGE =    0x026;
-	public static final int MAIN_PROJECT =    0x027;
-	public static final int SUB_NAMEDSLOT =   0x028;
-	public static final int SUB_NAMEDPART =   0x029;
-	public static final int SUB_INDEXED_S =   0x02A;
-	public static final int SUB_INDEXED_D =   0x02B;
+	public static final int MAIN_OTHER =      0x010;
+	public static final int MAIN_DEFAULT =    0x011;
+	public static final int MAIN_CLASS =      0x013;
+	public static final int MAIN_SEARCH_ENV = 0x015;
+	public static final int MAIN_PACKAGE =    0x016;
+	public static final int MAIN_PROJECT =    0x017;
+	public static final int SUB_NAMEDSLOT =   0x018;
+	public static final int SUB_NAMEDPART =   0x019;
+	public static final int SUB_INDEXED_S =   0x01A;
+	public static final int SUB_INDEXED_D =   0x01B;
 	
 	public static final int DISPLAY_NS_PREFIX = 0x1;
 	public static final int DISPLAY_EXACT = 0x2;
@@ -419,78 +420,61 @@ public abstract class RElementName implements IElementName {
 	private static class ParseLexer extends RLexer {
 		
 		
-		RTerminal type;
-		String text;
-		
-		
 		public ParseLexer(final SourceParseInput input) {
 			super(input);
 		}
 		
-		public void nextToken() {
-			do {
-				searchNext();
-			} while (this.type == null);
-		}
-		
-		
-		@Override
-		protected void createFix(final RTerminal type) {
-			this.type = type;
-			this.text = null;
-		}
-		
-		@Override
-		protected void createSpecialToken(final int status) {
-			this.type = RTerminal.SPECIAL;
-			this.text = null;
-		}
 		
 		@Override
 		protected void createSymbolToken() {
-			this.type = RTerminal.SYMBOL;
-			this.text = fInput.substring(1, fNextNum);
+			fFoundType = RTerminal.SYMBOL;
+			fFoundText = fInput.substring(1, fFoundNum);
+			fFoundStatus = STATUS_OK;
 		}
 		
 		@Override
 		protected void createQuotedSymbolToken(final RTerminal type, final int status) {
-			this.type = type;
-			this.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-					fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+			fFoundType = type;
+			fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+					fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
+			fFoundStatus = status;
 		}
 		
 		@Override
 		protected void createStringToken(final RTerminal type, final int status) {
-			this.type = type;
-			this.text = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
-					fInput.substring(2, fNextNum-2) : fInput.substring(2, fNextNum-1);
+			fFoundType = type;
+			fFoundText = ((status & STATUS_MASK_12) != STATUS2_SYNTAX_TOKEN_NOT_CLOSED) ?
+					fInput.substring(2, fFoundNum-2) : fInput.substring(2, fFoundNum-1);
+			fFoundStatus = status;
 		}
 		
 		@Override
 		protected void createNumberToken(final RTerminal type, final int status) {
-			this.type = type;
-			this.text = fInput.substring(1, fNextNum);
+			fFoundType = type;
+			fFoundText = fInput.substring(1, fFoundNum);
+			fFoundStatus = status;
 		}
 		
 		@Override
 		protected void createWhitespaceToken() {
-			this.type = null;
+			fFoundType = null;
 		}
 		
 		@Override
 		protected void createCommentToken(final RTerminal type) {
-			this.type = null;
+			fFoundType = null;
 		}
 		
 		@Override
 		protected void createLinebreakToken(final String text) {
-			this.type = null;
+			fFoundType = null;
 		}
 		
 		@Override
 		protected void createUnknownToken(final String text) {
-			this.type = RTerminal.UNKNOWN;
-			this.text = text;
+			fFoundType = RTerminal.UNKNOWN;
+			fFoundText = text;
+			fFoundStatus = STATUS_OK;
 		}
 		
 	}
@@ -515,8 +499,8 @@ public abstract class RElementName implements IElementName {
 		DefaultImpl last = null;
 		while (true) {
 			DefaultImpl tmp = null;
-			lexer.nextToken();
-			if (lexer.type == null || lexer.type == RTerminal.EOF) {
+			RTerminal type = lexer.next();
+			if (type == null || type == RTerminal.EOF) {
 				if (mode >= 0) {
 					tmp = new DefaultImpl(mode, ""); //$NON-NLS-1$
 					if (main == null) {
@@ -530,7 +514,7 @@ public abstract class RElementName implements IElementName {
 				return main;
 			}
 			else {
-				switch(lexer.type) {
+				switch(type) {
 				case IF:
 				case ELSE:
 				case FOR:
@@ -554,7 +538,7 @@ public abstract class RElementName implements IElementName {
 							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
 						return null;
 					}
-					tmp = new DefaultImpl(mode, lexer.type.text);
+					tmp = new DefaultImpl(mode, type.text);
 					if (main == null) {
 						main = last = tmp;
 					}
@@ -562,8 +546,8 @@ public abstract class RElementName implements IElementName {
 						last.fNextSegment = tmp;
 						last = tmp;
 					}
-					lexer.nextToken();
-					if (lexer.type == null || lexer.type == RTerminal.EOF) {
+					type = lexer.next();
+					if (type == null || type == RTerminal.EOF) {
 						return main; // valid prefix
 					}
 					else {
@@ -575,7 +559,7 @@ public abstract class RElementName implements IElementName {
 							&& mode != SUB_NAMEDPART && mode != SUB_NAMEDSLOT) {
 						return null;
 					}
-					tmp = new DefaultImpl(mode, lexer.text);
+					tmp = new DefaultImpl(mode, lexer.getText());
 					if (main == null) {
 						main = last = tmp;
 					}
@@ -590,9 +574,9 @@ public abstract class RElementName implements IElementName {
 					if (mode != SUB_INDEXED_S && mode != SUB_INDEXED_D) {
 						return null;
 					}
-					tmp = new DefaultImpl(mode, lexer.text);
-					lexer.nextToken();
-					if (lexer.type != RTerminal.SUB_INDEXED_CLOSE) {
+					tmp = new DefaultImpl(mode, lexer.getText());
+					type = lexer.next();
+					if (type != RTerminal.SUB_INDEXED_CLOSE) {
 						return null;
 					}
 					if (main == null) {
@@ -701,10 +685,10 @@ public abstract class RElementName implements IElementName {
 		return createDisplayName(this, 0);
 	}
 	
-	
 	protected RElementName.DefaultImpl cloneSegment0(final RElementName next) {
 		return new DefaultImpl(getType(), getSegmentName(), next);
 	}
+	
 	
 	@Override
 	public final int hashCode() {

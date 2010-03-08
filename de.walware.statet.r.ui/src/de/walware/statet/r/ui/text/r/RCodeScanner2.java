@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.ui.text.r;
 
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
+
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,6 @@ import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.text.BufferedDocumentParseInput;
-import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
 import de.walware.ecommons.text.ui.settings.TextStyleManager;
 import de.walware.ecommons.ui.ColorManager;
@@ -44,110 +45,54 @@ import de.walware.statet.r.ui.RUIPreferenceConstants;
  */
 public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenScanner, ISettingsChangedHandler {
 	
-	protected static final class ScannerToken {
-		public RTerminal type;
-		public int offset;
-		public int length;
-		public String text;
+	
+	protected static void putAll(final Map<String, IToken> map, final String[] symbols, final IToken token) {
+		for (int i = 0; i < symbols.length; i++) {
+			map.put(symbols[i], token);
+		}
 	}
+	
+	protected static void putAll(final Map<RTerminal, IToken> map, final RTerminal[] types, final IToken token) {
+		for (int i = 0; i < types.length; i++) {
+			map.put(types[i], token);
+		}
+	}
+	
+	protected static TextStyleManager createDefaultTextStyleManager(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
+		return new TextStyleManager(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID);
+	}
+	
 	
 	protected static class RTokenScannerLexer extends RLexer {
 		
-		protected final ScannerToken fNextToken;
 		
-		
-		public RTokenScannerLexer(final SourceParseInput input) {
-			super(input);
-			fNextToken = new ScannerToken();
+		public RTokenScannerLexer() {
+			super();
 		}
 		
-		@Override
-		protected final void reset(final SourceParseInput input) {
-			super.reset(input);
-		}
-		
-		public final ScannerToken nextToken() {
-			do {
-				searchNext();
-			} while (fNextToken.type == null);
-			return fNextToken;
-		}
-		
-		
-		@Override
-		protected final void createFix(final RTerminal type) {
-			fNextToken.type = type;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
-		}
-		
-		@Override
-		protected final void createSpecialToken(final int status) {
-			fNextToken.type = RTerminal.SPECIAL;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
-		}
 		
 		@Override
 		protected final void createSymbolToken() {
-			fNextToken.type = RTerminal.SYMBOL;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
-			if (fNextNum < 50) {
-				fNextToken.text = fInput.substring(1, fNextNum);
-			}
-		}
-		
-		@Override
-		protected final void createQuotedSymbolToken(final RTerminal type, final int status) {
-			fNextToken.type = type;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
-		}
-		
-		@Override
-		protected final void createStringToken(final RTerminal type, final int status) {
-			fNextToken.type = type;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
-		}
-		
-		@Override
-		protected final void createNumberToken(final RTerminal type, final int status) {
-			fNextToken.type = type;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
+			fFoundType = RTerminal.SYMBOL;
+			fFoundText = (fFoundNum < 50) ? fInput.substring(1, fFoundNum) : null;
+			fFoundStatus = STATUS_OK;
 		}
 		
 		@Override
 		protected final void createWhitespaceToken() {
-			fNextToken.type = null;
+			fFoundType = null;
 		}
 		
 		@Override
 		protected void createLinebreakToken(final String text) {
-			fNextToken.type = null;
-		}
-		
-		@Override
-		protected final void createCommentToken(final RTerminal type) {
-			fNextToken.type = type;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
-		}
-		
-		@Override
-		protected final void createUnknownToken(final String text) {
-			fNextToken.type = RTerminal.UNKNOWN;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
+			fFoundType = null;
 		}
 		
 	}
 	
 	
 	private final RTokenScannerLexer fLexer;
-	private ScannerToken fScannerToken;
+	private RTerminal fLexerToken;
 	
 	private final EnumMap<RTerminal, IToken> fTokens;
 	private final IToken fDefaultToken;
@@ -159,18 +104,19 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	
 	
 	public RCodeScanner2(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
-		fTokens = new EnumMap<RTerminal, IToken>(RTerminal.class);
-		fSpecialSymbols = new HashMap<String, IToken>();
-		fLexer = createLexer();
-		fTextStyles = new TextStyleManager(colorManager, preferenceStore, RUIPreferenceConstants.R.TS_GROUP_ID);
-		
-		fDefaultToken = getToken(IRTextTokens.SYMBOL_KEY);
-		registerTokens();
-//		checkTokenMap();
+		this(new RTokenScannerLexer(), createDefaultTextStyleManager(colorManager, preferenceStore));
 	}
 	
-	protected RTokenScannerLexer createLexer() {
-		return new RTokenScannerLexer(this);
+	protected RCodeScanner2(final RTokenScannerLexer lexer, final TextStyleManager textStyles) {
+		fLexer = lexer;
+		fTextStyles = textStyles;
+		
+		fDefaultToken = getToken(IRTextTokens.SYMBOL_KEY);
+		fTokens = new EnumMap<RTerminal, IToken>(RTerminal.class);
+		registerTokens(fTokens);
+//		checkTokenMap();
+		fSpecialSymbols = new HashMap<String, IToken>();
+		updateSymbols(fSpecialSymbols);
 	}
 	
 	protected void checkTokenMap() {
@@ -183,67 +129,57 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	}
 	
 	
+	protected RTokenScannerLexer getLexer() {
+		return fLexer;
+	}
+	
+	protected TextStyleManager getTextStyleManager() {
+		return fTextStyles;
+	}
+	
 	@Override
 	public void setRange(final IDocument document, final int offset, final int length) {
 		super.setRange(document, offset, length);
-		fScannerToken = null;
 		fCurrentOffset = offset;
 		fCurrentLength = 0;
 		fLexer.reset(this);
 	}
 	
-	protected void registerTerminal(final RTerminal type, final IToken token) {
-		fTokens.put(type, token);
-	}
-	protected void registerTerminals(final RTerminal[] types, final IToken token) {
-		for (int i = 0; i < types.length; i++) {
-			fTokens.put(types[i], token);
-		}
-	}
-	
-	protected void registerSpecialSymbol(final String symbol, final IToken token) {
-		fSpecialSymbols.put(symbol, token);
-	}
-	protected void registerSpecialSymbols(final String[] symbols, final IToken token) {
-		for (int i = 0; i < symbols.length; i++) {
-			fSpecialSymbols.put(symbols[i], token);
-		}
-	}
 	protected void resetSpecialSymbols() {
 		fSpecialSymbols.clear();
-		updateSymbols();
+		updateSymbols(fSpecialSymbols);
 	}
 	
 	
 	public IToken nextToken() {
 		fCurrentOffset += fCurrentLength;
-		if (fScannerToken == null) {
-			fScannerToken = fLexer.nextToken();
+		if (fLexerToken == null) {
+			fLexerToken = fLexer.next();
 		}
-		fCurrentLength = fScannerToken.offset-fCurrentOffset;
+		fCurrentLength = fLexer.getOffset()-fCurrentOffset;
 		if (fCurrentLength != 0) {
 			return fDefaultToken;
 		}
-		fCurrentLength = fScannerToken.length;
+		fCurrentLength = fLexer.getLength();
 		return getTokenFromScannerToken();
 	}
 	
 	protected IToken getTokenFromScannerToken() {
 		IToken token;
-		if (fScannerToken.type == RTerminal.SYMBOL) {
-			if (fScannerToken.text != null) {
-				token = fSpecialSymbols.get(fScannerToken.text);
-				fScannerToken.text = null;
+		if (fLexerToken == RTerminal.SYMBOL) {
+			final String text = fLexer.getText();
+			if (text != null) {
+				token = fSpecialSymbols.get(text);
 				if (token != null) {
-					fScannerToken = null;
+					fLexerToken = null;
 					return token;
 				}
 			}
-			fScannerToken = null;
+			fLexerToken = null;
 			return fDefaultToken;
 		}
-		token = fTokens.get(fScannerToken.type);
-		fScannerToken = null;
+		token = fTokens.get(fLexerToken);
+		fLexerToken = null;
 		return token;
 	}
 	
@@ -271,49 +207,49 @@ public class RCodeScanner2 extends BufferedDocumentParseInput implements ITokenS
 	
 	//-- Concrete associations
 	
-	protected void registerTokens() {
-		registerTerminal(RTerminal.EOF, Token.EOF);
+	protected void registerTokens(final EnumMap<RTerminal,IToken> map) {
+		map.put(RTerminal.EOF, Token.EOF);
 		
-		registerTerminals(IRTextTokens.FLOWCONTROL, getToken(IRTextTokens.FLOWCONTROL_KEY));
-		registerTerminals(IRTextTokens.GROUPING, getToken(IRTextTokens.GROUPING_KEY));
-		registerTerminals(IRTextTokens.SEPARATOR, getToken(IRTextTokens.SEPARATOR_KEY));
-		registerTerminals(IRTextTokens.ASSIGN, getToken(IRTextTokens.ASSIGN_KEY));
-		registerTerminals(IRTextTokens.ASSIGN_SUB_EQUAL, getToken(IRTextTokens.ASSIGN_SUB_EQUAL_KEY));
-		registerTerminals(IRTextTokens.OP, getToken(IRTextTokens.OP_KEY));
-		registerTerminals(IRTextTokens.OP_SUB_LOGICAL, getToken(IRTextTokens.OP_SUB_LOGICAL_KEY));
-		registerTerminals(IRTextTokens.OP_SUB_RELATIONAL, getToken(IRTextTokens.OP_SUB_RELATIONAL_KEY));
-		registerTerminals(IRTextTokens.SUBACCESS, getToken(IRTextTokens.SUBACCESS_KEY));
-		registerTerminals(IRTextTokens.NSGET, getToken(IRTextTokens.SUBACCESS_KEY));
+		putAll(map, IRTextTokens.FLOWCONTROL, getToken(IRTextTokens.FLOWCONTROL_KEY));
+		putAll(map, IRTextTokens.GROUPING, getToken(IRTextTokens.GROUPING_KEY));
+		putAll(map, IRTextTokens.SEPARATOR, getToken(IRTextTokens.SEPARATOR_KEY));
+		putAll(map, IRTextTokens.ASSIGN, getToken(IRTextTokens.ASSIGN_KEY));
+		putAll(map, IRTextTokens.ASSIGN_SUB_EQUAL, getToken(IRTextTokens.ASSIGN_SUB_EQUAL_KEY));
+		putAll(map, IRTextTokens.OP, getToken(IRTextTokens.OP_KEY));
+		putAll(map, IRTextTokens.OP_SUB_LOGICAL, getToken(IRTextTokens.OP_SUB_LOGICAL_KEY));
+		putAll(map, IRTextTokens.OP_SUB_RELATIONAL, getToken(IRTextTokens.OP_SUB_RELATIONAL_KEY));
+		putAll(map, IRTextTokens.SUBACCESS, getToken(IRTextTokens.SUBACCESS_KEY));
+		putAll(map, IRTextTokens.NSGET, getToken(IRTextTokens.SUBACCESS_KEY));
 		
-		registerTerminals(IRTextTokens.SPECIALCONST, getToken(IRTextTokens.SPECIALCONST_KEY));
-		registerTerminals(IRTextTokens.LOGICALCONST, getToken(IRTextTokens.LOGICALCONST_KEY));
-		registerTerminals(IRTextTokens.SYMBOL, getToken(IRTextTokens.SYMBOL_KEY));
-		updateSymbols();
-		registerTerminals(IRTextTokens.NUM, getToken(IRTextTokens.NUM_KEY));
-		registerTerminals(IRTextTokens.NUM_SUB_INT, getToken(IRTextTokens.NUM_SUB_INT_KEY));
-		registerTerminals(IRTextTokens.NUM_SUB_CPLX, getToken(IRTextTokens.NUM_SUB_CPLX_KEY));
-		registerTerminals(IRTextTokens.UNDEFINED, getToken(IRTextTokens.UNDEFINED_KEY));
+		putAll(map, IRTextTokens.SPECIALCONST, getToken(IRTextTokens.SPECIALCONST_KEY));
+		putAll(map, IRTextTokens.LOGICALCONST, getToken(IRTextTokens.LOGICALCONST_KEY));
+		putAll(map, IRTextTokens.SYMBOL, getToken(IRTextTokens.SYMBOL_KEY));
+		
+		putAll(map, IRTextTokens.NUM, getToken(IRTextTokens.NUM_KEY));
+		putAll(map, IRTextTokens.NUM_SUB_INT, getToken(IRTextTokens.NUM_SUB_INT_KEY));
+		putAll(map, IRTextTokens.NUM_SUB_CPLX, getToken(IRTextTokens.NUM_SUB_CPLX_KEY));
+		putAll(map, IRTextTokens.UNDEFINED, getToken(IRTextTokens.UNDEFINED_KEY));
 		
 		// usually not in default partition
-		registerTerminals(IRTextTokens.STRING, getToken(IRTextTokens.STRING_KEY));
-		registerTerminal(RTerminal.SYMBOL_G, getToken(IRTextTokens.STRING_KEY));
-		registerTerminal(RTerminal.SPECIAL, getToken(IRTextTokens.OP_KEY));
-		registerTerminals(IRTextTokens.COMMENT, getToken(IRTextTokens.COMMENT_KEY));
+		putAll(map, IRTextTokens.STRING, getToken(IRTextTokens.STRING_KEY));
+		map.put(RTerminal.SYMBOL_G, getToken(IRTextTokens.STRING_KEY));
+		map.put(RTerminal.SPECIAL, getToken(IRTextTokens.OP_KEY));
+		putAll(map, IRTextTokens.COMMENT, getToken(IRTextTokens.COMMENT_KEY));
 	}
 	
-	private void updateSymbols() {
+	protected void updateSymbols(final Map<String, IToken> map) {
 		final RIdentifierGroups groups = RUIPlugin.getDefault().getRIdentifierGroups();
 		groups.getReadLock().lock();
 		try {
-			registerSpecialSymbols(groups.getAssignmentIdentifiers(),
+			putAll(map, groups.getAssignmentIdentifiers(),
 					getToken(IRTextTokens.SYMBOL_SUB_ASSIGN_KEY));
-			registerSpecialSymbols(groups.getLogicalIdentifiers(),
+			putAll(map, groups.getLogicalIdentifiers(),
 					getToken(IRTextTokens.SYMBOL_SUB_LOGICAL_KEY));
-			registerSpecialSymbols(groups.getFlowcontrolIdentifiers(),
+			putAll(map, groups.getFlowcontrolIdentifiers(),
 					getToken(IRTextTokens.SYMBOL_SUB_FLOWCONTROL_KEY));
-			registerSpecialSymbols(groups.getCustom1Identifiers(),
+			putAll(map, groups.getCustom1Identifiers(),
 					getToken(IRTextTokens.SYMBOL_SUB_CUSTOM1_KEY));
-			registerSpecialSymbols(groups.getCustom2Identifiers(),
+			putAll(map, groups.getCustom2Identifiers(),
 					getToken(IRTextTokens.SYMBOL_SUB_CUSTOM2_KEY));
 		}
 		finally {

@@ -38,9 +38,8 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.RIndentUtil;
+import de.walware.statet.r.core.rsource.RLexer;
 import de.walware.statet.r.core.rsource.RSourceIndenter;
-import de.walware.statet.r.core.rsource.RSourceToken;
-import de.walware.statet.r.core.rsource.RSourceTokenLexer;
 import de.walware.statet.r.core.rsource.ast.Assignment;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
@@ -55,7 +54,7 @@ import de.walware.statet.r.internal.core.refactoring.Messages;
 public class RRefactoringAdapter extends RefactoringAdapter {
 	
 	
-	private RSourceTokenLexer fLexer;
+	private RLexer fLexer;
 	
 	
 	public RRefactoringAdapter() {
@@ -186,18 +185,20 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 					Messages.RIdentifiers_error_Empty_message;
 		}
 		if (fLexer == null) {
-			fLexer = new RSourceTokenLexer();
+			fLexer = new RLexer();
 		}
-		fLexer.reset(new StringParseInput(value), null);
-		final RSourceToken nextToken = fLexer.nextToken();
-		if (nextToken.getTokenType() == RTerminal.EOF) {
+		final StringParseInput input = new StringParseInput(value);
+		input.init();
+		fLexer.reset(input);
+		final RTerminal nextToken = fLexer.next();
+		if (nextToken == RTerminal.EOF) {
 			return (identifierMessageName != null) ?
 					NLS.bind(Messages.RIdentifiers_error_EmptyFor_message, identifierMessageName, Messages.RIdentifiers_error_Empty_message) :
 					Messages.RIdentifiers_error_Empty_message;
 		}
-		if ((nextToken.getTokenType() != RTerminal.SYMBOL && nextToken.getTokenType() != RTerminal.SYMBOL_G)
-				|| ((nextToken.getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) != 0)
-				|| (fLexer.nextToken().getTokenType() != RTerminal.EOF)) {
+		if ((nextToken != RTerminal.SYMBOL && nextToken != RTerminal.SYMBOL_G)
+				|| ((fLexer.getStatusCode() & IRSourceConstants.STATUSFLAG_REAL_ERROR) != 0)
+				|| (fLexer.next() != RTerminal.EOF)) {
 			return (identifierMessageName != null) ?
 					NLS.bind(Messages.RIdentifiers_error_InvalidFor_message, identifierMessageName, Messages.RIdentifiers_error_Empty_message) :
 					Messages.RIdentifiers_error_Invalid_message;

@@ -52,8 +52,8 @@ import de.walware.ecommons.text.IStringCache;
 import de.walware.ecommons.text.SourceParseInput;
 
 import de.walware.statet.r.core.rlang.RTerminal;
+import de.walware.statet.r.core.rsource.RLexer;
 import de.walware.statet.r.core.rsource.ast.RAstNode.Assoc;
-import de.walware.statet.r.core.rsource.ast.RScannerLexer.ScannerToken;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
@@ -111,14 +111,14 @@ public final class RScanner {
 			return (fCurrent != null);
 		}
 		
-		DocuComment finish(final ScannerToken next) {
+		DocuComment finish(final RLexer lexer) {
 			final DocuComment comment = new DocuComment();
 			final Comment[] lines = new Comment[fLineCount];
 			System.arraycopy(fLines, 0, lines, 0, fLineCount);
 			comment.fLines = lines;
 			comment.fStartOffset = lines[0].fStartOffset;
 			comment.fStopOffset = lines[fLineCount-1].fStopOffset;
-			comment.fNextOffset = (next != null && next.type != RTerminal.EOF) ? next.offset : Integer.MIN_VALUE;
+			comment.fNextOffset = (lexer != null && lexer.getType() != RTerminal.EOF) ? lexer.getOffset() : Integer.MIN_VALUE;
 			
 			fLineCount = 0;
 			fCurrent = null;
@@ -136,8 +136,7 @@ public final class RScanner {
 	private final static RScannerPostExprVisitor POST_VISITOR = new RScannerPostExprVisitor();
 	
 	
-	private final RScannerLexer fLexer;
-	private final RScannerLexer.ScannerToken fNext;
+	private final RLexer fLexer;
 	private final AstInfo fAst;
 	
 	private RTerminal fNextType;
@@ -160,7 +159,6 @@ public final class RScanner {
 		else {
 			fLexer = new RScannerDefaultLexer(input, stringCache);
 		}
-		fNext = fLexer.getToken();
 		fAst = ast;
 	}
 	
@@ -188,6 +186,15 @@ public final class RScanner {
 			dummy.fStatus = STATUS_RUNTIME_ERROR;
 			return dummy;
 		}
+	}
+	
+	public SourceComponent scanSourceRange(final IAstNode parent, final int offset, final int length, final boolean expand) {
+		final SourceComponent component = scanSourceRange(parent, offset, length);
+		if (expand) {
+			component.fStartOffset = offset;
+			component.fStopOffset = offset + length;
+		}
+		return component;
 	}
 	
 	public SourceComponent scanSourceRange(final IAstNode parent, final int offset, final int length) {
@@ -220,7 +227,7 @@ public final class RScanner {
 		return null;
 	}
 	
-	public FCall.Args scanFCallArgs(final boolean expand, final int offset, final int length) {
+	public FCall.Args scanFCallArgs(final int offset, final int length, final boolean expand) {
 		try {
 			fLexer.setRange(offset, length);
 			init();
@@ -228,8 +235,8 @@ public final class RScanner {
 			call.fStopOffset = Integer.MIN_VALUE;
 			scanInSpecArgs(call.fArgs);
 			if (expand) {
-				call.fArgs.fStartOffset = 0;
-				call.fArgs.fStopOffset = fNext.offset;
+				call.fArgs.fStartOffset = offset;
+				call.fArgs.fStopOffset = offset+length;
 			}
 			return call.fArgs;
 		}
@@ -240,9 +247,9 @@ public final class RScanner {
 	}
 	
 	private void init() {
-		fNextType = fNext.type = RTerminal.LINEBREAK;
+		fNextType = RTerminal.LINEBREAK;
 		fLineOffset.clear();
-		fLineOffset.add(fNext.offset);
+		fLineOffset.add(fLexer.getOffset());
 		consumeToken();
 	}
 	
@@ -266,7 +273,7 @@ public final class RScanner {
 	}
 	
 	final void scanInExprList(final ExpressionList node, final boolean force) {
-		ITER_TOKEN : while(fNext != null) {
+		ITER_TOKEN: while (true) {
 			switch (fNextType) {
 			
 			case EOF:
@@ -293,7 +300,7 @@ public final class RScanner {
 					
 					case SEMI:
 						if (expr != null) {
-							node.setSeparator(fNext.offset);
+							node.setSeparator(fLexer.getOffset());
 							consumeToken();
 							continue ITER_TOKEN;
 						}
@@ -350,7 +357,7 @@ public final class RScanner {
 				}
 				appendNonOp(context, createSymbol(null));
 				continue ITER_TOKEN;
-				
+			
 			case TRUE:
 			case FALSE:
 			case NUM_NUM:
@@ -575,13 +582,13 @@ public final class RScanner {
 		consumeToken();
 		scanInGroup(node, node.fExpr);
 		if (fNextType == RTerminal.GROUP_CLOSE) {
-			node.fGroupCloseOffset = fNext.offset;
+			node.fGroupCloseOffset = fLexer.getOffset();
 			node.fStopOffset = node.fGroupCloseOffset+1;
 			consumeToken();
 			return node;
 		}
 		else {
-			node.fStopOffset = fNext.offset;
+			node.fStopOffset = fLexer.getOffset();
 			node.fStatus = STATUS2_SYNTAX_CC_NOT_CLOSED;
 			return node;
 		}
@@ -593,13 +600,13 @@ public final class RScanner {
 		consumeToken();
 		scanInExprList(node, false);
 		if (fNextType == RTerminal.BLOCK_CLOSE) {
-			node.fBlockCloseOffset = fNext.offset;
+			node.fBlockCloseOffset = fLexer.getOffset();
 			node.fStopOffset = node.fBlockCloseOffset+1;
 			consumeToken();
 			return node;
 		}
 		else {
-			node.fStopOffset = fNext.offset;
+			node.fStopOffset = fLexer.getOffset();
 			node.fStatus = STATUS2_SYNTAX_CC_NOT_CLOSED;
 			return node;
 		}
@@ -618,7 +625,7 @@ public final class RScanner {
 			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
-		node.fOperatorOffset = fNext.offset;
+		node.fOperatorOffset = fLexer.getOffset();
 		consumeToken();
 		
 		// setup ns
@@ -676,7 +683,7 @@ public final class RScanner {
 			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
-		node.fOperatorOffset = fNext.offset;
+		node.fOperatorOffset = fLexer.getOffset();
 		consumeToken();
 		readLines();
 		
@@ -710,19 +717,19 @@ public final class RScanner {
 			throw new IllegalStateException();
 		}
 		setupFromSourceToken(node);
-		node.fOpenOffset = fNext.offset;
+		node.fOpenOffset = fLexer.getOffset();
 		consumeToken();
 		readLines();
 		
 		scanInSpecArgs(node.fSublist);
 		
 		if (fNextType == RTerminal.SUB_INDEXED_CLOSE) {
-			node.fCloseOffset = fNext.offset;
+			node.fCloseOffset = fLexer.getOffset();
 			consumeToken();
 			
 			if (node.getNodeType() == NodeType.SUB_INDEXED_D) {
 				if (fNextType == RTerminal.SUB_INDEXED_CLOSE) {
-					node.fClose2Offset = fNext.offset;
+					node.fClose2Offset = fLexer.getOffset();
 					node.fStopOffset = node.fClose2Offset+1;
 					consumeToken();
 					return node;
@@ -753,8 +760,8 @@ public final class RScanner {
 		readLines();
 		
 		if (fNextType == RTerminal.GROUP_OPEN) {
-			node.fCondOpenOffset = fNext.offset;
-			node.fStopOffset = fNext.offset+1;
+			node.fCondOpenOffset = fLexer.getOffset();
+			node.fStopOffset = fLexer.getOffset()+1;
 			consumeToken();
 			readLines();
 			
@@ -762,7 +769,7 @@ public final class RScanner {
 			ok += scanInGroup(node, node.fCondExpr);
 			
 			if (fNextType == RTerminal.GROUP_CLOSE) {
-				node.fCondCloseOffset = fNext.offset;
+				node.fCondCloseOffset = fLexer.getOffset();
 				node.fStopOffset = node.fCondCloseOffset+1;
 				consumeToken();
 				ok = 1;
@@ -795,7 +802,7 @@ public final class RScanner {
 		// else
 		if (fNextType == RTerminal.ELSE) {
 			node.fWithElse = true;
-			node.fElseOffset = fNext.offset;
+			node.fElseOffset = fLexer.getOffset();
 			consumeToken();
 			// else body is added via common expression procession
 		}
@@ -811,7 +818,7 @@ public final class RScanner {
 				(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_IF));
 		node.fThenExpr.node = errorNonExistExpression(node, node.fStartOffset,
 				(STATUS2_SYNTAX_EXPR_AS_BODY_MISSING | STATUSFLAG_SUBSEQUENT | STATUS3_IF));
-		node.fElseOffset = fNext.offset;
+		node.fElseOffset = fLexer.getOffset();
 		node.fWithElse = true;
 		consumeToken();
 		
@@ -826,7 +833,7 @@ public final class RScanner {
 		readLines();
 		
 		if (fNextType == RTerminal.GROUP_OPEN) {
-			node.fCondOpenOffset = fNext.offset;
+			node.fCondOpenOffset = fLexer.getOffset();
 			consumeToken();
 			readLines();
 			
@@ -844,7 +851,7 @@ public final class RScanner {
 			}
 			
 			if (fNextType == RTerminal.IN) {
-				node.fInOffset = fNext.offset;
+				node.fInOffset = fLexer.getOffset();
 				node.fStopOffset = node.fInOffset+2;
 				consumeToken();
 				readLines();
@@ -860,7 +867,7 @@ public final class RScanner {
 			}
 			
 			if (fNextType == RTerminal.GROUP_CLOSE) {
-				node.fCondCloseOffset = fNext.offset;
+				node.fCondCloseOffset = fLexer.getOffset();
 				node.fStopOffset = node.fCondCloseOffset+1;
 				consumeToken();
 				ok = 1;
@@ -899,7 +906,7 @@ public final class RScanner {
 		readLines();
 		
 		if (fNextType == RTerminal.GROUP_OPEN) {
-			node.fCondOpenOffset = fNext.offset;
+			node.fCondOpenOffset = fLexer.getOffset();
 			node.fStopOffset = node.fCondOpenOffset+1;
 			consumeToken();
 			readLines();
@@ -908,7 +915,7 @@ public final class RScanner {
 			ok += scanInGroup(node, node.fCondExpr);
 			
 			if (fNextType == RTerminal.GROUP_CLOSE) {
-				node.fCondCloseOffset = fNext.offset;
+				node.fCondCloseOffset = fLexer.getOffset();
 				node.fStopOffset = node.fCondCloseOffset+1;
 				consumeToken();
 				ok = 1;
@@ -951,7 +958,7 @@ public final class RScanner {
 		readLines();
 		
 		if (fNextType == RTerminal.GROUP_OPEN) {
-			node.fArgsOpenOffset = fNext.offset;
+			node.fArgsOpenOffset = fLexer.getOffset();
 			node.fStopOffset = node.fArgsOpenOffset+1;
 			consumeToken();
 			readLines();
@@ -960,7 +967,7 @@ public final class RScanner {
 			scanInFDefArgs(node.fArgs);
 			
 			if (fNextType == RTerminal.GROUP_CLOSE) {
-				node.fArgsCloseOffset = fNext.offset;
+				node.fArgsCloseOffset = fLexer.getOffset();
 				node.fStopOffset = node.fArgsCloseOffset+1;
 				consumeToken();
 				ok = 1;
@@ -989,14 +996,14 @@ public final class RScanner {
 		final FCall node = new FCall();
 		
 		setupFromSourceToken(node);
-		node.fArgsOpenOffset = fNext.offset;
+		node.fArgsOpenOffset = fLexer.getOffset();
 		consumeToken();
 		readLines();
 		
 		scanInSpecArgs(node.fArgs);
 		
 		if (fNextType == RTerminal.GROUP_CLOSE) {
-			node.fArgsCloseOffset = fNext.offset;
+			node.fArgsCloseOffset = fLexer.getOffset();
 			node.fStopOffset = node.fArgsCloseOffset+1;
 			consumeToken();
 		}
@@ -1022,7 +1029,7 @@ public final class RScanner {
 				break;
 			case EQUAL:
 			case COMMA:
-				arg.fStartOffset = arg.fStopOffset = fNext.offset;
+				arg.fStartOffset = arg.fStopOffset = fLexer.getOffset();
 				break;
 			default:
 				if (args.fSpecs.isEmpty()) {
@@ -1037,7 +1044,7 @@ public final class RScanner {
 			}
 			
 			if (fNextType == RTerminal.EQUAL) {
-				arg.fStopOffset = fNext.offset+1;
+				arg.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
 				
 				final Expression expr = arg.addDefault();
@@ -1047,7 +1054,7 @@ public final class RScanner {
 			
 			args.fSpecs.add(arg);
 			if (fNextType == RTerminal.COMMA) {
-				args.fStopOffset = fNext.offset+1;
+				args.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
 				readLines();
 				continue ITER_ARGS;
@@ -1064,7 +1071,7 @@ public final class RScanner {
 		args.fStartOffset = args.fStopOffset = args.fRParent.fStopOffset;
 		ITER_ARGS : while (true) {
 			final FCall.Arg arg = new FCall.Arg(args);
-			arg.fStartOffset = fNext.offset;
+			arg.fStartOffset = fLexer.getOffset();
 			switch(fNextType) {
 			case SYMBOL:
 				arg.fArgName = createSymbol(arg);
@@ -1080,14 +1087,14 @@ public final class RScanner {
 				readLines();
 				break;
 			case EQUAL:
-				arg.fArgName = errorNonExistingSymbol(arg, fNext.offset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
+				arg.fArgName = errorNonExistingSymbol(arg, fLexer.getOffset(), STATUS2_SYNTAX_ELEMENTNAME_MISSING);
 				break;
 			default:
 				break;
 			}
 			if (arg.fArgName != null) {
 				if (fNextType == RTerminal.EQUAL) {
-					arg.fEqualsOffset = fNext.offset;
+					arg.fEqualsOffset = fLexer.getOffset();
 					arg.fStopOffset = arg.fEqualsOffset+1;
 					consumeToken();
 					
@@ -1124,8 +1131,8 @@ public final class RScanner {
 			
 			if (fNextType == RTerminal.COMMA) {
 				args.fSpecs.add(arg);
-				args.fSepList.add(fNext.offset);
-				args.fStopOffset = fNext.offset+1;
+				args.fSepList.add(fLexer.getOffset());
+				args.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
 				readLines();
 				continue ITER_ARGS;
@@ -1145,7 +1152,7 @@ public final class RScanner {
 		args.fStartOffset = args.fStopOffset = args.fRParent.fStopOffset;
 		ITER_ARGS : while (true) {
 			final SubIndexed.Arg arg = new SubIndexed.Arg(args);
-			arg.fStartOffset = fNext.offset;
+			arg.fStartOffset = fLexer.getOffset();
 			switch(fNextType) {
 			case SYMBOL:
 				arg.fArgName = createSymbol(arg);
@@ -1161,14 +1168,14 @@ public final class RScanner {
 				readLines();
 				break;
 			case EQUAL:
-				arg.fArgName = errorNonExistingSymbol(arg, fNext.offset, STATUS2_SYNTAX_ELEMENTNAME_MISSING);
+				arg.fArgName = errorNonExistingSymbol(arg, fLexer.getOffset(), STATUS2_SYNTAX_ELEMENTNAME_MISSING);
 				break;
 			default:
 				break;
 			}
 			if (arg.fArgName != null) {
 				if (fNextType == RTerminal.EQUAL) {
-					arg.fEqualsOffset = fNext.offset;
+					arg.fEqualsOffset = fLexer.getOffset();
 					arg.fStopOffset = arg.fEqualsOffset+1;
 					consumeToken();
 					
@@ -1205,7 +1212,7 @@ public final class RScanner {
 			
 			if (fNextType == RTerminal.COMMA) {
 				args.fSpecs.add(arg);
-				args.fStopOffset = fNext.offset+1;
+				args.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
 				readLines();
 				continue ITER_ARGS;
@@ -1317,9 +1324,9 @@ public final class RScanner {
 		final Dummy.Terminal error = new Dummy.Terminal((fNextType == RTerminal.UNKNOWN) ?
 				STATUS2_SYNTAX_TOKEN_UNKNOWN : STATUS2_SYNTAX_TOKEN_UNEXPECTED);
 		error.fRParent = parent;
-		error.fStartOffset = fNext.offset;
-		error.fStopOffset = fNext.offset+fNext.length;
-		error.fText = fNext.text;
+		error.fStartOffset = fLexer.getOffset();
+		error.fStopOffset = fLexer.getOffset()+fLexer.getLength();
+		error.fText = fLexer.getText();
 		consumeToken();
 		return error;
 	}
@@ -1491,7 +1498,7 @@ public final class RScanner {
 	protected Special createSpecial() {
 		final Special node = new Special();
 		setupFromSourceToken(node);
-		node.fQualifier = fNext.text;
+		node.fQualifier = fLexer.getText();
 		consumeToken();
 		return node;
 	}
@@ -1552,16 +1559,16 @@ public final class RScanner {
 	}
 	
 	private final void setupFromSourceToken(final RAstNode node) {
-		node.fStartOffset = fNext.offset;
-		node.fStopOffset = fNext.offset+fNext.length;
-		node.fStatus = fNext.status;
+		node.fStartOffset = fLexer.getOffset();
+		node.fStopOffset = fLexer.getOffset()+fLexer.getLength();
+		node.fStatus = fLexer.getStatusCode();
 	}
 	
 	private final void setupFromSourceToken(final SingleValue node) {
-		node.fStartOffset = fNext.offset;
-		node.fStopOffset = fNext.offset+fNext.length;
-		node.fText = fNext.text;
-		node.fStatus = fNext.status;
+		node.fStartOffset = fLexer.getOffset();
+		node.fStopOffset = fLexer.getOffset()+fLexer.getLength();
+		node.fText = fLexer.getText();
+		node.fStatus = fLexer.getStatusCode();
 	}
 	
 	private final int checkExpression(final ExprContext context) {
@@ -1587,8 +1594,7 @@ public final class RScanner {
 	
 	private final void consumeToken() {
 		fWasLinebreak = (fNextType == RTerminal.LINEBREAK);
-		fLexer.nextToken();
-		fNextType = fNext.type;
+		fNextType = fLexer.next();
 		switch (fNextType) {
 		case COMMENT:
 		case ROXYGEN_COMMENT:
@@ -1600,7 +1606,7 @@ public final class RScanner {
 			}
 			return;
 		case LINEBREAK:
-			fLineOffset.add(fNext.offset+fNext.length);
+			fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
 		default:
 			return;
 		}
@@ -1613,14 +1619,13 @@ public final class RScanner {
 			switch (fNextType) {
 			case COMMENT:
 				if (fRoxygen.hasComment()) {
-					fComments.add(fRoxygen.finish(fNext));
+					fComments.add(fRoxygen.finish(fLexer));
 				}
 				comment = new Comment.CommonLine();
 				setupFromSourceToken(comment);
 				fComments.add(comment);
 				
-				fLexer.nextToken();
-				fNextType = fNext.type;
+				fNextType = fLexer.next();
 				continue;
 				
 			case ROXYGEN_COMMENT:
@@ -1628,14 +1633,12 @@ public final class RScanner {
 				setupFromSourceToken(comment);
 				fRoxygen.add(comment);
 				
-				fLexer.nextToken();
-				fNextType = fNext.type;
+				fNextType = fLexer.next();
 				continue;
 				
 			case LINEBREAK:
-				fLineOffset.add(fNext.offset+fNext.length);
-				fLexer.nextToken();
-				fNextType = fNext.type;
+				fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
+				fNextType = fLexer.next();
 				if (fNextType == RTerminal.LINEBREAK && fRoxygen.hasComment()) {
 					fComments.add(fRoxygen.finish(null));
 				}
@@ -1643,7 +1646,7 @@ public final class RScanner {
 				
 			default:
 				if (fRoxygen.hasComment()) {
-					fComments.add(fRoxygen.finish(fNext));
+					fComments.add(fRoxygen.finish(fLexer));
 				}
 				
 				fWasLinebreak = true;
@@ -1665,14 +1668,12 @@ public final class RScanner {
 					fComments.add(comment);
 				} // no break
 				
-				fLexer.nextToken();
-				fNextType = fNext.type;
+				fNextType = fLexer.next();
 				continue;
 				
 			case LINEBREAK:
-				fLineOffset.add(fNext.offset+fNext.length);
-				fLexer.nextToken();
-				fNextType = fNext.type;
+				fLineOffset.add(fLexer.getOffset()+fLexer.getLength());
+				fNextType = fLexer.next();
 				continue;
 				
 			default:

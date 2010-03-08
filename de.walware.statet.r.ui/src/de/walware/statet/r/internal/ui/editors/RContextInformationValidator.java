@@ -121,7 +121,7 @@ public class RContextInformationValidator implements IContextInformationValidato
 			try {
 				final String text = document.get(fStartOffset, Math.min(1000, document.getLength()-fStartOffset));
 				final RScanner scanner = new RScanner(new PartialStringParseInput(text, fStartOffset), null);
-				fScannedArgs = scanner.scanFCallArgs(true, fStartOffset, text.length());
+				fScannedArgs = scanner.scanFCallArgs(fStartOffset, text.length(), true);
 				fScannedArgsStamp = stamp;
 			}
 			catch (final Exception e) {

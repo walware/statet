@@ -11,8 +11,14 @@
 
 package de.walware.statet.r.sweave.text;
 
-import org.eclipse.jface.preference.IPreferenceStore;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 
+import java.util.EnumMap;
+
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.rules.IToken;
+
+import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -30,9 +36,14 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 		
 		private RChunkControlCodeScanner fDocumentInput;
 		
-		public RChunkControlLexer(final RChunkControlCodeScanner input) {
-			super(input);
-			fDocumentInput = input;
+		public RChunkControlLexer() {
+			super();
+		}
+		
+		@Override
+		public void reset(final SourceParseInput input) {
+			fDocumentInput = (RChunkControlCodeScanner) input;
+			super.reset(input);
 		}
 		
 		@Override
@@ -40,7 +51,7 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 			switch (c1) {
 			case '<':
 				if (fInput.get(2) == '<' && isNewLine()) {
-					fNextNum = 2;
+					fFoundNum = 2;
 					createChunk("<<"); //$NON-NLS-1$
 					return;
 				}
@@ -48,18 +59,18 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 			case '>':
 				if (fInput.get(2) == '>') {
 					if (fInput.get(3) == '=') {
-						fNextNum = 3;
+						fFoundNum = 3;
 						createChunk(">>="); //$NON-NLS-1$
 						return;
 					}
-					fNextNum = 2;
+					fFoundNum = 2;
 					createChunk(">>"); //$NON-NLS-1$
 					return;
 				}
 				break;
 			case '@':
 				if (isNewLine()) {
-					fNextNum = 1;
+					fFoundNum = 1;
 					createChunk("@"); //$NON-NLS-1$
 					return;
 				}
@@ -68,7 +79,7 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 		}
 		
 		private boolean isNewLine() {
-			final int offset = fNextIndex-1;
+			final int offset = fFoundOffset-1;
 			if (offset < 0) {
 				return true;
 			}
@@ -77,27 +88,23 @@ public class RChunkControlCodeScanner extends RCodeScanner2 {
 		}
 		
 		protected void createChunk(final String text) {
-			fNextToken.type = RTerminal.OTHER;
-			fNextToken.offset = fNextIndex;
-			fNextToken.length = fInput.getLength(fNextNum);
+			fFoundType = RTerminal.OTHER;
+			fFoundText = text;
+			fFoundStatus = STATUS_OK;
 		}
 		
 	}
 	
 	
 	public RChunkControlCodeScanner(final ColorManager colorManager, final IPreferenceStore preferenceStore) {
-		super(colorManager, preferenceStore);
+		super(new RChunkControlLexer(), createDefaultTextStyleManager(colorManager, preferenceStore));
 	}
 	
-	@Override
-	protected RTokenScannerLexer createLexer() {
-		return new RChunkControlLexer(this);
-	}
 	
 	@Override
-	protected void registerTokens() {
-		super.registerTokens();
-		registerTerminal(RTerminal.OTHER, getToken(IRTextTokens.UNDEFINED_KEY));
+	protected void registerTokens(final EnumMap<RTerminal, IToken> map) {
+		super.registerTokens(map);
+		map.put(RTerminal.OTHER, getToken(IRTextTokens.UNDEFINED_KEY));
 	}
 	
 }

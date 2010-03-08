@@ -30,19 +30,19 @@ public class RRoxygenScannerDefaultLexer extends RScannerDefaultLexer {
 		case '\\':
 			c2 = fInput.get(2);
 			if (Character.isLetterOrDigit(c2)) {
-				fNextNum++;
+				fFoundNum++;
 				scanTexIdentifier();
-				fNextToken.type = null;
+				fFoundType = null;
 				return;
 			}
 			else {
-				fNextIndex++;
+				fFoundOffset++;
 				super.searchNext1(c2);
 				return;
 			}
 		case '@':
 			c2 = fInput.get(2);
-			fNextIndex++;
+			fFoundOffset++;
 			super.searchNext1(c2);
 			return;
 		}

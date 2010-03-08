@@ -11,132 +11,22 @@
 
 package de.walware.statet.r.core.rsource.ast;
 
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
-
 import de.walware.ecommons.text.SourceParseInput;
 
-import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;
 
 
-/**
- * Lexer for RScanner.
- */
-class RScannerLexer extends RLexer {
-	
-	
-	final static class ScannerToken {
-		RTerminal type;
-		int offset;
-		int length;
-		String text;
-		int status;
-	}
-	
-	
-	protected final ScannerToken fNextToken;
+public class RScannerLexer extends RLexer {
 	
 	
 	public RScannerLexer(final SourceParseInput input) {
 		super(input);
-		fNextToken = new ScannerToken();
 	}
 	
-	public ScannerToken getToken() {
-		return fNextToken;
-	}
-	
-	public void nextToken() {
-		do {
-			searchNext();
-		} while (fNextToken.type == null);
-	}
-	
-	
-	@Override
-	protected void createFix(final RTerminal type) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = STATUS_OK;
-	}
-	
-	@Override
-	protected void createSpecialToken(final int status) {
-		fNextToken.type = RTerminal.SPECIAL;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = status;
-	}
-	
-	@Override
-	protected void createSymbolToken() {
-		fNextToken.type = RTerminal.SYMBOL;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = STATUS_OK;
-	}
-	
-	@Override
-	protected void createQuotedSymbolToken(final RTerminal type, final int status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = status;
-	}
-	
-	@Override
-	protected void createStringToken(final RTerminal type, final int status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = status;
-	}
-	
-	@Override
-	protected void createNumberToken(final RTerminal type, final int status) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = status;
-	}
 	
 	@Override
 	protected void createWhitespaceToken() {
-		fNextToken.type = null;
-	}
-	
-	@Override
-	protected void createCommentToken(final RTerminal type) {
-		fNextToken.type = type;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = null;
-		fNextToken.status = STATUS_OK;
-	}
-	
-	@Override
-	protected void createLinebreakToken(final String text) {
-		fNextToken.type = RTerminal.LINEBREAK;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = text;
-		fNextToken.status = STATUS_OK;
-	}
-	
-	@Override
-	protected void createUnknownToken(final String text) {
-		fNextToken.type = RTerminal.UNKNOWN;
-		fNextToken.offset = fNextIndex;
-		fNextToken.length = fInput.getLength(fNextNum);
-		fNextToken.text = text;
-		fNextToken.status = STATUS_OK;
+		fFoundType = null;
 	}
 	
 }
