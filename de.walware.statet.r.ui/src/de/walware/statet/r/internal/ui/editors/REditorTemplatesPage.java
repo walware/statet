@@ -24,9 +24,9 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.ui.texteditor.templates.TemplatesView;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.text.Partitioner;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.text.Partitioner;
 
 import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 

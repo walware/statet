@@ -17,6 +17,7 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -36,27 +37,23 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 	private IRModelInfo fModelInfo;
 	
 	
-	public RManagedWorkingCopy(final IRSourceUnit from) {
-		super(from);
+	public RManagedWorkingCopy(final IRSourceUnit from, final ISourceUnitStateListener listener) {
+		super(from, listener);
 	}
 	
 	
 	@Override
 	protected final void register() {
-		if (getModelTypeId().equals(RModel.TYPE_ID)) {
-			RCorePlugin.getDefault().getRModelManager().registerWorkingCopy(this);
-		}
-		else {
+		super.register();
+		if (!getModelTypeId().equals(RModel.TYPE_ID)) {
 			RCorePlugin.getDefault().getRModelManager().registerDependentUnit(this);
 		}
 	}
 	
 	@Override
 	protected final void unregister() {
-		if (getModelTypeId().equals(RModel.TYPE_ID)) {
-			RCorePlugin.getDefault().getRModelManager().removeWorkingCopy(this);
-		}
-		else {
+		super.unregister();
+		if (!getModelTypeId().equals(RModel.TYPE_ID)) {
 			RCorePlugin.getDefault().getRModelManager().deregisterDependentUnit(this);
 		}
 	}
@@ -74,6 +71,7 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 		RCorePlugin.getDefault().getRModelManager().reconcile(this, reconcileLevel, true, monitor);
 	}
 	
+	@Override
 	public AstInfo<SourceComponent> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			if (ensureSync || fAst == null) {
@@ -84,6 +82,7 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 		return null;
 	}
 	
+	@Override
 	public ISourceUnitModelInfo getModelInfo(final String type, final int syncLevel, final IProgressMonitor monitor) {
 		if (type == null || type.equals(RModel.TYPE_ID)) {
 			final RCorePlugin plugin = RCorePlugin.getDefault();

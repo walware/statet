@@ -37,10 +37,10 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.TextConsole;
 
-import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
+import de.walware.ecommons.io.FileUtil;
 
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.core.renv.REnvConfiguration.Exec;

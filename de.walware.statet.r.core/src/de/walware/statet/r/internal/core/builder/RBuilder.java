@@ -37,7 +37,7 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
-import de.walware.ecommons.ltk.ECommonsLTK;
+import de.walware.ecommons.ltk.LTK;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
@@ -122,7 +122,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 						return true;
 					}
 					if (IRSourceUnit.R_CONTENT.equals(contentType.getId())) {
-						final IRSourceUnit unit = (IRSourceUnit) ECommonsLTK.PERSISTENCE_CONTEXT.getUnit(file, RModel.TYPE_ID, true, null);
+						final IRSourceUnit unit = (IRSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
 						fToUpdateRSU.add(unit);
 						return true;
 					}
@@ -196,7 +196,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 					return true;
 				}
 				if (IRSourceUnit.R_CONTENT.equals(contentType.getId())) {
-					final IRSourceUnit unit = (IRSourceUnit) ECommonsLTK.PERSISTENCE_CONTEXT.getUnit(file, RModel.TYPE_ID, true, null);
+					final IRSourceUnit unit = (IRSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
 					if (unit != null) {
 						fToUpdateRSU.add(unit);
 					}

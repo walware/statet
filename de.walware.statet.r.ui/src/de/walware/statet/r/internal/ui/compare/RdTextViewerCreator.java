@@ -16,9 +16,8 @@ import org.eclipse.compare.IViewerCreator;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.ui.workbench.CompareTextViewer;
-
-import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.ecommons.ltk.ui.compare.CompareTextViewer;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -32,7 +31,7 @@ public class RdTextViewerCreator implements IViewerCreator {
 		final RdSourceViewerConfigurator viewerConfigurator = new RdSourceViewerConfigurator(
 				RCore.getWorkbenchAccess());
 		viewerConfigurator.setConfiguration(new RdSourceViewerConfiguration(
-				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), StatetUIServices.getSharedColorManager()));
+				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), SharedUIResources.getColors()));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

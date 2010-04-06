@@ -12,10 +12,8 @@
 package de.walware.statet.r.internal.sweave;
 
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
-import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 
 import de.walware.statet.ext.templates.StatextCodeTemplatesContextType;
-import de.walware.statet.ext.templates.TemplatesMessages;
 
 
 public class RweaveTexTemplatesContextType extends StatextCodeTemplatesContextType {
@@ -40,18 +38,11 @@ public class RweaveTexTemplatesContextType extends StatextCodeTemplatesContextTy
 		
 		addCommonVariables();
 		if (NEW_RWEAVETEX_CONTEXTTYPE.equals(contextName)) {
-			addRUnitVariables();
-			addInitialSelectionResolver();
+			addSourceUnitGenerationVariables();
 		}
 		else if (RWEAVETEX_DEFAULT_CONTEXTTYPE.equals(contextName)) {
-			addResolver(new GlobalTemplateVariables.Cursor());
-			addResolver(new GlobalTemplateVariables.WordSelection());
-			addResolver(new GlobalTemplateVariables.LineSelection());
+			addEditorVariables();
 		}
-	}
-	
-	private void addRUnitVariables() {
-		addResolver(new CodeTemplatesVariableResolver(FILENAME_VARIABLE, TemplatesMessages.Templates_Variable_File_description));
 	}
 	
 }

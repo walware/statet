@@ -38,10 +38,10 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.RCodeStyleSettings;

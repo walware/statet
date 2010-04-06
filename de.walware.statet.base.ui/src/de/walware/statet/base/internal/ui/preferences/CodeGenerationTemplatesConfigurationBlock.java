@@ -53,18 +53,18 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
+import de.walware.ecommons.ltk.ui.templates.EditTemplateDialog;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
+import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
-import de.walware.ecommons.ui.preferences.ConfigurationBlock;
-import de.walware.ecommons.ui.preferences.SettingsUpdater;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
-import de.walware.ecommons.ui.text.sourceediting.ViewerSourceEditorAdapter;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.workbench.EditTemplateDialog;
 
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 

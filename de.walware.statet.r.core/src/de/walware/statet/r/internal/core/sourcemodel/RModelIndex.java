@@ -45,8 +45,9 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.edb.EmbeddedDB;
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitManager;
+import de.walware.ecommons.ltk.LTK;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
@@ -337,6 +338,7 @@ public class RModelIndex {
 	}
 	
 	
+	private final ISourceUnitManager fSourceUnitManager;
 	private final RModelManager fModelManager;
 	private final RBuildReconciler fReconciler;
 	
@@ -351,6 +353,7 @@ public class RModelIndex {
 	
 	
 	public RModelIndex(final RModelManager manager) {
+		fSourceUnitManager = LTK.getSourceUnitManager();
 		fModelManager = manager;
 		fReconciler = new RBuildReconciler(manager);
 		
@@ -604,7 +607,7 @@ public class RModelIndex {
 						ISourceUnit su = null;
 						try {
 							final String suId = resultSet.getString(1);
-							su = ECommonsLTK.PERSISTENCE_CONTEXT.getUnit(suId, RModel.TYPE_ID, true, monitor);
+							su = fSourceUnitManager.getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, suId, true, monitor);
 							if (su != null) {
 								final InputStream inputStream = resultSet.getBlob(2).getBinaryStream();
 								final RUnitElement unitElement = RUnitElement.read(su, frame, inputStream);

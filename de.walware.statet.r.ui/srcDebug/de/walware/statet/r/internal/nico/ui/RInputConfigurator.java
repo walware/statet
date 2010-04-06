@@ -11,12 +11,12 @@
 
 package de.walware.statet.r.internal.nico.ui;
 
-import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.SharedUIResources;
 
-import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -36,7 +36,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 		public RConsoleConfiguration(final ISourceEditor sourceEditor, final IRCoreAccess coreAccess) {
 			super(sourceEditor, coreAccess,
 					RUIPlugin.getDefault().getEditorPreferenceStore(),
-					StatetUIServices.getSharedColorManager() );
+					SharedUIResources.getColors() );
 		}
 		
 		@Override

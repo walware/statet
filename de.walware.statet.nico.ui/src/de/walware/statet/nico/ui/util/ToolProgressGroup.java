@@ -20,8 +20,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -31,16 +32,16 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.ui.progress.WorkbenchJob;
 
-import de.walware.ecommons.ui.dialogs.ShortedLabel;
+import de.walware.ecommons.ui.components.ShortedLabel;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.statet.nico.core.runtime.IProgressInfo;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
+import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 
 
@@ -111,7 +112,7 @@ public class ToolProgressGroup {
 	private static class ToolInfo {
 		
 		ToolProcess fProcess;
-		ImageDescriptor fImageCache;
+		Image fImageCache;
 		boolean fScheduleRefresh = false;
 		
 		ToolInfo(final ToolProcess process) {
@@ -156,13 +157,12 @@ public class ToolProgressGroup {
 	
 	
 	private void createControls(final Composite parent) {
-		fComposite = new Composite(parent, SWT.NONE) {
-			@Override
-			public void dispose() {
+		fComposite = new Composite(parent, SWT.NONE);
+		fComposite.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(final DisposeEvent e) {
 				ToolProgressGroup.this.dispose();
-				super.dispose();
 			}
-		};
+		});
 		final GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 2;
@@ -231,16 +231,13 @@ public class ToolProgressGroup {
 		Image image = null;
 		final IToolRunnable runnable = info.getRunnable();
 		if (runnable != null) {
-			final ImageDescriptor imageDescr = NicoUITools.getImageDescriptor(runnable);
-			if (imageDescr != null) {
-				image = StatetImages.getCachedImage(imageDescr);
-			}
+			image = NicoUITools.getImage(runnable);
 		}
 		if (image == null && tool.fProcess != null) {
 			image = getToolImage(tool);
 		}
 		if (image == null) {
-			image = StatetImages.getImage(StatetImages.OBJ_TASK_DUMMY);
+			image = NicoUIPlugin.getDefault().getImageRegistry().get(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID);
 		}
 		if (!(image.equals(fImageLabel.getImage()))) {
 			fImageLabel.setImage(image);
@@ -252,12 +249,9 @@ public class ToolProgressGroup {
 	
 	private Image getToolImage(final ToolInfo tool) {
 		if (tool.fImageCache == null) {
-			tool.fImageCache = NicoUITools.getImageDescriptor(tool.fProcess);
+			tool.fImageCache = NicoUITools.getImage(tool.fProcess);
 		}
-		if (tool.fImageCache != null) {
-			return StatetImages.getCachedImage(tool.fImageCache);
-		}
-		return null;
+		return tool.fImageCache;
 	}
 	
 	private void dispose() {

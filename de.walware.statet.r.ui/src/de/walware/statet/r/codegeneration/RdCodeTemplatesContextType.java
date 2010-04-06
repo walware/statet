@@ -14,7 +14,6 @@ package de.walware.statet.r.codegeneration;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 
 import de.walware.statet.ext.templates.StatextCodeTemplatesContextType;
-import de.walware.statet.ext.templates.TemplatesMessages;
 
 
 public class RdCodeTemplatesContextType extends StatextCodeTemplatesContextType {
@@ -37,14 +36,9 @@ public class RdCodeTemplatesContextType extends StatextCodeTemplatesContextType 
 		
 		addCommonVariables();
 		if (NEW_RDOCFILE_CONTEXTTYPE.equals(contextName)) {
-			addRUnitVariables();
-			addInitialSelectionResolver();
+			addSourceUnitGenerationVariables();
 		}
 		
-	}
-	
-	private void addRUnitVariables() {
-		addResolver(new CodeTemplatesVariableResolver(FILENAME_VARIABLE, TemplatesMessages.Templates_Variable_File_description));
 	}
 	
 }

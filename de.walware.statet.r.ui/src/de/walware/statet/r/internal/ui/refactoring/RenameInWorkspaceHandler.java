@@ -20,10 +20,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringSaveHelper;
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringWizardExecutionHelper;
-import de.walware.ecommons.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
+import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.r.core.refactoring.RenameInWorkspaceRefactoring;
 

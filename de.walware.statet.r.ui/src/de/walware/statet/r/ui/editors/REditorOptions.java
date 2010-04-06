@@ -27,7 +27,7 @@ import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 public class REditorOptions extends AbstractPreferencesModelObject {
 	// Default values see RUIPreferenceInitializer
 	
-	public static final String GROUP_ID = "r.editor/options"; //$NON-NLS-1$
+	public static final String GROUP_ID = "r/r.editor/options"; //$NON-NLS-1$
 	
 	
 	public static final BooleanPref PREF_SMARTINSERT_BYDEFAULT_ENABLED = new BooleanPref(

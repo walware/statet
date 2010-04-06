@@ -54,8 +54,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
+import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

@@ -11,7 +11,6 @@
 
 package de.walware.statet.r.nico.impl;
 
-import static de.walware.rj.server.srvext.ServerUtil.MISSING_ANSWER_STATUS;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_ADDRESS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_CALLBACKS_DATA_KEY;
 import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_MESSAGE_DATA_KEY;
@@ -20,7 +19,6 @@ import static de.walware.statet.nico.core.runtime.IToolEventHandler.LOGIN_USERNA
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.rmi.ConnectException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -44,8 +42,8 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.RMIAddress;
 
 import de.walware.statet.nico.core.runtime.HistoryOperationsHandler;
@@ -62,20 +60,16 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
 import de.walware.rj.server.ConsoleEngine;
-import de.walware.rj.server.ConsoleReadCmdItem;
-import de.walware.rj.server.DataCmdItem;
 import de.walware.rj.server.ExtUICmdItem;
 import de.walware.rj.server.FxCallback;
-import de.walware.rj.server.MainCmdC2SList;
-import de.walware.rj.server.MainCmdItem;
-import de.walware.rj.server.MainCmdS2CList;
-import de.walware.rj.server.RjsComObject;
-import de.walware.rj.server.RjsPing;
+import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.RjsStatus;
 import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerInfo;
 import de.walware.rj.server.ServerLogin;
+import de.walware.rj.server.client.AbstractRJComClient;
 import de.walware.rj.services.FunctionCall;
+import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
 
 import de.walware.statet.r.core.RCore;
@@ -100,21 +94,182 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	
 	static {
-		DataCmdItem.registerRObjectFactory(CombinedFactory.FACTORY_ID, CombinedFactory.INSTANCE);
+		RjsComConfig.registerRObjectFactory(CombinedFactory.FACTORY_ID, CombinedFactory.INSTANCE);
+	}
+	
+	
+	private class NicoComClient extends AbstractRJComClient {
+		
+		
+		public NicoComClient() {
+		}
+		
+		
+		@Override
+		protected void updateBusy(final boolean isBusy) {
+//			try {
+				RjsController.this.fIsBusy = isBusy;
+//			}
+//			catch (Exception e) {
+//			}
+		}
+		
+		@Override
+		protected void updatePrompt(final String text, final boolean addToHistory) {
+			try {
+				RjsController.this.setCurrentPrompt(text, addToHistory);
+			}
+			catch (final Exception e) {
+			}
+		}
+		
+		@Override
+		protected void writeStdOutput(final String text) {
+			try {
+				fDefaultOutputStream.append(text, fCurrentRunnable.getSubmitType(), 0);
+			}
+			catch (final Exception e) {
+			}
+		}
+		
+		@Override
+		protected void writeErrOutput(final String text) {
+			try {
+				fErrorOutputStream.append(text, fCurrentRunnable.getSubmitType(), 0);
+			}
+			catch (final Exception e) {
+			}
+		}
+		
+		@Override
+		protected void showMessage(final String text) {
+			try {
+				fInfoStream.append(text, fCurrentRunnable.getSubmitType(), 0);
+			}
+			catch (final Exception e) {
+			}
+		}
+		
+		
+		@Override
+		protected void handleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
+			final String command = cmd.getCommand();
+			// if we have more commands, we should create a hashmap
+			if (command.equals(ExtUICmdItem.C_CHOOSE_FILE)) {
+				final IToolEventHandler handler = getEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID);
+				if (handler != null) {
+					final Map<String, Object> data = new HashMap<String, Object>();
+					data.put("newResource", ((cmd.getCmdOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); 
+					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, RjsController.this, data, monitor).isOK()) {
+						cmd.setAnswer((String) data.get("filename")); //$NON-NLS-1$
+						return;
+					}
+				}
+				cmd.setAnswer(RjsStatus.CANCEL_STATUS);
+				return;
+			}
+			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
+				return;
+			}
+			if (command.equals(ExtUICmdItem.C_SAVE_HISTORY)) {
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
+				return;
+			}
+			if (command.equals(ExtUICmdItem.C_ADDTO_HISTORY)) {
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); //$NON-NLS-1$
+				return;
+			}
+			if (command.equals(ExtUICmdItem.C_SHOW_HISTORY)) {
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); //$NON-NLS-1$
+				return;
+			}
+			if (command.equals(ExtUICmdItem.C_OPENIN_EDITOR)) {
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); //$NON-NLS-1$
+				return;
+			}
+			super.handleUICallback(cmd, monitor);
+		}
+		
+		private void handleUICmdByDataTextHandler(final ExtUICmdItem cmd, final String handlerId, final String textDataKey, final IProgressMonitor monitor) {
+			final IToolEventHandler handler = getEventHandler(handlerId);
+			if (handler != null) {
+				final Map<String, Object> data = new HashMap<String, Object>();
+				data.put(textDataKey, cmd.getDataText());
+				final IStatus status = handler.handle(handlerId, RjsController.this, data, monitor);
+				switch (status.getSeverity()) {
+				case IStatus.OK:
+					cmd.setAnswer(RjsStatus.OK_STATUS);
+					return;
+				case IStatus.CANCEL:
+					cmd.setAnswer(RjsStatus.CANCEL_STATUS);
+					return;
+				default:
+					cmd.setAnswer(new RjsStatus(status.getSeverity(), status.getCode(), status.getMessage()));
+					return;
+				}
+			}
+			RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
+					NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); 
+			cmd.setAnswer(RjsStatus.CANCEL_STATUS);
+		}
+		
+		@Override
+		protected void log(final IStatus status) {
+			RCorePlugin.getDefault().getLog().log(status);
+		}
+		
+		@Override
+		protected void handleServerStatus(final RjsStatus serverStatus, final IProgressMonitor monitor) throws CoreException {
+			String specialMessage = null;
+			switch (serverStatus.getCode()) {
+			case 0:
+				return;
+			case Server.S_DISCONNECTED:
+				fConnectionState = Server.S_DISCONNECTED;
+				//$FALL-THROUGH$
+			case Server.S_LOST:
+				if (fConnectionState == Server.S_DISCONNECTED) {
+					specialMessage = RNicoMessages.R_Info_Disconnected_message;
+					break;
+				}
+				else if (!fEmbedded) {
+					fConnectionState = Server.S_LOST;
+					specialMessage = RNicoMessages.R_Info_ConnectionLost_message;
+					break;
+				}
+				//$FALL-THROUGH$
+			case Server.S_STOPPED:
+				fConnectionState = Server.S_STOPPED;
+				specialMessage = RNicoMessages.R_Info_Stopped_message;
+				break;
+			default:
+				throw new IllegalStateException();
+			}
+			
+			if (!isClosed()) {
+				markAsTerminated();
+				setClosed(true);
+				handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID, addTimestampToMessage(specialMessage, System.currentTimeMillis())), monitor);
+			}
+			throw new CoreException(new Status(IStatus.CANCEL, RCore.PLUGIN_ID, specialMessage));
+		}
+		
+		@Override
+		protected void handleStatus(final Status status, final IProgressMonitor monitor) {
+			RjsController.this.handleStatus(status, monitor);
+		}
+		
 	}
 	
 	
 	private final RMIAddress fAddress;
 	private final String[] fRArgs;
 	
-	private ConsoleEngine fRjServer;
-	private final MainCmdC2SList fC2SList = new MainCmdC2SList();
-	private boolean fConsoleReadCallbackRequest;
-	private MainCmdItem fConsoleReadCallback;
-	private int fDataLevelRequest = 0;
-	private int fDataLevelAnswer = 0;
-	private final DataCmdItem[] fDataAnswer = new DataCmdItem[16];
 	private boolean fIsBusy = true;
+	
+	private final NicoComClient fRjs = new NicoComClient();
+	private int fRjsId;
 	
 	
 	private final boolean fEmbedded;
@@ -122,7 +277,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	private String fStartupSnippet;
 	private final Map<String, Object> fRjsProperties;
 	
-	private boolean fIsDisconnected = false;
+	private int fConnectionState;
 	
 	
 	/**
@@ -153,7 +308,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		fEmbedded = embedded;
 		fStartup = startup;
 		fRArgs = rArgs;
-		fRjsProperties = rjsProperties;
+		fRjsProperties = (rjsProperties != null) ? rjsProperties : new HashMap<String, Object>();
 		fTrackingConfigurations = trackingConfigurations;
 		
 		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
@@ -178,7 +333,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	}
 	
 	public boolean isDisconnected() {
-		return fIsDisconnected;
+		return (fConnectionState == Server.S_DISCONNECTED || fConnectionState == Server.S_LOST);
 	}
 	
 	/**
@@ -197,11 +352,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				beginInternalTask();
 			}
 			try {
-				final ConsoleEngine server = fRjServer;
-				if (server != null) {
-					server.disconnect();
-				}
-				fIsDisconnected = true;
+				fRjs.getConsoleServer().disconnect();
+				fConnectionState = Server.S_DISCONNECTED;
 			}
 			catch (final RemoteException e) {
 				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
@@ -224,13 +376,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						}
 						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
 							if (!isTerminated()) {
-								try {
-									rjsSendPing(true, monitor);
-									rjsHandleStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
-								}
-								catch (final RemoteException e) {
-									rjsHandleStatus(new RjsStatus(RjsStatus.INFO, Server.S_LOST), monitor);
-								}
+								fRjs.runMainLoopPing(monitor);
+								fRjs.handleServerStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
 							}
 						}
 					});
@@ -254,6 +401,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected void startTool(final IProgressMonitor monitor) throws CoreException {
+		final int[] clientVersion = AbstractRJComClient.version();
+		clientVersion[2] = -1;
 		final Server server;
 		int[] version;
 		try {
@@ -278,20 +427,23 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		catch (final ClassCastException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.4.x).", RjsUtil.getVersionString(null)), e));
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client ({1}).", RjsUtil.getVersionString(null), RjsUtil.getVersionString(clientVersion)), e));
 		}
-		if (version.length != 3 || version[0] != 0 || version[1] != 4) {
+		if (version.length != 3 || version[0] != clientVersion[0] || version[1] != clientVersion[1]) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING,
-					NLS.bind("The specified R engine ({0}) is incompatibel to this client (0.4.x).", RjsUtil.getVersionString(version)),
+					NLS.bind("The specified R engine ({0}) is incompatibel to this client ({1}).", RjsUtil.getVersionString(version), RjsUtil.getVersionString(clientVersion)),
 					null));
 		}
 		
+		fRjsId = RjsComConfig.registerClientComHandler(fRjs);
+		fRjsProperties.put(RjsComConfig.RJ_COM_S2C_ID_PROPERTY_ID, fRjsId);
 		try {
 			final Map<String, Object> data = new HashMap<String, Object>();
 			final IToolEventHandler loginHandler = getEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID);
 			String msg = null;
-			TRY_LOGIN: while (fRjServer == null) {
+			boolean connected = false;
+			while (!connected) {
 				final Map<String, Object> initData = getInitData();
 				final ServerLogin login = server.createLogin(Server.C_CONSOLE_CONNECT);
 				try {
@@ -335,16 +487,17 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					}
 					
 					final Map<String, Object> args = new HashMap<String, Object>();
-					if (fRjsProperties != null) {
-						args.putAll(fRjsProperties);
-					}
+					args.putAll(fRjsProperties);
+					ConsoleEngine rjServer;
 					if (fStartup) {
 						args.put("args", fRArgs); //$NON-NLS-1$
-						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, args, login.createAnswer());
+						rjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_START, args, login.createAnswer());
 					}
 					else {
-						fRjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, args, login.createAnswer());
+						rjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, args, login.createAnswer());
 					}
+					fRjs.setServer(rjServer);
+					connected = true;
 					
 					if (callbacks != null) {
 						loginHandler.handle(IToolEventHandler.LOGIN_OK_EVENT_ID, this, data, monitor);
@@ -395,8 +548,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						addTimestampToMessage(RNicoMessages.R_Info_Reconnected_message, fProcess.getConnectionTimestamp())),
 						monitor);
 			}
-			rjsRunMainLoop(null, null, monitor);
-			fConsoleReadCallbackRequest = true;
+			fRjs.runMainLoop(null, null, monitor);
+			fRjs.activateConsole();
 			
 			scheduleControllerRunnable(new IToolRunnable() {
 				public SubmitType getSubmitType() {
@@ -411,8 +564,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				public void changed(final int event, final ToolProcess process) {
 				}
 				public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
-					if (fConsoleReadCallback == null) {
-						rjsRunMainLoop(null, null, monitor);
+					if (!fRjs.isConsoleReady()) { // R is still working
+						fRjs.runMainLoop(null, null, monitor);
 					}
 					for (final IStatus status : warnings) {
 						handleStatus(status, monitor);
@@ -430,14 +583,6 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					ICommonStatusConstants.LAUNCHING,
 					"An error occured when creating login data.", e));
 		}
-	}
-	
-	protected final ConsoleEngine ensureServer() {
-		final ConsoleEngine server = fRjServer;
-		if (server == null) {
-			throw new IllegalStateException();
-		}
-		return server;
 	}
 	
 //	public void controlNotification(final RjsComObject com) throws RemoteException {
@@ -468,299 +613,16 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 //		}
 //	}
 	
-	protected void rjsRunMainLoop(RjsComObject sendCom, MainCmdItem sendItem, final IProgressMonitor monitor) throws CoreException {
-		int ok = 0;
-		while (true) {
-			try {
-				RjsComObject receivedCom = null;
-				if (sendItem != null) {
-					if (sendItem.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM) {
-						fConsoleReadCallback = null;
-					}
-					fC2SList.setObjects(sendItem);
-					sendCom = fC2SList;
-					sendItem = null;
-				}
-//				System.out.println("client *-> server: " + sendCom);
-				receivedCom = ensureServer().runMainLoop(sendCom);
-				fC2SList.clear();
-				sendCom = null;
-//				System.out.println("client *<- server: " + receivedCom);
-				switch (receivedCom.getComType()) {
-				case RjsComObject.T_PING:
-					sendCom = RjsStatus.OK_STATUS;
-					ok = 0;
-					continue;
-				case RjsComObject.T_MAIN_LIST:
-					sendItem = rjsHandleMainList((MainCmdS2CList) receivedCom, monitor);
-					ok = 0;
-					if (sendItem == null
-							&& (!fConsoleReadCallbackRequest || fConsoleReadCallback != null)
-							&& (fDataLevelRequest == fDataLevelAnswer) ) {
-						return;
-					}
-					continue;
-				case RjsComObject.T_STATUS:
-					rjsHandleStatus((RjsStatus) receivedCom, monitor);
-					ok = 0;
-					return;
-				}
-			}
-			catch (final ConnectException e) {
-				rjsHandleStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
-			}
-			catch (final RemoteException e) {
-				RCorePlugin.logError(-1, "Communication error detail\nSEND="+sendItem, e);
-//				e.printStackTrace(System.out);
-				if (ping()) {
-					if (fConsoleReadCallback == null && ok == 0) {
-						ok++;
-						handleStatus(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "Communication error, see Eclipse log for detail."), monitor);
-						continue;
-					}
-					throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Communication error.", e));
-				}
-				else {
-					rjsHandleStatus(new RjsStatus(RjsComObject.V_INFO, Server.S_LOST), monitor);
-					// throws CoreException
-				}
-			}
-		}
-	}
-	
-	private void rjsHandleStatus(final RjsStatus serverStatus, final IProgressMonitor monitor)
-			throws CoreException {
-		String specialMessage = null;
-		switch (serverStatus.getCode()) {
-		case 0:
-			return;
-		case Server.S_DISCONNECTED:
-			fIsDisconnected = true;
-		case Server.S_LOST:
-			if (fIsDisconnected) {
-				specialMessage = RNicoMessages.R_Info_Disconnected_message;
-				markAsTerminated();
-				break;
-			}
-			else if (!fEmbedded) {
-				specialMessage = RNicoMessages.R_Info_ConnectionLost_message;
-				fIsDisconnected = true;
-				markAsTerminated();
-				break;
-			}
-			// continue stopped
-		case Server.S_STOPPED:
-			specialMessage = RNicoMessages.R_Info_Stopped_message;
-			markAsTerminated();
-			break;
-		default:
-			throw new IllegalStateException();
-		}
-		
-		handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID, addTimestampToMessage(specialMessage, System.currentTimeMillis())), monitor);
-		throw new CoreException(new Status(IStatus.CANCEL, RCore.PLUGIN_ID, specialMessage));
-	}
 	
 	protected String addTimestampToMessage(final String message, final long timestamp) {
 		final String datetime = DateFormat.getDateTimeInstance().format(System.currentTimeMillis());
 		return datetime + " - " + message; //$NON-NLS-1$
 	}
 	
-	private MainCmdItem rjsHandleMainList(final MainCmdS2CList list, final IProgressMonitor monitor) throws RemoteException, CoreException {
-		MainCmdItem item = list.getItems();
-		MainCmdItem tmp;
-		try {
-			List<MainCmdItem> returnList = null;
-			final boolean isBusy = list.isBusy();
-			if (fIsBusy != isBusy) {
-				fIsBusy = isBusy;
-//				loopBusyChanged(isBusy);
-			}
-			ITER_ITEMS : for (; (item != null); tmp = item, item = item.next, tmp.next = null) {
-				switch (item.getCmdType()) {
-				case MainCmdItem.T_CONSOLE_WRITE_ITEM:
-					((item.getCmdOption() == RjsComObject.V_OK) ?
-							fDefaultOutputStream : fErrorOutputStream)
-							.append(item.getDataText(), fCurrentRunnable.getSubmitType(), 0);
-					continue ITER_ITEMS;
-				case MainCmdItem.T_CONSOLE_READ_ITEM: {
-					setCurrentPrompt(item.getDataText(), (item.getCmdOption() & 0xf) == RjsComObject.V_TRUE);
-					if (item != list.getItems()) {
-						rjsSendPing(false, monitor);
-					}
-					if (returnList != null) {
-						System.out.println("Requests below console prompt discarded.");
-						returnList = null;
-					}
-					fConsoleReadCallback = item;
-					continue ITER_ITEMS;
-				}
-				case MainCmdItem.T_MESSAGE_ITEM:
-					fInfoStream.append(item.getDataText(), fCurrentRunnable.getSubmitType(), 0);
-					continue ITER_ITEMS;
-				case MainCmdItem.T_EXTENDEDUI_ITEM:
-					if (item.waitForClient()) {
-						if (returnList == null) {
-							returnList = new ArrayList<MainCmdItem>();
-						}
-						returnList.add(rjsHandleUICallback((ExtUICmdItem) item, monitor));
-					}
-					else {
-						rjsHandleUICallback((ExtUICmdItem) item, monitor);
-					}
-					continue ITER_ITEMS;
-				case MainCmdItem.T_DATA_ITEM:
-					if (fDataLevelRequest > 0) {
-						if (addDataAnswer((DataCmdItem) item)) {
-							rjsSendPing(false, monitor);
-						}
-					}
-					continue ITER_ITEMS;
-				default:
-					throw new RemoteException("Illegal command from server: " + item.toString());
-				}
-			}
-			if (returnList != null) {
-				item = null;
-				for (int i = 0; i < returnList.size(); i++) {
-					// requests are a stack => backwards
-					tmp = item;
-					item = returnList.get(i);
-					item.next = tmp;
-				}
-				return item;
-			}
-			return null;
-		}
-		catch (final RemoteException e) {
-			throw e;
-		}
-		catch (final CoreException e) {
-			throw e;
-		}
-		catch (final Exception e) {
-			rjsComErrorRestore(e, monitor);
-			// try to recover
-			rjsSendPing(true, monitor);
-			ITER_ITEMS : for (; (item != null); tmp = item, item = item.next, tmp.next = null) {
-				if (item.waitForClient()) {
-					if (item.getCmdType() == MainCmdItem.T_CONSOLE_READ_ITEM && item instanceof ConsoleReadCmdItem) {
-						fConsoleReadCallback = item;
-						return null;
-					}
-					else {
-						item.setAnswer(new RjsStatus(RjsStatus.ERROR, 0, "Client error processing command list."));
-						return item;
-					}
-				}
-			}
-			return null;
-		}
-	}
-	
-	private void rjsSendPing(final boolean checkAnswer, final IProgressMonitor monitor) throws RemoteException, CoreException {
-//		System.out.println("client *-> server: " + RjsPing.INSTANCE);
-		final RjsComObject receivedCom = ensureServer().runMainLoop(RjsPing.INSTANCE);
-//		System.out.println("client *<- server: " + receivedCom);
-		if (checkAnswer) {
-			if (receivedCom.getComType() != RjsComObject.T_STATUS) {
-				throw new IllegalStateException();
-			}
-			rjsHandleStatus((RjsStatus) receivedCom, monitor);
-		}
-	}
-	
-	private ExtUICmdItem rjsHandleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
-		final String command = cmd.getCommand();
-		// if we have more commands, we should create a hashmap
-		try {
-			if (command.equals(ExtUICmdItem.C_CHOOSE_FILE)) {
-				final IToolEventHandler handler = getEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID);
-				if (handler != null) {
-					final Map<String, Object> data = new HashMap<String, Object>();
-					data.put("newResource", ((cmd.getCmdOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); 
-					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, this, data, monitor).isOK()) {
-						cmd.setAnswer((String) data.get("filename")); //$NON-NLS-1$
-						return cmd;
-					}
-				}
-				cmd.setAnswer(RjsStatus.CANCEL_STATUS);
-				return cmd;
-			}
-			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
-				return cmd;
-			}
-			if (command.equals(ExtUICmdItem.C_SAVE_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
-				return cmd;
-			}
-			if (command.equals(ExtUICmdItem.C_ADDTO_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); //$NON-NLS-1$
-				return cmd;
-			}
-			if (command.equals(ExtUICmdItem.C_SHOW_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); //$NON-NLS-1$
-				return cmd;
-			}
-			if (command.equals(ExtUICmdItem.C_OPENIN_EDITOR)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); //$NON-NLS-1$
-				return cmd;
-			}
-			throw new Exception("Unknown command.");
-		}
-		catch (final Exception e) {
-			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					NLS.bind("An error occurred when exec RJ UI command ''{0}''.", command), e)); 
-			if (cmd.waitForClient()) {
-				cmd.setAnswer(new RjsStatus(RjsStatus.ERROR, 0, "Client error processing current command."));
-				return cmd;
-			}
-			else {
-				return null;
-			}
-		}
-	}
-	
-	private void handleUICmdByDataTextHandler(final ExtUICmdItem cmd, final String handlerId, final String textDataKey, final IProgressMonitor monitor) {
-		final IToolEventHandler handler = getEventHandler(handlerId);
-		if (handler != null) {
-			final Map<String, Object> data = new HashMap<String, Object>();
-			data.put(textDataKey, cmd.getDataText());
-			final IStatus status = handler.handle(handlerId, this, data, monitor);
-			switch (status.getSeverity()) {
-			case IStatus.OK:
-				cmd.setAnswer(RjsStatus.OK_STATUS);
-				return;
-			case IStatus.CANCEL:
-				cmd.setAnswer(RjsStatus.CANCEL_STATUS);
-				return;
-			default:
-				cmd.setAnswer(new RjsStatus(status.getSeverity(), status.getCode(), status.getMessage()));
-				return;
-			}
-		}
-		RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
-				NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); 
-		cmd.setAnswer(RjsStatus.CANCEL_STATUS);
-	}
-	
-	private void rjsComErrorRestore(final Throwable e, final IProgressMonitor monitor) {
-		handleStatus(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-				"An error occurred when running tasks for R. StatET will try to restore the communication, otherwise quit R.", e), monitor);
-	}
 	
 	@Override
 	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
-		final ConsoleEngine server = fRjServer;
-		if (server != null) {
-			try {
-				server.interrupt();
-			} catch (final RemoteException e) {
-				RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-						"An error occurred when trying to interrupt R.", e));
-			}
-		}
+		fRjs.runAsyncInterrupt();
 		if (hardness > 6) {
 			super.interruptTool(hardness);
 		}
@@ -777,26 +639,13 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected boolean isToolAlive() {
-		if (!ping()) {
+		if (fConnectionState != 0 || !fRjs.runAsyncPing()) {
 			return false;
 		}
-		if (Thread.currentThread() == getControllerThread() && fConsoleReadCallback == null) {
+		if (Thread.currentThread() == getControllerThread() && !fRjs.isConsoleReady()) {
 			return false;
 		}
 		return true;
-	}
-	
-	private boolean ping() {
-		final ConsoleEngine server = fRjServer;
-		if (server != null) {
-			try {
-				return (RjsStatus.OK_STATUS.equals(server.runAsync(RjsPing.INSTANCE)));
-			}
-			catch (final RemoteException e) {
-				// no need to log here
-			}
-		}
-		return false;
 	}
 	
 	@Override
@@ -826,21 +675,24 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	protected void clear() {
 		super.clear();
 		
-		if (fEmbedded && !fIsDisconnected) {
+		if (fEmbedded && !isDisconnected()) {
 			try {
 				Naming.unbind(fAddress.getAddress());
 			}
 			catch (final Throwable e) {
 			}
 		}
-		
-		fRjServer = null;
+		fRjs.disposeAllGraphics();
+		if (fRjsId > 0) {
+			RjsComConfig.unregisterClientComHandler(this.fRjsId);
+			fRjsId = 0;
+		}
 	}
 	
 	@Override
 	protected int finishTool() {
 		int exitCode = 0;
-		if (fIsDisconnected) {
+		if (isDisconnected()) {
 			exitCode = ToolProcess.EXITCODE_DISCONNECTED;
 		}
 		return exitCode;
@@ -849,113 +701,34 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected void doSubmit(final IProgressMonitor monitor) throws CoreException {
-		fConsoleReadCallback.setAnswer(fCurrentInput + fLineSeparator);
-		rjsRunMainLoop(null, fConsoleReadCallback, monitor);
+		fRjs.answerConsole(fCurrentInput + fLineSeparator, monitor);
 	}
 	
-	
-	private int newDataLevel() {
-		final int level = ++fDataLevelRequest;
-		if (level >= fDataAnswer.length) {
-			fDataLevelRequest--;
-			throw new UnsupportedOperationException("too much nested operations");
-		}
-		fDataLevelAnswer = 0;
-		return level;
-	}
-	
-	private void finalizeDataLevel() {
-		final int level = fDataLevelRequest--;
-		fDataAnswer[level] = null;
-		fDataLevelAnswer = 0;
-	}
-	
-	private boolean addDataAnswer(final DataCmdItem item) {
-		fDataAnswer[fDataLevelRequest] = item;
-		fDataLevelAnswer = fDataLevelRequest;
-		return true;
-	}
 	
 	public RPlatform getPlatform() {
 		return null;
 	}
 	
 	public void evalVoid(final String command, final IProgressMonitor monitor) throws CoreException {
-		final int level = newDataLevel();
-		try {
-			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.EVAL_VOID, 0, (byte) 0, command, null), monitor);
-			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
-				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
-				if (status.getSeverity() == RjsStatus.CANCEL) {
-					throw new CoreException(Status.CANCEL_STATUS);
-				}
-				else {
-					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
-							"Evaluation failed: " + status.getMessage(), null));
-				}
-			}
-			return;
-		}
-		finally {
-			finalizeDataLevel();
-		}
+		fRjs.evalVoid(command, monitor);
 	}
 	
 	public RObject evalData(final String command, final IProgressMonitor monitor) throws CoreException {
-		return evalData(command, null, 0, -1, monitor);
+		return fRjs.evalData(command, null, 0, -1, monitor);
 	}
 	
 	public RObject evalData(final String command, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
-		final byte checkedDepth = (depth < Byte.MAX_VALUE) ? (byte) depth : Byte.MAX_VALUE;
-		final int level = newDataLevel();
-		try {
-			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
-					DataCmdItem.EVAL_STRUCT : DataCmdItem.EVAL_DATA, 0, checkedDepth, command, factoryId), monitor);
-			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
-				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
-				if (status.getSeverity() == RjsStatus.CANCEL) {
-					throw new CoreException(Status.CANCEL_STATUS);
-				}
-				else {
-					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
-							"Evaluation failed: " + status.getMessage(), null));
-				}
-			}
-			return fDataAnswer[level].getData();
-		}
-		finally {
-			finalizeDataLevel();
-		}
+		return fRjs.evalData(command, factoryId, options, depth, monitor);
 	}
 	
 	public RObject evalData(final RReference reference, final IProgressMonitor monitor) throws CoreException {
-		return evalData(reference, null, 0, -1, monitor);
+		return fRjs.evalData(reference, null, 0, -1, monitor);
 	}
 	
 	public RObject evalData(final RReference reference, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
-		final byte checkedDepth = (depth < Byte.MAX_VALUE) ? (byte) depth : Byte.MAX_VALUE;
-		final int level = newDataLevel();
-		try {
-			final long handle = reference.getHandle();
-			rjsRunMainLoop(null, new DataCmdItem(((options & RObjectFactory.F_ONLY_STRUCT) == RObjectFactory.F_ONLY_STRUCT) ?
-					DataCmdItem.RESOLVE_STRUCT : DataCmdItem.RESOLVE_DATA, 0, checkedDepth, Long.toString(handle), factoryId), monitor);
-			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
-				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
-				if (status.getSeverity() == RjsStatus.CANCEL) {
-					throw new CoreException(Status.CANCEL_STATUS);
-				}
-				else {
-					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
-							"Evaluation failed: " + status.getMessage(), null));
-				}
-			}
-			return fDataAnswer[level].getData();
-		}
-		finally {
-			finalizeDataLevel();
-		}
+		return fRjs.evalData(reference, factoryId, options, depth, monitor);
 	}
 	
 	public ICombinedRElement evalCombinedStruct(final String command,
@@ -990,39 +763,26 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	}
 	
 	public void assignData(final String expression, final RObject data, final IProgressMonitor monitor) throws CoreException {
-		final int level = newDataLevel();
-		try {
-			rjsRunMainLoop(null, new DataCmdItem(DataCmdItem.ASSIGN_DATA, 0, expression, data), monitor);
-			if (fDataAnswer[level] == null || !fDataAnswer[level].isOK()) {
-				final RjsStatus status = (fDataAnswer[level] != null) ? fDataAnswer[level].getStatus() : MISSING_ANSWER_STATUS;
-				if (status.getSeverity() == RjsStatus.CANCEL) {
-					throw new CoreException(Status.CANCEL_STATUS);
-				}
-				else {
-					throw new CoreException(new Status(status.getSeverity(), RCore.PLUGIN_ID, status.getCode(),
-							"Assignment failed: " + status.getMessage(), null));
-				}
-			}
-			return;
-		}
-		finally {
-			finalizeDataLevel();
-		}
+		fRjs.assignData(expression, data, monitor);
 	}
 	
 	public void downloadFile(final OutputStream out, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
-		throw new UnsupportedOperationException();
+		fRjs.downloadFile(out, fileName, options, monitor);
 	}
 	
 	public byte[] downloadFile(final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
-		throw new UnsupportedOperationException();
+		return fRjs.downloadFile(fileName, options, monitor);
 	}
 	
 	public void uploadFile(final InputStream in, final long length, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
-		throw new UnsupportedOperationException();
+		fRjs.uploadFile(in, length, fileName, options, monitor);
 	}
 	
 	public FunctionCall createFunctionCall(final String name) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public RGraphicCreator createRGraphicCreator(int options) {
 		throw new UnsupportedOperationException();
 	}
 	

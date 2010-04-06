@@ -12,10 +12,8 @@
 package de.walware.statet.r.ui;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.swt.graphics.RGB;
 
-import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
+import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
 
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 import de.walware.statet.r.ui.text.rd.IRdTextTokens;
@@ -327,7 +325,7 @@ public class RUIPreferenceConstants {
 	 */
 	public static void initializeDefaultValues(final IPreferenceStore store) {
 		
-		PreferenceConverter.setDefault(store, R.TS_DEFAULT_COLOR, new RGB(0, 0, 0));
+		store.setDefault(R.TS_DEFAULT_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(R.TS_DEFAULT_BOLD, false);
 		store.setDefault(R.TS_DEFAULT_ITALIC, false);
 		store.setDefault(R.TS_DEFAULT_UNDERLINE, false);
@@ -342,7 +340,7 @@ public class RUIPreferenceConstants {
 		};
 		for (final String root : identifierSubs) {
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX, R.TS_DEFAULT_ROOT);
-			PreferenceConverter.setDefault(store, root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, new RGB(0, 0, 0));
+			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, "0,0,0"); //$NON-NLS-1$
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX, false);
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX, false);
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
@@ -354,43 +352,43 @@ public class RUIPreferenceConstants {
 		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM1_ITEMS, ""); //$NON-NLS-1$
 		store.setDefault(R.TS_IDENTIFIER_SUB_CUSTOM2_ITEMS, ""); //$NON-NLS-1$
 		
-		PreferenceConverter.setDefault(store, R.TS_UNDEFINED_COLOR, new RGB(223, 63, 127));
+		store.setDefault(R.TS_UNDEFINED_COLOR, "223,63,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_UNDEFINED_BOLD, true);
 		store.setDefault(R.TS_UNDEFINED_ITALIC, false);
 		store.setDefault(R.TS_UNDEFINED_UNDERLINE, false);
 		store.setDefault(R.TS_UNDEFINED_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_COMMENT_COLOR, new RGB(63, 127, 79));
+		store.setDefault(R.TS_COMMENT_COLOR, "63,127,79"); //$NON-NLS-1$
 		store.setDefault(R.TS_COMMENT_BOLD, false);
 		store.setDefault(R.TS_COMMENT_ITALIC, false);
 		store.setDefault(R.TS_COMMENT_UNDERLINE, false);
 		store.setDefault(R.TS_COMMENT_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_TASK_TAG_COLOR, new RGB(63, 127, 95));
+		store.setDefault(R.TS_TASK_TAG_COLOR, "63,127,95"); //$NON-NLS-1$
 		store.setDefault(R.TS_TASK_TAG_BOLD, true);
 		store.setDefault(R.TS_TASK_TAG_ITALIC, false);
 		store.setDefault(R.TS_TASK_TAG_UNDERLINE, false);
 		store.setDefault(R.TS_TASK_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_ROXYGEN_COLOR, new RGB(15, 127, 159));
+		store.setDefault(R.TS_ROXYGEN_COLOR, "15,127,159"); //$NON-NLS-1$
 		store.setDefault(R.TS_ROXYGEN_BOLD, false);
 		store.setDefault(R.TS_ROXYGEN_ITALIC, false);
 		store.setDefault(R.TS_ROXYGEN_UNDERLINE, false);
 		store.setDefault(R.TS_ROXYGEN_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_ROXYGEN_TAG_COLOR, new RGB(135, 159, 175));
+		store.setDefault(R.TS_ROXYGEN_TAG_COLOR, "135,159,175"); //$NON-NLS-1$
 		store.setDefault(R.TS_ROXYGEN_TAG_BOLD, true);
 		store.setDefault(R.TS_ROXYGEN_TAG_ITALIC, false);
 		store.setDefault(R.TS_ROXYGEN_TAG_UNDERLINE, false);
 		store.setDefault(R.TS_ROXYGEN_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_STRING_COLOR, new RGB(63, 63, 175));
+		store.setDefault(R.TS_STRING_COLOR, "63,63,175"); //$NON-NLS-1$
 		store.setDefault(R.TS_STRING_BOLD, false);
 		store.setDefault(R.TS_STRING_ITALIC, false);
 		store.setDefault(R.TS_STRING_UNDERLINE, false);
 		store.setDefault(R.TS_STRING_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_NUMBERS_COLOR, new RGB(0, 0, 127));
+		store.setDefault(R.TS_NUMBERS_COLOR, "0,0,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_NUMBERS_BOLD, false);
 		store.setDefault(R.TS_NUMBERS_ITALIC, false);
 		store.setDefault(R.TS_NUMBERS_UNDERLINE, false);
@@ -402,84 +400,84 @@ public class RUIPreferenceConstants {
 		};
 		for (final String root : numberSubs) {
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_USE_SUFFIX, R.TS_NUMBERS_ROOT);
-			PreferenceConverter.setDefault(store, root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, new RGB(0, 0, 127));
+			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_COLOR_SUFFIX, "0,0,127"); //$NON-NLS-1$
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_BOLD_SUFFIX, false);
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_ITALIC_SUFFIX, false);
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_UNDERLINE_SUFFIX, false);
 			store.setDefault(root + ITextPresentationConstants.TEXTSTYLE_STRIKETHROUGH_SUFFIX, false);
 		}
 		
-		PreferenceConverter.setDefault(store, R.TS_SPECIAL_CONSTANTS_COLOR, new RGB(127, 0, 127));
+		store.setDefault(R.TS_SPECIAL_CONSTANTS_COLOR, "127,0,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_SPECIAL_CONSTANTS_BOLD, false);
 		store.setDefault(R.TS_SPECIAL_CONSTANTS_ITALIC, false);
 		store.setDefault(R.TS_SPECIAL_CONSTANTS_UNDERLINE, false);
 		store.setDefault(R.TS_SPECIAL_CONSTANTS_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_LOGICAL_CONSTANTS_COLOR, new RGB(127, 0, 127));
+		store.setDefault(R.TS_LOGICAL_CONSTANTS_COLOR, "127,0,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_LOGICAL_CONSTANTS_BOLD, false);
 		store.setDefault(R.TS_LOGICAL_CONSTANTS_ITALIC, false);
 		store.setDefault(R.TS_LOGICAL_CONSTANTS_UNDERLINE, false);
 		store.setDefault(R.TS_LOGICAL_CONSTANTS_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_FLOWCONTROL_COLOR, new RGB(127, 0, 95));
+		store.setDefault(R.TS_FLOWCONTROL_COLOR, "127,0,95"); //$NON-NLS-1$
 		store.setDefault(R.TS_FLOWCONTROL_BOLD, true);
 		store.setDefault(R.TS_FLOWCONTROL_ITALIC, false);
 		store.setDefault(R.TS_FLOWCONTROL_UNDERLINE, false);
 		store.setDefault(R.TS_FLOWCONTROL_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_SEPARATORS_COLOR, new RGB(0, 0, 0));
+		store.setDefault(R.TS_SEPARATORS_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(R.TS_SEPARATORS_BOLD, false);
 		store.setDefault(R.TS_SEPARATORS_ITALIC, false);
 		store.setDefault(R.TS_SEPARATORS_UNDERLINE, false);
 		store.setDefault(R.TS_SEPARATORS_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_ASSIGNMENT_COLOR, new RGB(0, 0, 0));
+		store.setDefault(R.TS_ASSIGNMENT_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(R.TS_ASSIGNMENT_BOLD, true);
 		store.setDefault(R.TS_ASSIGNMENT_ITALIC, false);
 		store.setDefault(R.TS_ASSIGNMENT_UNDERLINE, false);
 		store.setDefault(R.TS_ASSIGNMENT_STRIKETHROUGH, false);
 		
 		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_USE, ""); //$NON-NLS-1$
-		PreferenceConverter.setDefault(store, R.TS_ASSIGNMENT_SUB_EQUALSIGN_COLOR, new RGB(0, 0, 0));
+		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_BOLD, false);
 		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_ITALIC, false);
 		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_UNDERLINE, false);
 		store.setDefault(R.TS_ASSIGNMENT_SUB_EQUALSIGN_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_OTHER_OPERATORS_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OTHER_OPERATORS_COLOR, "159,63,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_OTHER_OPERATORS_BOLD, false);
 		store.setDefault(R.TS_OTHER_OPERATORS_ITALIC, false);
 		store.setDefault(R.TS_OTHER_OPERATORS_UNDERLINE, false);
 		store.setDefault(R.TS_OTHER_OPERATORS_STRIKETHROUGH, false);
 		
 		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_USE, R.TS_OTHER_OPERATORS_ROOT);
-		PreferenceConverter.setDefault(store, R.TS_OPERATORS_SUB_LOGICAL_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_COLOR, "159,63,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_BOLD, false);
 		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_ITALIC, false);
 		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_UNDERLINE, false);
 		store.setDefault(R.TS_OPERATORS_SUB_LOGICAL_STRIKETHROUGH, false);
 		
 		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_USE, R.TS_OTHER_OPERATORS_ROOT);
-		PreferenceConverter.setDefault(store, R.TS_OPERATORS_SUB_RELATIONAL_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_COLOR, "159,63,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_BOLD, false);
 		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_ITALIC, false);
 		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_UNDERLINE, false);
 		store.setDefault(R.TS_OPERATORS_SUB_RELATIONAL_STRIKETHROUGH, false);
 		
 		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_USE, R.TS_OTHER_OPERATORS_ROOT);
-		PreferenceConverter.setDefault(store, R.TS_OPERATORS_SUB_USERDEFINED_COLOR, new RGB(159, 63, 127));
+		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_COLOR, "159,63,127"); //$NON-NLS-1$
 		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_BOLD, false);
 		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_ITALIC, false);
 		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_UNDERLINE, false);
 		store.setDefault(R.TS_OPERATORS_SUB_USERDEFINED_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_GROUPING_COLOR, new RGB(0, 0, 0));
+		store.setDefault(R.TS_GROUPING_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(R.TS_GROUPING_BOLD, false);
 		store.setDefault(R.TS_GROUPING_ITALIC, false);
 		store.setDefault(R.TS_GROUPING_UNDERLINE, false);
 		store.setDefault(R.TS_GROUPING_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, R.TS_INDEXING_COLOR, new RGB(63, 95, 95));
+		store.setDefault(R.TS_INDEXING_COLOR, "63,95,95"); //$NON-NLS-1$
 		store.setDefault(R.TS_INDEXING_BOLD, false);
 		store.setDefault(R.TS_INDEXING_ITALIC, false);
 		store.setDefault(R.TS_INDEXING_UNDERLINE, false);
@@ -487,61 +485,61 @@ public class RUIPreferenceConstants {
 		
 		
 		// RdEditorPreferences
-		PreferenceConverter.setDefault(store, Rd.TS_DEFAULT_COLOR, new RGB(0, 0, 0));
+		store.setDefault(Rd.TS_DEFAULT_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_DEFAULT_BOLD, false);
 		store.setDefault(Rd.TS_DEFAULT_ITALIC, true);
 		store.setDefault(Rd.TS_DEFAULT_UNDERLINE, false);
 		store.setDefault(Rd.TS_DEFAULT_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_VERBATIM_COLOR, new RGB(31, 31, 31));
+		store.setDefault(Rd.TS_VERBATIM_COLOR, "31,31,31"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_VERBATIM_BOLD, false);
 		store.setDefault(Rd.TS_VERBATIM_ITALIC, false);
 		store.setDefault(Rd.TS_VERBATIM_UNDERLINE, false);
 		store.setDefault(Rd.TS_VERBATIM_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_COMMENT_COLOR, new RGB(63, 127, 95));
+		store.setDefault(Rd.TS_COMMENT_COLOR, "63,127,95"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_COMMENT_BOLD, false);
 		store.setDefault(Rd.TS_COMMENT_ITALIC, false);
 		store.setDefault(Rd.TS_COMMENT_UNDERLINE, false);
 		store.setDefault(Rd.TS_COMMENT_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_TASK_TAG_COLOR, new RGB(63, 127, 95));
+		store.setDefault(Rd.TS_TASK_TAG_COLOR, "63,127,95"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_TASK_TAG_BOLD, true);
 		store.setDefault(Rd.TS_TASK_TAG_ITALIC, false);
 		store.setDefault(Rd.TS_TASK_TAG_UNDERLINE, false);
 		store.setDefault(Rd.TS_TASK_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_PLATFORM_SPECIF_COLOR, new RGB(95, 95, 255));
+		store.setDefault(Rd.TS_PLATFORM_SPECIF_COLOR, "95,95,255"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_PLATFORM_SPECIF_BOLD, false);
 		store.setDefault(Rd.TS_PLATFORM_SPECIF_ITALIC, false);
 		store.setDefault(Rd.TS_PLATFORM_SPECIF_UNDERLINE, false);
 		store.setDefault(Rd.TS_PLATFORM_SPECIF_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_SECTION_TAG_COLOR, new RGB(127, 0, 95));
+		store.setDefault(Rd.TS_SECTION_TAG_COLOR, "127,0,95"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_SECTION_TAG_BOLD, true);
 		store.setDefault(Rd.TS_SECTION_TAG_ITALIC, false);
 		store.setDefault(Rd.TS_SECTION_TAG_UNDERLINE, false);
 		store.setDefault(Rd.TS_SECTION_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_SUBSECTION_TAG_COLOR, new RGB(127, 0, 95));
+		store.setDefault(Rd.TS_SUBSECTION_TAG_COLOR, "127,0,95"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_SUBSECTION_TAG_BOLD, false);
 		store.setDefault(Rd.TS_SUBSECTION_TAG_ITALIC, false);
 		store.setDefault(Rd.TS_SUBSECTION_TAG_UNDERLINE, false);
 		store.setDefault(Rd.TS_SUBSECTION_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_OTHER_TAG_COLOR, new RGB(63, 0, 127));
+		store.setDefault(Rd.TS_OTHER_TAG_COLOR, "63,0,127"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_OTHER_TAG_BOLD, false);
 		store.setDefault(Rd.TS_OTHER_TAG_ITALIC, true);
 		store.setDefault(Rd.TS_OTHER_TAG_UNDERLINE, false);
 		store.setDefault(Rd.TS_OTHER_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_UNLISTED_TAG_COLOR, new RGB(95, 95, 127));
+		store.setDefault(Rd.TS_UNLISTED_TAG_COLOR, "95,95,127"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_UNLISTED_TAG_BOLD, false);
 		store.setDefault(Rd.TS_UNLISTED_TAG_ITALIC, true);
 		store.setDefault(Rd.TS_UNLISTED_TAG_UNDERLINE, false);
 		store.setDefault(Rd.TS_UNLISTED_TAG_STRIKETHROUGH, false);
 		
-		PreferenceConverter.setDefault(store, Rd.TS_BRACKETS_COLOR, new RGB(0, 0, 0));
+		store.setDefault(Rd.TS_BRACKETS_COLOR, "0,0,0"); //$NON-NLS-1$
 		store.setDefault(Rd.TS_BRACKETS_BOLD, false);
 		store.setDefault(Rd.TS_BRACKETS_ITALIC, false);
 		store.setDefault(Rd.TS_BRACKETS_UNDERLINE, false);

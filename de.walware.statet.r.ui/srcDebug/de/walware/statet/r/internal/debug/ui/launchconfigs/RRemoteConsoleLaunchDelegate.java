@@ -54,11 +54,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 
-import de.walware.ecommons.FileValidator;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
+import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -82,6 +82,7 @@ import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.LoginHandler;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
+import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 
 import de.walware.statet.r.debug.RDebug;
@@ -477,9 +478,9 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 					+ ((startup) ? Arrays.toString(args) : "rjs-reconnect")); //$NON-NLS-1$
 			
 			final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
-			rjsProperties.put("rj.data.lists.structs.max_length", //$NON-NLS-1$
+			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_LISTS_MAX_LENGTH_PROPERTY_ID,
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
-			rjsProperties.put("rj.data.envs.structs.max_length", //$NON-NLS-1$
+			rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 			rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
 			final RjsController controller = new RjsController(process, rmiAddress, loginData,

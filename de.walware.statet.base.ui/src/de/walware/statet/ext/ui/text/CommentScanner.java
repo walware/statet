@@ -23,10 +23,10 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.WordRule;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.ui.text.presentation.AbstractRuleBasedScanner;
-import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.util.ColorManager;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
+import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 

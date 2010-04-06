@@ -25,12 +25,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
+import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.preferences.SettingsUpdater;
-import de.walware.ecommons.ui.text.Partitioner;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
-import de.walware.ecommons.ui.text.sourceediting.ViewerSourceEditorAdapter;
+import de.walware.ecommons.text.Partitioner;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -111,7 +111,7 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 	
 	@Override
 	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
-		final de.walware.ecommons.ui.workbench.EditTemplateDialog dialog = new de.walware.ecommons.ui.workbench.EditTemplateDialog(
+		final de.walware.ecommons.ltk.ui.templates.EditTemplateDialog dialog = new de.walware.ecommons.ltk.ui.templates.EditTemplateDialog(
 				getShell(), template, edit, isNameModifiable, 
 				fDialogViewerConfigurator, fDialogTemplateProcessor, getContextTypeRegistry()) {
 			

@@ -35,8 +35,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.ui.preferences.SettingsUpdater;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.preferences.ui.SettingsUpdater;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.RCore;

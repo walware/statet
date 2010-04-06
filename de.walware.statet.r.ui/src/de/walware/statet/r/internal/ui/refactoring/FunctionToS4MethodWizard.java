@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.ltk.ui.refactoring.RefactoringBasedStatus;
-import de.walware.ecommons.ui.dialogs.ButtonGroup;
+import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.CheckTableComposite;

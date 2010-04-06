@@ -12,20 +12,18 @@
 package de.walware.statet.r.internal.ui;
 
 import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
+import de.walware.ecommons.ltk.AbstractEditorSourceUnitFactory;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.WorkingContext;
+import de.walware.ecommons.ltk.ISourceUnitStateListener;
 
-import de.walware.statet.r.core.model.AbstractRUnitFactory;
 import de.walware.statet.r.core.model.IRSourceUnit;
 
 
 /**
  * R source unit factory for editor context
  */
-public final class REditorWorkingCopyFactory extends AbstractRUnitFactory {
+public final class REditorWorkingCopyFactory extends AbstractEditorSourceUnitFactory {
 	
 	
 	public REditorWorkingCopyFactory() {
@@ -33,20 +31,13 @@ public final class REditorWorkingCopyFactory extends AbstractRUnitFactory {
 	
 	
 	@Override
-	protected ISourceUnit createNew(final IFile file, final WorkingContext context) {
-		return null;
+	protected ISourceUnit createSourceUnit(final String id, final ISourceUnit su, final ISourceUnitStateListener callback) {
+		return new REditorWorkingCopy((IRSourceUnit) su, callback);
 	}
 	
 	@Override
-	protected ISourceUnit createNew(final ISourceUnit unit, final WorkingContext context) {
-		assert(context == ECommonsLTK.EDITOR_CONTEXT);
-		return new REditorWorkingCopy((IRSourceUnit) unit);
-	}
-	
-	@Override
-	protected ISourceUnit createNew(final String id, final IFileStore store, final WorkingContext context) {
-		assert(context == ECommonsLTK.EDITOR_CONTEXT);
-		return new REditorUriSourceUnit(id, store);
+	protected ISourceUnit createSourceUnit(final String id, final IFileStore file, final ISourceUnitStateListener callback) {
+		return new REditorUriSourceUnit(id, file, callback);
 	}
 	
 }

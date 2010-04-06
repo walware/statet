@@ -21,7 +21,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
-import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.ext.ui.text.CommentScanner;
 

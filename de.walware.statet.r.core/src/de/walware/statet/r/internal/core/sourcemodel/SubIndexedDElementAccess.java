@@ -37,10 +37,12 @@ final class SubIndexedDElementAccess extends SubAbstractElementAccess {
 		return null;
 	}
 	
+	@Override
 	public final RAstNode getNode() {
 		return fNode;
 	}
 	
+	@Override
 	public final RAstNode getNameNode() {
 		return null;
 	}

@@ -39,9 +39,8 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import de.walware.ecommons.debug.internal.ui.Messages;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.StatetImages;
 
 
 /**
@@ -80,8 +79,8 @@ public class HelpRequestor implements IRunnableWithProgress {
 				@Override
 				public void fill(final ToolBar parent, final int index) {
 					final ToolItem item = new ToolItem(parent, SWT.PUSH);
-					item.setImage(StatetImages.getImage(StatetImages.LOCTOOL_CLOSETRAY));
-					item.setHotImage(StatetImages.getImage(StatetImages.LOCTOOL_CLOSETRAY_H));
+					item.setImage(SharedUIResources.getImages().get(SharedUIResources.LOCTOOL_CLOSETRAY_IMAGE_ID));
+					item.setHotImage(SharedUIResources.getImages().get(SharedUIResources.LOCTOOL_CLOSETRAY_H_IMAGE_ID));
 					item.setToolTipText(Messages.HelpRequestor_Close_tooltip);
 					item.addSelectionListener(new SelectionAdapter() {
 						@Override

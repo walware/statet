@@ -12,8 +12,7 @@
 package de.walware.statet.r.ui.editors;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-
-import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -30,7 +29,7 @@ public class RTemplateSourceViewerConfigurator extends RSourceViewerConfigurator
 				processor,
 				this,
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
-				StatetUIServices.getSharedColorManager()));
+				SharedUIResources.getColors()));
 	}
 	
 }

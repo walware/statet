@@ -111,6 +111,8 @@ public class SourceAnalyzer extends RAstVisitor {
 	private static final int[] PROTOTYPE_REQUEST = {
 		REG_CLASS_PROTOTYPE };
 	
+	private static final Integer ONE = 1;
+	
 	
 	private static final Comparator<ISourceStructElement> SOURCEELEMENT_SORTER = new Comparator<ISourceStructElement>() {
 		public int compare(final ISourceStructElement e1, final ISourceStructElement e2) {
@@ -491,7 +493,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	}
 	
 	
-	public IRModelInfo update(final IRSourceUnit u, final RAstInfo ast) {
+	public IRModelInfo createModel(final IRSourceUnit u, final RAstInfo ast) {
 		fAnonymCount = 0;
 		fSourceUnit = u;
 		
@@ -606,8 +608,14 @@ public class SourceAnalyzer extends RAstVisitor {
 					names = commonNames;
 					break;
 				}
-				final Integer count = names.get(name);
-				names.put(name, (element.fOccurrenceCount = (count != null) ? count.intValue()+1 : 0) );
+				final Integer occ = names.get(name);
+				if (occ == null) {
+					names.put(name, ONE);
+				}
+				else {
+					names.put(name, Integer.valueOf(
+							(element.fOccurrenceCount = occ + 1) ));
+				}
 			}
 			for (final ElementAccess access : seb.toCheck) {
 				if (seb.envir == access.getFrame()) {

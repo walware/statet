@@ -18,10 +18,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
+import de.walware.ecommons.ui.actions.WindowContributionsProvider;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
-import de.walware.ecommons.ui.util.WindowContributionsProvider;
-
-import de.walware.statet.base.ui.StatetUIServices;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.internal.ui.actions.NicoWindowContributions;
@@ -106,15 +104,17 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	
 	
 	@Override
-	protected ImageRegistry createImageRegistry() {
-		return StatetUIServices.getSharedImageRegistry();
-	}
-	
-	@Override
 	protected void initializeImageRegistry(final ImageRegistry reg) {
 		final ImageRegistryUtil util = new ImageRegistryUtil(this);
-		util.register(NicoUI.IMG_LOCTOOL_CANCEL, ImageRegistryUtil.T_LOCTOOL, "cancel.png"); //$NON-NLS-1$
-		util.register(NicoUI.IMG_LOCTOOLD_CANCEL, ImageRegistryUtil.T_LOCTOOL_D, "cancel.png"); //$NON-NLS-1$
+		
+		util.register(NicoUI.LOCTOOL_CANCEL_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL, "cancel.png"); //$NON-NLS-1$
+		util.register(NicoUI.LOCTOOLD_CANCEL_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL_D, "cancel.png"); //$NON-NLS-1$
+		util.register(NicoUI.LOCTOOL_PAUSE_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL, "pause.png"); //$NON-NLS-1$
+		util.register(NicoUI.LOCTOOLD_PAUSE_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL_D, "pause.png"); //$NON-NLS-1$
+		
+		util.register(NicoUI.OBJ_TASK_CONSOLECOMMAND_IMAGE_ID, ImageRegistryUtil.T_OBJ, "task-consolecommand.png"); //$NON-NLS-1$
+		util.register(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID, ImageRegistryUtil.T_OBJ, "task-dummy.png"); //$NON-NLS-1$
+		util.register(NicoUI.OBJ_CONSOLECOMMAND_IMAGE_ID, ImageRegistryUtil.T_OBJ, "consolecommand.png"); //$NON-NLS-1$
 	}
 	
 	public ToolRegistry getToolRegistry() {

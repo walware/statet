@@ -20,12 +20,7 @@ import org.eclipse.jsch.core.IJSchService;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import de.walware.ecommons.ECommons;
 import de.walware.ecommons.IDisposable;
-import de.walware.ecommons.ECommons.IAppEnvironment;
-import de.walware.ecommons.ltk.IExtContentTypeManager;
-import de.walware.ecommons.ltk.internal.ExtContentTypeServices;
-import de.walware.ecommons.preferences.SettingsChangeNotifier;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -33,7 +28,7 @@ import de.walware.statet.base.core.StatetCore;
 /**
  * The activator class controls the plug-in life cycle
  */
-public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
+public final class BaseCorePlugin extends Plugin {
 	
 	
 	/** The shared instance. */
@@ -49,14 +44,13 @@ public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 	}
 	
 	public static void logError(final int code, final String message, final Throwable e) {
-		getDefault().log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e));
+		getDefault().getLog().log(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, code, message, e));
 	}
 	
 	
-	private final CopyOnWriteArraySet<IDisposable> fStopListeners = new CopyOnWriteArraySet<IDisposable>();
+	private boolean fStarted;
 	
-	private SettingsChangeNotifier fSettingsNotifier;
-	private ExtContentTypeServices fContentTypeServices;
+	private final CopyOnWriteArraySet<IDisposable> fStopListeners = new CopyOnWriteArraySet<IDisposable>();
 	
 	private ServiceTracker fSshTracker;
 	private SshSessionManager fSshSessions;
@@ -72,18 +66,23 @@ public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 	
 	@Override
 	public void start(final BundleContext context) throws Exception {
-		ECommons.init(StatetCore.PLUGIN_ID, this);
 		super.start(context);
 		
-		fSettingsNotifier = new SettingsChangeNotifier();
-		fContentTypeServices = new ExtContentTypeServices();
 		fSshTracker = new ServiceTracker(context, "org.eclipse.jsch.core.IJSchService", null); //$NON-NLS-1$
 		fSshTracker.open();
+		
+		fStarted = true;
 	}
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
+			synchronized (this) {
+				fStarted = false;
+				
+				fSshSessions = null;
+			}
+			
 			try {
 				for (final IDisposable listener : fStopListeners) {
 					listener.dispose();
@@ -93,17 +92,6 @@ public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 				fStopListeners.clear();
 			}
 			
-			if (fSettingsNotifier != null) {
-				fSettingsNotifier.dispose();
-			}
-			if (fContentTypeServices != null) {
-				fContentTypeServices.dispose();
-				fContentTypeServices = null;
-			}
-			if (fSshSessions != null) {
-				fSshSessions.dispose();
-				fSshSessions = null;
-			}
 			if (fSshTracker != null) {
 				fSshTracker.close();
 				fSshTracker = null;
@@ -116,10 +104,6 @@ public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 	}
 	
 	
-	public void log(final IStatus status) {
-		getLog().log(status);
-	}
-	
 	public void addStoppingListener(final IDisposable listener) {
 		fStopListeners.add(listener);
 	}
@@ -128,13 +112,6 @@ public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 		fStopListeners.remove(listener);
 	}
 	
-	public SettingsChangeNotifier getSettingsChangeNotifier() {
-		return fSettingsNotifier;
-	}
-	
-	public IExtContentTypeManager getContentTypeServices() {
-		return fContentTypeServices;
-	}
 	
 	public IJSchService getJSchService() {
 		// E-3.5 IJSchService declarative?
@@ -144,7 +121,11 @@ public final class BaseCorePlugin extends Plugin implements IAppEnvironment {
 	
 	public synchronized SshSessionManager getSshSessionManager() {
 		if (fSshSessions == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fSshSessions = new SshSessionManager();
+			addStoppingListener(fSshSessions);
 		}
 		return fSshSessions;
 	}

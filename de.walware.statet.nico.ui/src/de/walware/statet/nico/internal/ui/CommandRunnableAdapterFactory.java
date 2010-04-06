@@ -12,12 +12,11 @@
 package de.walware.statet.nico.internal.ui;
 
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.jface.resource.ImageDescriptor;
-
-import de.walware.statet.base.ui.StatetImages;
+import org.eclipse.swt.graphics.Image;
 
 import de.walware.statet.nico.core.runtime.ToolController;
-import de.walware.statet.nico.ui.IToolRunnableAdapter;
+import de.walware.statet.nico.ui.IToolRunnableDecorator;
+import de.walware.statet.nico.ui.NicoUI;
 
 
 /**
@@ -26,16 +25,16 @@ import de.walware.statet.nico.ui.IToolRunnableAdapter;
 public class CommandRunnableAdapterFactory implements IAdapterFactory {
 	
 	
-	private static final Class[] ADAPTERS = new Class[] { IToolRunnableAdapter.class };
+	private static final Class[] ADAPTERS = new Class[] { IToolRunnableDecorator.class };
 	
 	
-	private static class Adapter implements IToolRunnableAdapter {
+	private static class Adapter implements IToolRunnableDecorator {
 		
 		private Adapter() {
 		}
 		
-		public ImageDescriptor getImageDescriptor() {
-			return StatetImages.getDescriptor(StatetImages.OBJ_TASK_CONSOLECOMMAND);
+		public Image getImage() {
+			return NicoUIPlugin.getDefault().getImageRegistry().get(NicoUI.OBJ_TASK_CONSOLECOMMAND_IMAGE_ID);
 		}
 		
 	}
@@ -45,7 +44,7 @@ public class CommandRunnableAdapterFactory implements IAdapterFactory {
 	
 	
 	public Object getAdapter(final Object adaptableObject, final Class adapterType) {
-		if (IToolRunnableAdapter.class.equals(adapterType)) {
+		if (IToolRunnableDecorator.class.equals(adapterType)) {
 			return fAdapter;
 		}
 		return null;

@@ -23,12 +23,13 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jsch.core.IJSchLocation;
 import org.eclipse.jsch.core.IJSchService;
 
-import de.walware.ecommons.net.ISshSessionService;
+import de.walware.ecommons.ECommons;
+import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.debug.core.ISshSessionService;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
-import de.walware.statet.base.core.StatetCore;
 
 
 /**
@@ -36,7 +37,7 @@ import de.walware.statet.base.core.StatetCore;
  * 
  * Don't forget to dispose to close the open connections.
  */
-public class SshSessionManager implements ISshSessionService {
+public class SshSessionManager implements ISshSessionService, IDisposable {
 	
 	
 	private static final int SSH_TIMEOUT = 60000;
@@ -67,7 +68,7 @@ public class SshSessionManager implements ISshSessionService {
 			return session;
 		}
 		catch (final JSchException e) {
-			throw new CoreException(new Status(IStatus.ERROR, StatetCore.PLUGIN_ID, "Failed to create SSH connection", e));
+			throw new CoreException(new Status(IStatus.ERROR, ECommons.PLUGIN_ID, "Failed to create SSH connection", e));
 		}
 	}
 	

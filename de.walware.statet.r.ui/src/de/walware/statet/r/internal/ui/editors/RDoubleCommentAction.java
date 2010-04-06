@@ -22,9 +22,9 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.IUpdate;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 

@@ -18,8 +18,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 
-import de.walware.ecommons.ui.text.presentation.AbstractRuleBasedScanner;
-import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
+import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 

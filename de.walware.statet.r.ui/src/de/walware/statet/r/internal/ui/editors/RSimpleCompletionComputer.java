@@ -17,8 +17,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.swt.graphics.Point;
 
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.SimpleCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.SimpleCompletionProposal;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.ui.RUI;

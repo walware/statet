@@ -55,10 +55,12 @@ public final class RFunction2 extends CombinedElement
 	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
 		final int options = in.readInt();
 		final String headerSource = in.readUTF();
-		final RScanner scanner = new RScanner(new StringParseInput(headerSource), null);
-		final FDef fDef = scanner.scanFDef();
-		if (fDef != null) {
-			fArgs = SourceAnalyzer.createMethodArgDef(fDef, null);
+		if (headerSource.length() > 0) {
+			final RScanner scanner = new RScanner(new StringParseInput(headerSource), null);
+			final FDef fDef = scanner.scanFDef();
+			if (fDef != null) {
+				fArgs = SourceAnalyzer.createMethodArgDef(fDef, null);
+			}
 		}
 	}
 	

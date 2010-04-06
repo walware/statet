@@ -35,11 +35,10 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.link.EditorLinkedModeUI;
 
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.DefaultBrowserInformationInput;
-
-import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
+import de.walware.ecommons.ltk.ui.LTKUI;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.text.ui.DefaultBrowserInformationInput;
 
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAst;
@@ -190,7 +189,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 			final LinkedModeModel model = new LinkedModeModel();
 			model.addGroup(group);
 			model.forceInstall();
-			final StatextEditor1 editor = (StatextEditor1) fContext.getEditor();
+			final SourceEditor1 editor = (SourceEditor1) fContext.getEditor();
 			if (editor != null) {
 				editor.getTextEditToolSynchronizer().install(model);
 			}
@@ -248,7 +247,7 @@ public class LinkedNamesAssistProposal implements ICompletionProposal, ICompleti
 	 * {@inheritDoc}
 	 */
 	public Image getImage() {
-		return StatetImages.getImage(StatetImages.CONTENTASSIST_CORRECTION_LINKEDRENAME);
+		return LTKUI.getImages().get(LTKUI.OBJ_TEXT_LINKEDRENAME);
 	}
 	
 	/**

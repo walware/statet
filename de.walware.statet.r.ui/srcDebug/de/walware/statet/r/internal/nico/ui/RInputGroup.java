@@ -18,8 +18,8 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -30,7 +30,6 @@ import de.walware.statet.r.nico.ContinuePrompt;
 import de.walware.statet.r.nico.IRBasicAdapter;
 import de.walware.statet.r.nico.ui.RConsolePage;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
 
 
@@ -76,7 +75,7 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 	public void configureServices(final IHandlerService commands, final IContextService keys) {
 		super.configureServices(commands, keys);
 		
-		keys.activateContext(RSourceViewerConfiguration.R_EDITING_CONTEXT); 
+		keys.activateContext("de.walware.statet.r.contexts.REditor"); //$NON-NLS-1$
 		
 		IAction action;
 		action = new InsertAssignmentAction(this);

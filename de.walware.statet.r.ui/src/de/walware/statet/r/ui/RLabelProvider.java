@@ -11,6 +11,10 @@
 
 package de.walware.statet.r.ui;
 
+import static de.walware.ecommons.ltk.IModelElement.MASK_C1;
+import static de.walware.ecommons.ltk.IModelElement.MASK_C2;
+import static de.walware.ecommons.ltk.IModelElement.SHIFT_C1;
+
 import java.util.List;
 
 import org.apache.commons.collections.primitives.IntList;
@@ -95,28 +99,27 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	
 	
 	public Image getImage(final IModelElement element) {
-		final IModelElement modelElement = element;
-		switch (modelElement.getElementType() & IModelElement.MASK_C1) {
+		switch ((element.getElementType() & MASK_C1) >> SHIFT_C1) {
 		
-		case IModelElement.C1_SOURCE:
+		case (IModelElement.C1_SOURCE >> SHIFT_C1):
 			return RUI.getImage(RUI.IMG_OBJ_R_SCRIPT);
 			
-		case IModelElement.C1_IMPORT:
+		case (IModelElement.C1_IMPORT >> SHIFT_C1):
 			return StatetImages.getImage(StatetImages.OBJ_IMPORT);
 			
-		case IModelElement.C1_METHOD:
-			switch (modelElement.getElementType() & IModelElement.MASK_C2) {
+		case (IModelElement.C1_METHOD >> SHIFT_C1):
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_GENERIC_FUNCTION:
 				return RUI.getImage(RUI.IMG_OBJ_GENERIC_FUNCTION);
 			case IRElement.R_S4METHOD:
 				return RUI.getImage(RUI.IMG_OBJ_METHOD);
 //				case IRLangElement.R_COMMON_FUNCTION:
 			default:
-				return RUI.getImage( ((modelElement.getElementType() & 0xf) != 0x1) ?
+				return RUI.getImage( ((element.getElementType() & 0xf) != 0x1) ?
 						RUI.IMG_OBJ_COMMON_FUNCTION : RUI.IMG_OBJ_COMMON_LOCAL_FUNCTION);
 			}
-		case IModelElement.C1_CLASS:
-			switch (modelElement.getElementType() & IModelElement.MASK_C2) {
+		case (IModelElement.C1_CLASS >> SHIFT_C1):
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_S4CLASS:
 				return StatetImages.getImage(StatetImages.OBJ_CLASS);
 			case IRElement.R_S4CLASS_EXTENSION:
@@ -125,16 +128,16 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 				return null;
 			}
 		
-		case IModelElement.C1_VARIABLE:
+		case (IModelElement.C1_VARIABLE >> SHIFT_C1):
 			if (element instanceof ICombinedRElement) {
 				return getImage((ICombinedRElement) element);
 			}
-			switch (modelElement.getElementType() & IModelElement.MASK_C2) {
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_S4SLOT:
 				return RUI.getImage(RUI.IMG_OBJ_SLOT);
 //				case IRLangElement.R_COMMON_VARIABLE:
 			default:
-				return RUI.getImage( ((modelElement.getElementType() & 0xf) != 0x1) ?
+				return RUI.getImage( ((element.getElementType() & 0xf) != 0x1) ?
 						RUI.IMG_OBJ_GENERAL_VARIABLE : RUI.IMG_OBJ_GENERAL_LOCAL_VARIABLE);
 			}
 		
@@ -188,29 +191,29 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		final String name = element.getElementName().getDisplayName();
 		
 		final StringBuilder text;
-		switch (element.getElementType() & IModelElement.MASK_C1) {
+		switch ((element.getElementType() & MASK_C1 >> SHIFT_C1)) {
 		
-		case IModelElement.C1_METHOD:
+		case (IModelElement.C1_METHOD >> SHIFT_C1):
 			text = (name != null) ? new StringBuilder(name) : new StringBuilder();
 			appendMethodDetail(text, (IRMethod) element);
 			return text.toString();
 		
-		case IModelElement.C1_CLASS:
-			switch (element.getElementType() & IModelElement.MASK_C2) {
+		case (IModelElement.C1_CLASS >> SHIFT_C1):
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_S4CLASS_EXTENSION:
 				text = (name != null) ? new StringBuilder(name) : new StringBuilder();
 				appendClassExtDetail(text, (IRClassExtension) element);
 				return text.toString();
 			}
-		
-		case IModelElement.C1_VARIABLE:
-			switch (element.getElementType() & IModelElement.MASK_C2) {
+			break;
+		case (IModelElement.C1_VARIABLE >> SHIFT_C1):
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_S4SLOT:
 				text = (name != null) ? new StringBuilder(name) : new StringBuilder();
 				appendSlotDetail(text, (IRSlot) element);
 				return text.toString();
 			}
-		
+			break;
 		}
 		return name;
 	}
@@ -240,17 +243,24 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 //	}
 	
 	public StyledString getStyledText(final IModelElement element) {
-		return getStyledText(element, element.getElementName(), null);
+		if (element instanceof IRElement) {
+			final IRElement rElement = (IRElement) element;
+			return getStyledText(rElement, rElement.getElementName(), null);
+		}
+		else {
+			final String name = element.getElementName().getDisplayName();
+			return (name != null) ? new StyledString(name, fDefaultStyler) : new StyledString();
+		}
 	}
 	
-	public StyledString getStyledText(final IModelElement element, final IElementName elementName, final RList elementAttr) {
-		final IElementName elementName0 = (elementName != null) ? elementName : element.getElementName();
+	public StyledString getStyledText(final IRElement element, final RElementName elementName, final RList elementAttr) {
+		final RElementName elementName0 = (elementName != null) ? elementName : element.getElementName();
 		final StyledString text = new StyledString();
 		final String name;
 		
-		switch (element.getElementType() & IModelElement.MASK_C1) {
+		switch ((element.getElementType() & MASK_C1) >> SHIFT_C1) {
 		
-		case IModelElement.C1_METHOD:
+		case (IModelElement.C1_METHOD >> SHIFT_C1):
 			if (fStyle != 0 && elementName0.getNextSegment() == null) {
 				final String segmentName = elementName0.getSegmentName();
 				int length;
@@ -269,18 +279,18 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			appendMethodDetail(text, (IRMethod) element);
 			break;
 		
-		case IModelElement.C1_CLASS:
+		case (IModelElement.C1_CLASS >> SHIFT_C1):
 			name = elementName0.getDisplayName();
 			if (name != null) {
 				text.append(name, fDefaultStyler);
 			}
-			switch (element.getElementType() & IModelElement.MASK_C2) {
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_S4CLASS_EXTENSION:
 				appendClassExtDetail(text, (IRClassExtension) element);
 			}
 			break;
 		
-		case IModelElement.C1_VARIABLE:
+		case (IModelElement.C1_VARIABLE >> SHIFT_C1):
 			if (element instanceof ICombinedRElement) {
 				if (elementName == null && ((ICombinedRElement) element).getRObjectType() == RObject.TYPE_ENV) {
 					text.append(elementName0.getSegmentName(), fDefaultStyler);
@@ -298,7 +308,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			if (name != null) {
 				text.append(name, fDefaultStyler);
 			}
-			switch (element.getElementType() & IModelElement.MASK_C2) {
+			switch (element.getElementType() & MASK_C2) {
 			case IRElement.R_S4SLOT:
 				appendSlotDetail(text, (IRSlot) element);
 			}
@@ -314,10 +324,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 		
 		if ((fStyle & NAMESPACE) != 0) {
-			IElementName namespace = null;
-			if (elementName0 != null) {
-				namespace = elementName0.getNamespace();
-			}
+			IElementName namespace = elementName0.getNamespace();
 			if (namespace == null) {
 				final IModelElement parent = element.getModelParent();
 				if (parent != null) {
@@ -433,11 +440,14 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		final Object cellElement = cell.getElement();
 		if (cellElement instanceof IModelElement) {
 			update(cell, (IModelElement) cellElement);
+			super.update(cell);
 		}
 		else {
-			updateUnknownElement(cell);
+			cell.setImage(null);
+			cell.setText(cellElement.toString());
+			cell.setStyleRanges(null);
+			super.update(cell);
 		}
-		super.update(cell);
 	}
 	
 	public void update(final ViewerCell cell, final IModelElement element) {
@@ -450,7 +460,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 				final RObject realObject = ((RReference) element).getResolvedRObject();
 				if (realObject instanceof ICombinedRElement) {
 					image = getImage((ICombinedRElement) realObject);
-					styledText = getStyledText((ICombinedRElement) realObject, element.getElementName(), null);
+					styledText = getStyledText((ICombinedRElement) realObject, combined.getElementName(), null);
 				}
 			}
 		}
@@ -461,7 +471,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		cell.setImage(image);
 		
 		if (styledText == null) {
-			styledText = getStyledText(element, null, null);
+			styledText = getStyledText(element);
 		}
 		if (styledText != null) {
 			cell.setText(styledText.getString());
@@ -473,38 +483,32 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 	}
 	
-	protected void updateUnknownElement(final ViewerCell cell) {
-		cell.setImage(null);
-		cell.setText(cell.getElement().toString());
-		cell.setStyleRanges(null);
-	}
-	
-	
 	@Override
 	public String getToolTipText(final Object element) {
 		final StringBuilder text;
 		
 		if (element instanceof IModelElement) {
 			final IModelElement modelElement = (IModelElement) element;
-			switch (modelElement.getElementType() & IModelElement.MASK_C1) {
+			switch ((modelElement.getElementType() & MASK_C1) >> SHIFT_C1) {
 			
-			case IModelElement.C1_METHOD: {
+			case (IModelElement.C1_METHOD >> SHIFT_C1): {
 				text = new StringBuilder();
 				appendMethodMLText(text, (IRMethod) modelElement);
 				return text.toString(); }
 			
-			case IModelElement.C1_CLASS:
-				switch (modelElement.getElementType() & IModelElement.MASK_C2) {
+			case (IModelElement.C1_CLASS >> SHIFT_C1):
+				switch (modelElement.getElementType() & MASK_C2) {
 				case IRElement.R_S4CLASS:
 					text = new StringBuilder();
 					appendClassMLText(text, (IRClass) modelElement);
-					return text.toString(); }
-				case IRElement.R_S4CLASS_EXTENSION: {
+					return text.toString();
+				case IRElement.R_S4CLASS_EXTENSION:
 					text = new StringBuilder();
 					appendClassExtMLText(text, (IRClassExtension) modelElement);
-					return text.toString(); }
+					return text.toString();
 				default:
 					return null;
+				}
 			}
 		}
 		return null;

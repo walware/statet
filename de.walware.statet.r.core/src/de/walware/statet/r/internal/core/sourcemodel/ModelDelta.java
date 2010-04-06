@@ -38,9 +38,9 @@ public class ModelDelta implements IModelElementDelta {
 		fLevel = IModelManager.MODEL_FILE;
 		fElement = element;
 		fOldInfo = oldInfo;
-		fOldAst = (RAstInfo) ((oldInfo != null) ? oldInfo.getAst() : null);
+		fOldAst = ((oldInfo != null) ? oldInfo.getAst() : null);
 		fNewInfo = newInfo;
-		fNewAst = (RAstInfo) ((newInfo != null) ? newInfo.getAst() : null);
+		fNewAst = ((newInfo != null) ? newInfo.getAst() : null);
 	}
 	
 	

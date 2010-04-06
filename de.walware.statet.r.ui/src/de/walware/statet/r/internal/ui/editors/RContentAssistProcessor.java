@@ -15,12 +15,12 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistProcessor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.IPartitionConstraint;
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssist;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssistProcessor;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.nico.ui.console.InputDocument;
 

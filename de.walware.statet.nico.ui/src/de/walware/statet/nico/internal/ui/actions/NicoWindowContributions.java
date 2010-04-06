@@ -14,7 +14,7 @@ package de.walware.statet.nico.internal.ui.actions;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import de.walware.ecommons.ui.util.WindowContributionsProvider;
+import de.walware.ecommons.ui.actions.WindowContributionsProvider;
 
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.ui.NicoUI;

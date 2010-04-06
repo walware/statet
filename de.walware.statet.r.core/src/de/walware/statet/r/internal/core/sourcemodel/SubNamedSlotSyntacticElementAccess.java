@@ -36,10 +36,12 @@ final class SubNamedSlotSyntacticElementAccess extends SubAbstractElementAccess 
 		return fNode.getSubnameChild().getText();
 	}
 	
+	@Override
 	public final RAstNode getNode() {
 		return fNode;
 	}
 	
+	@Override
 	public final RAstNode getNameNode() {
 		return fNode.getSubnameChild();
 	}

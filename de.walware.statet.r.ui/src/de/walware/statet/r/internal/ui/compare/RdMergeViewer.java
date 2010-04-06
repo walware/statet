@@ -16,10 +16,9 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.workbench.CompareMergeTextViewer;
-
-import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.ecommons.ltk.ui.compare.CompareMergeTextViewer;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -45,7 +44,7 @@ public class RdMergeViewer extends CompareMergeTextViewer {
 		final RdSourceViewerConfigurator viewerConfigurator = new RdSourceViewerConfigurator(
 				RCore.getWorkbenchAccess());
 		viewerConfigurator.setConfiguration(new RdSourceViewerConfiguration(
-				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), StatetUIServices.getSharedColorManager()));
+				viewerConfigurator, RUIPlugin.getDefault().getEditorPreferenceStore(), SharedUIResources.getColors()));
 		return viewerConfigurator;
 	}
 	

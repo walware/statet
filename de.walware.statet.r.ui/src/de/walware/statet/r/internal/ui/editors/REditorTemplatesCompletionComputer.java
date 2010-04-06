@@ -21,9 +21,9 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.TemplatesCompletionComputer;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.TemplatesCompletionComputer;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.internal.ui.RUIPlugin;

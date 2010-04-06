@@ -26,6 +26,7 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -226,6 +227,27 @@ public class NicoUITools {
 	}
 	
 	/**
+	 * Computes and returns the image for a tool
+	 * (e.g. for console or in dialogs).
+	 * 
+	 * @return an image for this tool or <code>null</code>
+	 */
+	public static Image getImage(final ToolProcess process) {
+		final ILaunchConfiguration configuration = process.getLaunch().getLaunchConfiguration();
+		if (configuration != null) {
+			ILaunchConfigurationType type;
+			try {
+				type = configuration.getType();
+				return DebugUITools.getImage(type.getIdentifier());
+			}
+			catch (final CoreException e) {
+				NicoUIPlugin.logError(-1, "An error occurred when loading images", e); //$NON-NLS-1$
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Computes and returns the image descriptor for a tool
 	 * (e.g. for console or in dialogs).
 	 * 
@@ -251,21 +273,26 @@ public class NicoUITools {
 	 * 
 	 * @return an image descriptor for this runnable or <code>null</code>
 	 */
-	public static ImageDescriptor getImageDescriptor(final IToolRunnable runnable) {
-		final IToolRunnableAdapter adapter = getRunnableAdapter(runnable);
+	public static Image getImage(final IToolRunnable runnable) {
+		final IToolRunnableDecorator adapter = getRunnableDecorator(runnable);
 		if (adapter != null) {
-			return adapter.getImageDescriptor();
+			return adapter.getImage();
 		}
 		return null;
 	}
 	
 	
-	private static IToolRunnableAdapter getRunnableAdapter(final IToolRunnable runnable) {
-		if (!(runnable instanceof IAdaptable)) {
-			return null;
+	private static IToolRunnableDecorator getRunnableDecorator(final IToolRunnable runnable) {
+		if (runnable instanceof IToolRunnableDecorator) {
+			return (IToolRunnableDecorator) runnable;
 		}
-		return (IToolRunnableAdapter) ((IAdaptable) runnable)
-				.getAdapter(IToolRunnableAdapter.class);
+		if (runnable instanceof IAdaptable) {
+			return (IToolRunnableDecorator) ((IAdaptable) runnable)
+					.getAdapter(IToolRunnableDecorator.class);
+		}
+//		return (IToolRunnableDecorator) Platform.getAdapterManager()
+//					.getAdapter(runnable, IToolRunnableDecorator.class);
+		return null;
 	}
 	
 }

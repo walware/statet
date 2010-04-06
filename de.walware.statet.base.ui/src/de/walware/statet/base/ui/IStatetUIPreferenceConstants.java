@@ -11,6 +11,9 @@
 
 package de.walware.statet.base.ui;
 
+import de.walware.ecommons.text.ui.settings.AssistPreferences;
+import de.walware.ecommons.text.ui.settings.DecorationPreferences;
+
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
 
@@ -20,23 +23,12 @@ import de.walware.statet.base.internal.ui.StatetUIPlugin;
 public interface IStatetUIPreferenceConstants {
 	
 	
-	/**
-	 * A named preference that controls whether bracket matching highlighting is turned on or off.
-	 * <p>
-	 * Value is of type <code>Boolean</code>.
-	 */
-	public final static String EDITOR_MATCHING_BRACKETS = "editor.MatchingBrackets.enable"; //$NON-NLS-1$
-	
-	/**
-	 * A named preference that holds the color used to highlight matching brackets.
-	 * <p>
-	 * Value is of type <code>String</code>. A RGB color value encoded as a string 
-	 * using class <code>PreferenceConverter</code>
-	 */
-	public final static String EDITOR_MATCHING_BRACKETS_COLOR = "editor.MatchingBrackets.color"; //$NON-NLS-1$
+	public final static String CAT_EDITOR_OPTIONS_QUALIFIER = StatetUIPlugin.PLUGIN_ID + "/editors/options"; //$NON-NLS-1$
 	
 	
-	public final static String CAT_CODEASSIST_QUALIFIER = StatetUIPlugin.PLUGIN_ID + "/codeAssist"; //$NON-NLS-1$
+	public final static DecorationPreferences EDITING_DECO_PREFERENCES = new DecorationPreferences(StatetUIPlugin.PLUGIN_ID);
+	
+	public final static AssistPreferences EDITING_ASSIST_PREFERENCES = new AssistPreferences(IStatetUIPreferenceConstants.CAT_EDITOR_OPTIONS_QUALIFIER, "statet/editors/assist.ui");
 	
 	
 //	/**

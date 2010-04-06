@@ -30,6 +30,7 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -67,16 +68,15 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
-import de.walware.ecommons.FastArrayCacheList;
+import de.walware.ecommons.FastArrayBufferList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.preferences.Preference.EnumSetPref;
-import de.walware.ecommons.ui.HandlerContributionItem;
-import de.walware.ecommons.ui.SearchContributionItem;
-import de.walware.ecommons.ui.SimpleContributionItem;
+import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.actions.HandlerContributionItem;
+import de.walware.ecommons.ui.actions.SearchContributionItem;
+import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -86,6 +86,7 @@ import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.internal.ui.Messages;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.internal.ui.actions.HistoryCopyAction;
 import de.walware.statet.nico.internal.ui.actions.HistoryDragAdapter;
 import de.walware.statet.nico.internal.ui.actions.HistorySubmitAction;
@@ -209,8 +210,8 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		private History fCurrentSource;
 		private boolean fIsScheduled;
-		private final FastArrayCacheList<Entry> fToAdd = new FastArrayCacheList<Entry>(Entry.class, 16);
-		private final FastArrayCacheList<Entry> fToRemove = new FastArrayCacheList<Entry>(Entry.class, 16);
+		private final FastArrayBufferList<Entry> fToAdd = new FastArrayBufferList<Entry>(Entry.class, 16);
+		private final FastArrayBufferList<Entry> fToRemove = new FastArrayBufferList<Entry>(Entry.class, 16);
 		private Entry[] fNewEntrys;
 		
 		public synchronized void disable() {
@@ -378,7 +379,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		FilterEmptyAction() {
 			setText(Messages.FilterEmptyAction_name);
 			setToolTipText(Messages.FilterEmptyAction_tooltip);
-			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER));
+			setImageDescriptor(SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_FILTER_IMAGE_ID));
 			
 			setChecked(fDoFilterEmpty);
 		}
@@ -605,7 +606,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	private void updateItem(final TableItem item) {
 		final Entry e = (Entry) item.getData();
-		item.setImage(StatetImages.getImage(StatetImages.OBJ_CONSOLECOMMAND));
+		item.setImage(NicoUIPlugin.getDefault().getImageRegistry().get(NicoUI.OBJ_CONSOLECOMMAND_IMAGE_ID));
 		item.setText(e.getCommand());
 	}
 	
@@ -707,7 +708,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		manager.add(fSaveHistoryAction);
 		
 		manager.add(new Separator());
-		final IMenuManager filterBySourceMenu = new MenuManager("Include Commands &From", StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER), null);
+		final IMenuManager filterBySourceMenu = new MenuManager("Include Commands &From", SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_FILTER_IMAGE_ID), null);
 //		final IMenuManager filterBySourceMenu = new MenuManager("Hide Commands &From", StatetImages.getDescriptor(StatetImages.LOCTOOL_FILTER), null);
 		final EnumSet<SubmitType> types = SubmitType.getDefaultSet();
 		for (final SubmitType submitType : types) {
@@ -743,13 +744,14 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		manager.add(fSearchTextItem);
 		
+		final ImageRegistry ecommonsImages = SharedUIResources.getImages();
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 				getSite(), "search.next", IWorkbenchActionDefinitionIds.FIND_NEXT, null, //$NON-NLS-1$
-				StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_DOWN_H),
+				ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_DOWN_IMAGE_ID), null, ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_DOWN_H_IMAGE_ID),
 				Messages.HistorySearch_NextMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchNextHandler));
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
 				getSite(), "search.previous", IWorkbenchActionDefinitionIds.FIND_PREVIOUS, null, //$NON-NLS-1$
-				StatetImages.getDescriptor(StatetImages.LOCTOOL_UP), null, StatetImages.getDescriptor(StatetImages.LOCTOOL_UP_H),
+				ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_UP_IMAGE_ID), null, ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_UP_H_IMAGE_ID),
 				Messages.HistorySearch_PreviousMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchPrevHandler));
 		
 		manager.add(new Separator());

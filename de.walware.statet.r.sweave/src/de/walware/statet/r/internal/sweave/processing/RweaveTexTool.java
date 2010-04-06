@@ -57,8 +57,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.variables.core.VariableText;
 import de.walware.ecommons.variables.core.VariableText.LocationProcessor;

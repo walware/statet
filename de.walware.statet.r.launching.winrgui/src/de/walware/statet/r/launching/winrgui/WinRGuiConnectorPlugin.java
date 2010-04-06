@@ -20,7 +20,7 @@ import org.osgi.framework.BundleContext;
 public class WinRGuiConnectorPlugin extends Plugin {
 	
 	
-	public static final String ID = "de.walware.statet.r.launching.winrgui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "de.walware.statet.r.launching.winrgui"; //$NON-NLS-1$
 	
 	
 	//The shared instance.

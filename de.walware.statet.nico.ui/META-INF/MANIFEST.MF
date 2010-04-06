@@ -8,7 +8,8 @@ Bundle-Activator: de.walware.statet.nico.internal.ui.NicoUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.eclipse.jface.text,
+Require-Bundle: org.eclipse.core.expressions,
+ org.eclipse.jface.text,
  org.eclipse.ui,
  org.eclipse.jface.databinding,
  org.eclipse.core.databinding.beans,
@@ -16,11 +17,18 @@ Require-Bundle: org.eclipse.jface.text,
  org.eclipse.ui.editors,
  org.eclipse.ui.console;visibility:=reexport,
  org.eclipse.debug.ui;visibility:=reexport,
+ de.walware.ecommons.uimisc;bundle-version="[0.9.0,0.10.0)",
  de.walware.statet.nico.core;bundle-version="[0.9.0,0.10.0)";visibility:=reexport,
- de.walware.statet.base.ui;bundle-version="[0.9.0,0.10.0)",
+ de.walware.ecommons.ltk.ui;bundle-version="[0.9.0,0.10.0)",
  org.eclipse.ui.ide;resolution:=optional,
  org.eclipse.equinox.security;bundle-version="1.0.0";resolution:=optional
-Import-Package: com.ibm.icu.text;version="4.0.1"
+Import-Package: com.ibm.icu.text;version="4.0.1",
+ de.walware.ecommons,
+ de.walware.ecommons.databinding,
+ de.walware.ecommons.debug.core,
+ de.walware.ecommons.io,
+ de.walware.ecommons.preferences,
+ de.walware.ecommons.variables.core
 Export-Package: de.walware.statet.nico.ui,
  de.walware.statet.nico.ui.actions,
  de.walware.statet.nico.ui.console,

@@ -11,10 +11,6 @@
 
 package de.walware.statet.r.internal.core.sourcemodel;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,10 +21,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IElementChangedListener;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.WorkingContext;
 
 import de.walware.statet.r.core.RProject;
@@ -48,18 +44,12 @@ public class RModelManager implements IRModelManager {
 	private static class ContextItem {
 		
 		final WorkingContext context;
-		final HashMap<String, SuItem<IRSourceUnit>> copies;
-		final ReferenceQueue<IRSourceUnit> copiesToClean;
-		final HashMap<String, SuItem<ISourceUnit>> worksheets;
-		final ReferenceQueue<ISourceUnit> worksheetsToClean;
+		final HashMap<String, ISourceUnit> worksheets;
 		final FastList<IElementChangedListener> modelListeners;
 		
 		public ContextItem(final WorkingContext context) {
 			this.context = context;
-			this.copies = new HashMap<String, SuItem<IRSourceUnit>>();
-			this.copiesToClean = new ReferenceQueue<IRSourceUnit>();
-			this.worksheets = new HashMap<String, SuItem<ISourceUnit>>();
-			this.worksheetsToClean = new ReferenceQueue<ISourceUnit>();
+			this.worksheets = new HashMap<String, ISourceUnit>();
 			this.modelListeners = new FastList<IElementChangedListener>(IElementChangedListener.class, FastList.IDENTITY);
 		}
 		
@@ -78,92 +68,10 @@ public class RModelManager implements IRModelManager {
 		
 	}
 	
-	private static final class SuItem<T> extends WeakReference<T> {
-		
-		private final String fKey;
-		private T fStrongReference;
-		
-		public SuItem(final String key, final T su, final ReferenceQueue<T> queue) {
-			super(su);
-			fKey = key;
-			fStrongReference = su;
-		}
-		
-		public String getKey() {
-			return fKey;
-		}
-		
-		public void loosen() {
-			fStrongReference = null;
-		}
-		
-		public void tighten() {
-			if (fStrongReference == null) {
-				fStrongReference = get();
-			}
-		}
-		
-		public T get(final boolean includeDeleted) {
-			if (fStrongReference != null) {
-				return fStrongReference;
-			}
-			if (includeDeleted) {
-				return super.get();
-			}
-			return null;
-		}
-		
-		public void dispose() {
-			fStrongReference = null;
-			clear();
-		}
-		
-	}
-	
-	private class CleanupJob extends Job {
-		
-		private final Object fScheduleLock = new Object();
-		
-		public CleanupJob() {
-			super("R Model Cleanup"); //$NON-NLS-1$
-			setUser(false);
-			setSystem(true);
-			setPriority(DECORATE);
-		}
-		
-		void initialSchedule() {
-			synchronized (fScheduleLock) {
-				schedule(180000);
-			}
-		}
-		
-		void dispose() {
-			synchronized (fScheduleLock) {
-				cancel();
-			}
-		}
-		
-		@Override
-		protected IStatus run(final IProgressMonitor monitor) {
-			final int count = cleanUp();
-			
-			synchronized (fScheduleLock) {
-				if (monitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				}
-				else {
-					schedule(count > 0 ? 60000 : 180000);
-					return Status.OK_STATUS;
-				}
-			}
-		}
-		
-	}
-	
 	private class RefreshJob extends Job {
 		
 		
-		private final List<IRSourceUnit> fList;
+		private final List<ISourceUnit> fList;
 		
 		
 		public RefreshJob(final WorkingContext context) {
@@ -172,12 +80,12 @@ public class RModelManager implements IRModelManager {
 			setSystem(true);
 			setPriority(DECORATE);
 			
-			fList = getWorkingCopies(context, false);
+			fList = LTK.getSourceUnitManager().getOpenSourceUnits(RModel.TYPE_ID, context);
 		}
 		
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
-			for (final IRSourceUnit su : fList) {
+			for (final ISourceUnit su : fList) {
 				if (su instanceof RManagedWorkingCopy) {
 					fReconciler.reconcile((RManagedWorkingCopy) su, IModelManager.MODEL_FILE, true, monitor);
 				}
@@ -191,21 +99,17 @@ public class RModelManager implements IRModelManager {
 	private final FastList<ContextItem> fContexts = new FastList<ContextItem>(ContextItem.class, FastList.EQUALITY);
 	private final RReconciler fReconciler = new RReconciler(this);
 	private final RModelEventJob fEventJob = new RModelEventJob(this);
-	private final CleanupJob fCleanupJob = new CleanupJob();
 	
 	private final RModelIndex fIndex = new RModelIndex(this);
 	
 	
 	public RModelManager() {
-		getContextItem(ECommonsLTK.PERSISTENCE_CONTEXT, true);
-		getContextItem(ECommonsLTK.EDITOR_CONTEXT, true);
-		
-		fCleanupJob.initialSchedule();
+		getContextItem(LTK.PERSISTENCE_CONTEXT, true);
+		getContextItem(LTK.EDITOR_CONTEXT, true);
 	}
 	
 	
 	public void dispose() {
-		fCleanupJob.dispose();
 		fEventJob.dispose();
 		fIndex.dispose();
 	}
@@ -242,65 +146,6 @@ public class RModelManager implements IRModelManager {
 		return getContextItem(context, true);
 	}
 	
-	private int cleanUp() {
-		final ContextItem[] contexts = fContexts.toArray();
-		int count = 0;
-		for (final ContextItem contextItem : contexts) {
-			SuItem<?> suItem;
-			while ((suItem = (SuItem<?>) contextItem.copiesToClean.poll()) != null){
-				synchronized (contextItem) {
-					if (contextItem.copies.get(suItem.getKey()) == suItem) {
-						contextItem.copies.remove(suItem.getKey());
-					}
-					suItem.dispose();
-					count++;
-				}
-			}
-			while ((suItem = (SuItem<?>) contextItem.worksheetsToClean.poll()) != null){
-				synchronized (contextItem) {
-					if (contextItem.worksheets.get(suItem.getKey()) == suItem) {
-						contextItem.worksheets.remove(suItem.getKey());
-					}
-					suItem.dispose();
-					count++;
-				}
-			}
-		}
-		return count;
-	}
-	
-	
-	public void registerWorkingCopy(final IRSourceUnit copy) {
-		assert (copy.getModelTypeId().equals(RModel.TYPE_ID) &&
-				copy.getElementType() == IRSourceUnit.R_WORKSPACE_SU);
-		
-		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
-		synchronized (contextItem) {
-			final String key = copy.getId();
-			final SuItem<IRSourceUnit> suItem = contextItem.copies.get(key);
-			if (suItem != null) {
-				if (suItem.get() == copy) {
-					suItem.tighten();
-					return;
-				}
-				else {
-					suItem.dispose();
-				}
-			}
-			contextItem.copies.put(key, new SuItem<IRSourceUnit>(key, copy, contextItem.copiesToClean));
-		}
-	}
-	
-	public void removeWorkingCopy(final IRSourceUnit copy) {
-		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
-		synchronized (contextItem) {
-			final SuItem<IRSourceUnit> suItem = contextItem.copies.get(copy.getId());
-			if (suItem != null) {
-				suItem.loosen();
-			}
-		}
-	}
-	
 	public void registerDependentUnit(final ISourceUnit copy) {
 		assert (copy.getModelTypeId().equals(RModel.TYPE_ID) ?
 				copy.getElementType() == IRSourceUnit.R_OTHER_SU : true);
@@ -308,94 +153,27 @@ public class RModelManager implements IRModelManager {
 		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
 		synchronized (contextItem) {
 			final String key = copy.getId()+'+'+copy.getModelTypeId();
-			final SuItem<ISourceUnit> suItem = contextItem.worksheets.get(key);
-			if (suItem != null) {
-				if (suItem.get() == copy) {
-					suItem.tighten();
-					return;
-				}
-				else {
-					suItem.dispose();
-				}
-			}
-			contextItem.worksheets.put(key, new SuItem<ISourceUnit>(key, copy, contextItem.worksheetsToClean));
+			contextItem.worksheets.put(key, copy);
 		}
 	}
 	
 	public void deregisterDependentUnit(final ISourceUnit copy) {
 		final ContextItem contextItem = getContextItem(copy.getWorkingContext(), true);
 		synchronized (contextItem) {
-			final SuItem<ISourceUnit> suItem = contextItem.worksheets.get(copy.getId()+'+'+copy.getModelTypeId());
-			if (suItem != null) {
-				suItem.loosen();
-			}
+			contextItem.worksheets.remove(copy.getId()+'+'+copy.getModelTypeId());
 		}
-	}
-	
-	public IRSourceUnit getWorkingCopy(final String id, final WorkingContext context) {
-		final ContextItem contextItem = getContextItem(context, false);
-		if (contextItem != null) {
-			synchronized (contextItem) {
-				final SuItem<IRSourceUnit> suItem = contextItem.copies.get(id);
-				if (suItem != null) {
-					return suItem.get(true);
-				}
-			}
-		}
-		return null;
 	}
 	
 	public ISourceUnit getWorksheetCopy(final String type, final String id, final WorkingContext context) {
 		final ContextItem contextItem = getContextItem(context, false);
 		if (contextItem != null) {
 			synchronized (contextItem) {
-				final SuItem<ISourceUnit> suItem = contextItem.worksheets.get(id+'+'+type);
-				if (suItem != null) {
-					return suItem.get(true);
-				}
+				return contextItem.worksheets.get(id+'+'+type);
 			}
 		}
 		return null;
 	}
 	
-	public List<IRSourceUnit> getWorkingCopies(final WorkingContext context) {
-		return getWorkingCopies(context, false);
-	}
-	
-	public List<IRSourceUnit> getWorkingCopies(final String id, final boolean includeDeleted) {
-		final ArrayList<IRSourceUnit> copies = new ArrayList<IRSourceUnit>();
-		final ContextItem[] contexts = fContexts.toArray();
-		for (final ContextItem contextItem : contexts) {
-			synchronized (contextItem) {
-				final SuItem<IRSourceUnit> suItem = contextItem.copies.get(id);
-				if (suItem != null) {
-					final IRSourceUnit copy = suItem.get(includeDeleted);
-					if (copy != null) {
-						copies.add(copy);
-					}
-				}
-			}
-		}
-		return copies;
-	}
-	
-	public List<IRSourceUnit> getWorkingCopies(final WorkingContext context, final boolean includeDeleted) {
-		final ContextItem contextItem = getContextItem(context, false);
-		if (contextItem == null) {
-			return new ArrayList<IRSourceUnit>(0);
-		}
-		synchronized (contextItem) {
-			final Collection<SuItem<IRSourceUnit>> entries = contextItem.copies.values();
-			final ArrayList<IRSourceUnit> copies = new ArrayList<IRSourceUnit>(entries.size());
-			for (final SuItem<IRSourceUnit> suItem : entries) {
-				final IRSourceUnit su = suItem.get(includeDeleted);
-				if (su != null) {
-					copies.add(su);
-				}
-			}
-			return copies;
-		}
-	}
 	
 	/**
 	 * Refresh reuses existing ast

@@ -7,10 +7,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.WorkingBuffer;
 import de.walware.ecommons.ltk.WorkingContext;
@@ -57,7 +57,7 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	 * {@inheritDoc}
 	 */
 	public WorkingContext getWorkingContext() {
-		return ECommonsLTK.EDITOR_CONTEXT;
+		return LTK.EDITOR_CONTEXT;
 	}
 	
 	/**

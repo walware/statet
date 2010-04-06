@@ -80,17 +80,14 @@
             translations="templates/default-templates.properties"/>
    </extension>
 
-   <extension-point id="rEditorContentAssistComputer"
-         name="Point to register categories and computers for content assist in R editor"
-         schema="schema/rEditorContentAssistComputer.exsd"/>
-
-   <extension point="de.walware.statet.r.ui.rEditorContentAssistComputer">
+   <extension point="de.walware.ecommons.ltk.advancedContentAssist">
       <category
             id="templates"
             name="%contentAssist_TemplateCategory_name">
       </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.TemplateCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="templates"
             class="de.walware.statet.r.internal.ui.editors.REditorTemplatesCompletionComputer">
          <partition
@@ -109,6 +106,7 @@
       </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.PathCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="paths"
             class="de.walware.statet.r.ui.editors.RPathCompletionComputer">
          <partition
@@ -121,6 +119,7 @@
       </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.RCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="r-elements"
             class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer">
          <partition
@@ -136,6 +135,7 @@
       </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.RCompletionFromRuntime"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="r-elements.runtime"
             class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer$CompleteRuntime">
          <partition
@@ -146,9 +146,10 @@
          </partition>
       </computer>
       <computer
+            id="de.walware.statet.r.contentAssistComputers.RoxygenCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="r-elements"
-            class="de.walware.statet.r.internal.ui.editors.RoxygenCompletionComputer"
-            id="de.walware.statet.r.contentAssistComputers.RoxygenCompletion">
+            class="de.walware.statet.r.internal.ui.editors.RoxygenCompletionComputer">
          <partition
                partitionType="__r_roxygen">
          </partition>
@@ -161,7 +162,7 @@
             id="de.walware.statet.r.editorHyperlinks.REditorTarget"
             name="%editorHyperlinks.REditorTarget.name">
          <context
-               type="de.walware.ecommons.ui.text.sourceediting.ISourceEditor">
+               type="de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1">
          </context>
       </target>
    </extension>
@@ -213,7 +214,7 @@
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
       <actionSetPartAssociation
-            targetID="de.walware.statet.base.contexts.EditSourceActionSet">
+            targetID="de.walware.ecommons.ltk.contexts.EditSourceActionSet">
          <part
                id="de.walware.statet.r.editors.R">
          </part>
@@ -223,23 +224,23 @@
          point="org.eclipse.ui.contexts">
       <context
             description="%categorys.RSource.description"
-            id="de.walware.statet.r.contexts.REditorScope"
+            id="de.walware.statet.r.contexts.REditor"
             name="%categorys.RSource.name"
-            parentId="de.walware.statet.base.contexts.TextEditor"/>
+            parentId="de.walware.ecommons.text.contexts.TextEditor"/>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="popup:#REditorContext?after=group.edit">
          <command
-               commandId="de.walware.statet.base.commands.ToggleComment"
-               id="de.walware.statet.base.commands.ToggleComment"
+               commandId="de.walware.ecommons.ltk.commands.ToggleComment"
+               id="de.walware.ecommons.ltk.commands.ToggleComment"
                mnemonic="%menus_REditorContext_ToggleComment_mnemonic"
                style="push">
          </command>
          <command
-               commandId="de.walware.statet.base.commands.CorrectIndent"
-               id="de.walware.statet.base.commands.CorrectIndent"
+               commandId="de.walware.ecommons.ltk.commands.CorrectIndent"
+               id="de.walware.ecommons.ltk.commands.CorrectIndent"
                mnemonic="%menus_REditorContext_CorrectIndent_mnemonic"
                style="push">
          </command>
@@ -247,7 +248,7 @@
       <menuContribution
             locationURI="menu:de.walware.statet.base.menus.MainStatSource?after=comment.add">
          <command
-               commandId="de.walware.statet.base.commands.GenerateElementComment"
+               commandId="de.walware.ecommons.ltk.commands.GenerateElementComment"
                mnemonic="%menus_Source_GenerateElementComment_mnemonic"
                style="push">
             <visibleWhen
@@ -265,7 +266,7 @@
                visible="true">
          </separator>
          <command
-               commandId="de.walware.statet.base.commands.RefactorRenameInWorkspace"
+               commandId="de.walware.ecommons.ltk.commands.RefactorRenameInWorkspace"
                style="push">
             <visibleWhen
                   checkEnabled="false">
@@ -385,7 +386,7 @@
       </handler>
       <handler
             class="de.walware.statet.r.internal.ui.editors.RToggleLiveReportProblemsHandler"
-            commandId="de.walware.statet.base.commands.ToggleLiveReportProblems">
+            commandId="de.walware.ecommons.ltk.commands.ToggleLiveReportProblems">
          <activeWhen>
             <with variable="activePartId">
                <equals
@@ -396,7 +397,7 @@
       </handler>
       <handler
             class="de.walware.statet.r.internal.ui.editors.GenerateRoxygenElementComment"
-            commandId="de.walware.statet.base.commands.GenerateElementComment">
+            commandId="de.walware.ecommons.ltk.commands.GenerateElementComment">
          <activeWhen>
             <reference
                   definitionId="de.walware.statet.r.expressions.RSourceElement">
@@ -420,7 +421,7 @@
       </handler>
 
       <handler
-            commandId="de.walware.statet.base.commands.RefactorRenameInWorkspace"
+            commandId="de.walware.ecommons.ltk.commands.RefactorRenameInWorkspace"
             class="de.walware.statet.r.internal.ui.refactoring.RenameInWorkspaceHandler">
          <activeWhen>
             <with variable="activePartId">
@@ -490,18 +491,18 @@
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
+            id="de.walware.statet.r.preferencePages.RCodeStylePage"
             category="de.walware.statet.base.preferencePages.StatetBase"
-            class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage"
-            id="de.walware.statet.r.preferencePages.RCodeStyle"
-            name="%preferencePages.RCodeStyle.name">
+            name="%preferencePages.RCodeStyle.name"
+            class="de.walware.statet.r.internal.ui.preferences.RCodeStylePreferencePage">
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
          <keywordReference id="de.walware.statet.base.keywords.Formatting"/>
       </page>
       <page
+            id="de.walware.statet.r.preferencePages.REditorOptionsPage"
             category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.REditorPreferencePage"
-            id="de.walware.statet.r.preferencePages.REditorOptions"
-            name="%preferencePages.REditorOptions.name">
+            name="%preferencePages.REditorOptions.name"
+            class="de.walware.statet.r.internal.ui.preferences.REditorPreferencePage">
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
          <keywordReference id="de.walware.statet.base.keywords.Formatting"/>
@@ -510,10 +511,10 @@
          </keywordReference>
       </page>
       <page
+            id="de.walware.statet.r.preferencePages.RIdentifierGroupsPage"
             category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.RIdentifiersPreferencePage"
-            id="de.walware.statet.r.preferencePages.RIdentifierGroups"
-            name="%preferencePages.RIdentifierGroups.name">
+            name="%preferencePages.RIdentifierGroups.name"
+            class="de.walware.statet.r.internal.ui.preferences.RIdentifiersPreferencePage">
          <keywordReference
                id="de.walware.statet.base.keywords.Editor">
          </keywordReference>
@@ -522,37 +523,37 @@
          </keywordReference>
       </page>
       <page
+            id="de.walware.statet.r.preferencePages.RTextStylesPage"
             category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.RSyntaxColoringPreferencePage"
-            id="de.walware.statet.r.preferencePages.RSyntaxColoring"
-            name="%preferencePages.RSyntaxColoring.name">
+            name="%preferencePages.RSyntaxColoring.name"
+            class="de.walware.statet.r.internal.ui.preferences.RTextStylesPreferencePage">
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
       </page>
       <page
-            category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage"
             id="de.walware.statet.r.preferencePages.REditorTemplates"
-            name="%preferencePages.REditorTemplates.name">
+            category="de.walware.statet.base.preferencePages.Editors"
+            name="%preferencePages.REditorTemplates.name"
+            class="de.walware.statet.r.internal.ui.preferences.REditorTemplatePreferencePage">
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
       </page>
       <page
-            id="de.walware.statet.r.preferencePages.REditorContentAssistPreferencePage"
+            id="de.walware.statet.r.preferencePages.REditorAdvancedContentAssistPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Editor Content Assist"
             class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForREditor">
       </page>
       <page
-            id="de.walware.statet.r.preferencePages.RConsoleContentAssistPreferencePage"
+            id="de.walware.statet.r.preferencePages.RConsoleAdvancedContentAssistPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Console Content Assist"
             class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForRConsole">
       </page>
       <page
+            id="de.walware.statet.r.preferencePages.RdTextStylesPage"
             category="de.walware.statet.base.preferencePages.Editors"
-            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage"
-            id="de.walware.statet.r.preferencePages.RdSyntaxColoring"
-            name="%preferencePages.RdSyntaxColoring.name">
+            name="%preferencePages.RdSyntaxColoring.name"
+            class="de.walware.statet.r.internal.ui.preferences.RdSyntaxColoringPreferencePage">
          <keywordReference id="de.walware.statet.base.keywords.Editor"/>
          <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
       </page>
@@ -782,39 +783,45 @@
       </command>
    </extension>
    <extension
-         point="org.eclipse.ui.commands">
-      <command
-            id="de.walware.statet.r.commands.SpecificContentAssist"
-            categoryId="de.walware.statet.base.commandCategorys.StatetSource"
-            name="%SpecificContentAssist_name"
-            description="%SpecificContentAssist_description">
-         <commandParameter
-               id="categoryId"
-               name="%SpecificContentAssist_param_CategoryId_name"
-               optional="false"
-               values="de.walware.statet.r.internal.ui.editors.RContentAssistComputerParameter"/>
-      </command>
-   </extension>
-   <extension
          point="org.eclipse.ui.bindings">
       <key
             commandId="de.walware.statet.r.ui.commands.RunHelpInR"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R 1">
       </key>
       <key
             commandId="de.walware.statet.r.ui.commands.RunHelpSearchInR"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M2+1">
       </key>
       <key
             commandId="de.walware.statet.r.ui.commands.RunPrintInR"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R P">
       </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="de.walware.statet.base.views.StatetCategory"
+            class="de.walware.statet.r.internal.ui.help.RHelpView"
+            icon="icons/obj_16/rd-file_obj.gif"
+            id="de.walware.statet.r.views.RHelp"
+            name="%views_RHelpView_name"
+            restorable="true">
+      </view>
+      <view
+            category="de.walware.statet.base.views.StatetCategory"
+            class="de.walware.statet.r.internal.ui.graphics.StatetRGraphicView"
+            icon="icons/obj_16/r-graphic.png"
+            id="de.walware.statet.r.views.RGraphic"
+            name="%views_RGraphicView_name"
+            allowMultiple="true"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
@@ -904,9 +911,6 @@
             type="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"/>
    </extension>
 
-   <extension-point id="rConsoleContentAssistComputer"
-         name="Point to register categories and computers for content assist in R console"
-         schema="schema/rConsoleContentAssistComputer.exsd"/>
 
    <extension-point id="rCodeLaunchConnector"
          name="Point to register Connectors which can launch r code"
@@ -935,25 +939,19 @@
       </contentHandler>
    </extension>
    <extension
-         point="de.walware.statet.r.ui.rConsoleContentAssistComputer">
-      <category
-            id="paths"
-            name="%contentAssist_ResourceCategory_name">
-      </category>
+         point="de.walware.ecommons.ltk.advancedContentAssist">
       <computer
             id="de.walware.statet.r.contentAssistComputers.PathCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.RConsole"
             categoryId="paths"
             class="de.walware.statet.r.ui.editors.RPathCompletionComputer">
          <partition
                partitionType="__r_string">
          </partition>
       </computer>
-      <category
-            id="r-elements"
-            name="%contentAssist_RCategory_name">
-      </category>
       <computer
             id="de.walware.statet.r.contentAssistComputers.RCompletion"
+            contentTypeId="de.walware.statet.r.contentTypes.RConsole"
             categoryId="r-elements"
             class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer">
          <partition
@@ -1424,7 +1422,7 @@
                <with
                      variable="activePart">
                   <instanceof
-                        value="de.walware.statet.base.ui.sourceeditors.StatextEditor1">
+                        value="de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1">
                   </instanceof>
                </with>
                
@@ -1621,70 +1619,70 @@
             sequence="M2+M3+X R"/>
        <key
             commandId="de.walware.statet.r.commands.RunFileViaCommand"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+S"/>
      <key
             commandId="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R S"/>
 
       <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptDirect.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+D"/>
       <key
             commandId="de.walware.statet.r.commands.RunEntireCommand"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+E"/>
       <key
             commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R E"/>
       <key
             commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+3">
       </key>
       <key
             commandId="de.walware.statet.r.commands.RunFunctionDef"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+F"/>
       <key
             commandId="de.walware.statet.r.commands.RunFunctionDef_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R F"/>
       <key
             commandId="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole.run"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R D"/>
 
       <key
             commandId="de.walware.statet.r.commands.RunSelectionInR"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+R"/>
       <key
             commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R R"/>
       <key
             commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+4"/>
       <key
             commandId="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
-            contextId="de.walware.statet.r.contexts.REditorScope"
+            contextId="de.walware.statet.r.contexts.REditor"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+V">
       </key>

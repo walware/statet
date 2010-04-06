@@ -13,24 +13,17 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0";visibility:=reex
  org.eclipse.core.filesystem;visibility:=reexport,
  org.eclipse.core.expressions;visibility:=reexport,
  org.eclipse.core.commands;visibility:=reexport,
- org.eclipse.core.variables;visibility:=reexport,
  org.eclipse.core.databinding;visibility:=reexport,
  org.eclipse.core.filebuffers;visibility:=reexport,
  org.eclipse.text;visibility:=reexport,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.debug.core,
- com.jcraft.jsch,
- org.eclipse.jsch.core
-Export-Package: de.walware.ecommons,
- de.walware.ecommons.debug.core,
- de.walware.ecommons.ltk,
- de.walware.ecommons.ltk.ast,
- de.walware.ecommons.ltk.core.refactoring,
- de.walware.ecommons.net,
- de.walware.ecommons.preferences,
- de.walware.ecommons.text,
- de.walware.ecommons.variables.core,
+ de.walware.ecommons.ltk.core;bundle-version="0.9.0",
+ com.jcraft.jsch;bundle-version="0.1.41",
+ org.eclipse.jsch.core;bundle-version="1.1.100"
+Export-Package: de.walware.ecommons.debug.core,
  de.walware.statet.base.core,
- de.walware.statet.base.core.preferences,
- org.apache.commons.collections.primitives
-Import-Package: com.ibm.icu.text;version="4.0.1"
+ de.walware.statet.base.core.preferences
+Import-Package: com.ibm.icu.text;version="4.0.1",
+ de.walware.ecommons,
+ de.walware.ecommons.preferences

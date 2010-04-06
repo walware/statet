@@ -20,14 +20,14 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
 
+import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.EnumSetPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
-import de.walware.ecommons.ui.preferences.CombinedPreferenceStore;
-import de.walware.ecommons.ui.preferences.RGBPref;
+import de.walware.ecommons.preferences.ui.RGBPref;
 
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.ui.NicoUIPreferenceNodes;

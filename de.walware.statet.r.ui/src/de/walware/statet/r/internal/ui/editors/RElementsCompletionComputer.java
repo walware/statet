@@ -33,15 +33,16 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.IContentAssistComputer;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.IPartitionConstraint;
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
-import de.walware.ecommons.ui.text.sourceediting.IAssistInformationProposal;
-import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -932,11 +933,14 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			}
 			else {
 				final Set<String> requiredPackages = new HashSet<String>();
-				final IRModelInfo info = (IRModelInfo) context.getModelInfo();
-				final IPackageReferences packages = info.getReferencedPackages();
-				for (final String name : packages.getAllPackageNames()) {
-					if (packages.isImported(name)) {
-						requiredPackages.add(name);
+				final ISourceUnitModelInfo modelInfo = context.getModelInfo();
+				if (modelInfo instanceof IRModelInfo) {
+					final IRModelInfo rModel = (IRModelInfo) modelInfo;
+					final IPackageReferences packages = rModel.getReferencedPackages();
+					for (final String name : packages.getAllPackageNames()) {
+						if (packages.isImported(name)) {
+							requiredPackages.add(name);
+						}
 					}
 				}
 				requiredPackages.add("base");

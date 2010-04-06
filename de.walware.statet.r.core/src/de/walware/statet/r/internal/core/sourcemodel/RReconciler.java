@@ -194,7 +194,7 @@ public class RReconciler {
 			final long stopModel;
 			startModel = System.nanoTime();
 			
-			newModel = f2ScopeAnalyzer.update(data.su, data.ast);
+			newModel = f2ScopeAnalyzer.createModel(data.su, data.ast);
 			final boolean isOK = (newModel != null);
 			
 			stopModel = System.nanoTime();

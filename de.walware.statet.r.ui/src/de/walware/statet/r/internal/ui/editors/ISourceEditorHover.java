@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.ui.editors;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
 
 public interface ISourceEditorHover {

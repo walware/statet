@@ -16,10 +16,10 @@
 <p>The RJ server is an R server using Java for process control and communication.  
 It uses Java <b>R</b>MI technology [<a href="#ref1">1</a>] for the client server communication 
 and <b>J</b>RI [<a href="#ref2">2</a>] for the integration of R in Java.  
-One server provides a single R session.  You can start multiple servers for the same or
-different user on one machine without problems.  The different R sessions are
-registered in the RMI registry and distinguishable by their names.</p>
-<p>In general, the RJ server is designed for usage in an intranet.</p>
+One server provides a single R session.  You can start multiple servers for the same or for 
+different user on one machine without problems.  The different R sessions are registered in 
+the RMI registry and distinguishable by their names.</p>
+<p>The RJ server is designed for usage in an intranet.</p>
 
 <h4>Security</h4>
 <p>Because of the single session approach of the RJ server, one usually starts the server
@@ -31,15 +31,15 @@ e.g. using PAM of the host system.  See the startup script for a list of availab
 and their configuration.  You may also develop and use your custom methods.  It is possible to 
 disable the authentication by setting it to the method 'none'.  All methods provided by the 
 package uses public key mechanism to encrypt the login data (but no host validation).</p>
-<p>The R data like user input and result output are not encrypted.</p>
+<p>The R exchanged data like user input and result output are not encrypted.</p>
 
 <h4>Requirements</h4>
-<p>Because the server is based on Java, it works theoretically on any platform 
-fulfilling the requirements:</p>
+<p>Because the server is based on Java, it works theoretically on any platform fulfilling the 
+following requirements:</p>
 <ul>
 <li>Java: Java version &ge; 5.0, Standard Edition (SE) or greater</li>
 <li>R</li>
-<li>R package rJava with JRI: JRI version &ge; 0.4 (rJava 0.5)</li>
+<li>R package rJava with JRI: JRI version &ge; 0.5 (rJava 0.7)</li>
 </ul>
 
 <h2>Setup / Startup</h2>

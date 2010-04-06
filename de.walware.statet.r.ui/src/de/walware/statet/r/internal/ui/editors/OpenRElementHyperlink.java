@@ -23,8 +23,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ISourceElement;
-import de.walware.ecommons.ui.ECommonsUI;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
@@ -79,7 +79,7 @@ public class OpenRElementHyperlink implements IHyperlink {
 		}
 		catch (final PartInitException e) {
 			Display.getCurrent().beep();
-			StatusManager.getManager().handle(new Status(IStatus.INFO, ECommonsUI.PLUGIN_ID, -1,
+			StatusManager.getManager().handle(new Status(IStatus.INFO, SharedUIResources.PLUGIN_ID, -1,
 					NLS.bind("An error occurred when following the hyperlink and opening the editor for the declaration of ''{0}''", fAccess.getDisplayName()), e));
 		}
 	}

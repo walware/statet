@@ -25,7 +25,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.databinding.AbstractSWTObservableValue;
+import de.walware.ecommons.databinding.jface.AbstractSWTObservableValue;
 import de.walware.ecommons.preferences.Preference.EnumSetPref;
 import de.walware.ecommons.ui.util.LayoutUtil;
 

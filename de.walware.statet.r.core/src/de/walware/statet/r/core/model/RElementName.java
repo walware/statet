@@ -54,7 +54,7 @@ public abstract class RElementName implements IElementName {
 	public static final int DISPLAY_EXACT = 0x2;
 	
 	
-	public static String createDisplayName(IElementName a, final int options) {
+	public static String createDisplayName(RElementName a, final int options) {
 		StringBuilder sb = null;
 		
 		final IElementName namespace = ((options & DISPLAY_NS_PREFIX) != 0) ? a.getNamespace() : null;

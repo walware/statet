@@ -65,6 +65,8 @@ public abstract class AbstractRController
 	
 	public static final String SHOW_RHELP_HANDLER_ID = "r/showHelp"; //$NON-NLS-1$
 	
+	public static final String INIT_RGRAPHIC_FACTORY_HANDLER_ID = "r/initRGraphicFactory"; //$NON-NLS-1$
+	
 	
 	protected String fContinuePromptText;
 	protected String fDefaultPromptText;

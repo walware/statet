@@ -13,7 +13,7 @@ package de.walware.statet.r.sweave.text;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.ui.text.r.IRTextTokens;

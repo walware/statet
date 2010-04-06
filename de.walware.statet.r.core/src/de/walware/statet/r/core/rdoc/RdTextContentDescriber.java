@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.content.IContentType;
 
-import de.walware.ecommons.TextContentDescriber;
+import de.walware.ecommons.io.TextContentDescriber;
 
 
 /**

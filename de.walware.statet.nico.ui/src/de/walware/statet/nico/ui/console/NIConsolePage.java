@@ -93,18 +93,18 @@ import org.eclipse.ui.services.IDisposable;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
-import de.walware.ecommons.ui.ECommonsUI;
-import de.walware.ecommons.ui.HandlerContributionItem;
+import de.walware.ecommons.text.ui.TextViewerAction;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.SharedMessages;
-import de.walware.ecommons.ui.SimpleContributionItem;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.text.sourceediting.TextViewerAction;
+import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.actions.HandlerContributionItem;
+import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.DNDUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -722,7 +722,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		final IMenuManager menu = bars.getMenuManager();
 		menu.add(new Separator(NICO_CONTROL_MENU_ID));
-		menu.add(new Separator(ECommonsUI.ADDITIONS_MENU_ID));
+		menu.add(new Separator(SharedUIResources.ADDITIONS_MENU_ID));
 		
 		menu.add(new Separator("tracking")); //$NON-NLS-1$
 		final MenuManager trackingMenu= new MenuManager("Open In Editor") {

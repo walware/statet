@@ -11,7 +11,6 @@
 
 package de.walware.statet.nico.ui.util;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ViewForm;
 import org.eclipse.swt.graphics.Image;
@@ -21,10 +20,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
-import de.walware.ecommons.FileUtil;
-import de.walware.ecommons.ui.dialogs.ShortedLabel;
-
-import de.walware.statet.base.ui.StatetImages;
+import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.ui.components.ShortedLabel;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -56,10 +53,8 @@ public class ToolInfoGroup {
 		fForm.setContent(info);
 		
 		final Label text = new Label(info, SWT.NONE);
-		final ImageDescriptor imageDescr = NicoUITools.getImageDescriptor(fProcess);
-		Image image = null;
-		if (imageDescr != null) {
-			image = StatetImages.getCachedImage(imageDescr);
+		final Image image = NicoUITools.getImage(fProcess);
+		if (image != null) {
 			text.setImage(image);
 		}
 		else {

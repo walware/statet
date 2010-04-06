@@ -29,20 +29,20 @@ public class RRefactoring {
 	}
 	
 	
-	public static final String DELETE_ELEMENTS_REFACTORING_ID = "de.walware.r.refactoring.DeleteElementsOperation"; //$NON-NLS-1$
+	public static final String DELETE_ELEMENTS_REFACTORING_ID = "de.walware.statet.r.refactoring.DeleteElementsOperation"; //$NON-NLS-1$
 	
-	public static final String DELETE_ELEMENTS_PROCESSOR_ID = "de.walware.r.refactoring.DeleteElementsProcessor"; //$NON-NLS-1$
+	public static final String DELETE_ELEMENTS_PROCESSOR_ID = "de.walware.statet.r.refactoring.DeleteElementsProcessor"; //$NON-NLS-1$
 	
-	public static final String RENAME_IN_WORKSPACE_REFACTORING_ID = "de.walware.r.refactoring.RenameInWorkspaceOperation"; //$NON-NLS-1$
+	public static final String RENAME_IN_WORKSPACE_REFACTORING_ID = "de.walware.statet.r.refactoring.RenameInWorkspaceOperation"; //$NON-NLS-1$
 	
-	public static final String RENAME_IN_REGION_REFACTORING_ID = "de.walware.r.refactoring.RenameInRegionOperation"; //$NON-NLS-1$
+	public static final String RENAME_IN_REGION_REFACTORING_ID = "de.walware.statet.r.refactoring.RenameInRegionOperation"; //$NON-NLS-1$
 	
-	public static final String INLINE_TEMP_REFACTORING_ID = "de.walware.r.refactoring.InlineTempOperation"; //$NON-NLS-1$
+	public static final String INLINE_TEMP_REFACTORING_ID = "de.walware.statet.r.refactoring.InlineTempOperation"; //$NON-NLS-1$
 	
-	public static final String EXTRACT_TEMP_REFACTORING_ID = "de.walware.r.refactoring.ExtractTempOperation"; //$NON-NLS-1$
+	public static final String EXTRACT_TEMP_REFACTORING_ID = "de.walware.statet.r.refactoring.ExtractTempOperation"; //$NON-NLS-1$
 	
-	public static final String EXTRACT_FUNCTION_REFACTORING_ID = "de.walware.r.refactoring.ExtractFunctionOperation"; //$NON-NLS-1$
+	public static final String EXTRACT_FUNCTION_REFACTORING_ID = "de.walware.statet.r.refactoring.ExtractFunctionOperation"; //$NON-NLS-1$
 	
-	public static final String CONVERT_FUNCTION_TO_S4_METHOD_REFACTORING_ID = "de.walware.r.refactoring.ConvertFunctionToS4MethodOperation"; //$NON-NLS-1$
+	public static final String CONVERT_FUNCTION_TO_S4_METHOD_REFACTORING_ID = "de.walware.statet.r.refactoring.ConvertFunctionToS4MethodOperation"; //$NON-NLS-1$
 	
 }

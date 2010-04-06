@@ -32,10 +32,10 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.PathCompletionComputor;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.PathCompletionComputor;
 
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;

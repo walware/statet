@@ -71,11 +71,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.SelectionStatusDialog;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerInfo;
@@ -337,7 +336,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 						Image image = null;
 						if (element instanceof String) {
 							text = (String) element;
-							image = StatetImages.getImage(StatetImages.OBJ_USER);
+							image = SharedUIResources.getImages().get(SharedUIResources.OBJ_USER_IMAGE_ID);
 						}
 						else if (element instanceof RemoteR) {
 							text = getText((RemoteR) element);

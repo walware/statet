@@ -23,17 +23,6 @@ public class StatetMessages extends NLS {
 	public static String TaskPriority_Normal;
 	public static String TaskPriority_Low;
 	
-	public static String CodeFolding_label;
-	public static String CodeFolding_Enable_label;
-	public static String CodeFolding_Enable_mnemonic;
-	public static String CodeFolding_ExpandAll_label;
-	public static String CodeFolding_ExpandAll_mnemonic;
-	public static String CodeFolding_CollapseAll_label;
-	public static String CodeFolding_CollapseAll_mnemonic;
-	
-	public static String SyncWithEditor_label;
-	public static String SelectSourceCode_label;
-	
 	
 	static {
 		NLS.initializeMessages(StatetMessages.class.getName(), StatetMessages.class);

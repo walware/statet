@@ -43,17 +43,16 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.NotEmptyValidator;
-import de.walware.ecommons.ui.dialogs.ButtonGroup;
-import de.walware.ecommons.ui.dialogs.DatabindingSupport;
+import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.ecommons.ui.preferences.ConfigurationBlock;
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IResourceMapping;

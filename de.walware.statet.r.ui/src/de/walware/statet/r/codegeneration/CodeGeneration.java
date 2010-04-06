@@ -26,12 +26,12 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
+import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.templates.TemplateMessages;
 
 import de.walware.statet.base.core.StatetCore;
 import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.templates.TemplatesUtil;
-import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
 
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.ArgsDefinition;

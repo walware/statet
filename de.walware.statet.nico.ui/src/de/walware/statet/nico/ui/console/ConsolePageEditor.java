@@ -71,22 +71,22 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.sourceediting.DeleteLineHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.GotoMatchingBracketHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ltk.ui.sourceediting.ITextEditToolSynchronizer;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
-import de.walware.ecommons.ui.text.PairMatcher;
-import de.walware.ecommons.ui.text.sourceediting.DeleteLineHandler;
-import de.walware.ecommons.ui.text.sourceediting.GotoMatchingBracketHandler;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.ITextEditToolSynchronizer;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
-import de.walware.ecommons.ui.text.sourceediting.TextViewerAction;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.text.ui.TextViewerAction;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.IStatetUICommandIds;
 
 import de.walware.statet.nico.core.runtime.History;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
@@ -550,6 +550,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fConfigurator = editorConfigurator;
 		fSourceViewer = new InputSourceViewer(fComposite);
 		fConfigurator.setTarget(this);
+		final SourceEditorViewerConfiguration configuration = fConfigurator.getSourceViewerConfiguration();
 		
 		fSourceViewerDecorationSupport = new de.walware.epatches.ui.SourceViewerDecorationSupport(
 				fSourceViewer, null, null, EditorsUI.getSharedTextColors());
@@ -561,14 +562,14 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		for (final Object pref : markerAnnotationPreferences.getAnnotationPreferences()) {
 			fSourceViewerDecorationSupport.setAnnotationPreference((AnnotationPreference) pref);
 		}
-		fSourceViewerDecorationSupport.install(fConfigurator.getSourceViewerConfiguration().getPreferences());
+		fSourceViewerDecorationSupport.install(configuration.getPreferences());
 		
 		final IDocumentSetupParticipant docuSetup = fConfigurator.getDocumentSetupParticipant();
 		if (docuSetup != null) {
 			docuSetup.setup(fDocument.getMasterDocument());
 		}
 		
-		new SourceViewerJFaceUpdater(fSourceViewer, fConfigurator.getSourceViewerConfiguration());
+		new SourceViewerJFaceUpdater(fSourceViewer, configuration);
 		
 		final AnnotationModel annotationModel = new AnnotationModel();
 		// annotationModel.setLockObject(fDocument.getLockObject());
@@ -607,9 +608,9 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		keys.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
 		
 		IAction action;
-		final PairMatcher matcher = fConfigurator.getPairMatcher();
+		final PairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
 		if (matcher != null) {
-			commands.activateHandler(IStatetUICommandIds.GOTO_MATCHING_BRACKET,
+			commands.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET,
 					new GotoMatchingBracketHandler(matcher, this));
 		}
 		

@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.ecommons.net.ISshSessionService;
+import de.walware.ecommons.debug.core.ISshSessionService;
 
 import de.walware.statet.base.core.StatetCore;
 
@@ -176,7 +176,13 @@ public class RjsUtil {
 			return "no version information";
 		}
 		if (version.length >= 3) {
-			return ""+version[0]+'.'+version[1]+'.'+version[2];
+			final StringBuilder sb = new StringBuilder();
+			sb.append(version[0]);
+			sb.append('.');
+			sb.append((version[1] >= 0) ? Integer.toString(version[1]) : "x");
+			sb.append('.');
+			sb.append((version[2] >= 0) ? Integer.toString(version[2]) : "x");
+			return sb.toString();
 		}
 		return "invalid version information";
 	}

@@ -40,20 +40,21 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.Preference.IntPref;
-import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.preferences.ColorSelectorObservableValue;
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
-import de.walware.ecommons.ui.preferences.RGBPref;
+import de.walware.ecommons.preferences.ui.ColorSelectorObservableValue;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
+import de.walware.ecommons.preferences.ui.RGBPref;
+import de.walware.ecommons.text.ui.settings.AssistPreferences;
+import de.walware.ecommons.text.ui.settings.DecorationPreferences;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
-import de.walware.statet.base.ui.sourceeditors.ContentAssistPreference;
 
 
 public class EditorsPreferencePage extends ConfigurationBlockPreferencePage<EditorsConfigurationBlock> {
@@ -111,43 +112,45 @@ class EditorsConfigurationBlock extends ManagedConfigurationBlock {
 		AppearanceColorsItem color;
 		
 		// Content Assist
-		fCodeAssistAutoSinglePref = ContentAssistPreference.AUTOINSERT_SINGLE;
-		prefs.put(fCodeAssistAutoSinglePref, ContentAssistPreference.GROUP_ID);
-		fCodeAssistAutoCommonPref = ContentAssistPreference.AUTOINSERT_COMMON;
-		prefs.put(fCodeAssistAutoCommonPref, ContentAssistPreference.GROUP_ID);
-		fCodeAssistDelayPref = ContentAssistPreference.AUTOACTIVATION_DELAY;
-		prefs.put(fCodeAssistDelayPref, ContentAssistPreference.GROUP_ID);
+		final AssistPreferences assistPreferences = IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES;
+		fCodeAssistAutoSinglePref = assistPreferences.getAutoInsertSinglePref();
+		prefs.put(fCodeAssistAutoSinglePref, assistPreferences.getGroupId());
+		fCodeAssistAutoCommonPref = assistPreferences.getAutoInsertPrefixPref();
+		prefs.put(fCodeAssistAutoCommonPref, assistPreferences.getGroupId());
+		fCodeAssistDelayPref = assistPreferences.getAutoActivationDelayPref();
+		prefs.put(fCodeAssistDelayPref, assistPreferences.getGroupId());
 		
 		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsForegroundColor,
-				ContentAssistPreference.PROPOSALS_FOREGROUND);
+				assistPreferences.getProposalsForegroundPref());
 		colors.add(color);
-		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		prefs.put(color.pref, assistPreferences.getGroupId());
 		color = new AppearanceColorsItem(Messages.Editors_CodeAssistProposalsBackgroundColor,
-				ContentAssistPreference.PROPOSALS_BACKGROUND);
+				assistPreferences.getProposalsBackgroundPref());
 		colors.add(color);
-		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		prefs.put(color.pref, assistPreferences.getGroupId());
 		color = new AppearanceColorsItem(Messages.Editors_CodeAssistParametersForegrondColor,
-				ContentAssistPreference.PARAMETERS_FOREGROUND);
+				assistPreferences.getInformationForegroundPref());
 		colors.add(color);
-		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		prefs.put(color.pref, assistPreferences.getGroupId());
 		color = new AppearanceColorsItem(Messages.Editors_CodeAssistParametersBackgroundColor,
-				ContentAssistPreference.PARAMETERS_BACKGROUND);
+				assistPreferences.getInformationBackgroundPref());
 		colors.add(color);
-		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
-		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor,
-				ContentAssistPreference.REPLACEMENT_FOREGROUND);
-		colors.add(color);
-		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
+		prefs.put(color.pref, assistPreferences.getGroupId());
+//		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementForegroundColor,
+//				assistPreferences.getReplacementForegroundPref());
+//		colors.add(color);
+//		prefs.put(color.pref, assistPreferences.getGroupId());
 //		color = new AppearanceColorsItem(Messages.Editors_CodeAssistReplacementBackgroundColor,
 //				ContentAssistPreference.REPLACEMENT_BACKGROUND);
 //		colors.add(color);
 //		prefs.put(color.pref, ContentAssistPreference.GROUP_ID);
 		
 		// Matching Bracket
-		fMatchingBracketsPref = new BooleanPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS);
+		final DecorationPreferences decoPrefs = IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES;
+		fMatchingBracketsPref = decoPrefs.getMatchingBracketsEnabled();
 		prefs.put(fMatchingBracketsPref, null);
 		color = (new AppearanceColorsItem(Messages.Editors_MatchingBracketsHighlightColor,
-				new RGBPref(StatetUIPlugin.PLUGIN_ID, IStatetUIPreferenceConstants.EDITOR_MATCHING_BRACKETS_COLOR)));
+				decoPrefs.getMatchingBracketsColor() ));
 		colors.add(color);
 		prefs.put(color.pref, null);
 		

@@ -347,7 +347,7 @@ public abstract class RLexer {
 			scanIdentifier();
 			switch(fNextNum) {
 			case 2:
-				if (fInput.subequals(2, 'A')) {
+				if (fInput.get(2) == 'A') {
 					createFix(RTerminal.NA);
 					return;
 				}
@@ -410,11 +410,11 @@ public abstract class RLexer {
 		case 'i':
 			scanIdentifier();
 			if (fNextNum == 2) {
-				if (fInput.subequals(2, 'f')) {
+				if (fInput.get(2) == 'f') {
 					createFix(RTerminal.IF);
 					return;
 				}
-				if (fInput.subequals(2, 'n')) {
+				if (fInput.get(2) == 'n') {
 					createFix(RTerminal.IN);
 					return;
 				}
@@ -555,7 +555,7 @@ public abstract class RLexer {
 	private final void consumeComment() {
 		// 1 == '#'
 		final RTerminal type;
-		if (fInput.subequals(2, '\'')) {
+		if (fInput.get(2) == '\'') {
 			type = RTerminal.ROXYGEN_COMMENT;
 			fNextNum++;
 		}

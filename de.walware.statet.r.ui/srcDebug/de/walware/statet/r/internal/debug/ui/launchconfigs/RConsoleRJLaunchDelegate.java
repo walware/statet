@@ -54,6 +54,8 @@ import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
+import de.walware.rj.server.RjsComConfig;
+
 import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
@@ -210,9 +212,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		progress.worked(5);
 		
 		final HashMap<String, Object> rjsProperties = new HashMap<String, Object>();
-		rjsProperties.put("rj.data.lists.structs.max_length",
+		rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_LISTS_MAX_LENGTH_PROPERTY_ID,
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
-		rjsProperties.put("rj.data.envs.structs.max_length",
+		rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 		rjsProperties.put("rj.session.startup.time", timestamp);
 		final RjsController controller = new RjsController(process, rmiAddress, null,

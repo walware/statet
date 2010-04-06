@@ -34,7 +34,7 @@ import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
-import de.walware.ecommons.ui.ECommonsUI;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
@@ -194,11 +194,11 @@ public class RConsolePage extends NIConsolePage {
 						CommandContributionItem.STYLE_PUSH, null, false)));
 		}
 		
-		menuManager.insertBefore(ECommonsUI.ADDITIONS_MENU_ID, new Separator("workspace")); //$NON-NLS-1$
+		menuManager.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator("workspace")); //$NON-NLS-1$
 		menuManager.appendToGroup("workspace", //$NON-NLS-1$
 				new ChangeWorkingDirectoryWizard.ChangeAction(this));
 		
-		menuManager.insertBefore(ECommonsUI.ADDITIONS_MENU_ID, new Separator("view")); //$NON-NLS-1$
+		menuManager.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator("view")); //$NON-NLS-1$
 		menuManager.appendToGroup("view", //$NON-NLS-1$
 				new AdjustWithAction());
 	}
@@ -227,7 +227,7 @@ public class RConsolePage extends NIConsolePage {
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		super.collectContextMenuPreferencePages(pageIds);
 		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
-		pageIds.add("de.walware.statet.r.preferencePages.RSyntaxColoring"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RTextStylesPage"); //$NON-NLS-1$
 	}
 	
 }

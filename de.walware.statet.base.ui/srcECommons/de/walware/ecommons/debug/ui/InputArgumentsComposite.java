@@ -25,7 +25,8 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.debug.internal.ui.Messages;
-import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
+import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
+import de.walware.ecommons.ui.components.WidgetToolsButton;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 

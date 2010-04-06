@@ -17,7 +17,6 @@ import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -49,8 +48,6 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.ViewPart;
 
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
@@ -241,11 +238,7 @@ public class QueueView extends ViewPart {
 		
 		@Override
 		public Image getImage(final Object element) {
-			final ImageDescriptor descriptor = NicoUITools.getImageDescriptor((IToolRunnable) element);
-			if (descriptor != null) {
-				return StatetImages.getCachedImage(descriptor);
-			}
-			return null;
+			return NicoUITools.getImage((IToolRunnable) element);
 		}
 		
 		public String getColumnText(final Object element, final int columnIndex) {

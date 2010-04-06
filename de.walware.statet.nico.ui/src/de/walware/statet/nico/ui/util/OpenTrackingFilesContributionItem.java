@@ -29,8 +29,8 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.FileUtil;
-import de.walware.ecommons.ui.SimpleContributionItem;
+import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.NicoCore;

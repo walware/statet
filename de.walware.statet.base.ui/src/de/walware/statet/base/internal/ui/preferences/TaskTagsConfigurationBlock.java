@@ -52,13 +52,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.dialogs.ButtonGroup;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
+import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.components.ButtonGroup;
+import de.walware.ecommons.ui.components.StatusInfo;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.dialogs.Layouter;
-import de.walware.ecommons.ui.dialogs.StatusInfo;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
+import de.walware.ecommons.ui.dialogs.groups.Layouter;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.PixelConverter;
@@ -69,7 +70,6 @@ import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 import de.walware.statet.base.core.preferences.TaskTagsPreferences.TaskPriority;
 import de.walware.statet.base.internal.ui.StatetMessages;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
-import de.walware.statet.base.ui.StatetImages;
 
 
 /**
@@ -221,7 +221,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 				null, null, null, null, null},
 				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
 		fTaskDefaultIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
-				null, null, null, StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER), null},
+				null, null, null, SharedUIResources.getImages().getDescriptor(SharedUIResources.OVR_DEFAULT_MARKER_IMAGE_ID), null},
 				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
 	}
 	

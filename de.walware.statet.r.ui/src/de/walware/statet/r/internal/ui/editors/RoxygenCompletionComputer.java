@@ -22,13 +22,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
 import de.walware.ecommons.ConstList;
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.IAssistCompletionProposal;
-import de.walware.ecommons.ui.text.sourceediting.IAssistInformationProposal;
-import de.walware.ecommons.ui.text.sourceediting.IContentAssistComputer;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-
-import de.walware.statet.base.ui.StatetImages;
+import de.walware.ecommons.ltk.ui.LTKUI;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.IContentAssistComputer;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
 
 public class RoxygenCompletionComputer implements IContentAssistComputer {
@@ -94,7 +93,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 		 */
 		@Override
 		public Image getImage() {
-			return StatetImages.getImage(StatetImages.OBJ_TEXT_AT_TAG);
+			return LTKUI.getImages().get(LTKUI.OBJ_TEXT_AT_TAG);
 		}
 		
 		@Override

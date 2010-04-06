@@ -18,13 +18,4 @@ public interface IStatetUIMenuIds {
 	
 	public static final String GROUP_RUN_STAT_ID = "run.stat"; //$NON-NLS-1$
 	
-	public static final String GROUP_EDIT_COPYPASTE_ID = "edit.copy-paste"; //$NON-NLS-1$
-	
-	public static final String GROUP_VIEW_EXPAND_ID = "view.expand"; //$NON-NLS-1$
-	
-	public static final String GROUP_VIEW_SORT_ID = "view.sort"; //$NON-NLS-1$
-	
-	public static final String GROUP_VIEW_FILTER_ID = "view.filter"; //$NON-NLS-1$
-	
-	
 }

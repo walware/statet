@@ -35,8 +35,9 @@ import org.eclipse.ltk.core.refactoring.TextFileChange;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.ReplaceEdit;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ISourceUnitManager;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
@@ -286,7 +287,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	private Change[] createLocalChanges(final SubMonitor progress) {
 		final TextFileChange change = new SourceUnitChange(fSourceUnit);
-		if (fSourceUnit.getWorkingContext() == ECommonsLTK.EDITOR_CONTEXT) {
+		if (fSourceUnit.getWorkingContext() == LTK.EDITOR_CONTEXT) {
 			change.setSaveMode(TextFileChange.LEAVE_DIRTY);
 		}
 		
@@ -341,7 +342,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				final List<ISourceUnit> sus = loadSus(initialProject, allProjectsSus, true, progress.newChild(3));
 				sus.add(fSourceUnit);
 				final TextFileChange textFileChange = manager.get(fSourceUnit);
-				if (fSourceUnit.getWorkingContext() == ECommonsLTK.EDITOR_CONTEXT) {
+				if (fSourceUnit.getWorkingContext() == LTK.EDITOR_CONTEXT) {
 					textFileChange.setSaveMode(TextFileChange.LEAVE_DIRTY);
 				}
 			}
@@ -465,6 +466,7 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 	
 	private List<ISourceUnit> loadSus(final RProject project, final List<List<ISourceUnit>> projectsSus, final boolean force, final SubMonitor progress) throws CoreException {
 		final List<String> suIds = RCore.getRModelManager().findReferencingSourceUnits(project.getProject(), fName);
+		final ISourceUnitManager suManager = LTK.getSourceUnitManager(); 
 		if (suIds != null && suIds.size() > 0) {
 			int remaining = suIds.size();
 			final List<ISourceUnit> sus = new ArrayList<ISourceUnit>();
@@ -474,9 +476,9 @@ public class RenameInWorkspaceRefactoring extends Refactoring {
 				if (!suId.equals(fSourceUnit.getId())) {
 					ISourceUnit su = null;
 					try {
-						su = ECommonsLTK.PERSISTENCE_CONTEXT.getUnit(suId, RModel.TYPE_ID, true, progress.newChild(1));
+						su = suManager.getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, suId, true, progress.newChild(1));
 						if (su != null) {
-							final ISourceUnit su2 = ECommonsLTK.EDITOR_CONTEXT.getUnit(su, RModel.TYPE_ID, true, progress.newChild(1));
+							final ISourceUnit su2 = suManager.getSourceUnit(RModel.TYPE_ID, LTK.EDITOR_CONTEXT, su, true, progress.newChild(1));
 							if (su2 != null) {
 								su = su2;
 							}

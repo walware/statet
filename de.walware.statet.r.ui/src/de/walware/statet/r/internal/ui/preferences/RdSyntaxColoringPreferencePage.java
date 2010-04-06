@@ -13,21 +13,24 @@ package de.walware.statet.r.internal.ui.preferences;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.editors.text.EditorsUI;
 
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
-import de.walware.ecommons.ui.util.ColorManager;
-import de.walware.ecommons.ui.workbench.AbstractSyntaxColoringBlock;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.text.ui.presentation.AbstractTextStylesConfigurationBlock;
+import de.walware.ecommons.ui.ColorManager;
+
+import de.walware.statet.base.ui.StatetUIServices;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.editors.RdDocumentSetupParticipant;
 import de.walware.statet.r.ui.editors.RdSourceViewerConfiguration;
 
 
-public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreferencePage<AbstractSyntaxColoringBlock> {
+public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreferencePage<AbstractTextStylesConfigurationBlock> {
 	
 	
 	public RdSyntaxColoringPreferencePage() {
@@ -35,8 +38,8 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 	}
 	
 	@Override
-	protected AbstractSyntaxColoringBlock createConfigurationBlock() {
-		final AbstractSyntaxColoringBlock syntaxBlock = new AbstractSyntaxColoringBlock() {
+	protected AbstractTextStylesConfigurationBlock createConfigurationBlock() {
+		final AbstractTextStylesConfigurationBlock syntaxBlock = new AbstractTextStylesConfigurationBlock() {
 			
 			@Override
 			protected SyntaxNode[] createItems() {
@@ -82,7 +85,11 @@ public class RdSyntaxColoringPreferencePage extends ConfigurationBlockPreference
 			protected SourceEditorViewerConfiguration getSourceViewerConfiguration(
 					final ColorManager colorManager, final IPreferenceStore store) {
 				return new RdSourceViewerConfiguration(RCore.getDefaultsAccess(),
-						RSourceViewerConfiguration.createCombinedPreferenceStore(store), colorManager);
+						CombinedPreferenceStore.createStore(
+								store,
+								StatetUIServices.getBaseUIPreferenceStore(),
+								EditorsUI.getPreferenceStore()),
+						colorManager);
 			}
 			
 			@Override

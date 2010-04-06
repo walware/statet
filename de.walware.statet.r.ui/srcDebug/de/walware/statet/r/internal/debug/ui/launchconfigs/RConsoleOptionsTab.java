@@ -48,12 +48,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.databinding.NumberValidator;
-import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
+import de.walware.ecommons.databinding.jface.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditorObservable;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.dialogs.ButtonGroup;
-import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
-import de.walware.ecommons.ui.text.sourceediting.SnippetEditorObservable;
+import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 

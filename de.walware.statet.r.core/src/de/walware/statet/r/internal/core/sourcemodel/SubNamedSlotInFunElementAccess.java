@@ -35,10 +35,12 @@ final class SubNamedSlotInFunElementAccess extends SubAbstractElementAccess {
 		return fSlotNameNode.getText();
 	}
 	
+	@Override
 	public final RAstNode getNode() {
 		return fRoot.getNode();
 	}
 	
+	@Override
 	public final RAstNode getNameNode() {
 		return fSlotNameNode;
 	}

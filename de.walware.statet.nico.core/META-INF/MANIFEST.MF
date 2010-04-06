@@ -11,12 +11,13 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.5.0";visibility:=reexport,
  org.eclipse.debug.core;visibility:=reexport,
  org.eclipse.core.expressions,
- org.eclipse.core.filesystem,
- org.eclipse.core.variables
-Import-Package: com.ibm.icu.text;version="4.0.1.1",
+ org.eclipse.core.filesystem;visibility:=reexport,
+ org.eclipse.core.variables;visibility:=reexport
+Import-Package: com.ibm.icu.text;version="4.0.1",
  de.walware.ecommons,
+ de.walware.ecommons.io,
  de.walware.ecommons.preferences,
- de.walware.ecommons.variables.core;resolution:=optional
+ de.walware.ecommons.variables.core
 Export-Package: de.walware.statet.nico.core,
  de.walware.statet.nico.core.runtime,
  de.walware.statet.nico.core.util,

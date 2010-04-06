@@ -14,7 +14,7 @@ package de.walware.statet.base.internal.ui.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.ecommons.ui.preferences.PropertyAndPreferencePage;
+import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 
 import de.walware.statet.base.core.StatetProject;
 import de.walware.statet.base.internal.ui.StatetUIPlugin;

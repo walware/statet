@@ -47,13 +47,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.ui.dialogs.ButtonGroup;
-import de.walware.ecommons.ui.preferences.ConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlock;
+import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvManager;
@@ -170,7 +169,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 				null, null, null, null, null},
 				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
 		fEnvDefaultIcon = new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
-				null, null, null, StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER), null},
+				null, null, null, SharedUIResources.getImages().getDescriptor(SharedUIResources.OVR_DEFAULT_MARKER_IMAGE_ID), null},
 				new Point(baseImage.getBounds().width+4, baseImage.getBounds().height)).createImage();
 	}
 	

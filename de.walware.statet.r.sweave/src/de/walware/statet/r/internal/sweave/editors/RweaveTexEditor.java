@@ -14,6 +14,10 @@ package de.walware.statet.r.internal.sweave.editors;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IHandler;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.AbstractDocument;
@@ -25,7 +29,6 @@ import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -33,22 +36,24 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-
-import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
+import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
 import de.walware.statet.r.ui.editors.RCorrectIndentAction;
 import de.walware.statet.r.ui.editors.REditor;
+import de.walware.statet.r.ui.editors.REditorOptions;
 
 
 /**
@@ -57,17 +62,17 @@ import de.walware.statet.r.ui.editors.REditor;
 public class RweaveTexEditor extends REditor {
 	
 	
-	private class MultiCatCommentAction extends ToggleCommentAction {
+	private class MultiCatCommentHandler extends ToggleCommentHandler {
 		
-		MultiCatCommentAction() {
+		MultiCatCommentHandler() {
 			super();
 		}
 		
 		@Override
-		public void run() {
+		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			final ISelection selection = getSelectionProvider().getSelection();
 			if (!(selection instanceof ITextSelection)) {
-				return;
+				return null;
 			}
 			try {
 				final ITextSelection textSelection = (ITextSelection) selection;
@@ -77,11 +82,13 @@ public class RweaveTexEditor extends REditor {
 						block.getOffset(), block.getLength());
 				if (cats != null && cats.length > 1) {
 					commentTex(document, block);
-					return;
+					return null;
 				}
-				super.run();
-			} catch (final BadLocationException e) {
+				return super.execute(event);
+			}
+			catch (final BadLocationException e) {
 				SweavePlugin.logError(-1, "Error when commenting multi cat.", e);
+				return null;
 			}
 		}
 		
@@ -113,7 +120,7 @@ public class RweaveTexEditor extends REditor {
 	
 	private class CatIndentAction extends RCorrectIndentAction {
 		
-		public CatIndentAction(final REditor editor) {
+		public CatIndentAction(final SourceEditor1 editor) {
 			super(editor);
 		}
 		
@@ -132,30 +139,29 @@ public class RweaveTexEditor extends REditor {
 	
 	
 	
-	private RweaveTexSourceViewerConfigurator fCombinedConfig;
-	private ISourceUnit fDocUnit;
+	private RweaveTexViewerConfigurator fCombinedConfig;
+	protected REditorOptions fROptions;
+	
+	protected ElementInfoController fModelProvider;
 	
 	
 	public RweaveTexEditor() {
-		super();
 	}
 	
 	@Override
 	protected SourceEditorViewerConfigurator createConfiguration() {
-		fModelProvider = new ElementInfoController(RCore.getRModelManager(), ECommonsLTK.EDITOR_CONTEXT);
+		fModelProvider = new ElementInfoController(RCore.getRModelManager(), LTK.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider, null, null);
 		
-		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(SweavePlugin.getDefault().getRTexDocumentProvider());
 		
 		final IRCoreAccess basicContext = RCore.getWorkbenchAccess();
-		fOptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
+		fROptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
 		
 		final IPreferenceStore store = SweavePlugin.getDefault().getEditorRTexPreferenceStore();
-		fCombinedConfig = new RweaveTexSourceViewerConfigurator(basicContext);
-		fRConfig = fCombinedConfig;
-		fCombinedConfig.setConfiguration(new RweaveTexSourceViewerConfiguration(this,
-				fCombinedConfig, store, StatetUIServices.getSharedColorManager()));
+		fCombinedConfig = new RweaveTexViewerConfigurator(basicContext);
+		fCombinedConfig.setConfiguration(new RweaveTexViewerConfiguration(this,
+				fCombinedConfig, store, SharedUIResources.getColors()));
 		return fCombinedConfig;
 	}
 	
@@ -165,26 +171,39 @@ public class RweaveTexEditor extends REditor {
 	}
 	
 	@Override
-	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput) {
-		fDocUnit = ((RweaveTexDocumentProvider) getDocumentProvider()).getWorkingCopy(newInput);
-		fRConfig.setSource((fDocUnit != null) ? (IRCoreAccess) fDocUnit.getAdapter(IRCoreAccess.class) : null);
-//		fModelProvider.setInput(fRResourceUnit);
+	protected void setupConfiguration(final IEditorInput newInput) {
+		super.setupConfiguration(newInput);
+		final ISourceUnit su = getSourceUnit();
+		fCombinedConfig.setSource((su != null) ? (IRCoreAccess) su.getAdapter(IRCoreAccess.class) : null);
+		fModelProvider.setInput(su);
 	}
 	
 	@Override
-	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput,
-			final ISourceViewer sourceViewer) {
-		if (fOptions.isSmartModeByDefaultEnabled()) {
+	protected void doSetInput(final IEditorInput input) throws CoreException {
+		super.doSetInput(input);
+//		if (fOptions.isSmartModeByDefaultEnabled()) {
 			setInsertMode(SMART_INSERT);
-		}
-		else {
-			setInsertMode(INSERT);
-		}
+//		}
+//		else {
+//			setInsertMode(INSERT);
+//		}
+	}
+	
+	
+	@Override
+	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
+		super.collectContextMenuPreferencePages(pageIds);
+		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RTextStylesPage"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.REditorTemplates"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RCodeStyle"); //$NON-NLS-1$
 	}
 	
 	@Override
-	protected IAction createToggleCommentAction() {
-		return new MultiCatCommentAction();
+	protected IHandler createToggleCommentHandler() {
+		final MultiCatCommentHandler commentHandler = new MultiCatCommentHandler();
+		markAsStateDependentHandler(commentHandler, true);
+		return commentHandler;
 	}
 	
 	@Override
@@ -192,20 +211,23 @@ public class RweaveTexEditor extends REditor {
 		return new CatIndentAction(this);
 	}
 	
-	@Override
-	public ISourceUnit getSourceUnit() {
-		return fDocUnit;
-	}
-	
 	
 	@Override
-	protected StatextOutlinePage1 createOutlinePage() {
+	protected SourceEditor1OutlinePage createOutlinePage() {
 		return null;
 	}
 	
 	@Override
 	protected ITemplatesPage createTemplatesPage() {
 		return new RweaveTexEditorTemplatesPage(this, getSourceViewer());
+	}
+	
+	@Override
+	public Object getAdapter(final Class required) {
+		if (required.equals(RHeuristicTokenScanner.class)) {
+			return new RweaveChunkHeuristicScanner();
+		}
+		return super.getAdapter(required);
 	}
 	
 }

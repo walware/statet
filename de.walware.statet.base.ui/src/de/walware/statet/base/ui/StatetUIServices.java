@@ -12,9 +12,6 @@
 package de.walware.statet.base.ui;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.ImageRegistry;
-
-import de.walware.ecommons.ui.util.ColorManager;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 
@@ -27,14 +24,6 @@ public class StatetUIServices {
 	
 	public static IPreferenceStore getBaseUIPreferenceStore() {
 		return StatetUIPlugin.getDefault().getPreferenceStore();
-	}
-	
-	public static ImageRegistry getSharedImageRegistry() {
-		return StatetUIPlugin.getDefault().getImageRegistry();
-	}
-	
-	public static ColorManager getSharedColorManager() {
-		return StatetUIPlugin.getDefault().getColorManager();
 	}
 	
 }

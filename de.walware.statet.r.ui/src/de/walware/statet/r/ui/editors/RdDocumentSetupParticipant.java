@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.ui.editors;
 
-import de.walware.ecommons.ui.text.Partitioner;
-import de.walware.ecommons.ui.text.PartitionerDocumentSetupParticipant;
+import de.walware.ecommons.text.Partitioner;
+import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.ui.text.rd.RdFastPartitionScanner;
@@ -29,7 +29,7 @@ public class RdDocumentSetupParticipant extends PartitionerDocumentSetupParticip
 	
 	
 	@Override
-	protected String getPartitioningId() {
+	public String getPartitioningId() {
 		return IRDocumentPartitions.RDOC_DOCUMENT_PARTITIONING;
 	}
 	

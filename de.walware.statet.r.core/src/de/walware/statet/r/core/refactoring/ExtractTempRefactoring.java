@@ -35,8 +35,8 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
 import de.walware.ecommons.ltk.core.refactoring.RefactoringChange;
@@ -298,7 +298,7 @@ public class ExtractTempRefactoring extends Refactoring {
 			final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_CreateChanges_label, 3);
 			
 			final TextFileChange textFileChange = new SourceUnitChange(fSourceUnit);
-			if (fSourceUnit.getWorkingContext() == ECommonsLTK.EDITOR_CONTEXT) {
+			if (fSourceUnit.getWorkingContext() == LTK.EDITOR_CONTEXT) {
 				textFileChange.setSaveMode(TextFileChange.LEAVE_DIRTY);
 			}
 			createChanges(textFileChange, progress.newChild(1));

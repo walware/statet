@@ -29,8 +29,8 @@ import org.eclipse.debug.core.DebugPlugin;
 
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
-import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.variables.core.DateVariable;
 import de.walware.ecommons.variables.core.DynamicVariable;
 import de.walware.ecommons.variables.core.TimeVariable;

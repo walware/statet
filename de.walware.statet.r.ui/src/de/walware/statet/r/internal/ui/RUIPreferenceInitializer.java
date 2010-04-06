@@ -19,10 +19,10 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 
@@ -39,8 +39,8 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 	public static final String REDITOR_NODE = RUI.PLUGIN_ID + "/editor.r/options"; //$NON-NLS-1$
 	public static final String RCONSOLE_NODE = RUI.PLUGIN_ID + '/'+NicoPreferenceNodes.SCOPE_QUALIFIER+ "/editor.r/options"; // NicoPreferenceNodes.createScopeQualifier(REDITOR_NODE); //$NON-NLS-1$
 	
-	public static final String REDITOR_ASSIST_GROUP_ID = REditorOptions.GROUP_ID + "/assist";
-	public static final String RCONSOLE_ASSIST_GROUP_ID = "r.editor/options" + "/assist";
+	public static final String REDITOR_ASSIST_GROUP_ID = "r/r.editor/assist";
+	public static final String RCONSOLE_ASSIST_GROUP_ID = "r/r.console/assist";
 	
 	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED = new BooleanPref(
 			RCONSOLE_NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$

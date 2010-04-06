@@ -42,7 +42,7 @@
       <factory
             adaptableType="de.walware.statet.nico.core.runtime.ToolController$ConsoleCommandRunnable"
             class="de.walware.statet.nico.internal.ui.CommandRunnableAdapterFactory">
-         <adapter type="de.walware.statet.nico.ui.IToolRunnableAdapter"/>
+         <adapter type="de.walware.statet.nico.ui.IToolRunnableDecorator"/>
       </factory>
    </extension>
    
@@ -50,7 +50,7 @@
          point="org.eclipse.ui.contexts">
       <context
             id="de.walware.statet.base.contexts.ConsoleEditor"
-            parentId="de.walware.statet.base.contexts.TextEditor"
+            parentId="de.walware.ecommons.text.contexts.TextEditor"
             name="%contexts_ConsoleEditorScope_name"
             description="%contexts_ConsoleEditorScope_description">
       </context>

@@ -45,11 +45,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
-import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.util.ViewerUtil;

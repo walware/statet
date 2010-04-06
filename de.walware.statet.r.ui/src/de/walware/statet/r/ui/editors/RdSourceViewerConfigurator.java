@@ -21,12 +21,11 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.text.PartitioningConfiguration;
-import de.walware.ecommons.ui.text.PairMatcher;
-import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
@@ -42,21 +41,15 @@ import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		implements IRCoreAccess {
 	
-	private static final char[][] BRACKETS = { {'{', '}'} };
 	
-	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(Arrays.asList(new String[] {
-			TaskTagsPreferences.GROUP_ID,
-	}));
-	
+	private static final Set<String> INPUT_CHANGE_GROUPS = new HashSet<String>(
+			Arrays.asList(new String[] { TaskTagsPreferences.GROUP_ID, }));
 	
 	private IRCoreAccess fSourceCoreAccess;
 	private RdSourceViewerConfiguration fConfig;
 	
 	
 	public RdSourceViewerConfigurator(final IRCoreAccess core) {
-		setPairMatcher(new PairMatcher(BRACKETS,
-				IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
-				new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\'));
 		setSource(core);
 	}
 	
@@ -87,7 +80,8 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 	}
 	
 	@Override
-	public void handleSettingsChanged(Set<String> groupIds, Map<String, Object> options) {
+	public void handleSettingsChanged(Set<String> groupIds,
+			Map<String, Object> options) {
 		final ISourceViewer viewer = getSourceViewer();
 		if (viewer == null || fConfig == null) {
 			return;
@@ -102,7 +96,8 @@ public class RdSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		
 		options.put(ISettingsChangedHandler.VIEWER_KEY, viewer);
 		fConfig.handleSettingsChanged(groupIds, options);
-		if (options.containsKey(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY)) {
+		if (options
+				.containsKey(ITextPresentationConstants.SETTINGSCHANGE_AFFECTSPRESENTATION_KEY)) {
 			viewer.invalidateTextPresentation();
 		}
 		

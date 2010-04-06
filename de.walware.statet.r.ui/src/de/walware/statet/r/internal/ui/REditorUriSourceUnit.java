@@ -18,12 +18,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.GenericUriSourceUnit;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.IWorkingBuffer;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceContent;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
 import de.walware.ecommons.ltk.WorkingContext;
@@ -48,13 +49,13 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	private final Object fModelLock = new Object();
 	
 	
-	public REditorUriSourceUnit(final String id, final IFileStore store) {
-		super(id, store);
+	public REditorUriSourceUnit(final String id, final IFileStore store, final ISourceUnitStateListener listener) {
+		super(id, store, listener);
 	}
 	
 	
 	public WorkingContext getWorkingContext() {
-		return ECommonsLTK.EDITOR_CONTEXT;
+		return LTK.EDITOR_CONTEXT;
 	}
 	
 	public String getModelTypeId() {
@@ -74,11 +75,13 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	
 	@Override
 	protected void register() {
+		super.register();
 		RCore.getRModelManager().registerDependentUnit(this);
 	}
 	
 	@Override
 	protected void unregister() {
+		super.unregister();
 		RCore.getRModelManager().deregisterDependentUnit(this);
 	}
 	

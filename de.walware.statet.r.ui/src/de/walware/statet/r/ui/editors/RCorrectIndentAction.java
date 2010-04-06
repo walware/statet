@@ -35,10 +35,10 @@ import org.eclipse.ui.texteditor.IUpdate;
 
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ui.util.UIAccess;
-
-import de.walware.statet.base.ui.IStatetUICommandIds;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -56,14 +56,14 @@ import de.walware.statet.r.ui.RUI;
 public class RCorrectIndentAction extends Action implements IUpdate {
 	
 	
-	private final REditor fEditor;
+	private final SourceEditor1 fEditor;
 	private final ISourceEditor fSourceEditor;
 	private RSourceIndenter fIndenter;
 	
 	
-	public RCorrectIndentAction(final REditor editor) {
+	public RCorrectIndentAction(final SourceEditor1 editor) {
 		setId("de.walware.statet.r.actions.RCorrectIndent"); //$NON-NLS-1$
-		setActionDefinitionId(IStatetUICommandIds.CORRECT_INDENT);
+		setActionDefinitionId(ISourceEditorCommandIds.CORRECT_INDENT);
 		fEditor = editor;
 		fSourceEditor = (ISourceEditor) editor.getAdapter(ISourceEditor.class);
 	}

@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
-import de.walware.ecommons.ui.dialogs.CellEditorWizardStatusUpdater;
+import de.walware.ecommons.ui.components.CellEditorWizardStatusUpdater;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;

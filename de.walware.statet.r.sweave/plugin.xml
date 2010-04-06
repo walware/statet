@@ -20,7 +20,7 @@
       <initializer class="de.walware.statet.r.internal.sweave.SweavePreferenceInitializer"/>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.contentTypes">
+         point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="net.sourceforge.texlipse.contentTypes.Latex"
             file-extensions="Rnw,rnw,Snw,snw"
@@ -35,7 +35,12 @@
    <extension
          point="de.walware.ecommons.ltk.workingContexts">
       <unitType modelTypeId="rweave-tex"
-            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexUnitFactory">
+            contextKey="persistence.default"
+            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexPersistenceUnitFactory">
+      </unitType>
+      <unitType modelTypeId="rweave-tex"
+            contextKey="editor.default"
+            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexEditorUnitFactory">
       </unitType>
    </extension>
    <extension
@@ -59,23 +64,24 @@
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant"
-            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"/>
+            contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
+            class="de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant">
+      </participant>
    </extension>
-
+   
    <extension
          point="org.eclipse.ui.editors">
       <editor
+            id="de.walware.statet.r.editors.RweaveTex"
             class="de.walware.statet.r.internal.sweave.editors.RweaveTexEditor"
             contributorClass="net.sourceforge.texlipse.editor.TexEditorActionContributor"
             default="true"
             icon="icons/obj_16/texsweave-file.png"
-            id="de.walware.statet.r.editors.RweaveTex"
             name="%editors_RweaveTex_name">
          <contentTypeBinding contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"/>
       </editor>
    </extension>
-
+   
    <extension
          point="org.eclipse.ui.editors.templates">
       <include
@@ -83,11 +89,11 @@
             translations="templates/default-templates.properties">
       </include>
    </extension>
-
+   
    <extension
          point="org.eclipse.ui.actionSetPartAssociations">
       <actionSetPartAssociation
-            targetID="de.walware.statet.base.contexts.EditSourceActionSet">
+            targetID="de.walware.ecommons.ltk.contexts.EditSourceActionSet">
          <part
                id="de.walware.statet.r.editors.RweaveTex">
          </part>
@@ -98,11 +104,11 @@
       <context
             description="%contexts_RweaveSource_description"
             id="de.walware.statet.r.contexts.RweaveEditorScope"
-            name="%contexts_RweaveSource_name"
-            parentId="de.walware.statet.r.contexts.REditorScope">
+            parentId="de.walware.statet.r.contexts.REditor"
+            name="%contexts_RweaveSource_name">
       </context>
    </extension>
-
+   
    <extension
          point="de.walware.statet.base.ui.codeGenerationTemplatesCategory">
       <category
@@ -113,10 +119,10 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
+            id="de.walware.statet.r.newWizards.RweaveTexCreation"
             category="de.walware.statet.base.newWizards.StatetCategory"
             class="de.walware.statet.r.internal.sweave.NewSweaveFileCreationWizard"
             icon="icons/tool_16/new_texsweave-file.png"
-            id="de.walware.statet.r.newWizards.RweaveTexCreation"
             name="%wizards_NewRweaveTexFile_name"
             project="false">
          <description>
@@ -148,7 +154,7 @@
          <newWizardShortcut id="de.walware.statet.r.newWizards.RweaveTexCreation"/>
       </perspectiveExtension>
    </extension>
-
+   
    <extension
          point="org.eclipse.compare.contentViewers">
       <viewer
@@ -186,7 +192,7 @@
          </keywordReference>
       </page>
    </extension>
-
+   
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchContentHandler">
       <contentHandler
@@ -335,20 +341,20 @@
             name="%categorys_Doc_name">
       </category>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
             id="de.walware.statet.r.launchShortcuts.RChunkDirect.run"
+            categoryId="org.eclipse.debug.ui.category.run"
             name="%commands_RunRChunkDirect_name">
       </command>
       <command
-            categoryId="org.eclipse.debug.ui.category.run"
             id="de.walware.statet.r.launchShortcuts.RChunkDirectAndConsole.run"
+            categoryId="org.eclipse.debug.ui.category.run"
             name="%commands_RunRChunkDirectAndGotoConsole_name">
       </command>
       <command
+            id="de.walware.statet.sweave.commands.ProcessWeaveDefault"
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
             defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessWeave"
             description="%commands_ProcessWeave_description"
-            id="de.walware.statet.sweave.commands.ProcessWeaveDefault"
             name="%commands_ProcessWeave_name">
       </command>
       <command
@@ -425,13 +431,13 @@
             sequence="M1+T 0">
       </key>
    </extension>
-
+   
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
+            id="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"
             category="org.eclipse.ui.externaltools"
             delegate="de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate"
-            id="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"
             modes="run"
             name="%launchConfigurations_RweaveTexProcessing_name"
             public="true">
@@ -448,10 +454,11 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileTabGroup"
-            description="%launchConfigurations_RweaveTexProcessing_description"
             id="de.walware.statet.r.launchConfigurationTabGroups.RweaveTexProcessing"
-            type="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"/>
+            type="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"
+            class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileTabGroup"
+            description="%launchConfigurations_RweaveTexProcessing_description">
+      </launchConfigurationTabGroup>
    </extension>
    <extension
          point="org.eclipse.ui.menus">

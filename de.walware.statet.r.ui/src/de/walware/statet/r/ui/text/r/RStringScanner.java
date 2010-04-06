@@ -13,8 +13,8 @@ package de.walware.statet.r.ui.text.r;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 
-import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
-import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
+import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 

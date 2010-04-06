@@ -37,13 +37,13 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.StringParseInput;
 import de.walware.ecommons.text.TextUtil;
-import de.walware.ecommons.ui.text.sourceediting.BracketLevel;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.text.ui.BracketLevel;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.ui.console.InputSourceViewer;
@@ -651,9 +651,9 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		else if (partition.getType() == IRDocumentPartitions.R_ROXYGEN) {
 			checkOffset = -1;
 			if (c.length == 0 && line+1 < fDocument.getNumberOfLines()) {
-				int offset = fDocument.getLineOffset(line+1);
+				final int offset = fDocument.getLineOffset(line+1);
 				fScanner.configure(fDocument);
-				int next = fScanner.findAnyNonBlankForward(offset, ITokenScanner.UNBOUND, true);
+				final int next = fScanner.findAnyNonBlankForward(offset, ITokenScanner.UNBOUND, true);
 				if (next >= 0 && fScanner.getPartition(next).getType() == IRDocumentPartitions.R_ROXYGEN) {
 					append = "#' ";
 				}

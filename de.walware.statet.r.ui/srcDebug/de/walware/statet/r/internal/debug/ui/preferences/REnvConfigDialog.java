@@ -77,12 +77,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ConstList;
+import de.walware.ecommons.databinding.jface.DatabindingSupport;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
-import de.walware.ecommons.ui.dialogs.ButtonGroup;
-import de.walware.ecommons.ui.dialogs.DatabindingSupport;
+import de.walware.ecommons.ui.components.ButtonGroup;
+import de.walware.ecommons.ui.components.ExtensibleTextCellEditor;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
-import de.walware.ecommons.ui.dialogs.ExtensibleTextCellEditor;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;

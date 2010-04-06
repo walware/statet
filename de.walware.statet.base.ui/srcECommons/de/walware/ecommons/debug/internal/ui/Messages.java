@@ -36,8 +36,6 @@ public class Messages extends NLS {
 	public static String InputArguments_label;
 	public static String InputArguments_note;
 	
-	public static String Hover_FocusAffordance_message;
-	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

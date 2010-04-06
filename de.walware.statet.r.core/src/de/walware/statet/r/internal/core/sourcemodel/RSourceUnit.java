@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.RResourceUnit;
@@ -37,25 +38,19 @@ public final class RSourceUnit extends RResourceUnit implements IRSourceUnit, IM
 	private IRModelInfo fModelInfo;
 	
 	
-	public RSourceUnit(final IFile file) {
-		super(file);
+	public RSourceUnit(final String id, final IFile file, final ISourceUnitStateListener listener) {
+		super(id, file, listener);
 	}
 	
 	
 	@Override
-	protected void init() {
-		register();
-	}
-	
-	@Override
-	protected void dispose() {
-		unregister();
+	protected void unregister() {
+		super.unregister();
 		synchronized (fModelLock) {
 			fModelInfo = null;
 		}
 	}
 	
-	@Override
 	public String getModelTypeId() {
 		return RModel.TYPE_ID;
 	}
@@ -63,11 +58,6 @@ public final class RSourceUnit extends RResourceUnit implements IRSourceUnit, IM
 	@Override
 	public int getElementType() {
 		return IRSourceUnit.R_WORKSPACE_SU;
-	}
-	
-	@Override
-	public IRSourceUnit getUnderlyingUnit() {
-		return null;
 	}
 	
 	

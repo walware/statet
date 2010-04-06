@@ -429,6 +429,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	private void updateREnvironments(final IRDataAdapter r, final Set<RElementName> envirs, final boolean force, final IProgressMonitor monitor) throws CoreException {
+//		final long time = System.nanoTime();
 		if (!(r instanceof IRCombinedDataAdapter)) {
 			return;
 		}
@@ -439,8 +440,18 @@ public class RWorkspace extends ToolWorkspace {
 		}
 		fRSearchEnvsInternal = newEnvs.fSearchEnvs;
 		fREnvMap = newEnvs.fEnvMap;
+		
 		fRSearchEnvsPublic = Collections.unmodifiableList(fRSearchEnvsInternal);
 		addPropertyChanged("REnvironments", newEnvs.fUpdateEnvs);
+//		System.out.println("nano:  " + (System.nanoTime() - time));
+//		int count = 0;
+//		for (final REnvironmentVar env : fREnvMap.values()) {
+//			final int l = env.getLength();
+//			if (l > 0) {
+//				count += l;
+//			}
+//		}
+//		System.out.println("count: " + count);
 	}
 	
 	@Override

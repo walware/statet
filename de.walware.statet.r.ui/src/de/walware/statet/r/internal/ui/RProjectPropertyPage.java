@@ -33,10 +33,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
-import de.walware.ecommons.ui.preferences.PropertyAndPreferencePage;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
+import de.walware.ecommons.preferences.ui.PropertyAndPreferencePage;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.RProject;

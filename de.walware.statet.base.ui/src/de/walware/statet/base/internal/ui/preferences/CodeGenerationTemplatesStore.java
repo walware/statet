@@ -28,7 +28,7 @@ import org.eclipse.jface.text.templates.persistence.TemplatePersistenceData;
 import org.eclipse.jface.text.templates.persistence.TemplateReaderWriter;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
-import de.walware.ecommons.ui.preferences.ScopedPreferenceStore;
+import de.walware.ecommons.preferences.ui.ScopedPreferenceStore;
 
 import de.walware.statet.base.internal.ui.StatetUIPlugin;
 

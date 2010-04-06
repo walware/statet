@@ -30,8 +30,8 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.FileUtil;
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.variables.core.ILocationVariable;
 import de.walware.ecommons.variables.core.VariableText;
 import de.walware.ecommons.variables.core.WrappedDynamicVariable;

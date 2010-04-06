@@ -28,9 +28,9 @@ import org.eclipse.swt.graphics.Point;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.BracketLevel;
-import de.walware.ecommons.ui.text.sourceediting.ElementNameCompletionProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.ElementNameCompletionProposal;
+import de.walware.ecommons.text.ui.BracketLevel;
 
 import de.walware.statet.nico.ui.console.InputSourceViewer;
 

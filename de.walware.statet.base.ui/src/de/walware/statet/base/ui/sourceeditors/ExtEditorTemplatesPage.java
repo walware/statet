@@ -32,14 +32,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.AbstractTemplatesPage;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ltk.ui.sourceediting.TemplateProposal;
+import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
+import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.preferences.SettingsUpdater;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.text.sourceediting.SourceViewerJFaceUpdater;
-import de.walware.ecommons.ui.text.sourceediting.TemplateProposal;
-import de.walware.ecommons.ui.text.sourceediting.ViewerSourceEditorAdapter;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
 
@@ -49,7 +50,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	
 	
-	private final StatextEditor1 fEditor;
+	private final SourceEditor1 fEditor;
 	
 	private ISourceEditor fPreviewEditor;
 	private final TemplateVariableProcessor fPreviewTemplateProcessor;
@@ -59,7 +60,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	private SourceViewerJFaceUpdater fCurrentPreviewUpdater;
 	
 	
-	protected ExtEditorTemplatesPage(final StatextEditor1 editor, final ISourceViewer viewer) {
+	protected ExtEditorTemplatesPage(final SourceEditor1 editor, final ISourceViewer viewer) {
 		super(editor, viewer);
 		
 		fEditor = editor;
@@ -69,7 +70,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	}
 	
 	
-	protected StatextEditor1 getEditor() {
+	protected SourceEditor1 getEditor() {
 		return fEditor;
 	}
 	
@@ -174,7 +175,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	@Override
 	protected Template editTemplate(final Template template, final boolean edit, final boolean isNameModifiable) {
 		final SourceEditorViewerConfigurator configurator = getTemplateEditConfig(template, fEditTemplateProcessor);
-		final de.walware.ecommons.ui.workbench.EditTemplateDialog dialog = new de.walware.ecommons.ui.workbench.EditTemplateDialog(
+		final de.walware.ecommons.ltk.ui.templates.EditTemplateDialog dialog = new de.walware.ecommons.ltk.ui.templates.EditTemplateDialog(
 				getSite().getShell(), template, edit, isNameModifiable, 
 				configurator, fEditTemplateProcessor, getContextTypeRegistry()) {
 			

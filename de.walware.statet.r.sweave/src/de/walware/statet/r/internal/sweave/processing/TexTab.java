@@ -50,13 +50,13 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 import de.walware.ecommons.ConstList;
-import de.walware.ecommons.databinding.RadioGroupObservable;
-import de.walware.ecommons.databinding.SWTMultiEnabledObservable;
-import de.walware.ecommons.debug.ui.CustomizableVariableSelectionDialog;
+import de.walware.ecommons.databinding.jface.RadioGroupObservable;
+import de.walware.ecommons.databinding.jface.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
+import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.SharedMessages;
-import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
+import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 import de.walware.ecommons.variables.core.VariableFilter;

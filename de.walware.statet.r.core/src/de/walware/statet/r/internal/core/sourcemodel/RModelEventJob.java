@@ -144,7 +144,7 @@ public class RModelEventJob extends Job {
 			fStop = true;
 			fTaskQueue.clear();
 			fTaskDetail.clear();
-		}		
+		}
 	}
 	
 	private void fireDelta(final IModelElementDelta delta) {

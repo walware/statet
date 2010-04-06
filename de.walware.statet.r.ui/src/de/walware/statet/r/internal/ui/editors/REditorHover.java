@@ -18,7 +18,7 @@ import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
 
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
 import de.walware.statet.r.internal.debug.ui.REditorDebugHover;
 

@@ -16,7 +16,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.dialogs.groups.ButtonGroup.ButtonListener;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
 

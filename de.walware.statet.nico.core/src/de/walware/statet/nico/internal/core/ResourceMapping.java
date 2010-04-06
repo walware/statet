@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
-import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.io.FileUtil;
 
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 

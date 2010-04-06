@@ -30,16 +30,19 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 
-import de.walware.ecommons.ui.text.presentation.AbstractRuleBasedScanner;
-import de.walware.ecommons.ui.text.presentation.SingleTokenScanner;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
-import de.walware.ecommons.ui.util.ColorManager;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.text.PairMatcher;
+import de.walware.ecommons.text.ui.presentation.AbstractRuleBasedScanner;
+import de.walware.ecommons.text.ui.presentation.SingleTokenScanner;
+import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 
+import de.walware.statet.base.ui.IStatetUIPreferenceConstants;
 import de.walware.statet.ext.ui.text.CommentScanner;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.text.rd.RdCodeScanner;
 import de.walware.statet.r.ui.text.rd.RdDoubleClickStrategy;
@@ -52,10 +55,14 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 		implements ISettingsChangedHandler {
 	
 	
+	private static final char[][] BRACKETS = { { '{', '}' } };
+	
+	
 	private RdCodeScanner fDocScanner;
 	private CommentScanner fCommentScanner;
 	private SingleTokenScanner fPlatformSpecifScanner;
 	
+	private PairMatcher fPairMatcher;
 	private RdDoubleClickStrategy fDoubleClickStrategy;
 	
 	private IRCoreAccess fRCoreAccess;
@@ -63,7 +70,9 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 	
 	public RdSourceViewerConfiguration(final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 		super(null);
-		setup(preferenceStore, colorManager);
+		setup(preferenceStore, colorManager,
+				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
+				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
 		fRCoreAccess = rCoreAccess;
 		if (fRCoreAccess == null) {
 			fRCoreAccess = RCore.getWorkbenchAccess();
@@ -96,6 +105,16 @@ public class RdSourceViewerConfiguration extends SourceEditorViewerConfiguration
 	@Override
 	public String getConfiguredDocumentPartitioning(final ISourceViewer sourceViewer) {
 		return RDOC_DOCUMENT_PARTITIONING;
+	}
+	
+	@Override
+	public PairMatcher getPairMatcher() {
+		if (fPairMatcher == null) {
+			fPairMatcher = new PairMatcher(BRACKETS,
+					IRDocumentPartitions.RDOC_PARTITIONING_CONFIG,
+					new String[] { IRDocumentPartitions.RDOC_DEFAULT }, '\\');
+		}
+		return fPairMatcher;
 	}
 	
 	@Override

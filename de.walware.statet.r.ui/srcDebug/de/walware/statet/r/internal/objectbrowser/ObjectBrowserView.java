@@ -89,8 +89,9 @@ import de.walware.ecommons.FastList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
-import de.walware.ecommons.ui.HandlerContributionItem;
-import de.walware.ecommons.ui.SearchContributionItem;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ui.actions.HandlerContributionItem;
+import de.walware.ecommons.ui.actions.SearchContributionItem;
 import de.walware.ecommons.ui.util.ColumnHoverManager;
 import de.walware.ecommons.ui.util.ColumnHoverStickyManager;
 import de.walware.ecommons.ui.util.ColumnWidgetTokenOwner;
@@ -100,9 +101,7 @@ import de.walware.ecommons.ui.util.InformationDispatchHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
@@ -582,13 +581,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				final ICombinedRElement element = (ICombinedRElement) treePath.getLastSegment();
 				final ICombinedRElement parent = element.getModelParent();
 				
-				final IElementName elementName = getElementName(treePath);
+				final RElementName elementName = getElementName(treePath);
 				if (parent != null && elementName != null) {
+					final RElementName topName;
 					switch (parent.getRObjectType()) {
 					case RObject.TYPE_ENV: {
-						final IElementName envirName = (treePath.getSegmentCount() > 1) ? getElementName(treePath.getParentPath()) : parent.getElementName();
+						final RElementName envirName = (treePath.getSegmentCount() > 1) ? getElementName(treePath.getParentPath()) : parent.getElementName();
 						final IElementName itemName = element.getElementName();
-						final IElementName topName = elementName.getNamespace();
+						topName = elementName.getNamespace();
 						if (envirName != null) { // elementName ok => segmentName ok
 							commands.add("rm(`"+itemName.getSegmentName()+"`,"+ //$NON-NLS-1$ 
 									"pos="+RElementName.createDisplayName(envirName, RElementName.DISPLAY_NS_PREFIX | RElementName.DISPLAY_EXACT)+ //$NON-NLS-1$
@@ -601,7 +601,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					case RObject.TYPE_LIST:
 					case RObject.TYPE_DATAFRAME:
 					case RObject.TYPE_S4OBJECT:
-						final IElementName topName = elementName.getNamespace();
+						topName = elementName.getNamespace();
 						final String name = RElementName.createDisplayName(elementName, RElementName.DISPLAY_EXACT);
 						commands.add("with("+RElementName.createDisplayName(topName, RElementName.DISPLAY_NS_PREFIX)+","+ //$NON-NLS-1$ 
 								name+"<-NULL"+ //$NON-NLS-1$
@@ -1078,7 +1078,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		@Override
 		protected Object prepareHoverInformation(final ViewerCell cell) {
 			final TreePath treePath = cell.getViewerRow().getTreePath();
-			final IElementName elementName = getElementName(treePath);
+			final RElementName elementName = getElementName(treePath);
 			if (elementName != null && elementName.getNamespace() != null) {
 				return elementName;
 			}
@@ -1302,14 +1302,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		final IHandlerService handlerService = (IHandlerService) getSite().getService(IHandlerService.class);
 		final IContextService contexts = (IContextService) getSite().getService(IContextService.class);
 		
-		contexts.activateContext("de.walware.statet.base.contexts.StructuredElementViewer"); //$NON-NLS-1$
+		contexts.activateContext("de.walware.ecommons.base.contexts.StructuredElementViewer"); //$NON-NLS-1$
 		
 		final RefreshHandler refreshHandler = new RefreshHandler();
 		handlerService.activateHandler(IWorkbenchCommandConstants.FILE_REFRESH, refreshHandler);
 		final CollapseAllHandler collapseAllHandler = new CollapseAllHandler(fTreeViewer);
 		handlerService.activateHandler(CollapseAllHandler.COMMAND_ID, collapseAllHandler);
 		fCopyElementNameHandler = new CopyElementNameHandler();
-		handlerService.activateHandler(IStatetUICommandIds.COPY_ELEMENT_NAME, fCopyElementNameHandler);
+		handlerService.activateHandler(ISourceEditorCommandIds.COPY_ELEMENT_NAME, fCopyElementNameHandler);
 		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_COPY, fCopyElementNameHandler);
 		fDeleteElementHandler = new DeleteHandler();
 		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_DELETE, fDeleteElementHandler);
@@ -1431,7 +1431,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		final ImageDescriptor icon = (enabled) ?
 				RUIPlugin.getDefault().getImageRegistry().getDescriptor(RUIPlugin.IMG_LOCTOOL_REFRESH_RECOMMENDED) :
-				StatetUIServices.getSharedImageRegistry().getDescriptor(StatetImages.TOOL_REFRESH);
+				StatetImages.getDescriptor(StatetImages.TOOL_REFRESH);
 		fRefreshToolbarItem.setIcon(icon);
 		fRefreshMenuItem.setIcon(icon);
 		fRefreshDirtyIndicator = enabled;
@@ -1453,7 +1453,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private void contextMenuAboutToShow(final IMenuManager m) {
 		m.add(new HandlerContributionItem(new CommandContributionItemParameter(getSite(),
-				"Copy.ElementName", IStatetUICommandIds.COPY_ELEMENT_NAME, null, //$NON-NLS-1$
+				"Copy.ElementName", ISourceEditorCommandIds.COPY_ELEMENT_NAME, null, //$NON-NLS-1$
 				null, null, null,
 				null, null, null,
 				HandlerContributionItem.STYLE_PUSH, null, false),

@@ -16,9 +16,8 @@ import org.eclipse.compare.IViewerCreator;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.ui.workbench.CompareTextViewer;
-
-import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.ecommons.ltk.ui.compare.CompareTextViewer;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
@@ -27,10 +26,10 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 public class RweaveTexTextViewerCreator implements IViewerCreator {
 	
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
-		final RweaveTexSourceViewerConfigurator viewerConfigurator = new RweaveTexSourceViewerConfigurator(
+		final RweaveTexViewerConfigurator viewerConfigurator = new RweaveTexViewerConfigurator(
 				RCore.getWorkbenchAccess());
-		viewerConfigurator.setConfiguration(new RweaveTexSourceViewerConfiguration(
-				viewerConfigurator, SweavePlugin.getDefault().getEditorRTexPreferenceStore(), StatetUIServices.getSharedColorManager()));
+		viewerConfigurator.setConfiguration(new RweaveTexViewerConfiguration(
+				viewerConfigurator, SweavePlugin.getDefault().getEditorRTexPreferenceStore(), SharedUIResources.getColors()));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}
 	

@@ -33,7 +33,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
-import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.io.FileUtil;
 
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;

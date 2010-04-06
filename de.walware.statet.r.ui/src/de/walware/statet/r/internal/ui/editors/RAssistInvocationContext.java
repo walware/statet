@@ -17,8 +17,8 @@ import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.ITypedRegion;
 
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 
 import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -46,12 +46,11 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 			if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
 				offset = partition.getOffset();
 			}
-			int goodStart = offset;
+			int start = offset;
 			SEARCH_START: while (offset > 0) {
 				final char c = document.getChar(offset - 1);
 				if (RTokens.isRobustSeparator(c, false)) {
 					switch (c) {
-					case ':':
 					case '$':
 					case '@':
 						offset --;
@@ -62,7 +61,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 							final char c2 = document.getChar(offset - 2);
 							if ((offset == getInvocationOffset()) ? 
 									!RTokens.isRobustSeparator(c, false) :
-									(c2 == ':' && c2 == '$' && c2 == '@')) {
+									(c2 == '$' && c2 == '@')) {
 								offset -= 2;
 								continue SEARCH_START;
 							}
@@ -71,7 +70,7 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 					case '`':
 						partition = document.getPartition(getEditor().getPartitioning().getPartitioning(), offset - 1, false);
 						if (partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
-							offset = goodStart = partition.getOffset();
+							offset = start = partition.getOffset();
 							continue SEARCH_START;
 						}
 						else {
@@ -84,12 +83,12 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 				}
 				else {
 					offset --;
-					goodStart = offset;
+					start = offset;
 					continue SEARCH_START;
 				}
 			}
 			
-			return document.get(offset, getInvocationOffset() - goodStart);
+			return document.get(start, getInvocationOffset() - start);
 		}
 		catch (final BadLocationException e) {
 		}

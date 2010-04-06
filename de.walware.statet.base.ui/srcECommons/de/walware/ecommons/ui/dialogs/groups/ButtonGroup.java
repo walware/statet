@@ -18,7 +18,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.ui.dialogs.Layouter;
 import de.walware.ecommons.ui.util.UIAccess;
 
 

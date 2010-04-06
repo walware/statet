@@ -38,10 +38,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.InformationDispatchHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
-
-import de.walware.statet.base.ui.StatetImages;
 
 import de.walware.rj.data.RList;
 
@@ -165,7 +164,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		
 		{	// Title image
 			fTitleImage = new Label(fContentComposite, SWT.NULL);
-			final Image image = StatetImages.getImage(StatetImages.OBJ_PLACEHOLDER);
+			final Image image = SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID);
 			fTitleImage.setImage(image);
 			
 			final GridData textGd = new GridData(SWT.FILL, SWT.TOP, false, false);
@@ -334,7 +333,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		}
 		if (fInput != null) {
 			final Image image = fLabelProvider.getImage(fInput.element);
-			fTitleImage.setImage((image != null) ? image : StatetImages.getImage(StatetImages.OBJ_PLACEHOLDER));
+			fTitleImage.setImage((image != null) ? image : SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
 			final StyledString styleString = fLabelProvider.getStyledText(fInput.element, fInput.element.getElementName(), fInput.elementAttr);
 			fTitleText.setText(styleString.getString());
 			fTitleText.setStyleRanges(styleString.getStyleRanges());
@@ -349,7 +348,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			}
 		}
 		else {
-			fTitleImage.setImage(StatetImages.getImage(StatetImages.OBJ_PLACEHOLDER));
+			fTitleImage.setImage(SharedUIResources.getImages().get(SharedUIResources.PLACEHOLDER_IMAGE_ID));
 			fTitleText.setText(""); //$NON-NLS-1$
 			fInfoText.setText(""); //$NON-NLS-1$
 		}

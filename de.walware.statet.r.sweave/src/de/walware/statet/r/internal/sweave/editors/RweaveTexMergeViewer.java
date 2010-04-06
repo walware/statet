@@ -16,10 +16,9 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.widgets.Composite;
 
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.workbench.CompareMergeTextViewer;
-
-import de.walware.statet.base.ui.StatetUIServices;
+import de.walware.ecommons.ltk.ui.compare.CompareMergeTextViewer;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
@@ -39,10 +38,10 @@ public class RweaveTexMergeViewer extends CompareMergeTextViewer {
 	
 	@Override
 	protected SourceEditorViewerConfigurator createConfigurator(final SourceViewer sourceViewer) {
-		final RweaveTexSourceViewerConfigurator viewerConfigurator = new RweaveTexSourceViewerConfigurator(
-				RCore.getWorkbenchAccess());
-		viewerConfigurator.setConfiguration(new RweaveTexSourceViewerConfiguration(
-				viewerConfigurator, SweavePlugin.getDefault().getEditorRTexPreferenceStore(), StatetUIServices.getSharedColorManager()));
+		final RweaveTexViewerConfigurator viewerConfigurator = new RweaveTexViewerConfigurator(
+				RCore.getWorkbenchAccess() );
+		viewerConfigurator.setConfiguration(new RweaveTexViewerConfiguration(viewerConfigurator,
+				SweavePlugin.getDefault().getEditorRTexPreferenceStore(), SharedUIResources.getColors() ));
 		return viewerConfigurator;
 	}
 	

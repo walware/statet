@@ -16,10 +16,9 @@ import java.util.List;
 
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
-import de.walware.ecommons.ui.text.sourceediting.AssistInvocationContext;
-import de.walware.ecommons.ui.text.sourceediting.QuickAssistProcessor;
-
-import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.QuickAssistProcessor;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -28,7 +27,7 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 public class RQuickAssistProcessor extends QuickAssistProcessor {
 	
 	
-	public RQuickAssistProcessor(final StatextEditor1 editor) {
+	public RQuickAssistProcessor(final SourceEditor1 editor) {
 		super(editor);
 	}
 	

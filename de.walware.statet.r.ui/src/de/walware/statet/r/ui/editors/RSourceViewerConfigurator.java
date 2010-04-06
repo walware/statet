@@ -24,13 +24,13 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.text.PartitioningConfiguration;
-import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.base.core.preferences.TaskTagsPreferences;
 
@@ -38,7 +38,6 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
 
 
 /**
@@ -72,12 +71,6 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		fRCodeStyleCopy.load(fSourceCoreAccess.getRCodeStyle());
 		fRCodeStyleCopy.resetDirty();
 		fRCodeStyleCopy.addPropertyChangeListener(this);
-		
-		initialize();
-	}
-	
-	protected void initialize() {
-		setPairMatcher(new RBracketPairMatcher());
 	}
 	
 	

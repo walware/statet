@@ -14,16 +14,15 @@ package de.walware.statet.r.ui.editors;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-
-import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class RdEditor extends StatextEditor1<RProject> {
+public class RdEditor extends SourceEditor1 {
 	
 	
 	private RdSourceViewerConfigurator fRdConfig;
@@ -35,14 +34,13 @@ public class RdEditor extends StatextEditor1<RProject> {
 	
 	@Override
 	protected SourceEditorViewerConfigurator createConfiguration() {
-		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());
 		
 		fRdConfig = new RdSourceViewerConfigurator(null);
 		fRdConfig.setConfiguration(new RdSourceViewerConfiguration(
 				fRdConfig,
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
-				StatetUIServices.getSharedColorManager()));
+				SharedUIResources.getColors()));
 		return fRdConfig;
 	}
 	
@@ -54,8 +52,8 @@ public class RdEditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput) {
-		fRdConfig.setSource(newProject);
+	protected void setupConfiguration(final IEditorInput newInput) {
+		fRdConfig.setSource((RProject) getProject(newInput, RProject.NATURE_ID));
 	}
 	
 	@Override

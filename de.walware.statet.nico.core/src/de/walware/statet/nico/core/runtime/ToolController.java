@@ -880,10 +880,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					}
 					else {
 						fQueue.internalFinished(fCurrentRunnable, Queue.ERROR);
-						status = new Status(
-								IStatus.ERROR,
-								NicoCore.PLUGIN_ID,
-								NicoPlugin.EXTERNAL_ERROR,
+						status = new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoPlugin.EXTERNAL_ERROR,
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
 										new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
 								e);

@@ -34,12 +34,12 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.preferences.Preference;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.dialogs.Layouter;
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
-import de.walware.ecommons.ui.text.sourceediting.SnippetEditor;
+import de.walware.ecommons.ui.dialogs.groups.Layouter;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 

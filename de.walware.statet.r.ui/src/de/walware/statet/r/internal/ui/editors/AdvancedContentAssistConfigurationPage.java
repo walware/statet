@@ -13,8 +13,8 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.eclipse.core.runtime.CoreException;
 
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.ecommons.ui.text.sourceediting.AdvancedContentAssistConfigurationBlock;
+import de.walware.ecommons.ltk.ui.sourceediting.AdvancedContentAssistConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
@@ -31,7 +31,6 @@ public class AdvancedContentAssistConfigurationPage {
 		protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
 			return new AdvancedContentAssistConfigurationBlock(
 					RUIPlugin.getDefault().getREditorContentAssistRegistry(),
-					"de.walware.statet.r.commands.SpecificContentAssist", //$NON-NLS-1$
 					createStatusChangedListener());
 		}
 		
@@ -46,7 +45,6 @@ public class AdvancedContentAssistConfigurationPage {
 		protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
 			return new AdvancedContentAssistConfigurationBlock(
 					RUIPlugin.getDefault().getRConsoleContentAssistRegistry(),
-					"de.walware.statet.r.commands.SpecificContentAssist", //$NON-NLS-1$
 					createStatusChangedListener());
 		}
 		

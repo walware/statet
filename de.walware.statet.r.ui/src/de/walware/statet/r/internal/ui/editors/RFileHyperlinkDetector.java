@@ -30,10 +30,10 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 
-import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ui.text.OpenFileHyperlink;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.text.ui.OpenFileHyperlink;
 
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;

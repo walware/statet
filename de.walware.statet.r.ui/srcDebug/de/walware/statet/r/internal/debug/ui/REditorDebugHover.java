@@ -31,8 +31,8 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.TextUtil;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
@@ -124,10 +124,7 @@ public class REditorDebugHover implements ISourceEditorHover {
 						fElementAttr = new RListImpl(new RObject[] { robject }, null, new String[] { "class" });
 					}
 				}
-				{	final String infof = "function(x) str(x,max.level="+
-							((fElementStruct == null || fElementStruct.getRObjectType() != RObject.TYPE_LIST) ?
-									"NA" : (fElementStruct.getLength() < 1000) ? "1L" : "0L") + ")";
-					final String title = "str";
+				{	final String title = "str";
 					final String cmd = "evalq(expr={"
 							+ "savedOptions<-options(width=10000);"
 							+ "strdepth<- function(x,max.elements=2000,max.level=10) {\n"

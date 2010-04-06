@@ -24,17 +24,18 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.ui.text.sourceediting.ContentAssistComputerRegistry;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetUIServices;
@@ -43,6 +44,7 @@ import de.walware.statet.nico.core.NicoCore;
 
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.ui.RUI;
@@ -177,11 +179,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	}
 	
 	@Override
-	protected ImageRegistry createImageRegistry() {
-		return StatetUIServices.getSharedImageRegistry();
-	}
-	
-	@Override
 	protected void initializeImageRegistry(final ImageRegistry reg) {
 		final ImageRegistryUtil util = new ImageRegistryUtil(this);
 		util.register(IMG_WIZBAN_NEWRPROJECT, ImageRegistryUtil.T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
@@ -240,8 +237,10 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public IPreferenceStore getEditorPreferenceStore() {
 		if (fEditorPreferenceStore == null) {
-			fEditorPreferenceStore = SourceEditorViewerConfiguration.createCombinedPreferenceStore(
-				getPreferenceStore());
+			fEditorPreferenceStore = CombinedPreferenceStore.createStore(
+					getPreferenceStore(),
+					StatetUIServices.getBaseUIPreferenceStore(),
+					EditorsUI.getPreferenceStore() );
 		}
 		return fEditorPreferenceStore;
 	}
@@ -380,9 +379,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized ContentAssistComputerRegistry getREditorContentAssistRegistry() {
 		if (fREditorContentAssistRegistry == null) {
-			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID, 
-					RUIPreferenceInitializer.REDITOR_NODE, RUIPreferenceInitializer.REDITOR_ASSIST_GROUP_ID, 
-					"rEditorContentAssistComputer"); //$NON-NLS-1$
+			fREditorContentAssistRegistry = new ContentAssistComputerRegistry(IRSourceUnit.R_CONTENT,
+					RUIPreferenceInitializer.REDITOR_NODE, RUIPreferenceInitializer.REDITOR_ASSIST_GROUP_ID);
 			fDisposables.add(fREditorContentAssistRegistry);
 		}
 		return fREditorContentAssistRegistry;
@@ -390,9 +388,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized ContentAssistComputerRegistry getRConsoleContentAssistRegistry() {
 		if (fRConsoleContentAssistRegistry == null) {
-			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(RUI.PLUGIN_ID,
-					RUIPreferenceInitializer.RCONSOLE_NODE, RUIPreferenceInitializer.RCONSOLE_ASSIST_GROUP_ID, 
-					"rConsoleContentAssistComputer"); //$NON-NLS-1$
+			fRConsoleContentAssistRegistry = new ContentAssistComputerRegistry(IRSourceUnit.R_CONTENT+"Console",
+					RUIPreferenceInitializer.RCONSOLE_NODE, RUIPreferenceInitializer.RCONSOLE_ASSIST_GROUP_ID);
 			fDisposables.add(fRConsoleContentAssistRegistry);
 		}
 		return fRConsoleContentAssistRegistry;

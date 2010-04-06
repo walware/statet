@@ -28,11 +28,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.ui.dialogs.IStatusChangeListener;
-import de.walware.ecommons.ui.preferences.ConfigurationBlockPreferencePage;
-import de.walware.ecommons.ui.preferences.ManagedConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;

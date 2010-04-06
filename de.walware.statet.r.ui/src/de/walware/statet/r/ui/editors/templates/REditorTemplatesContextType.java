@@ -12,9 +12,9 @@
 package de.walware.statet.r.ui.editors.templates;
 
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
-import org.eclipse.jface.text.templates.GlobalTemplateVariables;
 
-import de.walware.statet.ext.templates.SourceUnitVariableResolver;
+import de.walware.ecommons.ltk.ui.templates.SourceUnitVariableResolver;
+
 import de.walware.statet.ext.templates.StatextCodeTemplatesContextType;
 
 import de.walware.statet.r.internal.ui.RUIMessages;
@@ -108,9 +108,7 @@ public class REditorTemplatesContextType extends StatextCodeTemplatesContextType
 		super(id, name);
 		
 		addCommonVariables();
-		addResolver(new GlobalTemplateVariables.Cursor());
-		addResolver(new GlobalTemplateVariables.WordSelection());
-		addResolver(new GlobalTemplateVariables.LineSelection());
+		addEditorVariables();
 		
 		addResolver(new SourceUnitVariableResolver.FileName());
 		

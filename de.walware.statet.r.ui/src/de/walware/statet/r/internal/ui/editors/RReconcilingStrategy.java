@@ -20,7 +20,7 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ui.text.EcoReconciler2.ISourceUnitStrategy;
+import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2.ISourceUnitStrategy;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;

@@ -19,7 +19,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import de.walware.ecommons.ui.dialogs.Layouter;
 
 
 public abstract class SelectionOptionsGroup<ItemT extends Object> implements OptionsGroup {

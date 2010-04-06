@@ -43,41 +43,41 @@ import de.walware.statet.r.launching.IRCodeLaunchConnector;
 
 
 public class RGWLauncher implements IRCodeLaunchConnector {
-
+	
 	
 	private static BooleanPref PREF_SUBMIT_DIRECTLY_ENABLED = new BooleanPref(
-			WinRGuiConnectorPlugin.ID, "submit_directly.enabled"); //$NON-NLS-1$
+			WinRGuiConnectorPlugin.PLUGIN_ID, "submit_directly.enabled"); //$NON-NLS-1$
 	
 	
 	private Clipboard fClipboard;
 	private boolean fSubmitDirectly;
 	private String fExecutable;
 	
+	
 	public RGWLauncher() throws CoreException {
 		
-		URL dir = WinRGuiConnectorPlugin.getDefault().getBundle().getEntry("/win32/RGWConnector.exe"); //$NON-NLS-1$
+		final URL dir = WinRGuiConnectorPlugin.getDefault().getBundle().getEntry("/win32/RGWConnector.exe"); //$NON-NLS-1$
 		fSubmitDirectly = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_SUBMIT_DIRECTLY_ENABLED);
 		try {
-			String local = FileLocator.toFileURL(dir).getPath();
-			File file = new File(local);
+			final String local = FileLocator.toFileURL(dir).getPath();
+			final File file = new File(local);
 			if (!file.exists())
 				throw new IOException("Missing File '"+file.getAbsolutePath() + "'.");
 			fExecutable = file.getAbsolutePath();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			throw new CoreException(new Status(
 					IStatus.ERROR,
-					WinRGuiConnectorPlugin.ID,
+					WinRGuiConnectorPlugin.PLUGIN_ID,
 					-1,
 					"Error Loading R-GUI-Windows-Connector:",
 					e));
 		}
 	}
-
+	
 	private enum SubmitType { DONOTHING, SUBMITINPUT, PASTECLIPBOARD };
 	
-	public boolean submit(final String[] rCommands, boolean gotoConsole) throws CoreException {
+	public boolean submit(final String[] rCommands, final boolean gotoConsole) throws CoreException {
 		// goto option not implemented (requires extension of .net-code)
-		
 		final SubmitType type;
 		if (rCommands.length == 0)
 			type = SubmitType.DONOTHING;
@@ -88,7 +88,7 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 				return false;
 			type = SubmitType.PASTECLIPBOARD;
 		}
-
+		
 		doRunConnector(type, (type == SubmitType.SUBMITINPUT) ? rCommands : null);
 		return true;
 //		StringBuilder rCmd = new StringBuilder();
@@ -98,31 +98,29 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 //		}
 //		cmd[1]  = rCmd.toString();
 	}
-
+	
 	public void gotoConsole() throws CoreException {
-		
 		doRunConnector(SubmitType.DONOTHING, null);
 	}
 	
-	private void doRunConnector(SubmitType connectorCmd, final String[] writeToProcess) throws CoreException {
-
+	private void doRunConnector(final SubmitType connectorCmd, final String[] writeToProcess) throws CoreException {
 		final String[] processCmd = new String[] {
 			fExecutable, connectorCmd.toString().toLowerCase() };
 		final AtomicReference<Process> process = new AtomicReference<Process>();
 		
-		IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
+		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		
-		IRunnableWithProgress runnable = new IRunnableWithProgress(){
-			public void run(IProgressMonitor monitor) throws InvocationTargetException {
+		final IRunnableWithProgress runnable = new IRunnableWithProgress(){
+			public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					Process p = DebugPlugin.exec(processCmd, null);
+					final Process p = DebugPlugin.exec(processCmd, null);
 					process.set(p);
 					
 					if (writeToProcess != null) {
 						writeTextToProcess(p, writeToProcess);
 					}
 					
-					int exitCode = p.waitFor();
+					final int exitCode = p.waitFor();
 					String message = null;
 					switch (exitCode) {
 					case 0:
@@ -137,17 +135,18 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 							if (message == null)
 								message = "Unable to detect Error";
 						}
-						catch (Exception e) {
+						catch (final Exception e) {
 							message = "Unable to detect Error";
 						}
 						finally {
-							if (reader != null)
+							if (reader != null) {
 								try {
 									reader.close();
-								} catch (Exception e) {};
+								}
+								catch (final Exception e) {}
+							}
 						}
-						}
-						break;
+						break; }
 					
 					default:
 						message = "Unknown Error";
@@ -158,11 +157,12 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 					if (message != null)
 						throw new CoreException(new Status(
 								IStatus.ERROR,
-								WinRGuiConnectorPlugin.ID,
+								WinRGuiConnectorPlugin.PLUGIN_ID,
 								-1,
 								"Error when running RGui-Connector: \n"+message,
 								null));
-				} catch (Exception e) {
+				}
+				catch (final Exception e) {
 					throw new InvocationTargetException(e);
 				}
 			}
@@ -170,31 +170,30 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 		
 		try {
 			progressService.busyCursorWhile(runnable);
-
-		} catch (InvocationTargetException e1) {
-			Throwable cause = e1.getCause();
-			if (cause instanceof CoreException)
+		}
+		catch (final InvocationTargetException e1) {
+			final Throwable cause = e1.getCause();
+			if (cause instanceof CoreException) {
 				throw (CoreException) cause;
-			else
-				throw new CoreException(new Status(
-						IStatus.ERROR,
-						WinRGuiConnectorPlugin.ID,
-						-1,
-						"Unknown Error occured when running R-Gui-Connector",
-						e1));
-		} catch (InterruptedException e1) {
-			Process p = process.get();
+			}
+			else {
+				throw new CoreException(new Status(IStatus.ERROR, WinRGuiConnectorPlugin.PLUGIN_ID, -1,
+						"Unknown Error occured when running R-Gui-Connector", e1));
+			}
+		}
+		catch (final InterruptedException e1) {
+			final Process p = process.get();
 			if (p != null) {
 				try {
 					p.destroy();
-				} catch (Exception e) { }
+				}
+				catch (final Exception e) { }
 			}
 		}
 	}
 	
 	
-	private void writeTextToProcess(Process process, String[] text) {
-		
+	private void writeTextToProcess(final Process process, final String[] text) {
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
@@ -202,30 +201,31 @@ public class RGWLauncher implements IRCodeLaunchConnector {
 				writer.println(text[i]);
 			}
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			
 		}
 		finally {
 			if (writer != null)
 				try {
 					writer.close();
-				} catch (Exception e) {};
+				} catch (final Exception e) {};
 		}
 	}
 	
-	private boolean copyToClipboard(String[] text) {
-		
-		StringBuilder builder = new StringBuilder();
+	private boolean copyToClipboard(final String[] text) {
+		final StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < text.length; i++) {
 			builder.append(text[i]);
 			builder.append("\n");
 		}
 		
-		if (fClipboard == null)
+		if (fClipboard == null) {
 			fClipboard = new Clipboard(Display.getCurrent());
+		}
 		
 		return DNDUtil.setContent(fClipboard,
 				new String[] { builder.toString() },
 				new Transfer[] { TextTransfer.getInstance() } );
 	}
+	
 }

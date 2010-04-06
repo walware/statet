@@ -15,9 +15,8 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.TreeViewer;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
 import de.walware.ecommons.ui.util.DialogUtil;
-
-import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -29,7 +28,7 @@ import de.walware.statet.r.ui.editors.REditor;
 /**
  * Shows the AST in the outline - for debugging purposes
  */
-public class RAstOutlinePage extends StatextOutlinePage1 {
+public class RAstOutlinePage extends SourceEditor1OutlinePage {
 	
 	
 	private REditor fEditor;

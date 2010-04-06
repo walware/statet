@@ -15,14 +15,6 @@
 
 <plugin>
 
-   <extension-point id="de.walware.ecommons.ltk.contentTypeActivation" 
-         name="Additional activation for content types"
-         schema="schema/de.walware.ecommons.ltk.contentTypeActivation.exsd"/>
-
-   <extension-point id="de.walware.ecommons.ltk.workingContexts"
-         name="StatET Working Contexts"
-         schema="schema/de.walware.ecommons.ltk.workingContexts.exsd"/>
-
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer class="de.walware.statet.base.internal.core.BaseCorePreferenceInitializer"/>

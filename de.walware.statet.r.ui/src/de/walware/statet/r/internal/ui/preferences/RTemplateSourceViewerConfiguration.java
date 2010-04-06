@@ -18,7 +18,7 @@ import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.source.ISourceViewer;
 
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.util.ColorManager;
+import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;

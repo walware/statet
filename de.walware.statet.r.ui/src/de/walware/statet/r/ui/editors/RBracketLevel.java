@@ -16,8 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.link.LinkedPosition;
 
 import de.walware.ecommons.text.PartitioningConfiguration;
-import de.walware.ecommons.ui.text.sourceediting.BracketLevel;
-import de.walware.ecommons.ui.text.sourceediting.BracketLevel.DefaultBracketLevel;
+import de.walware.ecommons.text.ui.BracketLevel;
+import de.walware.ecommons.text.ui.BracketLevel.DefaultBracketLevel;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 

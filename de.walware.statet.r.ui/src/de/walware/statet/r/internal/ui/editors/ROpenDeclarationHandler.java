@@ -48,10 +48,10 @@ import de.walware.ecommons.ltk.ISourceElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
-import de.walware.ecommons.ui.ECommonsUI;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
@@ -192,7 +192,7 @@ public class ROpenDeclarationHandler extends AbstractHandler {
 				}
 				catch (final PartInitException e) {
 					Display.getCurrent().beep();
-					StatusManager.getManager().handle(new Status(IStatus.INFO, ECommonsUI.PLUGIN_ID, -1,
+					StatusManager.getManager().handle(new Status(IStatus.INFO, SharedUIResources.PLUGIN_ID, -1,
 							NLS.bind("An error occurred when opening editor for the declaration of ''{0}''", access.getDisplayName()), e));
 				}
 			}

@@ -31,9 +31,16 @@ public class NicoUI {
 	public static final String PLUGIN_ID = "de.walware.statet.nico.ui"; //$NON-NLS-1$
 	
 	
-	public static final String IMG_LOCTOOL_CANCEL = PLUGIN_ID+"/img/loctool/cancel";  //$NON-NLS-1$
-	public static final String IMG_LOCTOOLD_CANCEL = PLUGIN_ID+"/img.d/loctool/cancel";  //$NON-NLS-1$
+	public static final String LOCTOOL_CANCEL_IMAGE_ID = PLUGIN_ID + "/imgage/loctool/cancel";  //$NON-NLS-1$
+	public static final String LOCTOOLD_CANCEL_IMAGE_ID = PLUGIN_ID + "/image/loctoold/cancel";  //$NON-NLS-1$
 	
+	public static final String LOCTOOL_PAUSE_IMAGE_ID = PLUGIN_ID + "/image/loctool/pause"; //$NON-NLS-1$
+	public static final String LOCTOOLD_PAUSE_IMAGE_ID = PLUGIN_ID + "/image/loctoold/pause"; //$NON-NLS-1$
+	
+	public static final String OBJ_TASK_CONSOLECOMMAND_IMAGE_ID = PLUGIN_ID + "/image/obj/task.consolecommand"; //$NON-NLS-1$
+	public static final String OBJ_TASK_DUMMY_IMAGE_ID = PLUGIN_ID + "/image/obj/task.commanddummy"; //$NON-NLS-1$
+	
+	public static final String OBJ_CONSOLECOMMAND_IMAGE_ID = PLUGIN_ID + "/image/obj/consolecommand"; //$NON-NLS-1$
 	
 	public static final String HISTORY_VIEW_ID = "de.walware.statet.nico.views.HistoryView"; //$NON-NLS-1$
 	public static final String QUEUE_VIEW_ID = "de.walware.statet.nico.views.QueueView"; //$NON-NLS-1$

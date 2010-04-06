@@ -58,7 +58,7 @@ import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.NumberValidator;
 import de.walware.ecommons.net.RMIAddress;
-import de.walware.ecommons.ui.dialogs.WidgetToolsButton;
+import de.walware.ecommons.ui.components.WidgetToolsButton;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;

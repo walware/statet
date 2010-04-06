@@ -20,7 +20,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -42,34 +44,30 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.eclipse.ui.texteditor.ContentAssistAction;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
-import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.ElementInfoController;
 import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
 import de.walware.ecommons.ltk.ui.LTKInputData;
-import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAddon;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ui.text.sourceediting.SpecificContentAssistHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ltk.ui.sourceediting.SpecificContentAssistHandler;
+import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
+import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.base.ui.IStatetUIMenuIds;
-import de.walware.statet.base.ui.StatetUIServices;
-import de.walware.statet.base.ui.sourceeditors.EditorMessages;
-import de.walware.statet.base.ui.sourceeditors.StatextEditor1;
-import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
@@ -83,7 +81,6 @@ import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingProvider;
-import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RDoubleCommentAction;
 import de.walware.statet.r.internal.ui.editors.REditorTemplatesPage;
 import de.walware.statet.r.internal.ui.editors.ROutlinePage;
@@ -92,7 +89,7 @@ import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUIHelp;
 
 
-public class REditor extends StatextEditor1<RProject> {
+public class REditor extends SourceEditor1 {
 	
 	public static IRCoreAccess getRCoreAccess(final ISourceEditor editor) {
 		final IRCoreAccess adapter = (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
@@ -342,7 +339,6 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	
 	protected RSourceViewerConfigurator fRConfig;
-	private IRSourceUnit fRUnit;
 	protected IContextProvider fHelpContextProvider;
 	protected REditorOptions fOptions;
 	
@@ -350,7 +346,6 @@ public class REditor extends StatextEditor1<RProject> {
 	
 	
 	public REditor() {
-		super();
 	}
 	
 	@Override
@@ -359,18 +354,16 @@ public class REditor extends StatextEditor1<RProject> {
 		
 		setHelpContextId(IRUIHelpContextIds.R_EDITOR);
 		setEditorContextMenuId("#REditorContext"); //$NON-NLS-1$
-		configureInsertMode(SMART_INSERT, true);
 	}
 	
 	
 	@Override
 	protected SourceEditorViewerConfigurator createConfiguration() {
-		fModelProvider = new ElementInfoController(RCore.getRModelManager(), ECommonsLTK.EDITOR_CONTEXT);
+		fModelProvider = new ElementInfoController(RCore.getRModelManager(), LTK.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider,
 				REditorOptions.PREF_FOLDING_ENABLED,
 				REditorOptions.PREF_MARKOCCURRENCES_ENABLED);
 		
-		configureStatetProjectNatureId(RProject.NATURE_ID);
 		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		
 		final IRCoreAccess basicContext = RCore.getWorkbenchAccess();
@@ -380,7 +373,7 @@ public class REditor extends StatextEditor1<RProject> {
 		fRConfig.setConfiguration(new RSourceViewerConfiguration(this,
 				fRConfig,
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
-				StatetUIServices.getSharedColorManager()));
+				SharedUIResources.getColors()));
 		return fRConfig;
 	}
 	
@@ -390,7 +383,7 @@ public class REditor extends StatextEditor1<RProject> {
 		config.setConfiguration(new RSourceViewerConfiguration(
 				config, 
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
-				StatetUIServices.getSharedColorManager()));
+				SharedUIResources.getColors()));
 		return config;
 	}
 	
@@ -418,14 +411,33 @@ public class REditor extends StatextEditor1<RProject> {
 		return new MarkOccurrencesProvider();
 	}
 	
+	
 	@Override
-	public void dispose() {
-		if (fModelProvider != null) {
-			fModelProvider.dispose();
-			fModelProvider = null;
+	public IRSourceUnit getSourceUnit() {
+		return (IRSourceUnit) super.getSourceUnit();
+	}
+	
+	protected IRCoreAccess getRCoreAccess() {
+		return fRConfig;
+	}
+	
+	@Override
+	protected void setupConfiguration(final IEditorInput newInput) {
+		super.setupConfiguration(newInput);
+		final IRSourceUnit su = getSourceUnit();
+		fModelProvider.setInput(su);
+		fRConfig.setSource((su != null) ? (IRCoreAccess) su.getRCoreAccess() : null);
+	}
+	
+	@Override
+	protected void doSetInput(final IEditorInput input) throws CoreException {
+		super.doSetInput(input);
+		if (fOptions.isSmartModeByDefaultEnabled()) {
+			setInsertMode(SMART_INSERT);
 		}
-		super.dispose();
-		fRUnit = null;
+		else {
+			setInsertMode(INSERT);
+		}
 	}
 	
 	
@@ -437,6 +449,7 @@ public class REditor extends StatextEditor1<RProject> {
 		}
 		super.handlePreferenceStoreChanged(event);
 	}
+	
 	
 	@Override
 	protected boolean isTabsToSpacesConversionEnabled() {
@@ -455,36 +468,18 @@ public class REditor extends StatextEditor1<RProject> {
 		}
 	}
 	
-	
-	@Override
-	protected void setupConfiguration(final RProject prevProject, final RProject newProject, final IEditorInput newInput) {
-		super.setupConfiguration(prevProject, newProject, newInput);
-		fRUnit = ((RDocumentProvider) getDocumentProvider()).getWorkingCopy(newInput);
-		fRConfig.setSource((fRUnit != null) ? (IRCoreAccess) fRUnit.getRCoreAccess() : null);
-		fModelProvider.setInput(fRUnit);
-	}
-	
-	@Override
-	protected void doSetInput(final IEditorInput input) throws CoreException {
-		super.doSetInput(input);
-		if (fOptions.isSmartModeByDefaultEnabled()) {
-			setInsertMode(SMART_INSERT);
-		}
-		else {
-			setInsertMode(INSERT);
-		}
-	}
-	
 	@Override
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] { RSourceViewerConfiguration.R_EDITING_CONTEXT }); 
+		setKeyBindingScopes(new String[] {
+				"de.walware.statet.r.contexts.REditor", //$NON-NLS-1$
+		});
 	}
 	
 	@Override
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		super.collectContextMenuPreferencePages(pageIds);
 		pageIds.add("de.walware.statet.r.preferencePages.REditorOptions"); //$NON-NLS-1$
-		pageIds.add("de.walware.statet.r.preferencePages.RSyntaxColoring"); //$NON-NLS-1$
+		pageIds.add("de.walware.statet.r.preferencePages.RTextStylesPage"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.REditorTemplates"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.RCodeStyle"); //$NON-NLS-1$
 	}
@@ -493,11 +488,7 @@ public class REditor extends StatextEditor1<RProject> {
 	protected void createActions() {
 		super.createActions();
 		final IHandlerService handlerService = (IHandlerService) getServiceLocator().getService(IHandlerService.class);
-		
-		Action action = new ContentAssistAction(
-				EditorMessages.getCompatibilityBundle(), "ContentAssistProposal_", this); //$NON-NLS-1$
-		action.setActionDefinitionId(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS);
-		setAction("ContentAssistProposal", action); //$NON-NLS-1$
+		Action action;
 		
 		action = new InsertAssignmentAction(this);
 		setAction(action.getId(), action);
@@ -508,7 +499,7 @@ public class REditor extends StatextEditor1<RProject> {
 		markAsContentDependentAction(action.getId(), true);
 		
 		final SpecificContentAssistHandler handler = new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
-		handlerService.activateHandler("de.walware.statet.r.commands.SpecificContentAssist", handler); //$NON-NLS-1$
+		handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -520,6 +511,12 @@ public class REditor extends StatextEditor1<RProject> {
 	protected void editorContextMenuAboutToShow(final IMenuManager m) {
 		super.editorContextMenuAboutToShow(m);
 		
+		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
+		final IContributionItem additions = m.find(SharedUIResources.ADDITIONS_MENU_ID);
+		if (additions != null) {
+			additions.setVisible(false);
+		}
+		
 		m.remove(ITextEditorActionConstants.SHIFT_RIGHT);
 		m.remove(ITextEditorActionConstants.SHIFT_LEFT);
 		
@@ -529,15 +526,6 @@ public class REditor extends StatextEditor1<RProject> {
 				getSite(), null, RCodeLaunching.RUN_SELECTION_PASTEOUTPUT_COMMAND_ID, CommandContributionItem.STYLE_PUSH)));
 	}
 	
-	
-	@Override
-	public ISourceUnit getSourceUnit() {
-		return fRUnit;
-	}
-	
-	protected IRCoreAccess getRCoreAccess() {
-		return fRConfig;
-	}
 	
 	@Override
 	public Object getAdapter(final Class required) {
@@ -554,7 +542,7 @@ public class REditor extends StatextEditor1<RProject> {
 	}
 	
 	@Override
-	protected StatextOutlinePage1 createOutlinePage() {
+	protected SourceEditor1OutlinePage createOutlinePage() {
 		return new ROutlinePage(this);
 	}
 	

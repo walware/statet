@@ -34,10 +34,9 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ContainerContentProvider;
-
-import de.walware.statet.base.ui.StatetImages;
 
 
 /**
@@ -53,7 +52,7 @@ public class RProjectContainerComposite extends Composite {
 			setText(SharedMessages.CollapseAllAction_label); 
 			setDescription(SharedMessages.CollapseAllAction_description); 
 			setToolTipText(SharedMessages.CollapseAllAction_tooltip); 
-			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_COLLAPSEALL));
+			setImageDescriptor(SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_COLLAPSEALL_IMAGE_ID));
 		}
 		
 		@Override
@@ -70,7 +69,7 @@ public class RProjectContainerComposite extends Composite {
 			setText(SharedMessages.ExpandAllAction_label); 
 			setDescription(SharedMessages.ExpandAllAction_description); 
 			setToolTipText(SharedMessages.ExpandAllAction_tooltip); 
-			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_EXPANDALL));
+			setImageDescriptor(SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_EXPANDALL_IMAGE_ID));
 		}
 		
 		@Override

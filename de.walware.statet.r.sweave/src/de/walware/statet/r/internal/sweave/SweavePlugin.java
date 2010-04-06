@@ -23,15 +23,17 @@ import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.viewers.DecorationOverlayIcon;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
-import de.walware.statet.base.ui.StatetImages;
+import de.walware.statet.base.ui.StatetUIServices;
 
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.internal.sweave.processing.SweaveProcessing;
@@ -123,7 +125,7 @@ public class SweavePlugin extends AbstractUIPlugin {
 		util.register(IMG_OBJ_RWEAVETEX, ImageRegistryUtil.T_OBJ, "texsweave-file.png"); //$NON-NLS-1$
 		final Image baseImage = reg.get(IMG_OBJ_RWEAVETEX);
 		reg.put(IMG_OBJ_RWEAVETEX_ACTIVE, new DecorationOverlayIcon(baseImage, new ImageDescriptor[] {
-				null, null, null, StatetImages.getDescriptor(StatetImages.OVR_DEFAULT_MARKER), null},
+				null, null, null, SharedUIResources.getImages().getDescriptor(SharedUIResources.OVR_DEFAULT_MARKER_IMAGE_ID), null},
 				new Point(baseImage.getBounds().width, baseImage.getBounds().height)));
 		
 		util.register(IMG_TOOL_BUILD, ImageRegistryUtil.T_TOOL, "build.png"); //$NON-NLS-1$
@@ -145,10 +147,11 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	public IPreferenceStore getEditorRTexPreferenceStore() {
 		if (fEditorRTexPreferenceStore == null) {
-			fEditorRTexPreferenceStore = SourceEditorViewerConfiguration.createCombinedPreferenceStore(new IPreferenceStore[] {
+			fEditorRTexPreferenceStore = CombinedPreferenceStore.createStore(
 					getPreferenceStore(),
-					RUIPlugin.getDefault().getPreferenceStore()
-			});
+					RUIPlugin.getDefault().getPreferenceStore(),
+					StatetUIServices.getBaseUIPreferenceStore(),
+					EditorsUI.getPreferenceStore() );
 		}
 		return fEditorRTexPreferenceStore;
 	}

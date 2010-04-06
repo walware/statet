@@ -17,37 +17,25 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-import org.eclipse.ui.IWorkbenchCommandConstants;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.IPageSite;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
-import de.walware.ecommons.ltk.core.refactoring.RefactoringAdapter;
 import de.walware.ecommons.ltk.ui.ElementNameComparator;
-import de.walware.ecommons.ltk.ui.refactoring.AbstractElementsHandler;
-import de.walware.ecommons.ltk.ui.refactoring.CopyElementsHandler;
-import de.walware.ecommons.ltk.ui.refactoring.CopyNamesHandler;
-import de.walware.ecommons.ltk.ui.refactoring.CutElementsHandler;
-import de.walware.ecommons.ltk.ui.refactoring.DeleteElementsHandler;
-import de.walware.ecommons.ltk.ui.refactoring.PasteElementsHandler;
-import de.walware.ecommons.ui.ECommonsUI;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor2OutlinePage;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.base.ui.IStatetUIMenuIds;
-import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.base.ui.sourceeditors.StatextOutlinePage1;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.refactoring.RRefactoring;
-import de.walware.statet.r.core.refactoring.RRefactoringAdapter;
 import de.walware.statet.r.internal.ui.RUIMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.RCodeLaunching;
@@ -59,7 +47,7 @@ import de.walware.statet.r.ui.editors.REditor;
 /**
  * Outline page for R sources
  */
-public class ROutlinePage extends StatextOutlinePage1 {
+public class ROutlinePage extends SourceEditor2OutlinePage {
 	
 	private static final ViewerComparator ALPHA_COMPARATOR = new ElementNameComparator(RElementName.NAMEONLY_COMPARATOR);
 	
@@ -69,7 +57,7 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		public AlphaSortAction() {
 			super("sort.alphabetically.enabled", false, 2); //$NON-NLS-1$
 			setText(SharedMessages.ToggleSortAction_name);
-			setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_SORT_ALPHA));
+			setImageDescriptor(SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_SORT_ALPHA_IMAGE_ID));
 			setToolTipText(SharedMessages.ToggleSortAction_tooltip);
 		}
 		
@@ -146,14 +134,11 @@ public class ROutlinePage extends StatextOutlinePage1 {
 	}
 	
 	
-	private final REditor fEditor;
 	private final ContentFilter fFilter = new ContentFilter();
 	
-	private RefactoringAdapter fLTK;
-	
 	public ROutlinePage(final REditor editor) {
-		super(editor, RModel.TYPE_ID, "de.walware.r.menu.ROutlineViewContextMenu"); //$NON-NLS-1$
-		fEditor = editor;
+		super(editor, RModel.TYPE_ID, RRefactoring.getFactory(),
+				"de.walware.r.menu.ROutlineViewContextMenu"); //$NON-NLS-1$
 	}
 	
 	
@@ -174,33 +159,17 @@ public class ROutlinePage extends StatextOutlinePage1 {
 	
 	@Override
 	protected void initActions() {
-		fLTK = new RRefactoringAdapter();
 		super.initActions();
 		final IPageSite site = getSite();
-		
-		final IHandlerService handlerSvc = (IHandlerService) site.getService(IHandlerService.class);
-		final AbstractElementsHandler cutHandler = new CutElementsHandler(fLTK, RRefactoring.getFactory());
-		registerHandlerToUpdate(cutHandler);
-		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_CUT, cutHandler);
-		final AbstractElementsHandler copyHandler = new CopyElementsHandler(fLTK);
-		registerHandlerToUpdate(copyHandler);
-		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_COPY, copyHandler);
-		final AbstractElementsHandler copyNamesHandler = new CopyNamesHandler(fLTK);
-		registerHandlerToUpdate(copyNamesHandler);
-		handlerSvc.activateHandler(IStatetUICommandIds.COPY_ELEMENT_NAME, copyNamesHandler);
-		final AbstractElementsHandler pasteHandler = new PasteElementsHandler(fEditor, fLTK);
-		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_PASTE, pasteHandler);
-		final AbstractElementsHandler deleteHandler = new DeleteElementsHandler(fLTK, RRefactoring.getFactory());
-		handlerSvc.activateHandler(IWorkbenchCommandConstants.EDIT_DELETE, deleteHandler);
 		
 		final IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
 		final IMenuManager menuManager = site.getActionBars().getMenuManager();
 		
-		toolBarManager.appendToGroup(IStatetUIMenuIds.GROUP_VIEW_SORT_ID,
+		toolBarManager.appendToGroup(SharedUIResources.VIEW_SORT_MENU_ID,
 				new AlphaSortAction());
-		toolBarManager.appendToGroup(IStatetUIMenuIds.GROUP_VIEW_FILTER_ID,
+		toolBarManager.appendToGroup(SharedUIResources.VIEW_FILTER_MENU_ID,
 				new FilterCommonVariables());
-		toolBarManager.appendToGroup(IStatetUIMenuIds.GROUP_VIEW_FILTER_ID,
+		toolBarManager.appendToGroup(SharedUIResources.VIEW_FILTER_MENU_ID,
 				new FilterLocalDefinitions());
 	}
 	
@@ -209,29 +178,15 @@ public class ROutlinePage extends StatextOutlinePage1 {
 		super.contextMenuAboutToShow(m);
 		final IPageSite site = getSite();
 		
-		m.add(new SelectCodeRangeAction(fLTK));
+		m.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
 		
-		m.add(new Separator(IStatetUIMenuIds.GROUP_EDIT_COPYPASTE_ID));
-		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IWorkbenchCommandConstants.EDIT_CUT, CommandContributionItem.STYLE_PUSH)));
-		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IWorkbenchCommandConstants.EDIT_COPY, CommandContributionItem.STYLE_PUSH)));
-		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IStatetUICommandIds.COPY_ELEMENT_NAME, CommandContributionItem.STYLE_PUSH)));
-		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, IWorkbenchCommandConstants.EDIT_PASTE, CommandContributionItem.STYLE_PUSH)));
-//		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-//				site, null, IWorkbenchActionDefinitionIds.DELETE, CommandContributionItem.STYLE_PUSH)));
+		m.appendToGroup(IStatetUIMenuIds.GROUP_RUN_STAT_ID, 
+				new CommandContributionItem(new CommandContributionItemParameter(
+						site, null, RCodeLaunching.RUN_SELECTION_COMMAND_ID, null,
+						null, null, null,
+						null, "R", null, //$NON-NLS-1$
+						CommandContributionItem.STYLE_PUSH, null, false) ));
 		
-		m.add(new Separator(IStatetUIMenuIds.GROUP_RUN_STAT_ID));
-		m.add(new CommandContributionItem(new CommandContributionItemParameter(
-				site, null, RCodeLaunching.RUN_SELECTION_COMMAND_ID, null,
-				null, null, null,
-				null, "R", null, //$NON-NLS-1$
-				CommandContributionItem.STYLE_PUSH, null, false)));
-		final Separator additions = new Separator(ECommonsUI.ADDITIONS_MENU_ID);
-		additions.setVisible(false);
-		m.add(additions);
 		m.add(new Separator(IStatetUIMenuIds.GROUP_ADD_MORE_ID));
 	}
 	

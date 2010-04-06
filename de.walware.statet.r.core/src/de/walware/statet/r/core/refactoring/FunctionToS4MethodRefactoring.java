@@ -34,10 +34,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 
-import de.walware.ecommons.ltk.ECommonsLTK;
-import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -244,7 +243,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 //			result.merge(RefactoringStatus.createWarningStatus("The selected code does not equal exactly the found expression(s)."));
 //		}
 		
-		IElementName elementName = fFunction.getElementName();
+		RElementName elementName = fFunction.getElementName();
 		while (elementName.getNextSegment() != null) {
 			elementName = elementName.getNamespace();
 		}
@@ -296,7 +295,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 			final SubMonitor progress = SubMonitor.convert(monitor, RefactoringMessages.Common_CreateChanges_label, 3);
 			
 			final TextFileChange textFileChange = new SourceUnitChange(fSourceUnit);
-			if (fSourceUnit.getWorkingContext() == ECommonsLTK.EDITOR_CONTEXT) {
+			if (fSourceUnit.getWorkingContext() == LTK.EDITOR_CONTEXT) {
 				textFileChange.setSaveMode(TextFileChange.LEAVE_DIRTY);
 			}
 			createChanges(textFileChange, progress.newChild(1));

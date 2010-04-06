@@ -14,8 +14,7 @@ package de.walware.statet.nico.ui.console;
 import org.eclipse.jface.action.Action;
 
 import de.walware.ecommons.ui.SharedMessages;
-
-import de.walware.statet.base.ui.StatetImages;
+import de.walware.ecommons.ui.SharedUIResources;
 
 
 public class ScrollLockAction extends Action {
@@ -35,7 +34,7 @@ public class ScrollLockAction extends Action {
 		setText(SharedMessages.ToggleScrollLockAction_name);
 		setToolTipText(SharedMessages.ToggleScrollLockAction_tooltip);
 		
-		setImageDescriptor(StatetImages.getDescriptor(StatetImages.LOCTOOL_SCROLLLOCK));
+		setImageDescriptor(SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_SCROLLLOCK_IMAGE_ID));
 		
 		fView = view;
 		setChecked(initialChecked);

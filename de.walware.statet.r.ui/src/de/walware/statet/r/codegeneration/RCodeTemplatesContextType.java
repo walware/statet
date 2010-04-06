@@ -16,7 +16,6 @@ import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateVariableResolver;
 
 import de.walware.statet.ext.templates.StatextCodeTemplatesContextType;
-import de.walware.statet.ext.templates.TemplatesMessages;
 
 import de.walware.statet.r.internal.ui.RUIMessages;
 
@@ -92,31 +91,23 @@ public class RCodeTemplatesContextType extends StatextCodeTemplatesContextType {
 		
 		addCommonVariables();
 		if (NEW_RSCRIPTFILE_CONTEXTTYPE.equals(contextName)) {
-			addRUnitVariables();
-			addInitialSelectionResolver();
+			addSourceUnitGenerationVariables();
 		}
 		else if (ROXYGEN_CLASS_CONTEXTTYPE.equals(contextName)) {
-			addRUnitVariables();
+			addSourceUnitGenerationVariables();
 			addResolver(new RElementNameVariableResolver());
 			addResolver(new RoxygenSlotTagsVariableResolver()); 
-			addInitialSelectionResolver();
 		}
 		else if (ROXYGEN_COMMONFUNCTION_CONTEXTTYPE.equals(contextName)) {
-			addRUnitVariables();
+			addSourceUnitGenerationVariables();
 			addResolver(new RElementNameVariableResolver());
 			addResolver(new RoxygenParamTagsVariableResolver()); 
-			addInitialSelectionResolver();
 		}
 		else if (ROXYGEN_METHOD_CONTEXTTYPE.equals(contextName)) {
-			addRUnitVariables();
+			addSourceUnitGenerationVariables();
 			addResolver(new RElementNameVariableResolver());
 			addResolver(new RoxygenParamTagsVariableResolver()); 
-			addInitialSelectionResolver();
 		}
-	}
-	
-	private void addRUnitVariables() {
-		addResolver(new CodeTemplatesVariableResolver(FILENAME_VARIABLE, TemplatesMessages.Templates_Variable_File_description));
 	}
 	
 }

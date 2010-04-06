@@ -36,8 +36,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.ui.SharedMessages;
-import de.walware.ecommons.ui.dialogs.Layouter;
-import de.walware.ecommons.ui.dialogs.StatusInfo;
+import de.walware.ecommons.ui.components.StatusInfo;
+import de.walware.ecommons.ui.dialogs.groups.Layouter;
 import de.walware.ecommons.ui.workbench.ContainerSelectionComposite;
 
 import de.walware.statet.base.core.StatetProject;

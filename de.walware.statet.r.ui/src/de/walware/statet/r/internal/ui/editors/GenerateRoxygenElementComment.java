@@ -48,13 +48,12 @@ import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
-import de.walware.ecommons.ltk.ui.LTKSelectionUtil;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditorAssociated;
-import de.walware.ecommons.ui.util.WorkbenchUIUtil;
-
-import de.walware.statet.ext.templates.TemplatesUtil;
-import de.walware.statet.ext.templates.TemplatesUtil.EvaluatedTemplate;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAssociated;
+import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
+import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
+import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
+import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.r.codegeneration.CodeGeneration;
 import de.walware.statet.r.core.model.IRClass;

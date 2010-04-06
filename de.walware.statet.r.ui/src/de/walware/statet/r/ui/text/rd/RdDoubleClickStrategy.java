@@ -20,7 +20,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
-import de.walware.ecommons.ui.text.PairMatcher;
+import de.walware.ecommons.text.PairMatcher;
 
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 

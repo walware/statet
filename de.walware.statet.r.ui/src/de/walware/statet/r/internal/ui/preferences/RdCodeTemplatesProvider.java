@@ -19,10 +19,10 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.SharedUIResources;
 
-import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -48,7 +48,7 @@ public class RdCodeTemplatesProvider implements ICodeGenerationTemplatesCategory
 			setConfiguration(new RdSourceViewerConfiguration(
 					this,
 					RUIPlugin.getDefault().getEditorPreferenceStore(),
-					StatetUIServices.getSharedColorManager()) {
+					SharedUIResources.getColors()) {
 				
 				@Override
 				protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {

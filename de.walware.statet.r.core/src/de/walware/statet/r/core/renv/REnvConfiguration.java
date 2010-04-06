@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.ConstList;
-import de.walware.ecommons.FileUtil;
+import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;

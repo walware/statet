@@ -16,16 +16,16 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
-import de.walware.ecommons.ui.text.sourceediting.SourceEditorViewerConfigurator;
+import de.walware.ecommons.ui.SharedUIResources;
 
-import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant;
-import de.walware.statet.r.internal.sweave.editors.RweaveTexSourceViewerConfigurator;
+import de.walware.statet.r.internal.sweave.editors.RweaveTexViewerConfigurator;
 
 
 /**
@@ -35,7 +35,7 @@ import de.walware.statet.r.internal.sweave.editors.RweaveTexSourceViewerConfigur
 public class RweaveTexTemplatesProvider implements ICodeGenerationTemplatesCategory {
 	
 	
-	public static class RweaveTexTemplateConfigurator extends RweaveTexSourceViewerConfigurator {
+	public static class RweaveTexTemplateConfigurator extends RweaveTexViewerConfigurator {
 		
 		public RweaveTexTemplateConfigurator(
 				final IRCoreAccess rCoreAccess,
@@ -45,7 +45,7 @@ public class RweaveTexTemplatesProvider implements ICodeGenerationTemplatesCateg
 					processor,
 					this,
 					SweavePlugin.getDefault().getEditorRTexPreferenceStore(),
-					StatetUIServices.getSharedColorManager()));
+					SharedUIResources.getColors() ));
 		}
 		
 		@Override

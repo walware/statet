@@ -21,8 +21,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import de.walware.ecommons.debug.core.ISshSessionService;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.net.ISshSessionService;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
@@ -73,7 +73,7 @@ public class StatetCore {
 	}
 	
 	private static void logError(final CoreException e) {
-		BaseCorePlugin.getDefault().log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
+		BaseCorePlugin.getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, -1, "Error catched", e)); //$NON-NLS-1$
 	}
 	
 	

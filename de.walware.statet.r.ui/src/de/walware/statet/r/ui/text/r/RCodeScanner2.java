@@ -24,10 +24,10 @@ import org.eclipse.jface.text.rules.Token;
 
 import de.walware.ecommons.text.BufferedDocumentParseInput;
 import de.walware.ecommons.text.SourceParseInput;
-import de.walware.ecommons.ui.text.presentation.ITextPresentationConstants;
-import de.walware.ecommons.ui.text.presentation.TextStyleManager;
-import de.walware.ecommons.ui.util.ColorManager;
-import de.walware.ecommons.ui.util.ISettingsChangedHandler;
+import de.walware.ecommons.text.ui.presentation.ITextPresentationConstants;
+import de.walware.ecommons.text.ui.settings.TextStyleManager;
+import de.walware.ecommons.ui.ColorManager;
+import de.walware.ecommons.ui.ISettingsChangedHandler;
 
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.RLexer;

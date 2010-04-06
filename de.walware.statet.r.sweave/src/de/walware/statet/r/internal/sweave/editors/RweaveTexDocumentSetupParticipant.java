@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
-import de.walware.ecommons.ui.text.Partitioner;
-import de.walware.ecommons.ui.text.PartitionerDocumentSetupParticipant;
+import de.walware.ecommons.text.Partitioner;
+import de.walware.ecommons.text.PartitionerDocumentSetupParticipant;
 
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.sweave.text.CatPartitioner;
@@ -40,7 +40,7 @@ public class RweaveTexDocumentSetupParticipant extends PartitionerDocumentSetupP
 	
 	
 	@Override
-	protected String getPartitioningId() {
+	public String getPartitioningId() {
 		return Rweave.R_TEX_PARTITIONING;
 	}
 	

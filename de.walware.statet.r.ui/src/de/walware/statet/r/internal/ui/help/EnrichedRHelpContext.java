@@ -34,7 +34,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPart3;
 import org.eclipse.ui.editors.text.TextEditor;
 
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ui.util.MessageUtil;
 
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;

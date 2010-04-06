@@ -19,17 +19,16 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.templates.SourceEditorTemplateContext;
 import de.walware.ecommons.text.IndentUtil.IndentEditAction;
-import de.walware.ecommons.ui.text.sourceediting.ISourceEditor;
-
-import de.walware.statet.ext.templates.StatextEditorTemplateContext;
 
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.editors.REditor;
 
 
-public class REditorContext extends StatextEditorTemplateContext {
+public class REditorContext extends SourceEditorTemplateContext {
 	
 	
 	public REditorContext(final TemplateContextType type, final IDocument document,	final int offset, final int length,
