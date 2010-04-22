@@ -110,7 +110,7 @@ public class RReconciler {
 			if (fStop) {
 				return null;
 			}
-			updateModel(data);
+			final boolean updated = updateModel(data);
 			
 			if (fStop) {
 				return null;
@@ -129,7 +129,7 @@ public class RReconciler {
 				return null;
 			}
 			// Throw event
-			if (data.newModel != null && (data.oldModel == null || data.oldModel.getStamp() != data.newModel.getStamp())) {
+			if (updated && data.newModel != null && (data.oldModel == null || data.oldModel.getStamp() != data.newModel.getStamp())) {
 				fManager.getEventJob().addUpdate(su, data.oldModel, data.newModel);
 			}
 		}
@@ -185,8 +185,9 @@ public class RReconciler {
 		}
 	}
 	
-	protected final void updateModel(final Data data) {
+	protected final boolean updateModel(final Data data) {
 		// Update Model
+		boolean updated = false;
 		IRModelInfo oldModel = null;
 		IRModelInfo newModel = isUpToDate(data.su, data.ast.stamp);
 		if (newModel == null) {
@@ -209,14 +210,16 @@ public class RReconciler {
 					final RAstInfo oldAst = data.su.getCurrentRAst();
 					if (oldAst == null || oldAst.stamp == newModel.getStamp()) {
 						// otherwise, the ast is probably newer
-						data.su.setRAst((RAstInfo) newModel.getAst());
+						data.su.setRAst(newModel.getAst());
 					}
 					data.su.setRModel(newModel);
 				}
 			}
+			updated = true;
 		}
 		data.oldModel = oldModel;
 		data.newModel = newModel;
+		return updated;
 	}
 	
 	private IRModelInfo isUpToDate(final IManagableRUnit u, final long stamp) {
