@@ -14,6 +14,8 @@ package de.walware.statet.r.core.model;
 import static de.walware.statet.r.core.model.ArgsDefinition.CLASS_NAME;
 import static de.walware.statet.r.core.model.ArgsDefinition.METHOD_NAME;
 import static de.walware.statet.r.core.model.ArgsDefinition.METHOD_OBJ;
+import static de.walware.statet.r.core.model.ArgsDefinition.UNSPECIFIC_NAME;
+import static de.walware.statet.r.core.model.ArgsDefinition.UNSPECIFIC_OBJ;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -43,6 +45,9 @@ public class RCoreFunctions {
 	
 	public static final String BASE_CALL_NAME = "call";
 	public final ArgsDefinition BASE_CALL_args;
+	
+	public static final String BASE_DOCALL_NAME = "do.call";
+	public final ArgsDefinition BASE_DOCALL_args;
 	
 	public static final String BASE_LIBRARY_NAME = "library";
 	public final ArgsDefinition BASE_LIBRARY_args;
@@ -203,6 +208,9 @@ public class RCoreFunctions {
 		
 		BASE_CALL_args = createBaseCall();
 		fNameDefMap.put(BASE_CALL_NAME, BASE_CALL_args);
+		
+		BASE_DOCALL_args = createBaseDoCall();
+		fNameDefMap.put(BASE_DOCALL_NAME, BASE_DOCALL_args);
 		
 		BASE_LIBRARY_args = createBaseLibrary();
 		fNameDefMap.put(BASE_LIBRARY_NAME, BASE_LIBRARY_args);
@@ -368,6 +376,13 @@ public class RCoreFunctions {
 	ArgsDefinition createBaseCall() {
 		return new ArgsDefinition(
 				"name", "...");
+	}
+	
+	ArgsDefinition createBaseDoCall() {
+		return new ArgsBuilder()
+				.add("what", UNSPECIFIC_NAME | UNSPECIFIC_OBJ)
+				.add("args", "quote", "envir")
+				.toDef();
 	}
 	
 	ArgsDefinition createBaseLibrary() {

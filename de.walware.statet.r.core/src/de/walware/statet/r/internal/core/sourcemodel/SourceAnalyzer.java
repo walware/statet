@@ -387,6 +387,8 @@ public class SourceAnalyzer extends RAstVisitor {
 				new BaseSave(rdef));
 		fFCallAnalyzers.put(RCoreFunctions.BASE_CALL_NAME,
 				new BaseCall(rdef));
+		fFCallAnalyzers.put(RCoreFunctions.BASE_DOCALL_NAME,
+				new CommonDefBased(rdef.BASE_DOCALL_args));
 		fFCallAnalyzers.put(RCoreFunctions.BASE_LIBRARY_NAME,
 				new BaseLibrary(rdef));
 		fFCallAnalyzers.put(RCoreFunctions.BASE_REQUIRE_NAME,
