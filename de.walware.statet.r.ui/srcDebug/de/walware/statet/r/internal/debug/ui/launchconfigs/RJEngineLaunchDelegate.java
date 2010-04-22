@@ -36,7 +36,7 @@ import de.walware.ecommons.net.RMIAddress;
 import de.walware.rj.server.srvext.EServerUtil;
 import de.walware.rj.server.srvext.ServerUtil;
 
-import de.walware.statet.r.core.renv.REnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
@@ -56,10 +56,10 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	
 	private final String fAddress;
-	private final REnvConfiguration fRenv;
+	private final IREnvConfiguration fRenv;
 	
 	
-	public RJEngineLaunchDelegate(final String address, final REnvConfiguration renv) throws CoreException {
+	public RJEngineLaunchDelegate(final String address, final IREnvConfiguration renv) throws CoreException {
 		fAddress = address;
 		fRenv = renv;
 	}

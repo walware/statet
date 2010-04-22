@@ -204,7 +204,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 				return list;
 			}
 			@Override
-			protected TrackingConfiguration edit1(TrackingConfiguration item, final boolean newItem) {
+			protected TrackingConfiguration edit1(TrackingConfiguration item, final boolean newItem, Object parent) {
 				TrackingConfigurationDialog dialog;
 				if (!newItem && item != null && item.getId().equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)) {
 					item = new HistoryTrackingConfiguration(item.getId(), (HistoryTrackingConfiguration) item);

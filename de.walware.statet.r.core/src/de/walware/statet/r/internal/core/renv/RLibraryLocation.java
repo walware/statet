@@ -9,33 +9,24 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.renv;
+package de.walware.statet.r.internal.core.renv;
 
 import org.eclipse.core.filesystem.IFileStore;
 
+import de.walware.statet.r.core.renv.IRLibraryLocation;
 
-/**
- * A single R library.
- * 
- * It usually points to a directory in a file system with
- * subdirectories containing the R packages.
- */
-public class RLibraryLocation {
+
+public class RLibraryLocation implements IRLibraryLocation {
 	
 	
-	public static class WorkingCopy extends RLibraryLocation {
+	public static class Editable extends RLibraryLocation implements WorkingCopy {
 		
-		public WorkingCopy() {
-			super(""); //$NON-NLS-1$
+		public Editable(final String path) {
+			super(path);
 		}
 		
-		private WorkingCopy(final RLibraryLocation template) {
+		public Editable(final RLibraryLocation template) {
 			super(template);
-		}
-		
-		
-		public void setDirectoryPath(final String path) {
-			fPath = path;
 		}
 		
 	}
@@ -45,7 +36,7 @@ public class RLibraryLocation {
 	protected IFileStore fStore;
 	
 	
-	RLibraryLocation(final RLibraryLocation template) {
+	public RLibraryLocation(final RLibraryLocation template) {
 		fPath = template.fPath;
 	}
 	
@@ -53,8 +44,8 @@ public class RLibraryLocation {
 		fPath = path;
 	}
 	
-	public WorkingCopy createWorkingCopy() {
-		return new WorkingCopy(this);
+	public Editable createWorkingCopy() {
+		return new Editable(this);
 	}
 	
 	
@@ -62,8 +53,30 @@ public class RLibraryLocation {
 		return fPath;
 	}
 	
+	public void setDirectoryPath(final String path) {
+		fPath = path;
+	}
+	
 	public IFileStore getDirectoryStore() {
 		return fStore;
+	}
+	
+	
+	@Override
+	public int hashCode() {
+		return fPath.hashCode();
+	}
+	
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof RLibraryLocation)) {
+			return false;
+		}
+		final RLibraryLocation other = (RLibraryLocation) obj;
+		return fPath.equals(other.getDirectoryPath());
 	}
 	
 }

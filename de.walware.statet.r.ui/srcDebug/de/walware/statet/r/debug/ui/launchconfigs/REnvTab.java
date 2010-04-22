@@ -11,6 +11,9 @@
 
 package de.walware.statet.r.debug.ui.launchconfigs;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
@@ -40,11 +43,10 @@ import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 import de.walware.ecommons.variables.core.VariableFilter;
 
-import de.walware.statet.r.core.renv.REnvConfiguration;
-import de.walware.statet.r.core.renv.REnvSetting;
-import de.walware.statet.r.core.renv.REnvSetting.SettingsType;
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.internal.ui.ChooseREnvComposite;
+import de.walware.statet.r.internal.ui.REnvSelectionComposite;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -57,9 +59,9 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	public static final String NS = "de.walware.statet.r.debug/REnv/"; //$NON-NLS-1$
 	private static final String NEW_RENV_ID = NS + "code"; //$NON-NLS-1$
 	
-	public static REnvSetting readREnv(final ILaunchConfiguration configuration) throws CoreException {
+	public static IREnv readREnv(final ILaunchConfiguration configuration) throws CoreException {
 		final String setting = configuration.getAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, (String) null);
-		return REnvSetting.decodeType(setting, false);
+		return REnvSelectionComposite.compatDecode(setting);
 	}
 	
 	/**
@@ -68,17 +70,22 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	 * @return
 	 * @throws CoreException
 	 */
-	public static REnvConfiguration getREnv(final ILaunchConfiguration configuration)
+	public static IREnvConfiguration getREnvConfig(final ILaunchConfiguration configuration, final boolean local)
 			throws CoreException {
-		final REnvConfiguration config = REnvSetting.resolveREnv(readREnv(configuration));
+		final IREnv rEnv = readREnv(configuration);
+		final IREnvConfiguration config = (rEnv != null) ? rEnv.getConfig() : null;
 		if (config == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_CouldNotFound_message, null));
 		}
+		
 		final IStatus status = config.validate();
 		if (status.getSeverity() == IStatus.ERROR) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.REnv_Runtime_error_Invalid_message+' '+status.getMessage(), null));
+		}
+		if (local && !config.isLocal()) {
+			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1, "The R environment configuration must specify a local R installation.", null));
 		}
 		return config;
 	}
@@ -117,19 +124,21 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 /*-- --*/
 	
 	
-	private ChooseREnvComposite fREnvControl;
+	private REnvSelectionComposite fREnvControl;
 	private ResourceInputComposite fWorkingDirectoryControl;
 	
 	private WritableValue fREnvSettingValue;
 	private WritableValue fWorkingDirectoryValue;
 	private Binding fREnvBinding;
 	
+	private final boolean fLocal;
 	private final boolean fWithWD;
 	
 	
-	public REnvTab(final boolean withWD) {
+	public REnvTab(final boolean local, final boolean withWD) {
 		super();
 		
+		fLocal = local;
 		fWithWD = withWD;
 	}
 	
@@ -154,7 +163,23 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		group.setText(RLaunchingMessages.REnv_Tab_REnvConfig_label+':');
 		group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
-		fREnvControl = new ChooseREnvComposite(group);
+		if (fLocal) {
+			fREnvControl = new REnvSelectionComposite(group) {
+				@Override
+				protected List<IREnv> getValidREnvs(final IREnvConfiguration[] configurations) {
+					final List<IREnv> list = new ArrayList<IREnv>(configurations.length);
+					for (final IREnvConfiguration rEnvConfig : configurations) {
+						if (rEnvConfig.isLocal()) {
+							list.add(rEnvConfig.getReference());
+						}
+					}
+					return list;
+				}
+			};
+		}
+		else {
+			fREnvControl = new REnvSelectionComposite(group, true);
+		}
 		fREnvControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		
 		if (fWithWD) {
@@ -190,9 +215,10 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	}
 	
 	public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-		final String code = REnvSetting.encodeREnv(SettingsType.WORKBENCH, null, false);
-		configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, code);
-		configuration.setAttribute(NEW_RENV_ID, code);
+		if (fLocal) {
+			configuration.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, IREnv.DEFAULT_WORKBENCH_ENV_ID);
+			configuration.setAttribute(NEW_RENV_ID, IREnv.DEFAULT_WORKBENCH_ENV_ID);
+		}
 		configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
 	}
 	
@@ -227,14 +253,11 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 	}
 	
 	
-	public REnvConfiguration getSelectedEnv() {
+	public IREnv getSelectedEnv() {
 		if (fREnvBinding != null) {
 			final IStatus validationStatus = (IStatus) fREnvBinding.getValidationStatus().getValue();
 			if (validationStatus != null && validationStatus.getSeverity() < IStatus.WARNING) { // note: warning means error which can be saved
-				final REnvSetting setting = REnvSetting.decodeType((String) fREnvSettingValue.getValue(), false);
-				if (setting != null) {
-					return REnvSetting.resolveREnv(setting);
-				}
+				return REnvSelectionComposite.compatDecode((String) fREnvSettingValue.getValue());
 			}
 		}
 		return null;

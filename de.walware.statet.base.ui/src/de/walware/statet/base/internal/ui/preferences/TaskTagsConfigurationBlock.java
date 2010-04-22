@@ -124,7 +124,7 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 			
 			fListButtons = new ButtonGroup<TaskTag>(composite) {
 				@Override
-				protected TaskTag edit1(final TaskTag item, final boolean newItem) {
+				protected TaskTag edit1(final TaskTag item, final boolean newItem, Object parent) {
 					final TaskTagsInputDialog dialog = new TaskTagsInputDialog(getShell(), item, newItem, fList);
 					if (dialog.open() == Dialog.OK) {
 						return dialog.getResult();

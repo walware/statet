@@ -21,8 +21,7 @@ import org.eclipse.debug.ui.EnvironmentTab;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
-import de.walware.statet.r.core.renv.REnvSetting;
-import de.walware.statet.r.core.renv.REnvSetting.SettingsType;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdMainTab;
 
 
@@ -57,7 +56,7 @@ public class RLaunchConfigurations {
 		config.setAttribute(RLaunchConfigurations.ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$
 		config.setAttribute(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, "${resource_loc}"); //$NON-NLS-1$
 		config.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "${container_loc}"); //$NON-NLS-1$
-		config.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, REnvSetting.encodeREnv(SettingsType.WORKBENCH, null, true));
+		config.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, IREnv.DEFAULT_WORKBENCH_ENV_ID);
 		return config;
 	}
 	

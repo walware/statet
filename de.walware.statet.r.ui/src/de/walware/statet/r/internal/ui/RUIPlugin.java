@@ -71,10 +71,6 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public static final String IMG_LOCTOOL_REFRESH_RECOMMENDED = RUI.PLUGIN_ID + "/image/ltool/refresh.recommended"; //$NON-NLS-1$
 	
-	public static final String IMG_OBJ_LIBRARY_GROUP = RUI.PLUGIN_ID + "/image/obj/library.group";
-	public static final String IMG_OBJ_LIBRARY_LOCATION = RUI.PLUGIN_ID + "/image/obj/library.location";
-	
-	
 	private static final String R_CODE_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_code_templates"; //$NON-NLS-1$
 	private static final String RD_CODE_TEMPLATES_KEY = "de.walware.statet.r.ui.text.rd_code_templates"; //$NON-NLS-1$
 	private static final String R_EDITOR_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_editor_templates"; //$NON-NLS-1$
@@ -185,8 +181,10 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png");  //$NON-NLS-1$
 		util.register(IMG_WIZBAN_NEWRDFILE, ImageRegistryUtil.T_WIZBAN, "new_rd-file.png");  //$NON-NLS-1$
 		
-		util.register(RUI.IMG_OBJ_R_RUNTIME_ENV, ImageRegistryUtil.T_OBJ, "r-env.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_SCRIPT, ImageRegistryUtil.T_OBJ, "r-file_obj.gif"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_RUNTIME_ENV, ImageRegistryUtil.T_OBJ, "r_env.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_REMOTE_ENV, ImageRegistryUtil.T_OBJ, "r_env-remote.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_PACKAGE, ImageRegistryUtil.T_OBJ, "package.png");  //$NON-NLS-1$
 		
 		util.register(RUI.IMG_OBJ_COMMON_FUNCTION, ImageRegistryUtil.T_OBJ, "function.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_COMMON_LOCAL_FUNCTION, ImageRegistryUtil.T_OBJ, "function-local.png"); //$NON-NLS-1$
@@ -195,7 +193,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_GENERAL_VARIABLE, ImageRegistryUtil.T_OBJ, "var.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_GENERAL_LOCAL_VARIABLE, ImageRegistryUtil.T_OBJ, "var-local.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_SLOT, ImageRegistryUtil.T_OBJ, "slot.png"); //$NON-NLS-1$
-		util.register(RUI.IMG_OBJ_PACKAGEENV, ImageRegistryUtil.T_OBJ, "package.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_PACKAGEENV, ImageRegistryUtil.T_OBJ, "packageenv.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_GLOBALENV, ImageRegistryUtil.T_OBJ, "globalenv.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_EMPTYENV, ImageRegistryUtil.T_OBJ, "emptyenv.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_OTHERENV, ImageRegistryUtil.T_OBJ, "otherenv.png"); //$NON-NLS-1$
@@ -211,8 +209,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN, ImageRegistryUtil.T_OBJ, "s4obj-dataframe_col.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_ARGUMENT_ASSIGN, ImageRegistryUtil.T_OBJ, "arg-assign.png"); //$NON-NLS-1$
 		
-		util.register(IMG_OBJ_LIBRARY_GROUP, ImageRegistryUtil.T_OBJ, "library.png"); //$NON-NLS-1$
-		util.register(IMG_OBJ_LIBRARY_LOCATION, ImageRegistryUtil.T_OBJ, "package_folder.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_LIBRARY_GROUP, ImageRegistryUtil.T_OBJ, "library.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_LIBRARY_LOCATION, ImageRegistryUtil.T_OBJ, "package_folder.png"); //$NON-NLS-1$
 		
 		util.register(IMG_LOCTOOL_FILTER_GENERAL, ImageRegistryUtil.T_LOCTOOL, "filter-general.png"); //$NON-NLS-1$
 		util.register(IMG_LOCTOOL_FILTER_LOCAL, ImageRegistryUtil.T_LOCTOOL, "filter-local.png"); //$NON-NLS-1$

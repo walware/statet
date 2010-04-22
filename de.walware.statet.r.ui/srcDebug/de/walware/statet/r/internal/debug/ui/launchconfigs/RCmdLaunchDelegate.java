@@ -25,6 +25,7 @@ import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
@@ -42,8 +43,8 @@ import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileUtil;
 
-import de.walware.statet.r.core.renv.REnvConfiguration;
-import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RErrorLineTracker;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
@@ -75,7 +76,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			final List<String> cmdLine = new ArrayList<String>();
 			
 			// r env
-			final REnvConfiguration renv = REnvTab.getREnv(configuration);
+			final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
 //			renv.validate();
 			
 			final String cmd = configuration.getAttribute(RLaunchConfigurations.ATTR_R_CMD_COMMAND, "").trim(); //$NON-NLS-1$
@@ -138,7 +139,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			try {
 				p = builder.start();
 			} catch (final IOException e) {
-				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 						RLaunchingMessages.LaunchDelegate_error_StartingExec, e));
 			}
 			monitor.worked(10);
@@ -163,7 +164,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			final IProcess process = DebugPlugin.newProcess(launch, p, processName, processAttributes);
 			if (process == null) {
 				p.destroy();
-				throw new CoreException(new Status(Status.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
+				throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHING,
 						RLaunchingMessages.LaunchDelegate_error_ProcessHandle, null));
 			}
 			process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));

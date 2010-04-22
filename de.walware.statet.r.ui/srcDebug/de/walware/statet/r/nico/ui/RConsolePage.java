@@ -131,10 +131,15 @@ public class RConsolePage extends NIConsolePage {
 	private IContextProvider fHelpContextProvider;
 	
 	
-	public RConsolePage(final NIConsole console, final IConsoleView view) {
+	public RConsolePage(final RConsole console, final IConsoleView view) {
 		super(console, view);
 	}
 	
+	
+	@Override
+	public RConsole getConsole() {
+		return (RConsole) super.getConsole();
+	}
 	
 	@Override
 	public void createControl(final Composite parent) {
@@ -216,7 +221,7 @@ public class RConsolePage extends NIConsolePage {
 		super.handleSettingsChanged(groupIds, options);
 		if (groupIds.contains(RCodeStyleSettings.INDENT_GROUP_ID) 
 				&& UIAccess.isOkToUse(getOutputViewer())) {
-			final RCodeStyleSettings codeStyle = ((RConsole) getConsole()).getRCodeStyle();
+			final RCodeStyleSettings codeStyle = (getConsole()).getRCodeStyle();
 			if (codeStyle.isDirty()) {
 				getOutputViewer().setTabWidth(codeStyle.getTabSize());
 			}

@@ -45,24 +45,21 @@ import de.walware.ecommons.net.RMIUtil.StopRule;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
 import de.walware.rj.server.RjsComConfig;
 
-import de.walware.statet.r.core.renv.REnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.nico.RProcess;
-import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.ui.RUI;
@@ -109,7 +106,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		
 		// r env
-		final REnvConfiguration renv = REnvTab.getREnv(configuration);
+		final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
 		
 		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_LOCAL_REGISTRY_PORT);
 		final String s = "//:"+port+"/rjs-local-"+System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$
@@ -163,7 +160,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		// create process
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
-		final ToolProcess<RWorkspace> process = new RProcess(launch, 
+		final RProcess process = new RProcess(launch, renv,
 				LaunchConfigUtil.createLaunchPrefix(configuration),
 				renv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 				rmiAddress.toString(), null, timestamp); // wd is set at rjs startup
@@ -229,7 +226,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
 		controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
 		
-		final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
+		final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page, 
 				configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false));
 		

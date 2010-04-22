@@ -61,8 +61,8 @@ import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.StringPref;
+import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.variables.core.StringVariable;
 
@@ -70,14 +70,13 @@ import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.Queue;
+import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.core.runtime.ToolStatus;
-import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.LoginHandler;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
@@ -85,6 +84,7 @@ import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.debug.RDebug;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
@@ -92,7 +92,6 @@ import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.nico.RProcess;
-import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.impl.RjsUtil;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -214,6 +213,12 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		if (progress.isCanceled()) {
 			return;
 		}
+		
+		IREnvConfiguration rEnvConfig = null;
+		try {
+			rEnvConfig = REnvTab.getREnvConfig(configuration, false);
+		}
+		catch (final Exception e) {}
 		
 		// load tracking configurations
 		final List<TrackingConfiguration> trackingConfigs;
@@ -470,7 +475,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_REMOTE_CONSOLE_CONFIGURATION_TYPE);
 			final boolean startup = (todo == TODO_START_R);
 			
-			final ToolProcess<RWorkspace> process = new RProcess(launch,
+			final RProcess process = new RProcess(launch, rEnvConfig,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
 					" / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 					rmiAddress.toString(), (workingDirectory != null) ? workingDirectory.toString() : null, timestamp);
@@ -514,7 +519,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
 			controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
 			
-			final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
+			final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 			NicoUITools.startConsoleLazy(console, page,
 					configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false));
 			// start

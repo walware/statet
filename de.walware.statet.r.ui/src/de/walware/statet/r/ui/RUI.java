@@ -29,6 +29,8 @@ public class RUI {
 	
 	public static final String IMG_OBJ_R_SCRIPT = RUI.PLUGIN_ID + "/image/obj/r_script"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_RUNTIME_ENV = RUI.PLUGIN_ID + "/image/obj/r_environment"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_REMOTE_ENV = RUI.PLUGIN_ID + "/image/obj/r_environment.remote"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_PACKAGE = RUI.PLUGIN_ID + "/image/obj/r_package"; //$NON-NLS-1$
 	
 	public static final String IMG_OBJ_METHOD = RUI.PLUGIN_ID + "/image/obj/method"; //$NON-NLS-1$
 	public static final String IMG_OBJ_COMMON_FUNCTION = RUI.PLUGIN_ID + "/image/obj/function.common"; //$NON-NLS-1$
@@ -53,6 +55,8 @@ public class RUI {
 	public static final String IMG_OBJ_S4OBJ_DATAFRAME_COLUMN = RUI.PLUGIN_ID + "/image/obj/s4obj.dataframe_col"; //$NON-NLS-1$
 	public static final String IMG_OBJ_ARGUMENT_ASSIGN = RUI.PLUGIN_ID + "/image/obj/argument.assign"; //$NON-NLS-1$
 	
+	public static final String IMG_OBJ_LIBRARY_GROUP = PLUGIN_ID + "/image/obj/library.group"; //$NON-NLS-1$
+	public static final String IMG_OBJ_LIBRARY_LOCATION = PLUGIN_ID + "/image/obj/library.location"; //$NON-NLS-1$
 	
 	public static ImageDescriptor getImageDescriptor(final String key) {
 		return RUIPlugin.getDefault().getImageRegistry().getDescriptor(key);

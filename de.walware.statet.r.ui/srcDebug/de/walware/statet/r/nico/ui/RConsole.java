@@ -17,7 +17,6 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 
@@ -25,6 +24,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.ui.launchconfigs.RErrorLineTracker;
+import de.walware.statet.r.nico.RProcess;
 
 
 public class RConsole extends NIConsole implements IRCoreAccess {
@@ -33,13 +33,14 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 	private IPreferenceAccess fPrefs;
 	
 	
-	public RConsole(final ToolProcess process, final NIConsoleColorAdapter adapter) {
+	public RConsole(final RProcess process, final NIConsoleColorAdapter adapter) {
 		super(process, adapter);
 		
 		final RErrorLineTracker lineMatcher = new RErrorLineTracker(process);
 		addPatternMatchListener(lineMatcher);
 		fPrefs = NicoCore.getInstanceConsolePreferences();
 	}
+	
 	
 	@Override
 	public IPageBookViewPage createPage(final IConsoleView view) {

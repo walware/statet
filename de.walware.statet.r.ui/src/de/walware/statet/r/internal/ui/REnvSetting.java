@@ -9,19 +9,22 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.r.core.renv;
+package de.walware.statet.r.internal.ui;
 
 import java.util.regex.Pattern;
 
 import de.walware.ecommons.AbstractSettingsModelObject;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
  * Provides settings to link to a REnv configuration.
+ * @deprecated
  */
-public class REnvSetting extends AbstractSettingsModelObject {
+@Deprecated
+class REnvSetting extends AbstractSettingsModelObject {
 	
 	
 	public static enum SettingsType {
@@ -31,7 +34,7 @@ public class REnvSetting extends AbstractSettingsModelObject {
 	
 	private static Pattern RENV_SETTINGSSPLIT_PATTERN = Pattern.compile("\\:"); //$NON-NLS-1$
 	
-	public static REnvConfiguration resolveREnv(final REnvSetting setting) {
+	public static IREnv resolveREnv(final REnvSetting setting) {
 		if (setting != null && setting.fType != null) {
 			switch (setting.fType) {
 			case WORKBENCH:
@@ -43,7 +46,7 @@ public class REnvSetting extends AbstractSettingsModelObject {
 		return null;
 	}
 	
-	public static String encodeREnv(final SettingsType type, final REnvConfiguration specified, final boolean strict) {
+	public static String encodeREnv(final SettingsType type, final IREnv specified, final boolean strict) {
 		boolean valid;
 		if (type != null) {
 			switch (type) {
@@ -88,6 +91,20 @@ public class REnvSetting extends AbstractSettingsModelObject {
 			}
 		}
 		return setting;
+	}
+	
+	public static IREnv decodeToREnv(final String encodedSetting, final boolean strict) {
+		final REnvSetting setting = decodeType(encodedSetting, strict);
+		if (setting != null) {
+			switch (setting.getType()) {
+			case WORKBENCH:
+				return RCore.getREnvManager().getDefault();
+			case SPECIFIC:
+				final String[] details = setting.getDetails();
+				return RCore.getREnvManager().get(details[0], details[1]);
+			}
+		}
+		return null;
 	}
 	
 	

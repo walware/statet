@@ -15,10 +15,10 @@ package de.walware.statet.r.internal.debug.ui.launchconfigs;
 public final class RConsoleType {
 	
 	
-	private String fName;
-	private String fId;
-	private boolean fRequireJRE;
-	private boolean fSupportsJDebug;
+	private final String fName;
+	private final String fId;
+	private final boolean fRequireJRE;
+	private final boolean fSupportsJDebug;
 	
 	
 	public RConsoleType(final String name, final String id, final boolean requireJRE, final boolean supportsJDebug) {

@@ -11,6 +11,8 @@
 
 package de.walware.statet.r.internal.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +26,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.validation.IValidator;
 import org.eclipse.core.databinding.validation.ValidationStatus;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,35 +36,73 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
+import de.walware.ecommons.FastList;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.LayoutUtil;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
-import de.walware.statet.r.core.renv.REnvConfiguration;
-import de.walware.statet.r.core.renv.REnvSetting;
-import de.walware.statet.r.core.renv.REnvSetting.SettingsType;
 import de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage;
 
 
 /**
  * Composite to choose a configured R Environment.
  */
-public class ChooseREnvComposite extends Composite implements ISettingsChangedHandler {
+public class REnvSelectionComposite extends Composite implements ISettingsChangedHandler {
+	
+	
+	public static IREnv compatDecode(final String encodedSetting) {
+		if (encodedSetting != null) {
+			final int idx = encodedSetting.indexOf(';');
+			final IREnv rEnv;
+			if (idx >= 0) {
+				rEnv = RCore.getREnvManager().get(encodedSetting.substring(0, idx), encodedSetting.substring(idx+1));
+			}
+			else {
+				rEnv = RCore.getREnvManager().get(encodedSetting, null);
+			}
+			if (rEnv != null) {
+				return rEnv;
+			}
+			try {
+				return REnvSetting.decodeToREnv(encodedSetting, false);
+			}
+			catch (final Exception e) {}
+		}
+		return null;
+	}
+	
+	public String encode(final IREnv rEnv) {
+		if (rEnv != null) {
+			final String name = rEnv.getName();
+			if (name != null) {
+				return rEnv.getId() + ';' + name;
+			}
+			else {
+				return rEnv.getId() + ';';
+			}
+		}
+		return ""; //$NON-NLS-1$
+	}
+	
 	
 	public static interface ChangeListener {
-		public void settingChanged(ChooseREnvComposite source, String oldValue, String newValue);
+		public void settingChanged(REnvSelectionComposite source, String oldValue, String newValue,
+				IREnv newREnv);
 	}
 	
 	private class CompositeObservable extends AbstractObservableValue implements ChangeListener {
 		
 		public CompositeObservable(final Realm realm) {
 			super(realm);
-			ChooseREnvComposite.this.addChangeListener(CompositeObservable.this);
+			REnvSelectionComposite.this.addChangeListener(CompositeObservable.this);
 		}
 		
-		public void settingChanged(final ChooseREnvComposite source, final String oldValue, final String newValue) {
+		public void settingChanged(final REnvSelectionComposite source, final String oldValue,
+				final String newValue, final IREnv newREnv) {
 			fireValueChange(Diffs.createValueDiff(oldValue, newValue));
 		}
 		
@@ -81,8 +120,8 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 			return String.class;
 		}
 		
-		public ChooseREnvComposite getComposite() {
-			return ChooseREnvComposite.this;
+		public REnvSelectionComposite getComposite() {
+			return REnvSelectionComposite.this;
 		}
 	}
 	
@@ -92,11 +131,16 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 			if (fInvalidPreference) {
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_InvalidPreferences_message);
 			}
-			if (fCurrentSetting == null) {
+			if (fCurrentREnv == null) {
+				if (fEnableNone) {
+					return ValidationStatus.ok();
+				}
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_IncompleteSelection_message);
 			}
-			final REnvConfiguration config = REnvSetting.resolveREnv(REnvSetting.decodeType(fCurrentSetting, true));
-			if (config == null || config.isDisposed()) {
+			final IREnv rEnv = fCurrentREnv.resolve();
+			if (rEnv == null
+					|| (fValidREnvs != null && !fValidREnvs.contains(rEnv))
+					|| rEnv.getConfig() == null) {
 				return ValidationStatus.error(RUIMessages.ChooseREnv_error_InvalidSelection_message);
 			}
 			return ValidationStatus.ok();
@@ -104,14 +148,21 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		
 	}
 	
+	
+	private final boolean fEnableNone;
+	
 	private boolean fInvalidPreference;
-	private String fCurrentSetting;
-	private REnvConfiguration fCurrentSpecified;
-	private ListenerList fListeners;
+	private List<IREnv> fValidREnvs;
+	
+	private IREnv fCurrentREnv;
+	private String fCurrentEncoded;
+	private IREnv fCurrentSpecified;
+	private final FastList<ChangeListener> fListeners = new FastList<ChangeListener>(ChangeListener.class);
 	
 	private DataBindingContext fBindindContexts;
 	private Binding fBindings;
 	
+	private Button fNoneButton;
 	private Button fWorkbenchDefaultButton;
 	private Text fWorkbenchLabel;
 	private Button fSpecificButton;
@@ -119,17 +170,21 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	private Button fConfigurationButton;
 	
 	
-	public ChooseREnvComposite(final Composite parent) {
+	public REnvSelectionComposite(final Composite parent) {
+		this(parent, false);
+	}
+	
+	public REnvSelectionComposite(final Composite parent, final boolean enableNone) {
 		super(parent, SWT.NONE);
+		fEnableNone = enableNone;
+		
 		fInvalidPreference = true;
-		fListeners = new ListenerList();
 		
 		createControls();
 		fWorkbenchDefaultButton.setSelection(true);
 		initPreferences();
-		updateState(false);
+		updateState(true, false);
 	}
-	
 	
 	
 	private void initPreferences() {
@@ -140,6 +195,12 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 	private void createControls() {
 		final Composite container = this;
 		container.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 3));
+		
+		if (fEnableNone) {
+			fNoneButton = new Button(container, SWT.RADIO);
+			fNoneButton.setText(RUIMessages.ChooseREnv_None_label);
+			fNoneButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		}
 		
 		fWorkbenchDefaultButton = new Button(container, SWT.RADIO);
 		fWorkbenchDefaultButton.setText(RUIMessages.ChooseREnv_WorkbenchDefault_label);
@@ -158,10 +219,33 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		fConfigurationButton.setText(RUIMessages.ChooseREnv_Configure_label);
 		fConfigurationButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		
+		if (fEnableNone) {
+			fNoneButton.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(final SelectionEvent e) {
+					if (fNoneButton.getSelection()) {
+						fCurrentREnv = null;
+						updateState(false, false);
+					}
+				}
+			});
+		}
 		fWorkbenchDefaultButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-				updateState(false);
+				if (fWorkbenchDefaultButton.getSelection()) {
+					fCurrentREnv = RCore.getREnvManager().getDefault();
+					updateState(false, false);
+				}
+			}
+		});
+		fSpecificButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(final SelectionEvent e) {
+				if (fSpecificButton.getSelection()) {
+					fCurrentREnv = fCurrentSpecified;
+					updateState(false, false);
+				}
 			}
 		});
 		fSpecificCombo.addSelectionListener(new SelectionAdapter() {
@@ -169,8 +253,8 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 			public void widgetSelected(final SelectionEvent event) {
 				final String name = getSpecifiedName();
 				if (name != null) {
-					fCurrentSpecified = RCore.getREnvManager().get(null, name);
-					updateState(false);
+					fCurrentREnv = RCore.getREnvManager().get(null, name);
+					updateState(false, false);
 				}
 			}
 		});
@@ -194,63 +278,52 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		manager.getReadLock().lock();
 		try {
 			// Workbench default
-			final REnvConfiguration defaultConfig = manager.getDefault();
-			final String[] newNames = manager.getNames();
-			fWorkbenchLabel.setText(defaultConfig.getName());
-			if (newNames.length > 0) {
+			final IREnv defaultEnv = manager.getDefault();
+			final IREnvConfiguration[] list = manager.getConfigurations();
+			fValidREnvs = getValidREnvs(list);
+			final String[] validNames = new String[fValidREnvs.size()];
+			for (int i = 0; i < validNames.length; i++) {
+				validNames[i] = fValidREnvs.get(i).getName();
+			}
+			fWorkbenchLabel.setText(defaultEnv.getName());
+			if (list.length > 0) {
 				fInvalidPreference = false;
 			}
 			// Specifics
-			fSpecificCombo.setItems(newNames);
+			fSpecificCombo.setItems(validNames);
 			if (fCurrentSpecified != null) {
-				if (!fCurrentSpecified.isDisposed()) {
-					setSpecified(fCurrentSpecified);
-				} else {
-					setSpecified(manager.get(null, fCurrentSpecified.getName()));
+				final boolean current = (fCurrentREnv == fCurrentSpecified);
+				fCurrentSpecified = manager.get(fCurrentSpecified.getId(), fCurrentSpecified.getName());
+				if (current) {
+					fCurrentREnv = fCurrentSpecified;
 				}
 			}
 		}
 		finally {
 			manager.getReadLock().unlock();
-			updateState(true);
+			updateState(false, true);
 		}
 	}
 	
-	public void setSetting(final REnvSetting setting) {
-		final SettingsType type = (setting != null) ? setting.getType() : null;
-		if (type == SettingsType.SPECIFIC) {
-			fWorkbenchDefaultButton.setSelection(false);
-			fSpecificButton.setSelection(true);
-			setSpecified(RCore.getREnvManager().get(setting.getDetails()[0], setting.getDetails()[1]));
+	protected List<IREnv> getValidREnvs(final IREnvConfiguration[] configurations) {
+		final List<IREnv> list = new ArrayList<IREnv>(configurations.length);
+		for (final IREnvConfiguration rEnvConfig : configurations) {
+			list.add(rEnvConfig.getReference());
 		}
-		else if (type == SettingsType.WORKBENCH) {
-			fWorkbenchDefaultButton.setSelection(true);
-			fSpecificButton.setSelection(false);
-		}
-		else {
-			fWorkbenchDefaultButton.setSelection(false);
-			fSpecificButton.setSelection(false);
-		}
-		updateState(false);
+		return list;
+	}
+	
+	public void setSetting(final IREnv rEnv) {
+		fCurrentREnv = rEnv;
+		updateState(true, false);
 	}
 	
 	public String getEncodedSetting() {
-		return fCurrentSetting;
+		return fCurrentEncoded;
 	}
 	
 	public void setEncodedSetting(final String encodedSetting) {
-		final REnvSetting setting = REnvSetting.decodeType(encodedSetting, false);
-		setSetting(setting);
-	}
-	
-	private void setSpecified(final REnvConfiguration config) {
-		fCurrentSpecified = config;
-		if (fCurrentSpecified != null) {
-			fSpecificCombo.select(fSpecificCombo.indexOf(fCurrentSpecified.getName()));
-		}
-		else {
-			fSpecificCombo.deselectAll();
-		}
+		setSetting(compatDecode(encodedSetting));
 	}
 	
 	private String getSpecifiedName() {
@@ -261,16 +334,39 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		return null;
 	}
 	
-	private void updateState(final boolean force) {
-		final SettingsType type = getSettingsType();
-		fWorkbenchLabel.setEnabled(type == SettingsType.WORKBENCH);
-		fSpecificCombo.setEnabled(type == SettingsType.SPECIFIC);
-		final String oldSetting = fCurrentSetting;
-		fCurrentSetting = REnvSetting.encodeREnv(type, fCurrentSpecified, false);
-		if ((fCurrentSetting == null && oldSetting != null)
-				|| (fCurrentSetting != null && !fCurrentSetting.equals(oldSetting)) ) {
-			for (final Object listener : fListeners.getListeners()) {
-				((ChangeListener) listener).settingChanged(this, oldSetting, fCurrentSetting);
+	public IREnv getSelection() {
+		return fCurrentREnv;
+	}
+	
+	private void updateState(final boolean updateSelection, final boolean force) {
+		final boolean isWorkbench = (fCurrentREnv != null
+				&& fCurrentREnv.getId().equals(IREnv.DEFAULT_WORKBENCH_ENV_ID) );
+		final boolean isSpecific = (fCurrentREnv != null && !isWorkbench);
+		if (updateSelection) {
+			if (fNoneButton != null) {
+				fNoneButton.setSelection(!isWorkbench && !isSpecific);
+			}
+			fWorkbenchDefaultButton.setSelection(isWorkbench);
+			fSpecificButton.setSelection(isSpecific);
+		}
+		fWorkbenchLabel.setEnabled(fWorkbenchDefaultButton.getSelection());
+		fSpecificCombo.setEnabled(fSpecificButton.getSelection());
+		
+		if (isSpecific) {
+			fCurrentSpecified = fCurrentREnv;
+		}
+		if (fCurrentSpecified != null) {
+			fSpecificCombo.select(fSpecificCombo.indexOf(fCurrentSpecified.getName()));
+		}
+		else {
+			fSpecificCombo.deselectAll();
+		}
+		
+		final String oldEncoded = fCurrentEncoded;
+		fCurrentEncoded = encode(fCurrentREnv);
+		if (!((fCurrentEncoded != null) ? fCurrentEncoded.equals(oldEncoded) : (null == oldEncoded))) {
+			for (final ChangeListener listener : fListeners.toArray()) {
+				listener.settingChanged(this, oldEncoded, fCurrentEncoded, fCurrentREnv);
 			}
 		}
 		else if (force) {
@@ -306,16 +402,6 @@ public class ChooseREnvComposite extends Composite implements ISettingsChangedHa
 		fListeners.remove(listener);
 	}
 		
-	public SettingsType getSettingsType() {
-		if (fWorkbenchDefaultButton.getSelection()) {
-			return SettingsType.WORKBENCH;
-		}
-		if (fSpecificButton.getSelection()) {
-			return SettingsType.SPECIFIC;
-		}
-		throw new IllegalStateException();
-	}
-	
 	/**
 	 * Return a new Observable for the encoded setting of selected REnv.
 	 * (So type is String)

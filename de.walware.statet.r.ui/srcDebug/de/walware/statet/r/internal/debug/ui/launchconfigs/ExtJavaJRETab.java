@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaJRETab;
@@ -43,8 +44,9 @@ import de.walware.ecommons.preferences.SettingsChangeNotifier.ChangeListener;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
-import de.walware.statet.r.core.renv.REnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -185,8 +187,9 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	}
 	
 	private void updateRBits() {
-		final REnvConfiguration renv = fREnvTab.getSelectedEnv();
-		fLastCheckedRBits = (renv != null) ? renv.getRBits() : -1;
+		final IREnv rEnv = fREnvTab.getSelectedEnv();
+		final IREnvConfiguration config = (rEnv != null) ? rEnv.getConfig() : null;
+		fLastCheckedRBits = (config != null) ? config.getRBits() : -1;
 	}
 	
 	private void updateVMBits() {
@@ -195,7 +198,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 			try {
 				getLaunchConfigurationDialog().run(true, true, new IRunnableWithProgress() {
 					public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-						final String[] propertyNames = new String[] { "java.vm.name", "sun.arch.data.model", "com.ibm.vm.bitmode" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						final String[] propertyNames = new String[] { "os.arch", "java.vm.name", "sun.arch.data.model", "com.ibm.vm.bitmode" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 						try {
 							final Map<String, String> properties = ((IVMInstall3) fLastCheckedVM).evaluateSystemProperties(propertyNames, monitor);
 							
@@ -210,6 +213,20 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 										return;
 									}
 									catch (final NumberFormatException e) {
+									}
+								}
+							}
+							{	// try known os.arch
+								String p = properties.get("os.arch"); //$NON-NLS-1$
+								if (p != null && p.length() > 0) {
+									if (p.equals(Platform.ARCH_X86)) {
+										fLastCheckedVMBits = 32;
+										return;
+									}
+									if (p.equals(Platform.ARCH_AMD64) 
+											|| p.equals(Platform.ARCH_X86_64) ) {
+										fLastCheckedVMBits = 64;
+										return;
 									}
 								}
 							}

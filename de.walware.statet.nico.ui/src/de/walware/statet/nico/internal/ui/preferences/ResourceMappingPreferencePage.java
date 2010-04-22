@@ -109,7 +109,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 			
 			fListButtons = new ButtonGroup<ResourceMapping>(composite) {
 				@Override
-				protected ResourceMapping edit1(final ResourceMapping item, final boolean newItem) {
+				protected ResourceMapping edit1(final ResourceMapping item, final boolean newItem, final Object parent) {
 					final EditMappingDialog dialog = new EditMappingDialog(getShell(), item, newItem);
 					if (dialog.open() == Dialog.OK) {
 						return dialog.getResult();

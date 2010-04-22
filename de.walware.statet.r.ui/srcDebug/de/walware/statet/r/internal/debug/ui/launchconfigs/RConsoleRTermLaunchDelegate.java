@@ -38,21 +38,18 @@ import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.ui.NicoUITools;
-import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
-import de.walware.statet.r.core.renv.REnvConfiguration;
-import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
 import de.walware.statet.r.nico.RProcess;
-import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.impl.RTermController;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.ui.RUI;
@@ -62,7 +59,8 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 	
 	
 	public void launch(final ILaunchConfiguration configuration, final String mode,
-			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
+			final ILaunch launch, final IProgressMonitor monitor)
+			throws CoreException {
 		final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 		final SubMonitor progress = SubMonitor.convert(monitor, 15);
 		
@@ -74,7 +72,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		}
 		
 		// r env
-		final REnvConfiguration renv = REnvTab.getREnv(configuration);
+		final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
 //		renv.validate();
 		
 		// working directory
@@ -129,7 +127,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		// create process
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
-		final ToolProcess<RWorkspace> process = new RProcess(launch,
+		final RProcess process = new RProcess(launch, renv,
 				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " / Rterm " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 				null, workingDirectory.toString(), timestamp);
 		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
@@ -140,7 +138,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		progress.worked(5);
 		
-		final NIConsole console = new RConsole(process, new NIConsoleColorAdapter());
+		final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page,
 				configuration.getAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, false));
 		

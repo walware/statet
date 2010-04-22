@@ -17,19 +17,21 @@ import org.eclipse.core.runtime.CoreException;
 
 
 /**
- * 
+ * Manages R environment configurations.
  */
 public interface IREnvManager {
 	
 	
-	public static final String SETTINGS_GROUP_ID = "r.envs"; //$NON-NLS-1$
+	String SETTINGS_GROUP_ID = "r.envs"; //$NON-NLS-1$
 	
 	
-	public String[] set(REnvConfiguration[] configs, String defaultConfigName) throws CoreException;
+	String[] set(IREnvConfiguration[] configs, String defaultConfigName) throws CoreException;
 	
-	public Lock getReadLock();
-	public String[] getNames();
-	public REnvConfiguration get(String id, String name);
-	public REnvConfiguration getDefault();
+	Lock getReadLock();
+	IREnvConfiguration[] getConfigurations();
+	
+	IREnv get(String id, String name);
+	IREnv getDefault();
+	IREnvConfiguration.WorkingCopy newConfiguration(String type);
 	
 }

@@ -23,7 +23,7 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.internal.core.renv.REnvManager;
 import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
 
 
@@ -141,7 +141,7 @@ public class RCorePlugin extends Plugin {
 		}
 	}
 	
-	public IREnvManager getREnvManager() {
+	public REnvManager getREnvManager() {
 		return fREnvManager;
 	}
 	

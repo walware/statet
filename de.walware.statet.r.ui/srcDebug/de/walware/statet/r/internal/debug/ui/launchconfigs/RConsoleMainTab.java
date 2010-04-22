@@ -65,8 +65,8 @@ import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.base.ui.StatetImages;
 
-import de.walware.statet.r.core.renv.REnvConfiguration;
-import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -393,7 +393,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
-			final REnvConfiguration renv = REnvTab.getREnv(fConfigCache);
+			final IREnvConfiguration renv = REnvTab.getREnvConfig(fConfigCache, true);
 			
 			cmdLine.addAll(0, renv.getExecCommand(Exec.TERM));
 			

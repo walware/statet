@@ -17,6 +17,7 @@ import org.eclipse.osgi.util.NLS;
 public class RUIMessages extends NLS {
 	
 	
+	public static String ChooseREnv_None_label;
 	public static String ChooseREnv_WorkbenchDefault_label;
 	public static String ChooseREnv_Selected_label;
 	public static String ChooseREnv_Configure_label;

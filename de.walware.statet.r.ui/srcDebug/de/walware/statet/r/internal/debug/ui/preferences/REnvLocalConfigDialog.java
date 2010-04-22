@@ -68,6 +68,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -91,19 +92,20 @@ import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.r.core.RUtil;
-import de.walware.statet.r.core.renv.REnvConfiguration;
-import de.walware.statet.r.core.renv.RLibraryGroup;
-import de.walware.statet.r.core.renv.RLibraryLocation;
-import de.walware.statet.r.core.renv.REnvConfiguration.Exec;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
+import de.walware.statet.r.core.renv.IRLibraryGroup;
+import de.walware.statet.r.core.renv.IRLibraryLocation;
+import de.walware.statet.r.core.renv.IRLibraryLocation.WorkingCopy;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUI;
 
 
 /**
- * Dialog for an {@link REnvConfiguration}
+ * Dialog for a local standard {@link IREnvConfiguration} (<code>user-local</code>)
  */
-public class REnvConfigDialog extends ExtStatusDialog {
+public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	
 	private static final Integer T_64 = Integer.valueOf(64);
@@ -116,16 +118,24 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			+ "paste(.Library.site, collapse=.Platform$path.sep),"
 			+ "Sys.getenv('R_LIBS'),"
 			+ "Sys.getenv('R_LIBS_USER'),"
+			+ "R.home('doc'),"
+			+ "R.home('share'),"
+			+ "R.home('include'),"
 			+ "R.version$arch, "
-			+ "sep='\\n');"; //$NON-NLS-1$ //$NON-NLS-2$
+			+ ".Platform$OS.type, "
+			+ "sep='\\n');"; //$NON-NLS-1$ 
 	// R.version$arch
-	private static final int DETECT_LENGTH = 7;
+	private static final int DETECT_LENGTH = 11;
 	private static final int DETECT_R_HOME = 1;
 	private static final int DETECT_R_DEFAULT = 2;
 	private static final int DETECT_R_SITE = 3;
 	private static final int DETECT_R_OTHER = 4;
 	private static final int DETECT_R_USER = 5;
-	private static final int DETECT_R_ARCH = 6;
+	private static final int DETECT_R_DOC_DIR = 6;
+	private static final int DETECT_R_SHARE_DIR = 7;
+	private static final int DETECT_R_INCLUDE_DIR = 8;
+	private static final int DETECT_R_ARCH = 9;
+	private static final int DETECT_R_OS = 10;
 	private static final Pattern DETECT_ITEM_PATTERN = RUtil.LINE_SEPARATOR_PATTERN;
 	private static final Pattern DETECT_PATH_PATTERN = Pattern.compile(Pattern.quote(File.pathSeparator));
 	
@@ -177,10 +187,10 @@ public class REnvConfigDialog extends ExtStatusDialog {
 	
 	private static class RLibraryContainer {
 		
-		RLibraryGroup parent;
-		RLibraryLocation library;
+		IRLibraryGroup.WorkingCopy.WorkingCopy parent;
+		IRLibraryLocation.WorkingCopy library;
 		
-		RLibraryContainer(final RLibraryGroup parent, final RLibraryLocation library) {
+		RLibraryContainer(final IRLibraryGroup.WorkingCopy.WorkingCopy parent, final IRLibraryLocation.WorkingCopy library) {
 			this.parent = parent;
 			this.library = library;
 		}
@@ -191,32 +201,41 @@ public class REnvConfigDialog extends ExtStatusDialog {
 				return false;
 			}
 			final RLibraryContainer other = (RLibraryContainer) obj;
-			return (this.library == other.library);
+			return (library == other.library);
 		}
 	}
 	
 	
-	private final REnvConfiguration.WorkingCopy fConfigModel;
+	private final IREnvConfiguration.WorkingCopy fConfigModel;
 	private final boolean fIsNewConfig;
 	private final Set<String> fExistingNames;
 	
+	private DatabindingSupport fDatabinding;
+	
 	private Text fNameControl;
 	private ResourceInputComposite fRHomeControl;
-	private ComboViewer fRBitViewer;
-	private TreeViewer fRLibrariesViewer;
-	private ButtonGroup<RLibraryLocation> fRLibrariesButtons;
+	
 	private Button fLoadButton;
 	
+	private ComboViewer fRBitViewer;
 	
-	public REnvConfigDialog(final Shell parent, 
-			final REnvConfiguration.WorkingCopy config, final boolean isNewConfig, 
-			final Collection<REnvConfiguration> existingConfigs) {
+	private TreeViewer fRLibrariesViewer;
+	private ButtonGroup<IRLibraryLocation.WorkingCopy> fRLibrariesButtons;
+	
+	private ResourceInputComposite fRDocDirectoryControl;
+	private ResourceInputComposite fRShareDirectoryControl;
+	private ResourceInputComposite fRIncludeDirectoryControl;
+	
+	
+	public REnvLocalConfigDialog(final Shell parent, 
+			final IREnvConfiguration.WorkingCopy config, final boolean isNewConfig, 
+			final Collection<IREnvConfiguration> existingConfigs) {
 		super(parent, true);
 		
 		fConfigModel = config;
 		fIsNewConfig = isNewConfig;
 		fExistingNames = new HashSet<String>();
-		for (final REnvConfiguration ec : existingConfigs) {
+		for (final IREnvConfiguration ec : existingConfigs) {
 			fExistingNames.add(ec.getName());
 		}
 		setTitle(fIsNewConfig ?
@@ -236,7 +255,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			label.setText(Messages.REnv_Detail_Name_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
-			fNameControl = new Text(dialogArea, SWT.SINGLE | SWT.BORDER);
+			fNameControl = new Text(dialogArea, SWT.BORDER);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth(fNameControl, 60);
 			fNameControl.setLayoutData(gd);
@@ -312,15 +331,15 @@ public class REnvConfigDialog extends ExtStatusDialog {
 					return null;
 				}
 				public boolean hasChildren(final Object element) {
-					if (element instanceof RLibraryGroup) {
-						return !((RLibraryGroup) element).getLibraries().isEmpty();
+					if (element instanceof IRLibraryGroup.WorkingCopy) {
+						return !((IRLibraryGroup.WorkingCopy) element).getLibraries().isEmpty();
 					}
 					return false;
 				}
 				public Object[] getChildren(final Object parentElement) {
-					if (parentElement instanceof RLibraryGroup) {
-						final RLibraryGroup group = (RLibraryGroup) parentElement;
-						final List<RLibraryLocation> libs = group.getLibraries();
+					if (parentElement instanceof IRLibraryGroup.WorkingCopy) {
+						final IRLibraryGroup.WorkingCopy group = (IRLibraryGroup.WorkingCopy) parentElement;
+						final List<? extends IRLibraryLocation.WorkingCopy> libs = group.getLibraries();
 						final RLibraryContainer[] array = new RLibraryContainer[libs.size()];
 						for (int i = 0; i < libs.size(); i++) {
 							array[i] = new RLibraryContainer(group, libs.get(i));
@@ -335,38 +354,36 @@ public class REnvConfigDialog extends ExtStatusDialog {
 				@Override
 				public void update(final ViewerCell cell) {
 					final Object element = cell.getElement();
-					if (element instanceof RLibraryGroup) {
-						final RLibraryGroup group = (RLibraryGroup) element;
-						cell.setImage(RUI.getImage(RUIPlugin.IMG_OBJ_LIBRARY_GROUP));
+					if (element instanceof IRLibraryGroup.WorkingCopy) {
+						final IRLibraryGroup.WorkingCopy group = (IRLibraryGroup.WorkingCopy) element;
+						cell.setImage(RUI.getImage(RUI.IMG_OBJ_LIBRARY_GROUP));
 						cell.setText(group.getLabel());
 					}
 					else if (element instanceof RLibraryContainer) {
-						final RLibraryLocation lib = ((RLibraryContainer) element).library;
-						cell.setImage(RUI.getImage(RUIPlugin.IMG_OBJ_LIBRARY_LOCATION));
+						final IRLibraryLocation lib = ((RLibraryContainer) element).library;
+						cell.setImage(RUI.getImage(RUI.IMG_OBJ_LIBRARY_LOCATION));
 						cell.setText(lib.getDirectoryPath());
+					} else {
+						throw new UnsupportedOperationException();
 					}
-					else throw new UnsupportedOperationException();
 				}
 			});
 			column.setEditingSupport(new EditingSupport(treeComposite.viewer) {
 				@Override
 				protected boolean canEdit(final Object element) {
 					if (element instanceof RLibraryContainer) {
-						final RLibraryGroup group = ((RLibraryContainer) element).parent;
-						return !group.getId().equals(RLibraryGroup.R_DEFAULT);
+						final IRLibraryGroup.WorkingCopy group = ((RLibraryContainer) element).parent;
+						return !group.getId().equals(IRLibraryGroup.R_DEFAULT);
 					}
 					return false;
 				}
 				@Override
 				protected void setValue(final Object element, final Object value) {
 					final RLibraryContainer container = (RLibraryContainer) element;
-					final RLibraryLocation oldLib = container.library;
-					final RLibraryLocation newLib = new RLibraryLocation((String) value);
+					container.library.setDirectoryPath((String) value);
 					
-					final List<RLibraryLocation> list = container.parent.getLibraries();
-					list.set(list.indexOf(oldLib), newLib);
-					container.library = newLib;
 					getViewer().refresh(container, true);
+					fDatabinding.updateStatus();
 				}
 				@Override
 				protected Object getValue(final Object element) {
@@ -405,54 +422,61 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			treeComposite.viewer.setInput(fConfigModel);
 			ViewerUtil.installDefaultEditBehaviour(treeComposite.viewer);
 			
-			fRLibrariesButtons = new ButtonGroup<RLibraryLocation>(composite) {
-				private RLibraryGroup getGroup(final Object element) {
-					if (element instanceof RLibraryGroup) {
-						return (RLibraryGroup) element;
+			fRLibrariesButtons = new ButtonGroup<IRLibraryLocation.WorkingCopy>(composite) {
+				private IRLibraryGroup.WorkingCopy getGroup(final Object element) {
+					if (element instanceof IRLibraryGroup.WorkingCopy) {
+						return (IRLibraryGroup.WorkingCopy) element;
 					}
 					else {
 						return ((RLibraryContainer) element).parent;
 					}
 				}
 				@Override
-				protected RLibraryLocation getModelItem(final Object element) {
+				protected IRLibraryLocation.WorkingCopy getModelItem(final Object element) {
 					if (element instanceof RLibraryContainer) {
 						return ((RLibraryContainer) element).library;
 					}
-					return (RLibraryLocation) element;
+					return (IRLibraryLocation.WorkingCopy) element;
 				}
 				@Override
-				protected Object getViewerElement(final RLibraryLocation item, final Object parent) {
-					return new RLibraryContainer((RLibraryGroup) parent, item);
+				protected Object getViewerElement(final IRLibraryLocation.WorkingCopy item, final Object parent) {
+					return new RLibraryContainer((IRLibraryGroup.WorkingCopy.WorkingCopy) parent, item);
 				}
 				@Override
 				protected boolean isAddAllowed(final Object element) {
-					return !getGroup(element).getId().equals(RLibraryGroup.R_DEFAULT);
+					return !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT);
 				}
 				@Override
 				protected boolean isModifyAllowed(final Object element) {
 					return ( element instanceof RLibraryContainer
-							&& !getGroup(element).getId().equals(RLibraryGroup.R_DEFAULT) );
+							&& !getGroup(element).getId().equals(IRLibraryGroup.R_DEFAULT) );
 				}
 				@Override
 				protected Object getAddParent(final Object element) {
 					return getGroup(element);
 				}
 				@Override
-				protected List<? super RLibraryLocation> getChildContainer(final Object element) {
-					if (element instanceof RLibraryGroup) {
-						return ((RLibraryGroup) element).getLibraries();
+				protected List<? super IRLibraryLocation.WorkingCopy> getChildContainer(final Object element) {
+					if (element instanceof IRLibraryGroup.WorkingCopy) {
+						return ((IRLibraryGroup.WorkingCopy) element).getLibraries();
 					}
 					else {
 						return ((RLibraryContainer) element).parent.getLibraries();
 					}
 				}
 				@Override
-				protected RLibraryLocation edit1(RLibraryLocation item, final boolean newItem) {
+				protected IRLibraryLocation.WorkingCopy edit1(final IRLibraryLocation.WorkingCopy item, final boolean newItem, final Object parent) {
 					if (newItem) {
-						item = new RLibraryLocation(""); //$NON-NLS-1$
+						return ((IRLibraryGroup.WorkingCopy) parent).newLibrary(""); //$NON-NLS-1$
 					}
 					return item;
+				}
+				@Override
+				public void updateState() {
+					super.updateState();
+					if (isDirty()) {
+						fDatabinding.updateStatus();
+					}
 				}
 			};
 			fRLibrariesButtons.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
@@ -465,12 +489,17 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			fRLibrariesButtons.connectTo(fRLibrariesViewer, null, null);
 		}
 		
+		final Composite installGroup = createInstallDirGroup(dialogArea);
+		if (installGroup != null) {
+			installGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		}
+		
 		LayoutUtil.addSmallFiller(dialogArea, true);
 		applyDialogFont(dialogArea);
 		
-		final DatabindingSupport databinding = new DatabindingSupport(dialogArea);
-		addBindings(databinding, databinding.getRealm());
-		databinding.installStatusListener(new StatusUpdater());
+		fDatabinding = new DatabindingSupport(dialogArea);
+		addBindings(fDatabinding, fDatabinding.getRealm());
+		fDatabinding.installStatusListener(new StatusUpdater());
 		fRLibrariesButtons.updateState();
 		
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getShell(), IRUIHelpContextIds.R_ENV);
@@ -478,9 +507,55 @@ public class REnvConfigDialog extends ExtStatusDialog {
 		return dialogArea;
 	}
 	
+	private Composite createInstallDirGroup(final Composite parent) {
+		final Group composite = new Group(parent, SWT.NONE);
+		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		composite.setText("Advanced - Installation locations:");
+		{	final Label label = new Label(composite, SWT.NONE);
+			label.setText("Documentation ('R_DOC_DIR'):");
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			
+			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
+					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR");
+			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			text.setShowInsertVariable(true, new ConstList<VariableFilter>(
+					VariableFilter.EXCLUDE_BUILD_FILTER,
+					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
+					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			fRDocDirectoryControl = text;
+		}
+		{	final Label label = new Label(composite, SWT.NONE);
+			label.setText("Shared files ('R_SHARE_DIR'):");
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			
+			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
+					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_SHARE_DIR");
+			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			text.setShowInsertVariable(true, new ConstList<VariableFilter>(
+					VariableFilter.EXCLUDE_BUILD_FILTER,
+					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
+					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			fRShareDirectoryControl = text;
+		}
+		{	final Label label = new Label(composite, SWT.NONE);
+			label.setText("Include files ('R_INCLUDE_DIR'):");
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			
+			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
+					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_INCLUDE_DIR");
+			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			text.setShowInsertVariable(true, new ConstList<VariableFilter>(
+					VariableFilter.EXCLUDE_BUILD_FILTER,
+					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
+					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			fRIncludeDirectoryControl = text;
+		}
+		return composite;
+	}
+	
 	protected void addBindings(final DatabindingSupport db, final Realm realm) {
 		db.getContext().bindValue(SWTObservables.observeText(fNameControl, SWT.Modify), 
-				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_NAME), 
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_NAME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
 					public IStatus validate(final Object value) {
 						String s = (String) value;
@@ -498,14 +573,14 @@ public class REnvConfigDialog extends ExtStatusDialog {
 					}
 				}), null);
 		final Binding rHomeBinding = db.getContext().bindValue(fRHomeControl.getObservable(), 
-				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_RHOME), 
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RHOME), 
 				new UpdateValueStrategy().setAfterGetValidator(new IValidator() {
 					public IStatus validate(final Object value) {
 						final IStatus status = fRHomeControl.getValidator().validate(value);
 						if (!status.isOK()) {
 							return status;
 						}
-						if (!REnvConfiguration.isValidRHomeLocation(fRHomeControl.getResourceAsFileStore())) {
+						if (!fConfigModel.isValidRHomeLocation(fRHomeControl.getResourceAsFileStore())) {
 							return ValidationStatus.error(Messages.REnv_Detail_Location_error_NoRHome_message);
 						}
 						return ValidationStatus.ok();
@@ -518,9 +593,15 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			}
 		});
 		rHomeBinding.validateTargetToModel();
-		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fRBitViewer), 
-				BeansObservables.observeValue(fConfigModel, REnvConfiguration.PROP_RBITS), 
+		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fRBitViewer),
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RBITS),
 				null, null);
+		db.getContext().bindValue(fRDocDirectoryControl.getObservable(),
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RDOC_DIRECTORY) );
+		db.getContext().bindValue(fRShareDirectoryControl.getObservable(),
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RSHARE_DIRECTORY) );
+		db.getContext().bindValue(fRIncludeDirectoryControl.getObservable(),
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RINCLUDE_DIRECTORY) );
 	}
 	
 	private String[] searchRHOME() {
@@ -544,14 +625,14 @@ public class REnvConfigDialog extends ExtStatusDialog {
 				final String[] childNames = res.childNames(EFS.NONE, null);
 				Arrays.sort(childNames, 0, childNames.length, Collator.getInstance());
 				for (int i = childNames.length-1; i >= 0; i--) {
-					if (REnvConfiguration.isValidRHomeLocation(res.getChild(childNames[i]))) {
+					if (fConfigModel.isValidRHomeLocation(res.getChild(childNames[i]))) {
 						return new String[] { loc + '\\' + childNames[i], childNames[i] };
 					}
 				}
 			}
 			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
 				loc = "/Library/Frameworks/R.framework/Resources";  //$NON-NLS-1$
-				if (REnvConfiguration.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
+				if (fConfigModel.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
 					return new String[] { loc, null };
 				}
 			}
@@ -562,7 +643,7 @@ public class REnvConfigDialog extends ExtStatusDialog {
 				};
 				for (int i = 0; i < defLocations.length; i++) {
 					loc = defLocations[i];
-					if (REnvConfiguration.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
+					if (fConfigModel.isValidRHomeLocation(EFS.getLocalFileSystem().getStore(new Path(loc)))) {
 						return new String[] { loc, null };
 					}
 				}
@@ -622,23 +703,30 @@ public class REnvConfigDialog extends ExtStatusDialog {
 		if (start >= 0) {
 			final String[] lines = DETECT_ITEM_PATTERN.split(output.substring(start));
 			if (lines.length == DETECT_LENGTH) {
-				updateLibraries(fConfigModel.getRLibraryGroup(RLibraryGroup.R_DEFAULT).getLibraries(),
+				updateLibraries(fConfigModel.getRLibraryGroup(IRLibraryGroup.R_DEFAULT),
 						lines[DETECT_R_DEFAULT], lines[DETECT_R_HOME]);
-				final List<RLibraryLocation> siteLibs = fConfigModel.getRLibraryGroup(RLibraryGroup.R_SITE).getLibraries();
-				updateLibraries(siteLibs, lines[DETECT_R_SITE], lines[DETECT_R_HOME]);
-				if (siteLibs.isEmpty()) {
-					siteLibs.add(new RLibraryLocation(RLibraryGroup.DEFAULTLOCATION_R_SITE));
+				
+				final IRLibraryGroup.WorkingCopy.WorkingCopy group = fConfigModel.getRLibraryGroup(IRLibraryGroup.R_SITE);
+				updateLibraries(group, lines[DETECT_R_SITE], lines[DETECT_R_HOME]);
+				if (group.getLibraries().isEmpty()) {
+					group.getLibraries().add(group.newLibrary(IRLibraryGroup.DEFAULTLOCATION_R_SITE));
 				}
-				updateLibraries(fConfigModel.getRLibraryGroup(RLibraryGroup.R_OTHER).getLibraries(),
+				updateLibraries(fConfigModel.getRLibraryGroup(IRLibraryGroup.R_OTHER),
 						lines[DETECT_R_OTHER], lines[DETECT_R_HOME]);
-				updateLibraries(fConfigModel.getRLibraryGroup(RLibraryGroup.R_USER).getLibraries(),
+				updateLibraries(fConfigModel.getRLibraryGroup(IRLibraryGroup.R_USER),
 						lines[DETECT_R_USER], lines[DETECT_R_HOME]);
+				
+				fConfigModel.setRDocDirectory(checkDir(lines[DETECT_R_DOC_DIR], lines[DETECT_R_HOME]));
+				fConfigModel.setRShareDirectory(checkDir(lines[DETECT_R_SHARE_DIR], lines[DETECT_R_HOME]));
+				fConfigModel.setRIncludeDirectory(checkDir(lines[DETECT_R_INCLUDE_DIR], lines[DETECT_R_HOME]));
+				
 				if (lines[DETECT_R_ARCH].endsWith("86")) {
 					fConfigModel.setRBits(32);
 				}
 				else if (lines[DETECT_R_ARCH].endsWith("64")) {
 					fConfigModel.setRBits(64);
 				}
+				fConfigModel.setROS(lines[DETECT_R_OS]);
 				return;
 			}
 		}
@@ -646,8 +734,9 @@ public class REnvConfigDialog extends ExtStatusDialog {
 				"Unexpected output:\n" + output, null)); //$NON-NLS-1$
 	}
 	
-	private void updateLibraries(final List<RLibraryLocation> libs, final String var, final String rHome) {
-		libs.clear();
+	private void updateLibraries(final IRLibraryGroup.WorkingCopy.WorkingCopy group, final String var, final String rHome) {
+		final List<WorkingCopy> libraries = group.getLibraries();
+		libraries.clear();
 		final String[] locations = DETECT_PATH_PATTERN.split(var);
 		final IPath rHomePath = new Path(rHome);
 		final IPath userHomePath = new Path(System.getProperty("user.home")); //$NON-NLS-1$
@@ -656,7 +745,13 @@ public class REnvConfigDialog extends ExtStatusDialog {
 				continue;
 			}
 			String s;
-			final IPath path = new Path(location);
+			final IPath path;
+			if (location.startsWith("~/")) {
+				path = userHomePath.append(location.substring(2));
+			}
+			else {
+				path = new Path(location);
+			}
 			if (rHomePath.isPrefixOf(path)) {
 				s = "${env_var:R_HOME}/" + path.makeRelativeTo(rHomePath).toString(); //$NON-NLS-1$
 			}
@@ -666,8 +761,20 @@ public class REnvConfigDialog extends ExtStatusDialog {
 			else {
 				s = path.toString();
 			}
-			libs.add(new RLibraryLocation(s));
+			libraries.add(group.newLibrary(s));
 		}
+	}
+	
+	private String checkDir(String dir, final String rHome) {
+		if (dir != null && dir.length() > 0) {
+			final IPath rHomePath = new Path(rHome);
+			final IPath path = new Path(dir);
+			if (rHomePath.isPrefixOf(path)) {
+				dir = "${env_var:R_HOME}/" + path.makeRelativeTo(rHomePath).toString(); //$NON-NLS-1$
+			}
+			return dir;
+		}
+		return null;
 	}
 	
 }

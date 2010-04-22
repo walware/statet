@@ -17,6 +17,8 @@ import org.eclipse.debug.core.ILaunch;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.statet.r.core.renv.IREnvConfiguration;
+
 
 /**
  * Process (in the Eclipse debug framework) for an R instance.
@@ -24,20 +26,26 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 public class RProcess extends ToolProcess<RWorkspace> {
 	
 	
+	private final IREnvConfiguration fREnvConfig;
+	
+	
 	/**
 	 * Creates an new R process handle.
 	 * 
 	 * @param launch
+	 * @param renv
 	 * @param labelPrefix
 	 * @param name
 	 * @param address
 	 * @param wd
 	 * @param timestamp
 	 */
-	public RProcess(final ILaunch launch, final String labelPrefix, final String name,
+	public RProcess(final ILaunch launch, final IREnvConfiguration renv,
+			final String labelPrefix, final String name,
 			final String address, final String wd, final long timestamp) {
 		super(launch, RTool.TYPE, labelPrefix, name,
 				address, wd, timestamp);
+		fREnvConfig = renv;
 	}
 	
 	
@@ -46,6 +54,15 @@ public class RProcess extends ToolProcess<RWorkspace> {
 		final String datetime = DateFormat.getDateTimeInstance().format(timestamp);
 		// default R format (R: timestamp())
 		return "##------ " + datetime + " ------##\n";
+	}
+	
+	
+	@Override
+	public Object getAdapter(final Class required) {
+		if (required.equals(IREnvConfiguration.class)) {
+			return fREnvConfig;
+		}
+		return super.getAdapter(required);
 	}
 	
 }

@@ -40,7 +40,6 @@ import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.RUIPlugin;
@@ -129,7 +128,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 	
 	private TextConsole fConsole;
 	private IFileStore fWorkingDirectory;
-	private ToolProcess<ToolWorkspace> fTool;
+	private ToolProcess<?> fTool;
 	
 	
 	/**
@@ -139,7 +138,7 @@ public class RErrorLineTracker implements IPatternMatchListener {
 		fWorkingDirectory = workingDirectory;
 	}
 	
-	public RErrorLineTracker(final ToolProcess<ToolWorkspace> tool) {
+	public RErrorLineTracker(final ToolProcess<?> tool) {
 		fTool = tool;
 	}
 	
