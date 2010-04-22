@@ -20,7 +20,6 @@ import java.util.List;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
-import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -50,14 +49,14 @@ public final class ROtherVar extends CombinedElement {
 	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
 		final int options = in.readInt();
 		fClassName = in.readUTF();
-		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {
+		if ((options & RObjectFactory.F_WITH_ATTR) != 0) {
 			fAttributes = factory.readAttributeList(in, flags);
 		}
 	}
 	
 	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
-		final boolean withAttr = ((flags & RObjectFactoryImpl.F_WITH_ATTR) != 0) && (fAttributes != null);
-		out.writeInt((withAttr) ? RObjectFactoryImpl.F_WITH_ATTR : 0);
+		final boolean withAttr = ((flags & RObjectFactory.F_WITH_ATTR) != 0) && (fAttributes != null);
+		out.writeInt((withAttr) ? RObjectFactory.F_WITH_ATTR : 0);
 		out.writeUTF(fClassName);
 		if (withAttr) {
 			factory.writeAttributeList(fAttributes, out, flags);

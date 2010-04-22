@@ -205,6 +205,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "vector.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_ARRAY, ImageRegistryUtil.T_OBJ, "array.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_NULL, ImageRegistryUtil.T_OBJ, "null.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_MISSING, ImageRegistryUtil.T_OBJ, "missing.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ, ImageRegistryUtil.T_OBJ, "s4obj.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "s4obj-vector.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN, ImageRegistryUtil.T_OBJ, "s4obj-dataframe_col.png"); //$NON-NLS-1$

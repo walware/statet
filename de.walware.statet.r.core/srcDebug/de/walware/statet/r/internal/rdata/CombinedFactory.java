@@ -59,6 +59,8 @@ public class CombinedFactory extends RObjectFactoryImpl {
 			return new RS4ObjectVar(in, flags, this, parent, name);
 		case RObject.TYPE_OTHER:
 			return new ROtherVar(in, flags, this, parent, name);
+		case RObject.TYPE_MISSING:
+			return new RMissingVar(parent, name);
 		default:
 			throw new IOException("object type = " + type);
 		}

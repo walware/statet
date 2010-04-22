@@ -35,10 +35,10 @@ public final class RS4ObjectVar extends CombinedElement
 		implements RS4Object, RWorkspace.ICombinedList {
 	
 	
-	private String fClassName;
-	private int fDataSlotIdx;
-	private RCharacterDataImpl fSlotNames;
-	private CombinedElement[] fSlotValues;
+	private String className;
+	private int dataSlotIdx;
+	private RCharacterDataImpl slotNames;
+	private CombinedElement[] slotValues;
 	
 	
 	public RS4ObjectVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
@@ -48,25 +48,25 @@ public final class RS4ObjectVar extends CombinedElement
 	}
 	
 	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
-		fClassName = in.readUTF();
-		fDataSlotIdx = in.readInt();
-		fSlotNames = new RCharacterDataImpl(in);
-		final int length = fSlotNames.getLength();
-		fSlotValues = new CombinedElement[length];
+		className = in.readUTF();
+		dataSlotIdx = in.readInt();
+		slotNames = new RCharacterDataImpl(in);
+		final int length = slotNames.getLength();
+		slotValues = new CombinedElement[length];
 		for (int i = 0; i < length; i++) {
-			fSlotValues[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
-					RElementName.create(RElementName.SUB_NAMEDSLOT, fSlotNames.getChar(i)));
+			slotValues[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
+					RElementName.create(RElementName.SUB_NAMEDSLOT, slotNames.getChar(i)));
 		}
 	}
 	
 	
 	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
-		out.writeUTF(fClassName);
-		out.writeInt(fDataSlotIdx);
-		fSlotNames.writeExternal(out);
-		final int length = fSlotNames.getLength();
+		out.writeUTF(className);
+		out.writeInt(dataSlotIdx);
+		slotNames.writeExternal(out);
+		final int length = slotNames.getLength();
 		for (int i = 0; i < length; i++) {
-			factory.writeObject(fSlotValues[i], out, flags);
+			factory.writeObject(slotValues[i], out, flags);
 		}
 	}
 	
@@ -75,64 +75,46 @@ public final class RS4ObjectVar extends CombinedElement
 	}
 	
 	public String getRClassName() {
-		return fClassName;
+		return this.className;
 	}
+	
 	
 	public int getLength() {
-		return fSlotValues.length;
+		return this.slotValues.length;
 	}
 	
+	
 	public boolean hasDataSlot() {
-		return (fDataSlotIdx >= 0);
+		return (this.dataSlotIdx >= 0);
 	}
 	
 	public RObject getDataSlot() {
-		return (fDataSlotIdx >= 0) ? fSlotValues[fDataSlotIdx] : null;
+		return (this.dataSlotIdx >= 0) ? this.slotValues[this.dataSlotIdx] : null;
 	}
 	
 	public RStore getData() {
-		return (fDataSlotIdx >= 0 && fSlotValues[fDataSlotIdx] != null) ?
-				fSlotValues[fDataSlotIdx].getData() : null;
+		return (this.dataSlotIdx >= 0 && this.slotValues[this.dataSlotIdx] != null) ?
+				this.slotValues[this.dataSlotIdx].getData() : null;
 	}
 	
 	public RCharacterStore getNames() {
-		return fSlotNames;
+		return this.slotNames;
 	}
 	
 	public String getName(final int idx) {
-		return fSlotNames.getChar(idx);
+		return this.slotNames.getChar(idx);
 	}
 	
 	public RObject get(final int idx) {
-		return fSlotValues[idx];
+		return this.slotValues[idx];
 	}
 	
 	public RObject get(final String name) {
-		final int idx = fSlotNames.indexOf(name);
+		final int idx = this.slotNames.indexOf(name);
 		if (idx >= 0) {
-			return fSlotValues[idx];
+			return this.slotValues[idx];
 		}
 		throw new IllegalArgumentException();
-	}
-	
-	public void insert(final int idx, final String name, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void add(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void remove(final int idx) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean set(final int idx, final RObject value) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public boolean set(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
 	}
 	
 	public RObject[] toArray() {
@@ -144,13 +126,12 @@ public final class RS4ObjectVar extends CombinedElement
 		return R_GENERAL_VARIABLE;
 	}
 	
-	
 	public boolean hasModelChildren(final Filter filter) {
 		if (filter == null) {
-			return (fSlotValues.length > 0);
+			return (slotValues.length > 0);
 		}
 		else {
-			for (final CombinedElement component : fSlotValues) {
+			for (final CombinedElement component : slotValues) {
 				if (filter.include(component)) {
 					return true;
 				}
@@ -161,11 +142,11 @@ public final class RS4ObjectVar extends CombinedElement
 	
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
 		if (filter == null) {
-			return new ConstList<IRLangElement>(fSlotValues);
+			return new ConstList<IRLangElement>(slotValues);
 		}
 		else {
 			final List<CombinedElement> list = new ArrayList<CombinedElement>();
-			for (final CombinedElement component : fSlotValues) {
+			for (final CombinedElement component : slotValues) {
 				if (filter.include(component)) {
 					list.add(component);
 				}

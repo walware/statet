@@ -684,7 +684,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		}
 		fRjs.disposeAllGraphics();
 		if (fRjsId > 0) {
-			RjsComConfig.unregisterClientComHandler(this.fRjsId);
+			RjsComConfig.unregisterClientComHandler(fRjsId);
 			fRjsId = 0;
 		}
 	}
@@ -706,7 +706,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	
 	public RPlatform getPlatform() {
-		return null;
+		return fRjs.getRPlatform();
 	}
 	
 	public void evalVoid(final String command, final IProgressMonitor monitor) throws CoreException {
@@ -782,7 +782,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		throw new UnsupportedOperationException();
 	}
 	
-	public RGraphicCreator createRGraphicCreator(int options) {
+	public RGraphicCreator createRGraphicCreator(final int options) {
 		throw new UnsupportedOperationException();
 	}
 	

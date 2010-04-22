@@ -28,7 +28,6 @@ import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
-import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.data.defaultImpl.RUniqueCharacterDataWithHashImpl;
 
 import de.walware.statet.r.core.model.IRElement;
@@ -84,14 +83,14 @@ public final class REnvironmentVar extends CombinedElement
 	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
 		final int options = in.readInt();
 		
-		fClassName = ((options & RObjectFactoryImpl.O_CLASS_NAME) != 0) ?
+		fClassName = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
 				in.readUTF() : RObject.CLASSNAME_ENV;
 				
 		fHandle = in.readLong();
 		setEnvName(in.readUTF(), false);
 		final int length = fLength = in.readInt();
 		
-		if ((options & RObjectFactory.O_NOCHILDREN) == 0) {
+		if ((options & RObjectFactory.O_NO_CHILDREN) == 0) {
 			fNamesAttribute = new RUniqueCharacterDataWithHashImpl(in);
 			fComponents = new CombinedElement[length];
 			for (int i = 0; i < length; i++) {
@@ -108,7 +107,7 @@ public final class REnvironmentVar extends CombinedElement
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
 		if (fComponents == null) {
-			options |= RObjectFactory.F_NOCHILDREN;
+			options |= RObjectFactory.O_NO_CHILDREN;
 		}
 		out.writeInt(options);
 		

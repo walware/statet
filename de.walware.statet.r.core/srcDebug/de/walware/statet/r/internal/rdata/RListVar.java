@@ -27,7 +27,6 @@ import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
-import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -38,11 +37,11 @@ public class RListVar extends CombinedElement
 		implements RList, RWorkspace.ICombinedList, ExternalizableRObject {
 	
 	
-	protected CombinedElement[] fComponents;
-	private int fLength;
+	protected CombinedElement[] components;
+	private int length;
 	
-	private String fClassName;
-	private RCharacterDataImpl fNamesAttribute;
+	private String className1;
+	private RCharacterDataImpl namesAttribute;
 	
 	
 //	public RListVar(final CombinedElement[] initialComponents, String[] initialNames) {
@@ -61,60 +60,61 @@ public class RListVar extends CombinedElement
 	}
 	
 	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
+		doReadExternal(in, flags, factory);
+	}
+	protected final int doReadExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
+		//-- options
 		final int options = in.readInt();
-		
-		fClassName = ((options & RObjectFactoryImpl.O_CLASS_NAME) != 0) ?
+		//-- special attributes
+		this.className1 = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
 				in.readUTF() : ((getRObjectType() == RObject.TYPE_DATAFRAME) ?
 						RObject.CLASSNAME_DATAFRAME : RObject.CLASSNAME_LIST);
-		final int length = fLength = in.readInt();
+		this.length = in.readInt();
 		
-		if ((options & RObjectFactory.O_NOCHILDREN) == 0) {
-			fNamesAttribute = new RCharacterDataImpl(in);
-			fComponents = new CombinedElement[length];
-			for (int i = 0; i < length; i++) {
-				fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
-						(fNamesAttribute.isNA(i) || fNamesAttribute.getChar(i).length() == 0) ? 
+		if ((options & RObjectFactory.O_NO_CHILDREN) != 0) {
+			this.namesAttribute = null;
+			this.components = null;
+		}
+		else {
+			this.namesAttribute = (RCharacterDataImpl) CombinedFactory.INSTANCE.readNames(in, flags);
+			//-- data
+			this.components = new CombinedElement[this.length];
+			for (int i = 0; i < this.length; i++) {
+				this.components[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
+						(this.namesAttribute.isNA(i) || this.namesAttribute.getChar(i).length() == 0) ? 
 								RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1)) :
-								RElementName.create(RElementName.SUB_NAMEDPART, fNamesAttribute.getChar(i), i+1) );
+								RElementName.create(RElementName.SUB_NAMEDPART, this.namesAttribute.getChar(i), i+1) );
 			}
 		}
-		
-		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {
-			fAttributes = factory.readAttributeList(in, flags);
-		}
+		return options;
 	}
 	
 	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
-		int options = 0;
+		doWriteExternal(out, 0, flags, factory);
+	}
+	protected final void doWriteExternal(final ObjectOutput out, int options, final int flags, final RObjectFactory factory) throws IOException {
+		//-- options
 		final boolean customClass = !((getRObjectType() == TYPE_DATAFRAME) ?
-				fClassName.equals(RObject.CLASSNAME_DATAFRAME) : fClassName.equals(RObject.CLASSNAME_LIST));
+				this.className1.equals(RObject.CLASSNAME_DATAFRAME) : this.className1.equals(RObject.CLASSNAME_LIST));
 		if (customClass) {
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
-		final boolean withAttr = ((flags & RObjectFactoryImpl.F_WITH_ATTR) != 0) && (fAttributes != null);
-		if (withAttr) {
-			options |= RObjectFactory.O_WITH_ATTR;
-		}
-		if (fComponents == null) {
-			options |= RObjectFactory.F_NOCHILDREN;
+		if (this.components == null) {
+			options |= RObjectFactory.O_NO_CHILDREN;
 		}
 		out.writeInt(options);
-		
+		//-- special attributes
 		if (customClass) {
-			out.writeUTF(fClassName);
+			out.writeUTF(this.className1);
 		}
-		out.writeInt(fLength);
+		out.writeInt(this.length);
 		
-		if (fComponents != null) {
-			fNamesAttribute.writeExternal(out);
-			
-			for (int i = 0; i < fLength; i++) {
-				factory.writeObject(this.fComponents[i], out, flags);
+		if (this.components != null) {
+			factory.writeNames(this.namesAttribute, out, flags);
+			//-- data
+			for (int i = 0; i < this.length; i++) {
+				factory.writeObject(this.components[i], out, flags);
 			}
-		}
-		
-		if (withAttr) {
-			factory.writeAttributeList(fAttributes, out, flags);
 		}
 	}
 	
@@ -124,80 +124,63 @@ public class RListVar extends CombinedElement
 	}
 	
 	public final String getRClassName() {
-		return fClassName;
+		return this.className1;
 	}
 	
 	
+	public int getLength() {
+		return this.length;
+	}
+	
 	public final RCharacterStore getNames() {
-		return fNamesAttribute;
+		return this.namesAttribute;
 	}
 	
 	public final String getName(final int idx) {
-		return fNamesAttribute.getChar(idx);
-	}
-	
-	public final RObject get(final int idx) {
-		return fComponents[idx];
-	}
-	
-	public final boolean set(final int idx, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public final void insert(final int idx, final String label, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public final void add(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public final void remove(final int idx) {
-		throw new UnsupportedOperationException();
-	}
-	
-	
-	public final RObject get(final String name) {
-		final int idx = fNamesAttribute.indexOf(name);
-		if (idx >= 0) {
-			return fComponents[idx];
+		if (this.namesAttribute != null) {
+			return this.namesAttribute.getChar(idx);
 		}
 		return null;
-	}
-	
-	public final boolean set(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
 	}
 	
 	public final RStore getData() {
 		return null;
 	}
 	
+	public final RObject get(final int idx) {
+		return this.components[idx];
+	}
+	
+	public final RObject get(final String name) {
+		if (this.namesAttribute != null) {
+			final int idx = this.namesAttribute.indexOf(name);
+			if (idx >= 0) {
+				return this.components[idx];
+			}
+		}
+		return null;
+	}
+	
 	public final RObject[] toArray() {
-		final RObject[] array = new RObject[fComponents.length];
-		System.arraycopy(fComponents, 0, array, 0, fComponents.length);
+		final RObject[] array = new RObject[this.length];
+		System.arraycopy(this.components, 0, array, 0, this.length);
 		return array;
 	}
 	
-	
-	public final int getLength() {
-		return fLength;
-	}
 	
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
 	
-	
 	public final boolean hasModelChildren(final Filter filter) {
-		if (fComponents == null) {
+		if (this.components == null) {
 			return false;
 		}
 		if (filter == null) {
-			return (fLength > 0);
+			return (this.length > 0);
 		}
 		else {
-			for (final CombinedElement component : fComponents) {
+			for (final CombinedElement component : this.components) {
 				if (filter.include(component)) {
 					return true;
 				}
@@ -207,15 +190,15 @@ public class RListVar extends CombinedElement
 	}
 	
 	public final List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		if (fComponents == null) {
+		if (this.components == null) {
 			return Collections.emptyList();
 		}
 		if (filter == null) {
-			return new ConstList<IRLangElement>(fComponents);
+			return new ConstList<IRLangElement>(this.components);
 		}
 		else {
 			final List<CombinedElement> list = new ArrayList<CombinedElement>();
-			for (final CombinedElement component : fComponents) {
+			for (final CombinedElement component : this.components) {
 				if (filter.include(component)) {
 					list.add(component);
 				}
@@ -229,17 +212,17 @@ public class RListVar extends CombinedElement
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("RObject type=list, class=").append(getRClassName());
-		sb.append("\n\tlength=").append(fLength);
-		if (fComponents != null) {
+		sb.append("\n\tlength=").append(this.length);
+		if (this.components != null) {
 			sb.append("\n\tdata: ");
-			for (int i = 0; i < fLength; i++) {
-				if (fNamesAttribute.isNA(i)) {
+			for (int i = 0; i < this.length; i++) {
+				if (this.namesAttribute == null || this.namesAttribute.isNA(i)) {
 					sb.append("\n[[").append(i).append("]]\n");
 				}
 				else {
-					sb.append("\n$").append(fNamesAttribute.getChar(i)).append("\n");
+					sb.append("\n$").append(this.namesAttribute.getChar(i)).append("\n");
 				}
-				sb.append(fComponents[i]);
+				sb.append(this.components[i]);
 			}
 		}
 		else {

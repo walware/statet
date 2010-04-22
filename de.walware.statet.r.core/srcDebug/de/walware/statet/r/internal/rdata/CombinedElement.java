@@ -29,11 +29,9 @@ public abstract class CombinedElement implements ICombinedRElement {
 	CombinedElement fParent;
 	protected RElementName fElementName;
 	
-	protected RList fAttributes;
-	
 	
 	public RList getAttributes() {
-		return fAttributes;
+		return null;
 	}
 	
 	

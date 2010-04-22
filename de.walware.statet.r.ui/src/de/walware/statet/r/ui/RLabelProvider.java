@@ -21,8 +21,8 @@ import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.StyledString.Styler;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 
 import de.walware.ecommons.ltk.IElementName;
@@ -44,6 +44,7 @@ import de.walware.rj.data.RStore;
 
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
+import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRClassExtension;
 import de.walware.statet.r.core.model.IRElement;
@@ -51,7 +52,6 @@ import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRSlot;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.core.model.ArgsDefinition.Arg;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 
 
@@ -180,6 +180,8 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 				}
 			}
 			return RUI.getImage(RUI.IMG_OBJ_OTHERENV);
+		case RObject.TYPE_MISSING:
+			return RUI.getImage(RUI.IMG_OBJ_MISSING);
 		case RObject.TYPE_REFERENCE:
 		default:
 			return RUI.getImage(RUI.IMG_OBJ_GENERAL_VARIABLE);
@@ -292,7 +294,8 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		
 		case (IModelElement.C1_VARIABLE >> SHIFT_C1):
 			if (element instanceof ICombinedRElement) {
-				if (elementName == null && ((ICombinedRElement) element).getRObjectType() == RObject.TYPE_ENV) {
+				final ICombinedRElement cElement = (ICombinedRElement) element;
+				if (cElement.getRObjectType() == RObject.TYPE_ENV && elementName == null) {
 					text.append(elementName0.getSegmentName(), fDefaultStyler);
 				}
 				else {
@@ -301,7 +304,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 						text.append(name, fDefaultStyler);
 					}
 				}
-				decorateStyledText(text, (ICombinedRElement) element, elementName0, elementAttr);
+				decorateStyledText(text, cElement, elementName0, elementAttr);
 				break;
 			}
 			name = elementName0.getDisplayName();

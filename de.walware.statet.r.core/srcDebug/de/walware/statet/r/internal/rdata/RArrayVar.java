@@ -11,23 +11,24 @@
 
 package de.walware.statet.r.internal.rdata;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import de.walware.rj.data.RArray;
+import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RIntegerStore;
-import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RArrayImpl;
+import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
 import de.walware.rj.data.defaultImpl.RIntegerDataImpl;
-import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
+import de.walware.rj.data.defaultImpl.SimpleRListImpl;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -38,22 +39,23 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		implements RArray<DataType>, ExternalizableRObject, IRElement {
 	
 	
-	private DataType fData;
+	private DataType data;
 	
-	private String fClassName;
-	private RIntegerStore fDimAttribute;
+	private String className1;
+	private RIntegerDataImpl dimAttribute;
+	private SimpleRListImpl<RStore> dimnamesAttribute;
 	
 	
-	public RArrayVar(final DataType data, final String className, final int[] dim) {
-		if (data == null || className == null || dim == null) {
+	public RArrayVar(final DataType data, final String className1, final int[] dim) {
+		if (data == null || className1 == null || dim == null) {
 			throw new NullPointerException();
 		}
 		if (data.getLength() >= 0) {
 			RArrayImpl.checkDim(data.getLength(), dim);
 		}
-		fClassName = className;
-		fDimAttribute = new RIntegerDataImpl(dim);
-		fData = data;
+		this.className1 = className1;
+		this.dimAttribute = new RIntegerDataImpl(dim);
+		this.data = data;
 	}
 	
 	public RArrayVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
@@ -63,46 +65,60 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
+		//-- options
 		final int options = in.readInt();
-		final boolean customClass = ((options & RObjectFactoryImpl.O_CLASS_NAME) != 0);
-		
+		final boolean customClass = ((options & RObjectFactory.O_CLASS_NAME) != 0);
+		//-- special attributes
 		if (customClass) {
-			fClassName = in.readUTF();
+			this.className1 = in.readUTF();
 		}
-		
 		final int dimCount = in.readInt();
 		final int[] dim = new int[dimCount];
 		for (int i = 0; i < dimCount; i++) {
 			dim[i] = in.readInt();
 		}
-		fDimAttribute = new RIntegerDataImpl(dim);
-		
-		fData = (DataType) factory.readStore(in, flags);
+		this.dimAttribute = new RIntegerDataImpl(dim);
+		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
+			final RCharacterDataImpl names0 = new RCharacterDataImpl(in);
+			final RStore[] names1 = new RStore[dimCount];
+			for (int i = 0; i < dimCount; i++) {
+				names1[i] = factory.readNames(in, flags);
+			}
+			this.dimnamesAttribute = new SimpleRListImpl<RStore>(names0, names1);
+		}
+		//-- data
+		this.data = (DataType) factory.readStore(in, flags);
 		
 		if (!customClass) {
-			fClassName = (dimCount == 2) ? RObject.CLASSNAME_MATRIX : RObject.CLASSNAME_ARRAY;
+			this.className1 = (dimCount == 2) ? RObject.CLASSNAME_MATRIX : RObject.CLASSNAME_ARRAY;
 		}
 	}
 	
 	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
+		//-- options
 		int options = 0;
-		final boolean customClass = !fClassName.equals((fDimAttribute.getLength() == 2) ?
+		final boolean customClass = !this.className1.equals((this.dimAttribute.getLength() == 2) ?
 				RObject.CLASSNAME_MATRIX : RObject.CLASSNAME_ARRAY);
 		if (customClass) {
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
+		if ((flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.dimnamesAttribute != null) {
+			options |= RObjectFactory.O_WITH_NAMES;
+		}
 		out.writeInt(options);
-		
+		//-- special attributes
 		if (customClass) {
-			out.writeUTF(fClassName);
+			out.writeUTF(this.className1);
 		}
-		final int dimCount = fDimAttribute.getLength();
-		out.writeInt(dimCount);
-		for (int i = 0; i < dimCount; i++) {
-			out.writeInt(fDimAttribute.getInt(i));
+		this.dimAttribute.writeExternal(out);
+		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
+			((Externalizable) this.dimnamesAttribute.getNames()).writeExternal(out);
+			for (int i = 0; i < this.dimnamesAttribute.getLength(); i++) {
+				factory.writeNames(this.dimnamesAttribute.get(i), out, flags);
+			}
 		}
-		
-		factory.writeStore(fData, out, flags);
+		//-- data
+		factory.writeStore(this.data, out, flags);
 	}
 	
 	
@@ -111,58 +127,51 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	}
 	
 	public String getRClassName() {
-		return fClassName;
+		return this.className1;
 	}
 	
 	public int getLength() {
-		if (fDimAttribute.getLength() == 0) {
+		if (this.dimAttribute.getLength() == 0) {
 			return 0;
 		}
-		int length = 1;
-		for (int i = 0; i < fDimAttribute.getLength(); i++) {
-			length *= fDimAttribute.getInt(i);
+		int length = this.data.getLength();
+		if (length >= 0) {
+			return length;
+		}
+		length = 1;
+		for (int i = 0; i < this.dimAttribute.getLength(); i++) {
+			length *= this.dimAttribute.getInt(i);
 		}
 		return length;
 	}
 	
-//	public StoreList<RCharacterStore> getDimNames() {
-//		return null;
-//	}
-	
 	public RIntegerStore getDim() {
-		return fDimAttribute;
+		return this.dimAttribute;
 	}
+	
+	public RCharacterStore getDimNames() {
+		if (this.dimnamesAttribute != null) {
+			return this.dimnamesAttribute.getNames();
+		}
+		return null;
+	}
+	
+	public RStore getNames(final int dim) {
+		if (this.dimnamesAttribute != null) {
+			return this.dimnamesAttribute.get(dim);
+		}
+		return null;
+	}
+	
 	
 	public DataType getData() {
-		return fData;
-	}
-	
-	
-	public void setData(final DataType data) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void setDim(final int[] dim) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void setDimNames(final RList list) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void insert(final int dim, final int idx) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void remove(final int dim, final int idx) {
-		throw new UnsupportedOperationException();
+		return this.data;
 	}
 	
 	
 	public int getElementType() {
 		return R_GENERAL_VARIABLE;
 	}
-	
 	
 	public boolean hasModelChildren(final Filter filter) {
 		return false;
@@ -178,9 +187,10 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		final StringBuilder sb = new StringBuilder();
 		sb.append("RObject type=array, class=").append(getRClassName());
 		sb.append("\n\tlength=").append(getLength());
-		sb.append("\n\tdim=").append(Arrays.toString(fDimAttribute.toArray()));
+		sb.append("\n\tdim=");
+		this.dimAttribute.appendTo(sb);
 		sb.append("\n\tdata: ");
-		sb.append(fData.toString());
+		sb.append(this.data.toString());
 		return sb.toString();
 	}
 	
