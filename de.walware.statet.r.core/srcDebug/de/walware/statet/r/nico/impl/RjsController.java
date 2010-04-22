@@ -188,6 +188,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); //$NON-NLS-1$
 				return;
 			}
+			if (command.equals(ExtUICmdItem.C_SHOW_HELP)) {
+				handleUICmdByDataTextHandler(cmd, SHOW_RHELP_HANDLER_ID, "url", monitor); //$NON-NLS-1$
+				return;
+			}
 			super.handleUICallback(cmd, monitor);
 		}
 		

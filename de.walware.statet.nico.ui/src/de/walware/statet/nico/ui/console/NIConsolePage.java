@@ -101,6 +101,7 @@ import de.walware.ecommons.text.ui.TextViewerAction;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.util.DNDUtil;
@@ -415,6 +416,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private CancelHandler fCancelAllHandler;
 	private CancelHandler fCancelPauseHandler;
 	
+	private final HandlerCollection fPageHandlers = new HandlerCollection();
+	
 	
 	/**
 	 * Constructs a console page for the given console in the given view.
@@ -506,9 +509,10 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		fClipboard = new Clipboard(fControl.getDisplay());
 		createActions();
+		initActions(getSite(), fPageHandlers);
 		hookContextMenu();
 		hookDND();
-		contributeToActionBars();
+		contributeToActionBars(getSite(), getSite().getActionBars(), fPageHandlers);
 		
 		new ConsoleActivationNotifier();
 		fIsCreated = true;
@@ -528,7 +532,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		
 		Display.getCurrent().asyncExec(new Runnable() {
 			public void run() {
-				if (UIAccess.isOkToUse(fInputGroup.getViewer()) && UIAccess.isOkToUse(fOutputViewer)) {
+				if (fInputGroup != null && UIAccess.isOkToUse(fInputGroup.getViewer())) {
 					fOutputViewer.revealEndOfDocument();
 					if (fOutputViewer.getControl().isFocusControl()) {
 						setFocus();
@@ -569,7 +573,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		}
 	}
 	
-	protected void createActions() {
+	private void createActions() {
 		final Control outputControl = fOutputViewer.getControl();
 		final SourceViewer inputViewer = fInputGroup.getViewer();
 		final Control inputControl = inputViewer.getControl();
@@ -578,10 +582,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		final IServiceLocatorCreator serviceCreator = (IServiceLocatorCreator) pageServices.getService(IServiceLocatorCreator.class);
 		fInputServices = (ServiceLocator) serviceCreator.createServiceLocator(pageServices, null, new IDisposable() {
 			public void dispose() {
-				if (UIAccess.isOkToUse(fControl)) {
-					fControl.dispose();
-					NIConsolePage.this.dispose();
-				}
+				fInputServices = null;
 			}
 		});
 		// TODO: E-3.4 / E-3.5 bug #142226
@@ -664,6 +665,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputViewer.addSelectionChangedListener(fMultiActionHandler);
 	}
 	
+	protected void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
+	}
+	
 	private void hookContextMenu() {
 		String id = NIConsole.NICONSOLE_TYPE + "#OutputContextMenu"; //$NON-NLS-1$
 		fOutputMenuManager = new MenuManager("ContextMenu", id); //$NON-NLS-1$
@@ -701,30 +705,29 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				} );
 	}
 	
-	protected void contributeToActionBars() {
-		final IActionBars bars = getSite().getActionBars();
+	protected void contributeToActionBars(final IServiceLocator serviceLocator,
+			final IActionBars actionBars, final HandlerCollection handlers) {
+		fMultiActionHandler.registerActions(actionBars);
 		
-		fMultiActionHandler.registerActions(bars);
+		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		toolBarManager.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputClearAllAction);
+		toolBarManager.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputScrollLockAction);
 		
-		final IToolBarManager toolBar = bars.getToolBarManager();
-		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputClearAllAction);
-		toolBar.appendToGroup(IConsoleConstants.OUTPUT_GROUP, fOutputScrollLockAction);
-		
-		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, new HandlerContributionItem(
+		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, new HandlerContributionItem(
 				new CommandContributionItemParameter(getSite(), CancelHandler.MENU_ID,
 						NicoUI.CANCEL_CURRENT_COMMAND_ID, null,
 						null, null, null,
 						Messages.CancelAction_name, null, Messages.CancelAction_tooltip,
 						CommandContributionItem.STYLE_PULLDOWN, null, false), fCancelCurrentHandler));
-		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);
-		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAction);
-		toolBar.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAllAction);
+		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fTerminateAction);
+		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAction);
+		toolBarManager.appendToGroup(IConsoleConstants.LAUNCH_GROUP, fRemoveAllAction);
 		
-		final IMenuManager menu = bars.getMenuManager();
-		menu.add(new Separator(NICO_CONTROL_MENU_ID));
-		menu.add(new Separator(SharedUIResources.ADDITIONS_MENU_ID));
+		final IMenuManager menuManager = actionBars.getMenuManager();
+		menuManager.add(new Separator(NICO_CONTROL_MENU_ID));
+		menuManager.add(new Separator(SharedUIResources.ADDITIONS_MENU_ID));
 		
-		menu.add(new Separator("tracking")); //$NON-NLS-1$
+		menuManager.add(new Separator("tracking")); //$NON-NLS-1$
 		final MenuManager trackingMenu= new MenuManager("Open In Editor") {
 			@Override
 			public boolean isVisible() {
@@ -732,8 +735,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		};
 		trackingMenu.add(new OpenTrackingFilesContributionItem(getTool()));
-		menu.add(trackingMenu);
-		menu.add(new SimpleContributionItem("Export Console Output...", null) {
+		menuManager.add(trackingMenu);
+		menuManager.add(new SimpleContributionItem("Export Console Output...", null) {
 			@Override
 			protected void execute() throws ExecutionException {
 				final ToolProcess tool = getTool();
@@ -747,18 +750,22 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 		});
 		
-		menu.add(new Separator("settings")); //$NON-NLS-1$
-		menu.add(new SimpleContributionItem("Preferences...", "P") {
+		menuManager.add(new Separator("settings")); //$NON-NLS-1$
+		menuManager.add(new SimpleContributionItem("Preferences...", "P") {
 			@Override
 			protected void execute() throws ExecutionException {
-				final Shell shell = (fControl != null) ? fControl.getShell() : null;
-				final String[] preferencePages = collectContextMenuPreferencePages();
-				if (preferencePages.length > 0 && (shell == null || !shell.isDisposed()))
-					org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(shell, preferencePages[0], preferencePages, null).open();
+				final Shell shell = getSite().getShell();
+				final List<String> pageIds = new ArrayList<String>();
+				NIConsolePage.this.collectContextMenuPreferencePages(pageIds);
+				if (!pageIds.isEmpty() && (shell == null || !shell.isDisposed())) {
+					org.eclipse.ui.dialogs.PreferencesUtil.createPreferenceDialogOn(shell,
+							pageIds.get(0), pageIds.toArray(new String[pageIds.size()]), null)
+							.open();
+				}
 			}
 		});
 		
-		menu.add(new Separator());
+		menuManager.add(new Separator());
 	}
 	
 	protected void fillInputContextMenu(final IMenuManager manager) {
@@ -914,15 +921,19 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	}
 	
 	public Object getAdapter(final Class required) {
-		if (Widget.class.equals(required)) {
-			if (fOutputViewer.getControl().isFocusControl())
-				return fOutputViewer.getTextWidget();
-			return fInputGroup.getViewer().getTextWidget();
-		}
-		if (IFindReplaceTarget.class.equals(required)) {
-			if (fInputGroup.getViewer().getControl().isFocusControl())
-				return fInputGroup.getViewer().getFindReplaceTarget();
-			return fOutputViewer.getFindReplaceTarget();
+		if (fInputGroup != null) {
+			if (Widget.class.equals(required)) {
+				if (fOutputViewer.getControl().isFocusControl()) {
+					return fOutputViewer.getTextWidget();
+				}
+				return fInputGroup.getViewer().getTextWidget();
+			}
+			if (IFindReplaceTarget.class.equals(required)) {
+				if (fInputGroup.getViewer().getControl().isFocusControl()) {
+					return fInputGroup.getViewer().getFindReplaceTarget();
+				}
+				return fOutputViewer.getFindReplaceTarget();
+			}
 		}
 		if (ISourceEditor.class.equals(required)) {
 			return fInputGroup;
@@ -1041,12 +1052,6 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		if (fInputGroup != null && UIAccess.isOkToUse(fControl)) {
 			fInputGroup.handleSettingsChanged(groupIds, options);
 		}
-	}
-	
-	private String[] collectContextMenuPreferencePages() {
-		final List<String> pageIds = new ArrayList<String>();
-		collectContextMenuPreferencePages(pageIds);
-		return pageIds.toArray(new String[pageIds.size()]);
 	}
 	
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {

@@ -684,6 +684,13 @@
          <newWizardShortcut id="de.walware.statet.r.newWizards.RProjectCreation"/>
          <newWizardShortcut id="de.walware.statet.r.newWizards.RFileCreation"/>
          <actionSet id="de.walware.statet.r.actionSets.RToolbarSet"/>
+         <view
+               id="de.walware.statet.r.views.RHelp"
+               minimized="true"
+               relationship="stack"
+               relative="de.walware.statet.nico.views.ObjectBrowser"
+               visible="true">
+         </view>
       </perspectiveExtension>
    </extension>
 
@@ -728,6 +735,60 @@
       </contentTypeBinding>
    </extension>
 
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            id="de.walware.statet.r.preferencePages.RHelpPage"
+            category="de.walware.statet.base.preferencePages.StatetBase"
+            name="%preferencePages_RHelpPage_name"
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpPreferencePage">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            id="de.walware.statet.r.views.RHelp"
+            category="de.walware.statet.base.views.StatetCategory"
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpView"
+            name="%views_RHelpView_name"
+            icon="icons/obj_16/rhelp.png"
+            restorable="true" allowMultiple="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.http.registry.httpcontexts">
+      <httpcontext
+            id="rhelp">
+      </httpcontext>
+   </extension>
+   <extension
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/browse"
+            httpcontextId="rhelp"
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet$Browse">
+      </servlet>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpSearchInputPage"
+            extensions="R:85, Rd:85"
+            icon="icons/tool_16/rhelp-search.png"
+            id="de.walware.statet.r.searchPages.RHelpPage"
+            label="%searchPages.RHelpPage"
+            searchViewHelpContextId="de.walware.statet.r.ui.r_help-search_page"
+            showScopeSection="false">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpSearchResultPage"
+            id="de.walware.statet.r.searchResultView.RHelpResultPage"
+            searchResultClass="de.walware.statet.r.internal.ui.rhelp.RHelpSearchUIResult">
+      </viewPage>
+   </extension>
    <extension
          point="org.eclipse.help.ui.searchEngine">
       <engine
@@ -805,14 +866,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.views">
-      <view
-            category="de.walware.statet.base.views.StatetCategory"
-            class="de.walware.statet.r.internal.ui.help.RHelpView"
-            icon="icons/obj_16/rd-file_obj.gif"
-            id="de.walware.statet.r.views.RHelp"
-            name="%views_RHelpView_name"
-            restorable="true">
-      </view>
       <view
             category="de.walware.statet.base.views.StatetCategory"
             class="de.walware.statet.r.internal.ui.graphics.StatetRGraphicView"
@@ -1667,12 +1720,12 @@
 
       <key
             commandId="de.walware.statet.r.commands.RunSelectionInR"
-            contextId="de.walware.statet.r.contexts.REditor"
+            contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R M1+R"/>
       <key
             commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditor"
+            contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+R R"/>
       <key
@@ -1814,5 +1867,25 @@
             restorable="true">
       </view>
    </extension>
-
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.walware.statet.r.core.model.IRElement"
+            class="de.walware.statet.r.internal.ui.RElementAdapterFactory">
+         <adapter
+               type="org.eclipse.core.resources.IResource">
+         </adapter>
+         <adapter
+               type="org.eclipse.search.ui.ISearchPageScoreComputer">
+         </adapter>
+      </factory>
+      <factory
+            adaptableType="org.eclipse.ui.IEditorInput"
+            class="de.walware.statet.r.internal.ui.REditorInputAdapterFactory">
+         <adapter
+               type="org.eclipse.search.ui.ISearchPageScoreComputer">
+         </adapter>
+      </factory>
+   </extension>
+   
 </plugin>

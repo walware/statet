@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -28,6 +29,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
 import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.IDisposable;
@@ -74,6 +76,11 @@ public class RUIPlugin extends AbstractUIPlugin {
 	private static final String R_CODE_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_code_templates"; //$NON-NLS-1$
 	private static final String RD_CODE_TEMPLATES_KEY = "de.walware.statet.r.ui.text.rd_code_templates"; //$NON-NLS-1$
 	private static final String R_EDITOR_TEMPLATES_KEY  = "de.walware.statet.r.ui.text.r_editor_templates"; //$NON-NLS-1$
+	
+	
+	public static boolean isSearchPlugInActivated() {
+		return Platform.getBundle("org.eclipse.search").getState() == Bundle.ACTIVE; //$NON-NLS-1$
+	}
 	
 	
 	//The shared instance.
@@ -185,6 +192,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_R_RUNTIME_ENV, ImageRegistryUtil.T_OBJ, "r_env.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_REMOTE_ENV, ImageRegistryUtil.T_OBJ, "r_env-remote.png");  //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_R_PACKAGE, ImageRegistryUtil.T_OBJ, "package.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_HELP_PAGE, ImageRegistryUtil.T_OBJ, "rhelp-page.png");  //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_R_HELP_SEARCH, ImageRegistryUtil.T_TOOL, "rhelp-search.png");  //$NON-NLS-1$
 		
 		util.register(RUI.IMG_OBJ_COMMON_FUNCTION, ImageRegistryUtil.T_OBJ, "function.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_COMMON_LOCAL_FUNCTION, ImageRegistryUtil.T_OBJ, "function-local.png"); //$NON-NLS-1$
@@ -214,6 +223,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 		
 		util.register(IMG_LOCTOOL_FILTER_GENERAL, ImageRegistryUtil.T_LOCTOOL, "filter-general.png"); //$NON-NLS-1$
 		util.register(IMG_LOCTOOL_FILTER_LOCAL, ImageRegistryUtil.T_LOCTOOL, "filter-local.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_LOCTOOL_SORT_PACKAGE, ImageRegistryUtil.T_LOCTOOL, "sort-package.png"); //$NON-NLS-1$
 		
 		util.register(IMG_LOCTOOL_REFRESH_RECOMMENDED, ImageRegistryUtil.T_LOCTOOL, "refresh-rec.png"); //$NON-NLS-1$
 	}

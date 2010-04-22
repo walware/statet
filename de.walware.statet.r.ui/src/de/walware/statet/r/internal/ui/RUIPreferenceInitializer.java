@@ -16,18 +16,21 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
+import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 
+import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingPreferences;
+import de.walware.statet.r.internal.ui.rhelp.RHelpPreferences;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -81,6 +84,11 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$
 		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED, "r-elements.runtime"); //$NON-NLS-1$
 		defaultScope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true"); //$NON-NLS-1$
+		
+		final IEclipsePreferences rHelp = defaultScope.getNode(RHelpPreferences.RHELP_QUALIFIER);
+		rHelp.put(RHelpPreferences.HOMEPAGE_URL_KEY, IRHelpManager.PORTABLE_DEFAULT_RENV_BROWSE_URL);
+		rHelp.putBoolean(RHelpPreferences.SEARCH_REUSE_PAGE_ENABLED_KEY, true);
+		rHelp.putInt(RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_KEY, 10);
 		
 		RDebugPreferenceConstants.initializeDefaultValues(defaultScope);
 	}

@@ -13,6 +13,7 @@ package de.walware.statet.r.core;
 
 import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.core.rhelp.IRHelpManager;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
 
@@ -51,6 +52,10 @@ public class RCore {
 	 */
 	public static IRModelManager getRModelManager() {
 		return RCorePlugin.getDefault().getRModelManager();
+	}
+	
+	public static IRHelpManager getRHelpManager() {
+		return RCorePlugin.getDefault().getRHelpManager();
 	}
 	
 }

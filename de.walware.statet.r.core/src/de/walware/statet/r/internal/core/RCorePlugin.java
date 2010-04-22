@@ -11,11 +11,16 @@
 
 package de.walware.statet.r.internal.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -24,6 +29,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.core.renv.REnvManager;
+import de.walware.statet.r.internal.core.rhelp.RHelpManager;
 import de.walware.statet.r.internal.core.sourcemodel.RModelManager;
 
 
@@ -86,17 +92,21 @@ public class RCorePlugin extends Plugin {
 	};
 	
 	
+	private boolean fStarted;
+	
+	private final List<IDisposable> fDisposables = new ArrayList<IDisposable>();
+	
 	private CoreAccess fWorkspaceCoreAccess;
 	private CoreAccess fDefaultsCoreAccess;
 	private REnvManager fREnvManager;
 	private RModelManager fRModelManager;
+	private RHelpManager fRHelpManager;
 	
 	
 	/**
 	 * The constructor.
 	 */
 	public RCorePlugin() {
-		gPlugin = this;
 	}
 	
 	
@@ -106,10 +116,15 @@ public class RCorePlugin extends Plugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
+		gPlugin = this;
 		
 		fREnvManager = new REnvManager(PreferencesUtil.getSettingsChangeNotifier());
 		fWorkspaceCoreAccess = new CoreAccess(PreferencesUtil.getInstancePrefs());
 		fRModelManager = new RModelManager();
+		fRHelpManager = new RHelpManager();
+		fDisposables.add(fRHelpManager);
+		
+		fStarted = true;
 	}
 	
 	/**
@@ -118,6 +133,9 @@ public class RCorePlugin extends Plugin {
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
+			synchronized (this) {
+				fStarted = false;
+			}
 			if (fRModelManager != null) {
 				fRModelManager.dispose();
 				fRModelManager = null;
@@ -134,6 +152,16 @@ public class RCorePlugin extends Plugin {
 				fREnvManager.dispose();
 				fREnvManager = null;
 			}
+			
+			for (final IDisposable listener : fDisposables) {
+				try {
+					listener.dispose();
+				}
+				catch (final Throwable e) {
+					getLog().log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN, "Error occured when dispose module", e)); 
+				}
+			}
+			fDisposables.clear();
 		}
 		finally {
 			gPlugin = null;
@@ -149,12 +177,19 @@ public class RCorePlugin extends Plugin {
 		return fRModelManager;
 	}
 	
+	public RHelpManager getRHelpManager() {
+		return fRHelpManager;
+	}
+	
 	public IRCoreAccess getWorkspaceRCoreAccess() {
 		return fWorkspaceCoreAccess;
 	}
 	
 	public synchronized IRCoreAccess getDefaultsRCoreAccess() {
 		if (fDefaultsCoreAccess == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fDefaultsCoreAccess = new CoreAccess(PreferencesUtil.getDefaultPrefs());
 		}
 		return fDefaultsCoreAccess;

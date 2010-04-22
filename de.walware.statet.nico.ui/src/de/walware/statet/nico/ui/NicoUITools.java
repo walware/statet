@@ -28,8 +28,11 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -217,7 +220,7 @@ public class NicoUITools {
 			PlatformUI.getWorkbench().getProgressService().run(true, true, runnable);
 		}
 		catch (final InvocationTargetException e) {
-			StatusManager.getManager().handle(new Status(Status.ERROR, NicoUI.PLUGIN_ID, -1,
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)), e),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
@@ -294,5 +297,46 @@ public class NicoUITools {
 //					.getAdapter(runnable, IToolRunnableDecorator.class);
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @param viewId the view id
+	 * @param tool the tool process
+	 * @param createNew if a new view should be created when none found
+	 * @return
+	 * @throws PartInitException 
+	 */
+	public static IViewPart getView(final String viewId, final ToolProcess<?> tool,
+			final boolean createNew) throws PartInitException {
+		IViewPart view = null;
+		
+		final IWorkbenchPage toolPage = NicoUI.getToolRegistry().findWorkbenchPage(tool);
+		view = toolPage.findView(viewId);
+		if (view != null) {
+			view.getViewSite().getPage().activate(view);
+			return view;
+		}
+		final IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		for (int i = 0; i < windows.length; i++) {
+			final IWorkbenchPage page = windows[i].getActivePage();
+			if (page == toolPage) {
+				continue;
+			}
+			final ToolSessionUIData session = NicoUI.getToolRegistry().getActiveToolSession(page);
+			if (session.getProcess() == tool) {
+				view = page.findView(viewId);
+				if (view != null) {
+					view.getViewSite().getPage().activate(view);
+					return view;
+				}
+			}
+		}
+		
+		if (!createNew) {
+			return null;
+		}
+		return toolPage.showView(viewId);
+	}
+	
 	
 }

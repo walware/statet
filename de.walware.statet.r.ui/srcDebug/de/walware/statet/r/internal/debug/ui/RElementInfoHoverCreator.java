@@ -329,7 +329,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			return;
 		}
 		if (fLabelProvider == null) {
-			fLabelProvider = new RLabelProvider(RLabelProvider.LONG | RLabelProvider.TITLE | RLabelProvider.NAMESPACE);
+			fLabelProvider = new RLabelProvider(RLabelProvider.LONG | RLabelProvider.HEADER | RLabelProvider.NAMESPACE);
 		}
 		if (fInput != null) {
 			final Image image = fLabelProvider.getImage(fInput.element);

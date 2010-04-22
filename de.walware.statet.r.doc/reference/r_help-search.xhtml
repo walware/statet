@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Help - Search</title>
+	<meta name="copyright" content="Copyright (c) 2009-2010 The Apache Software Foundation, WalWare/StatET-Project (www.walware.de/goto/statet) and others. All rights reserved."/>
+</head>
+<body>
+
+<h1>R Help - Search</h1>
+
+
+<h2 id="query">Advanced Query Syntax:</h2>
+
+This section describes the syntax for queries typed in the search text field.
+
+<h3>Terms</h3>
+<p>A query is broken up into terms and operators. There are two types of terms: Single Terms and Phrases.</p>
+<p>A Single Term is a single word such as "test" or "hello".</p>
+<p>A Phrase is a group of words surrounded by double quotes such as "hello dolly".</p>
+<p>Multiple terms can be combined together with Boolean operators to form a more complex query (see below),
+The AND operator is the default conjunction operator. This means that if there is no Boolean operator
+between two terms, a help document must match both terms.</p>
+
+<h3>Fields</h3>
+<p>Lucene supports fielded data. When performing a search you can either specify a field, or use the default field(s).</p>
+<p>You can search any field by typing the field name followed by a colon ":" and then the term you are looking for. </p>
+<p>As an example, let's assume a Lucene index contains two fields, title and text and text is the default field.
+        If you want to find the document entitled "The Right Way" which contains the text "don't go this way", you can enter: </p>
+<pre>title:"The Right Way" AND text:go</pre>
+<p>or</p>
+<pre>title:"Do it right" AND right</pre>
+<p>Since text is the default field, the field indicator is not required.</p>
+<p>Note: The field is only valid for the term that it directly precedes, so the query</p>
+<pre>title:Do it right</pre>
+<p>Will only find "Do" in the title field. It will find "it" and "right" in the default field(s).</p>
+<p>The default field(s) depends on the selected search mode / selected fields (see table below).</p>
+
+<h4>Fields for R Help Pages</h4>
+<table class="style1">
+	<tr><td><code>pkg</code></td>
+		<td>the exact name of the package</td></tr>
+	<tr><td><code>page</code></td>
+		<td>the exact name of the page</td></tr>
+	<tr><td><code>alias</code></td>
+		<td>an exact alias/topic of the page (1)</td></tr>
+	
+	<tr><td><code>alias.txt</code></td>
+		<td>an alias/topic of the page (2)</td></tr>
+	<tr><td><code>title.txt</code></td>
+		<td>the title of the page (2, 3)</td></tr>
+	<tr><td><code>concept.txt</code></td>
+		<td>a concept of the page (2)</td></tr>
+	<tr><td><code>keyword</code></td>
+		<td>a keyword of the page</td></tr>
+	<tr><td><code>descr.txt</code></td>
+		<td>the description section of the page (3)</td></tr>
+	<tr><td><code>doc.txt</code></td>
+		<td>the main content of the page except the title, description and examples section (3)</td></tr>
+	<tr><td><code>examples.txt</code></td>
+		<td>the examples section of the page (3)</td></tr>
+</table>
+<p>Default field(s) for the search mode:
+(1) = "Topics/Alias (strict)",
+(2) = "Selected Field" (only the selected fields) and
+(3) = "Complete Document".
+</p>
+
+<h3>Term Modifiers</h3>
+<p>Lucene supports modifying query terms to provide a wide range of searching options.</p>
+
+<h4>Wildcard Searches</h4>
+<p>Lucene supports single and multiple character wildcard searches within single terms
+        (not within phrase queries).</p>
+<p>To perform a single character wildcard search use the "?" symbol.</p>
+<p>To perform a multiple character wildcard search use the "*" symbol.</p>
+<p>The single character wildcard search looks for terms that match that with the single character replaced. For example, to search for "text" or "test" you can use the search:</p>
+<pre>te?t</pre>
+<p>Multiple character wildcard searches looks for 0 or more characters. For example, to search for test, tests or tester, you can use the search: </p>
+<pre>test*</pre>
+<p>You can also use the wildcard searches in the middle of a term.</p>
+<pre>te*t</pre>
+
+<h4>Fuzzy Searches</h4>
+<p>Lucene supports fuzzy searches based on the Levenshtein Distance, or Edit Distance algorithm. To do a fuzzy search use the tilde, "~", symbol at the end of a Single word Term. For example to search for a term similar in spelling to "roam" use the fuzzy search: </p>
+<pre>roam~</pre>
+<p>This search will find terms like foam and roams.</p>
+<p>Starting with Lucene 1.9 an additional (optional) parameter can specify the required similarity. The value is between 0 and 1, with a value closer to 1 only terms with a higher similarity will be matched. For example:</p>
+<pre>roam~0.8</pre>
+<p>The default that is used if the parameter is not given is 0.5.</p>
+
+<h4>Proximity Searches</h4>
+<p>Lucene supports finding words are a within a specific distance away. To do a proximity search use the tilde, "~", symbol at the end of a Phrase. For example to search for a "apache" and "jakarta" within 10 words of each other in a document use the search: </p>
+<pre>"jakarta apache"~10</pre>
+
+<h4>Range Searches</h4>
+<p>Range Queries allow one to match documents whose field(s) values
+            are between the lower and upper bound specified by the Range Query.
+            Range Queries can be inclusive or exclusive of the upper and lower bounds.
+            Sorting is done lexicographically.</p>
+<pre>mod_date:[20020101 TO 20030101]</pre>
+<p>This will find documents whose mod_date fields have values between 20020101 and 20030101, inclusive.
+            Note that Range Queries are not reserved for date fields.  You could also use range queries with non-date fields:</p>
+<pre>title:{Aida TO Carmen}</pre>
+<p>This will find all documents whose titles are between Aida and Carmen, but not including Aida and Carmen.</p>
+<p>Inclusive range queries are denoted by square brackets.  Exclusive range queries are denoted by
+            curly brackets.</p>
+
+<h4>Boosting a Term</h4>
+<p>Lucene provides the relevance level of matching documents based on the terms found. To boost a term use the caret, "^", symbol with a boost factor (a number) at the end of the term you are searching. The higher the boost factor, the more relevant the term will be.</p>
+<p>Boosting allows you to control the relevance of a document by boosting its term. For example, if you are searching for</p>
+<pre>jakarta apache</pre>
+<p>and you want the term "jakarta" to be more relevant boost it using the ^ symbol along with the boost factor next to the term.
+        You would type:</p>
+<pre>jakarta^4 apache</pre>
+<p>This will make documents with the term jakarta appear more relevant. You can also boost Phrase Terms as in the example: </p>
+<pre>"jakarta apache"^4 "Apache Lucene"</pre>
+<p>By default, the boost factor is 1. Although the boost factor must be positive, it can be less than 1 (e.g. 0.2)</p>
+
+<h3>Boolean Operators</h3>
+<p>Boolean operators allow terms to be combined through logic operators.
+        Lucene supports AND, "+", OR, NOT and "-" as Boolean operators (Note: Boolean operators must be ALL CAPS).</p>
+
+<h4>OR</h4>
+<p>The OR operator links two terms and finds a matching document if either of the terms exist in a document. This is equivalent to a union using sets.
+        The symbol || can be used in place of the word OR.</p>
+<p>To search for documents that contain either "jakarta apache" or just "jakarta" use the query:</p>
+<pre>"jakarta apache" jakarta</pre>
+<p>or</p>
+<pre>"jakarta apache" OR jakarta</pre>
+
+<h4>AND</h4>
+<p>The AND operator matches documents where both terms exist anywhere in the text of a single document.
+        This is equivalent to an intersection using sets. The symbol &amp;&amp; can be used in place of the word AND.</p>
+<p>To search for documents that contain "jakarta apache" and "Apache Lucene" use the query: </p>
+<pre>"jakarta apache" AND "Apache Lucene"</pre>
+
+<h4>+</h4>
+<p>The "+" or required operator requires that the term after the "+" symbol exist somewhere in a the field of a single document.</p>
+<p>To search for documents that must contain "jakarta" and may contain "lucene" use the query:</p>
+<pre>+jakarta lucene</pre>
+
+<h4>NOT</h4>
+<p>The NOT operator excludes documents that contain the term after NOT.
+        This is equivalent to a difference using sets. The symbol ! can be used in place of the word NOT.</p>
+<p>To search for documents that contain "jakarta apache" but not "Apache Lucene" use the query: </p>
+<pre>"jakarta apache" NOT "Apache Lucene"</pre>
+<p>Note: The NOT operator cannot be used with just one term. For example, the following search will return no results:</p>
+<pre>NOT "jakarta apache"</pre>
+
+<h4>-</h4>
+<p>The "-" or prohibit operator excludes documents that contain the term after the "-" symbol.</p>
+<p>To search for documents that contain "jakarta apache" but not "Apache Lucene" use the query: </p>
+<pre>"jakarta apache" -"Apache Lucene"</pre>
+
+<h3>Grouping</h3>
+<p>Lucene supports using parentheses to group clauses to form sub queries. This can be very useful if you want to control the boolean logic for a query.</p>
+<p>To search for either "jakarta" or "apache" and "website" use the query:</p>
+<pre>(jakarta OR apache) AND website</pre>
+<p>This eliminates any confusion and makes sure you that website must exist and either term jakarta or apache may exist.</p>
+
+<h3>Field Grouping</h3>
+<p>Lucene supports using parentheses to group multiple clauses to a single field.</p>
+<p>To search for a title that contains both the word "return" and the phrase "pink panther" use the query:</p>
+<pre>title:(+return +"pink panther")</pre>
+
+<h3>Escaping Special Characters</h3>
+<p>Lucene supports escaping special characters that are part of the query syntax. The current list special characters are</p>
+<p>+ - &amp;&amp; || ! ( ) { } [ ] ^ " ~ * ? : \</p>
+<p>To escape these character use the \ before the character. For example to search for (1+1):2 use the query:</p>
+<pre>\(1\+1\)\:2</pre>
+
+</body>
+</html>

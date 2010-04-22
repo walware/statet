@@ -27,10 +27,15 @@ public class RUI {
 	public static final String R_EDITOR_ID = "de.walware.statet.r.editors.R"; //$NON-NLS-1$
 	public static final String RD_EDITOR_ID = "de.walware.statet.r.editors.Rd"; //$NON-NLS-1$
 	
+	public static final String R_HELP_VIEW_ID = "de.walware.statet.r.views.RHelp"; //$NON-NLS-1$
+	public static final String R_HELP_SEARCH_PAGE_ID = "de.walware.statet.r.searchPages.RHelpPage"; //$NON-NLS-1$
+	
 	public static final String IMG_OBJ_R_SCRIPT = RUI.PLUGIN_ID + "/image/obj/r_script"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_RUNTIME_ENV = RUI.PLUGIN_ID + "/image/obj/r_environment"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_REMOTE_ENV = RUI.PLUGIN_ID + "/image/obj/r_environment.remote"; //$NON-NLS-1$
 	public static final String IMG_OBJ_R_PACKAGE = RUI.PLUGIN_ID + "/image/obj/r_package"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_HELP_PAGE = RUI.PLUGIN_ID + "/image/obj/r_help/page"; //$NON-NLS-1$
+	public static final String IMG_OBJ_R_HELP_SEARCH = RUI.PLUGIN_ID + "/image/obj/r_help/search"; //$NON-NLS-1$
 	
 	public static final String IMG_OBJ_METHOD = RUI.PLUGIN_ID + "/image/obj/method"; //$NON-NLS-1$
 	public static final String IMG_OBJ_COMMON_FUNCTION = RUI.PLUGIN_ID + "/image/obj/function.common"; //$NON-NLS-1$
@@ -57,6 +62,9 @@ public class RUI {
 	
 	public static final String IMG_OBJ_LIBRARY_GROUP = PLUGIN_ID + "/image/obj/library.group"; //$NON-NLS-1$
 	public static final String IMG_OBJ_LIBRARY_LOCATION = PLUGIN_ID + "/image/obj/library.location"; //$NON-NLS-1$
+	
+	public static final String IMG_LOCTOOL_SORT_PACKAGE = PLUGIN_ID + "/image/obj/sort.package"; //$NON-NLS-1$
+	
 	
 	public static ImageDescriptor getImageDescriptor(final String key) {
 		return RUIPlugin.getDefault().getImageRegistry().getDescriptor(key);

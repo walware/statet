@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.help.IContextProvider;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
@@ -27,14 +28,18 @@ import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.actions.HandlerCollection;
+import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
@@ -47,14 +52,15 @@ import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.actions.ToolAction;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
-import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.core.RCodeStyleSettings;
+import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.nico.ui.RInputConfigurator;
 import de.walware.statet.r.internal.nico.ui.RInputGroup;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
+import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.ui.RUIHelp;
@@ -157,10 +163,10 @@ public class RConsolePage extends NIConsolePage {
 	}
 	
 	@Override
-	protected void createActions() {
-		super.createActions();
+	protected void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
+		super.initActions(serviceLocator, handlers);
 		
-		final IContextService contextService = (IContextService) getSite().getService(IContextService.class);
+		final IContextService contextService = (IContextService) serviceLocator.getService(IContextService.class);
 		contextService.activateContext("de.walware.statet.r.actionSets.RSessionTools"); //$NON-NLS-1$
 		
 		fHelpContextProvider = RUIHelp.createEnrichedRHelpContextProvider(
@@ -173,10 +179,11 @@ public class RConsolePage extends NIConsolePage {
 	}
 	
 	@Override
-	protected void contributeToActionBars() {
-		super.contributeToActionBars();
+	protected void contributeToActionBars(final IServiceLocator serviceLocator,
+			final IActionBars actionBars, final HandlerCollection handlers) {
+		super.contributeToActionBars(serviceLocator, actionBars, handlers);
 		
-		final IMenuManager menuManager = getSite().getActionBars().getMenuManager();
+		final IMenuManager menuManager = actionBars.getMenuManager();
 		
 		menuManager.appendToGroup(NICO_CONTROL_MENU_ID,
 				new CommandContributionItem(new CommandContributionItemParameter(
@@ -206,6 +213,27 @@ public class RConsolePage extends NIConsolePage {
 		menuManager.insertBefore(SharedUIResources.ADDITIONS_MENU_ID, new Separator("view")); //$NON-NLS-1$
 		menuManager.appendToGroup("view", //$NON-NLS-1$
 				new AdjustWithAction());
+		
+		final RProcess process = (RProcess) getConsole().getProcess();
+		if (process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)
+				&& process.getAdapter(IREnvConfiguration.class) != null) {
+			final MenuManager rEnv = new MenuManager("R environment");
+			menuManager.appendToGroup(NICO_CONTROL_MENU_ID, rEnv);
+			
+			rEnv.add(new HandlerContributionItem(new CommandContributionItemParameter(
+					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+					null, null, null,
+					"Index c&ompletely", null, null,
+					CommandContributionItem.STYLE_PUSH, null, false),
+					new REnvUpdateHandler(process, true) ));
+			rEnv.add(new HandlerContributionItem(new CommandContributionItemParameter(
+					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
+					null, null, null,
+					"Index ch&anges", null, null,
+					CommandContributionItem.STYLE_PUSH, null, false),
+					new REnvUpdateHandler(process, false) ));
+			
+		}
 	}
 	
 	@Override

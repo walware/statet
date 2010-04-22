@@ -19,6 +19,7 @@ import de.walware.statet.nico.ui.util.ReportStatusHandler;
 import de.walware.statet.nico.ui.util.RunBlockingHandler;
 import de.walware.statet.nico.ui.util.SelectFileHandler;
 
+import de.walware.statet.r.internal.nico.ui.RHelpEventHandler;
 import de.walware.statet.r.nico.AbstractRController;
 
 
@@ -88,7 +89,6 @@ public class RConsoleLaunching {
 	public static final String ATTR_OBJECTDB_ENVS_MAX_LENGTH = ATTR_ROOT+"objectdb.envs.max_length"; //$NON-NLS-1$
 	
 	
-	
 	public static void registerDefaultHandlerTo(final AbstractRController controller) {
 		controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
 		controller.addEventHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID, new RunBlockingHandler());
@@ -98,9 +98,11 @@ public class RConsoleLaunching {
 		controller.addEventHandler(HistoryOperationsHandler.SAVE_HISTORY_ID, historyHandler);
 		controller.addEventHandler(HistoryOperationsHandler.ADDTO_HISTORY_ID, historyHandler);
 		controller.addEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID, new SelectFileHandler());
-		final EclipseIDEOperationsHandler ideHandler = new EclipseIDEOperationsHandler();
+		final IToolEventHandler ideHandler = new EclipseIDEOperationsHandler();
 		controller.addEventHandler(IToolEventHandler.SHOW_HISTORY_ID, ideHandler);
 		controller.addEventHandler(IToolEventHandler.SHOW_FILE_ID, ideHandler);
+		final IToolEventHandler rHelpHandler = new RHelpEventHandler();
+		controller.addEventHandler(AbstractRController.SHOW_RHELP_HANDLER_ID, rHelpHandler);
 	}
 	
 }

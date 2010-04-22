@@ -52,4 +52,9 @@
 		<topic href="reference/r_console-page.xhtml"
 				label="R Console" />
 	</context>
+	<context id="r_help-search_page">
+		<description>Type a pattern and/or expression for which you want to search in R help documents.</description>
+		<topic href="reference/r_help-search.xhtml"
+				label="R Help Search" />
+	</context>
 </contexts>

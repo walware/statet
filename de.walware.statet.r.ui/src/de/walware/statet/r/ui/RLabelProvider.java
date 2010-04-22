@@ -62,7 +62,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	
 	
 	public static final int NAMESPACE = 0x01;
-	public static final int TITLE =     0x02;
+	public static final int HEADER =     0x02;
 	public static final int LONG =      0x04;
 	public static final int COUNT =     0x08;
 	public static final int ASSIST =    0x10;
@@ -83,7 +83,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			fStyle |= COUNT;
 		}
 		fStyle = style;
-		if ((fStyle & TITLE) != 0) {
+		if ((fStyle & HEADER) != 0) {
 			fDefaultStyler = IElementLabelProvider.TITLE_STYLER;
 		}
 		else {

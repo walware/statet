@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<project name="statet.r.core" default="default">
+	
+	<property name="jflex.home" value="D:/OrcaForge/libs/jflex-1.4.3"/>
+	<property name="rhelp.tokenizer.container" value="de.walware.statet.r.core/src/de/walware/statet/r/internal/core/rhelp/analyzer/"/>
+	<eclipse.convertPath property="rhelp.tokenizer.path" resourcepath="${rhelp.tokenizer.container}"/>
+	
+	<description>Additional build jobs for R</description>
+	
+	<target name="default"
+		depends="rhelp-tokenizer-clean,rhelp-tokenizer-generate,rhelp-refresh"/>
+	
+	<target name="rhelp-tokenizer-generate">
+		<taskdef classname="JFlex.anttask.JFlexTask" name="jflex">
+			<classpath location="${jflex.home}/lib/JFlex.jar"/>
+		</taskdef>
+		
+		<jflex file="${rhelp.tokenizer.path}/StandardTokenizerImpl.jflex"
+				outdir="${rhelp.tokenizer.path}"
+				nobak="on"/>
+	</target>
+	
+	<target name="rhelp-tokenizer-clean">
+		<delete>
+			<fileset dir="${rhelp.tokenizer.path}" includes="*.java">
+				<containsregexp expression="generated.*by.*JFlex"/>
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="rhelp-refresh">
+		<eclipse.refreshLocal resource="${rhelp.tokenizer.container}"/>
+	</target>
+	
+</project>
