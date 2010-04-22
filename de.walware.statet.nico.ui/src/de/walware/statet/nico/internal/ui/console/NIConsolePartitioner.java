@@ -45,9 +45,9 @@ import de.walware.statet.nico.ui.console.NIConsoleOutputStream;
 public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocumentPartitionerExtension {
 	
 	
-	private NIConsole fConsole;
+	private final NIConsole fConsole;
 	
-	private String[] fPartitionIds;
+	private final String[] fPartitionIds;
 	
 	private IDocument fDocument;
 	
@@ -95,7 +95,7 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 	 * to synchronize addition of new text/partitions in the update
 	 * job and handling buffer overflow/clearing of the console. 
 	 */
-	private Object fOverflowLock = new Object();
+	private final Object fOverflowLock = new Object();
 	
 	private int fBuffer; 
 	
@@ -189,16 +189,18 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 			mid = (left + right) / 2;
 			position = fPartitions.get(mid);
 			if (rangeEnd < position.getOffset()) {
-				if (left == mid)
+				if (left == mid) {
 					right = left;
-				else
+				} else {
 					right = mid -1;
+				}
 			}
 			else if (offset > (position.getOffset() + position.getLength() - 1)) {
-				if (right == mid)
+				if (right == mid) {
 					left = right;
-				else
+				} else {
 					left = mid  +1;
+				}
 			}
 			else {
 				left = right = mid;
@@ -331,14 +333,14 @@ public class NIConsolePartitioner implements IConsoleDocumentPartitioner, IDocum
 			}
 			else {
 				fPendingPartitions.add(new PendingPartition(stream, s));
-				if (fBuffer > 1000) {
+				if (fBuffer > 0x1ff) {
 					fQueueJob.schedule();
 				} else {
 					fQueueJob.schedule(50);
 				}
 			}
 			
-			if (fBuffer > 160000) {
+			if (fBuffer > 0xffff) {
 				if (Display.getCurrent() == null){
 					try {
 						fPendingPartitions.wait();

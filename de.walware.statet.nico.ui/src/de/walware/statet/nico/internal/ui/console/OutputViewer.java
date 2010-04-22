@@ -11,11 +11,14 @@
 
 package de.walware.statet.nico.internal.ui.console;
 
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension4;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.TextConsole;
 import org.eclipse.ui.console.TextConsoleViewer;
 
@@ -79,21 +82,47 @@ public class OutputViewer extends TextConsoleViewer {
 	
 	@Override
 	public void revealEndOfDocument() {
-		UIAccess.getDisplay().asyncExec(new Runnable() {
+		final Display display = UIAccess.getDisplay();
+		display.asyncExec(new Runnable() {
 			public void run() {
 				final StyledText textWidget = getTextWidget();
-				if (UIAccess.isOkToUse(textWidget)) {
-					final int lineCount = textWidget.getLineCount();
-					final int lineToShow = ((lineCount > 1 && 
-							textWidget.getCharCount() == textWidget.getOffsetAtLine(lineCount - 1)) ?
-							(lineCount - 2) : (lineCount - 1));
-					final int visiblePixel = textWidget.getClientArea().height;
-					final int linePixel = textWidget.getLineHeight();
-					final int topPixel = linePixel * (lineToShow) - visiblePixel + 
-							(int) (linePixel * 1.33) + 2;
-					if (topPixel >= 0) {
-						textWidget.setTopPixel(topPixel);
-					}
+				if (!UIAccess.isOkToUse(textWidget)) {
+					return;
+				}
+				final AbstractDocument document = (AbstractDocument) getDocument();
+				final long timestamp = document.getModificationStamp();
+				final int lineCount = textWidget.getLineCount();
+				final int lineToShow = ((lineCount > 1 && 
+						textWidget.getCharCount() == textWidget.getOffsetAtLine(lineCount - 1)) ?
+						(lineCount - 1) : (lineCount));
+				final int visiblePixel = textWidget.getClientArea().height;
+				final int linePixel = textWidget.getLineHeight();
+				int topPixel = (linePixel * (lineToShow - 1)) - visiblePixel;
+				if (topPixel >= 0) {
+					topPixel += 2;
+					final int[] move = new int[] {
+							topPixel,
+							topPixel + linePixel - 2,
+							topPixel + linePixel - 1,
+							topPixel + linePixel
+					};
+					textWidget.setTopPixel(move[0]);
+					final int[] state = new int[] { 1 };
+					display.timerExec(75, new Runnable() {
+						public void run() {
+							int i = state[0];
+							if (!UIAccess.isOkToUse(textWidget)
+									|| timestamp != ((IDocumentExtension4) getDocument()).getModificationStamp()
+									|| move[i-1] != textWidget.getTopPixel()) {
+								return;
+							}
+							textWidget.setTopPixel(move[i++]);
+							if (i < move.length) {
+								state[0] = i;
+								display.timerExec(25, this);
+							}
+						}
+					});
 				}
 			}
 		});

@@ -60,7 +60,7 @@ public class NIConsolePartition implements ITypedRegion {
 	 * @param offset This partitions offset in the document.
 	 */
 	void setOffset(final int offset) {
-		this.fOffset = offset;
+		fOffset = offset;
 	}
 	
 	/**
