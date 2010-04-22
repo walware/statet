@@ -14,12 +14,14 @@ package de.walware.statet.r.internal.debug.ui.launchconfigs;
 import static de.walware.rj.server.srvext.ServerUtil.RJ_DATA_ID;
 import static de.walware.rj.server.srvext.ServerUtil.RJ_SERVER_ID;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
@@ -58,6 +60,8 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	private final String fAddress;
 	private final IREnvConfiguration fRenv;
 	
+	private File fWorkingDirectory;
+	
 	
 	public RJEngineLaunchDelegate(final String address, final IREnvConfiguration renv) throws CoreException {
 		fAddress = address;
@@ -69,6 +73,18 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	public IPath getWorkingDirectoryPath(final ILaunchConfiguration configuration) throws CoreException {
 		final IFileStore workingDirectory = REnvTab.getWorkingDirectory(configuration);
 		return URIUtil.toPath(workingDirectory.toURI());
+	}
+	
+	@Override
+	public File verifyWorkingDirectory(final ILaunchConfiguration configuration) throws CoreException {
+		return fWorkingDirectory = super.verifyWorkingDirectory(configuration);
+	}
+	
+	public IFileStore getWorkingDirectory() {
+		if (fWorkingDirectory != null) {
+			return EFS.getLocalFileSystem().fromLocalFile(fWorkingDirectory);
+		}
+		return null;
 	}
 	
 	@Override

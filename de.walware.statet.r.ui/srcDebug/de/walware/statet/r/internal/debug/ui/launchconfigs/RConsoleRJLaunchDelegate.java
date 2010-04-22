@@ -172,8 +172,10 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			if (processes[0].isTerminated()) {
 				final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);
 				StatusManager.getManager().handle(new Status(silent ? IStatus.INFO : IStatus.ERROR, RUI.PLUGIN_ID,
-						"Launching the R Console was cancelled, because it seems starting the Java process/R engine failed. \n"+
-						"Please make sure that R package 'rJava' with JRI is installed and look into the Troubleshooting section on the homepage."),
+						"Launching the R Console was cancelled, because it seems starting the Java " +
+						"process/R engine failed. \n"+
+						"Please make sure that R package 'rJava' with JRI is installed and that the " +
+						"R library paths are set correctly in the R environment configuration."),
 						silent ? (StatusManager.LOG) :(StatusManager.LOG | StatusManager.SHOW));
 				return;
 			}
@@ -216,7 +218,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		rjsProperties.put("rj.session.startup.time", timestamp);
 		final RjsController controller = new RjsController(process, rmiAddress, null,
 				true, true, rArgs, rjsProperties,
-				REnvTab.getWorkingDirectoryValidator(configuration, false).getFileStore(), trackingConfigs);
+				engineLaunchDelegate.getWorkingDirectory(), trackingConfigs);
 		process.init(controller);
 		RConsoleLaunching.registerDefaultHandlerTo(controller);
 		

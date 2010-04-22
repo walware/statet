@@ -68,6 +68,8 @@ public abstract class AbstractRController
 	public static final String INIT_RGRAPHIC_FACTORY_HANDLER_ID = "r/initRGraphicFactory"; //$NON-NLS-1$
 	
 	
+	protected String fStartupSnippet;
+	
 	protected String fContinuePromptText;
 	protected String fDefaultPromptText;
 	
@@ -83,6 +85,10 @@ public abstract class AbstractRController
 		fChanged = RWorkspace.REFRESH_COMPLETE;
 	}
 	
+	
+	public void setStartupSnippet(final String code) {
+		fStartupSnippet = code;
+	}
 	
 	@Override
 	protected final IToolRunnable createQuitRunnable() {

@@ -259,6 +259,10 @@ public class RTermController extends AbstractRController implements IRequireSync
 			initTracks(fConfig.directory().toString(), monitor, warnings);
 			
 			submit(new UpdateProcessIdTask());
+			if (fStartupSnippet != null && fStartupSnippet.length() > 0) {
+				submit(RUtil.LINE_SEPARATOR_PATTERN.split(fStartupSnippet), SubmitType.TOOLS);
+			}
+			fStartupSnippet = null;
 			
 			scheduleControllerRunnable(new IToolRunnable() {
 				public SubmitType getSubmitType() {

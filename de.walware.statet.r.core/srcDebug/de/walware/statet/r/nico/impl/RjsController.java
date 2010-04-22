@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.osgi.util.NLS;
 
@@ -278,7 +277,6 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	private final boolean fEmbedded;
 	private final boolean fStartup;
-	private String fStartupSnippet;
 	private final Map<String, Object> fRjsProperties;
 	
 	private int fConnectionState;
@@ -319,10 +317,6 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				address.getHostAddress().getHostAddress());
 		setWorkspaceDir(initialWD);
 		initRunnableAdapter();
-	}
-	
-	public void setStartupSnippet(final String code) {
-		fStartupSnippet = code;
 	}
 	
 	
@@ -626,7 +620,9 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
-		fRjs.runAsyncInterrupt();
+		if (hardness < 10) {
+			fRjs.runAsyncInterrupt();
+		}
 		if (hardness > 6) {
 			super.interruptTool(hardness);
 		}
@@ -667,11 +663,11 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				try {
 					processes[i].terminate();
 				}
-				catch (final DebugException e) {
+				catch (final Exception e) {
 				}
 			}
 		}
-		interruptTool(9);
+		interruptTool(10);
 		markAsTerminated();
 	}
 	

@@ -291,7 +291,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return fStreams;
 	}
 	
-	public final ToolProcess getProcess() {
+	public final ToolProcess<WorkspaceType> getProcess() {
 		return fProcess;
 	}
 	
