@@ -12,14 +12,13 @@
 package de.walware.statet.r.internal.rdata;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.text.StringParseInput;
 
 import de.walware.rj.data.RFunction;
-import de.walware.rj.data.RObject;
+import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 
@@ -46,16 +45,16 @@ public final class RFunction2 extends CombinedElement
 	}
 	
 	
-	public RFunction2(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
+	public RFunction2(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
 		fParent = parent;
 		fElementName = name;
-		readExternal(in, flags, factory);
+		readExternal(io, factory);
 	}
 	
-	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
-		final int options = in.readInt();
-		final String headerSource = in.readUTF();
-		if (headerSource.length() > 0) {
+	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		/*final int options =*/ io.in.readInt();
+		final String headerSource = io.readString();
+		if (headerSource != null && headerSource.length() > 0) {
 			final RScanner scanner = new RScanner(new StringParseInput(headerSource), null);
 			final FDef fDef = scanner.scanFDef();
 			if (fDef != null) {
@@ -65,7 +64,7 @@ public final class RFunction2 extends CombinedElement
 	}
 	
 	public byte getRObjectType() {
-		return RObject.TYPE_FUNCTION;
+		return TYPE_FUNCTION;
 	}
 	
 	public String getRClassName() {
@@ -75,6 +74,7 @@ public final class RFunction2 extends CombinedElement
 	public int getLength() {
 		return 0;
 	}
+	
 	public String getHeaderSource() {
 		return null;
 	}

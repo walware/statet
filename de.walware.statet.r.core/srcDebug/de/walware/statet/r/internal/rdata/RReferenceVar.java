@@ -12,15 +12,15 @@
 package de.walware.statet.r.internal.rdata;
 
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 
+import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
+import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
@@ -28,7 +28,7 @@ import de.walware.statet.r.nico.RWorkspace;
 
 
 public final class RReferenceVar extends CombinedElement
-		implements RReference {
+		implements RReference, ExternalizableRObject {
 	
 	
 	private int fType;
@@ -41,22 +41,22 @@ public final class RReferenceVar extends CombinedElement
 		fClassName = className;
 	}
 	
-	public RReferenceVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
+	public RReferenceVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
 		fParent = parent;
 		fElementName = name;
-		readExternal(in, flags, factory);
+		readExternal(io, factory);
 	}
 	
-	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
-		fHandle = in.readLong();
-		fType = in.readInt();
-		fClassName = in.readUTF();
+	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		fHandle = io.in.readLong();
+		fType = io.in.readInt();
+		fClassName = io.readString();
 	}
 	
-	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
-		out.writeLong(fHandle);
-		out.writeInt(fType);
-		out.writeUTF(fClassName);
+	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		io.out.writeLong(fHandle);
+		io.out.writeInt(fType);
+		io.writeString(fClassName);
 	}
 	
 	

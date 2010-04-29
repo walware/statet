@@ -11,11 +11,10 @@
 
 package de.walware.statet.r.internal.rdata;
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 
+import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
@@ -53,52 +52,52 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 		}
 	}
 	
-	public RVectorVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
+	public RVectorVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
 		fParent = parent;
 		fElementName = name;
-		readExternal(in, flags, factory);
+		readExternal(io, factory);
 	}
 	
-	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
+	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
-		final int options = in.readInt();
+		final int options = io.in.readInt();
 		final boolean customClass = ((options & RObjectFactory.O_CLASS_NAME) != 0);
 		//-- special attributes
 		if (customClass) {
-			this.className1 = in.readUTF();
+			this.className1 = io.readString();
 		}
-		this.length = in.readInt();
+		this.length = io.in.readInt();
 		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			this.namesAttribute = factory.readNames(in, flags);
+			this.namesAttribute = factory.readNames(io);
 		}
 		//-- data
-		this.data = (DataType) factory.readStore(in, flags);
+		this.data = (DataType) factory.readStore(io);
 		if (!customClass) {
 			this.className1 = this.data.getBaseVectorRClassName();
 		}
 	}
 	
-	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
+	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
 		int options = 0;
 		final boolean customClass = !this.className1.equals(this.data.getBaseVectorRClassName());
 		if (customClass) {
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
-		if ((flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.namesAttribute != null) {
+		if ((io.flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.namesAttribute != null) {
 			options |= RObjectFactory.O_WITH_NAMES;
 		}
-		out.writeInt(options);
+		io.out.writeInt(options);
 		//-- special attributes
 		if (customClass) {
-			out.writeUTF(this.className1);
+			io.writeString(this.className1);
 		}
-		out.writeInt(this.length);
+		io.out.writeInt(this.length);
 		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
-			factory.writeNames(this.namesAttribute, out, flags);
+			factory.writeNames(this.namesAttribute, io);
 		}
 		//-- data
-		factory.writeStore(this.data, out, flags);
+		factory.writeStore(this.data, io);
 	}
 	
 	

@@ -12,8 +12,8 @@
 package de.walware.statet.r.internal.rdata;
 
 import java.io.IOException;
-import java.io.ObjectInput;
 
+import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
@@ -29,36 +29,36 @@ public class CombinedFactory extends RObjectFactoryImpl {
 	
 	
 	@Override
-	public CombinedElement readObject(final ObjectInput in, final int flags) throws IOException, ClassNotFoundException {
-		assert ((flags & F_ONLY_STRUCT) != 0);
-		return readObject(in, flags, null, null);
+	public CombinedElement readObject(final RJIO io) throws IOException {
+		assert ((io.flags & F_ONLY_STRUCT) != 0);
+		return readObject(io, null, null);
 	}
 	
-	public CombinedElement readObject(final ObjectInput in, final int flags, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
-		final byte type = in.readByte();
+	public CombinedElement readObject(final RJIO io, final CombinedElement parent, final RElementName name) throws IOException {
+		final byte type = io.in.readByte();
 		switch (type) {
 		case -1:
 			return null;
 		case RObject.TYPE_NULL:
 			return new RNullVar(parent, name);
 		case RObject.TYPE_VECTOR: {
-			return new RVectorVar(in, flags, this, parent, name); }
+			return new RVectorVar(io, this, parent, name); }
 		case RObject.TYPE_ARRAY:
-			return new RArrayVar(in, flags, this, parent, name);
+			return new RArrayVar(io, this, parent, name);
 		case RObject.TYPE_LIST:
-			return new RListVar(in, flags, this, parent, name);
+			return new RListVar(io, this, parent, name);
 		case RObject.TYPE_DATAFRAME:
-			return new RDataFrameVar(in, flags, this, parent, name);
+			return new RDataFrameVar(io, this, parent, name);
 		case RObject.TYPE_ENV:
-			return new REnvironmentVar(in, flags, this, parent, name);
+			return new REnvironmentVar(io, this, parent, name);
 		case RObject.TYPE_FUNCTION:
-			return new RFunction2(in, flags, this, parent, name);
+			return new RFunction2(io, this, parent, name);
 		case RObject.TYPE_REFERENCE:
-			return new RReferenceVar(in, flags, this, parent, name);
+			return new RReferenceVar(io, this, parent, name);
 		case RObject.TYPE_S4OBJECT:
-			return new RS4ObjectVar(in, flags, this, parent, name);
+			return new RS4ObjectVar(io, this, parent, name);
 		case RObject.TYPE_OTHER:
-			return new ROtherVar(in, flags, this, parent, name);
+			return new ROtherVar(io, this, parent, name);
 		case RObject.TYPE_MISSING:
 			return new RMissingVar(parent, name);
 		default:
@@ -67,12 +67,12 @@ public class CombinedFactory extends RObjectFactoryImpl {
 	}
 	
 	@Override
-	public RList readAttributeList(final ObjectInput in, final int flags) throws IOException, ClassNotFoundException {
-		return readAttributeList(in, flags, null, null);
+	public RList readAttributeList(final RJIO io) throws IOException {
+		return readAttributeList(io, null, null);
 	}
 	
-	public RList readAttributeList(final ObjectInput in, final int flags, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
-		return new RListVar(in, flags, this, parent, name);
+	public RList readAttributeList(final RJIO io, final CombinedElement parent, final RElementName name) throws IOException {
+		return new RListVar(io, this, parent, name);
 	}
 	
 //	public void setElementName(final CombinedElement element, final String name) {

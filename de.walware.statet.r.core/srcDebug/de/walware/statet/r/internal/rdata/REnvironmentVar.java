@@ -12,8 +12,6 @@
 package de.walware.statet.r.internal.rdata;
 
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,12 +21,12 @@ import de.walware.ecommons.ConstList;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.REnvironment;
+import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.ExternalizableRObject;
 import de.walware.rj.data.defaultImpl.RCharacterDataImpl;
-import de.walware.rj.data.defaultImpl.RUniqueCharacterDataWithHashImpl;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
@@ -44,85 +42,80 @@ public final class REnvironmentVar extends CombinedElement
 	private String fCombinedName;
 	protected String fEnvironmentName;
 	private int fSpecialType;
-	private long fHandle;
-	private int fLength;
-	protected CombinedElement[] fComponents;
-	protected RCharacterDataImpl fNamesAttribute;
-	private int fFrameType;
+	private long handle;
 	
-	private String fClassName;
+	private CombinedElement[] components;
+	private int length;
+	
+	private String className1;
+	private RCharacterDataImpl namesAttribute;
+	
+	private int fFrameType;
 	
 	
 	public REnvironmentVar(final String id, final boolean isSearch) {
 		setEnvName(id, isSearch);
 	}
 	
-	public REnvironmentVar(final String id, final int handle, final CombinedElement[] initialComponents, String[] initialNames,
-			final CombinedElement parent, final RElementName name) {
+	public REnvironmentVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
 		fParent = parent;
 		fElementName = name;
-		setEnvName(id, false);
-		fHandle = handle;
-		fComponents = initialComponents;
-		if (initialNames == null) {
-			initialNames = new String[fComponents.length];
-		}
-		fNamesAttribute = new RUniqueCharacterDataWithHashImpl(initialNames);
-		fClassName = RObject.CLASSNAME_ENV;
-	}
-	
-	public REnvironmentVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
-		fParent = parent;
-		fElementName = name;
-		readExternal(in, flags, factory);
+		readExternal(io, factory);
 		if (fElementName == null) {
 			fElementName = RElementName.create(RElementName.MAIN_OTHER, fEnvironmentName);
 		}
 	}
 	
-	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
-		final int options = in.readInt();
+	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		//-- options
+		final int options = io.in.readInt();
+		//-- special attributes
+		this.className1 = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
+				io.readString() : RObject.CLASSNAME_ENV;
+		//-- data
+		this.handle = io.in.readLong();
+		setEnvName(io.readString(), false);
+		final int length = this.length = io.in.readInt();
 		
-		fClassName = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
-				in.readUTF() : RObject.CLASSNAME_ENV;
-				
-		fHandle = in.readLong();
-		setEnvName(in.readUTF(), false);
-		final int length = fLength = in.readInt();
-		
-		if ((options & RObjectFactory.O_NO_CHILDREN) == 0) {
-			fNamesAttribute = new RUniqueCharacterDataWithHashImpl(in);
-			fComponents = new CombinedElement[length];
+		if ((options & RObjectFactory.O_NO_CHILDREN) != 0) {
+			this.namesAttribute = null;
+			this.components = null;
+		}
+		else {
+			this.namesAttribute = new RCharacterDataImpl(io);
+			this.components = new CombinedElement[length];
 			for (int i = 0; i < length; i++) {
-				fComponents[i] = CombinedFactory.INSTANCE.readObject(in, flags, this,
-						RElementName.create(RElementName.MAIN_DEFAULT, fNamesAttribute.getChar(i)) );
+				components[i] = CombinedFactory.INSTANCE.readObject(io, this,
+						RElementName.create(RElementName.MAIN_DEFAULT, namesAttribute.getChar(i)) );
 			}
 		}
 	}
 	
-	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
+	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		//-- options
 		int options = 0;
-		final boolean customClass = !fClassName.equals(RObject.CLASSNAME_ENV);
+		final boolean customClass = !this.className1.equals(RObject.CLASSNAME_ENV);
 		if (customClass) {
 			options |= RObjectFactory.O_CLASS_NAME;
 		}
-		if (fComponents == null) {
+		if (this.components == null) {
 			options |= RObjectFactory.O_NO_CHILDREN;
 		}
-		out.writeInt(options);
-		
+		io.out.writeInt(options);
+		//-- special attributes
 		if (customClass) {
-			out.writeUTF(fClassName);
+			io.writeString(this.className1);
 		}
 		
-		out.writeLong(fHandle);
-		out.writeUTF(fCombinedName);
-		out.writeInt(fLength);
+		io.out.writeLong(this.handle);
+		io.writeString(fCombinedName);
+		io.out.writeInt(this.length);
 		
-		if (fComponents != null) {
-			fNamesAttribute.writeExternal(out);
-			for (int i = 0; i < fComponents.length; i++) {
-				factory.writeObject(fComponents[i], out, flags);
+		if (this.components != null) {
+			this.namesAttribute.writeExternal(io);
+			//-- data
+			for (int i = 0; i < this.length; i++) {
+				factory.writeObject(this.components[i], io);
 			}
 		}
 	}
@@ -175,79 +168,61 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
+	
 	public final byte getRObjectType() {
 		return TYPE_ENV;
 	}
 	
 	public String getRClassName() {
-		return fClassName;
+		return this.className1;
 	}
 	
-	public long getHandle() {
-		return fHandle;
+	
+	public int getSpecialType() {
+		return fSpecialType;
 	}
 	
 	public String getEnvironmentName() {
 		return fEnvironmentName;
 	}
 	
-	public int getSpecialType() {
-		return fSpecialType;
+	public long getHandle() {
+		return this.handle;
 	}
 	
+	
 	public int getLength() {
-		return fLength;
+		return this.length;
 	}
 	
 	public RCharacterStore getNames() {
-		return fNamesAttribute;
+		return this.namesAttribute;
 	}
 	
 	public String getName(final int idx) {
-		return fNamesAttribute.getChar(idx);
+		return this.namesAttribute.getChar(idx);
 	}
 	
 	public RObject get(final int idx) {
-		return fComponents[idx];
+		return this.components[idx];
 	}
-	
-	public boolean set(final int idx, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void insert(final int idx, final String label, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void add(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void remove(final int idx) {
-		throw new UnsupportedOperationException();
-	}
-	
 	
 	public RObject get(final String name) {
-		final int idx = fNamesAttribute.indexOf(name);
+		final int idx = this.namesAttribute.indexOf(name);
 		if (idx >= 0) {
-			return fComponents[idx];
+			return this.components[idx];
 		}
 		return null;
 	}
 	
-	public boolean set(final String name, final RObject component) {
-		throw new UnsupportedOperationException();
+	public RObject[] toArray() {
+		final RObject[] array = new RObject[this.length];
+		System.arraycopy(this.components, 0, array, 0, this.length);
+		return array;
 	}
 	
 	public RStore getData() {
 		return null;
-	}
-	
-	public RObject[] toArray() {
-		final RObject[] array = new RObject[fComponents.length];
-		System.arraycopy(fComponents, 0, array, 0, fComponents.length);
-		return array;
 	}
 	
 	
@@ -257,14 +232,14 @@ public final class REnvironmentVar extends CombinedElement
 	
 	
 	public boolean hasModelChildren(final Filter filter) {
-		if (fComponents == null) {
+		if (this.components == null) {
 			return false;
 		}
 		if (filter == null) {
-			return (fComponents.length > 0);
+			return (this.components.length > 0);
 		}
 		else {
-			for (final CombinedElement component : fComponents) {
+			for (final CombinedElement component : this.components) {
 				if (filter.include(component)) {
 					return true;
 				}
@@ -274,15 +249,15 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	public List<? extends IRLangElement> getModelChildren(final Filter filter) {
-		if (fComponents == null) {
+		if (this.components == null) {
 			return Collections.emptyList();
 		}
 		if (filter == null) {
-			return new ConstList<IRLangElement>(fComponents);
+			return new ConstList<IRLangElement>(this.components);
 		}
 		else {
 			final List<CombinedElement> list = new ArrayList<CombinedElement>();
-			for (final CombinedElement component : fComponents) {
+			for (final CombinedElement component : this.components) {
 				if (filter.include(component)) {
 					list.add(component);
 				}
@@ -301,14 +276,43 @@ public final class REnvironmentVar extends CombinedElement
 	}
 	
 	public boolean containsElement(final String name) {
-		return fNamesAttribute.contains(name);
+		return this.namesAttribute.contains(name);
 	}
+	
+	
+	@Override
+	public Object getAdapter(final Class required) {
+		if (IRFrame.class.equals(required)) {
+			return this;
+		}
+		return super.getAdapter(required);
+	}
+	
+	public void setError(final String message) {
+		fElementName = RElementName.create(RElementName.MAIN_OTHER, fEnvironmentName);
+		this.components = new CombinedElement[0];
+		this.namesAttribute = new RCharacterDataImpl();
+		fCombinedName = fCombinedName + " ("+message+")";
+	}
+	
+	
+	public String getFrameId() {
+		return null;
+	}
+	
+	public List<? extends IRElement> getModelElements() {
+		return null;
+	}
+	
+	public List<? extends IRFrame> getPotentialParents() {
+		return null;
+	}
+	
 	
 	@Override
 	protected int singleHash() {
-		return (fSpecialType > 0) ? fEnvironmentName.hashCode() : (int) fHandle;
+		return (fSpecialType > 0) ? fEnvironmentName.hashCode() : (int) this.handle;
 	}
-	
 	
 	@Override
 	public boolean equals(final Object obj) {
@@ -328,46 +332,18 @@ public final class REnvironmentVar extends CombinedElement
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("RObject type=environment, class=").append(getRClassName());
-		sb.append("\n\tlength=").append(fLength);
-		if (fComponents != null) {
+		sb.append("\n\tlength=").append(this.length);
+		if (this.components != null) {
 			sb.append("\n\tdata: ");
-			for (int i = 0; i < fLength; i++) {
-				sb.append("\n$").append(fNamesAttribute.getChar(i)).append("\n");
-				sb.append(fComponents[i]);
+			for (int i = 0; i < this.length; i++) {
+				sb.append("\n$").append(this.namesAttribute.getChar(i)).append("\n");
+				sb.append(this.components[i]);
 			}
 		}
 		else {
 			sb.append("\n<NODATA/>");
 		}
 		return sb.toString();
-	}
-	
-	@Override
-	public Object getAdapter(final Class required) {
-		if (IRFrame.class.equals(required)) {
-			return this;
-		}
-		return super.getAdapter(required);
-	}
-	
-	public void setError(final String message) {
-		fElementName = RElementName.create(RElementName.MAIN_OTHER, fEnvironmentName);
-		fComponents = new CombinedElement[0];
-		fNamesAttribute = new RCharacterDataImpl();
-		fCombinedName = fCombinedName + " ("+message+")";
-	}
-	
-	
-	public String getFrameId() {
-		return null;
-	}
-	
-	public List<? extends IRElement> getModelElements() {
-		return null;
-	}
-	
-	public List<? extends IRFrame> getPotentialParents() {
-		return null;
 	}
 	
 }

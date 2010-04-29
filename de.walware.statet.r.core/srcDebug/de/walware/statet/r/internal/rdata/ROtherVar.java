@@ -12,20 +12,22 @@
 package de.walware.statet.r.internal.rdata;
 
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.util.Collections;
 import java.util.List;
 
+import de.walware.rj.data.RJIO;
 import de.walware.rj.data.RList;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RStore;
+import de.walware.rj.data.defaultImpl.ExternalizableRObject;
+import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
 
 
-public final class ROtherVar extends CombinedElement {
+public final class ROtherVar extends CombinedElement
+		implements ExternalizableRObject {
 	
 	
 	private String fClassName;
@@ -40,26 +42,26 @@ public final class ROtherVar extends CombinedElement {
 		fClassName = className;
 	}
 	
-	public ROtherVar(final ObjectInput in, final int flags, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException, ClassNotFoundException {
+	public ROtherVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
 		fParent = parent;
 		fElementName = name;
-		readExternal(in, flags, factory);
+		readExternal(io, factory);
 	}
 	
-	public void readExternal(final ObjectInput in, final int flags, final RObjectFactory factory) throws IOException, ClassNotFoundException {
-		final int options = in.readInt();
-		fClassName = in.readUTF();
-		if ((options & RObjectFactory.F_WITH_ATTR) != 0) {
-			fAttributes = factory.readAttributeList(in, flags);
+	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		final int options = io.in.readInt();
+		fClassName = io.readString();
+		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {
+			fAttributes = factory.readAttributeList(io);
 		}
 	}
 	
-	public void writeExternal(final ObjectOutput out, final int flags, final RObjectFactory factory) throws IOException {
-		final boolean withAttr = ((flags & RObjectFactory.F_WITH_ATTR) != 0) && (fAttributes != null);
-		out.writeInt((withAttr) ? RObjectFactory.F_WITH_ATTR : 0);
-		out.writeUTF(fClassName);
+	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
+		final boolean withAttr = ((io.flags & RObjectFactoryImpl.F_WITH_ATTR) != 0) && (fAttributes != null);
+		io.out.writeInt((withAttr) ? RObjectFactoryImpl.F_WITH_ATTR : 0);
+		io.writeString(fClassName);
 		if (withAttr) {
-			factory.writeAttributeList(fAttributes, out, flags);
+			factory.writeAttributeList(fAttributes, io);
 		}
 	}
 	
