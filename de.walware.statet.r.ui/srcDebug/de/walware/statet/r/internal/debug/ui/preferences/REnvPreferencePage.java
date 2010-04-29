@@ -153,6 +153,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 							.newConfiguration(IREnvConfiguration.USER_LOCAL_TYPE);
 					if (edit(config, true)) {
 						fList.add(config);
+						fListButtons.setDirty(true);
 						fListViewer.refresh();
 					}
 				}
