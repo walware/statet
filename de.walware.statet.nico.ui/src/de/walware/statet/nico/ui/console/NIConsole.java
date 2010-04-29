@@ -26,6 +26,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -194,8 +195,14 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		}
 		fDebugListener = null;
 		
-		PreferencesUtil.getSettingsChangeNotifier().removeChangeListener(fSettingsListener);
-		JFaceResources.getFontRegistry().removeListener(fSettingsListener);
+		final SettingsChangeNotifier changeNotifier = PreferencesUtil.getSettingsChangeNotifier();
+		if (changeNotifier != null) {
+			changeNotifier.removeChangeListener(fSettingsListener);
+		}
+		final FontRegistry fontRegistry = JFaceResources.getFontRegistry();
+		if (fontRegistry != null) {
+			fontRegistry.removeListener(fSettingsListener);
+		}
 		
 		disconnect();
 	}

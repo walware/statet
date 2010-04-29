@@ -91,7 +91,9 @@ public abstract class ToolRetargetableHandler extends AbstractHandler implements
 		fState = S_INIT;
 		fServiceLocator = serviceLocator;
 		fToolProvider = toolProvider;
-		fToolProvider.addToolRetargetable(this);
+		if (fToolProvider != null) {
+			fToolProvider.addToolRetargetable(this);
+		}
 	}
 	
 	/**

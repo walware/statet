@@ -212,14 +212,14 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					return;
 				}
 			}
-			RCorePlugin.log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
+			log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
 					NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); 
 			cmd.setAnswer(RjsStatus.CANCEL_STATUS);
 		}
 		
 		@Override
 		protected void log(final IStatus status) {
-			RCorePlugin.getDefault().getLog().log(status);
+			RCorePlugin.log(status);
 		}
 		
 		@Override
