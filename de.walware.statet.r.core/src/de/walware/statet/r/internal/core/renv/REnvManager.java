@@ -212,7 +212,8 @@ public class REnvManager implements IREnvManager {
 		// init config list
 		fNameMap = new HashMap<String, IREnv>();
 		fIdMap = new HashMap<String, IREnvConfiguration>();
-		fNames = new TreeSet<String>(Collator.getInstance());
+		fNames = new HashSet<String>();
+		
 		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
 		final List<IREnvConfiguration>configs = new ArrayList<IREnvConfiguration>();
 		final IEclipsePreferences[] scopes = prefs.getPreferenceNodes(CAT_R_ENVIRONMENTS_QUALIFIER);
@@ -312,15 +313,15 @@ public class REnvManager implements IREnvManager {
 		}
 	}
 	
-	public String[] getNames() {
-		checkAndLock(false);
-		try {
-			return fNames.toArray(new String[fNames.size()]);
-		}
-		finally {
-			fLock.readLock().unlock();
-		}
-	}
+//	public String[] getNames() {
+//		checkAndLock(false);
+//		try {
+//			return fNames.toArray(new String[fNames.size()]);
+//		}
+//		finally {
+//			fLock.readLock().unlock();
+//		}
+//	}
 	
 	public IREnvConfiguration[] getConfigurations() {
 		checkAndLock(false);

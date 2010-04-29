@@ -12,9 +12,13 @@
 package de.walware.statet.r.internal.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.ibm.icu.text.Collator;
 
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
@@ -52,6 +56,13 @@ import de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage;
  * Composite to choose a configured R Environment.
  */
 public class REnvSelectionComposite extends Composite implements ISettingsChangedHandler {
+	
+	
+	private static final Comparator<IREnv> RENV_COMPARATOR = new Comparator<IREnv>() {
+		public int compare(IREnv o1, IREnv o2) {
+			return Collator.getInstance().compare(o1.getName(), o2.getName());
+		}
+	};
 	
 	
 	public static IREnv compatDecode(final String encodedSetting) {
@@ -281,6 +292,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 			final IREnv defaultEnv = manager.getDefault();
 			final IREnvConfiguration[] list = manager.getConfigurations();
 			fValidREnvs = getValidREnvs(list);
+			Collections.sort(fValidREnvs, RENV_COMPARATOR);
 			final String[] validNames = new String[fValidREnvs.size()];
 			for (int i = 0; i < validNames.length; i++) {
 				validNames[i] = fValidREnvs.get(i).getName();
