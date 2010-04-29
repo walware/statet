@@ -21,6 +21,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.BooleanPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
@@ -42,8 +43,10 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 	public static final String REDITOR_NODE = RUI.PLUGIN_ID + "/editor.r/options"; //$NON-NLS-1$
 	public static final String RCONSOLE_NODE = RUI.PLUGIN_ID + '/'+NicoPreferenceNodes.SCOPE_QUALIFIER+ "/editor.r/options"; // NicoPreferenceNodes.createScopeQualifier(REDITOR_NODE); //$NON-NLS-1$
 	
-	public static final String REDITOR_ASSIST_GROUP_ID = "r/r.editor/assist";
-	public static final String RCONSOLE_ASSIST_GROUP_ID = "r/r.console/assist";
+	public static final String REDITOR_ASSIST_GROUP_ID = "r/r.editor/assist"; //$NON-NLS-1$
+	public static final String RCONSOLE_ASSIST_GROUP_ID = "r/r.console/assist"; //$NON-NLS-1$
+	
+	public static final String REDITOR_HOVER_GROUP_ID = "r/r.editor/hover"; //$NON-NLS-1$
 	
 	public static final BooleanPref CONSOLE_SMARTINSERT_CLOSECURLY_ENABLED = new BooleanPref(
 			RCONSOLE_NODE, "smartinsert.close_curlybrackets.enabled"); //$NON-NLS-1$
@@ -84,6 +87,11 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true,r-elements.runtime:true"); //$NON-NLS-1$
 		defaultScope.getNode(REDITOR_NODE).put(ContentAssistComputerRegistry.DEFAULT_DISABLED, "r-elements.runtime"); //$NON-NLS-1$
 		defaultScope.getNode(RCONSOLE_NODE).put(ContentAssistComputerRegistry.CIRCLING_ORDERED, "r-elements:false,templates:true"); //$NON-NLS-1$
+		
+		defaultScope.getNode(REDITOR_NODE).put(InfoHoverRegistry.TYPE_SETTINGS,
+				"de.walware.statet.r.contentInfoHover.RCombinedHover:true;," + //$NON-NLS-1$
+				"de.walware.statet.r.contentInfoHover.RHelpHover:false;," + //$NON-NLS-1$
+				"de.walware.statet.r.contentInfoHover.RDebugHover:true;M2"); //$NON-NLS-1$
 		
 		final IEclipsePreferences rHelp = defaultScope.getNode(RHelpPreferences.RHELP_QUALIFIER);
 		rHelp.put(RHelpPreferences.HOMEPAGE_URL_KEY, IRHelpManager.PORTABLE_DEFAULT_RENV_BROWSE_URL);

@@ -27,19 +27,34 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.Region;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.part.IShowInTarget;
+import org.eclipse.ui.part.ShowInContext;
 import org.eclipse.ui.services.IServiceLocator;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ltk.ast.AstSelection;
+import de.walware.ecommons.ltk.ui.ISelectionWithElementInfoListener;
+import de.walware.ecommons.ltk.ui.LTKInputData;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerCollection;
+import de.walware.ecommons.ui.actions.SimpleContributionItem;
 import de.walware.ecommons.ui.mpbv.BookmarkCollection;
 import de.walware.ecommons.ui.mpbv.BrowserBookmark;
 import de.walware.ecommons.ui.mpbv.BrowserSession;
@@ -48,12 +63,21 @@ import de.walware.ecommons.ui.mpbv.PageBookBrowserView;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.renv.IREnv;
+import de.walware.statet.r.core.rhelp.IREnvHelp;
+import de.walware.statet.r.core.rhelp.IRHelpManager;
+import de.walware.statet.r.core.rhelp.IRHelpPage;
+import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
-public class RHelpView extends PageBookBrowserView {
+public class RHelpView extends PageBookBrowserView
+		implements ISelectionWithElementInfoListener, IShowInTarget {
 	
 	
 	public class RunCode extends AbstractHandler {
@@ -99,11 +123,40 @@ public class RHelpView extends PageBookBrowserView {
 		
 	}
 	
+	private class LinkEditorHandler extends SimpleContributionItem {
+		
+		public LinkEditorHandler() {
+			super(SharedUIResources.getImages().getDescriptor(SharedUIResources.LOCTOOL_SYNCHRONIZED_IMAGE_ID), null,
+					"Link with Editor", null, STYLE_CHECK);
+		}
+		
+		@Override
+		protected void execute() throws ExecutionException {
+			setLinkingWithEditor(!fIsLinkingWithEditor);
+		}
+		
+	}
+	
+	
+	private boolean fIsLinkingWithEditor;
+	private final LinkEditorHandler fLinkingWithEditorHandler = new LinkEditorHandler();
+	private SourceEditor1 fLinkedEditor;
+	
 	
 	public RHelpView() {
 		super();
 	}
 	
+	
+	@Override
+	public void dispose() {
+		if (fLinkedEditor != null) {
+			fLinkedEditor.removePostSelectionWithElementInfoListener(this);
+			fLinkedEditor = null;
+		}
+		
+		super.dispose();
+	}
 	
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -135,6 +188,42 @@ public class RHelpView extends PageBookBrowserView {
 			};
 			job.schedule(50);
 		}
+		
+		getSite().getPage().addPartListener(new IPartListener2() {
+			public void partOpened(final IWorkbenchPartReference partRef) {
+			}
+			public void partClosed(final IWorkbenchPartReference partRef) {
+				if (fLinkedEditor != null && partRef.getPart(false) == fLinkedEditor) {
+					clear();
+				}
+			}
+			public void partVisible(final IWorkbenchPartReference partRef) {
+			}
+			public void partHidden(final IWorkbenchPartReference partRef) {
+			}
+			public void partInputChanged(final IWorkbenchPartReference partRef) {
+			}
+			public void partActivated(final IWorkbenchPartReference partRef) {
+				final IWorkbenchPart part = partRef.getPart(false);
+				if (part instanceof SourceEditor1) {
+					fLinkedEditor = (SourceEditor1) part;
+					fLinkedEditor.addPostSelectionWithElementInfoListener(RHelpView.this);
+				}
+				else if (part instanceof IEditorPart) {
+					clear();
+				}
+			}
+			public void partDeactivated(final IWorkbenchPartReference partRef) {
+			}
+			public void partBroughtToTop(final IWorkbenchPartReference partRef) {
+			}
+			private void clear() {
+				if (fLinkedEditor != null) {
+					fLinkedEditor.removePostSelectionWithElementInfoListener(RHelpView.this);
+					fLinkedEditor = null;
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -165,6 +254,7 @@ public class RHelpView extends PageBookBrowserView {
 				null, null, null,
 				null, null, null,
 				CommandContributionItem.STYLE_PUSH, null, false)));
+		toolBarManager.add(fLinkingWithEditorHandler);
 	}
 	
 	@Override
@@ -225,6 +315,117 @@ public class RHelpView extends PageBookBrowserView {
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		pageIds.add("de.walware.statet.r.preferencePages.RHelpPage"); //$NON-NLS-1$
 		pageIds.add("de.walware.statet.r.preferencePages.REnvironmentPage"); //$NON-NLS-1$
+	}
+	
+	
+	public void setLinkingWithEditor(final boolean enable) {
+		fIsLinkingWithEditor = enable;
+		fLinkingWithEditorHandler.setChecked(enable);
+		if (enable && fLinkedEditor != null) {
+			final ISelection selection = fLinkedEditor.getShowInContext().getSelection();
+			if (selection instanceof LTKInputData) {
+				stateChanged((LTKInputData) selection);
+			}
+		}
+	}
+	
+	public void inputChanged() {
+	}
+	
+	public void stateChanged(final LTKInputData state) {
+		if (!fIsLinkingWithEditor) {
+			return;
+		}
+		show(state, false);
+	}
+	
+	private boolean show(final LTKInputData state, final boolean explicite) {
+		if (state.getInputElement().getModelTypeId() == RModel.TYPE_ID) {
+			final AstSelection astSelection = state.getAstSelection();
+			final ISelection selection = state.getSelection();
+			if (astSelection != null && selection instanceof ITextSelection) {
+				final ITextSelection textSelection = (ITextSelection) selection;
+				if (!(astSelection.getCovering() instanceof RAstNode) || textSelection.getLength() > 0) {
+					return false;
+				}
+				final RAstNode rNode = (RAstNode) astSelection.getCovering();
+				RElementName name = null;
+				if (!rNode.hasChildren()) {
+					name = RHelpHover.searchName(rNode, rNode);
+				}
+				if (name == null) {
+					name = RHelpHover.searchNameOfFunction(rNode,
+							new Region(textSelection.getOffset(), textSelection.getLength()) );
+				}
+				if (name == null) {
+					return false;
+				}
+				final IREnv rEnv = RCore.getREnvManager().getDefault();
+				if (rEnv == null) {
+					return false;
+				}
+				final IRHelpManager rHelpManager = RCore.getRHelpManager();
+				final IREnvHelp help = rHelpManager.getHelp(rEnv);
+				if (help != null) {
+					final String url;
+					if (name.getType() == RElementName.MAIN_PACKAGE) {
+						final IRPackageHelp packageHelp = help.getRPackage(name.getSegmentName());
+						if (packageHelp != null) {
+							url = rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
+						}
+						else {
+							url = null;
+						}
+					}
+					else {
+						final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
+						if (topics.size() == 1) {
+							url = rHelpManager.getPageHttpUrl(topics.get(0), RHelpUIServlet.BROWSE_TARGET);
+						}
+						else if (topics.size() > 1) {
+							url = rHelpManager.toHttpUrl("rhelp:///topic/"+name.getSegmentName(), rEnv,
+									RHelpUIServlet.BROWSE_TARGET);
+						}
+						else {
+							url = null;
+						}
+					}
+					if (url != null) {
+						UIAccess.getDisplay().asyncExec(new Runnable() {
+							public void run() {
+								if ((explicite || fLinkedEditor != null
+										&& fLinkedEditor == fLinkedEditor.getSite().getPage().getActiveEditor())
+										&& getPageBook() != null && !getPageBook().isDisposed()) {
+									final BrowserSession session = getCurrentSession();
+									if (session == null || !url.equals(session.getUrl())) {
+										openUrl(url, session);
+									}
+								}
+							}
+						});
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	
+	@Override
+	public Object getAdapter(final Class required) {
+		if (IShowInTarget.class.equals(required)) {
+			return this;
+		}
+		return super.getAdapter(required);
+	}
+	
+	public boolean show(final ShowInContext context) {
+		final ISelection selection = context.getSelection();
+		if (selection instanceof LTKInputData) {
+			return show((LTKInputData) selection, true);
+		}
+		return false;
 	}
 	
 }

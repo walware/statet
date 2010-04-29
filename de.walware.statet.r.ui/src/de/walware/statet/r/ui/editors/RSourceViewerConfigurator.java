@@ -38,6 +38,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
+import de.walware.statet.r.internal.ui.RUIPreferenceInitializer;
 
 
 /**
@@ -148,6 +149,9 @@ public class RSourceViewerConfigurator extends SourceEditorViewerConfigurator
 		if (groupIds.contains(REditorOptions.GROUP_ID) && fRealEditor != null) {
 			fUpdateCompleteConfig = true;
 			SpellingProblem.removeAllInActiveEditor(fRealEditor, null);
+		}
+		if (groupIds.contains(RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID)) {
+			updateConfiguredInfoHovers();
 		}
 		options.put(ISettingsChangedHandler.VIEWER_KEY, viewer);
 		fConfig.handleSettingsChanged(groupIds, options);

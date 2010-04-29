@@ -129,7 +129,7 @@ import de.walware.statet.r.core.RElementComparator;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.internal.debug.ui.REditorDebugHover;
+import de.walware.statet.r.internal.debug.ui.RDebugHover;
 import de.walware.statet.r.internal.debug.ui.RElementInfoHoverCreator;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunPrintInR;
@@ -1088,7 +1088,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		@Override
 		protected Object getHoverInformation(final Object element) {
 			if (element instanceof IElementName) {
-				return REditorDebugHover.getElementDetail((RElementName) element, getSubjectControl(), ObjectBrowserView.this);
+				return RDebugHover.getElementDetail((RElementName) element, getSubjectControl(), ObjectBrowserView.this);
 			}
 			return null;
 		}

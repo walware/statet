@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.ui.editors;
 import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 
 import de.walware.ecommons.ltk.IModelManager;
@@ -32,6 +33,10 @@ public class RAssistInvocationContext extends AssistInvocationContext {
 	
 	public RAssistInvocationContext(final ISourceEditor editor, final int offset, final boolean isProposal) {
 		super(editor, offset, (isProposal) ? IModelManager.MODEL_FILE : IModelManager.NONE);
+	}
+	
+	public RAssistInvocationContext(final ISourceEditor editor, final IRegion region) {
+		super(editor, region, IModelManager.MODEL_FILE);
 	}
 	
 	

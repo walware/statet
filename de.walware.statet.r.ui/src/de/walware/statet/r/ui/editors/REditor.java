@@ -39,6 +39,7 @@ import org.eclipse.swt.events.HelpListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItem;
@@ -86,6 +87,7 @@ import de.walware.statet.r.internal.ui.editors.REditorTemplatesPage;
 import de.walware.statet.r.internal.ui.editors.ROutlinePage;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RCodeLaunching;
+import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIHelp;
 
 
@@ -499,7 +501,7 @@ public class REditor extends SourceEditor1 {
 		markAsContentDependentAction(action.getId(), true);
 		
 		final SpecificContentAssistHandler handler = new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
-		handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler); //$NON-NLS-1$
+		handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);
 	}
 	
 	@Override
@@ -549,6 +551,11 @@ public class REditor extends SourceEditor1 {
 	@Override
 	protected ITemplatesPage createTemplatesPage() {
 		return new REditorTemplatesPage(this, getSourceViewer());
+	}
+	
+	@Override
+	public String[] getShowInTargetIds() {
+		return new String[] { IPageLayout.ID_PROJECT_EXPLORER, IPageLayout.ID_OUTLINE, RUI.R_HELP_VIEW_ID };
 	}
 	
 }

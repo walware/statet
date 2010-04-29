@@ -157,6 +157,41 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		
 	}
 	
+	public static class Info extends RHelpUIServlet {
+		
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		protected void collectCss(final StringBuilder sb) {
+			final Display display = Display.getCurrent();
+			final FontDescriptor docFontDescr = JFaceResources.getDialogFontDescriptor();
+			final FontData fontData = docFontDescr.getFontData()[0];
+			final Color infoForegroundColor = display.getSystemColor(SWT.COLOR_INFO_FOREGROUND);
+			final Color infoBackgroundColor = display.getSystemColor(SWT.COLOR_INFO_BACKGROUND);
+			final int vIndent = Math.max(1, LayoutUtil.defaultVSpacing() / 4);
+			final int hIndent = Math.max(3, LayoutUtil.defaultHSpacing() / 2);
+			sb.append("body { font-family: '"); //$NON-NLS-1$
+			sb.append(fontData.getName());
+			sb.append("'; font-size: "); //$NON-NLS-1$
+			sb.append(fontData.getHeight());
+			sb.append("pt; color: "); //$NON-NLS-1$
+			appendCssColor(sb, infoForegroundColor);
+			sb.append("; background: "); //$NON-NLS-1$
+			appendCssColor(sb, infoBackgroundColor);
+			sb.append("; margin: 0 "); //$NON-NLS-1$
+			sb.append(hIndent);
+			sb.append("px "); //$NON-NLS-1$
+			sb.append(vIndent);
+			sb.append("px; }\n" + //$NON-NLS-1$
+					"hr { visibility:hidden; }\n" + //$NON-NLS-1$
+					"h2, h3#description { display: none; }\n" + //$NON-NLS-1$
+					"h3 { font-size: 90%; margin-bottom: 0.4em; }\n" + //$NON-NLS-1$
+					"p, pre { margin-top: 0.4em; margin-bottom: 0.4em; }\n" ); //$NON-NLS-1$
+			super.collectCss(sb);
+		}
+		
+	}
+	
 	
 	private String fCssStyle;
 	
@@ -275,6 +310,10 @@ public class RHelpUIServlet extends RHelpServlet implements IPropertyChangeListe
 		writer.println("} return true; }"); //$NON-NLS-1$
 		writer.println("document.onkeydown = keyNavHandler;"); //$NON-NLS-1$
 		writer.println("/* ]]> */</script>"); //$NON-NLS-1$
+		
+		if ("hover".equals(req.getParameter("style"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			writer.println("<style type=\"text/css\">body { overflow: hidden; }</style>"); //$NON-NLS-1$
+		}
 	}
 	
 	@Override

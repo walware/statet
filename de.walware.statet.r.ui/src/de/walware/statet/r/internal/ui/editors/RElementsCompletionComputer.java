@@ -65,9 +65,9 @@ import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FCall;
+import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
-import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
@@ -809,7 +809,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			FCall fcallNode = null;
 			if (rnode.getNodeType() == NodeType.F_CALL
 					&& (fcallOpen == (fcallNode = ((FCall) rnode)).getArgsOpenOffset())) {
-				final Object[] attachments = fcallNode.getRefChild().getAttachments();
+				final Object[] attachments = fcallNode.getAttachments();
 				for (int i = 0; i < attachments.length; i++) {
 					if (attachments[i] instanceof RElementAccess) {
 						final RElementAccess fcallAccess = (RElementAccess) attachments[i];

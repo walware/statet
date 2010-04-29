@@ -155,6 +155,27 @@
          </partition>
       </computer>
    </extension>
+   <extension
+         point="de.walware.ecommons.ltk.advancedInfoHover">
+      <hover
+            id="de.walware.statet.r.contentInfoHover.RCombinedHover"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            name="Combined Hover"
+            class="de.walware.ecommons.ltk.ui.sourceediting.CombinedHover">
+      </hover>
+      <hover
+            id="de.walware.statet.r.contentInfoHover.RHelpHover"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            name="R Help"
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpHover">
+      </hover>
+      <hover
+            id="de.walware.statet.r.contentInfoHover.RDebugHover"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            name="Element Info from R Console"
+            class="de.walware.statet.r.internal.debug.ui.RDebugHover">
+      </hover>
+   </extension>
 
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
@@ -544,6 +565,12 @@
             class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForREditor">
       </page>
       <page
+            id="de.walware.statet.r.preferencePages.REditorAdvancedInfoHoverPage"
+            category="de.walware.statet.base.preferencePages.Editors"
+            name="R Editor Hover"
+            class="de.walware.statet.r.internal.ui.editors.AdvancedInfoHoverConfigurationPage$ForREditor">
+      </page>
+      <page
             id="de.walware.statet.r.preferencePages.RConsoleAdvancedContentAssistPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Console Content Assist"
@@ -767,6 +794,11 @@
             alias="/browse"
             httpcontextId="rhelp"
             class="de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet$Browse">
+      </servlet>
+      <servlet
+            alias="/info"
+            httpcontextId="rhelp"
+            class="de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet$Info">
       </servlet>
    </extension>
    <extension

@@ -16,22 +16,16 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.Region;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPart;
 
 import de.walware.ecommons.ConstList;
-import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.ISourceUnitModelInfo;
 import de.walware.ecommons.ltk.ast.AstSelection;
-import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.IInfoHover;
 import de.walware.ecommons.text.TextUtil;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
@@ -50,17 +44,13 @@ import de.walware.rj.data.defaultImpl.RListImpl;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.core.model.RModel;
-import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
-import de.walware.statet.r.internal.ui.editors.ISourceEditorHover;
 import de.walware.statet.r.nico.IRCombinedDataAdapter;
 import de.walware.statet.r.nico.IRDataAdapter;
 import de.walware.statet.r.nico.RTool;
 
 
-public class REditorDebugHover implements ISourceEditorHover {
+public class RDebugHover implements IInfoHover {
 	
 	
 	private static class RUpdater implements IToolRunnable {
@@ -209,93 +199,36 @@ public class REditorDebugHover implements ISourceEditorHover {
 	}
 	
 	
-	private RHeuristicTokenScanner fScanner;
-	private ISourceEditor fEditor;
-	
 	private IInformationControlCreator fControlCreator;
 	
 	
-	public REditorDebugHover() {
+	public RDebugHover() {
 	}
 	
 	
-	private void init() {
-		if (fScanner == null) {
-			fScanner = new RHeuristicTokenScanner();
-			fControlCreator = new RElementInfoHoverCreator();
-		}
-	}
-	
-	public void setEditor(final ISourceEditor editor) {
-		fEditor = editor;
-	}
-	
-	public IRegion getHoverRegion(final int offset) {
-		init();
-		try {
-			final IDocument document = fEditor.getViewer().getDocument();
-			fScanner.configure(document);
-			final IRegion word = fScanner.findRWord(offset, false, true);
-			if (word != null) {
-				final ITypedRegion partition = fScanner.getPartition(word.getOffset());
-				if (fScanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partition.getType())
-						|| partition.getType() == IRDocumentPartitions.R_STRING
-						|| partition.getType() == IRDocumentPartitions.R_QUOTED_SYMBOL) {
-					return word;
+	public Object getHoverInfo(final AssistInvocationContext context) {
+		final AstSelection selection = context.getAstSelection();
+		RAstNode node = (RAstNode) selection.getCovering();
+		if (node != null) {
+			RElementAccess access = null;
+			while (node != null && access == null) {
+				if (Thread.interrupted()) {
+					return null;
 				}
-			}
-			final char c = document.getChar(offset);
-			if (c == '[') {
-				final ITypedRegion partition = fScanner.getPartition(offset);
-				if (fScanner.getPartitioningConfig().getDefaultPartitionConstraint().matches(partition.getType())) {
-					return new Region(offset, 1);
-				}
-			}
-		}
-		catch (final Exception e) {
-			// TODO
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public Object getHoverInfo(final IRegion hoverRegion) {
-		try {
-			// we are not in UI thread
-			final ISourceUnit su = fEditor.getSourceUnit();
-			if (su == null) {
-				return null;
-			}
-			final ISourceUnitModelInfo modelInfo = su.getModelInfo(RModel.TYPE_ID, IModelManager.MODEL_FILE, new NullProgressMonitor());
-			if (modelInfo == null) {
-				return null;
-			}
-			final AstSelection astSelection = AstSelection.search(modelInfo.getAst().root, hoverRegion.getOffset(), hoverRegion.getOffset()+hoverRegion.getLength(), AstSelection.MODE_COVERING_SAME_LAST);
-			RAstNode node = (RAstNode) astSelection.getCovering();
-			if (node != null) {
-				RElementAccess access = null;
-				while (node != null && access == null) {
-					if (Thread.interrupted()) {
-						return null;
-					}
-					final Object[] attachments = node.getAttachments();
-					for (int i = 0; i < attachments.length; i++) {
-						if (attachments[i] instanceof RElementAccess) {
-							access = (RElementAccess) attachments[i];
-							final RElementName e = getElementAccessOfRegion(access, hoverRegion);
-							if (Thread.interrupted() || e == null) {
-								return null;
-							}
-							return getElementDetail(e, fEditor.getViewer().getTextWidget(), fEditor.getWorkbenchPart());
+				final Object[] attachments = node.getAttachments();
+				for (int i = 0; i < attachments.length; i++) {
+					if (attachments[i] instanceof RElementAccess) {
+						access = (RElementAccess) attachments[i];
+						final RElementName e = getElementAccessOfRegion(access, context);
+						if (Thread.interrupted() || e == null) {
+							return null;
 						}
+						return getElementDetail(e, context.getSourceViewer().getTextWidget(),
+								context.getEditor().getWorkbenchPart());
 					}
-					node = node.getRParent();
 				}
+				node = node.getRParent();
 			}
-		}
-		catch (final Exception e) {
-			// TODO
-			e.printStackTrace();
 		}
 		return null;
 	}
@@ -307,7 +240,8 @@ public class REditorDebugHover implements ISourceEditorHover {
 			segmentCount++;
 			final RAstNode nameNode = current.getNameNode();
 			if (nameNode != null
-					&& (nameNode.getOffset() <= region.getOffset() && nameNode.getStopOffset() >= region.getOffset()+region.getLength()) ) {
+					&& nameNode.getOffset() <= region.getOffset()
+					&& nameNode.getStopOffset() >= region.getOffset()+region.getLength() ) {
 				final RElementName[] segments = new RElementName[segmentCount];
 				RElementAccess segment = access;
 				for (int i = 0; i < segments.length; i++) {
@@ -345,6 +279,9 @@ public class REditorDebugHover implements ISourceEditorHover {
 	}
 	
 	public IInformationControlCreator getHoverControlCreator() {
+		if (fControlCreator == null) {
+			fControlCreator = new RElementInfoHoverCreator();
+		}
 		return fControlCreator;
 	}
 	

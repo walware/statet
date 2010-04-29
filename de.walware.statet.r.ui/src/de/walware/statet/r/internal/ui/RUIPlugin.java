@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext;
 
 import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.PreferencesManageListener;
@@ -120,6 +121,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	private ContentAssistComputerRegistry fRConsoleContentAssistRegistry;
 	private ContentAssistComputerRegistry fREditorContentAssistRegistry;
+	private InfoHoverRegistry fREditorInfoHoverRegistry;
 	
 	private List<IDisposable> fDisposables;
 	
@@ -169,6 +171,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 			fREditorContextTypeRegistry = null;
 			fREditorContentAssistRegistry = null;
 			fRConsoleContentAssistRegistry = null;
+			fREditorInfoHoverRegistry = null;
 			final Iterator<PreferencesManageListener> iter = fPrefUpdaters.iterator();
 			while (iter.hasNext()) {
 				iter.next().dispose();
@@ -402,6 +405,15 @@ public class RUIPlugin extends AbstractUIPlugin {
 			fDisposables.add(fRConsoleContentAssistRegistry);
 		}
 		return fRConsoleContentAssistRegistry;
+	}
+	
+	public synchronized InfoHoverRegistry getREditorInfoHoverRegistry() {
+		if (fREditorInfoHoverRegistry == null) {
+			fREditorInfoHoverRegistry = new InfoHoverRegistry(IRSourceUnit.R_CONTENT,
+					RUIPreferenceInitializer.REDITOR_NODE, RUIPreferenceInitializer.REDITOR_HOVER_GROUP_ID);
+			fDisposables.add(fREditorInfoHoverRegistry);
+		}
+		return fREditorInfoHoverRegistry;
 	}
 	
 	public void registerPluginDisposable(final IDisposable d) {

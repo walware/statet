@@ -19,8 +19,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
-import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
@@ -40,6 +40,9 @@ import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistProcessor;
 import de.walware.ecommons.ltk.ui.sourceediting.EcoReconciler2;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverDescriptor;
+import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry;
+import de.walware.ecommons.ltk.ui.sourceediting.InfoHoverRegistry.EffectiveHovers;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.text.PairMatcher;
@@ -54,13 +57,14 @@ import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
-import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCodeStyleSettings.IndentationType;
+import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.editors.RContentAssistProcessor;
-import de.walware.statet.r.internal.ui.editors.REditorHover;
+import de.walware.statet.r.internal.ui.editors.REditorInformationProvider;
+import de.walware.statet.r.internal.ui.editors.REditorTextHover;
 import de.walware.statet.r.internal.ui.editors.RQuickAssistProcessor;
 import de.walware.statet.r.internal.ui.editors.RReconcilingStrategy;
 import de.walware.statet.r.ui.text.r.RBracketPairMatcher;
@@ -88,12 +92,10 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	private RDoubleClickStrategy fDoubleClickStrategy;
 	private RAutoEditStrategy fRAutoEditStrategy;
 	
-	private REditor fEditor;
+	private final REditor fEditor;
 	private IRCoreAccess fRCoreAccess;
 	
 	private boolean fHandleDefaultContentType;
-	
-	private ITextHover fTextHover;
 	
 	
 	public RSourceViewerConfiguration(
@@ -364,16 +366,29 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	@Override
-	public int[] getConfiguredTextHoverStateMasks(final ISourceViewer sourceViewer, final String contentType) {
-		return new int[] { ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK };
+	protected InfoHoverRegistry getInfoHoverRegistry() {
+		return RUIPlugin.getDefault().getREditorInfoHoverRegistry();
+	}
+	
+	@Override
+	protected IInformationProvider getInformationProvider() {
+		final ISourceEditor editor = getSourceEditor();
+		if (editor != null) {
+			return new REditorInformationProvider(editor);
+		}
+		return null;
 	}
 	
 	@Override
 	public ITextHover getTextHover(final ISourceViewer sourceViewer, final String contentType, final int stateMask) {
-		if (fTextHover == null && fEditor != null) {
-			fTextHover = new REditorHover(fEditor);
+		final EffectiveHovers effectiveHovers = getEffectiveHovers();
+		if (effectiveHovers != null) {
+			final InfoHoverDescriptor descriptor = effectiveHovers.getDescriptor(stateMask);
+			if (descriptor != null) {
+				return new REditorTextHover(descriptor, this);
+			}
 		}
-		return fTextHover;
+		return null;
 	}
 	
 	@Override

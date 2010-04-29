@@ -87,7 +87,7 @@ public class RElementInfoHoverCreator extends AbstractReusableInformationControl
 	protected IInformationControl doCreateInformationControl(final Shell parent) {
 		return (fEnrich) ? 
 				new RElementInfoControl(parent, true) :
-				new RElementInfoControl(parent, "");
+				new RElementInfoControl(parent);
 	}
 	
 }
@@ -115,8 +115,8 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	private boolean fInputChanged;
 	
 	
-	public RElementInfoControl(final Shell shell, final String message) {
-		super(shell, message);
+	public RElementInfoControl(final Shell shell) {
+		super(shell, "");
 		fMode = MODE_SIMPLE;
 		
 		JFaceResources.getFontRegistry().addListener(this);
@@ -160,7 +160,7 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 		fContentComposite.setLayout(gridLayout);
 		
 		final int vIndent = Math.max(1, LayoutUtil.defaultVSpacing() / 4);
-		final int hIndent = Math.max(2, LayoutUtil.defaultHSpacing() / 3);
+		final int hIndent = Math.max(3, LayoutUtil.defaultHSpacing() / 2);
 		
 		{	// Title image
 			fTitleImage = new Label(fContentComposite, SWT.NULL);
@@ -294,12 +294,8 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 	
 	@Override
 	public Point computeSizeConstraints(final int widthInChars, final int heightInChars) {
-		final GC gc= new GC(fContentComposite);
-		gc.setFont(JFaceResources.getDialogFont());
-		final int titleWidth = gc.getFontMetrics().getAverageCharWidth() * widthInChars;
+		final int titleWidth = LayoutUtil.hintWidth(fTitleText, JFaceResources.DIALOG_FONT, widthInChars);
 		final int titleHeight = fTitleText.getLineHeight();
-		gc.dispose();
-		
 		final int infoWidth = LayoutUtil.hintWidth(fInfoText, PREF_DETAIL_PANE_FONT, widthInChars);
 		final int infoHeight = fInfoText.getLineHeight() * (heightInChars);
 		
@@ -314,6 +310,13 @@ class RElementInfoControl extends AbstractInformationControl implements IInforma
 			if (fLayoutWorkaround) {
 				fContentComposite.layout(true, true);
 				fLayoutWorkaround = false;
+			}
+			
+			if ("win32".equals(SWT.getPlatform())) {
+				final Shell shell = getShell();
+				if (shell != null) {
+					shell.moveAbove(null);
+				}
 			}
 		}
 		super.setVisible(visible);

@@ -891,7 +891,7 @@ public class SourceAnalyzer extends RAstVisitor {
 	public void visit(final FCall node) throws InvocationTargetException {
 		// Resolve
 		final RAstNode ref = node.getRefChild();
-		final ElementAccess access = new ElementAccess.Default(ref);
+		final ElementAccess access = new ElementAccess.Default(node, ref);
 		access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
 		
 		final String name = resolveElementName(node.getRefChild(), access, true);
