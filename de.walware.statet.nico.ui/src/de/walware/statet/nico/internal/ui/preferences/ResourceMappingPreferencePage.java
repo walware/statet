@@ -48,6 +48,7 @@ import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
@@ -58,6 +59,7 @@ import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.internal.core.NicoPlugin;
 import de.walware.statet.nico.internal.core.ResourceMapping;
+import de.walware.statet.nico.internal.core.ResourceMappingManager;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 
 
@@ -80,17 +82,13 @@ public class ResourceMappingPreferencePage extends ConfigurationBlockPreferenceP
 class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	
 	
-	// TODO Add up/down buttons
-	
-	
 	private TableViewer fListViewer;
 	private ButtonGroup<ResourceMapping> fListButtons;
 	
-	private final WritableList fList;
+	private final WritableList fList = new WritableList();
 	
 	
 	public ResourceMappingConfigurationBlock() {
-		fList = new WritableList();
 	}
 	
 	
@@ -176,6 +174,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 		}
 		
 		composite.viewer.setContentProvider(new ArrayContentProvider());
+		composite.viewer.setComparator(new ComparatorViewerComparator(ResourceMappingManager.DEFAULT_COMPARATOR));
 		
 		return composite;
 	}
@@ -199,7 +198,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	
 	@Override
 	public boolean performOk() {
-		NicoPlugin.getDefault().getMappingManager().setPreferences(new ArrayList<ResourceMapping>(fList));
+		NicoPlugin.getDefault().getMappingManager().setMappings(new ArrayList<ResourceMapping>(fList));
 		return true;
 	}
 	
@@ -259,7 +258,6 @@ class EditMappingDialog extends ExtStatusDialog {
 			
 			fHostControl = new Text(composite, SWT.BORDER | SWT.SINGLE);
 			fHostControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			
 		}
 		{	final Label label = new Label(composite, SWT.NONE);
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));

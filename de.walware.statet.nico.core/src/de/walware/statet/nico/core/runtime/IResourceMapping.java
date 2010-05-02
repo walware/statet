@@ -21,25 +21,32 @@ import org.eclipse.core.runtime.IPath;
  */
 public interface IResourceMapping {
 	
+	enum Order {
+		
+		LOCAL,
+		REMOTE,
+		
+	}
+	
 	/**
-	 * Path from viewpoint of local system
+	 * Path from viewpoint of the local system
 	 * 
-	 * @return path as string
+	 * @return EFS resource
 	 */
-	public IFileStore getFileStore();
+	IFileStore getFileStore();
 	
 	/**
 	 * Hostname (name or IP) of the remote system
 	 * 
 	 * @return the hostname
 	 */
-	public String getHost();
+	String getHost();
 	
 	/**
-	 * Path from viewpoint of remote system
+	 * Path from viewpoint of the remote system
 	 * 
-	 * @return path as string
+	 * @return path object
 	 */
-	public IPath getRemotePath();
+	IPath getRemotePath();
 	
 }

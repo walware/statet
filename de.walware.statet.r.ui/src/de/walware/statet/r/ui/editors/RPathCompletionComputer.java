@@ -12,7 +12,6 @@
 package de.walware.statet.r.ui.editors;
 
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -190,7 +189,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			final String address = fAssociatedTool.getWorkspaceData().getRemoteAddress();
 			if (address != null) {
 				final boolean root = (path.segmentCount() == 0);
-				final Set<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(address);
+				final List<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(address, IResourceMapping.Order.REMOTE);
 				for (final IResourceMapping mapping : mappings) {
 					final IPath remotePath = mapping.getRemotePath();
 					if (remotePath.segmentCount() < path.segmentCount()) {

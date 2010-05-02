@@ -15,13 +15,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,8 +36,11 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
+import de.walware.ecommons.ConstList;
+
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IResourceMapping;
+import de.walware.statet.nico.core.runtime.IResourceMapping.Order;
 
 
 public class ResourceMappingManager {
@@ -48,6 +51,35 @@ public class ResourceMappingManager {
 	private static final String LOCAL_KEY = "local.path"; //$NON-NLS-1$
 	private static final String HOST_KEY = "host.name"; //$NON-NLS-1$
 	private static final String REMOTE_KEY = "remote.path"; //$NON-NLS-1$
+	
+	
+	public static final Comparator<IResourceMapping> DEFAULT_COMPARATOR = new Comparator<IResourceMapping>() {
+		
+		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
+			final int diff = o1.getHost().compareTo(o2.getHost());
+			if (diff != 0) {
+				return diff;
+			}
+			return o1.getRemotePath().toPortableString().compareTo(o2.getRemotePath().toPortableString());
+		}
+		
+	};
+	
+	private static final Comparator<IResourceMapping> LOCAL_COMPARATOR = new Comparator<IResourceMapping>() {
+		
+		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
+			return - o1.getFileStore().toURI().compareTo(o2.getFileStore().toURI());
+		}
+		
+	};
+	
+	private static final Comparator<IResourceMapping> REMOTE_COMPARATOR = new Comparator<IResourceMapping>() {
+		
+		public int compare(final IResourceMapping o1, final IResourceMapping o2) {
+			return - o1.getRemotePath().toPortableString().compareTo(o2.getRemotePath().toPortableString());
+		}
+		
+	};
 	
 	
 	private class UpdateJob extends Job {
@@ -68,7 +100,7 @@ public class ResourceMappingManager {
 			if (list == null) {
 				return Status.OK_STATUS;
 			}
-			final Map<String, Set<IResourceMapping>> mappingsByHost = new HashMap<String, Set<IResourceMapping>>();
+			final Map<String, List<IResourceMapping>[]> mappingsByHost = new HashMap<String, List<IResourceMapping>[]>();
 			
 			final SubMonitor progress = SubMonitor.convert(monitor, list.size() +1);
 			final MultiStatus status = new MultiStatus(NicoCore.PLUGIN_ID, 0, "Update Resource Mapping", null);
@@ -81,17 +113,25 @@ public class ResourceMappingManager {
 					final InetAddress[] addresses = mapping.getHostAddresses();
 					for (final InetAddress inetAddress : addresses) {
 						final String host = inetAddress.getHostAddress();
-						Set<IResourceMapping> mappings = mappingsByHost.get(host);
+						List<IResourceMapping>[] mappings = mappingsByHost.get(host);
 						if (mappings == null) {
-							mappings = new HashSet<IResourceMapping>();
+							mappings = new List[] { new ArrayList<IResourceMapping>(), null };
 							mappingsByHost.put(host, mappings);
 						}
-						mappings.add(mapping);
+						mappings[0].add(mapping);
 					}
 				}
 				catch (final UnknownHostException e) {
 					status.add(new Status(IStatus.INFO, NicoCore.PLUGIN_ID, "Unknown host: " + e.getMessage(), e));
 				}
+			}
+			for (final List<IResourceMapping>[] lists : mappingsByHost.values()) {
+				final IResourceMapping[] list0 = lists[0].toArray(new IResourceMapping[lists[0].size()]);
+				final IResourceMapping[] list1 = lists[0].toArray(new IResourceMapping[lists[0].size()]);
+				Arrays.sort(list0, LOCAL_COMPARATOR);
+				Arrays.sort(list1, REMOTE_COMPARATOR);
+				lists[Order.LOCAL.ordinal()] = new ConstList<IResourceMapping>(list0);
+				lists[Order.REMOTE.ordinal()] = new ConstList<IResourceMapping>(list1);
 			}
 			
 			synchronized(ResourceMappingManager.this) {
@@ -106,7 +146,7 @@ public class ResourceMappingManager {
 	
 	
 	private List<ResourceMapping> fList;
-	private Map<String, Set<IResourceMapping>> fMappingsByHost;
+	private Map<String, List<IResourceMapping>[]> fMappingsByHost;
 	
 	private final UpdateJob fUpdateJob;
 	
@@ -129,10 +169,13 @@ public class ResourceMappingManager {
 		return fList;
 	}
 	
-	public Set<IResourceMapping> getMappingsFor(final String hostAddress) {
-		final Map<String, Set<IResourceMapping>> byHost = fMappingsByHost;
+	public List<IResourceMapping> getMappingsFor(final String hostAddress, final Order order) {
+		final Map<String, List<IResourceMapping>[]> byHost = fMappingsByHost;
 		if (byHost != null) {
-			return byHost.get(hostAddress);
+			final List<IResourceMapping>[] lists = byHost.get(hostAddress);
+			if (lists != null) {
+				return lists[(order != null) ? order.ordinal() : 0];
+			}
 		}
 		return null;
 	}
@@ -149,9 +192,11 @@ public class ResourceMappingManager {
 					list.add(mapping);
 				}
 			}
+			final ResourceMapping[] array = list.toArray(new ResourceMapping[list.size()]);
+			Arrays.sort(array, DEFAULT_COMPARATOR);
 			
 			synchronized (this) {
-				fList = list;
+				fList = new ConstList<ResourceMapping>(array);
 				fUpdateJob.cancel();
 				fUpdateJob.schedule();
 			}
@@ -161,7 +206,8 @@ public class ResourceMappingManager {
 		}
 	}
 	
-	public void setPreferences(final List<ResourceMapping> list) {
+	public void setMappings(final List<ResourceMapping> list) {
+		Collections.sort(list, DEFAULT_COMPARATOR);
 		try {
 			final IEclipsePreferences rootNode = new InstanceScope().getNode(QUALIFIER);
 			

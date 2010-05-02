@@ -12,7 +12,7 @@
 package de.walware.statet.nico.core;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IPath;
@@ -28,9 +28,6 @@ import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.internal.core.NicoPlugin;
 
 
-/**
- * 
- */
 public class NicoCore {
 	
 	/**
@@ -73,24 +70,25 @@ public class NicoCore {
 	}
 	
 	/**
-	 * Returns all configured resource mappings for the given host
+	 * Returns all configured resource mappings for the given host.
 	 * 
-	 * @param hostAddress
-	 * @return list of resource mappings
+	 * @param hostAddress the address of the remote system
+	 * @param order the order of the mappings in the returned list
+	 * @return a list of resource mappings, an empty list if no mappings exists
 	 */
-	public static Set<IResourceMapping> getResourceMappingsFor(final String hostAddress) {
-		final Set<IResourceMapping> mappings = NicoPlugin.getDefault().getMappingManager().getMappingsFor(hostAddress);
+	public static List<IResourceMapping> getResourceMappingsFor(final String hostAddress, final IResourceMapping.Order order) {
+		final List<IResourceMapping> mappings = NicoPlugin.getDefault().getMappingManager().getMappingsFor(hostAddress, order);
 		if (mappings != null) {
-			return Collections.unmodifiableSet(mappings);
+			return mappings;
 		}
-		return Collections.EMPTY_SET;
+		return Collections.emptyList();
 	}
 	
 	/**
-	 * Maps a remote resource path to local file store
+	 * Maps a remote resource path to a local file store.
 	 * 
-	 * @param hostAddress the remote resource path belongs to
-	 * @param remotePath the remote path
+	 * @param hostAddress the address of the remote system the remote resource path belongs to
+	 * @param remotePath the remote resource path
 	 * @param relativeBasePath optional relative path
 	 * @return a file store or <code>null</code> if no mapping was found
 	 */
@@ -101,7 +99,7 @@ public class NicoCore {
 			}
 			remotePath = relativeBasePath.append(remotePath);
 		}
-		final Set<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(hostAddress);
+		final List<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(hostAddress, IResourceMapping.Order.REMOTE);
 		for (final IResourceMapping mapping : mappings) {
 			final IPath remoteBase = mapping.getRemotePath();
 			if (remoteBase.isPrefixOf(remotePath)) {
@@ -114,14 +112,14 @@ public class NicoCore {
 	}
 	
 	/**
-	 * Maps a local file store to a remote resource path
+	 * Maps a local file store to a remote resource path.
 	 * 
-	 * @param hostAddress the remote resource path belongs to
+	 * @param hostAddress the address of the remote system the remote resource path shall belong to
 	 * @param fileStore the file store
 	 * @return a path or <code>null</code> if no mapping was found
 	 */
 	public static IPath mapFileStoreToRemoteResource(final String hostAddress, final IFileStore fileStore) {
-		final Set<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(hostAddress);
+		final List<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(hostAddress, IResourceMapping.Order.LOCAL);
 		for (final IResourceMapping mapping : mappings) {
 			final IFileStore localBaseStore = mapping.getFileStore();
 			if (localBaseStore.equals(fileStore)) {
