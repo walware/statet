@@ -18,6 +18,7 @@ import java.util.Set;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.action.IAction;
@@ -84,6 +85,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
+import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextViewerAction;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -629,6 +631,9 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		
 		action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
 		commands.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
+		
+		final IHandler2 informationHandler = new InformationDispatchHandler(getViewer());
+		commands.activateHandler(ITextEditorActionDefinitionIds.SHOW_INFORMATION, informationHandler);
 		
 		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
 			public Object execute(final ExecutionEvent arg0)
