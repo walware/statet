@@ -32,8 +32,6 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -50,6 +48,7 @@ import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
+import de.walware.ecommons.ui.util.ComparatorViewerComparator;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.util.ViewerUtil;
@@ -252,12 +251,7 @@ class RIdentifiersBlock extends ManagedConfigurationBlock {
 		fWordListComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fWordList = fWordListComposite.viewer;
 		fWordList.setContentProvider(new ArrayContentProvider());
-		fWordList.setComparator(new ViewerComparator(new RSymbolComparator()) {
-			@Override
-			public int compare(final Viewer viewer, final Object e1, final Object e2) {
-				return getComparator().compare(e1, e2);
-			}
-		});
+		fWordList.setComparator(new ComparatorViewerComparator(new RSymbolComparator()));
 		fWordListComposite.table.setFont(JFaceResources.getTextFont());
 		fWordListComposite.table.setLinesVisible(true);
 		
