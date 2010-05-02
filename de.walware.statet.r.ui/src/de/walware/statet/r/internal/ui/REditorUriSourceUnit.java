@@ -33,11 +33,11 @@ import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
 
@@ -121,8 +121,8 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 		return RCore.getWorkbenchAccess();
 	}
 	
-	public RProject getRProject() {
-		return null;
+	public IREnv getREnv() {
+		return RCore.getREnvManager().getDefault();
 	}
 	
 	

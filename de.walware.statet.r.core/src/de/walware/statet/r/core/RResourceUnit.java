@@ -21,6 +21,7 @@ import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.ISourceUnitStateListener;
 
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -61,6 +62,11 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 		}
 		return RCore.getWorkbenchAccess();
 	}
+	
+	public IREnv getREnv() {
+		return RCore.getREnvManager().getDefault();
+	}
+	
 	
 	@Override
 	public Object getAdapter(final Class required) {

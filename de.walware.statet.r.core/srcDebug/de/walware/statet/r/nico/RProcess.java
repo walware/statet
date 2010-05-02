@@ -17,6 +17,7 @@ import org.eclipse.debug.core.ILaunch;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 
 
@@ -59,6 +60,9 @@ public class RProcess extends ToolProcess<RWorkspace> {
 	
 	@Override
 	public Object getAdapter(final Class required) {
+		if (required.equals(IREnv.class)) {
+			return fREnvConfig.getReference();
+		}
 		if (required.equals(IREnvConfiguration.class)) {
 			return fREnvConfig;
 		}

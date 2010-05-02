@@ -38,6 +38,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RScanner;
 import de.walware.statet.r.internal.sweave.Rweave;
@@ -61,6 +62,10 @@ public class RweaveTexEditorWorkingCopy extends GenericSourceUnitWorkingCopy imp
 	
 	public IRCoreAccess getRCoreAccess() {
 		return ((IRSourceUnit) fFrom).getRCoreAccess();
+	}
+	
+	public IREnv getREnv() {
+		return RCore.getREnvManager().getDefault();
 	}
 	
 	

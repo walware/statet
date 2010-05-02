@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import de.walware.ecommons.ltk.ISourceUnit;
 
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.renv.IREnv;
 
 
 /**
@@ -26,35 +27,41 @@ public interface IRSourceUnit extends ISourceUnit {
 	/**
 	 * Content type id for R sources
 	 */
-	public static final String R_CONTENT = "de.walware.statet.r.contentTypes.R"; //$NON-NLS-1$
+	String R_CONTENT = "de.walware.statet.r.contentTypes.R"; //$NON-NLS-1$
 	
 	/**
 	 * Content type id for Rd sources
 	 */
-	public static final String RD_CONTENT = "de.walware.statet.r.contentTypes.Rd"; //$NON-NLS-1$
+	String RD_CONTENT = "de.walware.statet.r.contentTypes.Rd"; //$NON-NLS-1$
 	
 	
 	/**
 	 * Model type id for R source files in workspace
 	 */
-	public static final int R_WORKSPACE_SU = C2_SOURCE_FILE | 1;
+	int R_WORKSPACE_SU = C2_SOURCE_FILE | 1;
 	
 	/**
 	 * Model type id for R source files in libraries
 	 */
-	public static final int R_LIBRARY_SU = C2_SOURCE_FILE | 2;
+	int R_LIBRARY_SU = C2_SOURCE_FILE | 2;
 	
 	/**
 	 * Model type id for other R source files, e.g. external files
 	 */
-	public static final int R_OTHER_SU = C2_SOURCE_FILE | 3;
+	int R_OTHER_SU = C2_SOURCE_FILE | 3;
 	
 	
 	/**
 	 * Returns the R core access provider for the source unit
 	 * @return access of scope of the source unit
 	 */
-	public IRCoreAccess getRCoreAccess();
+	IRCoreAccess getRCoreAccess();
+	
+	/**
+	 * Returns the R environment associated with the source unit
+	 * @return the R environment of the source unit
+	 */
+	IREnv getREnv();
 	
 	/**
 	 * Forces that the the R model of the source unit is up-to-date.
@@ -62,6 +69,6 @@ public interface IRSourceUnit extends ISourceUnit {
 	 * @param reconcileLevel the model level the model must have (min)
 	 * @param monitor
 	 */
-	public void reconcileRModel(int reconcileLevel, IProgressMonitor monitor);
+	void reconcileRModel(int reconcileLevel, IProgressMonitor monitor);
 	
 }

@@ -81,9 +81,16 @@ public class RHelpHover implements IInfoHover {
 		if (name == null) {
 			return null;
 		}
-		final IREnv rEnv = RCore.getREnvManager().getDefault();
+		
+		IREnv rEnv = null;
+		if (context.getSourceUnit() instanceof IRSourceUnit) {
+			rEnv = ((IRSourceUnit) context.getSourceUnit()).getREnv();
+		}
 		if (rEnv == null) {
-			return null;
+			rEnv = RCore.getREnvManager().getDefault();
+			if (rEnv == null) {
+				return null;
+			}
 		}
 		final IRHelpManager rHelpManager = RCore.getRHelpManager();
 		final IREnvHelp help = rHelpManager.getHelp(rEnv);

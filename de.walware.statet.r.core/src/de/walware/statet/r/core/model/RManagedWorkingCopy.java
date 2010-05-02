@@ -21,6 +21,7 @@ import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.IRCoreAccess;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -60,6 +61,10 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 	
 	public IRCoreAccess getRCoreAccess() {
 		return ((IRSourceUnit) fFrom).getRCoreAccess();
+	}
+	
+	public IREnv getREnv() {
+		return ((IRSourceUnit) fFrom).getREnv();
 	}
 	
 	@Override

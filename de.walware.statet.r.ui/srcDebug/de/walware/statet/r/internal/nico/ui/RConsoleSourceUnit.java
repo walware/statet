@@ -36,6 +36,7 @@ import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.model.SpecialParseContent;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.nico.ui.RConsolePage;
@@ -45,7 +46,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 		implements IRSourceUnit, IManagableRUnit {
 	
 	
-	private IRCoreAccess fRCoreAccess;
+	private final RConsole fRConsole;
 	
 	private final Object fModelLock = new Object();
 	private RAstInfo fAst;
@@ -54,7 +55,7 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 	
 	public RConsoleSourceUnit(final RConsolePage page, final InputDocument document) {
 		super(page.toString(), document);
-		fRCoreAccess = (RConsole) page.getConsole();
+		fRConsole = page.getConsole();
 	}
 	
 	
@@ -96,7 +97,12 @@ public class RConsoleSourceUnit extends GenericConsoleSourceUnit
 	}
 	
 	public IRCoreAccess getRCoreAccess() {
-		return fRCoreAccess;
+		return fRConsole;
+	}
+	
+	public IREnv getREnv() {
+		final IREnv rEnv = (IREnv) fRConsole.getProcess().getAdapter(IREnv.class);
+		return (rEnv != null) ? rEnv : RCore.getREnvManager().getDefault();
 	}
 	
 	@Override

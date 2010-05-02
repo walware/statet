@@ -22,6 +22,7 @@ import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.sweave.Sweave;
 
 
@@ -46,6 +47,10 @@ public class RweaveTexDocUnit extends GenericResourceSourceUnit implements IRSou
 			}
 		}
 		return RCore.getWorkbenchAccess();
+	}
+	
+	public IREnv getREnv() {
+		return RCore.getREnvManager().getDefault();
 	}
 	
 	@Override
