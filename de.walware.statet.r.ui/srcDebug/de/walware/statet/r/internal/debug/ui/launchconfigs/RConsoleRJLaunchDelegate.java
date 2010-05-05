@@ -109,14 +109,10 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
 		
 		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_LOCAL_REGISTRY_PORT);
-		final String s = "//:"+port+"/rjs-local-"+System.currentTimeMillis(); //$NON-NLS-1$ //$NON-NLS-2$
 		final RMIAddress rmiAddress;
 		try {
-			rmiAddress = new RMIAddress(s);  
-		}
-		catch (final UnknownHostException e) {
-			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
-					RLaunchingMessages.RJLaunchDelegate_error_InvalidAddress_message, e));
+			rmiAddress = new RMIAddress(RMIAddress.LOOPBACK, port,
+					"rjs-local-"+System.currentTimeMillis()); //$NON-NLS-1$
 		}
 		catch (final MalformedURLException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
