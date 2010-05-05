@@ -443,7 +443,7 @@ public class RWorkspace extends ToolWorkspace {
 		
 		fRSearchEnvsPublic = Collections.unmodifiableList(fRSearchEnvsInternal);
 		addPropertyChanged("REnvironments", newEnvs.fUpdateEnvs);
-//		System.out.println("nano:  " + (System.nanoTime() - time));
+//		System.out.println("RSearch Update: " + (System.nanoTime() - time));
 //		int count = 0;
 //		for (final REnvironmentVar env : fREnvMap.values()) {
 //			final int l = env.getLength();

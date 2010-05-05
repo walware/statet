@@ -32,20 +32,21 @@ public interface IRBasicAdapter extends
 	 * 
 	 * The prompt have to be a instance of {@link IncompleteInputPrompt<RunnableAdapterType, WorkspaceType>}.
 	 */
-	public static final int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
+	int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
 	
 	
-	public ToolProcess<? extends RWorkspace> getProcess();
+	ToolProcess<? extends RWorkspace> getProcess();
 	
-	public ToolController<? extends RWorkspace> getController();
+	ToolController<? extends RWorkspace> getController();
 	
 	/**
-	 * Quits R 
+	 * Quits R.
 	 * <code>q()</code>
 	 */
-	public void quit(final IProgressMonitor monitor) throws CoreException;
+	void quit(final IProgressMonitor monitor) throws CoreException;
 	
-	public void briefAboutChange(int o);
-	public void briefAboutChange(Object changed, int o);
+	void briefAboutChange(int o);
+	void briefAboutChange(Object changed, int o);
+	int getBriefedChanges();
 	
 }

@@ -828,7 +828,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					} catch (final InterruptedException e) {}
 					continue;
 				}
-				if (fQueue.internalIsEmpty()) {
+				if (fQueue.internalIsEmpty()) { // TODO change to true?
 					loopChangeStatus(ToolStatus.STARTED_IDLING, null);
 					try {
 						fQueue.wait();
@@ -1052,6 +1052,14 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	public ToolWorkspace getWorkspaceData() {
 		return fWorkspaceData;
+	}
+	
+	public boolean isDefaultPrompt() {
+		return (fDefaultPrompt == fCurrentPrompt); 
+	}
+	
+	public Prompt getPrompt() {
+		return fCurrentPrompt;
 	}
 	
 	public IToolRunnable getCurrentRunnable() {

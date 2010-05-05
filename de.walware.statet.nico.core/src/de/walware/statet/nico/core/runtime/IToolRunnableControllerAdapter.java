@@ -17,16 +17,12 @@ import org.eclipse.core.runtime.IStatus;
 
 
 /**
- * This is the interface of the controller to the runnables.
- * The runnable gets the adapter with the call of its run method.
+ * This is the interface of the controller to the {@link IToolRunnable runnables}.
  * 
- * It is intended to extends this interface for more particular
- * needs. The concrete interface can be specified in implementations
- * of ToolController and IToolRunnable.
- * 
- * For implementations:
- * The lifecycle is the same as the ToolController (not ToolProcess!).
- * The methods may only be used in the tool lifecycle thread.
+ * <ul>
+ *     <li>The methods may only be used in the tool thread, usually inside the <code>run</code>
+ *         method of the runnables.</li>
+ * </ul>
  */
 public interface IToolRunnableControllerAdapter {
 	
@@ -37,40 +33,79 @@ public interface IToolRunnableControllerAdapter {
 	
 	
 	/**
-	 * Returns the controller the runnable is currently running in
+	 * Returns the controller of this tool.
+	 * 
 	 * @return the tool controller
 	 */
-	public ToolController getController();
+	ToolController getController();
 	
 	/**
-	 * Returns the process handler of controller the runnable is currently running in
+	 * Returns the process handler of this tool.
+	 * 
+	 * A tool returns always the same process instance.
+	 * 
 	 * @return the tool process
 	 */
-	public ToolProcess getProcess();
+	ToolProcess getProcess();
 	
 	/**
-	 * Returns the workspace data of controller the runnable is currently running in
+	 * Returns the currently running tool runnable.
+	 * 
+	 * @return the current tool runnable
+	 */
+	IToolRunnable getCurrentRunnable();
+	
+	/**
+	 * Returns the workspace data of this tool.
+	 * 
+	 * A tool returns always the same workspace data instance.
+	 * 
 	 * @return the tool workspace
 	 */
-	public ToolWorkspace getWorkspaceData();
-	
-	
-	public IToolRunnable getCurrentRunnable();
-	
-	
-	public void refreshWorkspaceData(int options, IProgressMonitor monitor)
-			throws CoreException;
+	ToolWorkspace getWorkspaceData();
 	
 	/**
-	 * Submits the text to the tool console
+	 * Refreshes the workspace data of this tool.
+	 * 
+	 * This method can be used to ensure that the workspace data is up-to-date.
+	 * 
+	 * @param options
+	 * @param monitor the progress monitor of the current run (or a child)
+	 * @throws CoreException if an error occurred or the operation was canceled
+	 */
+	void refreshWorkspaceData(int options, IProgressMonitor monitor)
+			throws CoreException;
+	
+	
+	/*---- Console ----*/
+	
+	/**
+	 * Returns if the current prompt is the default prompt.
+	 * 
+	 * @return <code>true</code> if it is the default prompt, otherwise <code>false</code>
+	 */
+	boolean isDefaultPrompt();
+	
+	/**
+	 * Returns the current prompt.
+	 * 
+	 * @return the current prompt
+	 */
+	Prompt getPrompt();
+	
+	/**
+	 * Submits the text to the tool console.
 	 * 
 	 * @param input the text to submit
 	 * @param monitor the progress monitor of the current run (or a child)
-	 * @throws CoreException
+	 * @throws CoreException if an error occurred or the operation was canceled
 	 * @throws InterruptedException
 	 */
-	public void submitToConsole(String input, IProgressMonitor monitor)
-			throws CoreException, InterruptedException;
+	void submitToConsole(String input, IProgressMonitor monitor)
+			throws CoreException;
+	
+	
+	/*---- Status ----*/
 	
 	/**
 	 * Reports a status to the user
@@ -78,6 +113,6 @@ public interface IToolRunnableControllerAdapter {
 	 * @param status the status to handle
 	 * @param monitor the progress monitor of the current run (or a child)
 	 */
-	public void handleStatus(final IStatus status, IProgressMonitor monitor);
+	void handleStatus(final IStatus status, IProgressMonitor monitor);
 	
 }

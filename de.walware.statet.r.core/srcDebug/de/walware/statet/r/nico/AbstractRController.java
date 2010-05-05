@@ -261,6 +261,10 @@ public abstract class AbstractRController
 		}
 	}
 	
+	public int getBriefedChanges() {
+		return fChanged;
+	}
+	
 	public void quit(final IProgressMonitor monitor) throws CoreException {
 		final String command = "q()"; //$NON-NLS-1$
 		submitToConsole(command, monitor);

@@ -158,7 +158,9 @@ public final class Queue {
 	
 	private final ToolProcess fProcess;
 	
-	private final LinkedList<IToolRunnable> fIdleList = new LinkedList<IToolRunnable>();
+	private boolean fUpdateIdle = false;
+	private final List<IToolRunnable> fOnIdleList = new ArrayList<IToolRunnable>();
+	private final LinkedList<IToolRunnable> fNextIdleList = new LinkedList<IToolRunnable>();
 	
 	
 	Queue(final ToolProcess process) {
@@ -254,6 +256,26 @@ public final class Queue {
 		}
 	}
 	
+	public synchronized void addOnIdle(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException();
+		}
+		if (!fOnIdleList.contains(runnable)) {
+			fOnIdleList.add(runnable);
+		}
+		if (!fUpdateIdle && !fNextIdleList.contains(runnable)) {
+			fNextIdleList.add(runnable);
+		}
+		notifyAll();
+	}
+	
+	public synchronized void removeOnIdle(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException();
+		}
+		fOnIdleList.remove(runnable);
+		fNextIdleList.remove(runnable);
+	}
 	
 	void internalAdd(final IToolRunnable[] runnables, final boolean allowCache) {
 		if (runnables == null) {
@@ -264,7 +286,19 @@ public final class Queue {
 				throw new NullPointerException();
 			}
 		}
-		if (allowCache && internalIsEmpty() && runnables.length == 1) {
+		
+		if (fUpdateIdle) {
+			fUpdateIdle = false;
+			for (int i = 0; i < fOnIdleList.size(); i++) {
+				final IToolRunnable runnable = fOnIdleList.get(i);
+				if (!fNextIdleList.contains(runnable)) {
+					fNextIdleList.add(runnable);
+				}
+			}
+		}
+		
+		if (allowCache && fSingleIOCache == null && fList.isEmpty()
+				&& runnables.length == 1) {
 			fSingleIOCache = runnables;
 			return;
 		}
@@ -285,18 +319,18 @@ public final class Queue {
 		if (runnable == null) {
 			throw new NullPointerException();
 		}
-		fIdleList.add(runnable);
+		fNextIdleList.add(runnable);
 	}
 	
 	void internalRemoveIdle(final IToolRunnable runnable) {
 		if (runnable == null) {
 			throw new NullPointerException();
 		}
-		fIdleList.remove(runnable);
+		fNextIdleList.remove(runnable);
 	}
 	
 	boolean internalIsEmpty() {
-		return (fSingleIOCache == null && fList.isEmpty() && fIdleList.isEmpty());
+		return (fSingleIOCache == null && fList.isEmpty() && fNextIdleList.isEmpty());
 	}
 	
 	void internalCheck() {
@@ -318,7 +352,8 @@ public final class Queue {
 			runnable = new IToolRunnable[] { fList.poll() };
 		}
 		else {
-			runnable = new IToolRunnable[] { fIdleList.poll() };
+			runnable = new IToolRunnable[] { fNextIdleList.poll() };
+			fUpdateIdle = true;
 		}
 		addChangeEvent(ENTRY_START_PROCESSING, runnable);
 		
