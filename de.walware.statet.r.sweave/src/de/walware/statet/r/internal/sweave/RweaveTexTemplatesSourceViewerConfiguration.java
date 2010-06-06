@@ -32,7 +32,7 @@ class RweaveTexTemplatesSourceViewerConfiguration extends RweaveTexViewerConfigu
 	
 	public RweaveTexTemplatesSourceViewerConfiguration(final TemplateVariableProcessor processor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore store, final ColorManager colorManager) {
-		super(rCoreAccess, store, colorManager);
+		super(null, rCoreAccess, store, colorManager);
 		fProcessor = processor;
 	}
 	

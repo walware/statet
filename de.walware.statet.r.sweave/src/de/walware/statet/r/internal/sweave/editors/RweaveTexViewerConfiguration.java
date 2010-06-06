@@ -11,6 +11,7 @@
 
 package de.walware.statet.r.internal.sweave.editors;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,13 +33,15 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.editors.text.EditorsUI;
-import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
+import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.ui.EcoReconciler;
 import de.walware.ecommons.ui.ColorManager;
 
@@ -54,10 +57,11 @@ import net.sourceforge.texlipse.editor.scanner.TexScanner;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.Rweave;
+import de.walware.statet.r.internal.sweave.RweaveTexReconcilingStrategy;
 import de.walware.statet.r.sweave.text.RChunkControlCodeScanner;
 import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
+import de.walware.statet.r.sweave.text.RweaveTexBracketPairMatcher;
 import de.walware.statet.r.ui.editors.RAutoEditStrategy;
-import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 
@@ -70,8 +74,8 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	private static class RChunkAutoEditStrategy extends RAutoEditStrategy {
 		
-		public RChunkAutoEditStrategy(final IRCoreAccess coreAccess, final ISourceEditor sourceEditor, final TextEditor eclipseEditor) {
-			super(coreAccess, sourceEditor, eclipseEditor);
+		public RChunkAutoEditStrategy(final IRCoreAccess coreAccess, final ISourceEditor sourceEditor) {
+			super(coreAccess, sourceEditor);
 		}
 		
 		@Override
@@ -101,9 +105,9 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 		
 	}
 	
-	private class RChunkConfiguration extends RSourceViewerConfiguration {
+	private static class RChunkViewerConfiguration extends RSourceViewerConfiguration {
 		
-		public RChunkConfiguration(
+		public RChunkViewerConfiguration(
 				final ISourceEditor sourceEditor,
 				final IRCoreAccess coreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 			super(sourceEditor, null, coreAccess, preferenceStore, colorManager);
@@ -120,55 +124,43 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 		
 		@Override
 		protected RAutoEditStrategy createRAutoEditStrategy() {
-			return new RChunkAutoEditStrategy(getRCoreAccess(), getSourceEditor(), getEditor());
+			return new RChunkAutoEditStrategy(getRCoreAccess(), getSourceEditor());
 		}
 		
 	}
 	
 	
-	private REditor fEditor;
-	private RChunkConfiguration fRConfig;
+	private RChunkViewerConfiguration fRConfig;
 	
 	private RChunkControlCodeScanner fChunkControlScanner;
-	private ITokenScanner fChunkCommentScanner;
 	
 	private net.sourceforge.texlipse.editor.ColorManager fTexColorManager;
 	private TexScanner fTexDefaultScanner;
 	private TexMathScanner fTexMathScanner;
 	private ITokenScanner fTexVerbatimScanner;
 	
+	private PairMatcher fPairMatcher;
 	private ITextDoubleClickStrategy fRDoubleClickStrategy;
 	private ITextDoubleClickStrategy fTexDoubleClickStrategy;
 	
 	
-	public RweaveTexViewerConfiguration(
-			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		this((ISourceEditor) null, rCoreAccess, preferenceStore, colorManager);
-	}
-	
 	public RweaveTexViewerConfiguration(final ISourceEditor sourceEditor,
 			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		this(sourceEditor, null, rCoreAccess, preferenceStore, colorManager);
-	}
-	
-	public RweaveTexViewerConfiguration(final REditor editor,
-			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
-		this((ISourceEditor) editor.getAdapter(ISourceEditor.class), editor,
-				rCoreAccess, preferenceStore, colorManager);
-	}
-	
-	protected RweaveTexViewerConfiguration(final ISourceEditor sourceEditor, final REditor editor,
-			final IRCoreAccess rCoreAccess, final IPreferenceStore preferenceStore, final ColorManager colorManager) {
 		super(sourceEditor);
-		fEditor = editor;
-		fRConfig = new RChunkConfiguration(sourceEditor, rCoreAccess, preferenceStore, colorManager);
+		fRConfig = new RChunkViewerConfiguration(sourceEditor, rCoreAccess, preferenceStore, colorManager);
 		fRConfig.setHandleDefaultContentType(false);
 		
 		setup(preferenceStore, colorManager,
 				IStatetUIPreferenceConstants.EDITING_DECO_PREFERENCES,
 				IStatetUIPreferenceConstants.EDITING_ASSIST_PREFERENCES );
-		fChunkControlScanner = new RChunkControlCodeScanner(colorManager, preferenceStore);
-		fChunkCommentScanner = fRConfig.getCommentScanner();
+		setScanners(createScanners());
+	}
+	
+	protected ITokenScanner[] createScanners() {
+		final IPreferenceStore store = getPreferences();
+		final ColorManager colorManager = getColorManager();
+		
+		fChunkControlScanner = new RChunkControlCodeScanner(colorManager, store);
 		
 		fTexColorManager = TexlipsePlugin.getDefault().getColorManager();
 		fTexMathScanner = new TexMathScanner(fTexColorManager);
@@ -180,7 +172,23 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 				fTexColorManager.getStyle(net.sourceforge.texlipse.editor.ColorManager.VERBATIM_STYLE))));
 		fTexVerbatimScanner = verbatimScanner;
 		
-		setScanners(new ITokenScanner[] { fChunkControlScanner });
+		return new ITokenScanner[] {
+				fChunkControlScanner,
+		};
+	}
+	
+	
+	@Override
+	public List<ISourceEditorAddon> getAddOns() {
+		final List<ISourceEditorAddon> addOns = super.getAddOns();
+		addOns.addAll(fRConfig.getAddOns());
+		return addOns;
+	}
+	
+	@Override
+	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
+		fRConfig.handleSettingsChanged(groupIds, options);
+		super.handleSettingsChanged(groupIds, options);
 	}
 	
 	
@@ -194,6 +202,15 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 		return Rweave.ALL_PARTITION_TYPES;
 	}
 	
+	
+	@Override
+	public PairMatcher getPairMatcher() {
+		if (fPairMatcher == null) {
+			fPairMatcher = new RweaveTexBracketPairMatcher();
+		}
+		return fPairMatcher;
+	}
+	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy(final ISourceViewer sourceViewer, final String contentType) {
 		if (Rweave.R_PARTITION_CONSTRAINT.matches(contentType) 
@@ -203,10 +220,12 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 			}
 			return fRDoubleClickStrategy;
 		}
-		if (fTexDoubleClickStrategy == null) {
-			fTexDoubleClickStrategy = new TexDoubleClickStrategy(Rweave.R_TEX_PARTITIONING);
+		else {
+			if (fTexDoubleClickStrategy == null) {
+				fTexDoubleClickStrategy = new TexDoubleClickStrategy(Rweave.R_TEX_PARTITIONING);
+			}
+			return fTexDoubleClickStrategy;
 		}
-		return fTexDoubleClickStrategy;
 	}
 	
 	@Override
@@ -218,7 +237,7 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 		reconciler.setDamager(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
 		reconciler.setRepairer(dr, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
 		
-		dr = new DefaultDamagerRepairer(fChunkCommentScanner);
+		dr = new DefaultDamagerRepairer(fRConfig.getCommentScanner());
 		reconciler.setDamager(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
 		reconciler.setRepairer(dr, Rweave.CHUNK_COMMENT_CONTENT_TYPE);
 		
@@ -233,10 +252,10 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 		reconciler.setRepairer(dr, ITexDocumentConstants.TEX_MATH_CONTENT_TYPE);
 		
 		dr = new DefaultDamagerRepairer(fTexVerbatimScanner);
-		reconciler.setDamager(dr, ITexDocumentConstants.TEX_VERBATIM);
-		reconciler.setRepairer(dr, ITexDocumentConstants.TEX_VERBATIM);
+		reconciler.setDamager(dr, ITexDocumentConstants.TEX_VERBATIM_CONTENT_TYPE);
+		reconciler.setRepairer(dr, ITexDocumentConstants.TEX_VERBATIM_CONTENT_TYPE);
 		
-		dr = new DefaultDamagerRepairer(fChunkCommentScanner);
+		dr = new DefaultDamagerRepairer(fRConfig.getCommentScanner());
 		reconciler.setDamager(dr, ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE);
 		reconciler.setRepairer(dr, ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE);
 		
@@ -267,19 +286,13 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 		return super.getIndentPrefixes(sourceViewer, contentType);
 	}
 	
-	@Override
-	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
-		fRConfig.handleSettingsChanged(groupIds, options);
-		super.handleSettingsChanged(groupIds, options);
-	}
-	
 	
 	@Override
 	public IReconciler getReconciler(final ISourceViewer sourceViewer) {
-		if (fEditor == null) { // at moment only for editors
+		if (!(getSourceEditor() instanceof ITextEditor)) {
 			return null;
 		}
-		final EcoReconciler reconciler = new EcoReconciler(fEditor);
+		final EcoReconciler reconciler = new EcoReconciler((ITextEditor) getSourceEditor());
 		reconciler.setDelay(500);
 		reconciler.addReconcilingStrategy(new RweaveTexReconcilingStrategy());
 		
@@ -313,19 +326,24 @@ public class RweaveTexViewerConfiguration extends SourceEditorViewerConfiguratio
 	
 	@Override
 	protected ContentAssistant createContentAssistant(final ISourceViewer sourceViewer) {
-		if (fEditor != null) {
-			final ContentAssist assistant = new ContentAssist();
-			assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-			
-			final RChunkTemplatesCompletionProcessor controlProcessor = new RChunkTemplatesCompletionProcessor(fEditor);
-			assistant.setContentAssistProcessor(controlProcessor, Rweave.TEX_DEFAULT_CONTENT_TYPE);
-			assistant.setContentAssistProcessor(controlProcessor, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
-			
-			fRConfig.initDefaultContentAssist(assistant);
-			
-			return assistant;
+		if (!(getSourceEditor() instanceof ITextEditor)) {
+			return null;
 		}
-		return null;
+		final ContentAssist assistant = new ContentAssist();
+		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+		
+		final RChunkTemplatesCompletionProcessor controlProcessor = new RChunkTemplatesCompletionProcessor(getSourceEditor());
+		assistant.setContentAssistProcessor(controlProcessor, Rweave.TEX_DEFAULT_CONTENT_TYPE);
+		assistant.setContentAssistProcessor(controlProcessor, Rweave.CHUNK_CONTROL_CONTENT_TYPE);
+		
+		fRConfig.initDefaultContentAssist(assistant);
+		
+		return assistant;
+	}
+	
+	@Override
+	public boolean isSmartInsertSupported() {
+		return true;
 	}
 	
 }

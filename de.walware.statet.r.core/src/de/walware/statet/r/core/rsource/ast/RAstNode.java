@@ -136,10 +136,12 @@ public abstract class RAstNode implements IAstNode {
 	}
 	
 	
-	public void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
+	public final void accept(final ICommonAstVisitor visitor) throws InvocationTargetException {
 		visitor.visit(this);
 	}
+	
 	public abstract void acceptInR(RAstVisitor visitor) throws InvocationTargetException;
+	
 	public abstract void acceptInRChildren(RAstVisitor visitor) throws InvocationTargetException;
 	
 	protected final void acceptChildren(final RAstVisitor visitor, final List<? extends RAstNode> children) throws InvocationTargetException {

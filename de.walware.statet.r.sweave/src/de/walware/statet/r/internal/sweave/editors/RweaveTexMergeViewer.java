@@ -40,7 +40,7 @@ public class RweaveTexMergeViewer extends CompareMergeTextViewer {
 	protected SourceEditorViewerConfigurator createConfigurator(final SourceViewer sourceViewer) {
 		final RweaveTexViewerConfigurator viewerConfigurator = new RweaveTexViewerConfigurator(
 				RCore.getWorkbenchAccess() );
-		viewerConfigurator.setConfiguration(new RweaveTexViewerConfiguration(viewerConfigurator,
+		viewerConfigurator.setConfiguration(new RweaveTexViewerConfiguration(null, viewerConfigurator,
 				SweavePlugin.getDefault().getEditorRTexPreferenceStore(), SharedUIResources.getColors() ));
 		return viewerConfigurator;
 	}

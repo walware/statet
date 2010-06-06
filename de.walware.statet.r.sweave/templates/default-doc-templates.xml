@@ -16,10 +16,10 @@
 
 <!-- Rweave-Tex -->
 
-<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewSweaveDoc" 
-	context="rweavetex_NewSweaveDoc_context" 
-	name="%rweavetex_NewSweaveDoc_name" 
-	description="%rweavetex_NewSweaveDoc_description" 
+<template id="de.walware.statet.r.sweave.rweave_tex_templates.NewSweaveDoc"
+	context="rweavetex_NewSweaveDoc_context"
+	name="%rweavetex_NewSweaveDoc_name"
+	description="%rweavetex_NewSweaveDoc_description"
 	>%tex_C 
 \documentclass[a4paper]{article}
 \usepackage[OT1]{fontenc}
@@ -36,18 +36,18 @@
 </template>
 
 <template id="de.walware.statet.r.sweave.rweave_tex_templates.NewRChunk" 
-	context="rweavetex_DocDefault_context" 
-	name="%rweavetex_NewRChunk_name" 
-	description="%rweavetex_NewRChunk_description" 
+	context="rweavetex_DocDefault_context"
+	name="%rweavetex_NewRChunk_name"
+	description="%rweavetex_NewRChunk_description"
 	>&lt;&lt;${}&gt;&gt;=
 	${cursor}
 @
 </template>
 
 <template id="de.walware.statet.r.sweave.rweave_tex_templates.NewRChunkWithFig" 
-	context="rweavetex_DocDefault_context" 
-	name="%rweavetex_NewRChunkWithFigure_name" 
-	description="%rweavetex_NewRChunkWithFigure_description" 
+	context="rweavetex_DocDefault_context"
+	name="%rweavetex_NewRChunkWithFigure_name"
+	description="%rweavetex_NewRChunkWithFigure_description"
 	>&lt;&lt;fig=TRUE${}&gt;&gt;=
 	${cursor}
 @

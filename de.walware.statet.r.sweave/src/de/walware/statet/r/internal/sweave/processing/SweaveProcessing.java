@@ -43,6 +43,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.util.DialogUtil;
@@ -56,7 +57,7 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 /**
  * Manages profiles of a launchconfiguration type.
  */
-public class SweaveProcessing implements ILaunchConfigurationListener {
+public class SweaveProcessing implements ILaunchConfigurationListener, IDisposable {
 	
 	
 	public static final String ATT_BUILDSTEPS = "buildSteps"; //$NON-NLS-1$

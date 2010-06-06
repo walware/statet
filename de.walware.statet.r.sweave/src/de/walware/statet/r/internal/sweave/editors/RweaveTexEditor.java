@@ -52,14 +52,13 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
 import de.walware.statet.r.ui.editors.RCorrectIndentAction;
-import de.walware.statet.r.ui.editors.REditor;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
 
 /**
  * Editor for Sweave (LaTeX/R) code.
  */
-public class RweaveTexEditor extends REditor {
+public class RweaveTexEditor extends SourceEditor1 {
 	
 	
 	private class MultiCatCommentHandler extends ToggleCommentHandler {
@@ -138,7 +137,6 @@ public class RweaveTexEditor extends REditor {
 	}
 	
 	
-	
 	private RweaveTexViewerConfigurator fCombinedConfig;
 	protected REditorOptions fROptions;
 	
@@ -146,6 +144,13 @@ public class RweaveTexEditor extends REditor {
 	
 	
 	public RweaveTexEditor() {
+	}
+	
+	@Override
+	protected void initializeEditor() {
+		super.initializeEditor();
+		
+		setEditorContextMenuId("#REditorContext"); //$NON-NLS-1$
 	}
 	
 	@Override
@@ -161,14 +166,17 @@ public class RweaveTexEditor extends REditor {
 		final IPreferenceStore store = SweavePlugin.getDefault().getEditorRTexPreferenceStore();
 		fCombinedConfig = new RweaveTexViewerConfigurator(basicContext);
 		fCombinedConfig.setConfiguration(new RweaveTexViewerConfiguration(this,
-				fCombinedConfig, store, SharedUIResources.getColors()));
+				fCombinedConfig, store, SharedUIResources.getColors() ));
 		return fCombinedConfig;
 	}
 	
 	@Override
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] { "de.walware.statet.r.contexts.RweaveEditorScope" }); //$NON-NLS-1$
+		setKeyBindingScopes(new String[] {
+				"de.walware.statet.r.contexts.RweaveEditorScope", //$NON-NLS-1$
+		});
 	}
+	
 	
 	@Override
 	protected void setupConfiguration(final IEditorInput newInput) {
@@ -181,12 +189,12 @@ public class RweaveTexEditor extends REditor {
 	@Override
 	protected void doSetInput(final IEditorInput input) throws CoreException {
 		super.doSetInput(input);
-//		if (fOptions.isSmartModeByDefaultEnabled()) {
+		if (fROptions.isSmartModeByDefaultEnabled()) {
 			setInsertMode(SMART_INSERT);
-//		}
-//		else {
-//			setInsertMode(INSERT);
-//		}
+		}
+		else {
+			setInsertMode(INSERT);
+		}
 	}
 	
 	

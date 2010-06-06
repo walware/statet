@@ -313,7 +313,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 	}
 	
 	protected RAutoEditStrategy createRAutoEditStrategy() {
-		return new RAutoEditStrategy(fRCoreAccess, getSourceEditor(), fEditor);
+		return new RAutoEditStrategy(fRCoreAccess, getSourceEditor());
 	}
 	
 	@Override

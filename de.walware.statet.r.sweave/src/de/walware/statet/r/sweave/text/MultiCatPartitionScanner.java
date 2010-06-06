@@ -21,13 +21,16 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IToken;
 
-import net.sourceforge.texlipse.TexlipsePlugin;
+import de.walware.ecommons.text.IPartitionScannerCallbackExt;
+import de.walware.ecommons.text.Partitioner;
+
+import de.walware.statet.r.internal.sweave.SweavePlugin;
 
 
 /**
  * IPartitionTokenScanner supporting multiple token scanners, one for each category.
  */
-public class MultiCatPartitionScanner implements IPartitionTokenScanner {
+public class MultiCatPartitionScanner implements IPartitionTokenScanner, IPartitionScannerCallbackExt {
 	
 	
 	static final String ID_PREFIX = "cat:"; //$NON-NLS-1$
@@ -104,6 +107,15 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner {
 		}
 	}
 	
+	public void setPartitionerCallback(final Partitioner partitioner) {
+		for (final IPartitionTokenScanner scanner : fContentTypeScanners) {
+			if (scanner instanceof IPartitionScannerCallbackExt) {
+				((IPartitionScannerCallbackExt) scanner).setPartitionerCallback(partitioner);
+			}
+		}
+	}
+	
+	
 	public String getId() {
 		return fId;
 	}
@@ -140,8 +152,9 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner {
 				}
 				fCurrentScanner = fCatScanners[fCurrentCatScannerType];
 			}
-		} catch (final BadPositionCategoryException e) {
-			TexlipsePlugin.log("Error when read category markers", e);
+		}
+		catch (final BadPositionCategoryException e) {
+			SweavePlugin.logError(-1, "Error when read category markers", e);
 			fCatMarkerIdx = -1;
 			fCurrentScanner = fCatScanners[0];
 		}
@@ -219,10 +232,12 @@ public class MultiCatPartitionScanner implements IPartitionTokenScanner {
 		try {
 			marker = new CatMarker(startOffset, startLength, type, stopOffset);
 			fDocument.addPosition(fId, marker);
-		} catch (final BadLocationException e) {
-			TexlipsePlugin.log("Error when update category markers", e);
-		} catch (final BadPositionCategoryException e) {
-			TexlipsePlugin.log("Error when update category markers", e);
+		}
+		catch (final BadLocationException e) {
+			SweavePlugin.logError(-1, "Error when update category markers", e);
+		}
+		catch (final BadPositionCategoryException e) {
+			SweavePlugin.logError(-1, "Error when update category markers", e);
 		}
 	}
 	

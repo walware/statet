@@ -12,6 +12,8 @@
 package de.walware.statet.r.internal.sweave;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -29,17 +31,20 @@ import org.eclipse.ui.editors.text.templates.ContributionTemplateStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.IDisposable;
 import de.walware.ecommons.ltk.ui.util.CombinedPreferenceStore;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.util.ImageRegistryUtil;
 
 import de.walware.statet.base.ui.StatetUIServices;
 
+import net.sourceforge.texlipse.TexlipsePlugin;
+
 import de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentProvider;
 import de.walware.statet.r.internal.sweave.processing.SweaveProcessing;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.sweave.Sweave;
-import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -54,14 +59,18 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	private static final String RWEAVETEX_TEMPLATES_KEY = "de.walware.statet.r.sweave.rweave_tex_templates"; //$NON-NLS-1$
 	
-	public static final String IMG_OBJ_RWEAVETEX = RUI.PLUGIN_ID + "/image/tool/rweavetex"; //$NON-NLS-1$
-	public static final String IMG_OBJ_RWEAVETEX_ACTIVE = RUI.PLUGIN_ID + "/image/tool/rweavetex-active"; //$NON-NLS-1$
+	public static final String IMG_OBJ_RWEAVETEX = PLUGIN_ID + "/image/obj/rweavetex"; //$NON-NLS-1$
+	public static final String IMG_OBJ_RWEAVETEX_ACTIVE = PLUGIN_ID + "/image/obj/rweavetex-active"; //$NON-NLS-1$
 	
-	public static final String IMG_TOOL_BUILD = RUI.PLUGIN_ID + "/image/tool/build"; //$NON-NLS-1$
-	public static final String IMG_TOOL_BUILDANDPREVIEW = RUI.PLUGIN_ID + "/image/tool/buildandpreview"; //$NON-NLS-1$
-	public static final String IMG_TOOL_PREVIEW = RUI.PLUGIN_ID + "/image/tool/preview"; //$NON-NLS-1$
-	public static final String IMG_TOOL_RWEAVE = RUI.PLUGIN_ID + "/image/tool/rweave"; //$NON-NLS-1$
-	public static final String IMG_TOOL_BUILDTEX = RUI.PLUGIN_ID + "/image/tool/build-tex"; //$NON-NLS-1$
+	public static final String IMG_TOOL_BUILD = PLUGIN_ID + "/image/tool/build"; //$NON-NLS-1$
+	public static final String IMG_TOOL_BUILDANDPREVIEW = PLUGIN_ID + "/image/tool/buildandpreview"; //$NON-NLS-1$
+	public static final String IMG_TOOL_PREVIEW = PLUGIN_ID + "/image/tool/preview"; //$NON-NLS-1$
+	public static final String IMG_TOOL_RWEAVE = PLUGIN_ID + "/image/tool/rweave"; //$NON-NLS-1$
+	public static final String IMG_TOOL_BUILDTEX = PLUGIN_ID + "/image/tool/build-tex"; //$NON-NLS-1$
+	
+	public static final String RWEAVETEX_EDITOR_NODE = PLUGIN_ID + "/rweavetex.editor/options"; //$NON-NLS-1$
+	
+	public static final String RWEAVETEX_EDITOR_ASSIST_GROUP_ID = "sweave/rweavetex.editor/assist"; //$NON-NLS-1$
 	
 	
 	// The shared instance
@@ -77,9 +86,13 @@ public class SweavePlugin extends AbstractUIPlugin {
 	}
 	
 	public static void logError(final int code, final String message, final Throwable e) {
-		getDefault().getLog().log(new Status(IStatus.ERROR, RUI.PLUGIN_ID, code, message, e));
+		getDefault().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, code, message, e));
 	}
 	
+	
+	private boolean fStarted;
+	
+	private final List<IDisposable> fDisposables = new ArrayList<IDisposable>();
 	
 	private RweaveTexDocumentProvider fRTexDocumentProvider;
 	
@@ -101,15 +114,37 @@ public class SweavePlugin extends AbstractUIPlugin {
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
 		gPlugin = this;
+		fStarted = true;
 	}
+	
 	
 	@Override
 	public void stop(final BundleContext context) throws Exception {
 		try {
-			if (fRweaveTexProcessingManager != null) {
-				fRweaveTexProcessingManager.dispose();
+			if (fRweaveTexTemplatesStore != null) {
+				fRweaveTexTemplatesStore.stopListeningForPreferenceChanges();
+			}
+			
+			synchronized (this) {
+				fStarted = false;
+				
+				fEditorRTexPreferenceStore = null;
+				
+				fRweaveTexTemplatesStore = null;
+				fRweaveTexTemplatesContextTypeRegistry = null;
+				
 				fRweaveTexProcessingManager = null;
 			}
+			
+			for (final IDisposable listener : fDisposables) {
+				try {
+					listener.dispose();
+				}
+				catch (final Throwable e) {
+					getLog().log(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, ICommonStatusConstants.INTERNAL_PLUGGED_IN, "Error occured when dispose module", e)); 
+				}
+			}
+			fDisposables.clear();
 		}
 		finally {
 			gPlugin = null;
@@ -133,22 +168,27 @@ public class SweavePlugin extends AbstractUIPlugin {
 		util.register(IMG_TOOL_PREVIEW, ImageRegistryUtil.T_TOOL, "preview.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_RWEAVE, ImageRegistryUtil.T_TOOL, "rweave.png"); //$NON-NLS-1$
 		util.register(IMG_TOOL_BUILDTEX, ImageRegistryUtil.T_TOOL, "build-tex.png"); //$NON-NLS-1$
-		
-		util.register(RUI.IMG_OBJ_R_RUNTIME_ENV, ImageRegistryUtil.T_OBJ, "r-env.png"); //$NON-NLS-1$
 	}
 	
 	
 	public synchronized RweaveTexDocumentProvider getRTexDocumentProvider() {
 		if (fRTexDocumentProvider == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fRTexDocumentProvider = new RweaveTexDocumentProvider();
 		}
 		return fRTexDocumentProvider;
 	}
 	
-	public IPreferenceStore getEditorRTexPreferenceStore() {
+	public synchronized IPreferenceStore getEditorRTexPreferenceStore() {
 		if (fEditorRTexPreferenceStore == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fEditorRTexPreferenceStore = CombinedPreferenceStore.createStore(
 					getPreferenceStore(),
+					TexlipsePlugin.getDefault().getPreferenceStore(),
 					RUIPlugin.getDefault().getPreferenceStore(),
 					StatetUIServices.getBaseUIPreferenceStore(),
 					EditorsUI.getPreferenceStore() );
@@ -164,8 +204,10 @@ public class SweavePlugin extends AbstractUIPlugin {
 	 */
 	public synchronized ContextTypeRegistry getRweaveTexGenerationTemplateContextRegistry() {
 		if (fRweaveTexTemplatesContextTypeRegistry == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fRweaveTexTemplatesContextTypeRegistry = new ContributionContextTypeRegistry();
-			
 			RweaveTexTemplatesContextType.registerContextTypes(fRweaveTexTemplatesContextTypeRegistry);
 		}
 		return fRweaveTexTemplatesContextTypeRegistry;
@@ -178,11 +220,15 @@ public class SweavePlugin extends AbstractUIPlugin {
 	 */
 	public synchronized TemplateStore getRweaveTexGenerationTemplateStore() {
 		if (fRweaveTexTemplatesStore == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fRweaveTexTemplatesStore = new ContributionTemplateStore(
 					getRweaveTexGenerationTemplateContextRegistry(), getPreferenceStore(), RWEAVETEX_TEMPLATES_KEY);
 			try {
 				fRweaveTexTemplatesStore.load();
-			} catch (final IOException e) {
+			}
+			catch (final IOException e) {
 				logError(-1, "Error occured when loading 'R code generation' template store.", e); //$NON-NLS-1$
 			}
 		}
@@ -191,7 +237,11 @@ public class SweavePlugin extends AbstractUIPlugin {
 	
 	public synchronized SweaveProcessing getRweaveTexProcessingManager() {
 		if (fRweaveTexProcessingManager == null) {
+			if (!fStarted) {
+				throw new IllegalStateException("Plug-in is not started.");
+			}
 			fRweaveTexProcessingManager = new SweaveProcessing(Sweave.RWEAVETEX_DOC_PROCESSING_LAUNCHCONFIGURATION_ID);
+			fDisposables.add(fRweaveTexProcessingManager);
 		}
 		return fRweaveTexProcessingManager;
 	}

@@ -22,10 +22,10 @@
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
-            base-type="net.sourceforge.texlipse.contentTypes.Latex"
-            file-extensions="Rnw,rnw,Snw,snw"
             id="de.walware.statet.r.contentTypes.RweaveTex"
+            base-type="net.sourceforge.texlipse.contentTypes.Latex"
             name="%contentTypes_RweaveTex_name"
+            file-extensions="Rnw,rnw,Snw,snw"
             priority="normal">
          <property
                name="bom">
@@ -102,10 +102,10 @@
    <extension
          point="org.eclipse.ui.contexts">
       <context
-            description="%contexts_RweaveSource_description"
             id="de.walware.statet.r.contexts.RweaveEditorScope"
             parentId="de.walware.statet.r.contexts.REditor"
-            name="%contexts_RweaveSource_name">
+            name="%contexts_RweaveSource_name"
+            description="%contexts_RweaveSource_description">
       </context>
    </extension>
    
@@ -208,12 +208,12 @@
    <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.sweave.debug.RChunkDirectLaunchShortcut"
-            icon="icons/tool_16/run-r-chunk.png"
             id="de.walware.statet.r.launchShortcuts.RChunkDirect"
-            label="%launchShortcuts_RunRChunkDirect_label"
+            category="de.walware.statet.r.other"
             modes="run"
+            class="de.walware.statet.r.internal.sweave.debug.RChunkDirectLaunchShortcut"
+            label="%launchShortcuts_RunRChunkDirect_label"
+            icon="icons/tool_16/run-r-chunk.png"
             path="statet/r/3">
          <enablement>
             <with
@@ -259,12 +259,12 @@
          </contextualLaunch>
       </shortcut>
       <shortcut
-            category="de.walware.statet.r.other"
-            class="de.walware.statet.r.internal.sweave.debug.RChunkDirectAndConsoleLaunchShortcut"
-            icon="icons/tool_16/run-r-chunk.png"
             id="de.walware.statet.r.launchShortcuts.RChunkDirectAndConsole"
-            label="%launchShortcuts_RunRChunkDirectAndGotoConsole_label"
+            category="de.walware.statet.r.other"
             modes="run"
+            class="de.walware.statet.r.internal.sweave.debug.RChunkDirectAndConsoleLaunchShortcut"
+            label="%launchShortcuts_RunRChunkDirectAndGotoConsole_label"
+            icon="icons/tool_16/run-r-chunk.png"
             path="statet/r/3">
          <enablement>
             <with
@@ -286,12 +286,12 @@
          </enablement>
       </shortcut>
       <shortcut
-            category="de.walware.statet.r.basic"
-            class="de.walware.statet.r.internal.sweave.debug.RweaveTexViaSweaveLaunchShortcut"
-            icon="icons/tool_16/run-sweave.png"
             id="de.walware.statet.r.launchShortcuts.SweaveRweaveTexDoc"
-            label="%launchShortcuts_RunRweaveTexDocViaSweave"
+            category="de.walware.statet.r.basic"
             modes="run"
+            class="de.walware.statet.r.internal.sweave.debug.RweaveTexViaSweaveLaunchShortcut"
+            label="%launchShortcuts_RunRweaveTexDocViaSweave"
+            icon="icons/tool_16/run-sweave.png"
             path="statet/r/5">
          <enablement>
             <with
@@ -336,9 +336,9 @@
    <extension
          point="org.eclipse.ui.commands">
       <category
-            description="%categorys_Doc_description"
             id="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            name="%categorys_Doc_name">
+            name="%categorys_Doc_name"
+            description="%categorys_Doc_description">
       </category>
       <command
             id="de.walware.statet.r.launchShortcuts.RChunkDirect.run"
@@ -353,37 +353,37 @@
       <command
             id="de.walware.statet.sweave.commands.ProcessWeaveDefault"
             categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessWeave"
+            name="%commands_ProcessWeave_name"
             description="%commands_ProcessWeave_description"
-            name="%commands_ProcessWeave_name">
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessWeave">
       </command>
       <command
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessTex"
-            description="%commands_ProcessTex_description"
             id="de.walware.statet.sweave.commands.ProcessTexDefault"
-            name="%commands_ProcessTex_name">
+            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
+            name="%commands_ProcessTex_name"
+            description="%commands_ProcessTex_description"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessTex">
       </command>
       <command
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessDoc"
-            description="%commands_ProcessDocument_description"
             id="de.walware.statet.doc.commands.ProcessDocDefault"
-            name="%commands_ProcessDocument_name">
+            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
+            name="%commands_ProcessDocument_name"
+            description="%commands_ProcessDocument_description"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessDoc">
       </command>
       <command
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$PreviewDoc"
-            description="%commands_PreviewDocument_description"
             id="de.walware.statet.doc.commands.PreviewDocDefault"
-            name="%commands_PreviewDocument_name">
+            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
+            name="%commands_PreviewDocument_name"
+            description="%commands_PreviewDocument_description"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$PreviewDoc">
       </command>
       <command
-            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
-            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessAndPreview"
-            description="%commands_ProcessAndPreview_description"
             id="de.walware.statet.doc.commands.ProcessAndPreviewDefault"
-            name="%commands_ProcessAndPreview_name">
+            categoryId="de.walware.statet.doc.commandsCategory.EditDocumentation"
+            name="%commands_ProcessAndPreview_name"
+            description="%commands_ProcessAndPreview_description"
+            defaultHandler="de.walware.statet.r.internal.sweave.processing.RweaveTexProfileDefaultHandler$ProcessAndPreview">
       </command>
    </extension>
    <extension
@@ -437,8 +437,8 @@
       <launchConfigurationType
             id="de.walware.statet.r.launchConfigurationTypes.RweaveTexCreation"
             category="org.eclipse.ui.externaltools"
-            delegate="de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate"
             modes="run"
+            delegate="de.walware.statet.r.internal.sweave.processing.RweaveTexLaunchDelegate"
             name="%launchConfigurations_RweaveTexProcessing_name"
             public="true">
       </launchConfigurationType>
@@ -471,9 +471,9 @@
                   visible="false">
             </separator>
             <command
+                  id="de.walware.statet.doc.menus.ProcessDoc"
                   commandId="de.walware.statet.doc.commands.ProcessDocDefault"
                   icon="icons/tool_16/build.png"
-                  id="de.walware.statet.doc.menus.ProcessDoc"
                   style="pulldown">
                <visibleWhen
                      checkEnabled="false">
@@ -486,9 +486,9 @@
                </visibleWhen>
             </command>
             <command
+                  id="de.walware.statet.doc.menus.PreviewDoc"
                   commandId="de.walware.statet.doc.commands.PreviewDocDefault"
                   icon="icons/tool_16/preview.png"
-                  id="de.walware.statet.doc.menus.PreviewDoc"
                   style="push">
                <visibleWhen
                      checkEnabled="false">
@@ -501,9 +501,9 @@
                </visibleWhen>
             </command>
             <command
+                  id="de.walware.statet.doc.menus.ProcessAndPreview"
                   commandId="de.walware.statet.doc.commands.ProcessAndPreviewDefault"
                   icon="icons/tool_16/build_and_preview.png"
-                  id="de.walware.statet.doc.menus.ProcessAndPreview"
                   style="push">
                <visibleWhen
                      checkEnabled="false">
@@ -524,8 +524,8 @@
       <menuContribution
             locationURI="menu:de.walware.statet.doc.menus.ProcessWeave">
          <dynamic
-               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesDropdownContribution"
-               id="de.walware.statet.doc.commands.ProcessDocList">
+               id="de.walware.statet.doc.commands.ProcessDocList"
+               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesDropdownContribution">
          </dynamic>
          <separator
                name="additions"
@@ -535,8 +535,8 @@
       <menuContribution
             locationURI="menu:de.walware.statet.doc.menus.ProcessDoc">
          <dynamic
-               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesDropdownContribution$ProcessDoc"
-               id="de.walware.statet.doc.commands.ProcessDocList">
+               id="de.walware.statet.doc.commands.ProcessDocList"
+               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesDropdownContribution$ProcessDoc">
          </dynamic>
          <separator
                name="additions"
@@ -570,8 +570,8 @@
       <menuContribution
             locationURI="menu:de.walware.statet.doc.menus.MainDoc?after=processing">
          <dynamic
-               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesMenuContribution"
-               id="de.walware.statet.doc.commands.ProcessDocList">
+               id="de.walware.statet.doc.commands.ProcessDocList"
+               class="de.walware.statet.r.internal.sweave.processing.RweaveTexProfilesMenuContribution">
          </dynamic>
       </menuContribution>
    </extension>

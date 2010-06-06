@@ -34,11 +34,11 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.text.edits.TextEdit;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
+import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.text.ITokenScanner;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.StringParseInput;
@@ -125,17 +125,17 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 	private REditorOptions fOptions;
 	
 	
-	public RAutoEditStrategy(final IRCoreAccess rCoreAccess, final ISourceEditor sourceEditor, final TextEditor eclipseEditor) {
+	public RAutoEditStrategy(final IRCoreAccess rCoreAccess, final ISourceEditor editor) {
 		assert (rCoreAccess != null);
-		assert (sourceEditor != null);
+		assert (editor != null);
 		
 		fRCoreAccess = rCoreAccess;
-		fEditor = sourceEditor;
+		fEditor = editor;
 		fOptions = RUIPlugin.getDefault().getREditorSettings(rCoreAccess.getPrefs());
 		assert (fOptions != null);
 		
 		fViewer = fEditor.getViewer();
-		fEditor3 = eclipseEditor;
+		fEditor3 = (editor instanceof SourceEditor1) ? (SourceEditor1) editor : null;
 		fMyListener = new RealTypeListener();
 	}
 	

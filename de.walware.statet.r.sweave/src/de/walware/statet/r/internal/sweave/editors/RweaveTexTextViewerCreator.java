@@ -25,10 +25,11 @@ import de.walware.statet.r.internal.sweave.SweavePlugin;
 
 public class RweaveTexTextViewerCreator implements IViewerCreator {
 	
+	
 	public Viewer createViewer(final Composite parent, final CompareConfiguration config) {
 		final RweaveTexViewerConfigurator viewerConfigurator = new RweaveTexViewerConfigurator(
 				RCore.getWorkbenchAccess());
-		viewerConfigurator.setConfiguration(new RweaveTexViewerConfiguration(
+		viewerConfigurator.setConfiguration(new RweaveTexViewerConfiguration(null,
 				viewerConfigurator, SweavePlugin.getDefault().getEditorRTexPreferenceStore(), SharedUIResources.getColors()));
 		return new CompareTextViewer(parent, config, viewerConfigurator);
 	}

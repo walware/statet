@@ -29,13 +29,13 @@ import de.walware.statet.r.sweave.text.MultiCatDocumentUtil;
 public class Rweave {
 	
 	
-	public static final String CHUNK_CONTROL_CONTENT_TYPE = "__sweave_chunk_control"; //$NON-NLS-1$
-	public static final String CHUNK_COMMENT_CONTENT_TYPE = "__sweave_chunk_comment"; //$NON-NLS-1$
+	public static final String CHUNK_CONTROL_CONTENT_TYPE = "sweave_chunk_control"; //$NON-NLS-1$
+	public static final String CHUNK_COMMENT_CONTENT_TYPE = "sweave_chunk_comment"; //$NON-NLS-1$
 	
-	public static final String TEX_DEFAULT_CONTENT_TYPE = IDocument.DEFAULT_CONTENT_TYPE;
+	public static final String TEX_DEFAULT_CONTENT_TYPE = ITexDocumentConstants.TEX_DEFAULT_CONTENT_TYPE;
 	public static final String TEX_COMMENT_CONTENT_TYPE = ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE;
 	public static final String TEX_MATH_CONTENT_TYPE = ITexDocumentConstants.TEX_MATH_CONTENT_TYPE;
-	public static final String TEX_VERBATIM_CONTENT_TYPE = ITexDocumentConstants.TEX_VERBATIM;
+	public static final String TEX_VERBATIM_CONTENT_TYPE = ITexDocumentConstants.TEX_VERBATIM_CONTENT_TYPE;
 	
 	public static final String R_DEFAULT_CONTENT_TYPE = IRDocumentPartitions.R_DEFAULT_EXPL;
 	
@@ -44,7 +44,7 @@ public class Rweave {
 	 * Id of partitioning of Sweave (LaTeX) documents.
 	 * Value: {@value}
 	 */
-	public static final String R_TEX_PARTITIONING = "__sweave_tex_partitioning"; //$NON-NLS-1$
+	public static final String R_TEX_PARTITIONING = "rweavetex_walware.de"; //$NON-NLS-1$
 	
 	public static final String[] R_PARTITION_TYPES = new String[] {
 		IRDocumentPartitions.R_DEFAULT_EXPL,
@@ -69,7 +69,7 @@ public class Rweave {
 	public static final String[] TEX_PARTITION_TYPES = new String[] {
 		ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_MATH_CONTENT_TYPE,
-		ITexDocumentConstants.TEX_VERBATIM,
+		ITexDocumentConstants.TEX_VERBATIM_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE,
 	};
 	
@@ -80,7 +80,7 @@ public class Rweave {
 		IDocument.DEFAULT_CONTENT_TYPE,
 //		ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE, automatically converted to DEFAULT_CONTENT_TYPE
 		ITexDocumentConstants.TEX_MATH_CONTENT_TYPE,
-		ITexDocumentConstants.TEX_VERBATIM,
+		ITexDocumentConstants.TEX_VERBATIM_CONTENT_TYPE,
 		ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE,
 		CHUNK_CONTROL_CONTENT_TYPE,
 		CHUNK_COMMENT_CONTENT_TYPE,
@@ -125,7 +125,7 @@ public class Rweave {
 			return (partitionType == IDocument.DEFAULT_CONTENT_TYPE
 					|| partitionType == ITexDocumentConstants.TEX_DEFAULT_EXPL_CONTENT_TYPE
 					|| partitionType == ITexDocumentConstants.TEX_MATH_CONTENT_TYPE
-					|| partitionType == ITexDocumentConstants.TEX_VERBATIM
+					|| partitionType == ITexDocumentConstants.TEX_VERBATIM_CONTENT_TYPE
 					|| partitionType == ITexDocumentConstants.TEX_COMMENT_CONTENT_TYPE
 					);
 		}
