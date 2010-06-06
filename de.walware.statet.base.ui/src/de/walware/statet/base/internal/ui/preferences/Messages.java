@@ -59,7 +59,6 @@ public class Messages extends NLS {
 	public static String CodeTemplates_Preview_label;
 	
 	public static String CodeTemplates_error_title;
-	public static String CodeTemplates_error_Parse_message;
 	public static String CodeTemplates_error_Read_message;
 	public static String CodeTemplates_error_Write_message;
 	

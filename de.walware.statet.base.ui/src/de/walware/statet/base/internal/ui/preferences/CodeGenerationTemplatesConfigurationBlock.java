@@ -31,7 +31,9 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.PixelConverter;
 import org.eclipse.jface.resource.JFaceResources;
@@ -52,6 +54,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
@@ -497,19 +500,17 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 /* Error Dialogs **************************************************************/
 	
 	private void openReadErrorDialog(final Exception e) {
-		final String title = Messages.CodeTemplates_error_title;
-		String message = e.getLocalizedMessage();
-		if (message != null)
-			message = NLS.bind(Messages.CodeTemplates_error_Parse_message, message);
-		else
-			message = Messages.CodeTemplates_error_Read_message;
-		MessageDialog.openError(getShell(), title, message);
+		StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, 0,
+				Messages.CodeTemplates_error_Read_message, e));
+		MessageDialog.openError(getShell(),
+				Messages.CodeTemplates_error_title, Messages.CodeTemplates_error_Read_message);
 	}
 	
 	private void openWriteErrorDialog(final Exception e) {
-		final String title = Messages.CodeTemplates_error_title;
-		final String message = Messages.CodeTemplates_error_Write_message;
-		MessageDialog.openError(getShell(), title, message);
+		StatusManager.getManager().handle(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, 0,
+				Messages.CodeTemplates_error_Write_message, e));
+		MessageDialog.openError(getShell(),
+				Messages.CodeTemplates_error_title, Messages.CodeTemplates_error_Write_message);
 	}
 	
 }
