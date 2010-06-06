@@ -15,6 +15,8 @@
 <!-- ============================================================================= -->
 <toc label="StatET for R User Guide" 
       link_to="toc.xml#main_languages">
+   <topic href="reference/r_env.xhtml" label="R Environments">
+   </topic>
    <topic href="reference/r_editor.xhtml" label="R Script Editor">
       <topic href="reference/r_editor-highlighting.xhtml" label="Highlighting">
       </topic>
@@ -37,6 +39,10 @@
          </topic>
          <topic href="reference/r_remote_console-resourcemapping.xhtml" label="Resource Mapping">
          </topic>
+      </topic>
+   </topic>
+   <topic label="R Help">
+      <topic href="reference/r_help-search.xhtml" label="Search">
       </topic>
    </topic>
 </toc>

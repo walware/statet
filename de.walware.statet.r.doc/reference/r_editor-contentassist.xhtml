@@ -23,17 +23,19 @@ There are different kind of proposals, the available proposals depends on the co
 Right from the items in the menu a popup displays information like
 the code that will be inserted for the particular snippet that is selected from the menu.
 Pressing <kbd>Enter</kbd> will insert the proposal in the editor and allow you to
-further edit the text. Some proposals supports the additional replacement mode.
-It is activated by holding the <kbd>Ctrl</kbd>.</p>
+further edit the text. Some proposals support the additional replacement mode.
+It is activated by holding the <kbd>Ctrl</kbd>.
+</p>
 
 
 <h2>R Element (Names)</h2>
 
 <h4>Proposals from other projects</h4>
-<p>To get proposals for R elements of other R projects in the Eclipse workspace,
-you have to add that projects to the list of referenced projects. The list can be
-edited at the project property page "Project References" of the selected project.
-Note, that closed projects cannot contribute R elements to the "R search path".</p>
+<p>To get proposals for R elements of other R projects in the Eclipse workspace, you have to add 
+that projects to the list of referenced projects. The list can be edited at the project property 
+page "Project References" of the selected project.  
+Note, that closed projects cannot contribute R elements to the "R search path".
+</p>
 
 <h4>Proposals from packages</h4>
 <p>To get proposals for R elements of R packages, you have to import the packages to the
@@ -46,16 +48,26 @@ R script file by</p>
 StatET searches for the packages at first in the references projects (recursively).
 A project can be configured as package in the project property page "R Project" by entering
 the package name. In a second step, the package is used in the currently active R instance
-(console), if available.</p>
+(console), if available.
+</p>
 
 
 <h2>Templates</h2>
-<p>Templates proposals allows to insert predefined source snippets.</p>
+
+<p>Template proposals allow inserting predefined source snippets.
+</p>
 
 <h4>Configuration of snippet templates</h4>
 <p>The content of the predefined snippets can be configured in <span class="uisequence">Window &gt; Preferences</span> at
-<span class="uisequence indent">StatET &gt; Source Editors &gt; R Templates</span></p>
+<span class="uisequence indent">StatET &gt; Source Editors &gt; R Templates</span>
+</p>
 <img style="width: 776px; height: 536px;" alt="Screenshot preferences content assist templates" src="../images/screenshot_preferences_content_assist_templates.png"/>
+
+
+<h2>Resource Paths</h2>
+
+<p>Inside string this type enables the completion of path names for filesystem resources.
+</p>
 
 </body>
 </html>

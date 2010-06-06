@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Environments</title>
+	<meta name="copyright" content="Copyright (c) 2010 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>R Environments</h1>
+
+<p>
+An R environment is a given version of R and a collection of R libraries.  
+R environments are used to start R correctly and to identify a clear working environment for R
+related tasks.  For example a help index is associated with an R environment.</p>
+<p>
+There are several configuration types of R environments:</p>
+<ul>
+	<li>User-defined <b>Local</b>: For common R installations on the local system.<br/>
+		This is the default type and the usual choice for most users.</li>
+	<li>User-defined <b>Remote</b>: For R installations on a remote system.<br/>
+		This type can be used for remote console.</li>
+	<li><b>Embedded</b>: For R installations provided by an Eclipse plug-in.<br/>
+		This type cannot be created and edited by the user.</li>
+</ul>
+
+<h3>Preferences</h3>
+<p>
+The R environments for your Eclipse workspace can be viewed and configured in the preferences:
+<span class="uisequence indent">StatET &gt; Run/Debug &gt; R Environments</span></p>
+<img alt="Screenshot R Environments preference page" src="../images/screenshot_r_environments.png"/>
+<p>
+One can specify as many R environments as wanted as long as they have a unique name.  Buttons 
+'Add..', 'Edit', etc. allow to define new environments or edit existing ones.  Using the 'Default'
+button is possible to define a environment as default environment for the Eclipse workspace.</p>
+
+<h4>User-defined Local Configurations</h4>
+<p>
+For user-defined local configurations, the user will be asked to provide a name and to indicate the 
+path to the R home directory for that given R.  R home, also known as the environment variable 
+<code>R_HOME</code>, is the root directory of the R installation, containing among others the 
+sub-directories <code>bin</code>, <code>etc</code> and <code>library</code>.  If a correct R home
+directory is entered, the button 'Detect Default Properties/Settings' allows to load the defaults 
+for the other properties and settings. Experienced user can also edit and adapt them manually,
+for instance to add additional R library locations.</p>
+<img alt="Screenshot Edit R Environment dialog" src="../images/screenshot_edit_r_environment.png"/>
+
+<h4>User-defined Remote Configurations</h4>
+<p>
+The R home directory, installation locations and R libraries for remote R environments are defined
+by the server running on the remote system. Therefore most options of the local R environments 
+configurations are not available for remote environments.</p>
+
+</body>
+</html>

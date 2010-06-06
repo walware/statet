@@ -15,16 +15,16 @@
 
 <p>The R console (new integrated console) page is separated in two areas: the input line 
 and the output viewer. The input line allows you to submit directly 
-input to launched tool. The output viewer shows all previous input and 
+input to the launched tool. The output viewer shows all previous input and 
 their &ldquo;response&rdquo;, the output of R.</p>
 
 <h2 id="input">Cmd Input</h2>
 <p>You can type commands in input line text field and edit code almost like in 
-an usual editor of StatET.
+a usual editor of StatET.
 Pressing <kbd>ENTER</kbd> or the 'Submit'-Button sends your current input to your tool.</p>
 
 <h4>Special shortcuts</h4>
-<p>There are some special actions and keyboard shortcuts to access the history and to scroll
+<p>There are some special actions and keyboard shortcuts to access the command history and to scroll
 the output viewer, if you are in the input line:</p>
 <table class="style1">
 
@@ -91,10 +91,16 @@ the output viewer, if you are in the input line:</p>
 <sup><a id="ft2">2</a></sup> Keyboard binding can be changed as usual.
 </p>
 
+<p>
+The commands to include for the history navigation can be configured in the preferences; by default
+only commands directly from the console are enabled.</p>
+
 <h4>Content Assistant</h4>
-<p>The command line offers the possibility to select file paths using a
-graphical interface. This functionality is available whenever the cursor
-is positioned within quotes by using <kbd>Ctrl+Space</kbd>.</p>
+<p>
+See <a href="r_editor-contentassist.xhtml">Content Assistant</a> of R editor.</p>
+<p>
+For remote consoles the completion of resources path requires the configuration of
+<a href="r_remote_console-resourcemapping.xhtml">resource mappings</a>.</p>
 
 <h2 id="output">Console Output</h2>
 <ul>
@@ -144,8 +150,8 @@ configuring an R Launch Configuration.</p>
 <h4>Console Button <img style="width: 35px; height: 29px;" alt="Console button" src="../images/screenshot_console_button_alone.png"/></h4>
 <p>If several consoles are opened within one Console View, the console
 button allows to navigate to other consoles that are available within
-the Console View. When two consoles are open, a single click allows to
-navigate between the two consoles.</p>
+the Console View. When two consoles are open, a single click navigates between 
+the two consoles.</p>
 <img style="width: 819px; height: 271px;" alt="Screenshot console button" src="../images/screenshot_console_button.png"/>
 
 <h4>Open New Console&nbsp;<img style="width: 39px; height: 28px;" alt="Screenshot new console menu button" src="../images/screenshot_new_console_menu_button.png"/></h4>

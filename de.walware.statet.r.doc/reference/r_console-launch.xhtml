@@ -29,10 +29,11 @@ The most important tabs are dealt with in detail in separate paragraphs
 below.</p>
 
 <h4>Main</h4>
-<p>The launch type allows to specify how the connection to R will
+<p>The launch type allows specifies how the connection to R will
 be managed. The default is the Java-based RJ console connection 
 which is fully cross-platform (requires R package <code>rJava</code> with JRI).
-An older connection type Rterm is provided as well.</p>
+An older connection type Rterm is provided as well. Several features of StatET
+are only available for RJ.</p>
 <p>The 'Working Directory' specifies the initial <b>working directory</b> of your R session.</p>
 <p>The 'Options' field allows to specify R <b>startup-options</b>, such as 
 <code>--no-environ</code>,<code> --no-init-file</code> etc.</p>
@@ -40,23 +41,22 @@ An older connection type Rterm is provided as well.</p>
 <h4>R Config</h4>
 <img style="width: 862px; height: 581px;" alt="Screenshot r console run config r config" src="../images/screenshot_r_console_run_config_R_config.png"/>
 <p>The R Config tab allows to specify which <b>R environment</b> to use.</p>
-<p>An R environment is simply a given version of R linked to a certain path
+<p>An <a href="r_env.xhtml">R environment</a> is simply a given version of R linked to a certain path
 on your file system. One can either choose the default R environment that you
 set for the workbench or a specific environment (Selected Configuration). When
-one presses the 'Configure...' button, the R Environments window will show up.
-This window is part of the StatET preferences and is displayed below.</p>
-<img style="width: 629px; height: 418px;" alt="Screenshot r environments" src="../images/screenshot_r_environments.png"/>
-<p>One can specify as many R environments as wanted as long as they have a
-unique name. Buttons 'Add..', 'Edit', etc. allow to define new environments or
-edit existing ones. The user will be asked to provide a name and to indicate the
-path to the <code>$R_HOME</code> for that given R (not <code>$R_HOME/bin</code> !!).
-Press <span class="uisequence">Detect Default Properties/Settings</span> to load the
-defaults for the other properties and settings, or edit them manually.</p>
-<img style="width: 692px; height: 528px;" alt="Screenshot edit r environment" src="../images/screenshot_edit_r_environment.png"/>
+one presses the 'Configure...' button, the R Environments preference page will show up.</p>
 
-<p>Upon clicking 'OK' the configuration will be added to the list of R
-environments, so the user can make use of them when configuring the 'R Config'
-tab of an R Console launch configuration.</p>
+<p>If the R environment is not yet setup, the following steps create a new configuration:</p>
+<ol>
+	<li>'Add...' opens the edit dialog for a new local R environment configuration.</li>
+	<li>The user will be asked to provide a name and to indicate the
+	path to the <code>$R_HOME</code> for that given R (not <code>$R_HOME/bin</code> !!).</li>
+	<li>It is recommend to press <span class="uisequence">Detect Default Properties/Settings</span> 
+	to load the defaults for the other properties and settings.</li>
+	<li>Upon clicking 'OK' the configuration will be added to the list of R
+	environments, so the user can make use of them when configuring the 'R Config'
+	tab of an R Console launch configuration.</li>
+</ol>
 
 <h4>Other Configuration Options</h4>
 <p>The console option 'Pin initial console automatically' will pin the initial
