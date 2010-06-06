@@ -65,9 +65,9 @@ import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FCall;
-import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
+import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
@@ -94,11 +94,11 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		 * @return if candidate starts with prefix
 		 */
 		public boolean matches(final String candidate) {
-			if (fPrefix.length == 0) {
-				return true;
-			}
 			if (candidate == null || candidate.length() == 0) {
 				return false;
+			}
+			if (fPrefix.length == 0) {
+				return (candidate.charAt(0) != '.');
 			}
 			int pC = fPrefix[0];
 			int cC = Character.toLowerCase(candidate.charAt(0));

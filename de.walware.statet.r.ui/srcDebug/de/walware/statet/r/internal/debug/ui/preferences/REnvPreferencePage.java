@@ -133,7 +133,10 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
 			final Composite table = createTable(composite);
-			table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			{	GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+				gd.heightHint = LayoutUtil.hintHeight(fListViewer.getTable(), 10);
+				table.setLayoutData(gd);
+			}
 			
 			fListButtons = new ButtonGroup<IREnvConfiguration.WorkingCopy>(composite) {
 				@Override
@@ -294,7 +297,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	private Composite createTable(final Composite parent) {
-		final TableComposite composite = new ViewerUtil.TableComposite(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+		final TableComposite composite = new ViewerUtil.TableComposite(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION | SWT.V_SCROLL);
 		fListViewer = composite.viewer;
 		composite.table.setHeaderVisible(true);
 		composite.table.setLinesVisible(true);

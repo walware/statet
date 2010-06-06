@@ -1325,7 +1325,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				updateFilter();
 			}
 		};
-		fSearchTextItem.setToolTip("Filter elements");
+		fSearchTextItem.setToolTip("Filter Elements");
 		fSearchTextItem.setSizeControl(fTreeViewer.getControl().getParent());
 		fSearchTextItem.setResultControl(fTreeViewer.getTree());
 		

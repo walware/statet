@@ -179,6 +179,12 @@ class RweaveTexTool implements Runnable, IProcess {
 						monitor.subTask("LaTeX"); //$NON-NLS-1$
 						
 						doPrepareTex();
+						if (monitor.isCanceled() || fProgress.isCanceled()) {
+							fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, Messages.RweaveTexProcessing_info_Canceled_message));
+						}
+						if (fStatus.getSeverity() >= IStatus.ERROR) {
+							return;
+						}
 						
 						final SubMonitor progress = fProgress.newChild(TICKS_TEX);
 						progress.beginTask(Messages.RweaveTexProcessing_Tex_label, 100);

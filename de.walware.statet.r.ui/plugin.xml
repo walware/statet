@@ -897,18 +897,6 @@
       </key>
    </extension>
    <extension
-         point="org.eclipse.ui.views">
-      <view
-            category="de.walware.statet.base.views.StatetCategory"
-            class="de.walware.statet.r.internal.ui.graphics.StatetRGraphicView"
-            icon="icons/obj_16/r-graphic.png"
-            id="de.walware.statet.r.views.RGraphic"
-            name="%views_RGraphicView_name"
-            allowMultiple="true"
-            restorable="true">
-      </view>
-   </extension>
-   <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
             class="de.walware.statet.r.internal.debug.nostart.SupportFileCommandTester"
