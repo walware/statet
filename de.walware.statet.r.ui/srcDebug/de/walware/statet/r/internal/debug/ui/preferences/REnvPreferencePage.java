@@ -12,22 +12,33 @@
 package de.walware.statet.r.internal.debug.ui.preferences;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.ValidationStatusProvider;
+import org.eclipse.core.databinding.observable.Observables;
+import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
+import org.eclipse.core.databinding.validation.ValidationStatus;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.IElementComparer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -40,18 +51,19 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.IStatusChangeListener;
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
+import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
+import de.walware.ecommons.preferences.ui.ManagedConfigurationBlock;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.DropDownButton;
@@ -63,38 +75,54 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 
 
 /**
  * Preference page for R (Environment) configuration of the workbench.
  */
-public class REnvPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+public class REnvPreferencePage extends ConfigurationBlockPreferencePage<REnvConfigurationBlock> {
 	
 	
 	public static final String PREF_PAGE_ID = "de.walware.statet.r.preferencePages.REnvironmentPage"; //$NON-NLS-1$
 	
 	
-	private TableViewer fListViewer;
-	private ButtonGroup<IREnvConfiguration.WorkingCopy> fListButtons;
-	
-	private IObservableList fList;
-	private IObservableValue fDefault;
-	
-	
 	public REnvPreferencePage() {
-	}
-	
-	public void init(final IWorkbench workbench) {
-		fList = new WritableList();
-		fDefault = new WritableValue();
 	}
 	
 	
 	@Override
-	protected Control createContents(final Composite parent) {
-		final Composite pageComposite = new Composite(parent, SWT.NONE);
-		pageComposite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 1));
+	protected REnvConfigurationBlock createConfigurationBlock() throws CoreException {
+		return new REnvConfigurationBlock(null, createStatusChangedListener());
+	}
+	
+}
+
+class REnvConfigurationBlock extends ManagedConfigurationBlock {
+	
+	
+	private TableViewer fListViewer;
+	private ButtonGroup<IREnvConfiguration.WorkingCopy> fListButtons;
+	
+	private final IObservableList fList = new WritableList();
+	private final IObservableValue fDefault = new WritableValue();
+	private final IObservableValue fListStatus = new WritableValue();
+	
+	private ComboViewer fIndexConsoleViewer;
+	
+	
+	protected REnvConfigurationBlock(final IProject project, final IStatusChangeListener statusListener) {
+		super(project, statusListener);
+	}
+	
+	
+	@Override
+	protected void createBlockArea(final Composite pageComposite) {
+		final Map<Preference, String> prefs = new HashMap<Preference, String>();
+		prefs.put(RDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
+		setupPreferenceManager(prefs);
+		
 		final Label label = new Label(pageComposite, SWT.LEFT);
 		label.setText(Messages.REnv_REnvList_label);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -142,7 +170,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 				@Override
 				public void updateState() {
 					super.updateState();
-					REnvPreferencePage.this.updateStatus();
+					REnvConfigurationBlock.this.updateStatus();
 				}
 			};
 			fListButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, true));
@@ -162,11 +190,11 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 				@Override
 				protected void fillDropDownMenu(final Menu menu) {
 					{	final MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-						menuItem.setText("Add Local (default)...");
+						menuItem.setText(Messages.REnv_Add_Local_label);
 						menuItem.addSelectionListener(addDefaultListener);
 					}
 					{	final MenuItem menuItem = new MenuItem(menu, SWT.PUSH);
-						menuItem.setText("Add Remote...");
+						menuItem.setText(Messages.REnv_Add_Remote_label);
 						menuItem.addSelectionListener(new SelectionAdapter() {
 							@Override
 							public void widgetSelected(final SelectionEvent e) {
@@ -209,13 +237,34 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 				}
 			});
 			fListViewer.setInput(fList);
+			
 		}
-		
 		loadValues(PreferencesUtil.getInstancePrefs());
-		fListButtons.refresh();
 		
-		applyDialogFont(pageComposite);
-		return pageComposite;
+		final Composite indexOptions = createIndexOptions(pageComposite);
+		indexOptions.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		
+		initBindings();
+		updateStatus();
+		getDbc().addValidationStatusProvider(new ValidationStatusProvider() {
+			@Override
+			public IObservableValue getValidationStatus() {
+				return fListStatus;
+			}
+			@Override
+			public IObservableList getModels() {
+				return Observables.staticObservableList(getDbc().getValidationRealm(),
+						Collections.emptyList());
+			}
+			@Override
+			public IObservableList getTargets() {
+				return Observables.staticObservableList(getDbc().getValidationRealm(),
+						Collections.emptyList());
+			}
+		});
+		
+		updateControls();
+		fListButtons.refresh();
 	}
 	
 	private boolean edit(final IREnvConfiguration.WorkingCopy config, final boolean newConfig) {
@@ -244,7 +293,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		return (dialog.open() == Dialog.OK);
 	}
 	
-	protected Composite createTable(final Composite parent) {
+	private Composite createTable(final Composite parent) {
 		final TableComposite composite = new ViewerUtil.TableComposite(parent, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 		fListViewer = composite.viewer;
 		composite.table.setHeaderVisible(true);
@@ -288,30 +337,69 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 		return composite;
 	}
 	
-	@Override
-	protected void performDefaults() {
+	private Composite createIndexOptions(final Composite parent) {
+		final Group composite = new Group(parent, SWT.NONE);
+		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
+		
+		final Label label = new Label(composite, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		label.setText(Messages.REnv_Update_Console_label);
+		
+		fIndexConsoleViewer = new ComboViewer(composite, SWT.DROP_DOWN | SWT.READ_ONLY);
+		fIndexConsoleViewer.getControl().setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		
+		fIndexConsoleViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(final Object element) {
+				if (element.equals(RDebugPreferenceConstants.AUTO)) {
+					return Messages.REnv_Update_Console_Auto_label;
+				}
+				if (element.equals(RDebugPreferenceConstants.ASK)) {
+					return Messages.REnv_Update_Console_Ask_label;
+				}
+				if (element.equals(RDebugPreferenceConstants.DISABLED)) {
+					return Messages.REnv_Update_Console_Disabled_label;
+				}
+				return ""; //$NON-NLS-1$
+			}
+		});
+		fIndexConsoleViewer.setContentProvider(new ArrayContentProvider());
+		fIndexConsoleViewer.setInput(new String[] {
+				RDebugPreferenceConstants.AUTO,
+				RDebugPreferenceConstants.ASK,
+				RDebugPreferenceConstants.DISABLED,
+		});
+		
+		return composite;
 	}
 	
+	@Override
+	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
+		dbc.bindValue(ViewersObservables.observeSingleSelection(fIndexConsoleViewer),
+				createObservable(RDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE),
+				null, null);
+	}
+	
+	
+	@Override
+	public void performApply() {
+		super.performApply();
+		saveValues(true);
+	}
 	@Override
 	public boolean performOk() {
+		final boolean superOk = super.performOk();
 		if (fListButtons.isDirty()) {
-			return saveValues(false);
+			return superOk | saveValues(false);
 		}
-		return true;
-	}
-	
-	@Override
-	protected void performApply() {
-		saveValues(true);
+		return superOk;
 	}
 	
 	
 	private void updateStatus() {
-		if (fDefault.getValue() == null) {
-			setMessage(Messages.REnv_warning_NoDefaultConfiguration_message, IStatus.WARNING);
-			return;
-		}
-		setMessage(null);
+		fListStatus.setValue((fDefault.getValue() == null) ?
+				ValidationStatus.warning(Messages.REnv_warning_NoDefaultConfiguration_message) :
+				ValidationStatus.ok() );
 	}
 	
 	private boolean saveValues(final boolean saveStore) {
@@ -322,7 +410,7 @@ public class REnvPreferencePage extends PreferencePage implements IWorkbenchPref
 					(defaultREnv != null) ? defaultREnv.getReference().getId() : null);
 			if (groupIds != null) {
 				ConfigurationBlock.scheduleChangeNotification(
-						(IWorkbenchPreferenceContainer) getContainer(), groupIds, saveStore);
+						getContainer(), groupIds, saveStore);
 			}
 			return true;
 		}

@@ -192,7 +192,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	private Thread fControllerThread;
 	private ToolStatus fStatus = ToolStatus.STARTING;
 	private final FastList<IToolStatusListener> fToolStatusListeners;
-	private List<DebugEvent> fEventCollector = new LinkedList<DebugEvent>();
+	private final List<DebugEvent> fEventCollector = new LinkedList<DebugEvent>();
 	private int fInternalTask = 0;
 	private boolean fPauseRequested = false;
 	private boolean fTerminateForced = false;
@@ -201,7 +201,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	protected WorkspaceType fWorkspaceData;
 	
-	private Map<String, IToolEventHandler> fHandlers = new HashMap<String, IToolEventHandler>();
+	private final Map<String, IToolEventHandler> fHandlers = new HashMap<String, IToolEventHandler>();
 	
 	// RunnableAdapter proxy for tool lifecycle thread
 	protected String fCurrentInput;
@@ -291,7 +291,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return fStreams;
 	}
 	
-	public final ToolProcess<WorkspaceType> getProcess() {
+	public ToolProcess<WorkspaceType> getProcess() {
 		return fProcess;
 	}
 	

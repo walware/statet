@@ -67,8 +67,7 @@ public abstract class AbstractRController
 	
 	public static final String INIT_RGRAPHIC_FACTORY_HANDLER_ID = "r/initRGraphicFactory"; //$NON-NLS-1$
 	
-	
-	protected String fStartupSnippet;
+	protected List<IToolRunnable> fStartupsRunnables = new ArrayList<IToolRunnable>();
 	
 	protected String fContinuePromptText;
 	protected String fDefaultPromptText;
@@ -86,8 +85,13 @@ public abstract class AbstractRController
 	}
 	
 	
-	public void setStartupSnippet(final String code) {
-		fStartupSnippet = code;
+	public void addStartupRunnable(final IToolRunnable runnable) {
+		fStartupsRunnables.add(runnable);
+	}
+	
+	@Override
+	public RProcess getProcess() {
+		return (RProcess) super.getProcess();
 	}
 	
 	@Override

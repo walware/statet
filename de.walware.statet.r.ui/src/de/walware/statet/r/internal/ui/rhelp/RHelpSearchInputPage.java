@@ -35,6 +35,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.PlatformUI;
@@ -43,6 +44,7 @@ import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.RModel;
@@ -180,8 +182,16 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		loadSettings();
 		initSettings();
 		fREnvControl.setSetting(RCore.getREnvManager().getDefault());
-		updateState();
+		Display.getCurrent().asyncExec(new Runnable() {
+			public void run() {
+				if (UIAccess.isOkToUse(fSearchTextControl)) {
+					fSearchTextControl.setFocus();
+				}
+				updateState();
+			}
+		});
 	}
+	
 	
 	private Composite createSearchInGroup(final Composite parent) {
 		final Composite composite = new Composite(parent, SWT.NONE);

@@ -14,6 +14,7 @@ package de.walware.statet.r.internal.core.rhelp;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +29,15 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.store.FSDirectory;
 import org.eclipse.core.runtime.CoreException;
@@ -84,7 +87,18 @@ public class REnvIndexReader implements IREnvIndex {
 		}
 	};
 	
-	private static final FieldSelector LOAD_PKG_SELECTOR = new FieldSelector() {
+	private static final FieldSelector LOAD_PKG_TOPICS_SELECTOR = new FieldSelector() {
+		private static final long serialVersionUID = 1L;
+		public FieldSelectorResult accept(final String fieldName) {
+			if (fieldName == PAGE_FIELD_NAME
+					|| fieldName == ALIAS_FIELD_NAME) {
+				return FieldSelectorResult.LOAD;
+			}
+			return FieldSelectorResult.NO_LOAD;
+		}
+	};
+	
+	private static final FieldSelector LOAD_PKG_DESCRIPTION_SELECTOR = new FieldSelector() {
 		private static final long serialVersionUID = 1L;
 		public FieldSelectorResult accept(final String fieldName) {
 			if (fieldName == DESCRIPTION_TXT_FIELD_NAME
@@ -386,6 +400,7 @@ public class REnvIndexReader implements IREnvIndex {
 		return "#getHtmlPage' " + packageName + "', '" + pageName + "'";
 	}
 	
+	
 	public boolean search(final RHelpSearchQuery.Compiled query,
 			final List<IRPackageHelp> packageList, final Map<String, IRPackageHelp> packageMap,
 			final IRHelpSearchRequestor requestor) {
@@ -414,6 +429,64 @@ public class REnvIndexReader implements IREnvIndex {
 		}
 	}
 	
+	
+	public List<RHelpTopicEntry> getPackageTopics(final IRPackageHelp packageHelp) {
+		final List<RHelpTopicEntry> list = new ArrayList<RHelpTopicEntry>(64);
+		try {
+			final BooleanQuery q = new BooleanQuery(true);
+			q.add(new TermQuery(new Term(DOCTYPE_FIELD_NAME, PAGE_DOC_TYPE)), Occur.MUST);
+			q.add(new TermQuery(new Term(PACKAGE_FIELD_NAME, packageHelp.getName())), Occur.MUST);
+			fIndexSearcher.search(q, new Collector() {
+				
+				private Scorer fScorer;
+				
+				private IndexReader fReader;
+				private int fDocBase;
+				
+				@Override
+				public void setScorer(final Scorer scorer) throws IOException {
+					fScorer = scorer;
+				}
+				
+				@Override
+				public boolean acceptsDocsOutOfOrder() {
+					return true;
+				}
+				
+				@Override
+				public void setNextReader(final IndexReader reader, final int docBase) throws IOException {
+					fReader = reader;
+					fDocBase = docBase;
+				}
+				
+				@Override
+				public void collect(final int doc) throws IOException {
+					if (fScorer.score() > 0.0f) {
+						final Document document = fReader.document(fDocBase + doc, LOAD_PKG_TOPICS_SELECTOR);
+						final String pageName = document.get(PAGE_FIELD_NAME);
+						final IRHelpPage page = packageHelp.getHelpPage(pageName);
+						final String[] topics = document.getValues(ALIAS_FIELD_NAME);
+						for (int i = 0; i < topics.length; i++) {
+							list.add(new RHelpTopicEntry(topics[i], page));
+						}
+					}
+				}
+				
+			});
+			Collections.sort(list);
+			return list;
+		}
+		catch (final Exception e) {
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"An error occurred in search: " + getPackageTopicsDescription(packageHelp.getName()) + ".", e));
+			return null;
+		}
+	}
+	
+	private String getPackageTopicsDescription(final String packageName) {
+		return "#getPackageTopicsDescription '" + packageName + "'";
+	}
+	
 	public IRPackageDescription getPackageDescription(final String packageName, final String title, final String version) {
 		try {
 			final BooleanQuery q = new BooleanQuery(true);
@@ -425,10 +498,9 @@ public class REnvIndexReader implements IREnvIndex {
 						"Unexpected search result: total hits = " + docs.totalHits + "; in search: " +
 						getPackageDescriptionDescription(packageName) + "." ));
 			}
-			
 			if (docs.totalHits >= 1) {
 				final int docId = docs.scoreDocs[0].doc;
-				final Document document = fIndexSearcher.doc(docId, LOAD_PKG_SELECTOR);
+				final Document document = fIndexSearcher.doc(docId, LOAD_PKG_DESCRIPTION_SELECTOR);
 				
 				return new RPackageDescription(packageName, title,
 						document.get(DESCRIPTION_TXT_FIELD_NAME),
@@ -447,7 +519,7 @@ public class REnvIndexReader implements IREnvIndex {
 	}
 	
 	private String getPackageDescriptionDescription(final String packageName) {
-		return "#getPackageDescription' " + packageName + "'";
+		return "#getPackageDescription '" + packageName + "'";
 	}
 	
 }

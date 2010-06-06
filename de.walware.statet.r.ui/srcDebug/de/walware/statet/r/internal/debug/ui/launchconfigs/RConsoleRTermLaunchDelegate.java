@@ -138,7 +138,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		progress.worked(5);
 		
-		controller.setStartupSnippet(configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null));
+		RConsoleLaunching.scheduleStartupSnippet(controller, configuration);
 		
 		final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page,

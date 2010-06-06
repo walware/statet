@@ -30,9 +30,9 @@ import org.apache.lucene.document.Field.TermVector;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.eclipse.core.runtime.IStatus;
@@ -46,9 +46,9 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
-import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.core.rhelp.IRHelpKeywordNode;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
+import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RPackageDescription;
 
@@ -56,8 +56,7 @@ import de.walware.statet.r.internal.core.RPackageDescription;
 public class REnvIndexWriter implements IREnvIndex {
 	
 	
-	public static final boolean DEBUG = true;
-//			Boolean.parseBoolean(System.getProperty("de.walware.statet.r.rhelp.debug") ); //$NON-NLS-1$
+	public static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("de.walware.statet.r.rhelp.debug") ); //$NON-NLS-1$
 	
 	
 	public static class AbortIndexException extends Exception {

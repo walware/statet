@@ -56,6 +56,7 @@ import de.walware.statet.nico.ui.console.NIConsolePage;
 
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
+import de.walware.statet.r.internal.nico.ui.REnvIndexUpdateHandler;
 import de.walware.statet.r.internal.nico.ui.RInputConfigurator;
 import de.walware.statet.r.internal.nico.ui.RInputGroup;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
@@ -217,7 +218,7 @@ public class RConsolePage extends NIConsolePage {
 		final RProcess process = (RProcess) getConsole().getProcess();
 		if (process.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)
 				&& process.getAdapter(IREnvConfiguration.class) != null) {
-			final MenuManager rEnv = new MenuManager("R environment");
+			final MenuManager rEnv = new MenuManager("R &Environment");
 			menuManager.appendToGroup(NICO_CONTROL_MENU_ID, rEnv);
 			
 			rEnv.add(new HandlerContributionItem(new CommandContributionItemParameter(
@@ -225,13 +226,13 @@ public class RConsolePage extends NIConsolePage {
 					null, null, null,
 					"Index c&ompletely", null, null,
 					CommandContributionItem.STYLE_PUSH, null, false),
-					new REnvUpdateHandler(process, true) ));
+					new REnvIndexUpdateHandler(process, true) ));
 			rEnv.add(new HandlerContributionItem(new CommandContributionItemParameter(
 					getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
 					null, null, null,
 					"Index ch&anges", null, null,
 					CommandContributionItem.STYLE_PUSH, null, false),
-					new REnvUpdateHandler(process, false) ));
+					new REnvIndexUpdateHandler(process, false) ));
 			
 		}
 	}

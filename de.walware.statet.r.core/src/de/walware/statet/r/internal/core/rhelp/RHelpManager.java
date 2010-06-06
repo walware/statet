@@ -206,7 +206,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 	
 	public String toHttpUrl(final String url, final IREnv rEnv, final String target) {
 		checkRunning();
-		if (url.startsWith("rhelp://")) {
+		if (url.startsWith("rhelp:///")) { //$NON-NLS-1$
 			final StringBuilder sb = new StringBuilder(64);
 			sb.append(RHelpWebapp.CONTEXT_PATH);
 			sb.append('/');
@@ -252,9 +252,15 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 					return createUrl(sb.toString());
 				}
 			}
+			else if (path.length() == 1) { // start
+				sb.append('/');
+				sb.append(rEnv.getId());
+				sb.append('/');
+				return createUrl(sb.toString());
+			}
 			return null;
 		}
-		if (url.startsWith("http://") && (rEnv != null || target != null)) {
+		if (url.startsWith("http://") && (rEnv != null || target != null)) { //$NON-NLS-1$
 			try {
 				final URI uri = new URI(url);
 				if (isDynamic(uri)) {

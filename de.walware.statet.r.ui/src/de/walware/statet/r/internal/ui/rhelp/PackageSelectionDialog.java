@@ -60,7 +60,8 @@ public class PackageSelectionDialog extends SelectionDialog {
 		super(parentShell);
 		fInput = packages;
 		fSelection = initialSelection;
-		setMessage("Select &packages:");
+		setTitle(Messages.PackageSelection_title);
+		setMessage(Messages.PackageSelection_message);
 	}
 	
 	
@@ -129,7 +130,7 @@ public class PackageSelectionDialog extends SelectionDialog {
 		final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
 		gd.widthHint = LayoutUtil.hintWidth(clearAllControl);
 		clearAllControl.setLayoutData(gd);
-		clearAllControl.setText("Cl&ear All");
+		clearAllControl.setText(Messages.PackageSelection_ClearAll_label);
 		clearAllControl.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {

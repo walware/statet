@@ -17,6 +17,7 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	
 	
+	public static String CollectionEditing_AddItem_label;
 	public static String RInteraction_description;
 	public static String RInteraction_RConnector;
 	public static String RInteraction_RConnector_Description_label;
@@ -26,7 +27,10 @@ public class Messages extends NLS {
 	public static String REnv_REnvList_label;
 	public static String REnv_LocationColumn_name;
 	public static String REnv_NameColumn_name;
+	public static String REnv_Add_Local_label;
+	public static String REnv_Add_Remote_label;
 	public static String REnv_warning_NoDefaultConfiguration_message;
+	
 	public static String REnv_Detail_AddDialog_title;
 	public static String REnv_Detail_Edit_Dialog_title;
 	public static String REnv_Detail_Name_label;
@@ -46,6 +50,11 @@ public class Messages extends NLS {
 	public static String REnv_Detail_DetectSettings_error_Unexpected_message;
 	public static String REnv_SystemRHome_name;
 	public static String REnv_error_Saving_message;
+	
+	public static String REnv_Update_Console_label;
+	public static String REnv_Update_Console_Auto_label;
+	public static String REnv_Update_Console_Ask_label;
+	public static String REnv_Update_Console_Disabled_label;
 	
 	public static String RIntegrationExt_description;
 	public static String RIntegrationExt_LocalRMI_label;

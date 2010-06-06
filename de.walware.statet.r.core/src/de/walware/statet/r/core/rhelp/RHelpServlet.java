@@ -14,6 +14,7 @@ package de.walware.statet.r.core.rhelp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +38,7 @@ import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.renv.REnvConfiguration;
 import de.walware.statet.r.internal.core.rhelp.REnvHelp;
+import de.walware.statet.r.internal.core.rhelp.RHelpTopicEntry;
 import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
 import de.walware.statet.r.internal.core.rhelp.RHelpWebapp.ContentInfo;
 
@@ -49,30 +51,80 @@ public abstract class RHelpServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	
-	private static final String PACKAGE_INDEX_PAGE_NAME = "00Index";
+	private static final String PACKAGE_INDEX_PAGE_NAME = "00Index"; //$NON-NLS-1$
 	
 	private static final String ATTR_RENV_ID = "rhelp.renv.id"; //$NON-NLS-1$
 	private static final String ATTR_RENV_RESOLVED = "rhelp.renv.resolved"; //$NON-NLS-1$
 	private static final String ATTR_RENV_HELP = "rhelp.renv.help"; //$NON-NLS-1$
 	
 	private static final String[][] MANUALS = new String[][] {
-			{ "manual/R-intro.html", "An Introduction to R" },
-			{ "manual/R-data.html", "R Data Import/Export" },
-			{ "manual/R-lang.html", "The R Language Definition" },
-			{ "manual/R-exts.html", "Writing R Extensions" },
-			{ "manual/R-admin.html", "R Installation and Administration" },
-			{ "manual/R-ints.html", "An Introduction to R" },
-			{ "manual/R-intro.html", "R Internals" },
+			{ "manual/R-intro.html", "An Introduction to R" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "manual/R-data.html", "R Data Import/Export" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "manual/R-lang.html", "The R Language Definition" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "manual/R-exts.html", "Writing R Extensions" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "manual/R-admin.html", "R Installation and Administration" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "manual/R-ints.html", "R Internals" }, //$NON-NLS-1$ //$NON-NLS-2$
 	};
 	private static final String[][] MISCS = new String[][] {
-			{ "html/about.html", "About R" },
-			{ "COPYING", "License" },
-			{ "AUTHORS", "Authors" },
-			{ "THANKS", "Thanks" },
-			{ "html/resources.html", "Resources" },
-			{ "manual/R-FAQ.html", "Frequently Asked Questions" },
-			{ "html/rw-FAQ.html", "FAQ for Windows port" },
+			{ "html/about.html", "About R" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "COPYING", "License" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "AUTHORS", "Authors" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "THANKS", "Thanks" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "html/resources.html", "Resources" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "manual/R-FAQ.html", "Frequently Asked Questions" }, //$NON-NLS-1$ //$NON-NLS-2$
+			{ "html/rw-FAQ.html", "FAQ for Windows port" }, //$NON-NLS-1$ //$NON-NLS-2$
 	};
+	
+	private static void printSaveHtml(final Writer writer, final String s) throws IOException {
+		final int length = s.length();
+		int next = 0;
+		for (int i = 0; i < length; ) {
+			final char c = s.charAt(i);
+			switch (c) {
+			case '"':
+				if (i > next) {
+					writer.write(s, next, i - next);
+				}
+				writer.write("&quot;"); //$NON-NLS-1$
+				next = ++i;
+				continue;
+			case '&':
+				if (i > next) {
+					writer.write(s, next, i - next);
+				}
+				writer.write("&amp;"); //$NON-NLS-1$
+				next = ++i;
+				continue;
+			case '\'':
+				if (i > next) {
+					writer.write(s, next, i - next);
+				}
+				writer.write("&apos;"); //$NON-NLS-1$
+				next = ++i;
+				continue;
+			case '<':
+				if (i > next) {
+					writer.write(s, next, i - next);
+				}
+				writer.write("&lt;"); //$NON-NLS-1$
+				next = ++i;
+				continue;
+			case '>':
+				if (i > next) {
+					writer.write(s, next, i - next);
+				}
+				writer.write("&gt;"); //$NON-NLS-1$
+				next = ++i;
+				continue;
+			default:
+				i++;
+				continue;
+			}
+		}
+		if (length > next) {
+			writer.write(s, next, length - next);
+		}
+	}
 	
 	
 	private RCorePlugin fPlugin;
@@ -155,12 +207,10 @@ public abstract class RHelpServlet extends HttpServlet {
 				req.setAttribute(ATTR_RENV_HELP, help);
 				return true;
 			}
-			else {
-				resp.sendError(HttpServletResponse.SC_NOT_FOUND,
-						"The R library of the requested R environment <code>" + rEnv.getName() + 
-						"</code> is not yet indexed. Please run the indexer first to enable R help support.");
-				return false;
-			}
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+					"The R library of the requested R environment <code>" + rEnv.getName() + 
+					"</code> is not yet indexed. Please run the indexer first to enable R help support.");
+			return false;
 		}
 		else {
 			if (id.equals(IREnv.DEFAULT_WORKBENCH_ENV_ID)) {
@@ -198,27 +248,25 @@ public abstract class RHelpServlet extends HttpServlet {
 			redirect(req, resp, page);
 			return;
 		}
-		else {
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND,
-					"Help page <code>" + packageName + "::" + detail + "</code> not found.");
-			return;
-		}
+		resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+				"Help page <code>" + detail + "</code> {<code>" + packageName + "</code>} not found.");
+		return;
 	}
 	
 	private void processPackageIndex(final HttpServletRequest req, final HttpServletResponse resp,
 			final String packageName) throws IOException {
-		final IREnvHelp help = (IREnvHelp) req.getAttribute(ATTR_RENV_HELP);
+		final REnvHelp help = (REnvHelp) req.getAttribute(ATTR_RENV_HELP);
 		final IRPackageHelp packageHelp = help.getRPackage(packageName);
 		if (packageHelp != null) {
-			printPackageIndex(req, resp, packageHelp);
-			return;
+			final List<RHelpTopicEntry> packageTopics = help.getPackageTopics(packageHelp);
+			if (packageTopics != null) {
+				printPackageIndex(req, resp, packageHelp, packageTopics);
+				return;
+			}
 		}
-		else {
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND,
-					"Help for package <code>" + packageName + "</code> not found.");
-			return;
-		}
-		
+		resp.sendError(HttpServletResponse.SC_NOT_FOUND,
+				"Help for package <code>" + packageName + "</code> not found.");
+		return;
 	}
 	
 	private void processTopic(final HttpServletRequest req, final HttpServletResponse resp,
@@ -244,27 +292,27 @@ public abstract class RHelpServlet extends HttpServlet {
 			throws IOException {
 		final PrintWriter writer = createCssDoc(req, resp);
 		
-		writer.println("span.acronym { font-size: small }\n" +
-				"span.env { font-family: monospace }\n" +
-				"span.file { font-family: monospace }\n" +
-				"span.option { font-family: monospace }\n" +
-				"span.pkg { font-weight: bold }\n" +
-				"span.samp { font-family: monospace }");
+		writer.println("span.acronym { font-size: small }\n" + //$NON-NLS-1$
+				"span.env { font-family: monospace }\n" + //$NON-NLS-1$
+				"span.file { font-family: monospace }\n" + //$NON-NLS-1$
+				"span.option { font-family: monospace }\n" + //$NON-NLS-1$
+				"span.pkg { font-weight: bold }\n" + //$NON-NLS-1$
+				"span.samp { font-family: monospace }"); //$NON-NLS-1$
 		
-		writer.println("body { line-height: 125%; margin: 1em; padding: 0; }");
-		writer.println("table { margin: 0.4em 0 0.4em 0; border-collapse:collapse; border:0px; font-size: 100% }");
-		writer.println("td { padding: 0.2em 0.8em 0.2em 0; border:0px; }");
-		writer.println("h2 { font-size: 120%; font-weight: bold; margin: 0 0 0.6em 0; }");
-		writer.println("h3 { font-size: 110%; font-weight: bold; letter-spacing: 0.05em; margin: 1.0em 0 0.6em 0; }");
-		writer.println("p, pre { margin: 0.6em 0 0.6em 0; }");
-		writer.println("td { vertical-align: top; }");
-		writer.println("hr { margin-top: 0.8em; clear: both; }");
+		writer.println("body { line-height: 125%; margin: 1em; padding: 0; }"); //$NON-NLS-1$
+		writer.println("table { margin: 0.4em 0 0.4em 0; border-collapse:collapse; border:0px; font-size: 100% }"); //$NON-NLS-1$
+		writer.println("td { padding: 0.2em 0.8em 0.2em 0; border:0px; }"); //$NON-NLS-1$
+		writer.println("h2 { font-size: 120%; font-weight: bold; margin: 0 0 0.6em 0; }"); //$NON-NLS-1$
+		writer.println("h3 { font-size: 110%; font-weight: bold; letter-spacing: 0.05em; margin: 1.0em 0 0.6em 0; }"); //$NON-NLS-1$
+		writer.println("p, pre { margin: 0.6em 0 0.6em 0; }"); //$NON-NLS-1$
+		writer.println("td { vertical-align: top; }"); //$NON-NLS-1$
+		writer.println("hr { margin-top: 0.8em; clear: both; }"); //$NON-NLS-1$
 		
-		writer.println("div.toc { display: none; font-size: 80%; line-height: 125%; padding: 0.2em 0.8em 0.4em; }");
-		writer.println("div.toc ul { list-style: none; padding: 0; margin: 0 }");
-		writer.println("div.toc pre { margin: 0 0 0.4em; }");
-		writer.println("div.toc a { text-decoration: none; color: black; }");
-		writer.println("div.toc a:visited { text-decoration: none; color: black; }");
+		writer.println("div.toc { display: none; font-size: 80%; line-height: 125%; padding: 0.2em 0.8em 0.4em; }"); //$NON-NLS-1$
+		writer.println("div.toc ul { list-style: none; padding: 0; margin: 0 }"); //$NON-NLS-1$
+		writer.println("div.toc pre { margin: 0 0 0.4em; }"); //$NON-NLS-1$
+		writer.println("div.toc a { text-decoration: none; color: black; }"); //$NON-NLS-1$
+		writer.println("div.toc a:visited { text-decoration: none; color: black; }"); //$NON-NLS-1$
 		
 		customizeCss(writer);
 	}
@@ -286,7 +334,7 @@ public abstract class RHelpServlet extends HttpServlet {
 		final REnvHelp envHelp = (REnvHelp) req.getAttribute(ATTR_RENV_HELP);
 		final IFileStore docDirectory = getDocDirectory(envHelp);
 		if (docDirectory != null) {
-			if (path.startsWith("/")) {
+			if (path.startsWith("/")) { //$NON-NLS-1$
 				path = path.substring(1);
 			}
 			final IFileStore file = docDirectory.getFileStore(new Path(path));
@@ -297,11 +345,11 @@ public abstract class RHelpServlet extends HttpServlet {
 					in.available();
 					final byte[] buffer = new byte[1024];
 					
-					if (file.getName().endsWith(".html")) {
+					if (file.getName().endsWith(".html")) { //$NON-NLS-1$
 						resp.setContentType("text/html;charset=US-ASCII"); //$NON-NLS-1$
-						resp.setHeader("Cache-Control", "max-age=600, must-revalidate");
+						resp.setHeader("Cache-Control", "max-age=600, must-revalidate"); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					else if (file.getName().indexOf(".") < 0) {
+					else if (file.getName().indexOf(".") < 0) { //$NON-NLS-1$
 						resp.setContentType("text/plain;charset=US-ASCII"); //$NON-NLS-1$
 					}
 					final ServletOutputStream outputStream = resp.getOutputStream();
@@ -328,14 +376,14 @@ public abstract class RHelpServlet extends HttpServlet {
 	private PrintWriter createHtmlDoc(final HttpServletRequest req, final HttpServletResponse resp,
 			final String title) throws IOException {
 		resp.setContentType("text/html;charset=UTF-8"); //$NON-NLS-1$
-		resp.setHeader("Cache-Control", "max-age=30, must-revalidate");
+		resp.setHeader("Cache-Control", "max-age=30, must-revalidate"); //$NON-NLS-1$ //$NON-NLS-2$
 		final PrintWriter writer = resp.getWriter();
 		writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
 		writer.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"); //$NON-NLS-1$
 		
 		writer.println("<html><head>"); //$NON-NLS-1$
 		writer.write("<title>"); //$NON-NLS-1$
-		writer.write(title);
+		printSaveHtml(writer, title);
 		writer.write("</title>"); //$NON-NLS-1$
 		writer.write("<link rel=\"stylesheet\" type=\"text/css\" href=\""); //$NON-NLS-1$
 		writer.write(req.getContextPath());
@@ -357,7 +405,7 @@ public abstract class RHelpServlet extends HttpServlet {
 			throws IOException {
 		resp.setContentType("text/css;charset=UTF-8"); //$NON-NLS-1$
 		final PrintWriter writer = resp.getWriter();
-		writer.println("@charset \"UTF-8\";");
+		writer.println("@charset \"UTF-8\";"); //$NON-NLS-1$
 		return writer;
 	}
 
@@ -379,7 +427,7 @@ public abstract class RHelpServlet extends HttpServlet {
 	private void printHtmlPage(final HttpServletRequest req, final HttpServletResponse resp,
 			final String html) throws IOException {
 		resp.setContentType("text/html;charset=UTF-8"); //$NON-NLS-1$
-		resp.setHeader("Cache-Control", "max-age=30, must-revalidate");
+		resp.setHeader("Cache-Control", "max-age=30, must-revalidate"); //$NON-NLS-1$ //$NON-NLS-2$
 		final PrintWriter writer = resp.getWriter();
 		final int idxHead = html.indexOf("</head>"); //$NON-NLS-1$
 		if (idxHead > 0) {
@@ -422,21 +470,25 @@ public abstract class RHelpServlet extends HttpServlet {
 			Collections.sort(pages);
 			writer.write("<table>"); //$NON-NLS-1$
 			for (final IRHelpPage page : pages) {
-				writer.write("<tr><td>"); //$NON-NLS-1$
-				writer.write("<a href=\""); //$NON-NLS-1$
-				writer.write(getRelativeIndexUrl(page.getPackage()));
-				writer.write("\"><code>"); //$NON-NLS-1$
-				writer.write(page.getPackage().getName());
-				writer.write("</code></a></td>"); //$NON-NLS-1$
-				writer.write("<td><code>::</code></td>"); //$NON-NLS-1$
-				writer.write("<td>"); //$NON-NLS-1$
+				writer.write("<tr><td style=\"white-space: nowrap;\">"); //$NON-NLS-1$
 				writer.write("<a href=\""); //$NON-NLS-1$
 				writer.write(getRelativePageUrl(page));
 				writer.write("\"><code>"); //$NON-NLS-1$
 				writer.write(page.getName());
-				writer.write("</code></a>"); //$NON-NLS-1$
-				writer.write("</td><td>"); //$NON-NLS-1$
-				writer.write(page.getTitle());
+				writer.write("</code></a> {"); //$NON-NLS-1$
+				writer.write("<a href=\""); //$NON-NLS-1$
+				writer.write(getRelativeIndexUrl(page.getPackage()));
+				writer.write("\" title=\""); //$NON-NLS-1$
+				writer.write(page.getPackage().getName());
+				writer.write(" ["); //$NON-NLS-1$
+				writer.write(page.getPackage().getVersion());
+				writer.write("]\n"); //$NON-NLS-1$
+				printSaveHtml(writer, page.getPackage().getTitle());
+				writer.write("\"><code>"); //$NON-NLS-1$
+				writer.write(page.getPackage().getName());
+				writer.write("</code></a>}</td>"); //$NON-NLS-1$
+				writer.write("<td>"); //$NON-NLS-1$
+				printSaveHtml(writer, page.getTitle());
 				writer.write("</td></tr>"); //$NON-NLS-1$
 			}
 			writer.write("</table>"); //$NON-NLS-1$
@@ -448,60 +500,61 @@ public abstract class RHelpServlet extends HttpServlet {
 	}
 	
 	private void printPackageIndex(final HttpServletRequest req, final HttpServletResponse resp,
-			final IRPackageHelp packageHelp) throws IOException {
+			final IRPackageHelp packageHelp, final List<RHelpTopicEntry> packageTopics) throws IOException {
 		final IRPackageDescription packageDescription = packageHelp.getPackageDescription();
-		final List<IRHelpPage> pages = packageHelp.getHelpPages();
 		final PrintWriter writer = createHtmlDoc(req, resp,
 				NLS.bind("Package {0} - {1}", '\''+packageHelp.getName()+'\'', packageHelp.getTitle()) );
 		customizeIndexHtmlHeader(req, writer);
 		writer.println("</head><body>"); //$NON-NLS-1$
-		writer.write("<table class=\"header\"><tr><td>");
+		writer.write("<table class=\"header\"><tr><td>"); //$NON-NLS-1$
 		writer.write(packageHelp.getName());
-		writer.write(" [");
+		writer.write(" ["); //$NON-NLS-1$
 		writer.write(packageHelp.getVersion());
-		writer.write("]");
-		writer.println("</td></tr></table>");
+		writer.write("]"); //$NON-NLS-1$
+		writer.println("</td></tr></table>"); //$NON-NLS-1$
 		
-		writer.println("<div class=\"toc\"><ul>");
+		writer.println("<div class=\"toc\"><ul>"); //$NON-NLS-1$
 //		writer.println("<li><a href=\"#description\">Description</a></li>");
-		writer.write("<li><a href=\"pages\">Help Pages</a><pre>");
+		writer.write("<li><a href=\"#topics\">Help Topics</a><pre>"); //$NON-NLS-1$
 		TOC: for (int i = 'A', j = 0; i <= 'Z'; i++) {
 			if ((i-'A') % 7 == 0) {
 				writer.println();
 			}
 			writer.print(' ');
 			String name;
-			while (j < pages.size() &&
-					(name = pages.get(j).getName()) != null && name.length() > 0) {
+			while (j < packageTopics.size() &&
+					(name = packageTopics.get(j).getAlias()) != null && name.length() > 0) {
 				final char c = Character.toUpperCase(name.charAt(0));
-				if (c > i) {
-					break;
-				}
-				if (c == i) {
-					writer.write("<a href=\"#idx");
-					writer.print((char) (32 + c)); // lowercase
-					writer.write("\" class=\"mnemonic\">");
-					writer.print(c);
-					writer.write("</a>");
-					continue TOC;
+				if (c >= 'A' && c <= 'Z') {
+					if (c > i) {
+						break;
+					}
+					if (c == i) {
+						writer.write("<a href=\"#idx"); //$NON-NLS-1$
+						writer.print((char) (32 + c)); // lowercase
+						writer.write("\" class=\"mnemonic\">"); //$NON-NLS-1$
+						writer.print(c);
+						writer.write("</a>"); //$NON-NLS-1$
+						continue TOC;
+					}
 				}
 				j++;
 			}
 			writer.print((char) i);
 		}
-		writer.println("</pre></li>");
+		writer.println("</pre></li>"); //$NON-NLS-1$
 		if (packageDescription != null) {
 			if (packageDescription.getAuthor() != null && packageDescription.getAuthor().length() > 0) {
-				writer.println("<li><a href=\"#authors\">Author(s)</a></li>");
+				writer.println("<li><a href=\"#authors\">Author(s)</a></li>"); //$NON-NLS-1$
 			}
 			if (packageDescription.getMaintainer() != null && packageDescription.getMaintainer().length() > 0) {
-				writer.println("<li><a href=\"#maintainer\">Maintainer</a></li>");
+				writer.println("<li><a href=\"#maintainer\">Maintainer</a></li>"); //$NON-NLS-1$
 			}
 		}
-		writer.println("</ul></div>");
+		writer.println("</ul></div>"); //$NON-NLS-1$
 		
 		writer.write("<h2>"); //$NON-NLS-1$
-		writer.write(packageHelp.getTitle());
+		printSaveHtml(writer, packageHelp.getTitle());
 		writer.write("</h2>"); //$NON-NLS-1$
 		
 		if (packageDescription != null) {
@@ -509,7 +562,7 @@ public abstract class RHelpServlet extends HttpServlet {
 			if (description.length() > 0) {
 				writer.write("<h3 id=\"description\">Description</h3>"); //$NON-NLS-1$
 				writer.write("<p>"); //$NON-NLS-1$
-				writer.write(description);
+				printSaveHtml(writer, description);
 				if (description.charAt(description.length()-1) != '.') {
 					writer.print('.');
 				}
@@ -517,29 +570,40 @@ public abstract class RHelpServlet extends HttpServlet {
 			}
 		}
 		
-		writer.write("<h3 id=\"pages\">Help Pages</h3>"); //$NON-NLS-1$
+		writer.write("<h3 id=\"topics\">Help Topics</h3>"); //$NON-NLS-1$
 		writer.write("<table>"); //$NON-NLS-1$
 		final String basePath = req.getContextPath() + req.getServletPath() + '/' + packageHelp.getREnv().getId() +
 				'/' + RHelpWebapp.CAT_LIBRARY + '/' + packageHelp.getName() + '/' + RHelpWebapp.COMMAND_HTML_PAGE + '/';
-		final int lastChar = 0;
-		for (final IRHelpPage page : pages) {
-			final String name = page.getName();
-			writer.write("<tr><td>"); //$NON-NLS-1$
+		int lastChar = 0;
+		for (final RHelpTopicEntry topic : packageTopics) {
+			final IRHelpPage page = topic.getPage();
+			final String alias = topic.getAlias();
+			writer.write("<tr><td style=\"white-space: nowrap;\">"); //$NON-NLS-1$
 			writer.write("<a href=\""); //$NON-NLS-1$
 			writer.write(basePath);
-			writer.write(name);
+			writer.write(page.getName());
 			writer.write(".html"); //$NON-NLS-1$
 			writer.print('"');
-			if (name.length() > 0 && Character.toLowerCase(name.charAt(0)) > lastChar) {
-				writer.write(" id=\"idx"); //$NON-NLS-1$
-				writer.print(Character.toLowerCase(name.charAt(0)));
-				writer.print('"');
+			if (alias.length() > 0) {
+				final char c = Character.toUpperCase(alias.charAt(0));
+				if (c >= 'A' && c <= 'Z' && c > lastChar) {
+					lastChar = c;
+					writer.write(" id=\"idx"); //$NON-NLS-1$
+					writer.print((char) (32 + c)); // lowercase
+					writer.print('"');
+				}
 			}
-			writer.write("><code>"); //$NON-NLS-1$
+			writer.write(" title=\""); //$NON-NLS-1$
 			writer.write(page.getName());
+			writer.write(" {"); //$NON-NLS-1$
+			writer.write(packageHelp.getName());
+			writer.write("}\n"); //$NON-NLS-1$
+			printSaveHtml(writer, page.getTitle());
+			writer.write("\"><code>"); //$NON-NLS-1$
+			writer.write(alias);
 			writer.write("</code></a>"); //$NON-NLS-1$
 			writer.write("</td><td>"); //$NON-NLS-1$
-			writer.write(page.getTitle());
+			printSaveHtml(writer, page.getTitle());
 			writer.write("</td></tr>"); //$NON-NLS-1$
 		}
 		writer.write("</table>"); //$NON-NLS-1$
@@ -548,21 +612,21 @@ public abstract class RHelpServlet extends HttpServlet {
 			if (packageDescription.getAuthor() != null && packageDescription.getAuthor().length() > 0) {
 				writer.write("<h3 id=\"authors\">Author(s)</h3>"); //$NON-NLS-1$
 				writer.write("<p>"); //$NON-NLS-1$
-				writer.write(packageDescription.getAuthor());
+				printSaveHtml(writer, packageDescription.getAuthor());
 				writer.write("</p>"); //$NON-NLS-1$
 			}
 			if (packageDescription.getMaintainer() != null && packageDescription.getMaintainer().length() > 0) {
 				writer.write("<h3 id=\"maintainer\">Maintainer</h3>"); //$NON-NLS-1$
 				writer.write("<p>"); //$NON-NLS-1$
-				writer.write(packageDescription.getMaintainer());
+				printSaveHtml(writer, packageDescription.getMaintainer());
 				writer.write("</p>"); //$NON-NLS-1$
 			}
 			if (packageDescription.getUrl() != null && packageDescription.getUrl().length() > 0) {
 				writer.write("<h3 id=\"url\">URL</h3>"); //$NON-NLS-1$
 				writer.write("<p><a href=\""); //$NON-NLS-1$
-				writer.write(packageDescription.getUrl());
+				printSaveHtml(writer, packageDescription.getUrl());
 				writer.write("\"><code>"); //$NON-NLS-1$
-				writer.write(packageDescription.getUrl());
+				printSaveHtml(writer, packageDescription.getUrl());
 				writer.write("</code></a></p>"); //$NON-NLS-1$
 			}
 		}
@@ -584,9 +648,9 @@ public abstract class RHelpServlet extends HttpServlet {
 		customizeIndexHtmlHeader(req, writer);
 		writer.println("</head><body>"); //$NON-NLS-1$
 		
-		writer.println("<div class=\"toc\"><ul>");
-		writer.write("<li><a href=\"#manuals\">Manuals</a></li>");
-		writer.write("<li><a href=\"#packages\">Packages</a><pre>");
+		writer.println("<div class=\"toc\"><ul>"); //$NON-NLS-1$
+		writer.write("<li><a href=\"#manuals\">Manuals</a></li>"); //$NON-NLS-1$
+		writer.write("<li><a href=\"#packages\">Packages</a><pre>"); //$NON-NLS-1$
 		TOC: for (int i = 'A', j = 0; i <= 'Z'; i++) {
 			if ((i-'A') % 7 == 0) {
 				writer.println();
@@ -596,26 +660,28 @@ public abstract class RHelpServlet extends HttpServlet {
 			while (j < packages.size() &&
 					(name = packages.get(j).getName()) != null && name.length() > 0) {
 				final char c = Character.toUpperCase(name.charAt(0));
-				if (c > i) {
-					break;
-				}
-				if (c == i) {
-					writer.write("<a href=\"#idx");
-					writer.print((char) (32 + c)); // lowercase
-					writer.write("\" class=\"mnemonic\">");
-					writer.print(c);
-					writer.write("</a>");
-					continue TOC;
+				if (c >= 'A' && c <= 'Z') {
+					if (c > i) {
+						break;
+					}
+					if (c == i) {
+						writer.write("<a href=\"#idx"); //$NON-NLS-1$
+						writer.print((char) (32 + c)); // lowercase
+						writer.write("\" class=\"mnemonic\">"); //$NON-NLS-1$
+						writer.print(c);
+						writer.write("</a>"); //$NON-NLS-1$
+						continue TOC;
+					}
 				}
 				j++;
 			}
 			writer.print((char) i);
 		}
-		writer.println("</pre></li>");
+		writer.println("</pre></li>"); //$NON-NLS-1$
 		if (docDirectory != null) {
-			writer.write("<li><a href=\"#misc\">Misc. Material</a></li>");
+			writer.write("<li><a href=\"#misc\">Misc. Material</a></li>"); //$NON-NLS-1$
 		}
-		writer.println("</ul></div>");
+		writer.println("</ul></div>"); //$NON-NLS-1$
 		
 		writer.write("<h2>"); //$NON-NLS-1$
 		writer.write(rEnv.getName());
@@ -628,26 +694,26 @@ public abstract class RHelpServlet extends HttpServlet {
 				final String link = MANUALS[i][0];
 				final IFileStore file = docDirectory.getFileStore(new Path(link));
 				if (file.fetchInfo().exists()) {
-					writer.write("<tr><td>");
-					writer.write("<a href=\"");
+					writer.write("<tr><td>"); //$NON-NLS-1$
+					writer.write("<a href=\""); //$NON-NLS-1$
 					writer.write(baseDocPath);
 					writer.write(link);
-					writer.write("\">");
+					writer.write("\">"); //$NON-NLS-1$
 					writer.write(MANUALS[i][1]);
-					writer.write("</a>");
-					if (link.endsWith(".html")) {
+					writer.write("</a>"); //$NON-NLS-1$
+					if (link.endsWith(".html")) { //$NON-NLS-1$
 						final IFileStore pdfFile = file.getParent().getChild(
-								file.getName().substring(0, file.getName().length()-5) + ".pdf");
+								file.getName().substring(0, file.getName().length()-5) + ".pdf"); //$NON-NLS-1$
 						if (pdfFile.fetchInfo().exists()) {
-							writer.write(" [<a href=\"esystem://");
+							writer.write(" [<a href=\"esystem://"); //$NON-NLS-1$
 							writer.write(pdfFile.toURI().toString().substring(6));
-							writer.write("\">PDF</a>]");
+							writer.write("\" title=\"Open in PDF Viewer\">PDF</a>]");
 						}
 					}
-					writer.write("</tr></td>");
+					writer.write("</td></tr>"); //$NON-NLS-1$
 				}
 			}
-			writer.write("</table>");
+			writer.write("</table>"); //$NON-NLS-1$
 		}
 		else {
 			writer.write("<p>Manuals not available, because R home documentation folder is not found.</p>");
@@ -655,7 +721,7 @@ public abstract class RHelpServlet extends HttpServlet {
 		
 		writer.write("<h3 id=\"packages\">Packages</h3>"); //$NON-NLS-1$
 		writer.write("<table>"); //$NON-NLS-1$
-		final char lastChar = 0;
+		char lastChar = 0;
 		for (final IRPackageHelp packageHelp : packages) {
 			final String name = packageHelp.getName();
 			writer.write("<tr><td>"); //$NON-NLS-1$
@@ -665,19 +731,23 @@ public abstract class RHelpServlet extends HttpServlet {
 			writer.write("/\" title=\""); //$NON-NLS-1$
 			writer.write(name);
 			writer.write(" ["); //$NON-NLS-1$
-			writer.write(packageHelp.getVersion());
+			printSaveHtml(writer, packageHelp.getVersion());
 			writer.print(']');
 			writer.print('"');
-			if (name.length() > 0 && Character.toLowerCase(name.charAt(0)) > lastChar) {
-				writer.write(" id=\"idx"); //$NON-NLS-1$
-				writer.print(Character.toLowerCase(name.charAt(0)));
-				writer.print('"');
+			if (name.length() > 0) {
+				final char c = Character.toUpperCase(name.charAt(0));
+				if (c >= 'A' && c <= 'Z' && c > lastChar) {
+					lastChar = c;
+					writer.write(" id=\"idx"); //$NON-NLS-1$
+					writer.print((char) (32 + c)); // lowercase
+					writer.print('"');
+				}
 			}
 			writer.write("><code>"); //$NON-NLS-1$
 			writer.write(packageHelp.getName());
 			writer.write("</code></a>"); //$NON-NLS-1$
 			writer.write("</td><td>"); //$NON-NLS-1$
-			writer.write(packageHelp.getTitle());
+			printSaveHtml(writer, packageHelp.getTitle());
 			writer.write("</td></tr>"); //$NON-NLS-1$
 		}
 		writer.write("</table>"); //$NON-NLS-1$
@@ -689,29 +759,29 @@ public abstract class RHelpServlet extends HttpServlet {
 				final String link = MISCS[i][0];
 				final IFileStore file = docDirectory.getFileStore(new Path(link));
 				if (file.fetchInfo().exists()) {
-					writer.write("<tr><td>");
-					writer.write("<a href=\"");
+					writer.write("<tr><td>"); //$NON-NLS-1$
+					writer.write("<a href=\""); //$NON-NLS-1$
 					writer.write(baseDocPath);
 					writer.write(link);
-					writer.write("\">");
+					writer.write("\">"); //$NON-NLS-1$
 					writer.write(MISCS[i][1]);
-					writer.write("</a>");
-					if (link.endsWith(".html")) {
+					writer.write("</a>"); //$NON-NLS-1$
+					if (link.endsWith(".html")) { //$NON-NLS-1$
 						final IFileStore pdfFile = file.getParent().getChild(
-								file.getName().substring(0, file.getName().length()-5) + ".pdf");
+								file.getName().substring(0, file.getName().length()-5) + ".pdf"); //$NON-NLS-1$
 						if (pdfFile.fetchInfo().exists()) {
-							writer.write(" [<a href=\"esystem://");
+							writer.write(" [<a href=\"esystem://"); //$NON-NLS-1$
 							writer.write(pdfFile.toURI().toString().substring(6));
-							writer.write("\">PDF</a>]");
+							writer.write("\" title=\"Open in PDF Viewer\">PDF</a>]");
 						}
 					}
-					writer.write("</tr></td>");
+					writer.write("</td></tr>"); //$NON-NLS-1$
 				}
 			}
-			writer.write("</table>");
+			writer.write("</table>"); //$NON-NLS-1$
 		}
 		
-		writer.write("<hr/>");
+		writer.write("<hr/>"); //$NON-NLS-1$
 		
 		writer.println("</body></html>"); //$NON-NLS-1$
 	}
@@ -740,12 +810,12 @@ public abstract class RHelpServlet extends HttpServlet {
 	private void customizeExamples(final PrintWriter writer, final String html) {
 		int idx = 0;
 		while (idx < html.length()) {
-			int begin = html.indexOf("<pre", idx);
+			int begin = html.indexOf("<pre", idx); //$NON-NLS-1$
 			if (begin >= 0) {
 				begin = html.indexOf('>', begin+4);
 				if (begin >= 0) {
 					begin ++;
-					final int end = html.indexOf("</pre", begin);
+					final int end = html.indexOf("</pre", begin); //$NON-NLS-1$
 					if (end >= 0) {
 						writer.write(html, idx, begin-idx);
 						printRCode(writer, html.substring(begin, end));
@@ -760,11 +830,11 @@ public abstract class RHelpServlet extends HttpServlet {
 	}
 	
 	protected String[] getHightlightPreTags() {
-		return new String[] { "<b>" };
+		return new String[] { "<b>" }; //$NON-NLS-1$
 	}
 	
 	protected String[] getHightlightPostTags() {
-		return new String[] { "</b>" };
+		return new String[] { "</b>" }; //$NON-NLS-1$
 	}
 	
 	protected void customizeCss(final PrintWriter writer) {

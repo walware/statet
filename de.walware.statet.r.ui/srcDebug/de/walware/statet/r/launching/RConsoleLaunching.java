@@ -11,14 +11,19 @@
 
 package de.walware.statet.r.launching;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
+
 import de.walware.statet.nico.core.runtime.HistoryOperationsHandler;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
+import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.ui.util.EclipseIDEOperationsHandler;
 import de.walware.statet.nico.ui.util.QuitHandler;
 import de.walware.statet.nico.ui.util.ReportStatusHandler;
 import de.walware.statet.nico.ui.util.RunBlockingHandler;
 import de.walware.statet.nico.ui.util.SelectFileHandler;
 
+import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.nico.ui.RHelpEventHandler;
 import de.walware.statet.r.nico.AbstractRController;
 
@@ -88,7 +93,6 @@ public class RConsoleLaunching {
 	public static final String ATTR_OBJECTDB_LISTS_MAX_LENGTH = ATTR_ROOT+"objectdb.lists.max_length"; //$NON-NLS-1$
 	public static final String ATTR_OBJECTDB_ENVS_MAX_LENGTH = ATTR_ROOT+"objectdb.envs.max_length"; //$NON-NLS-1$
 	
-	
 	public static void registerDefaultHandlerTo(final AbstractRController controller) {
 		controller.addEventHandler(IToolEventHandler.SCHEDULE_QUIT_EVENT_ID, new QuitHandler());
 		controller.addEventHandler(IToolEventHandler.RUN_BLOCKING_EVENT_ID, new RunBlockingHandler());
@@ -105,4 +109,13 @@ public class RConsoleLaunching {
 		controller.addEventHandler(AbstractRController.SHOW_RHELP_HANDLER_ID, rHelpHandler);
 	}
 	
+	public static void scheduleStartupSnippet(final AbstractRController controller, final ILaunchConfiguration configuration) throws CoreException {
+		final String snippet = configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null);
+		if (snippet != null && snippet.length() > 0) {
+			final String[] lines = RUtil.LINE_SEPARATOR_PATTERN.split(snippet);
+			for (final String line : lines) {
+				controller.addStartupRunnable(controller.createCommandRunnable(line, SubmitType.TOOLS));
+			}
+		}
+	}
 }

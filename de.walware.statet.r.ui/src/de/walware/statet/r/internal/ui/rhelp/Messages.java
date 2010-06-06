@@ -25,6 +25,13 @@ public class Messages extends NLS {
 	public static String Search_SingleMatch_label;
 	public static String Search_MultipleMatches_label;
 	
+	public static String PackageSelection_title;
+	public static String PackageSelection_message;
+	public static String PackageSelection_ClearAll_label;
+	
+	public static String KeywordSelection_title;
+	public static String KeywordSelection_message;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

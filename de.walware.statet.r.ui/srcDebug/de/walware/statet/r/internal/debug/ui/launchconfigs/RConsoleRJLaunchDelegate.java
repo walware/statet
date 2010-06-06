@@ -45,6 +45,10 @@ import de.walware.ecommons.net.RMIUtil.StopRule;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.SubmitType;
+import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
@@ -52,13 +56,18 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
+import de.walware.rj.data.RDataUtil;
+import de.walware.rj.data.RObject;
+import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.server.RjsComConfig;
 
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.internal.nico.ui.REnvIndexAutoUpdater;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.nico.IRDataAdapter;
 import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -69,6 +78,71 @@ import de.walware.statet.r.ui.RUI;
  * Launch delegate for RJ based R console using embedded RJ server
  */
 public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
+	
+	
+	static class ConfigRunnable implements IToolRunnable {
+		
+		
+		private final boolean fEnableHelp;
+		
+		
+		public ConfigRunnable(final boolean enableHelp) {
+			fEnableHelp = enableHelp;
+		}
+		
+		
+		public String getTypeId() {
+			return "r/integration"; //$NON-NLS-1$
+		}
+		
+		public SubmitType getSubmitType() {
+			return SubmitType.OTHER;
+		}
+		
+		public String getLabel() {
+			return "Initialize R-StatET Tools";
+		}
+		
+		public void changed(final int event, final ToolProcess process) {
+		}
+		
+		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+			final IRDataAdapter r = (IRDataAdapter) adapter;
+			try {
+				if (!RDataUtil.checkSingleLogiValue(r.evalData("\"rj\" %in% installed.packages()[,\"Package\"]", monitor))) { //$NON-NLS-1$
+					r.handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, "The R package 'rj' is not available, R-StatET tools cannot be initialized."), monitor);
+					return;
+				}
+				final RObject rjPackageLoaded = r.evalData("require(\"rj\", quietly = TRUE)", monitor); //$NON-NLS-1$
+				if (RDataUtil.checkSingleLogiValue(rjPackageLoaded)) {
+					if (fEnableHelp) {
+						r.evalVoid(".statet.reassign_help()", monitor); //$NON-NLS-1$
+					}
+				}
+				else {
+					r.handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, "The R package 'rj' could not be loaded, R-StatET tools cannot be initialized."), monitor);
+				}
+			}
+			catch (final UnexpectedRDataException e) {
+			}
+		}
+		
+	}
+	
+	static void initConsoleOptions(final RjsController controller, final ILaunchConfiguration configuration,
+			final boolean isStartup) throws CoreException {
+		new REnvIndexAutoUpdater(controller.getProcess());
+		
+		if (configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RPACKAGES_LOAD_ENABLED, true)) {
+			controller.addStartupRunnable(new ConfigRunnable(
+					configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true) ));
+		}
+		if (isStartup) {
+			RConsoleLaunching.scheduleStartupSnippet(controller, configuration);
+		}
+		controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
+		controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
+	}
 	
 	
 	public void launch(final ILaunchConfiguration configuration, final String mode, 
@@ -211,7 +285,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_LISTS_MAX_LENGTH, 10000));
 		rjsProperties.put(RjsComConfig.RJ_DATA_STRUCTS_ENVS_MAX_LENGTH_PROPERTY_ID,
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
-		rjsProperties.put("rj.session.startup.time", timestamp);
+		rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
 		final RjsController controller = new RjsController(process, rmiAddress, null,
 				true, true, rArgs, rjsProperties,
 				engineLaunchDelegate.getWorkingDirectory(), trackingConfigs);
@@ -220,9 +294,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		progress.worked(5);
 		
-		controller.setStartupSnippet(configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null));
-		controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
-		controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
+		initConsoleOptions(controller, configuration, true);
 		
 		final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page, 

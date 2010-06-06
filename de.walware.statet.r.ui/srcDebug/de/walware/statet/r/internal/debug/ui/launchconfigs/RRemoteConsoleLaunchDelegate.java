@@ -515,9 +515,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			
 			progress.worked(5);
 			
-			controller.setStartupSnippet(configuration.getAttribute(RConsoleLaunching.ATTR_INIT_SCRIPT_SNIPPET, (String) null));
-			controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
-			controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
+			RConsoleRJLaunchDelegate.initConsoleOptions(controller, configuration, startup);
 			
 			final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 			NicoUITools.startConsoleLazy(console, page,

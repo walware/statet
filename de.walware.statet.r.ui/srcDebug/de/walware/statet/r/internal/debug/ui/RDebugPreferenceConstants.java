@@ -21,7 +21,6 @@ import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
-import de.walware.statet.r.ui.RUI;
 
 
 public class RDebugPreferenceConstants {
@@ -36,9 +35,19 @@ public class RDebugPreferenceConstants {
 	
 	public static final String CAT_RREMOTE_LAUNCHING_QUALIFIER = ROOT_QUALIFIER + "/r.remote.launching"; //$NON-NLS-1$
 	
-	public static final String CAT_RMI_QUALIFIER = RUI.PLUGIN_ID + "/rmi"; //$NON-NLS-1$
+	public static final String CAT_RMI_QUALIFIER = ROOT_QUALIFIER + "/rmi"; //$NON-NLS-1$
 	public static final BooleanPref PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED = new BooleanPref(CAT_RMI_QUALIFIER, "LocalRegistryAutostart.enabled"); //$NON-NLS-1$
 	public static final IntPref PREF_LOCAL_REGISTRY_PORT = new IntPref(CAT_RMI_QUALIFIER, "LocalRegistry.port"); //$NON-NLS-1$
+	
+	public static final String CAT_RENV_QUALIFIER = ROOT_QUALIFIER + "/renv"; //$NON-NLS-1$
+	public static final StringPref PREF_RENV_CHECK_UPDATE = new StringPref(CAT_RENV_QUALIFIER, "index.console_update.mode"); //$NON-NLS-1$
+	
+	/** Run update automatically */
+	public static final String AUTO = "auto"; //$NON-NLS-1$
+	/** Ask if run update */
+	public static final String ASK = "ask"; //$NON-NLS-1$
+	/** Do not run update */
+	public static final String DISABLED = "no"; //$NON-NLS-1$
 	
 	
 	/**
@@ -49,6 +58,7 @@ public class RDebugPreferenceConstants {
 		
 		PreferencesUtil.setPrefValue(context, PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED, true);
 		PreferencesUtil.setPrefValue(context, PREF_LOCAL_REGISTRY_PORT, Registry.REGISTRY_PORT);
+		PreferencesUtil.setPrefValue(context, PREF_RENV_CHECK_UPDATE, ASK);
 	}
 	
 }

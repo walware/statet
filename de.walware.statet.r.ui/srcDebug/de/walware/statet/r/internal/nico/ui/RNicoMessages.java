@@ -28,6 +28,20 @@ public class RNicoMessages extends NLS {
 	public static String ChangeWorkingDir_Resource_label;
 	public static String ChangeWorkingDir_error_ResolvingFailed_message;
 	
+	public static String REnvIndex_Check_task;
+	public static String REnvIndex_Check_NoIndex_message;
+	public static String REnvIndex_Check_Changed_singular_message;
+	public static String REnvIndex_Check_Changed_plural_message;
+	public static String REnvIndex_Check_error_message;
+	public static String REnvIndex_CheckDialog_title;
+	public static String REnvIndex_CheckDialog_Remember_label;
+	public static String REnvIndex_CheckDialog_RememberGlobally_label;
+	public static String REnvIndex_CheckDialog_RememberSession_label;
+	
+	public static String REnvIndex_Update_task;
+	public static String REnvIndex_Update_Started_message;
+	public static String REnvIndex_Update_Completed_message;
+	
 	
 	static {
 		NLS.initializeMessages(RNicoMessages.class.getName(), RNicoMessages.class);

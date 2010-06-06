@@ -72,7 +72,6 @@ import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -536,10 +535,10 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			
 			initTracks(info.getDirectory(), monitor, warnings);
 			
-			if (fStartup && fStartupSnippet != null && fStartupSnippet.length() > 0) {
-				submit(RUtil.LINE_SEPARATOR_PATTERN.split(fStartupSnippet), SubmitType.TOOLS);
+			if (fStartup && !fStartupsRunnables.isEmpty()) {
+				submit(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
+				fStartupsRunnables.clear();
 			}
-			fStartupSnippet = null;
 			
 			if (!fStartup) {
 				handleStatus(new Status(IStatus.INFO, RCore.PLUGIN_ID,

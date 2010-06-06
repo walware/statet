@@ -45,14 +45,13 @@ public class AllDocCollector extends Collector {
 	}
 	
 	@Override
-	public void setNextReader(final IndexReader reader, final int docBase)
-	throws IOException {
+	public void setNextReader(final IndexReader reader, final int docBase) throws IOException {
 		fDocBase = docBase;
 	}
 	
 	@Override
 	public void collect(final int doc) throws IOException {
-		if (fScorer.score() > 0) {
+		if (fScorer.score() > 0.0f) {
 			fDocs.add(fDocBase + doc);
 		}
 	}

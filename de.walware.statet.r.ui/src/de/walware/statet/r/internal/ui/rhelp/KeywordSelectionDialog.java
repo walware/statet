@@ -62,8 +62,8 @@ public class KeywordSelectionDialog extends ElementTreeSelectionDialog {
 	public KeywordSelectionDialog(final Shell parent, final List<IRHelpKeyword.Group> keywords) {
 		super(parent, new RHelpLabelProvider(), new KeywordsContentProvider());
 		setShellStyle(getShellStyle() | SWT.SHEET);
-		setTitle("R Help Keywords");
-		setMessage("Select Keyword:");
+		setTitle(Messages.KeywordSelection_title);
+		setMessage(Messages.KeywordSelection_message);
 		setInput(keywords);
 		setAllowMultiple(false);
 	}

@@ -44,16 +44,16 @@ import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.core.RPackageDescription;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter;
+import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.AbortIndexException;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.RdItem;
-import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
 
 
 /**
  * Updates the R environment (R help keywords, R help index).
  * Uses the RService interface to read the data.
  */
-public class REnvUpdater {
+public class RJREnvIndexUpdater {
 	
 	
 	private static final String PKG_DATA_META_NAME = ".name"; //$NON-NLS-1$
@@ -234,7 +234,7 @@ public class REnvUpdater {
 	private final REnvIndexWriter fIndex;
 	
 	
-	public REnvUpdater(final IREnvConfiguration rEnvConfig) {
+	public RJREnvIndexUpdater(final IREnvConfiguration rEnvConfig) {
 		fREnvConfig = rEnvConfig;
 		fIndex = new REnvIndexWriter(rEnvConfig);
 	}
@@ -426,8 +426,8 @@ public class REnvUpdater {
 				job.cancel(progress);
 			}
 		}
-		throw new CoreException((new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-				"An error occurred when loading the package data.", errorCause )));
+		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+				"An error occurred when loading the package data.", errorCause ));
 	}
 	
 	private void processRdData(final String packageName, final RList pkgList) throws Exception {
