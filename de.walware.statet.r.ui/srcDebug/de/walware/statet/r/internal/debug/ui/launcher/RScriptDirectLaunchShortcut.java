@@ -53,8 +53,7 @@ public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 				final int last = files.length-1;
 				for (int i = 0; i <= last; i++) {
 					final String[] lines = LaunchShortcutUtil.getCodeLines(files[i]);
-					RCodeLaunching.runRCodeDirect(lines[i], 
-							(i < last) && fGotoConsole);
+					RCodeLaunching.runRCodeDirect(lines, (i == last) && fGotoConsole);
 				}
 				return;
 			}
