@@ -36,9 +36,10 @@
             serialization="org.eclipse.ui.window.preferences(preferencePageId=de.walware.statet.r.preferencePages.RInteractionPage)"/>
    </item>
    <item
+         title="Add R Environment"
          dialog="true"
          skip="false"
-         title="Add R Environment">
+         href="/de.walware.statet.r.doc/reference/r_env.xhtml">
       <description>
          To add an <b>R environment</b> to StatET, perform the following steps:
       </description>
@@ -67,7 +68,11 @@
             label="Click on &apos;OK&apos; to save the new R environment and close the preferences dialog.">
       </subitem>
    </item>
-   <item title="R Console Launch Configuration" dialog="true" skip="false">
+   <item
+         title="R Console Launch Configuration"
+         dialog="true"
+         skip="false"
+         href="/de.walware.statet.r.doc/reference/r_console-launch.xhtml">
       <description>
          Next, you need a <b>launch configuration</b> for the R console:
       </description>
