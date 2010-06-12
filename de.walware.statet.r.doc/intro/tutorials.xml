@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<introContent>
+	<extensionContent id="de.walware.statet" name="StatET" path="tutorials/@" style="css/tutorials.css">
+		<group label="StatET/R" id="de.walware.statet.r" style-id="content-group">
+			<link id="rconsole"
+					url="http://org.eclipse.ui.intro/showStandby?partId=org.eclipse.platform.cheatsheet&amp;input=de.walware.statet.r.cheatSheetContent.RConsoleGettingStarted"
+					label="Configure and Launch an R Console" style-id="content-link">
+				<text>Learn how to configure StatET to launch an R console from within Eclipse.</text>
+			</link>
+		</group>
+	</extensionContent>
+</introContent>
