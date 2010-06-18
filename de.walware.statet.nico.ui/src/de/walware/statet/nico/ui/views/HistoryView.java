@@ -66,11 +66,11 @@ import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
-import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
 
 import de.walware.ecommons.FastArrayBufferList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.preferences.Preference.EnumSetPref;
+import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.actions.SearchContributionItem;
@@ -79,10 +79,10 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.History;
+import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -400,7 +400,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	
 	private class FilterBySourceAction extends SimpleContributionItem {
 		
-		private SubmitType fType;
+		private final SubmitType fType;
 		
 		public FilterBySourceAction(final SubmitType type) {
 			super(type.getLabel(), null, SimpleContributionItem.STYLE_CHECK);
@@ -526,7 +526,7 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		fTable.setHeaderVisible(false);
 		new DefaultToolTip(fTable) {
 			
-			private DateFormat fFormat = DateFormat.getDateTimeInstance();
+			private final DateFormat fFormat = DateFormat.getDateTimeInstance();
 			
 			@Override
 			protected String getText(final Event event) {
@@ -655,23 +655,23 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		};
 		handlerService.activateHandler(IWorkbenchCommandConstants.EDIT_FIND_AND_REPLACE, fSearchStartHandler);
 		
-		fSearchPrevHandler = new AbstractHandler() {
-			public Object execute(final ExecutionEvent arg0) {
-				search(false, -1);
-				return null;
-			}
-		};
-		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_PREVIOUS, fSearchPrevHandler);
-		handlerService.activateHandler("org.eclipse.ui.navigate.previous", fSearchPrevHandler); //$NON-NLS-1$
-		
 		fSearchNextHandler = new AbstractHandler() {
 			public Object execute(final ExecutionEvent arg0) {
 				search(true, -1);
 				return null;
 			}
 		};
-		handlerService.activateHandler(IWorkbenchActionDefinitionIds.FIND_NEXT, fSearchNextHandler);
+		handlerService.activateHandler(SharedUIResources.FIND_NEXT_COMMAND_ID, fSearchNextHandler);
 		handlerService.activateHandler("org.eclipse.ui.navigate.next", fSearchNextHandler); //$NON-NLS-1$
+		
+		fSearchPrevHandler = new AbstractHandler() {
+			public Object execute(final ExecutionEvent arg0) {
+				search(false, -1);
+				return null;
+			}
+		};
+		handlerService.activateHandler(SharedUIResources.FIND_PREVIOUS_COMMAND_ID, fSearchPrevHandler);
+		handlerService.activateHandler("org.eclipse.ui.navigate.previous", fSearchPrevHandler); //$NON-NLS-1$
 	}
 	
 	protected void enabledSelectionActions(final boolean enable) {
@@ -746,13 +746,13 @@ public class HistoryView extends ViewPart implements IToolProvider {
 		
 		final ImageRegistry ecommonsImages = SharedUIResources.getImages();
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
-				getSite(), "search.next", IWorkbenchActionDefinitionIds.FIND_NEXT, null, //$NON-NLS-1$
+				getSite(), "search.next", SharedUIResources.FIND_NEXT_COMMAND_ID, null, //$NON-NLS-1$
 				ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_DOWN_IMAGE_ID), null, ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_DOWN_H_IMAGE_ID),
-				Messages.HistorySearch_NextMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchNextHandler));
+				SharedMessages.FindNext_tooltip, null, null, SWT.PUSH, null, false), fSearchNextHandler));
 		manager.add(new HandlerContributionItem(new CommandContributionItemParameter(
-				getSite(), "search.previous", IWorkbenchActionDefinitionIds.FIND_PREVIOUS, null, //$NON-NLS-1$
+				getSite(), "search.previous", SharedUIResources.FIND_PREVIOUS_COMMAND_ID, null, //$NON-NLS-1$
 				ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_UP_IMAGE_ID), null, ecommonsImages.getDescriptor(SharedUIResources.LOCTOOL_UP_H_IMAGE_ID),
-				Messages.HistorySearch_PreviousMatch_tooltip, null, null, SWT.PUSH, null, false), fSearchPrevHandler));
+				SharedMessages.FindPrevious_tooltip, null, null, SWT.PUSH, null, false), fSearchPrevHandler));
 		
 		manager.add(new Separator());
 		
@@ -832,8 +832,9 @@ public class HistoryView extends ViewPart implements IToolProvider {
 	 * @return a clipboard object.
 	 */
 	public Clipboard getClipboard() {
-		if (fClipboard == null)
+		if (fClipboard == null) {
 			fClipboard = new Clipboard(Display.getCurrent());
+		}
 		
 		return fClipboard;
 	}
