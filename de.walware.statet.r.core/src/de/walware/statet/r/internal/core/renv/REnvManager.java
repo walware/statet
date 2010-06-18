@@ -40,17 +40,20 @@ import org.osgi.service.prefs.Preferences;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
-import de.walware.ecommons.preferences.Preference.IntPref;
-import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.preferences.Preference.IntPref;
+import de.walware.ecommons.preferences.Preference.StringPref;
+
+import de.walware.rj.rsetups.RSetup;
+import de.walware.rj.rsetups.RSetupUtil;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.core.renv.IREnvConfiguration.WorkingCopy;
 import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.core.renv.IREnvConfiguration.WorkingCopy;
 import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RCorePlugin;
 
@@ -114,7 +117,7 @@ public class REnvManager implements IREnvManager {
 			synchronized (this) {
 				try {
 					if (fState < 1) {
-						loadFromWorkspace();
+						load();
 						fState = 1;
 					}
 				}
@@ -208,12 +211,16 @@ public class REnvManager implements IREnvManager {
 		fDefaultEnv.fLink = rEnv;
 	}
 	
-	private void loadFromWorkspace() throws BackingStoreException {
-		// init config list
+	private void load() throws BackingStoreException {
 		fNameMap = new HashMap<String, IREnv>();
 		fIdMap = new HashMap<String, IREnvConfiguration>();
 		fNames = new HashSet<String>();
 		
+		loadFromRegistry();
+		loadFromWorkspace();
+	}
+	
+	private void loadFromWorkspace() throws BackingStoreException {
 		final IPreferenceAccess prefs = PreferencesUtil.getInstancePrefs();
 		final List<IREnvConfiguration>configs = new ArrayList<IREnvConfiguration>();
 		final IEclipsePreferences[] scopes = prefs.getPreferenceNodes(CAT_R_ENVIRONMENTS_QUALIFIER);
@@ -292,6 +299,21 @@ public class REnvManager implements IREnvManager {
 		
 		PreferencesUtil.setPrefValues(new InstanceScope(), map);
 		node.flush();
+	}
+	
+	private void loadFromRegistry() {
+		final List<RSetup> setups = RSetupUtil.loadAvailableSetups(null);
+		for (final RSetup setup : setups) {
+			final REnvReference rEnv = new REnvReference(IREnvConfiguration.EPLUGIN_LOCAL_TYPE + '-' + setup.getId());
+			final REnvConfiguration config = new REnvConfiguration(rEnv, setup);
+			
+			rEnv.fName = config.getName();
+			rEnv.fConfig = config;
+			
+			fNames.add(config.getName());
+			fNameMap.put(config.getName(), rEnv);
+			fIdMap.put(rEnv.getId(), config);
+		}
 	}
 	
 	

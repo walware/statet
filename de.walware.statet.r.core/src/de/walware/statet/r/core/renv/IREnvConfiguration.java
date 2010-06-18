@@ -51,6 +51,8 @@ public interface IREnvConfiguration {
 	
 	String USER_REMOTE_TYPE = "user-remote"; //$NON-NLS-1$
 	
+	String EPLUGIN_LOCAL_TYPE = "eplugin-local"; //$NON-NLS-1$
+	
 	
 	static enum Exec {
 		COMMON,

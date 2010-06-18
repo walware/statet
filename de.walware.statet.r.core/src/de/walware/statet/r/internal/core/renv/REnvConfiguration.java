@@ -47,6 +47,8 @@ import de.walware.ecommons.preferences.Preference.StringPref;
 
 import de.walware.statet.nico.core.NicoCore;
 
+import de.walware.rj.rsetups.RSetup;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RCorePreferenceNodes;
 import de.walware.statet.r.core.renv.IREnv;
@@ -77,8 +79,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	private static final String PREFKEY_RINCLUDE_DIR = "env.r_include.dir"; //$NON-NLS-1$
 	
 	private static final String PREFKEY_INDEX_DIR = "index.dir"; //$NON-NLS-1$
-	
-	public static final String E_INTERNAL_TYPE = "e-internal";
 	
 	
 	public static File getIndexRootDirectory() {
@@ -164,7 +164,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	private final IREnv fREnv;
 	
-	public String fType;
+	private String fType;
 	
 	private String fNodeQualifier;
 	private String fCheckId;
@@ -212,6 +212,53 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (prefs != null) {
 			load(prefs);
 		}
+	}
+	
+	REnvConfiguration(final IREnv link, final RSetup setup) {
+		assert (link != null && setup != null);
+		fType = EPLUGIN_LOCAL_TYPE;
+		fREnv = link;
+		
+		setName(setup.getName());
+		setROS(setup.getOS());
+		setRBits((setup.getOSArch().equals(Platform.ARCH_X86)) ? 32 : 64);
+		setRHome(setup.getRHome());
+		setRDocDirectory("${env_var:R_HOME}/doc");
+		setRShareDirectory("${env_var:R_HOME}/share");
+		setRIncludeDirectory("${env_var:R_HOME}/include");
+		
+		final String[] ids = DEFAULT_LIBS_IDS;
+		final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
+		for (int i = 0; i < ids.length; i++) {
+			final String id = ids[i];
+			final String label = getLibGroupLabel(id);
+			if (label != null) {
+				final List<String> locations;
+				if (id.equals(IRLibraryGroup.R_SITE)) {
+					locations = setup.getRLibsSite();
+				}
+				else if (id.equals(IRLibraryGroup.R_OTHER)) {
+					locations = setup.getRLibs();
+				}
+				else if (id.equals(IRLibraryGroup.R_USER)) {
+					locations = setup.getRLibsUser();
+				}
+				else {
+					continue;
+				}
+				final RLibraryLocation[] libs = new RLibraryLocation[(locations != null) ? locations.size() : 0];
+				for (int j = 0; j < locations.size(); j++) {
+					libs[j] = new RLibraryLocation(locations.get(j));
+				}
+				groups.add(new RLibraryGroup(id, label, new ConstList<IRLibraryLocation>(libs)));
+			}
+			else {
+				// unknown group
+			}
+		}
+		fRLibraries = Collections.unmodifiableList(groups);
+		
+		resolvePaths();
 	}
 	
 	public REnvConfiguration(final IREnvConfiguration config) {
@@ -271,7 +318,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	public boolean isLocal() {
-		return (fType == USER_LOCAL_TYPE || fType == E_INTERNAL_TYPE);
+		return (fType == USER_LOCAL_TYPE || fType == EPLUGIN_LOCAL_TYPE);
 	}
 	
 	public boolean isRemote() {
@@ -281,6 +328,10 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	@Override
 	public String[] getNodeQualifiers() {
+		if (fType == EPLUGIN_LOCAL_TYPE) {
+			return new String[0];
+		}
+		
 		checkPrefs();
 		return new String[] { fNodeQualifier };
 	}
@@ -300,7 +351,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		setName(from.getName());
 		setRBits(from.getRBits());
 		setROS(from.getROS());
-		if (fType == USER_LOCAL_TYPE) {
+		if (isLocal()) {
 			setRHome(from.getRHome());
 			setRDocDirectory(from.getRDocDirectoryPath());
 			setRShareDirectory(from.getRShareDirectoryPath());
@@ -314,14 +365,18 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	@Override
 	public void load(final IPreferenceAccess prefs) {
+		if (fType == EPLUGIN_LOCAL_TYPE) {
+			return;
+		}
+		
 		checkPrefs();
 		checkExistence(prefs);
 		final String type = prefs.getPreferenceValue(fPrefType);
 		if (USER_REMOTE_TYPE.equals(type)) {
 			fType = USER_REMOTE_TYPE;
 		}
-		else if (E_INTERNAL_TYPE.equals(type)) {
-			fType = E_INTERNAL_TYPE;
+		else if (EPLUGIN_LOCAL_TYPE.equals(type)) {
+			fType = EPLUGIN_LOCAL_TYPE;
 		}
 		else {
 			fType = USER_LOCAL_TYPE;
@@ -373,6 +428,10 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	@Override
 	public Map<Preference, Object> deliverToPreferencesMap(
 			final Map<Preference, Object> map) {
+		if (fType == EPLUGIN_LOCAL_TYPE) {
+			return map;
+		}
+		
 		checkPrefs();
 		map.put(fPrefType, getType());
 		map.put(fPrefName, getName());
@@ -854,7 +913,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 						&& ((fRShareDirectory != null) ? fRShareDirectory.equals(other.getRShareDirectoryPath()) : null == other.getRShareDirectoryPath())
 						&& ((fRIncludeDirectory != null) ? fRIncludeDirectory.equals(other.getRIncludeDirectoryPath()) : null == other.getRIncludeDirectoryPath())
 						&& ((fRLibraries != null) ? fRLibraries.equals(other.getRLibraryGroups()) : null == fRLibraries)
-				) || (fType == USER_REMOTE_TYPE) || (fType == E_INTERNAL_TYPE) )
+				) || (fType == USER_REMOTE_TYPE) || (fType == EPLUGIN_LOCAL_TYPE) )
 				&& ((fIndexDirectory != null) ? fIndexDirectory.equals(other.getIndexDirectoryPath()) : null == other.getIndexDirectoryPath())
 				);
 	}

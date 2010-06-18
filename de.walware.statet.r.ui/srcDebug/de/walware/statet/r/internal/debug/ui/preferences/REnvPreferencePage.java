@@ -322,6 +322,9 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 					if (config.getType() == IREnvConfiguration.USER_LOCAL_TYPE) {
 						return config.getRHome();
 					}
+					if (config.getType() == IREnvConfiguration.EPLUGIN_LOCAL_TYPE) {
+						return "<embedded>";
+					}
 					return ""; //$NON-NLS-1$
 				}
 			});
@@ -333,7 +336,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			@SuppressWarnings("unchecked")
 			@Override
 			public int compare(final Viewer viewer, final Object e1, final Object e2) {
-				return getComparator().compare(((IREnvConfiguration.WorkingCopy) e1).getName(), ((IREnvConfiguration.WorkingCopy) e2).getName());
+				return getComparator().compare(((IREnvConfiguration) e1).getName(), ((IREnvConfiguration) e2).getName());
 			}
 		});
 		
@@ -407,9 +410,9 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private boolean saveValues(final boolean saveStore) {
 		try {
-			final IREnvConfiguration.WorkingCopy defaultREnv = (IREnvConfiguration.WorkingCopy) fDefault.getValue();
+			final IREnvConfiguration defaultREnv = (IREnvConfiguration) fDefault.getValue();
 			final String[] groupIds = RCore.getREnvManager().set(
-					(IREnvConfiguration[]) fList.toArray(new IREnvConfiguration.WorkingCopy[fList.size()]),
+					(IREnvConfiguration[]) fList.toArray(new IREnvConfiguration[fList.size()]),
 					(defaultREnv != null) ? defaultREnv.getReference().getId() : null);
 			if (groupIds != null) {
 				ConfigurationBlock.scheduleChangeNotification(
@@ -433,7 +436,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		final IREnv defaultEnv = manager.getDefault().resolve();
 		final IREnvConfiguration[] configurations = manager.getConfigurations();
 		for (final IREnvConfiguration rEnvConfig : configurations) {
-			final IREnvConfiguration.WorkingCopy config = rEnvConfig.createWorkingCopy();
+			final IREnvConfiguration config = (rEnvConfig.isEditable()) ? rEnvConfig.createWorkingCopy() : rEnvConfig;
 			fList.add(config);
 			if (config.getReference() == defaultEnv) {
 				fDefault.setValue(config);
