@@ -110,7 +110,9 @@ public class ExportConsoleOutputWizard extends Wizard {
 			fConfigControl.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 			
 			fConfigControl.getPathInput().getValidator().setOnLateResolve(IStatus.ERROR);
-			fConfigControl.getPathInput().setShowInsertVariable(true, NicoVariables.DEFAULT_FILTERS, fConsolePage.getTool().getWorkspaceData().getStringVariables());
+			fConfigControl.getPathInput().setShowInsertVariable(true,
+					DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS,
+					fConsolePage.getTool().getWorkspaceData().getStringVariables() );
 			fConfigControl.setInput(fConfig);
 			
 			final Composite additionalOptions = createAdditionalOptions(composite);

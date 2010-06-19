@@ -65,7 +65,7 @@ public class REditorTemplatesPage extends ExtEditorTemplatesPage {
 	}
 	
 	@Override
-	protected TemplateStore getTemplateStore() {
+	public TemplateStore getTemplateStore() {
 		return RUIPlugin.getDefault().getREditorTemplateStore();
 	}
 	

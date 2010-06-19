@@ -11,13 +11,9 @@
 
 package de.walware.statet.nico.core;
 
-import java.util.List;
-
 import org.eclipse.core.variables.IStringVariable;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.variables.core.StringVariable;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.nico.internal.core.Messages;
 
@@ -38,10 +34,5 @@ public class NicoVariables {
 	
 	public static final String SESSION_STARTUP_WD_VARNAME = "session_startup_wd"; //$NON-NLS-1$
 	public static final IStringVariable SESSION_STARTUP_WD_VARIABLE = new StringVariable(SESSION_STARTUP_WD_VARNAME, Messages.SessionVariables_StartupWD_description);
-	
-	public static final List<VariableFilter> DEFAULT_FILTERS = new ConstList<VariableFilter>(
-			VariableFilter.EXCLUDE_JAVA_FILTER,
-			VariableFilter.EXCLUDE_BUILD_FILTER,
-			VariableFilter.EXCLUDE_INTERACTIVE_FILTER );
 	
 }

@@ -57,9 +57,9 @@ import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderChooser;
@@ -232,11 +232,10 @@ public class TexTab extends LaunchConfigTabWithDbc {
 			}
 		};
 		fOutputDirControl.setShowInsertVariable(true,
-				new ConstList<VariableFilter>(
-						VariableFilter.EXCLUDE_JAVA_FILTER ),
+				DialogUtil.DEFAULT_INTERACTIVE_FILTERS,
 				new ConstList<IStringVariable>(
 						RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE,
-						RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE) );
+						RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE ));
 		fOutputDirControl.getValidator().setOnEmpty(IStatus.OK);
 		fOutputDirControl.getValidator().setOnExisting(IStatus.OK);
 		fOutputDirControl.getValidator().setOnFile(IStatus.ERROR);
@@ -295,7 +294,7 @@ public class TexTab extends LaunchConfigTabWithDbc {
 							@Override
 							public void widgetSelected(final SelectionEvent e) {
 								final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getTextControl().getShell());
-								dialog.addFilter(VariableFilter.EXCLUDE_JAVA_FILTER);
+								dialog.addVariableFilter(DialogUtil.EXCLUDE_JAVA_FILTER);
 								dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE);
 								dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE);
 								dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_OUTPUT_FILE);

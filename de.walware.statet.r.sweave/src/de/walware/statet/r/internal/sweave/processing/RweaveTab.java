@@ -56,9 +56,9 @@ import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.ltk.ui.sourceediting.SnippetEditor;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
@@ -297,7 +297,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				final CustomizableVariableSelectionDialog dialog = new CustomizableVariableSelectionDialog(getShell());
-				dialog.addFilter(VariableFilter.EXCLUDE_JAVA_FILTER);
+				dialog.setFilters(DialogUtil.DEFAULT_INTERACTIVE_FILTERS);
 				dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_SWEAVE_FILE);
 				dialog.addAdditional(RweaveTexLaunchDelegate.VARIABLE_LATEX_FILE);
 				if (dialog.open() != Dialog.OK) {

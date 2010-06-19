@@ -77,19 +77,18 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.jface.DatabindingSupport;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.ProcessOutputCollector;
 import de.walware.ecommons.ui.components.ButtonGroup;
 import de.walware.ecommons.ui.components.ExtensibleTextCellEditor;
 import de.walware.ecommons.ui.dialogs.ExtStatusDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TreeComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -147,10 +146,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					ResourceInputComposite.STYLE_TEXT,
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN, 
 					Messages.REnv_Detail_Location_label);
-			setShowInsertVariable(true, new ConstList<VariableFilter>(
-					VariableFilter.EXCLUDE_BUILD_FILTER,
-					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 		}
 		
 		@Override
@@ -408,10 +404,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 									getFocusGroup().continueTracking();
 								}
 							};
-							chooseResourceComposite.setShowInsertVariable(true, new ConstList<VariableFilter>(
-									VariableFilter.EXCLUDE_BUILD_FILTER,
-									VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-									VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+							chooseResourceComposite.setShowInsertVariable(true,
+									DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 							fText = (Text) chooseResourceComposite.getTextControl();
 							return chooseResourceComposite;
 						}
@@ -518,10 +512,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR");
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, new ConstList<VariableFilter>(
-					VariableFilter.EXCLUDE_BUILD_FILTER,
-					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRDocDirectoryControl = text;
 		}
 		{	final Label label = new Label(composite, SWT.NONE);
@@ -531,10 +522,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_SHARE_DIR");
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, new ConstList<VariableFilter>(
-					VariableFilter.EXCLUDE_BUILD_FILTER,
-					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRShareDirectoryControl = text;
 		}
 		{	final Label label = new Label(composite, SWT.NONE);
@@ -544,10 +532,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
 					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_INCLUDE_DIR");
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.setShowInsertVariable(true, new ConstList<VariableFilter>(
-					VariableFilter.EXCLUDE_BUILD_FILTER,
-					VariableFilter.EXCLUDE_INTERACTIVE_FILTER,
-					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRIncludeDirectoryControl = text;
 		}
 		return composite;

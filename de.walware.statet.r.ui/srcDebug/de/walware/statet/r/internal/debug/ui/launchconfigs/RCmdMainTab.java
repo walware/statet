@@ -40,6 +40,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.eclipse.debug.ui.StringVariableSelectionDialog.VariableFilter;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
@@ -67,9 +68,9 @@ import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.base.ui.StatetImages;
 
@@ -252,8 +253,8 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 				ResourceInputComposite.STYLE_LABEL | ResourceInputComposite.STYLE_TEXT,
 				ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_OPEN,
 				""); //$NON-NLS-1$
-		fResourceControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
-				VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+		fResourceControl.setShowInsertVariable(true,
+				new ConstList<VariableFilter>(DialogUtil.EXCLUDE_JAVA_FILTER), null);
 		fResourceControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 	}
 	

@@ -34,14 +34,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.io.FileValidator;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.MessageUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
@@ -187,8 +186,8 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 					ResourceInputComposite.STYLE_GROUP | ResourceInputComposite.STYLE_TEXT,
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					RLaunchingMessages.REnv_Tab_WorkingDir_label);
-			fWorkingDirectoryControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
-					VariableFilter.EXCLUDE_JAVA_FILTER ), null);
+			fWorkingDirectoryControl.setShowInsertVariable(true, 
+					DialogUtil.DEFAULT_INTERACTIVE_FILTERS, null );
 			fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
 		

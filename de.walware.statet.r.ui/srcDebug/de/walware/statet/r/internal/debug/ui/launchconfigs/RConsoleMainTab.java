@@ -53,15 +53,14 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.ui.SharedMessages;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.base.ui.StatetImages;
 
@@ -233,9 +232,8 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 				ResourceInputComposite.STYLE_LABEL | ResourceInputComposite.STYLE_TEXT,
 				ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 				RLaunchingMessages.REnv_Tab_WorkingDir_label);
-		fWorkingDirectoryControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
-				VariableFilter.EXCLUDE_JAVA_FILTER,
-				VariableFilter.EXCLUDE_BUILD_FILTER ), null);
+		fWorkingDirectoryControl.setShowInsertVariable(true,
+				DialogUtil.DEFAULT_INTERACTIVE_FILTERS, null);
 		fWorkingDirectoryControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		
 		fArgumentsControl = new RArgumentsComposite(group);

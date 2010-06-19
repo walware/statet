@@ -20,6 +20,7 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.debug.ui.StringVariableSelectionDialog.VariableFilter;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -39,9 +40,10 @@ import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.ComputedOnChangeValue;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.NumberValidator;
+import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
+import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
-import de.walware.ecommons.variables.core.VariableFilter;
 
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -249,10 +251,7 @@ public class TrackingConfigurationComposite extends Composite {
 				}
 			}
 		};
-		fFilePathControl.setShowInsertVariable(true, new ConstList<VariableFilter>(
-				VariableFilter.EXCLUDE_JAVA_FILTER,
-				VariableFilter.EXCLUDE_BUILD_FILTER,
-				VariableFilter.EXCLUDE_INTERACTIVE_FILTER ), null);
+		fFilePathControl.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 		fFilePathControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		fFileAppendControl = new Button(composite, SWT.CHECK);

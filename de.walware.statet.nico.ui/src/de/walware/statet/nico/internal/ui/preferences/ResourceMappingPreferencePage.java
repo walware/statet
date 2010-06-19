@@ -55,7 +55,6 @@ import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
-import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.internal.core.NicoPlugin;
 import de.walware.statet.nico.internal.core.ResourceMapping;
@@ -247,7 +246,7 @@ class EditMappingDialog extends ExtStatusDialog {
 					ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN,
 					"local directory");
 			fLocalControl.getValidator().setOnNotExisting(IStatus.WARNING);
-			fLocalControl.setShowInsertVariable(false, NicoVariables.DEFAULT_FILTERS, null);
+			fLocalControl.setShowInsertVariable(false, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 50);
 			fLocalControl.setLayoutData(gd);
