@@ -23,6 +23,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,15 +152,14 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		
 		@Override
 		protected void handleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
-			final String command = cmd.getCommand();
+			final String command = cmd.getDataText();
 			// if we have more commands, we should create a hashmap
 			if (command.equals(ExtUICmdItem.C_CHOOSE_FILE)) {
 				final IToolEventHandler handler = getEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID);
 				if (handler != null) {
-					final Map<String, Object> data = new HashMap<String, Object>();
-					data.put("newResource", ((cmd.getCmdOption() & ExtUICmdItem.O_NEW) == ExtUICmdItem.O_NEW)); 
+					final Map<String, Object> data = cmd.getDataMap();
 					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, RjsController.this, data, monitor).isOK()) {
-						cmd.setAnswer((String) data.get("filename")); //$NON-NLS-1$
+						cmd.setAnswer(Collections.singletonMap("filename", data.get("filename"))); //$NON-NLS-1$ //$NON-NLS-2$
 						return;
 					}
 				}
@@ -167,38 +167,37 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				return;
 			}
 			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, monitor);
 				return;
 			}
 			if (command.equals(ExtUICmdItem.C_SAVE_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, "filename", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, monitor);
 				return;
 			}
 			if (command.equals(ExtUICmdItem.C_ADDTO_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, "text", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, monitor);
 				return;
 			}
 			if (command.equals(ExtUICmdItem.C_SHOW_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, "pattern", monitor); //$NON-NLS-1$
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, monitor);
 				return;
 			}
-			if (command.equals(ExtUICmdItem.C_OPENIN_EDITOR)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, "filename", monitor); //$NON-NLS-1$
+			if (command.equals(IToolEventHandler.SHOW_FILE_ID)) {
+				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, monitor);
 				return;
 			}
-			if (command.equals(ExtUICmdItem.C_SHOW_HELP)) {
-				handleUICmdByDataTextHandler(cmd, SHOW_RHELP_HANDLER_ID, "url", monitor); //$NON-NLS-1$
+			if (command.equals(SHOW_RHELP_HANDLER_ID)) {
+				handleUICmdByDataTextHandler(cmd, SHOW_RHELP_HANDLER_ID, monitor);
 				return;
 			}
+			
 			super.handleUICallback(cmd, monitor);
 		}
 		
-		private void handleUICmdByDataTextHandler(final ExtUICmdItem cmd, final String handlerId, final String textDataKey, final IProgressMonitor monitor) {
+		private void handleUICmdByDataTextHandler(final ExtUICmdItem cmd, final String handlerId, final IProgressMonitor monitor) {
 			final IToolEventHandler handler = getEventHandler(handlerId);
 			if (handler != null) {
-				final Map<String, Object> data = new HashMap<String, Object>();
-				data.put(textDataKey, cmd.getDataText());
-				final IStatus status = handler.handle(handlerId, RjsController.this, data, monitor);
+				final IStatus status = handler.handle(handlerId, RjsController.this, cmd.getDataMap(), monitor);
 				switch (status.getSeverity()) {
 				case IStatus.OK:
 					cmd.setAnswer(RjsStatus.OK_STATUS);
@@ -212,7 +211,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				}
 			}
 			log(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
-					NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getCommand(), handlerId), null)); 
+					NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getDataText(), handlerId), null)); 
 			cmd.setAnswer(RjsStatus.CANCEL_STATUS);
 		}
 		
