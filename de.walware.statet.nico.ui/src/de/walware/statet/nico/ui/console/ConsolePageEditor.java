@@ -82,6 +82,9 @@ import de.walware.ecommons.ltk.ui.sourceediting.ITextEditToolSynchronizer;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
+import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectionHistory;
+import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectionHistoryBackHandler;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
@@ -91,13 +94,13 @@ import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.History;
+import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.core.runtime.IHistoryListener;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
-import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.internal.ui.Messages;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.internal.ui.preferences.ConsolePreferences;
@@ -428,6 +431,8 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	/** Indicates that the document is change by a history action */
 	private boolean fInHistoryChange = false;
 	
+	private StructureSelectionHistory fSelectionHistory;
+	
 	private ToolWorkspace.Listener fWorkspaceListener;
 	
 	
@@ -635,6 +640,17 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		final IHandler2 informationHandler = new InformationDispatchHandler(getViewer());
 		commands.activateHandler(ITextEditorActionDefinitionIds.SHOW_INFORMATION, informationHandler);
 		
+		fSelectionHistory = new StructureSelectionHistory(this);
+		commands.activateHandler(ISourceEditorCommandIds.SELECT_ENCLOSING,
+				new StructureSelectHandler.Enclosing(this, fSelectionHistory));
+		commands.activateHandler(ISourceEditorCommandIds.SELECT_PREVIOUS,
+				new StructureSelectHandler.Previous(this, fSelectionHistory));
+		commands.activateHandler(ISourceEditorCommandIds.SELECT_NEXT,
+				new StructureSelectHandler.Next(this, fSelectionHistory));
+		final StructureSelectionHistoryBackHandler backHandler = new StructureSelectionHistoryBackHandler(this, fSelectionHistory);
+		commands.activateHandler(ISourceEditorCommandIds.SELECT_LAST, backHandler);
+		fSelectionHistory.addUpdateListener(backHandler);
+		
 		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
 			public Object execute(final ExecutionEvent arg0)
 					throws ExecutionException {
@@ -815,6 +831,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		fHistoryCompoundChange = null;
 		fSourceViewer.getUndoManager().reset();
 		fScroller.reset();
+		fSelectionHistory.flush();
 	}
 	
 	public Composite getComposite() {
