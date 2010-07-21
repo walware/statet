@@ -30,9 +30,9 @@ import org.apache.lucene.document.Field.TermVector;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.eclipse.core.runtime.IStatus;
@@ -46,9 +46,9 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
+import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.core.rhelp.IRHelpKeywordNode;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
-import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.internal.core.RCorePlugin;
 import de.walware.statet.r.internal.core.RPackageDescription;
 
@@ -398,9 +398,9 @@ public class REnvIndexWriter implements IREnvIndex {
 		fCurrentPackage = null;
 	}
 	
-	public void endBatch() throws AbortIndexException {
+	public IStatus endBatch() throws AbortIndexException {
 		if (fLuceneWriter == null) {
-			return;
+			return null;
 		}
 		
 		final MultiStatus status = fStatus;
@@ -452,6 +452,11 @@ public class REnvIndexWriter implements IREnvIndex {
 					fLuceneWriter = null;
 				}
 			}
+			
+			if (status != null && status.getSeverity() >= IStatus.WARNING) {
+				return status;
+			}
+			return null;
 		}
 		catch (final IOException e) {
 			cancel();
@@ -630,9 +635,9 @@ public class REnvIndexWriter implements IREnvIndex {
 				fTempBuilder.substring(0, c-1) : fTempBuilder.toString();
 	}
 	
-	public void cancel() {
+	public IStatus cancel() {
 		if (fLuceneWriter == null) {
-			return;
+			return null;
 		}
 		
 		final MultiStatus status = fStatus;
@@ -658,6 +663,11 @@ public class REnvIndexWriter implements IREnvIndex {
 		finally {
 			clear();
 		}
+		
+		if (status != null && status.getSeverity() >= IStatus.WARNING) {
+			return status;
+		}
+		return null;
 	}
 	
 	private void clear() {

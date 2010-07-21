@@ -44,9 +44,9 @@ import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.core.RPackageDescription;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter;
-import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.AbortIndexException;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexWriter.RdItem;
+import de.walware.statet.r.internal.core.rhelp.RHelpWebapp;
 
 
 /**
@@ -240,10 +240,9 @@ public class RJREnvIndexUpdater {
 	}
 	
 	
-	public void update(final RService r, final boolean reset, final Map<String, String> rEnvSharedProperties,
-			final IProgressMonitor monitor) throws CoreException {
+	public IStatus update(final RService r, final boolean reset, final Map<String, String> rEnvSharedProperties,
+			final IProgressMonitor monitor) {
 		final SubMonitor progress = SubMonitor.convert(monitor, 100);
-		Exception errorCause = null;
 		try {
 			fIndex.beginBatch(reset);
 			
@@ -255,7 +254,7 @@ public class RJREnvIndexUpdater {
 			loadKeywords(r, progress.newChild(10));
 			
 			if (progress.isCanceled()) {
-				return;
+				return Status.CANCEL_STATUS;
 			}
 			progress.setWorkRemaining(90);
 			
@@ -263,25 +262,36 @@ public class RJREnvIndexUpdater {
 			
 			progress.setWorkRemaining(10);
 			
-			fIndex.endBatch();
-			return;
+			final IStatus status = fIndex.endBatch();
+			if (status != null && status.getSeverity() >= IStatus.ERROR) {
+				return new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
+						"The R environment index could not be completely updated.",
+						new CoreException(status));
+			}
+			return new Status(IStatus.INFO, RCore.PLUGIN_ID, "The R environment index was updated successfully.");
 		}
 		catch (final CoreException e) {
-			fIndex.cancel();
+			fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"An error occurred when updating the R environment.", e));
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
-				throw e;
+				return e.getStatus();
 			}
-			errorCause = e;
+			final IStatus status = fIndex.cancel();
+			return new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"The R environment could not be updated.",
+					(status != null) ? new CoreException(status) : null);
 		}
 		catch (final Exception e) {
-			fIndex.cancel();
-			errorCause = e;
+			fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"An error occurred when updating the R environment.", e));
+			final IStatus status = fIndex.cancel();
+			return new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"The R environment could not be updated.",
+					(status != null) ? new CoreException(status) : null);
 		}
 		finally {
 			progress.done();
 		}
-		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-				"An error occurred when updating the R environment data.", errorCause));
 	}
 	
 	private void loadKeywords(final RService r, final SubMonitor progress) throws CoreException {

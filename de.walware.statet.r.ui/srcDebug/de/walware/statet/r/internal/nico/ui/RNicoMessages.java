@@ -40,7 +40,6 @@ public class RNicoMessages extends NLS {
 	
 	public static String REnvIndex_Update_task;
 	public static String REnvIndex_Update_Started_message;
-	public static String REnvIndex_Update_Completed_message;
 	
 	
 	static {

@@ -62,11 +62,11 @@ public class REnvIndexAutoUpdater {
 	public static final class UpdateRunnable implements IToolRunnable {
 		
 		
-		private final boolean fCompletly;
+		private final boolean fCompletely;
 		
 		
-		public UpdateRunnable(final boolean completly) {
-			fCompletly = completly;
+		public UpdateRunnable(final boolean completely) {
+			fCompletely = completely;
 		}
 		
 		public String getTypeId() {
@@ -100,8 +100,8 @@ public class REnvIndexAutoUpdater {
 					
 					r.handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, RNicoMessages.REnvIndex_Update_Started_message), monitor);
 					final RJREnvIndexUpdater updater = new RJREnvIndexUpdater(rEnvConfig);
-					updater.update(r, fCompletly, properties, monitor);
-					r.handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, RNicoMessages.REnvIndex_Update_Completed_message), monitor);
+					IStatus status = updater.update(r, fCompletely, properties, monitor);
+					r.handleStatus(status, monitor);
 				}
 			}
 		}
