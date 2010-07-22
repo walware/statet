@@ -217,7 +217,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	
 	@Override
 	protected String checkPrefix(final String prefix) {
-		String unescaped = RUtil.unescapeCompletly(prefix);
+		String unescaped = RUtil.unescapeCompletely(prefix);
 		// keep a single (not escaped) backslash
 		if (prefix.length() > 0 && prefix.charAt(prefix.length()-1) == '\\' && 
 				(unescaped.length() == 0 || unescaped.charAt(unescaped.length()-1) != '\\')) {
@@ -229,7 +229,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	@Override
 	protected String checkPathCompletion(final IDocument document, final int completionOffset, String completion)
 			throws BadLocationException {
-		completion = RUtil.escapeCompletly(completion);
+		completion = RUtil.escapeCompletely(completion);
 		int existingBackslashCount = 0;
 		if (completionOffset >= 1) {
 			if (document.getChar(completionOffset-1) == '\\') {

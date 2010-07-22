@@ -134,7 +134,7 @@ public final class RCodeLaunching {
 //	public static void runFileUsingCommand(final String command, final IPath filePath, final boolean gotoConsole) throws CoreException {
 //		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
 //		
-//		final String fileString = RUtil.escapeCompletly(filePath.makeAbsolute().toOSString());
+//		final String fileString = RUtil.escapeCompletely(filePath.makeAbsolute().toOSString());
 //		final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
 //		connector.submit(new String[] { cmd }, gotoConsole);
 //	}
@@ -168,7 +168,7 @@ public final class RCodeLaunching {
 					final ToolWorkspace workspaceData = controller.getWorkspaceData();
 					try {
 						final String path = workspaceData.toToolPath(store);
-						final String fileString = RUtil.escapeCompletly(path);
+						final String fileString = RUtil.escapeCompletely(path);
 						final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
 						return controller.submit(cmd, SubmitType.EDITOR);
 					}
@@ -190,7 +190,7 @@ public final class RCodeLaunching {
 				fileString = fileURI.toString();
 			}
 			
-			fileString = RUtil.escapeCompletly(fileString);
+			fileString = RUtil.escapeCompletely(fileString);
 			final String cmd = FILENAME_PATTERN.matcher(command).replaceAll(Matcher.quoteReplacement(fileString));
 			connector.submit(new String[] { cmd }, gotoConsole);
 		}

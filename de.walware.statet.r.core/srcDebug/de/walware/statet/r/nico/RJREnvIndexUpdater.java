@@ -393,8 +393,8 @@ public class RJREnvIndexUpdater {
 				progress.setWorkRemaining(count-i);
 				progress.subTask(NLS.bind("Loading data for ''{0}''...", pkgName));
 				
-				final String libPathEsc = RUtil.escapeCompletly(libPath);
-				final String nameEsc = RUtil.escapeCompletly(pkgName);
+				final String libPathEsc = RUtil.escapeCompletely(libPath);
+				final String nameEsc = RUtil.escapeCompletely(pkgName);
 				try {
 					final RObject pkgObj = r.evalData(".statet.checkPkg(id="+i+"L,libPath=\""+libPathEsc+"\",name=\""+nameEsc+"\")", progress);
 					if (pkgObj.getRObjectType() != RObject.TYPE_LIST) {
