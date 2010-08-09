@@ -163,12 +163,13 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	private static class Signature extends ReturnValue {
 		
-		private final String[] argNames;
+		/** the access objects are not yet registered */
+		private final ElementAccess[] argNameAccess;
 		private final String[] classNames;
 		
-		Signature(final String[] argNames, final String[] classNames) {
+		Signature(final ElementAccess[] argNameAccess, final String[] classNames) {
 			super(RETURN_METHOD_SIGNATURE);
-			this.argNames = argNames;
+			this.argNameAccess = argNameAccess;
 			this.classNames = classNames;
 		}
 		
@@ -753,6 +754,14 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		rMethod.complete(type, access, createMethodArgDef(rMethod.getFDefNode(), sig));
+		if (sig != null && sig.argNameAccess != null) {
+			BuildSourceFrame buildFrame = rMethod.getBuildFrame();
+			for (int i = 0; i < sig.argNameAccess.length; i++) {
+				if (sig.argNameAccess[i] != null) {
+					buildFrame.add(sig.argNameAccess[i].fNameNode.getText(), sig.argNameAccess[i]);
+				}
+			}
+		}
 		
 		access.fFlags |= ElementAccess.A_FUNC;
 		fCurrentSourceContainerBuilder.children.add(rMethod);
@@ -848,7 +857,8 @@ public class SourceAnalyzer extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef node) throws InvocationTargetException {
-		final BuildSourceFrame envir = new BuildSourceFrame.DefScope(IRFrame.FUNCTION, BuildSourceFrame.createId(IRFrame.FUNCTION, null, ++fAnonymCount),
+		final BuildSourceFrame envir = new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
+				BuildSourceFrame.createId(IRFrame.FUNCTION, null, ++fAnonymCount),
 				null, new BuildSourceFrame[] { fTopScope });
 		fCurrentEnvironments.add(envir);
 		fTopScope = envir;
@@ -1844,12 +1854,13 @@ public class SourceAnalyzer extends RAstVisitor {
 			Object returnValue = null;
 			
 			if (args.ellipsisArgs.length > 0) {
-				final String[] argNames = new String[args.ellipsisArgs.length];
+				final ElementAccess[] argNameNodes = new ElementAccess[args.ellipsisArgs.length];
 				final String[] classNames = new String[args.ellipsisArgs.length];
 				for (int i = 0; i < args.ellipsisArgs.length; i++) {
 					final FCall.Arg arg = args.ellipsisArgs[i];
-					if (arg.hasName()) {
-						argNames[i] = arg.getNameChild().getText();
+					if (arg.hasName() && arg.getNameChild().getText() != null) {
+						argNameNodes[i] = new ElementAccess.Default(node, arg.getNameChild());
+						argNameNodes[i].fFlags = ElementAccess.A_ARG;
 					}
 					if (arg.hasValue()) {
 						final RAstNode value = arg.getValueChild();
@@ -1860,7 +1871,7 @@ public class SourceAnalyzer extends RAstVisitor {
 						}
 					}
 				}
-				returnValue = new Signature(argNames, classNames);
+				returnValue = new Signature(argNameNodes, classNames);
 			}
 			
 			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
@@ -2702,9 +2713,10 @@ public class SourceAnalyzer extends RAstVisitor {
 			if (sig != null && sig.classNames != null) {
 				ITER_ARGS: for (int i = 0; i < n; i++) {
 					final String argName = argList.getChild(i).getNameChild().getText();
-					if (argName != null && sig.argNames != null) {
-						for (int j = 0; j < sig.argNames.length; j++) {
-							if (argName.equals(sig.argNames[j])) {
+					if (argName != null && sig.argNameAccess != null) {
+						for (int j = 0; j < sig.argNameAccess.length; j++) {
+							if (sig.argNameAccess[j] != null
+									&& argName.equals(sig.argNameAccess[j].fNameNode.getText())) {
 								b.add(argName, 0, sig.classNames[j]);
 								continue ITER_ARGS;
 							}
@@ -2730,10 +2742,10 @@ public class SourceAnalyzer extends RAstVisitor {
 			}
 		}
 		else { // (argList == null)
-			if (sig != null && sig.argNames != null && sig.classNames != null) {
-				ITER_ARGS: for (int i = 0; i < sig.argNames.length; i++) {
-					if (sig.argNames[i] != null) {
-						b.add(sig.argNames[i], 0, sig.classNames[i]);
+			if (sig != null && sig.argNameAccess != null && sig.classNames != null) {
+				ITER_ARGS: for (int i = 0; i < sig.argNameAccess.length; i++) {
+					if (sig.argNameAccess[i] != null) {
+						b.add(sig.argNameAccess[i].fNameNode.getText(), 0, sig.classNames[i]);
 						continue ITER_ARGS;
 					}
 					else {
