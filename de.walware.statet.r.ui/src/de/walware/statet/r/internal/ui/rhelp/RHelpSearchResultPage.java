@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -65,6 +67,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchPreferenceConstants;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.IPageSite;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.SharedUIResources;
@@ -330,23 +333,17 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 		protected void execute() throws ExecutionException {
 			final StructuredViewer viewer = getViewer();
 			if (UIAccess.isOkToUse(viewer)) {
-				try {
-					final IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-					if (selection instanceof ITreeSelection) {
-						final TreePath[] paths = ((ITreeSelection) selection).getPaths();
-						for (int i = 0; i < paths.length; i++) {
-							open(getRelevantElement(paths[i]), true, true);
-						}
-					}
-					else {
-						for (final Iterator<?> iter = selection.iterator(); iter.hasNext(); ) {
-							open(iter.next(), true, true);
-						}
+				final IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+				if (selection instanceof ITreeSelection) {
+					final TreePath[] paths = ((ITreeSelection) selection).getPaths();
+					for (int i = 0; i < paths.length; i++) {
+						open(getRelevantElement(paths[i]), true, true);
 					}
 				}
-				catch (final PartInitException e) {
-					// TODO
-					e.printStackTrace();
+				else {
+					for (final Iterator<?> iter = selection.iterator(); iter.hasNext(); ) {
+						open(iter.next(), true, true);
+					}
 				}
 			}
 		}
@@ -540,7 +537,8 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			}
 		}
 		catch (final Throwable e) {
-			e.printStackTrace();
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					"An error occurred when updating the R help search result table.", e));
 		}
 	}
 	
@@ -566,13 +564,7 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 			if (element == null) {
 				element = selection.getFirstElement();
 			}
-			try {
-				open(element, true, false);
-			}
-			catch (final PartInitException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			open(element, true, false);
 		}
 	}
 	
@@ -592,13 +584,18 @@ public class RHelpSearchResultPage extends AbstractTextSearchViewPage
 	}
 	
 	
-	protected void open(final Object element, final boolean activate, final boolean newPage)
-			throws PartInitException {
-		if (element instanceof RHelpSearchUIMatch) {
-			openPage((RHelpSearchUIMatch) element, activate, newPage);
+	protected void open(final Object element, final boolean activate, final boolean newPage) {
+		try {
+			if (element instanceof RHelpSearchUIMatch) {
+				openPage((RHelpSearchUIMatch) element, activate, newPage);
+			}
+			if (element instanceof IRPackageHelp) {
+				openPackage((IRPackageHelp) element, activate, newPage);
+			}
 		}
-		if (element instanceof IRPackageHelp) {
-			openPackage((IRPackageHelp) element, activate, newPage);
+		catch (final PartInitException e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+					"An error occurred when trying to open the R help page (element = " + element + ".", e));
 		}
 	}
 	
