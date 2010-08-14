@@ -488,7 +488,7 @@ public class RLexer {
 					return;
 				}
 				break;
-			case 7:
+			case 8:
 				if (fInput.subequals(2, C1_NA_real_)) {
 					createFix(RTerminal.NA_REAL);
 					return;
