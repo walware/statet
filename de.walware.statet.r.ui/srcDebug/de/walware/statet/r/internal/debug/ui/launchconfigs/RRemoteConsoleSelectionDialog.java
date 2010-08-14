@@ -14,7 +14,6 @@ package de.walware.statet.r.internal.debug.ui.launchconfigs;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -24,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -559,16 +558,13 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 					if (remote instanceof Server) {
 						final Server server = (Server) remote;
 						final ServerInfo info = server.getInfo();
-						final int status = server.getState();
+						final int state = server.getState();
 						final String rmiAddress = rmiBase+name;
-						final RemoteR r = new RemoteR(hostname, hostip, rmiAddress, info, status);
+						final RemoteR r = new RemoteR(hostname, hostip, rmiAddress, info, state);
 						infos.add(r);
 					}
 				}
-				catch (final NotBoundException e) {
-				}
-				catch (final RemoteException e) {
-					e.printStackTrace();
+				catch (final Exception e) {
 				}
 			}
 			return Status.OK_STATUS;
