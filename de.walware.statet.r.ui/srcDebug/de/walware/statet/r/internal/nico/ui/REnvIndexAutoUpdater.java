@@ -218,7 +218,8 @@ public class REnvIndexAutoUpdater {
 				final String global = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_RENV_CHECK_UPDATE).intern();
 				
 				if (global == DISABLED
-						|| (global == AUTO && fSessionSetting == DISABLED)) {
+						|| (global == AUTO && fSessionSetting == DISABLED)
+						|| fChecker == null) {
 					return;
 				}
 				final int check = fChecker.check(r, monitor);
@@ -295,8 +296,14 @@ public class REnvIndexAutoUpdater {
 	public REnvIndexAutoUpdater(final RProcess process) {
 		fProcess = process;
 		final IREnvConfiguration rEnvConfig = (IREnvConfiguration) process.getAdapter(IREnvConfiguration.class);
-		fChecker = new RJREnvIndexChecker(rEnvConfig);
-		fProcess.getQueue().addOnIdle(new CheckRunnable());
+		if (rEnvConfig != null) {
+			fChecker = new RJREnvIndexChecker(rEnvConfig);
+			fProcess.getQueue().addOnIdle(new CheckRunnable());
+			return;
+		}
+		else {
+			fChecker = null;
+		}
 	}
 	
 	
