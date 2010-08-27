@@ -97,15 +97,16 @@ public class OutputViewer extends TextConsoleViewer {
 						(lineCount - 1) : (lineCount));
 				final int visiblePixel = textWidget.getClientArea().height;
 				final int linePixel = textWidget.getLineHeight();
-				int topPixel = (linePixel * (lineToShow - 1)) - visiblePixel;
-				if (topPixel >= 0) {
-					topPixel += 2;
-					final int[] move = new int[] {
-							topPixel,
-							topPixel + linePixel - 2,
-							topPixel + linePixel - 1,
-							topPixel + linePixel
-					};
+				int topPixel = (linePixel * (lineToShow - 1)) - visiblePixel + 2;
+				if (topPixel + linePixel > 0) {
+					final int[] move = (topPixel >= 0) ? new int[] {
+								topPixel,
+								topPixel + linePixel - 2,
+								topPixel + linePixel - 1,
+								topPixel + linePixel 
+							} : new int[] {
+								topPixel + linePixel
+							};
 					textWidget.setTopPixel(move[0]);
 					final int[] state = new int[] { 1 };
 					display.timerExec(75, new Runnable() {

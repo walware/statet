@@ -68,7 +68,7 @@ public class RUtil {
 		return result.toString();
 	}
 	
-	public static String escapeCompletly(final String s) {
+	public static String escapeCompletely(final String s) {
 		final StringBuilder result = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); ) {
 			final char c = s.charAt(i++);
@@ -87,7 +87,7 @@ public class RUtil {
 		return result.toString();
 	}
 	
-	public static String unescapeCompletly(final String s) {
+	public static String unescapeCompletely(final String s) {
 		final StringBuilder result = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); ) {
 			final char c = s.charAt(i++);

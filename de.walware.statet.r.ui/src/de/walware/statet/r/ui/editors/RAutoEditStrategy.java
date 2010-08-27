@@ -679,8 +679,8 @@ public class RAutoEditStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 		final int lineOffset = fDocument.getLineOffset(fDocument.getLineOfOffset(c.offset));
 		fScanner.configure(fDocument);
-		if (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) != ITokenScanner.NOT_FOUND) {
-			// not first char
+		if (fScanner.findAnyNonBlankBackward(c.offset, lineOffset-1, false) != ITokenScanner.NOT_FOUND // not first char
+				&& !fRCodeStyle.getReplaceOtherTabsWithSpaces() ) {
 			return;
 		}
 		final RIndentUtil indentation = new RIndentUtil(fDocument, fRCodeStyle);

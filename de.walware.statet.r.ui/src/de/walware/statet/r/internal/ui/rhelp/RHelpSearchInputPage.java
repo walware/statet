@@ -162,8 +162,11 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 		fSearchTextControl.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
-				final RHelpSearchQuery query = fQueryHistory.get(e.text);
-				loadPattern(query);
+				final int selectionIdx;
+				if (!fSearchTextControl.getListVisible()
+						&& (selectionIdx = fSearchTextControl.getSelectionIndex()) >= 0) {
+					loadPattern(fQueryHistory.get(fSearchTextControl.getItem(selectionIdx)));
+				}
 			}
 		});
 		

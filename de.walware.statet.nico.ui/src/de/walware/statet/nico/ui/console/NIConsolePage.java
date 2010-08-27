@@ -341,7 +341,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					final long diff = schedule - System.currentTimeMillis();
-					if (diff > 0) {
+					if (diff > 5) {
 						Display.getCurrent().timerExec((int) diff, this);
 						return;
 					}

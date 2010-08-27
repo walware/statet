@@ -62,11 +62,11 @@ public class REnvIndexAutoUpdater {
 	public static final class UpdateRunnable implements IToolRunnable {
 		
 		
-		private final boolean fCompletly;
+		private final boolean fCompletely;
 		
 		
-		public UpdateRunnable(final boolean completly) {
-			fCompletly = completly;
+		public UpdateRunnable(final boolean completely) {
+			fCompletely = completely;
 		}
 		
 		public String getTypeId() {
@@ -100,8 +100,8 @@ public class REnvIndexAutoUpdater {
 					
 					r.handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, RNicoMessages.REnvIndex_Update_Started_message), monitor);
 					final RJREnvIndexUpdater updater = new RJREnvIndexUpdater(rEnvConfig);
-					updater.update(r, fCompletly, properties, monitor);
-					r.handleStatus(new Status(IStatus.INFO, RUI.PLUGIN_ID, RNicoMessages.REnvIndex_Update_Completed_message), monitor);
+					IStatus status = updater.update(r, fCompletely, properties, monitor);
+					r.handleStatus(status, monitor);
 				}
 			}
 		}
@@ -218,7 +218,8 @@ public class REnvIndexAutoUpdater {
 				final String global = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_RENV_CHECK_UPDATE).intern();
 				
 				if (global == DISABLED
-						|| (global == AUTO && fSessionSetting == DISABLED)) {
+						|| (global == AUTO && fSessionSetting == DISABLED)
+						|| fChecker == null) {
 					return;
 				}
 				final int check = fChecker.check(r, monitor);
@@ -295,8 +296,14 @@ public class REnvIndexAutoUpdater {
 	public REnvIndexAutoUpdater(final RProcess process) {
 		fProcess = process;
 		final IREnvConfiguration rEnvConfig = (IREnvConfiguration) process.getAdapter(IREnvConfiguration.class);
-		fChecker = new RJREnvIndexChecker(rEnvConfig);
-		fProcess.getQueue().addOnIdle(new CheckRunnable());
+		if (rEnvConfig != null) {
+			fChecker = new RJREnvIndexChecker(rEnvConfig);
+			fProcess.getQueue().addOnIdle(new CheckRunnable());
+			return;
+		}
+		else {
+			fChecker = null;
+		}
 	}
 	
 	

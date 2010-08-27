@@ -66,7 +66,7 @@ public class ChangeWDRunnable implements IToolRunnable {
 		final IRBasicAdapter r = (IRBasicAdapter) adapter;
 		try {
 			final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
-			final String command = "setwd(\"" + RUtil.escapeCompletly(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
+			final String command = "setwd(\"" + RUtil.escapeCompletely(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$
 			r.submitToConsole(command, monitor);
 		}
 		catch (final CoreException e) {

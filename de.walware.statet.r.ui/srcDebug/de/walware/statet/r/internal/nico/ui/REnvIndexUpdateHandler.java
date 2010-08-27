@@ -34,15 +34,15 @@ public class REnvIndexUpdateHandler extends AbstractHandler {
 	
 	
 	private RProcess fProcess;
-	private boolean fCompletly;
+	private boolean fCompletely;
 	
 	
 	public REnvIndexUpdateHandler() {
 	}
 	
-	public REnvIndexUpdateHandler(final RProcess process, final boolean completly) {
+	public REnvIndexUpdateHandler(final RProcess process, final boolean completely) {
 		fProcess = process;
-		fCompletly = completly;
+		fCompletely = completely;
 	}
 	
 	
@@ -61,7 +61,7 @@ public class REnvIndexUpdateHandler extends AbstractHandler {
 			process = NicoUI.getToolRegistry().getActiveToolSession(page).getProcess();
 		}
 		final ToolController controller = NicoUITools.getController("R", RTool.R_DATA_FEATURESET_ID, process); //$NON-NLS-1$
-		controller.submit(new REnvIndexAutoUpdater.UpdateRunnable(fCompletly));
+		controller.submit(new REnvIndexAutoUpdater.UpdateRunnable(fCompletely));
 		return null;
 	}
 	

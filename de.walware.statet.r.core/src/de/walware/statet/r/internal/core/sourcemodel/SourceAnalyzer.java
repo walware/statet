@@ -22,8 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -62,6 +62,7 @@ import de.walware.statet.r.core.rsource.ast.NullConst;
 import de.walware.statet.r.core.rsource.ast.NumberConst;
 import de.walware.statet.r.core.rsource.ast.Power;
 import de.walware.statet.r.core.rsource.ast.RAst;
+import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.RAstVisitor;
@@ -74,7 +75,6 @@ import de.walware.statet.r.core.rsource.ast.StringConst;
 import de.walware.statet.r.core.rsource.ast.SubIndexed;
 import de.walware.statet.r.core.rsource.ast.SubNamed;
 import de.walware.statet.r.core.rsource.ast.Symbol;
-import de.walware.statet.r.core.rsource.ast.RAst.ReadedFCallArgs;
 import de.walware.statet.r.internal.core.sourcemodel.BuildSourceFrame.ElementAccessList;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClass;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClassExt;
@@ -2425,9 +2425,13 @@ public class SourceAnalyzer extends RAstVisitor {
 					registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
 				}
 				else {
-					rMethod = new RMethod(fCurrentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, null);
-					rMethod.complete(null);
-					registerFunctionElement(rMethod);
+					final BuildSourceFrame envir = new BuildSourceFrame.DefScope(IRFrame.FUNCTION,
+							BuildSourceFrame.createId(IRFrame.FUNCTION, access.getSegmentName(), ++fAnonymCount),
+							access.getSegmentName(), new BuildSourceFrame[] { fTopLevelEnvir });
+					rMethod = new RMethod(fCurrentSourceContainerBuilder.element, IRElement.R_S4METHOD, access, envir);
+					enterElement(rMethod, envir, node);
+					leaveElement();
+					registerFunctionElement(rMethod, IRElement.R_S4METHOD, access, sig);
 				}
 				fReturnValue = null;
 			}
