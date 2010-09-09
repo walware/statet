@@ -701,9 +701,9 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				updateLibraries(fConfigModel.getRLibraryGroup(IRLibraryGroup.R_USER),
 						lines[DETECT_R_USER], lines[DETECT_R_HOME]);
 				
-				fConfigModel.setRDocDirectory(checkDir(lines[DETECT_R_DOC_DIR], lines[DETECT_R_HOME]));
-				fConfigModel.setRShareDirectory(checkDir(lines[DETECT_R_SHARE_DIR], lines[DETECT_R_HOME]));
-				fConfigModel.setRIncludeDirectory(checkDir(lines[DETECT_R_INCLUDE_DIR], lines[DETECT_R_HOME]));
+				fConfigModel.setRDocDirectoryPath(checkDir(lines[DETECT_R_DOC_DIR], lines[DETECT_R_HOME]));
+				fConfigModel.setRShareDirectoryPath(checkDir(lines[DETECT_R_SHARE_DIR], lines[DETECT_R_HOME]));
+				fConfigModel.setRIncludeDirectoryPath(checkDir(lines[DETECT_R_INCLUDE_DIR], lines[DETECT_R_HOME]));
 				
 				if (lines[DETECT_R_ARCH].endsWith("86")) {
 					fConfigModel.setRBits(32);

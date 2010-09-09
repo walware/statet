@@ -223,9 +223,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		setROS(setup.getOS());
 		setRBits((setup.getOSArch().equals(Platform.ARCH_X86)) ? 32 : 64);
 		setRHome(setup.getRHome());
-		setRDocDirectory("${env_var:R_HOME}/doc");
-		setRShareDirectory("${env_var:R_HOME}/share");
-		setRIncludeDirectory("${env_var:R_HOME}/include");
+		setRDocDirectoryPath("${env_var:R_HOME}/doc");
+		setRShareDirectoryPath("${env_var:R_HOME}/share");
+		setRIncludeDirectoryPath("${env_var:R_HOME}/include");
 		
 		final String[] ids = DEFAULT_LIBS_IDS;
 		final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
@@ -353,9 +353,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		setROS(from.getROS());
 		if (isLocal()) {
 			setRHome(from.getRHome());
-			setRDocDirectory(from.getRDocDirectoryPath());
-			setRShareDirectory(from.getRShareDirectoryPath());
-			setRIncludeDirectory(from.getRIncludeDirectoryPath());
+			setRDocDirectoryPath(from.getRDocDirectoryPath());
+			setRShareDirectoryPath(from.getRShareDirectoryPath());
+			setRIncludeDirectoryPath(from.getRIncludeDirectoryPath());
 			fRLibraries = copyLibs(from.getRLibraryGroups());
 		}
 		setIndexDirectoryPath(from.getIndexDirectoryPath());
@@ -387,9 +387,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		
 		if (fType == USER_LOCAL_TYPE) {
 			setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
-			setRDocDirectory(prefs.getPreferenceValue(fPrefRDocDirectory));
-			setRShareDirectory(prefs.getPreferenceValue(fPrefRShareDirectory));
-			setRIncludeDirectory(prefs.getPreferenceValue(fPrefRIncludeDirectory));
+			setRDocDirectoryPath(prefs.getPreferenceValue(fPrefRDocDirectory));
+			setRShareDirectoryPath(prefs.getPreferenceValue(fPrefRShareDirectory));
+			setRIncludeDirectoryPath(prefs.getPreferenceValue(fPrefRIncludeDirectory));
 			
 			final String[] ids = DEFAULT_LIBS_IDS;
 			final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
@@ -551,7 +551,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fRDocDirectory;
 	}
 	
-	public void setRDocDirectory(final String directory) {
+	public void setRDocDirectoryPath(final String directory) {
 		final String oldValue = fRDocDirectory;
 		fRDocDirectory = directory;
 		firePropertyChange(PROP_RDOC_DIRECTORY, oldValue, directory);
@@ -561,7 +561,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fRShareDirectory;
 	}
 	
-	public void setRShareDirectory(final String directory) {
+	public void setRShareDirectoryPath(final String directory) {
 		final String oldValue = fRShareDirectory;
 		fRShareDirectory = directory;
 		firePropertyChange(PROP_RSHARE_DIRECTORY, oldValue, directory);
@@ -571,7 +571,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fRIncludeDirectory;
 	}
 	
-	public void setRIncludeDirectory(final String directory) {
+	public void setRIncludeDirectoryPath(final String directory) {
 		final String oldValue = fRIncludeDirectory;
 		fRIncludeDirectory = directory;
 		firePropertyChange(PROP_RINCLUDE_DIRECTORY, oldValue, directory);

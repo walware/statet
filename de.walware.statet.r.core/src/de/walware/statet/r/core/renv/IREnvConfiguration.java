@@ -76,11 +76,11 @@ public interface IREnvConfiguration {
 		
 		void setROS(String type);
 		
-		void setRDocDirectory(String directory);
+		void setRDocDirectoryPath(String directory);
 		
-		void setRShareDirectory(String directory);
+		void setRShareDirectoryPath(String directory);
 		
-		void setRIncludeDirectory(String directory);
+		void setRIncludeDirectoryPath(String directory);
 		
 		List<IRLibraryGroup.WorkingCopy> getRLibraryGroups();
 		
