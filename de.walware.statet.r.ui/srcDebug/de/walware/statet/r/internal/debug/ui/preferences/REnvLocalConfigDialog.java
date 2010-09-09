@@ -111,19 +111,19 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	private static final Integer T_32 = Integer.valueOf(32);
 	
 	private static final String DETECT_START = "_R-Path-And-Library-Configuration_"; //$NON-NLS-1$
-	private static final String DETECT_COMMAND = "cat('"+DETECT_START+"', "
-			+ "Sys.getenv(\'R_HOME\'),"
-			+ "paste(.Library, collapse=.Platform$path.sep),"
-			+ "paste(.Library.site, collapse=.Platform$path.sep),"
-			+ "Sys.getenv('R_LIBS'),"
-			+ "Sys.getenv('R_LIBS_USER'),"
-			+ "R.home('doc'),"
-			+ "R.home('share'),"
-			+ "R.home('include'),"
-			+ "R.version$arch, "
-			+ ".Platform$OS.type, "
-			+ "sep='\\n');"; //$NON-NLS-1$ 
-	// R.version$arch
+	private static final String DETECT_COMMAND = "cat('"+DETECT_START+"'," //$NON-NLS-1$ //$NON-NLS-2$
+			+ "Sys.getenv(\'R_HOME\')," //$NON-NLS-1$
+			+ "paste(.Library,collapse=.Platform$path.sep)," //$NON-NLS-1$
+			+ "paste(.Library.site,collapse=.Platform$path.sep)," //$NON-NLS-1$
+			+ "Sys.getenv('R_LIBS')," //$NON-NLS-1$
+			+ "Sys.getenv('R_LIBS_USER')," //$NON-NLS-1$
+			+ "R.home('doc')," //$NON-NLS-1$
+			+ "R.home('share')," //$NON-NLS-1$
+			+ "R.home('include')," //$NON-NLS-1$
+			+ "R.version$arch," //$NON-NLS-1$
+			+ ".Platform$OS.type," //$NON-NLS-1$
+			+ "sep=intToUtf8(0x0AL));"; //$NON-NLS-1$
+	
 	private static final int DETECT_LENGTH = 11;
 	private static final int DETECT_R_HOME = 1;
 	private static final int DETECT_R_DEFAULT = 2;
