@@ -79,7 +79,7 @@ public class RJREnvIndexChecker {
 					for (int i = 0; i < count; i++) {
 						fIndex.checkPackage(names.getChar(i), pkgVersions.get(i));
 					}
-					fRJPackageFound = fIndex.getCheckedPackages().contains("rJava"); //$NON-NLS-1$
+					fRJPackageFound = fIndex.getCheckedPackages().contains("rj"); //$NON-NLS-1$
 					
 					fIndex.endPackageCheck();
 				}
