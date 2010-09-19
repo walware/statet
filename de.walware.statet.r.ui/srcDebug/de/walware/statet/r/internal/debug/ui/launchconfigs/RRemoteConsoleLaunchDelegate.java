@@ -304,15 +304,14 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 				final Remote remote = Naming.lookup(address);
 				if (remote instanceof Server) {
 					final Server server = (Server) remote;
-					switch (server.getState()) {
-					case Server.S_NOT_STARTED:
+					if (server.getState() <= Server.S_NOT_STARTED) {
 						todo = TODO_START_R;
 						if (reconnect != null) {
 							throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
 									NLS.bind("Cannot reconnect, the R engine at ''{0}'' is not yet started.", address), null));
 						}
-						break;
-					case Server.S_CONNECTED:
+					}
+					else if (server.getState() == Server.S_CONNECTED) {
 						todo = TODO_CONNECT;
 						if (reconnect != null) {
 						}
@@ -330,18 +329,18 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 								return;
 							}
 						}
-						break;
-					case Server.S_DISCONNECTED:
-					case Server.S_LOST:
+					}
+					else if (server.getState() <= Server.S_LOST) {
 						todo = TODO_CONNECT;
-						break;
-					case Server.S_STOPPED:
+					}
+					else if (server.getState() == Server.S_STOPPED) {
 						if (reconnect != null) {
 							throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
 									NLS.bind("Cannot reconnect, the R engine at ''{0}'' is terminated.", address), null));
 						}
 						todo = TODO_START_SERVER;
-					default:
+					}
+					else {
 						throw new IllegalStateException();
 					}
 				}
