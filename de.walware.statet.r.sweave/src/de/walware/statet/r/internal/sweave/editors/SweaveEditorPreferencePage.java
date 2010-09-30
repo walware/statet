@@ -68,12 +68,12 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 		Link link;
 		GridData gd;
 		
-		link = addLinkControl(pageComposite, "Sweave editor preferences. Note that some settings are inherited from R editor and LaTeX editor.");
+		link = addLinkControl(pageComposite, Messages.SweaveEditorOptions_RAndLatexRef_note);
 		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
 		gd.widthHint = 300;
 		link.setLayoutData(gd);
 		
-		link = addLinkControl(pageComposite, "The markers '<<', '>>=' and '@' for R chunks are displayed according to the <a href=\"de.walware.statet.r.preferencePages.RTextStylesPage\">coloring</a> options for 'Invalid / Other' tokens.");
+		link = addLinkControl(pageComposite, Messages.SweaveEditorOptions_SyntaxColoring_note);
 		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
 		gd.widthHint = 300;
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
@@ -81,9 +81,9 @@ class SweaveEditorConfigurationBlock extends ManagedConfigurationBlock {
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
 		fSpellEnableControl = new Button(pageComposite, SWT.CHECK);
-		fSpellEnableControl.setText("Enable s&pell checking.");
+		fSpellEnableControl.setText(Messages.SweaveEditorOptions_SpellChecking_Enable_label);
 		fSpellEnableControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		link = addLinkControl(pageComposite, "Note: On the <a href=\"org.eclipse.ui.editors.preferencePages.Spelling\">Spelling</a> preference page, the spell checking must be enabled and properly configured.");
+		link = addLinkControl(pageComposite, Messages.SweaveEditorOptions_SpellChecking_note);
 		gd = new GridData(SWT.FILL, SWT.TOP, true, false);
 		gd.widthHint = 300;
 		gd.horizontalIndent = LayoutUtil.defaultIndent();
