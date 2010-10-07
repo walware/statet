@@ -193,7 +193,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		final String name = element.getElementName().getDisplayName();
 		
 		final StringBuilder text;
-		switch ((element.getElementType() & MASK_C1 >> SHIFT_C1)) {
+		switch ((element.getElementType() & MASK_C1) >> SHIFT_C1) {
 		
 		case (IModelElement.C1_METHOD >> SHIFT_C1):
 			text = (name != null) ? new StringBuilder(name) : new StringBuilder();
@@ -519,14 +519,27 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	
 	protected void appendMethodDetail(final StringBuilder text, final IRMethod method) {
 		final ArgsDefinition args = method.getArgsDefinition();
+		final boolean showTypes = (method.getElementType() == IRElement.R_S4METHOD);
 		text.append('(');
-		if (args != null && args.size() > 0) {
+		if (args == null) {
+			text.append("<unknown>");
+		}
+		else if (args.size() > 0) {
 			final int last = args.size() - 1;
-			for (int i = 0; i < last; i++) {
-				appendArg(text, args.get(i));
-				text.append(", "); 
+			if (showTypes) {
+				for (int i = 0; i < last; i++) {
+					appendArgWithType(text, args.get(i));
+					text.append(", "); 
+				}
+				appendArgWithType(text, args.get(last));
 			}
-			appendArg(text, args.get(last));
+			else {
+				for (int i = 0; i < last; i++) {
+					appendArg(text, args.get(i));
+					text.append(", "); 
+				}
+				appendArg(text, args.get(last));
+			}
 		}
 		text.append(')');
 	}
@@ -624,6 +637,15 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 		if (arg.className != null) {
 			text.append(" : "+arg.className, StyledString.DECORATIONS_STYLER); 
+		}
+	}
+	
+	private void appendArgWithType(final StringBuilder text, final Arg arg) {
+		if (arg.name != null) {
+			text.append(arg.name);
+		}
+		if (arg.className != null) {
+			text.append(" : "+arg.className); 
 		}
 	}
 	

@@ -223,7 +223,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 										fLastCheckedVMBits = 32;
 										return;
 									}
-									if (p.equals(Platform.ARCH_AMD64) 
+									if (p.equals("amd64") //$NON-NLS-1$
 											|| p.equals(Platform.ARCH_X86_64) ) {
 										fLastCheckedVMBits = 64;
 										return;
