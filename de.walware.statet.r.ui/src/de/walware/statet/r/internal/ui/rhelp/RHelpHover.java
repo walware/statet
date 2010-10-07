@@ -101,7 +101,7 @@ public class RHelpHover implements IInfoHover {
 			}
 			else {
 				final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
-				if (topics.isEmpty()) {
+				if (topics == null || topics.isEmpty()) {
 					return null;
 				}
 				if (topics.size() == 1) {

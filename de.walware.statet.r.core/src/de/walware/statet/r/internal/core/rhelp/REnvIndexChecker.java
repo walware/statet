@@ -136,6 +136,7 @@ public class REnvIndexChecker {
 		fNewPkg = 0;
 		fChangedPkg = 0;
 		fNewChange = 0;
+		fCheckedNames.clear();
 	}
 	
 	public void checkPackage(final String pkgName, final String pkgVersion) {

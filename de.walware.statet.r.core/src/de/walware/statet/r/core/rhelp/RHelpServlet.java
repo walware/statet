@@ -99,7 +99,8 @@ public abstract class RHelpServlet extends HttpServlet {
 				if (i > next) {
 					writer.write(s, next, i - next);
 				}
-				writer.write("&apos;"); //$NON-NLS-1$
+				// &apos; see http://www.w3.org/TR/xhtml1/#C_16
+				writer.write("&#39;"); //$NON-NLS-1$
 				next = ++i;
 				continue;
 			case '<':

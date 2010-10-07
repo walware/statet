@@ -29,6 +29,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.queryParser.QueryParser.Operator;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
@@ -37,7 +38,6 @@ import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.store.FSDirectory;
 import org.eclipse.core.runtime.CoreException;
@@ -191,6 +191,17 @@ public class REnvIndexReader implements IREnvIndex {
 		}
 	}
 	
+	public static REnvIndexReader create(final IREnvConfiguration rEnvConfig) {
+		try {
+			return new REnvIndexReader(rEnvConfig);
+		}
+		catch (final Exception e) {
+			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"An error occurred when initializing searcher for the R help index.", e));
+			return null;
+		}
+	}
+	
 	private static int getRank(final String o) {
 		if (o == PAGE_FIELD_NAME) {
 			return 1;
@@ -252,16 +263,10 @@ public class REnvIndexReader implements IREnvIndex {
 	private Searcher fIndexSearcher;
 	
 	
-	public REnvIndexReader(final IREnvConfiguration rEnvConfig) {
-		try {
-			final FSDirectory directory = FSDirectory.open(SaveUtil.getIndexDirectory(rEnvConfig));
-			fIndexReader = IndexReader.open(directory, true);
-			fIndexSearcher = new IndexSearcher(fIndexReader);
-		}
-		catch (final Exception e) {
-			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					"An error occurred when initializing searcher for the R help index.", e));
-		}
+	private REnvIndexReader(final IREnvConfiguration rEnvConfig) throws Exception {
+		final FSDirectory directory = FSDirectory.open(SaveUtil.getIndexDirectory(rEnvConfig));
+		fIndexReader = IndexReader.open(directory, true);
+		fIndexSearcher = new IndexSearcher(fIndexReader);
 	}
 	
 	
