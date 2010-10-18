@@ -143,47 +143,50 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	
 	@Override
 	public boolean isValid(final ILaunchConfiguration config) {
-		final RConsoleType type = fMainTab.getSelectedType();
-		if (type == null || !type.requireJRE()) {
-			setErrorMessage(null);
-			setMessage(null);
-			return true;
+		if (Platform.getOS().startsWith("win") || Platform.getOS().equals(Platform.OS_LINUX)) { //$NON-NLS-1$
+			final RConsoleType type = fMainTab.getSelectedType();
+			if (type == null || !type.requireJRE()) {
+				setErrorMessage(null);
+				setMessage(null);
+				return true;
+			}
+			if (!super.isValid(config)) {
+				return false;
+			}
+			// try to check compatibility
+			
+			updateRBits();
+			if (fLastCheckedRBits == -1) {
+				// check not necessary
+				return true;
+			}
+			
+			IVMInstall jre = null;
+			try {
+				jre = JavaRuntime.computeVMInstall(config);
+			}
+			catch (final CoreException e) {
+			}
+			if (jre instanceof VMStandin) {
+				jre = ((VMStandin) jre).convertToRealVM();
+			}
+			if (jre != null && fLastCheckedVM != jre) {
+				fLastCheckedVM = jre;
+				updateVMBits();
+			}
+			if (jre == null || fLastCheckedVMBits == -1) {
+				// check failed technically
+				return true;
+			}
+			if (fLastCheckedVMBits == fLastCheckedRBits) {
+				return true;
+			}
+			else {
+				setErrorMessage(NLS.bind(RLaunchingMessages.JavaJRE_RCompatibility_error_DifferentBits_message, fLastCheckedRBits, fLastCheckedVMBits));
+				return false;
+			}
 		}
-		if (!super.isValid(config)) {
-			return false;
-		}
-		// try to check compatibility
-		
-		updateRBits();
-		if (fLastCheckedRBits == -1) {
-			// check not necessary
-			return true;
-		}
-		
-		IVMInstall jre = null;
-		try {
-			jre = JavaRuntime.computeVMInstall(config);
-		}
-		catch (final CoreException e) {
-		}
-		if (jre instanceof VMStandin) {
-			jre = ((VMStandin) jre).convertToRealVM();
-		}
-		if (jre != null && fLastCheckedVM != jre) {
-			fLastCheckedVM = jre;
-			updateVMBits();
-		}
-		if (jre == null || fLastCheckedVMBits == -1) {
-			// check failed technically
-			return true;
-		}
-		if (fLastCheckedVMBits == fLastCheckedRBits) {
-			return true;
-		}
-		else {
-			setErrorMessage(NLS.bind(RLaunchingMessages.JavaJRE_RCompatibility_error_DifferentBits_message, fLastCheckedRBits, fLastCheckedVMBits));
-			return false;
-		}
+		return true;
 	}
 	
 	private void updateRBits() {
@@ -219,12 +222,11 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 							{	// try known os.arch
 								String p = properties.get("os.arch"); //$NON-NLS-1$
 								if (p != null && p.length() > 0) {
-									if (p.equals(Platform.ARCH_X86)) {
+									if (p.equals(Platform.ARCH_X86) || p.equals("i386") || p.equals("i586") || p.equals("i686")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 										fLastCheckedVMBits = 32;
 										return;
 									}
-									if (p.equals("amd64") //$NON-NLS-1$
-											|| p.equals(Platform.ARCH_X86_64) ) {
+									if (p.equals(Platform.ARCH_X86_64) || p.equals("amd64")) { //$NON-NLS-1$
 										fLastCheckedVMBits = 64;
 										return;
 									}

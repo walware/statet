@@ -66,6 +66,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -113,6 +114,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	private static final String DETECT_START = "_R-Path-And-Library-Configuration_"; //$NON-NLS-1$
 	private static final String DETECT_COMMAND = "cat('"+DETECT_START+"'," //$NON-NLS-1$ //$NON-NLS-2$
 			+ "Sys.getenv(\'R_HOME\')," //$NON-NLS-1$
+			+ "Sys.getenv(\'R_ARCH\')," //$NON-NLS-1$
 			+ "paste(.Library,collapse=.Platform$path.sep)," //$NON-NLS-1$
 			+ "paste(.Library.site,collapse=.Platform$path.sep)," //$NON-NLS-1$
 			+ "Sys.getenv('R_LIBS')," //$NON-NLS-1$
@@ -124,17 +126,18 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			+ ".Platform$OS.type," //$NON-NLS-1$
 			+ "sep=intToUtf8(0x0AL));"; //$NON-NLS-1$
 	
-	private static final int DETECT_LENGTH = 11;
+	private static final int DETECT_LENGTH = 12;
 	private static final int DETECT_R_HOME = 1;
-	private static final int DETECT_R_DEFAULT = 2;
-	private static final int DETECT_R_SITE = 3;
-	private static final int DETECT_R_OTHER = 4;
-	private static final int DETECT_R_USER = 5;
-	private static final int DETECT_R_DOC_DIR = 6;
-	private static final int DETECT_R_SHARE_DIR = 7;
-	private static final int DETECT_R_INCLUDE_DIR = 8;
-	private static final int DETECT_R_ARCH = 9;
-	private static final int DETECT_R_OS = 10;
+	private static final int DETECT_R_ARCHVAR = 2;
+	private static final int DETECT_R_DEFAULT = 3;
+	private static final int DETECT_R_SITE = 4;
+	private static final int DETECT_R_OTHER = 5;
+	private static final int DETECT_R_USER = 6;
+	private static final int DETECT_R_DOC_DIR = 7;
+	private static final int DETECT_R_SHARE_DIR = 8;
+	private static final int DETECT_R_INCLUDE_DIR = 9;
+	private static final int DETECT_R_ARCH = 10;
+	private static final int DETECT_R_OS = 11;
 	private static final Pattern DETECT_ITEM_PATTERN = RUtil.LINE_SEPARATOR_PATTERN;
 	private static final Pattern DETECT_PATH_PATTERN = Pattern.compile(Pattern.quote(File.pathSeparator));
 	
@@ -161,8 +164,10 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					final String[] rhome = searchRHOME();
 					if (rhome != null) {
 						setText(rhome[0], true);
+						updateArchs(false);
 						fRBitViewer.setSelection(new StructuredSelection(
-								rhome[0].contains("64") ? T_64 : T_32)); //$NON-NLS-1$
+								(fRArchControl.getText().contains("64") || rhome[0].contains("64")) ? //$NON-NLS-1$ //$NON-NLS-2$
+										T_64 : T_32));
 						final String current = fNameControl.getText().trim();
 						if ((current.length() == 0 || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$
 							fNameControl.setText(rhome[1]);
@@ -213,6 +218,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	private Button fLoadButton;
 	
+	private Combo fRArchControl;
 	private ComboViewer fRBitViewer;
 	
 	private TreeViewer fRLibrariesViewer;
@@ -267,24 +273,47 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		
 		LayoutUtil.addSmallFiller(dialogArea, false);
 		
-		{	// Type (Bits):
+		{	// Architecture / Bits:
 			final Label label = new Label(dialogArea, SWT.LEFT);
-			label.setText(Messages.REnv_Detail_Bits_label+':');
+			label.setText(Messages.REnv_Detail_Arch_label+':');
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final Composite composite = new Composite(dialogArea, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
+			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 3));
 			
-			fRBitViewer = new ComboViewer(composite);
-			fRBitViewer.setContentProvider(new ArrayContentProvider());
-			fRBitViewer.setLabelProvider(new LabelProvider() {
-				@Override
-				public String getText(final Object element) {
-					return ((Integer) element).toString() + "-bit";  //$NON-NLS-1$
-				}
-			});
-			fRBitViewer.setInput(new Integer[] { T_32, T_64 });
+			{	fRArchControl = new Combo(composite, SWT.DROP_DOWN);
+				final GridData gd = new GridData(SWT.FILL, SWT.FILL, false, false);
+				gd.widthHint = LayoutUtil.hintWidth(fRArchControl, 8);
+				fRArchControl.setLayoutData(gd);
+				fRArchControl.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(final SelectionEvent e) {
+						final int selectionIdx;
+						if (!fRArchControl.getListVisible()
+								&& (selectionIdx = fRArchControl.getSelectionIndex()) >= 0) {
+							final String item = fRArchControl.getItem(selectionIdx);
+							if (item.contains("64")) { //$NON-NLS-1$
+								fRBitViewer.setSelection(new StructuredSelection(T_64));
+							}
+							else if (item.contains("86")) { //$NON-NLS-1$
+								fRBitViewer.setSelection(new StructuredSelection(T_32));
+							}
+						}
+					}
+				});
+			}
+			{	fRBitViewer = new ComboViewer(composite);
+				fRBitViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+				fRBitViewer.setContentProvider(new ArrayContentProvider());
+				fRBitViewer.setLabelProvider(new LabelProvider() {
+					@Override
+					public String getText(final Object element) {
+						return ((Integer) element).toString() + "-bit";  //$NON-NLS-1$
+					}
+				});
+				fRBitViewer.setInput(new Integer[] { T_32, T_64 });
+			}
 			
 			fLoadButton = new Button(composite, SWT.PUSH);
 			fLoadButton.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, false));
@@ -510,7 +539,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
-					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR");
+					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_DOC_DIR"); //$NON-NLS-1$
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRDocDirectoryControl = text;
@@ -520,7 +549,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
-					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_SHARE_DIR");
+					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_SHARE_DIR"); //$NON-NLS-1$
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRShareDirectoryControl = text;
@@ -530,7 +559,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			
 			final ResourceInputComposite text = new ResourceInputComposite(composite, ResourceInputComposite.STYLE_TEXT,
-					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_INCLUDE_DIR");
+					(ResourceInputComposite.MODE_DIRECTORY | ResourceInputComposite.MODE_OPEN), "R_INCLUDE_DIR"); //$NON-NLS-1$
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			text.setShowInsertVariable(true, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			fRIncludeDirectoryControl = text;
@@ -568,6 +597,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						if (!fConfigModel.isValidRHomeLocation(fRHomeControl.getResourceAsFileStore())) {
 							return ValidationStatus.error(Messages.REnv_Detail_Location_error_NoRHome_message);
 						}
+						updateArchs(true);
 						return ValidationStatus.ok();
 					}
 				}), null);
@@ -578,6 +608,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			}
 		});
 		rHomeBinding.validateTargetToModel();
+		db.getContext().bindValue(SWTObservables.observeText(fRArchControl),
+				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_SUBARCH) );
 		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fRBitViewer),
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RBITS),
 				null, null);
@@ -638,6 +670,41 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			RUIPlugin.logError(-1, "Error when searching R_HOME location", e); //$NON-NLS-1$
 		}
 		return null;
+	}
+	
+	private void updateArchs(final boolean conservative) {
+		try {
+			final List<String> availableArchs = fConfigModel.searchAvailableSubArchs(fRHomeControl.getResourceAsFileStore());
+			if (availableArchs == null) {
+				fRArchControl.setItems(new String[0]);
+				return;
+			}
+			fRArchControl.setItems(availableArchs.toArray(new String[availableArchs.size()]));
+			
+			if (conservative && fRArchControl.getText().length() > 0) {
+				return;
+			}
+			int idx = availableArchs.indexOf(Platform.getOSArch());
+			if (idx < 0) {
+				if (Platform.getOSArch().equals(Platform.ARCH_X86)) {
+					idx = availableArchs.indexOf("i386"); //$NON-NLS-1$
+					if (idx < 0) {
+						idx = availableArchs.indexOf("i586"); //$NON-NLS-1$
+						if (idx < 0) {
+							idx = availableArchs.indexOf("i686"); //$NON-NLS-1$
+						}
+					}
+				}
+			}
+			if (idx >= 0) {
+				fRArchControl.select(idx);
+				return;
+			}
+			fRArchControl.select(0);
+		}
+		catch (final Exception e) {
+			fRArchControl.setItems(new String[0]);
+		}
 	}
 	
 	private void detectSettings() {
@@ -705,11 +772,17 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				fConfigModel.setRShareDirectoryPath(checkDir(lines[DETECT_R_SHARE_DIR], lines[DETECT_R_HOME]));
 				fConfigModel.setRIncludeDirectoryPath(checkDir(lines[DETECT_R_INCLUDE_DIR], lines[DETECT_R_HOME]));
 				
-				if (lines[DETECT_R_ARCH].endsWith("86")) {
-					fConfigModel.setRBits(32);
+				if (lines[DETECT_R_ARCHVAR].length() > 0) {
+					fConfigModel.setSubArch(lines[DETECT_R_ARCHVAR]);
 				}
-				else if (lines[DETECT_R_ARCH].endsWith("64")) {
+				else if (lines[DETECT_R_ARCH].length() > 0 && fConfigModel.getSubArch().length() > 0) {
+					fConfigModel.setSubArch(lines[DETECT_R_ARCH]);
+				}
+				if (lines[DETECT_R_ARCH].contains("64")) { //$NON-NLS-1$
 					fConfigModel.setRBits(64);
+				}
+				else if (lines[DETECT_R_ARCH].endsWith("86")) { //$NON-NLS-1$
+					fConfigModel.setRBits(32);
 				}
 				fConfigModel.setROS(lines[DETECT_R_OS]);
 				return;
@@ -731,7 +804,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			}
 			String s;
 			final IPath path;
-			if (location.startsWith("~/")) {
+			if (location.startsWith("~/")) { //$NON-NLS-1$
 				path = userHomePath.append(location.substring(2));
 			}
 			else {

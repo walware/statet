@@ -140,8 +140,20 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		
 		if (configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false)
-				&& s.indexOf(" -Dde.walware.rj.verbose=") < 0) {
-			s.append(" -Dde.walware.rj.verbose=true");
+				&& s.indexOf(" -Dde.walware.rj.verbose=") < 0) { //$NON-NLS-1$
+			s.append(" -Dde.walware.rj.verbose=true"); //$NON-NLS-1$
+		}
+		if (Platform.getOS().equals(Platform.OS_MACOSX)
+				&& s.indexOf(" -d32") < 0 && s.indexOf(" -d64") < 0) { //$NON-NLS-1$ //$NON-NLS-2$
+			final String rArch = fRenv.getSubArch();
+			if (rArch != null && rArch.length() > 0) {
+				if (rArch.equals("i386") || rArch.equals("i586") || rArch.equals("i686")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					s.append("-d32"); //$NON-NLS-1$
+				}
+				else if (rArch.equals("x86_64")) { //$NON-NLS-1$
+					s.append("-d64"); //$NON-NLS-1$
+				}
+			}
 		}
 		
 		return s.substring(1);

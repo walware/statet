@@ -32,6 +32,8 @@ public interface IREnvConfiguration {
 	
 	String PROP_RHOME = "RHome"; //$NON-NLS-1$
 	
+	String PROP_SUBARCH = "subArch"; //$NON-NLS-1$
+	
 	String PROP_RBITS = "RBits"; //$NON-NLS-1$
 	
 	String PROP_ROS = "ROS"; //$NON-NLS-1$
@@ -72,6 +74,8 @@ public interface IREnvConfiguration {
 		
 		void setRHome(String directory);
 		
+		void setSubArch(String arch);
+		
 		void setRBits(int bits);
 		
 		void setROS(String type);
@@ -86,7 +90,9 @@ public interface IREnvConfiguration {
 		
 		IRLibraryGroup.WorkingCopy getRLibraryGroup(String id);
 		
-		boolean isValidRHomeLocation(IFileStore resourceAsFileStore);
+		boolean isValidRHomeLocation(IFileStore rHome);
+		
+		List<String> searchAvailableSubArchs(IFileStore rHome);
 		
 		
 		void setIndexDirectoryPath(String directory);
@@ -112,6 +118,8 @@ public interface IREnvConfiguration {
 	
 	
 	String getRHome();
+	
+	String getSubArch();
 	
 	int getRBits();
 	
