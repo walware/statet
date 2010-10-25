@@ -79,8 +79,7 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 			});
 			
 			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-				public void run(final IProgressMonitor monitor)
-						throws InvocationTargetException {
+				public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 					try {
 						doLaunch(editorInput, textSelection.get(), monitor);
 					}
@@ -93,8 +92,8 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(Status.ERROR, RUI.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHING, Messages.RChunkLaunch_error_message, e.getTargetException()));
-		} catch (final InterruptedException e) {
-			Thread.interrupted();
+		}
+		catch (final InterruptedException e) {
 		}
 	}
 	

@@ -578,6 +578,7 @@ class RweaveTexTool implements Runnable, IProcess {
 						synchronized (this) {
 							try {
 								if (fProgress.isCanceled()) {
+									// removing runnable sets the cancel status
 									rController.getProcess().getQueue().removeElements(new IToolRunnable[] { rTask });
 									break;
 								}
@@ -587,7 +588,7 @@ class RweaveTexTool implements Runnable, IProcess {
 								wait();
 							}
 							catch (final InterruptedException e) {
-								Thread.interrupted();
+								// continue loop, monitor is checked
 							}
 						}
 					}

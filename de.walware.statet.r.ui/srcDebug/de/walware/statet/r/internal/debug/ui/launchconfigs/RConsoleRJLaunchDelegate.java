@@ -275,7 +275,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				Thread.sleep(500);
 			}
 			catch (final InterruptedException e) {
-				Thread.interrupted();
+				// continue, monitor and process is checked
 			}
 		}
 		progress.worked(5);

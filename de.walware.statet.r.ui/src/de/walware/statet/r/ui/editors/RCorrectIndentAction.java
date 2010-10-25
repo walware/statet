@@ -93,16 +93,14 @@ public class RCorrectIndentAction extends Action implements IUpdate {
 					catch (final Exception e) {
 						throw new InvocationTargetException(e);
 					}
-					finally {
-					}
 				}
 			});
-		} catch (final InvocationTargetException e) {
+		}
+		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
 					RUIMessages.CorrectIndent_error_message, e.getTargetException()));
-		} catch (final InterruptedException e) {
-			Thread.interrupted();
 		}
+		catch (final InterruptedException e) {}
 	}
 	
 	private void doCorrection(final ISourceUnit su, final ITextSelection selection, final IProgressMonitor monitor)

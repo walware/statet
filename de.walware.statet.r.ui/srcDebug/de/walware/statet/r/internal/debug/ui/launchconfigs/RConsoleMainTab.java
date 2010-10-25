@@ -416,7 +416,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InterruptedException e) {
-			Thread.interrupted();
+			// canceled
 		}
 	}
 	

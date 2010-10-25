@@ -99,7 +99,6 @@ public interface IToolRunnableControllerAdapter {
 	 * @param input the text to submit
 	 * @param monitor the progress monitor of the current run (or a child)
 	 * @throws CoreException if an error occurred or the operation was canceled
-	 * @throws InterruptedException
 	 */
 	void submitToConsole(String input, IProgressMonitor monitor)
 			throws CoreException;

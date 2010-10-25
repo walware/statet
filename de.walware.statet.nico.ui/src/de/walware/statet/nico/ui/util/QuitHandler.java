@@ -59,7 +59,7 @@ public class QuitHandler implements IToolEventHandler {
 			if (fResult == 1) {
 				try {
 					window.run(true, true, new IRunnableWithProgress() {
-						public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 							try {
 								fController.kill(monitor);
 							} catch (final CoreException e) {
@@ -68,13 +68,12 @@ public class QuitHandler implements IToolEventHandler {
 						}
 					});
 				}
-				catch (final InterruptedException e) {
-					Thread.interrupted();
-				}
 				catch (final InvocationTargetException e) {
 					StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 							Messages.TerminatingMonitor_Force_error_message, e.getTargetException()),
 							StatusManager.LOG | StatusManager.SHOW);
+				}
+				catch (final InterruptedException e) {
 				}
 			}
 		}

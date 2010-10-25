@@ -138,8 +138,7 @@ public class HelpRequestor implements IRunnableWithProgress {
 		return fBuilder;
 	}
 	
-	public void run(final IProgressMonitor monitor) throws InvocationTargetException,
-			InterruptedException {
+	public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 		final String cmdInfo = LaunchConfigUtil.generateCommandLine(fBuilder.command());
 		monitor.beginTask(Messages.HelpRequestor_Task_name+cmdInfo, 10);
 		if (monitor.isCanceled()) {

@@ -73,7 +73,6 @@ public class ReconnectEngineHandler extends ToolRetargetableHandler {
 					"Reconnecting failed.", e.getCause()), StatusManager.SHOW | StatusManager.LOG);
 		}
 		catch (final InterruptedException e) {
-			Thread.interrupted();
 		}
 		return null;
 	}

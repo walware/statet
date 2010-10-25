@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -283,8 +283,9 @@ public class LaunchConfigUtil {
 						break;
 					}
 					Thread.sleep(50);
-				} catch (final InterruptedException e) {
-					Thread.interrupted();
+				}
+				catch (final InterruptedException e) {
+					// continue loop, monitor and process is checked
 				}
 			}
 			

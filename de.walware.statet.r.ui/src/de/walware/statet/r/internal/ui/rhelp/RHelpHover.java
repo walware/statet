@@ -57,7 +57,10 @@ public class RHelpHover implements IInfoHover {
 			return null;
 		}
 		final RAstNode rNode = (RAstNode) selection.getCovering();
-		RElementName name = searchName(rNode, context);
+		RElementName name = searchName(rNode, context, true);
+		if (Thread.interrupted()) {
+			return null;
+		}
 		if (fFocus && name == null) {
 			RAstNode parent;
 			switch (rNode.getNodeType()) {
@@ -76,6 +79,9 @@ public class RHelpHover implements IInfoHover {
 				break;
 			default:
 				break;
+			}
+			if (Thread.interrupted()) {
+				return null;
 			}
 		}
 		if (name == null) {
@@ -119,12 +125,13 @@ public class RHelpHover implements IInfoHover {
 					}
 				}
 			}
-			if (helpObject != null) {
-				final String httpUrl = rHelpManager.toHttpUrl(helpObject, RHelpUIServlet.INFO_TARGET);
-				if (httpUrl != null) {
-					return new RHelpInfoHoverCreator.Data(context.getSourceViewer().getTextWidget(),
-							helpObject, httpUrl);
-				}
+			if (Thread.interrupted() || helpObject == null) {
+				return null;
+			}
+			final String httpUrl = rHelpManager.toHttpUrl(helpObject, RHelpUIServlet.INFO_TARGET);
+			if (httpUrl != null) {
+				return new RHelpInfoHoverCreator.Data(context.getSourceViewer().getTextWidget(),
+						helpObject, httpUrl);
 			}
 		}
 		return null;
@@ -151,10 +158,10 @@ public class RHelpHover implements IInfoHover {
 		return new RHelpInfoHoverCreator(fFocus);
 	}
 	
-	static RElementName searchName(RAstNode rNode, final IRegion region) {
+	static RElementName searchName(RAstNode rNode, final IRegion region, final boolean checkInterrupted) {
 		RElementAccess access = null;
 		while (rNode != null && access == null) {
-			if (Thread.interrupted()) {
+			if (checkInterrupted && Thread.currentThread().isInterrupted()) {
 				return null;
 			}
 			final Object[] attachments = rNode.getAttachments();

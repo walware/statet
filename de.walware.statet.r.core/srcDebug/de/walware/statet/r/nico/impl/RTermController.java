@@ -116,8 +116,9 @@ public class RTermController extends AbstractRController implements IRequireSync
 					try {
 						Thread.sleep(SYNC_MS);
 						hasNoOutput++;
-					} catch (final InterruptedException e) {
-						Thread.interrupted();
+					}
+					catch (final InterruptedException e) {
+						// continue directly
 					}
 				}
 			}
@@ -162,8 +163,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 			return "Fetch Process Id";
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final StringBuilder output = readOutputLine("Sys.getpid()", monitor); //$NON-NLS-1$
 			if (output != null) {
 				final Matcher matcher = INT_OUTPUT_PATTERN.matcher(output);
@@ -276,7 +277,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 				}
 				public void changed(final int event, final ToolProcess process) {
 				}
-				public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+				public void run(final IToolRunnableControllerAdapter adapter,
+						final IProgressMonitor monitor) throws CoreException {
 					for (final IStatus status : warnings) {
 						handleStatus(status, monitor);
 					}
@@ -394,8 +396,9 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		try {
 			Thread.sleep(fProcessOutputThread.SYNC_MS*2);
-		} catch (final InterruptedException e) {
-			Thread.interrupted();
+		}
+		catch (final InterruptedException e) {
+			// continue directly
 		}
 		fProcessOutputThread.streamLock.lock();
 		fProcessOutputThread.streamLock.unlock();
@@ -440,7 +443,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 					Thread.sleep(50);
 				}
 				catch (final InterruptedException e) {
-					Thread.interrupted();
+					// continue directly
 				}
 			}
 			return Pattern.compile("(?:"+Pattern.quote(getWorkspaceData().getDefaultPrompt().text) + ")?"+stamp); //$NON-NLS-1$ //$NON-NLS-2$
@@ -487,7 +490,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 					Thread.sleep(50);
 				}
 				catch (final InterruptedException e) {
-					Thread.interrupted();
+					// continue directly
 				}
 			}
 			return output;

@@ -107,7 +107,7 @@ class RTermCancelRunnable implements IToolRunnable {
 					Thread.sleep(50);
 				}
 				catch (final InterruptedException e) {
-					Thread.interrupted();
+					// continue directly
 				}
 			}
 			controller.runOnIdle(controller.createCommandRunnable("", SubmitType.OTHER)); //$NON-NLS-1$

@@ -77,15 +77,27 @@ public class ProcessOutputCollector extends Thread {
 				fIsRunning = false;
 			}
 			catch (final InterruptedException e) {
-				Thread.interrupted();
+				// forward to reader
+				interrupt();
 			}
 		}
 		fMonitor.worked(2);
 		
-		final String text = getText();
-		fMonitor.worked(2);
-		
-		return text;
+		while (true) {
+			try {
+				join();
+				if (fReadException != null) {
+					throw new CoreException(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
+							NLS.bind(Messages.HelpRequestor_error_WhenReadOutput_message, fName), fReadException));
+				}
+				fMonitor.worked(2);
+				return fBuffer.toString();
+			}
+			catch (final InterruptedException e) {
+				// forward to reader
+				interrupt();
+			}
+		}
 	}
 	
 	@Override
@@ -110,8 +122,9 @@ public class ProcessOutputCollector extends Thread {
 				}
 				try {
 					Thread.sleep(50);
-				} catch (final InterruptedException e) {
-					Thread.interrupted();
+				}
+				catch (final InterruptedException e) {
+					// continue loop, monitor is checked
 				}
 			}
 		}
@@ -125,18 +138,4 @@ public class ProcessOutputCollector extends Thread {
 		}
 	}
 	
-	public String getText() throws CoreException {
-		while (true) {
-			try {
-				join();
-				if (fReadException != null) {
-					throw new CoreException(new Status(IStatus.ERROR, StatetUIPlugin.PLUGIN_ID, -1,
-							NLS.bind(Messages.HelpRequestor_error_WhenReadOutput_message, fName), fReadException));
-				}
-				return fBuffer.toString();
-			} catch (final InterruptedException e) {
-				Thread.interrupted();
-			}
-		}
-	}
 }

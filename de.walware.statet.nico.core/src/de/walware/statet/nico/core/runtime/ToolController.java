@@ -123,8 +123,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return fType;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			adapter.submitToConsole(fText, monitor);
 		}
 		
@@ -161,8 +161,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		public void changed(final int event, final ToolProcess process) {
 		}
 		
-		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter tools,
+				final IProgressMonitor monitor) throws CoreException {
 		}
 		
 	};
@@ -804,13 +804,14 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		while (true) {
 			loopRunTask();
 			
-			synchronized (fQueue) {
+			synchronized (fQueue) { // if interrupted run loop, all states are checked
 				fQueue.internalCheck();
 				
 				if (fInternalTask > 0) {
 					try {
 						fQueue.wait();
-					} catch (final InterruptedException e) {}
+					}
+					catch (final InterruptedException e) {}
 					continue;
 				}
 				if (fIsTerminated) {
@@ -825,14 +826,16 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
 					try {
 						fQueue.wait();
-					} catch (final InterruptedException e) {}
+					}
+					catch (final InterruptedException e) {}
 					continue;
 				}
 				if (fQueue.internalIsEmpty()) { // TODO change to true?
 					loopChangeStatus(ToolStatus.STARTED_IDLING, null);
 					try {
 						fQueue.wait();
-					} catch (final InterruptedException e) {}
+					}
+					catch (final InterruptedException e) {}
 					continue;
 				}
 			}

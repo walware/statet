@@ -393,16 +393,15 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		if (input != null && input.length() > 0) {
 			try {
 				new ProgressMonitorDialog(getShell()).run(true, true, new IRunnableWithProgress() {
-					public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 						status.set(updateRServerList(input, monitor));
 					}
 				});
 			}
 			catch (final InvocationTargetException e) {
-				fRServerViewer = null;
+				// not used
 			}
 			catch (final InterruptedException e) {
-				Thread.interrupted();
 				fRServerViewer = null;
 				status.compareAndSet(null, Status.CANCEL_STATUS);
 			}

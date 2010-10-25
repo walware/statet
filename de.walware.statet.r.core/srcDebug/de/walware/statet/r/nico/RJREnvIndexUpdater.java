@@ -91,31 +91,40 @@ public class RJREnvIndexUpdater {
 		}
 		
 		public void add(final RList pkgData, final SubMonitor progress) throws Exception {
-			try {
-				if (fException != null) {
-					throw fException;
+			while (true) {
+				try {
+					if (fException != null) {
+						throw fException;
+					}
+					fQueue.put(pkgData);
+					return;
 				}
-				fQueue.put(pkgData);
-			}
-			catch (final InterruptedException e) {
-				Thread.interrupted();
-				if (progress.isCanceled()) {
-					cancel();
-					throw new CoreException(Status.CANCEL_STATUS);
+				catch (final InterruptedException e) {
+					if (progress.isCanceled()) {
+						cancel();
+						throw new CoreException(Status.CANCEL_STATUS);
+					}
 				}
 			}
 		}
 		
 		public void finish(final SubMonitor progress) throws CoreException {
-			try {
-				fQueue.add(FINISH);
-				join();
-			}
-			catch (final InterruptedException e) {
-				Thread.interrupted();
-				if (progress.isCanceled()) {
-					cancel();
-					throw new CoreException(Status.CANCEL_STATUS);
+			while (true) {
+				try {
+					fQueue.add(FINISH);
+					join();
+					return;
+				}
+				catch (final InterruptedException e) {
+					// forward to worker thread
+					final Thread thread = getThread();
+					if (thread != null) {
+						thread.interrupt();
+					}
+					if (progress.isCanceled()) {
+						cancel();
+						throw new CoreException(Status.CANCEL_STATUS);
+					}
 				}
 			}
 		}
@@ -128,7 +137,11 @@ public class RJREnvIndexUpdater {
 					return;
 				}
 				catch (final InterruptedException e) {
-					Thread.interrupted();
+					// forward to worker thread
+					final Thread thread = getThread();
+					if (thread != null) {
+						thread.interrupt();
+					}
 				}
 			}
 		}
@@ -189,7 +202,7 @@ public class RJREnvIndexUpdater {
 						processRdData(packageDescription.getName(), pkgData);
 					}
 					catch (final InterruptedException e) {
-						Thread.interrupted();
+						// continue, monitor is checked
 					}
 					catch (final AbortIndexException e) {
 						fException = e;

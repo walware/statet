@@ -46,7 +46,8 @@ public class RunBlockingHandler implements IToolEventHandler {
 				public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
 						toolRunnable.run(tools, monitor);
-					} catch (final CoreException e) {
+					}
+					catch (final CoreException e) {
 						throw new InvocationTargetException(e);
 					}
 				}
@@ -54,15 +55,15 @@ public class RunBlockingHandler implements IToolEventHandler {
 			return Status.OK_STATUS;
 		}
 		catch (final InvocationTargetException e) {
-			final Throwable targetException = e.getTargetException();
-//			if (targetException instanceof CoreException) {
-//				return handleError(((CoreException) targetException).getStatus());
-//			}
+			final Throwable targetException = e.getCause();
+			if (targetException instanceof CoreException && 
+					((CoreException) targetException).getStatus().getSeverity() == IStatus.CANCEL) {
+				return Status.CANCEL_STATUS;
+			}
 			return handleError(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID,
 					NLS.bind(Messages.ExecuteHandler_error_message, toolRunnable.getLabel()), targetException));
 		}
 		catch (final InterruptedException e) {
-			Thread.interrupted();
 			return Status.CANCEL_STATUS;
 		}
 	}

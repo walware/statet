@@ -395,7 +395,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 						}
 						public void changed(final int event, final ToolProcess process) {
 						}
-						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+						public void run(final IToolRunnableControllerAdapter adapter,
+								final IProgressMonitor monitor) throws CoreException {
 							if (!isTerminated()) {
 								fRjs.runMainLoopPing(monitor);
 								fRjs.handleServerStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
@@ -584,7 +585,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 				}
 				public void changed(final int event, final ToolProcess process) {
 				}
-				public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+				public void run(final IToolRunnableControllerAdapter adapter,
+						final IProgressMonitor monitor) throws CoreException {
 					if (!fRjs.isConsoleReady()) { // R is still working
 						fRjs.runMainLoop(null, null, monitor);
 					}

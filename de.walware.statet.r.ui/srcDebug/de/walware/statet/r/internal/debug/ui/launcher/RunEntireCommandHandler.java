@@ -116,7 +116,6 @@ public class RunEntireCommandHandler extends AbstractHandler {
 			return null;
 		}
 		catch (final InterruptedException e) {
-			Thread.interrupted();
 			return null;
 		}
 		

@@ -105,7 +105,8 @@ public class ToolWorkspace {
 		public void changed(final int event, final ToolProcess process) {
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			fIsRefreshing = true;
 			try {
 				autoRefreshFromTool(adapter, monitor);

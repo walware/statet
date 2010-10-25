@@ -53,7 +53,8 @@ public abstract class AbstractRController
 		}
 		
 		@Override
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final AbstractRController r = (AbstractRController) adapter;
 			super.run(r, monitor);
 			if ((r.fCurrentPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) == 0) {
@@ -113,7 +114,8 @@ public abstract class AbstractRController
 			public void changed(final int event, final ToolProcess process) {
 			}
 			
-			public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+			public void run(final IToolRunnableControllerAdapter adapter,
+					final IProgressMonitor monitor) throws CoreException {
 				((IRBasicAdapter) adapter).quit(monitor);
 			}
 		};
@@ -133,7 +135,8 @@ public abstract class AbstractRController
 			}
 			public void changed(final int event, final ToolProcess process) {
 			}
-			public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+			public void run(final IToolRunnableControllerAdapter tools,
+					final IProgressMonitor monitor) throws CoreException {
 				if (!isTerminated()) {
 					postCancelTask(options, monitor);
 				}

@@ -82,7 +82,7 @@ public class RjsUtil {
 					Thread.sleep(200);
 				}
 				catch (final InterruptedException e) {
-					Thread.interrupted();
+					// continue directly, monitor is checked
 				}
 			}
 			status = execChannel.getExitStatus();
@@ -143,7 +143,7 @@ public class RjsUtil {
 					Thread.sleep(200);
 				}
 				catch (final InterruptedException e) {
-					Thread.interrupted();
+					// continue directly, monitor is checked
 				}
 			}
 			status = execChannel.getExitStatus();

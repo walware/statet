@@ -451,7 +451,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 							Thread.sleep(500);
 						}
 						catch (final InterruptedException e) {
-							Thread.interrupted();
+							// continue, monitor is checked
 						}
 					}
 					progress.worked(5);

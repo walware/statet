@@ -351,7 +351,7 @@ public class RHelpView extends PageBookBrowserView
 				final RAstNode rNode = (RAstNode) astSelection.getCovering();
 				RElementName name = null;
 				if (!rNode.hasChildren()) {
-					name = RHelpHover.searchName(rNode, rNode);
+					name = RHelpHover.searchName(rNode, rNode, false);
 				}
 				if (name == null) {
 					name = RHelpHover.searchNameOfFunction(rNode,

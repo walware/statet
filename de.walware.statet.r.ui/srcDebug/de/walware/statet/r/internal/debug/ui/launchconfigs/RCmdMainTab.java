@@ -432,7 +432,6 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InterruptedException e) {
-			Thread.interrupted();
 		}
 	}
 	
