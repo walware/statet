@@ -591,7 +591,10 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fSubArch;
 	}
 	
-	public void setSubArch(final String arch) {
+	public void setSubArch(String arch) {
+		if (arch != null && arch.length() == 0) {
+			arch = null;
+		}
 		final String oldValue = fSubArch;
 		fSubArch = arch;
 		firePropertyChange(PROP_SUBARCH, oldValue, arch);
@@ -745,7 +748,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		}
 		final List<IFileStore> dirs = new ArrayList<IFileStore>(4);
 		String arch = fSubArch;
-		if (arch == null || arch.length() == 0) {
+		if (arch == null) {
 			arch = Platform.getOSArch();
 		}
 		if (arch != null) {
@@ -778,7 +781,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		}
 		final List<IFileStore> dirs = new ArrayList<IFileStore>(4);
 		String arch = fSubArch;
-		if (arch == null || arch.length() == 0) {
+		if (arch == null) {
 			arch = Platform.getOSArch();
 		}
 		if (arch != null && LOCAL_PLATFORM != LOCAL_MAC) {

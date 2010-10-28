@@ -146,7 +146,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		if (Platform.getOS().equals(Platform.OS_MACOSX)
 				&& s.indexOf(" -d32") < 0 && s.indexOf(" -d64") < 0) { //$NON-NLS-1$ //$NON-NLS-2$
 			final String rArch = fRenv.getSubArch();
-			if (rArch != null && rArch.length() > 0) {
+			if (rArch != null) {
 				if (rArch.equals("i386") || rArch.equals("i586") || rArch.equals("i686")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					s.append("-d32"); //$NON-NLS-1$
 				}

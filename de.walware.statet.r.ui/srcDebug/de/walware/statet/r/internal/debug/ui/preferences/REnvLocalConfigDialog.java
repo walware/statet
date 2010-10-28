@@ -775,7 +775,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				if (lines[DETECT_R_ARCHVAR].length() > 0) {
 					fConfigModel.setSubArch(lines[DETECT_R_ARCHVAR]);
 				}
-				else if (lines[DETECT_R_ARCH].length() > 0 && fConfigModel.getSubArch().length() > 0) {
+				else if (lines[DETECT_R_ARCH].length() > 0 && fConfigModel.getSubArch() == null) {
 					fConfigModel.setSubArch(lines[DETECT_R_ARCH]);
 				}
 				if (lines[DETECT_R_ARCH].contains("64")) { //$NON-NLS-1$
