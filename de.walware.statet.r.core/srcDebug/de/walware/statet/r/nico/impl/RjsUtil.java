@@ -103,13 +103,13 @@ public class RjsUtil {
 		}
 		if (status != 0 && error == null) {
 			try {
-				error = new RemoteException("Exit code: " + status + //$NON-NLS-1$
+				error = new RemoteException("Exit status: " + status + //$NON-NLS-1$
 						"\nMessage:\n" + output.toString("UTF-8"));
 			} catch (final UnsupportedEncodingException e) {}
 		}
 		if (error != null) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID,
-					"Failed to start remote R instance over SSH.", error));
+					"Failed to start remote R server over SSH.", error));
 		}
 	}
 	

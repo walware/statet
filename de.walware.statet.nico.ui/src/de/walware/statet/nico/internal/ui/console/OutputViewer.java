@@ -99,31 +99,35 @@ public class OutputViewer extends TextConsoleViewer {
 				final int linePixel = textWidget.getLineHeight();
 				int topPixel = (linePixel * (lineToShow - 1)) - visiblePixel + 2;
 				if (topPixel + linePixel > 0) {
-					final int[] move = (topPixel >= 0) ? new int[] {
+					if (topPixel < 0) {
+						textWidget.setTopPixel(
+								topPixel + linePixel );
+					}
+					else {
+						final int[] move = new int[] {
 								topPixel,
 								topPixel + linePixel - 2,
 								topPixel + linePixel - 1,
 								topPixel + linePixel 
-							} : new int[] {
-								topPixel + linePixel
 							};
-					textWidget.setTopPixel(move[0]);
-					final int[] state = new int[] { 1 };
-					display.timerExec(75, new Runnable() {
-						public void run() {
-							int i = state[0];
-							if (!UIAccess.isOkToUse(textWidget)
-									|| timestamp != ((IDocumentExtension4) getDocument()).getModificationStamp()
-									|| move[i-1] != textWidget.getTopPixel()) {
-								return;
+						textWidget.setTopPixel(move[0]);
+						final int[] state = new int[] { 1 };
+						display.timerExec(75, new Runnable() {
+							public void run() {
+								int i = state[0];
+								if (!UIAccess.isOkToUse(textWidget)
+										|| timestamp != ((IDocumentExtension4) getDocument()).getModificationStamp()
+										|| move[i-1] != textWidget.getTopPixel()) {
+									return;
+								}
+								textWidget.setTopPixel(move[i++]);
+								if (i < move.length) {
+									state[0] = i;
+									display.timerExec(25, this);
+								}
 							}
-							textWidget.setTopPixel(move[i++]);
-							if (i < move.length) {
-								state[0] = i;
-								display.timerExec(25, this);
-							}
-						}
-					});
+						});
+					}
 				}
 			}
 		});

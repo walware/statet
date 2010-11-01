@@ -12,9 +12,11 @@
 package de.walware.statet.r.internal.sweave.processing;
 
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
-import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+
+import de.walware.ecommons.debug.ui.CheckedCommonTab;
+
 
 
 /**
@@ -31,7 +33,7 @@ public class RweaveTexProfileTabGroup extends AbstractLaunchConfigurationTabGrou
 				new RweaveTab(),
 				new TexTab(),
 				new PreviewTab(),
-				new CommonTab()
+				new CheckedCommonTab()
 			};
 			setTabs(tabs);
 	}

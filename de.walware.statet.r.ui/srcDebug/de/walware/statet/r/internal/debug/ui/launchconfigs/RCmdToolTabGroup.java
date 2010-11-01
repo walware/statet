@@ -12,11 +12,12 @@
 package de.walware.statet.r.internal.debug.ui.launchconfigs;
 
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
-import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.RefreshTab;
+
+import de.walware.ecommons.debug.ui.CheckedCommonTab;
 
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 
@@ -37,7 +38,7 @@ public class RCmdToolTabGroup extends AbstractLaunchConfigurationTabGroup {
 				new REnvTab(true, true),
 				new RefreshTab(),
 				new EnvironmentTab(),
-				new CommonTab()
+				new CheckedCommonTab()
 		};
 		setTabs(tabs);
 	}

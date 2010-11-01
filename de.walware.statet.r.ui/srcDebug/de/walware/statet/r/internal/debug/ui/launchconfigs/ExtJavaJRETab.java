@@ -68,6 +68,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	private IVMInstall fLastCheckedVM;
 	private int fLastCheckedVMBits;
 	private int fLastCheckedRBits;
+	private boolean fValidInBackground;
 	
 	
 	public ExtJavaJRETab(final RConsoleMainTab mainTab, final REnvTab renvTab) {
@@ -144,6 +145,10 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	@Override
 	public boolean isValid(final ILaunchConfiguration config) {
 		if (Platform.getOS().startsWith("win") || Platform.getOS().equals(Platform.OS_LINUX)) { //$NON-NLS-1$
+			if (fValidInBackground) {
+				scheduleUpdateJob();
+				return false;
+			}
 			final RConsoleType type = fMainTab.getSelectedType();
 			if (type == null || !type.requireJRE()) {
 				setErrorMessage(null);
@@ -198,6 +203,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	private void updateVMBits() {
 		fLastCheckedVMBits = -1;
 		if (fLastCheckedVM instanceof IVMInstall3) {
+			fValidInBackground = true;
 			try {
 				getLaunchConfigurationDialog().run(true, true, new IRunnableWithProgress() {
 					public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
@@ -258,6 +264,9 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 			}
 			catch (final InterruptedException e) {
 			}
+			finally {
+				fValidInBackground = false;
+			}
 		}
 	}
 	
@@ -282,6 +291,11 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		final String vmArgs = fVmArgsControl.getTextControl().getText();
 		configuration.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_ARGUMENTS, 
 				(vmArgs.length() > 0) ? vmArgs : (String) null);
+	}
+	
+	@Override
+	protected long getUpdateJobDelay() {
+		return 400;
 	}
 	
 }

@@ -347,7 +347,8 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 						final IREnv rEnv = fREnvManager.get(info.rEnvId, null);
 						if (rEnv != null && info.cat == RHelpWebapp.CAT_LIBRARY) {
 							final REnvHelp help = getHelp(rEnv);
-							final IRPackageHelp packageHelp = help.getRPackage(info.packageName);
+							final IRPackageHelp packageHelp = (help != null) ?
+									help.getRPackage(info.packageName) : null;
 							if (packageHelp != null && info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
 								final IRHelpPage page = packageHelp.getHelpPage(info.detail);
 								if (page != null) {

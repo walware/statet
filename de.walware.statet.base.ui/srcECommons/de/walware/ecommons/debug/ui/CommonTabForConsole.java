@@ -9,12 +9,11 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.statet.nico.ui.util;
+package de.walware.ecommons.debug.ui;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.internal.ui.launchConfigurations.LaunchConfigurationsMessages;
-import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -24,10 +23,10 @@ import org.eclipse.swt.widgets.Control;
 /**
  * Adapts CommonTab for nico.
  */
-public class CommonTabForNico extends CommonTab {
+public class CommonTabForConsole extends CheckedCommonTab {
 	
 	
-	public CommonTabForNico() {
+	public CommonTabForConsole() {
 	}
 	
 	
