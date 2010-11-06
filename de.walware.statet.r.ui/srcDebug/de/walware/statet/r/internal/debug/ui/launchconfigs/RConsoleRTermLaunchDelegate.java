@@ -88,6 +88,9 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
 			cmdLine.add("--ess"); //$NON-NLS-1$
 		}
+		else {
+			cmdLine.add("--interactive");
+		}
 		
 		// arguments
 		cmdLine.addAll(Arrays.asList(

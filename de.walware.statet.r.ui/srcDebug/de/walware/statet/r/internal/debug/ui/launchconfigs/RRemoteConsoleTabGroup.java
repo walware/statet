@@ -15,7 +15,8 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 
-import de.walware.statet.nico.ui.util.CommonTabForNico;
+import de.walware.ecommons.debug.ui.CommonTabForConsole;
+
 
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 
@@ -33,7 +34,7 @@ public class RRemoteConsoleTabGroup extends AbstractLaunchConfigurationTabGroup 
 				new REnvTab(false, false),
 				new RConsoleOptionsTab(),
 				
-				new CommonTabForNico()
+				new CommonTabForConsole()
 		};
 		setTabs(tabs);
 	}

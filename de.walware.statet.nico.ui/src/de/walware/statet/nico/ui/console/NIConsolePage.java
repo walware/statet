@@ -328,7 +328,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			final long schedule;
 			synchronized (StatusListener.this) {
 				fNewBusy = isProcessing || isTerminated;
-				schedule = (fNewBusy) ? (System.currentTimeMillis() + 50) : System.currentTimeMillis();
+				schedule = (fNewBusy) ? (System.nanoTime() + 50000000L) : System.nanoTime();
 				if (prompt != null) {
 					fNewPrompt = prompt;
 				}
@@ -340,7 +340,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			}
 			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
-					final long diff = schedule - System.currentTimeMillis();
+					final long diff = (schedule - System.nanoTime()) / 1000000L;
 					if (diff > 5) {
 						Display.getCurrent().timerExec((int) diff, this);
 						return;

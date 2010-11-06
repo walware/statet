@@ -22,11 +22,11 @@ import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IRPackageDescription;
 import de.walware.statet.r.core.rhelp.IREnvHelp;
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
+import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 import de.walware.statet.r.core.rhelp.IRHelpPage;
 import de.walware.statet.r.core.rhelp.IRHelpSearchRequestor;
 import de.walware.statet.r.core.rhelp.IRPackageHelp;
 import de.walware.statet.r.core.rhelp.RHelpSearchQuery;
-import de.walware.statet.r.core.rhelp.IRHelpKeyword.Group;
 
 
 public class REnvHelp implements IREnvHelp {
@@ -112,8 +112,10 @@ public class REnvHelp implements IREnvHelp {
 				if (reader == null) {
 					final IREnvConfiguration config = fREnv.getConfig();
 					if (config != null) {
-						reader = new REnvIndexReader(config);
-						fIndexReader = reader;
+						reader = REnvIndexReader.create(config);
+						if (reader != null) {
+							fIndexReader = reader;
+						}
 					}
 				}
 			}

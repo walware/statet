@@ -53,6 +53,7 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.rj.RjException;
@@ -259,6 +260,30 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		@Override
 		protected void handleStatus(final Status status, final IProgressMonitor monitor) {
 			RjsController.this.handleStatus(status, monitor);
+		}
+		
+		@Override
+		protected void scheduleConnectionCheck() {
+			synchronized (fQueue) {
+				if (getStatus() == ToolStatus.STARTED_IDLING) {
+					scheduleControllerRunnable(new IToolRunnable() {
+						public String getTypeId() {
+							return "r/check";
+						}
+						public SubmitType getSubmitType() {
+							return SubmitType.OTHER;
+						}
+						public String getLabel() {
+							return "Connection Check";
+						}
+						public void changed(int event, ToolProcess process) {
+						}
+						public void run(IToolRunnableControllerAdapter adapter, IProgressMonitor monitor) throws CoreException {
+							fRjs.runMainLoopPing(monitor);
+						}
+					});
+				}
+			}
 		}
 		
 	}
@@ -492,7 +517,7 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 					else {
 						rjServer = (ConsoleEngine) server.execute(Server.C_CONSOLE_CONNECT, args, login.createAnswer());
 					}
-					fRjs.setServer(rjServer);
+					fRjs.setServer(rjServer, 0);
 					connected = true;
 					
 					if (callbacks != null) {
@@ -671,6 +696,8 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 	
 	@Override
 	protected void clear() {
+		fRjs.setClosed(true);
+		
 		super.clear();
 		
 		if (fEmbedded && !isDisconnected()) {

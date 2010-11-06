@@ -18,6 +18,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler2;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.swt.browser.LocationEvent;
@@ -28,6 +30,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.services.IServiceLocator;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.breadcrumb.IBreadcrumb;
@@ -37,6 +40,7 @@ import de.walware.ecommons.ui.mpbv.PageBookBrowserView;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rhelp.IRHelpManager;
+import de.walware.statet.r.ui.RUI;
 
 
 public class RHelpViewPage extends PageBookBrowserPage {
@@ -116,15 +120,21 @@ public class RHelpViewPage extends PageBookBrowserPage {
 	}
 	
 	private void updateAddressBar() {
-		final String url = getCurrentUrl();
-		final Object input = RCore.getRHelpManager().getContentOfUrl(url);
-		fHelpObject = input;
-		
-		final Image image = fLabelProvider.getImage(input);
-		if (image != null) {
-			setIcon(ImageDescriptor.createFromImage(image));
+		try {
+			final String url = getCurrentUrl();
+			final Object input = RCore.getRHelpManager().getContentOfUrl(url);
+			fHelpObject = input;
+			
+			final Image image = fLabelProvider.getImage(input);
+			if (image != null) {
+				setIcon(ImageDescriptor.createFromImage(image));
+			}
+			updateBreadcrumbInput();
 		}
-		updateBreadcrumbInput();
+		catch (Exception e) {
+			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
+					"An error occurred when updating the R help view address bar/breadcrumbs.", e));
+		}
 	}
 	
 	/**

@@ -173,7 +173,7 @@ public class RDebugHover implements IInfoHover {
 		}
 		final ToolProcess process = NicoUITools.getTool(part);
 		final ToolController controller = NicoUITools.getController(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, process);
-		if (controller == null) {
+		if (controller == null || Thread.interrupted()) {
 			return null;
 		}
 		
@@ -185,11 +185,9 @@ public class RDebugHover implements IInfoHover {
 			}
 		}
 		catch (final InterruptedException e) {
-			if (Thread.interrupted()) { // interrupted by hover controller
-				rTask.fCancelled = true;
-				process.getQueue().removeElements(new Object[] { rTask });
-				return null;
-			}
+			rTask.fCancelled = true;
+			process.getQueue().removeElements(new Object[] { rTask });
+			return null;
 		}
 		if (rTask.fElementStruct != null) {
 			return new RElementInfoHoverCreator.Data(control, rTask.fElementStruct, rTask.fElementAttr,

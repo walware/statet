@@ -101,7 +101,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		
 		final ServerInfo info;
 		
-		RemoteR(final String hostName, final String hostIP, final String address, final ServerInfo info, final int status) {
+		RemoteR(final String hostName, final String hostIP, final String address, final ServerInfo info) {
 			this.hostName = hostName;
 			this.hostIP = hostIP;
 			this.address = address;
@@ -124,6 +124,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 				sb.append("New – Ready to connect and start R");
 				break;
 			case Server.S_CONNECTED:
+			case Server.S_CONNECTED_STALE:
 				sb.append("Running – Connected (username is ");
 				sb.append((info.getUsername(ServerInfo.USER_CONSOLE) != null) ? 
 						info.getUsername(ServerInfo.USER_CONSOLE)  : "<unknown>").append(')'); 
@@ -558,9 +559,8 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 					if (remote instanceof Server) {
 						final Server server = (Server) remote;
 						final ServerInfo info = server.getInfo();
-						final int state = server.getState();
 						final String rmiAddress = rmiBase+name;
-						final RemoteR r = new RemoteR(hostname, hostip, rmiAddress, info, state);
+						final RemoteR r = new RemoteR(hostname, hostip, rmiAddress, info);
 						infos.add(r);
 					}
 				}

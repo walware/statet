@@ -18,7 +18,8 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
 
-import de.walware.statet.nico.ui.util.CommonTabForNico;
+import de.walware.ecommons.debug.ui.CommonTabForConsole;
+
 
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 
@@ -64,13 +65,13 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 				new ExtJavaClasspathTab(),
 				new ExtSourceLookupTab(),
 				
-				new CommonTabForNico()
+				new CommonTabForConsole()
 		} : new ILaunchConfigurationTab[] {
 				mainTab,
 				renvTab,
 				new EnvironmentTab(),
 				
-				new CommonTabForNico()
+				new CommonTabForConsole()
 		};
 		setTabs(tabs);
 	}

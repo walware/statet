@@ -68,6 +68,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	private static final String PREFKEY_RHOME_DIR = "env.r_home"; //$NON-NLS-1$
 	
+	private static final String PREFKEY_SUBARCH = "env.sub_arch"; //$NON-NLS-1$
+	
 	private static final String PREFKEY_RBITS = "env.r_bits.count"; //$NON-NLS-1$
 	
 	private static final String PREFKEY_ROS = "env.r_os.type"; //$NON-NLS-1$
@@ -81,9 +83,27 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	private static final String PREFKEY_INDEX_DIR = "index.dir"; //$NON-NLS-1$
 	
 	
+	private static final int LOCAL_WIN = 1;
+	private static final int LOCAL_LINUX = 2;
+	private static final int LOCAL_MAC = 3;
+	private static final int LOCAL_PLATFORM;
+	
+	static {
+		if (Platform.getOS().startsWith("win32")) { //$NON-NLS-1$
+			LOCAL_PLATFORM = LOCAL_WIN;
+		}
+		else if (Platform.getOS().startsWith("mac")) { //$NON-NLS-1$
+			LOCAL_PLATFORM = LOCAL_MAC;
+		}
+		else {
+			LOCAL_PLATFORM = LOCAL_LINUX;
+		}
+	}
+	
+	
 	public static File getIndexRootDirectory() {
 		final IPath location = RCorePlugin.getDefault().getStateLocation();
-		final File file = location.append("indices").toFile();
+		final File file = location.append("indices").toFile(); //$NON-NLS-1$
 		if (!file.exists()) {
 			file.mkdirs();
 		}
@@ -175,6 +195,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	private StringPref fPrefRHomeDirectory;
 	private String fRHomeDirectory;
+	private StringPref fPrefSubArch;
+	private String fSubArch;
 	private IntPref fPrefRBits;
 	private int fRBits;
 	private StringPref fPrefROS;
@@ -223,9 +245,9 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		setROS(setup.getOS());
 		setRBits((setup.getOSArch().equals(Platform.ARCH_X86)) ? 32 : 64);
 		setRHome(setup.getRHome());
-		setRDocDirectory("${env_var:R_HOME}/doc");
-		setRShareDirectory("${env_var:R_HOME}/share");
-		setRIncludeDirectory("${env_var:R_HOME}/include");
+		setRDocDirectoryPath("${env_var:R_HOME}/doc"); //$NON-NLS-1$
+		setRShareDirectoryPath("${env_var:R_HOME}/share"); //$NON-NLS-1$
+		setRIncludeDirectoryPath("${env_var:R_HOME}/include"); //$NON-NLS-1$
 		
 		final String[] ids = DEFAULT_LIBS_IDS;
 		final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
@@ -274,10 +296,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		fCheckId = id;
 		fPrefType = new StringPref(fNodeQualifier, PREFKEY_TYPE);
 		fPrefName = new StringPref(fNodeQualifier, PREFKEY_NAME);
-		fPrefRBits = new IntPref(fNodeQualifier, PREFKEY_RBITS);
 		fPrefROS = new StringPref(fNodeQualifier, PREFKEY_ROS);
 		if (fType == USER_LOCAL_TYPE) {
 			fPrefRHomeDirectory = new StringPref(fNodeQualifier, PREFKEY_RHOME_DIR);
+			fPrefSubArch = new StringPref(fNodeQualifier, PREFKEY_SUBARCH);
+			fPrefRBits = new IntPref(fNodeQualifier, PREFKEY_RBITS);
 			fPrefRDocDirectory = new StringPref(fNodeQualifier, PREFKEY_RDOC_DIR);
 			fPrefRShareDirectory = new StringPref(fNodeQualifier, PREFKEY_RSHARE_DIR);
 			fPrefRIncludeDirectory = new StringPref(fNodeQualifier, PREFKEY_RINCLUDE_DIR);
@@ -295,11 +318,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 //		if (nodes.length > 0)  {
 //			try {
 //				if (!nodes[0].nodeExists(fCheckId)) {
-//					throw new IllegalArgumentException("A REnv configuration with this name does not exists."); 
+//					throw new IllegalArgumentException("A REnv configuration with this name does not exists.");
 //				}
 //			}
 //			catch (final BackingStoreException e) {
-//				throw new IllegalArgumentException("REnv Configuration could not be accessed."); 
+//				throw new IllegalArgumentException("REnv Configuration could not be accessed.");
 //			}
 //		}
 	}
@@ -349,13 +372,14 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	public void load(final IREnvConfiguration from) {
 		setName(from.getName());
-		setRBits(from.getRBits());
 		setROS(from.getROS());
 		if (isLocal()) {
 			setRHome(from.getRHome());
-			setRDocDirectory(from.getRDocDirectoryPath());
-			setRShareDirectory(from.getRShareDirectoryPath());
-			setRIncludeDirectory(from.getRIncludeDirectoryPath());
+			setSubArch(from.getSubArch());
+			setRBits(from.getRBits());
+			setRDocDirectoryPath(from.getRDocDirectoryPath());
+			setRShareDirectoryPath(from.getRShareDirectoryPath());
+			setRIncludeDirectoryPath(from.getRIncludeDirectoryPath());
 			fRLibraries = copyLibs(from.getRLibraryGroups());
 		}
 		setIndexDirectoryPath(from.getIndexDirectoryPath());
@@ -382,14 +406,15 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			fType = USER_LOCAL_TYPE;
 		}
 		setName(prefs.getPreferenceValue(fPrefName));
-		setRBits(prefs.getPreferenceValue(fPrefRBits));
 		setROS(prefs.getPreferenceValue(fPrefROS));
 		
 		if (fType == USER_LOCAL_TYPE) {
 			setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
-			setRDocDirectory(prefs.getPreferenceValue(fPrefRDocDirectory));
-			setRShareDirectory(prefs.getPreferenceValue(fPrefRShareDirectory));
-			setRIncludeDirectory(prefs.getPreferenceValue(fPrefRIncludeDirectory));
+			setSubArch(prefs.getPreferenceValue(fPrefSubArch));
+			setRBits(prefs.getPreferenceValue(fPrefRBits));
+			setRDocDirectoryPath(prefs.getPreferenceValue(fPrefRDocDirectory));
+			setRShareDirectoryPath(prefs.getPreferenceValue(fPrefRShareDirectory));
+			setRIncludeDirectoryPath(prefs.getPreferenceValue(fPrefRIncludeDirectory));
 			
 			final String[] ids = DEFAULT_LIBS_IDS;
 			final List<IRLibraryGroup> groups = new ArrayList<IRLibraryGroup>(ids.length);
@@ -435,11 +460,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		checkPrefs();
 		map.put(fPrefType, getType());
 		map.put(fPrefName, getName());
-		map.put(fPrefRBits, getRBits());
 		map.put(fPrefROS, getROS());
 		
 		if (fType == USER_LOCAL_TYPE) {
 			map.put(fPrefRHomeDirectory, getRHome());
+			map.put(fPrefSubArch, fSubArch);
+			map.put(fPrefRBits, getRBits());
 			map.put(fPrefRDocDirectory, getRDocDirectoryPath());
 			map.put(fPrefRShareDirectory, getRShareDirectoryPath());
 			map.put(fPrefRIncludeDirectory, getRIncludeDirectoryPath());
@@ -483,17 +509,55 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		firePropertyChange(PROP_NAME, oldValue, label);
 	}
 	
-	public boolean isValidRHomeLocation(final IFileStore loc) {
-		final IFileStore binDir = loc.getChild("bin"); //$NON-NLS-1$
+	public boolean isValidRHomeLocation(final IFileStore rHome) {
+		final IFileStore binDir = rHome.getChild("bin"); //$NON-NLS-1$
 		IFileStore exeFile = null;
-		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+		switch (LOCAL_PLATFORM) {
+		case LOCAL_WIN:
 			exeFile = binDir.getChild("R.exe"); //$NON-NLS-1$
-		}
-		else {
+			break;
+		default:
 			exeFile = binDir.getChild("R"); //$NON-NLS-1$
+			break;
 		}
 		final IFileInfo info = exeFile.fetchInfo();
 		return (!info.isDirectory() && info.exists());
+	}
+	
+	public List<String> searchAvailableSubArchs(final IFileStore rHome) {
+		if (rHome != null && rHome.fetchInfo().exists()) {
+			try {
+				final IFileStore rHomeBinSub;
+				final String name;
+				switch (LOCAL_PLATFORM) {
+				case LOCAL_WIN:
+					rHomeBinSub = rHome.getChild("bin"); //$NON-NLS-1$
+					name = "R.exe"; //$NON-NLS-1$
+					break;
+				default:
+					rHomeBinSub = rHome.getChild("bin").getChild("exec"); //$NON-NLS-1$ //$NON-NLS-2$
+					name = "R";  //$NON-NLS-1$
+					break;
+				}
+				if (rHomeBinSub.fetchInfo().exists()) {
+					final IFileStore[] subDirs = rHomeBinSub.childStores(EFS.NONE, null);
+					final List<String> archs = new ArrayList<String>();
+					for (final IFileStore subDir : subDirs) {
+						if (subDir.getChild(name).fetchInfo().exists()) {
+							String arch = subDir.getName();
+							if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("x64")) { //$NON-NLS-1$
+								arch = "x86_64"; //$NON-NLS-1$
+							}
+							archs.add(arch);
+						}
+					}
+					return archs;
+				}
+				
+			}
+			catch (final CoreException e) {}
+		}
+		return null;
 	}
 	
 	public IStatus validate() {
@@ -521,6 +585,19 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		final String oldValue = fRHomeDirectory;
 		fRHomeDirectory = label;
 		firePropertyChange(PROP_RHOME, oldValue, label);
+	}
+	
+	public String getSubArch() {
+		return fSubArch;
+	}
+	
+	public void setSubArch(String arch) {
+		if (arch != null && arch.length() == 0) {
+			arch = null;
+		}
+		final String oldValue = fSubArch;
+		fSubArch = arch;
+		firePropertyChange(PROP_SUBARCH, oldValue, arch);
 	}
 	
 	public int getRBits() {
@@ -551,7 +628,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fRDocDirectory;
 	}
 	
-	public void setRDocDirectory(final String directory) {
+	public void setRDocDirectoryPath(final String directory) {
 		final String oldValue = fRDocDirectory;
 		fRDocDirectory = directory;
 		firePropertyChange(PROP_RDOC_DIRECTORY, oldValue, directory);
@@ -561,7 +638,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fRShareDirectory;
 	}
 	
-	public void setRShareDirectory(final String directory) {
+	public void setRShareDirectoryPath(final String directory) {
 		final String oldValue = fRShareDirectory;
 		fRShareDirectory = directory;
 		firePropertyChange(PROP_RSHARE_DIRECTORY, oldValue, directory);
@@ -571,7 +648,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return fRIncludeDirectory;
 	}
 	
-	public void setRIncludeDirectory(final String directory) {
+	public void setRIncludeDirectoryPath(final String directory) {
 		final String oldValue = fRIncludeDirectory;
 		fRIncludeDirectory = directory;
 		firePropertyChange(PROP_RINCLUDE_DIRECTORY, oldValue, directory);
@@ -628,34 +705,123 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	public List<String> getExecCommand(final Exec execType) throws CoreException {
-		String child = null;
+		final List<IFileStore> binDirs = getBinDirs();
+		IFileStore exe = null;
 		final List<String> commandLine = new ArrayList<String>(2);
 		switch (execType) {
 		case TERM:
-			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
-				child = "bin\\Rterm.exe"; //$NON-NLS-1$
+			if (LOCAL_PLATFORM == LOCAL_WIN) {
+				exe = getExisting(binDirs, "Rterm.exe"); //$NON-NLS-1$
 			}
 			break;
 		case CMD:
-			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
-				child = "bin\\Rcmd.exe"; //$NON-NLS-1$
+			if (LOCAL_PLATFORM == LOCAL_WIN) {
+				exe = getExisting(binDirs, "Rcmd.exe"); //$NON-NLS-1$
 			}
 			else {
 				commandLine.add("CMD"); //$NON-NLS-1$
 			}
 			break;
 		default:
-			if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
-				child = "bin\\R.exe"; //$NON-NLS-1$
+			if (LOCAL_PLATFORM == LOCAL_WIN) {
+				exe = getExisting(binDirs, "R.exe"); //$NON-NLS-1$
 			}
 			break;
 		}
-		if (child == null) {
-			child = "bin/R"; //$NON-NLS-1$
+		if (exe == null) {
+			exe = getExisting(binDirs, "R"); //$NON-NLS-1$
 		}
-		final IPath exec = URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, child).toURI());
-		commandLine.add(0, exec.toOSString());
+		
+		commandLine.add(0, URIUtil.toPath(exe.toURI()).toOSString());
 		return commandLine;
+	}
+	
+	private List<IFileStore> getBinDirs() throws CoreException {
+		final IFileStore rHome = FileUtil.expandToLocalFileStore(getRHome(), null, null);
+		final IFileStore rHomeBin = rHome.getChild("bin"); //$NON-NLS-1$
+		final IFileStore rHomeBinSub;
+		if (LOCAL_PLATFORM == LOCAL_WIN) {
+			rHomeBinSub = rHomeBin;
+		}
+		else {
+			rHomeBinSub = rHomeBin.getChild("exec"); //$NON-NLS-1$
+		}
+		final List<IFileStore> dirs = new ArrayList<IFileStore>(4);
+		String arch = fSubArch;
+		if (arch == null) {
+			arch = Platform.getOSArch();
+		}
+		if (arch != null) {
+			final IFileStore rHomeBinArch;
+			if (arch.equals(Platform.ARCH_X86_64)) {
+				rHomeBinArch = getExistingChild(rHomeBinSub, "x86_64", "x64"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else if (arch.equals(Platform.ARCH_X86)) {
+				rHomeBinArch = getExistingChild(rHomeBinSub, "x86", "i386", "i586", "i686"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			}
+			else {
+				rHomeBinArch = getExistingChild(rHomeBinSub, arch);
+			}
+			if (rHomeBinArch != null) {
+				dirs.add(rHomeBinArch);
+			}
+		}
+		dirs.add(rHomeBin);
+		return dirs;
+	}
+	
+	private List<IFileStore> getLibDirs() throws CoreException {
+		final IFileStore rHome = FileUtil.expandToLocalFileStore(getRHome(), null, null);
+		final IFileStore rHomeLib;
+		if (LOCAL_PLATFORM == LOCAL_WIN) {
+			rHomeLib = rHome.getChild("bin"); //$NON-NLS-1$
+		}
+		else {
+			rHomeLib = rHome.getChild("lib"); //$NON-NLS-1$
+		}
+		final List<IFileStore> dirs = new ArrayList<IFileStore>(4);
+		String arch = fSubArch;
+		if (arch == null) {
+			arch = Platform.getOSArch();
+		}
+		if (arch != null && LOCAL_PLATFORM != LOCAL_MAC) {
+			final IFileStore rHomeBinArch;
+			if (arch.equals(Platform.ARCH_X86_64)) {
+				rHomeBinArch = getExistingChild(rHomeLib, "x86_64", "x64"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else if (arch.equals(Platform.ARCH_X86)) {
+				rHomeBinArch = getExistingChild(rHomeLib, "x86", "i386", "i586", "i686"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			}
+			else {
+				rHomeBinArch = getExistingChild(rHomeLib, arch);
+			}
+			if (rHomeBinArch != null) {
+				dirs.add(rHomeBinArch);
+			}
+		}
+		dirs.add(rHomeLib);
+		return dirs;
+	}
+	
+	private IFileStore getExistingChild(final IFileStore base, final String... names) {
+		for (final String name : names) {
+			final IFileStore child = base.getChild(name);
+			if (child.fetchInfo().exists()) {
+				return child;
+			}
+		}
+		return null;
+	}
+	
+	private IFileStore getExisting(final List<IFileStore> dirs, final String name) {
+		IFileStore file = null;
+		for (final IFileStore dir : dirs) {
+			file = dir.getChild(name);
+			if (file.fetchInfo().exists()) {
+				break;
+			}
+		}
+		return file;
 	}
 	
 	public Map<String, String> getEnvironmentsVariables() throws CoreException {
@@ -664,36 +830,55 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	public Map<String, String> getEnvironmentsVariables(final boolean configureRLibs) throws CoreException {
 		final Map<String, String> envp = new HashMap<String, String>();
-		final String rHome = URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, null).toURI()).toOSString();
+		final IFileStore rHomeStore = FileUtil.expandToLocalFileStore(getRHome(), null, null);
+		final String rHome = URIUtil.toPath(rHomeStore.toURI()).toOSString();
 		envp.put("R_HOME", rHome); //$NON-NLS-1$
-		envp.put("PATH", //$NON-NLS-1$
-				URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "bin").toURI()).toOSString() + //$NON-NLS-1$
-						File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
-		if (Platform.getOS().startsWith("win")) { //$NON-NLS-1$
+		switch (LOCAL_PLATFORM) {
+		case LOCAL_WIN:
+			envp.put("PATH", //$NON-NLS-1$
+					URIUtil.toPath(getExisting(getBinDirs(), "R.dll").getParent().toURI()).toOSString() + //$NON-NLS-1$
+							File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
 			// libs in path
-		}
-		else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
+			break;
+		case LOCAL_MAC:
+			envp.put("PATH", //$NON-NLS-1$
+					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "bin").toURI()).toOSString() + //$NON-NLS-1$
+							File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
 			envp.put("DYLD_LIBRARY_PATH", //$NON-NLS-1$
 					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "lib").toURI()).toOSString() + //$NON-NLS-1$
 							File.pathSeparatorChar + "${env_var:DYLD_LIBRARY_PATH}"); //$NON-NLS-1$
-		}
-		else {
+			break;
+		default:
+			envp.put("PATH", //$NON-NLS-1$
+					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "bin").toURI()).toOSString() + //$NON-NLS-1$
+							File.pathSeparatorChar + "${env_var:PATH}"); //$NON-NLS-1$
 			envp.put("LD_LIBRARY_PATH", //$NON-NLS-1$
-					URIUtil.toPath(FileUtil.expandToLocalFileStore(getRHome(), null, "lib").toURI()).toOSString() + //$NON-NLS-1$
+					URIUtil.toPath(getExisting(getLibDirs(), "libR.so").getParent().toURI()).toOSString() + //$NON-NLS-1$
 							File.pathSeparatorChar + "${env_var:LD_LIBRARY_PATH}"); //$NON-NLS-1$
+			break;
 		}
 		if (configureRLibs) {
+			String arch = fSubArch;
+			final List<String> availableArchs = searchAvailableSubArchs(rHomeStore);
+			if (availableArchs != null && availableArchs.contains(arch)) {
+				if (arch != null) {
+					if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("x86_64")) { //$NON-NLS-1$
+						arch = "x64"; //$NON-NLS-1$
+					}
+					envp.put("R_ARCH", '/'+arch); //$NON-NLS-1$
+				}
+			}
 			envp.put("R_LIBS_SITE", getLibPath(getRLibraryGroup(IRLibraryGroup.R_SITE))); //$NON-NLS-1$
 			envp.put("R_LIBS", getLibPath(getRLibraryGroup(IRLibraryGroup.R_OTHER))); //$NON-NLS-1$
 			envp.put("R_LIBS_USER", getLibPath(getRLibraryGroup(IRLibraryGroup.R_USER))); //$NON-NLS-1$
 			if (fRDocDirectoryStore != null) {
-				envp.put("R_DOC_DIR", URIUtil.toPath(fRDocDirectoryStore.toURI()).toOSString());
+				envp.put("R_DOC_DIR", URIUtil.toPath(fRDocDirectoryStore.toURI()).toOSString()); //$NON-NLS-1$
 			}
 			if (fRShareDirectoryStore != null) {
-				envp.put("R_SHARE_DIR", URIUtil.toPath(fRShareDirectoryStore.toURI()).toOSString());
+				envp.put("R_SHARE_DIR", URIUtil.toPath(fRShareDirectoryStore.toURI()).toOSString()); //$NON-NLS-1$
 			}
 			if (fRIncludeDirectoryStore != null) {
-				envp.put("R_INCLUDE_DIR", URIUtil.toPath(fRIncludeDirectoryStore.toURI()).toOSString());
+				envp.put("R_INCLUDE_DIR", URIUtil.toPath(fRIncludeDirectoryStore.toURI()).toOSString()); //$NON-NLS-1$
 			}
 		}
 		envp.put("LC_NUMERIC", "C"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -705,7 +890,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (isRemote()) {
 			final Properties auto = getSharedProperties();
 			if (auto != null) {
-				final String hostname = auto.getProperty("renv.hostname");
+				final String hostname = auto.getProperty("renv.hostname"); //$NON-NLS-1$
 				if (hostname != null) {
 					return NicoCore.mapRemoteResourceToFileStore(hostname, new Path(path), null);
 				}
@@ -750,12 +935,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			InputStream in = null;
 			try {
 				if (fIndexDirectoryStore != null) {
-					final IFileStore store = fIndexDirectoryStore.getChild("renv.properties");
+					final IFileStore store = fIndexDirectoryStore.getChild("renv.properties"); //$NON-NLS-1$
 					if (store.fetchInfo().exists()) {
 						final Properties prop = new Properties();
 						in = store.openInputStream(EFS.NONE, null);
 						prop.load(in);
-						prop.setProperty("stamp", Long.toString(store.fetchInfo().getLastModified()));
+						prop.setProperty("stamp", Long.toString(store.fetchInfo().getLastModified())); //$NON-NLS-1$
 						fSharedProperties = prop;
 						in.close();
 						in = null;
@@ -798,7 +983,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		OutputStream out = null;
 		try {
 			if (fIndexDirectoryStore != null) {
-				final IFileStore store = fIndexDirectoryStore.getChild("renv.properties");
+				final IFileStore store = fIndexDirectoryStore.getChild("renv.properties"); //$NON-NLS-1$
 				out = store.openOutputStream(EFS.NONE, null);
 				prop.store(out, null);
 				out.close();
@@ -867,12 +1052,12 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					return null;
 				}
 				if (userHome != null) {
-					if (path.startsWith("~")) {
+					if (path.startsWith("~/")) { //$NON-NLS-1$
 						path = userHome + path.substring(1);
 					}
 				}
 				else {
-					if (path.startsWith("~")) {
+					if (path.startsWith("~/")) { //$NON-NLS-1$
 						return null;
 					}
 				}
@@ -905,6 +1090,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		return (fREnv.equals(other.getReference())
 				&& (fType == other.getType())
 				&& ((fName != null) ? fName.equals(other.getName()) : null == other.getName())
+				&& ((fSubArch != null) ? fSubArch.equals(other.getSubArch()) : null == other.getSubArch())
 				&& (fRBits == other.getRBits())
 				&& ((fROS != null) ? fROS.equals(other.getROS()) : null == other.getROS())
 				&& ((fType == USER_LOCAL_TYPE

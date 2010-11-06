@@ -128,10 +128,11 @@ public class SelectFileHandler implements IToolEventHandler {
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
 		}
 		
-//		@Override
-//		protected void okPressed() {
-//			super.okPressed();
-//		}
+		@Override
+		protected void okPressed() {
+			saveSettings();
+			super.okPressed();
+		}
 		
 		public void saveSettings() {
 			final IDialogSettings settings = getDialogSettings();
@@ -155,12 +156,11 @@ public class SelectFileHandler implements IToolEventHandler {
 			message = s;
 		}
 		final Boolean newFile = ToolEventHandlerUtil.getCheckedData(data, "newResource", Boolean.class, true); //$NON-NLS-1$
-		final ToolProcess tool = tools.getController().getProcess();
 		final AtomicReference<IFileStore> file = new AtomicReference<IFileStore>();
 		final Runnable runnable = new Runnable() {
 			public void run() {
 				final SelectFileDialog dialog = new SelectFileDialog(UIAccess.getActiveWorkbenchShell(true),
-						tool, message, newFile.booleanValue());
+						tools.getProcess(), message, newFile.booleanValue());
 				dialog.setBlockOnOpen(true);
 				if (dialog.open() == Dialog.OK) {
 					file.set(dialog.getResource());
