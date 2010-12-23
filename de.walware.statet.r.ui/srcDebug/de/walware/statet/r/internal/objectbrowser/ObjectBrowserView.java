@@ -224,25 +224,38 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		
 		public int compare(final ICombinedRElement e1, final ICombinedRElement e2) {
-				final ICombinedRElement o1 = e1;
-				final ICombinedRElement o2 = e2;
-				final int cat1 = category(o1);
-				final int cat2 = category(o2);
+			{	// By type
+				final int cat1 = category(e1);
+				final int cat2 = category(e2);
 				if (cat1 != cat2) {
 					return cat1 - cat2;
 				}
-				if (cat1 == RObject.TYPE_VECTOR) {
-					final int d1 = getDataOrder(o1.getData().getStoreType());
-					final int d2 = getDataOrder(o2.getData().getStoreType());
+				if (cat1 == RObject.TYPE_VECTOR || cat1 == RObject.TYPE_ARRAY) {
+					final int d1 = getDataOrder(e1.getData().getStoreType());
+					final int d2 = getDataOrder(e2.getData().getStoreType());
 					if (d1 != d2) {
-						return d1 -d2;
+						return d1 - d2;
 					}
 				}
-				final int diff = fClassNameCollator.compare(o1.getRClassName(), o2.getRClassName());
+			}
+			{	// By classname
+				final int diff = fClassNameCollator.compare(e1.getRClassName(), e2.getRClassName());
 				if (diff != 0) {
 					return diff;
 				}
-				return ELEMENTNAME_COMPARATOR.compare(o1, o2);
+			}
+			{	// By index
+				final RElementName name1 = e1.getElementName();
+				final RElementName name2 = e2.getElementName();
+				if (name1 instanceof RElementName.IndexElementName
+						&& name2 instanceof RElementName.IndexElementName) {
+						// index
+					return ((RElementName.IndexElementName) name1).getIndex() -
+							((RElementName.IndexElementName) name2).getIndex();
+				}
+			}
+			// By name
+			return ELEMENTNAME_COMPARATOR.compare(e1, e2);
 		}
 		
 		private int getDataOrder(final int dataType) {

@@ -13,6 +13,7 @@ package de.walware.statet.r.core;
 
 import java.util.Comparator;
 
+import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 
 
@@ -23,7 +24,9 @@ public class RElementComparator implements Comparator<IModelElement> {
 	
 	
 	public int compare(final IModelElement o1, final IModelElement o2) {
-		return fNameComparator.compare(o1.getElementName().getSegmentName(), o2.getElementName().getSegmentName());
+		final IElementName name1 = o1.getElementName();
+		final IElementName name2 = o2.getElementName();
+		return fNameComparator.compare(name1.getSegmentName(), name2.getSegmentName());
 	}
 	
 }
