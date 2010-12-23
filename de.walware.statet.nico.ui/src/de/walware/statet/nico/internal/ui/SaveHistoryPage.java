@@ -79,6 +79,7 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 		return composite;
 	}
 	
+	@Override
 	protected Composite createSaveOptions(final Composite parent) {
 		final Group composite = new Group(parent, SWT.NONE);
 		composite.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));

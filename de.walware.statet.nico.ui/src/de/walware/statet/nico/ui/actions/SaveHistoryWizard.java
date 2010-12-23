@@ -41,7 +41,7 @@ public class SaveHistoryWizard extends Wizard {
 	
 	private static final String STORE_SECTION = LoadHistoryWizard.STORE_SECTION; // shared
 	
-	private ToolProcess fProcess;
+	private final ToolProcess fProcess;
 	private SaveHistoryPage fPage;
 	
 	
