@@ -13,9 +13,7 @@ package de.walware.statet.nico.internal.ui.preferences;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
-import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.core.filesystem.IFileStore;
@@ -93,9 +91,6 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
-		final Realm realm = Realm.getDefault();
-		final DataBindingContext dbc = new DataBindingContext();
-		
 		{	// Table area
 			final Composite composite = new Composite(pageComposite, SWT.NONE);
 			composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
