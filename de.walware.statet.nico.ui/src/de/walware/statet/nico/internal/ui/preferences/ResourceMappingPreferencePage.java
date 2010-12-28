@@ -38,7 +38,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.jface.DatabindingSupport;
@@ -90,6 +89,11 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	
 	
 	@Override
+	protected String getHelpContext() {
+		return "de.walware.statet.nico.ui.resourcemapping"; //$NON-NLS-1$
+	}
+	
+	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		{	// Table area
 			final Composite composite = new Composite(pageComposite, SWT.NONE);
@@ -122,7 +126,6 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 		fList.addAll(NicoPlugin.getDefault().getMappingManager().getList());
 		
 		updateControls();
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(pageComposite, "de.walware.statet.nico.ui.resourcemapping"); //$NON-NLS-1$
 	}
 	
 	protected Composite createTable(final Composite parent) {

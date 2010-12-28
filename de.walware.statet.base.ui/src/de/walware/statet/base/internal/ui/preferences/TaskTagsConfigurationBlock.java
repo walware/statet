@@ -104,6 +104,11 @@ public class TaskTagsConfigurationBlock extends ManagedConfigurationBlock {
 	}
 	
 	@Override
+	protected String getHelpContext() {
+		return StatetUIPlugin.PLUGIN_ID + ".task_tags_preferences"; //$NON-NLS-1$
+	}
+	
+	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		

@@ -25,9 +25,12 @@
 				label="Workbench - Navigating the user interface using the keyboard" />
 	</context>
 	<context id="r_env">
-		<description>An R environment is a given version of R linked to a certain path on your file system and its R library path.</description>
-		<topic href="reference/r_console-launch.xhtml"
-				label="Configuration &amp; Launching" />
+		<description>An R environment is a given version of R linked to a certain R installation 
+			and R libraries.</description>
+		<topic label="R Environments"
+				href="reference/r_env.xhtml" />
+		<command label="Cheat Sheet: Configure and Launch R Console"
+				serialization="org.eclipse.ui.cheatsheets.openCheatSheet(cheatSheetId=de.walware.statet.r.cheatSheetContent.RConsoleGettingStarted)" />
 	</context>
 	<context id="r_console">
 		<description>The R Console enables command based interaction with R.</description>
@@ -40,6 +43,8 @@
 				label="Configuration &amp; Launching" />
 		<topic href="reference/r_console-page.xhtml"
 				label="R Console" />
+		<command label="Cheat Sheet: Configure and Launch R Console"
+				serialization="org.eclipse.ui.cheatsheets.openCheatSheet(cheatSheetId=de.walware.statet.r.cheatSheetContent.RConsoleGettingStarted)" />
 	</context>
 	<context id="run_in_r">
 		<topic href="reference/r_editor-codesubmit.xhtml"
