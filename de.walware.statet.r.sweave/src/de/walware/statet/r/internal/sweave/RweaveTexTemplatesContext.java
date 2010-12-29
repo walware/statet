@@ -11,35 +11,17 @@
 
 package de.walware.statet.r.internal.sweave;
 
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.templates.Template;
-import org.eclipse.jface.text.templates.TemplateBuffer;
-import org.eclipse.jface.text.templates.TemplateException;
-
 import de.walware.ecommons.ltk.ISourceUnit;
-
-import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.templates.StatextCodeTemplatesContext;
+import de.walware.ecommons.ltk.ui.templates.CodeGenerationTemplateContext;
 
 
-public class RweaveTexTemplatesContext extends StatextCodeTemplatesContext {
+public class RweaveTexTemplatesContext extends CodeGenerationTemplateContext {
 	
 	
-	public RweaveTexTemplatesContext(final String contextTypeName, final StatetProject project, final String lineDelim) {
-		super(
-				SweavePlugin.getDefault().getRweaveTexGenerationTemplateContextRegistry().getContextType(contextTypeName),
-				project,
-				lineDelim);
+	public RweaveTexTemplatesContext(final String contextTypeName, final ISourceUnit su, final String lineDelim) {
+		super(SweavePlugin.getDefault().getRweaveTexGenerationTemplateContextRegistry().getContextType(contextTypeName),
+				su, lineDelim);
 	}
 	
-	
-	@Override
-	public TemplateBuffer evaluate(final Template template) throws BadLocationException, TemplateException {
-		return super.evaluate(template);
-	}
-	
-	public void setCodeUnitVariables(final ISourceUnit u) {
-		setVariable(RweaveTexTemplatesContextType.FILENAME_VARIABLE, u.getElementName().getDisplayName());
-	}
 	
 }

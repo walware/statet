@@ -29,8 +29,9 @@ public class StatextCodeTemplatesContextType extends SourceEditorContextType {
 		
 		final String[] markers = taskPrefs.getTags();
 		
-		if (markers == null || markers.length == 0)
+		if (markers == null || markers.length == 0) {
 			return null;
+		}
 		return markers[0];
 	}
 	

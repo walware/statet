@@ -23,9 +23,6 @@ import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.templates.TemplateMessages;
 
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.core.StatetProject;
-
 import de.walware.statet.r.ui.RUI;
 
 
@@ -49,10 +46,8 @@ public class CodeGeneration {
 			return null;
 		}
 		
-		final StatetProject project = StatetCore.getStatetProject(su);
 		final RweaveTexTemplatesContext context = new RweaveTexTemplatesContext(
-				RweaveTexTemplatesContextType.NEW_RWEAVETEX_CONTEXTTYPE, project, lineDelimiter);
-		context.setCodeUnitVariables(su);
+				RweaveTexTemplatesContextType.NEW_RWEAVETEX_CONTEXTTYPE, su, lineDelimiter);
 		
 		try {
 			final TemplateBuffer buffer = context.evaluate(template);
