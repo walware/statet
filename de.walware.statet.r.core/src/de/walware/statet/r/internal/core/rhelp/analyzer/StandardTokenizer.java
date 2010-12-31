@@ -1,5 +1,5 @@
 /**
-* Licensed to the Apache Software Foundation (ASF) under one or more
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -55,13 +55,6 @@ public final class StandardTokenizer extends Tokenizer {
 	public static final int NUM               = 6;
 	public static final int CJ                = 7;
 	
-	/**
-	 * 	@deprecated this solves a bug where HOSTs that end with '.' are identified
-	 *             as ACRONYMs.
-	 */
-	@Deprecated
-	public static final int ACRONYM_DEP       = 8;
-	
 	/** String token types that correspond to token type int constants */
 	public static final String [] TOKEN_TYPES = new String [] {
 			"<ALPHANUM>",
@@ -72,7 +65,6 @@ public final class StandardTokenizer extends Tokenizer {
 			"<HOST>",
 			"<NUM>",
 			"<CJ>",
-			"<ACRONYM_DEP>"
 	};
 	
 	
@@ -155,15 +147,7 @@ public final class StandardTokenizer extends Tokenizer {
 				scanner.getText(termAtt);
 				final int start = scanner.yychar();
 				offsetAtt.setOffset(correctOffset(start), correctOffset(start+termAtt.termLength()));
-				// This 'if' should be removed in the next release. For now, it converts
-				// invalid acronyms to HOST. When removed, only the 'else' part should
-				// remain.
-				if (tokenType == StandardTokenizerImpl.ACRONYM_DEP) {
-					typeAtt.setType(StandardTokenizerImpl.TOKEN_TYPES[StandardTokenizerImpl.HOST]);
-					termAtt.setTermLength(termAtt.termLength() - 1); // remove extra '.'
-				} else {
-					typeAtt.setType(StandardTokenizerImpl.TOKEN_TYPES[tokenType]);
-				}
+				typeAtt.setType(StandardTokenizerImpl.TOKEN_TYPES[tokenType]);
 				return true;
 			} else
 				// When we skip a too-long term, we still increment the
@@ -180,15 +164,9 @@ public final class StandardTokenizer extends Tokenizer {
 	}
 	
 	@Override
-	public void reset() throws IOException {
-		super.reset();
-		scanner.yyreset(input);
-	}
-	
-	@Override
 	public void reset(final Reader reader) throws IOException {
 		super.reset(reader);
-		reset();
+		scanner.reset(reader);
 	}
 	
 }
