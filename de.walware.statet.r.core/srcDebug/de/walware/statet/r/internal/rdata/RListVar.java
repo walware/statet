@@ -72,7 +72,7 @@ public class RListVar extends CombinedElement
 			for (int i = 0; i < length; i++) {
 				this.components[i] = CombinedFactory.INSTANCE.readObject(io, this,
 						(this.namesAttribute.isNA(i) || this.namesAttribute.getChar(i).length() == 0) ? 
-								RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1)) :
+								RElementName.create(RElementName.SUB_INDEXED_D, Integer.toString(i+1), i+1) :
 								RElementName.create(RElementName.SUB_NAMEDPART, this.namesAttribute.getChar(i), i+1) );
 			}
 		}

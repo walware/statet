@@ -21,7 +21,7 @@ import de.walware.statet.nico.ui.util.EclipseIDEOperationsHandler;
 import de.walware.statet.nico.ui.util.QuitHandler;
 import de.walware.statet.nico.ui.util.ReportStatusHandler;
 import de.walware.statet.nico.ui.util.RunBlockingHandler;
-import de.walware.statet.nico.ui.util.SelectFileHandler;
+import de.walware.statet.nico.ui.util.ChooseFileHandler;
 
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.nico.ui.RHelpEventHandler;
@@ -101,7 +101,7 @@ public class RConsoleLaunching {
 		controller.addEventHandler(HistoryOperationsHandler.LOAD_HISTORY_ID, historyHandler);
 		controller.addEventHandler(HistoryOperationsHandler.SAVE_HISTORY_ID, historyHandler);
 		controller.addEventHandler(HistoryOperationsHandler.ADDTO_HISTORY_ID, historyHandler);
-		controller.addEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID, new SelectFileHandler());
+		controller.addEventHandler(IToolEventHandler.CHOOSEFILE_EVENT_ID, new ChooseFileHandler());
 		final IToolEventHandler ideHandler = new EclipseIDEOperationsHandler();
 		controller.addEventHandler(IToolEventHandler.SHOW_HISTORY_ID, ideHandler);
 		controller.addEventHandler(IToolEventHandler.SHOW_FILE_ID, ideHandler);

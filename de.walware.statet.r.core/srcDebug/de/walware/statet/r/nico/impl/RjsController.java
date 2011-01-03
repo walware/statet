@@ -155,11 +155,11 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 		protected void handleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
 			final String command = cmd.getDataText();
 			// if we have more commands, we should create a hashmap
-			if (command.equals(ExtUICmdItem.C_CHOOSE_FILE)) {
-				final IToolEventHandler handler = getEventHandler(IToolEventHandler.SELECTFILE_EVENT_ID);
+			if (command.equals(ExtUICmdItem.C_CHOOSE_FILE) || command.equals(IToolEventHandler.CHOOSEFILE_EVENT_ID)) {
+				final IToolEventHandler handler = getEventHandler(IToolEventHandler.CHOOSEFILE_EVENT_ID);
 				if (handler != null) {
 					final Map<String, Object> data = cmd.getDataMap();
-					if (handler.handle(IToolEventHandler.SELECTFILE_EVENT_ID, RjsController.this, data, monitor).isOK()) {
+					if (handler.handle(IToolEventHandler.CHOOSEFILE_EVENT_ID, RjsController.this, data, monitor).isOK()) {
 						cmd.setAnswer(Collections.singletonMap("filename", data.get("filename"))); //$NON-NLS-1$ //$NON-NLS-2$
 						return;
 					}

@@ -14,6 +14,7 @@ package de.walware.statet.nico.internal.ui.actions;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.wizard.WizardPage;
@@ -25,6 +26,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import de.walware.ecommons.io.FileValidator;
+import de.walware.ecommons.ui.components.StatusInfo;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -67,7 +69,7 @@ public abstract class AbstractHistoryPage extends WizardPage {
 		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		composite.setLayout(LayoutUtil.applyContentDefaults(new GridLayout(), 1));
 		
-		fLocationGroup = createResourceInputComposite(parent);
+		fLocationGroup = createResourceInputComposite(composite);
 		fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
 		fLocationGroup.addModifyListener(new ModifyListener() {
@@ -120,21 +122,18 @@ public abstract class AbstractHistoryPage extends WizardPage {
 			return;
 		}
 		final FileValidator validator = fLocationGroup.getValidator();
-		final IStatus status = validator.getStatus();
-		if (status != null && status.getSeverity() == IStatus.ERROR) {
-			setMessage(status.getMessage(), IStatus.ERROR);
+		IStatus status = validator.getStatus();
+		if (status == null) {
+			status = Status.OK_STATUS;
+		}
+		StatusInfo.applyToStatusLine(this, status);
+		if (status.getSeverity() == IStatus.ERROR) {
 			setPageComplete(false);
 			fResourceInWorkspace = null;
 			fResourceInEFS = null;
 			fResourcePath = null;
 		}
 		else {
-			if (status != null && status.getSeverity() != IStatus.OK) {
-				setMessage(status.getMessage(), status.getSeverity());
-			}
-			else {
-				setMessage(null);
-			}
 			setPageComplete(true);
 			fResourceInWorkspace = (IFile) fLocationGroup.getResourceAsWorkspaceResource();
 			fResourceInEFS = fLocationGroup.getResourceAsFileStore();

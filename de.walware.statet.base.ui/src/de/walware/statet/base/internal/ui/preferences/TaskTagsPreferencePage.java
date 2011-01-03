@@ -52,11 +52,6 @@ public class TaskTagsPreferencePage extends PropertyAndPreferencePage<TaskTagsCo
 		return project.hasNature(StatetProject.NATURE_ID);
 	}
 	
-	@Override
-	protected String getHelpContext() {
-		return StatetUIPlugin.PLUGIN_ID + ".task_tags_preferences"; //$NON-NLS-1$
-	}
-	
 	
 	@Override
 	protected TaskTagsConfigurationBlock createConfigurationBlock() 

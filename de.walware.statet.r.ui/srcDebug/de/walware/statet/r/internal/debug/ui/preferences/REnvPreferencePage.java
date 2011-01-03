@@ -76,6 +76,7 @@ import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
+import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -118,6 +119,11 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
 	@Override
+	protected String getHelpContext() {
+		return IRUIHelpContextIds.R_ENV;
+	}
+	
+	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
 		prefs.put(RDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
@@ -133,7 +139,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			composite.setLayout(LayoutUtil.applyCompositeDefaults(new GridLayout(), 2));
 			
 			final Composite table = createTable(composite);
-			{	GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+			{	final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 				gd.heightHint = LayoutUtil.hintHeight(fListViewer.getTable(), 10);
 				table.setLayoutData(gd);
 			}

@@ -55,6 +55,15 @@ public abstract class RElementName implements IElementName {
 	public static final int DISPLAY_EXACT = 0x2;
 	
 	
+	/**
+	 * Element names providing the exact index as number (for SUB_INDEXED_D).
+	 */
+	public static interface IndexElementName extends IElementName {
+		
+		int getIndex();
+		
+	}
+	
 	public static String createDisplayName(RElementName a, final int options) {
 		StringBuilder sb = null;
 		
@@ -204,9 +213,9 @@ public abstract class RElementName implements IElementName {
 			case MAIN_DEFAULT:
 			case MAIN_CLASS:
 			case SUB_NAMEDPART:
-				if (((options & DISPLAY_EXACT) != 0) && a instanceof DualImpl) {
+				if (((options & DISPLAY_EXACT) != 0) && a instanceof IndexElementName) {
 					sb.append("[[");
-					sb.append(((DualImpl) a).fIdx);
+					sb.append(((IndexElementName) a).getIndex());
 					sb.append("]]");
 				}
 				else {
@@ -392,24 +401,32 @@ public abstract class RElementName implements IElementName {
 		
 	}
 	
-	private static class DualImpl extends DefaultImpl {
+	private static class DualImpl extends DefaultImpl implements IndexElementName {
+		
+		private static final long serialVersionUID = 7040207683623992047L;
 		
 		private final int fIdx;
 		
-		public DualImpl(final String segmentName, final int idx) {
-			super(SUB_NAMEDPART, segmentName);
+		public DualImpl(final int type, final String segmentName, final int idx) {
+			super(type, segmentName);
 			fIdx = idx;
 		}
 		
-		public DualImpl(final String segmentName, final int idx, final RElementName next) {
-			super(SUB_NAMEDPART, segmentName, next);
+		public DualImpl(final int type, final String segmentName, final int idx,
+				final RElementName next) {
+			super(type, segmentName, next);
 			fIdx = idx;
 		}
 		
 		
 		@Override
 		protected DefaultImpl cloneSegment0(final RElementName next) {
-			return new DualImpl(getSegmentName(), fIdx, next);
+			return new DualImpl(getType(), getSegmentName(), fIdx, next);
+		}
+		
+		
+		public int getIndex() {
+			return fIdx;
 		}
 		
 	}
@@ -484,10 +501,10 @@ public abstract class RElementName implements IElementName {
 	}
 	
 	public static RElementName create(final int type, final String segmentName, final int idx) {
-		if (type != SUB_NAMEDPART) {
+		if (!(type == SUB_NAMEDPART || type == SUB_INDEXED_D)) {
 			throw new IllegalArgumentException();
 		}
-		return new DualImpl(segmentName, idx);
+		return new DualImpl(type, segmentName, idx);
 	}
 	
 	public static RElementName parseDefault(final String code) {

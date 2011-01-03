@@ -11,26 +11,18 @@
 
 package de.walware.statet.r.codegeneration;
 
-import de.walware.statet.base.core.StatetProject;
-import de.walware.statet.ext.templates.StatextCodeTemplatesContext;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.templates.CodeGenerationTemplateContext;
 
-import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class RdCodeTemplatesContext extends StatextCodeTemplatesContext {
+public class RdCodeTemplatesContext extends CodeGenerationTemplateContext {
 	
 	
-	RdCodeTemplatesContext(final String contextTypeName, final StatetProject project, final String lineDelim) {
-		super(
-				RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry().getContextType(contextTypeName),
-				project,
-				lineDelim);
-	}
-	
-	
-	public void setCodeUnitVariables(final RResourceUnit u) {
-		setVariable(RCodeTemplatesContextType.FILENAME_VARIABLE, u.getElementName().getDisplayName());
+	RdCodeTemplatesContext(final String contextTypeName, final ISourceUnit su, final String lineDelim) {
+		super(RUIPlugin.getDefault().getRdCodeGenerationTemplateContextRegistry().getContextType(contextTypeName),
+				su, lineDelim);
 	}
 	
 }

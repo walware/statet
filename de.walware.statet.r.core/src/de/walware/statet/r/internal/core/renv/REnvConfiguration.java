@@ -743,15 +743,15 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (LOCAL_PLATFORM == LOCAL_WIN) {
 			rHomeBinSub = rHomeBin;
 		}
-		else {
-			rHomeBinSub = rHomeBin.getChild("exec"); //$NON-NLS-1$
+		else { // use wrapper shell scripts
+			rHomeBinSub = null; // rHomeBin.getChild("exec"); //$NON-NLS-1$
 		}
 		final List<IFileStore> dirs = new ArrayList<IFileStore>(4);
 		String arch = fSubArch;
 		if (arch == null) {
 			arch = Platform.getOSArch();
 		}
-		if (arch != null) {
+		if (arch != null && rHomeBinSub != null) {
 			final IFileStore rHomeBinArch;
 			if (arch.equals(Platform.ARCH_X86_64)) {
 				rHomeBinArch = getExistingChild(rHomeBinSub, "x86_64", "x64"); //$NON-NLS-1$ //$NON-NLS-2$

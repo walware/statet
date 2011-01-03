@@ -30,9 +30,6 @@ import de.walware.ecommons.ltk.ui.templates.TemplatesUtil;
 import de.walware.ecommons.ltk.ui.templates.TemplatesUtil.EvaluatedTemplate;
 import de.walware.ecommons.templates.TemplateMessages;
 
-import de.walware.statet.base.core.StatetCore;
-import de.walware.statet.base.core.StatetProject;
-
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRClass;
@@ -63,10 +60,8 @@ public class CodeGeneration {
 			return null;
 		}
 		
-		final StatetProject project = StatetCore.getStatetProject(su);
 		final RCodeTemplatesContext context = new RCodeTemplatesContext(
-				RCodeTemplatesContextType.NEW_RSCRIPTFILE_CONTEXTTYPE, project, lineDelimiter);
-		context.setSourceUnit(su);
+				RCodeTemplatesContextType.NEW_RSCRIPTFILE_CONTEXTTYPE, su, lineDelimiter);
 		
 		try {
 			final TemplateBuffer buffer = context.evaluate(template);
@@ -95,9 +90,8 @@ public class CodeGeneration {
 		}
 		
 		final ISourceUnit su = rMethod.getSourceUnit();
-		final StatetProject project = StatetCore.getStatetProject(su);
-		final RCodeTemplatesContext context = new RCodeTemplatesContext(RCodeTemplatesContextType.ROXYGEN_COMMONFUNCTION_CONTEXTTYPE, project, lineDelimiter);
-		context.setSourceUnit(su);
+		final RCodeTemplatesContext context = new RCodeTemplatesContext(
+				RCodeTemplatesContextType.ROXYGEN_COMMONFUNCTION_CONTEXTTYPE, su, lineDelimiter);
 		context.setRElement(rMethod);
 		
 		try {
@@ -158,9 +152,8 @@ public class CodeGeneration {
 		}
 		
 		final ISourceUnit su = rClass.getSourceUnit();
-		final StatetProject project = StatetCore.getStatetProject(su);
-		final RCodeTemplatesContext context = new RCodeTemplatesContext(RCodeTemplatesContextType.ROXYGEN_CLASS_CONTEXTTYPE, project, lineDelimiter);
-		context.setSourceUnit(su);
+		final RCodeTemplatesContext context = new RCodeTemplatesContext(
+				RCodeTemplatesContextType.ROXYGEN_CLASS_CONTEXTTYPE, su, lineDelimiter);
 		context.setRElement(rClass);
 		
 		try {
@@ -220,9 +213,8 @@ public class CodeGeneration {
 		}
 		
 		final ISourceUnit su = rMethod.getSourceUnit();
-		final StatetProject project = StatetCore.getStatetProject(su);
-		final RCodeTemplatesContext context = new RCodeTemplatesContext(RCodeTemplatesContextType.ROXYGEN_METHOD_CONTEXTTYPE, project, lineDelimiter);
-		context.setSourceUnit(su);
+		final RCodeTemplatesContext context = new RCodeTemplatesContext(
+				RCodeTemplatesContextType.ROXYGEN_METHOD_CONTEXTTYPE, su, lineDelimiter);
 		context.setRElement(rMethod);
 		
 		try {
@@ -283,10 +275,8 @@ public class CodeGeneration {
 			return null;
 		}
 		
-		final StatetProject project = StatetCore.getStatetProject(su);
 		final RdCodeTemplatesContext context = new RdCodeTemplatesContext(
-				RdCodeTemplatesContextType.NEW_RDOCFILE_CONTEXTTYPE, project, lineDelimiter);
-		context.setCodeUnitVariables(su);
+				RdCodeTemplatesContextType.NEW_RDOCFILE_CONTEXTTYPE, su, lineDelimiter);
 		
 		try {
 			final TemplateBuffer buffer = context.evaluate(template);

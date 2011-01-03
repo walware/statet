@@ -94,8 +94,11 @@ public interface IToolEventHandler {
 	/**
 	 * 
 	 * return:  OK = schedule, CANCEL = do nothing
+	 * 
+	 * @deprecated use {@link #CHOOSEFILE_EVENT_ID}
 	 */
 	public static final String SELECTFILE_EVENT_ID = "common/selectFile"; //$NON-NLS-1$
+	public static final String CHOOSEFILE_EVENT_ID = "common/chooseFile"; //$NON-NLS-1$
 	
 	public static final String SHOW_FILE_ID = "common/showFile"; //$NON-NLS-1$
 	
