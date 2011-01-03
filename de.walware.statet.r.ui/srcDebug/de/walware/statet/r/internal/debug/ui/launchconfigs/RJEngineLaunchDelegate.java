@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
@@ -89,8 +91,17 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	@Override
 	public String[] getEnvironment(final ILaunchConfiguration configuration) throws CoreException {
-		final Map<String, String> envp = LaunchConfigUtil.createEnvironment(configuration, 
-				new Map[] { fRenv.getEnvironmentsVariables() });
+		final IVMInstall vmInstall = getVMInstall(configuration); // already verified
+		
+		final Map<String, String> additional = new HashMap<String, String>();
+		final File location = vmInstall.getInstallLocation();
+		if (location != null) {
+			additional.put("JAVA_HOME", location.getAbsolutePath()); //$NON-NLS-1$
+		}
+		
+		@SuppressWarnings("unchecked")
+		final Map<String, String> envp = LaunchConfigUtil.createEnvironment(configuration,
+				new Map[] { additional, fRenv.getEnvironmentsVariables() });
 		return LaunchConfigUtil.toKeyValueStrings(envp);
 	}
 	
