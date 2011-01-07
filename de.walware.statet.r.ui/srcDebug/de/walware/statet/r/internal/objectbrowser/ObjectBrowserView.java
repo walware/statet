@@ -153,6 +153,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private static class ContentInput {
 		
+		List<? extends ICombinedEnvironment> searchEnvirs;
 		boolean processChanged;
 		boolean inputChanged;
 		final boolean filterUserspace;
@@ -162,7 +163,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		Map<ICombinedRElement, ICombinedRElement[]> envirElements;
 		
 		
-		public ContentInput(final boolean processChanged, final boolean inputChanged, final boolean filterUserspace, final Filter<IRLangElement> envFilter, final Filter<IRLangElement> otherFilter) {
+		public ContentInput(final boolean processChanged, final boolean inputChanged,
+				final boolean filterUserspace, final Filter<IRLangElement> envFilter, final Filter<IRLangElement> otherFilter) {
 			this.processChanged = processChanged;
 			this.inputChanged = inputChanged;
 			this.filterUserspace = filterUserspace;
@@ -915,6 +917,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 					fUserspaceInput = null;
 					return null;
 				}
+				input.searchEnvirs = fInput;
 				// If search path (environments) is not changed and not in force mode, refresh only the updated entries
 				List<ICombinedEnvironment> updateEntries = null;
 				TRY_PARTIAL : if (!input.filterUserspace
@@ -1039,6 +1042,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				case RObject.TYPE_REFERENCE: {
 					final RObject realObject = ((RReference) object).getResolvedRObject();
 					if (realObject != null) {
+						fUsedReferences.add((RReference) object);
 						return hasChildren(realObject);
 					}
 					return false; }
@@ -1173,7 +1177,9 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private final ContentJob fInputUpdater = new ContentJob();
 	
-	ContentInput fActiveInput;
+	private ContentInput fActiveInput;
+	/** References used by the viewer. Use only in UI thread */
+	private Set<RReference> fUsedReferences = new HashSet<RReference>();
 	
 	private boolean fFilterUserspace;
 	private boolean fFilterIncludeInternal;
@@ -1567,9 +1573,42 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		fFilterUserspaceActivated = fActiveInput.filterUserspace;
 		
+		final Set<RReference> usedReferences;
+		if (fUsedReferences.isEmpty()) {
+			usedReferences = null;
+		}
+		else if (changed || updateEnvirs == null) {
+			usedReferences = null;
+			fUsedReferences.clear();
+		}
+		else {
+			usedReferences = fUsedReferences;
+			fUsedReferences = new HashSet<RReference>();
+		}
 		if (updateEnvirs != null) {
-			for (final ICombinedRElement entry : updateEnvirs) {
+			for (final ICombinedEnvironment entry : updateEnvirs) {
 				fTreeViewer.refresh(entry, true);
+			}
+			if (usedReferences != null) {
+				ITER_REFS: for (RReference reference : usedReferences) {
+					if (!fUsedReferences.contains(reference)) {
+						// Update the envir copy in the viewer, if it refers to an updated envir
+						for (final ICombinedEnvironment entry : updateEnvirs) {
+							if (entry.getHandle() == reference.getHandle()) {
+								fTreeViewer.refresh(reference, true);
+								// reference is readded automatically to new set, if necessary
+								continue ITER_REFS;
+							}
+						}
+						// Keep/readd the reference, if it refers to an envir in the search path
+						for (final ICombinedEnvironment entry : fActiveInput.searchEnvirs) {
+							if (entry.getHandle() == reference.getHandle()) {
+								fUsedReferences.add(reference);
+								continue ITER_REFS;
+							}
+						}
+					}
+				}
 			}
 		}
 		else {

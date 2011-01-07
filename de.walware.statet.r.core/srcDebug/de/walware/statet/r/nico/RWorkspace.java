@@ -66,6 +66,8 @@ public class RWorkspace extends ToolWorkspace {
 	
 	public static interface ICombinedEnvironment extends REnvironment, ICombinedList {
 		
+		long getHandle();
+		
 	}
 	
 	public static final List<IStringVariable> ADDITIONAL_R_VARIABLES = new ConstList<IStringVariable>(
