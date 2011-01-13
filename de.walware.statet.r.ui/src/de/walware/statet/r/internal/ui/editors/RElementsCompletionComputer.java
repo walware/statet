@@ -65,9 +65,9 @@ import de.walware.statet.r.core.rlang.RTokens;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.FCall;
+import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
-import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
@@ -171,7 +171,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	private static final char[] F_BRACKETS = new char[] { '(', ')' };
 	
-	private static final IPartitionConstraint SKIP_COMMENT_PARTITIONS = new IPartitionConstraint() {
+	private static final IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
 		public boolean matches(final String partitionType) {
 			return (partitionType != IRDocumentPartitions.R_COMMENT);
 		};
@@ -421,7 +421,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 							break;
 						}
 					}
-					fScanner.configure(document, SKIP_COMMENT_PARTITIONS);
+					fScanner.configure(document, NO_R_COMMENT_CONSTRAINT);
 					if (sep+1 == offset
 							|| fScanner.findNonBlankForward(sep+1, offset, true) < 0) {
 						doComputeFCallArgumentProposals(context, offset-indexShift, fcallInfo, namePrefix, tenders);

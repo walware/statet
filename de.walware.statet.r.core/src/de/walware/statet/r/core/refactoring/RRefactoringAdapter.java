@@ -36,6 +36,7 @@ import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
+import de.walware.statet.r.core.rsource.RCodePartitionConstraint;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.core.rsource.RLexer;
@@ -73,14 +74,7 @@ public class RRefactoringAdapter extends RefactoringAdapter {
 	}
 	
 	public IRegion trimToAstRegion(final AbstractDocument document, final IRegion region) {
-		fScanner.configure(document, new IPartitionConstraint() {
-			public boolean matches(final String partitionType) {
-				return (fPartitioning.getDefaultPartitionConstraint().matches(partitionType)
-						|| partitionType == IRDocumentPartitions.R_STRING
-						|| partitionType == IRDocumentPartitions.R_QUOTED_SYMBOL
-						|| partitionType == IRDocumentPartitions.R_INFIX_OPERATOR);
-			}
-		});
+		fScanner.configure(document, new RCodePartitionConstraint(fPartitioning));
 		int start = region.getOffset();
 		int stop = start+region.getLength();
 		int result;

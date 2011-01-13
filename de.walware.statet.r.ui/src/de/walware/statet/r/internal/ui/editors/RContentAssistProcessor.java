@@ -31,7 +31,7 @@ import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 public class RContentAssistProcessor extends ContentAssistProcessor {
 	
 	
-	private static IPartitionConstraint NONE_COMMENT_CONSTRAINT = new IPartitionConstraint() {
+	private static IPartitionConstraint NO_R_COMMENT_CONSTRAINT = new IPartitionConstraint() {
 		public boolean matches(final String partitionType) {
 			return (partitionType != IRDocumentPartitions.R_COMMENT);
 		}
@@ -83,7 +83,7 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 		if (offset < 2) {
 			return false;
 		}
-		fScanner.configure(document, NONE_COMMENT_CONSTRAINT);
+		fScanner.configure(document, NO_R_COMMENT_CONSTRAINT);
 		final int previousOffset = fScanner.findNonBlankBackward(offset, RHeuristicTokenScanner.UNBOUND, true);
 		if (previousOffset > 0) {
 			try {
