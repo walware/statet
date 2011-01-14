@@ -149,7 +149,7 @@ public class RweaveTexEditor extends SourceEditor1 {
 	protected void initializeEditor() {
 		super.initializeEditor();
 		
-		setEditorContextMenuId("#REditorContext"); //$NON-NLS-1$
+		setEditorContextMenuId("de.walware.statet.r.menus.REditorContextMenu"); //$NON-NLS-1$
 	}
 	
 	@Override

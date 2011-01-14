@@ -252,7 +252,7 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="popup:#REditorContext?after=group.edit">
+            locationURI="popup:de.walware.statet.r.menus.REditorContextMenu?after=group.edit">
          <command
                commandId="de.walware.ecommons.ltk.commands.ToggleComment"
                id="de.walware.ecommons.ltk.commands.ToggleComment"
@@ -355,6 +355,27 @@
                visible="false">
          </separator>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="de.walware.statet.r.legacy.REditorRulerMenuCommonContribution"
+            targetID="de.walware.statet.r.menus.REditorRulerMenu">
+         <action
+               id=".AddTask"
+               class="org.eclipse.ui.texteditor.TaskRulerAction"
+               label="AddTask"
+               menubarPath="add"
+               helpContextId="org.eclipse.ui.AddTask_action_context">
+         </action>
+         <action
+               id=".AddBookmark"
+               class="org.eclipse.ui.texteditor.BookmarkRulerAction"
+               label="AddBookmark"
+               menubarPath="add"
+               helpContextId="org.eclipse.ui.bookmark_action_context">
+         </action>
+      </viewerContribution>
    </extension>
 
    <extension

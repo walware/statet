@@ -355,7 +355,8 @@ public class REditor extends SourceEditor1 {
 		super.initializeEditor();
 		
 		setHelpContextId(IRUIHelpContextIds.R_EDITOR);
-		setEditorContextMenuId("#REditorContext"); //$NON-NLS-1$
+		setEditorContextMenuId("de.walware.statet.r.menus.REditorContextMenu"); //$NON-NLS-1$
+		setRulerContextMenuId("de.walware.statet.r.menus.REditorRulerMenu"); //$NON-NLS-1$
 	}
 	
 	
