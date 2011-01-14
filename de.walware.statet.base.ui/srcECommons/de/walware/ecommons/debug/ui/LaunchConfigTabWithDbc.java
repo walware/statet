@@ -14,6 +14,7 @@ package de.walware.ecommons.debug.ui;
 import org.eclipse.core.databinding.AggregateValidationStatus;
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
+import org.eclipse.core.databinding.observable.ObservableEvent;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IValueChangeListener;
 import org.eclipse.core.databinding.observable.value.ValueChangeEvent;
@@ -124,7 +125,7 @@ public abstract class LaunchConfigTabWithDbc extends AbstractLaunchConfiguration
 		
 		new DirtyTracker(fDbc) {
 			@Override
-			public void handleChange() {
+			public void handleChange(final ObservableEvent event) {
 				if (!isDirty()) {
 					fCurrentStatus = (IStatus) fAggregateStatus.getValue();
 					setDirty(true);
