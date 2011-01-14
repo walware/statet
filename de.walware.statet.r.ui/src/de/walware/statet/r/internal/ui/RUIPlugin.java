@@ -69,8 +69,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	public static final String IMG_WIZBAN_NEWRFILE = RUI.PLUGIN_ID + "/image/wizban/new.r-file"; //$NON-NLS-1$
 	public static final String IMG_WIZBAN_NEWRPROJECT = RUI.PLUGIN_ID + "/image/wizban/new.r-project"; //$NON-NLS-1$
 	
-	public static final String IMG_LOCTOOL_FILTER_LOCAL = RUI.PLUGIN_ID + "/image/ltool/filter.local"; //$NON-NLS-1$
 	public static final String IMG_LOCTOOL_FILTER_GENERAL = RUI.PLUGIN_ID + "/image/ltool/filter.general"; //$NON-NLS-1$
+	public static final String IMG_LOCTOOL_FILTER_LOCAL = RUI.PLUGIN_ID + "/image/ltool/filter.local"; //$NON-NLS-1$
 	
 	public static final String IMG_LOCTOOL_REFRESH_RECOMMENDED = RUI.PLUGIN_ID + "/image/ltool/refresh.recommended"; //$NON-NLS-1$
 	

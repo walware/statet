@@ -669,17 +669,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 						}
 						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
 								throws InterruptedException, CoreException {
-							if (adapter.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
-								final IRDataAdapter r = (IRDataAdapter) adapter;
+							final IRDataAdapter r = (IRDataAdapter) adapter;
+							try {
 								for (int i = 0; i < names.size(); i++) {
 									r.evalVoid(commands.get(i), monitor);
 								}
-								r.briefAboutChange(topEnvirs, 0);
 							}
-							else {
-								for (int i = 0; i < names.size(); i++) {
-									adapter.submitToConsole(commands.get(i), monitor);
-								}
+							finally {
+								r.briefAboutChange(topEnvirs, 0);
 							}
 						}
 					});

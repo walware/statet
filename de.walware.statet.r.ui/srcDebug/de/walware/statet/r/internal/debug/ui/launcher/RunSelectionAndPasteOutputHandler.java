@@ -170,23 +170,23 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 					}
 					monitor.subTask(fLines[i]);
 					r.submitToConsole(fLines[i], monitor);
-					if (r instanceof IRequireSynch) {
-						final Pattern pattern = ((IRequireSynch) r).synch(monitor);
-						if (pattern != null) {
-							final Matcher matcher = pattern.matcher(fOutput);
-							int idx = -1;
-							while (matcher.find()) {
-								idx = matcher.start();
-							}
-							if (idx >= 0) {
-								fOutput.delete(idx, fOutput.length());
-							}
+				}
+				if (r instanceof IRequireSynch) {
+					final Pattern pattern = ((IRequireSynch) r).synch(monitor);
+					if (pattern != null) {
+						final Matcher matcher = pattern.matcher(fOutput);
+						int idx = -1;
+						while (matcher.find()) {
+							idx = matcher.start();
+						}
+						if (idx >= 0) {
+							fOutput.delete(idx, fOutput.length());
 						}
 					}
-					r.briefAboutChange(RWorkspace.REFRESH_AUTO);
 				}
 			}
 			finally {
+				r.briefAboutChange(RWorkspace.REFRESH_AUTO);
 				controller.getStreams().getOutputStreamMonitor().removeListener(listener);
 				controller.getStreams().getErrorStreamMonitor().removeListener(listener);
 				UIAccess.getDisplay().asyncExec(this);
