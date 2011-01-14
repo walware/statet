@@ -494,11 +494,11 @@ public class REditor extends SourceEditor1 {
 		
 		action = new InsertAssignmentAction(this);
 		setAction(action.getId(), action);
-		markAsContentDependentAction(action.getId(), true);
+		markAsStateDependentAction(action.getId(), true);
 		
 		action = new RDoubleCommentAction(this, getRCoreAccess());
 		setAction(action.getId(), action);
-		markAsContentDependentAction(action.getId(), true);
+		markAsStateDependentAction(action.getId(), true);
 		
 		final SpecificContentAssistHandler handler = new SpecificContentAssistHandler(this, RUIPlugin.getDefault().getREditorContentAssistRegistry());
 		handlerService.activateHandler(ISourceEditorCommandIds.SPECIFIC_CONTENT_ASSIST_COMMAND_ID, handler);
