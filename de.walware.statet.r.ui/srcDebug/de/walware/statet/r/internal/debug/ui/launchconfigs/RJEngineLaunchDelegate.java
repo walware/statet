@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -28,10 +29,14 @@ import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.IVMInstall3;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
@@ -58,19 +63,34 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			RJ_SERVER_ID,
 	};
 	
+	private static final Pattern PATH_PATTERN = Pattern.compile("\\" + File.pathSeparatorChar);
+	
 	
 	private final String fAddress;
 	private final IREnvConfiguration fRenv;
 	
 	private File fWorkingDirectory;
 	
+	private IProgressMonitor fMonitor;
+	
+	private String fLibPreloadVar;
+	private String fLibPreloadFile;
+	
 	
 	public RJEngineLaunchDelegate(final String address, final IREnvConfiguration renv) throws CoreException {
 		fAddress = address;
 		fRenv = renv;
+		
+		setLibPreload(true);
 	}
 	
 	
+	@Override
+	public void launch(final ILaunchConfiguration configuration, final String mode,
+			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
+		fMonitor = (monitor != null) ? monitor : new NullProgressMonitor();
+		super.launch(configuration, mode, launch, fMonitor);
+	}
 	@Override
 	public IPath getWorkingDirectoryPath(final ILaunchConfiguration configuration) throws CoreException {
 		final IFileStore workingDirectory = REnvTab.getWorkingDirectory(configuration);
@@ -89,6 +109,28 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		return null;
 	}
 	
+	public void setLibPreload(final boolean enable) {
+		if (enable) {
+			if (Platform.getOS().equals(Platform.OS_WIN32)) {
+				fLibPreloadVar = null;
+				fLibPreloadFile = null;
+			}
+			else if (Platform.getOS().equals(Platform.OS_MACOSX)) {
+				fLibPreloadVar = null;
+	//			fLibPreloadFile = "DYLD_INSERT_LIBRARIES"; //$NON-NLS-1$
+				fLibPreloadFile = "libjsig.dylib"; //$NON-NLS-1$
+			}
+			else { // *nix
+				fLibPreloadVar = "LD_PRELOAD"; //$NON-NLS-1$
+				fLibPreloadFile = "libjsig.so"; //$NON-NLS-1$
+			}
+		}
+		else {
+			fLibPreloadVar = null;
+			fLibPreloadFile = null;
+		}
+	}
+	
 	@Override
 	public String[] getEnvironment(final ILaunchConfiguration configuration) throws CoreException {
 		final IVMInstall vmInstall = getVMInstall(configuration); // already verified
@@ -102,6 +144,34 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		@SuppressWarnings("unchecked")
 		final Map<String, String> envp = LaunchConfigUtil.createEnvironment(configuration,
 				new Map[] { additional, fRenv.getEnvironmentsVariables() });
+		
+		if (fLibPreloadVar != null) {
+			String value = envp.get(fLibPreloadVar);
+			if (value == null || !value.contains("libjsig")) { //$NON-NLS-1$
+				final String path = (String) ((IVMInstall3) vmInstall).evaluateSystemProperties(
+						new String[] { "java.library.path" }, fMonitor).get("java.library.path"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (path != null) {
+					final String[] pathList = PATH_PATTERN.split(path);
+					for (int i = 0; i < pathList.length; i++) {
+						final File file = new File(pathList[i], fLibPreloadFile);
+						if (file.exists()) {
+							final String s = file.getAbsolutePath();
+							if (s.indexOf(' ') < 0) { // whitespace is separator char
+								if (value != null && value.length() > 0) {
+									value = s + ' ' + value;
+								}
+								else {
+									value = s;
+								}
+								envp.put(fLibPreloadVar, value);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+		
 		return LaunchConfigUtil.toKeyValueStrings(envp);
 	}
 	
