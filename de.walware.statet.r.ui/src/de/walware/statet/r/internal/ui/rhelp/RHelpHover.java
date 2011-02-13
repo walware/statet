@@ -67,9 +67,9 @@ public class RHelpHover implements IInfoHover {
 			case SYMBOL:
 			case STRING_CONST:
 				parent = rNode.getRParent();
-				if (parent != null && parent.getNodeType() != NodeType.F_CALL_ARG
+				if (parent != null && parent.getNodeType() == NodeType.F_CALL_ARG
 						&& ((FCall.Arg) parent).getNameChild() == rNode) {
-					name = searchNameOfFunction(rNode, context);
+					name = searchNameOfFunction(parent, context);
 				}
 				break;
 			case F_CALL:
