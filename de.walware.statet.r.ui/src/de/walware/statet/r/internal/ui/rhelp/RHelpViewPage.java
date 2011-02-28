@@ -131,7 +131,7 @@ public class RHelpViewPage extends PageBookBrowserPage {
 			}
 			updateBreadcrumbInput();
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
 					"An error occurred when updating the R help view address bar/breadcrumbs.", e));
 		}

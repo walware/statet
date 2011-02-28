@@ -288,14 +288,24 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 					if (rEnv != null) {
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
-							keywords = help.getKeywords();
+							try {
+								keywords = help.getKeywords();
+							}
+							finally {
+								help.unlock();
+							}
 						}
 					}
 					if (keywords == null) {
 						rEnv = RCore.getREnvManager().getDefault();
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
-							keywords = help.getKeywords();
+							try {
+								keywords = help.getKeywords();
+							}
+							finally {
+								help.unlock();
+							}
 						}
 					}
 					if (keywords != null) {
@@ -336,6 +346,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
 							packages = help.getRPackages();
+							help.unlock();
 						}
 					}
 					if (packages == null) {
@@ -343,6 +354,7 @@ public class RHelpSearchInputPage extends DialogPage implements ISearchPage {
 						final IREnvHelp help = rHelpManager.getHelp(rEnv);
 						if (help != null) {
 							packages = help.getRPackages();
+							help.unlock();
 						}
 					}
 					if (packages != null) {

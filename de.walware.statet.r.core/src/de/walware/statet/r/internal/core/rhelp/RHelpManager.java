@@ -93,7 +93,10 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 			
 			final IREnv rEnv = fREnvManager.getDefault().resolve();
 			if (rEnv != null) {
-				getHelp(rEnv);
+				final REnvHelp help = getHelp(rEnv);
+				if (help != null) {
+					help.unlock();
+				}
 			}
 			final Set<String> rEnvIds = SaveUtil.getExistingRHelpEnvId();
 			rEnvIds.removeAll(Arrays.asList(fREnvManager.getIds()));
@@ -347,15 +350,22 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 						final IREnv rEnv = fREnvManager.get(info.rEnvId, null);
 						if (rEnv != null && info.cat == RHelpWebapp.CAT_LIBRARY) {
 							final REnvHelp help = getHelp(rEnv);
-							final IRPackageHelp packageHelp = (help != null) ?
-									help.getRPackage(info.packageName) : null;
-							if (packageHelp != null && info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
-								final IRHelpPage page = packageHelp.getHelpPage(info.detail);
-								if (page != null) {
-									return page;
+							if (help != null) {
+								try {
+									final IRPackageHelp packageHelp = help.getRPackage(info.packageName);
+									if (packageHelp != null && info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
+										final IRHelpPage page = packageHelp.getHelpPage(info.detail);
+										if (page != null) {
+											return page;
+										}
+									}
+									return packageHelp;
+								}
+								finally {
+									help.unlock();
 								}
 							}
-							return packageHelp;
+							return null;
 						}
 						if (rEnv != null && info.cat == RHelpWebapp.CAT_DOC) {
 							return new Object[] { rEnv, null };
@@ -458,7 +468,18 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 		}
 		final RHelpSearchQuery.Compiled compiledQuery = query.compile();
 		final REnvHelp help = getHelp(compiledQuery.getREnv());
-		if (help == null) {
+		if (help != null) {
+			try {
+				if (!help.search(compiledQuery, requestor)) {
+					throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+							"An internal error occurend when performing R help search.", null));
+				}
+			}
+			finally {
+				help.unlock();
+			}
+		}
+		else {
 			final IREnv rEnv = query.getREnv();
 			if (rEnv == null || rEnv.getConfig() == null) {
 				throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
@@ -469,10 +490,6 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 						"The R library of the selected R environment <code>" + compiledQuery.getREnv().getName() +
 						"</code> is not yet indexed. Please run the indexer first to enable R help support.", null));
 			}
-		}
-		if (!help.search(compiledQuery, requestor)) {
-			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					"An internal error occurend when performing R help search.", null));
 		}
 	}
 	
@@ -490,16 +507,18 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 				if (items[i] != null) {
 					final EnvItem item = items[i];
 					final IREnvConfiguration config = configurations[i];
+					REnvHelp oldHelp = null;
 					synchronized (item.helpLock) {
 						if (!((item.indexDir != null) ? 
 								item.indexDir.equals(config.getIndexDirectoryPath()) :
 								null == config.getIndexDirectoryPath() )) {
 							item.state = 0;
-							if (item.help != null) {
-								item.help.dispose();
-								item.help = null;
-							}
+							oldHelp = item.help;
+							item.help = null;
 						}
+					}
+					if (oldHelp != null) {
+						oldHelp.dispose();
 					}
 				}
 			}
@@ -518,22 +537,29 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 				fHelpIndexes.put(rEnvId, item);
 			}
 		}
-		synchronized (item.helpLock) {
-			if (item.state == RENV_DELETED) {
-				delete(rEnvId);
-				return false;
+		REnvHelp oldHelp = null;
+		try {
+			synchronized (item.helpLock) {
+				if (item.state == RENV_DELETED) {
+					oldHelp = help;
+					fSaveUtil.delete(rEnvId);
+					return false;
+				}
+				item.state = HELP_LOADED;
+				item.indexDir = rEnvConfig.getIndexDirectoryPath();
+				oldHelp = item.help;
+				item.help = help;
+				fSaveUtil.save(rEnvConfig, help);
+				if (rEnvConfig instanceof REnvConfiguration) {
+					((REnvConfiguration) rEnvConfig).updateSharedProperties(rEnvSharedProperties);
+				}
+				return true;
 			}
-			if (item.help != null) {
-				item.help.dispose();
+		}
+		finally {
+			if (oldHelp != null) {
+				oldHelp.dispose();
 			}
-			item.state = HELP_LOADED;
-			item.indexDir = rEnvConfig.getIndexDirectoryPath();
-			item.help = help;
-			fSaveUtil.save(rEnvConfig, help);
-			if (rEnvConfig instanceof REnvConfiguration) {
-				((REnvConfiguration) rEnvConfig).updateSharedProperties(rEnvSharedProperties);
-			}
-			return true;
 		}
 	}
 	
@@ -547,12 +573,16 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 					fHelpIndexes.put(id, item);
 				}
 			}
+			REnvHelp oldHelp = null;
 			synchronized (item.helpLock) {
 				item.state = RENV_DELETED;
-				if (item.help != null) {
-					item.help.dispose();
-				}
+				oldHelp = item.help;
 				item.help = null;
+			}
+			if (oldHelp != null) {
+				oldHelp.dispose();
+			}
+			synchronized (item.helpLock) {
 				fSaveUtil.delete(id);
 			}
 		}
@@ -648,6 +678,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 			synchronized (item.helpLock) {
 				switch (item.state) {
 				case HELP_LOADED:
+					item.help.lock();
 					return item.help;
 				case 0:
 					final IREnvConfiguration rEnvConfig = rEnv.getConfig();
@@ -657,6 +688,7 @@ public class RHelpManager implements IRHelpManager, SettingsChangeNotifier.Chang
 					}
 					if (item.help != null) {
 						item.state = HELP_LOADED;
+						item.help.lock();
 						return item.help;
 					}
 					else {

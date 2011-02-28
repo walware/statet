@@ -191,17 +191,6 @@ public class REnvIndexReader implements IREnvIndex {
 		}
 	}
 	
-	public static REnvIndexReader create(final IREnvConfiguration rEnvConfig) {
-		try {
-			return new REnvIndexReader(rEnvConfig);
-		}
-		catch (final Exception e) {
-			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					"An error occurred when initializing searcher for the R help index.", e));
-			return null;
-		}
-	}
-	
 	private static int getRank(final String o) {
 		if (o == PAGE_FIELD_NAME) {
 			return 1;
@@ -259,11 +248,11 @@ public class REnvIndexReader implements IREnvIndex {
 	}
 	
 	
-	private IndexReader fIndexReader;
+	private final IndexReader fIndexReader;
 	private Searcher fIndexSearcher;
 	
 	
-	private REnvIndexReader(final IREnvConfiguration rEnvConfig) throws Exception {
+	REnvIndexReader(final IREnvConfiguration rEnvConfig) throws Exception {
 		final FSDirectory directory = FSDirectory.open(SaveUtil.getIndexDirectory(rEnvConfig));
 		fIndexReader = IndexReader.open(directory, true);
 		fIndexSearcher = new IndexSearcher(fIndexReader);
@@ -311,7 +300,7 @@ public class REnvIndexReader implements IREnvIndex {
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"An error occurred in search: " + getPageForTopicDescription(packageHelp, topic), e));
-			return null;
+			throw new RuntimeException("R help index search error.");
 		}
 	}
 	
@@ -355,7 +344,7 @@ public class REnvIndexReader implements IREnvIndex {
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"An error occurred in search: " + getPagesForTopicDescription(topic), e));
-			return null;
+			throw new RuntimeException("R help index search error.");
 		}
 	}
 	
@@ -397,7 +386,7 @@ public class REnvIndexReader implements IREnvIndex {
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"An error occurred in search: " + getHtmlPageDescription(packageName, pageName) + ".", e));
-			return null;
+			throw new RuntimeException("R help index search error.");
 		}
 	}
 	
@@ -484,7 +473,7 @@ public class REnvIndexReader implements IREnvIndex {
 		catch (final Exception e) {
 			RCorePlugin.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"An error occurred in search: " + getPackageTopicsDescription(packageHelp.getName()) + ".", e));
-			return null;
+			throw new RuntimeException("R help index search error.");
 		}
 	}
 	

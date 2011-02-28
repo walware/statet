@@ -102,28 +102,33 @@ public class RHelpHover implements IInfoHover {
 		final IREnvHelp help = rHelpManager.getHelp(rEnv);
 		if (help != null) {
 			Object helpObject;
-			if (name.getType() == RElementName.MAIN_PACKAGE) {
-				helpObject = help.getRPackage(name.getSegmentName());
-			}
-			else {
-				final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
-				if (topics == null || topics.isEmpty()) {
-					return null;
-				}
-				if (topics.size() == 1) {
-					helpObject = topics.get(0);
+			try {
+				if (name.getType() == RElementName.MAIN_PACKAGE) {
+					helpObject = help.getRPackage(name.getSegmentName());
 				}
 				else {
-					final IRFrameInSource frame = RModel.searchFrame((RAstNode) selection.getCovering());
-					if (frame == null) {
+					final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
+					if (topics == null || topics.isEmpty()) {
 						return null;
 					}
-					helpObject = searchFrames(topics, RModel.createDirectFrameList(frame));
-					final ISourceUnit su = context.getSourceUnit();
-					if (helpObject == null && su instanceof IRSourceUnit) {
-						helpObject = searchFrames(topics, RModel.createProjectFrameList(null, (IRSourceUnit) su, null));
+					if (topics.size() == 1) {
+						helpObject = topics.get(0);
+					}
+					else {
+						final IRFrameInSource frame = RModel.searchFrame((RAstNode) selection.getCovering());
+						if (frame == null) {
+							return null;
+						}
+						helpObject = searchFrames(topics, RModel.createDirectFrameList(frame));
+						final ISourceUnit su = context.getSourceUnit();
+						if (helpObject == null && su instanceof IRSourceUnit) {
+							helpObject = searchFrames(topics, RModel.createProjectFrameList(null, (IRSourceUnit) su, null));
+						}
 					}
 				}
+			}
+			finally {
+				help.unlock();
 			}
 			if (Thread.interrupted() || helpObject == null) {
 				return null;

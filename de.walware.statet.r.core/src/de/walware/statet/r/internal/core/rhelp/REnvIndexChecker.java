@@ -49,6 +49,7 @@ public class REnvIndexChecker {
 	private Directory fIndexDirectory;
 	
 	private IREnvHelp fREnvHelp;
+	private boolean fREnvHelpLock;
 	
 	private boolean fInPackageCheck;
 	
@@ -110,14 +111,12 @@ public class REnvIndexChecker {
 			fNewChange = 1;
 		}
 		fREnvHelp = envHelp;
-		
-		final IREnvConfiguration config = fREnvConfig.getReference().getConfig();
-		if (!fREnvConfig.equals(config)) {
-			return false;
-		}
+		fREnvHelpLock = (fREnvHelp != null);
 		
 		try {
-			if (IndexWriter.isLocked(fIndexDirectory)) {
+			if (!fREnvConfig.equals(fREnvConfig.getReference().getConfig())
+					|| IndexWriter.isLocked(fIndexDirectory)) {
+				finalCheck();
 				return false;
 			}
 		}
@@ -177,6 +176,16 @@ public class REnvIndexChecker {
 		}
 		
 		fFoundPrevious.clear();
+		if (fREnvHelp != null) {
+			fREnvHelp.unlock();
+		}
+	}
+	
+	public void finalCheck() {
+		if (fREnvHelpLock) {
+			fREnvHelpLock = false;
+			fREnvHelp.unlock();
+		}
 	}
 	
 	

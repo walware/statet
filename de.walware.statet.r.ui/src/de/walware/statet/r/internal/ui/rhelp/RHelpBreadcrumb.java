@@ -122,7 +122,15 @@ public class RHelpBreadcrumb extends AbstractBreadcrumb {
 			}
 			if (element instanceof IREnv) {
 				final IREnvHelp help = fHelpManager.getHelp((IREnv) element);
-				return (help != null) ? help.getRPackages().toArray() : new Object[0];
+				if (help != null) {
+					try {
+						return help.getRPackages().toArray();
+					}
+					finally {
+						help.unlock();
+					}
+				}
+				return new Object[0];
 			}
 			if (element instanceof IRPackageHelp) {
 				return ((IRPackageHelp) element).getHelpPages().toArray();

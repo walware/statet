@@ -105,6 +105,9 @@ public class RJREnvIndexChecker {
 			fIndex.cancelCheck();
 			errorCause = e;
 		}
+		finally {
+			fIndex.finalCheck();
+		}
 		throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 				"An error occurred when checking the package data.", errorCause ));
 	}

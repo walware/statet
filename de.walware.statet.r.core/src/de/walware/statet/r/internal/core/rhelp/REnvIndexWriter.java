@@ -221,9 +221,10 @@ public class REnvIndexWriter implements IREnvIndex {
 						fLuceneWriter = new IndexWriter(fLuceneDirectory, WRITE_ANALYZER, maxFieldLength);
 						
 						final REnvHelp oldHelp = rHelpManager.getHelp(fREnvConfig.getReference());
-						fExistingPackages = new HashMap<String, IRPackageHelp>(64);
-						final IndexReader reader = IndexReader.open(fLuceneDirectory, true);
+						IndexReader reader = null;
 						try {
+							fExistingPackages = new HashMap<String, IRPackageHelp>(64);
+							reader = IndexReader.open(fLuceneDirectory, true);
 							final TermEnum terms = reader.terms(new Term(PACKAGE_FIELD_NAME));
 							do {
 								final Term term = terms.term();
@@ -237,7 +238,12 @@ public class REnvIndexWriter implements IREnvIndex {
 							while (terms.next());
 						}
 						finally {
-							reader.close();
+							if (oldHelp != null) {
+								oldHelp.unlock();
+							}
+							if (reader != null) {
+								reader.close();
+							}
 						}
 					}
 					catch (final CorruptIndexException e) {
@@ -437,20 +443,9 @@ public class REnvIndexWriter implements IREnvIndex {
 			fLuceneWriter.optimize();
 			
 			synchronized (fIndexLock) {
-				try {
-					fLuceneWriter.close();
-					
-					rHelpManager.updateHelp(fREnvConfig, fREnvSharedProperties, help);
-				}
-				catch (final IOException e) {
-					if (IndexWriter.isLocked(fLuceneDirectory)) {
-						IndexWriter.unlock(fLuceneDirectory);
-					}
-					throw e;
-				}
-				finally {
-					fLuceneWriter = null;
-				}
+				fLuceneWriter.close();
+				
+				rHelpManager.updateHelp(fREnvConfig, fREnvSharedProperties, help);
 			}
 			
 			if (status != null && status.getSeverity() >= IStatus.WARNING) {
@@ -639,31 +634,31 @@ public class REnvIndexWriter implements IREnvIndex {
 		if (fLuceneWriter == null) {
 			return null;
 		}
-		
-		final MultiStatus status = fStatus;
-		fStatus = null;
-		if (status != null) {
-			status.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, -1, "Canceling batch.", null)); //$NON-NLS-1$
-			RCorePlugin.log(status);
-		}
+		final MultiStatus status;
 		try {
-			fLuceneWriter.rollback();
-		}
-		catch (final Exception ignore) {}
-		try {
+			try {
+				fLuceneWriter.rollback();
+			}
+			catch (final Exception e) {
+				if (fStatus != null) {
+					fStatus.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Error when rolling back.", null)); //$NON-NLS-1$
+				}
+			}
+			
 			fLuceneWriter.close();
 		}
-		catch (final Exception e) {
-			try {
-				if (IndexWriter.isLocked(fLuceneDirectory)) {
-					IndexWriter.unlock(fLuceneDirectory);
-				}
-			} catch (final IOException ignore) {}
+		catch (final Exception close) {
 		}
 		finally {
 			clear();
+			
+			status = fStatus;
+			fStatus = null;
+			if (status != null) {
+				status.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, -1, "Canceling batch.", null)); //$NON-NLS-1$
+				RCorePlugin.log(status);
+			}
 		}
-		
 		if (status != null && status.getSeverity() >= IStatus.WARNING) {
 			return status;
 		}
@@ -671,6 +666,13 @@ public class REnvIndexWriter implements IREnvIndex {
 	}
 	
 	private void clear() {
+		if (fLuceneWriter != null) {
+			try {
+				if (IndexWriter.isLocked(fLuceneDirectory)) {
+					IndexWriter.unlock(fLuceneDirectory);
+				}
+			} catch (final Exception ignore) {}
+		}
 		fLuceneWriter = null;
 		fLuceneDirectory = null;
 		fCurrentPackage = null;

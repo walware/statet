@@ -74,7 +74,12 @@ public class RPackageHelp implements IRPackageHelp {
 	public IRPackageDescription getPackageDescription() {
 		final REnvHelp help = RCorePlugin.getDefault().getRHelpManager().getHelp(fREnv);
 		if (help != null) {
-			return help.getPackageDescription(this);
+			try {
+				return help.getPackageDescription(this);
+			}
+			finally {
+				help.unlock();
+			}
 		}
 		return null;
 	}

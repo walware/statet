@@ -409,7 +409,7 @@ public class RJREnvIndexUpdater {
 				final String libPathEsc = RUtil.escapeCompletely(libPath);
 				final String nameEsc = RUtil.escapeCompletely(pkgName);
 				try {
-					final RObject pkgObj = r.evalData(".statet.checkPkg(id="+i+"L,libPath=\""+libPathEsc+"\",name=\""+nameEsc+"\")", progress);
+					final RObject pkgObj = r.evalData("rj:::.statet.checkPkg(id="+i+"L,libPath=\""+libPathEsc+"\",name=\""+nameEsc+"\")", progress);
 					if (pkgObj.getRObjectType() != RObject.TYPE_LIST) {
 						throw new CoreException(new Status(IStatus.WARNING, RCore.PLUGIN_ID, -1,
 								"Package is skipped, because files are missing.", null));

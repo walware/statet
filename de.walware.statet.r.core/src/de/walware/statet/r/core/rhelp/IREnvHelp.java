@@ -26,8 +26,30 @@ public interface IREnvHelp {
 	List<IRPackageHelp> getRPackages();
 	IRPackageHelp getRPackage(String packageName);
 	
+	/**
+	 * Looks for the specified help page in the specified package.
+	 * 
+	 * @param packageName the name of the package
+	 * @param name the name of the page
+	 * @return the page if exists, otherwise <code>null</code>
+	 */
 	IRHelpPage getPage(String packageName, String name);
-	IRHelpPage getPageForTopic(String packageName, String topicName);
+	
+	/**
+	 * Looks for the help page for the specified topic in the specified package.
+	 * 
+	 * @param packageName the name of the package
+	 * @param topic the topic
+	 * @return the page if exists, otherwise <code>null</code> 
+	 */
+	IRHelpPage getPageForTopic(String packageName, String topic);
+	
+	/**
+	 * Looks for help pages for the specified topic in all packages.
+	 * 
+	 * @param topic the topic
+	 * @return list with all pages
+	 */
 	List<IRHelpPage> getPagesForTopic(String topic);
 	
 	String getHtmlPage(IRHelpPage page);
@@ -35,5 +57,6 @@ public interface IREnvHelp {
 	String getHtmlPage(String packageName, String pageName,
 			String queryString, String[] preTags, String[] postTags);
 	
+	void unlock();
 	
 }

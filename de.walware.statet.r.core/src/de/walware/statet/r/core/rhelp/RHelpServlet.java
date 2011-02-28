@@ -154,42 +154,51 @@ public abstract class RHelpServlet extends HttpServlet {
 	protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
 			throws ServletException, IOException {
 		final String path = req.getPathInfo();
-		if (path != null) {
-			if (path.endsWith("/R.css")) { //$NON-NLS-1$
-				processCss(req, resp);
-				return;
+		try {
+			if (path != null) {
+				if (path.endsWith("/R.css")) { //$NON-NLS-1$
+					processCss(req, resp);
+					return;
+				}
+				final ContentInfo info = RHelpWebapp.extractContent(path);
+				if (info != null) {
+					if (!checkREnv(req, resp, info.rEnvId)) {
+						return;
+					}
+					if (info.cat == null) {
+						printEnvIndex(req, resp);
+						return;
+					}
+					else if (info.cat == RHelpWebapp.CAT_LIBRARY) {
+						if (info.command == RHelpWebapp.COMMAND_IDX) {
+							processPackageIndex(req, resp, info.packageName);
+							return;
+						}
+						else if (info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
+							processHelpPage(req, resp, info.packageName, info.detail);
+							return;
+						}
+						else if (info.command == RHelpWebapp.COMMAND_HELP_TOPIC) {
+							processTopic(req, resp, info.packageName, info.detail);
+							return;
+						}
+					}
+					else if (info.cat == RHelpWebapp.CAT_DOC) {
+						processDoc(req, resp, info.detail);
+						return;
+					}
+					
+				}
 			}
-			final ContentInfo info = RHelpWebapp.extractContent(path);
-			if (info != null) {
-				if (!checkREnv(req, resp, info.rEnvId)) {
-					return;
-				}
-				if (info.cat == null) {
-					printEnvIndex(req, resp);
-					return;
-				}
-				else if (info.cat == RHelpWebapp.CAT_LIBRARY) {
-					if (info.command == RHelpWebapp.COMMAND_IDX) {
-						processPackageIndex(req, resp, info.packageName);
-						return;
-					}
-					else if (info.command == RHelpWebapp.COMMAND_HTML_PAGE) {
-						processHelpPage(req, resp, info.packageName, info.detail);
-						return;
-					}
-					else if (info.command == RHelpWebapp.COMMAND_HELP_TOPIC) {
-						processTopic(req, resp, info.packageName, info.detail);
-						return;
-					}
-				}
-				else if (info.cat == RHelpWebapp.CAT_DOC) {
-					processDoc(req, resp, info.detail);
-					return;
-				}
-				
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+		finally {
+			final IREnvHelp help = (IREnvHelp) req.getAttribute(ATTR_RENV_HELP);
+			if (help != null) {
+				help.unlock();
 			}
 		}
-		resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 	}
 	
 	private boolean checkREnv(final HttpServletRequest req, final HttpServletResponse resp,

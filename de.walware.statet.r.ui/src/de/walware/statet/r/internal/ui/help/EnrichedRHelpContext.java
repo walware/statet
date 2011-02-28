@@ -110,18 +110,22 @@ public class EnrichedRHelpContext implements IContext3 {
 	
 	public static class Provider implements IContextProvider {
 		
-		private IWorkbenchPart3 fPart;
-		private ISourceViewer fSourceViewer;
-		private Object fTarget;
-		private String fContextId;
+		private final IWorkbenchPart3 fPart;
+		private final ISourceViewer fSourceViewer;
+		private final Object fTarget;
+		private final String fContextId;
 		
 		public Provider(final IWorkbenchPart3 part, final String contextId) {
 			fTarget = fPart = part;
 			fContextId = contextId;
+			
+			fSourceViewer = null;
 		}
 		public Provider(final ISourceViewer sourceViewer, final String contextId) {
 			fTarget = fSourceViewer = sourceViewer;
 			fContextId = contextId;
+			
+			fPart = null;
 		}
 		
 		public int getContextChangeMask() {
@@ -145,8 +149,8 @@ public class EnrichedRHelpContext implements IContext3 {
 	
 	private static class RHelpResource implements IHelpResource {
 		
-		private String fLabel;
-		private String fUrl;
+		private final String fLabel;
+		private final String fUrl;
 		
 		public RHelpResource(final String label, final String url) {
 			fLabel = label;
@@ -172,11 +176,11 @@ public class EnrichedRHelpContext implements IContext3 {
 	}
 	
 	
-	private String fTitle;
-	private String fText;
+	private final String fTitle;
+	private final String fText;
 	private String fStyledText;
 	private IHelpResource[] fRelatedTopics;
-	private ICommandLink[] fRelatedCommands;
+	private final ICommandLink[] fRelatedCommands;
 	
 	
 	/**

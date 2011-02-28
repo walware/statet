@@ -368,27 +368,32 @@ public class RHelpView extends PageBookBrowserView
 				final IREnvHelp help = rHelpManager.getHelp(rEnv);
 				if (help != null) {
 					final String url;
-					if (name.getType() == RElementName.MAIN_PACKAGE) {
-						final IRPackageHelp packageHelp = help.getRPackage(name.getSegmentName());
-						if (packageHelp != null) {
-							url = rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
+					try {
+						if (name.getType() == RElementName.MAIN_PACKAGE) {
+							final IRPackageHelp packageHelp = help.getRPackage(name.getSegmentName());
+							if (packageHelp != null) {
+								url = rHelpManager.getPackageHttpUrl(packageHelp, RHelpUIServlet.BROWSE_TARGET);
+							}
+							else {
+								url = null;
+							}
 						}
 						else {
-							url = null;
+							final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
+							if (topics.size() == 1) {
+								url = rHelpManager.getPageHttpUrl(topics.get(0), RHelpUIServlet.BROWSE_TARGET);
+							}
+							else if (topics.size() > 1) {
+								url = rHelpManager.toHttpUrl("rhelp:///topic/"+name.getSegmentName(), rEnv,
+										RHelpUIServlet.BROWSE_TARGET);
+							}
+							else {
+								url = null;
+							}
 						}
 					}
-					else {
-						final List<IRHelpPage> topics = help.getPagesForTopic(name.getSegmentName());
-						if (topics.size() == 1) {
-							url = rHelpManager.getPageHttpUrl(topics.get(0), RHelpUIServlet.BROWSE_TARGET);
-						}
-						else if (topics.size() > 1) {
-							url = rHelpManager.toHttpUrl("rhelp:///topic/"+name.getSegmentName(), rEnv,
-									RHelpUIServlet.BROWSE_TARGET);
-						}
-						else {
-							url = null;
-						}
+					finally {
+						help.unlock();
 					}
 					if (url != null) {
 						UIAccess.getDisplay().asyncExec(new Runnable() {
