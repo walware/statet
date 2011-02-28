@@ -21,6 +21,8 @@ import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
+import de.walware.statet.r.internal.core.RCorePlugin;
+
 
 public class JettyServer {
 	
@@ -28,16 +30,26 @@ public class JettyServer {
 	private static final String WEBAPP_NAME = "rhelp"; //$NON-NLS-1$
 	private static final String OTHER_INFO = "de.walware.statet.r.rhelp"; //$NON-NLS-1$
 	
+	private static final String LOCALHOST = "127.0.0.1"; //$NON-NLS-1$
+	
 	
 	private String fHost;
 	private int fPort;
 	
 	
 	public JettyServer() {
-		fHost = "127.0.0.1"; //$NON-NLS-1$
+		fHost = loadHost();
 		fPort = -1;
 	}
 	
+	
+	protected String loadHost() {
+		String serverProperty = RCorePlugin.getDefault().getBundle().getBundleContext().getProperty("server_host"); //$NON-NLS-1$
+		if (serverProperty != null && (serverProperty = serverProperty.trim()).length() > 0) {
+			return serverProperty;
+		}
+		return LOCALHOST;
+	}
 	
 	public void startServer() throws Exception {
 		final Bundle bundle = Platform.getBundle("org.eclipse.equinox.http.registry"); //$NON-NLS-1$
@@ -46,7 +58,8 @@ public class JettyServer {
 		}
 		
 		final Dictionary<String, Object> dict = new Hashtable<String, Object>();
-		dict.put("http.port", Integer.valueOf(0)); //$NON-NLS-1$
+		dict.put("http.host", fHost);
+		dict.put("http.port", Integer.valueOf((fPort == -1) ? 0 : fPort)); //$NON-NLS-1$
 		
 		// set the base URL
 		dict.put("context.path", "/rhelp"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -60,15 +73,18 @@ public class JettyServer {
 		if (bundle.getState() == Bundle.RESOLVED) {
 			bundle.start(Bundle.START_TRANSIENT);
 		}
-		// Jetty selected a port number for us
-		final ServiceReference[] reference = bundle.getBundleContext().getServiceReferences(
-				"org.osgi.service.http.HttpService", "(other.info=de.walware.statet.r.rhelp)"); //$NON-NLS-1$ //$NON-NLS-2$
-		final Object assignedPort = reference[0].getProperty("http.port"); //$NON-NLS-1$
-		fPort = Integer.parseInt((String)assignedPort);
+		if (fPort == -1) {
+			// Jetty selected a port number for us
+			final ServiceReference[] reference = bundle.getBundleContext().getServiceReferences(
+					"org.osgi.service.http.HttpService", "(other.info="+OTHER_INFO+")"); //$NON-NLS-1$ //$NON-NLS-2$
+			final Object assignedPort = reference[0].getProperty("http.port"); //$NON-NLS-1$
+			fPort = Integer.parseInt((String)assignedPort);
+		}
 	}
 	
 	public void stopServer() throws Exception {
 		JettyConfigurator.stopServer(WEBAPP_NAME);
+		fPort = -1;
 	}
 	
 	public String getHost() {
