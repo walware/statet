@@ -106,7 +106,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		public void changed(final int event, final ToolProcess process) {
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) adapter;
 			try {
 				if (!RDataUtil.checkSingleLogiValue(r.evalData("\"rj\" %in% installed.packages()[,\"Package\"]", monitor))) { //$NON-NLS-1$

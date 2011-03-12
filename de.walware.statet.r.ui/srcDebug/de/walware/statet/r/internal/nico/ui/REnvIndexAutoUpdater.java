@@ -85,8 +85,7 @@ public class REnvIndexAutoUpdater {
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
-				final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) adapter;
 			IREnvConfiguration rEnvConfig = (IREnvConfiguration) r.getProcess().getAdapter(IREnvConfiguration.class);
 			if (rEnvConfig != null) {
@@ -208,8 +207,8 @@ public class REnvIndexAutoUpdater {
 		public void changed(final int event, final ToolProcess process) {
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final RjsController r = (RjsController) adapter;
 			if (r.isBusy() || !r.isDefaultPrompt() || r.getBriefedChanges() == 0) {
 				return;

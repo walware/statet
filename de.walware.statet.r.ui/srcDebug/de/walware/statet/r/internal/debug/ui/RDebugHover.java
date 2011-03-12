@@ -90,7 +90,8 @@ public class RDebugHover implements IInfoHover {
 			}
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			try {
 				final IRDataAdapter r = (IRDataAdapter) adapter;
 				if (fCancelled || monitor.isCanceled()) {

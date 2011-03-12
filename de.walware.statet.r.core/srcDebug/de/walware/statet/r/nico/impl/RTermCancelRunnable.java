@@ -57,7 +57,8 @@ class RTermCancelRunnable implements IToolRunnable {
 	public void changed(final int event, final ToolProcess process) {
 	}
 	
-	public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	public void run(final IToolRunnableControllerAdapter adapter,
+			final IProgressMonitor monitor) throws CoreException {
 		final URL dir = RCorePlugin.getDefault().getBundle().getEntry("/win32/SendSignal.exe"); //$NON-NLS-1$
 		try {
 			monitor.beginTask(RNicoMessages.RTerm_CancelTask_SendSignal_label, 10);

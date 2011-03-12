@@ -151,8 +151,8 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			}
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final IRBasicAdapter r = (IRBasicAdapter) adapter;
 			fOutput = new StringBuilder(200);
 			final IStreamListener listener = new IStreamListener() {

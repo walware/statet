@@ -70,10 +70,9 @@ public interface IToolRunnable {
 	 * 
 	 * @param adapter your interface to the tool
 	 * @param monitor a progress monitor (you can check for cancel)
-	 * @throws InterruptedException if action was cancelled
-	 * @throws CoreException if error occured
+	 * @throws CoreException if an error occurred or the runnable was canceled
 	 */
-	public void run(IToolRunnableControllerAdapter adapter, IProgressMonitor monitor)
-			throws InterruptedException, CoreException;
+	public void run(IToolRunnableControllerAdapter adapter,
+			IProgressMonitor monitor) throws CoreException;
 	
 }

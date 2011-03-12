@@ -314,7 +314,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		public void changed(final int event, final ToolProcess process) {
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final ToolProcess process = adapter.getProcess();
 			synchronized (fProcessLock) {
 				if (process != fProcess) {
@@ -667,8 +668,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 						}
 						public void changed(final int event, final ToolProcess process) {
 						}
-						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
-								throws InterruptedException, CoreException {
+						public void run(final IToolRunnableControllerAdapter adapter,
+								final IProgressMonitor monitor) throws CoreException {
 							final IRDataAdapter r = (IRDataAdapter) adapter;
 							try {
 								for (int i = 0; i < names.size(); i++) {

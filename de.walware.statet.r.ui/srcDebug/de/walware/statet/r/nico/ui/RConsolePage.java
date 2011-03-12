@@ -106,8 +106,8 @@ public class RConsolePage extends NIConsolePage {
 			return RNicoMessages.AdjustWidth_task;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter tools, final IProgressMonitor monitor) 
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			final AtomicInteger width = new AtomicInteger(-1);
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
@@ -128,7 +128,7 @@ public class RConsolePage extends NIConsolePage {
 				if (setWidth < 10) {
 					setWidth = 10;
 				}
-				tools.submitToConsole("options(width = "+setWidth+")", monitor); //$NON-NLS-1$ //$NON-NLS-2$
+				adapter.submitToConsole("options(width = "+setWidth+")", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		

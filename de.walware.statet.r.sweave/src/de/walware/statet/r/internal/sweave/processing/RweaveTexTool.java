@@ -131,12 +131,12 @@ class RweaveTexTool implements Runnable, IProcess {
 			return "r/sweave/commands"; //$NON-NLS-1$
 		}
 		
-		public void run(final IToolRunnableControllerAdapter r, final IProgressMonitor monitor)
-				throws InterruptedException, CoreException {
+		public void run(final IToolRunnableControllerAdapter adapter,
+				final IProgressMonitor monitor) throws CoreException {
 			try {
-				final ToolWorkspace workspace = r.getWorkspaceData();
-				r.refreshWorkspaceData(0, monitor);
-				updatePathInformations(r.getWorkspaceData());
+				final ToolWorkspace workspace = adapter.getWorkspaceData();
+				adapter.refreshWorkspaceData(0, monitor);
+				updatePathInformations(adapter.getWorkspaceData());
 				if (fStatus.getSeverity() >= IStatus.ERROR) {
 					return;
 				}
@@ -168,10 +168,10 @@ class RweaveTexTool implements Runnable, IProcess {
 						}
 						final String[] commands = RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveRCommands.getText());
 						for (int i = 0; i < commands.length; i++) {
-							r.submitToConsole(commands[i], monitor);
+							adapter.submitToConsole(commands[i], monitor);
 						}
-						if (r instanceof IRequireSynch) {
-							((IRequireSynch) r).synch(monitor);
+						if (adapter instanceof IRequireSynch) {
+							((IRequireSynch) adapter).synch(monitor);
 						}
 					}
 					
@@ -207,11 +207,11 @@ class RweaveTexTool implements Runnable, IProcess {
 						final String[] commands = RUtil.LINE_SEPARATOR_PATTERN.split(fTexRCommands.getText());
 						try {
 							for (int i = 0; i < commands.length; i++) {
-								r.submitToConsole(commands[i], monitor);
+								adapter.submitToConsole(commands[i], monitor);
 								progress.setWorkRemaining(90-80/commands.length*(i+1));
 							}
-							if (r instanceof IRequireSynch) {
-								((IRequireSynch) r).synch(monitor);
+							if (adapter instanceof IRequireSynch) {
+								((IRequireSynch) adapter).synch(monitor);
 							}
 						}
 						finally {

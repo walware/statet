@@ -61,8 +61,8 @@ public class ChangeWDRunnable implements IToolRunnable {
 		return SubmitType.TOOLS;
 	}
 	
-	public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor)
-			throws InterruptedException, CoreException {
+	public void run(final IToolRunnableControllerAdapter adapter,
+			final IProgressMonitor monitor) throws CoreException {
 		final IRBasicAdapter r = (IRBasicAdapter) adapter;
 		try {
 			final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
