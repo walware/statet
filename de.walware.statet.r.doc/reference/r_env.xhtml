@@ -55,6 +55,13 @@ manually, for instance to add additional R library locations.</p>
 The R home directory, installation locations and R libraries for remote R environments are defined
 by the server running on the remote system. Therefore most options of the local R environments 
 configurations are not available for remote environments.</p>
+<p>
+The 'index directory' specifies the directory containing the index of the R environment (e.g. for
+the R help).  This allows to share the index among several clients, if they use a consistent R
+environment on the server.  The directory must be accessible by the specified path from the local 
+system.  If the field is empty, the directory is selected automatically like for local R environment
+configurations.
+</p>
 
 </body>
 </html>

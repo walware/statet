@@ -14,6 +14,8 @@
 <!-- StatET NICO topics                                                            -->
 <!-- ============================================================================= -->
 <toc label="StatET Console User Guide" link_to="toc.xml#common_tools">
+   <topic href="reference/console_view.xhtml" label="Console View">
+   </topic>
    <topic href="reference/cmd_history.xhtml" label="Cmd History View">
    </topic>
 </toc>

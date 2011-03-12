@@ -16,6 +16,8 @@
 <toc label="StatET for R User Guide" 
       link_to="toc.xml#main_languages">
    <topic href="reference/r_env.xhtml" label="R Environments">
+      <topic href="reference/r_env-index.xhtml" label="Index">
+      </topic>
    </topic>
    <topic href="reference/r_editor.xhtml" label="R Script Editor">
       <topic href="reference/r_editor-highlighting.xhtml" label="Highlighting">
@@ -29,7 +31,7 @@
       <topic href="reference/r_editor-codesubmit.xhtml" label="Submit Actions">
       </topic>
    </topic>
-   <topic label="R Console">
+   <topic href="reference/r_console.xhtml" label="R Console">
       <topic href="reference/r_console-launch.xhtml" label="Launching">
       </topic>
       <topic href="reference/r_console-page.xhtml" label="The Console">
@@ -43,7 +45,7 @@
    </topic>
    <topic href="reference/r_cmd-tools.xhtml" label="R CMD Tools">
    </topic>
-   <topic label="R Help">
+   <topic href="reference/r_help.xhtml" label="R Help">
       <topic href="reference/r_help-search.xhtml" label="Search">
       </topic>
    </topic>

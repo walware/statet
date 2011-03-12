@@ -10,6 +10,7 @@ h2 {
 }
 h3 {
 	margin-top: 0.4em;
+	padding-top: 0.4em;
 }
 h2 img, h4 img { /* Icon */
 	vertical-align: top;
@@ -43,12 +44,26 @@ table.style1 td, table.style1 th {
 }
 table.style1 th {
 	border-top: 2px solid black;
+	font-weight: normal;
+	font-style: italic;
+	letter-spacing: 0.1em;
+}
+table.style1 thead th {
+	border-bottom: 2px solid black;
+	vertical-align: text-bottom;
+	font-size: 75%;
+	font-weight: bold;
+	font-style: normal;
+	letter-spacing: normal;
 }
 sup {
 	font-size: 75%;
 }
 .uisequence {
 	font-family: monospace;
+}
+.uilabel {
+	font-style: italic;
 }
 .indent {
 	display: block;

@@ -16,7 +16,8 @@
 <p>Before being able to use an R Remote Console, it is necessary to configure one.</p>
 <p>To configure a console, navigate to 
 <span class="uisequence indent">Run &gt; Run Configurations...</span>
-and created a new configuration of type 'R Remote Console' if not yet done.</p>
+and created a new configuration of type <span class="uilabel">R Remote Console</span> if not yet 
+done.</p>
 
 <p>The user is invited to assign a name to the particular configuration and
 adjust the relevant settings in the tabs of the configuration window.  
@@ -32,45 +33,45 @@ To initialize a new R engine, you need at least one configuration of the type:</
 <li><b>RJ - Start over SSH:</b> This connection type allows to start the R engine over a SSH connection automatically.</li>
 </ul>
 
-<p>The third connection type <b>RJ - Quick Reconnect:</b> doesn't allow to initialize an new R engine
+<p>The third connection type <b>RJ - Quick Reconnect:</b> doesn´t allow to initialize an new R engine
 but allows to reconnect quickly to a running R engine in the network.  In contrast to the other 
-connection types, which can used for reconnection too, you don't need to specify the address in the
+connection types, which can used for reconnection too, you don´t need to specify the address in the
 launch configuration explicitly.  It shows a dialog to browse the running R engines on the entered servers.  
 A launch configuration of this type can be used optionally if
 one use often several R sessions.</p>
 
 <h4>Connection settings</h4>
-<p>The <b>'Address'</b> for an R engine has the form:
+<p>The <b class="uilabel">Address</b> for an R engine has the form:
 <code class="indent">//host[:port]//rsessionname</code>
 The host system is specified by its name or IP address.  The port is the TCP/UDP port of the
 RMI registry and can be omitted if the default port 1099 is used.  The 
 <code class="indent">rsessionname</code> can be chosen freely but must be a unique
 name in the registry.</p>
-<p>The 'Browse...' button opens a dialog showing all R engines available on the specified servers
-in your network similar to the reconnect dialog.</p>
+<p>The <span class="uilabel">Browse...</span> button opens a dialog showing all R engines available 
+on the specified servers in your network similar to the reconnect dialog.</p>
 
-<p>The <b>'Username'</b> is used when connecting requires authentication. This depends
+<p>The <b class="uilabel">Username</b> is used when connecting requires authentication. This depends
 on the configuration of the server.  See the startup script of the server for detail about the
 available methods.</p>
 
-<p>For <b>SSH connection</b>: The 'SSH Port' is the TCP/UDP port of SSH server on the remote
-system (default is 22).  The host of the address, the username and the SSH port defines the
-SSH address used to connect to the SSH server.</p>
+<p>For <b>SSH connection</b>: The <span class="uilabel">SSH Port</span> is the TCP/UDP port of SSH 
+server on the remote system (default is 22).  The host of the address, the username and the SSH 
+port defines the SSH address used to connect to the SSH server.</p>
 
-<p>The 'Remote Command' is run through the SSH connection to start the R server on the remote
-system.  It must point to a startup script like <code>startup.sh</code> provided by the server
-bundle.  Adjust the path, if required.</p>
+<p>The <span class="uilabel">Remote Command</span> is run through the SSH connection to start the 
+R server on the remote system.  It must point to a startup script like <code>startup.sh</code> 
+provided by the server bundle.  Adjust the path, if required.</p>
 
 <h4>R Options</h4>
 <p>The R options let you configure the initial R working directory and the R start-up options.  
-The working directory must be specified as local folder which is mapped to an remote
-folder (see 'Folder Mapping' preferences).</p>
+The working directory must be specified as local folder which is mapped to an <a href="r_remote_console-resourcemapping.xhtml"
+>remote folder</a>.</p>
 
 <h2>Console View</h2>
 <p>The console view for the remote R engine has additional commands to:</p>
 <ul>
-<li>Disconnect from the active R session. The current evaluation in R is not interrupted.</li>
-<li>Reconnect directly to the disconnected R session.</li>
+	<li>Disconnect from the active R session. The current evaluation in R is not interrupted.</li>
+	<li>Reconnect directly to the disconnected R session.</li>
 </ul>
 <p>The commands are all accessible in the view menu of the remote console too.</p>
 

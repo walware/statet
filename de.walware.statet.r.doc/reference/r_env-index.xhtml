@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Environment Index</title>
+	<meta name="copyright" content="Copyright (c) 2010-2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1>R Environment Index</h1>
+
+<p>The index is required for the R help integrated in StatET.</p>
+
+<h2>Indexing of R Environments</h2>
+
+<p>An R environment is indexed within the R console in StatET.  The R environment used to start
+the R console is also used for all other operations, which are associated with R environments, 
+including the indexing operations.  Therefore, to index an environment, the user has to start
+an R console (local or remote) for this R environment.</p>
+
+<h3>Preferences / Automatic Modes</h3>
+
+<p>The preference page of the R environments at
+<span class="uisequence indent">StatET &gt; Run/Debug &gt; R Environments</span>
+offers in the lower part an option to configure globally the automatic indexing of R environments.</p>
+
+<img alt="Screenshot R Environments preference page" src="../images/screenshot_r_environments.png"/>
+
+<p>The user can select between three modes:</p>
+<ul>
+<li><b>Check and Update Automatically</b>: StatET automatically checks if new packages are installed or 
+indexed packages are updated (based on the version number).  When it detects changes, the index for 
+the concerned packages is updated.  The user is notified about the start and the success of the 
+update.</li>
+<li><b>Check Automatically and Ask</b>: Like the previous mode, but if changes are detected, StatET 
+asks the user before it starts the update, if the indexing operations should be performed or if 
+the user wants to postpone the update.</li>
+<li><b>Manual</b>: StatET does never check if the index is created or up-to-date.  The user must 
+use the commands below to manage the R environment indexes.</li>
+</ul>
+
+<h3>Manual Operations / Commands</h3>
+
+<p>It is possible to manually update the R environment index of the current R console on demand.</p>
+
+<table class="style1">
+<thead><tr>
+	<th></th>
+	<th>Name</th>
+	<th>Description</th>
+	<th>Availability</th>
+</tr></thead>
+<tr><th colspan="4">
+		<p>The commands are accessible in the submenu <span class="uisequence">R environment</span> 
+		in the menu of the Console view.</p></th></tr>
+<tr>
+	<td></td>
+	<td>Index completely</td>
+	<td><p>This action discards the current R environment index if available, and newly indexes 
+	it completely.</p></td>
+	<td>View Menu</td>
+</tr>
+<tr>
+	<td></td>
+	<td>Index changes</td>
+	<td><p>If the user triggers this action, StatET indexes only the changes of the R environment,
+	like in the automatic mode described above.</p></td>
+	<td>View Menu</td>
+</tr>
+
+</table>
+
+</body>
+</html>
