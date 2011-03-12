@@ -81,7 +81,6 @@ import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ltk.ui.sourceediting.ITextEditToolSynchronizer;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfiguration;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectionHistory;
 import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectionHistoryBackHandler;
@@ -90,6 +89,7 @@ import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextViewerAction;
+import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -576,7 +576,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			docuSetup.setup(fDocument.getMasterDocument());
 		}
 		
-		new SourceViewerJFaceUpdater(fSourceViewer, configuration);
+		new TextViewerJFaceUpdater(fSourceViewer, configuration.getPreferences());
 		
 		final AnnotationModel annotationModel = new AnnotationModel();
 		// annotationModel.setLockObject(fDocument.getLockObject());

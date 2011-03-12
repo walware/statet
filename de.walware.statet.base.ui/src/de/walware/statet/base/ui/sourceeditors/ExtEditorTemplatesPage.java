@@ -35,11 +35,11 @@ import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.ltk.ui.sourceediting.TemplateProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -57,7 +57,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 	private final TemplateVariableProcessor fEditTemplateProcessor;
 	
 	private SourceEditorViewerConfigurator fCurrentPreviewConfigurator;
-	private SourceViewerJFaceUpdater fCurrentPreviewUpdater;
+	private TextViewerJFaceUpdater fCurrentPreviewUpdater;
 	
 	
 	protected ExtEditorTemplatesPage(final SourceEditor1 editor, final ISourceViewer viewer) {
@@ -149,8 +149,8 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 				
 				fCurrentPreviewConfigurator = configurator;
 				fCurrentPreviewConfigurator.setTarget(fPreviewEditor);
-				fCurrentPreviewUpdater = new SourceViewerJFaceUpdater(patternViewer,
-						fCurrentPreviewConfigurator.getSourceViewerConfiguration());
+				fCurrentPreviewUpdater = new TextViewerJFaceUpdater(patternViewer,
+						fCurrentPreviewConfigurator.getSourceViewerConfiguration().getPreferences() );
 				
 				final AbstractDocument document = new Document();
 				fCurrentPreviewConfigurator.getDocumentSetupParticipant().setup(document);

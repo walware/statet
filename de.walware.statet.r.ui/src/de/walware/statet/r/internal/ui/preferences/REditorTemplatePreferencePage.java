@@ -26,11 +26,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.text.Partitioner;
+import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
@@ -83,8 +83,8 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		fViewerConfigurator.setTarget(adapter);
 		// updater
 		new SettingsUpdater(fViewerConfigurator, viewer.getControl());
-		new SourceViewerJFaceUpdater(viewer, 
-				fViewerConfigurator.getSourceViewerConfiguration());
+		new TextViewerJFaceUpdater(viewer, 
+				fViewerConfigurator.getSourceViewerConfiguration().getPreferences() );
 		
 		final IDocument document = new Document();
 		fViewerConfigurator.getDocumentSetupParticipant().setup(document);

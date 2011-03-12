@@ -58,12 +58,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
-import de.walware.ecommons.ltk.ui.sourceediting.SourceViewerJFaceUpdater;
 import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.ltk.ui.templates.EditTemplateDialog;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionsGroup.CategorizedItem;
@@ -173,7 +173,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 	protected Group fGroup;
 	private SourceViewer fPatternViewer;
 	private int fPatternViewerConfiguredCategory = -1;
-	private SourceViewerJFaceUpdater fPatternViewerUpdater = null;
+	private TextViewerJFaceUpdater fPatternViewerUpdater = null;
 	private SourceEditorViewerConfigurator fPatternConfigurator;
 	private ISourceEditor fPatternEditor;
 	
@@ -335,7 +335,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 				
 				fPatternConfigurator = category.getEditTemplateDialogConfiguator(fPatternTemplateProcessor, fProject);
 				fPatternConfigurator.setTarget(fPatternEditor);
-				fPatternViewerUpdater = new SourceViewerJFaceUpdater(fPatternViewer, fPatternConfigurator.getSourceViewerConfiguration());
+				fPatternViewerUpdater = new TextViewerJFaceUpdater(fPatternViewer,
+						fPatternConfigurator.getSourceViewerConfiguration().getPreferences() );
 				
 				final IDocument document = new Document(template.getPattern());
 				fPatternConfigurator.getDocumentSetupParticipant().setup(document);
