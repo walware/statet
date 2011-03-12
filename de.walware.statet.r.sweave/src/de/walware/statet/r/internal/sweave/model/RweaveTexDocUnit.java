@@ -20,12 +20,13 @@ import de.walware.ecommons.ltk.IModelManager;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
-import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.sweave.Sweave;
 
 
-public class RweaveTexDocUnit extends GenericResourceSourceUnit implements IRSourceUnit {
+public class RweaveTexDocUnit extends GenericResourceSourceUnit 
+		implements IRWorkspaceSourceUnit {
 	
 	
 	public RweaveTexDocUnit(final String id, final IFile file) {
@@ -39,11 +40,9 @@ public class RweaveTexDocUnit extends GenericResourceSourceUnit implements IRSou
 	
 	
 	public IRCoreAccess getRCoreAccess() {
-		if (getFile() != null) {
-			final RProject project = RProject.getRProject(getFile().getProject());
-			if (project != null) {
-				return project;
-			}
+		final RProject project = RProject.getRProject(getResource().getProject());
+		if (project != null) {
+			return project;
 		}
 		return RCore.getWorkbenchAccess();
 	}

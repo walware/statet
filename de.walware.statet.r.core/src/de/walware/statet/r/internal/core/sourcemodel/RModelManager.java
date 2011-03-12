@@ -34,7 +34,6 @@ import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.core.model.RManagedWorkingCopy;
 import de.walware.statet.r.core.model.RModel;
 
 
@@ -86,8 +85,8 @@ public class RModelManager implements IRModelManager {
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
 			for (final ISourceUnit su : fList) {
-				if (su instanceof RManagedWorkingCopy) {
-					fReconciler.reconcile((RManagedWorkingCopy) su, IModelManager.MODEL_FILE, true, monitor);
+				if (su instanceof IManagableRUnit) {
+					fReconciler.reconcile((IManagableRUnit) su, IModelManager.MODEL_FILE, true, monitor);
 				}
 			}
 			return Status.OK_STATUS;

@@ -35,7 +35,6 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 
 import de.walware.ecommons.ltk.ISourceStructElement;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.LTKUtil;
 import de.walware.ecommons.ltk.ast.IAstNode;
@@ -54,6 +53,7 @@ import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rlang.RTerminal;
@@ -117,12 +117,12 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	
 	
 	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
-	private RefactoringElementSet fElementSet;
+	private final RefactoringElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private final ISourceUnit fSourceUnit;
+	private final IRSourceUnit fSourceUnit;
 	private IRMethod fFunction;
 	
 //	private RAstNode fContainer;
@@ -136,7 +136,7 @@ public class FunctionToS4MethodRefactoring extends Refactoring {
 	 * @param unit the source unit
 	 * @param region (selected) region of the function to convert
 	 */
-	public FunctionToS4MethodRefactoring(final ISourceUnit su, final IRegion selection) {
+	public FunctionToS4MethodRefactoring(final IRSourceUnit su, final IRegion selection) {
 		fSourceUnit = su;
 		fElementSet = new RefactoringElementSet(new Object[] { su });
 		

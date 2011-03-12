@@ -32,6 +32,7 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.ui.OpenFileHyperlink;
 
@@ -90,19 +91,17 @@ public class RFileHyperlinkDetector extends AbstractHyperlinkDetector {
 				final Object adapter = getAdapter(ISourceEditor.class);
 				if (adapter instanceof ISourceEditor) {
 					final ISourceUnit su = ((ISourceEditor) adapter).getSourceUnit();
-					if (su != null) {
-						final IResource resource = su.getResource();
-						if (resource != null) {
-							final IProject project = resource.getProject();
-							if (project != null) {
-								final RProject rProject = RProject.getRProject(project);
-								if (rProject != null) {
-									relativeBase = rProject.getBaseContainer();
-								}
+					if (su instanceof IWorkspaceSourceUnit) {
+						final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
+						final IProject project = resource.getProject();
+						if (project != null) {
+							final RProject rProject = RProject.getRProject(project);
+							if (rProject != null) {
+								relativeBase = rProject.getBaseContainer();
 							}
-							if (relativeBase == null) {
-								relativeBase = resource.getParent();
-							}
+						}
+						if (relativeBase == null) {
+							relativeBase = resource.getParent();
 						}
 					}
 				}

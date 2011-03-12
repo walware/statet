@@ -15,7 +15,9 @@ import org.eclipse.core.filesystem.IFileStore;
 
 import de.walware.ecommons.ltk.AbstractEditorSourceUnitFactory;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.internal.sweave.model.RweaveTexEditorWorkingCopy;
 
 
@@ -27,8 +29,8 @@ public final class RweaveTexEditorUnitFactory extends AbstractEditorSourceUnitFa
 	
 	
 	@Override
-	protected ISourceUnit createSourceUnit(final String id, final ISourceUnit su) {
-		return new RweaveTexEditorWorkingCopy(su);
+	protected ISourceUnit createSourceUnit(final String id, final IWorkspaceSourceUnit su) {
+		return new RweaveTexEditorWorkingCopy((IRWorkspaceSourceUnit) su);
 	}
 	
 	@Override

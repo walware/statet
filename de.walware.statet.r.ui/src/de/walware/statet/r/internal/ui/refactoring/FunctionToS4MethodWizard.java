@@ -68,7 +68,7 @@ public class FunctionToS4MethodWizard extends RefactoringWizard {
 		
 		private static class TypeEditing extends EditingSupport {
 			
-			private TextCellEditor fCellEditor;
+			private final TextCellEditor fCellEditor;
 			
 			public TypeEditing(final ColumnViewer viewer) {
 				super(viewer);

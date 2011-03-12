@@ -25,6 +25,7 @@ import de.walware.ecommons.ltk.ui.refactoring.RefactoringWizardExecutionHelper;
 import de.walware.ecommons.ltk.ui.util.LTKSelectionUtil;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.refactoring.InlineTempRefactoring;
 
 
@@ -42,13 +43,14 @@ public class InlineTempHandler extends AbstractHandler {
 			return null;
 		}
 		final ISourceUnit su = LTKSelectionUtil.getSingleSourceUnit(activePart);
-		if (su == null) {
+		if (!(su instanceof IRSourceUnit)) {
 			return null;
 		}
 		InlineTempRefactoring refactoring = null;
 		if (selection instanceof ITextSelection) {
 			final ITextSelection textSelection = (ITextSelection) selection;
-			refactoring = new InlineTempRefactoring(su, new Region(textSelection.getOffset(), textSelection.getLength()));
+			refactoring = new InlineTempRefactoring((IRSourceUnit) su,
+					new Region(textSelection.getOffset(), textSelection.getLength()) );
 		}
 		if (refactoring != null) {
 			final RefactoringWizardExecutionHelper executionHelper = new RefactoringWizardExecutionHelper(

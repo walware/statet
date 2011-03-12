@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -25,6 +26,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
@@ -81,6 +83,9 @@ public class RBuildReconciler extends RReconciler {
 	 * @throws CoreException
 	 **/
 	public Result build(final IManagableRUnit su, final IProgressMonitor monitor) {
+		if (!(su instanceof IWorkspaceSourceUnit)) {
+			return null;
+		}
 		final int type = (su.getModelTypeId().equals(RModel.TYPE_ID) ? su.getElementType() : 0);
 		if (type == 0) {
 			return null;
@@ -113,7 +118,7 @@ public class RBuildReconciler extends RReconciler {
 //			problemRequestor.beginReportingSequence();
 			try {
 				final List<RAstNode> comments = data.ast.root.getComments();
-				fTaskScanner.setup(su.getResource());
+				fTaskScanner.setup((IResource) su.getResource());
 				for (final RAstNode comment : comments) {
 						final int offset = comment.getOffset()+1;
 						fTaskScanner.checkForTasks(data.content.text.substring(offset, offset+comment.getLength()-1),

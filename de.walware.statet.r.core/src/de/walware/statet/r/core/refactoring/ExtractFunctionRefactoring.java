@@ -38,7 +38,6 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
@@ -55,6 +54,7 @@ import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -73,8 +73,8 @@ public class ExtractFunctionRefactoring extends Refactoring {
 	
 	private class VariableSearcher extends GenericVisitor {
 		
-		private int fStart = fOperationRegion.getOffset();
-		private int fStop = fOperationRegion.getOffset()+fOperationRegion.getLength();
+		private final int fStart = fOperationRegion.getOffset();
+		private final int fStop = fOperationRegion.getOffset()+fOperationRegion.getLength();
 		
 		@Override
 		public void visitNode(final RAstNode node) throws InvocationTargetException {
@@ -166,12 +166,12 @@ public class ExtractFunctionRefactoring extends Refactoring {
 	
 	
 	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
-	private RefactoringElementSet fElementSet;
+	private final RefactoringElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private final ISourceUnit fSourceUnit;
+	private final IRSourceUnit fSourceUnit;
 	private RAstNode[] fExpressions;
 	
 //	private RAstNode fContainer;
@@ -185,7 +185,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 	 * @param unit the source unit
 	 * @param region (selected) region of the statements to extract
 	 */
-	public ExtractFunctionRefactoring(final ISourceUnit su, final IRegion selection) {
+	public ExtractFunctionRefactoring(final IRSourceUnit su, final IRegion selection) {
 		fSourceUnit = su;
 		fElementSet = new RefactoringElementSet(new Object[] { su });
 		

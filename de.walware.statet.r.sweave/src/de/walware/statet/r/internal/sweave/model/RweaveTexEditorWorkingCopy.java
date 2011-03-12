@@ -11,43 +11,32 @@
 
 package de.walware.statet.r.internal.sweave.model;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.IWorkingBuffer;
-import de.walware.ecommons.ltk.LTK;
-import de.walware.ecommons.ltk.SourceDocumentRunnable;
-import de.walware.ecommons.ltk.WorkingContext;
 import de.walware.ecommons.ltk.ast.IAstNode;
-import de.walware.ecommons.ltk.ui.FileBufferWorkingBuffer;
+import de.walware.ecommons.ltk.ui.GenericEditorWorkspaceSourceUnitWorkingCopy;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.renv.IREnv;
 
 
-public class RweaveTexEditorWorkingCopy extends GenericSourceUnitWorkingCopy implements IRSourceUnit {
+public class RweaveTexEditorWorkingCopy extends GenericEditorWorkspaceSourceUnitWorkingCopy
+		implements IRWorkspaceSourceUnit {
 	
 	
 	private final RweaveTexSuModelContainer fModel = new RweaveTexSuModelContainer(this);
 	
 	
-	public RweaveTexEditorWorkingCopy(final ISourceUnit from) {
+	public RweaveTexEditorWorkingCopy(final IRWorkspaceSourceUnit from) {
 		super(from);
 	}
 	
-	
-	public WorkingContext getWorkingContext() {
-		return LTK.EDITOR_CONTEXT;
-	}
 	
 	public IRCoreAccess getRCoreAccess() {
 		return ((IRSourceUnit) fFrom).getRCoreAccess();
@@ -57,11 +46,6 @@ public class RweaveTexEditorWorkingCopy extends GenericSourceUnitWorkingCopy imp
 		return RCore.getREnvManager().getDefault();
 	}
 	
-	
-	@Override
-	protected IWorkingBuffer createWorkingBuffer(final SubMonitor progress) {
-		return new FileBufferWorkingBuffer(this);
-	}
 	
 	@Override
 	protected void register() {
@@ -81,10 +65,6 @@ public class RweaveTexEditorWorkingCopy extends GenericSourceUnitWorkingCopy imp
 		super.unregister();
 	}
 	
-	
-	public void syncExec(final SourceDocumentRunnable runnable) throws InvocationTargetException {
-		FileBufferWorkingBuffer.syncExec(runnable);
-	}
 	
 	@Override
 	public AstInfo<? extends IAstNode> getAstInfo(final String type, final boolean ensureSync, final IProgressMonitor monitor) {

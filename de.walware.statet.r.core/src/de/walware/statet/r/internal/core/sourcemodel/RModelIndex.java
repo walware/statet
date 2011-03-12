@@ -53,7 +53,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRFrame;
-import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -395,7 +395,8 @@ public class RModelIndex {
 		}
 	}
 	
-	public void update(final IProject project, final List<String> remove, final List<IRSourceUnit> update, final MultiStatus status, final IProgressMonitor progress) throws CoreException {
+	public void update(final IProject project, final List<String> remove,
+			final List<IRWorkspaceSourceUnit> update, final MultiStatus status, final IProgressMonitor progress) throws CoreException {
 		final RProject rProject = RProject.getRProject(project);
 		if (rProject == null) {
 			clear(project);
@@ -404,7 +405,7 @@ public class RModelIndex {
 		
 		fReconciler.init(rProject, status);
 		final HashMap<String, RBuildReconciler.Result> newItems = new HashMap<String, RBuildReconciler.Result>();
-		for (final IRSourceUnit su : update) {
+		for (final IRWorkspaceSourceUnit su : update) {
 			if (su instanceof IManagableRUnit) {
 				try {
 					final RBuildReconciler.Result buildResult = fReconciler.build((IManagableRUnit) su, progress);

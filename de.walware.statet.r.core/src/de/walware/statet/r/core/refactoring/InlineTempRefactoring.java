@@ -33,7 +33,6 @@ import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -47,6 +46,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
@@ -61,11 +61,11 @@ public class InlineTempRefactoring extends Refactoring {
 	
 	
 	private final RRefactoringAdapter fAdapter = new RRefactoringAdapter();
-	private RefactoringElementSet fElementSet;
+	private final RefactoringElementSet fElementSet;
 	
 	private IRegion fSelectionRegion;
 	
-	private final ISourceUnit fSourceUnit;
+	private final IRSourceUnit fSourceUnit;
 	
 	private RAstNode fSymbolNode;
 	private RElementAccess[] fAccessList;
@@ -77,7 +77,7 @@ public class InlineTempRefactoring extends Refactoring {
 	 * @param unit the source unit
 	 * @param region (selected) region of an occurrence of the variable
 	 */
-	public InlineTempRefactoring(final ISourceUnit su, final IRegion region) {
+	public InlineTempRefactoring(final IRSourceUnit su, final IRegion region) {
 		fSourceUnit = su;
 		fElementSet = new RefactoringElementSet(new Object[] { su });
 		

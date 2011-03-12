@@ -17,7 +17,6 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -31,6 +30,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
@@ -84,20 +84,18 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 		}
 		else {
 			final ISourceUnit su = editor.getSourceUnit();
-			if (su != null) {
-				final IResource resource = su.getResource();
-				if (resource instanceof IFile) {
-					final RProject project = RProject.getRProject(resource.getProject());
-					fBaseResource = (project != null) ? project.getBaseContainer() : null;
-					if (fBaseResource == null) {
-						fBaseResource = resource.getParent();
+			if (su instanceof IWorkspaceSourceUnit) {
+				final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
+				final RProject project = RProject.getRProject(resource.getProject());
+				fBaseResource = (project != null) ? project.getBaseContainer() : null;
+				if (fBaseResource == null) {
+					fBaseResource = resource.getParent();
+				}
+				if (fBaseResource != null) {
+					try {
+						fBaseFileStore = EFS.getStore(fBaseResource.getLocationURI());
 					}
-					if (fBaseResource != null) {
-						try {
-							fBaseFileStore = EFS.getStore(fBaseResource.getLocationURI());
-						}
-						catch (final CoreException e) {
-						}
+					catch (final CoreException e) {
 					}
 				}
 			}

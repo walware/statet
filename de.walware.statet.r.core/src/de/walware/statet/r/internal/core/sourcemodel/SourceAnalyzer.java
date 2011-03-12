@@ -25,12 +25,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.OperationCanceledException;
 
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.model.ArgsBuilder;
 import de.walware.statet.r.core.model.ArgsDefinition;
@@ -571,8 +571,9 @@ public class SourceAnalyzer extends RAstVisitor {
 	private void init() {
 		fFrames = new LinkedHashMap<String, BuildSourceFrame>();
 		fDependencyEnvironments = new HashMap<String, BuildSourceFrame>();
-		final IResource res = fSourceUnit.getResource();
-		final String projId = (res != null) ? res.getProject().getName() : "<noproject:"+fSourceUnit.getElementName(); //$NON-NLS-1$
+		final String projId = (fSourceUnit instanceof IWorkspaceSourceUnit) ?
+				((IWorkspaceSourceUnit) fSourceUnit).getResource().getProject().getName() :
+				"<noproject:"+fSourceUnit.getElementName(); //$NON-NLS-1$
 		
 		final BuildSourceFrame fileEnvir = new BuildSourceFrame.DefScope(IRFrame.PROJECT, BuildSourceFrame.createId(IRFrame.PROJECT, projId, 0), null, new BuildSourceFrame[0]); // ref projects
 		
@@ -755,7 +756,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		}
 		rMethod.complete(type, access, createMethodArgDef(rMethod.getFDefNode(), sig));
 		if (sig != null && sig.argNameAccess != null) {
-			BuildSourceFrame buildFrame = rMethod.getBuildFrame();
+			final BuildSourceFrame buildFrame = rMethod.getBuildFrame();
 			for (int i = 0; i < sig.argNameAccess.length; i++) {
 				if (sig.argNameAccess[i] != null) {
 					buildFrame.add(sig.argNameAccess[i].fNameNode.getText(), sig.argNameAccess[i]);

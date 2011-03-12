@@ -43,6 +43,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.internal.core.Messages;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -63,7 +64,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 	
 	private final List<String> fRemovedRSU = new ArrayList<String>();
-	private final List<IRSourceUnit> fToUpdateRSU = new ArrayList<IRSourceUnit>();
+	private final ArrayList<IRWorkspaceSourceUnit> fToUpdateRSU = new ArrayList<IRWorkspaceSourceUnit>();
 	
 	private final RModelManager fModelManager;
 	
@@ -122,7 +123,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 						return true;
 					}
 					if (IRSourceUnit.R_CONTENT.equals(contentType.getId())) {
-						final IRSourceUnit unit = (IRSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
+						final IRWorkspaceSourceUnit unit = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
 						fToUpdateRSU.add(unit);
 						return true;
 					}
@@ -196,7 +197,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 					return true;
 				}
 				if (IRSourceUnit.R_CONTENT.equals(contentType.getId())) {
-					final IRSourceUnit unit = (IRSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
+					final IRWorkspaceSourceUnit unit = (IRWorkspaceSourceUnit) LTK.getSourceUnitManager().getSourceUnit(RModel.TYPE_ID, LTK.PERSISTENCE_CONTEXT, file, true, null);
 					if (unit != null) {
 						fToUpdateRSU.add(unit);
 					}
@@ -225,7 +226,7 @@ public class RBuilder implements IResourceDeltaVisitor, IResourceVisitor {
 	
 /*-- Rd --*/
 	
-	private TaskMarkerHandler fTaskMarkerHandler = new TaskMarkerHandler();
+	private final TaskMarkerHandler fTaskMarkerHandler = new TaskMarkerHandler();
 	
 	protected void initRd(final RProject project) {
 		fTaskMarkerHandler.init(project);

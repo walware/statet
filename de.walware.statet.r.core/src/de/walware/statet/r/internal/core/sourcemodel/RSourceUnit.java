@@ -22,6 +22,7 @@ import de.walware.statet.r.core.RResourceUnit;
 import de.walware.statet.r.core.model.IManagableRUnit;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.internal.core.RCorePlugin;
@@ -30,7 +31,8 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 /**
  * Source unit implementation for R script files in workspace ("default R file").
  */
-public final class RSourceUnit extends RResourceUnit implements IRSourceUnit, IManagableRUnit {
+public final class RSourceUnit extends RResourceUnit
+		implements IRWorkspaceSourceUnit, IManagableRUnit {
 	
 	
 	private final Object fModelLock = new Object();

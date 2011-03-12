@@ -20,6 +20,7 @@ import org.eclipse.ui.IContributorResourceAdapter;
 import de.walware.ecommons.ltk.ISourceElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.model.IRElement;
 
@@ -90,8 +91,8 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 				final ISourceStructElement parent = ((ISourceStructElement)element).getSourceParent();
 				if ((parent.getElementType() & IRElement.MASK_C1) == IRElement.C1_SOURCE) {
 					final ISourceUnit su = parent.getSourceUnit();
-					if (su != null) {
-						return su.getResource();
+					if (su instanceof IWorkspaceSourceUnit) {
+						return ((IWorkspaceSourceUnit) su).getResource();
 					}
 				}
 			}
@@ -99,8 +100,8 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 		case IRElement.C1_SOURCE:
 			if (element instanceof ISourceElement) {
 				final ISourceUnit su = ((ISourceElement) element).getSourceUnit();
-				if (su != null) {
-					return su.getResource();
+				if (su instanceof IWorkspaceSourceUnit) {
+					return ((IWorkspaceSourceUnit) su).getResource();
 				}
 			}
 			return null;

@@ -46,6 +46,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.ecommons.ltk.ISourceElement;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -71,9 +72,9 @@ public class ROpenDeclarationHandler extends AbstractHandler {
 	
 	public static void open(final ISourceElement element, final boolean activate) throws PartInitException  {
 		final ISourceUnit su = element.getSourceUnit();
-		if (su != null) {
-			final IResource resource = su.getResource();
-			if (resource instanceof IFile) {
+		if (su instanceof IWorkspaceSourceUnit) {
+			final IResource resource = ((IWorkspaceSourceUnit) su).getResource();
+			if (resource.getType() == IResource.FILE) {
 				open((IFile) resource, activate, element.getNameSourceRange());
 				return;
 			}

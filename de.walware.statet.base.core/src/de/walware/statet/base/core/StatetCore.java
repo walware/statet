@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -23,6 +22,7 @@ import org.eclipse.core.runtime.Status;
 
 import de.walware.ecommons.debug.core.ISshSessionService;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
 import de.walware.statet.base.internal.core.BaseCorePlugin;
 
@@ -39,8 +39,9 @@ public class StatetCore {
 		try {
 			for (final IProject project : projects) {
 				final StatetProject sp = (StatetProject) project.getNature(StatetProject.NATURE_ID);
-				if (sp != null)
+				if (sp != null) {
 					collected.add(sp);
+				}
 			}
 		} catch (final CoreException e) {
 			logError(e);
@@ -49,13 +50,9 @@ public class StatetCore {
 		return collected;
 	}
 	
-	public static StatetProject getStatetProject(final ISourceUnit unit) {
-		if (unit == null) {
-			return null;
-		}
-		final IResource resource = unit.getResource();
-		if (resource != null) {
-			final IProject project = resource.getProject();
+	public static StatetProject getStatetProject(final ISourceUnit su) {
+		if (su instanceof IWorkspaceSourceUnit) {
+			final IProject project = ((IWorkspaceSourceUnit) su).getResource().getProject();
 			try {
 				if (project.hasNature(StatetProject.NATURE_ID)) {
 					return (StatetProject) project.getNature(StatetProject.NATURE_ID);

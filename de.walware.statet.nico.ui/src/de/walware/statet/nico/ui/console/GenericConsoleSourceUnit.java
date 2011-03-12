@@ -13,8 +13,6 @@ package de.walware.statet.nico.ui.console;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.AbstractDocument;
 
@@ -124,17 +122,10 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	
 	/**
 	 * {@inheritDoc}
-	 */
-	public IPath getPath() {
-		return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
 	 * 
 	 * A console has no resource.
 	 */
-	public IResource getResource() {
+	public Object getResource() {
 		return null;
 	}
 	

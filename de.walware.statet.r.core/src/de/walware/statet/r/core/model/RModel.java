@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 import de.walware.ecommons.ltk.ISourceElement;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.RProject;
@@ -29,7 +29,7 @@ import de.walware.statet.r.internal.core.FilteredFrame;
 
 
 /**
- * 
+ * R LTK model
  */
 public class RModel {
 	
@@ -68,11 +68,8 @@ public class RModel {
 	public static List<IRFrame> createProjectFrameList(RProject project1, final IRSourceUnit exclude, Set<String> packages) {
 		final ArrayList<IRFrame> list = new ArrayList<IRFrame>();
 		final IRModelManager manager = RCore.getRModelManager();
-		if (project1 == null) {
-			final IResource resource = exclude.getResource();
-			if (resource != null) {
-				project1 = RProject.getRProject(resource.getProject());
-			}
+		if (project1 == null && exclude instanceof IWorkspaceSourceUnit) {
+			project1 = RProject.getRProject(((IWorkspaceSourceUnit) exclude).getResource().getProject());
 		}
 		if (project1 == null) {
 			return list;

@@ -35,7 +35,6 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 
-import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.core.refactoring.CommonRefactoringDescriptor;
@@ -48,6 +47,7 @@ import de.walware.ecommons.ltk.core.refactoring.TextChangeCompatibility;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.FDef;
 import de.walware.statet.r.core.rsource.ast.GenericVisitor;
@@ -89,7 +89,7 @@ public class ExtractTempRefactoring extends Refactoring {
 	private IRegion fSelectionRegion;
 	private IRegion fOperationRegion;
 	
-	private final ISourceUnit fSourceUnit;
+	private final IRSourceUnit fSourceUnit;
 	private RAstNode fExpression;
 	
 	private RAstNode fContainer;
@@ -103,7 +103,7 @@ public class ExtractTempRefactoring extends Refactoring {
 	 * @param unit the source unit
 	 * @param region (selected) regino of the expression to extract
 	 */
-	public ExtractTempRefactoring(final ISourceUnit su, final IRegion region) {
+	public ExtractTempRefactoring(final IRSourceUnit su, final IRegion region) {
 		fSourceUnit = su;
 		fElementSet = new RefactoringElementSet(new Object[] { su });
 		

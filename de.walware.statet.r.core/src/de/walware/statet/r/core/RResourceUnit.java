@@ -49,15 +49,13 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 	
 	@Override
 	protected IElementName createElementName() {
-		return RElementName.create(RElementName.RESOURCE, (getFile() != null) ? getFile().getName() : "<no file info>"); //$NON-NLS-1$
+		return RElementName.create(RElementName.RESOURCE, getResource().getName());
 	}
 	
 	public IRCoreAccess getRCoreAccess() {
-		if (getFile() != null) {
-			final RProject project = RProject.getRProject(getFile().getProject());
-			if (project != null) {
-				return project;
-			}
+		final RProject project = RProject.getRProject(getResource().getProject());
+		if (project != null) {
+			return project;
 		}
 		return RCore.getWorkbenchAccess();
 	}

@@ -15,8 +15,9 @@ import org.eclipse.core.filesystem.IFileStore;
 
 import de.walware.ecommons.ltk.AbstractEditorSourceUnitFactory;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.IWorkspaceSourceUnit;
 
-import de.walware.statet.r.core.model.IRSourceUnit;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 
 
 /**
@@ -30,8 +31,8 @@ public final class REditorWorkingCopyFactory extends AbstractEditorSourceUnitFac
 	
 	
 	@Override
-	protected ISourceUnit createSourceUnit(final String id, final ISourceUnit su) {
-		return new REditorWorkingCopy((IRSourceUnit) su);
+	protected ISourceUnit createSourceUnit(final String id, final IWorkspaceSourceUnit su) {
+		return new REditorWorkingCopy((IRWorkspaceSourceUnit) su);
 	}
 	
 	@Override
