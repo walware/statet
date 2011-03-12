@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.GenericResourceSourceUnit;
 import de.walware.ecommons.ltk.IModelManager;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
@@ -29,8 +28,8 @@ import de.walware.statet.r.sweave.Sweave;
 public class RweaveTexDocUnit extends GenericResourceSourceUnit implements IRSourceUnit {
 	
 	
-	public RweaveTexDocUnit(final String id, final IFile file, final ISourceUnitStateListener listener) {
-		super(id, file, listener);
+	public RweaveTexDocUnit(final String id, final IFile file) {
+		super(id, file);
 	}
 	
 	

@@ -15,7 +15,6 @@ import org.eclipse.core.filesystem.IFileStore;
 
 import de.walware.ecommons.ltk.AbstractEditorSourceUnitFactory;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
 
@@ -31,13 +30,13 @@ public final class REditorWorkingCopyFactory extends AbstractEditorSourceUnitFac
 	
 	
 	@Override
-	protected ISourceUnit createSourceUnit(final String id, final ISourceUnit su, final ISourceUnitStateListener callback) {
-		return new REditorWorkingCopy((IRSourceUnit) su, callback);
+	protected ISourceUnit createSourceUnit(final String id, final ISourceUnit su) {
+		return new REditorWorkingCopy((IRSourceUnit) su);
 	}
 	
 	@Override
-	protected ISourceUnit createSourceUnit(final String id, final IFileStore file, final ISourceUnitStateListener callback) {
-		return new REditorUriSourceUnit(id, file, callback);
+	protected ISourceUnit createSourceUnit(final String id, final IFileStore file) {
+		return new REditorUriSourceUnit(id, file);
 	}
 	
 }

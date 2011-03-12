@@ -21,7 +21,6 @@ import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.IWorkingBuffer;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
@@ -41,8 +40,8 @@ public class RweaveTexEditorWorkingCopy extends GenericSourceUnitWorkingCopy imp
 	private final RweaveTexSuModelContainer fModel = new RweaveTexSuModelContainer(this);
 	
 	
-	public RweaveTexEditorWorkingCopy(final ISourceUnit from, final ISourceUnitStateListener listener) {
-		super(from, listener);
+	public RweaveTexEditorWorkingCopy(final ISourceUnit from) {
+		super(from);
 	}
 	
 	

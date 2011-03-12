@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IFile;
 import de.walware.ecommons.ltk.AbstractFilePersistenceSourceUnitFactory;
 import de.walware.ecommons.ltk.GenericResourceSourceUnit;
 import de.walware.ecommons.ltk.IElementName;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.renv.IREnv;
@@ -36,7 +35,7 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 	
 	public static RResourceUnit createTempUnit(final IFile file, final String modelTypeId) {
 		final String id = AbstractFilePersistenceSourceUnitFactory.createResourceId(file);
-		return new RResourceUnit(id, file, null) {
+		return new RResourceUnit(id, file) {
 			public String getModelTypeId() {
 				return modelTypeId;
 			}
@@ -44,8 +43,8 @@ public abstract class RResourceUnit extends GenericResourceSourceUnit {
 	}
 	
 	
-	public RResourceUnit(final String id, final IFile file, final ISourceUnitStateListener listener) {
-		super(id, file, listener);
+	public RResourceUnit(final String id, final IFile file) {
+		super(id, file);
 	}
 	
 	@Override

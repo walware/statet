@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.RResourceUnit;
@@ -38,8 +37,8 @@ public final class RSourceUnit extends RResourceUnit implements IRSourceUnit, IM
 	private IRModelInfo fModelInfo;
 	
 	
-	public RSourceUnit(final String id, final IFile file, final ISourceUnitStateListener listener) {
-		super(id, file, listener);
+	public RSourceUnit(final String id, final IFile file) {
+		super(id, file);
 	}
 	
 	

@@ -16,7 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.SubMonitor;
 
 import de.walware.ecommons.ltk.IProblemRequestor;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.IWorkingBuffer;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceDocumentRunnable;
@@ -30,8 +29,8 @@ import de.walware.statet.r.core.model.RManagedWorkingCopy;
 public class REditorWorkingCopy extends RManagedWorkingCopy {
 	
 	
-	public REditorWorkingCopy(final IRSourceUnit from, final ISourceUnitStateListener listener) {
-		super(from, listener);
+	public REditorWorkingCopy(final IRSourceUnit from) {
+		super(from);
 	}
 	
 	

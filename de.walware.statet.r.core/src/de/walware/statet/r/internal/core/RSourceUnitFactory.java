@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IFile;
 
 import de.walware.ecommons.ltk.AbstractFilePersistenceSourceUnitFactory;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 
 import de.walware.statet.r.internal.core.sourcemodel.RSourceUnit;
 
@@ -31,8 +30,8 @@ public class RSourceUnitFactory extends AbstractFilePersistenceSourceUnitFactory
 	
 	
 	@Override
-	protected ISourceUnit createSourceUnit(final String id, final IFile file, final ISourceUnitStateListener callback) {
-		return new RSourceUnit(id, file, callback);
+	protected ISourceUnit createSourceUnit(final String id, final IFile file) {
+		return new RSourceUnit(id, file);
 	}
 	
 }

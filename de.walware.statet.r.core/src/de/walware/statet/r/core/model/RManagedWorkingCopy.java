@@ -17,7 +17,6 @@ import de.walware.ecommons.ltk.AstInfo;
 import de.walware.ecommons.ltk.GenericSourceUnitWorkingCopy;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.SourceContent;
 
 import de.walware.statet.r.core.IRCoreAccess;
@@ -38,8 +37,8 @@ public abstract class RManagedWorkingCopy extends GenericSourceUnitWorkingCopy i
 	private IRModelInfo fModelInfo;
 	
 	
-	public RManagedWorkingCopy(final IRSourceUnit from, final ISourceUnitStateListener listener) {
-		super(from, listener);
+	public RManagedWorkingCopy(final IRSourceUnit from) {
+		super(from);
 	}
 	
 	

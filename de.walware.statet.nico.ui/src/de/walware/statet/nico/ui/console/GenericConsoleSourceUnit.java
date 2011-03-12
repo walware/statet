@@ -195,5 +195,11 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 		fCounter--;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public synchronized boolean isConnected() {
+		return (fCounter > 0);
+	}
 	
 }

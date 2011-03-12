@@ -22,7 +22,6 @@ import de.walware.ecommons.ltk.GenericUriSourceUnit;
 import de.walware.ecommons.ltk.IModelManager;
 import de.walware.ecommons.ltk.IProblemRequestor;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
-import de.walware.ecommons.ltk.ISourceUnitStateListener;
 import de.walware.ecommons.ltk.IWorkingBuffer;
 import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.SourceContent;
@@ -49,8 +48,8 @@ public class REditorUriSourceUnit extends GenericUriSourceUnit implements IRSour
 	private final Object fModelLock = new Object();
 	
 	
-	public REditorUriSourceUnit(final String id, final IFileStore store, final ISourceUnitStateListener listener) {
-		super(id, store, listener);
+	public REditorUriSourceUnit(final String id, final IFileStore store) {
+		super(id, store);
 	}
 	
 	
