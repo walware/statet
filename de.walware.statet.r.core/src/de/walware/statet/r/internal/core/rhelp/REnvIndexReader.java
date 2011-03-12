@@ -40,6 +40,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -253,7 +254,9 @@ public class REnvIndexReader implements IREnvIndex {
 	
 	
 	REnvIndexReader(final IREnvConfiguration rEnvConfig) throws Exception {
-		final FSDirectory directory = FSDirectory.open(SaveUtil.getIndexDirectory(rEnvConfig));
+//		NIOFSDirectory doesn't like Thread#interrupt() used by the information hover manager
+//		final FSDirectory directory = FSDirectory.open(SaveUtil.getIndexDirectory(rEnvConfig));
+		final FSDirectory directory = new SimpleFSDirectory(SaveUtil.getIndexDirectory(rEnvConfig), null);
 		fIndexReader = IndexReader.open(directory, true);
 		fIndexSearcher = new IndexSearcher(fIndexReader);
 	}
