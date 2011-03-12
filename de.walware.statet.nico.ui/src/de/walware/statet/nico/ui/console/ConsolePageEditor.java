@@ -881,6 +881,10 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	
 /*- Complete ISourceEditor --------------------------------------------------*/
 	
+	public String getModelTypeId() {
+		return fSourceUnit.getModelTypeId();
+	}
+	
 	public ISourceUnit getSourceUnit() {
 		return fSourceUnit;
 	}

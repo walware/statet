@@ -25,7 +25,6 @@ import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.nico.ContinuePrompt;
 import de.walware.statet.r.nico.IRBasicAdapter;
 import de.walware.statet.r.nico.ui.RConsolePage;
@@ -80,14 +79,6 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 		IAction action;
 		action = new InsertAssignmentAction(this);
 		commands.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));
-	}
-	
-	@Override
-	public Object getAdapter(final Class required) {
-		if (RHeuristicTokenScanner.class.equals(required)) {
-			return new RHeuristicTokenScanner();
-		}
-		return super.getAdapter(required);
 	}
 	
 }

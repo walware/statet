@@ -74,7 +74,6 @@ import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.core.rsource.ast.DocuComment;
 import de.walware.statet.r.core.rsource.ast.DocuTag;
 import de.walware.statet.r.core.rsource.ast.NodeType;
@@ -414,6 +413,10 @@ public class REditor extends SourceEditor1 {
 	}
 	
 	
+	public String getModelTypeId() {
+		return RModel.TYPE_ID;
+	}
+	
 	@Override
 	public IRSourceUnit getSourceUnit() {
 		return (IRSourceUnit) super.getSourceUnit();
@@ -536,9 +539,6 @@ public class REditor extends SourceEditor1 {
 		}
 		if (IRCoreAccess.class.equals(required)) {
 			return getRCoreAccess();
-		}
-		if (RHeuristicTokenScanner.class.equals(required)) {
-			return new RHeuristicTokenScanner();
 		}
 		return super.getAdapter(required);
 	}

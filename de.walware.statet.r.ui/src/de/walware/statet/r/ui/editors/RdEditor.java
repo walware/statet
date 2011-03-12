@@ -32,6 +32,10 @@ public class RdEditor extends SourceEditor1 {
 		super();
 	}
 	
+	public String getModelTypeId() {
+		return "Rd"; // not yet a real type
+	}
+	
 	@Override
 	protected SourceEditorViewerConfigurator createConfiguration() {
 		setDocumentProvider(RUIPlugin.getDefault().getRdDocumentProvider());

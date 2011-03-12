@@ -17,6 +17,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.EditorInformationProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.IInfoHover;
@@ -40,7 +41,8 @@ public class REditorInformationProvider extends EditorInformationProvider {
 	
 	public IRegion getSubject(final ITextViewer textViewer, final int offset) {
 		if (fScanner == null) {
-			fScanner = new RHeuristicTokenScanner();
+			fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
+					getEditor().getModelTypeId(), RHeuristicTokenScanner.class );
 		}
 		try {
 			final IDocument document = getEditor().getViewer().getDocument();

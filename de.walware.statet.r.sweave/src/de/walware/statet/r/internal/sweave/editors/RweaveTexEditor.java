@@ -46,11 +46,10 @@ import de.walware.ecommons.ui.SharedUIResources;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
+import de.walware.statet.r.sweave.Sweave;
 import de.walware.statet.r.ui.editors.RCorrectIndentAction;
 import de.walware.statet.r.ui.editors.REditorOptions;
 
@@ -178,6 +177,10 @@ public class RweaveTexEditor extends SourceEditor1 {
 	}
 	
 	
+	public String getModelTypeId() {
+		return Sweave.R_TEX_MODEL_TYPE_ID;
+	}
+	
 	@Override
 	protected void setupConfiguration(final IEditorInput newInput) {
 		super.setupConfiguration(newInput);
@@ -228,14 +231,6 @@ public class RweaveTexEditor extends SourceEditor1 {
 	@Override
 	protected ITemplatesPage createTemplatesPage() {
 		return new RweaveTexEditorTemplatesPage(this, getSourceViewer());
-	}
-	
-	@Override
-	public Object getAdapter(final Class required) {
-		if (required.equals(RHeuristicTokenScanner.class)) {
-			return new RweaveChunkHeuristicScanner();
-		}
-		return super.getAdapter(required);
 	}
 	
 }

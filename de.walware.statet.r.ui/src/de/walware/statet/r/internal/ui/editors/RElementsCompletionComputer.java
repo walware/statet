@@ -34,6 +34,7 @@ import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ISourceUnitModelInfo;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
@@ -318,7 +319,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	
 	private RHeuristicTokenScanner getScanner() {
 		if (fScanner == null && fEditor != null) {
-			fScanner = (RHeuristicTokenScanner) fEditor.getAdapter(RHeuristicTokenScanner.class);
+			fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(fEditor.getModelTypeId(),
+					RHeuristicTokenScanner.class );
 		}
 		return fScanner;
 	}

@@ -33,17 +33,6 @@
       </content-type>
    </extension>
    <extension
-         point="de.walware.ecommons.ltk.workingContexts">
-      <unitType modelTypeId="rweave-tex"
-            contextKey="persistence.default"
-            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexPersistenceUnitFactory">
-      </unitType>
-      <unitType modelTypeId="rweave-tex"
-            contextKey="editor.default"
-            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexEditorUnitFactory">
-      </unitType>
-   </extension>
-   <extension
          point="de.walware.ecommons.ltk.contentTypeActivation">
       <contentType
             id="de.walware.statet.r.contentTypes.RweaveTex"
@@ -67,6 +56,28 @@
             contentTypeId="de.walware.statet.r.contentTypes.RweaveTex"
             class="de.walware.statet.r.internal.sweave.editors.RweaveTexDocumentSetupParticipant">
       </participant>
+   </extension>
+   
+   <extension
+         point="de.walware.ecommons.ltk.workingContexts">
+      <unitType modelTypeId="rweave-tex"
+            contextKey="persistence.default"
+            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexPersistenceUnitFactory">
+      </unitType>
+      <unitType modelTypeId="rweave-tex"
+            contextKey="editor.default"
+            unitFactory="de.walware.statet.r.internal.sweave.RweaveTexEditorUnitFactory">
+      </unitType>
+   </extension>
+   <extension
+         point="de.walware.ecommons.ltk.modelAdapters">
+      <adapterFactory
+            modelTypeId="rweave-tex"
+            class="de.walware.statet.r.internal.sweave.RModelAdapterFactory">
+         <adapter
+               type="de.walware.statet.r.core.rsource.RHeuristicTokenScanner">
+         </adapter>
+      </adapterFactory>
    </extension>
    
    <extension

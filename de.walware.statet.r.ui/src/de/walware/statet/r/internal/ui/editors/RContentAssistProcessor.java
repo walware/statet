@@ -15,6 +15,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.ContentAssist;
 import de.walware.ecommons.ltk.ui.sourceediting.ContentAssistComputerRegistry;
@@ -43,7 +44,8 @@ public class RContentAssistProcessor extends ContentAssistProcessor {
 	public RContentAssistProcessor(final ContentAssist assistant, final String partition, 
 			final ContentAssistComputerRegistry registry, final ISourceEditor editor) {
 		super(assistant, partition, registry, editor);
-		fScanner = (RHeuristicTokenScanner) editor.getAdapter(RHeuristicTokenScanner.class);
+		fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
+				editor.getModelTypeId(), RHeuristicTokenScanner.class );
 	}
 	
 	

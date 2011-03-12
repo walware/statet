@@ -27,6 +27,7 @@ import org.eclipse.swt.graphics.Point;
 
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.LTK;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.ElementNameCompletionProposal;
@@ -137,7 +138,8 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 		
 		public RHeuristicTokenScanner getScanner() {
 			if (fScanner == null) {
-				fScanner = (RHeuristicTokenScanner) fContext.getEditor().getAdapter(RHeuristicTokenScanner.class);
+				fScanner = (RHeuristicTokenScanner) LTK.getModelAdapter(
+						fContext.getEditor().getModelTypeId(), RHeuristicTokenScanner.class );
 			}
 			return fScanner;
 		}
