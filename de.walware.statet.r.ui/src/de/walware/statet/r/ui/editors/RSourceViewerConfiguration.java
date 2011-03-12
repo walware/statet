@@ -334,7 +334,7 @@ public class RSourceViewerConfiguration extends SourceEditorViewerConfiguration 
 		
 		final ContentAssistProcessor codeProcessor = new RContentAssistProcessor(assistant,
 				IRDocumentPartitions.R_DEFAULT_EXPL, registry, getSourceEditor());
-//		codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$' });
+		codeProcessor.setCompletionProposalAutoActivationCharacters(new char[] { '$' });
 		assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT_EXPL);
 		if (fHandleDefaultContentType) {
 			assistant.setContentAssistProcessor(codeProcessor, IRDocumentPartitions.R_DEFAULT);

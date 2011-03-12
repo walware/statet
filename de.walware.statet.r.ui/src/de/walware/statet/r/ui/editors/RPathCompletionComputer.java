@@ -32,6 +32,7 @@ import org.eclipse.jface.text.TextUtilities;
 
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.PathCompletionComputor;
@@ -183,8 +184,8 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 	}
 	
 	@Override
-	protected IStatus tryAlternative(final AssistInvocationContext context, final List<IAssistCompletionProposal> matches, final IPath path,
-			final int startOffset, final String startsWith, final String prefix, final String completionPrefix) throws CoreException {
+	protected IStatus tryAlternative(final AssistInvocationContext context, final AssistProposalCollector<IAssistCompletionProposal> proposals,
+			final IPath path, final int startOffset, final String startsWith, final String prefix, final String completionPrefix) throws CoreException {
 		if (fAssociatedTool != null) {
 			final String address = fAssociatedTool.getWorkspaceData().getRemoteAddress();
 			if (address != null) {
@@ -196,7 +197,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 						continue;
 					}
 					if (root) {
-						matches.add(new ResourceProposal(context, startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
+						proposals.add(new ResourceProposal(context, startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
 					}
 					else {
 						final int matching = path.matchingFirstSegments(remotePath);
@@ -212,7 +213,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 				return Status.OK_STATUS;
 			}
 		}
-		return super.tryAlternative(context, matches, path, startOffset, startsWith, prefix, completionPrefix);
+		return super.tryAlternative(context, proposals, path, startOffset, startsWith, prefix, completionPrefix);
 	}
 	
 	@Override

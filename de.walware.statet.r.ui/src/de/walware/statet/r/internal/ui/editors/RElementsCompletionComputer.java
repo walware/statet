@@ -38,6 +38,7 @@ import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ui.IElementLabelProvider;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.IContentAssistComputer;
@@ -50,6 +51,9 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.InputDocument;
 
+import de.walware.rj.data.RReference;
+
+import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IPackageReferences;
 import de.walware.statet.r.core.model.IRElement;
@@ -344,9 +348,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final int mode, final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		if (mode == IContentAssistComputer.INFORMATION_MODE) {
-			return computeContextInformation2(context, tenders, false, monitor);
+			return computeContextInformation2(context, proposals, false, monitor);
 		}
 		
 		if (context.getModelInfo() == null) {
@@ -377,19 +381,20 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		
 		// Collect proposals
 		if (prefixSegments.getNextSegment() == null) {
-			doComputeArgumentProposals(context, prefix, prefixSegments, tenders, monitor);
-			doComputeMainProposals(context, prefix, prefixSegments, tenders, monitor);
-			doComputeKeywordProposals(context, prefix, prefixSegments.getSegmentName(), tenders, monitor);
+			doComputeArgumentProposals(context, prefix, prefixSegments, proposals, monitor);
+			doComputeMainProposals(context, prefix, prefixSegments, proposals, monitor);
+			doComputeKeywordProposals(context, prefix, prefixSegments.getSegmentName(), proposals, monitor);
 		}
 		else {
 			final String lastPrefix = computeSingleIdentifierPrefix(context);
-			doComputeSubProposals(context, lastPrefix, prefixSegments, tenders, monitor);
+			doComputeSubProposals(context, lastPrefix, prefixSegments, proposals, monitor);
 		}
 		return null;
 	}
 	
-	protected void doComputeArgumentProposals(final AssistInvocationContext context, final String orgPrefix, final IElementName prefixName,
-			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+	protected void doComputeArgumentProposals(final AssistInvocationContext context,
+			final String orgPrefix, final IElementName prefixName,
+			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		final String namePrefix = prefixName.getSegmentName();
 		int offset = context.getInvocationOffset()-context.getIdentifierPrefix().length();
 		IDocument document = context.getSourceViewer().getDocument();
@@ -424,15 +429,16 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					fScanner.configure(document, NO_R_COMMENT_CONSTRAINT);
 					if (sep+1 == offset
 							|| fScanner.findNonBlankForward(sep+1, offset, true) < 0) {
-						doComputeFCallArgumentProposals(context, offset-indexShift, fcallInfo, namePrefix, tenders);
+						doComputeFCallArgumentProposals(context, offset-indexShift, fcallInfo, namePrefix, proposals);
 					}
 				}
 			}
 		}
 	}
 	
-	protected void doComputeMainProposals(final AssistInvocationContext context, final String orgPrefix, final IElementName prefixName,
-			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+	protected void doComputeMainProposals(final AssistInvocationContext context,
+			final String orgPrefix, final IElementName prefixName,
+			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		String namePrefix = prefixName.getSegmentName();
 		if (namePrefix == null) {
 			namePrefix = ""; //$NON-NLS-1$
@@ -487,7 +493,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 								mainNames.add(elementName.getSegmentName());
 							}
 						}
-						tenders.add(proposal);
+						proposals.add(proposal);
 					}
 				}
 			}
@@ -507,7 +513,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, candidate);
 						if (proposal != null) {
 							mainNames.add(candidate);
-							tenders.add(proposal);
+							proposals.add(proposal);
 						}
 					}
 				}
@@ -515,14 +521,15 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	private void doComputeKeywordProposals(final AssistInvocationContext context, final String orgPrefix, final String prefix,
-			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+	private void doComputeKeywordProposals(final AssistInvocationContext context,
+			final String orgPrefix, final String prefix,
+			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		if (prefix.length() > 0 && orgPrefix.charAt(0) != '`') {
 			final int offset = context.getInvocationOffset()-orgPrefix.length();
 			final List<String> keywords = fgKeywords;
 			for (final String keyword : keywords) {
 				if (keyword.regionMatches(true, 0, prefix, 0, prefix.length())) {
-					tenders.add(new RKeywordCompletionProposal(context, keyword, offset));
+					proposals.add(new RKeywordCompletionProposal(context, keyword, offset));
 				}
 			}
 		}
@@ -590,8 +597,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return ""; 
 	}
 	
-	protected void doComputeSubProposals(final AssistInvocationContext context, final String orgPrefix, final RElementName prefixSegments,
-			final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+	protected void doComputeSubProposals(final AssistInvocationContext context,
+			final String orgPrefix, final RElementName prefixSegments,
+			final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		int count = 0;
 		IElementName prefixSegment = prefixSegments;
 		while (true) {
@@ -673,6 +681,12 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 					final List<? extends IModelElement> children;
 					if (elementSegment == null) {
 						childMode = true;
+						if (element instanceof RReference) {
+							element = (ICombinedRElement) ((RReference) element).getResolvedRObject();
+							if (element == null) {
+								continue;
+							}
+						}
 						children = element.getModelChildren(null);
 					}
 					else {
@@ -700,7 +714,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 										mainNames.add(candidate);
 									}
 								}
-								tenders.add(proposal);
+								proposals.add(proposal);
 							}
 						}
 					}
@@ -738,7 +752,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 							final IAssistCompletionProposal proposal = createProposal(context, orgPrefix, candidate);
 							if (proposal != null) {
 								mainNames.add(candidate);
-								tenders.add(proposal);
+								proposals.add(proposal);
 							}
 						}
 					}
@@ -760,12 +774,12 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final List<IAssistInformationProposal> tenders, final IProgressMonitor monitor) {
-		return computeContextInformation2(context, tenders, true, monitor);
+			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
+		return computeContextInformation2(context, proposals, true, monitor);
 	}
 	
 	public IStatus computeContextInformation2(final AssistInvocationContext context,
-			final List tenders, final boolean createContextInfoOnly, final IProgressMonitor monitor) {
+			final AssistProposalCollector<?> proposals, final boolean createContextInfoOnly, final IProgressMonitor monitor) {
 		if (context.getModelInfo() == null) {
 			return null;
 		}
@@ -789,7 +803,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			if (index >= 0) {
 				final FCallInfo fcallInfo = searchFCallInfo(context, index-indexShift);
 				if (fcallInfo != null) {
-					doComputeFCallContextInformation(context, fcallInfo, tenders, createContextInfoOnly);
+					doComputeFCallContextInformation(context, fcallInfo, proposals, createContextInfoOnly);
 				}
 			}
 		}
@@ -827,7 +841,8 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		return null;
 	}
 	
-	private void doComputeFCallContextInformation(final AssistInvocationContext context, final FCallInfo fcallInfo, final List tenders, final boolean createContextInfoOnly) {
+	private void doComputeFCallContextInformation(final AssistInvocationContext context, final FCallInfo fcallInfo,
+			final AssistProposalCollector proposals, final boolean createContextInfoOnly) {
 		int distance = 0;
 		final ExactFCallPattern pattern = new ExactFCallPattern(fcallInfo.access);
 		final int infoOffset = fcallInfo.node.getArgsOpenOffset()+1;
@@ -841,7 +856,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 						&& isCompletable(elementName)
 						&& pattern.matches(elementName)) {
 					final IRMethod method = (IRMethod) element;
-					tenders.add(createContextInfoOnly ?
+					proposals.add(createContextInfoOnly ?
 							new RArgumentListContextInformation(infoOffset, method) :
 							new RElementCompletionProposal.ContextInformationProposal(context, method.getElementName(), infoOffset,
 								method, -distance, fLabelProvider) );
@@ -851,8 +866,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		}
 	}
 	
-	private void doComputeFCallArgumentProposals(final AssistInvocationContext context, final int offset, final FCallInfo fcallInfo,
-			final String prefix, final List<IAssistCompletionProposal> tenders) {
+	private void doComputeFCallArgumentProposals(final AssistInvocationContext context,
+			final int offset, final FCallInfo fcallInfo, final String prefix,
+			final AssistProposalCollector<IAssistCompletionProposal> proposals) {
 		int distance = 0;
 		final HashSet<String> names = new HashSet<String>();
 		for (final Iterator<IRFrame> iter = new EnvirIter(); iter.hasNext();) {
@@ -873,7 +889,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 								if ((prefix == null || arg.name.startsWith(prefix))
 										&& names.add(arg.name)) {
 									final RElementName name = RElementName.create(RElementName.MAIN_DEFAULT, arg.name);
-									tenders.add(new RElementCompletionProposal.ArgumentProposal(context, name, offset, distance, fLabelProvider));
+									proposals.add(new RElementCompletionProposal.ArgumentProposal(context, name, offset, distance, fLabelProvider));
 								}
 							}
 						}

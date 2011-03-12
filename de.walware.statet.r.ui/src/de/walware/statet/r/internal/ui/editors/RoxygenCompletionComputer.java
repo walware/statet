@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.Point;
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ltk.ui.LTKUI;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
+import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.IContentAssistComputer;
@@ -153,10 +154,10 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeCompletionProposals(final AssistInvocationContext context,
-			final int mode, final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+			final int mode, final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		final String tagPrefix = getTagPrefix(context);
 		if (tagPrefix != null) {
-			doComputeTagProposals(context, tagPrefix, tenders, monitor);
+			doComputeTagProposals(context, tagPrefix, proposals, monitor);
 		}
 		return null;
 	}
@@ -194,12 +195,12 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	}
 	
 	private void doComputeTagProposals(final AssistInvocationContext context, final String prefix,
-		final List<IAssistCompletionProposal> tenders, final IProgressMonitor monitor) {
+		final AssistProposalCollector<IAssistCompletionProposal> proposals, final IProgressMonitor monitor) {
 		final int offset = context.getInvocationOffset()-prefix.length();
 		final List<String> keywords = TAG_COMMANDS;
 		for (final String keyword : keywords) {
 			if (keyword.regionMatches(true, 0, prefix, 0, prefix.length())) {
-				tenders.add(new TagProposal(context, keyword, offset));
+				proposals.add(new TagProposal(context, keyword, offset));
 			}
 		}
 	}
@@ -208,7 +209,7 @@ public class RoxygenCompletionComputer implements IContentAssistComputer {
 	 * {@inheritDoc}
 	 */
 	public IStatus computeContextInformation(final AssistInvocationContext context,
-			final List<IAssistInformationProposal> tenders, final IProgressMonitor monitor) {
+			final AssistProposalCollector<IAssistInformationProposal> proposals, final IProgressMonitor monitor) {
 		return null;
 	}
 	

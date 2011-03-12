@@ -13,16 +13,17 @@ package de.walware.statet.r.internal.ui.editors;
 
 import org.apache.commons.collections.primitives.ArrayIntList;
 import org.apache.commons.collections.primitives.IntList;
-import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationExtension;
 import org.eclipse.swt.graphics.Image;
+
+import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.ui.RLabelProvider;
 
 
-public class RArgumentListContextInformation implements IContextInformation,
+public class RArgumentListContextInformation implements IAssistInformationProposal,
 		IContextInformationExtension {
 	
 	
