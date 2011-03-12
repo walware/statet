@@ -89,6 +89,7 @@ import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextViewerAction;
+import de.walware.ecommons.text.ui.TextViewerCustomCaretSupport;
 import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -421,6 +422,8 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private final StatusLine fStatusLine = new StatusLine();
 	private SourceViewerDecorationSupport fSourceViewerDecorationSupport;
 	private SourceEditorViewerConfigurator fConfigurator;
+	private TextViewerCustomCaretSupport fCustomCarretSupport;
+	
 	
 	/**
 	 * Saves the selection before starting a history navigation session.
@@ -486,6 +489,16 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		gd.verticalIndent = 1;
 		fSourceViewer.getControl().setLayoutData(gd);
 		fSourceViewer.appendVerifyKeyListener(new ThisKeyListener());
+		fSourceViewer.removeSpecialBinding(KEY_HIST_UP);
+		fSourceViewer.removeSpecialBinding(KEY_HIST_DOWN);
+		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_DEFAULT);
+		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_KEYPAD);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEUP);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEDOWN);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEUP);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEDOWN);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_START);
+		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
 		
 		fSubmitButton = new Button(fComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
@@ -591,17 +604,9 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 				fStatusLine.cleanStatusLine();
 			}
 		});
-		fSourceViewer.removeSpecialBinding(SWT.DEL);
-		fSourceViewer.removeSpecialBinding(KEY_HIST_UP);
-		fSourceViewer.removeSpecialBinding(KEY_HIST_DOWN);
-		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_DEFAULT);
-		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_KEYPAD);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEUP);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEDOWN);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEUP);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEDOWN);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_START);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
+		
+		fCustomCarretSupport = new TextViewerCustomCaretSupport(fSourceViewer,
+				configuration.getPreferences() );
 	}
 	
 	public void handleSettingsChanged(final Set<String> groupIds, final Map<String, Object> options) {
@@ -611,67 +616,71 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		}
 	}
 	
-	public void configureServices(final IHandlerService commands, final IContextService keys) {
+	public void configureServices(final IHandlerService handlerServices, final IContextService keys) {
 		keys.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
 		
 		IAction action;
 		final PairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
 		if (matcher != null) {
-			commands.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET,
+			handlerServices.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET,
 					new GotoMatchingBracketHandler(matcher, this));
 		}
 		
-		commands.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE,
+		fSourceViewer.removeSpecialBinding(SWT.DEL);
+		
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE,
 				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE));
-		commands.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING,
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING,
 				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING));
-		commands.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_END,
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_END,
 				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE_TO_END));
-		commands.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE,
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE,
 				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE));
-		commands.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING,
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING,
 				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING));
-		commands.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END,
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END,
 				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE_TO_END));
 		
 		action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
-		commands.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
 		
 		final IHandler2 informationHandler = new InformationDispatchHandler(getViewer());
-		commands.activateHandler(ITextEditorActionDefinitionIds.SHOW_INFORMATION, informationHandler);
+		handlerServices.activateHandler(ITextEditorActionDefinitionIds.SHOW_INFORMATION, informationHandler);
 		
 		fSelectionHistory = new StructureSelectionHistory(this);
-		commands.activateHandler(ISourceEditorCommandIds.SELECT_ENCLOSING,
+		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_ENCLOSING,
 				new StructureSelectHandler.Enclosing(this, fSelectionHistory));
-		commands.activateHandler(ISourceEditorCommandIds.SELECT_PREVIOUS,
+		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_PREVIOUS,
 				new StructureSelectHandler.Previous(this, fSelectionHistory));
-		commands.activateHandler(ISourceEditorCommandIds.SELECT_NEXT,
+		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_NEXT,
 				new StructureSelectHandler.Next(this, fSelectionHistory));
 		final StructureSelectionHistoryBackHandler backHandler = new StructureSelectionHistoryBackHandler(this, fSelectionHistory);
-		commands.activateHandler(ISourceEditorCommandIds.SELECT_LAST, backHandler);
+		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_LAST, backHandler);
 		fSelectionHistory.addUpdateListener(backHandler);
 		
-		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
+		handlerServices.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
 			public Object execute(final ExecutionEvent arg0)
 					throws ExecutionException {
 				doHistoryOlder(getLineStart());
 				return null;
 			}
 		});
-		commands.activateHandler("de.walware.statet.nico.commands.SearchHistoryNewer", new AbstractHandler() { //$NON-NLS-1$
+		handlerServices.activateHandler("de.walware.statet.nico.commands.SearchHistoryNewer", new AbstractHandler() { //$NON-NLS-1$
 			public Object execute(final ExecutionEvent arg0)
 					throws ExecutionException {
 				doHistoryNewer(getLineStart());
 				return null;
 			}
 		});
-		commands.activateHandler("de.walware.statet.nico.commands.GotoHistoryNewest", new AbstractHandler() { //$NON-NLS-1$
+		handlerServices.activateHandler("de.walware.statet.nico.commands.GotoHistoryNewest", new AbstractHandler() { //$NON-NLS-1$
 			public Object execute(final ExecutionEvent arg0)
 					throws ExecutionException {
 				doHistoryNewest();
 				return null;
 			}
 		});
+		
+		fCustomCarretSupport.initActions(handlerServices);
 	}
 	
 	
@@ -868,6 +877,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			fPrefixBackground = null;
 		}
 	}
+	
 	
 /*- Complete ISourceEditor --------------------------------------------------*/
 	
