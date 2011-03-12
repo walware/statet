@@ -1290,6 +1290,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		createActions();
 		hookContextMenu();
+		getSite().setSelectionProvider(fTreeViewer);
 		
 		// listen on console changes
 		final IToolRegistry toolRegistry = NicoUI.getToolRegistry();
@@ -1758,7 +1759,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	
-	protected RElementName getElementName(final TreePath treePath) {
+	public RElementName getElementName(final TreePath treePath) {
 		if (treePath.getSegmentCount() == 0) {
 			return null;
 		}
