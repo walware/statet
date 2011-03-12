@@ -29,6 +29,7 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.templates.AbstractTemplatesPage;
 import org.eclipse.ui.texteditor.templates.ITemplatesPage;
 
@@ -39,6 +40,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.TemplateProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
@@ -111,6 +113,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 		final SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setEditable(false);
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+		new TextViewerEditorColorUpdater(viewer, EditorsUI.getPreferenceStore());
 		
 		final IDocument document = new Document();
 		viewer.setDocument(document);
@@ -140,7 +143,7 @@ public abstract class ExtEditorTemplatesPage extends AbstractTemplatesPage {
 			
 			if (configurator != fCurrentPreviewConfigurator) {
 				if (fCurrentPreviewUpdater != null) {
-					fCurrentPreviewUpdater.unregister();
+					fCurrentPreviewUpdater.dispose();
 					fCurrentPreviewUpdater = null;
 				}
 				if (fCurrentPreviewConfigurator != null) {

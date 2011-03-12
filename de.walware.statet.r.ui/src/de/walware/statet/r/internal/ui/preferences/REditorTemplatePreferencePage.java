@@ -30,6 +30,7 @@ import de.walware.ecommons.ltk.ui.sourceediting.ViewerSourceEditorAdapter;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.text.Partitioner;
+import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 
 import de.walware.statet.r.core.RCore;
@@ -84,6 +85,8 @@ public class REditorTemplatePreferencePage extends TemplatePreferencePage {
 		// updater
 		new SettingsUpdater(fViewerConfigurator, viewer.getControl());
 		new TextViewerJFaceUpdater(viewer, 
+				fViewerConfigurator.getSourceViewerConfiguration().getPreferences() );
+		new TextViewerEditorColorUpdater(viewer, 
 				fViewerConfigurator.getSourceViewerConfiguration().getPreferences() );
 		
 		final IDocument document = new Document();

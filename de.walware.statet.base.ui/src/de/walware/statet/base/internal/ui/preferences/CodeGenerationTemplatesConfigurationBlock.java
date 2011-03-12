@@ -54,6 +54,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
@@ -63,6 +64,7 @@ import de.walware.ecommons.ltk.ui.templates.EditTemplateDialog;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.SettingsUpdater;
 import de.walware.ecommons.templates.TemplateVariableProcessor;
+import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.dialogs.groups.CategorizedOptionButtonsGroup;
@@ -289,6 +291,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 		final SourceViewer viewer = new SourceViewer(parent, null, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		viewer.setEditable(false);
 		viewer.getTextWidget().setFont(JFaceResources.getFont(JFaceResources.TEXT_FONT));
+		new TextViewerEditorColorUpdater(viewer, EditorsUI.getPreferenceStore());
 		
 		final IDocument document = new Document();
 		viewer.setDocument(document);
@@ -325,7 +328,7 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 				fPatternViewerConfiguredCategory = item.getCategoryIndex();
 				
 				if (fPatternViewerUpdater != null) {
-					fPatternViewerUpdater.unregister();
+					fPatternViewerUpdater.dispose();
 					fPatternViewerUpdater = null;
 				}
 				if (fPatternConfigurator != null) {

@@ -90,7 +90,7 @@ import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
 import de.walware.ecommons.text.ui.TextViewerAction;
 import de.walware.ecommons.text.ui.TextViewerCustomCaretSupport;
-import de.walware.ecommons.text.ui.TextViewerJFaceUpdater;
+import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -589,7 +589,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			docuSetup.setup(fDocument.getMasterDocument());
 		}
 		
-		new TextViewerJFaceUpdater(fSourceViewer, configuration.getPreferences());
+		new TextViewerEditorColorUpdater(fSourceViewer, configuration.getPreferences());
 		
 		final AnnotationModel annotationModel = new AnnotationModel();
 		// annotationModel.setLockObject(fDocument.getLockObject());
