@@ -285,7 +285,7 @@ public class History {
 			}
 			
 			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
-					Messages.LoadHistory_ok_message, fileUtil.getFileLabel()));
+					Messages.LoadHistory_ok_message, fileUtil.getLabel()));
 		} 
 		catch (final CoreException e) {
 			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
@@ -382,7 +382,7 @@ public class History {
 			op.doOperation(new SubProgressMonitor(monitor, 2));
 			
 			return new Status(IStatus.OK, NicoCore.PLUGIN_ID, NLS.bind(
-					Messages.SaveHistory_ok_message, fileUtil.getFileLabel()));
+					Messages.SaveHistory_ok_message, fileUtil.getLabel()));
 		}
 		catch (final CoreException e) {
 			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
