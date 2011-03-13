@@ -31,16 +31,13 @@ import de.walware.statet.r.ui.editors.REditor;
 public class RAstOutlinePage extends SourceEditor1OutlinePage {
 	
 	
-	private REditor fEditor;
-	
-	
 	public RAstOutlinePage(final REditor editor) {
 		super(editor, RModel.TYPE_ID, null);
-		fEditor = editor;
 	}
 	
+	
 	@Override
-	protected IDialogSettings getSettings() {
+	protected IDialogSettings getDialogSettings() {
 		return DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "RAstOutlineView"); //$NON-NLS-1$
 	}
 	
@@ -51,6 +48,8 @@ public class RAstOutlinePage extends SourceEditor1OutlinePage {
 	
 	@Override
 	protected void configureViewer(final TreeViewer viewer) {
+		super.configureViewer(viewer);
+		
 		viewer.setComparer(new IElementComparer() {
 			public int hashCode(final Object element) {
 				return ((RAstNode) element).hashCodeIgnoreAst();

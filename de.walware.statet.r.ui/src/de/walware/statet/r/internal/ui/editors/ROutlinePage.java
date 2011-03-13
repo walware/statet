@@ -17,9 +17,11 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.IPageSite;
+import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
@@ -27,6 +29,7 @@ import de.walware.ecommons.ltk.ui.ElementNameComparator;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor2OutlinePage;
 import de.walware.ecommons.ui.SharedMessages;
 import de.walware.ecommons.ui.SharedUIResources;
+import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -143,7 +146,7 @@ public class ROutlinePage extends SourceEditor2OutlinePage {
 	
 	
 	@Override
-	protected IDialogSettings getSettings() {
+	protected IDialogSettings getDialogSettings() {
 		return DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "ROutlineView"); //$NON-NLS-1$
 	}
 	
@@ -154,16 +157,17 @@ public class ROutlinePage extends SourceEditor2OutlinePage {
 	
 	@Override
 	protected void configureViewer(final TreeViewer viewer) {
+		super.configureViewer(viewer);
+		
 		viewer.setLabelProvider(new RLabelProvider());
 	}
 	
 	@Override
-	protected void initActions() {
-		super.initActions();
-		final IPageSite site = getSite();
+	protected void contributeToActionBars(final IServiceLocator serviceLocator,
+			final IActionBars actionBars, final HandlerCollection handlers) {
+		super.contributeToActionBars(serviceLocator, actionBars, handlers);
 		
-		final IToolBarManager toolBarManager = site.getActionBars().getToolBarManager();
-		final IMenuManager menuManager = site.getActionBars().getMenuManager();
+		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
 		
 		toolBarManager.appendToGroup(SharedUIResources.VIEW_SORT_MENU_ID,
 				new AlphaSortAction());
