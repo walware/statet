@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
@@ -181,7 +182,10 @@ public class RDebugHover implements IInfoHover {
 		final RUpdater rTask = new RUpdater(name);
 		try {
 			synchronized (rTask) {
-				controller.submit(rTask);
+				final IStatus status = controller.submit(rTask);
+				if (status.getSeverity() >= IStatus.ERROR) {
+					return null;
+				}
 				rTask.wait();
 			}
 		}
