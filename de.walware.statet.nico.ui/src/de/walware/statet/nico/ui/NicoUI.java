@@ -15,6 +15,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
+import de.walware.statet.nico.internal.ui.ToolSourceProvider;
 
 
 /**
@@ -29,6 +30,9 @@ public class NicoUI {
 	 * Value: @value
 	 */
 	public static final String PLUGIN_ID = "de.walware.statet.nico.ui"; //$NON-NLS-1$
+	
+	
+	public static final String TOOL_SOURCE_ID = ToolSourceProvider.ACTIVE_TOOL_NAME;
 	
 	
 	public static final String LOCTOOL_CANCEL_IMAGE_ID = PLUGIN_ID + "/imgage/loctool/cancel";  //$NON-NLS-1$

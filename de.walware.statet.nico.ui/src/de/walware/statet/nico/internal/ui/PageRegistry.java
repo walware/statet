@@ -56,28 +56,8 @@ import de.walware.statet.nico.ui.console.NIConsole;
  */
 class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	
-	static final String SHOW_CONSOLE_JOB_NAME = "Show NIConsole"; //$NON-NLS-1$
 	
-	private static List<IConsoleView> getConsoleViews(final IWorkbenchPage page) {
-		final List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
-		
-		final IViewReference[] allReferences = page.getViewReferences();
-		for (final IViewReference reference : allReferences) {
-			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
-				final IViewPart view = reference.getView(true);
-				if (view != null) {
-					final IConsoleView consoleView = (IConsoleView) view;
-					if (!consoleView.isPinned()) {
-						consoleViews.add(consoleView);
-					}
-					else if (consoleView.getConsole() instanceof NIConsole) {
-						consoleViews.add(0, consoleView);
-					}
-				}
-			}
-		}
-		return consoleViews;
-	}
+	static final String SHOW_CONSOLE_JOB_NAME = "Show NIConsole"; //$NON-NLS-1$
 	
 	
 	private class ShowConsoleViewJob extends WorkbenchJob {
@@ -105,71 +85,26 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		
 		@Override
 		public IStatus runInUIThread(final IProgressMonitor monitor) {
-			final IWorkbenchPage page = getPage();
 			final NIConsole console = fConsoleToShow;
-			if (page == null || console == null) {
+			if (fClosed || console == null) {
 				return Status.CANCEL_STATUS;
 			}
 			try {
-				final IWorkbenchPart activePart = page.getActivePart();
+				final IWorkbenchPart activePart = fPage.getActivePart();
 				if (activePart instanceof IConsoleView) {
 					if (console == ((IConsoleView) activePart).getConsole()) {
 						((IConsoleView) activePart).setFocus();
 						return Status.OK_STATUS;
 					}
 				}
-				// Search the console view
-				final List<IConsoleView> views = getConsoleViews(page);
-				
-				final IConsoleView[] preferedView = new IConsoleView[10];
-				for (final IConsoleView view : views) {
-					final IConsole consoleInView = view.getConsole();
-					if (consoleInView == console) {
-						if (page.isPartVisible(view)) {		// already visible
-							preferedView[view.isPinned() ? 0 : 1] = view;
-							continue;
-						}
-						else {								// already selected
-							preferedView[view.isPinned() ? 2 : 3] = view;
-							continue;
-						}
-					}
-					if (consoleInView == null) {
-						if (page.isPartVisible(view)) {
-							preferedView[4] = view;
-							continue;
-						}
-						else {
-							preferedView[5] = view;
-							continue;
-						}
-					}
-					if (!view.isPinned()) {					// for same type created view
-						final String secId = view.getViewSite().getSecondaryId();
-						if (secId != null && secId.startsWith(console.getType())) {
-							preferedView[6] = view;
-							continue;
-						}
-						if (page.isPartVisible(view)) { 	// visible views
-							preferedView[7] = view;
-							continue;
-						}
-						else {								// other views
-							preferedView[8] = view;
-							continue;
-						}
-					}
-				}
-				for (int i = 0; i < preferedView.length; i++) {
-					if (preferedView[i] != null) {
-						return showInView(preferedView[i], monitor);
-					}
-				}
-				return showInView(null, monitor);
-			} catch (final PartInitException e) {
+				final IConsoleView view = searchView(console);
+				return showInView(view, monitor);
+			}
+			catch (final PartInitException e) {
 				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, "Error of unexpected type occured, when showing a console view.", e); //$NON-NLS-1$
 				return Status.OK_STATUS;
-			} finally {
+			}
+			finally {
 				fConsoleToShow = null;
 			}
 		}
@@ -177,21 +112,20 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		private IStatus showInView(IConsoleView view, final IProgressMonitor monitor) throws PartInitException {
 			final NIConsole console = fConsoleToShow;
 			final boolean activate = fActivate;
-			final IWorkbenchPage page = getPage();
-			if (page == null || monitor.isCanceled()) {
+			if (fClosed || monitor.isCanceled()) {
 				return Status.CANCEL_STATUS;
 			}
 			
 			if (view == null) {
 				final String secId = console.getType() + System.currentTimeMillis(); // force creation
-				view = (IConsoleView) page.showView(IConsoleConstants.ID_CONSOLE_VIEW, secId, IWorkbenchPage.VIEW_CREATE);
+				view = (IConsoleView) fPage.showView(IConsoleConstants.ID_CONSOLE_VIEW, secId, IWorkbenchPage.VIEW_CREATE);
 			}
 			view.display(console);
 			if (activate) {
-				page.activate(view);
+				fPage.activate(view);
 			}
 			else {
-				page.bringToTop(view);
+				fPage.bringToTop(view);
 			}
 			finish(view);
 			return Status.OK_STATUS;
@@ -259,8 +193,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
-			final IWorkbenchPage page = getPage();
-			if (page == null) {
+			if (fClosed) {
 				return Status.OK_STATUS;
 			}
 			NIConsole console = fConsole;
@@ -268,9 +201,9 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 			
 			if (console == null) {
 				final AtomicReference<NIConsole> ref = new AtomicReference<NIConsole>();
-				UIAccess.getDisplay(page.getWorkbenchWindow().getShell()).syncExec(new Runnable() {
+				UIAccess.getDisplay(fPage.getWorkbenchWindow().getShell()).syncExec(new Runnable() {
 					public void run() {
-						ref.set(searchConsole(page, exclude));
+						ref.set(searchConsole(exclude));
 					}
 				});
 				console = ref.get();
@@ -347,6 +280,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	
 	
 	private final IWorkbenchPage fPage;
+	private boolean fClosed;
 	private IDebugContextListener fDebugContextListener;
 	
 	private ToolProcess fActiveProcess;
@@ -369,6 +303,7 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 	
 	
 	public synchronized void dispose() {
+		fClosed = true;
 		DebugPlugin.getDefault().removeDebugEventListener(this);
 		DebugUITools.getDebugContextManager().getContextService(fPage.getWorkbenchWindow()).removeDebugContextListener(this);
 		fShowConsoleViewJob.cancel();
@@ -434,8 +369,15 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		return new ToolSessionUIData(fActiveProcess, fActiveConsole, fPage, null);
 	}
 	
-	void handleConsolesRemoved(final List<ToolProcess> consoles) {
-		fConsoleUpdateJob.scheduleRemoved(consoles);
+	public IConsoleView getConsoleView(final NIConsole console) {
+		if (fClosed) {
+			return null;
+		}
+		return searchView(console);
+	}
+	
+	void handleConsolesRemoved(final List<ToolProcess> tools) {
+		fConsoleUpdateJob.scheduleRemoved(tools);
 	}
 	
 	void handleActiveConsoleChanged(final NIConsole console, final IViewPart source) {
@@ -456,39 +398,6 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 				}
 			}
 		}.schedule(console, true);
-	}
-	
-	/**
-	 * only in UI thread
-	 */
-	private static NIConsole searchConsole(final IWorkbenchPage page, final List<ToolProcess> exclude) {
-		// Search NIConsole in
-		// 1. active part
-		// 2. visible part
-		// 3. all
-		NIConsole nico = null;
-		final IWorkbenchPart part = page.getActivePart();
-		if (part instanceof IConsoleView) {
-			final IConsole console = ((IConsoleView) part).getConsole();
-			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console).getProcess())) {
-				return nico;
-			}
-		}
-		
-		final List<IConsoleView> consoleViews = getConsoleViews(page);
-		NIConsole secondChoice = null;
-		for (final IConsoleView view : consoleViews) {
-			final IConsole console = view.getConsole();
-			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console).getProcess())) {
-				if (page.isPartVisible(view)) {
-					return nico;
-				}
-				else if (secondChoice == null) {
-					secondChoice = nico;
-				}
-			}
-		}
-		return secondChoice;
 	}
 	
 	
@@ -516,6 +425,119 @@ class PageRegistry implements IDebugEventSetListener, IDebugContextListener {
 		for (final Object obj : listeners) {
 			((IToolRegistryListener) obj).toolTerminated(sessionData);
 		}
+	}
+	
+	private List<IConsoleView> getConsoleViews() {
+		final List<IConsoleView> consoleViews = new ArrayList<IConsoleView>();
+		
+		final IViewReference[] allReferences = fPage.getViewReferences();
+		for (final IViewReference reference : allReferences) {
+			if (reference.getId().equals(IConsoleConstants.ID_CONSOLE_VIEW)) {
+				final IViewPart view = reference.getView(true);
+				if (view != null) {
+					final IConsoleView consoleView = (IConsoleView) view;
+					if (!consoleView.isPinned()) {
+						consoleViews.add(consoleView);
+					}
+					else if (consoleView.getConsole() instanceof NIConsole) {
+						consoleViews.add(0, consoleView);
+					}
+				}
+			}
+		}
+		return consoleViews;
+	}
+	
+	/**
+	 * Searches best next console (tool)
+	 * 
+	 * Must be called only in UI thread
+	 */
+	private NIConsole searchConsole(final List<ToolProcess> exclude) {
+		// Search NIConsole in
+		// 1. active part
+		// 2. visible part
+		// 3. all
+		NIConsole nico = null;
+		final IWorkbenchPart part = fPage.getActivePart();
+		if (part instanceof IConsoleView) {
+			final IConsole console = ((IConsoleView) part).getConsole();
+			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console).getProcess())) {
+				return nico;
+			}
+		}
+		
+		final List<IConsoleView> consoleViews = getConsoleViews();
+		NIConsole secondChoice = null;
+		for (final IConsoleView view : consoleViews) {
+			final IConsole console = view.getConsole();
+			if (console instanceof NIConsole && !exclude.contains((nico = (NIConsole) console).getProcess())) {
+				if (fPage.isPartVisible(view)) {
+					return nico;
+				}
+				else if (secondChoice == null) {
+					secondChoice = nico;
+				}
+			}
+		}
+		return secondChoice;
+	}
+	
+	/**
+	 * Searches the best console view for the specified console (tool)
+	 * 
+	 * @param console
+	 * @return 
+	 */
+	private IConsoleView searchView(final NIConsole console) {
+		// Search the console view
+		final List<IConsoleView> views = getConsoleViews();
+		
+		final IConsoleView[] preferedView = new IConsoleView[10];
+		for (final IConsoleView view : views) {
+			final IConsole consoleInView = view.getConsole();
+			if (consoleInView == console) {
+				if (fPage.isPartVisible(view)) {		// already visible
+					preferedView[view.isPinned() ? 0 : 1] = view;
+					continue;
+				}
+				else {								// already selected
+					preferedView[view.isPinned() ? 2 : 3] = view;
+					continue;
+				}
+			}
+			if (consoleInView == null) {
+				if (fPage.isPartVisible(view)) {
+					preferedView[4] = view;
+					continue;
+				}
+				else {
+					preferedView[5] = view;
+					continue;
+				}
+			}
+			if (!view.isPinned()) {					// for same type created view
+				final String secId = view.getViewSite().getSecondaryId();
+				if (secId != null && secId.startsWith(console.getType())) {
+					preferedView[6] = view;
+					continue;
+				}
+				if (fPage.isPartVisible(view)) { 	// visible views
+					preferedView[7] = view;
+					continue;
+				}
+				else {								// other views
+					preferedView[8] = view;
+					continue;
+				}
+			}
+		}
+		for (int i = 0; i < preferedView.length; i++) {
+			if (preferedView[i] != null) {
+				return preferedView[i];
+			}
+		}
+		return null;
 	}
 	
 }

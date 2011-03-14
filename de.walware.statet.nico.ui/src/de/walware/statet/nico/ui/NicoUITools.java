@@ -36,6 +36,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.statet.nico.core.ITool;
@@ -193,6 +194,11 @@ public class NicoUITools {
 			return null;
 		}
 		return controller;
+	}
+	
+	public static IConsoleView getConsoleView(final NIConsole console, final IWorkbenchPage page) {
+		final ToolRegistry registry = NicoUIPlugin.getDefault().getToolRegistry();
+		return registry.getConsoleView(console, page);
 	}
 	
 	/**

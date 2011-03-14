@@ -177,7 +177,7 @@
       <sourceProvider
             provider="de.walware.statet.nico.internal.ui.ToolSourceProvider">
          <variable
-               name="statet_activeTool"
+               name="de.walware.statet.activeTool"
                priorityLevel="workbench">
          </variable>
       </sourceProvider>

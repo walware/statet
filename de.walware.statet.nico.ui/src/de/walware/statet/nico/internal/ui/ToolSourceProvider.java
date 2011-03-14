@@ -32,7 +32,7 @@ import de.walware.statet.nico.ui.ToolSessionUIData;
 public class ToolSourceProvider extends AbstractSourceProvider implements IWindowListener {
 	
 	
-	public static final String ACTIVE_TOOL_NAME = "statet_activeTool";
+	public static final String ACTIVE_TOOL_NAME = "de.walware.statet.activeTool";
 	
 	
 	private class RegistryListerner implements IToolRegistryListener {

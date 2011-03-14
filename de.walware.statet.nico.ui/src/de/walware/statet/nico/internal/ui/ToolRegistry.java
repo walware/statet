@@ -256,7 +256,10 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		}
 		
 		final PageRegistry reg = getPageRegistry(page);
-		return reg.createSessionInfo(null);
+		if (reg != null) {
+			return reg.createSessionInfo(null);
+		}
+		return null;
 	}
 	
 	public IWorkbenchPage findWorkbenchPage(final ToolProcess process) {
@@ -278,16 +281,28 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		return activePage;
 	}
 	
+	public IConsoleView getConsoleView(final NIConsole console, final IWorkbenchPage page) {
+		final PageRegistry reg = getPageRegistry(page);
+		if (reg != null) {
+			return reg.getConsoleView(console);
+		}
+		return null;
+	}
+	
 	public void showConsole(final NIConsole console, final IWorkbenchPage page,
 			final boolean activate) {
 		final PageRegistry reg = getPageRegistry(page);
-		reg.showConsole(console, activate);
+		if (reg != null) {
+			reg.showConsole(console, activate);
+		}
 	}
 	
 	public void showConsoleExplicitly(final NIConsole console, final IWorkbenchPage page,
 			final boolean pin) {
 		final PageRegistry reg = getPageRegistry(page);
-		reg.showConsoleExplicitly(console, pin);
+		if (reg != null) {
+			reg.showConsoleExplicitly(console, pin);
+		}
 	}
 	
 }
