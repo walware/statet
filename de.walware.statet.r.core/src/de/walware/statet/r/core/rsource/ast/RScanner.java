@@ -63,17 +63,22 @@ import de.walware.statet.r.internal.core.RCorePlugin;
 public final class RScanner {
 	
 	
+	private static final byte LINE_MODE_CONSOLE = 1;
+	private static final byte LINE_MODE_BLOCK = 2;
+	private static final byte LINE_MODE_EAT = 3;
+	
+	
 	private static final class ExprContext {
 		final RAstNode rootNode;
 		final Expression rootExpr;
 		RAstNode lastNode;
 		Expression openExpr;
-		final boolean eatLines;
+		final byte lineMode;
 		
-		public ExprContext(final RAstNode node, final Expression expr, final boolean eatLines) {
-			this.rootNode = this.lastNode = node;
-			this.rootExpr = this.openExpr = expr;
-			this.eatLines = eatLines;
+		public ExprContext(final RAstNode node, final Expression expr, final byte eatLines) {
+			rootNode = lastNode = node;
+			rootExpr = openExpr = expr;
+			this.lineMode = eatLines;
 		}
 		
 		final void update(final RAstNode lastNode, final Expression openExpr) {
@@ -142,7 +147,7 @@ public final class RScanner {
 	private RTerminal fNextType;
 	private boolean fWasLinebreak;
 	
-	private IntList fLineOffset = new ArrayIntList();
+	private final IntList fLineOffset = new ArrayIntList();
 	private List<RAstNode> fComments;
 	private RoxygenCollector fRoxygen;
 	private int fCommentsLevel;
@@ -272,7 +277,7 @@ public final class RScanner {
 		return node;
 	}
 	
-	final void scanInExprList(final ExpressionList node, final boolean force) {
+	final void scanInExprList(final ExpressionList node, final boolean script) {
 		ITER_TOKEN: while (true) {
 			switch (fNextType) {
 			
@@ -286,7 +291,8 @@ public final class RScanner {
 			default:
 				{
 					Expression expr = node.appendNewExpr();
-					final ExprContext context = new ExprContext(node, expr, false);
+					final ExprContext context = new ExprContext(node, expr,
+							script ? LINE_MODE_CONSOLE : LINE_MODE_BLOCK );
 					scanInExpression(context);
 					
 					if (expr.node == null) {
@@ -315,7 +321,7 @@ public final class RScanner {
 					case SUB_INDEXED_CLOSE:
 					case BLOCK_CLOSE:
 					case GROUP_CLOSE:
-						if (force) {
+						if (script) {
 							expr = node.appendNewExpr();
 							expr.node = errorFromNext(node);
 							continue ITER_TOKEN;
@@ -328,7 +334,7 @@ public final class RScanner {
 	}
 	
 	final int scanInGroup(final RAstNode node, final Expression expr) {
-		final ExprContext context = new ExprContext(node, expr, true);
+		final ExprContext context = new ExprContext(node, expr, LINE_MODE_EAT);
 		scanInExpression(context);
 		return checkExpression(context);
 	}
@@ -337,14 +343,14 @@ public final class RScanner {
 		fWasLinebreak = false;
 		ITER_TOKEN : while(true) {
 			
-			if (fWasLinebreak && !context.eatLines && context.openExpr == null) {
+			if (fWasLinebreak && context.lineMode < LINE_MODE_EAT && context.openExpr == null) {
 				break ITER_TOKEN;
 			}
 			
 			switch (fNextType) {
 			
 			case LINEBREAK:
-				if (!context.eatLines && context.openExpr == null) {
+				if (context.lineMode < LINE_MODE_EAT && context.openExpr == null) {
 					break ITER_TOKEN;
 				}
 				consumeToken();
@@ -468,6 +474,7 @@ public final class RScanner {
 				if (fWasLinebreak && context.openExpr == null) {
 					break ITER_TOKEN;
 				}
+				
 				appendNonOp(context, scanCElse(context));
 				continue ITER_TOKEN;
 			
@@ -788,11 +795,13 @@ public final class RScanner {
 		
 		// then
 		if (ok > 0 || recoverCCont()) {
-			final ExprContext thenContext = new ExprContext(node, node.fThenExpr, context.eatLines);
+			final ExprContext thenContext = new ExprContext(node, node.fThenExpr, context.lineMode);
 			scanInExpression(thenContext);
 			checkExpression(thenContext);
 			node.fStopOffset = node.fThenExpr.node.fStopOffset;
-			readLines();
+			if (context.lineMode >= LINE_MODE_BLOCK) {
+				readLines();
+			}
 		}
 		else {
 			node.fThenExpr.node = errorNonExistExpression(node, node.fCondExpr.node.fStopOffset,
@@ -1098,7 +1107,7 @@ public final class RScanner {
 					arg.fStopOffset = arg.fEqualsOffset+1;
 					consumeToken();
 					
-					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, LINE_MODE_EAT);
 					scanInExpression(valueContext);
 					if (arg.fValueExpr.node != null) { // empty items are allowed
 						checkExpression(valueContext);
@@ -1110,7 +1119,7 @@ public final class RScanner {
 					arg.fValueExpr.node = arg.fArgName;
 					arg.fArgName = null;
 					
-					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, LINE_MODE_EAT);
 					valueContext.update(arg.fValueExpr.node, null);
 					scanInExpression(valueContext);
 					checkExpression(valueContext);
@@ -1118,7 +1127,7 @@ public final class RScanner {
 				}
 			}
 			else {
-				final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+				final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, LINE_MODE_EAT);
 				scanInExpression(valueContext);
 				if (arg.fValueExpr.node != null) { // empty items are allowed
 					checkExpression(valueContext);
@@ -1179,7 +1188,7 @@ public final class RScanner {
 					arg.fStopOffset = arg.fEqualsOffset+1;
 					consumeToken();
 					
-					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, LINE_MODE_EAT);
 					scanInExpression(valueContext);
 					if (arg.fValueExpr.node != null) { // empty items are allowed
 						checkExpression(valueContext);
@@ -1191,7 +1200,7 @@ public final class RScanner {
 					arg.fValueExpr.node = arg.fArgName;
 					arg.fArgName = null;
 					
-					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+					final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, LINE_MODE_EAT);
 					valueContext.update(arg.fValueExpr.node, null);
 					scanInExpression(valueContext);
 					checkExpression(valueContext);
@@ -1199,7 +1208,7 @@ public final class RScanner {
 				}
 			}
 			else {
-				final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, true);
+				final ExprContext valueContext = new ExprContext(arg, arg.fValueExpr, LINE_MODE_EAT);
 				scanInExpression(valueContext);
 				if (arg.fValueExpr.node != null) { // empty items are allowed
 					checkExpression(valueContext);
