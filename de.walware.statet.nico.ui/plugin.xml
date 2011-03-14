@@ -109,6 +109,25 @@
             name="%commands_GotoHistoryNewest_name"
             description="%commands_GotoHistoryNewest_description">
       </command>
+      
+      <category
+            id="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_ConsoleCategory_name">
+      </category>
+      <command
+            id="de.walware.statet.nico.commands.ClearOutput"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_ClearOutput_name"
+            description="%commands_ClearOutput_description"
+            helpContextId="org.eclipse.ui.console.clear_console_action_context"
+            defaultHandler="de.walware.statet.nico.internal.ui.ClearOutputHandler">
+      </command>
+      <command
+            id="de.walware.statet.nico.commands.AdjustOutputWidth"
+            categoryId="de.walware.statet.nico.commands.ConsoleCategory"
+            name="%commands_AdjustOutputWidth_name"
+            description="%commands_AdjustOutputWidth_description">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -140,6 +159,19 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+END">
       </key>
+      
+      <key
+            commandId="de.walware.statet.nico.commands.ClearOutput"
+            contextId="de.walware.statet.base.contexts.ConsoleEditor"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+L">
+      </key>
+      <key
+            commandId="de.walware.statet.nico.commands.ClearOutput"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+R L">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -170,6 +202,11 @@
             commandId="de.walware.statet.nico.commands.PauseEngine"
             icon="icons/loctool_16/pause.png"
             disabledIcon="icons/loctool_16_d/pause.png">
+      </image>
+      <image
+            commandId="de.walware.statet.nico.commands.ClearOutput"
+            icon="icons/tool_16/clear_output.gif"
+            disabledIcon="icons/tool_16_d/clear_output.gif">
       </image>
    </extension>
    <extension

@@ -18,7 +18,7 @@ public class RNicoMessages extends NLS {
 	
 	
 	public static String AdjustWidth_label;
-	public static String AdjustWidth_description;
+	public static String AdjustWidth_mnemonic;
 	public static String AdjustWidth_task;
 	
 	public static String ChangeWorkingDir_Task_label;

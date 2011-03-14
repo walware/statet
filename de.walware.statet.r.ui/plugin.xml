@@ -1681,6 +1681,21 @@
             </and>
          </activeWhen>
       </handler>
+      
+      <handler
+            commandId="de.walware.statet.nico.commands.AdjustOutputWidth"
+            class="de.walware.statet.r.internal.nico.ui.AdjustWidthHandler">
+         <activeWhen>
+            <with
+                  variable="de.walware.statet.activeTool">
+               <test
+                     forcePluginActivation="false"
+                     property="de.walware.statet.nico.isMainType"
+                     value="R">
+               </test>
+            </with>
+         </activeWhen>
+      </handler>
    </extension>
 
    <extension

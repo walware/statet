@@ -58,6 +58,8 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	
 	public static final String NICONSOLE_TYPE = "de.walware.statet.nico.console"; //$NON-NLS-1$
 	
+	public static final String ADJUST_OUTPUT_WIDTH_COMMAND_ID = "de.walware.statet.nico.commands.AdjustOutputWidth"; //$NON-NLS-1$
+	
 	
 	private class SettingsListener implements SettingsChangeNotifier.ChangeListener, IPropertyChangeListener {
 		
