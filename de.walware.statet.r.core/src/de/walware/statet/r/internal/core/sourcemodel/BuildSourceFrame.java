@@ -193,7 +193,8 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 				detail = null;
 			}
 			if (detail == null) {
-				final Map<String, ElementAccessList> late = ((access.fFlags & ElementAccess.A_WRITE) != 0) ?
+				final Map<String, ElementAccessList> late = 
+						((access.fFlags & (ElementAccess.A_WRITE | ElementAccess.A_SUB)) == ElementAccess.A_WRITE) ?
 						fLateWrite : fLateRead;
 				detail = late.get(name);
 				if (detail == null) {
