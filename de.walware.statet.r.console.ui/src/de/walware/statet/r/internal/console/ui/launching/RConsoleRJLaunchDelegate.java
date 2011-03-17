@@ -120,7 +120,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				final RObject rjPackageLoaded = r.evalData("require(\"rj\", quietly = TRUE)", monitor); //$NON-NLS-1$
 				if (RDataUtil.checkSingleLogiValue(rjPackageLoaded)) {
 					if (fEnableHelp) {
-						r.evalVoid(".statet.reassign_help()", monitor); //$NON-NLS-1$
+						r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
 					}
 				}
 				else {
