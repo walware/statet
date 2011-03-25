@@ -79,6 +79,13 @@ public abstract class GenericConsoleSourceUnit implements ISourceUnit {
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean isSynchronized() {
+		return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getElementType() {
 		return IModelElement.C2_SOURCE_CHUNK;
 	}
