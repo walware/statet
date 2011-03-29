@@ -34,13 +34,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall3;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.net.RMIAddress;
+
+import de.walware.statet.nico.core.runtime.ToolRunner;
 
 import de.walware.rj.server.srvext.EServerUtil;
 import de.walware.rj.server.srvext.ServerUtil;
@@ -220,8 +221,8 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 			s.append(" -Xss").append(fRenv.getRBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
-		if (configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false)
-				&& s.indexOf(" -Dde.walware.rj.verbose=") < 0) { //$NON-NLS-1$
+		if (!ToolRunner.captureLogOnly(configuration)
+				&& s.indexOf(" -Dde.walware.rj.verbose=") < 0 ) { //$NON-NLS-1$
 			s.append(" -Dde.walware.rj.verbose=true"); //$NON-NLS-1$
 		}
 		if (Platform.getOS().equals(Platform.OS_MACOSX)

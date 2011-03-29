@@ -9,7 +9,7 @@
  *     Stephan Wahlbrink - initial API and implementation
  *******************************************************************************/
 
-package de.walware.ecommons.debug.ui;
+package de.walware.statet.nico.ui.util;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -18,6 +18,10 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+
+import de.walware.ecommons.debug.ui.CheckedCommonTab;
+
+import de.walware.statet.nico.core.runtime.LogRuntimeProcessFactory;
 
 
 /**
@@ -61,7 +65,15 @@ public class CommonTabForConsole extends CheckedCommonTab {
 	public void setDefaults(final ILaunchConfigurationWorkingCopy config) {
 		super.setDefaults(config);
 		config.setAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, false);
-		config.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, false);
+		config.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, (String) null);
+		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, LogRuntimeProcessFactory.FACTORY_ID);
+	}
+	
+	@Override
+	public void performApply(final ILaunchConfigurationWorkingCopy config) {
+		super.performApply(config);
+		config.setAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT, (String) null);
+		config.setAttribute(DebugPlugin.ATTR_PROCESS_FACTORY_ID, LogRuntimeProcessFactory.FACTORY_ID);
 	}
 	
 }

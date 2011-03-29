@@ -172,8 +172,10 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fToolLabelStatus = ToolStatus.STARTING.getMarkedLabel();
 		fToolLabelTrimmedWD = trimPath(wd);
 		
-		final String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
-		fCaptureOutput = !("false".equals(captureOutput)); //$NON-NLS-1$
+//		final String captureOutput = launch.getAttribute(DebugPlugin.ATTR_CAPTURE_OUTPUT);
+//		fCaptureOutput = !("false".equals(captureOutput)
+//				&& !captureLogOnly(launch.getLaunchConfiguration())); //$NON-NLS-1$
+		fCaptureOutput = false;
 		
 		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(new ILaunchesListener() {
 			public void launchesAdded(final ILaunch[] launches) {

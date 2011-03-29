@@ -15,7 +15,7 @@ import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 
-import de.walware.ecommons.debug.ui.CommonTabForConsole;
+import de.walware.statet.nico.ui.util.CommonTabForConsole;
 
 
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;

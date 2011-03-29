@@ -18,7 +18,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
 
-import de.walware.ecommons.debug.ui.CommonTabForConsole;
+import de.walware.statet.nico.ui.util.CommonTabForConsole;
 
 
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;

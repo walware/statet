@@ -45,6 +45,7 @@ import de.walware.ecommons.net.RMIUtil.StopRule;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.ILogOutput;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
@@ -234,7 +235,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		final RProcess process = new RProcess(launch, rEnv,
 				LaunchConfigUtil.createLaunchPrefix(configuration),
 				rEnv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
-				rmiAddress.toString(), null, timestamp); // wd is set at rjs startup
+				rmiAddress.toString(),
+				null, // wd is set at rjs startup
+				timestamp );
 		process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
 		
 		// Wait until the engine is started or died
@@ -242,12 +245,15 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		WAIT: for (int i = 0; i < 50; i++) {
 			if (processes[0].isTerminated()) {
 				final boolean silent = configuration.getAttribute(IDebugUIConstants.ATTR_CAPTURE_IN_CONSOLE, true);
+				final IStatus logStatus = ToolRunner.createOutputLogStatus(
+						(ILogOutput) processes[0].getAdapter(ILogOutput.class) );
 				StatusManager.getManager().handle(new Status(silent ? IStatus.INFO : IStatus.ERROR, RUI.PLUGIN_ID,
 						"Launching the R Console was cancelled, because it seems starting the Java " +
 						"process/R engine failed. \n"+
 						"Please make sure that R package 'rJava' with JRI is installed and that the " +
-						"R library paths are set correctly in the R environment configuration."),
-						silent ? (StatusManager.LOG) :(StatusManager.LOG | StatusManager.SHOW));
+						"R library paths are set correctly in the R environment configuration.",
+						(logStatus != null) ? new CoreException(logStatus) : null ),
+						silent ? (StatusManager.LOG) : (StatusManager.LOG | StatusManager.SHOW) );
 				return;
 			}
 			if (progress.isCanceled()) {

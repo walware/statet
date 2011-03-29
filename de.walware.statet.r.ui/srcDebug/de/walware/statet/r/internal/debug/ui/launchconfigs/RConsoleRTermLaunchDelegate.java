@@ -132,7 +132,9 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		
 		final RProcess process = new RProcess(launch, renv,
 				LaunchConfigUtil.createLaunchPrefix(configuration), renv.getName() + " / Rterm " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
-				null, workingDirectory.toString(), timestamp);
+				null,
+				workingDirectory.toString(),
+				timestamp );
 		process.setAttribute(IProcess.ATTR_CMDLINE, LaunchConfigUtil.generateCommandLine(cmdLine));
 		
 		final RTermController controller = new RTermController(process, builder, charset);

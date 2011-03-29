@@ -480,7 +480,9 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			final RProcess process = new RProcess(launch, rEnv,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
 					((rEnv != null) ? rEnv.getName() : "-") + " / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
-					rmiAddress.toString(), (workingDirectory != null) ? workingDirectory.toString() : null, timestamp);
+					rmiAddress.toString(),
+					(workingDirectory != null) ? workingDirectory.toString() : null,
+					timestamp );
 			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n'
 					+ ((startup) ? Arrays.toString(args) : "rjs-reconnect")); //$NON-NLS-1$
 			

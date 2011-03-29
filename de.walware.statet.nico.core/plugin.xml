@@ -34,5 +34,13 @@
             properties="isMainType,isProvidingFeatureSet,isTerminated"
             type="org.eclipse.core.runtime.IAdaptable"/>
    </extension>
+   
+   <extension
+         point="org.eclipse.debug.core.processFactories">
+      <processFactory
+            id="de.walware.statet.nico.LogRuntimeProcessFactory"
+            class="de.walware.statet.nico.core.runtime.LogRuntimeProcessFactory">
+      </processFactory>
+   </extension>
 
 </plugin>
