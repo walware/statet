@@ -33,7 +33,8 @@ import de.walware.statet.nico.ui.NicoUITools;
 public class ToolInfoGroup {
 	
 	
-	private ToolProcess fProcess;
+	private final ToolProcess fProcess;
+	
 	private ViewForm fForm;
 	
 	

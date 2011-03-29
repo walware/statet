@@ -154,7 +154,7 @@ public final class Queue {
 	private IToolRunnable[] fFinishedExpected = null;
 	private IToolRunnable[] fFinishedCache = null;
 	private int fFinishedCacheDetail = -1;
-	private List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
+	private final List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
 	
 	private final ToolProcess fProcess;
 	

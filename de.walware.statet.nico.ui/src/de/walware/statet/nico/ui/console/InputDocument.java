@@ -54,7 +54,7 @@ public class InputDocument extends AbstractDocument {
 	
 	private class PartitionerMapper implements IDocumentPartitioner {
 		
-		private IDocumentPartitioner fMasterPartitioner;
+		private final IDocumentPartitioner fMasterPartitioner;
 		
 		public PartitionerMapper(final IDocumentPartitioner partitioner) {
 			fMasterPartitioner = partitioner;
@@ -95,7 +95,7 @@ public class InputDocument extends AbstractDocument {
 	
 	private class PartitionerMapper2 extends PartitionerMapper implements IDocumentPartitionerExtension2 {
 		
-		private IDocumentPartitionerExtension2 fMasterPartitioner2;
+		private final IDocumentPartitionerExtension2 fMasterPartitioner2;
 		
 		public PartitionerMapper2(final IDocumentPartitioner partitioner) {
 			super(partitioner);

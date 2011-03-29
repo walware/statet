@@ -56,7 +56,6 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackWriter;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
@@ -78,13 +77,13 @@ public class ExportConsoleOutputWizard extends Wizard {
 	protected static class ConfigurationPage extends WizardPage {
 		
 		
-		private NIConsolePage fConsolePage;
+		private final NIConsolePage fConsolePage;
+		
+		private final TrackingConfiguration fConfig;
+		private WritableValue fOpenValue;
 		
 		private TrackingConfigurationComposite fConfigControl;
 		private Button fOpenControl;
-		
-		private TrackingConfiguration fConfig;
-		private WritableValue fOpenValue;
 		
 		private DataBindingContext fDbc;
 		
@@ -185,9 +184,9 @@ public class ExportConsoleOutputWizard extends Wizard {
 	
 	
 	private TrackingConfiguration fConfig;
-	private int fSelectionLength;
+	private final int fSelectionLength;
 	
-	private NIConsolePage fConsolePage;
+	private final NIConsolePage fConsolePage;
 	
 	private ConfigurationPage fConfigPage;
 	

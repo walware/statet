@@ -128,8 +128,8 @@ public class ToolProgressGroup {
 	}
 	
 	
-	private DebugEventListener fDebugEventListener;
-	private Job fRefreshJob;
+	private final DebugEventListener fDebugEventListener;
+	private final Job fRefreshJob;
 	
 	private Composite fComposite;
 	private Label fImageLabel;
@@ -141,11 +141,13 @@ public class ToolProgressGroup {
 	
 	
 	/**
+	 * Creates a new group
 	 * 
+	 * @param parent the parent composite
 	 */
 	public ToolProgressGroup(final Composite parent) {
-		fRefreshJob = new RefreshJob();
 		fDebugEventListener = new DebugEventListener();
+		fRefreshJob = new RefreshJob();
 		
 		createControls(parent);
 		

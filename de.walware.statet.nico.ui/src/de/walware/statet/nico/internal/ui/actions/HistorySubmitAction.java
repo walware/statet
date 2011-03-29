@@ -20,10 +20,10 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
+import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.History.Entry;
 import de.walware.statet.nico.ui.NicoUIMessages;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.views.HistoryView;
@@ -32,7 +32,7 @@ import de.walware.statet.nico.ui.views.HistoryView;
 public class HistorySubmitAction extends Action {
 	
 	
-	private HistoryView fView;
+	private final HistoryView fView;
 	
 	
 	public HistorySubmitAction(final HistoryView view) {
@@ -48,8 +48,9 @@ public class HistorySubmitAction extends Action {
 		final Entry[] selection = fView.getSelection();
 		final ToolProcess process = fView.getTool();
 		final ToolController controller = (process != null) ? process.getController() : null;
-		if (selection == null || controller == null)
+		if (selection == null || controller == null) {
 			return;
+		}
 		
 		final IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(final IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {

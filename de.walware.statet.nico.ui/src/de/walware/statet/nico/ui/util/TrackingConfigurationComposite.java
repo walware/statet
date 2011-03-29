@@ -20,7 +20,6 @@ import org.eclipse.core.databinding.beans.BeansObservables;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.filesystem.EFS;
-import org.eclipse.debug.ui.StringVariableSelectionDialog.VariableFilter;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -36,11 +35,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Text;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.databinding.ComputedOnChangeValue;
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.NumberValidator;
-import de.walware.ecommons.ui.components.CustomizableVariableSelectionDialog;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
@@ -57,8 +54,8 @@ public class TrackingConfigurationComposite extends Composite {
 	
 	public static class SaveTemplate {
 		
-		private String fLabel;
-		private String fFilePath;
+		private final String fLabel;
+		private final String fFilePath;
 		
 		public SaveTemplate(final String label, final String path) {
 			fLabel = label;
@@ -93,7 +90,7 @@ public class TrackingConfigurationComposite extends Composite {
 	
 	private Button fPrependTimestampControl;
 	
-	private List<SaveTemplate> fSaveTemplates = new ArrayList<SaveTemplate>();
+	private final List<SaveTemplate> fSaveTemplates = new ArrayList<SaveTemplate>();
 	
 	private TrackingConfiguration fInput;
 	

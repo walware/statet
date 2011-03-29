@@ -59,7 +59,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 		private static final String OWN_SHOWCONSOLE_NAME = PageRegistry.SHOW_CONSOLE_JOB_NAME;
 		private static final String OTHER_SHOWCONSOLE_NAME = "Show Console View"; //$NON-NLS-1$
 		
-		private AtomicInteger fOwnJobs = new AtomicInteger(0);
+		private final AtomicInteger fOwnJobs = new AtomicInteger(0);
 		
 		public void scheduled(final IJobChangeEvent event) {
 			if (event.getJob().getName() == OWN_SHOWCONSOLE_NAME) {
@@ -144,7 +144,7 @@ public class ToolRegistry implements IToolRegistry, IPageListener {
 	}
 	
 	
-	private Map<IWorkbenchPage, PageRegistry> fPageRegistries = new HashMap<IWorkbenchPage, PageRegistry>();
+	private final Map<IWorkbenchPage, PageRegistry> fPageRegistries = new HashMap<IWorkbenchPage, PageRegistry>();
 	private boolean isDisposed = false;
 	
 	private LaunchesListener fLaunchesListener;

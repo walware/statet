@@ -26,7 +26,7 @@ import de.walware.statet.nico.ui.views.HistoryView;
 public class HistoryCopyAction extends Action {
 	
 	
-	private HistoryView fView;
+	private final HistoryView fView;
 	
 	
 	public HistoryCopyAction(final HistoryView view) {

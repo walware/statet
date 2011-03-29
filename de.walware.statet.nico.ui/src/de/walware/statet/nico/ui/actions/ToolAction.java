@@ -28,7 +28,7 @@ public class ToolAction extends Action implements IToolRetargetable {
 	
 	
 	private ToolProcess fTool;
-	private boolean fDisableOnTermination;
+	private final boolean fDisableOnTermination;
 	
 	
 	public ToolAction(final IToolProvider support, final boolean disableOnTermination) {

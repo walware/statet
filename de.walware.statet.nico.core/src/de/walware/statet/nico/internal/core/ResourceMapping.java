@@ -44,12 +44,11 @@ public class ResourceMapping implements IResourceMapping {
 	
 	private String fId;
 	
-	private String fLocalText;
-	private IFileStore fFileStore;
-	private String fRemoteText;
-	private IPath fRemotePath;
+	private final String fLocalText;
+	private final IFileStore fFileStore;
+	private final IPath fRemotePath;
 	
-	private String fHostName;
+	private final String fHostName;
 	private InetAddress[] fHostAddress;
 	
 	

@@ -133,9 +133,9 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private String fToolLabelTrimmedWD;
 	private String fToolLabelStatus;
 	
-	private String fAddress;
+	private final String fAddress;
+	private final long fConnectionTimestamp;
 	private long fStartupTimestamp;
-	private long fConnectionTimestamp;
 	private String fStartupWD;
 	Map<String, Object> fInitData;
 	

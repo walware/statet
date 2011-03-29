@@ -27,7 +27,7 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 public class RunnableProgressMonitor implements IProgressMonitorWithBlocking, IProgressInfo {
 	
 	
-	private String fMainName;
+	private final String fMainName;
 	private String fSubTaskName = ""; //$NON-NLS-1$
 	private IToolRunnable fRunnable = null;
 	private boolean fRefreshLabel = true;

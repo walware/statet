@@ -31,7 +31,6 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -143,14 +142,17 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		final int width = size.x;
 		final int height = size.y;
 		
-		if (fgPaletteData == null)
+		if (fgPaletteData == null) {
 			fgPaletteData = createPalette(display);
+		}
 		
 		final ImageData imageData = new ImageData(width, height, 1, fgPaletteData);
 		
-		for (int y= 0; y < height; y++)
-			for (int x= 0; x < width; x++)
+		for (int y= 0; y < height; y++) {
+			for (int x= 0; x < width; x++) {
 				imageData.setPixel(x, y, (x + y) % 2);
+			}
+		}
 		
 		return new Image(display, imageData);
 	}
@@ -408,7 +410,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	private IHistoryListener fHistoryListener;
 	private EnumSet<SubmitType> fHistoryTypesFilter;
 	
-	private ISourceUnit fSourceUnit;
+	private final ISourceUnit fSourceUnit;
 	
 	private Composite fComposite;
 	private Label fPrefix;
@@ -479,7 +481,7 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 			@Override
 			public void mouseDown(final MouseEvent e) {
 				if (UIAccess.isOkToUse(fSourceViewer)) {
-					fSourceViewer.doOperation(SourceViewer.SELECT_ALL);
+					fSourceViewer.doOperation(ITextOperationTarget.SELECT_ALL);
 				}
 			}
 		});

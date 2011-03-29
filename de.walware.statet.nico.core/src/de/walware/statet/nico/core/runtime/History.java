@@ -63,8 +63,8 @@ public class History {
 	private final ListenerList fListeners = new ListenerList(ListenerList.IDENTITY);
 	private final ReentrantReadWriteLock fLock = new ReentrantReadWriteLock();
 	
-	private ToolProcess fProcess;
-	private IPreferenceChangeListener fPreferenceListener;
+	private final ToolProcess fProcess;
+	private final IPreferenceChangeListener fPreferenceListener;
 	private HistoryPreferences fCurrentPreferences;
 	private final Map<SubmitType, IStreamListener> fStreamListeners = new EnumMap(SubmitType.class);
 	
@@ -288,7 +288,7 @@ public class History {
 					Messages.LoadHistory_ok_message, fileUtil.getFileLabel()));
 		} 
 		catch (final CoreException e) {
-			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
+			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
 					Messages.LoadHistory_error_message,
 					new Object[] { fProcess.getToolLabel(true), file.toString() }), e);
 		} finally {
@@ -385,7 +385,7 @@ public class History {
 					Messages.SaveHistory_ok_message, fileUtil.getFileLabel()));
 		}
 		catch (final CoreException e) {
-			return new Status(Status.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
+			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
 					Messages.SaveHistory_error_message,
 					new Object[] { fProcess.getLabel(), file.toString() }), e);
 		}
@@ -423,8 +423,9 @@ public class History {
 			final Object[] listeners = fListeners.getListeners();
 			for (final Object obj : listeners) {
 				final IHistoryListener listener = (IHistoryListener) obj;
-				if (removedEntry != null)
+				if (removedEntry != null) {
 					listener.entryRemoved(this, removedEntry);
+				}
 				listener.entryAdded(this, newEntry);
 			}
 		}

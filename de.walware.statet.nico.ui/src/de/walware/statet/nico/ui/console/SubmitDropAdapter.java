@@ -32,7 +32,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 	}
 	
 	
-	private NIConsolePage fPage;
+	private final NIConsolePage fPage;
 	
 	
 	public SubmitDropAdapter(final NIConsolePage page) {
@@ -73,8 +73,9 @@ public class SubmitDropAdapter implements DropTargetListener {
 			final String text = (String) event.data;
 			final ToolController controller = fPage.getConsole().getProcess().getController();
 			
-			if (text == null || controller == null)
+			if (text == null || controller == null) {
 				return;
+			}
 			
 			final IRunnableWithProgress runnable = SubmitPasteAction.createRunnable(controller, text);
 			NicoUITools.runSubmitInBackground(controller.getProcess(), runnable, fPage.getSite().getShell());

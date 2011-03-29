@@ -37,7 +37,7 @@ public class ToolSourceProvider extends AbstractSourceProvider implements IWindo
 	
 	private class RegistryListerner implements IToolRegistryListener {
 		
-		private IWorkbenchWindow fWindow;
+		private final IWorkbenchWindow fWindow;
 		
 		public RegistryListerner(final IWorkbenchWindow window) {
 			fWindow = window;

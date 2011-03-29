@@ -37,7 +37,7 @@ public class ToolMessageDialog extends MessageDialog {
 	}
 	
 	
-	private ToolProcess fTool;
+	private final ToolProcess fTool;
 	
 	
 	/**

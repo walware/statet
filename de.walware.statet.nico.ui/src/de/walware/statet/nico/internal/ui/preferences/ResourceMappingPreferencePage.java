@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -30,6 +29,7 @@ import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -107,7 +107,7 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 				@Override
 				protected ResourceMapping edit1(final ResourceMapping item, final boolean newItem, final Object parent) {
 					final EditMappingDialog dialog = new EditMappingDialog(getShell(), item, newItem);
-					if (dialog.open() == Dialog.OK) {
+					if (dialog.open() == Window.OK) {
 						return dialog.getResult();
 					}
 					return null;
@@ -271,6 +271,7 @@ class EditMappingDialog extends ExtStatusDialog {
 		return dialogArea;
 	}
 	
+	@Override
 	protected void addBindings(final DatabindingSupport db) {
 		db.getContext().bindValue(fLocalControl.getObservable(), fLocalValue,
 				new UpdateValueStrategy().setAfterGetValidator(fLocalControl.getValidator()), null);

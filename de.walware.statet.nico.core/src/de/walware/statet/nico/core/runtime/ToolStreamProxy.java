@@ -22,10 +22,10 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 public class ToolStreamProxy implements IStreamsProxy {
 	
 	
-	private ToolStreamMonitor fInputMonitor = new ToolStreamMonitor();
-	private ToolStreamMonitor fInfoMonitor = new ToolStreamMonitor();
-	private ToolStreamMonitor fOutputMonitor = new ToolStreamMonitor();
-	private ToolStreamMonitor fErrorMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor fInputMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor fInfoMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor fOutputMonitor = new ToolStreamMonitor();
+	private final ToolStreamMonitor fErrorMonitor = new ToolStreamMonitor();
 	
 	
 	public ToolStreamProxy() {

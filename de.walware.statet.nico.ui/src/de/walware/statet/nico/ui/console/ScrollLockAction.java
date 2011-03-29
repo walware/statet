@@ -27,7 +27,7 @@ public class ScrollLockAction extends Action {
 	}
 	
 	
-	private Receiver fView;
+	private final Receiver fView;
 	
 	
 	public ScrollLockAction(final Receiver view, final boolean initialChecked) {

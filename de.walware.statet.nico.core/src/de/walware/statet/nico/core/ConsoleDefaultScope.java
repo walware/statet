@@ -26,7 +26,7 @@ public final class ConsoleDefaultScope implements IScopeContext {
 	public static final String SCOPE = "nico.default"; //$NON-NLS-1$
 	
 	
-	private IScopeContext fBaseScope;
+	private final IScopeContext fBaseScope;
 	
 	
 	public ConsoleDefaultScope() {

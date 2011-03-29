@@ -37,7 +37,7 @@ class SubmitPasteAction extends Action {
 	private static Pattern gLineSeparatorPattern = Pattern.compile("\\r[\\n]?|\\n"); //$NON-NLS-1$
 	
 	
-	private NIConsolePage fView;
+	private final NIConsolePage fView;
 	
 	
 	public SubmitPasteAction(final NIConsolePage consolePage) {
@@ -56,8 +56,9 @@ class SubmitPasteAction extends Action {
 		final String text = (String) fView.getClipboard().getContents(transfer);
 		final ToolController controller = fView.getConsole().getProcess().getController();
 		
-		if (text == null || controller == null)
+		if (text == null || controller == null) {
 			return;
+		}
 		
 		NicoUITools.runSubmitInBackground(
 				controller.getProcess(),

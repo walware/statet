@@ -40,7 +40,7 @@ public class CommandRunnableAdapterFactory implements IAdapterFactory {
 	}
 	
 	
-	private Adapter fAdapter = new Adapter(); // adapter can be reused
+	private final Adapter fAdapter = new Adapter(); // adapter can be reused
 	
 	
 	public Object getAdapter(final Object adaptableObject, final Class adapterType) {

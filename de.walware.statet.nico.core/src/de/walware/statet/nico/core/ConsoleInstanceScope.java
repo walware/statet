@@ -24,7 +24,9 @@ public final class ConsoleInstanceScope implements IScopeContext {
 	
 	
 	public static final String SCOPE = "nico.instance"; //$NON-NLS-1$
-	private InstanceScope fBaseScope;
+	
+	
+	private final InstanceScope fBaseScope;
 	
 	
 	public ConsoleInstanceScope() {

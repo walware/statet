@@ -28,9 +28,9 @@ import de.walware.statet.nico.core.util.TrackingConfiguration;
 public class TrackingConfigurationDialog extends ExtStatusDialog {
 	
 	
-	private TrackingConfigurationComposite fConfigComposite;
+	private final TrackingConfiguration fConfig;
 	
-	private TrackingConfiguration fConfig;
+	private TrackingConfigurationComposite fConfigComposite;
 	
 	
 	public TrackingConfigurationDialog(final Shell parent, final TrackingConfiguration config, final boolean isNew) {

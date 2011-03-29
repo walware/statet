@@ -221,7 +221,7 @@ public class NicoUITools {
 		}
 		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
-					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)), e),
+					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)), e.getCause()),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InterruptedException e) {

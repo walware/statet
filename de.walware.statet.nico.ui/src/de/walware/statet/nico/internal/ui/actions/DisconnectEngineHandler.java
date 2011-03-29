@@ -40,7 +40,7 @@ public class DisconnectEngineHandler extends ToolRetargetableHandler {
 		}
 		
 		
-		private ToolController fController;
+		private final ToolController fController;
 		
 		
 		DisconnectJob(final ToolProcess process, final ToolController controller) {

@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceRuleFactory;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -47,7 +48,7 @@ public class OpenTrackingFilesContributionItem extends CompoundContributionItem 
 	private static class RefreshFileJob extends Job {
 		
 		
-		private IFile fFile;
+		private final IFile fFile;
 		
 		
 		public RefreshFileJob(final String name, final IFile file) {
@@ -64,7 +65,7 @@ public class OpenTrackingFilesContributionItem extends CompoundContributionItem 
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
 			try {
-				fFile.refreshLocal(IFile.DEPTH_ONE, monitor);
+				fFile.refreshLocal(IResource.DEPTH_ONE, monitor);
 			}
 			catch (final CoreException e) {
 			}
@@ -95,7 +96,7 @@ public class OpenTrackingFilesContributionItem extends CompoundContributionItem 
 	}
 	
 	
-	private ToolProcess fTool;
+	private final ToolProcess fTool;
 	
 	
 	public OpenTrackingFilesContributionItem(final ToolProcess tool) {

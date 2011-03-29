@@ -80,9 +80,9 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 	}
 	
 	
-	private ToolController fController;
+	private final ToolController fController;
 	
-	private TrackingConfiguration fConfig;
+	private final TrackingConfiguration fConfig;
 	
 	private IFileStore fStoreFile;
 	private Writer fOutputWriter;
@@ -117,7 +117,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			if (fConfig.getId().equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)
 					&& ((HistoryTrackingConfiguration) fConfig).getLoadHistory()
 					&& fStoreFile.fetchInfo().exists()) {
-				fController.getProcess().getHistory().load(fStoreFile, fConfig.getFileEncoding(), false, monitor); //$NON-NLS-1$
+				fController.getProcess().getHistory().load(fStoreFile, fConfig.getFileEncoding(), false, monitor);
 			}
 			
 			outputStream = fStoreFile.openOutputStream(fConfig.getFileMode(), monitor);

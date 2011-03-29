@@ -147,7 +147,7 @@ public class ToolWorkspace {
 	
 	private boolean fIsRefreshing;
 	
-	private FastList<IDynamicVariable> fStringVariables = new FastList<IDynamicVariable>(IDynamicVariable.class);
+	private final FastList<IDynamicVariable> fStringVariables = new FastList<IDynamicVariable>(IDynamicVariable.class);
 	
 	
 	public ToolWorkspace(final ToolController controller,

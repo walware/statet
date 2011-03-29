@@ -21,7 +21,7 @@ import de.walware.statet.nico.ui.views.HistoryView;
 public class HistoryDragAdapter extends DragSourceAdapter {
 	
 	
-	private HistoryView fView;
+	private final HistoryView fView;
 	
 	private Entry[] fCurrentSelection;
 	

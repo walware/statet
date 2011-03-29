@@ -97,7 +97,7 @@ public class OutputViewer extends TextConsoleViewer {
 						(lineCount - 1) : (lineCount));
 				final int visiblePixel = textWidget.getClientArea().height;
 				final int linePixel = textWidget.getLineHeight();
-				int topPixel = (linePixel * (lineToShow - 1)) - visiblePixel + 2;
+				final int topPixel = (linePixel * (lineToShow - 1)) - visiblePixel + 2;
 				if (topPixel + linePixel > 0) {
 					if (topPixel < 0) {
 						textWidget.setTopPixel(

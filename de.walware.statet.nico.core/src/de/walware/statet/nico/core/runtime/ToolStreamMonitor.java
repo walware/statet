@@ -22,7 +22,7 @@ import org.eclipse.debug.core.model.IStreamMonitor;
 public class ToolStreamMonitor implements IStreamMonitor {
 	
 	
-	private EnumMap<SubmitType, ListenerList> fListeners;
+	private final EnumMap<SubmitType, ListenerList> fListeners;
 	private int fCurrentMeta;
 	
 	

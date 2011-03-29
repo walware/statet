@@ -26,7 +26,7 @@ public class TrackingConfiguration extends AbstractSettingsModelObject {
 	static int DEFAULT_FILE_MODE = EFS.APPEND;
 	
 	
-	private String fId;
+	private final String fId;
 	
 	private String fName;
 	

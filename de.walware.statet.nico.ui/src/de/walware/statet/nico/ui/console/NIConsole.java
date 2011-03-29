@@ -75,7 +75,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		
 	}
 	
-	private NIConsolePartitioner fPartitioner;
+	private final NIConsolePartitioner fPartitioner;
 	private final Map<String, NIConsoleOutputStream> fStreams = new HashMap<String, NIConsoleOutputStream>();
 	private boolean fStreamsClosed;
 	
@@ -83,7 +83,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	private NIConsoleColorAdapter fAdapter;
 	
 	private IDebugEventSetListener fDebugListener;
-	private SettingsListener fSettingsListener = new SettingsListener();
+	private final SettingsListener fSettingsListener = new SettingsListener();
 	private int fCurrentWatermark;
 	
 	
