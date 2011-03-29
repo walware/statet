@@ -214,9 +214,9 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			return;
 		}
 		
-		IREnvConfiguration rEnvConfig = null;
+		IREnvConfiguration rEnv = null;
 		try {
-			rEnvConfig = REnvTab.getREnvConfig(configuration, false);
+			rEnv = REnvTab.getREnvConfig(configuration, false);
 		}
 		catch (final Exception e) {}
 		
@@ -326,7 +326,8 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 								}
 							});
 							if (!force.get()) {
-								return;
+								monitor.setCanceled(true);
+								throw new CoreException(Status.CANCEL_STATUS);
 							}
 						}
 					}
@@ -461,11 +462,13 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 				else {
 					if (reconnect != null) {
 						throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
-								NLS.bind("Cannot reconnect to server, no R engine is available at ''{0}''.", address), todoException));
+								NLS.bind("Cannot reconnect to server, no R engine is available at ''{0}''.", address),
+								todoException));
 					}
 					else {
 						throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, 0,
-								NLS.bind("Cannot start or reconnect to server, to R engine at ''{0}''. You have to restart the server (manually or using SSH automation).", address), null));
+								NLS.bind("Cannot start or reconnect to server, to R engine at ''{0}''. You have to restart the server (manually or using SSH automation).", address),
+								todoException));
 					}
 				}
 			}
@@ -474,9 +477,9 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 			UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_REMOTE_CONSOLE_CONFIGURATION_TYPE);
 			final boolean startup = (todo == TODO_START_R);
 			
-			final RProcess process = new RProcess(launch, rEnvConfig,
+			final RProcess process = new RProcess(launch, rEnv,
 					LaunchConfigUtil.createLaunchPrefix(configuration),
-					" / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
+					((rEnv != null) ? rEnv.getName() : "-") + " / RJ " + rmiAddress.toString() + ' ' + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 					rmiAddress.toString(), (workingDirectory != null) ? workingDirectory.toString() : null, timestamp);
 			process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n'
 					+ ((startup) ? Arrays.toString(args) : "rjs-reconnect")); //$NON-NLS-1$

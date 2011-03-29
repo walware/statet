@@ -91,14 +91,14 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	
 	private static class Cmd extends AbstractSettingsModelObject {
 		
-		public final static int PACKAGE = 1;
-		public final static int DOC = 2;
-		public final static int OTHER = 3;
+		public final static int PACKAGE_DIR = 1;
+		public final static int PACKAGE_DIR_OR_ARCHIVE = 2;
+		public final static int DOC = 3;
 		public final static int CUSTOM = 4;
 		
 		private final String fName;
 		private String fCommand;
-		private int fType;
+		private final int fType;
 		
 		public Cmd(final String name, final String command, final int type) {
 			fName = name;
@@ -150,15 +150,15 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 	
 	private void createCommands() {
 		final List<Cmd> commands = new ArrayList<Cmd>();
-		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdCheck_name, "CMD check", Cmd.PACKAGE)); //$NON-NLS-1$
-		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdBuild_name, "CMD build", Cmd.PACKAGE)); //$NON-NLS-1$
-		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdInstall_name, "CMD INSTALL", Cmd.PACKAGE)); //$NON-NLS-1$
-		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRemove_name, "CMD REMOVE", Cmd.PACKAGE)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdCheck_name, "CMD check", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdBuild_name, "CMD build", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdInstall_name, "CMD INSTALL", Cmd.PACKAGE_DIR_OR_ARCHIVE)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRemove_name, "CMD REMOVE", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRdconv_name, "CMD Rdconv", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRd2dvi_name, "CMD Rd2dvi", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRd2txt_name, "CMD Rd2txt", Cmd.DOC)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdSd2Rd_name, "CMD Sd2Rd", Cmd.DOC)); //$NON-NLS-1$
-		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRoxygen_name, "CMD roxygen", Cmd.PACKAGE)); //$NON-NLS-1$
+		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdRoxygen_name, "CMD roxygen", Cmd.PACKAGE_DIR)); //$NON-NLS-1$
 		commands.add(new Cmd(RLaunchingMessages.RCmd_CmdSweave_name, "CMD Sweave", Cmd.DOC)); //$NON-NLS-1$
 		fCustomCommand = new Cmd(RLaunchingMessages.RCmd_CmdOther_name, "", Cmd.CUSTOM); //$NON-NLS-1$
 		commands.add(fCustomCommand);
@@ -296,15 +296,19 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 					String label;
 					int mode = 0;
 					switch (cmd.getType()) {
-					case Cmd.PACKAGE:
-						label = RLaunchingMessages.RCmd_Resource_Package_label;
+					case Cmd.PACKAGE_DIR:
+						label = RLaunchingMessages.RCmd_Resource_PackageDir_label;
 						mode = ResourceInputComposite.MODE_DIRECTORY;
+						break;
+					case Cmd.PACKAGE_DIR_OR_ARCHIVE:
+						label = RLaunchingMessages.RCmd_Resource_PackageDirOrArchive_label;
+						mode = ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_DIRECTORY;
 						break;
 					case Cmd.DOC:
 						label = RLaunchingMessages.RCmd_Resource_Doc_label;
 						mode = ResourceInputComposite.MODE_FILE;
 						break;
-					default: // Cmd.OTHER, Cmd.CUSTOM
+					default: // Cmd.CUSTOM
 						label = RLaunchingMessages.RCmd_Resource_Other_label;
 						mode = ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_DIRECTORY;
 						break;

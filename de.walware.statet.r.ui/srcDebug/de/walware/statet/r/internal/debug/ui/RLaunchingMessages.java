@@ -81,9 +81,10 @@ public class RLaunchingMessages extends NLS {
 	public static String RCmd_MainTab_RunHelp_label;
 	public static String RCmd_MainTab_error_CannotRunHelp_message;
 	public static String RCmd_MainTab_error_WhileRunningHelp_message;
+	public static String RCmd_Resource_PackageDir_label;
+	public static String RCmd_Resource_PackageDirOrArchive_label;
 	public static String RCmd_Resource_Doc_label;
 	public static String RCmd_Resource_Other_label;
-	public static String RCmd_Resource_Package_label;
 	public static String RCmd_LaunchDelegate_Running_label;
 	
 	public static String JavaJRE_RCompatibility_error_DifferentBits_message;

@@ -287,10 +287,30 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		return fMainType;
 	}
 	
+	/**
+	 * Returns the name of the process, usually with a timestamp.
+	 * <p>
+	 * For example: <code>R-2.11.1 / RJ (29.11.2010 12:56:37)</code>
+	 * 
+	 * @return
+	 */
 	public String getLabel() {
 		return fName;
 	}
 	
+	/**
+	 * Returns a label of the tool, usually based on the launch configuration.
+	 * <p>
+	 * Short label: &lt;name of launch config&gt; [&lt;name of launch type&gt;]<br/>
+	 * For example: <code>RJ-2.11 [R Console]</code>
+	 * </p><p>
+	 * Long label: &lt;short label&gt; &lt;name&gt;<br/>
+	 * For example: <code>RJ-2.11 [R Console] R-2.11.1 / RJ (29.11.2010 12:49:51)</code>
+	 * </p>
+	 * 
+	 * @param longLabel
+	 * @return
+	 */
 	public String getToolLabel(final boolean longLabel) {
 		if (longLabel) {
 			return fToolLabelShort + ' ' + fName;

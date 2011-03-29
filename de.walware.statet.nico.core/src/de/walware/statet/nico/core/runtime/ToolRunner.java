@@ -14,6 +14,7 @@ package de.walware.statet.nico.core.runtime;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.osgi.util.NLS;
 
@@ -32,14 +33,16 @@ public class ToolRunner {
 	}
 	
 	
-	private Object run(final ToolProcess process) throws CoreException {
+	private void run(final ToolProcess process) throws CoreException {
 		final ToolController controller = process.getController();
 		controller.run();
-		
-		return null;
 	}
 	
-	public <WorkspaceType extends ToolWorkspace> void runInBackgroundThread(final ToolProcess<WorkspaceType> process, final IStatusHandler handler) {
+	public <WorkspaceType extends ToolWorkspace> void runInBackgroundThread(
+			final ToolProcess<WorkspaceType> process, final IStatusHandler handler) {
+		if (process == null || handler == null) {
+			throw new NullPointerException();
+		}
 		final Thread background = new Thread() {
 			@Override
 			public void run() {
@@ -47,19 +50,24 @@ public class ToolRunner {
 					ToolRunner.this.run(process);
 				}
 				catch (final CoreException e) {
-					process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;
-					final IStatus status = new Status(
-							IStatus.ERROR,
-							NicoCore.PLUGIN_ID,
-							NicoCore.STATUSCODE_RUNTIME_ERROR,
-							NLS.bind(Messages.Runtime_error_UnexpectedTermination_message,
-									new Object[] { process.getToolLabel(false), process.getLabel() }),
-							e);
-					try {
-						handler.handleStatus(status, null);
-					} catch (final CoreException e1) {
-						NicoPlugin.log(status);
-						NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
+					if (e.getStatus().getSeverity() == IStatus.CANCEL) {
+					}
+					else {
+						process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;
+						final IStatus status = new Status(
+								IStatus.ERROR,
+								NicoCore.PLUGIN_ID,
+								NicoCore.STATUSCODE_RUNTIME_ERROR,
+								NLS.bind(Messages.Runtime_error_UnexpectedTermination_message,
+										new Object[] { process.getToolLabel(false), process.getLabel() }),
+								e);
+						try {
+							handler.handleStatus(status, null);
+						}
+						catch (final CoreException e1) {
+							NicoPlugin.log(status);
+							NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
+						}
 					}
 				}
 				catch (final Throwable e) {
@@ -73,11 +81,20 @@ public class ToolRunner {
 							e);
 					try {
 						handler.handleStatus(status, null);
-					} catch (final CoreException e1) {
+					}
+					catch (final CoreException e1) {
 						NicoPlugin.log(status);
 						NicoPlugin.logError(NicoPlugin.EXTERNAL_ERROR, Messages.ErrorHandling_error_message, e1);
 					}
 				}
+				
+				try {
+					final ILaunch launch = process.getLaunch();
+					if (launch != null && !launch.isTerminated()) {
+						launch.isTerminated();
+					}
+				}
+				catch (final Throwable e) {}
 			}
 		};
 		background.setDaemon(true);

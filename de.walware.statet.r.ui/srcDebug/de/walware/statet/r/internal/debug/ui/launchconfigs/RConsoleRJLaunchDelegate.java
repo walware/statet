@@ -181,7 +181,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		
 		// r env
-		final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
+		final IREnvConfiguration rEnv = REnvTab.getREnvConfig(configuration, true);
 		
 		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_LOCAL_REGISTRY_PORT);
 		final RMIAddress rmiAddress;
@@ -193,7 +193,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					RLaunchingMessages.RJLaunchDelegate_error_InvalidAddress_message, e));
 		}
-		final RJEngineLaunchDelegate engineLaunchDelegate = new RJEngineLaunchDelegate(rmiAddress.getAddress(), renv);
+		final RJEngineLaunchDelegate engineLaunchDelegate = new RJEngineLaunchDelegate(rmiAddress.getAddress(), rEnv);
 		
 		progress.worked(1);
 		if (progress.isCanceled()) {
@@ -231,9 +231,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		// create process
 		UnterminatedLaunchAlerter.registerLaunchType(RLaunchConfigurations.ID_R_CONSOLE_CONFIGURATION_TYPE);
 		
-		final RProcess process = new RProcess(launch, renv,
+		final RProcess process = new RProcess(launch, rEnv,
 				LaunchConfigUtil.createLaunchPrefix(configuration),
-				renv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
+				rEnv.getName() + " / RJ " + LaunchConfigUtil.createProcessTimestamp(timestamp), //$NON-NLS-1$
 				rmiAddress.toString(), null, timestamp); // wd is set at rjs startup
 		process.setAttribute(IProcess.ATTR_CMDLINE, rmiAddress.toString() + '\n' + Arrays.toString(rArgs));
 		

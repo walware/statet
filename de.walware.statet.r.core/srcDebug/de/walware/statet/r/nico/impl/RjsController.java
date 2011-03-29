@@ -680,6 +680,11 @@ public class RjsController extends AbstractRController implements IRemoteEngineC
 			return;
 		}
 		interruptTool(9);
+		synchronized (fQueue) {
+			fQueue.notifyAll();
+		}
+		
+		fRjs.setClosed(true);
 		final ToolProcess consoleProcess = getProcess();
 		// TODO: kill remote command?
 		final IProcess[] processes = consoleProcess.getLaunch().getProcesses();
