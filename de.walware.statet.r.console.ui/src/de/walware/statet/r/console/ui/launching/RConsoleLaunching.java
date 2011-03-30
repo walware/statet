@@ -105,10 +105,10 @@ public class RConsoleLaunching {
 		controller.addEventHandler(HistoryOperationsHandler.LOAD_HISTORY_ID, historyHandler);
 		controller.addEventHandler(HistoryOperationsHandler.SAVE_HISTORY_ID, historyHandler);
 		controller.addEventHandler(HistoryOperationsHandler.ADDTO_HISTORY_ID, historyHandler);
-		controller.addEventHandler(IToolEventHandler.CHOOSEFILE_EVENT_ID, new ChooseFileHandler());
+		controller.addEventHandler(ChooseFileHandler.CHOOSE_FILE_ID, new ChooseFileHandler());
 		final IToolEventHandler ideHandler = new EclipseIDEOperationsHandler();
-		controller.addEventHandler(IToolEventHandler.SHOW_HISTORY_ID, ideHandler);
-		controller.addEventHandler(IToolEventHandler.SHOW_FILE_ID, ideHandler);
+		controller.addEventHandler(EclipseIDEOperationsHandler.SHOW_FILE_ID, ideHandler);
+		controller.addEventHandler(EclipseIDEOperationsHandler.SHOW_HISTORY_ID, ideHandler);
 		final IToolEventHandler rHelpHandler = new RHelpEventHandler();
 		controller.addEventHandler(AbstractRController.SHOW_RHELP_HANDLER_ID, rHelpHandler);
 	}

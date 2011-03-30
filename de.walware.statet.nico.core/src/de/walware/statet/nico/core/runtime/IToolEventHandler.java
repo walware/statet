@@ -91,19 +91,6 @@ public interface IToolEventHandler {
 	/** {@link IToolRunnable} = runnable to run */
 	public static final String RUN_RUNNABLE_DATA_KEY = "runnable"; //$NON-NLS-1$
 	
-	/**
-	 * 
-	 * return:  OK = schedule, CANCEL = do nothing
-	 * 
-	 * @deprecated use {@link #CHOOSEFILE_EVENT_ID}
-	 */
-	public static final String SELECTFILE_EVENT_ID = "common/selectFile"; //$NON-NLS-1$
-	public static final String CHOOSEFILE_EVENT_ID = "common/chooseFile"; //$NON-NLS-1$
-	
-	public static final String SHOW_FILE_ID = "common/showFile"; //$NON-NLS-1$
-	
-	public static final String SHOW_HISTORY_ID = "common/showHistory"; //$NON-NLS-1$
-	
 	
 	public IStatus handle(String id, IToolRunnableControllerAdapter tools, Map<String, Object> data, IProgressMonitor monitor);
 	

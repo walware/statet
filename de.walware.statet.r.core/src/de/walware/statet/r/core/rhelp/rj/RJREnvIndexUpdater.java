@@ -68,7 +68,7 @@ public class RJREnvIndexUpdater {
 	}
 	
 	
-	private static final RList FINISH = new RListImpl(new RObject[0], null);
+	private static final RList FINISH = new RListImpl(new RObject[0], (String[]) null);
 	
 	private class LocalJob extends Job {
 		

@@ -41,28 +41,13 @@ import de.walware.statet.nico.ui.views.HistoryView;
 public class EclipseIDEOperationsHandler implements IToolEventHandler {
 	
 	
+	public static final String SHOW_FILE_ID = "common/showFile"; //$NON-NLS-1$
+	
+	public static final String SHOW_HISTORY_ID = "common/showHistory"; //$NON-NLS-1$
+	
+	
 	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
-		if (id.equals(IToolEventHandler.SHOW_HISTORY_ID)) {
-			final String pattern = ToolEventHandlerUtil.getCheckedData(data, "pattern", String.class, false); //$NON-NLS-1$
-			final Display display = UIAccess.getDisplay();
-			display.syncExec(new Runnable() {
-				public void run() {
-					try {
-						final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getProcess());
-						final HistoryView view = (HistoryView) page.showView(NicoUI.HISTORY_VIEW_ID);
-						if (pattern != null) {
-							view.search(pattern, false);
-						}
-					}
-					catch (final PartInitException e) {
-						tools.handleStatus(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
-								"An error occurred when trying open/activate the History view.", e), monitor);
-					}
-				}
-			});
-			return Status.OK_STATUS;
-		}
-		if (id.equals(IToolEventHandler.SHOW_FILE_ID)) {
+		if (id.equals(SHOW_FILE_ID)) {
 			final IFileStore fileStore;
 			final String filename = ToolEventHandlerUtil.getCheckedData(data, "filename", String.class, true); //$NON-NLS-1$
 			final ToolWorkspace workspaceData = tools.getWorkspaceData();
@@ -84,6 +69,26 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 					catch (final PartInitException e) {
 						tools.handleStatus(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 								"An error occurred when trying open/activate the Editor.", e), monitor);
+					}
+				}
+			});
+			return Status.OK_STATUS;
+		}
+		if (id.equals(SHOW_HISTORY_ID)) {
+			final String pattern = ToolEventHandlerUtil.getCheckedData(data, "pattern", String.class, false); //$NON-NLS-1$
+			final Display display = UIAccess.getDisplay();
+			display.syncExec(new Runnable() {
+				public void run() {
+					try {
+						final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getProcess());
+						final HistoryView view = (HistoryView) page.showView(NicoUI.HISTORY_VIEW_ID);
+						if (pattern != null) {
+							view.search(pattern, false);
+						}
+					}
+					catch (final PartInitException e) {
+						tools.handleStatus(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
+								"An error occurred when trying open/activate the History view.", e), monitor);
 					}
 				}
 			});

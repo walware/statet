@@ -54,6 +54,9 @@ import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 public class ChooseFileHandler implements IToolEventHandler {
 	
 	
+	public static final String CHOOSE_FILE_ID = "common/chooseFile"; //$NON-NLS-1$
+	
+	
 	private static class ChooseFileDialog extends ToolDialog {
 		
 		private final int fMode;

@@ -48,7 +48,6 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.RMIAddress;
 
-import de.walware.statet.nico.core.runtime.HistoryOperationsHandler;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
@@ -59,11 +58,13 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.rj.RjException;
+import de.walware.rj.data.RDataJConverter;
+import de.walware.rj.data.RList;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
+import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.server.ConsoleEngine;
-import de.walware.rj.server.ExtUICmdItem;
 import de.walware.rj.server.FxCallback;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.RjsStatus;
@@ -112,7 +113,7 @@ public class RjsController extends AbstractRController
 		@Override
 		protected void updateBusy(final boolean isBusy) {
 //			try {
-				RjsController.this.fIsBusy = isBusy;
+				fIsBusy = isBusy;
 //			}
 //			catch (Exception e) {
 //			}
@@ -156,68 +157,48 @@ public class RjsController extends AbstractRController
 		
 		
 		@Override
-		protected void handleUICallback(final ExtUICmdItem cmd, final IProgressMonitor monitor) throws Exception {
-			final String command = cmd.getDataText();
-			// if we have more commands, we should create a hashmap
-			if (command.equals(ExtUICmdItem.C_CHOOSE_FILE) || command.equals(IToolEventHandler.CHOOSEFILE_EVENT_ID)) {
-				final IToolEventHandler handler = getEventHandler(IToolEventHandler.CHOOSEFILE_EVENT_ID);
-				if (handler != null) {
-					final Map<String, Object> data = cmd.getDataMap();
-					if (handler.handle(IToolEventHandler.CHOOSEFILE_EVENT_ID, RjsController.this, data, monitor).isOK()) {
-						cmd.setAnswer(Collections.singletonMap("filename", data.get("filename"))); //$NON-NLS-1$ //$NON-NLS-2$
-						return;
+		protected RList handleUICallback(final String commandId, final RList args,
+				final IProgressMonitor monitor) throws Exception {
+			// TODO: allow handlers to use RJ data objects
+			// TODO: allow handlers to return values
+			// TODO: provide extension point for event handlers
+			final IToolEventHandler handler = getEventHandler(commandId);
+			if (handler != null) {
+				final RDataJConverter converter = new RDataJConverter();
+				converter.setKeepArray1(false);
+				converter.setRObjectFactory(RObjectFactoryImpl.INSTANCE);
+				
+				final Map<String, Object> javaArgs = new HashMap<String, Object>();
+				if (args != null) {
+					for (int i = 0; i < args.getLength(); i++) {
+						javaArgs.put(args.getName(i), converter.toJava(args.get(i)));
 					}
 				}
-				cmd.setAnswer(RjsStatus.CANCEL_STATUS);
-				return;
-			}
-			if (command.equals(ExtUICmdItem.C_LOAD_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.LOAD_HISTORY_ID, monitor);
-				return;
-			}
-			if (command.equals(ExtUICmdItem.C_SAVE_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.SAVE_HISTORY_ID, monitor);
-				return;
-			}
-			if (command.equals(ExtUICmdItem.C_ADDTO_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, HistoryOperationsHandler.ADDTO_HISTORY_ID, monitor);
-				return;
-			}
-			if (command.equals(ExtUICmdItem.C_SHOW_HISTORY)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_HISTORY_ID, monitor);
-				return;
-			}
-			if (command.equals(IToolEventHandler.SHOW_FILE_ID)) {
-				handleUICmdByDataTextHandler(cmd, IToolEventHandler.SHOW_FILE_ID, monitor);
-				return;
-			}
-			if (command.equals(SHOW_RHELP_HANDLER_ID)) {
-				handleUICmdByDataTextHandler(cmd, SHOW_RHELP_HANDLER_ID, monitor);
-				return;
-			}
-			
-			super.handleUICallback(cmd, monitor);
-		}
-		
-		private void handleUICmdByDataTextHandler(final ExtUICmdItem cmd, final String handlerId, final IProgressMonitor monitor) {
-			final IToolEventHandler handler = getEventHandler(handlerId);
-			if (handler != null) {
-				final IStatus status = handler.handle(handlerId, RjsController.this, cmd.getDataMap(), monitor);
+				
+				final IStatus status = handler.handle(commandId, RjsController.this, javaArgs, monitor);
 				switch (status.getSeverity()) {
 				case IStatus.OK:
-					cmd.setAnswer(RjsStatus.OK_STATUS);
-					return;
-				case IStatus.CANCEL:
-					cmd.setAnswer(RjsStatus.CANCEL_STATUS);
-					return;
+					break;
 				default:
-					cmd.setAnswer(new RjsStatus(status.getSeverity(), status.getCode(), status.getMessage()));
-					return;
+					throw new CoreException(status);
+				}
+				
+				Map<String, Object> javaAnswer = null;
+				if (commandId.equals("common/chooseFile")) { //$NON-NLS-1$
+					javaAnswer = Collections.singletonMap(
+							"filename", javaArgs.get("filename") ); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				
+				if (javaAnswer != null) {
+					final RList answer = (RList) converter.toRJ(javaAnswer);
+					return answer;
+				}
+				else {
+					return null;
 				}
 			}
-			log(new Status(IStatus.WARNING, RConsoleCorePlugin.PLUGIN_ID, -1,
-					NLS.bind("Unhandled RJ UI command ''{0}'': no event handler for ''{1}''.", cmd.getDataText(), handlerId), null)); 
-			cmd.setAnswer(RjsStatus.CANCEL_STATUS);
+			
+			return super.handleUICallback(commandId, args, monitor);
 		}
 		
 		@Override
