@@ -49,6 +49,7 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
+import de.walware.statet.r.core.renv.REnvUtil;
 import de.walware.statet.r.internal.debug.ui.preferences.REnvPreferencePage;
 
 
@@ -59,45 +60,10 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	
 	
 	private static final Comparator<IREnv> RENV_COMPARATOR = new Comparator<IREnv>() {
-		public int compare(IREnv o1, IREnv o2) {
+		public int compare(final IREnv o1, final IREnv o2) {
 			return Collator.getInstance().compare(o1.getName(), o2.getName());
 		}
 	};
-	
-	
-	public static IREnv compatDecode(final String encodedSetting) {
-		if (encodedSetting != null) {
-			final int idx = encodedSetting.indexOf(';');
-			final IREnv rEnv;
-			if (idx >= 0) {
-				rEnv = RCore.getREnvManager().get(encodedSetting.substring(0, idx), encodedSetting.substring(idx+1));
-			}
-			else {
-				rEnv = RCore.getREnvManager().get(encodedSetting, null);
-			}
-			if (rEnv != null) {
-				return rEnv;
-			}
-			try {
-				return REnvSetting.decodeToREnv(encodedSetting, false);
-			}
-			catch (final Exception e) {}
-		}
-		return null;
-	}
-	
-	public String encode(final IREnv rEnv) {
-		if (rEnv != null) {
-			final String name = rEnv.getName();
-			if (name != null) {
-				return rEnv.getId() + ';' + name;
-			}
-			else {
-				return rEnv.getId() + ';';
-			}
-		}
-		return ""; //$NON-NLS-1$
-	}
 	
 	
 	public static interface ChangeListener {
@@ -335,7 +301,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 	}
 	
 	public void setEncodedSetting(final String encodedSetting) {
-		setSetting(compatDecode(encodedSetting));
+		setSetting(REnvUtil.decode(encodedSetting, RCore.getREnvManager()));
 	}
 	
 	private String getSpecifiedName() {
@@ -375,7 +341,7 @@ public class REnvSelectionComposite extends Composite implements ISettingsChange
 		}
 		
 		final String oldEncoded = fCurrentEncoded;
-		fCurrentEncoded = encode(fCurrentREnv);
+		fCurrentEncoded = REnvUtil.encode(fCurrentREnv);
 		if (!((fCurrentEncoded != null) ? fCurrentEncoded.equals(oldEncoded) : (null == oldEncoded))) {
 			for (final ChangeListener listener : fListeners.toArray()) {
 				listener.settingChanged(this, oldEncoded, fCurrentEncoded, fCurrentREnv);

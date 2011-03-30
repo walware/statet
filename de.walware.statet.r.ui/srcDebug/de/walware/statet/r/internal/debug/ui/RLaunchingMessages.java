@@ -51,8 +51,6 @@ public class RLaunchingMessages extends NLS {
 	public static String REnv_Tab_REnvConfig_label;
 	public static String REnv_Tab_title;
 	public static String REnv_Tab_WorkingDir_label;
-	public static String REnv_Runtime_error_CouldNotFound_message;
-	public static String REnv_Runtime_error_Invalid_message;
 	
 	public static String RConsole_MainTab_name;
 	public static String RConsole_MainTab_LaunchType_label;

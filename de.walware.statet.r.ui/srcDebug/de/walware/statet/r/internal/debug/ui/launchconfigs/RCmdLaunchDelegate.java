@@ -49,6 +49,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RErrorLineTracker;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -76,7 +77,7 @@ public class RCmdLaunchDelegate extends LaunchConfigurationDelegate {
 			final List<String> cmdLine = new ArrayList<String>();
 			
 			// r env
-			final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
+			final IREnvConfiguration renv = RLaunching.getREnvConfig(configuration, true);
 //			renv.validate();
 			
 			final String cmd = configuration.getAttribute(RLaunchConfigurations.ATTR_R_CMD_COMMAND, "").trim(); //$NON-NLS-1$

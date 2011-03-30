@@ -79,6 +79,7 @@ import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
+import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -403,7 +404,7 @@ public class RCmdMainTab extends LaunchConfigTabWithDbc {
 			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
-			final IREnvConfiguration renv = REnvTab.getREnvConfig(fConfigCache, true);
+			final IREnvConfiguration renv = RLaunching.getREnvConfig(fConfigCache, true);
 			
 			final String cmd = ((Cmd) fCmdValue.getValue()).getCommand().trim();
 			if (cmd.length() != 0) {

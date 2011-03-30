@@ -87,12 +87,12 @@ import de.walware.rj.server.Server;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.debug.RDebug;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.impl.RjsUtil;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -109,8 +109,8 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	public static final int DEFAULT_SSH_PORT = 22;
 	
-	public static final IStringVariable WD_VARIABLE = new StringVariable(RDebug.WORKING_DIRECTORY_VARNAME, "The configured R working directory (converted to remote path)");
-	private static final Pattern WD_PATTERN = Pattern.compile("\\Q${"+RDebug.WORKING_DIRECTORY_VARNAME+"}\\E"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final IStringVariable WD_VARIABLE = new StringVariable(RLaunching.WORKING_DIRECTORY_VARNAME, "The configured R working directory (converted to remote path)");
+	private static final Pattern WD_PATTERN = Pattern.compile("\\Q${"+RLaunching.WORKING_DIRECTORY_VARNAME+"}\\E"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 	public static final String ADDRESS_VARIABLE_NAME = "address"; //$NON-NLS-1$;
 	public static final IStringVariable ADDRESS_VARIABLE = new StringVariable(ADDRESS_VARIABLE_NAME, "The address of the remote R engine");
@@ -131,7 +131,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		DEFAULT_COMMAND = path
 				+ " \"${"+ADDRESS_VARIABLE_NAME+"}\"" //$NON-NLS-1$ //$NON-NLS-2$
-				+ " -wd=\"${"+RDebug.WORKING_DIRECTORY_VARNAME+"}\""; //$NON-NLS-1$ //$NON-NLS-2$
+				+ " -wd=\"${"+RLaunching.WORKING_DIRECTORY_VARNAME+"}\""; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	
@@ -217,7 +217,7 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		IREnvConfiguration rEnv = null;
 		try {
-			rEnv = REnvTab.getREnvConfig(configuration, false);
+			rEnv = RLaunching.getREnvConfig(configuration, false);
 		}
 		catch (final Exception e) {}
 		

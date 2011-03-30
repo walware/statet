@@ -23,6 +23,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdMainTab;
+import de.walware.statet.r.launching.core.RLaunching;
 
 
 /**
@@ -41,8 +42,6 @@ public class RLaunchConfigurations {
 	public static final String ATTR_R_CMD_COMMAND = RCmdMainTab.NS+"arguments.cmd"; //$NON-NLS-1$
 	public static final String ATTR_R_CMD_OPTIONS = RCmdMainTab.NS+"arguments.options"; //$NON-NLS-1$
 	public static final String ATTR_R_CMD_RESOURCE = RCmdMainTab.NS+"arguments.resource"; //$NON-NLS-1$
-	public static final String ATTR_RENV_SETTING = REnvTab.NS+"REnvSetting"; //$NON-NLS-1$
-	public static final String ATTR_WORKING_DIRECTORY = REnvTab.NS+"workingDirectory"; //$NON-NLS-1$
 	
 	
 	public static ILaunchConfigurationWorkingCopy createNewRCmdConfig(final String name, final String cmd) throws CoreException {
@@ -55,8 +54,8 @@ public class RLaunchConfigurations {
 		config.setAttribute(RLaunchConfigurations.ATTR_R_CMD_COMMAND, cmd);
 		config.setAttribute(RLaunchConfigurations.ATTR_R_CMD_OPTIONS, ""); //$NON-NLS-1$
 		config.setAttribute(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, "${resource_loc}"); //$NON-NLS-1$
-		config.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, "${container_loc}"); //$NON-NLS-1$
-		config.setAttribute(RLaunchConfigurations.ATTR_RENV_SETTING, IREnv.DEFAULT_WORKBENCH_ENV_ID);
+		config.setAttribute(RLaunching.ATTR_WORKING_DIRECTORY, "${container_loc}"); //$NON-NLS-1$
+		config.setAttribute(RLaunching.ATTR_RENV_CODE, IREnv.DEFAULT_WORKBENCH_ENV_ID);
 		return config;
 	}
 	

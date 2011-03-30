@@ -67,10 +67,10 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
-import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -330,7 +330,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		
 		String wd = null;
 		try {
-			wd = configuration.getAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, ""); //$NON-NLS-1$
+			wd = REnvTab.readWorkingDirectory(configuration);
 		}
 		catch (final CoreException e) {
 			wd = ""; //$NON-NLS-1$
@@ -366,13 +366,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			configuration.removeAttribute(RConsoleLaunching.ATTR_OPTIONS);
 		}
 		
-		final String wd = (String) fWorkingDirectoryValue.getValue();
-		if (wd != null && wd.length() > 0) {
-			configuration.setAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, wd);
-		}
-		else {
-			configuration.removeAttribute(RLaunchConfigurations.ATTR_WORKING_DIRECTORY);
-		}
+		REnvTab.setWorkingDirectory(configuration, (String) fWorkingDirectoryValue.getValue());
 	}
 	
 	private void checkHelp(final ILaunchConfiguration configuration) {
@@ -391,7 +385,7 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 			final ILaunchConfigurationDialog dialog = getLaunchConfigurationDialog();
 			
 			// r env
-			final IREnvConfiguration renv = REnvTab.getREnvConfig(fConfigCache, true);
+			final IREnvConfiguration renv = RLaunching.getREnvConfig(fConfigCache, true);
 			
 			cmdLine.addAll(0, renv.getExecCommand(Exec.TERM));
 			

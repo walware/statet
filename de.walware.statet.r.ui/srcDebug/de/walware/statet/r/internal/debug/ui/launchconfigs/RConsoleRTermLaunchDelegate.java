@@ -50,6 +50,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.nico.impl.RTermController;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.ui.RUI;
@@ -72,7 +73,7 @@ public class RConsoleRTermLaunchDelegate implements ILaunchConfigurationDelegate
 		}
 		
 		// r env
-		final IREnvConfiguration renv = REnvTab.getREnvConfig(configuration, true);
+		final IREnvConfiguration renv = RLaunching.getREnvConfig(configuration, true);
 //		renv.validate();
 		
 		// working directory

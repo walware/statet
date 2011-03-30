@@ -58,6 +58,7 @@ import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
+import de.walware.statet.r.launching.core.RLaunching;
 
 
 public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
@@ -204,7 +205,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 			thread.setSweave(sweaveConfig);
 			
 			final FileValidator workingDirectory = REnvTab.getWorkingDirectoryValidator(sweaveConfig, true);
-			attributes.put(RLaunchConfigurations.ATTR_WORKING_DIRECTORY, workingDirectory.getFileStore().toURI().toString());
+			attributes.put(RLaunching.ATTR_WORKING_DIRECTORY, workingDirectory.getFileStore().toURI().toString());
 			final IStatus status = thread.setWorkingDir(workingDirectory.getFileStore(), (IContainer) workingDirectory.getWorkspaceResource(), false);
 			if (status.getSeverity() >= IStatus.ERROR && SweaveProcessing.isEnabled(STEP_WEAVE, buildFlags)) {
 				throw new CoreException(status);

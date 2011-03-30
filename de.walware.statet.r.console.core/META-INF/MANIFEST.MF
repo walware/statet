@@ -22,6 +22,6 @@ Import-Package: com.ibm.icu.text,
  de.walware.ecommons.variables.core,
  org.apache.commons.collections.primitives;version="1.0.0"
 Export-Package: de.walware.statet.r.console.core,
- de.walware.statet.r.debug,
+ de.walware.statet.r.launching.core,
  de.walware.statet.r.nico,
  de.walware.statet.r.nico.impl

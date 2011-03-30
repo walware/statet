@@ -65,11 +65,11 @@ import de.walware.rj.server.RjsComConfig;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.nico.ui.REnvIndexAutoUpdater;
 import de.walware.statet.r.launching.RConsoleLaunching;
+import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.nico.RWorkspaceConfig;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -188,7 +188,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		}
 		
 		// r env
-		final IREnvConfiguration rEnv = REnvTab.getREnvConfig(configuration, true);
+		final IREnvConfiguration rEnv = RLaunching.getREnvConfig(configuration, true);
 		
 		final Integer port = PreferencesUtil.getInstancePrefs().getPreferenceValue(PREF_LOCAL_REGISTRY_PORT);
 		final RMIAddress rmiAddress;
