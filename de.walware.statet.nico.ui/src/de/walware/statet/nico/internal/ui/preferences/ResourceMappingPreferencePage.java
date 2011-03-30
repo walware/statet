@@ -244,6 +244,13 @@ class EditMappingDialog extends ExtStatusDialog {
 	}
 	
 	@Override
+	protected Control createContents(final Composite parent) {
+		final Control control = super.createContents(parent);
+		initBindings();
+		return control;
+	}
+	
+	@Override
 	protected Control createDialogArea(final Composite parent) {
 		final Composite dialogArea = new Composite(parent, SWT.NONE);
 		dialogArea.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
@@ -260,7 +267,7 @@ class EditMappingDialog extends ExtStatusDialog {
 			fLocalControl.getValidator().setOnNotExisting(IStatus.WARNING);
 			fLocalControl.setShowInsertVariable(false, DialogUtil.DEFAULT_NON_ITERACTIVE_FILTERS, null);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 50);
+			gd.widthHint = LayoutUtil.hintWidth((Text) fLocalControl.getTextControl(), 60);
 			fLocalControl.setLayoutData(gd);
 		}
 		{	final Label label = new Label(composite, SWT.NONE);
@@ -277,11 +284,6 @@ class EditMappingDialog extends ExtStatusDialog {
 			fRemoteControl = new Text(composite, SWT.BORDER | SWT.SINGLE);
 			fRemoteControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		}
-		
-		final DatabindingSupport databinding = new DatabindingSupport(parent);
-		addBindings(databinding);
-		databinding.installStatusListener(new StatusUpdater());
-		
 		return dialogArea;
 	}
 	

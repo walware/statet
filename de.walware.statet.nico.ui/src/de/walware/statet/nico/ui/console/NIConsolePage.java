@@ -457,6 +457,12 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				NIConsolePage.this.setFocus();
 				return true;
 			}
+			public void setVisible(boolean visible) {
+				super.setVisible(visible);
+				if (visible) {
+					NIConsolePage.this.setFocus();
+				}
+			}
 		};
 		final GridLayout layout = new GridLayout(1, false);
 		layout.marginHeight = 0;
