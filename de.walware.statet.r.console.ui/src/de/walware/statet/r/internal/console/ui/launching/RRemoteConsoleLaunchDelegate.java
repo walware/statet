@@ -46,7 +46,6 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
@@ -87,6 +86,7 @@ import de.walware.rj.server.Server;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.ui.RConsole;
+import de.walware.statet.r.console.ui.launching.AbstractRConsoleLaunchDelegate;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
@@ -103,7 +103,7 @@ import de.walware.statet.r.nico.impl.RjsUtil;
  * 
  * TODO: externalize error message strings
  */
-public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
+public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate {
 	
 	
 	public static final int DEFAULT_SSH_PORT = 22;
@@ -143,16 +143,6 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 	public RRemoteConsoleLaunchDelegate() {
 	}
 	
-	
-	@Override
-	protected boolean saveBeforeLaunch(final ILaunchConfiguration configuration, final String mode, final IProgressMonitor monitor) throws CoreException {
-		return true; // continue launch
-	}
-	
-	@Override
-	public boolean buildForLaunch(final ILaunchConfiguration configuration, final String mode, final IProgressMonitor monitor) throws CoreException {
-		return false; // no incremental build
-	}
 	
 	public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
 			final IProgressMonitor monitor) throws CoreException {

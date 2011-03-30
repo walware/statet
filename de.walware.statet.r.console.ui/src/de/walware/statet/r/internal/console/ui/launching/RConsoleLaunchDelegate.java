@@ -13,35 +13,26 @@ package de.walware.statet.r.internal.console.ui.launching;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.model.LaunchConfigurationDelegate;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 
+import de.walware.statet.r.console.ui.launching.AbstractRConsoleLaunchDelegate;
 import de.walware.statet.r.console.ui.launching.RConsoleLaunching;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 
 
-public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
+public class RConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate {
 	
 	
 	public RConsoleLaunchDelegate() {
 	}
 	
-	
-	@Override
-	protected boolean saveBeforeLaunch(final ILaunchConfiguration configuration, final String mode, final IProgressMonitor monitor) throws CoreException {
-		return true; // continue launch
-	}
-	
-	@Override
-	public boolean buildForLaunch(final ILaunchConfiguration configuration, final String mode, final IProgressMonitor monitor) throws CoreException {
-		return false; // no incremental build
-	}
 	
 	public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
 			IProgressMonitor monitor) throws CoreException {
@@ -60,7 +51,7 @@ public class RConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 				new RConsoleRJLaunchDelegate().launch(configuration, mode, launch, monitor);
 				return;
 			}
-			throw new CoreException(new Status(Status.ERROR, RConsoleUIPlugin.PLUGIN_ID,
+			throw new CoreException(new Status(IStatus.ERROR, RConsoleUIPlugin.PLUGIN_ID,
 					ICommonStatusConstants.LAUNCHCONFIG_ERROR,
 					NLS.bind("R Console launch type ''{0}'' is not available.", type), null ));
 		}
