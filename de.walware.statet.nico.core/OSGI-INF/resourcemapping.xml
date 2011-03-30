@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="dispose"
+      name="de.walware.statet.nico.resourcemapping">
+   <implementation class="de.walware.statet.nico.internal.core.ResourceMappingManager"/>
+   <service>
+      <provide interface="de.walware.ecommons.net.resourcemapping.IResourceMappingManager"/>
+   </service>
+</scr:component>

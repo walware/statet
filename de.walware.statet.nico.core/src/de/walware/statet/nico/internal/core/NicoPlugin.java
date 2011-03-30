@@ -44,8 +44,6 @@ public class NicoPlugin extends Plugin {
 	
 	private ToolLifecycleManager fTools;
 	
-	private ResourceMappingManager fResourceMappings;
-	
 	
 	/**
 	 * The constructor
@@ -58,8 +56,6 @@ public class NicoPlugin extends Plugin {
 	@Override
 	public void start(final BundleContext context) throws Exception {
 		super.start(context);
-		
-		fResourceMappings = new ResourceMappingManager();
 	}
 	
 	@Override
@@ -67,9 +63,6 @@ public class NicoPlugin extends Plugin {
 		if (fTools != null) {
 			fTools.dispose();
 			fTools = null;
-		}
-		if (fResourceMappings != null) {
-			fResourceMappings.dispose();
 		}
 		
 		gPlugin = null;
@@ -81,10 +74,6 @@ public class NicoPlugin extends Plugin {
 			fTools = new ToolLifecycleManager();
 		}
 		return fTools;
-	}
-	
-	public ResourceMappingManager getMappingManager() {
-		return fResourceMappings;
 	}
 	
 	public static void log(final IStatus status) {

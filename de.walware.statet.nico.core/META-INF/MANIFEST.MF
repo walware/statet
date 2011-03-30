@@ -16,9 +16,11 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0";visibility:=reex
 Import-Package: com.ibm.icu.text;version="4.0.1",
  de.walware.ecommons,
  de.walware.ecommons.io,
+ de.walware.ecommons.net.resourcemapping;version="1.0.0",
  de.walware.ecommons.preferences,
  de.walware.ecommons.variables.core
 Export-Package: de.walware.statet.nico.core,
  de.walware.statet.nico.core.runtime,
  de.walware.statet.nico.core.util,
  de.walware.statet.nico.internal.core;x-friends:="de.walware.statet.nico.ui"
+Service-Component: OSGI-INF/resourcemapping.xml

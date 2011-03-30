@@ -20,8 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import de.walware.ecommons.io.FileUtil;
-
-import de.walware.statet.nico.core.runtime.IResourceMapping;
+import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 
 
 public class ResourceMapping implements IResourceMapping {

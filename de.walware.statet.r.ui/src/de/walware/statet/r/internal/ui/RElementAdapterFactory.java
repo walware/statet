@@ -36,6 +36,7 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 		IContributorResourceAdapter.class,
 	};
 	
+	
 	/*
 	 * Do not use real type since this would cause
 	 * the Search plug-in to be loaded.
@@ -118,7 +119,7 @@ public class RElementAdapterFactory implements IAdapterFactory, IContributorReso
 		return null;
 	}
 	
-//	public ResourceMapping getAdaptedResourceMapping(final IAdaptable adaptable) {
+//	public IResourceMapping getAdaptedResourceMapping(final IAdaptable adaptable) {
 //		final IRElement element = getRElement(adaptable);
 //		if (element != null) {
 //			return

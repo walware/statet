@@ -60,13 +60,14 @@ import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.debug.ui.UnterminatedLaunchAlerter;
 import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.net.RMIAddress;
+import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.StringPref;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.variables.core.StringVariable;
 
-import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.Queue;
@@ -412,7 +413,10 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 						if (workingDirectory == null) {
 							throw new CoreException(validator.getStatus());
 						}
-						final IPath path = NicoCore.mapFileStoreToRemoteResource(rmiAddress.getHostAddress().getHostAddress(), workingDirectory);
+						final IResourceMappingManager rmManager = ResourceMappingUtils.getManager();
+						final IPath path = (rmManager != null) ? rmManager
+								.mapFileStoreToRemoteResource(rmiAddress.getHostAddress().getHostAddress(), workingDirectory) :
+								null;
 						if (path == null) {
 							throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID,
 									NLS.bind("Cannot resolve working directory ''{0}'' to remote path.", workingDirectory.toString())));

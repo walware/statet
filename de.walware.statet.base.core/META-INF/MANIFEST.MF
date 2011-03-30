@@ -22,6 +22,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.6.0";visibility:=reex
  com.jcraft.jsch;bundle-version="0.1.41",
  org.eclipse.jsch.core;bundle-version="1.1.100"
 Export-Package: de.walware.ecommons.debug.core,
+ de.walware.ecommons.net.resourcemapping;version="1.0.0",
  de.walware.statet.base.core,
  de.walware.statet.base.core.preferences
 Import-Package: com.ibm.icu.text;version="4.0.1",

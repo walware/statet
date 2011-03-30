@@ -23,10 +23,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
@@ -37,13 +40,14 @@ import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 import de.walware.ecommons.ConstList;
+import de.walware.ecommons.net.resourcemapping.IResourceMapping;
+import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingOrder;
 
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.runtime.IResourceMapping;
-import de.walware.statet.nico.core.runtime.IResourceMapping.Order;
 
 
-public class ResourceMappingManager {
+public class ResourceMappingManager implements IResourceMappingManager {
 	
 	
 	private static final String QUALIFIER = NicoCore.PLUGIN_ID + "/resoursemappings"; //$NON-NLS-1$
@@ -130,8 +134,8 @@ public class ResourceMappingManager {
 				final IResourceMapping[] list1 = lists[0].toArray(new IResourceMapping[lists[0].size()]);
 				Arrays.sort(list0, LOCAL_COMPARATOR);
 				Arrays.sort(list1, REMOTE_COMPARATOR);
-				lists[Order.LOCAL.ordinal()] = new ConstList<IResourceMapping>(list0);
-				lists[Order.REMOTE.ordinal()] = new ConstList<IResourceMapping>(list1);
+				lists[ResourceMappingOrder.LOCAL.ordinal()] = new ConstList<IResourceMapping>(list0);
+				lists[ResourceMappingOrder.REMOTE.ordinal()] = new ConstList<IResourceMapping>(list1);
 			}
 			
 			synchronized(ResourceMappingManager.this) {
@@ -169,7 +173,7 @@ public class ResourceMappingManager {
 		return fList;
 	}
 	
-	public List<IResourceMapping> getMappingsFor(final String hostAddress, final Order order) {
+	public List<IResourceMapping> getMappingsFor(final String hostAddress, final ResourceMappingOrder order) {
 		final Map<String, List<IResourceMapping>[]> byHost = fMappingsByHost;
 		if (byHost != null) {
 			final List<IResourceMapping>[] lists = byHost.get(hostAddress);
@@ -280,6 +284,54 @@ public class ResourceMappingManager {
 		node.put(LOCAL_KEY, mapping.getLocalText());
 		node.put(HOST_KEY, mapping.getHost());
 		node.put(REMOTE_KEY, mapping.getRemotePath().toString());
+	}
+	
+	
+	public List<IResourceMapping> getResourceMappingsFor(final String hostAddress, final ResourceMappingOrder order) {
+		final List<IResourceMapping> mappings = getMappingsFor(hostAddress, order);
+		if (mappings != null) {
+			return mappings;
+		}
+		return Collections.emptyList();
+	}
+	
+	public IFileStore mapRemoteResourceToFileStore(final String hostAddress, IPath remotePath, final IPath relativeBasePath) {
+		if (!remotePath.isAbsolute()) {
+			if (relativeBasePath == null) {
+				return null;
+			}
+			remotePath = relativeBasePath.append(remotePath);
+		}
+		final List<IResourceMapping> mappings = getResourceMappingsFor(hostAddress, ResourceMappingOrder.REMOTE);
+		for (final IResourceMapping mapping : mappings) {
+			final IPath remoteBase = mapping.getRemotePath();
+			if (remoteBase.isPrefixOf(remotePath)) {
+				final IPath subPath = remotePath.removeFirstSegments(remoteBase.segmentCount());
+				final IFileStore localBaseStore = mapping.getFileStore();
+				return localBaseStore.getFileStore(subPath);
+			}
+		}
+		return null;
+	}
+	
+	public IPath mapFileStoreToRemoteResource(final String hostAddress, final IFileStore fileStore) {
+		final List<IResourceMapping> mappings = getResourceMappingsFor(hostAddress, ResourceMappingOrder.LOCAL);
+		for (final IResourceMapping mapping : mappings) {
+			final IFileStore localBaseStore = mapping.getFileStore();
+			if (localBaseStore.equals(fileStore)) {
+				return mapping.getRemotePath();
+			}
+			if (localBaseStore.isParentOf(fileStore)) {
+				final IPath localBasePath = new Path(localBaseStore.toURI().getPath());
+				final IPath fileStorePath = new Path(fileStore.toURI().getPath());
+				if (localBasePath.isPrefixOf(fileStorePath)) {
+					final IPath subPath = fileStorePath.removeFirstSegments(localBasePath.segmentCount());
+					final IPath remotePath = mapping.getRemotePath();
+					return remotePath.append(subPath);
+				}
+			}
+		}
+		return null;
 	}
 	
 }

@@ -36,10 +36,12 @@ import de.walware.ecommons.ltk.ui.sourceediting.AssistProposalCollector;
 import de.walware.ecommons.ltk.ui.sourceediting.IAssistCompletionProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.PathCompletionComputor;
+import de.walware.ecommons.net.resourcemapping.IResourceMapping;
+import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingOrder;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 
 import de.walware.statet.nico.core.ITool;
-import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.runtime.IResourceMapping;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.core.RProject;
@@ -188,27 +190,31 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			final String address = fAssociatedTool.getWorkspaceData().getRemoteAddress();
 			if (address != null) {
 				final boolean root = (path.segmentCount() == 0);
-				final List<IResourceMapping> mappings = NicoCore.getResourceMappingsFor(address, IResourceMapping.Order.REMOTE);
-				for (final IResourceMapping mapping : mappings) {
-					final IPath remotePath = mapping.getRemotePath();
-					if (remotePath.segmentCount() < path.segmentCount()) {
-						continue;
-					}
-					if (root) {
-						proposals.add(new ResourceProposal(context, startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
-					}
-					else {
-						final int matching = path.matchingFirstSegments(remotePath);
-						final int depth = path.segmentCount();
-						if (matching > 0 || depth == 1) {
-							final String next = remotePath.segment(matching + 1);
-							if (next.startsWith(startsWith)) {
-								// TODO
+				final IResourceMappingManager rmManager = ResourceMappingUtils.getManager();
+				if (rmManager != null) {
+					final List<IResourceMapping> mappings = rmManager
+							.getResourceMappingsFor(address, ResourceMappingOrder.REMOTE);
+					for (final IResourceMapping mapping : mappings) {
+						final IPath remotePath = mapping.getRemotePath();
+						if (remotePath.segmentCount() < path.segmentCount()) {
+							continue;
+						}
+						if (root) {
+							proposals.add(new ResourceProposal(context, startOffset-prefix.length(), mapping.getFileStore(), remotePath.toString(), completionPrefix, null));
+						}
+						else {
+							final int matching = path.matchingFirstSegments(remotePath);
+							final int depth = path.segmentCount();
+							if (matching > 0 || depth == 1) {
+								final String next = remotePath.segment(matching + 1);
+								if (next.startsWith(startsWith)) {
+									// TODO
+								}
 							}
 						}
 					}
+					return Status.OK_STATUS;
 				}
-				return Status.OK_STATUS;
 			}
 		}
 		return super.tryAlternative(context, proposals, path, startOffset, startsWith, prefix, completionPrefix);

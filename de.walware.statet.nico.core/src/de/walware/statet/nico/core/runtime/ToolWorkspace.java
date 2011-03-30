@@ -31,6 +31,7 @@ import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.variables.core.DateVariable;
 import de.walware.ecommons.variables.core.DynamicVariable;
 import de.walware.ecommons.variables.core.TimeVariable;
@@ -279,21 +280,24 @@ public class ToolWorkspace {
 	
 	public IFileStore toFileStore(final IPath toolPath) throws CoreException {
 		if (fRemoteHost != null) {
-			return NicoCore.mapRemoteResourceToFileStore(fRemoteHost, toolPath, fRemoteWorkspaceDir);
+			return ResourceMappingUtils.getManager()
+					.mapRemoteResourceToFileStore(fRemoteHost, toolPath, fRemoteWorkspaceDir);
 		}
 		return FileUtil.getFileStore(toolPath.toString(), fWorkspaceDir);
 	}
 	
 	public IFileStore toFileStore(final String toolPath) throws CoreException {
 		if (fRemoteHost != null) {
-			return NicoCore.mapRemoteResourceToFileStore(fRemoteHost, new Path(toolPath), fRemoteWorkspaceDir);
+			return ResourceMappingUtils.getManager()
+					.mapRemoteResourceToFileStore(fRemoteHost, new Path(toolPath), fRemoteWorkspaceDir);
 		}
 		return FileUtil.getFileStore(toolPath, fWorkspaceDir);
 	}
 	
 	public String toToolPath(final IFileStore fileStore) throws CoreException {
 		if (fRemoteHost != null) {
-			final IPath path = NicoCore.mapFileStoreToRemoteResource(fRemoteHost, fileStore);
+			final IPath path = ResourceMappingUtils.getManager()
+					.mapFileStoreToRemoteResource(fRemoteHost, fileStore);
 			if (path != null) {
 				return path.toString();
 			}

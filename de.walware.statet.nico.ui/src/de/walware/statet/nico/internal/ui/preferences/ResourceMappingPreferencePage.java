@@ -41,6 +41,9 @@ import org.eclipse.swt.widgets.Text;
 
 import de.walware.ecommons.databinding.NotEmptyValidator;
 import de.walware.ecommons.databinding.jface.DatabindingSupport;
+import de.walware.ecommons.net.resourcemapping.IResourceMapping;
+import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.preferences.ui.ConfigurationBlock;
 import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.ecommons.ui.components.ButtonGroup;
@@ -52,8 +55,6 @@ import de.walware.ecommons.ui.util.ViewerUtil;
 import de.walware.ecommons.ui.util.ViewerUtil.TableComposite;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
-import de.walware.statet.nico.core.runtime.IResourceMapping;
-import de.walware.statet.nico.internal.core.NicoPlugin;
 import de.walware.statet.nico.internal.core.ResourceMapping;
 import de.walware.statet.nico.internal.core.ResourceMappingManager;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
@@ -82,6 +83,8 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	private ButtonGroup<ResourceMapping> fListButtons;
 	
 	private final WritableList fList = new WritableList();
+	
+	private ResourceMappingManager fManager;
 	
 	
 	public ResourceMappingConfigurationBlock() {
@@ -123,7 +126,16 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 			fListViewer.setInput(fList);
 		}
 		
-		fList.addAll(NicoPlugin.getDefault().getMappingManager().getList());
+		final IResourceMappingManager manager = ResourceMappingUtils.getManager();
+		if (manager instanceof ResourceMappingManager) {
+			fManager = (ResourceMappingManager) manager;
+		}
+		if (fManager != null) {
+			fList.addAll(fManager.getList());
+		}
+		else {
+			DialogUtil.setEnabled(pageComposite, null, false);
+		}
 		
 		updateControls();
 	}
@@ -195,7 +207,9 @@ class ResourceMappingConfigurationBlock extends ConfigurationBlock {
 	
 	@Override
 	public boolean performOk() {
-		NicoPlugin.getDefault().getMappingManager().setMappings(new ArrayList<ResourceMapping>(fList));
+		if (fManager != null) {
+			fManager.setMappings(new ArrayList<ResourceMapping>(fList));
+		}
 		return true;
 	}
 	

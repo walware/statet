@@ -38,14 +38,14 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
+import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.preferences.AbstractPreferencesModelObject;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.Preference.IntPref;
 import de.walware.ecommons.preferences.Preference.StringArrayPref;
 import de.walware.ecommons.preferences.Preference.StringPref;
-
-import de.walware.statet.nico.core.NicoCore;
 
 import de.walware.rj.rsetups.RSetup;
 
@@ -858,7 +858,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			break;
 		}
 		if (configureRLibs) {
-			String arch = fSubArch;
+			final String arch = fSubArch;
 			final List<String> availableArchs = searchAvailableSubArchs(rHomeStore);
 			if (availableArchs != null && availableArchs.contains(arch)) {
 				if (arch != null) {
@@ -892,7 +892,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			if (auto != null) {
 				final String hostname = auto.getProperty("renv.hostname"); //$NON-NLS-1$
 				if (hostname != null) {
-					return NicoCore.mapRemoteResourceToFileStore(hostname, new Path(path), null);
+					final IResourceMappingManager rmManager = ResourceMappingUtils.getManager();
+					if (rmManager != null) {
+						return rmManager.mapRemoteResourceToFileStore(hostname, new Path(path), null);
+					}
+					return null;
 				}
 			}
 		}
