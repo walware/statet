@@ -22,7 +22,6 @@ import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RLabelProvider;
-import de.walware.statet.r.ui.editors.REditor;
 
 
 /**

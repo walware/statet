@@ -27,6 +27,8 @@ import org.eclipse.ui.console.TextConsole;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.ui.console.NIConsole;
+
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
 import de.walware.statet.r.ui.RUI;
 
@@ -55,7 +57,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 				
 				try {
 					final TextConsole console = getAndShowConsole();
-					if (console == null) {
+					if (console == null || console instanceof NIConsole) {
 						handleNoConsole();
 					}
 					
@@ -90,7 +92,7 @@ public class TextConsoleConnector implements IRCodeLaunchConnector {
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			public void run() throws CoreException {
 				final TextConsole console = getAndShowConsole();
-				if (console == null) {
+				if (console == null || console instanceof NIConsole) {
 					handleNoConsole();
 				}
 			}

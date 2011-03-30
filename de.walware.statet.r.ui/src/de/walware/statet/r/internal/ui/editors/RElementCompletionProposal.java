@@ -38,13 +38,14 @@ import de.walware.statet.nico.ui.console.InputSourceViewer;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
+import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.ui.RUI;
-import de.walware.statet.r.ui.editors.RBracketLevel;
+import de.walware.statet.r.ui.sourceediting.RBracketLevel;
 
 
 public class RElementCompletionProposal extends ElementNameCompletionProposal {
@@ -209,7 +210,7 @@ public class RElementCompletionProposal extends ElementNameCompletionProposal {
 			}
 			final String prefix = document.get(start, length);
 			final String replacement = fReplacementName.getSegmentName();
-			if (new RElementsCompletionComputer.PrefixPattern(prefix).matches(replacement)) {
+			if (new RSymbolComparator.PrefixPattern(prefix).matches(replacement)) {
 				return true;
 			}
 		}

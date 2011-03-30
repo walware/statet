@@ -36,7 +36,7 @@ import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.RDocumentSetupParticipant;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.text.r.IRTextTokens;
 
 

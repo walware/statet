@@ -22,7 +22,7 @@ import de.walware.statet.ext.templates.ICodeGenerationTemplatesCategory;
 
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
 /**

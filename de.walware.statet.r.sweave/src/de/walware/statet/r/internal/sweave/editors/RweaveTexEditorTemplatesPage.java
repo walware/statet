@@ -31,9 +31,9 @@ import de.walware.statet.base.ui.sourceeditors.ExtEditorTemplatesPage;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
 import de.walware.statet.r.ui.editors.templates.REditorContext;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
+import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
 /**

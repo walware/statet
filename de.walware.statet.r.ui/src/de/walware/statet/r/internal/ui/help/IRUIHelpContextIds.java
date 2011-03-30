@@ -23,11 +23,6 @@ public interface IRUIHelpContextIds {
 	
 	public static final String R_ENV = RUI.PLUGIN_ID + ".r_env"; //$NON-NLS-1$
 	
-	public static final String R_CONSOLE = RUI.PLUGIN_ID + ".r_console"; //$NON-NLS-1$
-	public static final String R_CONSOLE_LAUNCH = RUI.PLUGIN_ID + ".r_console-launch"; //$NON-NLS-1$
-	
-	public static final String R_REMOTE_CONSOLE_LAUNCH = RUI.PLUGIN_ID + ".r_remote_console-launch"; //$NON-NLS-1$
-	
 	public static final String R_HELP_SEARCH_PAGE = RUI.PLUGIN_ID + ".r_help-search_page"; //$NON-NLS-1$
 	
 }

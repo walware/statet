@@ -11,9 +11,6 @@
 
 package de.walware.statet.r.internal.debug.ui.launcher;
 
-import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER;
-import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_R_CONNECTOR;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +22,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -35,12 +32,12 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.preferences.PreferencesUtil;
 
 import de.walware.statet.r.core.model.IRSourceUnit;
-import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.launching.ICodeLaunchContentHandler;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
+import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -216,12 +213,14 @@ public class RCodeLaunchRegistry {
 		loadHandlerExtensions();
 		
 		final InstanceScope scope = new InstanceScope();
-		scope.getNode(PREF_R_CONNECTOR.getQualifier()).addPreferenceChangeListener(new IPreferenceChangeListener() {
+		scope.getNode(RRunDebugPreferenceConstants.PREF_R_CONNECTOR.getQualifier())
+				.addPreferenceChangeListener(new IPreferenceChangeListener() {
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				loadConnectorExtensions();
 			}
 		});
-		scope.getNode(CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER).addPreferenceChangeListener(new IPreferenceChangeListener() {
+		scope.getNode(RRunDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER)
+				.addPreferenceChangeListener(new IPreferenceChangeListener() {
 			public void preferenceChange(final PreferenceChangeEvent event) {
 				loadHandlerPreferences();
 			}
@@ -234,7 +233,8 @@ public class RCodeLaunchRegistry {
 		final IExtensionRegistry registry = Platform.getExtensionRegistry();
 		final IConfigurationElement[] elements = registry.getConfigurationElementsFor(RUI.PLUGIN_ID, CONNECTOR_EXTENSION_POINT);
 		
-		final String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(RDebugPreferenceConstants.PREF_R_CONNECTOR);
+		final String id = PreferencesUtil.getInstancePrefs().getPreferenceValue(
+				RRunDebugPreferenceConstants.PREF_R_CONNECTOR );
 		
 		for (int i = 0; i < elements.length; i++) {
 			if (id.equals(elements[i].getAttribute(ATT_ID))) {
@@ -273,7 +273,8 @@ public class RCodeLaunchRegistry {
 	}
 	
 	private void loadHandlerPreferences() {
-		final IEclipsePreferences node = new InstanceScope().getNode(RDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER);
+		final IEclipsePreferences node = new InstanceScope().getNode(
+				RRunDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER );
 		if (node == null) {
 			return;
 		}

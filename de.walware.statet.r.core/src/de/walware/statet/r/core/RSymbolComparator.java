@@ -23,6 +23,69 @@ import com.ibm.icu.text.Collator;
 public class RSymbolComparator implements Comparator<String> {
 	
 	
+	public static final class PrefixPattern {
+		
+		private final char[] fPrefix;
+		
+		
+		public PrefixPattern(final String namePrefix) {
+			fPrefix = namePrefix.toLowerCase().toCharArray();
+		}
+		
+		
+		/**
+		 * Tolerant string comparison
+		 * 
+		 * @param candidate string to test against prefix
+		 * @param prefix char array of lowercase prefix
+		 * @return if candidate starts with prefix
+		 */
+		public boolean matches(final String candidate) {
+			if (candidate == null || candidate.length() == 0) {
+				return false;
+			}
+			if (fPrefix.length == 0) {
+				return (candidate.charAt(0) != '.');
+			}
+			int pC = fPrefix[0];
+			int cC = Character.toLowerCase(candidate.charAt(0));
+			if (cC != pC) {
+				return false;
+			}
+			int pIdx = 0;
+			int cIdx = 0;
+			while (true) {
+				if (pC == cC) {
+					if (++pIdx >= fPrefix.length) {
+						return true;
+					}
+					if (++cIdx >= candidate.length()) {
+						return false;
+					}
+					pC = fPrefix[pIdx];
+					cC = Character.toLowerCase(candidate.charAt(cIdx));
+					continue;
+				}
+				if (pC == '.' || pC == '_') {
+					if (++pIdx >= fPrefix.length) {
+						return true;
+					}
+					pC = fPrefix[pIdx];
+					continue;
+				}
+				if (cC == '.' || cC == '_') {
+					if (++cIdx >= candidate.length()) {
+						return false;
+					}
+					cC = Character.toLowerCase(candidate.charAt(cIdx));
+					continue;
+				}
+				return false;
+			}
+		}
+	}
+	
+	
 	public static final Collator R_NAMES_COLLATOR = Collator.getInstance(Locale.ENGLISH);
 	
 	

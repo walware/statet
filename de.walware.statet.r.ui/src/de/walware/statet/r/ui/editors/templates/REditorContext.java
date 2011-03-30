@@ -25,7 +25,7 @@ import de.walware.ecommons.text.IndentUtil.IndentEditAction;
 
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.REditor;
+import de.walware.statet.r.internal.ui.editors.REditor;
 
 
 public class REditorContext extends SourceEditorTemplateContext {

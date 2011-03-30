@@ -60,12 +60,12 @@ import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
-import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
 public class RweaveTab extends LaunchConfigTabWithDbc {
@@ -345,11 +345,11 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	private void updateAvailableConfigs() {
 		try {
 			final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-			final ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(RLaunchConfigurations.ID_R_CMD_CONFIGURATION_TYPE);
+			final ILaunchConfigurationType type = launchManager.getLaunchConfigurationType(RCmdLaunching.R_CMD_CONFIGURATION_TYPE_ID);
 			final ILaunchConfiguration[] allConfigs = launchManager.getLaunchConfigurations(type);
 			final ArrayList<Object> filteredConfigs = new ArrayList<Object>(allConfigs.length+1);
 			for (final ILaunchConfiguration config : allConfigs) {
-				if (config.getAttribute(RLaunchConfigurations.ATTR_R_CMD_COMMAND, "").equals("CMD Sweave")) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (config.getAttribute(RCmdLaunching.ATTR_R_CMD_COMMAND, "").equals("CMD Sweave")) { //$NON-NLS-1$ //$NON-NLS-2$
 					filteredConfigs.add(config);
 				}
 			}
@@ -366,7 +366,7 @@ public class RweaveTab extends LaunchConfigTabWithDbc {
 	private void createNewRCmdSweaveLaunchConfig() {
 		try {
 			final String name = getLaunchConfigurationDialog().generateName(Messages.RweaveTab_RCmd_NewConfig_seed);
-			final ILaunchConfigurationWorkingCopy config = RLaunchConfigurations.createNewRCmdConfig(name, "CMD Sweave"); //$NON-NLS-1$
+			final ILaunchConfigurationWorkingCopy config = RCmdLaunching.createNewRCmdConfig(name, "CMD Sweave"); //$NON-NLS-1$
 			
 			fSelectionValue.setValue(RweaveTexLaunchDelegate.SWEAVE_LAUNCH+':'+name);
 			setDirty(true);

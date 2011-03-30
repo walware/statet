@@ -37,7 +37,6 @@ import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.text.TextUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.Rweave;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
@@ -125,12 +124,12 @@ public class RChunkDirectLaunchShortcut implements ILaunchShortcut {
 				return;
 			}
 			
-			monitor.subTask(RLaunchingMessages.RCodeLaunch_SubmitCode_task);
-			RCodeLaunching.runRCodeDirect(lines.toArray(new String[lines.size()]), fGotoConsole);
+			RCodeLaunching.runRCodeDirect(lines.toArray(new String[lines.size()]), fGotoConsole,
+					monitor );
 		}
 		catch (final BadLocationException e) {
-			throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID,
-					-1, "An error occurred when pick code lines.", e));
+			throw new CoreException(new Status(IStatus.ERROR, SweavePlugin.PLUGIN_ID, -1,
+					"An error occurred when pick code lines.", e ));
 		}
 		finally {
 			documentProvider.disconnect(editorInput);

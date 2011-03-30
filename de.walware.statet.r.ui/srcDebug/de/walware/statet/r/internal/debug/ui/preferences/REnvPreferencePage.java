@@ -75,8 +75,8 @@ import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvManager;
-import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
+import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -126,7 +126,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void createBlockArea(final Composite pageComposite) {
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
-		prefs.put(RDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
+		prefs.put(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE, null);
 		setupPreferenceManager(prefs);
 		
 		final Label label = new Label(pageComposite, SWT.LEFT);
@@ -363,13 +363,13 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		fIndexConsoleViewer.setLabelProvider(new LabelProvider() {
 			@Override
 			public String getText(final Object element) {
-				if (element.equals(RDebugPreferenceConstants.AUTO)) {
+				if (element.equals(RRunDebugPreferenceConstants.AUTO)) {
 					return Messages.REnv_Update_Console_Auto_label;
 				}
-				if (element.equals(RDebugPreferenceConstants.ASK)) {
+				if (element.equals(RRunDebugPreferenceConstants.ASK)) {
 					return Messages.REnv_Update_Console_Ask_label;
 				}
-				if (element.equals(RDebugPreferenceConstants.DISABLED)) {
+				if (element.equals(RRunDebugPreferenceConstants.DISABLED)) {
 					return Messages.REnv_Update_Console_Disabled_label;
 				}
 				return ""; //$NON-NLS-1$
@@ -377,9 +377,9 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 		});
 		fIndexConsoleViewer.setContentProvider(new ArrayContentProvider());
 		fIndexConsoleViewer.setInput(new String[] {
-				RDebugPreferenceConstants.AUTO,
-				RDebugPreferenceConstants.ASK,
-				RDebugPreferenceConstants.DISABLED,
+				RRunDebugPreferenceConstants.AUTO,
+				RRunDebugPreferenceConstants.ASK,
+				RRunDebugPreferenceConstants.DISABLED,
 		});
 		
 		return composite;
@@ -388,7 +388,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	@Override
 	protected void addBindings(final DataBindingContext dbc, final Realm realm) {
 		dbc.bindValue(ViewersObservables.observeSingleSelection(fIndexConsoleViewer),
-				createObservable(RDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE),
+				createObservable(RRunDebugPreferenceConstants.PREF_RENV_CHECK_UPDATE),
 				null, null);
 	}
 	

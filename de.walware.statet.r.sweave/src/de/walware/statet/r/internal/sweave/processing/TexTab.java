@@ -68,8 +68,8 @@ import net.sourceforge.texlipse.builder.BuilderRegistry;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
-import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
 public class TexTab extends LaunchConfigTabWithDbc {

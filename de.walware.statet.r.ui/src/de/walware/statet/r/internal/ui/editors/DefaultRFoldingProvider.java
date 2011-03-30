@@ -54,7 +54,6 @@ import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.core.rsource.ast.SourceComponent;
-import de.walware.statet.r.ui.editors.REditor;
 
 
 /**

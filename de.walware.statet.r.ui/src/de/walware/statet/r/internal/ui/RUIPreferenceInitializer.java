@@ -29,9 +29,9 @@ import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.statet.nico.core.NicoPreferenceNodes;
 
 import de.walware.statet.r.core.rhelp.IRHelpManager;
-import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.ui.editors.DefaultRFoldingPreferences;
 import de.walware.statet.r.internal.ui.rhelp.RHelpPreferences;
+import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIPreferenceConstants;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -98,7 +98,7 @@ public class RUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		rHelp.putBoolean(RHelpPreferences.SEARCH_REUSE_PAGE_ENABLED_KEY, true);
 		rHelp.putInt(RHelpPreferences.SEARCH_PREVIEW_FRAGMENTS_MAX_KEY, 10);
 		
-		RDebugPreferenceConstants.initializeDefaultValues(defaultScope);
+		RRunDebugPreferenceConstants.initializeDefaultValues(defaultScope);
 	}
 	
 }

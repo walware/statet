@@ -19,36 +19,21 @@ import de.walware.ecommons.preferences.ui.ConfigurationBlockPreferencePage;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 
 
-public class AdvancedContentAssistConfigurationPage {
+public class AdvancedContentAssistConfigurationPage extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
 	
 	
-	public static class ForREditor extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
-		
-		public ForREditor() {
-		}
-		
-		@Override
-		protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
-			return new AdvancedContentAssistConfigurationBlock(
-					RUIPlugin.getDefault().getREditorContentAssistRegistry(),
-					createStatusChangedListener());
-		}
-		
+	/**
+	 * Created by extension point
+	 */
+	public AdvancedContentAssistConfigurationPage() {
 	}
 	
-	public static class ForRConsole extends ConfigurationBlockPreferencePage<AdvancedContentAssistConfigurationBlock> {
-		
-		public ForRConsole() {
-		}
-		
-		@Override
-		protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
-			return new AdvancedContentAssistConfigurationBlock(
-					RUIPlugin.getDefault().getRConsoleContentAssistRegistry(),
-					createStatusChangedListener());
-		}
-		
-	}
 	
+	@Override
+	protected AdvancedContentAssistConfigurationBlock createConfigurationBlock() throws CoreException {
+		return new AdvancedContentAssistConfigurationBlock(
+				RUIPlugin.getDefault().getREditorContentAssistRegistry(),
+				createStatusChangedListener());
+	}
 	
 }

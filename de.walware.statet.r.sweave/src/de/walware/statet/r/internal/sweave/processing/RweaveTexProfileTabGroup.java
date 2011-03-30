@@ -18,7 +18,6 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import de.walware.ecommons.debug.ui.CheckedCommonTab;
 
 
-
 /**
  * Tab group for Sweave (LaTeX/R) output creation toolchain.
  */

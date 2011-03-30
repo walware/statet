@@ -22,6 +22,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
@@ -33,9 +34,10 @@ import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
 import de.walware.statet.r.core.RUtil;
+import de.walware.statet.r.internal.debug.ui.RControllerCodeLaunchConnector;
+import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
-import de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector;
 import de.walware.statet.r.nico.AbstractRController;
 
 
@@ -206,7 +208,11 @@ public final class RCodeLaunching {
 		return true;
 	}
 	
-	public static boolean runRCodeDirect(final String[] lines, final boolean gotoConsole) throws CoreException {
+	public static boolean runRCodeDirect(final String[] lines, final boolean gotoConsole,
+			final IProgressMonitor monitor) throws CoreException {
+		if (monitor != null) {
+			monitor.subTask(RLaunchingMessages.RCodeLaunch_SubmitCode_task);
+		}
 		final IRCodeLaunchConnector connector = RCodeLaunchRegistry.getDefault().getConnector();
 		
 		return connector.submit(lines, gotoConsole);

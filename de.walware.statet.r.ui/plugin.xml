@@ -51,7 +51,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="de.walware.statet.r.ui.editors.REditor"
+            class="de.walware.statet.r.internal.ui.editors.REditor"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             icon="icons/obj_16/r-file_obj.gif"
@@ -60,7 +60,7 @@
          <contentTypeBinding contentTypeId="de.walware.statet.r.contentTypes.R"/>
       </editor>
       <editor
-            class="de.walware.statet.r.ui.editors.RdEditor"
+            class="de.walware.statet.r.internal.ui.editors.RdEditor"
             contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
             default="true"
             icon="icons/obj_16/rd-file_obj.gif"
@@ -108,7 +108,7 @@
             id="de.walware.statet.r.contentAssistComputers.PathCompletion"
             contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="paths"
-            class="de.walware.statet.r.ui.editors.RPathCompletionComputer">
+            class="de.walware.statet.r.ui.sourceediting.RPathCompletionComputer">
          <partition
                partitionType="__r_string">
          </partition>
@@ -121,7 +121,7 @@
             id="de.walware.statet.r.contentAssistComputers.RCompletion"
             contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="r-elements"
-            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer">
+            class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer">
          <partition
                partitionType="__r_default">
          </partition>
@@ -137,7 +137,7 @@
             id="de.walware.statet.r.contentAssistComputers.RCompletionFromRuntime"
             contentTypeId="de.walware.statet.r.contentTypes.R"
             categoryId="r-elements.runtime"
-            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer$CompleteRuntime">
+            class="de.walware.statet.r.ui.sourceediting.RElementsCompletionComputer$CompleteRuntime">
          <partition
                partitionType="__r_default">
          </partition>
@@ -562,19 +562,13 @@
             id="de.walware.statet.r.preferencePages.REditorAdvancedContentAssistPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Editor Content Assist"
-            class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForREditor">
+            class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage">
       </page>
       <page
             id="de.walware.statet.r.preferencePages.REditorAdvancedInfoHoverPage"
             category="de.walware.statet.base.preferencePages.Editors"
             name="R Editor Hover"
             class="de.walware.statet.r.internal.ui.editors.AdvancedInfoHoverConfigurationPage$ForREditor">
-      </page>
-      <page
-            id="de.walware.statet.r.preferencePages.RConsoleAdvancedContentAssistPage"
-            category="de.walware.statet.base.preferencePages.Editors"
-            name="R Console Content Assist"
-            class="de.walware.statet.r.internal.ui.editors.AdvancedContentAssistConfigurationPage$ForRConsole">
       </page>
       <page
             id="de.walware.statet.r.preferencePages.RdTextStylesPage"
@@ -720,7 +714,7 @@
          </view>
       </perspectiveExtension>
    </extension>
-
+   
    <extension
          point="org.eclipse.compare.contentViewers">
       <viewer
@@ -906,92 +900,14 @@
             type="org.eclipse.core.runtime.IAdaptable">
       </propertyTester>
    </extension>
-
-
-   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            category="org.eclipse.ui.externaltools"
-            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdLaunchDelegate"
-            id="de.walware.statet.r.launchConfigurationTypes.RCmdTool"
-            modes="run"
-            name="%launchConfigurations.RCmd_name"
-            public="true">
-      </launchConfigurationType>
-   </extension>
-   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
-      <launchConfigurationTypeImage
-            id="de.walware.statet.r.images.RCmdTool"
-            configTypeID="de.walware.statet.r.launchConfigurationTypes.RCmdTool"
-            icon="icons/tool_16/r-cmd.png">
-      </launchConfigurationTypeImage>
-   </extension>
-   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-      <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RCmdToolTabGroup"
-            description="%launchConfigurations.RCmd_description"
-            helpContextId="org.eclipse.ui.externaltools.launchConfigHelpContext.program"
-            id="de.walware.statet.r.launchConfigurationTabGroups.RCmdTool"
-            type="de.walware.statet.r.launchConfigurationTypes.RCmdTool"/>
-   </extension>
-
-   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleLaunchDelegate"
-            id="de.walware.statet.r.launchConfigurationTypes.RConsole"
-            modes="run,debug"
-            name="%launchConfigurations.RConsole_name"
-            public="true"
-            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
-            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
-      </launchConfigurationType>
-   </extension>
-   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
-      <launchConfigurationTypeImage
-            id="de.walware.statet.r.images.RConsole"
-            configTypeID="de.walware.statet.r.launchConfigurationTypes.RConsole"
-            icon="icons/tool_16/r-console.png">
-      </launchConfigurationTypeImage>
-   </extension>
-   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-      <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RConsoleTabGroup"
-            description="%launchConfigurations.RConsole_description"
-            id="de.walware.statet.r.launchConfigurationTabGroups.RConsole"
-            type="de.walware.statet.r.launchConfigurationTypes.RConsole"/>
-   </extension>
-
-   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            delegate="de.walware.statet.r.internal.debug.ui.launchconfigs.RRemoteConsoleLaunchDelegate"
-            id="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
-            modes="run"
-            name="%launchConfigurations.RRemoteConsole_name"
-            public="true">
-      </launchConfigurationType>
-   </extension>
-   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
-      <launchConfigurationTypeImage
-            id="de.walware.statet.r.images.RRemoteConsole"
-            configTypeID="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
-            icon="icons/tool_16/r-remoteconsole.png">
-      </launchConfigurationTypeImage>
-   </extension>
-   <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-      <launchConfigurationTabGroup
-            class="de.walware.statet.r.internal.debug.ui.launchconfigs.RRemoteConsoleTabGroup"
-            description="%launchConfigurations.RRemoteConsole_description"
-            id="de.walware.statet.r.launchConfigurationTabGroups.RRemoteConsole"
-            type="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"/>
-   </extension>
-
-
+   
    <extension-point id="rCodeLaunchConnector"
          name="Point to register Connectors which can launch r code"
          schema="schema/rCodeLaunchConnector.exsd"/>
    <extension-point id="rCodeLaunchContentHandler"
          name="Content specific handling of code launching"
          schema="schema/rCodeLaunchContentHandler.exsd"/>
-
+   
    <extension point="de.walware.statet.r.ui.rCodeLaunchContentHandler">
       <contentHandler
             contentTypeId="de.walware.statet.r.contentTypes.RData">
@@ -1011,31 +927,7 @@
          </fileCommand>
       </contentHandler>
    </extension>
-   <extension
-         point="de.walware.ecommons.ltk.advancedContentAssist">
-      <computer
-            id="de.walware.statet.r.contentAssistComputers.PathCompletion"
-            contentTypeId="de.walware.statet.r.contentTypes.RConsole"
-            categoryId="paths"
-            class="de.walware.statet.r.ui.editors.RPathCompletionComputer">
-         <partition
-               partitionType="__r_string">
-         </partition>
-      </computer>
-      <computer
-            id="de.walware.statet.r.contentAssistComputers.RCompletion"
-            contentTypeId="de.walware.statet.r.contentTypes.RConsole"
-            categoryId="r-elements"
-            class="de.walware.statet.r.internal.ui.editors.RElementsCompletionComputer">
-         <partition
-               partitionType="__r_default">
-         </partition>
-         <partition
-               partitionType="__r_symbol_quoted">
-         </partition>
-      </computer>
-   </extension>
-
+   
    <extension point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             category="de.walware.statet.r.basic"
@@ -1252,7 +1144,6 @@
             name="%preferencePages.RIntegrationExt.name">
       </page>
    </extension>
-
    <extension point="org.eclipse.ui.commands">
       <!-- commands of launch shortcuts above -->
       <command
@@ -1681,206 +1572,12 @@
             </and>
          </activeWhen>
       </handler>
-      
-      <handler
-            commandId="de.walware.statet.nico.commands.AdjustOutputWidth"
-            class="de.walware.statet.r.internal.nico.ui.AdjustWidthHandler">
-         <activeWhen>
-            <with
-                  variable="de.walware.statet.activeTool">
-               <test
-                     forcePluginActivation="false"
-                     property="de.walware.statet.nico.isMainType"
-                     value="R">
-               </test>
-            </with>
-         </activeWhen>
-      </handler>
    </extension>
 
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="de.walware.statet.r.commands.RunFileViaCommand"
-            contextId="org.eclipse.ui.globalScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M2+M3+X R"/>
-       <key
-            commandId="de.walware.statet.r.commands.RunFileViaCommand"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+S"/>
-     <key
-            commandId="de.walware.statet.r.commands.RunFileViaCommand_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R S"/>
-
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.RScriptDirect.run"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+D"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunEntireCommand"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+E"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R E"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+3">
-      </key>
-      <key
-            commandId="de.walware.statet.r.commands.RunFunctionDef"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+F"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunFunctionDef_GotoConsole"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R F"/>
-      <key
-            commandId="de.walware.statet.r.launchShortcuts.RScriptDirectAndConsole.run"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R D"/>
-
-      <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+R"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoConsole"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R R"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+4"/>
-      <key
-            commandId="de.walware.statet.r.commands.RunSelectionInR_PasteOutput"
-            contextId="de.walware.statet.r.contexts.REditor"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R M1+V">
-      </key>
-      <key
-            commandId="de.walware.statet.r.commands.GotoRConsole"
-            contextId="org.eclipse.ui.globalScope"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+R C">
-      </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar">
-         <toolbar
-               id="de.walware.statet.r.menus.RunToolbar">
-            <separator
-                  name="begin"
-                  visible="true">
-            </separator>
-            <command
-                  commandId="de.walware.statet.r.commands.RunFileViaCommand"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <with
-                        variable="activeContexts">
-                     <iterate
-                           ifEmpty="false"
-                           operator="or">
-                        <equals
-                              value="de.walware.statet.r.actionSets.RToolbarSet">
-                        </equals>
-                     </iterate>
-                  </with>
-               </visibleWhen>
-            </command>
-            <separator
-                  name="submit_file"
-                  visible="false">
-            </separator>
-            <command
-                  commandId="de.walware.statet.r.commands.RunSelectionInR"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <with
-                        variable="activeContexts">
-                     <iterate
-                           ifEmpty="false"
-                           operator="or">
-                        <equals
-                              value="de.walware.statet.r.actionSets.RToolbarSet">
-                        </equals>
-                     </iterate>
-                  </with>
-               </visibleWhen>
-            </command>
-            <separator
-                  name="submit_selection"
-                  visible="false">
-            </separator>
-            <command
-                  commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
-                  style="push">
-               <visibleWhen
-                     checkEnabled="false">
-                  <with
-                        variable="activeContexts">
-                     <iterate
-                           ifEmpty="false"
-                           operator="or">
-                        <equals
-                              value="de.walware.statet.r.actionSets.RToolbarSet">
-                        </equals>
-                     </iterate>
-                  </with>
-               </visibleWhen>
-            </command>
-            <separator
-                  name="submit_add"
-                  visible="false">
-            </separator>
-         </toolbar>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:de.walware.statet.r.menus.RunToolbar?after=submit_selection">
-         <command
-               commandId="de.walware.statet.r.commands.RunSelectionInR_GotoNextLine"
-               style="push">
-            <visibleWhen
-                  checkEnabled="false">
-               <with
-                     variable="activeContexts">
-                  <iterate
-                        ifEmpty="false"
-                        operator="or">
-                     <equals
-                           value="de.walware.statet.r.actionSets.RToolbarExt1Set">
-                     </equals>
-                  </iterate>
-               </with>
-            </visibleWhen>
-         </command>
-      </menuContribution>
-   </extension>
    <extension
          point="de.walware.statet.r.ui.rCodeLaunchConnector">
       <connector
-            class="de.walware.statet.r.internal.nico.ui.RControllerCodeLaunchConnector"
+            class="de.walware.statet.r.internal.debug.ui.RControllerCodeLaunchConnector"
             description="%rConnector_RNewConsoleConnector_description"
             id="de.walware.statet.r.launching.RNewConsoleConnector"
             name="%rConnector_RNewConsoleConnector_name"/>
@@ -1902,6 +1599,7 @@
             restorable="true">
       </view>
    </extension>
+   
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory

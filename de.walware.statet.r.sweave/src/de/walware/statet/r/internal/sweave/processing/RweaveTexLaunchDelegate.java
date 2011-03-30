@@ -54,11 +54,11 @@ import net.sourceforge.texlipse.Texlipse;
 import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.BuilderRegistry;
 
-import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
-import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
+import de.walware.statet.r.cmd.ui.launching.RCmdLaunching;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
 import de.walware.statet.r.launching.core.RLaunching;
+import de.walware.statet.r.launching.ui.REnvTab;
 
 
 public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
@@ -194,7 +194,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 			final String sweaveConfigName = (split.length == 2) ? split[1] : ""; //$NON-NLS-1$
 			
 			final Map<String, Object> attributes = new HashMap<String, Object>();
-			attributes.put(RLaunchConfigurations.ATTR_R_CMD_RESOURCE, sweaveFile.getLocation().toOSString());
+			attributes.put(RCmdLaunching.ATTR_R_CMD_RESOURCE, sweaveFile.getLocation().toOSString());
 			attributes.put(IDebugUIConstants.ATTR_LAUNCH_IN_BACKGROUND, false);
 			
 			final ILaunchConfiguration sweaveConfig = getRCmdSweaveConfig(sweaveConfigName, attributes);
@@ -258,7 +258,7 @@ public class RweaveTexLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	private OverlayLaunchConfiguration getRCmdSweaveConfig(final String name, final Map<String, Object> attributes) throws CoreException {
 		final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-		final ILaunchConfigurationType launchType = launchManager.getLaunchConfigurationType(RLaunchConfigurations.ID_R_CMD_CONFIGURATION_TYPE); //$NON-NLS-1
+		final ILaunchConfigurationType launchType = launchManager.getLaunchConfigurationType(RCmdLaunching.R_CMD_CONFIGURATION_TYPE_ID); //$NON-NLS-1
 		final ILaunchConfiguration[] launchConfigurations = launchManager.getLaunchConfigurations(launchType);
 		
 		if (name != null && name.length() > 0) {

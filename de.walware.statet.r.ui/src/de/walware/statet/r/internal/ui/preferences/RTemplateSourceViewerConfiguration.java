@@ -21,7 +21,7 @@ import de.walware.ecommons.templates.TemplateVariableProcessor;
 import de.walware.ecommons.ui.ColorManager;
 
 import de.walware.statet.r.core.IRCoreAccess;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 
 
 public class RTemplateSourceViewerConfiguration extends RSourceViewerConfiguration {

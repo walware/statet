@@ -11,8 +11,8 @@
 
 package de.walware.statet.r.internal.debug.ui.preferences;
 
-import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED;
-import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_LOCAL_REGISTRY_PORT;
+import static de.walware.statet.r.launching.RRunDebugPreferenceConstants.PREF_LOCAL_REGISTRY_AUTOSTART_ENABLED;
+import static de.walware.statet.r.launching.RRunDebugPreferenceConstants.PREF_LOCAL_REGISTRY_PORT;
 
 import java.util.HashMap;
 import java.util.Map;

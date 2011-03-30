@@ -11,8 +11,6 @@
 
 package de.walware.statet.r.internal.debug.ui.preferences;
 
-import static de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants.PREF_R_CONNECTOR;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,12 +42,12 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.r.core.RCore;
-import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry;
 import de.walware.statet.r.internal.debug.ui.launcher.RCodeLaunchRegistry.ContentHandler.FileCommand;
 import de.walware.statet.r.internal.ui.RUIPlugin;
-import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
-import de.walware.statet.r.ui.editors.RTemplateSourceViewerConfigurator;
+import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RTemplateSourceViewerConfigurator;
 
 
 public class RInteractionPreferencePage extends ConfigurationBlockPreferencePage<RInteractionConfigurationBlock> {
@@ -86,7 +84,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	protected void createBlockArea(final Composite pageComposite) {
 		fConnectors = RCodeLaunchRegistry.getAvailableConnectors();
 		final Map<Preference, String> prefs = new HashMap<Preference, String>();
-		prefs.put(PREF_R_CONNECTOR, null);
+		prefs.put(RRunDebugPreferenceConstants.PREF_R_CONNECTOR, null);
 		setupPreferenceManager(prefs);
 		
 		LayoutUtil.addSmallFiller(pageComposite, false);
@@ -136,7 +134,7 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			public void modifyText(final ModifyEvent e) {
 				final int idx = fConnectorsSelector.getSelectionIndex();
 				if (idx >= 0) {
-					setPrefValue(PREF_R_CONNECTOR, fConnectors[idx].fId);
+					setPrefValue(RRunDebugPreferenceConstants.PREF_R_CONNECTOR, fConnectors[idx].fId);
 					updateDescription(idx);
 				}
 			};
@@ -207,7 +205,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	}
 		
 	private void loadValues() {
-		final String selectedConnector = getPreferenceValue(PREF_R_CONNECTOR);
+		final String selectedConnector = getPreferenceValue(
+				RRunDebugPreferenceConstants.PREF_R_CONNECTOR );
 		
 		for (int i = 0; i < fConnectors.length; i++) {
 			if (selectedConnector.equals(fConnectors[i].fId))
@@ -219,7 +218,8 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 /* Load/Save of Handlers *****************************************************/
 	
 	private void saveHandlerConfig(final boolean save) {
-		final IEclipsePreferences node = new InstanceScope().getNode(RDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER);
+		final IEclipsePreferences node = new InstanceScope().getNode(
+				RRunDebugPreferenceConstants.CAT_CODELAUNCH_CONTENTHANDLER_QUALIFIER );
 		for (int i = 0; i < fFileCommands.length; i++) {
 			if (fCommandEditors[i] != null) {
 				final String key = fFileCommands[i].getId()+":command"; //$NON-NLS-1$

@@ -20,6 +20,7 @@ import org.eclipse.swt.graphics.Point;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.SimpleCompletionProposal;
 
+import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.rsource.RHeuristicTokenScanner;
 import de.walware.statet.r.ui.RUI;
 
@@ -73,7 +74,7 @@ public class RSimpleCompletionComputer extends SimpleCompletionProposal {
 			}
 			final String prefix = document.get(start, length);
 			final String replacement = getReplacementString();
-			if (new RElementsCompletionComputer.PrefixPattern(prefix).matches(replacement)) {
+			if (new RSymbolComparator.PrefixPattern(prefix).matches(replacement)) {
 				return true;
 			}
 		}

@@ -22,7 +22,7 @@ import de.walware.ecommons.text.PartitioningConfiguration;
 
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.internal.sweave.Rweave;
-import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
 
 /**

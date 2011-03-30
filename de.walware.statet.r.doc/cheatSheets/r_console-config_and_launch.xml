@@ -28,7 +28,7 @@
          <br/><br/>
          Go to &apos;Window &gt; Preferences... &gt; StatET &gt; Run/Debug &gt; 
          R Interaction&apos; and choose the R interaction mode
-         &apos;New Console inside Eclipse&apos; allowing to interact with
+         &apos;R Console inside Eclipse&apos; allowing to interact with
          the integrated Console.
       </description>
       <command

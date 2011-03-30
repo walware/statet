@@ -61,8 +61,8 @@ import de.walware.statet.r.internal.sweave.RweaveTexReconcilingStrategy;
 import de.walware.statet.r.sweave.text.RChunkControlCodeScanner;
 import de.walware.statet.r.sweave.text.RweaveChunkHeuristicScanner;
 import de.walware.statet.r.sweave.text.RweaveTexBracketPairMatcher;
-import de.walware.statet.r.ui.editors.RAutoEditStrategy;
-import de.walware.statet.r.ui.editors.RSourceViewerConfiguration;
+import de.walware.statet.r.ui.sourceediting.RAutoEditStrategy;
+import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.text.r.RDoubleClickStrategy;
 
 
