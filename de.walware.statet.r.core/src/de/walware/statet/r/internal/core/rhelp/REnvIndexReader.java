@@ -41,6 +41,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
+import org.apache.lucene.util.Version;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -228,7 +229,7 @@ public class REnvIndexReader implements IREnvIndex {
 	}
 	
 	private static Query createMainQuery(final String fields[], final String queryText) throws ParseException {
-		final QueryParser p = new ExtendedQueryParser(USED_VERSION, fields, READ_ANALYZER);
+		final QueryParser p = new ExtendedQueryParser(Version.LUCENE_31, fields, READ_ANALYZER);
 		p.setDefaultOperator(Operator.AND);
 		p.setAllowLeadingWildcard(true);
 		return p.parse(queryText);

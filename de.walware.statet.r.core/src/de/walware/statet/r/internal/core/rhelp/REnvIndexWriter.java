@@ -30,11 +30,13 @@ import org.apache.lucene.document.Field.TermVector;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
@@ -215,10 +217,11 @@ public class REnvIndexWriter implements IREnvIndex {
 			synchronized (fIndexLock) {
 				fReset = reset;
 				fLuceneDirectory = FSDirectory.open(fIndexDirectory);
-				final MaxFieldLength maxFieldLength = MaxFieldLength.UNLIMITED;
+				final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_31, WRITE_ANALYZER);
 				if (!reset) {
+					config.setOpenMode(OpenMode.CREATE_OR_APPEND);
 					try {
-						fLuceneWriter = new IndexWriter(fLuceneDirectory, WRITE_ANALYZER, maxFieldLength);
+						fLuceneWriter = new IndexWriter(fLuceneDirectory, config);
 						
 						final REnvHelp oldHelp = rHelpManager.getHelp(fREnvConfig.getReference());
 						IndexReader reader = null;
@@ -251,8 +254,9 @@ public class REnvIndexWriter implements IREnvIndex {
 					}
 				}
 				if (fLuceneWriter == null) {
+					config.setOpenMode(OpenMode.CREATE);
 					fExistingPackages = new HashMap<String, IRPackageHelp>(0);
-					fLuceneWriter = new IndexWriter(fLuceneDirectory, WRITE_ANALYZER, true, maxFieldLength);
+					fLuceneWriter = new IndexWriter(fLuceneDirectory, config);
 				}
 			}
 			
@@ -384,13 +388,14 @@ public class REnvIndexWriter implements IREnvIndex {
 		if (DEBUG) {
 			fStatus.add(new Status(IStatus.INFO, RCore.PLUGIN_ID, "Finishing package.")); //$NON-NLS-1$
 			
-			final Runtime runtime = Runtime.getRuntime();  
-			final long maxMemory = runtime.maxMemory();  
-			final long allocatedMemory = runtime.totalMemory();  
-			final long freeMemory = runtime.freeMemory();  
+			final Runtime runtime = Runtime.getRuntime();
+			final long maxMemory = runtime.maxMemory();
+			final long allocatedMemory = runtime.totalMemory();
+			final long freeMemory = runtime.freeMemory();
+			final IndexWriterConfig config = fLuceneWriter.getConfig();
 			final StringBuilder sb = new StringBuilder("Memory status:\n"); //$NON-NLS-1$
 			sb.append("TempBuilder-capycity: ").append(fTempBuilder.capacity()).append('\n'); //$NON-NLS-1$
-			sb.append("Lucene-buffersize: ").append((long) (fLuceneWriter.getRAMBufferSizeMB() * 1024.0)).append('\n'); //$NON-NLS-1$
+			sb.append("Lucene-buffersize: ").append((long) (config.getRAMBufferSizeMB() * 1024.0)).append('\n'); //$NON-NLS-1$
 			sb.append("Memory-free: ").append(freeMemory / 1024L).append('\n'); //$NON-NLS-1$
 			sb.append("Memory-total: ").append(allocatedMemory / 1024L).append('\n'); //$NON-NLS-1$
 			sb.append("Memory-max: ").append(maxMemory / 1024L).append('\n'); //$NON-NLS-1$

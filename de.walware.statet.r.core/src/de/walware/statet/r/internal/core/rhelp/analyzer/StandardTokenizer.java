@@ -67,8 +67,10 @@ public final class StandardTokenizer extends Tokenizer {
 			"<CJ>",
 	};
 	
+	static final int DEFAULT_MAX_TOKEN_LENGTH = 255;
 	
-	private int maxTokenLength = StandardAnalyzer.DEFAULT_MAX_TOKEN_LENGTH;
+	
+	private int maxTokenLength = DEFAULT_MAX_TOKEN_LENGTH;
 	
 	
 	/** Set the max allowed token length.  Any token longer

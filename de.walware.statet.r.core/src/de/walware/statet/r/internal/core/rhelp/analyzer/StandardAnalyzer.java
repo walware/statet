@@ -39,17 +39,25 @@ import org.apache.lucene.util.Version;
  *   <li>{@link PorterStemFilter} and</li>
  *   <li>{@link StopFilter}, using a list of English stop words.</li>
  */
-public class StandardAnalyzer extends Analyzer {
+public final class StandardAnalyzer extends Analyzer {
+	// TODO update to Lucene 3.1 mode with better Unicode support
 	
 	/**
 	 * An unmodifiable set containing some common English words that are usually not useful for searching.
 	*/
 	public static final Set<?> STOP_WORDS_SET = StopAnalyzer.ENGLISH_STOP_WORDS_SET;
 	
+	private static final class TokenStreamComponents {
+		protected StandardTokenizer defaultSource;
+		protected TokenStream defaultSink;
+		protected StandardTokenizer htmlSource;
+		protected TokenStream htmlSink;
+	}
+	
 	
 	private final Version fMatchVersion;
 	
-	private final Set<?> fStopSet;
+	private final int fMaxTokenLength = StandardTokenizer.DEFAULT_MAX_TOKEN_LENGTH;
 	
 	private final boolean fIndexMode;
 	
@@ -59,93 +67,63 @@ public class StandardAnalyzer extends Analyzer {
 	 * @param matchVersion Lucene version to match See {@link
 	 * <a href="#version">above</a>}
 	 */
-	public StandardAnalyzer(final Version matchVersion, final boolean indexMode) {
-		fStopSet = STOP_WORDS_SET;
-		fMatchVersion = matchVersion;
+	public StandardAnalyzer(final boolean indexMode) {
+		fMatchVersion = Version.LUCENE_30;
 		fIndexMode = indexMode;
 	}
 	
 	
 	@Override
-	public TokenStream tokenStream(final String fieldName, final Reader reader) {
-		final StandardTokenizer tokenStream = new StandardTokenizer(fMatchVersion, reader);
-		tokenStream.setMaxTokenLength(fMaxTokenLength);
-		TokenStream result = new StandardFilter(tokenStream);
-		result = new LowerCaseFilter(result);
-		result = new PorterStemFilter(result);
-		result = new StopFilter(true, result, fStopSet);
-		return result;
-	}
-	
-	private static final class SavedStreams {
-		StandardTokenizer defaultTokenStream;
-		TokenStream defaultFilteredTokenStream;
-		StandardTokenizer htmlTokenStream;
-		TokenStream htmlFilteredTokenStream;
-	}
-	
-	/** Default maximum allowed token length */
-	public static final int DEFAULT_MAX_TOKEN_LENGTH = 255;
-	
-	private int fMaxTokenLength = DEFAULT_MAX_TOKEN_LENGTH;
-	
-	/**
-	 * Set maximum allowed token length.  If a token is seen
-	 * that exceeds this length then it is discarded.  This
-	 * setting only takes effect the next time tokenStream or
-	 * reusableTokenStream is called.
-	 */
-	public void setMaxTokenLength(final int length) {
-		fMaxTokenLength = length;
-	}
-	
-	/**
-	 * @see #setMaxTokenLength
-	 */
-	public int getMaxTokenLength() {
-		return fMaxTokenLength;
+	public TokenStream tokenStream(final String fieldName, Reader reader) {
+		if (enableHtmlStrip(fieldName)) {
+			reader = new HTMLStripCharFilter(reader);
+		}
+		final StandardTokenizer source = new StandardTokenizer(fMatchVersion, reader);
+		final TokenStream sink = createSink(source);
+		return sink;
 	}
 	
 	@Override
 	public TokenStream reusableTokenStream(final String fieldName, Reader reader) throws IOException {
-		SavedStreams streams = (SavedStreams) getPreviousTokenStream();
-		if (streams == null) {
-			streams = new SavedStreams();
-			setPreviousTokenStream(streams);
+		TokenStreamComponents components = (TokenStreamComponents) getPreviousTokenStream();
+		if (components == null) {
+			components = new TokenStreamComponents();
+			setPreviousTokenStream(components);
 		}
-		if (fIndexMode && fieldName != null && fieldName.endsWith(".html")) {
+		if (enableHtmlStrip(fieldName)) {
 			reader = new HTMLStripCharFilter(reader);
-			if (streams.htmlTokenStream == null) {
-				streams.htmlTokenStream = new StandardTokenizer(fMatchVersion, reader);
-				TokenStream result = new StandardFilter(streams.htmlTokenStream);
-				result = new LowerCaseFilter(result);
-				result = new PorterStemFilter(result);
-				result = new StopFilter(true, result, fStopSet);
-				streams.htmlFilteredTokenStream = result;
-			} else {
-				streams.htmlTokenStream.reset(reader);
+			if (components.htmlSource == null) {
+				components.htmlSource = new StandardTokenizer(fMatchVersion, reader);
+				components.htmlSink = createSink(components.htmlSource);
 			}
-			streams.htmlTokenStream.setMaxTokenLength(fMaxTokenLength);
-			
-			return streams.htmlFilteredTokenStream;
+			else {
+				components.htmlSource.reset(reader);
+			}
+			return components.htmlSink;
 		}
 		else {
-			if (streams.defaultTokenStream == null) {
-				streams = new SavedStreams();
-				setPreviousTokenStream(streams);
-				streams.defaultTokenStream = new StandardTokenizer(fMatchVersion, reader);
-				TokenStream result = new StandardFilter(streams.defaultTokenStream);
-				result = new LowerCaseFilter(result);
-				result = new PorterStemFilter(result);
-				result = new StopFilter(true, result, fStopSet);
-				streams.defaultFilteredTokenStream = result;
-			} else {
-				streams.defaultTokenStream.reset(reader);
+			if (components.defaultSource == null) {
+				components.defaultSource = new StandardTokenizer(fMatchVersion, reader);
+				components.defaultSink = createSink(components.defaultSource);
 			}
-			streams.defaultTokenStream.setMaxTokenLength(fMaxTokenLength);
-			
-			return streams.defaultFilteredTokenStream;
+			else {
+				components.defaultSource.reset(reader);
+			}
+			return components.defaultSink;
 		}
+	}
+	
+	protected boolean enableHtmlStrip(final String fieldName) {
+		return (fIndexMode && fieldName != null && fieldName.endsWith(".html"));
+	}
+	
+	protected TokenStream createSink(final StandardTokenizer source) {
+		source.setMaxTokenLength(fMaxTokenLength);
+		TokenStream result = new StandardFilter(fMatchVersion, source);
+		result = new LowerCaseFilter(fMatchVersion, result);
+		result = new PorterStemFilter(result);
+		result = new StopFilter(fMatchVersion, result, STOP_WORDS_SET);
+		return result;
 	}
 	
 }

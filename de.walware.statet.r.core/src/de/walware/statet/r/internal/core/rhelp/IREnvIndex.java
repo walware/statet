@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.core.rhelp;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.util.Version;
 
 import de.walware.statet.r.internal.core.rhelp.analyzer.StandardAnalyzer;
 
@@ -105,10 +104,8 @@ public interface IREnvIndex {
 	String PAGE_DOC_TYPE = "helppage"; //$NON-NLS-1$
 	
 	
-	Version USED_VERSION = Version.LUCENE_30;
+	Analyzer WRITE_ANALYZER = new StandardAnalyzer(true);
 	
-	Analyzer WRITE_ANALYZER = new StandardAnalyzer(USED_VERSION, true);
-	
-	Analyzer READ_ANALYZER = new StandardAnalyzer(USED_VERSION, false);
+	Analyzer READ_ANALYZER = new StandardAnalyzer(false);
 	
 }
