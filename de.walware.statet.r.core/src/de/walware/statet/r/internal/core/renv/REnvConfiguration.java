@@ -544,11 +544,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 					final List<String> archs = new ArrayList<String>();
 					for (final IFileStore subDir : subDirs) {
 						if (subDir.getChild(name).fetchInfo().exists()) {
-							String arch = subDir.getName();
-							if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("x64")) { //$NON-NLS-1$
-								arch = "x86_64"; //$NON-NLS-1$
-							}
-							archs.add(arch);
+							archs.add(checkArchForStatet(subDir.getName()));
 						}
 					}
 					return archs;
@@ -558,6 +554,35 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			catch (final CoreException e) {}
 		}
 		return null;
+	}
+	
+	private String checkArchForStatet(String arch) {
+		if (arch == null || arch.length() == 0) {
+			return null;
+		}
+		if (arch.charAt(0) == '/') {
+			arch = arch.substring(1);
+			if (arch.length() == 0) {
+				return null;
+			}
+		}
+		if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("x64")) { //$NON-NLS-1$
+			return "x86_64"; //$NON-NLS-1$
+		}
+		return arch;
+	}
+	
+	private String checkArchForR(String arch) {
+		if (arch == null) {
+			return null;
+		}
+		if (arch.charAt(0) != '/') {
+			arch = '/' + arch;
+		}
+		if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("/x86_64")) { //$NON-NLS-1$
+			return "/x64"; //$NON-NLS-1$
+		}
+		return arch;
 	}
 	
 	public IStatus validate() {
@@ -592,9 +617,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	}
 	
 	public void setSubArch(String arch) {
-		if (arch != null && arch.length() == 0) {
-			arch = null;
-		}
+		arch = checkArchForStatet(arch);
 		final String oldValue = fSubArch;
 		fSubArch = arch;
 		firePropertyChange(PROP_SUBARCH, oldValue, arch);
@@ -862,10 +885,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 			final List<String> availableArchs = searchAvailableSubArchs(rHomeStore);
 			if (availableArchs != null && availableArchs.contains(arch)) {
 				if (arch != null) {
-					if (LOCAL_PLATFORM == LOCAL_WIN && arch.equals("x86_64")) { //$NON-NLS-1$
-						arch = "x64"; //$NON-NLS-1$
-					}
-					envp.put("R_ARCH", '/'+arch); //$NON-NLS-1$
+					envp.put("R_ARCH", checkArchForR(arch)); //$NON-NLS-1$
 				}
 			}
 			envp.put("R_LIBS_SITE", getLibPath(getRLibraryGroup(IRLibraryGroup.R_SITE))); //$NON-NLS-1$

@@ -165,9 +165,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					if (rhome != null) {
 						setText(rhome[0], true);
 						updateArchs(false);
-						fRBitViewer.setSelection(new StructuredSelection(
-								(fRArchControl.getText().contains("64") || rhome[0].contains("64")) ? //$NON-NLS-1$ //$NON-NLS-2$
-										T_64 : T_32));
 						final String current = fNameControl.getText().trim();
 						if ((current.length() == 0 || current.equals("R")) && rhome[1] != null) { //$NON-NLS-1$
 							fNameControl.setText(rhome[1]);
@@ -184,6 +181,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 			});
 			
 		}
+		
 	}
 	
 	private static class RLibraryContainer {
@@ -597,7 +595,7 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						if (!fConfigModel.isValidRHomeLocation(fRHomeControl.getResourceAsFileStore())) {
 							return ValidationStatus.error(Messages.REnv_Detail_Location_error_NoRHome_message);
 						}
-						updateArchs(true);
+						updateArchs(!fIsNewConfig);
 						return ValidationStatus.ok();
 					}
 				}), null);
@@ -674,7 +672,8 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
 	private void updateArchs(final boolean conservative) {
 		try {
-			final List<String> availableArchs = fConfigModel.searchAvailableSubArchs(fRHomeControl.getResourceAsFileStore());
+			final IFileStore rHome = fRHomeControl.getResourceAsFileStore();
+			final List<String> availableArchs = fConfigModel.searchAvailableSubArchs(rHome);
 			if (availableArchs == null) {
 				fRArchControl.setItems(new String[0]);
 				return;
@@ -696,11 +695,12 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 					}
 				}
 			}
-			if (idx >= 0) {
-				fRArchControl.select(idx);
-				return;
+			if (idx < 0) {
+				idx = 0;
 			}
-			fRArchControl.select(0);
+			fRArchControl.select(idx);
+			fRBitViewer.setSelection(new StructuredSelection(
+					(availableArchs.get(idx).contains("64")) ? T_64 : T_32 )); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
 			fRArchControl.setItems(new String[0]);
