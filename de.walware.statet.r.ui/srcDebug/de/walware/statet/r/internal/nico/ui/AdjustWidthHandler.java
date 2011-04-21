@@ -42,7 +42,7 @@ import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
-import de.walware.statet.r.nico.RTool;
+import de.walware.statet.r.console.core.RTool;
 
 
 public class AdjustWidthHandler extends AbstractHandler {

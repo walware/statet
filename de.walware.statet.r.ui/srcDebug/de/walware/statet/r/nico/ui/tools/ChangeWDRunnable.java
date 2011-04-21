@@ -22,9 +22,9 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
-import de.walware.statet.r.nico.IRBasicAdapter;
 import de.walware.statet.r.ui.RUI;
 
 

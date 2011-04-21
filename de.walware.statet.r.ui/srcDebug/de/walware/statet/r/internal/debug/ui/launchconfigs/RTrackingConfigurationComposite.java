@@ -19,7 +19,7 @@ import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 import de.walware.statet.nico.ui.util.TrackingConfigurationComposite;
 
-import de.walware.statet.r.nico.RWorkspace;
+import de.walware.statet.r.console.core.RWorkspace;
 
 
 public class RTrackingConfigurationComposite extends TrackingConfigurationComposite {

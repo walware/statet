@@ -44,10 +44,10 @@ import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.RProject;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.IRDocumentPartitions;
-import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.ui.RUI;
 
 

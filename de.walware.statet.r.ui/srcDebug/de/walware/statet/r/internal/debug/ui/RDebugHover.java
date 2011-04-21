@@ -42,13 +42,13 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.RListImpl;
 
+import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.nico.IRCombinedDataAdapter;
-import de.walware.statet.r.nico.IRDataAdapter;
-import de.walware.statet.r.nico.RTool;
 
 
 public class RDebugHover implements IInfoHover {

@@ -125,6 +125,10 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
 
+import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RWorkspace;
+import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.core.RElementComparator;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRLangElement;
@@ -133,10 +137,6 @@ import de.walware.statet.r.internal.debug.ui.RDebugHover;
 import de.walware.statet.r.internal.debug.ui.RElementInfoHoverCreator;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunPrintInR;
-import de.walware.statet.r.nico.IRDataAdapter;
-import de.walware.statet.r.nico.RTool;
-import de.walware.statet.r.nico.RWorkspace;
-import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.ui.RLabelProvider;
 
 

@@ -85,6 +85,7 @@ import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.Server;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.debug.RDebug;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
@@ -92,7 +93,6 @@ import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RDebugPreferenceConstants;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
-import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.impl.RjsUtil;
 import de.walware.statet.r.nico.ui.RConsole;
@@ -497,7 +497,8 @@ public class RRemoteConsoleLaunchDelegate extends LaunchConfigurationDelegate {
 					configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 			rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
 			final RjsController controller = new RjsController(process, rmiAddress, loginData,
-					false, startup, args, rjsProperties, null, trackingConfigs);
+					false, startup, args, rjsProperties, null,
+					RConsoleRJLaunchDelegate.createWorkspaceConfig(configuration), trackingConfigs);
 			
 			// move all tasks, if started
 			if (reconnect != null && prevProcess != null) {

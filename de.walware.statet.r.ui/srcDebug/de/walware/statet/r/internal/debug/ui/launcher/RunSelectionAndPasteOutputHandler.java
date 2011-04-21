@@ -52,13 +52,13 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
+import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.core.rsource.RIndentUtil;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
-import de.walware.statet.r.nico.IRBasicAdapter;
-import de.walware.statet.r.nico.RTool;
-import de.walware.statet.r.nico.RWorkspace;
 import de.walware.statet.r.ui.RUI;
 
 

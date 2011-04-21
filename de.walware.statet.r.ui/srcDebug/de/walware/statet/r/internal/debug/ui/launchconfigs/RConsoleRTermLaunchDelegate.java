@@ -43,13 +43,13 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.renv.IREnvConfiguration.Exec;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RConsoleLaunching;
-import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.nico.impl.RTermController;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.ui.RUI;

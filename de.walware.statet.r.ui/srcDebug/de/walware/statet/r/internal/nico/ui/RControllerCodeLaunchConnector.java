@@ -29,9 +29,9 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 
+import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.IRCodeLaunchConnector;
-import de.walware.statet.r.nico.RTool;
 
 
 /**
@@ -40,7 +40,7 @@ import de.walware.statet.r.nico.RTool;
 public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
 	
-	public static final String ID = "de.walware.statet.r.launching.RNewConsoleConnector"; //$NON-NLS-1$
+	public static final String ID = "de.walware.statet.r.debug.RNewConsoleConnector"; //$NON-NLS-1$
 	
 	
 	public static interface CommandsCreator {

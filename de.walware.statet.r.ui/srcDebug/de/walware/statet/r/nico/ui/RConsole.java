@@ -20,11 +20,11 @@ import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.IRCoreAccess;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.debug.ui.launchconfigs.RErrorLineTracker;
-import de.walware.statet.r.nico.RProcess;
 
 
 public class RConsole extends NIConsole implements IRCoreAccess {

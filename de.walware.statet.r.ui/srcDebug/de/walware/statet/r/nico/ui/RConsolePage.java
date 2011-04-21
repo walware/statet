@@ -41,6 +41,8 @@ import de.walware.statet.nico.ui.console.ConsolePageEditor;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
+import de.walware.statet.r.console.core.RProcess;
+import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.RCodeStyleSettings;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.nico.ui.REnvIndexUpdateHandler;
@@ -48,8 +50,6 @@ import de.walware.statet.r.internal.nico.ui.RInputConfigurator;
 import de.walware.statet.r.internal.nico.ui.RInputGroup;
 import de.walware.statet.r.internal.nico.ui.RNicoMessages;
 import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
-import de.walware.statet.r.nico.RProcess;
-import de.walware.statet.r.nico.RTool;
 import de.walware.statet.r.nico.ui.tools.ChangeWorkingDirectoryWizard;
 import de.walware.statet.r.ui.RUIHelp;
 

@@ -42,6 +42,7 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
 
+import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.ArgsDefinition.Arg;
@@ -52,7 +53,6 @@ import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRSlot;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 
 
 /**

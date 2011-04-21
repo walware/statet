@@ -62,14 +62,15 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.server.RjsComConfig;
 
+import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.debug.ui.launchconfigs.REnvTab;
 import de.walware.statet.r.debug.ui.launchconfigs.RLaunchConfigurations;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.internal.nico.ui.REnvIndexAutoUpdater;
 import de.walware.statet.r.launching.RConsoleLaunching;
-import de.walware.statet.r.nico.IRDataAdapter;
-import de.walware.statet.r.nico.RProcess;
+import de.walware.statet.r.nico.RWorkspaceConfig;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.nico.ui.RConsole;
 import de.walware.statet.r.ui.RUI;
@@ -131,6 +132,13 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 	}
 	
+	static RWorkspaceConfig createWorkspaceConfig(ILaunchConfiguration configuration) throws CoreException {
+		final RWorkspaceConfig config = new RWorkspaceConfig();
+		config.setEnableObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
+		config.setEnableAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
+		return config;
+	}
+	
 	static void initConsoleOptions(final RjsController controller, final ILaunchConfiguration configuration,
 			final boolean isStartup) throws CoreException {
 		new REnvIndexAutoUpdater(controller.getProcess());
@@ -142,8 +150,6 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		if (isStartup) {
 			RConsoleLaunching.scheduleStartupSnippet(controller, configuration);
 		}
-		controller.setRObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
-		controller.getWorkspaceData().setAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));
 	}
 	
 	
@@ -294,8 +300,8 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENVS_MAX_LENGTH, 10000));
 		rjsProperties.put("rj.session.startup.time", timestamp); //$NON-NLS-1$
 		final RjsController controller = new RjsController(process, rmiAddress, null,
-				true, true, rArgs, rjsProperties,
-				engineLaunchDelegate.getWorkingDirectory(), trackingConfigs);
+				true, true, rArgs, rjsProperties, engineLaunchDelegate.getWorkingDirectory(),
+				createWorkspaceConfig(configuration), trackingConfigs);
 		process.init(controller);
 		RConsoleLaunching.registerDefaultHandlerTo(controller);
 		

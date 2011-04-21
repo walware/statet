@@ -47,11 +47,11 @@ import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.util.ToolMessageDialog;
 
+import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
-import de.walware.statet.r.nico.IRDataAdapter;
-import de.walware.statet.r.nico.RJREnvIndexChecker;
-import de.walware.statet.r.nico.RJREnvIndexUpdater;
-import de.walware.statet.r.nico.RProcess;
+import de.walware.statet.r.core.rhelp.rj.RJREnvIndexChecker;
+import de.walware.statet.r.core.rhelp.rj.RJREnvIndexUpdater;
 import de.walware.statet.r.nico.impl.RjsController;
 import de.walware.statet.r.ui.RUI;
 

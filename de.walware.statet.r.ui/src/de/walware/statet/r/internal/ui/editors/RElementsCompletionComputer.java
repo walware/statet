@@ -54,6 +54,9 @@ import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.rj.data.RReference;
 
+import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RWorkspace;
+import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IPackageReferences;
@@ -73,9 +76,6 @@ import de.walware.statet.r.core.rsource.ast.FCall;
 import de.walware.statet.r.core.rsource.ast.FCall.Args;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
-import de.walware.statet.r.nico.RTool;
-import de.walware.statet.r.nico.RWorkspace;
-import de.walware.statet.r.nico.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.ui.RLabelProvider;
 
 

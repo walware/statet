@@ -25,8 +25,8 @@ import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
-import de.walware.statet.r.nico.ContinuePrompt;
-import de.walware.statet.r.nico.IRBasicAdapter;
+import de.walware.statet.r.console.core.ContinuePrompt;
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.nico.ui.RConsolePage;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
 import de.walware.statet.r.ui.editors.RSourceViewerConfigurator;
@@ -56,7 +56,7 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 	protected void onPromptUpdate(final Prompt prompt) {
 		if ((prompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) {
 			final ContinuePrompt p = (ContinuePrompt) prompt;
-			fDocument.setPrefix(p.previousInput);
+			fDocument.setPrefix(p.getPreviousInput());
 		}
 		else {
 			fDocument.setPrefix(""); //$NON-NLS-1$

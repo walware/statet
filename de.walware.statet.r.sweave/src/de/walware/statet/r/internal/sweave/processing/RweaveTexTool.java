@@ -81,10 +81,10 @@ import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.TexlipseBuilder;
 import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
+import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.sweave.Messages;
 import de.walware.statet.r.internal.sweave.SweavePlugin;
-import de.walware.statet.r.nico.RTool;
 
 
 class RweaveTexTool implements Runnable, IProcess {

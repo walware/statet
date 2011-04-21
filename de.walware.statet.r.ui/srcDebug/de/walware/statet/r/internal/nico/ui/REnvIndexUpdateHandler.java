@@ -23,8 +23,8 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 
-import de.walware.statet.r.nico.RProcess;
-import de.walware.statet.r.nico.RTool;
+import de.walware.statet.r.console.core.RProcess;
+import de.walware.statet.r.console.core.RTool;
 
 
 /**

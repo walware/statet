@@ -16,6 +16,7 @@ Require-Bundle: de.walware.statet.base.ui;bundle-version="[0.10.0,0.11.0)",
  org.eclipse.ui.ide,
  org.eclipse.compare,
  de.walware.statet.nico.ui,
+ de.walware.statet.r.console.core,
  de.walware.statet.r.ui,
  de.walware.ecommons.ltk.ui;bundle-version="[0.10.0,0.11.0)",
  net.sourceforge.texlipse;bundle-version="10400.6.0"

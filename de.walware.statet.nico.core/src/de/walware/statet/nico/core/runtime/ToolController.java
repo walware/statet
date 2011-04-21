@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -55,7 +54,7 @@ import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
  * IToolRunnable with the necessary methods (in protected scope).</p>
  */
 public abstract class ToolController<WorkspaceType extends ToolWorkspace>
-		implements IToolRunnableControllerAdapter, IAdaptable {
+		implements IToolRunnableControllerAdapter {
 	
 	
 	/**

@@ -27,13 +27,13 @@ import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.ui.NicoUITools;
 
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnv;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.ui.rhelp.RHelpUIServlet;
 import de.walware.statet.r.internal.ui.rhelp.RHelpView;
 import de.walware.statet.r.nico.AbstractRController;
-import de.walware.statet.r.nico.RProcess;
 import de.walware.statet.r.ui.RUI;
 
 
