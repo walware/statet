@@ -14,8 +14,8 @@
 <!-- StatET top level topics                                                       -->
 <!-- ============================================================================= -->
 <toc label="StatET User Guide">
-   <anchor id="introduction"/> 
-   <anchor id="getting_started"/> 
-   <anchor id="main_languages"/> 
-   <anchor id="common_tools"/> 
+   <anchor id="introduction"/>
+   <anchor id="getting_started"/>
+   <anchor id="main_languages"/>
+   <anchor id="common_tools"/>
 </toc>

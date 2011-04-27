@@ -39,7 +39,7 @@
             type="de.walware.statet.r.launchConfigurationTypes.RCmdTool"
             class="de.walware.statet.r.internal.cmd.ui.launching.RCmdToolTabGroup"
             description="%launchConfigurations_RCmd_description"
-            helpContextId="org.eclipse.ui.externaltools.launchConfigHelpContext.program"/>
+            helpContextId="de.walware.statet.r.ui.r_cmd-tools"/>
    </extension>
    
 <!-- R Consoles Launch Config -->
@@ -66,7 +66,8 @@
             id="de.walware.statet.r.launchConfigurationTabGroups.RConsole"
             type="de.walware.statet.r.launchConfigurationTypes.RConsole"
             class="de.walware.statet.r.internal.console.ui.launching.RConsoleTabGroup"
-            description="%launchConfigurations_RConsole_description"/>
+            description="%launchConfigurations_RConsole_description"
+            helpContextId="de.walware.statet.r.ui.r_console-launch"/>
    </extension>
    
    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
@@ -90,7 +91,8 @@
             id="de.walware.statet.r.launchConfigurationTabGroups.RRemoteConsole"
             type="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
             class="de.walware.statet.r.internal.console.ui.launching.RRemoteConsoleTabGroup"
-            description="%launchConfigurations_RRemoteConsole_description"/>
+            description="%launchConfigurations_RRemoteConsole_description"
+            helpContextId="de.walware.statet.r.ui.r_remote_console-launch"/>
    </extension>
    
 <!-- Code Launch Contributions -->

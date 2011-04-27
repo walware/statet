@@ -41,6 +41,8 @@
          </topic>
       </topic>
    </topic>
+   <topic href="reference/r_cmd-tools.xhtml" label="R CMD Tools">
+   </topic>
    <topic label="R Help">
       <topic href="reference/r_help-search.xhtml" label="Search">
       </topic>

@@ -2,7 +2,7 @@
 @import "PLUGINS_ROOT/PRODUCT_PLUGIN/book.css";
 
 body {
-	font-size: 11pt;
+	font-size: 13px;
 }
 h2 {
 	margin-top: 0.6em;
@@ -18,7 +18,7 @@ h2 img, h4 img { /* Icon */
 body p {
 	margin-top: 0.4em;
 	font-weight: normal;
-	line-height: 14.5pt;
+	line-height: 133%;
 }
 table th, table td {
 	text-align: left;
