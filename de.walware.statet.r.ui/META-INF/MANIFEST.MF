@@ -40,6 +40,7 @@ Import-Package: com.ibm.icu.text;version="4.0.1",
  javax.servlet.http;version="2.5.0",
  org.apache.commons.collections.primitives
 Export-Package: de.walware.statet.r.codegeneration,
+ de.walware.statet.r.internal.objectbrowser;x-internal:=true,
  de.walware.statet.r.internal.ui;x-friends:="de.walware.statet.r.sweave",
  de.walware.statet.r.internal.ui.rhelp;x-friends:="de.walware.statet.r.console.ui",
  de.walware.statet.r.launching,
