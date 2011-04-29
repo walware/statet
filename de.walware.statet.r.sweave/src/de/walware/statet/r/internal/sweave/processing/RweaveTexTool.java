@@ -379,8 +379,10 @@ class RweaveTexTool implements Runnable, IProcess {
 			else if (fWorkingFolder != null && fWorkingFolderInWorkspace == null) {
 				final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 				final IContainer[] found = root.findContainersForLocationURI(fWorkingFolder.toURI());
-				if (found.length > 0) {
-					fWorkingFolderInWorkspace = found[0];
+				for (int i = 0; i < found.length; i++) {
+					if (found[i].getType() == IResource.PROJECT || found[i].getType() == IResource.FOLDER) {
+						fWorkingFolderInWorkspace = found[i];
+					}
 				}
 			}
 		}
