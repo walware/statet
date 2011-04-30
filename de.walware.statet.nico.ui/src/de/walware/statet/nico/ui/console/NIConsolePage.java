@@ -417,6 +417,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 	private CancelHandler fCancelPauseHandler;
 	
 	private final HandlerCollection fPageHandlers = new HandlerCollection();
+	private final HandlerCollection fInputHandlers = new HandlerCollection();
 	
 	
 	/**
@@ -457,7 +458,8 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 				NIConsolePage.this.setFocus();
 				return true;
 			}
-			public void setVisible(boolean visible) {
+			@Override
+			public void setVisible(final boolean visible) {
 				super.setVisible(visible);
 				if (visible) {
 					NIConsolePage.this.setFocus();
@@ -477,15 +479,15 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fOutputViewer.getTextWidget().addKeyListener(new KeyListener() {
 			public void keyPressed(final KeyEvent e) {
 				if (e.doit
-						&& (e.character >= 32)
+						&& (e.character > 0)
 						&& (e.stateMask == SWT.NONE || e.stateMask == SWT.SHIFT)
-						&& ( ((e.keyCode & SWT.KEYCODE_BIT) == 0) 
-								|| (SWT.KEYCODE_BIT + 32 <= e.keyCode && e.keyCode <= (SWT.KEYCODE_BIT + 80)) )) {
+						&& ((e.keyCode & SWT.KEYCODE_BIT) == 0) ) {
 					final StyledText textWidget = fInputGroup.getViewer().getTextWidget();
 					if (!UIAccess.isOkToUse(textWidget)) {
 						return;
 					}
-					if (textWidget.getCharCount() == 0) {
+					final int cType = Character.getType(e.character);
+					if (cType > 0 && cType < Character.CONTROL && textWidget.getCharCount() == 0) {
 						textWidget.replaceTextRange(0, 0, Character.toString(e.character));
 						textWidget.setCaretOffset(textWidget.getCharCount());
 					}
@@ -516,6 +518,7 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fClipboard = new Clipboard(fControl.getDisplay());
 		createActions();
 		initActions(getSite(), fPageHandlers);
+		fInputGroup.initActions(fInputServices, fInputHandlers);
 		hookContextMenu();
 		hookDND();
 		contributeToActionBars(getSite(), getSite().getActionBars(), fPageHandlers);
@@ -664,8 +667,6 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 		fFindReplaceUpdater = new FindReplaceUpdater();
 		fConsole.getDocument().addDocumentListener(fFindReplaceUpdater);
 		inputViewer.getDocument().addDocumentListener(new PostUpdater());
-		
-		fInputGroup.configureServices(inputCommands, inputKeys);
 		
 		inputViewer.addSelectionChangedListener(fMultiActionHandler);
 		fOutputViewer.addSelectionChangedListener(fMultiActionHandler);
@@ -828,6 +829,9 @@ public abstract class NIConsolePage implements IPageBookViewPage,
 			catch (final Exception e) {
 				NicoUIPlugin.logError(NicoUIPlugin.INTERNAL_ERROR, Messages.Console_error_UnexpectedException_message, e);
 			}
+			
+			fPageHandlers.dispose();
+			fInputHandlers.dispose();
 			
 			fMultiActionHandler.dispose();
 			fMultiActionHandler = null;

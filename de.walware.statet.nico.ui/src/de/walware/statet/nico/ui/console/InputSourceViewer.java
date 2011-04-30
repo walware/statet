@@ -54,10 +54,4 @@ public class InputSourceViewer extends SourceViewer {
 		});
 	}
 	
-	
-	public void removeSpecialBinding(final int key) {
-		final StyledText control = (StyledText) getControl();
-		control.setKeyBinding(key, SWT.NULL);
-	}
-	
 }

@@ -73,8 +73,6 @@ import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.ltk.ISourceUnit;
-import de.walware.ecommons.ltk.ui.sourceediting.DeleteLineHandler;
-import de.walware.ecommons.ltk.ui.sourceediting.GotoMatchingBracketHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
 import de.walware.ecommons.ltk.ui.sourceediting.ITextEditToolSynchronizer;
@@ -83,14 +81,29 @@ import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectHandler;
 import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectionHistory;
 import de.walware.ecommons.ltk.ui.sourceediting.StructureSelectionHistoryBackHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.CutLineHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.CutToLineBeginHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.CutToLineEndHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteLineHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteNextWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.DeletePreviousWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteToLineBeginHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.DeleteToLineEndHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoMatchingBracketHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoNextWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.GotoPreviousWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectNextWordHandler;
+import de.walware.ecommons.ltk.ui.sourceediting.actions.SelectPreviousWordHandler;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.text.PairMatcher;
 import de.walware.ecommons.text.PartitioningConfiguration;
 import de.walware.ecommons.text.ui.InformationDispatchHandler;
+import de.walware.ecommons.text.ui.TextHandlerUtil;
 import de.walware.ecommons.text.ui.TextViewerAction;
 import de.walware.ecommons.text.ui.TextViewerCustomCaretSupport;
 import de.walware.ecommons.text.ui.TextViewerEditorColorUpdater;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
+import de.walware.ecommons.ui.actions.HandlerCollection;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.History;
@@ -491,16 +504,17 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		gd.verticalIndent = 1;
 		fSourceViewer.getControl().setLayoutData(gd);
 		fSourceViewer.appendVerifyKeyListener(new ThisKeyListener());
-		fSourceViewer.removeSpecialBinding(KEY_HIST_UP);
-		fSourceViewer.removeSpecialBinding(KEY_HIST_DOWN);
-		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_DEFAULT);
-		fSourceViewer.removeSpecialBinding(KEY_SUBMIT_KEYPAD);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEUP);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_LINEDOWN);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEUP);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_PAGEDOWN);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_START);
-		fSourceViewer.removeSpecialBinding(KEY_OUTPUT_END);
+		final StyledText textWidget = fSourceViewer.getTextWidget();
+		textWidget.setKeyBinding(KEY_HIST_UP, SWT.NULL);
+		textWidget.setKeyBinding(KEY_HIST_DOWN, SWT.NULL);
+		textWidget.setKeyBinding(KEY_SUBMIT_DEFAULT, SWT.NULL);
+		textWidget.setKeyBinding(KEY_SUBMIT_KEYPAD, SWT.NULL);
+		textWidget.setKeyBinding(KEY_OUTPUT_LINEUP, SWT.NULL);
+		textWidget.setKeyBinding(KEY_OUTPUT_LINEDOWN, SWT.NULL);
+		textWidget.setKeyBinding(KEY_OUTPUT_PAGEUP, SWT.NULL);
+		textWidget.setKeyBinding(KEY_OUTPUT_PAGEDOWN, SWT.NULL);
+		textWidget.setKeyBinding(KEY_OUTPUT_START, SWT.NULL);
+		textWidget.setKeyBinding(KEY_OUTPUT_END, SWT.NULL);
 		
 		fSubmitButton = new Button(fComposite, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, false, true);
@@ -618,71 +632,122 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 		}
 	}
 	
-	public void configureServices(final IHandlerService handlerServices, final IContextService keys) {
-		keys.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
+	public void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
+		final IContextService contextService = (IContextService) serviceLocator.getService(IContextService.class);
+		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
+		final StyledText textWidget = fSourceViewer.getTextWidget();
 		
-		IAction action;
+		contextService.activateContext("de.walware.statet.base.contexts.ConsoleEditor"); //$NON-NLS-1$
+		
 		final PairMatcher matcher = fConfigurator.getSourceViewerConfiguration().getPairMatcher();
 		if (matcher != null) {
-			handlerServices.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET,
-					new GotoMatchingBracketHandler(matcher, this));
+			final IHandler2 handler = new GotoMatchingBracketHandler(matcher, this);
+			handlers.add(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);
+			handlerService.activateHandler(ISourceEditorCommandIds.GOTO_MATCHING_BRACKET, handler);
 		}
 		
-		fSourceViewer.removeSpecialBinding(SWT.DEL);
+		TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_NEXT);
 		
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE,
-				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE));
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING,
-				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING));
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_END,
-				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.CUT_LINE_TO_END));
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE,
-				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE));
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING,
-				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING));
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END,
-				new DeleteLineHandler(this, ITextEditorActionDefinitionIds.DELETE_LINE_TO_END));
+		{	final IHandler2 handler = new CutLineHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.CUT_LINE, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE, handler);
+		}
+		{	final IHandler2 handler = new CutToLineBeginHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_BEGINNING, handler);
+		}
+		{	final IHandler2 handler = new CutToLineEndHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.CUT_LINE_TO_END, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.CUT_LINE_TO_END, handler);
+		}
+		{	final IHandler2 handler = new DeleteLineHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.DELETE_LINE, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE, handler);
+		}
+		{	final IHandler2 handler = new DeleteToLineBeginHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_BEGINNING, handler);
+		}
+		{	final IHandler2 handler = new DeleteToLineEndHandler(this);
+			handlers.add(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_LINE_TO_END, handler);
+		}
 		
-		action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
+		{	final IHandler2 handler = new GotoNextWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.WORD_NEXT);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.WORD_NEXT, handler);
+		}
+		{	final IHandler2 handler = new GotoPreviousWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.WORD_NEXT);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.WORD_PREVIOUS, handler);
+		}
+		{	final IHandler2 handler = new SelectNextWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.SELECT_WORD_NEXT);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_WORD_NEXT, handler);
+		}
+		{	final IHandler2 handler = new SelectPreviousWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS, handler);
+		}
+		{	final IHandler2 handler = new DeleteNextWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_NEXT_WORD);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_NEXT_WORD, handler);
+		}
+		{	final IHandler2 handler = new DeletePreviousWordHandler(this);
+			TextHandlerUtil.disable(textWidget, ITextEditorActionDefinitionIds.DELETE_PREVIOUS_WORD);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.DELETE_PREVIOUS_WORD, handler);
+		}
 		
-		final IHandler2 informationHandler = new InformationDispatchHandler(getViewer());
-		handlerServices.activateHandler(ITextEditorActionDefinitionIds.SHOW_INFORMATION, informationHandler);
+		{	final IAction action = new TextViewerAction(getViewer(), ISourceViewer.CONTENTASSIST_PROPOSALS);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.CONTENT_ASSIST_PROPOSALS, new ActionHandler(action));
+		}
+		{	final IHandler2 handler = new InformationDispatchHandler(getViewer());
+			handlers.add(ITextEditorActionDefinitionIds.SHOW_INFORMATION, handler);
+			handlerService.activateHandler(ITextEditorActionDefinitionIds.SHOW_INFORMATION, handler);
+		}
 		
 		fSelectionHistory = new StructureSelectionHistory(this);
-		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_ENCLOSING,
+		handlerService.activateHandler(ISourceEditorCommandIds.SELECT_ENCLOSING,
 				new StructureSelectHandler.Enclosing(this, fSelectionHistory));
-		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_PREVIOUS,
+		handlerService.activateHandler(ISourceEditorCommandIds.SELECT_PREVIOUS,
 				new StructureSelectHandler.Previous(this, fSelectionHistory));
-		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_NEXT,
+		handlerService.activateHandler(ISourceEditorCommandIds.SELECT_NEXT,
 				new StructureSelectHandler.Next(this, fSelectionHistory));
 		final StructureSelectionHistoryBackHandler backHandler = new StructureSelectionHistoryBackHandler(this, fSelectionHistory);
-		handlerServices.activateHandler(ISourceEditorCommandIds.SELECT_LAST, backHandler);
+		handlerService.activateHandler(ISourceEditorCommandIds.SELECT_LAST, backHandler);
 		fSelectionHistory.addUpdateListener(backHandler);
 		
-		handlerServices.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", new AbstractHandler() { //$NON-NLS-1$
-			public Object execute(final ExecutionEvent arg0)
-					throws ExecutionException {
-				doHistoryOlder(getLineStart());
-				return null;
-			}
-		});
-		handlerServices.activateHandler("de.walware.statet.nico.commands.SearchHistoryNewer", new AbstractHandler() { //$NON-NLS-1$
-			public Object execute(final ExecutionEvent arg0)
-					throws ExecutionException {
-				doHistoryNewer(getLineStart());
-				return null;
-			}
-		});
-		handlerServices.activateHandler("de.walware.statet.nico.commands.GotoHistoryNewest", new AbstractHandler() { //$NON-NLS-1$
-			public Object execute(final ExecutionEvent arg0)
-					throws ExecutionException {
-				doHistoryNewest();
-				return null;
-			}
-		});
+		{	final IHandler2 handler = new AbstractHandler() {
+				public Object execute(final ExecutionEvent arg0)
+						throws ExecutionException {
+					doHistoryOlder(getLineStart());
+					return null;
+				}
+			};
+			textWidget.setKeyBinding(KEY_HIST_SPREFIX_UP, SWT.NULL);
+			handlerService.activateHandler("de.walware.statet.nico.commands.SearchHistoryOlder", handler);
+		}
+		{	final IHandler2 handler = new AbstractHandler() {
+				public Object execute(final ExecutionEvent arg0)
+						throws ExecutionException {
+					doHistoryNewer(getLineStart());
+					return null;
+				}
+			};
+			textWidget.setKeyBinding(KEY_HIST_SPREFIX_DOWN, SWT.NULL);
+			handlerService.activateHandler("de.walware.statet.nico.commands.SearchHistoryNewer", handler);
+		}
+		{	final IHandler2 handler = new AbstractHandler() {
+				public Object execute(final ExecutionEvent arg0)
+				throws ExecutionException {
+					doHistoryNewest();
+					return null;
+				}
+			};
+			handlerService.activateHandler("de.walware.statet.nico.commands.GotoHistoryNewest", handler);
+		}
 		
-		fCustomCarretSupport.initActions(handlerServices);
+		fCustomCarretSupport.initActions(handlerService);
 	}
 	
 	

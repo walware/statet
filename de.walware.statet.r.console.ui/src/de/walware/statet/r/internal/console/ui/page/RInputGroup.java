@@ -16,10 +16,12 @@ import org.eclipse.jface.commands.ActionHandler;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.handlers.IHandlerService;
+import org.eclipse.ui.services.IServiceLocator;
 
 import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
 import de.walware.ecommons.ui.ISettingsChangedHandler;
+import de.walware.ecommons.ui.actions.HandlerCollection;
 
 import de.walware.statet.base.ui.IStatetUICommandIds;
 import de.walware.statet.nico.core.runtime.Prompt;
@@ -70,14 +72,17 @@ public class RInputGroup extends ConsolePageEditor implements ISettingsChangedHa
 	}
 	
 	@Override
-	public void configureServices(final IHandlerService commands, final IContextService keys) {
-		super.configureServices(commands, keys);
+	public void initActions(final IServiceLocator serviceLocator, final HandlerCollection handlers) {
+		super.initActions(serviceLocator, handlers);
 		
-		keys.activateContext("de.walware.statet.r.contexts.REditor"); //$NON-NLS-1$
+		final IContextService contextService = (IContextService) serviceLocator.getService(IContextService.class);
+		final IHandlerService handlerService = (IHandlerService) serviceLocator.getService(IHandlerService.class);
 		
-		IAction action;
-		action = new InsertAssignmentAction(this);
-		commands.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));
+		contextService.activateContext("de.walware.statet.r.contexts.REditor"); //$NON-NLS-1$
+		
+		{	final IAction action = new InsertAssignmentAction(this);
+			handlerService.activateHandler(IStatetUICommandIds.INSERT_ASSIGNMENT, new ActionHandler(action));
+		}
 	}
 	
 }
