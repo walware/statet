@@ -32,13 +32,12 @@ import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FDEF;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_FOR;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_IF;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS3_WHILE;
+import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_ERROR_IN_CHILD;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_REAL_ERROR;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUSFLAG_SUBSEQUENT;
-import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_OK;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_RUNTIME_ERROR;
 import static de.walware.statet.r.core.rsource.IRSourceConstants.STATUS_SYNTAX_SEQREL_UNEXPECTED;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -596,7 +595,7 @@ public final class RScanner {
 		}
 		else {
 			node.fStopOffset = fLexer.getOffset();
-			node.fStatus = STATUS2_SYNTAX_CC_NOT_CLOSED;
+			node.fStatus |= STATUS2_SYNTAX_CC_NOT_CLOSED;
 			return node;
 		}
 	}
@@ -614,7 +613,7 @@ public final class RScanner {
 		}
 		else {
 			node.fStopOffset = fLexer.getOffset();
-			node.fStatus = STATUS2_SYNTAX_CC_NOT_CLOSED;
+			node.fStatus |= STATUS2_SYNTAX_CC_NOT_CLOSED;
 			return node;
 		}
 	}
@@ -743,7 +742,7 @@ public final class RScanner {
 				}
 				else {
 					node.fStopOffset = node.fCloseOffset+1;
-					node.fStatus = STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
+					node.fStatus |= STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
 					return node;
 				}
 			}
@@ -754,7 +753,7 @@ public final class RScanner {
 		}
 		else {
 			node.fStopOffset = node.fSublist.fStopOffset;
-			node.fStatus = STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
+			node.fStatus |= STATUS2_SYNTAX_SUBINDEXED_NOT_CLOSED;
 			return node;
 		}
 	}
@@ -784,7 +783,7 @@ public final class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fCondExpr.node.fStopOffset;
-				node.fStatus = STATUS2_SYNTAX_CONDITION_NOT_CLOSED;
+				node.fStatus |= STATUS2_SYNTAX_CONDITION_NOT_CLOSED;
 			}
 		}
 		else {
@@ -813,7 +812,7 @@ public final class RScanner {
 			node.fWithElse = true;
 			node.fElseOffset = fLexer.getOffset();
 			consumeToken();
-			// else body is added via common expression procession
+			// else body is added via common expression processing
 		}
 		
 		return node;
@@ -869,7 +868,7 @@ public final class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fVarSymbol.fStopOffset;
-				node.fStatus = (ok >= 0) ? STATUS2_SYNTAX_IN_MISSING :
+				node.fStatus |= (ok >= 0) ? STATUS2_SYNTAX_IN_MISSING :
 						(STATUS2_SYNTAX_IN_MISSING | STATUSFLAG_SUBSEQUENT);
 				node.fCondExpr.node = errorNonExistExpression(node, node.fStopOffset,
 						(STATUS2_SYNTAX_EXPR_AS_CONDITION_MISSING | STATUSFLAG_SUBSEQUENT));
@@ -884,8 +883,8 @@ public final class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fCondExpr.node.fStopOffset;
-				if (node.fStatus == STATUS_OK) {
-					node.fStatus = (ok >= 0) ? STATUS2_SYNTAX_CONDITION_NOT_CLOSED :
+				if ((node.fStatus & STATUSFLAG_REAL_ERROR) == 0) {
+					node.fStatus |= (ok >= 0) ? STATUS2_SYNTAX_CONDITION_NOT_CLOSED :
 							(STATUS2_SYNTAX_CONDITION_NOT_CLOSED | STATUSFLAG_SUBSEQUENT);
 				}
 			}
@@ -984,7 +983,7 @@ public final class RScanner {
 			}
 			else {
 				node.fStopOffset = node.fArgs.fStopOffset;
-				node.fStatus = STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED;
+				node.fStatus |= STATUS2_SYNTAX_FDEF_ARGS_NOT_CLOSED;
 			}
 		}
 		else {
@@ -1018,7 +1017,7 @@ public final class RScanner {
 		}
 		else {
 			node.fStopOffset = node.fArgs.fStopOffset;
-			node.fStatus = STATUS2_SYNTAX_FCALL_NOT_CLOSED;
+			node.fStatus |= STATUS2_SYNTAX_FCALL_NOT_CLOSED;
 		}
 		
 		return node;
@@ -1062,6 +1061,7 @@ public final class RScanner {
 			}
 			
 			args.fSpecs.add(arg);
+			args.fStatus = POST_VISITOR.checkTerminal(arg);
 			if (fNextType == RTerminal.COMMA) {
 				args.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
@@ -1140,6 +1140,7 @@ public final class RScanner {
 			
 			if (fNextType == RTerminal.COMMA) {
 				args.fSpecs.add(arg);
+				args.fStatus = POST_VISITOR.checkTerminal(arg);
 				args.fSepList.add(fLexer.getOffset());
 				args.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
@@ -1151,6 +1152,7 @@ public final class RScanner {
 				return;
 			}
 			args.fSpecs.add(arg);
+			args.fStatus = POST_VISITOR.checkTerminal(arg);
 			args.fStartOffset = args.fSpecs.get(0).fStartOffset;
 			args.fStopOffset = arg.fStopOffset;
 			return;
@@ -1221,6 +1223,7 @@ public final class RScanner {
 			
 			if (fNextType == RTerminal.COMMA) {
 				args.fSpecs.add(arg);
+				args.fStatus = POST_VISITOR.checkTerminal(arg);
 				args.fStopOffset = fLexer.getOffset()+1;
 				consumeToken();
 				readLines();
@@ -1231,6 +1234,7 @@ public final class RScanner {
 				return;
 			}
 			args.fSpecs.add(arg);
+			args.fStatus = POST_VISITOR.checkTerminal(arg);
 			args.fStartOffset = args.fSpecs.get(0).fStartOffset;
 			args.fStopOffset = arg.fStopOffset;
 			return;
@@ -1326,6 +1330,7 @@ public final class RScanner {
 		error.fRParent = parent;
 		error.fStartOffset = error.fStopOffset = (stopHint != Integer.MIN_VALUE) ? stopHint : parent.fStopOffset;
 		error.fText = ""; //$NON-NLS-1$
+		parent.fStatus |= STATUSFLAG_ERROR_IN_CHILD;
 		return error;
 	}
 	
@@ -1337,6 +1342,7 @@ public final class RScanner {
 		error.fStopOffset = fLexer.getOffset()+fLexer.getLength();
 		error.fText = fLexer.getText();
 		consumeToken();
+		parent.fStatus |= STATUSFLAG_ERROR_IN_CHILD;
 		return error;
 	}
 	
@@ -1346,6 +1352,7 @@ public final class RScanner {
 		error.fStartOffset = error.fStopOffset = offset;
 		error.fText = ""; //$NON-NLS-1$
 		error.fStatus = status;
+		parent.fStatus |= STATUSFLAG_ERROR_IN_CHILD;
 		return error;
 	}
 	
@@ -1363,6 +1370,9 @@ public final class RScanner {
 		}
 		symbol.fRParent = parent;
 		setupFromSourceToken(symbol);
+		if (parent != null) {
+			parent.fStatus |= POST_VISITOR.checkTerminal(symbol);
+		}
 		consumeToken();
 		return symbol;
 	}
@@ -1587,11 +1597,7 @@ public final class RScanner {
 					context.lastNode.getMissingExprStatus(context.openExpr));
 			state = -1;
 		}
-		try {
-			context.rootExpr.node.acceptInR(POST_VISITOR);
-		}
-		catch (final InvocationTargetException e) {
-		}
+		context.rootNode.fStatus |= POST_VISITOR.check(context.rootExpr.node);
 		return state;
 	}
 	

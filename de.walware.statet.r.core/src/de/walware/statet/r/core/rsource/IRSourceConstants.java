@@ -14,15 +14,16 @@ package de.walware.statet.r.core.rsource;
 
 public interface IRSourceConstants {
 	
-	public static final int STATUS_MASK_1 =                    0x00ff00;
-	public static final int STATUS_MASK_12 =                   0x0ffff0;
-	public static final int STATUS_MASK_3 =                    0x00000f;
-	public static final int STATUS_MASK_123 =                  0x0fffff;
+	public static final int STATUS_MASK_1 =                 0x0000ff00;
+	public static final int STATUS_MASK_12 =                0x000ffff0;
+	public static final int STATUS_MASK_3 =                 0x0000000f;
+	public static final int STATUS_MASK_123 =               0x000fffff;
 	
-	public static final int STATUS_OK =                          0x0000;
-	public static final int STATUS_RUNTIME_ERROR =               0xf000;
-	public static final int STATUSFLAG_REAL_ERROR =            0x010000;
-	public static final int STATUSFLAG_SUBSEQUENT =            0x100000;
+	public static final int STATUS_OK =                     0x00000000;
+	public static final int STATUS_RUNTIME_ERROR =          0x0000f000;
+	public static final int STATUSFLAG_REAL_ERROR =         0x00010000;
+	public static final int STATUSFLAG_SUBSEQUENT =         0x00100000;
+	public static final int STATUSFLAG_ERROR_IN_CHILD =     0x01000000;
 	
 	/**
 	 * An existing token is not OK.
