@@ -39,7 +39,7 @@ import de.walware.statet.r.launching.IRCodeLaunchConnector;
 public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	
 	
-	public static final String ID = "de.walware.statet.r.debug.RNewConsoleConnector"; //$NON-NLS-1$
+	public static final String ID = "de.walware.statet.r.launching.RNewConsoleConnector"; //$NON-NLS-1$
 	
 	
 	public static interface CommandsCreator {
