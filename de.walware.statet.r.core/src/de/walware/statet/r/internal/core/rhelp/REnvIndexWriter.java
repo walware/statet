@@ -35,7 +35,7 @@ import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -216,44 +216,47 @@ public class REnvIndexWriter implements IREnvIndex {
 			
 			synchronized (fIndexLock) {
 				fReset = reset;
-				fLuceneDirectory = FSDirectory.open(fIndexDirectory);
-				final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_31, WRITE_ANALYZER);
+				fLuceneDirectory = new SimpleFSDirectory(fIndexDirectory);
 				if (!reset) {
+					final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_31, WRITE_ANALYZER);
 					config.setOpenMode(OpenMode.CREATE_OR_APPEND);
+					
+					final REnvHelp oldHelp = rHelpManager.getHelp(fREnvConfig.getReference());
+					IndexReader reader = null;
 					try {
-						fLuceneWriter = new IndexWriter(fLuceneDirectory, config);
+						reader = IndexReader.open(fLuceneDirectory, true);
 						
-						final REnvHelp oldHelp = rHelpManager.getHelp(fREnvConfig.getReference());
-						IndexReader reader = null;
-						try {
-							fExistingPackages = new HashMap<String, IRPackageHelp>(64);
-							reader = IndexReader.open(fLuceneDirectory, true);
-							final TermEnum terms = reader.terms(new Term(PACKAGE_FIELD_NAME));
-							do {
-								final Term term = terms.term();
-								if (term == null || term.field() != PACKAGE_FIELD_NAME) {
-									break;
-								}
-								final String name = terms.term().text();
-								final IRPackageHelp packageHelp = (oldHelp != null) ? oldHelp.getRPackage(name) : null;
-								fExistingPackages.put(name, packageHelp);
+						fExistingPackages = new HashMap<String, IRPackageHelp>(64);
+						final TermEnum terms = reader.terms(new Term(PACKAGE_FIELD_NAME));
+						do {
+							final Term term = terms.term();
+							if (term == null || term.field() != PACKAGE_FIELD_NAME) {
+								break;
 							}
-							while (terms.next());
+							final String name = terms.term().text();
+							final IRPackageHelp packageHelp = (oldHelp != null) ? oldHelp.getRPackage(name) : null;
+							fExistingPackages.put(name, packageHelp);
 						}
-						finally {
-							if (oldHelp != null) {
-								oldHelp.unlock();
-							}
-							if (reader != null) {
-								reader.close();
-							}
-						}
+						while (terms.next());
+						
+						fLuceneWriter = new IndexWriter(fLuceneDirectory, config);
 					}
-					catch (final CorruptIndexException e) {
-						fLuceneWriter = null;
+					catch (final IOException e) {
+						assert (fLuceneWriter == null);
+						// try again new
+					}
+					finally {
+						if (oldHelp != null) {
+							oldHelp.unlock();
+						}
+						if (reader != null) {
+							reader.close();
+						}
 					}
 				}
 				if (fLuceneWriter == null) {
+					fReset = true;
+					final IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_31, WRITE_ANALYZER);
 					config.setOpenMode(OpenMode.CREATE);
 					fExistingPackages = new HashMap<String, IRPackageHelp>(0);
 					fLuceneWriter = new IndexWriter(fLuceneDirectory, config);
@@ -636,21 +639,20 @@ public class REnvIndexWriter implements IREnvIndex {
 	}
 	
 	public IStatus cancel() {
-		if (fLuceneWriter == null) {
-			return null;
-		}
 		final MultiStatus status;
 		try {
-			try {
-				fLuceneWriter.rollback();
-			}
-			catch (final Exception e) {
-				if (fStatus != null) {
-					fStatus.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Error when rolling back.", null)); //$NON-NLS-1$
+			if (fLuceneWriter != null) {
+				try {
+					fLuceneWriter.rollback();
 				}
+				catch (final Exception e) {
+					if (fStatus != null) {
+						fStatus.add(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1, "Error when rolling back.", null)); //$NON-NLS-1$
+					}
+				}
+				
+				fLuceneWriter.close();
 			}
-			
-			fLuceneWriter.close();
 		}
 		catch (final Exception close) {
 		}

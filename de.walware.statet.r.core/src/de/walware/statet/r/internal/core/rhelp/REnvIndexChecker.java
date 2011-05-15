@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.SimpleFSDirectory;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
@@ -74,7 +74,7 @@ public class REnvIndexChecker {
 				}
 				
 				// Lucene directory
-				fIndexDirectory = FSDirectory.open(directory);
+				fIndexDirectory = new SimpleFSDirectory(directory);
 			}
 			catch (final IOException e) {
 				RCorePlugin.log(new Status(IStatus.INFO, RCore.PLUGIN_ID, -1,
