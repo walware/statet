@@ -678,12 +678,17 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				fRArchControl.setItems(new String[0]);
 				return;
 			}
+			String oldArch = fRArchControl.getText();
 			fRArchControl.setItems(availableArchs.toArray(new String[availableArchs.size()]));
+			int idx = (oldArch.length() > 0) ? availableArchs.indexOf(oldArch) : -1;
+			if (idx >= 0) {
+				fRArchControl.select(idx);
+			}
 			
 			if (conservative && fRArchControl.getText().length() > 0) {
 				return;
 			}
-			int idx = availableArchs.indexOf(Platform.getOSArch());
+			idx = availableArchs.indexOf(Platform.getOSArch());
 			if (idx < 0) {
 				if (Platform.getOSArch().equals(Platform.ARCH_X86)) {
 					idx = availableArchs.indexOf("i386"); //$NON-NLS-1$
