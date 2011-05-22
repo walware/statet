@@ -118,11 +118,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (id.equals(IRLibraryGroup.R_SITE)) {
 			return Messages.REnvConfiguration_SiteLibs_label;
 		}
-		if (id.equals(IRLibraryGroup.R_OTHER)) {
-			return Messages.REnvConfiguration_OtherLibs_label;
-		}
 		if (id.equals(IRLibraryGroup.R_USER)) {
 			return Messages.REnvConfiguration_UserLibs_label;
+		}
+		if (id.equals(IRLibraryGroup.R_OTHER)) {
+			return Messages.REnvConfiguration_OtherLibs_label;
 		}
 		return null;
 	}
@@ -131,7 +131,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 	
 	private static final String[] DEFAULT_LIBS_IDS = new String[] {
 			IRLibraryGroup.R_DEFAULT, IRLibraryGroup.R_SITE,
-			IRLibraryGroup.R_OTHER, IRLibraryGroup.R_USER,
+			IRLibraryGroup.R_USER, IRLibraryGroup.R_OTHER
 	};
 	
 	private static final List<IRLibraryGroup> DEFAULT_LIBS_INIT;
@@ -148,8 +148,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				new ConstList<IRLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_DEFAULT)) ),
 			new RLibraryGroup(IRLibraryGroup.R_SITE, getLibGroupLabel(IRLibraryGroup.R_SITE),
 				new ConstList<IRLibraryLocation>(new RLibraryLocation(IRLibraryGroup.DEFAULTLOCATION_R_SITE)) ),
-			new RLibraryGroup(IRLibraryGroup.R_OTHER, getLibGroupLabel(IRLibraryGroup.R_OTHER), NO_LIBS),
-			new RLibraryGroup(IRLibraryGroup.R_USER, getLibGroupLabel(IRLibraryGroup.R_USER), NO_LIBS) );
+			new RLibraryGroup(IRLibraryGroup.R_USER, getLibGroupLabel(IRLibraryGroup.R_USER), NO_LIBS),
+			new RLibraryGroup(IRLibraryGroup.R_OTHER, getLibGroupLabel(IRLibraryGroup.R_OTHER), NO_LIBS) );
 	
 	
 	public static class Editable extends REnvConfiguration implements WorkingCopy {
@@ -259,11 +259,11 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				if (id.equals(IRLibraryGroup.R_SITE)) {
 					locations = setup.getRLibsSite();
 				}
-				else if (id.equals(IRLibraryGroup.R_OTHER)) {
-					locations = setup.getRLibs();
-				}
 				else if (id.equals(IRLibraryGroup.R_USER)) {
 					locations = setup.getRLibsUser();
+				}
+				else if (id.equals(IRLibraryGroup.R_OTHER)) {
+					locations = setup.getRLibs();
 				}
 				else {
 					continue;
@@ -889,8 +889,8 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				}
 			}
 			envp.put("R_LIBS_SITE", getLibPath(getRLibraryGroup(IRLibraryGroup.R_SITE))); //$NON-NLS-1$
-			envp.put("R_LIBS", getLibPath(getRLibraryGroup(IRLibraryGroup.R_OTHER))); //$NON-NLS-1$
 			envp.put("R_LIBS_USER", getLibPath(getRLibraryGroup(IRLibraryGroup.R_USER))); //$NON-NLS-1$
+			envp.put("R_LIBS", getLibPath(getRLibraryGroup(IRLibraryGroup.R_OTHER))); //$NON-NLS-1$
 			if (fRDocDirectoryStore != null) {
 				envp.put("R_DOC_DIR", URIUtil.toPath(fRDocDirectoryStore.toURI()).toOSString()); //$NON-NLS-1$
 			}

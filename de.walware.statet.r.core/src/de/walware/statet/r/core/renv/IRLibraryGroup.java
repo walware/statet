@@ -25,10 +25,10 @@ public interface IRLibraryGroup {
 	public static final String R_DEFAULT = "r.default"; //$NON-NLS-1$
 	/** Id of R site libraries group */
 	public static final String R_SITE = "r.site"; //$NON-NLS-1$
-	/** Id of R other libraries group */
-	public static final String R_OTHER = "r.common"; //$NON-NLS-1$
 	/** Id of R user libraries group */
 	public static final String R_USER = "r.user"; //$NON-NLS-1$
+	/** Id of R other libraries group */
+	public static final String R_OTHER = "r.common"; //$NON-NLS-1$
 	
 	public static final String DEFAULTLOCATION_R_DEFAULT = "${env_var:R_HOME}/library"; //$NON-NLS-1$
 	
