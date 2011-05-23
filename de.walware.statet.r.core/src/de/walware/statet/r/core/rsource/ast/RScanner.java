@@ -213,6 +213,9 @@ public final class RScanner {
 			RCorePlugin.logError(-1, "Error occured while parsing R code", e);
 			final SourceComponent dummy = new SourceComponent();
 			dummy.fStatus = STATUS_RUNTIME_ERROR;
+			if (fCommentsLevel > 0) {
+				dummy.fComments = Collections.emptyList();
+			}
 			return dummy;
 		}
 	}
@@ -1342,7 +1345,9 @@ public final class RScanner {
 		error.fStopOffset = fLexer.getOffset()+fLexer.getLength();
 		error.fText = fLexer.getText();
 		consumeToken();
-		parent.fStatus |= STATUSFLAG_ERROR_IN_CHILD;
+		if (parent != null) {
+			parent.fStatus |= STATUSFLAG_ERROR_IN_CHILD;
+		}
 		return error;
 	}
 	
