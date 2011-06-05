@@ -3,16 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET R Console Core
 Bundle-SymbolicName: de.walware.statet.r.console.core;singleton:=true
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Bundle-Activator: de.walware.statet.r.internal.console.core.RConsoleCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: de.walware.statet.base.core;bundle-version="[0.10.0,0.11.0)",
+Require-Bundle: de.walware.statet.base.core;bundle-version="[0.11.0,0.12.0)",
  de.walware.statet.nico.core,
  de.walware.statet.r.core,
- de.walware.rj.server;bundle-version="[0.5.0,0.6.0)",
- de.walware.rj.client;bundle-version="[0.5.0,0.6.0)",
+ de.walware.rj.server;bundle-version="[1.0.0,1.1.0)",
+ de.walware.rj.client;bundle-version="[1.0.0,1.1.0)",
  com.jcraft.jsch;bundle-version="0.1.41",
  de.walware.ecommons.ltk.core;bundle-version="[0.10.0,0.11.0)"
 Import-Package: com.ibm.icu.text,

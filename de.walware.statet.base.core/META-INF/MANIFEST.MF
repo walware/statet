@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Base Core
 Bundle-SymbolicName: de.walware.statet.base.core;singleton:=true
-Bundle-Version: 0.10.0.qualifier
+Bundle-Version: 0.11.0.qualifier
 Bundle-Activator: de.walware.statet.base.internal.core.BaseCorePlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
