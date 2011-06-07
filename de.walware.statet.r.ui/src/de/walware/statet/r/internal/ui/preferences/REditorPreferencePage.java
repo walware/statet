@@ -172,9 +172,12 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 			fFoldingDefaultAllBlocksControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		}
 		{	final Label label = new Label(foldingOptions, SWT.LEFT);
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+			gd.horizontalIndent = LayoutUtil.defaultIndent();
+			label.setLayoutData(gd);
 			label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-			fFoldingDefaultMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
+		}
+		{	fFoldingDefaultMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
 			final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
 			gd.widthHint = LayoutUtil.hintWidth(fFoldingDefaultMinLines, 2);
 			fFoldingDefaultMinLines.setLayoutData(gd);
@@ -184,10 +187,10 @@ class REditorConfigurationBlock extends ManagedConfigurationBlock {
 			fFoldingDefaultRoxygenControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		}
 		{	final Label label = new Label(foldingOptions, SWT.LEFT);
-			label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
 			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
 			gd.horizontalIndent = LayoutUtil.defaultIndent();
 			label.setLayoutData(gd);
+			label.setText(Messages.REditorOptions_Folding_MinNumOfLines_label);
 		}
 		{	fFoldingDefaultRoxygenMinLines = new Text(foldingOptions, SWT.SINGLE | SWT.BORDER);
 			final GridData gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
