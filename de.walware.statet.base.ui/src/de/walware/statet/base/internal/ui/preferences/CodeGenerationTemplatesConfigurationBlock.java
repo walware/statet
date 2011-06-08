@@ -133,8 +133,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 		public void handleButtonPressed(final int buttonIdx, final TemplateItem item, final IStructuredSelection rawSelection) {
 			switch (buttonIdx) {
 			case IDX_EDIT:
-				if (item != null)
+				if (item != null) {
 					doEdit(item);
+				}
 				break;
 			
 			case IDX_EXPORT:
@@ -179,8 +180,8 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 	private SourceEditorViewerConfigurator fPatternConfigurator;
 	private ISourceEditor fPatternEditor;
 	
-	private TemplateVariableProcessor fPatternTemplateProcessor;
-	private TemplateVariableProcessor fEditTemplateProcessor;
+	private final TemplateVariableProcessor fPatternTemplateProcessor;
+	private final TemplateVariableProcessor fEditTemplateProcessor;
 	
 	
 	public CodeGenerationTemplatesConfigurationBlock(final IProject project) throws CoreException {
@@ -208,8 +209,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 			Assert.isLegal(fCategoryIds[i] != null);
 			
 			fGroup.fCategorys[i] = elements[i].getAttribute(ATT_NAME);
-			if (fGroup.fCategorys[i] == null)
+			if (fGroup.fCategorys[i] == null) {
 				fGroup.fCategorys[i] = fCategoryIds[i];
+			}
 			
 			try {
 				fCategoryProvider[i] = (ICodeGenerationTemplatesCategory) elements[i].createExecutableExtension(ATT_CLASS);
@@ -313,8 +315,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 	}
 	
 	protected void updateSourceViewerInput(final TemplateItem item) {
-		if (fPatternViewer == null || !(UIAccess.isOkToUse(fPatternViewer.getControl())) )
+		if (fPatternViewer == null || !(UIAccess.isOkToUse(fPatternViewer.getControl())) ) {
 			return;
+		}
 		
 		if (item != null) {
 			final TemplatePersistenceData data = item.fData;
@@ -377,8 +380,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 		dialog.setFilterExtensions(new String[] { Messages.CodeTemplates_Import_extension });
 		final String path = dialog.open();
 		
-		if (path == null)
+		if (path == null) {
 			return;
+		}
 		
 		try {
 			final TemplateReaderWriter reader = new TemplateReaderWriter();
@@ -415,8 +419,9 @@ public class CodeGenerationTemplatesConfigurationBlock extends ConfigurationBloc
 		dialog.setFileName(Messages.CodeTemplates_Export_filename);
 		final String path = dialog.open();
 		
-		if (path == null)
+		if (path == null) {
 			return;
+		}
 		
 		final File file = new File(path);
 		

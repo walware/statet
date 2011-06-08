@@ -170,7 +170,7 @@ public class LaunchConfigUtil {
 	private static class BackgroundResourceRefresher implements IDebugEventSetListener  {
 		
 		
-		private ILaunchConfiguration fConfiguration;
+		private final ILaunchConfiguration fConfiguration;
 		private IProcess fProcess;
 		
 		
@@ -323,7 +323,7 @@ public class LaunchConfigUtil {
 	
 	public static class LaunchConfigurationComparator implements Comparator<ILaunchConfiguration> {
 		
-		private Collator fCollator = Collator.getInstance();
+		private final Collator fCollator = Collator.getInstance();
 		
 		public int compare(final ILaunchConfiguration c1, final ILaunchConfiguration c2) {
 			return fCollator.compare(c1.getName(), c2.getName());

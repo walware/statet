@@ -228,7 +228,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 								}
 							}
 							{	// try known os.arch
-								String p = properties.get("os.arch"); //$NON-NLS-1$
+								final String p = properties.get("os.arch"); //$NON-NLS-1$
 								if (p != null && p.length() > 0) {
 									if (p.equals(Platform.ARCH_X86) || p.equals("i386") || p.equals("i586") || p.equals("i686")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 										fLastCheckedVMBits = 32;

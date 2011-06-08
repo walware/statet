@@ -20,7 +20,6 @@ import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
 
 import de.walware.statet.nico.ui.util.CommonTabForConsole;
 
-
 import de.walware.statet.r.launching.ui.REnvTab;
 
 

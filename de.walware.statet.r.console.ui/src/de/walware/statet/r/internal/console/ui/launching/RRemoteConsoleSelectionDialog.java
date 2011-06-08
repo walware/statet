@@ -111,7 +111,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 		String createSummary() {
 			final StringBuilder sb = new StringBuilder(100);
 			sb.append("Address:   ").append(address).append('\n');
-			sb.append('\n'); //$NON-NLS-1$
+			sb.append('\n');
 			sb.append("Host-Name: ").append(hostName).append('\n');
 			sb.append("Host-IP:   ").append(hostIP).append('\n');
 			sb.append("Date:      ").append((info.getTimestamp() != 0) ?
@@ -125,8 +125,8 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			case Server.S_CONNECTED:
 			case Server.S_CONNECTED_STALE:
 				sb.append("Running – Connected (username is ");
-				sb.append((info.getUsername(ServerInfo.USER_CONSOLE) != null) ? 
-						info.getUsername(ServerInfo.USER_CONSOLE)  : "<unknown>").append(')'); 
+				sb.append((info.getUsername(ServerInfo.USER_CONSOLE) != null) ?
+						info.getUsername(ServerInfo.USER_CONSOLE)  : "<unknown>").append(')');
 				break;
 			case Server.S_LOST:
 				sb.append("Running – Connection lost / Ready to reconnect");
@@ -148,7 +148,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 	
 	private static class RemoteRContentProvider implements ITreeContentProvider {
 		
-		private HashMap<String, RemoteR[]> fMapping = new HashMap<String, RemoteR[]>();
+		private final HashMap<String, RemoteR[]> fMapping = new HashMap<String, RemoteR[]>();
 		
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
@@ -157,7 +157,7 @@ public class RRemoteConsoleSelectionDialog extends SelectionStatusDialog {
 			final List<RemoteR> all = (List<RemoteR>) inputElement;
 			
 			fMapping.clear();
-			final HashMap mapping = fMapping; 
+			final HashMap mapping = fMapping;
 			for (final RemoteR r : all) {
 				final String username = r.info.getUsername(ServerInfo.USER_OWNER).toLowerCase();
 				List<RemoteR> list = (List<RemoteR>) mapping.get(username);

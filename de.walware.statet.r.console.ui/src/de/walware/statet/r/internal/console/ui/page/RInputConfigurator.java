@@ -61,7 +61,7 @@ public class RInputConfigurator extends RSourceViewerConfigurator {
 	}
 	
 	
-	private NIConsolePage fPage;
+	private final NIConsolePage fPage;
 	
 	
 	public RInputConfigurator(final NIConsolePage page, final ISourceEditor inputEditor) {

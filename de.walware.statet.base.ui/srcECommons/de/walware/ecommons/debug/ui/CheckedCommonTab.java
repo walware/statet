@@ -26,7 +26,7 @@ public class CheckedCommonTab extends CommonTab {
 	
 	
 	@Override
-	public void initializeFrom(ILaunchConfiguration configuration) {
+	public void initializeFrom(final ILaunchConfiguration configuration) {
 		fLoading = true;
 		try {
 			super.initializeFrom(configuration);

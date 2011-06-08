@@ -23,8 +23,8 @@ import java.util.Set;
 public class WinEnvpMap implements Map<String, String> {
 	
 	
-	private Map<String, String> fIdNameMap = new HashMap<String, String>();
-	private Map<String, String> fNameValueMap = new HashMap<String, String>();
+	private final Map<String, String> fIdNameMap = new HashMap<String, String>();
+	private final Map<String, String> fNameValueMap = new HashMap<String, String>();
 	
 	
 	public WinEnvpMap() {

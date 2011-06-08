@@ -31,7 +31,7 @@ import de.walware.statet.r.launching.ui.RErrorLineTracker;
 public class RConsole extends NIConsole implements IRCoreAccess {
 	
 	
-	private IPreferenceAccess fPrefs;
+	private final IPreferenceAccess fPrefs;
 	
 	
 	public RConsole(final RProcess process, final NIConsoleColorAdapter adapter) {

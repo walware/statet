@@ -54,7 +54,7 @@ public class UnterminatedLaunchAlerter implements IWorkbenchListener {
 	}
 	
 	
-	private Set<String> fLauchTypeIds = new HashSet<String>();
+	private final Set<String> fLauchTypeIds = new HashSet<String>();
 	
 	private UnterminatedLaunchAlerter() { 
 		PlatformUI.getWorkbench().addWorkbenchListener(this);

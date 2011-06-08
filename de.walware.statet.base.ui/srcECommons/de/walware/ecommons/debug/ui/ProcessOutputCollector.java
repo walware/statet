@@ -38,7 +38,7 @@ public class ProcessOutputCollector extends Thread {
 	private Process fProcess;
 	
 	private boolean fIsRunning;
-	private IProgressMonitor fMonitor;
+	private final IProgressMonitor fMonitor;
 	
 	private InputStreamReader fOutputInput;
 	private final StringBuilder fBuffer;
