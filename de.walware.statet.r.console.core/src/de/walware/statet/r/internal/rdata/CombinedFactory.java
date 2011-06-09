@@ -51,6 +51,8 @@ public class CombinedFactory extends RObjectFactoryImpl {
 			return new RDataFrameVar(io, this, parent, name);
 		case RObject.TYPE_ENV:
 			return new REnvironmentVar(io, this, parent, name);
+		case RObject.TYPE_LANGUAGE:
+			return new RLanguageVar(io, this, parent, name);
 		case RObject.TYPE_FUNCTION:
 			return new RFunction2(io, this, parent, name);
 		case RObject.TYPE_REFERENCE:
