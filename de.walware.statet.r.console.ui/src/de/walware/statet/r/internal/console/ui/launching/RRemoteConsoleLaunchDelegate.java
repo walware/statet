@@ -508,7 +508,7 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 					public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
 						if (newStatus != ToolStatus.TERMINATED) {
 							final Queue prevQueue = prevProcess.getQueue();
-							prevQueue.moveAllElements(process.getQueue());
+							prevQueue.moveAll(process.getQueue());
 						}
 						prevProcess.restartCompleted(reconnect);
 						controller.removeToolStatusListener(this);

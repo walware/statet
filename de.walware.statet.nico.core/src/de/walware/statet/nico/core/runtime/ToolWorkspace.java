@@ -64,15 +64,12 @@ public class ToolWorkspace {
 		}
 		
 		public void controllerStatusChanged(final ToolStatus oldStatus, final ToolStatus newStatus, final List<DebugEvent> eventCollection) {
-			if (newStatus == ToolStatus.STARTED_PROCESSING || oldStatus == ToolStatus.STARTING) {
-				internalUpdate();
-			}
 			if (newStatus == ToolStatus.TERMINATED) {
 				dispose();
 			}
 			
 			// by definition in tool lifecycle thread
-			if (isPublishPromptStatus(newStatus)) {
+			if (!newStatus.isRunning()) {
 				if (fCurrentPrompt == null || fCurrentPrompt == fPublishedPrompt) {
 					return;
 				}
@@ -103,7 +100,11 @@ public class ToolWorkspace {
 			return "Auto Update";
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
@@ -114,7 +115,6 @@ public class ToolWorkspace {
 			}
 			finally {
 				fIsRefreshing = false;
-				fUpdateScheduled = false;
 			}
 			firePropertiesChanged();
 		}
@@ -143,8 +143,6 @@ public class ToolWorkspace {
 	private final FastList<Listener> fPropertyListener = new FastList<Listener>(Listener.class);
 	
 	private boolean fAutoRefreshEnabled = true;
-	private final IToolRunnable fUpdateRunnable;
-	private boolean fUpdateScheduled;
 	
 	private boolean fIsRefreshing;
 	
@@ -163,8 +161,8 @@ public class ToolWorkspace {
 		controlSetLineSeparator(lineSeparator);
 		controlSetFileSeparator(null);
 		
-		fUpdateRunnable = new AutoUpdater();
 		controller.addToolStatusListener(new ControllerListener());
+		controller.getQueue().addOnIdle(new AutoUpdater(), 5000);
 		
 		fStringVariables.add(new DateVariable(NicoVariables.SESSION_STARTUP_DATE_VARIABLE) {
 			@Override
@@ -205,19 +203,17 @@ public class ToolWorkspace {
 	
 	public void setAutoRefresh(final boolean enable) {
 		synchronized (fProcess.getQueue()) {
-			final ToolController controller = fProcess.getController();
-			if (fAutoRefreshEnabled != enable && controller != null) {
+			if (fAutoRefreshEnabled != enable) {
 				fAutoRefreshEnabled = enable;
-				if (enable) {
-					internalUpdate();
-					fProcess.getQueue().notifyAll();
+				final ToolStatus status = fProcess.getToolStatus();
+				if (status != ToolStatus.TERMINATED) {
+					if (enable && status.isWaiting()) {
+						fProcess.getQueue().internalResetIdle();
+						fProcess.getQueue().notifyAll();
+					}
+					addPropertyChanged("AutoRefresh.enabled", enable);
+					firePropertiesChanged();
 				}
-				else {
-					fProcess.getQueue().internalRemoveIdle(fUpdateRunnable);
-					fUpdateScheduled = false;
-				}
-				addPropertyChanged("AutoRefresh.enabled", enable);
-				firePropertiesChanged();
 			}
 		}
 	}
@@ -303,7 +299,7 @@ public class ToolWorkspace {
 			}
 			throw new CoreException(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, "Resolving path for the remote system failed."));
 		}
-		return URIUtil.toPath(fileStore.toURI()).toOSString();
+		return URIUtil.toPath(fileStore.toURI()).toString();
 	}
 	
 	
@@ -318,14 +314,6 @@ public class ToolWorkspace {
 		firePropertiesChanged();
 	}
 	
-	private void internalUpdate() { // only with Queue lock
-		if (fUpdateScheduled) {
-			return;
-		}
-		fProcess.getQueue().internalScheduleIdle(fUpdateRunnable);
-		fUpdateScheduled = true;
-	}
-	
 	
 	/**
 	 * Use only in tool main thread.
@@ -336,7 +324,7 @@ public class ToolWorkspace {
 			return;
 		}
 		fCurrentPrompt = prompt;
-		if (isPublishPromptStatus(status)) {
+		if (!status.isRunning()) {
 			fPublishedPrompt = prompt;
 			firePrompt(prompt, null);
 		}
@@ -422,10 +410,6 @@ public class ToolWorkspace {
 		}
 	}
 	
-	
-	private final boolean isPublishPromptStatus(final ToolStatus status) {
-		return (status == ToolStatus.STARTED_IDLING || status == ToolStatus.STARTED_PAUSED);
-	}
 	
 	private final void firePrompt(final Prompt prompt, final List<DebugEvent> eventCollection) {
 		final DebugEvent event = new DebugEvent(ToolWorkspace.this, DebugEvent.CHANGE, DETAIL_PROMPT);

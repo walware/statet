@@ -141,7 +141,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			return SubmitType.EDITOR;
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
 			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
 				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
@@ -149,6 +149,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 					}
 				});
 			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
@@ -276,17 +277,16 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 				return null;
 			}
 			final ToolProcess process = NicoUI.getToolRegistry().getActiveToolSession(UIAccess.getActiveWorkbenchPage(true)).getProcess();
-			final ToolController controller; 
 			try {
-				controller = NicoUITools.accessController(RTool.TYPE, process);
+				NicoUITools.accessTool(RTool.TYPE, process);
 			}
 			catch (final CoreException e) {
 				cancel(r, e.getStatus(), event);
 				return null;
 			}
-			final IStatus submitStatus = controller.submit(r);
-			if (submitStatus.getSeverity() > IStatus.OK) {
-				cancel(r, submitStatus, event);
+			final IStatus status = process.getQueue().add(r);
+			if (status.getSeverity() >= IStatus.ERROR) {
+				cancel(r, status, event);
 			}
 			return null;
 		}

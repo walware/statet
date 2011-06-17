@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.ui.views;
 
+import java.util.List;
+
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
@@ -68,6 +70,12 @@ import de.walware.statet.nico.ui.util.ToolProgressGroup;
  * Usage: This class is not intended to be subclassed.
  */
 public class QueueView extends ViewPart {
+	
+	
+	private static IToolRunnable[] toArray(final IStructuredSelection selection) {
+		final List<?> list = selection.toList();
+		return list.toArray(new IToolRunnable[list.size()]);
+	}
 	
 	
 	private class ViewContentProvider implements IStructuredContentProvider, IDebugEventSetListener {
@@ -171,7 +179,14 @@ public class QueueView extends ViewPart {
 										if (!UIAccess.isOkToUse(fTableViewer)) {
 											return;
 										}
-										fTableViewer.add(delta.data);
+										if (delta.position >= 0) {
+											for (int j = 0; j < delta.data.length; j++) {
+												fTableViewer.insert(delta.data[j], delta.position+j);
+											}
+										}
+										else {
+											fTableViewer.add(delta.data);
+										}
 									}
 								});
 							}
@@ -436,8 +451,7 @@ public class QueueView extends ViewPart {
 				final Queue queue = getQueue();
 				if (queue != null) {
 					final IStructuredSelection selection = (IStructuredSelection) fTableViewer.getSelection();
-					final Object[] elements = selection.toArray();
-					queue.removeElements(elements);
+					queue.remove(toArray(selection));
 				}
 			}
 		};
@@ -488,7 +502,7 @@ public class QueueView extends ViewPart {
 					event.doit = false;
 					return;
 				}
-				data.tasks = ((IStructuredSelection) fTableViewer.getSelection()).toArray();
+				data.tasks = toArray((IStructuredSelection) fTableViewer.getSelection());
 				event.data = data;
 			}
 			@Override

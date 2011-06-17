@@ -37,6 +37,8 @@ public interface IRBasicAdapter extends IToolRunnableControllerAdapter {
 	
 	ToolController<? extends RWorkspace> getController();
 	
+	RWorkspace getWorkspaceData();
+	
 	/**
 	 * Quits R.
 	 * <code>q()</code>

@@ -34,7 +34,6 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.ui.actions.ToolAction;
@@ -180,11 +179,8 @@ public class ChangeWorkingDirectoryWizard extends Wizard {
 	public boolean performFinish() {
 		fPage.saveSettings();
 		
-		final ToolController controller = fTool.getController();
-		if (controller != null) {
-			final ChangeWDRunnable runnable = new ChangeWDRunnable(fPage.getResource());
-			controller.submit(runnable); // check return status?
-		}
+		final ChangeWDRunnable runnable = new ChangeWDRunnable(fPage.getResource());
+		fTool.getQueue().add(runnable);
 		return true;
 	}
 	

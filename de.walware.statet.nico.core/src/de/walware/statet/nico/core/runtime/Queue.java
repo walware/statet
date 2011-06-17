@@ -12,13 +12,20 @@
 package de.walware.statet.nico.core.runtime;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ConstList;
+
+import de.walware.statet.nico.core.NicoCore;
+import de.walware.statet.nico.internal.core.Messages;
 
 
 /**
@@ -48,11 +55,13 @@ public final class Queue {
 	public static class Delta {
 		
 		public final int type;
+		public final int position;
 		public final IToolRunnable[] data;
 		
-		private Delta(final int pType, final IToolRunnable[] pData) {
-			type = pType;
-			data = pData;
+		private Delta(final int type, final int position, final IToolRunnable[] data) {
+			this.type = type;
+			this.position = position;
+			this.data = data;
 		}
 	}
 	
@@ -149,24 +158,74 @@ public final class Queue {
 	public static final int ENTRY_FINISH_PROCESSING_ERROR = MASK_FINISHED | ERROR;
 	
 	
+	static final int RUN_NONE = -2;
+	static final int RUN_SUSPEND = -1;
+	static final int RUN_RESERVED = 1;
+	static final int RUN_HOT = 2;
+	static final int RUN_OTHER = 3;
+	static final int RUN_DEFAULT = 4;
+	
+	private static class RankedItem {
+		
+		final IToolRunnable runnable;
+		final int rank;
+		
+		public RankedItem(final IToolRunnable runnable, final int rank) {
+			this.runnable = runnable;
+			this.rank = rank;
+		}
+		
+		
+		@Override
+		public int hashCode() {
+			return runnable.hashCode();
+		}
+		
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			final RankedItem other = (RankedItem) obj;
+			return (runnable.equals(other.runnable) );
+		}
+		
+	}
+	
 	private final LinkedList<IToolRunnable> fList = new LinkedList<IToolRunnable>();
 	private IToolRunnable[] fSingleIOCache = null;
+	private IToolRunnable fInsertRunnable = null;
+	private final List<IToolRunnable> fInsertRunnableStack = new ArrayList<IToolRunnable>();
+	private int fInsertIndex = -1;
 	private IToolRunnable[] fFinishedExpected = null;
 	private IToolRunnable[] fFinishedCache = null;
 	private int fFinishedCacheDetail = -1;
 	private final List<DebugEvent> fEventList = new ArrayList<DebugEvent>(5);
 	
-	private final ToolProcess fProcess;
+	private final ToolProcess<?> fProcess;
 	
-	private boolean fUpdateIdle = false;
-	private final List<IToolRunnable> fOnIdleList = new ArrayList<IToolRunnable>();
+	int fCounter = 1;
+	int fCounterNext = fCounter+1;
+	
+	private boolean fResetOnIdle = false;
+	private final List<RankedItem> fOnIdleList = new ArrayList<RankedItem>();
 	private final LinkedList<IToolRunnable> fNextIdleList = new LinkedList<IToolRunnable>();
 	
+	private final LinkedList<IToolRunnable> fHotList = new LinkedList<IToolRunnable>();
 	
-	Queue(final ToolProcess process) {
+	
+	Queue(final ToolProcess<?> process) {
 		fProcess = process;
 	}
 	
+	
+	private final IStatus acceptSubmit(final ToolStatus toolStatus) {
+		if (toolStatus == ToolStatus.TERMINATED) {
+			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1,
+					NLS.bind(Messages.ToolController_ToolTerminated_message, fProcess.getToolLabel(false)), null);
+		}
+		return Status.OK_STATUS;
+	}
 	
 	public synchronized void sendElements() {
 		checkFinishedCache();
@@ -178,125 +237,304 @@ public final class Queue {
 		fireEvents();
 	}
 	
-	public synchronized void removeElements(final Object[] elements) {
-		checkFinishedCache();
-		checkIOCache();
-		final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(elements.length);
-		for (final Object runnable : elements) {
-			if (fList.remove(runnable)) {
-				removed.add((IToolRunnable) runnable);
-			}
+	public synchronized int size() {
+		if (fSingleIOCache != null) {
+			return 1;
 		}
-//		IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
-//		addDebugEvent(COMPLETE_CHANGE, queueElements);
-		final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
-		for (int i = 0; i < array.length; i++) {
-			array[i].changed(ENTRIES_DELETE, fProcess);
-		}
-		addChangeEvent(ENTRIES_DELETE, array);
-		fireEvents();
+		return fList.size();
 	}
 	
-	public void moveElements(final Object[] elements, final Queue to) {
-		final IToolRunnable[] array;
-		synchronized (this) {
-			checkFinishedCache();
-			checkIOCache();
-			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(elements.length);
-			for (final Object runnable : elements) {
-				if (fList.remove(runnable)) {
-					removed.add((IToolRunnable) runnable);
-				}
-			}
-			array = removed.toArray(new IToolRunnable[removed.size()]);
-			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_MOVE_DELETE, fProcess);
-			}
-			addChangeEvent(ENTRIES_MOVE_DELETE, array);
-			fireEvents();
-		}
-		
-		synchronized (to) {
-			to.checkFinishedCache();
-			to.checkIOCache();
-			to.fList.addAll(new ConstList<IToolRunnable>(array));
-			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
-			}
-			to.addChangeEvent(ENTRIES_MOVE_ADD, array);
-			to.fireEvents();
-			to.notifyAll();
-		}
-	}
-	
-	public void moveAllElements(final Queue to) {
-		final IToolRunnable[] array;
-		synchronized (this) {
-			checkFinishedCache();
-			checkIOCache();
-			array = fList.toArray(new IToolRunnable[fList.size()]);
-			fList.clear();
-			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_MOVE_DELETE, fProcess);
-			}
-			addChangeEvent(ENTRIES_MOVE_DELETE, array);
-			fireEvents();
-		}
-		
-		synchronized (to) {
-			to.checkFinishedCache();
-			to.checkIOCache();
-			to.fList.addAll(new ConstList<IToolRunnable>(array));
-			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
-			}
-			to.addChangeEvent(ENTRIES_MOVE_ADD, array);
-			to.fireEvents();
-			to.notifyAll();
-		}
-	}
-	
-	public synchronized void addOnIdle(final IToolRunnable runnable) {
+	/**
+	 * Submits the runnable ("task") for the tool.
+	 * <p>
+	 * The runnable will be added to the queue and will be run, if it's its turn.
+	 * 
+	 * @param runnable the task
+	 * @return status indicating if it was accepted
+	 */
+	public IStatus add(final IToolRunnable runnable) {
 		if (runnable == null) {
-			throw new NullPointerException();
+			throw new NullPointerException("runnable"); //$NON-NLS-1$
 		}
-		if (!fOnIdleList.contains(runnable)) {
-			fOnIdleList.add(runnable);
-		}
-		if (!fUpdateIdle && !fNextIdleList.contains(runnable)) {
-			fNextIdleList.add(runnable);
-		}
-		notifyAll();
+		return doAdd(new IToolRunnable[] { runnable });
 	}
 	
-	public synchronized void removeOnIdle(final IToolRunnable runnable) {
-		if (runnable == null) {
-			throw new NullPointerException();
-		}
-		fOnIdleList.remove(runnable);
-		fNextIdleList.remove(runnable);
-	}
-	
-	void internalAdd(final IToolRunnable[] runnables, final boolean allowCache) {
+	/**
+	 * Submits the runnables ("task") for the tool.
+	 * <p>
+	 * The runnables will be added en block to the queue and will be runned, if it's its turn.
+	 * 
+	 * @param tasks runnables.
+	 * @return <code>true</code>, if adding task to queue was successful,
+	 *     otherwise <code>false</code>.
+	 */
+	public IStatus add(final IToolRunnable[] runnables) {
 		if (runnables == null) {
-			throw new NullPointerException();
+			throw new NullPointerException("runnables"); //$NON-NLS-1$
 		}
 		for (int i = 0; i < runnables.length; i++) {
 			if (runnables[i] == null) {
-				throw new NullPointerException();
+				throw new NullPointerException("runnable["+i+']'); //$NON-NLS-1$
 			}
 		}
-		
-		if (fUpdateIdle) {
-			fUpdateIdle = false;
-			for (int i = 0; i < fOnIdleList.size(); i++) {
-				final IToolRunnable runnable = fOnIdleList.get(i);
-				if (!fNextIdleList.contains(runnable)) {
-					fNextIdleList.add(runnable);
+		return doAdd(runnables);
+	}
+	
+	private synchronized IStatus doAdd(final IToolRunnable[] runnables) {
+		final ToolStatus toolStatus = fProcess.getToolStatus();
+		final IStatus status = acceptSubmit(toolStatus);
+		if (status.getSeverity() < IStatus.ERROR) {
+			if (toolStatus.isWaiting()) {
+				internalAdd(runnables, true);
+				notifyAll();
+			}
+			else {
+				internalAdd(runnables, false);
+			}
+		}
+		return status;
+	}
+	
+	public void remove(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException("runnable"); //$NON-NLS-1$
+		}
+		doRemove(new IToolRunnable[] { runnable });
+	}
+	
+	public void remove(final IToolRunnable[] runnables) {
+		if (runnables == null) {
+			throw new NullPointerException("runnables"); //$NON-NLS-1$
+		}
+		for (int i = 0; i < runnables.length; i++) {
+			if (runnables[i] == null) {
+				throw new NullPointerException("runnable["+i+']'); //$NON-NLS-1$
+			}
+		}
+		doRemove(runnables);
+	}
+	
+	private void doRemove(final IToolRunnable[] runnables) {
+		synchronized (this) {
+			checkFinishedCache();
+			checkIOCache();
+			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(runnables.length);
+			boolean checkInsert = false;
+			for (final IToolRunnable runnable : runnables) {
+				final int index = fList.indexOf(runnable);
+				if (index >= 0 && runnable.changed(ENTRIES_DELETE, fProcess)) {
+					fList.remove(index);
+					removed.add(runnable);
+					if (!checkInsert && index < fInsertIndex) {
+						checkInsert = true;
+					}
 				}
 			}
+			if (checkInsert) {
+				fInsertIndex = fList.indexOf(fInsertRunnable);
+			}
+	//		IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
+	//		addDebugEvent(COMPLETE_CHANGE, queueElements);
+			final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_DELETE, fProcess);
+			}
+			addChangeEvent(ENTRIES_DELETE, array);
+			fireEvents();
+		}
+	}
+	
+	public void move(final IToolRunnable[] runnables, final Queue to) {
+		if (runnables == null) {
+			throw new NullPointerException("runnables"); //$NON-NLS-1$
+		}
+		if (to == null) {
+			throw new NullPointerException("to"); //$NON-NLS-1$
+		}
+		final IToolRunnable[] array;
+		synchronized (this) {
+			checkFinishedCache();
+			checkIOCache();
+			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(runnables.length);
+			boolean checkInsert = false;
+			for (final IToolRunnable runnable : runnables) {
+				final int index = fList.indexOf(runnable);
+				if (index >= 0 && runnable.changed(ENTRIES_MOVE_DELETE, fProcess)) {
+					fList.remove(index);
+					removed.add(runnable);
+					if (!checkInsert && index < fInsertIndex) {
+						checkInsert = true;
+					}
+				}
+			}
+			if (checkInsert) {
+				fInsertIndex = fList.indexOf(fInsertRunnable);
+			}
+			array = removed.toArray(new IToolRunnable[removed.size()]);
+			addChangeEvent(ENTRIES_MOVE_DELETE, array);
+			fireEvents();
 		}
 		
+		synchronized (to) {
+			to.checkFinishedCache();
+			to.checkIOCache();
+			if (to == this && fInsertIndex >= 0) {
+				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(array));
+				for (int i = 0; i < array.length; i++) {
+					array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+				}
+				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new Delta(ENTRIES_MOVE_ADD, fInsertIndex, array));
+				fInsertIndex += array.length;
+			}
+			else {
+				to.fList.addAll(new ConstList<IToolRunnable>(array));
+				for (int i = 0; i < array.length; i++) {
+					array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+				}
+				to.addChangeEvent(ENTRIES_MOVE_ADD, array);
+			}
+			to.fireEvents();
+			to.notifyAll();
+		}
+	}
+	
+	public void moveAll(final Queue to) {
+		if (to == null) {
+			throw new NullPointerException("to"); //$NON-NLS-1$
+		}
+		final IToolRunnable[] array;
+		synchronized (this) {
+			checkFinishedCache();
+			checkIOCache();
+			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(fList.size());
+			for (final Iterator<IToolRunnable> iter = fList.iterator(); iter.hasNext();) {
+				final IToolRunnable runnable = iter.next();
+				if (runnable.changed(ENTRIES_MOVE_DELETE, fProcess)) {
+					iter.remove();
+					removed.add(runnable);
+				}
+			}
+			if (fInsertIndex >= 0) {
+				fInsertIndex = fList.indexOf(fInsertRunnable);
+			}
+			array = removed.toArray(new IToolRunnable[removed.size()]);
+			addChangeEvent(ENTRIES_MOVE_DELETE, array);
+			fireEvents();
+		}
+		
+		synchronized (to) {
+			to.checkFinishedCache();
+			to.checkIOCache();
+			to.fList.addAll(new ConstList<IToolRunnable>(array));
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+			}
+			to.addChangeEvent(ENTRIES_MOVE_ADD, array);
+			to.fireEvents();
+			to.notifyAll();
+		}
+	}
+	
+	public IStatus addOnIdle(final IToolRunnable runnable, final int rank) {
+		if (runnable == null) {
+			throw new NullPointerException("runnable"); //$NON-NLS-1$
+		}
+		synchronized (this) {
+			final ToolStatus toolStatus = fProcess.getToolStatus();
+			final IStatus status = acceptSubmit(toolStatus);
+			if (status.getSeverity() < IStatus.ERROR) {
+				final RankedItem item = new RankedItem(runnable, rank);
+				
+				int idx = fOnIdleList.indexOf(item);
+				if (idx >= 0 && fOnIdleList.get(idx).rank != rank) {
+					fOnIdleList.remove(idx);
+					if (!fResetOnIdle) {
+						fNextIdleList.remove(item.runnable);
+					}
+					idx = -1;
+				}
+				if (idx < 0) {
+					idx = 0;
+					for (; idx < fOnIdleList.size(); idx++) {
+						if (fOnIdleList.get(idx).rank > rank) {
+							break;
+						}
+					}
+					fOnIdleList.add(idx, item);
+					
+					if (!fResetOnIdle) {
+						if (idx == fOnIdleList.size()-1) { // last
+							fNextIdleList.add(item.runnable);
+						}
+						else {
+							final RankedItem next = fOnIdleList.get(idx+1);
+							final int nextIdx = fNextIdleList.indexOf(next.runnable);
+							if (nextIdx >= 0) {
+								fNextIdleList.add(nextIdx, item.runnable);
+							}
+						}
+					}
+				}
+				notifyAll();
+			}
+			return status;
+		}
+	}
+	
+	public void removeOnIdle(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException("runnable"); //$NON-NLS-1$
+		}
+		synchronized (this) {
+			fOnIdleList.remove(new RankedItem(runnable, 0));
+			fNextIdleList.remove(runnable);
+		}
+	}
+	
+	public IStatus addHot(final IToolRunnable runnable) {
+		return addHot(runnable, 0);
+	}
+	
+	public IStatus addHot(final IToolRunnable runnable, final int strategy) {
+		if (runnable == null) {
+			throw new NullPointerException("runnable"); //$NON-NLS-1$
+		}
+		synchronized (this) {
+			final ToolStatus toolStatus = fProcess.getToolStatus();
+			final IStatus status = acceptSubmit(toolStatus);
+			if (status.getSeverity() < IStatus.ERROR) {
+				if ((strategy & 1) != 0) {
+					if (fHotList.contains(runnable)) {
+						return Status.OK_STATUS;
+					}
+				}
+				fHotList.add(runnable);
+				if (fHotList.size() > 0) {
+					notifyAll();
+					final ToolController<?> controller = fProcess.getController();
+					if (controller != null) {
+						controller.scheduleHotMode();
+					}
+				}
+			}
+			return status;
+		}
+	}
+	
+	public void removeHot(final IToolRunnable runnable) {
+		if (runnable == null) {
+			throw new NullPointerException("runnable"); //$NON-NLS-1$
+		}
+		synchronized (this) {
+			if (fHotList.remove(runnable)) {
+				runnable.changed(ENTRIES_DELETE, fProcess);
+			}
+		}
+	}
+	
+	
+	void internalAdd(final IToolRunnable[] runnables, final boolean allowCache) {
 		if (allowCache && fSingleIOCache == null && fList.isEmpty()
 				&& runnables.length == 1) {
 			fSingleIOCache = runnables;
@@ -305,13 +543,84 @@ public final class Queue {
 		
 		checkFinishedCache();
 		checkIOCache();
-		if (runnables.length == 1) {
-			fList.add(runnables[0]);
+		if (fInsertIndex >= 0)  {
+			if (runnables.length == 1) {
+				fList.add(fInsertIndex, runnables[0]);
+			}
+			else {
+				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(runnables));
+			}
+			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+					new Delta(ENTRIES_ADD, fInsertIndex, runnables));
+			fInsertIndex += runnables.length;
 		}
 		else {
-			fList.addAll(new ConstList<IToolRunnable>(runnables));
+			if (runnables.length == 1) {
+				fList.add(runnables[0]);
+			}
+			else {
+				fList.addAll(new ConstList<IToolRunnable>(runnables));
+			}
+			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+					new Delta(ENTRIES_ADD, -1, runnables));
 		}
-		addChangeEvent(ENTRIES_ADD, runnables);
+		fireEvents();
+	}
+	
+	void internalAddInsert(final IToolRunnable runnable) {
+		checkFinishedCache();
+		checkIOCache();
+		
+		fInsertRunnableStack.add(runnable);
+		fInsertRunnable = runnable;
+		fInsertIndex = 0;
+		fList.add(0, runnable);
+		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+				new Delta(ENTRIES_ADD, 0, new IToolRunnable[] { runnable }));
+		fireEvents();
+	}
+	
+	void internalRemoveInsert(final IToolRunnable runnable) {
+		checkFinishedCache();
+		checkIOCache();
+		
+		final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(fInsertIndex+1);
+		final int insertStackIdx = fInsertRunnableStack.indexOf(runnable);
+		if (insertStackIdx < 0) {
+			return;
+		}
+		final Iterator<IToolRunnable> iter = fList.iterator();
+		if (insertStackIdx < fInsertRunnableStack.size()-1) {
+			final IToolRunnable start = fInsertRunnableStack.get(insertStackIdx+1);
+			while (iter.hasNext()) {
+				if (iter.next() == start) {
+					break;
+				}
+			}
+		}
+		while (iter.hasNext()) {
+			final IToolRunnable toRemove = iter.next();
+			if (toRemove == runnable) {
+				iter.remove();
+				removed.add(toRemove);
+				break;
+			}
+			if (toRemove.changed(ENTRIES_DELETE, fProcess)) {
+				iter.remove();
+				removed.add(toRemove);
+			}
+		}
+		final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
+		addChangeEvent(ENTRIES_DELETE, array);
+		fInsertRunnableStack.remove(runnable);
+		if (fInsertRunnableStack.isEmpty()) {
+			fInsertRunnable = null;
+			fInsertIndex = -1;
+		}
+		else {
+			fInsertRunnable = fInsertRunnableStack.get(fInsertRunnableStack.size()-1);
+			fInsertIndex = fList.indexOf(fInsertRunnable);
+		}
 		fireEvents();
 	}
 	
@@ -329,8 +638,33 @@ public final class Queue {
 		fNextIdleList.remove(runnable);
 	}
 	
-	boolean internalIsEmpty() {
-		return (fSingleIOCache == null && fList.isEmpty() && fNextIdleList.isEmpty());
+	int internalNext() {
+		if (!fHotList.isEmpty()) {
+			return RUN_HOT;
+		}
+		final IToolRunnable runnable;
+		if (fSingleIOCache != null) {
+			runnable = fSingleIOCache[0];
+		}
+		else if (!fList.isEmpty() && fInsertIndex != 0) {
+			runnable = fList.get(0);
+		}
+		else if (!fNextIdleList.isEmpty()) {
+			runnable = fNextIdleList.get(0);
+		}
+		else {
+			return RUN_NONE;
+		}
+		return (runnable.getSubmitType() == SubmitType.OTHER) ?
+				RUN_OTHER : RUN_DEFAULT;
+	}
+	
+	boolean internalNextHot() {
+		return !fHotList.isEmpty();
+	}
+	
+	IToolRunnable internalPollHot() {
+		return fHotList.poll();
 	}
 	
 	void internalCheck() {
@@ -339,21 +673,51 @@ public final class Queue {
 		fireEvents();
 	}
 	
+	void internalResetIdle() {
+		fResetOnIdle = false;
+		for (int i = fOnIdleList.size()-1; i >= 0; i--) {
+			if (!fNextIdleList.remove(fOnIdleList.get(i).runnable)) {
+				break;
+			}
+		}
+		for (int i = 0; i < fOnIdleList.size(); i++) {
+			fNextIdleList.add(fOnIdleList.get(i).runnable);
+		}
+	}
+	
 	IToolRunnable internalPoll() {
 		checkFinishedCache();
 		
 		IToolRunnable[] runnable;
 		if (fSingleIOCache != null) {
 			runnable = fSingleIOCache;
-			addChangeEvent(ENTRIES_ADD, fSingleIOCache);
+			if (fInsertIndex >= 0) {
+				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new Delta(ENTRIES_ADD, fInsertIndex, fSingleIOCache));
+			}
+			else {
+				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new Delta(ENTRIES_ADD, -1, fSingleIOCache));
+			}
 			fSingleIOCache = null;
+			if (fResetOnIdle) {
+				internalResetIdle();
+			}
+			fCounter = fCounterNext++;
 		}
-		else if (!fList.isEmpty()) {
+		else if (!fList.isEmpty() && fInsertIndex != 0) {
 			runnable = new IToolRunnable[] { fList.poll() };
+			if (fInsertIndex >= 0) {
+				fInsertIndex--;
+			}
+			if (fResetOnIdle) {
+				internalResetIdle();
+			}
+			fCounter = fCounterNext++;
 		}
 		else {
 			runnable = new IToolRunnable[] { fNextIdleList.poll() };
-			fUpdateIdle = true;
+			fResetOnIdle = true;
 		}
 		addChangeEvent(ENTRY_START_PROCESSING, runnable);
 		
@@ -388,8 +752,14 @@ public final class Queue {
 				array[i].changed(ENTRIES_ABANDONED, fProcess);
 			}
 			addDebugEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED,
-					ENTRIES_ABANDONED, array);
+					new Delta(ENTRIES_ABANDONED, -1, array) );
 			fList.clear();
+		}
+		if (!fHotList.isEmpty()){
+			final IToolRunnable[] array = fHotList.toArray(new IToolRunnable[fHotList.size()]);
+			for (int i = 0; i < array.length; i++) {
+				array[i].changed(ENTRIES_ABANDONED, fProcess);
+			}
 		}
 		fireEvents();
 	}
@@ -404,19 +774,28 @@ public final class Queue {
 	
 	private void checkIOCache() {
 		if (fSingleIOCache != null) {
-			addChangeEvent(ENTRIES_ADD, fSingleIOCache);
-			fList.add(fSingleIOCache[0]);
+			if (fInsertIndex >= 0) {
+				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new Delta(ENTRIES_ADD, fInsertIndex, fSingleIOCache));
+				fList.add(fInsertIndex, fSingleIOCache[0]);
+				fInsertIndex++;
+			}
+			else {
+				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
+						new Delta(ENTRIES_ADD, -1, fSingleIOCache));
+				fList.add(fSingleIOCache[0]);
+			}
 			fSingleIOCache = null;
 		}
 	}
 	
 	private void addChangeEvent(final int deltaType, final IToolRunnable[] deltaData) {
-		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT, deltaType, deltaData);
+		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT, new Delta(deltaType, -1, deltaData));
 	}
 	
-	private void addDebugEvent(final int code, final int detail, final int deltaType, final IToolRunnable[] deltaData) {
+	private void addDebugEvent(final int code, final int detail, final Delta delta) {
 		final DebugEvent event = new DebugEvent(this, code, detail);
-		event.setData(new Delta(deltaType, deltaData));
+		event.setData(delta);
 		fEventList.add(event);
 	}
 	

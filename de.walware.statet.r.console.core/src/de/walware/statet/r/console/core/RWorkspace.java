@@ -313,7 +313,7 @@ public class RWorkspace extends ToolWorkspace {
 	
 	
 	public RWorkspace(final AbstractRController controller, final String remoteHost,
-			RWorkspaceConfig config) {
+			final RWorkspaceConfig config) {
 		super(  controller,
 				new Prompt("> ", IRBasicAdapter.META_PROMPT_DEFAULT),  //$NON-NLS-1$
 				"\n", 
@@ -423,7 +423,7 @@ public class RWorkspace extends ToolWorkspace {
 		final RObject rPrompt = rOptions.get("prompt"); //$NON-NLS-1$
 		if (RDataUtil.isSingleString(rPrompt)) {
 			if (!rPrompt.getData().isNA(0)) {
-				((AbstractRController) r).setDefaultPromptText(rPrompt.getData().getChar(0));
+				((AbstractRController) r).setDefaultPromptTextL(rPrompt.getData().getChar(0));
 			}
 		}
 		final RObject rContinue = rOptions.get("continue"); //$NON-NLS-1$

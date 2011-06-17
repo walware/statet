@@ -53,7 +53,8 @@ class RTermCancelRunnable implements IToolRunnable {
 		return null;
 	}
 	
-	public void changed(final int event, final ToolProcess process) {
+	public boolean changed(final int event, final ToolProcess process) {
+		return true;
 	}
 	
 	public void run(final IToolRunnableControllerAdapter adapter,
@@ -112,7 +113,6 @@ class RTermCancelRunnable implements IToolRunnable {
 					// continue directly
 				}
 			}
-			controller.runOnIdle(controller.createCommandRunnable("", SubmitType.OTHER)); //$NON-NLS-1$
 		}
 		catch (final IOException e) {
 			throw new CoreException(new Status(IStatus.WARNING, RConsoleCorePlugin.PLUGIN_ID, -1,

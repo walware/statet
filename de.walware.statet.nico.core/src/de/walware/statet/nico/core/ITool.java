@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.core;
 
+import de.walware.statet.nico.core.runtime.Queue;
+
 
 /**
  * At moment, this is always a ToolProcess.
@@ -21,5 +23,9 @@ public interface ITool {
 	String getMainType();
 	
 	boolean isProvidingFeatureSet(String featureSetId);
+	
+	Queue getQueue();
+	
+	boolean isTerminated();
 	
 }

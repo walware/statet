@@ -26,8 +26,6 @@ public enum SubmitType {
 	TOOLS (Messages.SubmitType_Tools_label),
 	/** Others, e.g. by controller */
 	OTHER (Messages.SubmitType_Other_label),
-//	/** Use only, if you know, what you do */
-//	INTERNAL,
 	;
 	
 	

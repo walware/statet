@@ -46,6 +46,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.statet.nico.core.runtime.ILogOutput;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
@@ -104,7 +105,11 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			return "Initialize R-StatET Tools";
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
@@ -135,7 +140,7 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 	}
 	
-	static RWorkspaceConfig createWorkspaceConfig(ILaunchConfiguration configuration) throws CoreException {
+	static RWorkspaceConfig createWorkspaceConfig(final ILaunchConfiguration configuration) throws CoreException {
 		final RWorkspaceConfig config = new RWorkspaceConfig();
 		config.setEnableObjectDB(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_ENABLED, true));
 		config.setEnableAutoRefresh(configuration.getAttribute(RConsoleLaunching.ATTR_OBJECTDB_AUTOREFRESH_ENABLED, true));

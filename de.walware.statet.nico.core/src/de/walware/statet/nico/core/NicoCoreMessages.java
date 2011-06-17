@@ -27,6 +27,13 @@ public class NicoCoreMessages {
 	public static String Status_StartedSuspended_label;
 	public static String Status_Terminated_label;
 	
+	public static String Status_Starting_info;
+	public static String Status_StartedIdle_info;
+	public static String Status_StartedProcessing_info;
+	public static String Status_StartedPaused_info;
+	public static String Status_StartedSuspended_info;
+	public static String Status_Terminated_info;
+	
 	public static String LoadHistoryJob_label;
 	public static String SaveHistoryJob_label;
 	public static String SubmitTask_label;

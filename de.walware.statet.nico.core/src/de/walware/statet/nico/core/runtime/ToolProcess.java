@@ -129,7 +129,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private final String fMainType;
 	private final Set<String> fFeatureSets = new HashSet<String>();
 	private final String fName;
-	private String fToolLabelShort;
+	private final String fToolLabelShort;
 	private String fToolLabelTrimmedWD;
 	private String fToolLabelStatus;
 	

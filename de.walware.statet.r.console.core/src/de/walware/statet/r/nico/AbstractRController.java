@@ -26,6 +26,7 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.ITrack;
 import de.walware.statet.nico.core.runtime.Prompt;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -119,7 +120,11 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 				return SubmitType.TOOLS;
 			}
 			
-			public void changed(final int event, final ToolProcess process) {
+			public boolean changed(final int event, final ToolProcess process) {
+				if (event == Queue.ENTRIES_MOVE_DELETE) {
+					return false;
+				}
+				return true;
 			}
 			
 			public void run(final IToolRunnableControllerAdapter adapter,
@@ -141,7 +146,11 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 			public String getLabel() {
 				return "Reset prompt";
 			}
-			public void changed(final int event, final ToolProcess process) {
+			public boolean changed(final int event, final ToolProcess process) {
+				if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+					return false;
+				}
+				return true;
 			}
 			public void run(final IToolRunnableControllerAdapter tools,
 					final IProgressMonitor monitor) throws CoreException {
@@ -172,9 +181,9 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	
 //-- Runnable Adapter
 	@Override
-	protected void initRunnableAdapter() {
-		super.initRunnableAdapter();
-		setDefaultPromptText("> "); //$NON-NLS-1$
+	protected void initRunnableAdapterL() {
+		super.initRunnableAdapterL();
+		setDefaultPromptTextL("> "); //$NON-NLS-1$
 		setContinuePromptText("+ "); //$NON-NLS-1$
 	}
 	
@@ -204,13 +213,13 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	}
 	
 	@Override
-	public void setDefaultPromptText(String text) {
+	public void setDefaultPromptTextL(String text) {
 		if (text == null || text.equals(fDefaultPromptText)) {
 			return;
 		}
 		text = text.intern();
 		fDefaultPromptText = text;
-		super.setDefaultPromptText(text);
+		super.setDefaultPromptTextL(text);
 	}
 	
 	public void setContinuePromptText(String text) {
@@ -221,27 +230,27 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 		fContinuePromptText = text;
 	}
 	
-	protected final void setCurrentPrompt(final String text, final boolean addToHistory) {
+	protected final void setCurrentPromptL(final String text, final boolean addToHistory) {
 		if (fDefaultPromptText.equals(text)) {
 			if (addToHistory) {
-				setCurrentPrompt(fDefaultPrompt);
+				setCurrentPromptL(fDefaultPrompt);
 			}
 			else {
-				setCurrentPrompt(new Prompt(fDefaultPromptText,
+				setCurrentPromptL(new Prompt(fDefaultPromptText,
 						IToolRunnableControllerAdapter.META_HISTORY_DONTADD | IToolRunnableControllerAdapter.META_PROMPT_DEFAULT));
 			}
 		}
 		else if (fContinuePromptText.equals(text)) {
-			setCurrentPrompt(new ContinuePrompt(
+			setCurrentPromptL(new ContinuePrompt(
 					fCurrentPrompt, fCurrentInput+fLineSeparator, fContinuePromptText,
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
 		else if (text != null) {
-			setCurrentPrompt(new Prompt(text,
+			setCurrentPromptL(new Prompt(text,
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
 		else { // TODO log warning / exception?
-			setCurrentPrompt(new Prompt("", //$NON-NLS-1$
+			setCurrentPromptL(new Prompt("", //$NON-NLS-1$
 					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
 		}
 	}

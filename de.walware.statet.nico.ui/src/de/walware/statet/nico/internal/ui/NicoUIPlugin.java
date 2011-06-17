@@ -55,6 +55,8 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	private ToolRegistry fToolRegistry;
 	private WindowContributionsProvider fContributionProvider;
 	
+	private DecoratorsRegistry fUIDecoratorsRegistry;
+	
 	
 	/**
 	 * The constructor
@@ -95,6 +97,9 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 				fContributionProvider.dispose();
 				fContributionProvider = null;
 			}
+			if (fUIDecoratorsRegistry != null) {
+				fUIDecoratorsRegistry = null;
+			}
 		}
 		finally {
 			gPlugin = null;
@@ -111,6 +116,8 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 		util.register(NicoUI.LOCTOOLD_CANCEL_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL_D, "cancel.png"); //$NON-NLS-1$
 		util.register(NicoUI.LOCTOOL_PAUSE_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL, "pause.png"); //$NON-NLS-1$
 		util.register(NicoUI.LOCTOOLD_PAUSE_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL_D, "pause.png"); //$NON-NLS-1$
+		util.register(NicoUI.LOCTOOL_TERMINATE_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL, "terminate.png"); //$NON-NLS-1$
+		util.register(NicoUI.LOCTOOLD_TERMINATE_IMAGE_ID, ImageRegistryUtil.T_LOCTOOL_D, "terminate.png"); //$NON-NLS-1$
 		
 		util.register(NicoUI.OBJ_TASK_CONSOLECOMMAND_IMAGE_ID, ImageRegistryUtil.T_OBJ, "task-consolecommand.png"); //$NON-NLS-1$
 		util.register(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID, ImageRegistryUtil.T_OBJ, "task-dummy.png"); //$NON-NLS-1$
@@ -119,6 +126,13 @@ public final class NicoUIPlugin extends AbstractUIPlugin {
 	
 	public ToolRegistry getToolRegistry() {
 		return fToolRegistry;
+	}
+	
+	public synchronized DecoratorsRegistry getUIDecoratorsRegistry() {
+		if (fUIDecoratorsRegistry == null) {
+			fUIDecoratorsRegistry = new DecoratorsRegistry();
+		}
+		return fUIDecoratorsRegistry;
 	}
 	
 }

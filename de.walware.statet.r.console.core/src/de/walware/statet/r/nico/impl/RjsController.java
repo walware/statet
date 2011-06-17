@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.locks.Lock;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
@@ -51,9 +53,9 @@ import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolStatus;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
 import de.walware.rj.RjException;
@@ -72,6 +74,7 @@ import de.walware.rj.server.client.AbstractRJComClient;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
+import de.walware.rj.services.RServiceControlExtension;
 
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RTool;
@@ -91,7 +94,7 @@ import de.walware.statet.r.nico.RWorkspaceConfig;
  * Controller for RJ-Server
  */
 public class RjsController extends AbstractRController
-		implements IRemoteEngineController, IRDataAdapter, IRCombinedDataAdapter {
+		implements IRemoteEngineController, IRDataAdapter, IRCombinedDataAdapter, RServiceControlExtension {
 	
 	
 	static {
@@ -118,7 +121,7 @@ public class RjsController extends AbstractRController
 		@Override
 		protected void updatePrompt(final String text, final boolean addToHistory) {
 			try {
-				RjsController.this.setCurrentPrompt(text, addToHistory);
+				RjsController.this.setCurrentPromptL(text, addToHistory);
 			}
 			catch (final Exception e) {
 			}
@@ -264,9 +267,14 @@ public class RjsController extends AbstractRController
 		}
 		
 		@Override
+		protected void processHotMode() {
+			RjsController.this.runHotModeLoop();
+		}
+		
+		@Override
 		protected void scheduleConnectionCheck() {
 			synchronized (fQueue) {
-				if (getStatus() == ToolStatus.STARTED_IDLING) {
+				if (getStatusL().isWaiting()) {
 					scheduleControllerRunnable(new IToolRunnable() {
 						public String getTypeId() {
 							return "r/check";
@@ -277,9 +285,13 @@ public class RjsController extends AbstractRController
 						public String getLabel() {
 							return "Connection Check";
 						}
-						public void changed(int event, ToolProcess process) {
+						public boolean changed(final int event, final ToolProcess process) {
+							if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+								return false;
+							}
+							return true;
 						}
-						public void run(IToolRunnableControllerAdapter adapter, IProgressMonitor monitor) throws CoreException {
+						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
 							fRjs.runMainLoopPing(monitor);
 						}
 					});
@@ -298,7 +310,6 @@ public class RjsController extends AbstractRController
 	private final NicoComClient fRjs = new NicoComClient();
 	private int fRjsId;
 	
-	
 	private final boolean fEmbedded;
 	private final boolean fStartup;
 	private final Map<String, Object> fRjsProperties;
@@ -308,9 +319,9 @@ public class RjsController extends AbstractRController
 	
 	/**
 	 * 
-	 * @param process the process the controller belongs to
+	 * @param process the R process the controller belongs to
 	 * @param address the RMI address
-	 * @param username optional username, must not be correct
+	 * @param initData the initialization data
 	 * @param sshPort optional sshPort
 	 * @param embedded flag if running in embedded mode
 	 * @param startup flag to start R (otherwise connect only)
@@ -340,8 +351,8 @@ public class RjsController extends AbstractRController
 		
 		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
 				address.getHostAddress().getHostAddress(), workspaceConfig );
-		setWorkspaceDir(initialWD);
-		initRunnableAdapter();
+		setWorkspaceDirL(initialWD);
+		initRunnableAdapterL();
 	}
 	
 	
@@ -395,7 +406,11 @@ public class RjsController extends AbstractRController
 						public String getLabel() {
 							return "Disconnect";
 						}
-						public void changed(final int event, final ToolProcess process) {
+						public boolean changed(final int event, final ToolProcess process) {
+							if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+								return false;
+							}
+							return true;
 						}
 						public void run(final IToolRunnableControllerAdapter adapter,
 								final IProgressMonitor monitor) throws CoreException {
@@ -424,7 +439,7 @@ public class RjsController extends AbstractRController
 	}
 	
 	@Override
-	protected void startTool(final IProgressMonitor monitor) throws CoreException {
+	protected void startToolL(final IProgressMonitor monitor) throws CoreException {
 		final int[] clientVersion = AbstractRJComClient.version();
 		clientVersion[2] = -1;
 		final Server server;
@@ -462,7 +477,7 @@ public class RjsController extends AbstractRController
 		}
 		
 		fRjsId = RjsComConfig.registerClientComHandler(fRjs);
-		fRjsProperties.put(RjsComConfig.RJ_COM_S2C_ID_PROPERTY_ID, fRjsId);
+		fRjs.initClient(this, fRjsProperties, fRjsId);
 		try {
 			final Map<String, Object> data = new HashMap<String, Object>();
 			final IToolEventHandler loginHandler = getEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID);
@@ -564,7 +579,7 @@ public class RjsController extends AbstractRController
 			initTracks(info.getDirectory(), monitor, warnings);
 			
 			if (fStartup && !fStartupsRunnables.isEmpty()) {
-				submit(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
+				fQueue.add(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
 				fStartupsRunnables.clear();
 			}
 			
@@ -586,7 +601,11 @@ public class RjsController extends AbstractRController
 				public String getLabel() {
 					return "Finish Initialization / Read Output";
 				}
-				public void changed(final int event, final ToolProcess process) {
+				public boolean changed(final int event, final ToolProcess process) {
+					if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+						return false;
+					}
+					return true;
 				}
 				public void run(final IToolRunnableControllerAdapter adapter,
 						final IProgressMonitor monitor) throws CoreException {
@@ -645,6 +664,16 @@ public class RjsController extends AbstractRController
 		return datetime + " - " + message; //$NON-NLS-1$
 	}
 	
+	@Override
+	protected void requestHotMode(final boolean async) {
+		fRjs.requestHotMode(async);
+	}
+	
+	@Override
+	protected boolean initilizeHotMode() {
+		return fRjs.startHotMode();
+	}
+	
 	
 	@Override
 	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
@@ -660,9 +689,9 @@ public class RjsController extends AbstractRController
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
 		super.postCancelTask(options, monitor);
 		fCurrentInput = ""; //$NON-NLS-1$
-		doSubmit(monitor);
+		doSubmitL(monitor);
 		fCurrentInput = ""; //$NON-NLS-1$
-		doSubmit(monitor);
+		doSubmitL(monitor);
 	}
 	
 	@Override
@@ -670,7 +699,8 @@ public class RjsController extends AbstractRController
 		if (fConnectionState != 0 || !fRjs.runAsyncPing()) {
 			return false;
 		}
-		if (Thread.currentThread() == getControllerThread() && !fRjs.isConsoleReady()) {
+		if (Thread.currentThread() == getControllerThread() && !isInHotModeL()
+				&& !fRjs.isConsoleReady()) {
 			return false;
 		}
 		return true;
@@ -725,7 +755,7 @@ public class RjsController extends AbstractRController
 	}
 	
 	@Override
-	protected int finishTool() {
+	protected int finishToolL() {
 		int exitCode = 0;
 		if (isDisconnected()) {
 			exitCode = ToolProcess.EXITCODE_DISCONNECTED;
@@ -735,7 +765,7 @@ public class RjsController extends AbstractRController
 	
 	
 	@Override
-	protected void doSubmit(final IProgressMonitor monitor) throws CoreException {
+	protected void doSubmitL(final IProgressMonitor monitor) throws CoreException {
 		fRjs.answerConsole(fCurrentInput + fLineSeparator, monitor);
 	}
 	
@@ -819,6 +849,26 @@ public class RjsController extends AbstractRController
 	
 	public RGraphicCreator createRGraphicCreator(final int options) {
 		throw new UnsupportedOperationException();
+	
+	
+	public void addCancelHandler(final Callable<Boolean> handler) {
+		fRjs.addCancelHandler(handler);
+	}
+	
+	public void removeCancelHandler(final Callable<Boolean> handler) {
+		fRjs.removeCancelHandler(handler);
+	}
+	
+	public Lock getWaitLock() {
+		return fRjs.getWaitLock();
+	}
+	
+	public void waitingForUser(final IProgressMonitor monitor) {
+		fRjs.waitingForUser();
+	}
+	
+	public void resume() {
+		fRjs.resume();
 	}
 	
 }

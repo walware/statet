@@ -11,8 +11,6 @@
 
 package de.walware.statet.nico.ui.util;
 
-import java.util.EnumSet;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -70,9 +68,6 @@ public class ToolProgressGroup {
 	private static final int SCHEDULE_ON_EVENT = 50;
 	private static final int SCHEDULE_DEFAULT = 150;
 	
-	private static final EnumSet<ToolStatus> gFreshStates = EnumSet.complementOf(
-			EnumSet.of(ToolStatus.STARTED_IDLING, ToolStatus.STARTED_PAUSED, ToolStatus.TERMINATED));
-	
 	
 	private class RefreshJob extends WorkbenchJob {
 		
@@ -100,7 +95,7 @@ public class ToolProgressGroup {
 				if (tool.fProcess == event.getSource()) {
 					final ToolStatus status = ToolProcess.getChangedToolStatus(event);
 					if (status != null) {
-						tool.fScheduleRefresh = gFreshStates.contains(status);
+						tool.fScheduleRefresh = !status.isRunning();
 						fRefreshJob.schedule(SCHEDULE_ON_EVENT);
 					}
 				}
@@ -118,7 +113,7 @@ public class ToolProgressGroup {
 		ToolInfo(final ToolProcess process) {
 			fProcess = process;
 			if (process != null) {
-				fScheduleRefresh = gFreshStates.contains(process.getToolStatus());
+				fScheduleRefresh = !process.getToolStatus().isRunning();
 			}
 			else {
 				fScheduleRefresh = false;

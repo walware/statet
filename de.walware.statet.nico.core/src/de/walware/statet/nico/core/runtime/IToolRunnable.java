@@ -52,9 +52,14 @@ public interface IToolRunnable {
 	public String getLabel();
 	
 	/**
-	 * Is called when the state of the runnable has changed
+	 * Is called when the state of the runnable is changing
+	 * 
+	 * Return value has only effect for the following events:
+	 * {@link Queue#ENTRIES_DELETE}, {@link Queue#ENTRIES_MOVE_DELETE}
+	 * 
+	 * @return <code>false</code> to vote against the operation, otherwise <code>true</code>
 	 */
-	public void changed(int event, ToolProcess process);
+	public boolean changed(int event, ToolProcess process);
 	
 	/**
 	 * This method is called by the tool controller, when it is one's turn.

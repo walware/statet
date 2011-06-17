@@ -45,6 +45,7 @@ import de.walware.statet.nico.core.runtime.IToolEventHandler;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Prompt;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
@@ -139,7 +140,9 @@ public class RTermController extends AbstractRController implements IRequireSync
 		
 		private void onRTerminated() {
 			markAsTerminated();
-			RTermController.this.resume();
+			synchronized (fQueue) {
+				fQueue.notifyAll();
+			}
 		}
 	}
 	
@@ -184,7 +187,11 @@ public class RTermController extends AbstractRController implements IRequireSync
 			}
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 	}
@@ -214,7 +221,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 						final Matcher matcher = STRING_OUTPUT_PATTERN.matcher(output);
 						if (matcher.find()) {
 							final String wd = matcher.group(1);
-							setWorkspaceDir(EFS.getLocalFileSystem().getStore(new Path(wd)));
+							setWorkspaceDirL(EFS.getLocalFileSystem().getStore(new Path(wd)));
 						}
 					}
 				}
@@ -222,8 +229,8 @@ public class RTermController extends AbstractRController implements IRequireSync
 				fChangedEnvirs.clear();
 			}
 		};
-		setWorkspaceDir(EFS.getLocalFileSystem().fromLocalFile(config.directory()));
-		initRunnableAdapter();
+		setWorkspaceDirL(EFS.getLocalFileSystem().fromLocalFile(config.directory()));
+		initRunnableAdapterL();
 	}
 	
 	@Override
@@ -237,7 +244,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	}
 	
 	@Override
-	protected void startTool(final IProgressMonitor monitor) throws CoreException {
+	protected void startToolL(final IProgressMonitor monitor) throws CoreException {
 		OutputStream processInput = null;
 		InputStream processOutput;
 		try {
@@ -252,15 +259,15 @@ public class RTermController extends AbstractRController implements IRequireSync
 			fProcessOutputThread.start();
 			processInput = fProcess.getOutputStream();
 			fProcessInputWriter = new OutputStreamWriter(processInput, fCharset);
-			setCurrentPrompt(fDefaultPrompt);
+			setCurrentPromptL(fDefaultPrompt);
 			
 			final List<IStatus> warnings = new ArrayList<IStatus>();
 			
 			initTracks(fConfig.directory().toString(), monitor, warnings);
 			
-			submit(new UpdateProcessIdTask());
+			fQueue.add(new UpdateProcessIdTask());
 			if (!fStartupsRunnables.isEmpty()) {
-				submit(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
+				fQueue.add(fStartupsRunnables.toArray(new IToolRunnable[fStartupsRunnables.size()]));
 				fStartupsRunnables.clear();
 			}
 			
@@ -274,7 +281,11 @@ public class RTermController extends AbstractRController implements IRequireSync
 				public String getLabel() {
 					return "Finish Initialization";
 				}
-				public void changed(final int event, final ToolProcess process) {
+				public boolean changed(final int event, final ToolProcess process) {
+					if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+						return false;
+					}
+					return true;
 				}
 				public void run(final IToolRunnableControllerAdapter adapter,
 						final IProgressMonitor monitor) throws CoreException {
@@ -308,6 +319,10 @@ public class RTermController extends AbstractRController implements IRequireSync
 	
 	@Override
 	protected void postCancelTask(final int options, final IProgressMonitor monitor) throws CoreException {
+		fCurrentInput = ""; //$NON-NLS-1$
+		doSubmitL(monitor);
+		fCurrentInput = ""; //$NON-NLS-1$
+		doSubmitL(monitor);
 	}
 	
 	@Override
@@ -360,7 +375,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 //-- RunnabelAdapter
 	
 	@Override
-	protected void doBeforeSubmit() {
+	protected void doBeforeSubmitL() {
 		// adds control stream
 		// without prompt
 		final SubmitType type = fCurrentRunnable.getSubmitType();
@@ -377,7 +392,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 	}
 	
 	@Override
-	protected void doSubmit(final IProgressMonitor monitor) {
+	protected void doSubmitL(final IProgressMonitor monitor) {
 		monitor.subTask(fDefaultPrompt.text + " " + fCurrentInput);  //$NON-NLS-1$
 		
 		try {
@@ -389,7 +404,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 					-1, "Rterm IO error", e )); //$NON-NLS-1$
 			if (!isToolAlive()) {
 				markAsTerminated();
-				setCurrentPrompt(Prompt.NONE);
+				setCurrentPromptL(Prompt.NONE);
 				return;
 			}
 		}
@@ -403,7 +418,7 @@ public class RTermController extends AbstractRController implements IRequireSync
 		fProcessOutputThread.streamLock.lock();
 		fProcessOutputThread.streamLock.unlock();
 		
-		setCurrentPrompt(fDefaultPrompt);
+		setCurrentPromptL(fDefaultPrompt);
 	}
 	
 	public Pattern synch(final IProgressMonitor monitor) throws CoreException {

@@ -33,7 +33,6 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
 
@@ -83,66 +82,70 @@ public class RDebugHover implements IInfoHover {
 			return "Element Detail for Hover";
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
+		public boolean changed(final int event, final ToolProcess process) {
+			switch (event) {
+			case Queue.ENTRIES_MOVE_DELETE:
+				return false;
+			case Queue.ENTRIES_DELETE:
+			case Queue.ENTRIES_ABANDONED:
+			case Queue.ENTRY_FINISH_PROCESSING_OK:
+			case Queue.ENTRY_FINISH_PROCESSING_CANCEL:
+			case Queue.ENTRY_FINISH_PROCESSING_ERROR:
 				synchronized (this) {
 					this.notifyAll();
 				}
+				break;
+			default:
+				break;
 			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
 				final IProgressMonitor monitor) throws CoreException {
-			try {
-				final IRDataAdapter r = (IRDataAdapter) adapter;
-				if (fCancelled || monitor.isCanceled()) {
-					throw new CoreException(Status.CANCEL_STATUS);
-				}
-				if (fElementRef.getNamespace() == null) {
-					fElementRef = checkName(r, monitor);
-				}
-				if (fElementRef == null) {
-					return;
-				}
-				final String name = RElementName.createDisplayName(fElementRef, RElementName.DISPLAY_NS_PREFIX);
-				if (r instanceof IRCombinedDataAdapter) {
-					final IRCombinedDataAdapter r2 = (IRCombinedDataAdapter) r;
-					final String cmd = name;
-					fElementStruct = r2.evalCombinedStruct(cmd, 0, 1, fElementRef, monitor);
-				}
-				{	final String cmd = "class("+name+")";
-					final RObject robject = r.evalData(cmd, monitor);
-					if (robject != null) {
-						fElementAttr = new RListImpl(new RObject[] { robject }, null, new String[] { "class" });
-					}
-				}
-				{	final String title = "str";
-					final String cmd = ".statet.captureStr("+name+")";
-					final RObject robject = r.evalData(cmd, monitor);
-					
-					if ((robject != null)
-							&& (robject.getRObjectType() == RObject.TYPE_VECTOR)
-							&& (robject.getData().getStoreType() == RStore.CHARACTER)) {
-						final RStore data = robject.getData();
-						final StringBuilder sb = new StringBuilder(data.getLength()*30);
-						final String ln = TextUtil.getPlatformLineDelimiter();
-						for (int i = 0; i < data.getLength(); i++) {
-							if (!data.isNA(i)) {
-								sb.append(data.getChar(i));
-								sb.append(ln);
-							}
-						}
-						if (sb.length() > 0) {
-							sb.setLength(sb.length()-ln.length());
-						}
-						fElementDetailTitle = title;
-						fElementDetailInfo = sb.toString();
-					}
+			final IRDataAdapter r = (IRDataAdapter) adapter;
+			if (fCancelled || monitor.isCanceled()) {
+				throw new CoreException(Status.CANCEL_STATUS);
+			}
+			if (fElementRef.getNamespace() == null) {
+				fElementRef = checkName(r, monitor);
+			}
+			if (fElementRef == null) {
+				return;
+			}
+			final String name = RElementName.createDisplayName(fElementRef, RElementName.DISPLAY_NS_PREFIX);
+			if (r instanceof IRCombinedDataAdapter) {
+				final IRCombinedDataAdapter r2 = (IRCombinedDataAdapter) r;
+				final String cmd = name;
+				fElementStruct = r2.evalCombinedStruct(cmd, 0, 1, fElementRef, monitor);
+			}
+			{	final String cmd = "class("+name+")";
+				final RObject robject = r.evalData(cmd, monitor);
+				if (robject != null) {
+					fElementAttr = new RListImpl(new RObject[] { robject }, null, new String[] { "class" });
 				}
 			}
-			finally {
-				synchronized (this) {
-					this.notifyAll();
+			{	final String title = "str";
+				final String cmd = ".statet.captureStr("+name+")";
+				final RObject robject = r.evalData(cmd, monitor);
+				
+				if ((robject != null)
+						&& (robject.getRObjectType() == RObject.TYPE_VECTOR)
+						&& (robject.getData().getStoreType() == RStore.CHARACTER)) {
+					final RStore data = robject.getData();
+					final StringBuilder sb = new StringBuilder(data.getLength()*30);
+					final String ln = TextUtil.getPlatformLineDelimiter();
+					for (int i = 0; i < data.getLength(); i++) {
+						if (!data.isNA(i)) {
+							sb.append(data.getChar(i));
+							sb.append(ln);
+						}
+					}
+					if (sb.length() > 0) {
+						sb.setLength(sb.length()-ln.length());
+					}
+					fElementDetailTitle = title;
+					fElementDetailInfo = sb.toString();
 				}
 			}
 		}
@@ -174,15 +177,14 @@ public class RDebugHover implements IInfoHover {
 			return null;
 		}
 		final ToolProcess process = NicoUITools.getTool(part);
-		final ToolController controller = NicoUITools.getController(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, process);
-		if (controller == null || Thread.interrupted()) {
+		if (!NicoUITools.isToolReady(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, process)) {
 			return null;
 		}
 		
 		final RUpdater rTask = new RUpdater(name);
 		try {
 			synchronized (rTask) {
-				final IStatus status = controller.submit(rTask);
+				final IStatus status = process.getQueue().addHot(rTask);
 				if (status.getSeverity() >= IStatus.ERROR) {
 					return null;
 				}
@@ -191,7 +193,7 @@ public class RDebugHover implements IInfoHover {
 		}
 		catch (final InterruptedException e) {
 			rTask.fCancelled = true;
-			process.getQueue().removeElements(new Object[] { rTask });
+			process.getQueue().removeHot(rTask);
 			return null;
 		}
 		if (rTask.fElementStruct != null) {

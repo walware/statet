@@ -68,7 +68,6 @@ import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.NicoUI;
@@ -111,12 +110,13 @@ class RweaveTexTool implements Runnable, IProcess {
 		R() {
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
 			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
 				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, -1,
 						Messages.RweaveTexProcessing_Sweave_Task_info_Canceled_message, null));
 				continueAfterR();
 			}
+			return true;
 		}
 		
 		public String getLabel() {
@@ -565,10 +565,9 @@ class RweaveTexTool implements Runnable, IProcess {
 				
 				final R rTask = new R();
 				if (fRunSweave || fRunTex) {
-					final ToolController rController = NicoUITools.accessController(RTool.TYPE, rProcess);
 					fProgress.worked(TICKS_PREPARER);
 					
-					final IStatus submitStatus = rController.submit(rTask);
+					final IStatus submitStatus = rProcess.getQueue().add(rTask);
 					if (submitStatus.getSeverity() > IStatus.OK) {
 						fStatus.add(submitStatus);
 						if (submitStatus.getSeverity() >= IStatus.ERROR) {
@@ -581,7 +580,7 @@ class RweaveTexTool implements Runnable, IProcess {
 							try {
 								if (fProgress.isCanceled()) {
 									// removing runnable sets the cancel status
-									rController.getProcess().getQueue().removeElements(new IToolRunnable[] { rTask });
+									rProcess.getQueue().remove(rTask);
 									break;
 								}
 								if (rTask.finished) {

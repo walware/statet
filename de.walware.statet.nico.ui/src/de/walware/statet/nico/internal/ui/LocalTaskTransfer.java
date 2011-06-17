@@ -46,7 +46,7 @@ public final class LocalTaskTransfer extends ByteArrayTransfer {
 	public static class Data {
 		
 		public final ToolProcess process;
-		public Object[] tasks;
+		public IToolRunnable[] tasks;
 		
 		private Data(final ToolProcess process) {
 			this.process = process;

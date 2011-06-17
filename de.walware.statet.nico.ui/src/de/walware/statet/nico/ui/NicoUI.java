@@ -41,6 +41,9 @@ public class NicoUI {
 	public static final String LOCTOOL_PAUSE_IMAGE_ID = PLUGIN_ID + "/image/loctool/pause"; //$NON-NLS-1$
 	public static final String LOCTOOLD_PAUSE_IMAGE_ID = PLUGIN_ID + "/image/loctoold/pause"; //$NON-NLS-1$
 	
+	public static final String LOCTOOL_TERMINATE_IMAGE_ID = PLUGIN_ID + "/image/loctool/terminate"; //$NON-NLS-1$
+	public static final String LOCTOOLD_TERMINATE_IMAGE_ID = PLUGIN_ID + "/image/loctoold/terminate"; //$NON-NLS-1$
+	
 	public static final String OBJ_TASK_CONSOLECOMMAND_IMAGE_ID = PLUGIN_ID + "/image/obj/task.consolecommand"; //$NON-NLS-1$
 	public static final String OBJ_TASK_DUMMY_IMAGE_ID = PLUGIN_ID + "/image/obj/task.commanddummy"; //$NON-NLS-1$
 	

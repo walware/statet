@@ -20,12 +20,11 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.internal.ui.DebugPluginImages;
 import org.eclipse.debug.internal.ui.IDebugHelpContextIds;
-import org.eclipse.debug.internal.ui.IInternalDebugUIConstants;
 import org.eclipse.debug.internal.ui.views.console.ConsoleMessages;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsole;
@@ -35,6 +34,7 @@ import org.eclipse.ui.texteditor.IUpdate;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.internal.ui.Messages;
+import de.walware.statet.nico.internal.ui.NicoUIPlugin;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 
@@ -53,9 +53,9 @@ public class TerminateToolAction extends Action implements IUpdate {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IDebugHelpContextIds.CONSOLE_TERMINATE_ACTION);
 		fProcess = process;
 		setToolTipText(ConsoleMessages.ConsoleTerminateAction_1);
-		setImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_LCL_TERMINATE));
-		setDisabledImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_DLCL_TERMINATE));
-		setHoverImageDescriptor(DebugPluginImages.getImageDescriptor(IInternalDebugUIConstants.IMG_LCL_TERMINATE));
+		final ImageRegistry registry = NicoUIPlugin.getDefault().getImageRegistry();
+		setImageDescriptor(registry.getDescriptor(NicoUI.LOCTOOL_TERMINATE_IMAGE_ID));
+		setDisabledImageDescriptor(registry.getDescriptor(NicoUI.LOCTOOLD_TERMINATE_IMAGE_ID));
 		update();
 	}
 	

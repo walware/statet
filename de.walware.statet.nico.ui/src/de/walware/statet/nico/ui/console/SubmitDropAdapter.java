@@ -66,7 +66,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 			if (data == null || process.isTerminated()) {
 				return;
 			}
-			data.process.getQueue().moveElements(data.tasks, process.getQueue());
+			data.process.getQueue().move(data.tasks, process.getQueue());
 			return;
 		}
 		if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {

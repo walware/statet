@@ -71,9 +71,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchCommandConstants;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.dialogs.SearchPattern;
@@ -105,6 +107,7 @@ import de.walware.statet.base.ui.StatetImages;
 import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -113,6 +116,7 @@ import de.walware.statet.nico.core.util.IToolProvider;
 import de.walware.statet.nico.core.util.IToolRetargetable;
 import de.walware.statet.nico.ui.IToolRegistry;
 import de.walware.statet.nico.ui.IToolRegistryListener;
+import de.walware.statet.nico.ui.IToolRunnableDecorator;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.ToolSessionUIData;
@@ -311,7 +315,11 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return "Update Object Browser";
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
@@ -549,6 +557,58 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	private class DeleteHandler extends AbstractHandler {
 		
 		
+		private class DeleteRunnable implements IToolRunnable, IToolRunnableDecorator {
+			
+			private final List<String> fNames;
+			private final List<String> fCommands;
+			private final Set<IElementName> fTopEnvirs;
+			
+			public DeleteRunnable(final List<String> names, final List<String> commands,
+					final Set<IElementName> topEnvirs) {
+				fNames = names;
+				fCommands = commands;
+				fTopEnvirs = topEnvirs;
+			}
+			
+			public String getTypeId() {
+				return "r/objectbrowser/delete"; //$NON-NLS-1$
+			}
+			
+			public SubmitType getSubmitType() {
+				return SubmitType.TOOLS;
+			}
+			
+			public Image getImage() {
+				return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_DELETE);
+			}
+			
+			public String getLabel() {
+				return "Delete Elements";
+			}
+			
+			public boolean changed(final int event, final ToolProcess process) {
+				if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+					return false;
+				}
+				return true;
+			}
+			
+			public void run(final IToolRunnableControllerAdapter adapter,
+					final IProgressMonitor monitor) throws CoreException {
+				final IRDataAdapter r = (IRDataAdapter) adapter;
+				try {
+					for (int i = 0; i < fNames.size(); i++) {
+						r.evalVoid(fCommands.get(i), monitor);
+					}
+				}
+				finally {
+					r.briefAboutChange(fTopEnvirs, 0);
+				}
+			}
+			
+		}
+		
+		
 		public DeleteHandler() {
 		}
 		
@@ -654,36 +714,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			
 			final ToolProcess process = fProcess;
 			if (ToolMessageDialog.openConfirm(process, getSite().getShell(), "Delete", message.toString())) {
-				try {
-					final ToolController controller = NicoUITools.accessController(RTool.TYPE, process);
-					controller.submit(new IToolRunnable() {
-						public String getTypeId() {
-							return "r/objectbrowser/delete";
-						}
-						public SubmitType getSubmitType() {
-							return SubmitType.TOOLS;
-						}
-						public String getLabel() {
-							return "Delete Elements";
-						}
-						public void changed(final int event, final ToolProcess process) {
-						}
-						public void run(final IToolRunnableControllerAdapter adapter,
-								final IProgressMonitor monitor) throws CoreException {
-							final IRDataAdapter r = (IRDataAdapter) adapter;
-							try {
-								for (int i = 0; i < names.size(); i++) {
-									r.evalVoid(commands.get(i), monitor);
-								}
-							}
-							finally {
-								r.briefAboutChange(topEnvirs, 0);
-							}
-						}
-					});
-				}
-				catch (final CoreException e) {
-				}
+				process.getQueue().add(new DeleteRunnable(names, commands, topEnvirs));
 			}
 			
 			return null;
@@ -1510,8 +1541,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		if (oldProcess != null) {
 			clearInfo();
-			oldProcess.getQueue().removeElements(new Object[] { 
-					fManualRefreshRunnable });
+			oldProcess.getQueue().remove(new IToolRunnable[] { fManualRefreshRunnable });
 		}
 		if (!UIAccess.isOkToUse(fTreeViewer)) {
 			return;
@@ -1548,9 +1578,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	private void scheduleUpdateAll() {
-		final ToolController controller = fProcess.getController();
-		if (controller != null) {
-			controller.submit(fManualRefreshRunnable);
+		if (fProcess != null) {
+			fProcess.getQueue().add(fManualRefreshRunnable);
 		}
 	}
 	
@@ -1723,8 +1752,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		}
 		if (fProcess != null) {
 			fProcess.getWorkspaceData().removePropertyListener(fInputUpdater);
-			fProcess.getQueue().removeElements(new Object[] { 
-					fManualRefreshRunnable });
+			fProcess.getQueue().remove(new IToolRunnable[] { fManualRefreshRunnable });
 		}
 		fInputUpdater.cancel();
 		if (fHoveringController != null) {

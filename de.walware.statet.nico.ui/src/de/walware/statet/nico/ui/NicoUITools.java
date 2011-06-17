@@ -14,7 +14,6 @@ package de.walware.statet.nico.ui;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugEvent;
@@ -128,17 +127,30 @@ public class NicoUITools {
 	/**
 	 * 
 	 * @param type an optional expected main type
-	 * @param process the tool to check or <code>null</code>
+	 * @param tool the tool to check or <code>null</code>
 	 * @throws CoreException if tool is missing or the wrong type
 	 */
-	public static void accessTool(final String type, final ToolProcess process) throws CoreException {
-		if (process == null || (type != null && !type.equals(process.getMainType()))) {
+	public static void accessTool(final String type, final ITool tool) throws CoreException {
+		if (tool == null || (type != null && !type.equals(tool.getMainType()))) {
 			throw new CoreException(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
 					(type != null) ?
 							NLS.bind("No session of {0} is active in the current workbench window.", type) :
 							"No tool session is active in the current workbench window.", null)
 			);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param type the expected main type (optional)
+	 * @param type the id of the expected feature set (optional)
+	 * @param tool the tool to check or <code>null</code>
+	 * @return the controller of the tool
+	 */
+	public static boolean isToolReady(final String type, final String featureSetID, final ITool tool) {
+		return (tool != null && !tool.isTerminated()
+				&& tool.getMainType() == type
+				&& tool.isProvidingFeatureSet(featureSetID) );
 	}
 	
 	/**
@@ -283,26 +295,27 @@ public class NicoUITools {
 	 * @return an image descriptor for this runnable or <code>null</code>
 	 */
 	public static Image getImage(final IToolRunnable runnable) {
-		final IToolRunnableDecorator adapter = getRunnableDecorator(runnable);
-		if (adapter != null) {
-			return adapter.getImage();
+		if (runnable == null) {
+			return null;
 		}
-		return null;
-	}
-	
-	
-	private static IToolRunnableDecorator getRunnableDecorator(final IToolRunnable runnable) {
+		Image image = null;
 		if (runnable instanceof IToolRunnableDecorator) {
-			return (IToolRunnableDecorator) runnable;
+			image = ((IToolRunnableDecorator) runnable).getImage();
 		}
-		if (runnable instanceof IAdaptable) {
-			return (IToolRunnableDecorator) ((IAdaptable) runnable)
-					.getAdapter(IToolRunnableDecorator.class);
+		if (image == null) {
+			final NicoUIPlugin plugin = NicoUIPlugin.getDefault();
+			final IToolRunnableDecorator decorator = plugin.getUIDecoratorsRegistry()
+					.getDecoratorForRunnable(runnable.getTypeId());
+			if (decorator != null) {
+				image = decorator.getImage();
+			}
+			if (image == null) {
+				image = plugin.getImageRegistry().get(NicoUI.OBJ_TASK_DUMMY_IMAGE_ID);
+			}
 		}
-//		return (IToolRunnableDecorator) Platform.getAdapterManager()
-//					.getAdapter(runnable, IToolRunnableDecorator.class);
-		return null;
+		return image;
 	}
+	
 	
 	/**
 	 * 

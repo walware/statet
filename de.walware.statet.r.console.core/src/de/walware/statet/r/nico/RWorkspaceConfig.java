@@ -24,7 +24,7 @@ public class RWorkspaceConfig {
 	}
 	
 	
-	public void setEnableObjectDB(boolean enableObjectDB) {
+	public void setEnableObjectDB(final boolean enableObjectDB) {
 		fEnableObjectDB = enableObjectDB;
 	}
 	
@@ -32,7 +32,7 @@ public class RWorkspaceConfig {
 		return fEnableObjectDB;
 	}
 	
-	public void setEnableAutoRefresh(boolean enableAutoRefresh) {
+	public void setEnableAutoRefresh(final boolean enableAutoRefresh) {
 		fEnableAutoRefresh = enableAutoRefresh;
 	}
 	

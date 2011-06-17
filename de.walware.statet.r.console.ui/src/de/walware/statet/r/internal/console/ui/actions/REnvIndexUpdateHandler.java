@@ -18,7 +18,6 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
@@ -61,8 +60,10 @@ public class REnvIndexUpdateHandler extends AbstractHandler {
 			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);
 			process = NicoUI.getToolRegistry().getActiveToolSession(page).getProcess();
 		}
-		final ToolController controller = NicoUITools.getController("R", RTool.R_DATA_FEATURESET_ID, process); //$NON-NLS-1$
-		controller.submit(new REnvIndexAutoUpdater.UpdateRunnable(fCompletely));
+		if (!NicoUITools.isToolReady(RTool.TYPE, RTool.R_DATA_FEATURESET_ID, process)) {
+			return null;
+		}
+		process.getQueue().add(new REnvIndexAutoUpdater.UpdateRunnable(fCompletely));
 		return null;
 	}
 	

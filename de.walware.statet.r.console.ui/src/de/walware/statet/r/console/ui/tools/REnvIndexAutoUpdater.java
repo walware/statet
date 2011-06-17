@@ -43,6 +43,7 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.util.ToolMessageDialog;
@@ -82,7 +83,11 @@ public class REnvIndexAutoUpdater {
 			return RConsoleMessages.REnvIndex_Update_task;
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
@@ -101,7 +106,7 @@ public class REnvIndexAutoUpdater {
 					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID, -1,
 							RConsoleMessages.REnvIndex_Update_Started_message, null ), monitor);
 					final RJREnvIndexUpdater updater = new RJREnvIndexUpdater(rEnvConfig);
-					IStatus status = updater.update(r, fCompletely, properties, monitor);
+					final IStatus status = updater.update(r, fCompletely, properties, monitor);
 					r.handleStatus(status, monitor);
 				}
 			}
@@ -206,7 +211,11 @@ public class REnvIndexAutoUpdater {
 			return RConsoleMessages.REnvIndex_Check_task;
 		}
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 		public void run(final IToolRunnableControllerAdapter adapter,
@@ -275,7 +284,7 @@ public class REnvIndexAutoUpdater {
 				}
 				
 				// schedule update
-				adapter.getController().submit(new UpdateRunnable(false));
+				adapter.getProcess().getQueue().add(new UpdateRunnable(false));
 			}
 			catch (final CoreException e) {
 				if (e.getStatus().getSeverity() == IStatus.CANCEL) {
@@ -299,7 +308,7 @@ public class REnvIndexAutoUpdater {
 		final IREnvConfiguration rEnvConfig = (IREnvConfiguration) process.getAdapter(IREnvConfiguration.class);
 		if (rEnvConfig != null) {
 			fChecker = new RJREnvIndexChecker(rEnvConfig);
-			fProcess.getQueue().addOnIdle(new CheckRunnable());
+			fProcess.getQueue().addOnIdle(new CheckRunnable(), 1000);
 			return;
 		}
 		else {

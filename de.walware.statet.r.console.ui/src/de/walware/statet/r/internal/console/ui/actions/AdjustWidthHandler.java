@@ -32,8 +32,8 @@ import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRunnableDecorator;
 import de.walware.statet.nico.ui.NicoUI;
@@ -60,7 +60,11 @@ public class AdjustWidthHandler extends AbstractHandler {
 		}
 		
 		
-		public void changed(final int event, final ToolProcess process) {
+		public boolean changed(final int event, final ToolProcess process) {
+			if (event == Queue.ENTRIES_MOVE_DELETE) {
+				return false;
+			}
+			return true;
 		}
 		
 		public String getTypeId() {
@@ -125,10 +129,7 @@ public class AdjustWidthHandler extends AbstractHandler {
 				if (width < 10) {
 					width = 10;
 				}
-				final ToolController controller = console.getProcess().getController();
-				if (controller != null) {
-					controller.submit(new AdjustWidthRunnable(width));
-				}
+				console.getProcess().getQueue().add(new AdjustWidthRunnable(width));
 			}
 		}
 		return null;

@@ -38,7 +38,7 @@ public class ChangeWDRunnable implements IToolRunnable {
 	public static final String TYPE_ID = "r/tools/changeWorkingDir"; //$NON-NLS-1$
 	
 	
-	private IFileStore fWorkingDir;
+	private final IFileStore fWorkingDir;
 	
 	
 	public ChangeWDRunnable(final IFileStore workingdir) {
@@ -46,7 +46,8 @@ public class ChangeWDRunnable implements IToolRunnable {
 	}
 	
 	
-	public void changed(final int event, final ToolProcess process) {
+	public boolean changed(final int event, final ToolProcess process) {
+		return true;
 	}
 	
 	public String getTypeId() {
