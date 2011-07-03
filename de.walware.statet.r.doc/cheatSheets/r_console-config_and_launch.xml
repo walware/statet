@@ -77,7 +77,7 @@
          Next, you need a <b>launch configuration</b> for the R console:
       </description>
       <subitem
-            label="Go to &apos;Run &gt; Open Run Dialog...&apos;">
+            label="Go to &apos;Run &gt; Run Configurations...&apos;">
          <command
                required="false"
                serialization="org.eclipse.debug.ui.commands.OpenRunConfigurations"/>
