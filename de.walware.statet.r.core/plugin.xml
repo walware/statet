@@ -31,12 +31,12 @@
       <builder id="de.walware.statet.r.builders.RSupport"/>
    </extension>
    <extension
-         id="de.walware.statet.r.RPackageNature"
+         id="de.walware.statet.r.RPkgNature"
          name="R-Package Project Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="de.walware.statet.r.core.RPackageProject">
+               class="de.walware.statet.r.core.RPkgProject">
          </run>
       </runtime>
       <requires-nature
@@ -88,16 +88,6 @@
       <persistent value="true"/>
    </extension>
    
-   <extension
-         id="de.walware.statet.r.core.RInternalBuilder"
-         name="Compatibility Builder"
-         point="org.eclipse.core.resources.builders">
-      <builder
-            callOnEmptyDelta="true"
-            hasNature="false">
-         <run class="de.walware.statet.r.internal.core.RCompatibilityBuilder"/>
-      </builder>
-   </extension>
    <extension
          id="de.walware.statet.r.builders.RSupport"
          name="%builders.RInternalBuilder.name"

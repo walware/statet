@@ -12,7 +12,6 @@
 package de.walware.statet.base.core;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -25,17 +24,6 @@ import de.walware.statet.base.internal.core.BaseCorePlugin;
  * Project to extend for a special StatET project nature. 
  */
 public abstract class StatetExtNature implements IProjectNature {
-	
-	
-	protected static IProjectDescription appendNature(final IProjectDescription description, final String id) {
-		final String[] prevNatures = description.getNatureIds();
-		final String[] newNatures = new String[prevNatures.length + 1];
-		System.arraycopy(prevNatures, 0, newNatures, 0, prevNatures.length);
-		newNatures[prevNatures.length] = id;
-		description.setNatureIds(newNatures);
-		
-		return description;
-	}
 	
 	
 	protected IProject fProject;

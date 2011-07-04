@@ -17,6 +17,16 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	
 	
+	public static String NewRProjectWizard_title;
+	public static String NewRPkgProjectWizard_title;
+	
+	public static String NewRProjectWizardPage_title;
+	public static String NewRProjectWizardPage_description;
+	
+	public static String NewRPkgProjectWizardPage_title;
+	public static String RPkgWizardPage_title;
+	public static String RPkgWizardPage_description;
+	
 	public static String NewRScriptFileWizard_title;
 	public static String NewRScriptFileWizardPage_title;
 	public static String NewRScriptFileWizardPage_description;
@@ -24,10 +34,6 @@ public class Messages extends NLS {
 	public static String NewRDocFileWizard_title;
 	public static String NewRDocFileWizardPage_title;
 	public static String NewRDocFileWizardPage_description;
-	
-	public static String NewRProjectWizard_title;
-	public static String NewRProjectWizardPage_title;
-	public static String NewRProjectWizardPage_description;
 	
 	
 	static {

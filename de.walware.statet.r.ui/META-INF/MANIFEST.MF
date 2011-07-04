@@ -5,7 +5,7 @@ Bundle-Name: StatET R UI
 Bundle-SymbolicName: de.walware.statet.r.ui;singleton:=true
 Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: de.walware.statet.r.internal.ui.RUIPlugin
-Bundle-ActivationPolicy: lazy
+Bundle-ActivationPolicy: lazy;exclude:="de.walware.statet.r.internal.ui.nolazy"
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: de.walware.statet.base.ui;bundle-version="[2.0.0,2.1.0)",

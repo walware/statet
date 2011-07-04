@@ -37,6 +37,14 @@ public class Messages extends NLS {
 	
 	public static String RProject_ConfigureTask_label;
 	
+	public static String RPkgName_Validation_error_Empty_message;
+	public static String RPkgName_Validation_error_InvalidFirstChar_message;
+	public static String RPkgName_Validation_error_InvalidChar_message;
+	public static String RPkgName_Validation_error_InvalidNoAscii_message;
+	public static String RPkgName_Validation_error_InvalidDotAtEnd_message;
+	public static String RPkgName_Validation_error_InvalidSingleChar_message;
+	public static String RPkgName_Validation_error_IncompleteTranslation_message;
+	
 	
 	static {
 		NLS.initializeMessages(Messages.class.getName(), Messages.class);

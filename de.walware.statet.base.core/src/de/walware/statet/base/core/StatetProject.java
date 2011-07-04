@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import de.walware.ecommons.preferences.IPreferenceAccess;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.resources.ProjectUtil;
 
 
 public class StatetProject implements IProjectNature, IPreferenceAccess {
@@ -36,7 +37,8 @@ public class StatetProject implements IProjectNature, IPreferenceAccess {
 	
 	public static void addNature(final IProject project, final IProgressMonitor monitor) throws CoreException {
 		if (!project.hasNature(NATURE_ID)) {
-			final IProjectDescription description = StatetExtNature.appendNature(project.getDescription(), NATURE_ID);
+			IProjectDescription description = project.getDescription();
+			description = ProjectUtil.appendNature(description, NATURE_ID);
 			project.setDescription(description, monitor);
 		} 
 		else {

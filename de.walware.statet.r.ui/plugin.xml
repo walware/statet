@@ -31,9 +31,25 @@
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/ovr_16/r_ovr.gif"
+            icon="icons/ovr_16/r_project.png"
             id="de.walware.statet.r.images.RProjectImage"
             natureId="de.walware.statet.r.RNature"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            id="de.walware.statet.r.decorators.RProjectDecorator"
+            class="de.walware.statet.r.internal.ui.nolazy.RResourceDecorator"
+            lightweight="true"
+            label="%decorators_RProjectDecorator_label"
+            state="true"
+            adaptable="false">
+         <enablement>
+            <objectClass
+                  name="org.eclipse.core.resources.IProject">
+            </objectClass>
+         </enablement>
+      </decorator>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
@@ -646,15 +662,27 @@
    <extension
          point="org.eclipse.ui.newWizards">
       <wizard
+            id="de.walware.statet.r.newWizards.RProjectCreation"
             category="de.walware.statet.base.newWizards.StatetCategory"
             class="de.walware.statet.r.internal.ui.wizards.NewRProjectWizard"
-            icon="icons/tool_16/new_r-project.gif"
-            id="de.walware.statet.r.newWizards.RProjectCreation"
-            name="%wizards.NewRProject.name"
+            icon="icons/tool_16/new-r_project.png"
+            name="%wizards_NewRProject_name"
             project="true"
             finalPerspective="de.walware.statet.base.perspectives.StatetPerspective">
          <description>
-            %wizards.NewRProject.description
+            %wizards_NewRProject_description
+         </description>
+      </wizard>
+      <wizard
+            id="de.walware.statet.r.newWizards.RPkgProjectCreation"
+            category="de.walware.statet.base.newWizards.StatetCategory"
+            class="de.walware.statet.r.internal.ui.wizards.NewRPkgProjectWizard"
+            icon="icons/tool_16/new-rpkg_project.png"
+            name="%wizards_NewRPackageProject_name"
+            project="true"
+            finalPerspective="de.walware.statet.base.perspectives.StatetPerspective">
+         <description>
+            %wizards_NewRPackageProject_description
          </description>
       </wizard>
       <wizard
@@ -718,6 +746,7 @@
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="de.walware.statet.base.perspectives.StatetPerspective">
          <newWizardShortcut id="de.walware.statet.r.newWizards.RProjectCreation"/>
+         <newWizardShortcut id="de.walware.statet.r.newWizards.RPkgProjectCreation"/>
          <newWizardShortcut id="de.walware.statet.r.newWizards.RFileCreation"/>
          <actionSet id="de.walware.statet.r.actionSets.RToolbarSet"/>
          <view

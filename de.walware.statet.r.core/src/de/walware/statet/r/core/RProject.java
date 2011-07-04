@@ -15,6 +15,8 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,9 +28,10 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.osgi.service.prefs.BackingStoreException;
 
 import de.walware.ecommons.preferences.IPreferenceAccess;
+import de.walware.ecommons.preferences.Preference.StringPref2;
 import de.walware.ecommons.preferences.PreferencesManageListener;
 import de.walware.ecommons.preferences.PreferencesUtil;
-import de.walware.ecommons.preferences.Preference.StringPref2;
+import de.walware.ecommons.resources.ProjectUtil;
 
 import de.walware.statet.base.core.StatetExtNature;
 import de.walware.statet.base.core.StatetProject;
@@ -71,7 +74,8 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 			if (!project.hasNature(NATURE_ID)) {
 				StatetProject.addNature(project, new SubProgressMonitor(monitor, 400));
 				
-				final IProjectDescription description = appendNature(project.getDescription(), NATURE_ID);
+				IProjectDescription description = project.getDescription();
+				description = ProjectUtil.appendNature(description, NATURE_ID);
 				project.setDescription(description, new SubProgressMonitor(monitor, 600));
 			}
 		}
@@ -112,6 +116,13 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 		fPreferenceListener = new PreferencesManageListener(fRCodeStyle, getPrefs(), RCodeStyleSettings.ALL_GROUP_IDS);
 		
 		fRPackageName = getPrefs().getPreferenceValue(PREF_PACKAGE_NAME);
+		try {
+			if ((fRPackageName != null) != project.hasNature(RPkgProject.NATURE_ID)) {
+				checkPackageNature(project);
+			}
+		}
+		catch (CoreException e) {
+		}
 	}
 	
 	@Override
@@ -200,17 +211,48 @@ public class RProject extends StatetExtNature implements IRCoreAccess {
 		return fRPackageName;
 	}
 	
-	public void setPackageConfig(final String name) throws CoreException {
+	public void setPackageConfig(final String pkgName) throws CoreException {
+		boolean changed = false;
 		try {
 			final IScopeContext context = getStatetProject().getProjectContext();
-			PreferencesUtil.setPrefValue(context, PREF_PACKAGE_NAME, name);
+			PreferencesUtil.setPrefValue(context, PREF_PACKAGE_NAME, pkgName);
 			context.getNode(PREF_PACKAGE_NAME.getQualifier()).flush();
-			RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, name);
-			fRPackageName = name;
+			RCorePlugin.getDefault().getRModelManager().getIndex().updateProjectConfig(this, pkgName);
+			changed = (pkgName != null) != (fRPackageName != null);
+			fRPackageName = pkgName;
 		}
 		catch (final BackingStoreException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RCore.PLUGIN_ID, "An error occurred when saving the R project configuration."));
 		}
+		if (changed) {
+			checkPackageNature(getProject());
+		}
+	}
+	
+	
+	private void checkPackageNature(final IProject project) {
+		final WorkspaceJob job = new WorkspaceJob("Update R Project") {
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor)
+					throws CoreException {
+				final boolean hasPackageNature = project.hasNature(RPkgProject.NATURE_ID);
+				if ((fRPackageName != null) != hasPackageNature) {
+					final IProjectDescription description;
+					if (hasPackageNature) {
+						description = ProjectUtil.removeNature(project.getDescription(),
+								RPkgProject.NATURE_ID );
+					}
+					else {
+						description = ProjectUtil.appendNature(project.getDescription(),
+								RPkgProject.NATURE_ID );
+					}
+					project.setDescription(description, monitor);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		job.schedule();
 	}
 	
 	

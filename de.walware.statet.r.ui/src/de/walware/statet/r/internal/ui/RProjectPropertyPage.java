@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -78,7 +79,7 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private RProjectContainerComposite fProjectComposite;
 	
-	private Text fPackageNameControl;
+	private Text fPkgNameControl;
 	
 	private RProject fRProject;
 	
@@ -108,8 +109,9 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 			label.setText("Package &Name:");
 			
-			fPackageNameControl = new Text(packageComposite, SWT.BORDER);
-			fPackageNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			fPkgNameControl = new Text(packageComposite, SWT.BORDER);
+			fPkgNameControl.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			fPkgNameControl.setFont(JFaceResources.getTextFont());
 			
 			LayoutUtil.addGDDummy(composite);
 		}
@@ -147,7 +149,7 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 		}
 		
 		final String packageName = fRProject.getPackageName();
-		fPackageNameControl.setText((packageName != null) ? packageName : "");
+		fPkgNameControl.setText((packageName != null) ? packageName : "");
 		super.updateControls();
 	}
 	
@@ -178,7 +180,7 @@ class RProjectConfigurationBlock extends ManagedConfigurationBlock {
 	
 	private void saveProjectConfig() {
 		try {
-			final String packageName = fPackageNameControl.getText();
+			final String packageName = fPkgNameControl.getText();
 			fRProject.setPackageConfig((packageName.trim().length() != 0) ? packageName : null);
 		}
 		catch (final CoreException e) {

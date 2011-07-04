@@ -31,11 +31,11 @@ public class NewRProjectWizardPage extends WizardNewProjectCreationPage {
 	/**
 	 * Constructor.
 	 */
-	public NewRProjectWizardPage(final IStructuredSelection selection) {
+	public NewRProjectWizardPage(final IStructuredSelection selection, final String title) {
 		super("NewRProjectWizardPage"); //$NON-NLS-1$
 		fSelection = selection;
 		
-		setTitle(Messages.NewRProjectWizardPage_title);
+		setTitle((title != null) ? title : Messages.NewRProjectWizardPage_title);
 		setDescription(Messages.NewRProjectWizardPage_description);
 	}
 	

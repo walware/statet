@@ -72,7 +72,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public static final String IMG_WIZBAN_NEWRDFILE = RUI.PLUGIN_ID + "/image/wizban/new.rd-file"; //$NON-NLS-1$
 	public static final String IMG_WIZBAN_NEWRFILE = RUI.PLUGIN_ID + "/image/wizban/new.r-file"; //$NON-NLS-1$
-	public static final String IMG_WIZBAN_NEWRPROJECT = RUI.PLUGIN_ID + "/image/wizban/new.r-project"; //$NON-NLS-1$
+	public static final String IMG_WIZBAN_NEW_RPROJECT = RUI.PLUGIN_ID + "/image/wizban/new.r_project"; //$NON-NLS-1$
+	public static final String IMG_WIZBAN_NEW_RPKGPROJECT = RUI.PLUGIN_ID + "/image/wizban/new.rpkg_project"; //$NON-NLS-1$
 	
 	public static final String IMG_LOCTOOL_FILTER_GENERAL = RUI.PLUGIN_ID + "/image/ltool/filter.general"; //$NON-NLS-1$
 	public static final String IMG_LOCTOOL_FILTER_LOCAL = RUI.PLUGIN_ID + "/image/ltool/filter.local"; //$NON-NLS-1$
@@ -195,7 +196,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	@Override
 	protected void initializeImageRegistry(final ImageRegistry reg) {
 		final ImageRegistryUtil util = new ImageRegistryUtil(this);
-		util.register(IMG_WIZBAN_NEWRPROJECT, ImageRegistryUtil.T_WIZBAN, "new_r-project.png"); //$NON-NLS-1$
+		util.register(IMG_WIZBAN_NEW_RPROJECT, ImageRegistryUtil.T_WIZBAN, "new-r_project.png"); //$NON-NLS-1$
+		util.register(IMG_WIZBAN_NEW_RPKGPROJECT, ImageRegistryUtil.T_WIZBAN, "new-rpkg_project.png"); //$NON-NLS-1$
 		util.register(IMG_WIZBAN_NEWRFILE, ImageRegistryUtil.T_WIZBAN, "new_r-file.png");  //$NON-NLS-1$
 		util.register(IMG_WIZBAN_NEWRDFILE, ImageRegistryUtil.T_WIZBAN, "new_rd-file.png");  //$NON-NLS-1$
 		

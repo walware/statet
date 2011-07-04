@@ -42,14 +42,14 @@ public class NewRProjectWizard extends NewElementWizard {
 	
 	public NewRProjectWizard() {
 		setDialogSettings(DialogUtil.getDialogSettings(RUIPlugin.getDefault(), "NewElementWizard")); //$NON-NLS-1$
-		setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEWRPROJECT));
+		setDefaultPageImageDescriptor(RUI.getImageDescriptor(RUIPlugin.IMG_WIZBAN_NEW_RPROJECT));
 		setWindowTitle(Messages.NewRProjectWizard_title);
 	}
 	
 	@Override
 	public void addPages() {
 		super.addPages();
-		fFirstPage = new NewRProjectWizardPage(getSelection());
+		fFirstPage = new NewRProjectWizardPage(getSelection(), null);
 		addPage(fFirstPage);
 		
 		// only add page if there are already projects in the workspace
