@@ -30,6 +30,7 @@ import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleView;
@@ -61,6 +62,9 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 	public static final String ADJUST_OUTPUT_WIDTH_COMMAND_ID = "de.walware.statet.nico.commands.AdjustOutputWidth"; //$NON-NLS-1$
 	
 	
+	private static boolean gFontInitialized;
+	
+	
 	private class SettingsListener implements SettingsChangeNotifier.ChangeListener, IPropertyChangeListener {
 		
 		public void settingsChanged(final Set<String> groupIds) {
@@ -70,7 +74,7 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		}
 		
 		public void propertyChange(final PropertyChangeEvent event) {
-			if (JFaceResources.TEXT_FONT.equals(event.getProperty()) ) {
+			if (getSymbolicFontName().equals(event.getProperty()) ) {
 				setFont(null);
 			}
 		}
@@ -105,6 +109,17 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		fPartitioner = new NIConsolePartitioner(this, fAdapter.getStreamIds());
 		fPartitioner.connect(getDocument());
 		
+		if (!gFontInitialized) {
+			UIAccess.getDisplay().syncExec(new Runnable() {
+				public void run() {
+					setFont(null);
+					gFontInitialized = true;
+				}
+			});
+		}
+		else {
+			setFont(null);
+		}
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(fSettingsListener);
 		updateWatermarks();
 		
@@ -170,6 +185,19 @@ public abstract class NIConsole extends TextConsole implements IAdaptable {
 		else {
 			fPartitioner.setWaterMarks(-1, -1);
 		}
+	}
+	
+	protected String getSymbolicFontName() {
+		return JFaceResources.TEXT_FONT;
+	}
+	
+	@Override
+	public void setFont(Font newFont) {
+		if (newFont == null) {
+			JFaceResources.getFont(getSymbolicFontName()).getFontData()[0].getName();
+			newFont = JFaceResources.getFont(getSymbolicFontName());
+		}
+		super.setFont(newFont);
 	}
 	
 	@Override

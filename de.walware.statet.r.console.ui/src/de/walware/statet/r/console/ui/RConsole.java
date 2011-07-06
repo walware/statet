@@ -48,6 +48,11 @@ public class RConsole extends NIConsole implements IRCoreAccess {
 		return new RConsolePage(this, view);
 	}
 	
+	@Override
+	protected String getSymbolicFontName() {
+		return "de.walware.statet.base.themes.ConsoleFont"; //$NON-NLS-1$
+	}
+	
 	public IPreferenceAccess getPrefs() {
 		return fPrefs;
 	}

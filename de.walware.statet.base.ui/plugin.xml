@@ -185,17 +185,32 @@
             id="de.walware.statet.base.themes.StatetCategory"
             label="%themes_StatetCategory_label">
       </themeElementCategory>
-      <fontDefinition
-            id="de.walware.statet.base.themes.DocViewFont"
-            categoryId="de.walware.statet.base.themes.StatetCategory"
-            label="%themes_DocViewFont_label">
-      </fontDefinition>
       <colorDefinition
             id="de.walware.statet.base.themes.DocViewBackgroundColor"
             categoryId="de.walware.statet.base.themes.StatetCategory"
             label="%themes_DocViewBackgroundColor_label"
             value="253,253,252">
+         <description>
+            Background color used when displaying documentation (e.g. R Help)
+         </description>
       </colorDefinition>
+      <fontDefinition
+            id="de.walware.statet.base.themes.DocViewFont"
+            categoryId="de.walware.statet.base.themes.StatetCategory"
+            label="%themes_DocViewFont_label">
+         <description>
+            Text font used when displaying documentation (e.g. R Help)
+         </description>
+      </fontDefinition>
+      <fontDefinition
+            id="de.walware.statet.base.themes.ConsoleFont"
+            categoryId="de.walware.statet.base.themes.StatetCategory"
+            label="%themes_ConsoleFont_label"
+            defaultsTo="org.eclipse.jface.textfont">
+         <description>
+            Text font used for input and output in tool consoles (e.g. R Console)
+         </description>
+      </fontDefinition>
    </extension>
 
 </plugin>
