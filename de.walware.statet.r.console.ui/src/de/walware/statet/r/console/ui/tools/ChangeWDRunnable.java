@@ -17,12 +17,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.r.console.core.IRBasicAdapter;
+import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
@@ -46,25 +46,25 @@ public class ChangeWDRunnable implements IToolRunnable {
 	}
 	
 	
-	public boolean changed(final int event, final ToolProcess process) {
-		return true;
-	}
-	
 	public String getTypeId() {
 		return TYPE_ID;
+	}
+	
+	public boolean isRunnableIn(final ITool tool) {
+		return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 	}
 	
 	public String getLabel() {
 		return RConsoleMessages.ChangeWorkingDir_Task_label;
 	}
 	
-	public SubmitType getSubmitType() {
-		return SubmitType.TOOLS;
+	public boolean changed(final int event, final ITool process) {
+		return true;
 	}
 	
-	public void run(final IToolRunnableControllerAdapter adapter,
+	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
-		final IRBasicAdapter r = (IRBasicAdapter) adapter;
+		final IRBasicAdapter r = (IRBasicAdapter) service;
 		try {
 			final String toolPath = r.getWorkspaceData().toToolPath(fWorkingDir);
 			final String command = "setwd(\"" + RUtil.escapeCompletely(toolPath) + "\")"; //$NON-NLS-1$ //$NON-NLS-2$

@@ -34,8 +34,8 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.runtime.ToolController.IToolStatusListener;
 import de.walware.statet.nico.core.runtime.ToolWorkspace.Listener;
@@ -130,6 +130,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	private final Set<String> fFeatureSets = new HashSet<String>();
 	private final String fName;
 	private final String fToolLabelShort;
+	private final String fToolLabelLong;
 	private String fToolLabelTrimmedWD;
 	private String fToolLabelStatus;
 	
@@ -169,6 +170,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 		fConnectionTimestamp = timestamp;
 		
 		fToolLabelShort = labelPrefix;
+		fToolLabelLong = labelPrefix + ' ' + name;
 		fToolLabelStatus = ToolStatus.STARTING.getMarkedLabel();
 		fToolLabelTrimmedWD = trimPath(wd);
 		
@@ -303,19 +305,19 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	/**
 	 * Returns a label of the tool, usually based on the launch configuration.
 	 * <p>
-	 * Short label: &lt;name of launch config&gt; [&lt;name of launch type&gt;]<br/>
+	 * {@link ITool#DEFAULT_LABEL DEFAULT_LABEL}: &lt;name of launch config&gt; [&lt;name of launch type&gt;]<br/>
 	 * For example: <code>RJ-2.11 [R Console]</code>
 	 * </p><p>
-	 * Long label: &lt;short label&gt; &lt;name&gt;<br/>
+	 * {@link ITool#LONG_LABEL LONG_LABEL}: &lt;short label&gt; &lt;name&gt;<br/>
 	 * For example: <code>RJ-2.11 [R Console] R-2.11.1 / RJ (29.11.2010 12:49:51)</code>
 	 * </p>
 	 * 
-	 * @param longLabel
-	 * @return
+	 * @param config allows to configure the information to include in the label
+	 * @return the label
 	 */
-	public String getToolLabel(final boolean longLabel) {
-		if (longLabel) {
-			return fToolLabelShort + ' ' + fName;
+	public String getLabel(final int config) {
+		if ((config & LONG_LABEL) != 0) {
+			return fToolLabelLong;
 		}
 		return fToolLabelShort;
 	}
@@ -602,6 +604,12 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 	
 	public String getStartupWD() {
 		return fStartupWD;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return fToolLabelLong;
 	}
 	
 }

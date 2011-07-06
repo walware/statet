@@ -25,12 +25,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -80,11 +81,11 @@ public class QuitHandler implements IToolEventHandler {
 		
 	}
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (PlatformUI.getWorkbench().isClosing()) {
 			final ToolController controller = tools.getController();
 			if (controller != null) {
-				if (tools.getProcess().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
+				if (tools.getTool().isProvidingFeatureSet(IRemoteEngineController.FEATURE_SET_ID)) {
 					try {
 						((IRemoteEngineController) controller).disconnect(monitor);
 						return Status.CANCEL_STATUS;
@@ -107,9 +108,9 @@ public class QuitHandler implements IToolEventHandler {
 		
 		final UIRunnable runner = new UIRunnable();
 		runner.fController = tools.getController();
-		final ToolProcess<?> process = runner.fController.getProcess();
-		runner.fDialogTitle = NLS.bind(Messages.TerminatingMonitor_title, process.getToolLabel(false));
-		runner.fDialogMessage = NLS.bind(Messages.TerminatingMonitor_message, process.getToolLabel(true));
+		final ToolProcess<?> process = runner.fController.getTool();
+		runner.fDialogTitle = NLS.bind(Messages.TerminatingMonitor_title, process.getLabel(ITool.DEFAULT_LABEL));
+		runner.fDialogMessage = NLS.bind(Messages.TerminatingMonitor_message, process.getLabel(ITool.LONG_LABEL));
 		runner.fDialogOptions = new String[] { Messages.TerminatingMonitor_WaitButton_label, Messages.TerminatingMonitor_ForceButton_label, Messages.TerminatingMonitor_CancelButton_label };
 		
 		UIAccess.getDisplay().syncExec(runner);

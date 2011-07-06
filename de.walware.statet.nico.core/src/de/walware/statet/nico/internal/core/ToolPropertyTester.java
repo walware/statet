@@ -14,9 +14,9 @@ package de.walware.statet.nico.internal.core;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.model.IProcess;
 
-import de.walware.statet.nico.core.ITool;
-import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.ecommons.ts.ITool;
 
 
 public class ToolPropertyTester extends PropertyTester {
@@ -32,12 +32,12 @@ public class ToolPropertyTester extends PropertyTester {
 	
 	
 	public boolean test(final Object receiver, final String property, final Object[] args, final Object expectedValue) {
-		ToolProcess tool = null;
+		ITool tool = null;
 		if (receiver instanceof ITool) {
-			tool = (ToolProcess) receiver;
+			tool = (ITool) receiver;
 		}
 		else if (receiver instanceof IAdaptable) {
-			tool = (ToolProcess) ((IAdaptable) receiver).getAdapter(ITool.class);
+			tool = (ITool) ((IAdaptable) receiver).getAdapter(ITool.class);
 		}
 		
 		if (property.equals(IS_PROVIDING_FEATURE)) {
@@ -56,15 +56,18 @@ public class ToolPropertyTester extends PropertyTester {
 				if (args == null || args.length == 0) {
 					return true;
 				}
-				try {
-					final int exitValue = tool.getExitValue();
-					for (final Object arg : args) {
-						if (arg instanceof Integer && ((Integer) arg).intValue() == exitValue) {
-							return true;
+				if (tool instanceof IProcess) {
+					final IProcess process = (IProcess) tool;
+					try {
+						final int exitValue = process.getExitValue();
+						for (final Object arg : args) {
+							if (arg instanceof Integer && ((Integer) arg).intValue() == exitValue) {
+								return true;
+							}
 						}
 					}
-				}
-				catch (final DebugException e) {
+					catch (final DebugException e) {
+					}
 				}
 			}
 			return false;

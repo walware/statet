@@ -11,7 +11,8 @@
 
 package de.walware.statet.r.console.core;
 
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.ecommons.ts.IToolService;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
@@ -32,7 +33,7 @@ public final class RTool {
 	 * <p>
 	 * Feature Set:
 	 * <ul>
-	 * <li>{@link IToolRunnableControllerAdapter} implements {@link IRBasicAdapter}</li>
+	 * <li>{@link IToolService} implements {@link IRBasicAdapter}</li>
 	 * <li>{@link ToolWorkspace} instance of {@link RWorkspace}</li>
 	 * </ul>
 	 */
@@ -46,7 +47,7 @@ public final class RTool {
 	 * <p>
 	 * Feature Set:
 	 * <ul>
-	 * <li>{@link IToolRunnableControllerAdapter} implements {@link IRDataAdapter}</li>
+	 * <li>{@link IToolService} implements {@link IRDataAdapter}</li>
 	 * </ul>
 	 */
 	public static final String R_DATA_FEATURESET_ID = "de.walware.statet.r.data";

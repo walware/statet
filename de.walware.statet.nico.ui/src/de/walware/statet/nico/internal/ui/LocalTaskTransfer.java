@@ -19,8 +19,8 @@ import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ts.IToolRunnable;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 
@@ -46,7 +46,7 @@ public final class LocalTaskTransfer extends ByteArrayTransfer {
 	public static class Data {
 		
 		public final ToolProcess process;
-		public IToolRunnable[] tasks;
+		public IToolRunnable[] runnables;
 		
 		private Data(final ToolProcess process) {
 			this.process = process;

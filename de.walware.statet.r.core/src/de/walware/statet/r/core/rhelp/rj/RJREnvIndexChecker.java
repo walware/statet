@@ -21,6 +21,7 @@ import de.walware.rj.data.RDataUtil;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.RVector;
 import de.walware.rj.services.RService;
+
 import de.walware.statet.r.core.RCore;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.core.rhelp.REnvIndexChecker;

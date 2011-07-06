@@ -23,6 +23,8 @@ import org.eclipse.debug.core.IStatusHandler;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.ecommons.ts.ITool;
+
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.internal.core.Messages;
 import de.walware.statet.nico.internal.core.NicoPlugin;
@@ -101,7 +103,7 @@ public class ToolRunner {
 						process.fExitValue = NicoCore.EXITVALUE_CORE_EXCEPTION;
 						final IStatus status = createStatus(process,
 								NLS.bind(Messages.Runtime_error_UnexpectedTermination_message,
-										new Object[] { process.getToolLabel(false), process.getLabel() }),
+										new Object[] { process.getLabel(ITool.DEFAULT_LABEL), process.getLabel() }),
 								e );
 						try {
 							handler.handleStatus(status, null);

@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
+import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
@@ -53,7 +54,7 @@ public class SaveHistoryPage extends AbstractHistoryPage {
 	
 	public SaveHistoryPage(final ToolProcess tool) {
 		super("SaveHistoryPage", Messages.SaveHistoryPage_title, tool); //$NON-NLS-1$
-		setDescription(NLS.bind(Messages.SaveHistoryPage_description, fTool.getToolLabel(false)));
+		setDescription(NLS.bind(Messages.SaveHistoryPage_description, fTool.getLabel(ITool.DEFAULT_LABEL)));
 	}
 	
 	@Override

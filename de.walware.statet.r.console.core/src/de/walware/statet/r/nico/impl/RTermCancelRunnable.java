@@ -22,11 +22,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolProcess;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
 
@@ -45,20 +45,21 @@ class RTermCancelRunnable implements IToolRunnable {
 		return RNicoMessages.RTerm_CancelTask_label;
 	}
 	
-	public SubmitType getSubmitType() {
-		return null;
-	}
-	
 	public String getTypeId() {
-		return null;
+		return null; // not a real runnable
 	}
 	
-	public boolean changed(final int event, final ToolProcess process) {
+	public boolean changed(final int event, final ITool process) {
 		return true;
 	}
 	
-	public void run(final IToolRunnableControllerAdapter adapter,
+	public boolean isRunnableIn(final ITool tool) {
+		return true;
+	}
+	
+	public void run(final IToolService service,
 			final IProgressMonitor monitor) throws CoreException {
+		final IRBasicAdapter r = (IRBasicAdapter) service;
 		final URL dir = RConsoleCorePlugin.getDefault().getBundle().getEntry("/win32/SendSignal.exe"); //$NON-NLS-1$
 		try {
 			monitor.beginTask(RNicoMessages.RTerm_CancelTask_SendSignal_label, 10);
@@ -68,7 +69,7 @@ class RTermCancelRunnable implements IToolRunnable {
 				throw new IOException("Missing File '"+file.getAbsolutePath() + "'."); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			monitor.worked(1);
-			final RTermController controller = (RTermController) adapter.getController();
+			final RTermController controller = (RTermController) r.getController();
 			final Long processId = controller.fProcessId;
 			if (processId == null) {
 				RConsoleCorePlugin.log(new Status(IStatus.WARNING, RConsoleCorePlugin.PLUGIN_ID,

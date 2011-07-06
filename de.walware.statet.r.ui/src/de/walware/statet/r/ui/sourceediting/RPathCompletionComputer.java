@@ -40,8 +40,8 @@ import de.walware.ecommons.net.resourcemapping.IResourceMapping;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingOrder;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
+import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
 
 import de.walware.statet.r.console.core.RProcess;
@@ -79,7 +79,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 		fBaseResource = null;
 		fBaseFileStore = null;
 		if (editor instanceof ConsolePageEditor) {
-			final Object tool = editor.getAdapter(ITool.class);
+			final ITool tool = (ITool) editor.getAdapter(ITool.class);
 			if (tool instanceof RProcess) {
 				fAssociatedTool = (RProcess) tool;
 			}

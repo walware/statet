@@ -59,15 +59,14 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.variables.core.VariableText;
 import de.walware.ecommons.variables.core.VariableText.LocationProcessor;
 
 import de.walware.statet.nico.core.runtime.IRequireSynch;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.NicoUI;
@@ -80,6 +79,7 @@ import net.sourceforge.texlipse.builder.Builder;
 import net.sourceforge.texlipse.builder.TexlipseBuilder;
 import net.sourceforge.texlipse.viewer.ViewerConfiguration;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.sweave.Messages;
@@ -110,33 +110,38 @@ class RweaveTexTool implements Runnable, IProcess {
 		R() {
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
-				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, -1,
-						Messages.RweaveTexProcessing_Sweave_Task_info_Canceled_message, null));
-				continueAfterR();
-			}
-			return true;
+		public String getTypeId() {
+			return "r/sweave/commands"; //$NON-NLS-1$
+		}
+		
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
 		}
 		
 		public String getLabel() {
 			return NLS.bind(Messages.RweaveTexProcessing_Sweave_Task_label, fSweaveFile.getName());
 		}
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.TOOLS;
+		public boolean changed(final int event, final ITool tool) {
+			switch (event) {
+			case REMOVING_FROM:
+			case BEING_ABANDONED:
+				fStatus.add(new Status(IStatus.CANCEL, SweavePlugin.PLUGIN_ID, -1,
+						Messages.RweaveTexProcessing_Sweave_Task_info_Canceled_message, null));
+				continueAfterR();
+				break;
+			// finishing handled in run
+			}
+			return true;
 		}
 		
-		public String getTypeId() {
-			return "r/sweave/commands"; //$NON-NLS-1$
-		}
-		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
+			IRBasicAdapter r = (IRBasicAdapter) service;
 			try {
-				final ToolWorkspace workspace = adapter.getWorkspaceData();
-				adapter.refreshWorkspaceData(0, monitor);
-				updatePathInformations(adapter.getWorkspaceData());
+				final ToolWorkspace workspace = r.getWorkspaceData();
+				r.refreshWorkspaceData(0, monitor);
+				updatePathInformations(r.getWorkspaceData());
 				if (fStatus.getSeverity() >= IStatus.ERROR) {
 					return;
 				}
@@ -168,10 +173,10 @@ class RweaveTexTool implements Runnable, IProcess {
 						}
 						final String[] commands = RUtil.LINE_SEPARATOR_PATTERN.split(fSweaveRCommands.getText());
 						for (int i = 0; i < commands.length; i++) {
-							adapter.submitToConsole(commands[i], monitor);
+							r.submitToConsole(commands[i], monitor);
 						}
-						if (adapter instanceof IRequireSynch) {
-							((IRequireSynch) adapter).synch(monitor);
+						if (r instanceof IRequireSynch) {
+							((IRequireSynch) r).synch(monitor);
 						}
 					}
 					
@@ -207,11 +212,11 @@ class RweaveTexTool implements Runnable, IProcess {
 						final String[] commands = RUtil.LINE_SEPARATOR_PATTERN.split(fTexRCommands.getText());
 						try {
 							for (int i = 0; i < commands.length; i++) {
-								adapter.submitToConsole(commands[i], monitor);
+								r.submitToConsole(commands[i], monitor);
 								progress.setWorkRemaining(90-80/commands.length*(i+1));
 							}
-							if (adapter instanceof IRequireSynch) {
-								((IRequireSynch) adapter).synch(monitor);
+							if (r instanceof IRequireSynch) {
+								((IRequireSynch) r).synch(monitor);
 							}
 						}
 						finally {

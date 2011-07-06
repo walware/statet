@@ -22,9 +22,9 @@ public enum SubmitType {
 	CONSOLE (Messages.SubmitType_Console_label),
 	/** Submit from editor and other code based views */
 	EDITOR (Messages.SubmitType_Editor_label),
-	/** Submit from tools (GUI etc.) */
+	/** Submit from tools (like the object browser) */
 	TOOLS (Messages.SubmitType_Tools_label),
-	/** Others, e.g. by controller */
+	/** Others, e.g. from controller */
 	OTHER (Messages.SubmitType_Other_label),
 	;
 	

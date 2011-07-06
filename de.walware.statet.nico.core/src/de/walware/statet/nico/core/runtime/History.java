@@ -40,6 +40,7 @@ import de.walware.ecommons.io.FileUtil.ReadTextFileOperation;
 import de.walware.ecommons.io.FileUtil.ReaderAction;
 import de.walware.ecommons.io.FileUtil.WriteTextFileOperation;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ts.ITool;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
@@ -164,7 +165,7 @@ public class History {
 			for (final SubmitType submitType : set) {
 				final IStreamListener listener = new IStreamListener() {
 					public void streamAppended(final String text, final IStreamMonitor monitor) {
-						if ((((ToolStreamMonitor) monitor).getMeta() & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) == 0) {
+						if ((((ToolStreamMonitor) monitor).getMeta() & IConsoleService.META_HISTORY_DONTADD) == 0) {
 							addCommand(text, submitType);
 						}
 					}
@@ -268,7 +269,7 @@ public class History {
 			final ReadTextFileOperation op = fileUtil.createReadTextFileOp(action);
 			op.setCharset(charset, forceCharset);
 			op.doOperation(new SubProgressMonitor(monitor, 90));
-			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getToolLabel(false)));
+			monitor.subTask(NLS.bind(Messages.LoadHistory_AllocatingTask_label, fProcess.getLabel(ITool.DEFAULT_LABEL)));
 			
 			fLock.writeLock().lock();
 			try {
@@ -290,7 +291,7 @@ public class History {
 		catch (final CoreException e) {
 			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0, NLS.bind(
 					Messages.LoadHistory_error_message,
-					new Object[] { fProcess.getToolLabel(true), file.toString() }), e);
+					new Object[] { fProcess.getLabel(ITool.LONG_LABEL), file.toString() }), e);
 		} finally {
 			monitor.done();
 		}

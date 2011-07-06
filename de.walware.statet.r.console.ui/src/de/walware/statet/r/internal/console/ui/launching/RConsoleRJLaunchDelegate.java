@@ -41,14 +41,12 @@ import de.walware.ecommons.net.RMIRegistry;
 import de.walware.ecommons.net.RMIUtil;
 import de.walware.ecommons.net.RMIUtil.StopRule;
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ILogOutput;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
-import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolRunner;
 import de.walware.statet.nico.core.util.HistoryTrackingConfiguration;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
@@ -82,13 +80,15 @@ import de.walware.statet.r.nico.impl.RjsController;
 public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	
-	static class ConfigRunnable implements IToolRunnable {
+	static class ConfigRunnable implements ISystemRunnable {
 		
 		
+		private final ITool fTool;
 		private final boolean fEnableHelp;
 		
 		
-		public ConfigRunnable(final boolean enableHelp) {
+		public ConfigRunnable(final ITool tool, final boolean enableHelp) {
+			fTool = tool;
 			fEnableHelp = enableHelp;
 		}
 		
@@ -97,24 +97,24 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			return "r/integration"; //$NON-NLS-1$
 		}
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.OTHER;
-		}
-		
 		public String getLabel() {
 			return "Initialize R-StatET Tools";
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool == fTool);
+		}
+		
+		public boolean changed(final int event, final ITool process) {
+			if ((event & MASK_EVENT_GROUP) == REMOVING_EVENT_GROUP) {
 				return false;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			final IRDataAdapter r = (IRDataAdapter) adapter;
+			final IRDataAdapter r = (IRDataAdapter) service;
 			try {
 				if (!RDataUtil.checkSingleLogiValue(r.evalData("\"rj\" %in% installed.packages()[,\"Package\"]", monitor))) { //$NON-NLS-1$
 					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
@@ -149,10 +149,11 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 	
 	static void initConsoleOptions(final RjsController controller, final ILaunchConfiguration configuration,
 			final boolean isStartup) throws CoreException {
-		new REnvIndexAutoUpdater(controller.getProcess());
+		new REnvIndexAutoUpdater(controller.getTool());
 		
 		if (configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RPACKAGES_LOAD_ENABLED, true)) {
 			controller.addStartupRunnable(new ConfigRunnable(
+					controller.getTool(),
 					configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true) ));
 		}
 		if (isStartup) {

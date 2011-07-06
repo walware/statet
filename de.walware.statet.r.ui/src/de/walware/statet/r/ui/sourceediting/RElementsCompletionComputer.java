@@ -45,8 +45,8 @@ import de.walware.ecommons.ltk.ui.sourceediting.IAssistInformationProposal;
 import de.walware.ecommons.ltk.ui.sourceediting.IContentAssistComputer;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.text.IPartitionConstraint;
+import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.ConsolePageEditor;
@@ -54,7 +54,7 @@ import de.walware.statet.nico.ui.console.InputDocument;
 
 import de.walware.rj.data.RReference;
 
-import de.walware.statet.r.console.core.RTool;
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
 import de.walware.statet.r.core.RSymbolComparator;
@@ -233,16 +233,15 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 			fProcess = null;
 		}
 		
-		final ToolProcess tool;
+		final ITool tool;
 		if (fEditor instanceof ConsolePageEditor) {
-			tool = (ToolProcess) fEditor.getAdapter(ITool.class);
+			tool = (ITool) fEditor.getAdapter(ITool.class);
 		}
 		else {
 			tool = NicoUITools.getTool(fEditor.getWorkbenchPart());
 		}
-		if (tool != null
-				&& tool.getMainType() == RTool.TYPE) {
-			final ToolProcess<RWorkspace> rProcess = tool;
+		if (tool instanceof RProcess) {
+			final RProcess rProcess = (RProcess) tool;
 			final RWorkspace workspace = rProcess.getWorkspaceData();
 			if (workspace.hasRObjectDB()) {
 				fProcess = rProcess;

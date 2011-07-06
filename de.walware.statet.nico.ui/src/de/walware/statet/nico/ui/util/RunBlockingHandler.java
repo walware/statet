@@ -24,10 +24,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.ts.IToolRunnable;
+
 import de.walware.statet.nico.core.NicoCore;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
 
@@ -38,7 +39,7 @@ import de.walware.statet.nico.internal.ui.Messages;
 public class RunBlockingHandler implements IToolEventHandler {
 	
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IProgressService progressService = PlatformUI.getWorkbench().getProgressService();
 		final IToolRunnable toolRunnable = ToolEventHandlerUtil.getCheckedData(data, RUN_RUNNABLE_DATA_KEY, IToolRunnable.class, true); 
 		try {

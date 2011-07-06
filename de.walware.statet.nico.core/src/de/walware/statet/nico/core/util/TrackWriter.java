@@ -37,7 +37,7 @@ import de.walware.ecommons.variables.core.VariableText;
 import de.walware.ecommons.variables.core.WrappedDynamicVariable;
 
 import de.walware.statet.nico.core.NicoCore;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ITrack;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
@@ -117,7 +117,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			if (fConfig.getId().equals(HistoryTrackingConfiguration.HISTORY_TRACKING_ID)
 					&& ((HistoryTrackingConfiguration) fConfig).getLoadHistory()
 					&& fStoreFile.fetchInfo().exists()) {
-				fController.getProcess().getHistory().load(fStoreFile, fConfig.getFileEncoding(), false, monitor);
+				fController.getTool().getHistory().load(fStoreFile, fConfig.getFileEncoding(), false, monitor);
 			}
 			
 			outputStream = fStoreFile.openOutputStream(fConfig.getFileMode(), monitor);
@@ -135,7 +135,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 				fInputListener = (fConfig.getTrackStreamInputHistoryOnly()) ?
 						new IStreamListener() {
 							public void streamAppended(final String text, final IStreamMonitor monitor) {
-								if ((((ToolStreamMonitor) monitor).getMeta() & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) == 0) {
+								if ((((ToolStreamMonitor) monitor).getMeta() & IConsoleService.META_HISTORY_DONTADD) == 0) {
 									TrackWriter.this.streamAppendedNL(text);
 								}
 							}
@@ -164,7 +164,7 @@ public class TrackWriter implements ITrack, IStreamListener, IDisposable {
 			}
 			
 			if (fConfig.getPrependTimestamp()) {
-				final ToolProcess process = fController.getProcess();
+				final ToolProcess process = fController.getTool();
 				final String comment = process.createTimestampComment(process.getConnectionTimestamp());
 				try {
 					fOutputWriter.write(comment);

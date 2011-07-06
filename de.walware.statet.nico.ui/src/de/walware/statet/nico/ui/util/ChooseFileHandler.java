@@ -41,7 +41,7 @@ import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.IProgressInfo;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -144,7 +144,7 @@ public class ChooseFileHandler implements IToolEventHandler {
 	}
 	
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final String message;
 		{	String s = ToolEventHandlerUtil.getCheckedData(data, LOGIN_MESSAGE_DATA_KEY, String.class, false); 
 			if (s == null) {
@@ -158,7 +158,7 @@ public class ChooseFileHandler implements IToolEventHandler {
 		final Runnable runnable = new Runnable() {
 			public void run() {
 				final ChooseFileDialog dialog = new ChooseFileDialog(UIAccess.getActiveWorkbenchShell(true),
-						tools.getProcess(), message, newFile.booleanValue());
+						tools.getTool(), message, newFile.booleanValue());
 				dialog.setBlockOnOpen(true);
 				if (dialog.open() == Dialog.OK) {
 					file.set(dialog.getResource());

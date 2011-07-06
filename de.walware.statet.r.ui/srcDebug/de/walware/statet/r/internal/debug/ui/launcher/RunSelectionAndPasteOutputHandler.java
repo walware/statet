@@ -40,12 +40,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.nico.core.runtime.IConsoleRunnable;
 import de.walware.statet.nico.core.runtime.IRequireSynch;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -68,7 +68,7 @@ import de.walware.statet.r.ui.RUI;
 public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 	
 	
-	private static class R implements IToolRunnable, Runnable {
+	private static class R implements IConsoleRunnable, Runnable {
 		
 		private ISourceEditor fEditor;
 		private IDocument fDocument;
@@ -77,7 +77,7 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 		private StringBuilder fOutput;
 		
 		
-		public R(final ISourceEditor editor) {
+		R(final ISourceEditor editor) {
 			fEditor = editor;
 		}
 		
@@ -141,20 +141,27 @@ public class RunSelectionAndPasteOutputHandler extends AbstractHandler {
 			return SubmitType.EDITOR;
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_ABANDONED) {
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+		}
+		
+		public boolean changed(final int event, final ITool process) {
+			switch (event) {
+			case REMOVING_FROM:
+			case BEING_ABANDONED:
 				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
 						dispose();
 					}
 				});
+				break;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			final IRBasicAdapter r = (IRBasicAdapter) adapter;
+			final IRBasicAdapter r = (IRBasicAdapter) service;
 			fOutput = new StringBuilder(200);
 			final IStreamListener listener = new IStreamListener() {
 				public void streamAppended(final String text, final IStreamMonitor monitor) {

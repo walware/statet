@@ -92,6 +92,8 @@ import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.actions.SearchContributionItem;
 import de.walware.ecommons.ui.util.ColumnHoverManager;
@@ -104,10 +106,6 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.base.ui.StatetImages;
-import de.walware.statet.nico.core.ITool;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -129,6 +127,7 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
 
+import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
@@ -301,45 +300,37 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 	}
 	
-	private class RefreshWorkspaceR implements IToolRunnable {
+	private class RefreshWorkspaceR extends AbstractRDataRunnable {
 		
-		public String getTypeId() {
-			return "r/objectbrowser/refreshWorkspace.force"; //$NON-NLS-1$
+		public RefreshWorkspaceR() {
+			super("r/objectbrowser/refreshWorkspace.force", "Update Object Browser"); //$NON-NLS-1$
 		}
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.TOOLS;
-		}
-		
-		public String getLabel() {
-			return "Update Object Browser";
-		}
-		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_MOVE_DELETE) {
+		@Override
+		public boolean changed(final int event, final ITool tool) {
+			if (event == MOVING_FROM) {
 				return false;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		@Override
+		protected void run(final IRDataAdapter r,
 				final IProgressMonitor monitor) throws CoreException {
-			final ToolProcess process = adapter.getProcess();
+			boolean current;
 			synchronized (fProcessLock) {
-				if (process != fProcess) {
-					return;
-				}
+				current = (r.getTool() != fProcess);
 			}
 			final IWorkbenchSiteProgressService progressService = (IWorkbenchSiteProgressService) getViewSite().getService(IWorkbenchSiteProgressService.class);
-			if (progressService != null) {
+			if (current && progressService != null) {
 				progressService.incrementBusy();
 			}
 			try {
 				fInputUpdater.fForceOnWorkspaceChange = true;
-				adapter.refreshWorkspaceData(RWorkspace.REFRESH_COMPLETE, monitor);
+				r.refreshWorkspaceData(RWorkspace.REFRESH_COMPLETE, monitor);
 			}
 			finally {
-				if (progressService != null) {
+				if (current && progressService != null) {
 					progressService.decrementBusy();
 				}
 			}
@@ -557,7 +548,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	private class DeleteHandler extends AbstractHandler {
 		
 		
-		private class DeleteRunnable implements IToolRunnable, IToolRunnableDecorator {
+		private class DeleteRunnable extends AbstractRDataRunnable implements IToolRunnableDecorator {
 			
 			private final List<String> fNames;
 			private final List<String> fCommands;
@@ -565,37 +556,27 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			
 			public DeleteRunnable(final List<String> names, final List<String> commands,
 					final Set<IElementName> topEnvirs) {
+				super("r/objectbrowser/delete", "Delete Elements"); //$NON-NLS-1$
 				fNames = names;
 				fCommands = commands;
 				fTopEnvirs = topEnvirs;
-			}
-			
-			public String getTypeId() {
-				return "r/objectbrowser/delete"; //$NON-NLS-1$
-			}
-			
-			public SubmitType getSubmitType() {
-				return SubmitType.TOOLS;
 			}
 			
 			public Image getImage() {
 				return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_TOOL_DELETE);
 			}
 			
-			public String getLabel() {
-				return "Delete Elements";
-			}
-			
-			public boolean changed(final int event, final ToolProcess process) {
-				if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+			@Override
+			public boolean changed(final int event, final ITool tool) {
+				if (event == MOVING_FROM) {
 					return false;
 				}
 				return true;
 			}
 			
-			public void run(final IToolRunnableControllerAdapter adapter,
+			@Override
+			protected void run(final IRDataAdapter r,
 					final IProgressMonitor monitor) throws CoreException {
-				final IRDataAdapter r = (IRDataAdapter) adapter;
 				try {
 					for (int i = 0; i < fNames.size(); i++) {
 						r.evalVoid(fCommands.get(i), monitor);
@@ -1618,7 +1599,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				fTreeViewer.refresh(entry, true);
 			}
 			if (usedReferences != null) {
-				ITER_REFS: for (RReference reference : usedReferences) {
+				ITER_REFS: for (final RReference reference : usedReferences) {
 					if (!fUsedReferences.contains(reference)) {
 						// Update the envir copy in the viewer, if it refers to an updated envir
 						for (final ICombinedEnvironment entry : updateEnvirs) {
@@ -1710,7 +1691,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				if (fCurrentInfoObject.equals(previousInfoObject)) {
 					clearInfo();
 				}
-				final String msg = name + "  \u2012  " + process.getToolLabel(false); //$NON-NLS-1$
+				final String msg = name + "  \u2012  " + process.getLabel(ITool.DEFAULT_LABEL); //$NON-NLS-1$
 				fStatusLine.setMessage(0, msg);
 				return;
 			}

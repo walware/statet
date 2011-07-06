@@ -88,10 +88,10 @@ public interface IToolEventHandler {
 	 */
 	public static final String RUN_BLOCKING_EVENT_ID = "common/runBlocking"; //$NON-NLS-1$
 	
-	/** {@link IToolRunnable} = runnable to run */
+	/** {@link de.walware.ecommons.ts.IToolRunnable} = runnable to run */
 	public static final String RUN_RUNNABLE_DATA_KEY = "runnable"; //$NON-NLS-1$
 	
 	
-	public IStatus handle(String id, IToolRunnableControllerAdapter tools, Map<String, Object> data, IProgressMonitor monitor);
+	public IStatus handle(String id, IConsoleService tools, Map<String, Object> data, IProgressMonitor monitor);
 	
 }

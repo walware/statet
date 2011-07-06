@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
@@ -31,7 +31,7 @@ import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 public class ReportStatusHandler implements IToolEventHandler {
 	
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final IStatus status = ToolEventHandlerUtil.getCheckedData(data, REPORT_STATUS_DATA_KEY, IStatus.class, false); 
 		if (status != null) {
 			final String br = tools.getWorkspaceData().getLineSeparator();

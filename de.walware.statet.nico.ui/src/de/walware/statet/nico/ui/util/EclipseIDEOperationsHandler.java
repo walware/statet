@@ -26,7 +26,7 @@ import org.eclipse.ui.ide.IDE;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.ui.NicoUI;
@@ -46,7 +46,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 	public static final String SHOW_HISTORY_ID = "common/showHistory"; //$NON-NLS-1$
 	
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(SHOW_FILE_ID)) {
 			final IFileStore fileStore;
 			final String filename = ToolEventHandlerUtil.getCheckedData(data, "filename", String.class, true); //$NON-NLS-1$
@@ -62,7 +62,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 			final Display display = UIAccess.getDisplay();
 			display.syncExec(new Runnable() {
 				public void run() {
-					final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getProcess());
+					final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getTool());
 					try {
 						IDE.openEditorOnFileStore(page, fileStore);
 					}
@@ -80,7 +80,7 @@ public class EclipseIDEOperationsHandler implements IToolEventHandler {
 			display.syncExec(new Runnable() {
 				public void run() {
 					try {
-						final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getProcess());
+						final IWorkbenchPage page = NicoUI.getToolRegistry().findWorkbenchPage(tools.getTool());
 						final HistoryView view = (HistoryView) page.showView(NicoUI.HISTORY_VIEW_ID);
 						if (pattern != null) {
 							view.search(pattern, false);

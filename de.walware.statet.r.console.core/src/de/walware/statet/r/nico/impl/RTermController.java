@@ -39,13 +39,13 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IStreamMonitor;
 
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IRequireSynch;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.runtime.Prompt;
-import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStatus;
@@ -146,26 +146,15 @@ public class RTermController extends AbstractRController implements IRequireSync
 		}
 	}
 	
-	private class UpdateProcessIdTask implements IToolRunnable {
+	private class UpdateProcessIdTask extends ControllerSystemRunnable {
 		
 		
 		public UpdateProcessIdTask() {
+			super("r/rterm/fetch-process-id", "Fetch Process Id"); //$NON-NLS-1$
 		}
 		
 		
-		public String getTypeId() {
-			return "r/rterm/fetch-process-id"; //$NON-NLS-1$
-		}
-		
-		public SubmitType getSubmitType() {
-			return SubmitType.OTHER;
-		}
-		
-		public String getLabel() {
-			return "Fetch Process Id";
-		}
-		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final StringBuilder output = readOutputLine("Sys.getpid()", monitor); //$NON-NLS-1$
 			if (output != null) {
@@ -185,13 +174,6 @@ public class RTermController extends AbstractRController implements IRequireSync
 					}
 				}
 			}
-		}
-		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_MOVE_DELETE) {
-				return false;
-			}
-			return true;
 		}
 		
 	}
@@ -271,28 +253,16 @@ public class RTermController extends AbstractRController implements IRequireSync
 				fStartupsRunnables.clear();
 			}
 			
-			scheduleControllerRunnable(new IToolRunnable() {
-				public SubmitType getSubmitType() {
-					return SubmitType.OTHER;
-				}
-				public String getTypeId() {
-					return "r/rj/start2"; //$NON-NLS-1$
-				}
-				public String getLabel() {
-					return "Finish Initialization";
-				}
-				public boolean changed(final int event, final ToolProcess process) {
-					if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
-						return false;
-					}
-					return true;
-				}
-				public void run(final IToolRunnableControllerAdapter adapter,
+			scheduleControllerRunnable(new ControllerSystemRunnable(
+					"r/rj/start2", "Finish Initialization") { //$NON-NLS-1$
+				
+				public void run(final IToolService service,
 						final IProgressMonitor monitor) throws CoreException {
 					for (final IStatus status : warnings) {
 						handleStatus(status, monitor);
 					}
 				}
+				
 			});
 		}
 		catch (final IOException e) {
@@ -378,13 +348,13 @@ public class RTermController extends AbstractRController implements IRequireSync
 	protected void doBeforeSubmitL() {
 		// adds control stream
 		// without prompt
-		final SubmitType type = fCurrentRunnable.getSubmitType();
+		final SubmitType type = getCurrentSubmitType();
 		try {
 			fProcessOutputThread.streamLock.lock();
 			fInputStream.append(fCurrentInput, type,
-					(fCurrentPrompt.meta & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) );
+					(fCurrentPrompt.meta & IConsoleService.META_HISTORY_DONTADD) );
 			fInputStream.append(fWorkspaceData.getLineSeparator(), type,
-					IToolRunnableControllerAdapter.META_HISTORY_DONTADD);
+					IConsoleService.META_HISTORY_DONTADD);
 		}
 		finally {
 			fProcessOutputThread.streamLock.unlock();

@@ -28,12 +28,11 @@ import org.eclipse.ui.console.TextConsoleViewer;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.part.PageBookView;
 
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.IToolRunnableDecorator;
 import de.walware.statet.nico.ui.NicoUI;
@@ -42,6 +41,7 @@ import de.walware.statet.nico.ui.ToolSessionUIData;
 import de.walware.statet.nico.ui.console.NIConsole;
 import de.walware.statet.nico.ui.console.NIConsolePage;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 
@@ -60,19 +60,8 @@ public class AdjustWidthHandler extends AbstractHandler {
 		}
 		
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_MOVE_DELETE) {
-				return false;
-			}
-			return true;
-		}
-		
 		public String getTypeId() {
 			return "r/console/width"; //$NON-NLS-1$
-		}
-		
-		public SubmitType getSubmitType() {
-			return SubmitType.TOOLS;
 		}
 		
 		public Image getImage() {
@@ -83,9 +72,21 @@ public class AdjustWidthHandler extends AbstractHandler {
 			return RConsoleMessages.AdjustWidth_task;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+		}
+		
+		public boolean changed(final int event, final ITool tool) {
+			if (event == MOVING_FROM) {
+				return false;
+			}
+			return true;
+		}
+		
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			adapter.submitToConsole("options(width = "+fWidth+"L)", monitor); //$NON-NLS-1$ //$NON-NLS-2$
+			final IRBasicAdapter r = (IRBasicAdapter) service;
+			r.submitToConsole("options(width = "+fWidth+"L)", monitor); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
 	}

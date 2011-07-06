@@ -22,11 +22,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
+
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ITrack;
 import de.walware.statet.nico.core.runtime.Prompt;
-import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -57,21 +59,26 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 			super(text, type);
 		}
 		
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool.isProvidingFeatureSet(RTool.R_BASIC_FEATURESET_ID));
+		}
+		
 		@Override
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			final AbstractRController r = (AbstractRController) adapter;
+			final IRBasicAdapter r = (IRBasicAdapter) service;
 			try {
 				super.run(r, monitor);
 			}
 			finally {
-				if ((r.fCurrentPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) == 0) {
+				if ((r.getPrompt().meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) == 0) {
 					r.briefAboutChange(RWorkspace.REFRESH_AUTO);
 				}
 			}
 		}
 		
 	}
+	
 	
 	public static final String SHOW_RHELP_HANDLER_ID = "r/showHelp"; //$NON-NLS-1$
 	
@@ -100,8 +107,8 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	}
 	
 	@Override
-	public RProcess getProcess() {
-		return (RProcess) super.getProcess();
+	public RProcess getTool() {
+		return (RProcess) super.getTool();
 	}
 	
 	@Override
@@ -116,48 +123,36 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 				return RNicoMessages.Quit_Task_label;
 			}
 			
-			public SubmitType getSubmitType() {
-				return SubmitType.TOOLS;
-			}
-			
-			public boolean changed(final int event, final ToolProcess process) {
-				if (event == Queue.ENTRIES_MOVE_DELETE) {
+			public boolean changed(final int event, final ITool process) {
+				if (event == MOVING_FROM) {
 					return false;
 				}
 				return true;
 			}
 			
-			public void run(final IToolRunnableControllerAdapter adapter,
+			public boolean isRunnableIn(final ITool tool) {
+				return (tool == getTool());
+			}
+			
+			public void run(final IToolService service,
 					final IProgressMonitor monitor) throws CoreException {
-				((IRBasicAdapter) adapter).quit(monitor);
+				((IRBasicAdapter) service).quit(monitor);
 			}
 		};
 	}
 	
 	@Override
 	protected IToolRunnable createCancelPostRunnable(final int options) {
-		return new IToolRunnable() {
-			public SubmitType getSubmitType() {
-				return SubmitType.OTHER;
-			}
-			public String getTypeId() {
-				return "common/cancel/post"; //$NON-NLS-1$
-			}
-			public String getLabel() {
-				return "Reset prompt";
-			}
-			public boolean changed(final int event, final ToolProcess process) {
-				if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
-					return false;
-				}
-				return true;
-			}
-			public void run(final IToolRunnableControllerAdapter tools,
+		return new ControllerSystemRunnable(
+				"common/cancel/post", "Reset prompt") { //$NON-NLS-1$
+			
+			public void run(final IToolService s,
 					final IProgressMonitor monitor) throws CoreException {
 				if (!isTerminated()) {
 					postCancelTask(options, monitor);
 				}
 			}
+			
 		};
 	}
 	
@@ -166,8 +161,7 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 				((fCurrentPrompt.meta & IRBasicAdapter.META_PROMPT_INCOMPLETE_INPUT) != 0) ?
 						"(Input cancelled)" : "(Command cancelled)") + 
 						fLineSeparator;
-		fInfoStream.append(text,
-				(fCurrentRunnable != null) ? fCurrentRunnable.getSubmitType() : SubmitType.TOOLS, fCurrentPrompt.meta);
+		fInfoStream.append(text, getCurrentSubmitType(), fCurrentPrompt.meta);
 	}
 	
 	public boolean supportsBusy() {
@@ -237,21 +231,21 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 			}
 			else {
 				setCurrentPromptL(new Prompt(fDefaultPromptText,
-						IToolRunnableControllerAdapter.META_HISTORY_DONTADD | IToolRunnableControllerAdapter.META_PROMPT_DEFAULT));
+						IConsoleService.META_HISTORY_DONTADD | IConsoleService.META_PROMPT_DEFAULT));
 			}
 		}
 		else if (fContinuePromptText.equals(text)) {
 			setCurrentPromptL(new ContinuePrompt(
 					fCurrentPrompt, fCurrentInput+fLineSeparator, fContinuePromptText,
-					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
+					addToHistory ? 0 : IConsoleService.META_HISTORY_DONTADD));
 		}
 		else if (text != null) {
 			setCurrentPromptL(new Prompt(text,
-					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
+					addToHistory ? 0 : IConsoleService.META_HISTORY_DONTADD));
 		}
 		else { // TODO log warning / exception?
 			setCurrentPromptL(new Prompt("", //$NON-NLS-1$
-					addToHistory ? 0 : IToolRunnableControllerAdapter.META_HISTORY_DONTADD));
+					addToHistory ? 0 : IConsoleService.META_HISTORY_DONTADD));
 		}
 	}
 	

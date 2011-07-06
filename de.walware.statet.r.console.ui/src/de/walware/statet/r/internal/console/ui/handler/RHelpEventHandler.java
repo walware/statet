@@ -22,8 +22,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.util.UIAccess.CheckedRunnable;
 
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.ui.NicoUITools;
 
@@ -44,7 +44,7 @@ public class RHelpEventHandler implements IToolEventHandler {
 	}
 	
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		if (id.equals(AbstractRController.SHOW_RHELP_HANDLER_ID)) {
 			String url = ToolEventHandlerUtil.getCheckedData(data, "url", String.class, true);
 			if (url.startsWith("html:///")) {
@@ -58,7 +58,7 @@ public class RHelpEventHandler implements IToolEventHandler {
 				}
 			}
 			
-			final RProcess process = (RProcess) tools.getProcess();
+			final RProcess process = (RProcess) tools.getTool();
 			final IREnvConfiguration rEnvConfig = (IREnvConfiguration) process.getAdapter(IREnvConfiguration.class);
 			final IREnv rEnv = (rEnvConfig != null) ? rEnvConfig.getReference() : RCore.getREnvManager().getDefault();
 			url = RCore.getRHelpManager().toHttpUrl(url, rEnv, RHelpUIServlet.BROWSE_TARGET);
@@ -67,7 +67,7 @@ public class RHelpEventHandler implements IToolEventHandler {
 			try {
 				UIAccess.checkedSyncExec(new CheckedRunnable() {
 					public void run() throws CoreException {
-						final RHelpView view = (RHelpView) NicoUITools.getView(RUI.R_HELP_VIEW_ID, tools.getProcess(), true);
+						final RHelpView view = (RHelpView) NicoUITools.getView(RUI.R_HELP_VIEW_ID, tools.getTool(), true);
 						view.openUrl(urlToOpen, null);
 					}
 				});

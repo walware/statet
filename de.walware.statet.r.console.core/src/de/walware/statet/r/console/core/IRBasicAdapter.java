@@ -14,7 +14,7 @@ package de.walware.statet.r.console.core;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 
@@ -22,7 +22,7 @@ import de.walware.statet.nico.core.runtime.ToolProcess;
 /**
  * Interface to access R by a ToolRunnable.
  */
-public interface IRBasicAdapter extends IToolRunnableControllerAdapter {
+public interface IRBasicAdapter extends IConsoleService {
 	
 	
 	/**
@@ -33,7 +33,7 @@ public interface IRBasicAdapter extends IToolRunnableControllerAdapter {
 	int META_PROMPT_INCOMPLETE_INPUT = 1 << 8;
 	
 	
-	ToolProcess<? extends RWorkspace> getProcess();
+	ToolProcess<? extends RWorkspace> getTool();
 	
 	ToolController<? extends RWorkspace> getController();
 	

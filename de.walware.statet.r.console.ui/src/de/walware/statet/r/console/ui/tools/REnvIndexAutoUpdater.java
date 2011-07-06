@@ -38,18 +38,19 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
+import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.util.ToolMessageDialog;
 
+import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RProcess;
+import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.core.rhelp.rj.RJREnvIndexChecker;
 import de.walware.statet.r.core.rhelp.rj.RJREnvIndexUpdater;
@@ -61,39 +62,30 @@ import de.walware.statet.r.nico.impl.RjsController;
 public class REnvIndexAutoUpdater {
 	
 	
-	public static final class UpdateRunnable implements IToolRunnable {
+	public static final class UpdateRunnable extends AbstractRDataRunnable {
 		
 		
 		private final boolean fCompletely;
 		
 		
 		public UpdateRunnable(final boolean completely) {
+			super("r/index/update", RConsoleMessages.REnvIndex_Update_task); //$NON-NLS-1$
 			fCompletely = completely;
 		}
 		
-		public String getTypeId() {
-			return "r/index/update"; //$NON-NLS-1$
-		}
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.TOOLS;
-		}
-		
-		public String getLabel() {
-			return RConsoleMessages.REnvIndex_Update_task;
-		}
-		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_MOVE_DELETE) {
+		@Override
+		public boolean changed(final int event, final ITool tool) {
+			if (event == MOVING_FROM) {
 				return false;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		@Override
+		protected void run(final IRDataAdapter r,
 				final IProgressMonitor monitor) throws CoreException {
-			final IRDataAdapter r = (IRDataAdapter) adapter;
-			IREnvConfiguration rEnvConfig = (IREnvConfiguration) r.getProcess().getAdapter(IREnvConfiguration.class);
+			IREnvConfiguration rEnvConfig = (IREnvConfiguration) r.getTool().getAdapter(IREnvConfiguration.class);
 			if (rEnvConfig != null) {
 				rEnvConfig = rEnvConfig.getReference().getConfig();
 				if (rEnvConfig != null) {
@@ -191,7 +183,7 @@ public class REnvIndexAutoUpdater {
 	}
 	
 	
-	private class CheckRunnable implements IToolRunnable {
+	private class CheckRunnable implements ISystemRunnable {
 		
 		
 		private String fSessionSetting;
@@ -203,24 +195,24 @@ public class REnvIndexAutoUpdater {
 			return "r/index/check"; //$NON-NLS-1$
 		}
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.OTHER;
-		}
-		
 		public String getLabel() {
 			return RConsoleMessages.REnvIndex_Check_task;
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_MOVE_DELETE) {
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool.isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID));
+		}
+		
+		public boolean changed(final int event, final ITool tool) {
+			if (event == MOVING_FROM) {
 				return false;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
-			final RjsController r = (RjsController) adapter;
+			final RjsController r = (RjsController) service; // interface?
 			if (r.isBusy() || !r.isDefaultPrompt() || r.getBriefedChanges() == 0) {
 				return;
 			}
@@ -284,7 +276,7 @@ public class REnvIndexAutoUpdater {
 				}
 				
 				// schedule update
-				adapter.getProcess().getQueue().add(new UpdateRunnable(false));
+				service.getTool().getQueue().add(new UpdateRunnable(false));
 			}
 			catch (final CoreException e) {
 				if (e.getStatus().getSeverity() == IStatus.CANCEL) {

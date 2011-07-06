@@ -11,6 +11,8 @@
 
 package de.walware.statet.nico.core.runtime;
 
+import de.walware.ecommons.ts.IToolRunnable;
+
 
 /**
  * Progress informations about the current task.

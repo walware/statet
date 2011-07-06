@@ -49,9 +49,9 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.part.ViewPart;
 
+import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
 import de.walware.statet.nico.core.runtime.Queue;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.LocalTaskTransfer;
@@ -156,8 +156,8 @@ public class QueueView extends ViewPart {
 						}
 						final Queue.Delta delta = (Queue.Delta) event.getData();
 						switch (delta.type) {
-						case Queue.ENTRIES_ADD:
-						case Queue.ENTRIES_MOVE_ADD:
+						case IToolRunnable.ADDING_TO:
+						case IToolRunnable.MOVING_TO:
 							if (!fExpectInfoEvent) {
 								if (events.length > i+1 && delta.data.length == 1) {
 									// Added and removed in same set
@@ -166,7 +166,7 @@ public class QueueView extends ViewPart {
 											&& next.getKind() == DebugEvent.CHANGE
 											&& next.getDetail() == DebugEvent.CONTENT) {
 										final Queue.Delta nextDelta = (Queue.Delta) next.getData();
-										if (nextDelta.type == Queue.ENTRY_START_PROCESSING
+										if (nextDelta.type == IToolRunnable.STARTING
 												&& delta.data[0] == nextDelta.data[0]) {
 											updateProgress = true;
 											i++;
@@ -192,11 +192,11 @@ public class QueueView extends ViewPart {
 							}
 							continue EVENT;
 						
-						case Queue.ENTRY_START_PROCESSING:
+						case IToolRunnable.STARTING:
 							updateProgress = true;
-							// no break, continue with delete
-						case Queue.ENTRIES_DELETE:
-						case Queue.ENTRIES_MOVE_DELETE:
+							//$FALL-THROUGH$ continue with delete
+						case IToolRunnable.REMOVING_FROM:
+						case IToolRunnable.MOVING_FROM:
 							if (!fExpectInfoEvent) {
 								UIAccess.getDisplay().syncExec(new Runnable() {
 									public void run() {
@@ -428,7 +428,7 @@ public class QueueView extends ViewPart {
 	
 	protected void updateContentDescription(final ToolProcess process) {
 		if (fShowDescription) {
-			setContentDescription(process != null ? process.getToolLabel(false) : " "); //$NON-NLS-1$
+			setContentDescription(process != null ? process.getLabel(0) : " "); //$NON-NLS-1$
 		}
 		else {
 			setContentDescription(""); //$NON-NLS-1$
@@ -502,7 +502,7 @@ public class QueueView extends ViewPart {
 					event.doit = false;
 					return;
 				}
-				data.tasks = toArray((IStructuredSelection) fTableViewer.getSelection());
+				data.runnables = toArray((IStructuredSelection) fTableViewer.getSelection());
 				event.data = data;
 			}
 			@Override

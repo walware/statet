@@ -47,13 +47,11 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.RMIAddress;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.nico.core.runtime.IRemoteEngineController;
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
@@ -131,7 +129,7 @@ public class RjsController extends AbstractRController
 		@Override
 		protected void writeStdOutput(final String text) {
 			try {
-				fDefaultOutputStream.append(text, fCurrentRunnable.getSubmitType(), 0);
+				fDefaultOutputStream.append(text, getCurrentSubmitType(), 0);
 			}
 			catch (final Exception e) {
 			}
@@ -140,7 +138,7 @@ public class RjsController extends AbstractRController
 		@Override
 		protected void writeErrOutput(final String text) {
 			try {
-				fErrorOutputStream.append(text, fCurrentRunnable.getSubmitType(), 0);
+				fErrorOutputStream.append(text, getCurrentSubmitType(), 0);
 			}
 			catch (final Exception e) {
 			}
@@ -149,7 +147,7 @@ public class RjsController extends AbstractRController
 		@Override
 		protected void showMessage(final String text) {
 			try {
-				fInfoStream.append(text, fCurrentRunnable.getSubmitType(), 0);
+				fInfoStream.append(text, getCurrentSubmitType(), 0);
 			}
 			catch (final Exception e) {
 			}
@@ -256,25 +254,14 @@ public class RjsController extends AbstractRController
 		protected void scheduleConnectionCheck() {
 			synchronized (fQueue) {
 				if (getStatusL().isWaiting()) {
-					scheduleControllerRunnable(new IToolRunnable() {
-						public String getTypeId() {
-							return "r/check";
-						}
-						public SubmitType getSubmitType() {
-							return SubmitType.OTHER;
-						}
-						public String getLabel() {
-							return "Connection Check";
-						}
-						public boolean changed(final int event, final ToolProcess process) {
-							if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
-								return false;
-							}
-							return true;
-						}
-						public void run(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+					scheduleControllerRunnable(new ControllerSystemRunnable(
+							"r/check", "Connection Check") { //$NON-NLS-1$
+						
+						public void run(final IToolService s,
+								final IProgressMonitor monitor) throws CoreException {
 							fRjs.runMainLoopPing(monitor);
 						}
+						
 					});
 				}
 			}
@@ -320,6 +307,7 @@ public class RjsController extends AbstractRController
 			throw new IllegalArgumentException();
 		}
 		process.registerFeatureSet(RTool.R_DATA_FEATURESET_ID);
+		process.registerFeatureSet("de.walware.rj.services.RService"); //$NON-NLS-1$
 		if (!embedded) {
 			process.registerFeatureSet(IRemoteEngineController.FEATURE_SET_ID);
 		}
@@ -377,29 +365,17 @@ public class RjsController extends AbstractRController
 			}
 			finally {
 				synchronized (fQueue) {
-					scheduleControllerRunnable(new IToolRunnable() {
-						public SubmitType getSubmitType() {
-							return SubmitType.OTHER;
-						}
-						public String getTypeId() {
-							return "common/disconnect/finish"; //$NON-NLS-1$
-						}
-						public String getLabel() {
-							return "Disconnect";
-						}
-						public boolean changed(final int event, final ToolProcess process) {
-							if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
-								return false;
-							}
-							return true;
-						}
-						public void run(final IToolRunnableControllerAdapter adapter,
+					scheduleControllerRunnable(new ControllerSystemRunnable(
+							"common/disconnect/finish", "Disconnect") { //$NON-NLS-1$
+						
+						public void run(final IToolService s,
 								final IProgressMonitor monitor) throws CoreException {
 							if (!isTerminated()) {
 								fRjs.runMainLoopPing(monitor);
 								fRjs.handleServerStatus(new RjsStatus(RjsStatus.INFO, Server.S_DISCONNECTED), monitor);
 							}
 						}
+						
 					});
 					endInternalTask();
 				}
@@ -458,7 +434,7 @@ public class RjsController extends AbstractRController
 		}
 		
 		fRjsId = RjsComConfig.registerClientComHandler(fRjs);
-		fRjs.initClient(this, fRjsProperties, fRjsId);
+		fRjs.initClient(getTool(), this, fRjsProperties, fRjsId);
 		try {
 			final Map<String, Object> data = new HashMap<String, Object>();
 			final IToolEventHandler loginHandler = getEventHandler(IToolEventHandler.LOGIN_REQUEST_EVENT_ID);
@@ -572,23 +548,10 @@ public class RjsController extends AbstractRController
 			fRjs.runMainLoop(null, null, monitor);
 			fRjs.activateConsole();
 			
-			scheduleControllerRunnable(new IToolRunnable() {
-				public SubmitType getSubmitType() {
-					return SubmitType.OTHER;
-				}
-				public String getTypeId() {
-					return "r/rj/start2"; //$NON-NLS-1$
-				}
-				public String getLabel() {
-					return "Finish Initialization / Read Output";
-				}
-				public boolean changed(final int event, final ToolProcess process) {
-					if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
-						return false;
-					}
-					return true;
-				}
-				public void run(final IToolRunnableControllerAdapter adapter,
+			scheduleControllerRunnable(new ControllerSystemRunnable(
+					"r/rj/start2", "Finish Initialization / Read Output") { //$NON-NLS-1$
+				
+				public void run(final IToolService s,
 						final IProgressMonitor monitor) throws CoreException {
 					if (!fRjs.isConsoleReady()) { // R is still working
 						fRjs.runMainLoop(null, null, monitor);
@@ -597,6 +560,7 @@ public class RjsController extends AbstractRController
 						handleStatus(status, monitor);
 					}
 				}
+				
 			});
 		}
 		catch (final RemoteException e) {
@@ -699,7 +663,7 @@ public class RjsController extends AbstractRController
 		}
 		
 		fRjs.setClosed(true);
-		final ToolProcess consoleProcess = getProcess();
+		final ToolProcess consoleProcess = getTool();
 		// TODO: kill remote command?
 		final IProcess[] processes = consoleProcess.getLaunch().getProcesses();
 		for (int i = 0; i < processes.length; i++) {
@@ -830,6 +794,7 @@ public class RjsController extends AbstractRController
 	
 	public RGraphicCreator createRGraphicCreator(final int options) {
 		throw new UnsupportedOperationException();
+	}
 	
 	
 	public void addCancelHandler(final Callable<Boolean> handler) {

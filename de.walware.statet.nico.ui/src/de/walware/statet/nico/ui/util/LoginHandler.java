@@ -53,7 +53,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.IToolEventHandler;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.ToolEventHandlerUtil;
 import de.walware.statet.nico.internal.ui.Messages;
@@ -243,7 +243,7 @@ public class LoginHandler implements IToolEventHandler {
 	}
 	
 	
-	public IStatus handle(final String id, final IToolRunnableControllerAdapter tools, final Map<String, Object> data, final IProgressMonitor monitor) {
+	public IStatus handle(final String id, final IConsoleService tools, final Map<String, Object> data, final IProgressMonitor monitor) {
 		final boolean saveAllowed = ToolEventHandlerUtil.getCheckedData(data, "save.allowed", Boolean.TRUE); //$NON-NLS-1$
 		final boolean saveActivated = ToolEventHandlerUtil.getCheckedData(data, "save.activated", Boolean.FALSE); //$NON-NLS-1$
 		final Callback[] callbacks = ToolEventHandlerUtil.getCheckedData(data, LOGIN_CALLBACKS_DATA_KEY, Callback[].class, true); 
@@ -267,7 +267,7 @@ public class LoginHandler implements IToolEventHandler {
 			final int attempt = ToolEventHandlerUtil.getCheckedData(data, "attempt", Integer.valueOf(1)); //$NON-NLS-1$
 			data.put("attempt", attempt+1); //$NON-NLS-1$
 			if (saveAllowed && attempt == 1) {
-				if (readData(callbacks, getDataNode(tools.getProcess(), data, false), data)) {
+				if (readData(callbacks, getDataNode(tools.getTool(), data, false), data)) {
 					return Status.OK_STATUS;
 				}
 			}
@@ -276,7 +276,7 @@ public class LoginHandler implements IToolEventHandler {
 				return Status.OK_STATUS;
 			}
 			final AtomicReference<IStatus> result = new AtomicReference<IStatus>(Status.CANCEL_STATUS);
-			final ToolProcess process = tools.getProcess();
+			final ToolProcess process = tools.getTool();
 			UIAccess.getDisplay().syncExec(new Runnable() {
 				public void run() {
 					final IWorkbenchWindow window = UIAccess.getActiveWorkbenchWindow(true);
@@ -300,7 +300,7 @@ public class LoginHandler implements IToolEventHandler {
 		}
 		if (id.equals(IToolEventHandler.LOGIN_OK_EVENT_ID)) {
 			if (saveAllowed && saveActivated) {
-				if (saveData(callbacks, getDataNode(tools.getProcess(), data, true))) {
+				if (saveData(callbacks, getDataNode(tools.getTool(), data, true))) {
 					return Status.OK_STATUS;
 				}
 			}

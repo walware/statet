@@ -61,7 +61,7 @@ class SubmitPasteAction extends Action {
 		}
 		
 		NicoUITools.runSubmitInBackground(
-				controller.getProcess(),
+				controller.getTool(),
 				createRunnable(controller, text),
 				fView.getSite().getShell());
 	}
@@ -71,7 +71,7 @@ class SubmitPasteAction extends Action {
 		return new IRunnableWithProgress () {
 			public void run(final IProgressMonitor monitor) throws InterruptedException, InvocationTargetException {
 				try {
-					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getProcess()), 1000);
+					monitor.beginTask(NicoUITools.createSubmitMessage(controller.getTool()), 1000);
 					
 					final String[] lines = splitString(text);
 					monitor.worked(200);

@@ -35,6 +35,10 @@ import org.eclipse.osgi.util.NLS;
 import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+import de.walware.ecommons.ts.IToolService;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.core.NicoCoreMessages;
@@ -56,7 +60,7 @@ import de.walware.statet.nico.internal.core.RunnableProgressMonitor;
  * within the lifecycle thread.
  */
 public abstract class ToolController<WorkspaceType extends ToolWorkspace>
-		implements IToolRunnableControllerAdapter {
+		implements IConsoleService {
 	
 	
 	/**
@@ -91,13 +95,47 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	private static NullProgressMonitor fgProgressMonitorDummy = new NullProgressMonitor();
 	
 	
+	protected abstract class ControllerSystemRunnable implements ISystemRunnable {
+		
+		
+		private final String fTypeId;
+		private final String fLabel;
+		
+		
+		public ControllerSystemRunnable(final String typeId, final String label) {
+			fTypeId = typeId;
+			fLabel = label;
+		}
+		
+		
+		public String getTypeId() {
+			return fTypeId;
+		}
+		
+		public String getLabel() {
+			return fLabel;
+		}
+		
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool == getTool());
+		}
+		
+		public boolean changed(final int event, final ITool tool) {
+			if ((event & MASK_EVENT_GROUP) == REMOVING_EVENT_GROUP) {
+				return false;
+			}
+			return true;
+		}
+		
+	}
+	
 	/**
 	 * Default implementation of a runnable which can be used for
 	 * {@link ToolController#createCommandRunnable(String, SubmitType)}.
 	 * 
 	 * Usage: This class is intend to be subclassed.
 	 */
-	public static class ConsoleCommandRunnable implements IToolRunnable {
+	public abstract static class ConsoleCommandRunnable implements IConsoleRunnable {
 		
 		public static final String TYPE_ID = "common/console/input"; //$NON-NLS-1$
 		
@@ -117,17 +155,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return TYPE_ID;
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			return true;
-		}
-		
 		public SubmitType getSubmitType() {
 			return fType;
-		}
-		
-		public void run(final IToolRunnableControllerAdapter adapter,
-				final IProgressMonitor monitor) throws CoreException {
-			adapter.submitToConsole(fText, monitor);
 		}
 		
 		public String getCommand() {
@@ -141,15 +170,28 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return fLabel;
 		}
 		
+		public boolean changed(final int event, final ITool process) {
+			return true;
+		}
+		
+		public void run(final IToolService service,
+				final IProgressMonitor monitor) throws CoreException {
+			((IConsoleService) service).submitToConsole(fText, monitor);
+		}
+		
 	}
 	
-	protected class StartRunnable implements IToolRunnable {
+	protected class StartRunnable implements IConsoleRunnable {
 		
 		public StartRunnable() {
 		}
 		
 		public String getTypeId() {
 			return START_TYPE_ID;
+		}
+		
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool == getTool());
 		}
 		
 		public SubmitType getSubmitType() {
@@ -160,14 +202,14 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			return Messages.ToolController_CommonStartTask_label;
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+		public boolean changed(final int event, final ITool process) {
+			if ((event & MASK_EVENT_GROUP) == REMOVING_EVENT_GROUP) {
 				return false;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter tools,
+		public void run(final IToolService s,
 				final IProgressMonitor monitor) throws CoreException {
 		}
 		
@@ -190,7 +232,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	protected final ToolProcess fProcess;
 	protected final Queue fQueue;
 	
-	protected IToolRunnable fCurrentRunnable;
+	private IToolRunnable fCurrentRunnable;
+	private SubmitType fCurrentSubmitType;
 	private IToolRunnable fControllerRunnable;
 	private RunnableProgressMonitor fRunnableProgressMonitor;
 	
@@ -305,7 +348,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return fStreams;
 	}
 	
-	public ToolProcess<WorkspaceType> getProcess() {
+	public ToolProcess<WorkspaceType> getTool() {
 		return fProcess;
 	}
 	
@@ -325,9 +368,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		assert (fStatus == ToolStatus.STARTING);
 		try {
 			fControllerThread = Thread.currentThread();
-			fCurrentRunnable = createStartRunnable();
+			setCurrentRunnable(createStartRunnable());
 			startToolL(fRunnableProgressMonitor);
-			fCurrentRunnable = null;
+			setCurrentRunnable(null);
 			synchronized (fQueue) {
 				loopChangeStatus((fControllerRunnable != null) ? ToolStatus.STARTED_PROCESSING : ToolStatus.STARTED_IDLING, null);
 			}
@@ -753,9 +796,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * @param type type of this submission
 	 * @return runnable for this command
 	 */
-	public IToolRunnable createCommandRunnable(final String command, final SubmitType type) {
-		return new ConsoleCommandRunnable(command, type);
-	}
+	public abstract IToolRunnable createCommandRunnable(final String command, final SubmitType type);
 	
 	
 	private final void loop() {
@@ -812,7 +853,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			synchronized (fQueue) {
 				if (fControllerRunnable != null) {
 					type = Queue.RUN_RESERVED;
-					fCurrentRunnable = fControllerRunnable;
+					setCurrentRunnable(fControllerRunnable);
 					fControllerRunnable = null;
 				}
 				else if (fIsTerminated || fInternalTask > 0 || fPauseRequested) {
@@ -825,7 +866,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 						break;
 					case Queue.RUN_OTHER:
 					case Queue.RUN_DEFAULT:
-						fCurrentRunnable = fQueue.internalPoll();
+						setCurrentRunnable(fQueue.internalPoll());
 						break;
 					default:
 						return;
@@ -840,20 +881,20 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			case Queue.RUN_RESERVED:
 				try {
 					fCurrentRunnable.run(this, fRunnableProgressMonitor);
-					safeRunnableChanged(fCurrentRunnable, Queue.ENTRY_FINISH_PROCESSING_OK);
+					safeRunnableChanged(fCurrentRunnable, IToolRunnable.FINISHING_OK);
 					continue;
 				}
 				catch (final Throwable e) {
 					final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
 					if (status != null && (status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
-						safeRunnableChanged(fCurrentRunnable, Queue.ENTRY_FINISH_PROCESSING_CANCEL);
+						safeRunnableChanged(fCurrentRunnable, IToolRunnable.FINISHING_CANCEL);
 						// ignore
 					}
 					else {
 						NicoPlugin.logError(-1, NLS.bind(
 								"An Error occurred when running internal controller task ''{0}''.", //$NON-NLS-1$
 								fCurrentRunnable.getLabel() ), e);
-						safeRunnableChanged(fCurrentRunnable, Queue.ENTRY_FINISH_PROCESSING_ERROR);
+						safeRunnableChanged(fCurrentRunnable, IToolRunnable.FINISHING_ERROR);
 					}
 					
 					if (!isToolAlive()) {
@@ -862,7 +903,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					return;
 				}
 				finally {
-					fCurrentRunnable = savedCurrentRunnable;
+					setCurrentRunnable(savedCurrentRunnable);
+					fCurrentSubmitType = null;
 					fRunnableProgressMonitor.done();
 				}
 			case Queue.RUN_HOT:
@@ -882,23 +924,23 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			case Queue.RUN_DEFAULT:
 				try {
 					fCurrentRunnable.run(this, fRunnableProgressMonitor);
-					fQueue.internalFinished(fCurrentRunnable, Queue.OK);
-					safeRunnableChanged(fCurrentRunnable, Queue.ENTRY_FINISH_PROCESSING_OK);
+					fQueue.internalFinished(fCurrentRunnable, IToolRunnable.FINISHING_OK);
+					safeRunnableChanged(fCurrentRunnable, IToolRunnable.FINISHING_OK);
 					continue;
 				}
 				catch (final Throwable e) {
 					IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
 					if (status != null && (
 							status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
-						fQueue.internalFinished(fCurrentRunnable, Queue.CANCEL);
-						safeRunnableChanged(fCurrentRunnable, Queue.ENTRY_FINISH_PROCESSING_CANCEL);
+						fQueue.internalFinished(fCurrentRunnable, IToolRunnable.FINISHING_CANCEL);
+						safeRunnableChanged(fCurrentRunnable, IToolRunnable.FINISHING_CANCEL);
 					}
 					else {
-						fQueue.internalFinished(fCurrentRunnable, Queue.ERROR);
-						safeRunnableChanged(fCurrentRunnable, Queue.ENTRY_FINISH_PROCESSING_ERROR);
+						fQueue.internalFinished(fCurrentRunnable, IToolRunnable.FINISHING_ERROR);
+						safeRunnableChanged(fCurrentRunnable, IToolRunnable.FINISHING_ERROR);
 						status = new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoPlugin.EXTERNAL_ERROR,
 								NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
-										new Object[] { fProcess.getToolLabel(true), fCurrentRunnable.getLabel() }),
+										new Object[] { fProcess.getLabel(ITool.LONG_LABEL), fCurrentRunnable.getLabel() }),
 								e);
 						if (type == Queue.RUN_DEFAULT) {
 							handleStatus(status, fRunnableProgressMonitor);
@@ -914,7 +956,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					return;
 				}
 				finally {
-					fCurrentRunnable = savedCurrentRunnable;
+					setCurrentRunnable(savedCurrentRunnable);
 					fRunnableProgressMonitor.done();
 				}
 			}
@@ -928,7 +970,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		catch (final Throwable e) {
 			NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, NicoPlugin.EXTERNAL_ERROR,
 					NLS.bind(Messages.ToolRunnable_error_RuntimeError_message,
-							new Object[] { fProcess.getToolLabel(true), runnable.getLabel() }),
+							new Object[] { fProcess.getLabel(ITool.LONG_LABEL), runnable.getLabel() }),
 					e ));
 		}
 	}
@@ -983,17 +1025,17 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			}
 			try {
 				runnable.run(this, fHotModeMonitor);
-				safeRunnableChanged(runnable, Queue.ENTRY_FINISH_PROCESSING_OK);
+				safeRunnableChanged(runnable, IToolRunnable.FINISHING_OK);
 				continue;
 			}
 			catch (final Throwable e) {
 				final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
 				if (status != null && (status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
-					safeRunnableChanged(runnable, Queue.ENTRY_FINISH_PROCESSING_CANCEL);
+					safeRunnableChanged(runnable, IToolRunnable.FINISHING_CANCEL);
 					// ignore
 				}
 				else {
-					safeRunnableChanged(runnable, Queue.ENTRY_FINISH_PROCESSING_ERROR);
+					safeRunnableChanged(runnable, IToolRunnable.FINISHING_ERROR);
 					NicoPlugin.logError(-1, "An Error occurred when running hot task.", e); // //$NON-NLS-1$
 				}
 				
@@ -1121,6 +1163,33 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return this;
 	}
 	
+	
+	private void setCurrentRunnable(final IToolRunnable runnable) {
+		fCurrentRunnable = runnable;
+		fCurrentSubmitType = getSubmitTypeL(runnable);
+	}
+	
+	protected SubmitType getSubmitTypeL(final IToolRunnable runnable) {
+		if (runnable instanceof IConsoleRunnable) {
+			return ((IConsoleRunnable) runnable).getSubmitType();
+		}
+		else if (runnable instanceof ISystemRunnable) {
+			return SubmitType.OTHER;
+		}
+		else {
+			return SubmitType.TOOLS;
+		}
+	}
+	
+	public IToolRunnable getCurrentRunnable() {
+		return fCurrentRunnable;
+	}
+	
+	public SubmitType getCurrentSubmitType() {
+		return fCurrentSubmitType;
+	}
+	
+	
 	public final void refreshWorkspaceData(final int options, final IProgressMonitor monitor) throws CoreException {
 		fWorkspaceData.controlRefresh(options, this, monitor);
 	}
@@ -1137,17 +1206,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		return fCurrentPrompt;
 	}
 	
-	public IToolRunnable getCurrentRunnable() {
-		return fCurrentRunnable;
-	}
-	
 	protected void setCurrentPromptL(final Prompt prompt) {
 		fCurrentPrompt = prompt;
 		fWorkspaceData.controlSetCurrentPrompt(prompt, fStatus);
 	}
 	
 	protected void setDefaultPromptTextL(final String text) {
-		fDefaultPrompt = new Prompt(text, IToolRunnableControllerAdapter.META_PROMPT_DEFAULT);
+		fDefaultPrompt = new Prompt(text, IConsoleService.META_PROMPT_DEFAULT);
 		fWorkspaceData.controlSetDefaultPrompt(fDefaultPrompt);
 	}
 	
@@ -1172,13 +1237,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	}
 	
 	protected void doBeforeSubmitL() {
-		final SubmitType type = fCurrentRunnable.getSubmitType();
+		final SubmitType type = getCurrentSubmitType();
 		fInfoStream.append(fCurrentPrompt.text, type,
 				fCurrentPrompt.meta);
 		fInputStream.append(fCurrentInput, type,
-				(fCurrentPrompt.meta & IToolRunnableControllerAdapter.META_HISTORY_DONTADD) );
+				(fCurrentPrompt.meta & IConsoleService.META_HISTORY_DONTADD) );
 		fInputStream.append(fWorkspaceData.getLineSeparator(), type,
-				IToolRunnableControllerAdapter.META_HISTORY_DONTADD);
+				IConsoleService.META_HISTORY_DONTADD);
 	}
 	
 	protected CoreException cancelTask() {

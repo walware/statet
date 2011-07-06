@@ -33,7 +33,7 @@ import org.eclipse.core.variables.IStringVariable;
 import de.walware.ecommons.ConstList;
 
 import de.walware.statet.nico.core.NicoVariables;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
+import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.ToolWorkspace;
 
@@ -203,7 +203,7 @@ public class RWorkspace extends ToolWorkspace {
 					catch (final CoreException e) {
 						RConsoleCorePlugin.log(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID,
 								-1, "Error update environment "+elementName, e ));
-						if (r.getProcess().isTerminated() || monitor.isCanceled()) {
+						if (r.getTool().isTerminated() || monitor.isCanceled()) {
 							throw e;
 						}
 					}
@@ -296,7 +296,7 @@ public class RWorkspace extends ToolWorkspace {
 			catch (final CoreException e) {
 				RConsoleCorePlugin.log(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, -1,
 						"Error update environment ref "+ref.getElementName(), e ));
-				if (r.getProcess().isTerminated() || monitor.isCanceled()) {
+				if (r.getTool().isTerminated() || monitor.isCanceled()) {
 					throw e;
 				}
 			}
@@ -315,7 +315,7 @@ public class RWorkspace extends ToolWorkspace {
 	public RWorkspace(final AbstractRController controller, final String remoteHost,
 			final RWorkspaceConfig config) {
 		super(  controller,
-				new Prompt("> ", IRBasicAdapter.META_PROMPT_DEFAULT),  //$NON-NLS-1$
+				new Prompt("> ", IConsoleService.META_PROMPT_DEFAULT),  //$NON-NLS-1$
 				"\n", 
 				remoteHost);
 		if (config != null) {
@@ -356,7 +356,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	@Override
-	protected final void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	protected final void autoRefreshFromTool(final IConsoleService adapter, final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController controller = (AbstractRController) adapter.getController();
 		if (controller.hasBriefedChanges()) {
 			refreshFromTool(controller, controller.getBriefedChanges(), monitor);
@@ -364,7 +364,7 @@ public class RWorkspace extends ToolWorkspace {
 	}
 	
 	@Override
-	protected final void refreshFromTool(int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	protected final void refreshFromTool(int options, final IConsoleService adapter, final IProgressMonitor monitor) throws CoreException {
 		final AbstractRController controller = (AbstractRController) adapter.getController();
 		if ((options & (REFRESH_AUTO | REFRESH_COMPLETE)) != 0) {
 			options |= controller.getBriefedChanges();
@@ -377,7 +377,7 @@ public class RWorkspace extends ToolWorkspace {
 			return;
 		}
 		monitor.subTask("Update Workspace Data");
-		if (controller.getProcess().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
+		if (controller.getTool().isProvidingFeatureSet(RTool.R_DATA_FEATURESET_ID)) {
 			final IRDataAdapter r = (IRDataAdapter) controller;
 			updateWorkspaceDir(r, monitor);
 			updateOptions(r, monitor);

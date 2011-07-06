@@ -23,6 +23,9 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ConstList;
+import de.walware.ecommons.ts.IQueue;
+import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.IToolRunnable;
 
 import de.walware.statet.nico.core.NicoCore;
 import de.walware.statet.nico.internal.core.Messages;
@@ -50,12 +53,21 @@ import de.walware.statet.nico.internal.core.Messages;
  * The events of this type are sended by the queue (source element).
  * 
  */
-public final class Queue {
+public final class Queue implements IQueue {
 	
+	/**
+	 * Delta for events of the queue.
+	 * 
+	 * Type is a event type of {@link IToolRunnable} events
+	 */
 	public static class Delta {
 		
 		public final int type;
 		public final int position;
+		/**
+		 * One or multiple runnable effected by this event.
+		 * STARTING and FINISHING events have always only a single item.
+		 */
 		public final IToolRunnable[] data;
 		
 		private Delta(final int type, final int position, final IToolRunnable[] data) {
@@ -64,10 +76,6 @@ public final class Queue {
 			this.data = data;
 		}
 	}
-	
-	public static final int OK = 1;
-	public static final int CANCEL = 2;
-	public static final int ERROR = 3;
 	
 	/**
 	 * Constant for detail of a DebugEvent, sending the complete queue.
@@ -94,68 +102,6 @@ public final class Queue {
 //	 * <code>MODEL_SPECIFIC</code>.</p>
 //	 */
 //	public static final int QUEUE_MAJOR_CHANGE = 2;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * one or multiple entries (IToolRunnable) was added to the queue.
-	 */
-	public static final int ENTRIES_ADD = 0x0110;
-	
-	public static final int ENTRIES_MOVE_ADD = 0x0111;
-	
-	
-	public static final int MASK_UNFINISHED = 0x0120;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * one or multiple entries (IToolRunnable) was moved
-	 * (normally by a user request) to another queue.
-	 */
-	public static final int ENTRIES_MOVE_DELETE = 0x0121;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * one or multiple entries (IToolRunnable) was deleted
-	 * (normally by a user request) from the queue.
-	 */
-	public static final int ENTRIES_DELETE = 0x0122;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * entries (IToolRunnable) are now abandoned, because the
-	 * queue is terminated.
-	 * In IDE: When launch/process removed (not when terminated).
-	 */
-	public static final int ENTRIES_ABANDONED = 0x0123;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * a entry (IToolRunnable) was removed from the queue and that
-	 * the process/controller started processing the entry.
-	 * <p>
-	 * The entry is not longer listed in queue.
-	 */
-	public static final int ENTRY_START_PROCESSING = 0x0210;
-	
-	public static final int MASK_FINISHED = 0x0220;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * a entry (IToolRunnable) has finished normally.
-	 */
-	public static final int ENTRY_FINISH_PROCESSING_OK = MASK_FINISHED | OK;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * a entry (IToolRunnable) has finished with handeled cancelation.
-	 */
-	public static final int ENTRY_FINISH_PROCESSING_CANCEL = MASK_FINISHED | CANCEL;
-	
-	/**
-	 * Constant for type of a Delta, signalising that
-	 * a entry (IToolRunnable) has finished with an error (exception).
-	 */
-	public static final int ENTRY_FINISH_PROCESSING_ERROR = MASK_FINISHED | ERROR;
 	
 	
 	static final int RUN_NONE = -2;
@@ -222,7 +168,7 @@ public final class Queue {
 	private final IStatus acceptSubmit(final ToolStatus toolStatus) {
 		if (toolStatus == ToolStatus.TERMINATED) {
 			return new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, -1,
-					NLS.bind(Messages.ToolController_ToolTerminated_message, fProcess.getToolLabel(false)), null);
+					NLS.bind(Messages.ToolController_ToolTerminated_message, fProcess.getLabel(0)), null);
 		}
 		return Status.OK_STATUS;
 	}
@@ -245,12 +191,12 @@ public final class Queue {
 	}
 	
 	/**
-	 * Submits the runnable ("task") for the tool.
+	 * Submits the runnable for the tool.
 	 * <p>
 	 * The runnable will be added to the queue and will be run, if it's its turn.
 	 * 
-	 * @param runnable the task
-	 * @return status indicating if it was accepted
+	 * @param runnable the runnable to add
+	 * @return the status of the queue operation.
 	 */
 	public IStatus add(final IToolRunnable runnable) {
 		if (runnable == null) {
@@ -260,13 +206,12 @@ public final class Queue {
 	}
 	
 	/**
-	 * Submits the runnables ("task") for the tool.
+	 * Submits the runnables for the tool.
 	 * <p>
 	 * The runnables will be added en block to the queue and will be runned, if it's its turn.
 	 * 
-	 * @param tasks runnables.
-	 * @return <code>true</code>, if adding task to queue was successful,
-	 *     otherwise <code>false</code>.
+	 * @param runnables the runnables to add.
+	 * @return the status of the queue operation.
 	 */
 	public IStatus add(final IToolRunnable[] runnables) {
 		if (runnables == null) {
@@ -322,7 +267,7 @@ public final class Queue {
 			boolean checkInsert = false;
 			for (final IToolRunnable runnable : runnables) {
 				final int index = fList.indexOf(runnable);
-				if (index >= 0 && runnable.changed(ENTRIES_DELETE, fProcess)) {
+				if (index >= 0 && runnable.changed(IToolRunnable.REMOVING_FROM, fProcess)) {
 					fList.remove(index);
 					removed.add(runnable);
 					if (!checkInsert && index < fInsertIndex) {
@@ -336,10 +281,7 @@ public final class Queue {
 	//		IToolRunnable[] queueElements = fList.toArray(new IToolRunnable[fList.size()]);
 	//		addDebugEvent(COMPLETE_CHANGE, queueElements);
 			final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
-			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_DELETE, fProcess);
-			}
-			addChangeEvent(ENTRIES_DELETE, array);
+			addChangeEvent(IToolRunnable.REMOVING_FROM, array);
 			fireEvents();
 		}
 	}
@@ -359,7 +301,7 @@ public final class Queue {
 			boolean checkInsert = false;
 			for (final IToolRunnable runnable : runnables) {
 				final int index = fList.indexOf(runnable);
-				if (index >= 0 && runnable.changed(ENTRIES_MOVE_DELETE, fProcess)) {
+				if (index >= 0 && runnable.changed(IToolRunnable.MOVING_FROM, fProcess)) {
 					fList.remove(index);
 					removed.add(runnable);
 					if (!checkInsert && index < fInsertIndex) {
@@ -371,7 +313,7 @@ public final class Queue {
 				fInsertIndex = fList.indexOf(fInsertRunnable);
 			}
 			array = removed.toArray(new IToolRunnable[removed.size()]);
-			addChangeEvent(ENTRIES_MOVE_DELETE, array);
+			addChangeEvent(IToolRunnable.MOVING_FROM, array);
 			fireEvents();
 		}
 		
@@ -381,18 +323,18 @@ public final class Queue {
 			if (to == this && fInsertIndex >= 0) {
 				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(array));
 				for (int i = 0; i < array.length; i++) {
-					array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+					array[i].changed(IToolRunnable.MOVING_TO, to.fProcess);
 				}
 				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(ENTRIES_MOVE_ADD, fInsertIndex, array));
+						new Delta(IToolRunnable.MOVING_TO, fInsertIndex, array));
 				fInsertIndex += array.length;
 			}
 			else {
 				to.fList.addAll(new ConstList<IToolRunnable>(array));
 				for (int i = 0; i < array.length; i++) {
-					array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+					array[i].changed(IToolRunnable.MOVING_TO, to.fProcess);
 				}
-				to.addChangeEvent(ENTRIES_MOVE_ADD, array);
+				to.addChangeEvent(IToolRunnable.MOVING_TO, array);
 			}
 			to.fireEvents();
 			to.notifyAll();
@@ -410,7 +352,7 @@ public final class Queue {
 			final List<IToolRunnable> removed = new ArrayList<IToolRunnable>(fList.size());
 			for (final Iterator<IToolRunnable> iter = fList.iterator(); iter.hasNext();) {
 				final IToolRunnable runnable = iter.next();
-				if (runnable.changed(ENTRIES_MOVE_DELETE, fProcess)) {
+				if (runnable.changed(IToolRunnable.MOVING_FROM, fProcess)) {
 					iter.remove();
 					removed.add(runnable);
 				}
@@ -419,7 +361,7 @@ public final class Queue {
 				fInsertIndex = fList.indexOf(fInsertRunnable);
 			}
 			array = removed.toArray(new IToolRunnable[removed.size()]);
-			addChangeEvent(ENTRIES_MOVE_DELETE, array);
+			addChangeEvent(IToolRunnable.MOVING_FROM, array);
 			fireEvents();
 		}
 		
@@ -428,9 +370,9 @@ public final class Queue {
 			to.checkIOCache();
 			to.fList.addAll(new ConstList<IToolRunnable>(array));
 			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_MOVE_ADD, to.fProcess);
+				array[i].changed(IToolRunnable.MOVING_TO, to.fProcess);
 			}
-			to.addChangeEvent(ENTRIES_MOVE_ADD, array);
+			to.addChangeEvent(IToolRunnable.MOVING_TO, array);
 			to.fireEvents();
 			to.notifyAll();
 		}
@@ -492,6 +434,10 @@ public final class Queue {
 		}
 	}
 	
+	public boolean isHotSupported() {
+		return true;
+	}
+	
 	public IStatus addHot(final IToolRunnable runnable) {
 		return addHot(runnable, 0);
 	}
@@ -528,7 +474,7 @@ public final class Queue {
 		}
 		synchronized (this) {
 			if (fHotList.remove(runnable)) {
-				runnable.changed(ENTRIES_DELETE, fProcess);
+				runnable.changed(IToolRunnable.REMOVING_FROM, fProcess);
 			}
 		}
 	}
@@ -551,7 +497,7 @@ public final class Queue {
 				fList.addAll(fInsertIndex, new ConstList<IToolRunnable>(runnables));
 			}
 			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-					new Delta(ENTRIES_ADD, fInsertIndex, runnables));
+					new Delta(IToolRunnable.ADDING_TO, fInsertIndex, runnables));
 			fInsertIndex += runnables.length;
 		}
 		else {
@@ -562,7 +508,7 @@ public final class Queue {
 				fList.addAll(new ConstList<IToolRunnable>(runnables));
 			}
 			addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-					new Delta(ENTRIES_ADD, -1, runnables));
+					new Delta(IToolRunnable.ADDING_TO, -1, runnables));
 		}
 		fireEvents();
 	}
@@ -576,7 +522,7 @@ public final class Queue {
 		fInsertIndex = 0;
 		fList.add(0, runnable);
 		addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-				new Delta(ENTRIES_ADD, 0, new IToolRunnable[] { runnable }));
+				new Delta(IToolRunnable.ADDING_TO, 0, new IToolRunnable[] { runnable }));
 		fireEvents();
 	}
 	
@@ -605,13 +551,13 @@ public final class Queue {
 				removed.add(toRemove);
 				break;
 			}
-			if (toRemove.changed(ENTRIES_DELETE, fProcess)) {
+			if (toRemove.changed(IToolRunnable.REMOVING_FROM, fProcess)) {
 				iter.remove();
 				removed.add(toRemove);
 			}
 		}
 		final IToolRunnable[] array = removed.toArray(new IToolRunnable[removed.size()]);
-		addChangeEvent(ENTRIES_DELETE, array);
+		addChangeEvent(IToolRunnable.REMOVING_FROM, array);
 		fInsertRunnableStack.remove(runnable);
 		if (fInsertRunnableStack.isEmpty()) {
 			fInsertRunnable = null;
@@ -655,7 +601,7 @@ public final class Queue {
 		else {
 			return RUN_NONE;
 		}
-		return (runnable.getSubmitType() == SubmitType.OTHER) ?
+		return (runnable instanceof ISystemRunnable) ?
 				RUN_OTHER : RUN_DEFAULT;
 	}
 	
@@ -693,11 +639,11 @@ public final class Queue {
 			runnable = fSingleIOCache;
 			if (fInsertIndex >= 0) {
 				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(ENTRIES_ADD, fInsertIndex, fSingleIOCache));
+						new Delta(IToolRunnable.ADDING_TO, fInsertIndex, fSingleIOCache));
 			}
 			else {
 				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(ENTRIES_ADD, -1, fSingleIOCache));
+						new Delta(IToolRunnable.ADDING_TO, -1, fSingleIOCache));
 			}
 			fSingleIOCache = null;
 			if (fResetOnIdle) {
@@ -719,7 +665,7 @@ public final class Queue {
 			runnable = new IToolRunnable[] { fNextIdleList.poll() };
 			fResetOnIdle = true;
 		}
-		addChangeEvent(ENTRY_START_PROCESSING, runnable);
+		addChangeEvent(IToolRunnable.STARTING, runnable);
 		
 		fireEvents();
 		fFinishedExpected = runnable;
@@ -734,7 +680,7 @@ public final class Queue {
 		assert (fFinishedCache == null);
 		
 		// this order is important
-		fFinishedCacheDetail = MASK_FINISHED | detail;
+		fFinishedCacheDetail = detail;
 		fFinishedCache = fFinishedExpected;
 	}
 	
@@ -749,16 +695,16 @@ public final class Queue {
 		if (!fList.isEmpty()) {
 			final IToolRunnable[] array = fList.toArray(new IToolRunnable[fList.size()]);
 			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_ABANDONED, fProcess);
+				array[i].changed(IToolRunnable.BEING_ABANDONED, fProcess);
 			}
 			addDebugEvent(DebugEvent.TERMINATE, DebugEvent.UNSPECIFIED,
-					new Delta(ENTRIES_ABANDONED, -1, array) );
+					new Delta(IToolRunnable.BEING_ABANDONED, -1, array) );
 			fList.clear();
 		}
 		if (!fHotList.isEmpty()){
 			final IToolRunnable[] array = fHotList.toArray(new IToolRunnable[fHotList.size()]);
 			for (int i = 0; i < array.length; i++) {
-				array[i].changed(ENTRIES_ABANDONED, fProcess);
+				array[i].changed(IToolRunnable.BEING_ABANDONED, fProcess);
 			}
 		}
 		fireEvents();
@@ -776,13 +722,13 @@ public final class Queue {
 		if (fSingleIOCache != null) {
 			if (fInsertIndex >= 0) {
 				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(ENTRIES_ADD, fInsertIndex, fSingleIOCache));
+						new Delta(IToolRunnable.ADDING_TO, fInsertIndex, fSingleIOCache));
 				fList.add(fInsertIndex, fSingleIOCache[0]);
 				fInsertIndex++;
 			}
 			else {
 				addDebugEvent(DebugEvent.CHANGE, DebugEvent.CONTENT,
-						new Delta(ENTRIES_ADD, -1, fSingleIOCache));
+						new Delta(IToolRunnable.ADDING_TO, -1, fSingleIOCache));
 				fList.add(fSingleIOCache[0]);
 			}
 			fSingleIOCache = null;

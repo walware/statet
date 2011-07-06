@@ -14,6 +14,8 @@ package de.walware.statet.nico.ui;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 
+import de.walware.ecommons.ts.ITool;
+
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.console.NIConsole;
 
@@ -55,7 +57,7 @@ public class ToolSessionUIData {
 	@Override
 	public String toString() {
 		final StringBuilder s = new StringBuilder("["); //$NON-NLS-1$
-		s.append("Process: ").append(fProcess != null ? fProcess.getToolLabel(true) : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		s.append("Process: ").append(fProcess != null ? fProcess.getLabel(ITool.LONG_LABEL) : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		s.append("Source: ").append(fSource != null ? fSource.getTitle() : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		s.append("Console: ").append(fConsole != null ? fConsole.getName() : "<null>").append("]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return s.toString();

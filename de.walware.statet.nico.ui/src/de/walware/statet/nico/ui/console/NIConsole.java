@@ -38,9 +38,9 @@ import org.eclipse.ui.part.IPageBookViewPage;
 
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.preferences.SettingsChangeNotifier;
+import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.UIAccess;
 
-import de.walware.statet.nico.core.ITool;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.runtime.ToolStreamMonitor;

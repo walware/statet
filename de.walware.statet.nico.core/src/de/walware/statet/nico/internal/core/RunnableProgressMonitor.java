@@ -11,14 +11,15 @@
 
 package de.walware.statet.nico.internal.core;
 
-import static de.walware.statet.nico.core.runtime.IToolRunnable.TOTAL_WORK;
+import static de.walware.ecommons.ts.IToolRunnable.TOTAL_WORK;
 
 import org.eclipse.core.runtime.IProgressMonitorWithBlocking;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.osgi.util.NLS;
 
+import de.walware.ecommons.ts.IToolRunnable;
+
 import de.walware.statet.nico.core.runtime.IProgressInfo;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
 
 
 /**

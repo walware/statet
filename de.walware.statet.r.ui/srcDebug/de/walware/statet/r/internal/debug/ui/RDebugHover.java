@@ -28,11 +28,8 @@ import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.IInfoHover;
 import de.walware.ecommons.text.TextUtil;
+import de.walware.ecommons.ts.ITool;
 
-import de.walware.statet.nico.core.runtime.IToolRunnable;
-import de.walware.statet.nico.core.runtime.IToolRunnableControllerAdapter;
-import de.walware.statet.nico.core.runtime.Queue;
-import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUITools;
 
@@ -41,6 +38,7 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.data.defaultImpl.RListImpl;
 
+import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.core.data.ICombinedRElement;
@@ -53,11 +51,11 @@ import de.walware.statet.r.nico.IRCombinedDataAdapter;
 public class RDebugHover implements IInfoHover {
 	
 	
-	private static class RUpdater implements IToolRunnable {
+	private static class RUpdater extends AbstractRDataRunnable {
 		
 		
 		private RElementName fElementRef;
-		private boolean fCancelled;
+		private int fStatus;
 		
 		private ICombinedRElement fElementStruct;
 		private RList fElementAttr;
@@ -66,31 +64,27 @@ public class RDebugHover implements IInfoHover {
 		
 		
 		public RUpdater(final RElementName elementRef) {
+			super("reditor/hover", "Collecting Element Detail for Hover"); //$NON-NLS-1$
 			fElementRef = elementRef;
 		}
 		
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.OTHER;
-		}
-		
-		public String getTypeId() {
-			return "reditor/hover";
-		}
-		
-		public String getLabel() {
-			return "Element Detail for Hover";
-		}
-		
-		public boolean changed(final int event, final ToolProcess process) {
+		@Override
+		public boolean changed(final int event, final ITool tool) {
 			switch (event) {
-			case Queue.ENTRIES_MOVE_DELETE:
+			case MOVING_FROM:
 				return false;
-			case Queue.ENTRIES_DELETE:
-			case Queue.ENTRIES_ABANDONED:
-			case Queue.ENTRY_FINISH_PROCESSING_OK:
-			case Queue.ENTRY_FINISH_PROCESSING_CANCEL:
-			case Queue.ENTRY_FINISH_PROCESSING_ERROR:
+			case REMOVING_FROM:
+			case BEING_ABANDONED:
+			case FINISHING_CANCEL:
+			case FINISHING_ERROR:
+				fStatus = -1;
+				synchronized (this) {
+					this.notifyAll();
+				}
+				break;
+			case FINISHING_OK:
+				fStatus = 1;
 				synchronized (this) {
 					this.notifyAll();
 				}
@@ -101,10 +95,10 @@ public class RDebugHover implements IInfoHover {
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		@Override
+		public void run(final IRDataAdapter r,
 				final IProgressMonitor monitor) throws CoreException {
-			final IRDataAdapter r = (IRDataAdapter) adapter;
-			if (fCancelled || monitor.isCanceled()) {
+			if (fStatus != 0 || monitor.isCanceled()) {
 				throw new CoreException(Status.CANCEL_STATUS);
 			}
 			if (fElementRef.getNamespace() == null) {
@@ -188,11 +182,18 @@ public class RDebugHover implements IInfoHover {
 				if (status.getSeverity() >= IStatus.ERROR) {
 					return null;
 				}
-				rTask.wait();
+				while (rTask.fStatus == 0) {
+					if (Thread.interrupted()) {
+						rTask.fStatus = -1;
+					}
+					rTask.wait(200);
+				}
 			}
 		}
 		catch (final InterruptedException e) {
-			rTask.fCancelled = true;
+			rTask.fStatus = -1;
+		}
+		if (rTask.fStatus != 1) {
 			process.getQueue().removeHot(rTask);
 			return null;
 		}

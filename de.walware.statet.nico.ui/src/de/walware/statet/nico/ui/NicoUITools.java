@@ -38,8 +38,9 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.statushandlers.StatusManager;
 
-import de.walware.statet.nico.core.ITool;
-import de.walware.statet.nico.core.runtime.IToolRunnable;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolRunnable;
+
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.internal.ui.NicoUIPlugin;
@@ -229,7 +230,7 @@ public class NicoUITools {
 	
 	
 	public static String createSubmitMessage(final ToolProcess process) {
-		return NLS.bind(NicoUIMessages.SubmitTask_name, process.getToolLabel(false));
+		return NLS.bind(NicoUIMessages.SubmitTask_name, process.getLabel(ITool.DEFAULT_LABEL));
 	}
 	
 	public static void runSubmitInBackground(final ToolProcess process, final IRunnableWithProgress runnable, final Shell shell) {
@@ -239,7 +240,7 @@ public class NicoUITools {
 		}
 		catch (final InvocationTargetException e) {
 			StatusManager.getManager().handle(new Status(IStatus.ERROR, NicoUI.PLUGIN_ID, -1,
-					NLS.bind(NicoUIMessages.Submit_error_message, process.getToolLabel(true)), e.getCause()),
+					NLS.bind(NicoUIMessages.Submit_error_message, process.getLabel(ITool.LONG_LABEL)), e.getCause()),
 					StatusManager.LOG | StatusManager.SHOW);
 		}
 		catch (final InterruptedException e) {

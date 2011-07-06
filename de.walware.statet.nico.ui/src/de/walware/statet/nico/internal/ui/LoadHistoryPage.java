@@ -14,6 +14,7 @@ package de.walware.statet.nico.internal.ui;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Composite;
 
+import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
@@ -25,7 +26,7 @@ public class LoadHistoryPage extends AbstractHistoryPage {
 	
 	public LoadHistoryPage(final ToolProcess tool) {
 		super("LoadHistoryPage", Messages.LoadHistoryPage_title, tool); //$NON-NLS-1$
-		setDescription(NLS.bind(Messages.LoadHistoryPage_description, fTool.getToolLabel(false)));
+		setDescription(NLS.bind(Messages.LoadHistoryPage_description, fTool.getLabel(ITool.DEFAULT_LABEL)));
 	}
 	
 	

@@ -32,6 +32,9 @@ import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
+import de.walware.ecommons.ts.ISystemRunnable;
+import de.walware.ecommons.ts.ITool;
+import de.walware.ecommons.ts.IToolService;
 import de.walware.ecommons.variables.core.DateVariable;
 import de.walware.ecommons.variables.core.DynamicVariable;
 import de.walware.ecommons.variables.core.TimeVariable;
@@ -85,33 +88,35 @@ public class ToolWorkspace {
 		
 	}
 	
-	private class AutoUpdater implements IToolRunnable {
+	private class AutoUpdater implements ISystemRunnable {
 		
 		
 		public String getTypeId() {
 			return "common/workspace/update.auto";
 		}
 		
-		public SubmitType getSubmitType() {
-			return SubmitType.OTHER;
-		}
-		
 		public String getLabel() {
 			return "Auto Update";
 		}
 		
-		public boolean changed(final int event, final ToolProcess process) {
-			if (event == Queue.ENTRIES_DELETE || event == Queue.ENTRIES_MOVE_DELETE) {
+		public boolean isRunnableIn(final ITool tool) {
+			return (tool == fProcess);
+		}
+		
+		public boolean changed(final int event, final ITool tool) {
+			switch (event) {
+			case REMOVING_FROM:
+			case MOVING_FROM:
 				return false;
 			}
 			return true;
 		}
 		
-		public void run(final IToolRunnableControllerAdapter adapter,
+		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			fIsRefreshing = true;
 			try {
-				autoRefreshFromTool(adapter, monitor);
+				autoRefreshFromTool((IConsoleService) service, monitor);
 			}
 			finally {
 				fIsRefreshing = false;
@@ -152,7 +157,7 @@ public class ToolWorkspace {
 	public ToolWorkspace(final ToolController controller,
 			Prompt prompt, final String lineSeparator,
 			final String remoteHost) {
-		fProcess = controller.getProcess();
+		fProcess = controller.getTool();
 		if (prompt == null) {
 			prompt = Prompt.DEFAULT;
 		}
@@ -223,13 +228,13 @@ public class ToolWorkspace {
 	}
 	
 	
-	protected void autoRefreshFromTool(final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	protected void autoRefreshFromTool(final IConsoleService s, final IProgressMonitor monitor) throws CoreException {
 		if (fAutoRefreshEnabled) {
-			refreshFromTool(0, adapter, monitor);
+			refreshFromTool(0, s, monitor);
 		}
 	}
 	
-	protected void refreshFromTool(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	protected void refreshFromTool(final int options, final IConsoleService s, final IProgressMonitor monitor) throws CoreException {
 	}
 	
 	public final String getLineSeparator() {
@@ -303,7 +308,7 @@ public class ToolWorkspace {
 	}
 	
 	
-	final void controlRefresh(final int options, final IToolRunnableControllerAdapter adapter, final IProgressMonitor monitor) throws CoreException {
+	final void controlRefresh(final int options, final IConsoleService adapter, final IProgressMonitor monitor) throws CoreException {
 		fIsRefreshing = true;
 		try {
 			refreshFromTool(options, adapter, monitor);

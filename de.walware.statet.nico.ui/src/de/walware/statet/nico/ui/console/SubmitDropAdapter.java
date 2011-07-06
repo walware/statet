@@ -66,7 +66,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 			if (data == null || process.isTerminated()) {
 				return;
 			}
-			data.process.getQueue().move(data.tasks, process.getQueue());
+			data.process.getQueue().move(data.runnables, process.getQueue());
 			return;
 		}
 		if (TextTransfer.getInstance().isSupportedType(event.currentDataType)) {
@@ -78,7 +78,7 @@ public class SubmitDropAdapter implements DropTargetListener {
 			}
 			
 			final IRunnableWithProgress runnable = SubmitPasteAction.createRunnable(controller, text);
-			NicoUITools.runSubmitInBackground(controller.getProcess(), runnable, fPage.getSite().getShell());
+			NicoUITools.runSubmitInBackground(controller.getTool(), runnable, fPage.getSite().getShell());
 			return;
 		}
 	}
