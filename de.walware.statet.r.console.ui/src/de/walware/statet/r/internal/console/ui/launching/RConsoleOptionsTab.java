@@ -91,8 +91,8 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	static final TrackingConfiguration2LaunchConfiguration TRACKING_UTIL = new TrackingConfiguration2LaunchConfiguration();
 	
 	static final String ATTR_INTEGRATION_ROOT = "de.walware.statet.r.debug/integration"; //$NON-NLS-1$
-	static final String ATTR_INTEGRATION_RPACKAGES_LOAD_ENABLED = ATTR_INTEGRATION_ROOT+"integration.rpackages.load.enabled"; //$NON-NLS-1$
 	static final String ATTR_INTEGRATION_RHELP_ENABLED = ATTR_INTEGRATION_ROOT+"integration.rhelp.enabled"; //$NON-NLS-1$
+	static final String ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT = ATTR_INTEGRATION_ROOT+"integration.rgraphics.asdefault"; //$NON-NLS-1$
 	
 	
 	private Button fPinControl;
@@ -107,10 +107,10 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private SnippetEditor fStartupSnippetEditor;
 	private WritableValue fStartupSnippetValue;
 	
-	private Button fLoadRPackagesControl;
-	private WritableValue fLoadRPackagesValue;
 	private Button fRHelpByStatetControl;
 	private WritableValue fRHelpByStatetValue;
+	private Button fRGraphicsByStatetControl;
+	private WritableValue fRGraphicsByStatetValue;
 	
 	private Button fObjectDBEnabledControl;
 	private WritableValue fObjectDBEnabledValue;
@@ -277,16 +277,15 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private void createEclipseOptions(final Composite container) {
 		container.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 2));
 		
-		{	fLoadRPackagesControl = new Button(container, SWT.CHECK);
-			fLoadRPackagesControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
-			fLoadRPackagesControl.setText("Load R package 'rj' at startup");
-		}
-		
 		{	fRHelpByStatetControl = new Button(container, SWT.CHECK);
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
-			gd.horizontalIndent = LayoutUtil.defaultIndent();
 			fRHelpByStatetControl.setLayoutData(gd);
 			fRHelpByStatetControl.setText("Enable R Help by StatET for R help functions ('help', 'help.start', '?')");
+		}
+		{	fRGraphicsByStatetControl = new Button(container, SWT.CHECK);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+			fRGraphicsByStatetControl.setLayoutData(gd);
+			fRGraphicsByStatetControl.setText("Set StatET R Graphic view as default graphic default for new plots in R");
 		}
 		
 		{	fObjectDBEnabledControl = new Button(container, SWT.CHECK);
@@ -338,15 +337,10 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		fStartupSnippetValue = new WritableValue(realm, String.class);
 		dbc.bindValue(new SnippetEditorObservable(realm, fStartupSnippetEditor, SWT.Modify), fStartupSnippetValue, null, null);
 		
-		fLoadRPackagesValue = new WritableValue(realm, Boolean.class);
 		fRHelpByStatetValue = new WritableValue(realm, Boolean.class);
-		final ISWTObservableValue rjObs = SWTObservables.observeSelection(fLoadRPackagesControl);
-		dbc.bindValue(rjObs, fLoadRPackagesValue, null, null);
+		fRGraphicsByStatetValue = new WritableValue(realm, Boolean.class);
 		dbc.bindValue(SWTObservables.observeSelection(fRHelpByStatetControl), fRHelpByStatetValue, null, null);
-		
-		dbc.bindValue(new SWTMultiEnabledObservable(realm, new Control[] {
-						fRHelpByStatetControl,
-				}, null), rjObs, null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fRGraphicsByStatetControl), fRGraphicsByStatetValue, null, null);
 		
 		fObjectDBEnabledValue = new WritableValue(realm, Boolean.class);
 		fObjectDBAutoEnabledValue = new WritableValue(realm, Boolean.class);
@@ -389,21 +383,21 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		{	boolean enabled = true;
 			try {
-				enabled = configuration.getAttribute(ATTR_INTEGRATION_RPACKAGES_LOAD_ENABLED, enabled);
-			}
-			catch (final CoreException e) {
-				logReadingError(e);
-			}
-			fLoadRPackagesValue.setValue(enabled);
-		}
-		{	boolean enabled = true;
-			try {
 				enabled = configuration.getAttribute(ATTR_INTEGRATION_RHELP_ENABLED, enabled);
 			}
 			catch (final CoreException e) {
 				logReadingError(e);
 			}
 			fRHelpByStatetValue.setValue(enabled);
+		}
+		{	boolean enabled = true;
+			try {
+				enabled = configuration.getAttribute(ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, enabled);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fRGraphicsByStatetValue.setValue(enabled);
 		}
 		
 		String startupSnippet;
@@ -515,11 +509,11 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	protected void doSave(final ILaunchConfigurationWorkingCopy configuration) {
 		configuration.setAttribute(RConsoleLaunching.ATTR_PIN_CONSOLE, ((Boolean) fPinValue.getValue()).booleanValue());
 		
-		{	final Boolean enabled = (Boolean) fLoadRPackagesValue.getValue();
-			configuration.setAttribute(ATTR_INTEGRATION_RPACKAGES_LOAD_ENABLED, enabled.booleanValue());
-		}
 		{	final Boolean enabled = (Boolean) fRHelpByStatetValue.getValue();
 			configuration.setAttribute(ATTR_INTEGRATION_RHELP_ENABLED, enabled.booleanValue());
+		}
+		{	final Boolean enabled = (Boolean) fRGraphicsByStatetValue.getValue();
+			configuration.setAttribute(ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, enabled.booleanValue());
 		}
 		
 		final String startupSnippet = (String) fStartupSnippetValue.getValue();

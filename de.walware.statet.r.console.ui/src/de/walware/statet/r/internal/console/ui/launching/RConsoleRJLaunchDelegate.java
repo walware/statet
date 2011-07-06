@@ -54,9 +54,6 @@ import de.walware.statet.nico.ui.NicoUITools;
 import de.walware.statet.nico.ui.console.NIConsoleColorAdapter;
 import de.walware.statet.nico.ui.util.WorkbenchStatusHandler;
 
-import de.walware.rj.data.RDataUtil;
-import de.walware.rj.data.RObject;
-import de.walware.rj.data.UnexpectedRDataException;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.srvext.ServerUtil;
 
@@ -85,11 +82,13 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		private final ITool fTool;
 		private final boolean fEnableHelp;
+		private final boolean fEnableGraphics;
 		
 		
-		public ConfigRunnable(final ITool tool, final boolean enableHelp) {
+		public ConfigRunnable(final ITool tool, final boolean enableHelp, final boolean enableGraphics) {
 			fTool = tool;
 			fEnableHelp = enableHelp;
+			fEnableGraphics = enableGraphics;
 		}
 		
 		
@@ -115,26 +114,21 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		public void run(final IToolService service,
 				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) service;
-			try {
-				if (!RDataUtil.checkSingleLogiValue(r.evalData("\"rj\" %in% installed.packages()[,\"Package\"]", monitor))) { //$NON-NLS-1$
-					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
-							"The R package 'rj' is not available, R-StatET tools cannot be initialized." ),
-							monitor );
-					return;
-				}
-				final RObject rjPackageLoaded = r.evalData("require(\"rj\", quietly = TRUE)", monitor); //$NON-NLS-1$
-				if (RDataUtil.checkSingleLogiValue(rjPackageLoaded)) {
-					if (fEnableHelp) {
-						r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
-					}
-				}
-				else {
-					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
-							"The R package 'rj' could not be loaded, R-StatET tools cannot be initialized." ),
-							monitor );
-				}
+			r.evalVoid("library(\"rj\", quietly= TRUE)", monitor); //$NON-NLS-1$
+			if (fEnableHelp) {
+				r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
 			}
-			catch (final UnexpectedRDataException e) {
+			if (fEnableGraphics) {
+				try {
+					r.evalVoid("rj.gd:::.rj.getGDVersion()", monitor); //$NON-NLS-1$
+					r.evalVoid("options(device=rj.gd::rj.GD)", monitor); //$NON-NLS-1$
+				}
+				catch (final CoreException e) {
+					r.handleStatus(new Status(IStatus.INFO, RConsoleUIPlugin.PLUGIN_ID,
+							"The graphic device for the R Graphic view cannot be initialized. " +
+							"Is the R package 'rj.gd' is installed?", e),
+							monitor );
+				}
 			}
 		}
 		
@@ -151,11 +145,10 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 			final boolean isStartup) throws CoreException {
 		new REnvIndexAutoUpdater(controller.getTool());
 		
-		if (configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RPACKAGES_LOAD_ENABLED, true)) {
-			controller.addStartupRunnable(new ConfigRunnable(
-					controller.getTool(),
-					configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true) ));
-		}
+		controller.addStartupRunnable(new ConfigRunnable(
+				controller.getTool(),
+				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true),
+				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, true) ));
 		if (isStartup) {
 			RConsoleLaunching.scheduleStartupSnippet(controller, configuration);
 		}

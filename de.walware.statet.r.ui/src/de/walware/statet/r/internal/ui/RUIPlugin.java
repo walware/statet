@@ -45,6 +45,8 @@ import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
 
+import de.walware.rj.eclient.graphics.comclient.ERGraphicFactory;
+
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.core.model.IRSourceUnit;
@@ -122,6 +124,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	private ContentAssistComputerRegistry fRConsoleContentAssistRegistry;
 	private ContentAssistComputerRegistry fREditorContentAssistRegistry;
 	private InfoHoverRegistry fREditorInfoHoverRegistry;
+	
+	private ERGraphicFactory fCommonRGraphicFactory;
 	
 	private List<IDisposable> fDisposables;
 	
@@ -415,6 +419,15 @@ public class RUIPlugin extends AbstractUIPlugin {
 		}
 		return fREditorInfoHoverRegistry;
 	}
+	
+	
+	public synchronized ERGraphicFactory getCommonRGraphicFactory() {
+		if (fCommonRGraphicFactory == null) {
+			fCommonRGraphicFactory = new ERGraphicFactory();
+		}
+		return fCommonRGraphicFactory;
+	}
+	
 	
 	public void registerPluginDisposable(final IDisposable d) {
 		final List<IDisposable> disposables = fDisposables;

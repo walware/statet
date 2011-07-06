@@ -62,6 +62,7 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RObjectFactory;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
+import de.walware.rj.eclient.graphics.comclient.ERClientGraphicActions;
 import de.walware.rj.server.ConsoleEngine;
 import de.walware.rj.server.FxCallback;
 import de.walware.rj.server.RjsComConfig;
@@ -70,12 +71,15 @@ import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerInfo;
 import de.walware.rj.server.ServerLogin;
 import de.walware.rj.server.client.AbstractRJComClient;
+import de.walware.rj.server.client.RClientGraphicFactory;
+import de.walware.rj.server.client.RGraphicCreatorImpl;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
 import de.walware.rj.services.RServiceControlExtension;
 
 import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.data.ICombinedRElement;
@@ -107,6 +111,17 @@ public class RjsController extends AbstractRController
 		public NicoComClient() {
 		}
 		
+		
+		@Override
+		protected void initGraphicFactory() {
+			final IToolEventHandler eventHandler = getEventHandler(INIT_RGRAPHIC_FACTORY_HANDLER_ID);
+			final Map<String, Object> data = new HashMap<String, Object>();
+			final IStatus status = eventHandler.handle(INIT_RGRAPHIC_FACTORY_HANDLER_ID, RjsController.this, data, null);
+			final RClientGraphicFactory factory = (RClientGraphicFactory) data.get("factory"); //$NON-NLS-1$
+			if (status.isOK() && factory != null) {
+				setGraphicFactory(factory, new ERClientGraphicActions(this, (RProcess) fProcess));
+			}
+		}
 		
 		@Override
 		protected void updateBusy(final boolean isBusy) {
@@ -793,7 +808,7 @@ public class RjsController extends AbstractRController
 	}
 	
 	public RGraphicCreator createRGraphicCreator(final int options) {
-		throw new UnsupportedOperationException();
+		return new RGraphicCreatorImpl(this, fRjs, options);
 	}
 	
 	

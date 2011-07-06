@@ -103,6 +103,10 @@ public class REnvPreferencePage extends ConfigurationBlockPreferencePage<REnvCon
 class REnvConfigurationBlock extends ManagedConfigurationBlock {
 	
 	
+	private final static int ADD_NEW_DEFAULT = ButtonGroup.ADD_NEW;
+	private final static int ADD_NEW_REMOTE = ButtonGroup.ADD_NEW | (0x1 << 8);
+	
+	
 	private TableViewer fListViewer;
 	private ButtonGroup<IREnvConfiguration.WorkingCopy> fListButtons;
 	
@@ -146,15 +150,24 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			
 			fListButtons = new ButtonGroup<IREnvConfiguration.WorkingCopy>(composite) {
 				@Override
-				protected IREnvConfiguration.WorkingCopy edit1(final IREnvConfiguration.WorkingCopy config, final boolean newConfig, final Object parent) {
-					IREnvConfiguration.WorkingCopy editConfig;
+				protected IREnvConfiguration.WorkingCopy edit1(final int command,
+						final IREnvConfiguration.WorkingCopy config, final Object parent) {
+					final boolean newConfig = ((command & ButtonGroup.ADD_ANY) != 0);
+					final IREnvConfiguration.WorkingCopy editConfig;
 					if (newConfig) {
-						if (config != null) {
+						if (config != null) { // copy
 							editConfig = RCore.getREnvManager().newConfiguration(config.getType());
 							editConfig.load(config);
 						}
-						else {
-							return null;
+						else { // add
+							if (command == ADD_NEW_REMOTE) {
+								editConfig = RCore.getREnvManager()
+										.newConfiguration(IREnvConfiguration.USER_REMOTE_TYPE);
+							}
+							else {
+								editConfig = RCore.getREnvManager()
+										.newConfiguration(IREnvConfiguration.USER_LOCAL_TYPE);
+							}
 						}
 					}
 					else {
@@ -186,13 +199,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 			final SelectionListener addDefaultListener = new SelectionAdapter() {
 				@Override
 				public void widgetSelected(final SelectionEvent e) {
-					final IREnvConfiguration.WorkingCopy config = RCore.getREnvManager()
-							.newConfiguration(IREnvConfiguration.USER_LOCAL_TYPE);
-					if (edit(config, true)) {
-						fList.add(config);
-						fListButtons.setDirty(true);
-						fListViewer.refresh();
-					}
+					fListButtons.editElement(ADD_NEW_DEFAULT, null);
 				}
 			};
 			final DropDownButton addButton = new DropDownButton(fListButtons) {
@@ -207,13 +214,7 @@ class REnvConfigurationBlock extends ManagedConfigurationBlock {
 						menuItem.addSelectionListener(new SelectionAdapter() {
 							@Override
 							public void widgetSelected(final SelectionEvent e) {
-								final IREnvConfiguration.WorkingCopy config = RCore.getREnvManager()
-										.newConfiguration(IREnvConfiguration.USER_REMOTE_TYPE);
-								if (edit(config, true)) {
-									fList.add(config);
-									fListButtons.setDirty(true);
-									fListViewer.refresh();
-								}
+								fListButtons.editElement(ADD_NEW_REMOTE, null);
 							}
 						});
 					}

@@ -890,6 +890,7 @@
             sequence="M1+R P">
       </key>
    </extension>
+   
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
@@ -1587,6 +1588,7 @@
             id="de.walware.statet.r.rCodeLaunchConnector.EclipseTextConsole"
             name="%rConnector_EclipseTextConsole_name"/>
    </extension>
+   
    <extension
          point="org.eclipse.ui.views">
       <view
@@ -1596,6 +1598,30 @@
             icon="icons/view_16/objectbrowser.png"
             id="de.walware.statet.nico.views.ObjectBrowser"
             name="%views_RObjectBrowserView_name"
+            restorable="true">
+      </view>
+   </extension>
+   
+   <!-- R Graphics -->
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            id="de.walware.statet.r.preferencePages.RGraphicsPage"
+            category="de.walware.statet.base.preferencePages.StatetBase"
+            name="%preferencePages_RGraphicsPage_name"
+            class="de.walware.rj.eclient.graphics.RGraphicsPreferencePage">
+         <keywordReference id="de.walware.statet.base.keywords.Appearance"/>
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            id="de.walware.statet.r.views.RGraphic"
+            category="de.walware.statet.base.views.StatetCategory"
+            icon="icons/obj_16/r-graphic.png"
+            name="%views_RGraphicView_name"
+            class="de.walware.statet.r.internal.ui.graphics.StatetRGraphicView"
+            allowMultiple="true"
             restorable="true">
       </view>
    </extension>
