@@ -180,7 +180,7 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	@Override
 	public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {
-		final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CLASSPATH_LIBS, (fRenv.getRBits() == 64));
+		final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CLASSPATH_LIBS);
 		
 		final LinkedHashSet<String> classpath = new LinkedHashSet<String>();
 		classpath.addAll(Arrays.asList(super.getClasspath(configuration)));
@@ -216,12 +216,9 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 		}
 		if (s.indexOf(" -Djava.rmi.server.codebase=") < 0) { //$NON-NLS-1$
 			s.append(" -Djava.rmi.server.codebase=\""); //$NON-NLS-1$
-			final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CODEBASE_LIBS, (fRenv.getRBits() == 64));
+			final String[] rjLibs = EServerUtil.searchRJLibsInPlatform(CODEBASE_LIBS);
 			s.append(ServerUtil.concatCodebase(rjLibs));
 			s.append("\""); //$NON-NLS-1$
-		}
-		if (s.indexOf(" -Xss") < 0) { //$NON-NLS-1$
-			s.append(" -Xss").append(fRenv.getRBits()*256).append("k"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
 		if (!ToolRunner.captureLogOnly(configuration)

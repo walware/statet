@@ -62,11 +62,23 @@ import de.walware.statet.r.launching.ui.REnvTab;
 class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	
 	
+	private boolean is32(final String arch) {
+		return (arch.equals(Platform.ARCH_X86)
+				|| arch.equals("i386") || arch.equals("i586") || arch.equals("i686") ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+	
+	private boolean is64(final String arch) {
+		return (arch.equals(Platform.ARCH_X86_64)
+				|| arch.equals("amd64") ); //$NON-NLS-1$
+	}
+	
+	
 	private final RConsoleMainTab fMainTab;
 	private final REnvTab fREnvTab;
 	
 	private InputArgumentsComposite fVmArgsControl;
 	
+	private boolean fEnableVMArchCheck;
 	private IVMInstall fLastCheckedVM;
 	private int fLastCheckedVMBits;
 	private int fLastCheckedRBits;
@@ -78,6 +90,9 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 		fREnvTab = renvTab;
 		
 		PreferencesUtil.getSettingsChangeNotifier().addChangeListener(this);
+		
+		fEnableVMArchCheck = ((Platform.getOS().startsWith("win") || Platform.getOS().equals(Platform.OS_LINUX)) //$NON-NLS-1$
+				&& (Platform.getOSArch().startsWith("x86") || Platform.getOSArch().startsWith("amd64")) ); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	
@@ -146,7 +161,7 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	
 	@Override
 	public boolean isValid(final ILaunchConfiguration config) {
-		if (Platform.getOS().startsWith("win") || Platform.getOS().equals(Platform.OS_LINUX)) { //$NON-NLS-1$
+		if (fEnableVMArchCheck) {
 			if (fValidInBackground) {
 				scheduleUpdateJob();
 				return false;
@@ -197,9 +212,24 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 	}
 	
 	private void updateRBits() {
+		fLastCheckedRBits = -1;
 		final IREnv rEnv = fREnvTab.getSelectedEnv();
-		final IREnvConfiguration config = (rEnv != null) ? rEnv.getConfig() : null;
-		fLastCheckedRBits = (config != null) ? config.getRBits() : -1;
+		if (rEnv == null) {
+			return;
+		}
+		final IREnvConfiguration config = rEnv.getConfig();
+		if (config == null) {
+			return;
+		}
+		final String arch = config.getSubArch();
+		if (arch != null && arch.length() > 0) {
+			if (is32(arch)) {
+				fLastCheckedRBits = 32;
+			}
+			else if (is64(arch)) {
+				fLastCheckedRBits = 64;
+			}
+		}
 	}
 	
 	private void updateVMBits() {
@@ -213,43 +243,15 @@ class ExtJavaJRETab extends JavaJRETab implements ChangeListener {
 						try {
 							final Map<String, String> properties = ((IVMInstall3) fLastCheckedVM).evaluateSystemProperties(propertyNames, monitor);
 							
-							{	// proprietary property for bits
-								String p = properties.get("sun.arch.data.model"); //$NON-NLS-1$
-								if (p == null || p.length() == 0) {
-									p = properties.get("com.ibm.vm.bitmode"); //$NON-NLS-1$
-								}
-								if (p != null && p.length() > 0) {
-									try {
-										fLastCheckedVMBits = Integer.parseInt(p);
-										return;
-									}
-									catch (final NumberFormatException e) {
-									}
-								}
-							}
 							{	// try known os.arch
 								final String p = properties.get("os.arch"); //$NON-NLS-1$
 								if (p != null && p.length() > 0) {
-									if (p.equals(Platform.ARCH_X86) || p.equals("i386") || p.equals("i586") || p.equals("i686")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+									if (is32(p)) {
 										fLastCheckedVMBits = 32;
 										return;
 									}
-									if (p.equals(Platform.ARCH_X86_64) || p.equals("amd64")) { //$NON-NLS-1$
+									else if (is64(p)) {
 										fLastCheckedVMBits = 64;
-										return;
-									}
-								}
-							}
-							{	// search in vm name
-								String p = properties.get("java.vm.name"); //$NON-NLS-1$
-								if (p != null && p.length() > 0) {
-									p = p.toLowerCase();
-									if (p.contains("64-bit")) { //$NON-NLS-1$
-										fLastCheckedVMBits = 64;
-										return;
-									}
-									if (p.contains("32-bit")) { //$NON-NLS-1$
-										fLastCheckedVMBits = 32;
 										return;
 									}
 								}

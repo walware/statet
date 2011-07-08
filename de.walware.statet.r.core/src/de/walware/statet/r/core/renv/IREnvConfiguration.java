@@ -34,8 +34,6 @@ public interface IREnvConfiguration {
 	
 	String PROP_SUBARCH = "subArch"; //$NON-NLS-1$
 	
-	String PROP_RBITS = "RBits"; //$NON-NLS-1$
-	
 	String PROP_ROS = "ROS"; //$NON-NLS-1$
 	
 	String PROP_RLIBS = "RLibraries"; //$NON-NLS-1$
@@ -75,8 +73,6 @@ public interface IREnvConfiguration {
 		void setRHome(String directory);
 		
 		void setSubArch(String arch);
-		
-		void setRBits(int bits);
 		
 		void setROS(String type);
 		
@@ -120,8 +116,6 @@ public interface IREnvConfiguration {
 	String getRHome();
 	
 	String getSubArch();
-	
-	int getRBits();
 	
 	String getROS();
 	

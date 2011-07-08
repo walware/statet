@@ -43,18 +43,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.jface.databinding.swt.SWTObservables;
-import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -107,9 +102,6 @@ import de.walware.statet.r.ui.RUI;
  */
 public class REnvLocalConfigDialog extends ExtStatusDialog {
 	
-	
-	private static final Integer T_64 = Integer.valueOf(64);
-	private static final Integer T_32 = Integer.valueOf(32);
 	
 	private static final String DETECT_START = "_R-Path-And-Library-Configuration_"; //$NON-NLS-1$
 	private static final String DETECT_COMMAND = "cat('"+DETECT_START+"'," //$NON-NLS-1$ //$NON-NLS-2$
@@ -217,7 +209,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 	private Button fLoadButton;
 	
 	private Combo fRArchControl;
-	private ComboViewer fRBitViewer;
 	
 	private TreeViewer fRLibrariesViewer;
 	private ButtonGroup<IRLibraryLocation.WorkingCopy> fRLibrariesButtons;
@@ -291,26 +282,9 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 						if (!fRArchControl.getListVisible()
 								&& (selectionIdx = fRArchControl.getSelectionIndex()) >= 0) {
 							final String item = fRArchControl.getItem(selectionIdx);
-							if (item.contains("64")) { //$NON-NLS-1$
-								fRBitViewer.setSelection(new StructuredSelection(T_64));
-							}
-							else if (item.contains("86")) { //$NON-NLS-1$
-								fRBitViewer.setSelection(new StructuredSelection(T_32));
-							}
 						}
 					}
 				});
-			}
-			{	fRBitViewer = new ComboViewer(composite);
-				fRBitViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-				fRBitViewer.setContentProvider(new ArrayContentProvider());
-				fRBitViewer.setLabelProvider(new LabelProvider() {
-					@Override
-					public String getText(final Object element) {
-						return ((Integer) element).toString() + "-bit";  //$NON-NLS-1$
-					}
-				});
-				fRBitViewer.setInput(new Integer[] { T_32, T_64 });
 			}
 			
 			fLoadButton = new Button(composite, SWT.PUSH);
@@ -608,9 +582,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 		rHomeBinding.validateTargetToModel();
 		db.getContext().bindValue(SWTObservables.observeText(fRArchControl),
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_SUBARCH) );
-		db.getContext().bindValue(ViewersObservables.observeSingleSelection(fRBitViewer),
-				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RBITS),
-				null, null);
 		db.getContext().bindValue(fRDocDirectoryControl.getObservable(),
 				BeansObservables.observeValue(fConfigModel, IREnvConfiguration.PROP_RDOC_DIRECTORY) );
 		db.getContext().bindValue(fRShareDirectoryControl.getObservable(),
@@ -704,8 +675,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				idx = 0;
 			}
 			fRArchControl.select(idx);
-			fRBitViewer.setSelection(new StructuredSelection(
-					(availableArchs.get(idx).contains("64")) ? T_64 : T_32 )); //$NON-NLS-1$
 		}
 		catch (final Exception e) {
 			fRArchControl.setItems(new String[0]);
@@ -782,12 +751,6 @@ public class REnvLocalConfigDialog extends ExtStatusDialog {
 				}
 				else if (lines[DETECT_R_ARCH].length() > 0 && fConfigModel.getSubArch() == null) {
 					fConfigModel.setSubArch(lines[DETECT_R_ARCH]);
-				}
-				if (lines[DETECT_R_ARCH].contains("64")) { //$NON-NLS-1$
-					fConfigModel.setRBits(64);
-				}
-				else if (lines[DETECT_R_ARCH].endsWith("86")) { //$NON-NLS-1$
-					fConfigModel.setRBits(32);
 				}
 				fConfigModel.setROS(lines[DETECT_R_OS]);
 				return;

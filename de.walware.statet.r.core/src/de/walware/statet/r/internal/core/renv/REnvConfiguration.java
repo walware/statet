@@ -226,7 +226,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		assert (link != null);
 		fType = type;
 		fREnv = link;
-		fRBits = 32;
+		fRBits = 64;
 		
 		fNodeQualifier = RCorePreferenceNodes.CAT_R_ENVIRONMENTS_QUALIFIER + '/' +
 				((key != null) ? key : link.getId());
@@ -243,7 +243,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		
 		setName(setup.getName());
 		setROS(setup.getOS());
-		setRBits((setup.getOSArch().equals(Platform.ARCH_X86)) ? 32 : 64);
+		fRBits = (setup.getOSArch().equals(Platform.ARCH_X86)) ? 32 : 64;
 		setRHome(setup.getRHome());
 		setRDocDirectoryPath("${env_var:R_HOME}/doc"); //$NON-NLS-1$
 		setRShareDirectoryPath("${env_var:R_HOME}/share"); //$NON-NLS-1$
@@ -376,7 +376,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (isLocal()) {
 			setRHome(from.getRHome());
 			setSubArch(from.getSubArch());
-			setRBits(from.getRBits());
+			fRBits = (from instanceof REnvConfiguration) ? ((REnvConfiguration) from).fRBits : 64;
 			setRDocDirectoryPath(from.getRDocDirectoryPath());
 			setRShareDirectoryPath(from.getRShareDirectoryPath());
 			setRIncludeDirectoryPath(from.getRIncludeDirectoryPath());
@@ -411,7 +411,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (fType == USER_LOCAL_TYPE) {
 			setRHome(prefs.getPreferenceValue(fPrefRHomeDirectory));
 			setSubArch(prefs.getPreferenceValue(fPrefSubArch));
-			setRBits(prefs.getPreferenceValue(fPrefRBits));
+			fRBits = prefs.getPreferenceValue(fPrefRBits);
 			setRDocDirectoryPath(prefs.getPreferenceValue(fPrefRDocDirectory));
 			setRShareDirectoryPath(prefs.getPreferenceValue(fPrefRShareDirectory));
 			setRIncludeDirectoryPath(prefs.getPreferenceValue(fPrefRIncludeDirectory));
@@ -465,7 +465,7 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		if (fType == USER_LOCAL_TYPE) {
 			map.put(fPrefRHomeDirectory, getRHome());
 			map.put(fPrefSubArch, fSubArch);
-			map.put(fPrefRBits, getRBits());
+			map.put(fPrefRBits, fRBits);
 			map.put(fPrefRDocDirectory, getRDocDirectoryPath());
 			map.put(fPrefRShareDirectory, getRShareDirectoryPath());
 			map.put(fPrefRIncludeDirectory, getRIncludeDirectoryPath());
@@ -621,19 +621,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 		final String oldValue = fSubArch;
 		fSubArch = arch;
 		firePropertyChange(PROP_SUBARCH, oldValue, arch);
-	}
-	
-	public int getRBits() {
-		return fRBits;
-	}
-	
-	public void setRBits(int bits) {
-		if (bits != 32 && bits != 64) {
-			bits = 32;
-		}
-		final int oldValue = fRBits;
-		fRBits = bits;
-		firePropertyChange(PROP_RBITS, oldValue, bits);
 	}
 	
 	public String getROS() {
@@ -1115,7 +1102,6 @@ public class REnvConfiguration extends AbstractPreferencesModelObject implements
 				&& (fType == other.getType())
 				&& ((fName != null) ? fName.equals(other.getName()) : null == other.getName())
 				&& ((fSubArch != null) ? fSubArch.equals(other.getSubArch()) : null == other.getSubArch())
-				&& (fRBits == other.getRBits())
 				&& ((fROS != null) ? fROS.equals(other.getROS()) : null == other.getROS())
 				&& ((fType == USER_LOCAL_TYPE
 						&& ((fRHomeDirectory != null) ? fRHomeDirectory.equals(other.getRHome()) : null == other.getRHome())
