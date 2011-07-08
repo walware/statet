@@ -285,7 +285,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		{	fRGraphicsByStatetControl = new Button(container, SWT.CHECK);
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 			fRGraphicsByStatetControl.setLayoutData(gd);
-			fRGraphicsByStatetControl.setText("Set StatET R Graphic view as default graphic default for new plots in R");
+			fRGraphicsByStatetControl.setText("Set R Graphic view by StatET as default graphic device for new R plots");
 		}
 		
 		{	fObjectDBEnabledControl = new Button(container, SWT.CHECK);
