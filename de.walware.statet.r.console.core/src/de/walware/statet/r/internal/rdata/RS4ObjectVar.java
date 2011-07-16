@@ -50,7 +50,7 @@ public final class RS4ObjectVar extends CombinedElement
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		this.className = io.readString();
-		this.dataSlotIdx = io.in.readInt();
+		this.dataSlotIdx = io.readInt();
 		this.slotNames = new RCharacterDataImpl(io);
 		final int length = this.slotNames.getLength();
 		this.slotValues = new CombinedElement[length];
@@ -62,7 +62,7 @@ public final class RS4ObjectVar extends CombinedElement
 	
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		io.writeString(this.className);
-		io.out.writeInt(this.dataSlotIdx);
+		io.writeInt(this.dataSlotIdx);
 		this.slotNames.writeExternal(io);
 		final int length = this.slotNames.getLength();
 		for (int i = 0; i < length; i++) {

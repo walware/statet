@@ -54,12 +54,12 @@ public class RListVar extends CombinedElement
 	}
 	protected final int doReadExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
-		final int options = io.in.readInt();
+		final int options = io.readInt();
 		//-- special attributes
 		this.className1 = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
 				io.readString() : ((getRObjectType() == RObject.TYPE_DATAFRAME) ?
 						RObject.CLASSNAME_DATAFRAME : RObject.CLASSNAME_LIST);
-		final int length = this.length = io.in.readInt();
+		final int length = this.length = io.readInt();
 		
 		if ((options & RObjectFactory.O_NO_CHILDREN) != 0) {
 			this.namesAttribute = null;
@@ -92,12 +92,12 @@ public class RListVar extends CombinedElement
 		if (this.components == null) {
 			options |= RObjectFactory.O_NO_CHILDREN;
 		}
-		io.out.writeInt(options);
+		io.writeInt(options);
 		//-- special attributes
 		if (customClass) {
 			io.writeString(this.className1);
 		}
-		io.out.writeInt(this.length);
+		io.writeInt(this.length);
 		
 		if (this.components != null) {
 			factory.writeNames(this.namesAttribute, io);

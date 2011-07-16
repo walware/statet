@@ -68,14 +68,14 @@ public final class REnvironmentVar extends CombinedElement
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
-		final int options = io.in.readInt();
+		final int options = io.readInt();
 		//-- special attributes
 		this.className1 = ((options & RObjectFactory.O_CLASS_NAME) != 0) ?
 				io.readString() : RObject.CLASSNAME_ENV;
 		//-- data
-		this.handle = io.in.readLong();
+		this.handle = io.readLong();
 		setEnvName(io.readString(), false);
-		final int length = this.length = io.in.readInt();
+		final int length = this.length = io.readInt();
 		
 		if ((options & RObjectFactory.O_NO_CHILDREN) != 0) {
 			this.namesAttribute = null;
@@ -101,15 +101,15 @@ public final class REnvironmentVar extends CombinedElement
 		if (this.components == null) {
 			options |= RObjectFactory.O_NO_CHILDREN;
 		}
-		io.out.writeInt(options);
+		io.writeInt(options);
 		//-- special attributes
 		if (customClass) {
 			io.writeString(this.className1);
 		}
 		
-		io.out.writeLong(this.handle);
+		io.writeLong(this.handle);
 		io.writeString(fCombinedName);
-		io.out.writeInt(this.length);
+		io.writeInt(this.length);
 		
 		if (this.components != null) {
 			this.namesAttribute.writeExternal(io);

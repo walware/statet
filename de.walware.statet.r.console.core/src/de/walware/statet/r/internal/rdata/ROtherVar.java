@@ -49,7 +49,7 @@ public final class ROtherVar extends CombinedElement
 	}
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		final int options = io.in.readInt();
+		final int options = io.readInt();
 		fClassName = io.readString();
 		if ((options & RObjectFactoryImpl.F_WITH_ATTR) != 0) {
 			fAttributes = factory.readAttributeList(io);
@@ -58,7 +58,7 @@ public final class ROtherVar extends CombinedElement
 	
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		final boolean withAttr = ((io.flags & RObjectFactoryImpl.F_WITH_ATTR) != 0) && (fAttributes != null);
-		io.out.writeInt((withAttr) ? RObjectFactoryImpl.F_WITH_ATTR : 0);
+		io.writeInt((withAttr) ? RObjectFactoryImpl.F_WITH_ATTR : 0);
 		io.writeString(fClassName);
 		if (withAttr) {
 			factory.writeAttributeList(fAttributes, io);

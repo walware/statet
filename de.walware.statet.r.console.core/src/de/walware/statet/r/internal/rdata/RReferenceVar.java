@@ -48,14 +48,14 @@ public final class RReferenceVar extends CombinedElement
 	}
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		fHandle = io.in.readLong();
-		fType = io.in.readInt();
+		fHandle = io.readLong();
+		fType = io.readInt();
 		fClassName = io.readString();
 	}
 	
 	public void writeExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		io.out.writeLong(fHandle);
-		io.out.writeInt(fType);
+		io.writeLong(fHandle);
+		io.writeInt(fType);
 		io.writeString(fClassName);
 	}
 	

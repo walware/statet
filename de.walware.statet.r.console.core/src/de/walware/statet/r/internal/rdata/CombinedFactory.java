@@ -35,7 +35,7 @@ public class CombinedFactory extends RObjectFactoryImpl {
 	}
 	
 	public CombinedElement readObject(final RJIO io, final CombinedElement parent, final RElementName name) throws IOException {
-		final byte type = io.in.readByte();
+		final byte type = io.readByte();
 		switch (type) {
 		case -1:
 			return null;

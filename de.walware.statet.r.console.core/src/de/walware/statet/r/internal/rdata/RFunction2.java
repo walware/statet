@@ -52,7 +52,7 @@ public final class RFunction2 extends CombinedElement
 	}
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
-		/*final int options =*/ io.in.readInt();
+		/*final int options =*/ io.readInt();
 		final String headerSource = io.readString();
 		if (headerSource != null && headerSource.length() > 0) {
 			final RScanner scanner = new RScanner(new StringParseInput(headerSource), null);

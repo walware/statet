@@ -60,13 +60,13 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
-		final int options = io.in.readInt();
+		final int options = io.readInt();
 		final boolean customClass = ((options & RObjectFactory.O_CLASS_NAME) != 0);
 		//-- special attributes
 		if (customClass) {
 			this.className1 = io.readString();
 		}
-		this.length = io.in.readInt();
+		this.length = io.readInt();
 		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
 			this.namesAttribute = factory.readNames(io);
 		}
@@ -87,12 +87,12 @@ public class RVectorVar<DataType extends RStore> extends CombinedElement
 		if ((io.flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.namesAttribute != null) {
 			options |= RObjectFactory.O_WITH_NAMES;
 		}
-		io.out.writeInt(options);
+		io.writeInt(options);
 		//-- special attributes
 		if (customClass) {
 			io.writeString(this.className1);
 		}
-		io.out.writeInt(this.length);
+		io.writeInt(this.length);
 		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
 			factory.writeNames(this.namesAttribute, io);
 		}

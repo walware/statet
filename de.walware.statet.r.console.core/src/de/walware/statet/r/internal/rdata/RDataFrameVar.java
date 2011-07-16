@@ -39,7 +39,7 @@ public final class RDataFrameVar extends RListVar
 	@Override
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		final int options = super.doReadExternal(io, factory);
-		this.rowCount = io.in.readInt();
+		this.rowCount = io.readInt();
 		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
 			this.rownamesAttribute = factory.readNames(io);
 		}
@@ -52,7 +52,7 @@ public final class RDataFrameVar extends RListVar
 			options |= RObjectFactory.O_WITH_NAMES;
 		}
 		super.doWriteExternal(io, options, factory);
-		io.out.writeInt(this.rowCount);
+		io.writeInt(this.rowCount);
 		if ((options & RObjectFactory.O_WITH_NAMES) != 0) {
 			factory.writeNames(this.rownamesAttribute, io);
 		}

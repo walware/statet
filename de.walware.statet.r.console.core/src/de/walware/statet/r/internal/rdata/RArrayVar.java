@@ -65,7 +65,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 	
 	public void readExternal(final RJIO io, final RObjectFactory factory) throws IOException {
 		//-- options
-		final int options = io.in.readInt();
+		final int options = io.readInt();
 		final boolean customClass = ((options & RObjectFactory.O_CLASS_NAME) != 0);
 		//-- special attributes
 		if (customClass) {
@@ -100,7 +100,7 @@ public final class RArrayVar<DataType extends RStore> extends CombinedElement
 		if ((io.flags & RObjectFactory.F_ONLY_STRUCT) == 0 && this.dimnamesAttribute != null) {
 			options |= RObjectFactory.O_WITH_NAMES;
 		}
-		io.out.writeInt(options);
+		io.writeInt(options);
 		//-- special attributes
 		if (customClass) {
 			io.writeString(this.className1);
