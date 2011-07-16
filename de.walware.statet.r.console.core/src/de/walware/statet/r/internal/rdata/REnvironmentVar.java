@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.REnvironment;

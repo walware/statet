@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.IStringVariable;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 
 import de.walware.statet.nico.core.NicoVariables;
 import de.walware.statet.nico.core.runtime.IConsoleService;

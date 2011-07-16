@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.core.renv;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 
 import de.walware.statet.r.core.renv.IRLibraryGroup;
 import de.walware.statet.r.core.renv.IRLibraryLocation;

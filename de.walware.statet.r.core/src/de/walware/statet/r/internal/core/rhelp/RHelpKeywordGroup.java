@@ -14,7 +14,7 @@ package de.walware.statet.r.internal.core.rhelp;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 
 import de.walware.statet.r.core.rhelp.IRHelpKeyword;
 

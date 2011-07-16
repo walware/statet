@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.IWorkspaceSourceUnit;

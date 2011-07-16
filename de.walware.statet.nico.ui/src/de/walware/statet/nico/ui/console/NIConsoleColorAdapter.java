@@ -22,7 +22,7 @@ import java.util.List;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.preferences.Preference;
 import de.walware.ecommons.preferences.PreferencesUtil;
 import de.walware.ecommons.ui.SharedUIResources;

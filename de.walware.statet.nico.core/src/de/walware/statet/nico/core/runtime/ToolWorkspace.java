@@ -27,9 +27,9 @@ import org.eclipse.core.variables.IDynamicVariable;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;
 import de.walware.ecommons.ts.ISystemRunnable;

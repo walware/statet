@@ -23,7 +23,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWorkbenchPart;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.ast.AstSelection;
 import de.walware.ecommons.ltk.ui.sourceediting.AssistInvocationContext;
 import de.walware.ecommons.ltk.ui.sourceediting.IInfoHover;

@@ -23,7 +23,7 @@ import java.util.List;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.text.IStringCache;
 import de.walware.ecommons.text.SourceParseInput;
 import de.walware.ecommons.text.StringRegionParseInput;

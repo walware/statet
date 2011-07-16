@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 
 import de.walware.rj.data.RCharacterStore;
 import de.walware.rj.data.RJIO;

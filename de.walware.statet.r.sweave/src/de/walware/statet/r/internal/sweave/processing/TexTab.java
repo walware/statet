@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.databinding.jface.RadioGroupObservable;
 import de.walware.ecommons.databinding.jface.SWTMultiEnabledObservable;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;

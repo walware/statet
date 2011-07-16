@@ -27,4 +27,5 @@ Export-Package: de.walware.ecommons.debug.core,
  de.walware.statet.base.core.preferences
 Import-Package: com.ibm.icu.text;version="4.0.1",
  de.walware.ecommons,
+ de.walware.ecommons.collections,
  de.walware.ecommons.preferences

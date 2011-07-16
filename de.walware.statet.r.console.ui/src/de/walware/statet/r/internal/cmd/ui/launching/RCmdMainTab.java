@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 import de.walware.ecommons.AbstractSettingsModelObject;
-import de.walware.ecommons.ConstList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.debug.ui.HelpRequestor;
 import de.walware.ecommons.debug.ui.InputArgumentsComposite;
 import de.walware.ecommons.debug.ui.LaunchConfigTabWithDbc;

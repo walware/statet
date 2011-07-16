@@ -86,8 +86,8 @@ import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ltk.IElementName;
 import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;

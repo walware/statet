@@ -35,8 +35,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.io.FileUtil;
 import de.walware.ecommons.net.resourcemapping.IResourceMappingManager;
 import de.walware.ecommons.net.resourcemapping.ResourceMappingUtils;

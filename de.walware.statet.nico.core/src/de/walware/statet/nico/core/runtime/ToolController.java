@@ -32,9 +32,9 @@ import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.osgi.util.NLS;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.FastList;
 import de.walware.ecommons.IDisposable;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.ts.ISystemRunnable;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;

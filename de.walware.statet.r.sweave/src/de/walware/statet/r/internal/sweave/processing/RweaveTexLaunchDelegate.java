@@ -40,8 +40,8 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IWorkbenchPage;
 
-import de.walware.ecommons.ConstList;
 import de.walware.ecommons.ICommonStatusConstants;
+import de.walware.ecommons.collections.ConstList;
 import de.walware.ecommons.debug.core.OverlayLaunchConfiguration;
 import de.walware.ecommons.debug.ui.LaunchConfigUtil;
 import de.walware.ecommons.io.FileValidator;
