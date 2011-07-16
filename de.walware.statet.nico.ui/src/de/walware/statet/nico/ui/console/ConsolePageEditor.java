@@ -773,10 +773,21 @@ public class ConsolePageEditor implements ISettingsChangedHandler, ISourceEditor
 	void updatePrompt(final Prompt prompt) {
 		final Prompt p = (prompt != null) ? prompt : fProcess.getWorkspaceData().getPrompt();
 		if (UIAccess.isOkToUse(fPrefix)) {
+			int start = 0;
+			for (int i = 0; i < p.text.length(); i++) {
+				final char c = p.text.charAt(i);
+				if (c < 32 && c != '\t') {
+					start = i+1;
+				}
+				else {
+					break;
+				}
+			}
+			final String newText = (start == 0) ? p.text : p.text.substring(start);
 			final String oldText = fPrefix.getText();
-			if (!oldText.equals(p.text)) {
-				fPrefix.setText(p.text);
-				if (oldText.length() != p.text.length()) { // assuming monospace font
+			if (!oldText.equals(newText)) {
+				fPrefix.setText(newText);
+				if (oldText.length() != newText.length()) { // assuming monospace font
 					getComposite().layout(new Control[] { fPrefix });
 				}
 			}
