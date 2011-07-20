@@ -267,7 +267,7 @@ public class RJREnvIndexUpdater {
 			loadKeywords(r, progress.newChild(10));
 			
 			if (progress.isCanceled()) {
-				return Status.CANCEL_STATUS;
+				throw new CoreException(Status.CANCEL_STATUS);
 			}
 			progress.setWorkRemaining(90);
 			
@@ -284,11 +284,12 @@ public class RJREnvIndexUpdater {
 			return new Status(IStatus.INFO, RCore.PLUGIN_ID, "The R environment index was updated successfully.");
 		}
 		catch (final CoreException e) {
-			fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
-					"An error occurred when updating the R environment.", e));
 			if (e.getStatus().getSeverity() == IStatus.CANCEL) {
+				fIndex.cancel();
 				return e.getStatus();
 			}
+			fIndex.log(new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
+					"An error occurred when updating the R environment.", e));
 			final IStatus status = fIndex.cancel();
 			return new Status(IStatus.ERROR, RCore.PLUGIN_ID, -1,
 					"The R environment could not be updated.",
