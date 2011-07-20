@@ -35,7 +35,6 @@ import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Scorer;
-import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.vectorhighlight.FastVectorHighlighter;
@@ -251,7 +250,7 @@ public class REnvIndexReader implements IREnvIndex {
 	
 	
 	private final IndexReader fIndexReader;
-	private Searcher fIndexSearcher;
+	private IndexSearcher fIndexSearcher;
 	
 	
 	REnvIndexReader(final IREnvConfiguration rEnvConfig) throws Exception {

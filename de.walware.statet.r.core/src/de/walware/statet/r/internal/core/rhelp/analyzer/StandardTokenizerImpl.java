@@ -18,7 +18,7 @@
 package de.walware.statet.r.internal.core.rhelp.analyzer;
 
 import org.apache.lucene.analysis.Token;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 
 /**
@@ -351,17 +351,10 @@ final void reset(java.io.Reader r) {
 }
 
 /**
- * Fills Lucene token with the current token text.
+ * Fills CharTermAttribute with the current token text.
  */
-final void getText(Token t) {
-  t.setTermBuffer(zzBuffer, zzStartRead, zzMarkedPos-zzStartRead);
-}
-
-/**
- * Fills TermAttribute with the current token text.
- */
-final void getText(TermAttribute t) {
-  t.setTermBuffer(zzBuffer, zzStartRead, zzMarkedPos-zzStartRead);
+final void getText(CharTermAttribute t) {
+  t.copyBuffer(zzBuffer, zzStartRead, zzMarkedPos-zzStartRead);
 }
 
 

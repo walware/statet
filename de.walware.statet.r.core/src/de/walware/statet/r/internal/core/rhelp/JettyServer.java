@@ -75,7 +75,7 @@ public class JettyServer {
 		}
 		if (fPort == -1) {
 			// Jetty selected a port number for us
-			final ServiceReference[] reference = bundle.getBundleContext().getServiceReferences(
+			final ServiceReference<?>[] reference = bundle.getBundleContext().getServiceReferences(
 					"org.osgi.service.http.HttpService", "(other.info="+OTHER_INFO+")"); //$NON-NLS-1$ //$NON-NLS-2$
 			final Object assignedPort = reference[0].getProperty("http.port"); //$NON-NLS-1$
 			fPort = Integer.parseInt((String)assignedPort);

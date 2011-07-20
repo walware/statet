@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.Version;
@@ -118,18 +118,14 @@ public final class StandardTokenizer extends Tokenizer {
 	
 	private void init(final Reader input, final Version matchVersion) {
 		this.input = input;
-		termAtt = addAttribute(TermAttribute.class);
-		offsetAtt = addAttribute(OffsetAttribute.class);
-		posIncrAtt = addAttribute(PositionIncrementAttribute.class);
-		typeAtt = addAttribute(TypeAttribute.class);
 	}
 	
 	// this tokenizer generates three attributes:
-	// offset, positionIncrement and type
-	private TermAttribute termAtt;
-	private OffsetAttribute offsetAtt;
-	private PositionIncrementAttribute posIncrAtt;
-	private TypeAttribute typeAtt;
+	// term offset, positionIncrement and type
+	private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+	private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
+	private final PositionIncrementAttribute posIncrAtt = addAttribute(PositionIncrementAttribute.class);
+	private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
 	
 	
 	@Override
@@ -148,7 +144,7 @@ public final class StandardTokenizer extends Tokenizer {
 				posIncrAtt.setPositionIncrement(posIncr);
 				scanner.getText(termAtt);
 				final int start = scanner.yychar();
-				offsetAtt.setOffset(correctOffset(start), correctOffset(start+termAtt.termLength()));
+				offsetAtt.setOffset(correctOffset(start), correctOffset(start+termAtt.length()));
 				typeAtt.setType(StandardTokenizerImpl.TOKEN_TYPES[tokenType]);
 				return true;
 			} else
