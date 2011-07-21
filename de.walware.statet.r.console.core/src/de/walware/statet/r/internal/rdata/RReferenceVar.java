@@ -64,6 +64,10 @@ public final class RReferenceVar extends CombinedElement
 		return TYPE_REFERENCE;
 	}
 	
+	public int getReferencedRObjectType() {
+		return fType;
+	}
+	
 	public String getRClassName() {
 		return fClassName;
 	}
