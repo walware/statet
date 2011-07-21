@@ -16,12 +16,15 @@ import java.util.List;
 import org.eclipse.core.commands.IHandler2;
 import org.eclipse.core.runtime.CoreException;
 
+import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.util.UIAccess;
 
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.ui.NicoUI;
 import de.walware.statet.nico.ui.NicoUITools;
+import de.walware.statet.nico.ui.ToolSessionUIData;
 
+import de.walware.rj.eclient.graphics.IERGraphic;
 import de.walware.rj.eclient.graphics.IERGraphicsManager;
 import de.walware.rj.eclient.graphics.PageBookRGraphicView;
 import de.walware.rj.eclient.graphics.RGraphicPage;
@@ -63,6 +66,21 @@ public class StatetRGraphicView extends PageBookRGraphicView {
 	@Override
 	protected void collectContextMenuPreferencePages(final List<String> pageIds) {
 		pageIds.add("de.walware.statet.r.preferencePages.RGraphicsPage"); //$NON-NLS-1$
+	}
+	
+	@Override
+	public int canShowGraphic(final IERGraphic graphic) {
+		int canShow = super.canShowGraphic(graphic);
+		if (canShow > 0) {
+			final ITool tool = graphic.getRHandle();
+			if (tool != null) {
+				final ToolSessionUIData data = NicoUI.getToolRegistry().getActiveToolSession(getViewSite().getPage());
+				if (data.getProcess() == tool) {
+					canShow += 1;
+				}
+			}
+		}
+		return canShow;
 	}
 	
 }

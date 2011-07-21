@@ -15,8 +15,14 @@ import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.UpdateValueStrategy;
 import org.eclipse.core.databinding.observable.Realm;
 import org.eclipse.core.databinding.observable.value.WritableValue;
+import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -26,23 +32,30 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import de.walware.ecommons.io.FileValidator;
 import de.walware.ecommons.ui.util.DialogUtil;
 import de.walware.ecommons.ui.util.LayoutUtil;
+import de.walware.ecommons.ui.util.UIAccess;
 import de.walware.ecommons.ui.workbench.ResourceInputComposite;
 
-import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
-import de.walware.statet.nico.core.runtime.ToolWorkspace;
 import de.walware.statet.nico.ui.util.ToolInfoGroup;
 
 import de.walware.rj.eclient.graphics.IERGraphic;
 import de.walware.rj.eclient.graphics.utils.CopyToDevRunnable;
+import de.walware.rj.services.RService;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.core.RUtil;
 import de.walware.statet.r.internal.ui.RUIPlugin;
+import de.walware.statet.r.ui.RUI;
 
 
 /**
@@ -53,11 +66,17 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 	
 	private class ConfigPage extends WizardPage {
 		
-		private static final String SETTINGS_HISTORY = "todev.file"; //$NON-NLS-1$
+		private static final String SETTINGS_HISTORY = "todev.file-"; //$NON-NLS-1$
+		private static final String SETTINGS_OPEN = "open.file-"; //$NON-NLS-1$
 		
+		
+		private final String fSettingType;
 		
 		private ResourceInputComposite fLocationGroup;
 		private WritableValue fNewLocationString;
+		
+		private Button fOpenFileControl;
+		private WritableValue fOpenFileValue;
 		
 		private DataBindingContext fDbc;
 		
@@ -65,6 +84,7 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 		public ConfigPage() {
 			super("Config"); //$NON-NLS-1$
 			
+			fSettingType = fDevAbbr.toLowerCase();
 			setTitle(NLS.bind("Save Graphic as {0} using R", fDevAbbr.toUpperCase()));
 			setDescription("Select the file to save the graphic to.");
 		}
@@ -94,25 +114,49 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 					ResourceInputComposite.STYLE_COMBO,
 					ResourceInputComposite.MODE_FILE | ResourceInputComposite.MODE_SAVE,
 					"Graphic File");
+			final IFileStore wd = fTool.getWorkspaceData().getWorkspaceDir();
+			if (wd != null) {
+				fLocationGroup.getValidator().setRelative(wd.toString(), IStatus.WARNING);
+			}
+			else {
+				fLocationGroup.getValidator().setIgnoreRelative(true);
+			}
 			fLocationGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-			fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY));
+			fLocationGroup.setHistory(getDialogSettings().getArray(SETTINGS_HISTORY+fSettingType));
+			
+			{	final Group group = new Group(container, SWT.DEFAULT);
+				group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+				group.setLayout(LayoutUtil.applyGroupDefaults(new GridLayout(), 1));
+				
+				fOpenFileControl = new Button(group, SWT.CHECK);
+				fOpenFileControl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+				fOpenFileControl.setText("&Open file when finished");
+			}
 			
 			final Realm realm = Realm.getDefault();
 			fDbc = new DataBindingContext(realm);
 			fNewLocationString = new WritableValue("", String.class);
 			fDbc.bindValue(fLocationGroup.getObservable(), fNewLocationString,
 					new UpdateValueStrategy().setAfterGetValidator(fLocationGroup.getValidator()), null);
+			fOpenFileValue = new WritableValue(realm, Boolean.FALSE, Boolean.class);
+			fDbc.bindValue(fOpenFileValue, SWTObservables.observeSelection(fOpenFileControl));
+			fOpenFileValue.setValue(getDialogSettings().getBoolean(SETTINGS_OPEN+fSettingType));
 			
 			WizardPageSupport.create(this, fDbc);
 		}
 		
 		public void saveSettings() {
 			final IDialogSettings settings = getDialogSettings();
-			DialogUtil.saveHistorySettings(settings, SETTINGS_HISTORY, (String) fNewLocationString.getValue());
+			DialogUtil.saveHistorySettings(settings, SETTINGS_HISTORY+fSettingType, (String) fNewLocationString.getValue());
+			settings.put(SETTINGS_OPEN+fSettingType, ((Boolean) fOpenFileValue.getValue()).booleanValue());
 		}
 		
-		public IFileStore getResource() {
-			return fLocationGroup.getResourceAsFileStore();
+		public FileValidator getValidator() throws CoreException {
+			return fLocationGroup.getValidator();
+		}
+		
+		public boolean getOpen() {
+			return ((Boolean) fOpenFileValue.getValue()).booleanValue();
 		}
 		
 		@Override
@@ -153,16 +197,64 @@ public class StatetRGraphicCopyToDevWizard extends Wizard {
 	
 	@Override
 	public boolean performFinish() {
-		final ToolController controller = fTool.getController();
-		if (controller != null) {
-			final ToolWorkspace workspace = controller.getWorkspaceData();
+		if (!fTool.isTerminated()) {
 			try {
-				final String path = workspace.toToolPath(fPage.getResource());
+				final FileValidator validator = fPage.getValidator();
+				final IPath relative = (validator.isRelativeFile()) ?
+						validator.getRelativeFile() : null;
+				final IFileStore absolute = (relative == null) ? validator.getFileStore() : null;
+				final String path = (relative != null) ? relative.toString() :
+						fTool.getWorkspaceData().toToolPath(absolute);
+				final boolean open = fPage.getOpen();
+				final IWorkbenchPage workbenchPage = UIAccess.getActiveWorkbenchPage(true);
+				
 				fGraphic.getRHandle().getQueue().add(new CopyToDevRunnable(
-						fGraphic, fDevCmd, RUtil.escapeCompletely(path), "onefile=TRUE,paper=\"special\""));
+						fGraphic, fDevCmd, RUtil.escapeCompletely(path),
+						"onefile= TRUE, paper= \"special\"") {
+					@Override
+					public void run(final RService r,
+							final IProgressMonitor monitor) throws CoreException {
+						super.run(r, monitor);
+						if (open) {
+							final IFileStore fileName;
+							if (relative != null) {
+								((IRBasicAdapter) r).refreshWorkspaceData(0, monitor);
+								final IFileStore wd = fTool.getWorkspaceData().getWorkspaceDir();
+								if (wd == null) {
+									return;
+								}
+								fileName = wd.getFileStore(relative);
+							}
+							else {
+								fileName = absolute;
+							}
+							if (fileName != null && fileName.fetchInfo(EFS.NONE, monitor).exists()) {
+								UIAccess.getDisplay().asyncExec(new Runnable() {
+									public void run() {
+										try {
+											IWorkbenchPage page = workbenchPage;
+											if (page == null || page.getWorkbenchWindow().getShell() == null) {
+												page = UIAccess.getActiveWorkbenchPage(true);
+											}
+											if (page == null) {
+												return;
+											}
+											IDE.openEditorOnFileStore(page, fileName);
+										}
+										catch (final CoreException e) {
+											StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+													"An error occurred when opening the exported R graphic.", e));
+										}
+									}
+								});
+							}
+						}
+					}
+				});
 			}
 			catch (final CoreException e) {
-				StatusManager.getManager().handle(e.getStatus());
+				StatusManager.getManager().handle(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
+						NLS.bind("An error occurred when exporting the R graphic (Device {0}).", fGraphic.getDevId()+1), e));
 				return false;
 			}
 		}

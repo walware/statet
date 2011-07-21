@@ -45,6 +45,7 @@ import de.walware.statet.base.ui.StatetUIServices;
 import de.walware.statet.nico.core.ConsoleInstanceScope;
 import de.walware.statet.nico.core.NicoCore;
 
+import de.walware.rj.eclient.graphics.IERGraphicsManager;
 import de.walware.rj.eclient.graphics.comclient.ERGraphicFactory;
 
 import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
@@ -52,6 +53,7 @@ import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RdDocumentProvider;
+import de.walware.statet.r.internal.ui.graphics.ShowGraphicViewListener;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.editors.REditorOptions;
 import de.walware.statet.r.ui.editors.templates.REditorTemplatesContextType;
@@ -423,7 +425,8 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	public synchronized ERGraphicFactory getCommonRGraphicFactory() {
 		if (fCommonRGraphicFactory == null) {
-			fCommonRGraphicFactory = new ERGraphicFactory();
+			final IERGraphicsManager manager = fCommonRGraphicFactory = new ERGraphicFactory();
+			manager.addListener(new ShowGraphicViewListener());
 		}
 		return fCommonRGraphicFactory;
 	}

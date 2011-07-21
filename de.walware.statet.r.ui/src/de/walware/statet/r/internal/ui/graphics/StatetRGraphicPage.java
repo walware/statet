@@ -20,6 +20,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.services.IServiceLocator;
 
+import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ui.actions.HandlerContributionItem;
 import de.walware.ecommons.ui.util.UIAccess;
 
@@ -45,6 +46,12 @@ public class StatetRGraphicPage extends RGraphicPage {
 			fDevAbbr = abbr;
 		}
 		
+		
+		@Override
+		public void setEnabled(final Object evaluationContext) {
+			final ITool tool = getGraphic().getRHandle();
+			setBaseEnabled(tool != null && !tool.isTerminated());
+		}
 		
 		public Object execute(final ExecutionEvent event) throws ExecutionException {
 			final Object rHandle = getGraphic().getRHandle();
@@ -87,13 +94,13 @@ public class StatetRGraphicPage extends RGraphicPage {
 		menu.appendToGroup("save", new HandlerContributionItem(new CommandContributionItemParameter(
 				getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
 				null, null, null,
-				"Save as PDF (using R)", "D", null,
+				"Save as PDF (using R)...", "D", null,
 				HandlerContributionItem.STYLE_PUSH, null, false),
 				new SaveInRHandler("pdf", "pdf"))); //$NON-NLS-1$ //$NON-NLS-2$
 		menu.appendToGroup("save", new HandlerContributionItem(new CommandContributionItemParameter(
 				getSite(), null, HandlerContributionItem.NO_COMMAND_ID, null,
 				null, null, null,
-				"Save as EPS (using R)", "E", null,
+				"Save as EPS (using R)...", "E", null,
 				HandlerContributionItem.STYLE_PUSH, null, false),
 				new SaveInRHandler("postscript", "eps"))); //$NON-NLS-1$ //$NON-NLS-2$
 		
