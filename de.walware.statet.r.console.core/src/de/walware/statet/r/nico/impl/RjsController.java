@@ -71,6 +71,7 @@ import de.walware.rj.server.Server;
 import de.walware.rj.server.ServerInfo;
 import de.walware.rj.server.ServerLogin;
 import de.walware.rj.server.client.AbstractRJComClient;
+import de.walware.rj.server.client.FunctionCallImpl;
 import de.walware.rj.server.client.RClientGraphicFactory;
 import de.walware.rj.server.client.RGraphicCreatorImpl;
 import de.walware.rj.services.FunctionCall;
@@ -803,11 +804,11 @@ public class RjsController extends AbstractRController
 		fRjs.uploadFile(in, length, fileName, options, monitor);
 	}
 	
-	public FunctionCall createFunctionCall(final String name) {
-		throw new UnsupportedOperationException();
+	public FunctionCall createFunctionCall(final String name) throws CoreException {
+		return new FunctionCallImpl(fRjs, name, RObjectFactoryImpl.INSTANCE);
 	}
 	
-	public RGraphicCreator createRGraphicCreator(final int options) {
+	public RGraphicCreator createRGraphicCreator(final int options) throws CoreException {
 		return new RGraphicCreatorImpl(this, fRjs, options);
 	}
 	
