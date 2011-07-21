@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Vendor: WalWare.de
 Bundle-Name: StatET Nico UI
 Bundle-SymbolicName: de.walware.statet.nico.ui;singleton:=true
-Bundle-Version: 0.11.0.qualifier
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: de.walware.statet.nico.internal.ui.NicoUIPlugin
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin
@@ -18,8 +18,8 @@ Require-Bundle: org.eclipse.core.expressions,
  org.eclipse.ui.console;visibility:=reexport,
  org.eclipse.debug.ui;visibility:=reexport,
  de.walware.ecommons.uimisc;bundle-version="[1.0.0,1.1.0)",
- de.walware.statet.nico.core;bundle-version="[0.11.0,0.12.0)";visibility:=reexport,
- de.walware.ecommons.ltk.ui;bundle-version="[0.10.0,0.11.0)",
+ de.walware.statet.nico.core;bundle-version="[2.0.0,2.1.0)";visibility:=reexport,
+ de.walware.ecommons.ltk.ui;bundle-version="[1.0.0,1.1.0)",
  org.eclipse.ui.ide;resolution:=optional,
  org.eclipse.equinox.security;bundle-version="1.0.0";resolution:=optional
 Import-Package: com.ibm.icu.text;version="4.0.1",
