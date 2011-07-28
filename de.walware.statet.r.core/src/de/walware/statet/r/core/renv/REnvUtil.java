@@ -18,7 +18,7 @@ public class REnvUtil {
 	public static String encode(final IREnv rEnv) {
 		if (rEnv != null) {
 			final String name = rEnv.getName();
-			if (name != null) {
+			if (name != null && !IREnv.DEFAULT_WORKBENCH_ENV_ID.equals(rEnv.getId())) {
 				return rEnv.getId() + ';' + name;
 			}
 			else {
