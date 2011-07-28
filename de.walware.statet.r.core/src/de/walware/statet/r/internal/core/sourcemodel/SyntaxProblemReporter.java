@@ -113,6 +113,8 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	private static final int START_TEXT_LIMIT = 25;
 	private static final int BUFFER_SIZE = 100;
 	
+	private static final int MASK = 0x00ffffff;
+	
 	private ISourceUnit fCurrentUnit;
 	private IDocument fCurrentDoc;
 	private IProblemRequestor fCurrentRequestor;
@@ -148,7 +150,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	
 	private void handleCommonCodes(final RAstNode node) throws BadLocationException, InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		switch (code & STATUS_MASK_12) {
 		case STATUS_RUNTIME_ERROR:
 			throw new InvocationTargetException(new CoreException(
@@ -166,7 +168,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	}
 	
 	protected void handleUnknownCodes(final RAstNode node) {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		String message = "Unhandled/Unknown code of R AST node:\n"+ //$NON-NLS-1$
 				"  Code: 0x"+Integer.toHexString(code)+"\n"+ //$NON-NLS-1$ //$NON-NLS-2$
 				"  Node: "+node.toString()+" ("+node.getOffset()+", "+node.getLength()+")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -186,7 +188,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SourceComponent node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -205,7 +207,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Block node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -229,7 +231,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Group node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -253,7 +255,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CIfElse node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -287,7 +289,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CForLoop node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -322,7 +324,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CRepeatLoop node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -341,7 +343,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CWhileLoop node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -370,7 +372,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final CLoopCommand node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -389,7 +391,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FCall node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -413,7 +415,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FCall.Args node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -432,7 +434,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FCall.Arg node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -451,7 +453,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -480,7 +482,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef.Args node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -499,7 +501,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final FDef.Arg node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -518,7 +520,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Assignment node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -537,7 +539,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Model node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -556,7 +558,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Relational node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -581,7 +583,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Logical node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -600,7 +602,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Arithmetic node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -619,7 +621,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Power node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -638,7 +640,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Seq node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -657,7 +659,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Special node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -682,7 +684,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Sign node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -701,7 +703,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -742,7 +744,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed.Args node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -761,7 +763,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubIndexed.Arg node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -780,7 +782,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final SubNamed node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -799,7 +801,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final NSGet node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -818,7 +820,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final StringConst node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -842,7 +844,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final NumberConst node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -872,7 +874,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final NullConst node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -891,7 +893,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Symbol node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -927,7 +929,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Help node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
@@ -946,7 +948,7 @@ public class SyntaxProblemReporter extends RAstVisitor {
 	
 	@Override
 	public void visit(final Dummy node) throws InvocationTargetException {
-		final int code = node.getStatusCode();
+		final int code = (node.getStatusCode() & MASK);
 		if (code != STATUS_OK &&
 				(fReportSubsequent || ((code & STATUSFLAG_SUBSEQUENT) == 0))) {
 			try {
