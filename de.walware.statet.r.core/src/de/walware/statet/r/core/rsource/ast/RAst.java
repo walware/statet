@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.collections.primitives.ArrayIntList;
+import org.apache.commons.collections.primitives.IntList;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Position;
@@ -25,8 +27,8 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.ltk.ast.ICommonAstVisitor;
 
 import de.walware.statet.r.core.model.ArgsDefinition;
-import de.walware.statet.r.core.model.RCoreFunctions;
 import de.walware.statet.r.core.model.ArgsDefinition.Arg;
+import de.walware.statet.r.core.model.RCoreFunctions;
 import de.walware.statet.r.core.rlang.RTerminal;
 import de.walware.statet.r.core.rsource.IRSourceConstants;
 
@@ -639,6 +641,117 @@ public class RAst {
 		return ((node.getStatusCode() & 
 				(IRSourceConstants.STATUSFLAG_REAL_ERROR
 						| IRSourceConstants.STATUSFLAG_ERROR_IN_CHILD )) != 0 );
+	}
+	
+	public static int[] computeRExpressionIndex(RAstNode node, final RAstNode baseNode) {
+		final IntList topdown = new ArrayIntList();
+		while (node != baseNode) {
+			final RAstNode parent = node.getRParent();
+			switch (parent.getNodeType()) {
+			
+			// list
+			case SOURCELINES:
+			case F_DEF_ARGS:
+			// [[1]] = name
+			case F_CALL:
+				topdown.add(parent.getChildIndex(node) + 1);
+				node = parent;
+				continue;
+			
+			// [[1]] = operator
+			case BLOCK:
+			case GROUP:
+			case SUB_INDEXED_S:
+			case SUB_INDEXED_D:
+			case NS_GET:
+			case NS_GET_INT:
+			case SUB_NAMED_PART:
+			case SUB_NAMED_SLOT:
+			case POWER:
+			case SIGN:
+			case SEQ:
+			case SPECIAL:
+			case MULT:
+			case ADD:
+			case RELATIONAL:
+			case NOT:
+			case AND:
+			case OR:
+			case MODEL:
+			case A_RIGHT:
+			case A_EQUALS: 
+			case A_LEFT: 
+			case HELP:
+			case C_IF:
+			case C_FOR:
+			case C_WHILE:
+			case C_REPEAT:
+			case F_DEF:
+				topdown.add(parent.getChildIndex(node) + 2);
+				node = parent;
+				continue;
+			
+			// part of parent element
+			case SUB_INDEXED_ARGS:
+				if (parent == baseNode) {
+					break;
+				}
+				topdown.add(parent.getChildIndex(node) + 3);
+				node = parent.getRParent(); 
+				break;
+			case C_IN:
+			case F_CALL_ARGS:
+				if (parent == baseNode) {
+					break;
+				}
+				topdown.add(parent.getChildIndex(node) + 2);
+				node = parent.getRParent(); 
+				break;
+			
+			case SUB_INDEXED_ARG:
+			case F_DEF_ARG:
+			case F_CALL_ARG:
+				node = parent;
+				continue;
+			
+			case ERROR:
+			case ERROR_TERM:
+			case DUMMY:
+				return null;
+			
+			default:
+				throw new IllegalStateException("Unexpected parent");
+			}
+		}
+		final int l = topdown.size();
+		final int[] path = new int[l];
+		for (int i = 0; i < l;) {
+			path[i] = topdown.get(l - ++i);
+		}
+		return path;
+	}
+	
+	public static RAstNode getRRootNode(RAstNode node, final IRegion region) {
+		if (region == null) {
+			return node.getRRoot();
+		}
+		while (node.getRParent() != null) {
+			final RAstNode parent = node.getRParent();
+			final int beginDiff;
+			final int endDiff;
+			if ((beginDiff = region.getOffset() - parent.getOffset()) > 0
+					|| (endDiff = region.getOffset()+region.getLength() - parent.getOffset()-parent.getLength()) < 0 ) {
+				return node;
+			}
+			else if (beginDiff == 0 && endDiff == 0) {
+				return (parent.getNodeType() == NodeType.SOURCELINES) ? node : parent;
+			}
+			else {
+				node = parent;
+				continue;
+			}
+		}
+		return node;
 	}
 	
 }

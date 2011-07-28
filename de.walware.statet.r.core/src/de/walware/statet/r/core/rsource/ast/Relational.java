@@ -178,6 +178,10 @@ public abstract class Relational extends StdBinary {
 	}
 	
 	
+	protected Relational() {
+	}
+	
+	
 	@Override
 	public final NodeType getNodeType() {
 		return NodeType.RELATIONAL;

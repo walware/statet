@@ -25,8 +25,8 @@ public enum ToolStatus {
 			true, false),
 	STARTED_PAUSED (NicoCoreMessages.Status_StartedPaused_label, NicoCoreMessages.Status_StartedPaused_info,
 			false, false),
-//	STARTED_SUSPENDED (NicoCoreMessages.Status_StartedSuspended_label, NicoCoreMessages.Status_StartedSuspended_info,
-//			false, true),
+	STARTED_SUSPENDED (NicoCoreMessages.Status_StartedSuspended_label, NicoCoreMessages.Status_StartedSuspended_info,
+			false, true),
 	TERMINATED (NicoCoreMessages.Status_Terminated_label,  NicoCoreMessages.Status_Terminated_info,
 			false, false);
 	

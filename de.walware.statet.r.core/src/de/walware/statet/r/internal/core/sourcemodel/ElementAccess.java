@@ -12,6 +12,7 @@
 package de.walware.statet.r.internal.core.sourcemodel;
 
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -20,16 +21,17 @@ import de.walware.statet.r.core.rsource.ast.RAstNode;
 public abstract class ElementAccess extends RElementAccess {
 	
 	
-	public static final int A_READ =    0x0;
-	public static final int A_WRITE =   0x000002;
-	public static final int A_DELETE =  0x000003;
-	public static final int A_IMPORT =  0x000004;
+	public static final int A_READ =                        0x000000;
+	public static final int A_CALL =                        0x000001;
+	public static final int A_WRITE =                       0x000002;
+	public static final int A_DELETE =                      0x000003;
+	public static final int A_IMPORT =                      0x000004;
 	
-	public static final int A_SUB =     0x000100;
-	public static final int A_S4 =      0x000200;
+	public static final int A_SUB =                         0x000100;
+	public static final int A_S4 =                          0x000200;
 	
-	public static final int A_FUNC =    0x000010;
-	public static final int A_ARG =     0x000020;
+	public static final int A_FUNC =                        0x000010;
+	public static final int A_ARG =                         0x000020;
 	
 	
 	
@@ -132,20 +134,25 @@ public abstract class ElementAccess extends RElementAccess {
 	
 	@Override
 	public final boolean isWriteAccess() {
-		return ((fFlags & A_WRITE) != 0);
-	}
-	
-	public final boolean isDeletion() {
-		return ((fFlags & A_DELETE) == A_DELETE);
-	}
-	
-	public final boolean isImport() {
-		return ((fFlags & A_IMPORT) != 0);
+		return ((fFlags & A_WRITE) == A_WRITE); // A_WRITE | A_DELETE
 	}
 	
 	@Override
-	public final boolean isMethodAccess() {
-		return ((fFlags & A_FUNC) == A_FUNC);
+	public boolean isCallAccess() {
+		return ((fFlags & 0xf) == A_CALL);
+	}
+	
+	public final boolean isDeletion() {
+		return ((fFlags & 0xf) == A_DELETE);
+	}
+	
+	public final boolean isImport() {
+		return ((fFlags & 0xf) == A_IMPORT);
+	}
+	
+	@Override
+	public final boolean isFunctionAccess() {
+		return ((fFlags & 0xf0) == A_FUNC);
 	}
 	
 	@Override

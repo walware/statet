@@ -460,6 +460,7 @@ public class ToolProcess<WorkspaceType extends ToolWorkspace>
 					DebugEvent.MODEL_SPECIFIC, STATUS_PROCESS) );
 			break;
 		case STARTED_IDLING:
+		case STARTED_SUSPENDED:
 			eventCollection.add(new DebugEvent(ToolProcess.this,
 					DebugEvent.MODEL_SPECIFIC, STATUS_IDLE) );
 			break;

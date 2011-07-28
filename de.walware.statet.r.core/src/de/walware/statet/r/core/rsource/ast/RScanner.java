@@ -1291,7 +1291,6 @@ public final class RScanner {
 					}
 					break ITER_CAND;
 				case Assoc.LEFTSTD:
-				case Assoc.LEFTMULTI:
 					left = cand;
 					break ITER_CAND;
 				case Assoc.RIGHTSTD:
@@ -1309,14 +1308,6 @@ public final class RScanner {
 		final RAstNode baseNode = left.fRParent;
 		if (baseNode == null) {
 			throw new IllegalStateException(); // DEBUG
-		}
-		if (left.getNodeType().opPrec == newP) {
-			if (left.getNodeType().opAssoc == Assoc.LEFTMULTI) {
-				final FlatMulti leftMulti = (FlatMulti) left;
-				final FlatMulti newMulti = (FlatMulti) newNode;
-				context.update(leftMulti, leftMulti.appendComponent(newMulti.getStopOffset(), newMulti.getOperator(1)));
-				return;
-			}
 		}
 		final Expression baseExpr = baseNode.getExpr(left);
 		newNode.getLeftExpr().node = left;
@@ -1486,16 +1477,20 @@ public final class RScanner {
 		return node;
 	}
 	
-	protected FlatMulti createArithmetic() {
-		final FlatMulti node;
+	protected Arithmetic createArithmetic() {
+		final Arithmetic node;
 		switch (fNextType) {
 		case PLUS:
+			node = new Arithmetic.Plus();
+			break;
 		case MINUS:
-			node = new Arithmetic.Add(fNextType);
+			node = new Arithmetic.Minus();
 			break;
 		case MULT:
+			node = new Arithmetic.Mult();
+			break;
 		case DIV:
-			node = new Arithmetic.Mult(fNextType);
+			node = new Arithmetic.Div();
 			break;
 		default:
 			throw new IllegalStateException();
@@ -1556,16 +1551,20 @@ public final class RScanner {
 		return node;
 	}
 	
-	protected FlatMulti createLogical() {
-		final FlatMulti node;
+	protected Logical createLogical() {
+		final Logical node;
 		switch (fNextType) {
 		case AND:
+			node = new Logical.And();
+			break;
 		case AND_D:
-			node = new Logical.And(fNextType);
+			node = new Logical.AndD();
 			break;
 		case OR:
+			node = new Logical.Or();
+			break;
 		case OR_D:
-			node = new Logical.Or(fNextType);
+			node = new Logical.OrD();
 			break;
 		default:
 			throw new IllegalStateException();

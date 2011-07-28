@@ -44,7 +44,7 @@ import de.walware.statet.r.launching.RCodeLaunching;
 public class RunSelectionHandler extends AbstractHandler implements IElementUpdater {
 	
 	
-	private boolean fGotoConsole;
+	private final boolean fGotoConsole;
 	private RRefactoringAdapter fModelUtil;
 	
 	
@@ -96,8 +96,7 @@ public class RunSelectionHandler extends AbstractHandler implements IElementUpda
 					final int last = files.length-1;
 					for (int i = 0; i <= last; i++) {
 						final String[] lines = LaunchShortcutUtil.getCodeLines(files[i]);
-						RCodeLaunching.runRCodeDirect(lines[i], 
-								(i < last) && fGotoConsole);
+						RCodeLaunching.runRCodeDirect(lines[i], (i < last) && fGotoConsole);
 					}
 					return null;
 				}

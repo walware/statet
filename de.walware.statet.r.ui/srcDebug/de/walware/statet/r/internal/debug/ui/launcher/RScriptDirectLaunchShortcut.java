@@ -32,7 +32,7 @@ import de.walware.statet.r.launching.RCodeLaunching;
 public class RScriptDirectLaunchShortcut implements ILaunchShortcut {
 	
 	
-	private boolean fGotoConsole;
+	private final boolean fGotoConsole;
 	
 	
 	public RScriptDirectLaunchShortcut() {

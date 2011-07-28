@@ -131,16 +131,16 @@ import de.walware.statet.r.console.core.AbstractRDataRunnable;
 import de.walware.statet.r.console.core.IRDataAdapter;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
-import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
+import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.IRLangElement;
 import de.walware.statet.r.core.model.RElementComparator;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.internal.debug.ui.RDebugHover;
-import de.walware.statet.r.internal.debug.ui.RElementInfoHoverCreator;
 import de.walware.statet.r.internal.ui.RUIPlugin;
 import de.walware.statet.r.internal.ui.rtools.RunPrintInR;
 import de.walware.statet.r.ui.RLabelProvider;
+import de.walware.statet.r.ui.rtool.RElementInfoHoverCreator;
+import de.walware.statet.r.ui.rtool.RElementInfoTask;
 
 
 public class ObjectBrowserView extends ViewPart implements IToolProvider {
@@ -156,7 +156,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	
 	private static class ContentInput {
 		
-		List<? extends ICombinedEnvironment> searchEnvirs;
+		List<? extends ICombinedREnvironment> searchEnvirs;
 		boolean processChanged;
 		boolean inputChanged;
 		final boolean filterUserspace;
@@ -714,9 +714,9 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		/** update all environment */
 		private boolean fForce;
 		/** environments to update, if force is false*/
-		private final Set<ICombinedEnvironment> fUpdateSet = new HashSet<ICombinedEnvironment>();
+		private final Set<ICombinedREnvironment> fUpdateSet = new HashSet<ICombinedREnvironment>();
 		
-		private List<? extends ICombinedEnvironment> fInput;
+		private List<? extends ICombinedREnvironment> fInput;
 		private ICombinedRElement[] fUserspaceInput;
 		
 		private volatile boolean fIsScheduled;
@@ -739,7 +739,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				}
 				else {
 					final ToolProcess<? extends RWorkspace> process = workspace.getProcess();
-					final List<RWorkspace.ICombinedEnvironment> envirs = (List<RWorkspace.ICombinedEnvironment>) properties.get("REnvironments");
+					final List<RWorkspace.ICombinedREnvironment> envirs = (List<RWorkspace.ICombinedREnvironment>) properties.get("REnvironments");
 					schedule(workspace.getProcess(), envirs);
 				}
 			}
@@ -781,7 +781,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 		}
 		
-		public void schedule(final ToolProcess<? extends RWorkspace> process, final List<RWorkspace.ICombinedEnvironment> envirs) {
+		public void schedule(final ToolProcess<? extends RWorkspace> process, final List<RWorkspace.ICombinedREnvironment> envirs) {
 			if (envirs != null && process != null) {
 				synchronized (fProcessLock) {
 					if (fProcess == null || fProcess != process) {
@@ -816,7 +816,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			}
 			
 			try {
-				final List<ICombinedEnvironment> updateList;
+				final List<ICombinedREnvironment> updateList;
 				final boolean force;
 				final boolean updateInput;
 				final ToolProcess<? extends RWorkspace> process;
@@ -828,7 +828,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 							|| fForceOnWorkspaceChange) {
 						return Status.OK_STATUS;
 					}
-					updateList = new ArrayList<ICombinedEnvironment>(fUpdateSet.size());
+					updateList = new ArrayList<ICombinedREnvironment>(fUpdateSet.size());
 					updateList.addAll(fUpdateSet);
 					fUpdateSet.clear();
 					fUpdateProcess = null;
@@ -838,7 +838,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				final ContentInput input = createHandler(process, updateInput);
 				
 				// Update input and refresh
-				final List<ICombinedEnvironment> toUpdate;
+				final List<ICombinedREnvironment> toUpdate;
 				if (updateInput) {
 					toUpdate = updateInput((!force) ? updateList : null, process, input);
 				}
@@ -916,10 +916,10 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			return new ContentInput(processChanged, updateInput, fFilterUserspace, envFilter, otherFilter);
 		}
 		
-		private List<ICombinedEnvironment> updateInput(final List<ICombinedEnvironment> updateList, 
+		private List<ICombinedREnvironment> updateInput(final List<ICombinedREnvironment> updateList, 
 				final ToolProcess<? extends RWorkspace> process, final ContentInput input) {
 			if (process != null) {
-				final List<? extends ICombinedEnvironment> oldInput = fInput;
+				final List<? extends ICombinedREnvironment> oldInput = fInput;
 				final RWorkspace workspaceData = process.getWorkspaceData();
 				fInput = workspaceData.getRSearchEnvironments();
 				if (fInput == null || fInput.size() == 0) {
@@ -929,13 +929,13 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				}
 				input.searchEnvirs = fInput;
 				// If search path (environments) is not changed and not in force mode, refresh only the updated entries
-				List<ICombinedEnvironment> updateEntries = null;
+				List<ICombinedREnvironment> updateEntries = null;
 				TRY_PARTIAL : if (!input.filterUserspace
 						&& fInput != null && oldInput != null && fInput.size() == oldInput.size()
 						&& updateList != null && updateList.size() < fInput.size() ) {
-					updateEntries = new ArrayList<ICombinedEnvironment>(updateList.size());
+					updateEntries = new ArrayList<ICombinedREnvironment>(updateList.size());
 					for (int i = 0; i < fInput.size(); i++) {
-						final ICombinedEnvironment envir = fInput.get(i);
+						final ICombinedREnvironment envir = fInput.get(i);
 						if (envir.equals(oldInput.get(i))) {
 							if (updateList.remove(envir)) {
 								updateEntries.add(envir);
@@ -955,8 +955,8 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				// Prepare Userspace filter
 				if (input.filterUserspace) {
 					int length = 0;
-					final List<ICombinedEnvironment> userEntries = new ArrayList<ICombinedEnvironment>(fInput.size());
-					for (final ICombinedEnvironment env : fInput) {
+					final List<ICombinedREnvironment> userEntries = new ArrayList<ICombinedREnvironment>(fInput.size());
+					for (final ICombinedREnvironment env : fInput) {
 						if (env.getSpecialType() > 0 && env.getSpecialType() <= REnvironment.ENVTYPE_PACKAGE) {
 							continue;
 						}
@@ -964,7 +964,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 						length += env.getLength();
 					}
 					final List<IModelElement> elements = new ArrayList<IModelElement>(length);
-					for (final ICombinedEnvironment entry : userEntries) {
+					for (final ICombinedREnvironment entry : userEntries) {
 						elements.addAll(entry.getModelChildren((IModelElement.Filter<IRLangElement>) null));
 					}
 					
@@ -991,7 +991,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 				if (input.envFilter != null) {
 					input.envirElements = new HashMap<ICombinedRElement, ICombinedRElement[]>(fInput.size());
 					for (int i = 0; i < fInput.size(); i++) {
-						final ICombinedEnvironment envir = fInput.get(i);
+						final ICombinedREnvironment envir = fInput.get(i);
 						final List<? extends IModelElement> children = envir.getModelChildren(input.envFilter);
 						input.envirElements.put(envir, children.toArray(new ICombinedRElement[children.size()]));
 					}
@@ -1114,8 +1114,9 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		@Override
 		protected Object getHoverInformation(final Object element) {
-			if (element instanceof IElementName) {
-				return RDebugHover.getElementDetail((RElementName) element, getSubjectControl(), ObjectBrowserView.this);
+			if (element instanceof RElementName && fProcess != null) {
+				RElementInfoTask updater = new RElementInfoTask((RElementName) element);
+				return updater.load(fProcess, getSubjectControl());
 			}
 			return null;
 		}
@@ -1247,7 +1248,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 		
 		fTreeViewer.setLabelProvider(new RLabelProvider(RLabelProvider.COUNT) {
 			@Override
-			protected String getEnvCountInfo(final ICombinedEnvironment envir) {
+			protected String getEnvCountInfo(final ICombinedREnvironment envir) {
 				final StringBuilder textBuilder = getTextBuilder();
 				textBuilder.append(" ("); //$NON-NLS-1$
 				if (fActiveInput != null && fActiveInput.envirElements != null) {
@@ -1565,7 +1566,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 	}
 	
 	/** May only be called in UI thread (called by update job) */
-	private void updateViewer(final List<ICombinedEnvironment> updateEnvirs) {
+	private void updateViewer(final List<ICombinedREnvironment> updateEnvirs) {
 		if (!UIAccess.isOkToUse(fTreeViewer)) {
 			return;
 		}
@@ -1595,14 +1596,14 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 			fUsedReferences = new HashSet<RReference>();
 		}
 		if (updateEnvirs != null) {
-			for (final ICombinedEnvironment entry : updateEnvirs) {
+			for (final ICombinedREnvironment entry : updateEnvirs) {
 				fTreeViewer.refresh(entry, true);
 			}
 			if (usedReferences != null) {
 				ITER_REFS: for (final RReference reference : usedReferences) {
 					if (!fUsedReferences.contains(reference)) {
 						// Update the envir copy in the viewer, if it refers to an updated envir
-						for (final ICombinedEnvironment entry : updateEnvirs) {
+						for (final ICombinedREnvironment entry : updateEnvirs) {
 							if (entry.getHandle() == reference.getHandle()) {
 								fTreeViewer.refresh(reference, true);
 								// reference is readded automatically to new set, if necessary
@@ -1610,7 +1611,7 @@ public class ObjectBrowserView extends ViewPart implements IToolProvider {
 							}
 						}
 						// Keep/readd the reference, if it refers to an envir in the search path
-						for (final ICombinedEnvironment entry : fActiveInput.searchEnvirs) {
+						for (final ICombinedREnvironment entry : fActiveInput.searchEnvirs) {
 							if (entry.getHandle() == reference.getHandle()) {
 								fUsedReferences.add(reference);
 								continue ITER_REFS;

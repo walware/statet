@@ -26,6 +26,7 @@ import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
 import de.walware.statet.r.core.model.IRLangElement;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.RElementAccess;
 import de.walware.statet.r.core.model.RElementName;
 
@@ -194,7 +195,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 			}
 			if (detail == null) {
 				final Map<String, ElementAccessList> late = 
-						((access.fFlags & (ElementAccess.A_WRITE | ElementAccess.A_SUB)) == ElementAccess.A_WRITE) ?
+						((access.fFlags & (0xf | ElementAccess.A_SUB)) == ElementAccess.A_WRITE) ?
 						fLateWrite : fLateRead;
 				detail = late.get(name);
 				if (detail == null) {
@@ -398,7 +399,7 @@ abstract class BuildSourceFrame implements IRFrameInSource {
 	
 	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
 		if (fData.isEmpty()) {
-			return IRLangSourceElement.NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		List<IRLangSourceElement> children = (fModelChildren != null) ? fModelChildren.get() : null;
 		if (children != null) {

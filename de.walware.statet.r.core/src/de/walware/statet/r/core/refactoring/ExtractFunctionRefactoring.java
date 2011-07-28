@@ -138,7 +138,7 @@ public class ExtractFunctionRefactoring extends Refactoring {
 			if (fFirstAccess == null
 					|| access.getNode().getOffset() < fFirstAccess.getNode().getOffset()) {
 				fFirstAccess = access;
-				fAsArgumentDefault = fAsArgument = (!access.isWriteAccess() && !access.isMethodAccess());
+				fAsArgumentDefault = fAsArgument = (!access.isWriteAccess() && !access.isFunctionAccess());
 			}
 			if (fLastAccess == null
 					|| access.getNode().getOffset() > fLastAccess.getNode().getOffset()) {

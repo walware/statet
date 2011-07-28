@@ -17,6 +17,7 @@ import de.walware.ecommons.ltk.IModelElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
 
+// TODO extend IRElement? return as model parent of elements
 public interface IRFrame {
 	
 	/** Simple project */

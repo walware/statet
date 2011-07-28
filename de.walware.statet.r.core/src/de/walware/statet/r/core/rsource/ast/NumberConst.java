@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class NumberConst extends SingleValue {
 	
 	
-	private RTerminal fType;
+	private final RTerminal fType;
 	
 	
 	NumberConst(final RTerminal type) {

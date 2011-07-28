@@ -24,6 +24,7 @@ import de.walware.statet.r.core.rsource.ast.RAstInfo;
 public interface IRModelInfo extends ISourceUnitModelInfo {
 	
 	
+	IRLangSourceElement getSourceElement();
 	Map<String, ? extends IRFrameInSource> getSourceFrames();
 	IRFrameInSource getTopFrame();
 	IPackageReferences getReferencedPackages();

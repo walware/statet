@@ -169,12 +169,6 @@
             name="R Help"
             class="de.walware.statet.r.internal.ui.rhelp.RHelpHover">
       </hover>
-      <hover
-            id="de.walware.statet.r.contentInfoHover.RDebugHover"
-            contentTypeId="de.walware.statet.r.contentTypes.R"
-            name="Element Info from R Console"
-            class="de.walware.statet.r.internal.debug.ui.RDebugHover">
-      </hover>
    </extension>
 
    <extension
@@ -943,7 +937,7 @@
             contentTypeId="de.walware.statet.r.contentTypes.R"
             handler="de.walware.statet.r.internal.debug.ui.launcher.DefaultCodeLaunchHandler">
          <fileCommand
-               defaultCommand="source(&quot;${resource_loc}&quot;)"
+               defaultCommand="source(&quot;${resource_loc}&quot;, echo=${echo}, encoding=&quot;${resource_encoding}&quot;)"
                id="de.walware.statet.r.rFileCommand.SourceRScript"
                name="%rCodeLaunchHandler_SourceRScript_label">
          </fileCommand>
@@ -1270,6 +1264,14 @@
             description="%commands_RunFunctionDef_GotoConsole_description"
             helpContextId="de.walware.statet.r.ui.run_in_r">
       </command>
+      <command
+            id="de.walware.statet.r.commands.ToggleRunEcho"
+            categoryId="org.eclipse.debug.ui.category.run"
+            name="%commands_ToggleRunEcho_name"
+            description="%commands_ToggleRunEcho_description"
+            helpContextId="de.walware.statet.r.ui.run_in_r"
+            defaultHandler="de.walware.statet.r.internal.debug.ui.launcher.ToggleRunEchoHandler">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
@@ -1299,15 +1301,19 @@
       </image>
       <image
             commandId="de.walware.statet.r.commands.RunEntireCommand"
-            icon="icons/tool_16/run-r-selection.png">
+            icon="icons/tool_16/run-command.png">
       </image>
       <image
             commandId="de.walware.statet.r.commands.RunEntireCommand_GotoConsole"
-            icon="icons/tool_16/run-r-selection.png">
+            icon="icons/tool_16/run-command.png">
       </image>
       <image
             commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
-            icon="icons/tool_16/run-r-selection-next.png">
+            icon="icons/tool_16/run-command-next.png">
+      </image>
+      <image
+            commandId="de.walware.statet.r.commands.ToggleRunEcho"
+            icon="icons/tool_16/echo.png">
       </image>
    </extension>
    <extension

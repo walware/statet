@@ -36,7 +36,7 @@ import de.walware.ecommons.ui.util.LayoutUtil;
 public class InputArgumentsComposite extends Composite {
 	
 	
-	private String fTitle;
+	private final String fTitle;
 	
 	private Text fTextControl;
 	

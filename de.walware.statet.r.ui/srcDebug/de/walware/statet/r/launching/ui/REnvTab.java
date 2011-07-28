@@ -51,7 +51,7 @@ import de.walware.statet.r.ui.RUI;
 
 
 /**
- * 
+ * Launch configuration tab allowing to configure the R environment
  */
 public class REnvTab extends LaunchConfigTabWithDbc {
 	
@@ -220,7 +220,7 @@ public class REnvTab extends LaunchConfigTabWithDbc {
 		
 		if (fWithWD) {
 			try {
-				fWorkingDirectoryValue.setValue(readWorkingDirectory(configuration)); //$NON-NLS-1$
+				fWorkingDirectoryValue.setValue(readWorkingDirectory(configuration));
 			} catch (final CoreException e) {
 				fWorkingDirectoryValue.setValue(null);
 				logReadingError(e);

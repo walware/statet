@@ -42,8 +42,8 @@ import de.walware.statet.r.internal.debug.ui.launcher.RunFileViaCommandHandler;
 public class RunFileViaCommandLaunchShortcut implements ILaunchShortcut {
 	
 	
-	private boolean fGotoConsole;
-	private String fFileCommandId;
+	private final boolean fGotoConsole;
+	private final String fFileCommandId;
 	
 	
 	public RunFileViaCommandLaunchShortcut(final String fileCommandId, final boolean gotoConsole) {

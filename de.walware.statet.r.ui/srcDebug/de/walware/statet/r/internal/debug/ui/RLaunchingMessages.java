@@ -24,6 +24,7 @@ public class RLaunchingMessages extends NLS {
 	public static String RunCode_GotoConsole_affix;
 	public static String RunCode_error_RuntimeError_message;
 	public static String RunCode_info_NotSupported_message;
+	public static String RunCode_info_SyntaxError_message;
 	public static String RunCode_error_NoConnector_message;
 	
 	public static String RunCodeAndPasteOutput_error_Unspecific_status;

@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class DocuText extends RAstNode {
 	
 	
-	private String fText;
+	private final String fText;
 	
 	
 	DocuText(final String text) {
@@ -105,7 +105,7 @@ public class DocuText extends RAstNode {
 			return false;
 		}
 		final DocuText other = (DocuText) element;
-		return ((fText != null) ? fText.equals(other.fText) : (other.fText == null));
+		return ((fText != null) ? fText.equals(other.fText) : (null == other.fText));
 	}
 	
 	

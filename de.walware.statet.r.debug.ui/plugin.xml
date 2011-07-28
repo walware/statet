@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
+-->
+
+<plugin>
+
+<!-- debug model -->
+   <extension
+         point="org.eclipse.debug.ui.debugModelPresentations">
+      <debugModelPresentation
+            id="de.walware.statet.r.debug"
+            class="de.walware.statet.r.internal.debug.ui.RDebugModelPresentation">
+      </debugModelPresentation>
+   </extension>
+   
+   <extension
+         point="org.eclipse.debug.ui.detailPaneFactories">
+      <detailFactories
+            id="de.walware.statet.r.debug.detailPane.RBreakpointDetailPaneFactory"
+            class="de.walware.statet.r.internal.debug.ui.breakpoints.BreakpointDetailFactory">
+         <enablement>
+            <with variable="selection">
+               <count
+                     value="1">
+               </count>
+               <iterate>
+                  <or>
+                     <instanceof
+                           value="de.walware.statet.r.debug.core.breakpoints.IRBreakpoint">
+                     </instanceof>
+                  </or>
+               </iterate>
+            </with>
+         </enablement>
+      </detailFactories>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.sourceContainerPresentations">
+      <!-- platform uri not suppored -->
+      <sourceContainerPresentation
+            id="de.walware.statet.r.sourceContainerPresentations.REnvLibraryPathPresentation"
+            containerTypeID="de.walware.statet.r.sourceContainers.REnvLibraryPathType"
+            icon="icons/obj_16/r_env.png">
+      </sourceContainerPresentation>
+      <sourceContainerPresentation
+            id="de.walware.statet.r.sourceContainerPresentations.RLibraryPresentation"
+            containerTypeID="de.walware.statet.r.sourceContainers.RLibraryType"
+            browserClass="de.walware.statet.r.internal.debug.ui.sourcelookup.RLibrarySourceContainerBrowser"
+            icon="icons/obj_16/r_library.png">
+      </sourceContainerPresentation>
+      <sourceContainerPresentation
+            id="de.walware.statet.r.sourceContainerPresentations.AllRProjectsPresentation"
+            containerTypeID="de.walware.statet.r.sourceContainers.AllRProjectsType"
+            browserClass="de.walware.statet.r.internal.debug.ui.sourcelookup.AllRProjectsSourceContainerBrowser"
+            icon="icons/obj_16/r_project.png">
+      </sourceContainerPresentation>
+      <sourceContainerPresentation
+            id="de.walware.statet.r.sourceContainerPresentations.RProjectPresentation"
+            containerTypeID="de.walware.statet.r.sourceContainers.RProjectType"
+            browserClass="de.walware.statet.r.internal.debug.ui.sourcelookup.RProjectSourceContainerBrowser"
+            icon="icons/obj_16/r_project.png">
+      </sourceContainerPresentation>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.walware.statet.r.debug.core.sourcelookup.IRSourceLookupMatch"
+            class="de.walware.statet.r.internal.debug.ui.sourcelookup.RSourceLookupAdapterFactory">
+         <adapter
+               type="org.eclipse.ui.model.IWorkbenchAdapter">
+         </adapter>
+         <adapter
+               type="org.eclipse.ui.IContributorResourceAdapter">
+         </adapter>
+      </factory>
+   </extension>
+
+<!-- editors -->
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="de.walware.statet.r.internal.ui.editors.REditor"
+            class="de.walware.statet.r.internal.debug.ui.actions.RetargettableActionAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+         </adapter>
+      </factory>
+   </extension>
+   
+   <extension
+         point="org.eclipse.debug.core.launchDelegates">
+      <launchDelegate
+            id="de.walware.statet.r.launchDelegates.RConsoleDebug"
+            type="de.walware.statet.r.launchConfigurationTypes.RConsole"
+            modes="debug"
+            delegate="de.walware.statet.r.internal.debug.ui.lauching.RConsoleDebugLaunchDelegate"
+            sourceLocatorId="de.walware.statet.r.sourceLocators.RSourceLocator"
+            sourcePathComputerId="de.walware.statet.r.sourcePathComputers.RSourcePathComputer">
+      </launchDelegate>
+      <launchDelegate
+            id="de.walware.statet.r.launchDelegates.RRemoteConsoleDebug"
+            type="de.walware.statet.r.launchConfigurationTypes.RRemoteConsole"
+            modes="debug"
+            delegate="de.walware.statet.r.internal.debug.ui.lauching.RRemoteConsoleDebugLaunchDelegate"
+            sourceLocatorId="de.walware.statet.r.sourceLocators.RSourceLocator"
+            sourcePathComputerId="de.walware.statet.r.sourcePathComputers.RSourcePathComputer">
+      </launchDelegate>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerUpdaters">
+      <updater
+            id="de.walware.statet.r.markerUpdaters.BreakpointUpdater"
+            markerType="de.walware.statet.r.debug.markers.RBreakpoint"
+            class="de.walware.statet.r.internal.debug.ui.breakpoints.BreakpointMarkerUpdater">
+      </updater>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="org.eclipse.jdt.debug.ui.commands.StepIntoSelection"
+            class="de.walware.statet.r.internal.debug.ui.actions.StepIntoSelectionHandler">
+         <activeWhen>
+            <with
+                  variable="activeEditor">
+               <adapt
+                     type="de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor">
+                  <instanceof
+                        value="de.walware.statet.r.ui.editors.IREditor">
+                  </instanceof>
+               </adapt>
+            </with>
+         </activeWhen>
+         <enabledWhen>
+            <with
+                  variable="de.walware.statet.activeTool">
+               <test
+                     property="de.walware.statet.nico.isMainType"
+                     value="R"
+                     forcePluginActivation="false">
+               </test>
+            </with>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="de.walware.statet.r.debug.REditorRulerDebugActions"
+            targetID="de.walware.statet.r.editors.R">
+         <action
+               id="org.eclipse.jdt.debug.ui.actions.ManageBreakpointRulerAction"
+               actionID="RulerDoubleClick"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               label="ToggleBreakpoint">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="de.walware.statet.r.debug.legacy.REditorRulerMenuDebugContribution"
+            targetID="de.walware.statet.r.menus.REditorRulerMenu">
+         <action
+               id=".EnableDisableBreakpoint"
+               class="org.eclipse.debug.ui.actions.RulerEnableDisableBreakpointActionDelegate"
+               label="%menus_EnableDisableBreakpoint_label"
+               menubarPath="debug">
+         </action>
+         <action
+               id=".ToggleBreakpoint"
+               class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+               definitionId="org.eclipse.debug.ui.commands.ToggleBreakpoint"
+               icon="icons/obj_16/r_breakpoint.png"
+               label="%menus_ToggleBreakpoint_label"
+               menubarPath="debug">
+         </action>
+      </viewerContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            id="de.walware.statet.r.debug.hyperlinks.StepIntoSelectionDetector"
+            targetId="de.walware.statet.r.editorHyperlinks.REditorTarget"
+            class="de.walware.statet.r.internal.debug.ui.actions.StepIntoSelectionHyperlinkDetector"
+            name="%hyperlinks_StepIntoSelection_name"
+            activate="false"
+            modifierKeys="M1+M3">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="de.walware.ecommons.ltk.advancedInfoHover">
+      <hover
+            id="de.walware.statet.r.contentInfoHover.RDebugHover"
+            contentTypeId="de.walware.statet.r.contentTypes.R"
+            name="Element Info from R Console"
+            class="de.walware.statet.r.internal.debug.ui.actions.RDebugHover">
+      </hover>
+   </extension>
+   
+</plugin>

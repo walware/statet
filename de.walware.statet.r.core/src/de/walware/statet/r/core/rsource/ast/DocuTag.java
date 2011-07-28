@@ -22,7 +22,7 @@ import de.walware.statet.r.core.rlang.RTerminal;
 public class DocuTag extends RAstNode {
 	
 	
-	private String fName;
+	private final String fName;
 	RAstNode[] fFragments = NO_CHILDREN;
 	
 	
@@ -119,7 +119,7 @@ public class DocuTag extends RAstNode {
 			return false;
 		}
 		final DocuTag other = (DocuTag) element;
-		return ((fName != null) ? fName.equals(other.fName) : (other.fName == null));
+		return ((fName != null) ? fName.equals(other.fName) : (null == other.fName));
 	}
 	
 	

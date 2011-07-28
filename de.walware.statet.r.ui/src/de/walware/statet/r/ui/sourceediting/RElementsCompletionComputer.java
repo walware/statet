@@ -56,7 +56,7 @@ import de.walware.rj.data.RReference;
 
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RWorkspace;
-import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
+import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.RSymbolComparator;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
@@ -772,7 +772,7 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				for (int i = 0; i < attachments.length; i++) {
 					if (attachments[i] instanceof RElementAccess) {
 						final RElementAccess fcallAccess = (RElementAccess) attachments[i];
-						if (fcallAccess.isMethodAccess() && !fcallAccess.isWriteAccess()) {
+						if (fcallAccess.isFunctionAccess() && !fcallAccess.isWriteAccess()) {
 							final FCallInfo info = new FCallInfo(fcallNode, fcallAccess);
 							if (initEnvirList(context, fcallNode)) {
 								return info;
@@ -879,9 +879,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 		if (fProcess != null) {
 			if (fEditor instanceof ConsolePageEditor || fCompleteRuntimeMode) {
 				final RWorkspace data = fProcess.getWorkspaceData();
-				final List<? extends ICombinedEnvironment> runtimeList = data.getRSearchEnvironments();
+				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
 				if (runtimeList != null && !runtimeList.isEmpty()) {
-					for (final ICombinedEnvironment envir : runtimeList) {
+					for (final ICombinedREnvironment envir : runtimeList) {
 						final IRFrame frame = (IRFrame) envir;
 						if (frame.getFrameType() == IRFrame.PROJECT) {
 							fEnvirList[LOCAL_ENVIR].add(frame);
@@ -907,9 +907,9 @@ public class RElementsCompletionComputer implements IContentAssistComputer {
 				requiredPackages.add("base");
 				
 				final RWorkspace data = fProcess.getWorkspaceData();
-				final List<? extends ICombinedEnvironment> runtimeList = data.getRSearchEnvironments();
+				final List<? extends ICombinedREnvironment> runtimeList = data.getRSearchEnvironments();
 				if (runtimeList != null && !runtimeList.isEmpty()) {
-					for (final ICombinedEnvironment envir : runtimeList) {
+					for (final ICombinedREnvironment envir : runtimeList) {
 						final IRFrame frame = (IRFrame) envir;
 						if (frame.getFrameType() == IRFrame.PACKAGE
 								&& requiredPackages.contains(frame.getElementName().getSegmentName())

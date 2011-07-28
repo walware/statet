@@ -36,7 +36,7 @@ import de.walware.statet.r.core.model.RElementName;
 
 
 public final class REnvironmentVar extends CombinedElement
-		implements REnvironment, RWorkspace.ICombinedEnvironment, ExternalizableRObject, IRFrame {
+		implements REnvironment, RWorkspace.ICombinedREnvironment, ExternalizableRObject, IRFrame {
 	
 	
 	private String fCombinedName;
@@ -51,6 +51,7 @@ public final class REnvironmentVar extends CombinedElement
 	private RCharacterDataImpl namesAttribute;
 	
 	private int fFrameType;
+	private int fStamp;
 	
 	
 	public REnvironmentVar(final String id, final boolean isSearch) {
@@ -120,6 +121,14 @@ public final class REnvironmentVar extends CombinedElement
 		}
 	}
 	
+	public void setStamp(int stamp) {
+		fStamp = stamp;
+	}
+	
+	public int getStamp() {
+		return fStamp;
+	}
+	
 	
 	protected void setEnvName(final String id, final boolean isSearch) {
 		if (id != null) {
@@ -159,8 +168,11 @@ public final class REnvironmentVar extends CombinedElement
 				}
 				return;
 			}
+			fEnvironmentName = id;
 		}
-		fEnvironmentName = id;
+		else {
+			fEnvironmentName = "";
+		}
 		fSpecialType = 0;
 		fFrameType = IRFrame.EXPLICIT;
 		if (fElementName == null) {
@@ -319,12 +331,12 @@ public final class REnvironmentVar extends CombinedElement
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof REnvironment) {
-			final REnvironment other = (REnvironment) obj;
-			return other.getSpecialType() == getSpecialType()
-					&& getEnvironmentName().equals(other.getEnvironmentName());
+		if (!(obj instanceof REnvironment)) {
+			return false;
 		}
-		return false;
+		final REnvironment other = (REnvironment) obj;
+		return (fSpecialType == other.getSpecialType()
+					&& fEnvironmentName.equals(other.getEnvironmentName()) );
 	}
 	
 	

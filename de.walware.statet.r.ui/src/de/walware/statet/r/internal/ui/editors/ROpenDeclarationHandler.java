@@ -32,7 +32,6 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -140,13 +139,6 @@ public class ROpenDeclarationHandler extends AbstractHandler {
 	}
 	
 	
-	private static class ElementSelectionDialog extends ListDialog {
-		
-		public ElementSelectionDialog(final Shell parent, final List<ISourceElement> list) {
-			super(parent);
-		}
-		
-	}
 	public static ISourceElement selectElement(final List<ISourceElement> list, final IWorkbenchPart part) {
 		if (list.isEmpty()) {
 			return null;

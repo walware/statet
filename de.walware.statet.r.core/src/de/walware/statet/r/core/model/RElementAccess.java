@@ -35,7 +35,8 @@ public abstract class RElementAccess extends RElementName {
 	public abstract IRFrame getFrame();
 	
 	public abstract boolean isWriteAccess();
-	public abstract boolean isMethodAccess();
+	public abstract boolean isFunctionAccess();
+	public abstract boolean isCallAccess();
 	
 	public abstract RAstNode getNode();
 	

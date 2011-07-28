@@ -68,8 +68,9 @@ public class RCodeLaunchRegistry {
 	private static RCodeLaunchRegistry fgRegistry;
 	
 	public static synchronized RCodeLaunchRegistry getDefault() {
-		if (fgRegistry == null)
+		if (fgRegistry == null) {
 			new RCodeLaunchRegistry();
+		}
 		return fgRegistry;
 	}
 	
@@ -94,8 +95,8 @@ public class RCodeLaunchRegistry {
 		public static class FileCommand {
 			
 			private final String fId;
-			private String fLabel;
-			private String fDefaultFileCommand;
+			private final String fLabel;
+			private final String fDefaultFileCommand;
 			private String fCurrentFileCommand;
 			
 			
@@ -132,7 +133,7 @@ public class RCodeLaunchRegistry {
 		private final String fContentTypeId;
 		IConfigurationElement fConfigurationElement;
 		ICodeLaunchContentHandler fHandler;
-		private FileCommand[] fFileCommands;
+		private final FileCommand[] fFileCommands;
 		
 		public ContentHandler(final IConfigurationElement config) {
 			this.fContentTypeId = config.getAttribute(ATT_CONTENT_TYPE);
@@ -288,8 +289,9 @@ public class RCodeLaunchRegistry {
 	}
 	
 	public IRCodeLaunchConnector getConnector() throws CoreException {
-		if (fConnector == null)
+		if (fConnector == null) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, IStatus.OK, RLaunchingMessages.RunCode_error_NoConnector_message, null));
+		}
 		
 		return fConnector;
 	}

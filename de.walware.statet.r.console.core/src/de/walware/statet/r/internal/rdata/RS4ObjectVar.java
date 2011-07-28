@@ -32,7 +32,7 @@ import de.walware.statet.r.core.model.RElementName;
 
 
 public final class RS4ObjectVar extends CombinedElement
-		implements RS4Object, RWorkspace.ICombinedList, ExternalizableRObject {
+		implements RS4Object, RWorkspace.ICombinedRList, ExternalizableRObject {
 	
 	
 	private String className;

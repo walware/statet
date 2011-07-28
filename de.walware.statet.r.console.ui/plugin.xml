@@ -47,11 +47,9 @@
       <launchConfigurationType
             id="de.walware.statet.r.launchConfigurationTypes.RConsole"
             delegate="de.walware.statet.r.internal.console.ui.launching.RConsoleLaunchDelegate"
-            modes="run,debug"
+            modes="run"
             name="%launchConfigurations_RConsole_name"
-            public="true"
-            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
-            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
+            public="true">
       </launchConfigurationType>
    </extension>
    <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
@@ -231,6 +229,23 @@
                   name="submit_selection"
                   visible="false">
             </separator>
+            <command
+                  commandId="de.walware.statet.r.commands.RunEntireCommand"
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="activeContexts">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <equals
+                              value="de.walware.statet.r.actionSets.RToolbarSet">
+                        </equals>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
             <command
                   commandId="de.walware.statet.r.commands.RunEntireCommand_GotoNextCommand"
                   style="push">

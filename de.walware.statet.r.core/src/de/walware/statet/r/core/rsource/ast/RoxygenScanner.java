@@ -37,14 +37,14 @@ public class RoxygenScanner {
 	
 	
 	private SourceParseInput fInput;
-	private IStringCache fStringCache;
+	private final IStringCache fStringCache;
 	
 	private final List<DocuTag> fList = new ArrayList<DocuTag>();
 	private RoxygenTagType fCurrentTagType;
 	private DocuTag fCurrentTag;
 	private final List<RAstNode> fCurrentTagFragments = new ArrayList<RAstNode>(64);
 	private int fFragmentMode;
-	private List<IRegion> fCodeRegions = new ArrayList<IRegion>();
+	private final List<IRegion> fCodeRegions = new ArrayList<IRegion>();
 	
 	
 	public RoxygenScanner(final IStringCache cache) {

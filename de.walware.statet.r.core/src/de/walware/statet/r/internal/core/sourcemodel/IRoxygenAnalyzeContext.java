@@ -12,6 +12,7 @@
 package de.walware.statet.r.internal.core.sourcemodel;
 
 import de.walware.statet.r.core.model.IRFrameInSource;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.core.sourcemodel.RSourceElementByElementAccess.RClass;

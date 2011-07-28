@@ -212,5 +212,12 @@
          </description>
       </fontDefinition>
    </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.eclipse.debug.ui.commands.ToggleBreakpoint"
+            icon="icons/obj_16/breakpoint.png">
+      </image>
+   </extension>
 
 </plugin>

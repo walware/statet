@@ -16,14 +16,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 
@@ -37,6 +35,7 @@ import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RCoreFunctions;
@@ -389,7 +388,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		fFCallAnalyzers.put(RCoreFunctions.BASE_CALL_NAME,
 				new BaseCall(rdef));
 		fFCallAnalyzers.put(RCoreFunctions.BASE_DOCALL_NAME,
-				new CommonDefBased(rdef.BASE_DOCALL_args));
+				new BaseDoCall(rdef));
 		fFCallAnalyzers.put(RCoreFunctions.BASE_LIBRARY_NAME,
 				new BaseLibrary(rdef));
 		fFCallAnalyzers.put(RCoreFunctions.BASE_REQUIRE_NAME,
@@ -485,12 +484,10 @@ public class SourceAnalyzer extends RAstVisitor {
 				new MethodsSlot(rdef));
 		
 		// DEBUG
-		if (false) {
-			final Set<String> test = new HashSet<String>();
-			test.addAll(rdef.getKnownFunctions());
-			test.removeAll(fFCallAnalyzers.keySet());
-			System.out.println("nonregistered RCoreFunctions: " + test.toString());
-		}
+//		final Set<String> test = new HashSet<String>();
+//		test.addAll(rdef.getKnownFunctions());
+//		test.removeAll(fFCallAnalyzers.keySet());
+//		System.out.println("nonregistered RCoreFunctions: " + test.toString());
 		
 		fFCallFallback = new NoDefFallback();
 	}
@@ -903,7 +900,7 @@ public class SourceAnalyzer extends RAstVisitor {
 		// Resolve
 		final RAstNode ref = node.getRefChild();
 		final ElementAccess access = new ElementAccess.Default(node, ref);
-		access.fFlags = ElementAccess.A_READ | ElementAccess.A_FUNC;
+		access.fFlags = ElementAccess.A_CALL | ElementAccess.A_FUNC;
 		
 		final String name = resolveElementName(node.getRefChild(), access, true);
 		if (name != null) {
@@ -1562,6 +1559,37 @@ public class SourceAnalyzer extends RAstVisitor {
 				access.fNameNode = nameNode;
 				fTopScope.addLateResolve(nameNode.getText(), access);
 				
+				fArgValueToIgnore.add(nameNode);
+			}
+			
+			node.getArgsChild().acceptInRChildren(SourceAnalyzer.this);
+			fReturnValue = null;
+		}
+		
+	}
+	
+	protected final class BaseDoCall implements IFCallAnalyzer {
+		
+		private final ArgsDefinition fArgsDef;
+		private final int fArgIdx_fName;
+		
+		public BaseDoCall(final RCoreFunctions rdef) {
+			fArgsDef = rdef.BASE_DOCALL_args;
+			fArgIdx_fName = fArgsDef.indexOf("what");
+		}
+		
+		public void visit(final FCall node, final boolean assignment) throws InvocationTargetException {
+			fRequest = NO_REQUESTS;
+			final ReadedFCallArgs args = RAst.readArgs(node.getArgsChild(), fArgsDef);
+			final RAstNode nameNode = args.getArgValueNode(fArgIdx_fName);
+			
+			if (nameNode != null) {
+				final ElementAccess access = new ElementAccess.Default(node, nameNode);
+				access.fFlags = ElementAccess.A_CALL | ElementAccess.A_FUNC;
+				final String name = resolveElementName(nameNode, access, true);
+				if (name != null) {
+					fTopScope.addLateResolve(name, access);
+				}
 				fArgValueToIgnore.add(nameNode);
 			}
 			

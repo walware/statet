@@ -51,12 +51,12 @@ public enum NodeType {
 	SIGN ("±", 102, Assoc.LEFTSTD), //$NON-NLS-1$
 	SEQ (":", 103, Assoc.LEFTSTD), //$NON-NLS-1$
 	SPECIAL ("%", 104, Assoc.LEFTSTD), //$NON-NLS-1$
-	MULT ("*/", 105, Assoc.LEFTMULTI), //$NON-NLS-1$
-	ADD ("+-", 106, Assoc.LEFTMULTI), //$NON-NLS-1$
+	MULT ("*/", 105, Assoc.LEFTSTD), //$NON-NLS-1$
+	ADD ("+-", 106, Assoc.LEFTSTD), //$NON-NLS-1$
 	RELATIONAL ("<>", 111, Assoc.NOSTD), //$NON-NLS-1$
 	NOT ("!", 112, Assoc.LEFTSTD), //$NON-NLS-1$
-	AND ("&", 113, Assoc.LEFTMULTI), //$NON-NLS-1$
-	OR ("|", 114, Assoc.LEFTMULTI), //$NON-NLS-1$
+	AND ("&", 113, Assoc.LEFTSTD), //$NON-NLS-1$
+	OR ("|", 114, Assoc.LEFTSTD), //$NON-NLS-1$
 	
 	MODEL ("~", 1001, Assoc.LEFTSTD), //$NON-NLS-1$
 	

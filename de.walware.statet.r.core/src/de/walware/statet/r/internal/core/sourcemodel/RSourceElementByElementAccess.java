@@ -28,6 +28,7 @@ import de.walware.statet.r.core.model.IRClass;
 import de.walware.statet.r.core.model.IRClassExtension;
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRMethod;
 import de.walware.statet.r.core.model.IRPackageLoad;
 import de.walware.statet.r.core.model.IRSlot;
@@ -61,7 +62,7 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
-			return NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
 		public boolean hasSourceChildren(final Filter filter) {
@@ -69,7 +70,7 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
-			return NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
 	}
@@ -77,7 +78,7 @@ abstract class RSourceElementByElementAccess
 	static final class RMethod extends RSourceElementByElementAccess implements IRMethod, IBuildSourceFrameElement {
 		
 		
-		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+		private List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
 		private List<? extends IRLangSourceElement> fModelChildrenProtected;
 		private final BuildSourceFrame fEnvir;
 		
@@ -174,7 +175,7 @@ abstract class RSourceElementByElementAccess
 		private static final List<String> NO_PARENTS = Collections.emptyList();
 		
 		
-		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+		private List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
 		private List<? extends IRLangSourceElement> fModelChildrenProtected;
 		private final BuildSourceFrame fEnvir;
 		
@@ -264,7 +265,7 @@ abstract class RSourceElementByElementAccess
 	static final class RClassExt extends RSourceElementByElementAccess implements IRClassExtension, IBuildSourceFrameElement {
 		
 		
-		private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+		private List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
 		private List<? extends IRLangSourceElement> fModelChildrenProtected;
 		private final BuildSourceFrame fEnvir;
 		
@@ -358,7 +359,7 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
-			return NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
 		public boolean hasSourceChildren(final Filter filter) {
@@ -366,7 +367,7 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
-			return NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
 	}
@@ -401,7 +402,7 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		public final List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
-			return NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
 		public boolean hasSourceChildren(final Filter filter) {
@@ -409,7 +410,7 @@ abstract class RSourceElementByElementAccess
 		}
 		
 		public List<? extends IRLangSourceElement> getSourceChildren(final Filter filter) {
-			return NO_R_SOURCE_CHILDREN;
+			return RSourceElements.NO_R_SOURCE_CHILDREN;
 		}
 		
 	}

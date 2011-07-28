@@ -33,7 +33,7 @@ import de.walware.statet.r.core.model.RElementName;
 
 
 public class RListVar extends CombinedElement
-		implements RList, RWorkspace.ICombinedList, ExternalizableRObject {
+		implements RList, RWorkspace.ICombinedRList, ExternalizableRObject {
 	
 	
 	private CombinedElement[] components;

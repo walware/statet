@@ -21,7 +21,7 @@ import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.RElementName;
 
 
-public interface IRCombinedDataAdapter extends IRDataAdapter {
+public interface ICombinedRDataAdapter extends IRDataAdapter {
 	
 	public ICombinedRElement evalCombinedStruct(final String command,
 			final int options, final int depth, final RElementName name,

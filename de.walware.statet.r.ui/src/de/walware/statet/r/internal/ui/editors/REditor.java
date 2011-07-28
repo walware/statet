@@ -36,6 +36,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.events.HelpEvent;
 import org.eclipse.swt.events.HelpListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
@@ -58,6 +59,7 @@ import de.walware.ecommons.ltk.ui.LTKInputData;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorAddon;
 import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditorCommandIds;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceFragmentEditorInput;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditor1OutlinePage;
 import de.walware.ecommons.ltk.ui.sourceediting.SourceEditorViewerConfigurator;
@@ -84,6 +86,7 @@ import de.walware.statet.r.internal.ui.help.IRUIHelpContextIds;
 import de.walware.statet.r.launching.RCodeLaunching;
 import de.walware.statet.r.ui.RUI;
 import de.walware.statet.r.ui.RUIHelp;
+import de.walware.statet.r.ui.editors.IREditor;
 import de.walware.statet.r.ui.editors.InsertAssignmentAction;
 import de.walware.statet.r.ui.editors.RCorrectIndentAction;
 import de.walware.statet.r.ui.editors.REditorOptions;
@@ -91,7 +94,7 @@ import de.walware.statet.r.ui.sourceediting.RSourceViewerConfiguration;
 import de.walware.statet.r.ui.sourceediting.RSourceViewerConfigurator;
 
 
-public class REditor extends SourceEditor1 {
+public class REditor extends SourceEditor1 implements IREditor {
 	
 	public static IRCoreAccess getRCoreAccess(final ISourceEditor editor) {
 		final IRCoreAccess adapter = (IRCoreAccess) editor.getAdapter(IRCoreAccess.class);
@@ -362,12 +365,12 @@ public class REditor extends SourceEditor1 {
 	
 	@Override
 	protected SourceEditorViewerConfigurator createConfiguration() {
+		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
+		
 		fModelProvider = new ElementInfoController(RCore.getRModelManager(), LTK.EDITOR_CONTEXT);
 		enableStructuralFeatures(fModelProvider,
 				REditorOptions.PREF_FOLDING_ENABLED,
 				REditorOptions.PREF_MARKOCCURRENCES_ENABLED);
-		
-		setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
 		
 		final IRCoreAccess basicContext = RCore.getWorkbenchAccess();
 		fOptions = RUIPlugin.getDefault().getREditorSettings(basicContext.getPrefs());
@@ -388,6 +391,23 @@ public class REditor extends SourceEditor1 {
 				RUIPlugin.getDefault().getEditorPreferenceStore(),
 				SharedUIResources.getColors()));
 		return config;
+	}
+	
+	@Override
+	protected void setDocumentProvider(final IEditorInput input) {
+		if (input instanceof ISourceFragmentEditorInput) {
+			setDocumentProvider(RUIPlugin.getDefault().getRFragmentDocumentProvider());
+			overwriteTitleImage(input.getImageDescriptor());
+		}
+		else {
+			setDocumentProvider(RUIPlugin.getDefault().getRDocumentProvider());
+			overwriteTitleImage(null);
+		}
+	}
+	
+	@Override
+	protected Image getDefaultImage() {
+		return RUIPlugin.getDefault().getImageRegistry().get(RUI.IMG_OBJ_R_SCRIPT);
 	}
 	
 	@Override

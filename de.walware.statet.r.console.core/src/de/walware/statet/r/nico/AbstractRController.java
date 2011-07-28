@@ -22,26 +22,23 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 
+import de.walware.ecommons.ltk.ISourceUnit;
 import de.walware.ecommons.ts.ITool;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
 
-import de.walware.statet.nico.core.runtime.IConsoleService;
 import de.walware.statet.nico.core.runtime.ITrack;
-import de.walware.statet.nico.core.runtime.Prompt;
 import de.walware.statet.nico.core.runtime.SubmitType;
 import de.walware.statet.nico.core.runtime.ToolController;
 import de.walware.statet.nico.core.runtime.ToolProcess;
 import de.walware.statet.nico.core.util.TrackWriter;
 import de.walware.statet.nico.core.util.TrackingConfiguration;
 
-import de.walware.statet.r.console.core.ContinuePrompt;
 import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.model.RElementName;
-import de.walware.statet.r.internal.nico.RNicoMessages;
 
 
 /**
@@ -109,36 +106,6 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 	@Override
 	public RProcess getTool() {
 		return (RProcess) super.getTool();
-	}
-	
-	@Override
-	protected final IToolRunnable createQuitRunnable() {
-		return new IToolRunnable() {
-			
-			public String getTypeId() {
-				return ToolController.QUIT_TYPE_ID;
-			}
-			
-			public String getLabel() {
-				return RNicoMessages.Quit_Task_label;
-			}
-			
-			public boolean changed(final int event, final ITool process) {
-				if (event == MOVING_FROM) {
-					return false;
-				}
-				return true;
-			}
-			
-			public boolean isRunnableIn(final ITool tool) {
-				return (tool == getTool());
-			}
-			
-			public void run(final IToolService service,
-					final IProgressMonitor monitor) throws CoreException {
-				((IRBasicAdapter) service).quit(monitor);
-			}
-		};
 	}
 	
 	@Override
@@ -224,31 +191,6 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 		fContinuePromptText = text;
 	}
 	
-	protected final void setCurrentPromptL(final String text, final boolean addToHistory) {
-		if (fDefaultPromptText.equals(text)) {
-			if (addToHistory) {
-				setCurrentPromptL(fDefaultPrompt);
-			}
-			else {
-				setCurrentPromptL(new Prompt(fDefaultPromptText,
-						IConsoleService.META_HISTORY_DONTADD | IConsoleService.META_PROMPT_DEFAULT));
-			}
-		}
-		else if (fContinuePromptText.equals(text)) {
-			setCurrentPromptL(new ContinuePrompt(
-					fCurrentPrompt, fCurrentInput+fLineSeparator, fContinuePromptText,
-					addToHistory ? 0 : IConsoleService.META_HISTORY_DONTADD));
-		}
-		else if (text != null) {
-			setCurrentPromptL(new Prompt(text,
-					addToHistory ? 0 : IConsoleService.META_HISTORY_DONTADD));
-		}
-		else { // TODO log warning / exception?
-			setCurrentPromptL(new Prompt("", //$NON-NLS-1$
-					addToHistory ? 0 : IConsoleService.META_HISTORY_DONTADD));
-		}
-	}
-	
 	public void briefAboutChange(final int o) {
 		fChanged |= o;
 	}
@@ -285,9 +227,46 @@ public abstract class AbstractRController extends ToolController<RWorkspace>
 		fChangedEnvirs.clear();
 	}
 	
+	@Override
+	protected void doRunSuspendedLoopL(final int o, final int level) {
+		fChanged |= RWorkspace.REFRESH_AUTO;
+		final int savedChanged = fChanged;
+		final Set<RElementName> savedChangedEnvirs = new HashSet<RElementName>(fChangedEnvirs);
+		try {
+			super.doRunSuspendedLoopL(o, level);
+		}
+		finally {
+			fChanged = savedChanged;
+			fChangedEnvirs.addAll(savedChangedEnvirs);
+		}
+	}
+	
+	public Set<Long> getLazyEnvironments(final IProgressMonitor monitor) {
+		return null;
+	}
+	
+	public void submitFileCommandToConsole(final String[] lines, final ISourceUnit file,
+			final IProgressMonitor monitor) throws CoreException {
+		for (final String line : lines) {
+			submitToConsole(line, monitor);
+		}
+	}
+	
+	public void submitCommandToConsole(final String[] lines, final IRSrcref srcref,
+			final IProgressMonitor monitor) throws CoreException {
+		for (final String line : lines) {
+			submitToConsole(line, monitor);
+		}
+	}
+	
+	
+	@Override
+	protected void doQuitL(final IProgressMonitor monitor) throws CoreException {
+		submitToConsole("q()", monitor); //$NON-NLS-1$
+	}
+	
 	public void quit(final IProgressMonitor monitor) throws CoreException {
-		final String command = "q()"; //$NON-NLS-1$
-		submitToConsole(command, monitor);
+		doQuitL(monitor);
 	}
 	
 }

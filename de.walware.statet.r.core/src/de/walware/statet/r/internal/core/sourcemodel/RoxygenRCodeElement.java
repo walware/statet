@@ -22,6 +22,7 @@ import de.walware.ecommons.ltk.ast.IAstNode;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrame;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.RElementName;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
@@ -34,7 +35,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	private final int fNumber;
 	
 	private final RAstNode fSourceNode;
-	private List<? extends IRLangSourceElement> fSourceChildrenProtected = NO_R_SOURCE_CHILDREN;
+	private List<? extends IRLangSourceElement> fSourceChildrenProtected = RSourceElements.NO_R_SOURCE_CHILDREN;
 	private BuildSourceFrame fEnvir;
 	
 	
@@ -88,7 +89,7 @@ final class RoxygenRCodeElement implements IBuildSourceFrameElement {
 	}
 	
 	public List<? extends IRLangSourceElement> getModelChildren(final Filter filter) {
-		return NO_R_SOURCE_CHILDREN;
+		return RSourceElements.NO_R_SOURCE_CHILDREN;
 	}
 	
 	public ISourceStructElement getSourceParent() {

@@ -66,9 +66,9 @@ public class RCorePlugin extends Plugin {
 	
 	private static class CoreAccess implements IRCoreAccess {
 		
-		private IPreferenceAccess fPrefs;
-		private RCodeStyleSettings fRCodeStyle;
-		private PreferencesManageListener fListener;
+		private final IPreferenceAccess fPrefs;
+		private final RCodeStyleSettings fRCodeStyle;
+		private final PreferencesManageListener fListener;
 		
 		private CoreAccess(final IPreferenceAccess prefs) {
 			fPrefs = prefs;

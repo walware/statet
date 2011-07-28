@@ -52,6 +52,7 @@ import de.walware.statet.r.codegeneration.RCodeTemplatesContextType;
 import de.walware.statet.r.codegeneration.RdCodeTemplatesContextType;
 import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.internal.ui.editors.RDocumentProvider;
+import de.walware.statet.r.internal.ui.editors.RFragmentDocumentProvider;
 import de.walware.statet.r.internal.ui.editors.RdDocumentProvider;
 import de.walware.statet.r.internal.ui.graphics.ShowGraphicViewListener;
 import de.walware.statet.r.ui.RUI;
@@ -106,6 +107,7 @@ public class RUIPlugin extends AbstractUIPlugin {
 	
 	
 	private RDocumentProvider fRDocumentProvider;
+	private RFragmentDocumentProvider fRFragmentDocumentProvider;
 	private RdDocumentProvider fRdDocumentProvider;
 	
 	private IPreferenceStore fEditorPreferenceStore;
@@ -220,11 +222,13 @@ public class RUIPlugin extends AbstractUIPlugin {
 		util.register(RUI.IMG_OBJ_LIST, ImageRegistryUtil.T_OBJ, "list.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "vector.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_ARRAY, ImageRegistryUtil.T_OBJ, "array.png"); //$NON-NLS-1$
-		util.register(RUI.IMG_OBJ_NULL, ImageRegistryUtil.T_OBJ, "null.png"); //$NON-NLS-1$
-		util.register(RUI.IMG_OBJ_MISSING, ImageRegistryUtil.T_OBJ, "missing.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_ATOMIC, ImageRegistryUtil.T_OBJ, "atomic.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ, ImageRegistryUtil.T_OBJ, "s4obj.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ_VECTOR, ImageRegistryUtil.T_OBJ, "s4obj-vector.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_S4OBJ_DATAFRAME_COLUMN, ImageRegistryUtil.T_OBJ, "s4obj-dataframe_col.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_NULL, ImageRegistryUtil.T_OBJ, "null.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_MISSING, ImageRegistryUtil.T_OBJ, "missing.png"); //$NON-NLS-1$
+		util.register(RUI.IMG_OBJ_PROMISE, ImageRegistryUtil.T_OBJ, "promise.png"); //$NON-NLS-1$
 		util.register(RUI.IMG_OBJ_ARGUMENT_ASSIGN, ImageRegistryUtil.T_OBJ, "arg-assign.png"); //$NON-NLS-1$
 		
 		util.register(RUI.IMG_OBJ_LIBRARY_GROUP, ImageRegistryUtil.T_OBJ, "library.png"); //$NON-NLS-1$
@@ -243,6 +247,13 @@ public class RUIPlugin extends AbstractUIPlugin {
 			fRDocumentProvider = new RDocumentProvider();
 		}
 		return fRDocumentProvider;
+	}
+	
+	public synchronized RFragmentDocumentProvider getRFragmentDocumentProvider() {
+		if (fRFragmentDocumentProvider == null) {
+			fRFragmentDocumentProvider = new RFragmentDocumentProvider();
+		}
+		return fRFragmentDocumentProvider;
 	}
 	
 	public synchronized RdDocumentProvider getRdDocumentProvider() {

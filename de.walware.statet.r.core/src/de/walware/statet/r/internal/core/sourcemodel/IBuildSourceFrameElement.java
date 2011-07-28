@@ -13,6 +13,8 @@ package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.util.List;
 
+import de.walware.statet.r.core.model.IRLangSourceElement;
+
 
 public interface IBuildSourceFrameElement extends IRLangSourceElement {
 	

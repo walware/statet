@@ -20,20 +20,48 @@ import de.walware.statet.r.core.rlang.RTerminal;
  * <code>§expr§ + §expr§ - §expr§</code>
  * <code>§expr§ * §expr§ / §expr§</code>
  */
-public abstract class Arithmetic extends FlatMulti {
+public abstract class Arithmetic extends StdBinary {
 	
 	
-	static class Add extends Arithmetic {
+	static class Plus extends Arithmetic {
 		
 		
-		public Add(final RTerminal firstOperator) {
-			super(firstOperator);
+		public Plus() {
 		}
 		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.ADD;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.PLUS;
+		}
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.ADD);
+		}
+		
+	}
+	
+	static class Minus extends Arithmetic {
+		
+		
+		public Minus() {
+		}
+		
+		
+		@Override
+		public final NodeType getNodeType() {
+			return NodeType.ADD;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.MINUS;
 		}
 		
 		@Override
@@ -46,14 +74,43 @@ public abstract class Arithmetic extends FlatMulti {
 	static class Mult extends Arithmetic {
 		
 		
-		public Mult(final RTerminal firstOperator) {
-			super(firstOperator);
+		public Mult() {
 		}
 		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.MULT;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.MULT;
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.MULT);
+		}
+		
+	}
+	
+	static class Div extends Arithmetic {
+		
+		
+		public Div() {
+		}
+		
+		
+		@Override
+		public final NodeType getNodeType() {
+			return NodeType.MULT;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.DIV;
 		}
 		
 		
@@ -65,8 +122,7 @@ public abstract class Arithmetic extends FlatMulti {
 	}
 	
 	
-	protected Arithmetic(final RTerminal firstOperator) {
-		super(firstOperator);
+	protected Arithmetic() {
 	}
 	
 	

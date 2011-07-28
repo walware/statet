@@ -15,10 +15,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.walware.ecommons.ltk.ISourceStructElement;
-
 import de.walware.statet.r.core.model.IRFrame;
 import de.walware.statet.r.core.model.IRFrameInSource;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.rsource.ast.RAstInfo;
 
@@ -36,7 +35,7 @@ public class RSourceInfo implements IRModelInfo {
 	final Map<String, BuildSourceFrame> fNamespaceFrames;
 	private final Map<String, BuildSourceFrame> fProtectedNamespaceFrames;
 	
-	private final ISourceStructElement fSourceElement;
+	private final IRLangSourceElement fSourceElement;
 	
 	
 	RSourceInfo(final RAstInfo ast,
@@ -44,7 +43,7 @@ public class RSourceInfo implements IRModelInfo {
 			final BuildSourceFrame topFrame,
 			final PackageReferences packageRefs,
 			final Map<String, BuildSourceFrame> namespaceFrames,
-			final ISourceStructElement unitElement) {
+			final IRLangSourceElement unitElement) {
 		fAst = ast;
 		fTopFrame = topFrame;
 		fLocalFrames = localFrames;
@@ -63,7 +62,7 @@ public class RSourceInfo implements IRModelInfo {
 		return fAst;
 	}
 	
-	public ISourceStructElement getSourceElement() {
+	public IRLangSourceElement getSourceElement() {
 		return fSourceElement;
 	}
 	

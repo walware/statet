@@ -28,5 +28,7 @@ public interface IRemoteEngineController {
 	
 	public void disconnect(IProgressMonitor monitor) throws CoreException;
 	
+	public boolean isDisconnected();
+	
 	
 }

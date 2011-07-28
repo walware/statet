@@ -12,7 +12,6 @@
 package de.walware.statet.r.internal.console.ui.launching;
 
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
-import org.eclipse.debug.ui.EnvironmentTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
@@ -20,6 +19,7 @@ import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
 
 import de.walware.statet.nico.ui.util.CommonTabForConsole;
 
+import de.walware.statet.r.launching.ui.EnvironmentTabForR;
 import de.walware.statet.r.launching.ui.REnvTab;
 
 
@@ -27,15 +27,6 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 	
 	
 	public static class ExtJavaClasspathTab extends JavaClasspathTab {
-		
-		@Override
-		public String getName() {
-			return "Java "+super.getName(); //$NON-NLS-1$
-		}
-		
-	}
-	
-	public static class ExtSourceLookupTab extends SourceLookupTab {
 		
 		@Override
 		public String getName() {
@@ -58,17 +49,17 @@ public class RConsoleTabGroup extends AbstractLaunchConfigurationTabGroup {
 				mainTab,
 				renvTab,
 				new RConsoleOptionsTab(),
-				new EnvironmentTab(),
+				new EnvironmentTabForR(),
 				
 				new ExtJavaJRETab(mainTab, renvTab),
 				new ExtJavaClasspathTab(),
-				new ExtSourceLookupTab(),
+				new SourceLookupTab(),
 				
 				new CommonTabForConsole()
 		} : new ILaunchConfigurationTab[] {
 				mainTab,
 				renvTab,
-				new EnvironmentTab(),
+				new EnvironmentTabForR(),
 				
 				new CommonTabForConsole()
 		};

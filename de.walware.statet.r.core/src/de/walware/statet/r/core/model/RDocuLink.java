@@ -12,7 +12,6 @@
 package de.walware.statet.r.core.model;
 
 import de.walware.statet.r.core.rsource.ast.DocuComment;
-import de.walware.statet.r.internal.core.sourcemodel.IRLangSourceElement;
 
 
 public class RDocuLink {

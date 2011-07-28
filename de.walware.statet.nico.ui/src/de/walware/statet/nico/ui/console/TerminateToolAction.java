@@ -67,7 +67,7 @@ public class TerminateToolAction extends Action implements IUpdate {
 	@Override
 	public void run() {
 		try {
-			killTargets(fProcess);
+//			killTargets(fProcess);
 			fProcess.terminate();
 			
 			final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(false);

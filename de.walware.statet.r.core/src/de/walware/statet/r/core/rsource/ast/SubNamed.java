@@ -171,10 +171,10 @@ public abstract class SubNamed extends RAstNode {
 	@Override
 	public boolean equalsSingle(final RAstNode element) {
 		final SubNamed other = (SubNamed) element;
-		return (	(this.fExpr.node == other.fExpr.node
-						|| (this.fExpr.node != null && other.fExpr.node != null && this.fExpr.node.equalsSingle(other.fExpr.node)) )
-				&& 	(this.fSubname == other.fSubname
-						|| (this.fSubname != null && other.fSubname != null && this.fSubname.equalsSingle(other.fSubname)) )
+		return ((fExpr.node == other.fExpr.node
+						|| (fExpr.node != null && fExpr.node.equalsSingle(other.fExpr.node)) )
+				&& (fSubname == other.fSubname
+						|| (fSubname != null && fSubname.equalsSingle(other.fSubname)) )
 				);
 	}
 	

@@ -121,7 +121,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 		
 		public boolean changed(final int event, final ITool tool) {
-			if ((event & MASK_EVENT_GROUP) == REMOVING_EVENT_GROUP) {
+			if (event == MOVING_FROM) {
 				return false;
 			}
 			return true;
@@ -215,13 +215,178 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		
 	};
 	
+	private class SuspendedInsertRunnable extends ControllerSystemRunnable {
+		
+		private final int fLevel;
+		
+		public SuspendedInsertRunnable(int level) {
+			super(SUSPENDED_INSERT_TYPE_ID, "Suspended [" + level + "]");
+			fLevel = level;
+		}
+		
+		public boolean changed(final int event, final ToolProcess process) {
+			switch (event) {
+			case REMOVING_FROM:
+			case MOVING_FROM:
+				return false;
+			}
+			return true;
+		}
+		
+		public void run(final IToolService service,
+				final IProgressMonitor monitor) throws CoreException {
+		}
+		
+	}
+	
+	private class SuspendedUpdateRunnable extends ControllerSystemRunnable {
+		
+		public SuspendedUpdateRunnable() {
+			super(SUSPENDED_INSERT_TYPE_ID, "Update Debug Context");
+		}
+		
+		
+		public boolean changed(final int event, final ITool tool) {
+			if (event == MOVING_FROM) {
+				return false;
+			}
+			return true;
+		}
+		
+		public void run(final IToolService service,
+				final IProgressMonitor monitor) throws CoreException {
+			final IToolRunnable[] runnables = fSuspendUpdateRunnables.toArray();
+			for (final IToolRunnable runnable : runnables) {
+				try {
+					runnable.run(service, monitor);
+				}
+				catch (CoreException e) {
+					final IStatus status = (e instanceof CoreException) ? ((CoreException) e).getStatus() : null;
+					if (status != null && (status.getSeverity() == IStatus.CANCEL || status.getSeverity() <= IStatus.INFO)) {
+						// ignore
+					}
+					else {
+						NicoPlugin.logError(-1, NLS.bind(
+								"An error occurred when running suspend task ''{0}''.", //$NON-NLS-1$
+								runnable.getLabel() ), e);
+					}
+					if (isTerminated()) {
+						return;
+					}
+				}
+			}
+		}
+		
+	}
+	
+	protected abstract class SuspendResumeRunnable extends ControllerSystemRunnable {
+		
+		private final int fDetail;
+		
+		public SuspendResumeRunnable(final String id, final String label, final int detail) {
+			super(id, label);
+			fDetail = detail;
+		}
+		
+		public SubmitType getSubmitType() {
+			return SubmitType.OTHER;
+		}
+		
+		public boolean changed(final int event, final ITool process) {
+			switch (event) {
+			case MOVING_FROM:
+				return false;
+			case REMOVING_FROM:
+			case BEING_ABANDONED:
+				if (fSuspendExitRunnable == this) {
+					fSuspendExitRunnable = null;
+				}
+				break;
+			default:
+				break;
+			}
+			return true;
+		}
+		
+		public void run(final IToolService adapter,
+				final IProgressMonitor monitor) {
+			fSuspendExitRunnable = this;
+			setSuspended(fSuspendedLowerLevel, 0, null);
+		}
+		
+		protected abstract boolean canExec(final IProgressMonitor monitor) throws CoreException;
+		
+		protected abstract void doExec(final IProgressMonitor monitor) throws CoreException;
+		
+		protected void submitToConsole(final String print, final String send,
+				final IProgressMonitor monitor) throws CoreException {
+			final IToolRunnable savedCurrentRunnable = fCurrentRunnable;
+			setCurrentRunnable(this);
+			try {
+				fCurrentInput = print;
+				doBeforeSubmitL();
+			}
+			finally {
+				setCurrentRunnable(savedCurrentRunnable);
+			}
+			fCurrentInput = send;
+			doSubmitL(monitor);
+		}
+		
+	}
+	
+	protected class QuitRunnable extends SuspendResumeRunnable {
+		
+		public QuitRunnable() {
+			super(ToolController.QUIT_TYPE_ID, "Quit", DebugEvent.CLIENT_REQUEST);
+		}
+		
+		@Override
+		public void run(final IToolService service,
+				final IProgressMonitor monitor) {
+			super.run(service, monitor);
+			if (!fIsTerminated) {
+				try {
+					((ToolController) service).doQuitL(monitor);
+				}
+				catch (CoreException e) {
+					if (!fIsTerminated) {
+						handleStatus(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
+								"An error occured when running quit command.", e), monitor);
+					}
+				}
+			}
+		}
+		
+		@Override
+		protected boolean canExec(IProgressMonitor monitor) throws CoreException {
+			return true;
+		}
+		
+		@Override
+		protected void doExec(IProgressMonitor monitor) throws CoreException {
+		}
+		
+	}
+	
 	
 	public static final String START_TYPE_ID = "common/start"; //$NON-NLS-1$
 	public static final String QUIT_TYPE_ID = "common/quit"; //$NON-NLS-1$
 	
+	public static final String SUSPENDED_INSERT_TYPE_ID = "common/debug/suspended.insert"; //$NON-NLS-1$
+	public static final String SUSPENDED_UPDATE_TYPE_ID = "common/debug/suspended.update"; //$NON-NLS-1$
+	public static final String SUSPEND_TYPE_ID = "common/debug/suspend"; //$NON-NLS-1$
+	public static final String RESUME_TYPE_ID = "common/debug/resume"; //$NON-NLS-1$
+	public static final String STEP_INTO_TYPE_ID = "common/debug/step.in"; //$NON-NLS-1$
+	public static final String STEP_OVER_TYPE_ID = "common/debug/step.over"; //$NON-NLS-1$
+	public static final String STEP_RETURN_TYPE_ID = "common/debug/step.return"; //$NON-NLS-1$
+	
 	public static final int CANCEL_CURRENT = 	0x00;
 	public static final int CANCEL_ALL = 		0x01;
 	public static final int CANCEL_PAUSE = 		0x10;
+	
+	protected static final int SUSPENDED_TOPLEVEL = 0x1;
+	protected static final int SUSPENDED_DEEPLEVEL = 0x2;
 	
 	private ToolStreamProxy fStreams;
 	protected ToolStreamMonitor fInputStream;
@@ -234,7 +399,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	private IToolRunnable fCurrentRunnable;
 	private SubmitType fCurrentSubmitType;
-	private IToolRunnable fControllerRunnable;
+	private final List<IToolRunnable> fControllerRunnables = new ArrayList<IToolRunnable>();
+	private IToolRunnable fPostControllerRunnable;
 	private RunnableProgressMonitor fRunnableProgressMonitor;
 	
 	private Thread fControllerThread;
@@ -250,6 +416,16 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	private boolean fHotMode;
 	private boolean fHotModeNested = true;
 	private final IProgressMonitor fHotModeMonitor = new NullProgressMonitor();
+	
+	private int fSuspendedRequestLevel;
+	private int fLoopCurrentLevel; // only within loop
+	private int fSuspendedRunLevel; // also when running exit/continue suspended
+	private int fSuspendedLowerLevel;
+	private final FastList<IToolRunnable> fSuspendUpdateRunnables = new FastList<IToolRunnable>(IToolRunnable.class);
+	private SuspendResumeRunnable fSuspendExitRunnable;
+	private int fSuspendEnterDetail;
+	private Object fSuspendEnterData;
+	private int fSuspendExitDetail;
 	
 	protected WorkspaceType fWorkspaceData;
 	
@@ -372,14 +548,10 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			startToolL(fRunnableProgressMonitor);
 			setCurrentRunnable(null);
 			synchronized (fQueue) {
-				loopChangeStatus((fControllerRunnable != null) ? ToolStatus.STARTED_PROCESSING : ToolStatus.STARTED_IDLING, null);
+				loopChangeStatus((fControllerRunnables.isEmpty()) ?
+						ToolStatus.STARTED_IDLING : ToolStatus.STARTED_PROCESSING, null);
 			}
 			loop();
-		}
-		catch (final CoreException e) {
-			if (e.getStatus().getSeverity() != IStatus.CANCEL) {
-				throw e;
-			}
 		}
 		finally {
 			synchronized (fQueue) {
@@ -457,6 +629,27 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	}
 	
 	/**
+	 * Returns whether the tool is suspended.
+	 * It is suspended if the tool status is {@link ToolStatus#STARTED_SUSPENDED suspended},
+	 * but also if it is processing or paused within the suspended mode of the tool (e.g.
+	 * evaluations to inspect the objects).
+	 * 
+	 * @return <code>true</code> if suspended, otherwise <code>false</code>
+	 */
+	public final boolean isSuspended() {
+		synchronized (fQueue) {
+			return (fSuspendedRequestLevel > 0 || fLoopCurrentLevel > 0);
+		}
+	}
+	
+	/**
+	 * {@link #isSuspended()}
+	 */
+	protected final boolean isSuspendedL() {
+		return (fSuspendedRequestLevel > 0 || fLoopCurrentLevel > 0);
+	}
+	
+	/**
 	 * Returns the current value of the task counter. The counter is increas
 	 * before running a task.
 	 *
@@ -485,6 +678,15 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			}
 			fRunnableProgressMonitor.setCanceled(true);
 			beginInternalTask();
+			
+			if (fSuspendedRequestLevel  > fLoopCurrentLevel) {
+				setSuspended(fLoopCurrentLevel, 0, null);
+				fSuspendExitDetail = DebugEvent.RESUME;
+			}
+			else if (fLoopCurrentLevel > fSuspendedLowerLevel) {
+				setSuspended(fSuspendedLowerLevel, 0, null);
+				fSuspendExitDetail = DebugEvent.RESUME;
+			}
 		}
 		
 		try {
@@ -555,7 +757,7 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	protected final void endInternalTask() {
 		fInternalTask--;
-		if (fControllerRunnable != null || fInternalTask == 0) {
+		if (fControllerRunnables.size() > 0 || fInternalTask == 0) {
 			fQueue.notifyAll();
 		}
 	}
@@ -567,7 +769,9 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	 * The type should be QUIT_TYPE_ID.
 	 * @return
 	 */
-	protected abstract IToolRunnable createQuitRunnable();
+	protected QuitRunnable createQuitRunnable() {
+		return new QuitRunnable();
+	}
 	
 	protected IToolRunnable createCancelPostRunnable(final int options) {
 		return null;
@@ -709,19 +913,25 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 	
 	/**
 	 * Only for internal short tasks.
-	 * You must have the lock for the queue.
 	 */
 	protected final void scheduleControllerRunnable(final IToolRunnable runnable) {
 		synchronized (fQueue) {
-			if (fControllerRunnable != null) {
-				NicoPlugin.log(new Status(IStatus.WARNING, NicoCore.PLUGIN_ID, 
-						NLS.bind("Scheduled controller task ''{0}'' was overwritten by ''{1}''.",  //$NON-NLS-1$
-								fControllerRunnable.getLabel(), runnable.getLabel())));
+			if (!fControllerRunnables.contains(runnable)) {
+				fControllerRunnables.add(runnable);
 			}
-			fControllerRunnable = runnable;
 			if (fStatus != ToolStatus.STARTED_PROCESSING) {
 				fQueue.notifyAll();
 			}
+		}
+	}
+	
+	protected final void addPostControllerRunnable(final IToolRunnable runnable) {
+		fPostControllerRunnable = runnable;
+	}
+	
+	protected final void removePostControllerRunnable(final IToolRunnable runnable) {
+		if (fPostControllerRunnable == runnable) {
+			fPostControllerRunnable = null;
 		}
 	}
 	
@@ -804,9 +1014,16 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 			fHotModeDeferred = false;
 			scheduleHotMode();
 		}
+		boolean enterSuspended = false;
 		
 		while (true) {
-			loopRunTask();
+			if (enterSuspended) {
+				enterSuspended = false;
+				runSuspendedLoopL(SUSPENDED_TOPLEVEL);
+			}
+			else {
+				loopRunTask();
+			}
 			
 			synchronized (fQueue) { // if interrupted run loop, all states are checked
 				fQueue.internalCheck();
@@ -823,7 +1040,11 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					loopChangeStatus(ToolStatus.TERMINATED, null);
 					return;
 				}
-				if (fControllerRunnable != null) {
+				if (fControllerRunnables.size() > 0) {
+					continue;
+				}
+				if (fSuspendedRequestLevel > 0) {
+					enterSuspended = true;
 					continue;
 				}
 				if (fPauseRequested) {
@@ -846,17 +1067,72 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		}
 	}
 	
+	private final void loopSuspended(int level) {
+		boolean enterSuspended = false;
+		
+		while (true) {
+			if (enterSuspended) {
+				enterSuspended = false;
+				runSuspendedLoopL(SUSPENDED_TOPLEVEL);
+			}
+			else {
+				loopRunTask();
+			}
+			
+			synchronized (fQueue) { // if interrupted run loop, all states are checked
+				fQueue.internalCheck();
+				
+				if (fInternalTask > 0) {
+					try {
+						fQueue.wait();
+					}
+					catch (final InterruptedException e) {}
+					continue;
+				}
+				if (fIsTerminated) {
+					return;
+				}
+				if (fSuspendedRequestLevel < level) {
+					return;
+				}
+				if (fControllerRunnables.size() > 0) {
+					continue;
+				}
+				if (fSuspendedRequestLevel > level) {
+					enterSuspended = true;
+					continue;
+				}
+				if (fPauseRequested) {
+					loopChangeStatus(ToolStatus.STARTED_PAUSED, null);
+					try {
+						fQueue.wait();
+					}
+					catch (final InterruptedException e) {}
+					continue;
+				}
+				if (fQueue.internalNext() < 0) {
+					loopChangeStatus(ToolStatus.STARTED_SUSPENDED, null);
+					try {
+						fQueue.wait();
+					}
+					catch (final InterruptedException e) {}
+					continue;
+				}
+			}
+		}
+	}
+	
 	private final void loopRunTask() {
 		while (true) {
 			final int type;
 			final IToolRunnable savedCurrentRunnable = fCurrentRunnable;
 			synchronized (fQueue) {
-				if (fControllerRunnable != null) {
+				if (fControllerRunnables.size() > 0) {
 					type = Queue.RUN_RESERVED;
-					setCurrentRunnable(fControllerRunnable);
-					fControllerRunnable = null;
+					setCurrentRunnable(fControllerRunnables.remove(0));
 				}
-				else if (fIsTerminated || fInternalTask > 0 || fPauseRequested) {
+				else if (fLoopCurrentLevel != fSuspendedRequestLevel || fIsTerminated
+						|| fInternalTask > 0 || fPauseRequested) {
 					return;
 				}
 				else {
@@ -873,6 +1149,23 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					}
 				}
 				if (type != Queue.RUN_HOT) {
+					if (fLoopCurrentLevel > 0) {
+						if (type != Queue.RUN_RESERVED
+								&& (fCurrentRunnable instanceof ConsoleCommandRunnable)
+								&& !runConsoleCommandInSuspend(((ConsoleCommandRunnable) fCurrentRunnable).fText) ) {
+							fQueue.fCounterNext = fQueue.fCounter--;
+							try {
+								fQueue.internalFinished(fCurrentRunnable, IToolRunnable.FINISHING_CANCEL);
+							}
+							finally {
+								setCurrentRunnable(savedCurrentRunnable);
+							}
+							return;
+						}
+						fSuspendExitDetail = (fCurrentRunnable instanceof ToolController.SuspendResumeRunnable) ?
+								((ToolController.SuspendResumeRunnable) fCurrentRunnable).fDetail :
+								DebugEvent.EVALUATION;
+					}
 					loopChangeStatus(ToolStatus.STARTED_PROCESSING,
 							new RunnableProgressMonitor(fCurrentRunnable));
 				}
@@ -956,6 +1249,12 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 					return;
 				}
 				finally {
+					if (fPostControllerRunnable != null) {
+						synchronized (fQueue) {
+							fControllerRunnables.remove(fPostControllerRunnable);
+							fControllerRunnables.add(fPostControllerRunnable);
+						}
+					}
 					setCurrentRunnable(savedCurrentRunnable);
 					fRunnableProgressMonitor.done();
 				}
@@ -1044,6 +1343,184 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 				}
 			}
 		}
+	}
+	
+	
+	protected int setSuspended(final int level, final int enterDetail, final Object enterData) {
+		fSuspendedRequestLevel = level;
+		fSuspendEnterDetail = enterDetail;
+		fSuspendEnterData = enterData;
+		return (level - fSuspendedRunLevel);
+	}
+	
+	public void addSuspendUpdateRunnable(final IToolRunnable runnable) {
+		fSuspendUpdateRunnables.add(runnable);
+	}
+	
+	protected boolean runConsoleCommandInSuspend(final String input) {
+		return true;
+	}
+	
+	protected void scheduleSuspendExitRunnable(final SuspendResumeRunnable runnable) {
+		synchronized (fQueue) {
+			if (fLoopCurrentLevel == 0) {
+				return;
+			}
+			if (fSuspendExitRunnable != null) {
+				fQueue.remove(fSuspendExitRunnable);
+				fControllerRunnables.remove(fSuspendExitRunnable);
+			}
+			fSuspendExitRunnable = runnable;
+			if (Thread.currentThread() == fControllerThread) {
+				runnable.run(this, null);
+			}
+			else {
+				scheduleControllerRunnable(runnable);
+			}
+		}
+	}
+	
+	protected void runSuspendedLoopL(int o) {
+		IToolRunnable insertMarker = null;
+		IToolRunnable updater = null;
+		
+		final IToolRunnable savedCurrentRunnable = fCurrentRunnable;
+		final RunnableProgressMonitor savedProgressMonitor = fRunnableProgressMonitor;
+		final ToolStatus savedStatus = fStatus;
+		
+		final int savedLower = fSuspendedLowerLevel;
+		final int savedLevel = fSuspendedLowerLevel = fSuspendedRunLevel;
+		try {
+			while (true) {
+				final int thisLevel;
+				synchronized (fQueue) {
+					thisLevel = fSuspendedRequestLevel;
+					if (thisLevel <= savedLevel) {
+						setSuspended(fSuspendedRequestLevel, 0, null);
+						return;
+					}
+					if (fLoopCurrentLevel != thisLevel || insertMarker == null) {
+						fLoopCurrentLevel = fSuspendedRunLevel = thisLevel;
+						
+						insertMarker = new SuspendedInsertRunnable(thisLevel);
+						fQueue.internalAddInsert(insertMarker);
+						if (savedLevel == 0 && updater == null) {
+							updater = new SuspendedUpdateRunnable();
+							fQueue.addOnIdle(updater, 6000);
+						}
+					}
+					fSuspendExitDetail = DebugEvent.UNSPECIFIED;
+				}
+				
+				// run suspended loop
+				doRunSuspendedLoopL(o, thisLevel);
+				
+				// resume main runnable
+				final SuspendResumeRunnable runnable;
+				synchronized (fQueue) {
+					fSuspendExitDetail = DebugEvent.UNSPECIFIED;
+					fQueue.fCounterNext = ++fQueue.fCounter + 1;
+					if (fIsTerminated) {
+						setSuspended(0, 0, null);
+						return;
+					}
+					fLoopCurrentLevel = savedLevel;
+					fSuspendEnterDetail = DebugEvent.UNSPECIFIED;
+					
+					fQueue.internalRemoveInsert(insertMarker);
+					insertMarker = null;
+					
+					if (thisLevel <= fSuspendedRequestLevel) {
+						continue;
+					}
+					
+					runnable = fSuspendExitRunnable;
+					if (runnable != null) {
+						fSuspendExitRunnable = null;
+						fQueue.remove(runnable);
+					}
+				}
+				
+				if (runnable != null) { // resume with runnable
+					try {
+						setCurrentRunnable((savedCurrentRunnable != null) ?
+								savedCurrentRunnable : runnable);
+						if (runnable.canExec(savedProgressMonitor)) { // exec resume
+							synchronized (fQueue) {
+								fSuspendExitDetail = runnable.fDetail;
+								loopChangeStatus(ToolStatus.STARTED_PROCESSING, savedProgressMonitor);
+							}
+							runnable.doExec(savedProgressMonitor);
+						}
+						else { // cancel resume
+							synchronized (fQueue) {
+								fSuspendedRequestLevel = thisLevel;
+							}
+						}
+					}
+					catch (final Exception e) {
+						NicoPlugin.log(new Status(IStatus.ERROR, NicoCore.PLUGIN_ID, 0,
+								"An error occurred when executing debug command.", e)); //$NON-NLS-1$
+					}
+				}
+				else { // resume without runnable
+					fSuspendExitDetail = DebugEvent.UNSPECIFIED;
+					if (savedCurrentRunnable != null) {
+						synchronized (fQueue) {
+							loopChangeStatus(ToolStatus.STARTED_PROCESSING, savedProgressMonitor);
+						}
+					}
+				}
+			}
+		}
+		finally {
+			fSuspendedLowerLevel = savedLower;
+			fSuspendedRunLevel = savedLevel;
+			setCurrentRunnable(savedCurrentRunnable);
+			
+			synchronized (fQueue) {
+				loopChangeStatus(savedStatus, savedProgressMonitor);
+				
+				// if not exit normally
+				if (fLoopCurrentLevel != savedLevel) {
+					fLoopCurrentLevel = savedLevel;
+					fSuspendEnterDetail = DebugEvent.UNSPECIFIED;
+				}
+				if (updater != null) {
+					fQueue.removeOnIdle(updater);
+				}
+				if (insertMarker != null) {
+					fQueue.internalRemoveInsert(insertMarker);
+				}
+				
+				fSuspendExitRunnable = null;
+				setSuspended(fSuspendedRequestLevel, 0, null);
+			}
+		}
+	}
+	
+	protected void doRunSuspendedLoopL(int o, int level) {
+		loopSuspended(level);
+	}
+	
+	protected int getCurrentLevelL() {
+		return fLoopCurrentLevel;
+	}
+	
+	protected int getRequestedLevelL() {
+		return fSuspendedRequestLevel;
+	}
+	
+	public int getSuspendEnterDetail() {
+		return fSuspendEnterDetail;
+	}
+	
+	public Object getSuspendEnterData() {
+		return fSuspendEnterData;
+	}
+	
+	public int getSuspendExitDetail() {
+		return fSuspendExitDetail;
 	}
 	
 	protected final void markAsTerminated() {
@@ -1229,8 +1706,8 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 		fWorkspaceData.controlSetRemoteWorkspaceDir(directory);
 	}
 	
-	public void submitToConsole(final String input, final IProgressMonitor monitor)
-			throws CoreException {
+	public void submitToConsole(final String input,
+			final IProgressMonitor monitor) throws CoreException {
 		fCurrentInput = input;
 		doBeforeSubmitL();
 		doSubmitL(monitor);
@@ -1246,12 +1723,13 @@ public abstract class ToolController<WorkspaceType extends ToolWorkspace>
 				IConsoleService.META_HISTORY_DONTADD);
 	}
 	
+	protected abstract void doSubmitL(IProgressMonitor monitor) throws CoreException;
+	
 	protected CoreException cancelTask() {
 		return new CoreException(new Status(IStatus.CANCEL, NicoCore.PLUGIN_ID, -1,
 				Messages.ToolRunnable_error_RuntimeError_message, null));
 	}
 	
-	protected abstract void doSubmitL(IProgressMonitor monitor)
-			throws CoreException;
+	protected abstract void doQuitL(IProgressMonitor monitor) throws CoreException;
 	
 }

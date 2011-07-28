@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<!--
+ ###############################################################################
+ # Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet).
+ # All rights reserved. This program and the accompanying materials
+ # are made available under the terms of the Eclipse Public License v1.0
+ # which accompanies this distribution, and is available at
+ # http://www.eclipse.org/legal/epl-v10.html
+ # 
+ # Contributors:
+ #     Stephan Wahlbrink - initial API and implementation
+ ###############################################################################
+-->
+
+<plugin>
+   
+<!-- breakpoints -->
+   <extension
+         point="org.eclipse.core.resources.markers"
+         id="de.walware.statet.r.debug.markers.RBreakpoint">
+      <super
+            type="org.eclipse.debug.core.breakpointMarker">
+      </super>
+   </extension>
+   <extension
+         point="org.eclipse.core.resources.markers"
+         id="de.walware.statet.r.debug.markers.RGenericLineBreakpoint">
+      <super
+            type="de.walware.statet.r.debug.markers.RBreakpoint">
+      </super>
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ElementTypeAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ElementIdAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ElementLabelAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.SubLabelAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.RExprIndexAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ConditionEnabledAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ConditionExprAttribute">
+      </attribute>
+   </extension>
+   <extension
+         point="org.eclipse.core.resources.markers"
+         id="de.walware.statet.r.debug.markers.RLineBreakpoint">
+      <super
+            type="de.walware.statet.r.debug.markers.RGenericLineBreakpoint">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ExpressionIndexAttribute">
+      </attribute>
+   </extension>
+   <extension
+         point="org.eclipse.core.resources.markers"
+         id="de.walware.statet.r.debug.markers.RMethodBreakpoint">
+      <super
+            type="de.walware.statet.r.debug.markers.RGenericLineBreakpoint">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="de.walware.statet.r.debug.markers.EntryBreakpointAttribute">
+      </attribute>
+      <attribute
+            name="de.walware.statet.r.debug.markers.ExitBreakpointAttribute">
+      </attribute>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.breakpoints">
+      <breakpoint
+            id="de.walware.statet.r.debug.breakpoints.RLineBreakpoint"
+            class="de.walware.statet.r.internal.debug.core.breakpoints.RLineBreakpoint"
+            markerType="de.walware.statet.r.debug.markers.RLineBreakpoint"
+            name="%breakpoints_RLineBreakpoint_name">
+      </breakpoint>
+      <breakpoint
+            id="de.walware.statet.r.debug.breakpoints.RMethodBreakpoint"
+            class="de.walware.statet.r.internal.debug.core.breakpoints.RMethodBreakpoint"
+            markerType="de.walware.statet.r.debug.markers.RMethodBreakpoint"
+            name="%breakpoints_RMethodBreakpoint_name">
+      </breakpoint>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            id="de.walware.statet.r.sourceLocators.RSourceLocator"
+            class="de.walware.statet.r.debug.core.sourcelookup.RSourceLookupDirector"
+            name="%sourceLocators_RSourceLocator_name">
+      </sourceLocator>
+   </extension>
+   
+<!-- sourcelookup -->
+   <extension
+         point="org.eclipse.debug.core.sourcePathComputers">
+      <sourcePathComputer
+            id="de.walware.statet.r.sourcePathComputers.RSourcePathComputer"
+            class="de.walware.statet.r.internal.debug.core.sourcelookup.RSourcePathComputer">
+      </sourcePathComputer>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceContainerTypes">
+      <sourceContainerType
+            id="de.walware.statet.r.sourceContainers.REnvLibraryPathType"
+            class="de.walware.statet.r.internal.debug.core.sourcelookup.REnvLibraryPathSourceContainerTypeDelegate"
+            name="%sourceContainers_REnvLibraryPathType_name"
+            description="%sourceContainers_REnvLibraryPathType_description">
+      </sourceContainerType>
+      <sourceContainerType
+            id="de.walware.statet.r.sourceContainers.RLibraryType"
+            class="de.walware.statet.r.internal.debug.core.sourcelookup.RLibrarySourceContainerTypeDelegate"
+            name="%sourceContainers_RLibraryType_name"
+            description="%sourceContainers_RLibraryType_description">
+      </sourceContainerType>
+      <sourceContainerType
+            id="de.walware.statet.r.sourceContainers.AllRProjectsType"
+            class="de.walware.statet.r.internal.debug.core.sourcelookup.AllRProjectsSourceContainerTypeDelegate"
+            name="%sourceContainers_AllRProjectsType_name"
+            description="%sourceContainers_AllRProjectsType_description">
+      </sourceContainerType>
+      <sourceContainerType
+            id="de.walware.statet.r.sourceContainers.RProjectType"
+            class="de.walware.statet.r.internal.debug.core.sourcelookup.RProjectSourceContainerTypeDelegate"
+            name="%sourceContainers_RProjectType_name"
+            description="%sourceContainers_RProjectType_description">
+      </sourceContainerType>
+   </extension>
+   
+</plugin>

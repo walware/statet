@@ -29,12 +29,11 @@ public abstract class RAstNode implements IAstNode {
 	
 	
 	interface Assoc {
-		static final int TERM = 1;
-		static final int CONTAINER = 10;
-		static final int NOSTD = 100;
-		static final int LEFTSTD = 110;
-		static final int LEFTMULTI = 111;
-		static final int RIGHTSTD = 120;
+		byte TERM = 1;
+		byte CONTAINER = 2;
+		byte NOSTD = 3;
+		byte LEFTSTD = 4;
+		byte RIGHTSTD = 5;
 	}
 	
 	
@@ -229,13 +228,6 @@ public abstract class RAstNode implements IAstNode {
 	@Override
 	public String toString() {
 		final StringBuilder s = new StringBuilder();
-		final IAstNode parent = getParent();
-		if (parent instanceof FlatMulti) {
-			final FlatMulti multi = (FlatMulti) parent;
-			final RTerminal operator = multi.getOperator(multi.getChildIndex(this));
-			s.append(operator != null ? operator.text : "•"); //$NON-NLS-1$
-			s.append("  "); //$NON-NLS-1$
-		}
 //		s.append("«");
 		s.append(getNodeType().label);
 //		s.append(" § " + fStartOffset+","+fStopOffset);

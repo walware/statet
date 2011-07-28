@@ -28,6 +28,7 @@ public interface IConsoleService extends IToolService {
 	public static final int META_NONE = 0;
 	public static final int META_HISTORY_DONTADD = 1 << 0;
 	public static final int META_PROMPT_DEFAULT = 1 << 1;
+	public static final int META_PROMPT_SUSPENDED = 1 << 2;
 	
 	
 	/**

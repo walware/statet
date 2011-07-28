@@ -74,8 +74,8 @@ public abstract class Symbol extends SingleValue {
 			return false;
 		}
 		final Symbol other = (Symbol) element;
-		return (	(this.fText == other.fText
-						|| (this.fText != null && other.fText != null && this.fText.equals(other.fText)) )
+		return ((fText == other.fText
+						|| (fText != null && fText.equals(other.fText)) )
 				);
 	}
 	

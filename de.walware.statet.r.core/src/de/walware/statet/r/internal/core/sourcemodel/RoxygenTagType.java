@@ -15,6 +15,7 @@ import java.util.HashMap;
 
 import de.walware.statet.r.core.model.IRElement;
 import de.walware.statet.r.core.model.IRFrameInSource;
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.rsource.ast.DocuTag;
 import de.walware.statet.r.core.rsource.ast.NodeType;
 import de.walware.statet.r.core.rsource.ast.RAstNode;

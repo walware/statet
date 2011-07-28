@@ -12,6 +12,8 @@
 package de.walware.statet.r.internal.debug.ui.launcher;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -22,27 +24,31 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.text.AbstractDocument;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ISynchronizable;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.progress.IProgressService;
-import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.walware.ecommons.ltk.AstInfo;
-import de.walware.ecommons.ltk.IDocumentModelProvider;
 import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
+import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 import de.walware.ecommons.ui.util.UIAccess;
 
+import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRSourceUnit;
 import de.walware.statet.r.core.model.RModel;
 import de.walware.statet.r.core.rsource.ast.RAst;
 import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
 import de.walware.statet.r.launching.RCodeLaunching;
+import de.walware.statet.r.launching.RCodeLaunching.SourceRegion;
 import de.walware.statet.r.ui.RUI;
 
 
@@ -55,18 +61,22 @@ import de.walware.statet.r.ui.RUI;
 public class RunEntireCommandHandler extends AbstractHandler {
 	
 	
-	protected static class TextData {
+	protected static class Data {
 		
-		ITextEditor editor;
+		ISourceEditor editor;
 		ITextSelection selection;
-		IDocument document;
-		AstInfo astInfo;
-		Object modelElements;
+		AbstractDocument document;
+		IRModelInfo model;
+		AstInfo<?> ast;
+		RAstNode[] nodes;
+		IRSourceUnit su;
+		
+		List<SourceRegion> regions;
 		
 	}
 	
 	
-	private boolean fGotoConsole;
+	private final boolean fGotoConsole;
 	
 	
 	public RunEntireCommandHandler() {
@@ -80,32 +90,27 @@ public class RunEntireCommandHandler extends AbstractHandler {
 	
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
+		final AtomicReference<IStatus> success = new AtomicReference<IStatus>();
 		
 		try {
-			if (workbenchPart instanceof ITextEditor) {
-				final ITextEditor textEditor = (ITextEditor) workbenchPart;
-				final ISelection selection = textEditor.getSelectionProvider().getSelection();
-				if (selection instanceof ITextSelection && 
-						textEditor.getDocumentProvider() instanceof IDocumentModelProvider) {
-					final TextData data = new TextData();
-					data.editor = textEditor;
-					data.selection = (ITextSelection) selection;
-					
-					final AtomicReference<Boolean> success = new AtomicReference<Boolean>();
-					((IProgressService) workbenchPart.getSite().getService(IProgressService.class))
-							.busyCursorWhile(new IRunnableWithProgress() {
-						public void run(final IProgressMonitor monitor)
-								throws InvocationTargetException {
-							try {
-								success.set(doLaunch(data, monitor));
+			if (workbenchPart instanceof IEditorPart) {
+				final Data data = new Data();
+				data.editor = (ISourceEditor) workbenchPart.getAdapter(ISourceEditor.class);
+				if (data.editor != null) {
+					data.selection = (ITextSelection) data.editor.getViewer().getSelection();
+					if (data.selection != null) {
+						((IProgressService) workbenchPart.getSite().getService(IProgressService.class))
+								.busyCursorWhile(new IRunnableWithProgress() {
+							public void run(final IProgressMonitor monitor)
+									throws InvocationTargetException {
+								try {
+									success.set(doLaunch(data, monitor));
+								}
+								catch (final CoreException e) {
+									throw new InvocationTargetException(e);
+								}
 							}
-							catch (final CoreException e) {
-								throw new InvocationTargetException(e);
-							}
-						}
-					});
-					if (success.get()) {
-						return null;
+						});
 					}
 				}
 			}
@@ -119,7 +124,11 @@ public class RunEntireCommandHandler extends AbstractHandler {
 			return null;
 		}
 		
-		LaunchShortcutUtil.handleUnsupportedExecution(event);
+		final IStatus status = success.get();
+		if (status != null
+				&& status.getSeverity() != IStatus.OK && status.getSeverity() != IStatus.CANCEL) {
+			WorkbenchUIUtil.indicateStatus(status, event);
+		}
 		return null;
 	}
 	
@@ -127,55 +136,86 @@ public class RunEntireCommandHandler extends AbstractHandler {
 		return RLaunchingMessages.RCommandLaunch_error_message;
 	}
 	
-	protected boolean doLaunch(final TextData data, final IProgressMonitor monitor)
+	protected IStatus doLaunch(final Data data, final IProgressMonitor monitor)
 			throws CoreException {
-		final IDocumentProvider documentProvider = data.editor.getDocumentProvider();
-		final IEditorInput editorInput = data.editor.getEditorInput();
-		if (!(documentProvider instanceof IDocumentModelProvider)) {
-			return false;
-		}
-		final ISourceUnit unit = ((IDocumentModelProvider) documentProvider).getWorkingCopy(editorInput);
-		if (unit == null) {
-			return false;
-		}
-		data.document = documentProvider.getDocument(editorInput);
-		
-		monitor.subTask(RLaunchingMessages.RCodeLaunch_UpdateStructure_task);
-		data.astInfo = unit.getAstInfo(RModel.TYPE_ID, true, monitor);
-		if (monitor.isCanceled() || data.astInfo == null) {
-			return false;
-		}
-		
-		final String code = getCode(data);
-		if (code != null) {
-			monitor.subTask(RLaunchingMessages.RCodeLaunch_SubmitCode_task);
-			if (RCodeLaunching.runRCodeDirect(code, fGotoConsole)) {
-				postLaunch(data);
+		{	final ISourceUnit su = data.editor.getSourceUnit();
+			if (su instanceof IRSourceUnit) {
+				data.su = (IRSourceUnit) su;
+			}
+			else {
+				return LaunchShortcutUtil.createUnsupported();
 			}
 		}
-		return true;
+		assert (data.su.getDocument(monitor) == data.editor.getViewer().getDocument());
+		data.document = data.su.getDocument(monitor);
+		
+		monitor.subTask(RLaunchingMessages.RCodeLaunch_UpdateStructure_task);
+		synchronized ((data.document instanceof ISynchronizable) ?
+				((ISynchronizable) data.document).getLockObject() : data.document) {
+			data.model = (IRModelInfo) data.su.getModelInfo(RModel.TYPE_ID,
+					IRModelManager.MODEL_FILE, monitor );
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+			if (data.model != null) {
+				data.ast = data.model.getAst();
+			}
+			else {
+				data.ast = data.su.getAstInfo(null, true, monitor);
+			}
+			if (monitor.isCanceled()) {
+				return Status.CANCEL_STATUS;
+			}
+			if (data.ast == null) {
+				return LaunchShortcutUtil.createUnsupported();
+			}
+			final IStatus status = getRegions(data);
+			if (!status.isOK() || data.regions == null) {
+				return status;
+			}
+		}
+		
+		monitor.subTask(RLaunchingMessages.RCodeLaunch_SubmitCode_task);
+		if (RCodeLaunching.runRCodeDirect(data.regions, fGotoConsole)) {
+			postLaunch(data);
+		}
+		return Status.OK_STATUS;
 	}
 	
-	protected String getCode(final TextData data)
+	protected IStatus getRegions(final Data data)
 			throws CoreException {
-		final RAstNode[] nodes = RAst.findDeepestCommands(data.astInfo.root, data.selection.getOffset(), data.selection.getOffset()+data.selection.getLength());
+		final RAstNode[] nodes = RAst.findDeepestCommands(data.ast.root,
+				data.selection.getOffset(), data.selection.getOffset()+data.selection.getLength() );
 		if (nodes == null || nodes.length == 0) {
-			final RAstNode next = RAst.findNextCommands(data.astInfo.root, data.selection.getOffset()+data.selection.getLength());
+			final RAstNode next = RAst.findNextCommands(data.ast.root,
+					data.selection.getOffset()+data.selection.getLength() );
 			if (next != null) {
-				UIAccess.getDisplay().syncExec(new Runnable() {
+				UIAccess.getDisplay().asyncExec(new Runnable() {
 					public void run() {
 						data.editor.selectAndReveal(next.getOffset(), 0);
 					}
 				});
 			}
-			return null;
+			return Status.OK_STATUS;
 		}
 		try {
-			final int start = checkStart(data.document, nodes[0].getOffset());
-			final int end = nodes[nodes.length-1].getOffset()+nodes[nodes.length-1].getLength();
-			final String code = data.document.get(start, end-start);
-			data.modelElements = nodes;
-			return code;
+			data.nodes = nodes;
+			final List<SourceRegion> list = new ArrayList<RCodeLaunching.SourceRegion>(nodes.length);
+			for (int i = 0; i < nodes.length; i++) {
+				if (RAst.hasErrors(nodes[i])) {
+					return new Status(IStatus.ERROR, RUI.PLUGIN_ID,
+							RLaunchingMessages.RunCode_info_SyntaxError_message );
+				}
+				
+				final SourceRegion region = new SourceRegion(data.su, data.document);
+				region.setBegin(checkStart(data.document, nodes[i].getOffset()));
+				region.setEnd(nodes[i].getOffset()+nodes[i].getLength());
+				region.setCode(data.document.get(region.getOffset(), region.getLength()));
+				region.setNode(nodes[i]);
+				list.add(region);
+			}
+			data.regions = list;
+			return Status.OK_STATUS;
 		}
 		catch (final BadLocationException e) {
 			throw new CoreException(new Status(IStatus.ERROR, RUI.PLUGIN_ID, -1,
@@ -199,7 +239,7 @@ public class RunEntireCommandHandler extends AbstractHandler {
 		return lineOffset;
 	}
 	
-	protected void postLaunch(final TextData data) {
+	protected void postLaunch(final Data data) {
 	}
 	
 }

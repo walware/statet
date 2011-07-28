@@ -53,8 +53,13 @@ abstract class SubAbstractElementAccess extends RElementAccess {
 	}
 	
 	@Override
-	public boolean isMethodAccess() {
-		return fRoot.isMethodAccess();
+	public boolean isCallAccess() {
+		return fRoot.isCallAccess();
+	}
+	
+	@Override
+	public boolean isFunctionAccess() {
+		return fRoot.isFunctionAccess();
 	}
 	
 	@Override

@@ -28,14 +28,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.jface.databinding.viewers.ViewersObservables;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -158,16 +156,6 @@ public class RConsoleMainTab extends LaunchConfigTabWithDbc {
 		setControl(mainComposite);
 		mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		mainComposite.setLayout(new GridLayout());
-		
-		if (getLaunchConfigurationDialog().getMode().equals(ILaunchManager.DEBUG_MODE)) {
-			final Label label = new Label(mainComposite, SWT.WRAP);
-			label.setText("The 'debug' launch mode enables debug features for Java, not for R, and only if you use type 'RJ'."); //$NON-NLS-1$
-			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-			gd.widthHint = 300;
-			label.setLayoutData(gd);
-			label.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DIALOG_FONT));
-			LayoutUtil.addSmallFiller(mainComposite, false);
-		}
 		
 		{	// Type
 			final Composite composite = new Composite(mainComposite, SWT.NONE);

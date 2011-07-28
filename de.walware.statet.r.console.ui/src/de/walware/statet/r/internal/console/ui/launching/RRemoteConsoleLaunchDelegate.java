@@ -92,6 +92,7 @@ import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
+import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.launching.ui.REnvTab;
 import de.walware.statet.r.nico.impl.RjsController;
@@ -140,7 +141,14 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 	private static final int TODO_CONNECT = 3;
 	
 	
+	private ILaunchDelegateAddon fAddon;
+	
+	
 	public RRemoteConsoleLaunchDelegate() {
+	}
+	
+	public RRemoteConsoleLaunchDelegate(ILaunchDelegateAddon addon) {
+		fAddon = addon;
 	}
 	
 	
@@ -523,6 +531,10 @@ public class RRemoteConsoleLaunchDelegate extends AbstractRConsoleLaunchDelegate
 			progress.worked(5);
 			
 			RConsoleRJLaunchDelegate.initConsoleOptions(controller, configuration, startup);
+			
+			if (fAddon != null) {
+				fAddon.init(configuration, mode, controller, monitor);
+			}
 			
 			final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 			NicoUITools.startConsoleLazy(console, page,

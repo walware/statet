@@ -17,6 +17,7 @@ import java.util.List;
 import de.walware.ecommons.ltk.ISourceStructElement;
 import de.walware.ecommons.ltk.IModelElement.Filter;
 
+import de.walware.statet.r.core.model.IRLangSourceElement;
 import de.walware.statet.r.core.model.IRModelInfo;
 import de.walware.statet.r.core.model.RDocuLink;
 import de.walware.statet.r.core.rsource.ast.DocuComment;

@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall3;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
@@ -89,9 +90,13 @@ public class RJEngineLaunchDelegate extends JavaLaunchDelegate {
 	
 	
 	@Override
-	public void launch(final ILaunchConfiguration configuration, final String mode,
+	public void launch(final ILaunchConfiguration configuration, String mode,
 			final ILaunch launch, final IProgressMonitor monitor) throws CoreException {
 		fMonitor = (monitor != null) ? monitor : new NullProgressMonitor();
+		if (mode.equals(ILaunchManager.DEBUG_MODE)) {
+			// TODO add configuration option (-> source lookup support for Java)
+			mode = ILaunchManager.RUN_MODE;
+		}
 		super.launch(configuration, mode, launch, fMonitor);
 	}
 	@Override

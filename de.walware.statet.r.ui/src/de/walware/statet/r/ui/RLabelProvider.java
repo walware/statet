@@ -42,7 +42,7 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RReference;
 import de.walware.rj.data.RStore;
 
-import de.walware.statet.r.console.core.RWorkspace.ICombinedEnvironment;
+import de.walware.statet.r.console.core.RWorkspace.ICombinedREnvironment;
 import de.walware.statet.r.core.data.ICombinedRElement;
 import de.walware.statet.r.core.model.ArgsDefinition;
 import de.walware.statet.r.core.model.ArgsDefinition.Arg;
@@ -182,6 +182,8 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			return RUI.getImage(RUI.IMG_OBJ_OTHERENV);
 		case RObject.TYPE_MISSING:
 			return RUI.getImage(RUI.IMG_OBJ_MISSING);
+		case RObject.TYPE_PROMISE:
+			return RUI.getImage(RUI.IMG_OBJ_PROMISE);
 		case RObject.TYPE_REFERENCE:
 		default:
 			return RUI.getImage(RUI.IMG_OBJ_GENERAL_VARIABLE);
@@ -645,7 +647,8 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			text.append(arg.name);
 		}
 		if (arg.className != null) {
-			text.append(" : "+arg.className); 
+			text.append(" : ");
+			text.append(arg.className);
 		}
 	}
 	
@@ -812,7 +815,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			}
 		}
 		textBuilder.append(" ["); 
-		textBuilder.append(Integer.toString(element.getLength()));
+		textBuilder.append(element.getLength());
 		textBuilder.append(']');
 		if (datatype == RStore.FACTOR) {
 			textBuilder.append(" ("); 
@@ -846,10 +849,10 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		final RIntegerStore dim = ((RArray<?>) element).getDim();
 		final int dimLength = dim.getLength();
 		if (dimLength > 0) {
-			textBuilder.append(Integer.toString(dim.getInt(0)));
+			textBuilder.append(dim.getInt(0));
 			for (int i = 1; i < dimLength; i++) {
 				textBuilder.append('×');
-				textBuilder.append(Integer.toString(dim.getInt(i)));
+				textBuilder.append(dim.getInt(i));
 			}
 		}
 		textBuilder.append(']');
@@ -880,7 +883,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 	}
 	
 	protected void appendEnvDetail(final StyledString text, final ICombinedRElement element, final RList elementAttr) {
-		final ICombinedEnvironment envir = (ICombinedEnvironment) element;
+		final ICombinedREnvironment envir = (ICombinedREnvironment) element;
 		if ((fStyle & COUNT) != 0) { // count info
 			final String countInfo = getEnvCountInfo(envir);
 			text.append(countInfo, StyledString.COUNTER_STYLER);
@@ -891,7 +894,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		}
 	}
 	
-	protected String getEnvCountInfo(final ICombinedEnvironment envir) {
+	protected String getEnvCountInfo(final ICombinedREnvironment envir) {
 		final StringBuilder textBuilder = getTextBuilder();
 		textBuilder.append(" ("); 
 		textBuilder.append(envir.getLength());
@@ -904,7 +907,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 		if ((fStyle & COUNT) != 0) { // count info
 			final StringBuilder textBuilder = getTextBuilder();
 			textBuilder.append(" ("); 
-			textBuilder.append(Integer.toString(dataframe.getColumnCount()));
+			textBuilder.append(dataframe.getColumnCount());
 			textBuilder.append(" var.)");
 			text.append(textBuilder.toString(), StyledString.COUNTER_STYLER);
 		}
@@ -922,7 +925,7 @@ public class RLabelProvider extends StyledCellLabelProvider implements IElementL
 			}
 		}
 		textBuilder.append(" ["); 
-		textBuilder.append(Integer.toString(dataframe.getRowCount()));
+		textBuilder.append(dataframe.getRowCount());
 		textBuilder.append(']');
 		text.append(textBuilder.toString(), StyledString.DECORATIONS_STYLER);
 	}

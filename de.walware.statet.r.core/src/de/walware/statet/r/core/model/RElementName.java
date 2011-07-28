@@ -45,11 +45,12 @@ public abstract class RElementName implements IElementName {
 	public static final int MAIN_CLASS =      0x013;
 	public static final int MAIN_SEARCH_ENV = 0x015;
 	public static final int MAIN_PACKAGE =    0x016;
-	public static final int MAIN_PROJECT =    0x017;
-	public static final int SUB_NAMEDSLOT =   0x018;
-	public static final int SUB_NAMEDPART =   0x019;
-	public static final int SUB_INDEXED_S =   0x01A;
-	public static final int SUB_INDEXED_D =   0x01B;
+	public static final int MAIN_SYSFRAME =   0x017;
+	public static final int MAIN_PROJECT =    0x018;
+	public static final int SUB_NAMEDSLOT =   0x01a;
+	public static final int SUB_NAMEDPART =   0x01b;
+	public static final int SUB_INDEXED_S =   0x01d;
+	public static final int SUB_INDEXED_D =   0x01e;
 	
 	public static final int DISPLAY_NS_PREFIX = 0x1;
 	public static final int DISPLAY_EXACT = 0x2;
@@ -67,32 +68,26 @@ public abstract class RElementName implements IElementName {
 	public static String createDisplayName(RElementName a, final int options) {
 		StringBuilder sb = null;
 		
-		final IElementName namespace = ((options & DISPLAY_NS_PREFIX) != 0) ? a.getNamespace() : null;
-		if (((options & DISPLAY_NS_PREFIX) != 0) && namespace != null) {
-			final String namespaceName;
-			switch (namespace.getType()) {
-			case MAIN_SEARCH_ENV:
-				namespaceName = namespace.getSegmentName();
-				break;
-			case MAIN_PACKAGE:
-				namespaceName = "package:"+namespace.getSegmentName();
-				break;
-			case MAIN_PROJECT:
-				namespaceName = ".GlobalEnv";
-				break;
-			default:
-				return null;
+		if ((options & DISPLAY_NS_PREFIX) != 0) {
+			final RElementName namespace = a.getNamespace();
+			if (namespace != null) {
+				sb = new StringBuilder(32);
+				if (!appendEnvAccess(namespace, sb, options)
+						|| a.getType() != MAIN_DEFAULT) {
+					return null;
+				}
 			}
-			if (namespaceName != null) {
-				sb = new StringBuilder(namespaceName.length() + 32);
-				sb.append("as.environment(\""); //$NON-NLS-1$
-				sb.append(namespaceName);
-				sb.append("\")"); //$NON-NLS-1$
+			else if (a.getType() == MAIN_SEARCH_ENV
+					|| a.getType() == MAIN_PACKAGE
+					|| a.getType() == MAIN_SYSFRAME) {
+				sb = new StringBuilder(32);
+				if (!appendEnvAccess(a, sb, options)
+						|| (a = a.getNextSegment()) != null && a.getType() != MAIN_DEFAULT) {
+					return null;
+				}
 			}
-			else {
-				return null;
-			}
-			if (a != null && a.getType() == MAIN_DEFAULT) {
+			
+			if (sb != null && a != null) {
 				sb.append('$');
 				final String name = a.getSegmentName();
 				if (name != null) {
@@ -100,52 +95,8 @@ public abstract class RElementName implements IElementName {
 				}
 				a = a.getNextSegment();
 			}
-			else {
-				return null;
-			}
 		}
-		else if (((options & DISPLAY_NS_PREFIX) != 0)
-				&& (a.getType() == MAIN_SEARCH_ENV || a.getType() == MAIN_PACKAGE)) {
-			final String namespaceName;
-			switch (a.getType()) {
-			case MAIN_SEARCH_ENV:
-				namespaceName = a.getSegmentName();
-				break;
-			case MAIN_PACKAGE:
-				namespaceName = "package:"+a.getSegmentName();
-				break;
-			case MAIN_PROJECT:
-				namespaceName = ".GlobalEnv";
-				break;
-			default:
-				return null;
-			}
-			if (namespaceName != null) {
-				sb = new StringBuilder(namespaceName.length() + 32);
-				sb.append("as.environment(\""); //$NON-NLS-1$
-				sb.append(namespaceName);
-				sb.append("\")"); //$NON-NLS-1$
-			}
-			else {
-				return null;
-			}
-			a = a.getNextSegment();
-			if (a != null && a.getType() == MAIN_DEFAULT) {
-				sb.append('$');
-				final String name = a.getSegmentName();
-				if (name != null) {
-					appendSymbol(sb, name);
-				}
-				a = a.getNextSegment();
-			}
-			else if (a == null) {
-				return sb.toString();
-			}
-			else {
-				return null;
-			}
-		}
-		else {
+		if (sb == null) {
 			String firstName;
 			final int type = a.getType();
 			switch (type) {
@@ -168,6 +119,18 @@ public abstract class RElementName implements IElementName {
 					sb = new StringBuilder(firstName);
 				}
 				break;
+			case MAIN_SEARCH_ENV:
+				firstName = a.getSegmentName();
+				if (firstName != null) {
+					return firstName;
+				}
+				return null;
+			case MAIN_SYSFRAME:
+				firstName = a.getSegmentName();
+				if (firstName != null) {
+					return "frame:"+firstName;
+				}
+				return null;
 			case MAIN_PACKAGE:
 				firstName = a.getSegmentName();
 				if (firstName != null) {
@@ -184,12 +147,6 @@ public abstract class RElementName implements IElementName {
 				else {
 					return "project:<unknown>";
 				}
-			case MAIN_SEARCH_ENV:
-				firstName = a.getSegmentName();
-				if (firstName != null) {
-					return firstName;
-				}
-				return null;
 			case SUB_INDEXED_D:
 				if (a instanceof DefaultImpl) {
 					sb = new StringBuilder("[["); //$NON-NLS-1$
@@ -216,7 +173,7 @@ public abstract class RElementName implements IElementName {
 				if (((options & DISPLAY_EXACT) != 0) && a instanceof IndexElementName) {
 					sb.append("[[");
 					sb.append(((IndexElementName) a).getIndex());
-					sb.append("]]");
+					sb.append("L]]");
 				}
 				else {
 					sb.append('$');
@@ -254,6 +211,45 @@ public abstract class RElementName implements IElementName {
 			}
 		}
 		return sb.toString();
+	}
+	
+	private static boolean appendEnvAccess(final RElementName a, StringBuilder sb, final int options) {
+		final String namespaceName;
+		switch (a.getType()) {
+		case MAIN_SEARCH_ENV:
+			namespaceName = a.getSegmentName();
+			if (namespaceName == null) {
+				return false;
+			}
+			sb.append("as.environment(\""); //$NON-NLS-1$
+			sb.append(namespaceName);
+			sb.append("\")"); //$NON-NLS-1$
+			return true;
+		case MAIN_PACKAGE:
+			namespaceName = a.getSegmentName();
+			if (namespaceName == null) {
+				return false;
+			}
+			sb.append("as.environment(\"package:"); //$NON-NLS-1$
+			sb.append(namespaceName);
+			sb.append("\")"); //$NON-NLS-1$
+			return true;
+		case MAIN_SYSFRAME:
+			namespaceName = a.getSegmentName();
+			if (namespaceName == null) {
+				return false;
+			}
+			sb.append("sys.frame("); //$NON-NLS-1$
+			sb.append(namespaceName);
+			sb.append(((options & DISPLAY_EXACT) != 0) ? "L)" : ")"); //$NON-NLS-1$
+			return true;
+		case MAIN_PROJECT:
+			sb = new StringBuilder(44);
+			sb.append("as.environment(\".GlobalEnv\")"); //$NON-NLS-1$
+			return true;
+		default:
+			return false;
+		}
 	}
 	
 	private static StringBuilder appendSymbol(StringBuilder sb, final String name) {
@@ -676,11 +672,16 @@ public abstract class RElementName implements IElementName {
 		if (segments.size() > 0) {
 			int first = 0;
 			RElementName namespace = segments.get(first);
-			if (namespace.getType() == MAIN_SEARCH_ENV || namespace.getType() == MAIN_PACKAGE) {
+			switch (namespace.getType()) {
+			case MAIN_SEARCH_ENV:
+			case MAIN_PACKAGE:
+			case MAIN_SYSFRAME:
+			case MAIN_PROJECT:
 				first++;
-			}
-			else {
+				break;
+			default:
 				namespace = null;
+				break;
 			}
 			if (segments.size() > first) {
 				RElementName next = null;
@@ -701,6 +702,11 @@ public abstract class RElementName implements IElementName {
 	public String getDisplayName() {
 		return createDisplayName(this, 0);
 	}
+	
+	public String getDisplayName(final int options) {
+		return createDisplayName(this, options);
+	}
+	
 	
 	protected RElementName.DefaultImpl cloneSegment0(final RElementName next) {
 		return new DefaultImpl(getType(), getSegmentName(), next);

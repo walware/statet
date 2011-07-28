@@ -201,7 +201,7 @@ public class ToolWorkspace {
 	}
 	
 	
-	public final ToolProcess getProcess() {
+	public ToolProcess getProcess() {
 		return fProcess;
 	}
 	

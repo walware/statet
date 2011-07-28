@@ -12,12 +12,17 @@
 package de.walware.statet.r.internal.core.sourcemodel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.walware.ecommons.ltk.IModelElement;
 
+import de.walware.statet.r.core.model.IRLangSourceElement;
+
 
 public class RSourceElements {
+	
+	static final List<? extends IRLangSourceElement> NO_R_SOURCE_CHILDREN = Collections.emptyList();
 	
 	static final List<? extends IRLangSourceElement> getChildren(final List<? extends IRLangSourceElement> children, final IModelElement.Filter filter) {
 		if (filter == null) {

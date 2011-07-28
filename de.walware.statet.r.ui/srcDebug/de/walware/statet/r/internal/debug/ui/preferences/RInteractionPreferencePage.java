@@ -155,8 +155,9 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 	private void updateDescriptionSize() {
 		final Composite scroller = fConnectorsDescription.getParent();
 		int widthHint = fConnectorsDescription.getParent().getClientArea().width;
-		if (!scroller.getVerticalBar().isVisible())
+		if (!scroller.getVerticalBar().isVisible()) {
 			widthHint -= scroller.getVerticalBar().getSize().x;
+		}
 		fConnectorsDescription.setSize(fConnectorsDescription.computeSize(
 				widthHint, SWT.DEFAULT));
 		
@@ -185,7 +186,9 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			final RSourceViewerConfigurator configurator = new RTemplateSourceViewerConfigurator(RCore.getWorkbenchAccess(), templateVariableProcessor);
 			fCommandEditors[i] = new SnippetEditor(configurator, fFileCommands[i].getCurrentCommand(), PlatformUI.getWorkbench());
 			fCommandEditors[i].create(group, SnippetEditor.DEFAULT_SINGLE_LINE_STYLE);
-			fCommandEditors[i].getControl().setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+			final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+			gd.widthHint = LayoutUtil.hintWidth(fCommandEditors[i].getTextControl(), null, 25);
+			fCommandEditors[i].getControl().setLayoutData(gd);
 		}
 		return group;
 	}
@@ -203,14 +206,15 @@ class RInteractionConfigurationBlock extends ManagedConfigurationBlock {
 			}
 		});
 	}
-		
+	
 	private void loadValues() {
 		final String selectedConnector = getPreferenceValue(
 				RRunDebugPreferenceConstants.PREF_R_CONNECTOR );
 		
 		for (int i = 0; i < fConnectors.length; i++) {
-			if (selectedConnector.equals(fConnectors[i].fId))
+			if (selectedConnector.equals(fConnectors[i].fId)) {
 				fConnectorsSelector.select(i);
+			}
 		}
 	}
 	

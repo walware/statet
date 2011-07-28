@@ -66,6 +66,7 @@ import de.walware.statet.r.core.renv.IREnvConfiguration;
 import de.walware.statet.r.internal.console.ui.RConsoleMessages;
 import de.walware.statet.r.internal.console.ui.RConsoleUIPlugin;
 import de.walware.statet.r.launching.RRunDebugPreferenceConstants;
+import de.walware.statet.r.launching.core.ILaunchDelegateAddon;
 import de.walware.statet.r.launching.core.RLaunching;
 import de.walware.statet.r.nico.RWorkspaceConfig;
 import de.walware.statet.r.nico.impl.RjsController;
@@ -81,14 +82,16 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		
 		
 		private final ITool fTool;
-		private final boolean fEnableHelp;
-		private final boolean fEnableGraphics;
+		private final boolean fEnableRHelp;
+		private final boolean fEnableRGraphics;
+		private final boolean fEnableRDbgExt;
 		
-		
-		public ConfigRunnable(final ITool tool, final boolean enableHelp, final boolean enableGraphics) {
+		public ConfigRunnable(final ITool tool, final boolean enableRHelp,
+				final boolean enableRGraphics, final boolean enableRDbgExt) {
 			fTool = tool;
-			fEnableHelp = enableHelp;
-			fEnableGraphics = enableGraphics;
+			fEnableRHelp = enableRHelp;
+			fEnableRGraphics = enableRGraphics;
+			fEnableRDbgExt = enableRDbgExt;
 		}
 		
 		
@@ -115,10 +118,10 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 				final IProgressMonitor monitor) throws CoreException {
 			final IRDataAdapter r = (IRDataAdapter) service;
 			r.evalVoid("library(\"rj\", quietly= TRUE)", monitor); //$NON-NLS-1$
-			if (fEnableHelp) {
+			if (fEnableRHelp) {
 				r.evalVoid(".statet.reassignHelp()", monitor); //$NON-NLS-1$
 			}
-			if (fEnableGraphics) {
+			if (fEnableRGraphics) {
 				try {
 					r.evalVoid("rj.gd:::.rj.getGDVersion()", monitor); //$NON-NLS-1$
 					r.evalVoid("options(device=rj.gd::rj.GD)", monitor); //$NON-NLS-1$
@@ -129,6 +132,9 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 							"Is the R package 'rj.gd' installed?", e),
 							monitor );
 				}
+			}
+			if (fEnableRDbgExt) {
+				r.evalVoid(".statet.initDebug()", monitor); //$NON-NLS-1$
 			}
 		}
 		
@@ -148,10 +154,22 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		controller.addStartupRunnable(new ConfigRunnable(
 				controller.getTool(),
 				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RHELP_ENABLED, true),
-				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, true) ));
+				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, true),
+				configuration.getAttribute(RConsoleOptionsTab.ATTR_INTEGRATION_RDBGEXT_ENABLED, true) ));
 		if (isStartup) {
 			RConsoleLaunching.scheduleStartupSnippet(controller, configuration);
 		}
+	}
+	
+	
+	private ILaunchDelegateAddon fAddon;
+	
+	
+	public RConsoleRJLaunchDelegate() {
+	}
+	
+	public RConsoleRJLaunchDelegate(final ILaunchDelegateAddon addon) {
+		fAddon = addon;
 	}
 	
 	
@@ -325,6 +343,10 @@ public class RConsoleRJLaunchDelegate extends LaunchConfigurationDelegate {
 		progress.worked(5);
 		
 		initConsoleOptions(controller, configuration, true);
+		
+		if (fAddon != null) {
+			fAddon.init(configuration, mode, controller, monitor);
+		}
 		
 		final RConsole console = new RConsole(process, new NIConsoleColorAdapter());
 		NicoUITools.startConsoleLazy(console, page, 

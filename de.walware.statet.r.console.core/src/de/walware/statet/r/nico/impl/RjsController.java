@@ -46,6 +46,10 @@ import org.eclipse.osgi.util.NLS;
 
 import de.walware.ecommons.ICommonStatusConstants;
 import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.ltk.IModelElement;
+import de.walware.ecommons.ltk.IModelElement.Filter;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.ast.IAstNode;
 import de.walware.ecommons.net.RMIAddress;
 import de.walware.ecommons.ts.IToolRunnable;
 import de.walware.ecommons.ts.IToolService;
@@ -64,6 +68,7 @@ import de.walware.rj.data.RReference;
 import de.walware.rj.data.defaultImpl.RObjectFactoryImpl;
 import de.walware.rj.eclient.graphics.comclient.ERClientGraphicActions;
 import de.walware.rj.server.ConsoleEngine;
+import de.walware.rj.server.DbgCmdItem;
 import de.walware.rj.server.FxCallback;
 import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.RjsStatus;
@@ -74,36 +79,67 @@ import de.walware.rj.server.client.AbstractRJComClient;
 import de.walware.rj.server.client.FunctionCallImpl;
 import de.walware.rj.server.client.RClientGraphicFactory;
 import de.walware.rj.server.client.RGraphicCreatorImpl;
+import de.walware.rj.server.dbg.CallStack;
+import de.walware.rj.server.dbg.DbgEnablement;
+import de.walware.rj.server.dbg.DbgFilterState;
+import de.walware.rj.server.dbg.ElementTracepointInstallationReport;
+import de.walware.rj.server.dbg.ElementTracepointInstallationRequest;
+import de.walware.rj.server.dbg.FrameContext;
+import de.walware.rj.server.dbg.FrameContextDetailRequest;
+import de.walware.rj.server.dbg.SetDebugReport;
+import de.walware.rj.server.dbg.SetDebugRequest;
+import de.walware.rj.server.dbg.SrcfileData;
+import de.walware.rj.server.dbg.TracepointEvent;
+import de.walware.rj.server.dbg.TracepointStatesUpdate;
 import de.walware.rj.services.FunctionCall;
 import de.walware.rj.services.RGraphicCreator;
 import de.walware.rj.services.RPlatform;
 import de.walware.rj.services.RServiceControlExtension;
 
+import de.walware.statet.r.console.core.IRBasicAdapter;
 import de.walware.statet.r.console.core.IRDataAdapter;
+import de.walware.statet.r.console.core.RDbg;
 import de.walware.statet.r.console.core.RProcess;
 import de.walware.statet.r.console.core.RTool;
 import de.walware.statet.r.console.core.RWorkspace;
 import de.walware.statet.r.core.data.ICombinedRElement;
+import de.walware.statet.r.core.model.IRElement;
+import de.walware.statet.r.core.model.IRLangSourceElement;
+import de.walware.statet.r.core.model.IRModelInfo;
+import de.walware.statet.r.core.model.IRModelManager;
+import de.walware.statet.r.core.model.IRWorkspaceSourceUnit;
 import de.walware.statet.r.core.model.RElementName;
+import de.walware.statet.r.core.model.RModel;
+import de.walware.statet.r.core.rsource.ast.FDef;
+import de.walware.statet.r.core.rsource.ast.RAst;
+import de.walware.statet.r.core.rsource.ast.RAstNode;
 import de.walware.statet.r.internal.console.core.RConsoleCorePlugin;
 import de.walware.statet.r.internal.nico.RNicoMessages;
 import de.walware.statet.r.internal.rdata.CombinedElement;
 import de.walware.statet.r.internal.rdata.CombinedFactory;
-import de.walware.statet.r.nico.AbstractRController;
-import de.walware.statet.r.nico.IRCombinedDataAdapter;
+import de.walware.statet.r.nico.AbstractRDbgController;
+import de.walware.statet.r.nico.ICombinedRDataAdapter;
+import de.walware.statet.r.nico.IRModelSrcref;
+import de.walware.statet.r.nico.IRSrcref;
 import de.walware.statet.r.nico.RWorkspaceConfig;
 
 
 /**
  * Controller for RJ-Server
  */
-public class RjsController extends AbstractRController
-		implements IRemoteEngineController, IRDataAdapter, IRCombinedDataAdapter, RServiceControlExtension {
+public class RjsController extends AbstractRDbgController
+		implements IRemoteEngineController, IRDataAdapter, ICombinedRDataAdapter, RServiceControlExtension {
 	
 	
 	static {
 		RjsComConfig.registerRObjectFactory(CombinedFactory.FACTORY_ID, CombinedFactory.INSTANCE);
 	}
+	
+	private final static Filter<IModelElement> TAG_ELEMENT_FILTER = new Filter<IModelElement>() {
+		public boolean include(final IModelElement element) {
+			return ((element.getElementType() & IRElement.MASK_C1) == IRElement.C1_METHOD);
+		}
+	};
 	
 	
 	private class NicoComClient extends AbstractRJComClient {
@@ -120,7 +156,7 @@ public class RjsController extends AbstractRController
 			final IStatus status = eventHandler.handle(INIT_RGRAPHIC_FACTORY_HANDLER_ID, RjsController.this, data, null);
 			final RClientGraphicFactory factory = (RClientGraphicFactory) data.get("factory"); //$NON-NLS-1$
 			if (status.isOK() && factory != null) {
-				setGraphicFactory(factory, new ERClientGraphicActions(this, (RProcess) fProcess));
+				setGraphicFactory(factory, new ERClientGraphicActions(this, fProcess));
 			}
 		}
 		
@@ -180,7 +216,7 @@ public class RjsController extends AbstractRController
 			if (handler != null) {
 				final RDataJConverter converter = new RDataJConverter();
 				converter.setKeepArray1(false);
-				converter.setRObjectFactory(RObjectFactoryImpl.INSTANCE);
+				converter.setRObjectFactory(fRObjectFactory);
 				
 				final Map<String, Object> javaArgs = new HashMap<String, Object>();
 				if (args != null) {
@@ -213,6 +249,14 @@ public class RjsController extends AbstractRController
 			}
 			
 			return super.handleUICallback(commandId, args, monitor);
+		}
+		
+		@Override
+		protected void handleDbgEvent(final byte dbgOp, final Object event) {
+			if (dbgOp == DbgCmdItem.OP_NOTIFY_TP_EVENT) {
+				handle((TracepointEvent) event);
+			}
+			super.handleDbgEvent(dbgOp, event);
 		}
 		
 		@Override
@@ -267,6 +311,11 @@ public class RjsController extends AbstractRController
 		}
 		
 		@Override
+		protected void processExtraMode(final int position) {
+			RjsController.this.runSuspendedLoopL(SUSPENDED_DEEPLEVEL);
+		}
+		
+		@Override
 		protected void scheduleConnectionCheck() {
 			synchronized (fQueue) {
 				if (getStatusL().isWaiting()) {
@@ -300,19 +349,20 @@ public class RjsController extends AbstractRController
 	
 	private int fConnectionState;
 	
+	private final RObjectFactory fRObjectFactory = RObjectFactoryImpl.INSTANCE;
+	
 	
 	/**
 	 * 
 	 * @param process the R process the controller belongs to
 	 * @param address the RMI address
 	 * @param initData the initialization data
-	 * @param sshPort optional sshPort
 	 * @param embedded flag if running in embedded mode
 	 * @param startup flag to start R (otherwise connect only)
 	 * @param rArgs R arguments (required only if startup is <code>true</code>)
 	 * @param initialWD
 	 */
-	public RjsController(final ToolProcess<RWorkspace> process,
+	public RjsController(final RProcess process,
 			final RMIAddress address, final Map<String, Object> initData,
 			final boolean embedded, final boolean startup, final String[] rArgs,
 			final Map<String, Object> rjsProperties, final IFileStore initialWD,
@@ -332,6 +382,7 @@ public class RjsController extends AbstractRController
 		fStartup = startup;
 		fRArgs = rArgs;
 		fRjsProperties = (rjsProperties != null) ? rjsProperties : new HashMap<String, Object>();
+		
 		fTrackingConfigurations = trackingConfigurations;
 		
 		fWorkspaceData = new RWorkspace(this, (embedded || address.isLocalHost()) ? null :
@@ -364,6 +415,7 @@ public class RjsController extends AbstractRController
 	public void disconnect(final IProgressMonitor monitor) throws CoreException {
 		switch (getStatus()) {
 		case STARTED_IDLING:
+		case STARTED_SUSPENDED:
 		case STARTED_PROCESSING:
 		case STARTED_PAUSED:
 			monitor.beginTask("Disconnecting from R remote engine...", 1);
@@ -637,6 +689,30 @@ public class RjsController extends AbstractRController
 	
 	
 	@Override
+	protected int setSuspended(final int level, final int enterDetail, final Object enterData) {
+		final int diff = super.setSuspended(level, enterDetail, enterData);
+		if (level > 0 && diff > 0) {
+			fRjs.requestExtraMode(
+					(AbstractRJComClient.EXTRA_BEFORE | AbstractRJComClient.EXTRA_NESTED) );
+		}
+		return diff;
+	}
+	
+	@Override
+	protected CallStack doEvalCallStack(final IProgressMonitor monitor) throws CoreException {
+		return (CallStack) fRjs.execSyncDbgOp(DbgCmdItem.OP_LOAD_FRAME_LIST,
+				null, monitor );
+	}
+	
+	@Override
+	protected FrameContext doEvalFrameContext(final int position,
+			final IProgressMonitor monitor) throws Exception {
+		return (FrameContext) fRjs.execSyncDbgOp(DbgCmdItem.OP_LOAD_FRAME_CONTEXT,
+				new FrameContextDetailRequest(position), monitor );
+	}
+	
+	
+	@Override
 	protected void interruptTool(final int hardness) throws UnsupportedOperationException {
 		if (hardness < 10) {
 			fRjs.runAsyncInterrupt();
@@ -724,6 +800,209 @@ public class RjsController extends AbstractRController
 		return exitCode;
 	}
 	
+	@Override
+	protected boolean canSuspend(final IProgressMonitor monitor) {
+		return (fRjs.getDataLevel() == 0);
+	}
+	
+	@Override
+	protected void doRequestSuspend(final IProgressMonitor monitor) throws CoreException {
+		fRjs.execSyncDbgOp(DbgCmdItem.OP_REQUEST_SUSPEND,
+				null, monitor );
+	}
+	
+	
+	@Override
+	protected SetDebugReport doExec(final SetDebugRequest request,
+			final IProgressMonitor monitor) throws CoreException {
+		return (SetDebugReport) fRjs.execSyncDbgOp(DbgCmdItem.OP_SET_DEBUG, request, monitor);
+	}
+	
+	@Override
+	protected void doPrepareSrcfile(final String srcfile, final String statetPath,
+			final IProgressMonitor monitor) throws CoreException {
+		final FunctionCall prepare = createFunctionCall("rj:::.statet.prepareSrcfile");
+		prepare.addChar("filename", srcfile);
+		prepare.addChar("path", statetPath);
+		prepare.evalVoid(monitor);
+	}
+	
+	@Override
+	public ElementTracepointInstallationReport exec(
+			final ElementTracepointInstallationRequest request,
+			final IProgressMonitor monitor) throws CoreException {
+		return (ElementTracepointInstallationReport) fRjs.execSyncDbgOp(
+				DbgCmdItem.OP_INSTALL_TP_POSITIONS, request, monitor );
+	}
+	
+	@Override
+	public void exec(final DbgEnablement request) throws CoreException {
+		fRjs.execAsyncDbgOp(DbgCmdItem.OP_SET_ENABLEMENT, request);
+	}
+	
+	@Override
+	public void exec(final DbgFilterState request) throws CoreException {
+		fRjs.execAsyncDbgOp(DbgCmdItem.OP_RESET_FILTER_STATE, request);
+	}
+	
+	@Override
+	public void exec(final TracepointStatesUpdate request) throws CoreException {
+		fRjs.execAsyncDbgOp(DbgCmdItem.OP_UPDATE_TP_STATES, request);
+	}
+	
+	@Override
+	public void exec(final TracepointStatesUpdate request,
+			final IProgressMonitor monitor) throws CoreException {
+		fRjs.execSyncDbgOp(DbgCmdItem.OP_UPDATE_TP_STATES, request, monitor);
+	}
+	
+	
+	@Override
+	protected void doSubmitCommandL(final String[] lines, final SrcfileData srcfile,
+			final IRSrcref srcref,
+			final IProgressMonitor monitor) throws CoreException {
+		if ((fCurrentPrompt.meta & (IRBasicAdapter.META_PROMPT_DEFAULT | IRBasicAdapter.META_PROMPT_SUSPENDED)) == 0) {
+			super.doSubmitCommandL(lines, srcfile, srcref, monitor);
+			return;
+		}
+		
+		final FunctionCall prepare = createFunctionCall("rj:::.statet.prepareCommand");
+		prepare.add("lines", fRObjectFactory.createVector(fRObjectFactory.createCharData(lines)));
+		
+		if (srcfile != null && srcref != null) {
+			final List<String> attributeNames = new ArrayList<String>();
+			final List<RObject> attributeValues = new ArrayList<RObject>();
+			
+			if (srcfile.getName() != null) {
+				prepare.addChar("filename", srcfile.getName());
+			}
+//			if (srcfile.workspacePath != null) {
+//				attributeNames.add("statet.Path");
+//				attributeValues.add(fRObjectFactory.createVector(fRObjectFactory.createCharData(
+//						new String[] { srcfile.workspacePath } )));
+//			}
+			if (srcfile.getTimestamp() != 0) {
+				attributeNames.add("timestamp");
+				attributeValues.add(fRObjectFactory.createVector(fRObjectFactory.createNumData(
+						new double[] { srcfile.getTimestamp() } )));
+			}
+			final int[] rjSrcref = RDbg.createRJSrcref(srcref);
+			if (rjSrcref != null) {
+				attributeNames.add("linesSrcref");
+				attributeValues.add(fRObjectFactory.createVector(fRObjectFactory.createIntData(
+						rjSrcref )));
+			}
+			
+			if (attributeNames.size() > 0) {
+				prepare.add("srcfileAttributes", fRObjectFactory.createList(
+						attributeValues.toArray(new RObject[attributeValues.size()]),
+						attributeNames.toArray(new String[attributeNames.size()]) ));
+			}
+			
+			if (srcref instanceof IRModelSrcref) {
+				// Move to abstract controller or breakpoint adapter?
+				final IRModelSrcref modelSrcref = (IRModelSrcref) srcref;
+				final List<IRLangSourceElement> elements = modelSrcref.getElements();
+				if (elements.size() > 0) {
+					final List<String> elementIds = new ArrayList<String>(elements.size());
+					final List<RObject> elementIndexes = new ArrayList<RObject>(elements.size());
+					for (final IRLangSourceElement element : elements) {
+						if (TAG_ELEMENT_FILTER.include(element)) {
+							final FDef fdef = (FDef) element.getAdapter(FDef.class);
+							if (fdef != null) {
+								final String elementId = RDbg.getElementId(element);
+								final RAstNode cont = fdef.getContChild();
+								final int[] path = RAst.computeRExpressionIndex(cont,
+										RAst.getRRootNode(cont, modelSrcref) );
+								if (elementId != null && path != null) {
+									final int[] fullPath = new int[path.length+1];
+									fullPath[0] = 1;
+									System.arraycopy(path, 0, fullPath, 1, path.length);
+									elementIds.add(elementId);
+									elementIndexes.add(fRObjectFactory.createVector(
+											fRObjectFactory.createIntData(fullPath)));
+								}
+							}
+						}
+					}
+					if (elementIds.size() > 0) {
+						prepare.add("elementIds", fRObjectFactory.createList(
+								elementIndexes.toArray(new RObject[elementIndexes.size()]),
+								elementIds.toArray(new String[elementIds.size()]) ));
+					}
+				}
+			}
+		}
+		
+		prepare.evalVoid(monitor);
+		
+		final boolean addToHistory = (fCurrentPrompt.meta & IRBasicAdapter.META_HISTORY_DONTADD) == 0;
+		fCurrentInput = lines[0];
+		doBeforeSubmitL();
+		for (int i = 1; i < lines.length; i++) {
+			setCurrentPromptL(fContinuePromptText, addToHistory);
+			fCurrentInput = lines[i];
+			doBeforeSubmitL();
+		}
+		fCurrentInput = "rj:::.statet.evalCommand()";
+		doSubmitL(monitor);
+	}
+	
+	@Override
+	public void doSubmitFileCommandToConsole(final String[] lines,
+			final SrcfileData srcfile, final ISourceUnit su,
+			final IProgressMonitor monitor) throws CoreException {
+		if (srcfile != null && su instanceof IRWorkspaceSourceUnit
+				&& su.getModelTypeId() == RModel.TYPE_ID) {
+			try {
+				final IRModelInfo modelInfo = (IRModelInfo) su.getModelInfo(RModel.TYPE_ID,
+						IRModelManager.MODEL_FILE, monitor );
+				if (modelInfo != null) {
+					final IRLangSourceElement fileElement = modelInfo.getSourceElement();
+					final RAstNode rootNode = (RAstNode) fileElement.getAdapter(IAstNode.class);
+					final List<? extends IRLangSourceElement> elements = modelInfo.getSourceElement()
+							.getSourceChildren(TAG_ELEMENT_FILTER);
+					
+					final List<String> elementIds = new ArrayList<String>(elements.size());
+					final List<RObject> elementIndexes = new ArrayList<RObject>(elements.size());
+					
+					for (final IRLangSourceElement element : elements) {
+						final FDef fdef = (FDef) element.getAdapter(FDef.class);
+						if (fdef != null) {
+							final String elementId = RDbg.getElementId(element);
+							final RAstNode cont = fdef.getContChild();
+							final int[] path = RAst.computeRExpressionIndex(cont, rootNode);
+							if (elementId != null && path != null) {
+								elementIds.add(elementId);
+								elementIndexes.add(fRObjectFactory.createVector(
+										fRObjectFactory.createIntData(path)));
+							}
+						}
+					}
+					
+					final FunctionCall prepare = createFunctionCall("rj:::.statet.prepareSource"); //$NON-NLS-1$
+					prepare.add(fRObjectFactory.createList(new RObject[] {
+							fRObjectFactory.createVector(fRObjectFactory.createCharData(
+									new String[] { srcfile.getPath() })),
+							fRObjectFactory.createVector(fRObjectFactory.createNumData(
+									new double[] { srcfile.getTimestamp() })),
+							fRObjectFactory.createVector(fRObjectFactory.createIntData(
+									new int[] { rootNode.getChildCount() })),
+							fRObjectFactory.createList(
+									elementIndexes.toArray(new RObject[elementIndexes.size()]),
+									elementIds.toArray(new String[elementIds.size()]) ),
+					}, new String[] { "path", "timestamp", "exprsLength", "elementIds" })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					prepare.evalVoid(monitor);
+				}
+			}
+			catch (final CoreException e) {
+				RConsoleCorePlugin.log(new Status(IStatus.ERROR, RConsoleCorePlugin.PLUGIN_ID, -1,
+						NLS.bind("An error occurred when preparing element tagging for file ''{0}''.",
+								srcfile.getPath() ), e ));
+			}
+		}
+		super.doSubmitFileCommandToConsole(lines, srcfile, su, monitor);
+	}
 	
 	@Override
 	protected void doSubmitL(final IProgressMonitor monitor) throws CoreException {
@@ -736,16 +1015,22 @@ public class RjsController extends AbstractRController
 	}
 	
 	public void evalVoid(final String command, final IProgressMonitor monitor) throws CoreException {
-		fRjs.evalVoid(command, monitor);
+		fRjs.evalVoid(command, null, monitor);
 	}
 	
 	public RObject evalData(final String command, final IProgressMonitor monitor) throws CoreException {
-		return fRjs.evalData(command, null, 0, -1, monitor);
+		return fRjs.evalData(command, null, null, 0, -1, monitor);
 	}
 	
 	public RObject evalData(final String command, final String factoryId,
 			final int options, final int depth, final IProgressMonitor monitor) throws CoreException {
-		return fRjs.evalData(command, factoryId, options, depth, monitor);
+		return fRjs.evalData(command, null, factoryId, options, depth, monitor);
+	}
+	
+	public RObject evalData(final String command, final RObject envir,
+			final String factoryId, final int options, final int depth,
+			final IProgressMonitor monitor) throws CoreException {
+		return fRjs.evalData(command, envir, factoryId, options, depth, monitor);
 	}
 	
 	public RObject evalData(final RReference reference, final IProgressMonitor monitor) throws CoreException {
@@ -757,9 +1042,31 @@ public class RjsController extends AbstractRController
 		return fRjs.evalData(reference, factoryId, options, depth, monitor);
 	}
 	
+	public RObject[] findData(final String symbol, final RObject envir, final boolean inherits,
+			final String factoryId, final int options, final int depth,
+			final IProgressMonitor monitor) throws CoreException {
+		return fRjs.findData(symbol, envir, inherits, factoryId, options, depth, monitor);
+	}
+	
 	public ICombinedRElement evalCombinedStruct(final String command,
 			final int options, final int depth, final RElementName name, final IProgressMonitor monitor) throws CoreException {
-		final RObject data = evalData(command, CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth, monitor);
+		final RObject data = evalData(command,
+				CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth,
+				monitor );
+		if (data instanceof CombinedElement) {
+			final CombinedElement e = (CombinedElement) data;
+			CombinedFactory.INSTANCE.setElementName(e, name);
+			return e;
+		}
+		return null;
+	}
+	
+	public ICombinedRElement evalCombinedStruct(final String command, final RObject envir,
+			final int options, final int depth, final RElementName name,
+			final IProgressMonitor monitor) throws CoreException {
+		final RObject data = evalData(command, envir,
+				CombinedFactory.FACTORY_ID, (options | RObjectFactory.F_ONLY_STRUCT), depth,
+				monitor );
 		if (data instanceof CombinedElement) {
 			final CombinedElement e = (CombinedElement) data;
 			CombinedFactory.INSTANCE.setElementName(e, name);
@@ -789,7 +1096,7 @@ public class RjsController extends AbstractRController
 	}
 	
 	public void assignData(final String expression, final RObject data, final IProgressMonitor monitor) throws CoreException {
-		fRjs.assignData(expression, data, monitor);
+		fRjs.assignData(expression, data, null, monitor);
 	}
 	
 	public void downloadFile(final OutputStream out, final String fileName, final int options, final IProgressMonitor monitor) throws CoreException {
@@ -805,7 +1112,7 @@ public class RjsController extends AbstractRController
 	}
 	
 	public FunctionCall createFunctionCall(final String name) throws CoreException {
-		return new FunctionCallImpl(fRjs, name, RObjectFactoryImpl.INSTANCE);
+		return new FunctionCallImpl(fRjs, name, fRObjectFactory);
 	}
 	
 	public RGraphicCreator createRGraphicCreator(final int options) throws CoreException {

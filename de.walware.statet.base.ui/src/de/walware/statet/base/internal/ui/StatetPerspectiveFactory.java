@@ -11,7 +11,6 @@
 
 package de.walware.statet.base.internal.ui;
 
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -64,7 +63,8 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		
 		//		layout.createPlaceholderFolder("console-additions", IPageLayout.BOTTOM, 0.80f, "left"); //$NON-NLS-1$
 		
-		layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
+		layout.addActionSet("org.eclipse.debug.ui.launchActionSet"); //$NON-NLS-1$
+		layout.addActionSet("org.eclipse.debug.ui.breakpointActionSet"); //$NON-NLS-1$
 		layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 		
 		// views - search
@@ -83,10 +83,11 @@ public class StatetPerspectiveFactory implements IPerspectiveFactory {
 		layout.addShowViewShortcut(ID_NICO_CMDHISTORY_VIEW);
 		
 		// new actions
-		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
-		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
-		layout
-				.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard");//$NON-NLS-1$
+		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder"); //$NON-NLS-1$
+		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file"); //$NON-NLS-1$
+		layout.addNewWizardShortcut("org.eclipse.ui.editors.wizards.UntitledTextFileWizard"); //$NON-NLS-1$
+		
+		layout.addPerspectiveShortcut("org.eclipse.debug.ui.DebugPerspective"); //$NON-NLS-1$
 	}
 	
 }

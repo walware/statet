@@ -18,6 +18,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -26,10 +27,16 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.commands.IElementUpdater;
+import org.eclipse.ui.editors.text.IEncodingSupport;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.eclipse.ui.menus.UIElement;
 
+import de.walware.ecommons.io.FileUtil;
+import de.walware.ecommons.ltk.ISourceElement;
+import de.walware.ecommons.ltk.ISourceUnit;
+import de.walware.ecommons.ltk.LTK;
+import de.walware.ecommons.ltk.ui.sourceediting.ISourceEditor;
 import de.walware.ecommons.ltk.ui.util.WorkbenchUIUtil;
 
 import de.walware.statet.r.internal.debug.ui.RLaunchingMessages;
@@ -45,7 +52,7 @@ import de.walware.statet.r.launching.RCodeLaunching;
 public class RunFileViaCommandHandler extends AbstractHandler implements IElementUpdater {
 	
 	
-	private boolean fGotoConsole;
+	private final boolean fGotoConsole;
 	
 	
 	public RunFileViaCommandHandler() {
@@ -65,53 +72,109 @@ public class RunFileViaCommandHandler extends AbstractHandler implements IElemen
 		final String fileCommandId = event.getParameter(RCodeLaunching.FILE_COMMAND_ID_PARAMTER_ID);
 		try {
 			final IWorkbenchPart activePart = HandlerUtil.getActivePart(event);
+			IAdaptable encodingAdaptable = null;
+			ISourceUnit su = null;
+			IFile file = null;
+			URI uri = null;
 			if (activePart instanceof IEditorPart) {
-				final IEditorPart editor = (IEditorPart) activePart;
-				final IEditorInput input = editor.getEditorInput();
-				final IFile file = ResourceUtil.getFile(input);
-				if (file != null) {
-					final String command = (fileCommandId != null) ?
-							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(LaunchShortcutUtil.getContentTypeId(file));
-					RCodeLaunching.runFileUsingCommand(command, file, fGotoConsole);
-					return null;
+				encodingAdaptable = activePart;
+				final ISourceEditor sourceEditor = (ISourceEditor) activePart.getAdapter(ISourceEditor.class);
+				if (sourceEditor != null) {
+					su = sourceEditor.getSourceUnit();
+					if (su != null) {
+						encodingAdaptable = sourceEditor;
+					}
 				}
-//				else if (input instanceof IPathEditorInput) {
-//					final IPath path = ((IPathEditorInput) input).getPath();
-//					final String command = (fileCommandId != null) ?
-//							RCodeLaunching.getFileCommand(fileCommandId) :
-//							RCodeLaunching.getPreferredFileCommand(LaunchShortcutUtil.getContentTypeId(path));
-//					RCodeLaunching.runFileUsingCommand(command, path, fGotoConsole);
-//					return null;
-//				}
-				else if (input instanceof IURIEditorInput) {
-					final URI uri = ((IURIEditorInput) input).getURI();
-					final String command = (fileCommandId != null) ?
-							RCodeLaunching.getFileCommand(fileCommandId) :
-							RCodeLaunching.getPreferredFileCommand(LaunchShortcutUtil.getContentTypeId(uri));
-					RCodeLaunching.runFileUsingCommand(command, uri, fGotoConsole);
-					return null;
+				if (su == null) {
+					su = (ISourceUnit) activePart.getAdapter(ISourceUnit.class);
+				}
+				if (su == null) {
+					final IEditorPart editor = (IEditorPart) activePart;
+					final IEditorInput input = editor.getEditorInput();
+					file = ResourceUtil.getFile(input);
+					if (file == null && input instanceof IURIEditorInput) {
+						uri = ((IURIEditorInput) input).getURI();
+					}
 				}
 			}
-			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
-			if (selection instanceof IStructuredSelection) {
-				final IStructuredSelection sel = (IStructuredSelection) selection;
-				if (sel.size() == 1) {
-					final Object object = sel.getFirstElement();
-					IFile file = null;
-					if (object instanceof IFile) {
-						file = (IFile) object;
+			if (su == null && file == null && uri == null) {
+				final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
+				if (selection instanceof IStructuredSelection) {
+					final IStructuredSelection sel = (IStructuredSelection) selection;
+					if (sel.size() == 1) {
+						final Object object = sel.getFirstElement();
+						if (object instanceof ISourceUnit) {
+							su = (ISourceUnit) object;
+						}
+						else if (object instanceof ISourceElement) {
+							su = ((ISourceElement) object).getSourceUnit();
+						}
+						else if (object instanceof IAdaptable) {
+							su = (ISourceUnit) ((IAdaptable) object).getAdapter(ISourceUnit.class);
+						}
+						if (su == null) {
+							if (object instanceof IFile) {
+								file = (IFile) object;
+							}
+							else if (object instanceof IAdaptable) {
+								file = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
+							}
+						}
 					}
-					else if (object instanceof IAdaptable) {
-						file = (IFile) ((IAdaptable) object).getAdapter(IFile.class);
+				}
+			}
+			
+			if (su != null && file == null) {
+				if (su.getResource() instanceof IFile) {
+					file = (IFile) su.getResource();
+				}
+				else {
+					final FileUtil fileUtil = FileUtil.getFileUtil(su.getResource());
+					if (fileUtil != null) {
+						uri = fileUtil.getURI();
 					}
-					if (file != null) {
-						final String command = (fileCommandId != null) ?
-								RCodeLaunching.getFileCommand(fileCommandId) :
-								RCodeLaunching.getPreferredFileCommand(LaunchShortcutUtil.getContentTypeId(file));
-						RCodeLaunching.runFileUsingCommand(command, file, fGotoConsole);
-						return null;
+				}
+			}
+			else if (su == null && file != null) {
+				final String modelTypeId = LTK.getExtContentTypeManager()
+						.getModelTypeForContentType(LaunchShortcutUtil.getContentTypeId(file) );
+				if (modelTypeId != null) {
+					su = LTK.getSourceUnitManager().getSourceUnit(modelTypeId,
+							LTK.PERSISTENCE_CONTEXT, file, true, null );
+				}
+			}
+			if (file != null && uri == null) {
+				uri = file.getLocationURI();
+			}
+			
+			if (uri != null) {
+				String command = null;
+				if (su != null) {
+					command = (fileCommandId != null) ?
+							RCodeLaunching.getFileCommand(fileCommandId) :
+							RCodeLaunching.getPreferredFileCommand(
+									LTK.getExtContentTypeManager().getContentTypeForModelType(
+											su.getModelTypeId()) );
+					while (su != null && su.getWorkingContext() != LTK.PERSISTENCE_CONTEXT) {
+						su = su.getUnderlyingUnit();
 					}
+				}
+				else if (file != null) {
+					command = (fileCommandId != null) ?
+							RCodeLaunching.getFileCommand(fileCommandId) :
+							RCodeLaunching.getPreferredFileCommand(
+									LaunchShortcutUtil.getContentTypeId(file));
+				}
+				else if (uri != null) {
+					command = (fileCommandId != null) ?
+							RCodeLaunching.getFileCommand(fileCommandId) :
+							RCodeLaunching.getPreferredFileCommand(LaunchShortcutUtil.getContentTypeId(uri));
+				}
+				
+				if (command != null) {
+					RCodeLaunching.runFileUsingCommand(command, uri, su,
+							getEncoding(encodingAdaptable, file), fGotoConsole );
+					return null;
 				}
 			}
 		}
@@ -122,6 +185,19 @@ public class RunFileViaCommandHandler extends AbstractHandler implements IElemen
 		}
 		
 		LaunchShortcutUtil.handleUnsupportedExecution(event);
+		return null;
+	}
+	
+	private String getEncoding(final IAdaptable adaptable, final IFile file) throws CoreException {
+		if (adaptable != null) {
+			final IEncodingSupport encodingSupport = (IEncodingSupport) adaptable.getAdapter(IEncodingSupport.class);
+			if (encodingSupport != null) {
+				return encodingSupport.getEncoding();
+			}
+		}
+		if (file != null) {
+			return file.getCharset(true); 
+		}
 		return null;
 	}
 	

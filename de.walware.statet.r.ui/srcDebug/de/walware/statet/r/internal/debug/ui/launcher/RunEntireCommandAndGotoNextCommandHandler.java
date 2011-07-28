@@ -38,11 +38,11 @@ public class RunEntireCommandAndGotoNextCommandHandler extends RunEntireCommandH
 	
 	
 	@Override
-	protected void postLaunch(final TextData data) {
+	protected void postLaunch(final Data data) {
 		try {
-			final RAstNode[] nodes = (RAstNode[]) data.modelElements;
+			final RAstNode[] nodes = data.nodes;
 			final int offset = getNextOffset(nodes[nodes.length-1], data.document);
-			UIAccess.getDisplay().syncExec(new Runnable() {
+			UIAccess.getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					data.editor.selectAndReveal(offset, 0);
 				}

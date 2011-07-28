@@ -56,11 +56,14 @@ public class ToolSessionUIData {
 	
 	@Override
 	public String toString() {
-		final StringBuilder s = new StringBuilder("["); //$NON-NLS-1$
-		s.append("Process: ").append(fProcess != null ? fProcess.getLabel(ITool.LONG_LABEL) : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		s.append("Source: ").append(fSource != null ? fSource.getTitle() : "<null>").append(", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		s.append("Console: ").append(fConsole != null ? fConsole.getName() : "<null>").append("]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		return s.toString();
+		final StringBuilder sb = new StringBuilder(getClass().getName());
+		sb.append("\n\t"); //$NON-NLS-1$
+		sb.append("process= ").append(fProcess != null ? fProcess.getLabel(ITool.LONG_LABEL) : "<null>"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("\n\t"); //$NON-NLS-1$
+		sb.append("source= ").append(fSource != null ? fSource.getTitle() : "<null>"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("\n\t"); //$NON-NLS-1$
+		sb.append("console= ").append(fConsole != null ? fConsole.getName() : "<null>"); //$NON-NLS-1$ //$NON-NLS-2$
+		return sb.toString();
 	}
 	
 }

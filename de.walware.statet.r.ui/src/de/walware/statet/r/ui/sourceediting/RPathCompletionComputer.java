@@ -159,7 +159,7 @@ public class RPathCompletionComputer extends PathCompletionComputor {
 			return null;
 		}
 		if (fBaseResource != null) {
-			return fBaseResource.getRawLocation();
+			return fBaseResource.getLocation();
 		}
 		return null;
 	}

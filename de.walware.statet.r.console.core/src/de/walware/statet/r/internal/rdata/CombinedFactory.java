@@ -63,6 +63,8 @@ public class CombinedFactory extends RObjectFactoryImpl {
 			return new ROtherVar(io, this, parent, name);
 		case RObject.TYPE_MISSING:
 			return new RMissingVar(parent, name);
+		case RObject.TYPE_PROMISE:
+			return new RPromiseVar(parent, name);
 		default:
 			throw new IOException("object type = " + type);
 		}

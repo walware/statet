@@ -20,20 +20,49 @@ import de.walware.statet.r.core.rlang.RTerminal;
  * <code>&</code>
  * <code>|</code>
  */
-public abstract class Logical extends FlatMulti {
+public abstract class Logical extends StdBinary {
 	
 	
 	static class Or extends Logical {
 		
 		
-		Or(final RTerminal firstOperator) {
-			super(firstOperator);
+		Or() {
 		}
 		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.OR;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.OR;
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.OR);
+		}
+		
+	}
+	
+	static class OrD extends Logical {
+		
+		
+		OrD() {
+		}
+		
+		
+		@Override
+		public final NodeType getNodeType() {
+			return NodeType.OR;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.OR_D;
 		}
 		
 		
@@ -47,14 +76,43 @@ public abstract class Logical extends FlatMulti {
 	static class And extends Logical {
 		
 		
-		And(final RTerminal firstOperator) {
-			super(firstOperator);
+		And() {
 		}
 		
 		
 		@Override
 		public final NodeType getNodeType() {
 			return NodeType.AND;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.AND;
+		}
+		
+		
+		@Override
+		public final boolean equalsSingle(final RAstNode element) {
+			return (element.getNodeType() == NodeType.AND);
+		}
+		
+	}
+	
+	static class AndD extends Logical {
+		
+		
+		AndD() {
+		}
+		
+		
+		@Override
+		public final NodeType getNodeType() {
+			return NodeType.AND;
+		}
+		
+		@Override
+		public RTerminal getOperator(final int index) {
+			return RTerminal.AND_D;
 		}
 		
 		
@@ -66,8 +124,7 @@ public abstract class Logical extends FlatMulti {
 	}
 	
 	
-	protected Logical(final RTerminal firstOperator) {
-		super(firstOperator);
+	protected Logical() {
 	}
 	
 	

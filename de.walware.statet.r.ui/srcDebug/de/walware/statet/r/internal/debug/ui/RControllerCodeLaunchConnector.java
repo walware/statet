@@ -58,24 +58,23 @@ public class RControllerCodeLaunchConnector implements IRCodeLaunchConnector {
 	}
 	
 	public boolean submit(final CommandsCreator rCommands, final boolean gotoConsole) throws CoreException {
-		final AtomicReference<Boolean> success = new AtomicReference<Boolean>(Boolean.FALSE);
+		final AtomicReference<ToolSessionUIData> info = new AtomicReference<ToolSessionUIData>();
 		UIAccess.checkedSyncExec(new UIAccess.CheckedRunnable() {
 			public void run() throws CoreException {
 				final IWorkbenchPage page = UIAccess.getActiveWorkbenchPage(true);
-				final ToolSessionUIData info = NicoUI.getToolRegistry().getActiveToolSession(page);
-				final ToolController controller = NicoUITools.accessController(RTool.TYPE, info.getProcess());
-				final IStatus status = rCommands.submitTo(controller);
-				if (status.getSeverity() >= IStatus.ERROR) {
-					throw new CoreException(status);
-				}
-				final NIConsole console = info.getConsole();
-				if (console != null) {
-					NicoUITools.showConsole(console, page, gotoConsole);
-				}
-				success.set(Boolean.TRUE);
+				info.set(NicoUI.getToolRegistry().getActiveToolSession(page));
 			}
 		});
-		return success.get().booleanValue();
+		final ToolController controller = NicoUITools.accessController(RTool.TYPE, info.get().getProcess());
+		final IStatus status = rCommands.submitTo(controller);
+		if (status.getSeverity() >= IStatus.ERROR) {
+			throw new CoreException(status);
+		}
+		final NIConsole console = info.get().getConsole();
+		if (console != null) {
+			NicoUITools.showConsole(console, info.get().getPage(), gotoConsole);
+		}
+		return true;
 	}
 	
 	public void gotoConsole() throws CoreException {

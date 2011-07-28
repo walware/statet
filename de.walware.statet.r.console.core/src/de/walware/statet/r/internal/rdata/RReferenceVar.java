@@ -41,6 +41,12 @@ public final class RReferenceVar extends CombinedElement
 		fClassName = className;
 	}
 	
+	public RReferenceVar(final long handle, final String className, final RElementName name) {
+		fHandle = handle;
+		fClassName = className;
+		fElementName = name;
+	}
+	
 	public RReferenceVar(final RJIO io, final RObjectFactory factory, final CombinedElement parent, final RElementName name) throws IOException {
 		fParent = parent;
 		fElementName = name;
@@ -86,7 +92,7 @@ public final class RReferenceVar extends CombinedElement
 	
 	public RObject getResolvedRObject() {
 		if (fResolver != null) {
-			return fResolver.resolve(this);
+			return fResolver.resolve(this, false);
 		}
 		return null;
 	}

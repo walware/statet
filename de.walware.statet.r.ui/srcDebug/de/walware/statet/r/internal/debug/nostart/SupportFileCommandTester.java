@@ -47,7 +47,7 @@ public class SupportFileCommandTester extends PropertyTester {
 	private static final String ATT_CONTENT_TYPE = "contentTypeId"; //$NON-NLS-1$
 	
 	
-	private Set<String> fSupportedContentTypeIds = new HashSet<String>();
+	private final Set<String> fSupportedContentTypeIds = new HashSet<String>();
 	
 	
 	public SupportFileCommandTester() {

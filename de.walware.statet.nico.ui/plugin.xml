@@ -234,6 +234,10 @@
             icon="icons/obj_16/task-consolecommand.png">
       </runnable>
       <runnable
+            icon="icons/obj_16/task-barrier-suspended.png"
+            typeId="common/debug/suspended.insert">
+      </runnable>
+      <runnable
             typeId="common/quit"
             icon="icons/loctool_16/terminate.png">
       </runnable>

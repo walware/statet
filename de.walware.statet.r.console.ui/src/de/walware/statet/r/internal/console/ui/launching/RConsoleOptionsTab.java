@@ -93,6 +93,7 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	static final String ATTR_INTEGRATION_ROOT = "de.walware.statet.r.debug/integration"; //$NON-NLS-1$
 	static final String ATTR_INTEGRATION_RHELP_ENABLED = ATTR_INTEGRATION_ROOT+"integration.rhelp.enabled"; //$NON-NLS-1$
 	static final String ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT = ATTR_INTEGRATION_ROOT+"integration.rgraphics.asdefault"; //$NON-NLS-1$
+	static final String ATTR_INTEGRATION_RDBGEXT_ENABLED = ATTR_INTEGRATION_ROOT+"integration.rdbgext.enabled"; //$NON-NLS-1$
 	
 	
 	private Button fPinControl;
@@ -111,6 +112,8 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 	private WritableValue fRHelpByStatetValue;
 	private Button fRGraphicsByStatetControl;
 	private WritableValue fRGraphicsByStatetValue;
+	private Button fRDbgExtControl;
+	private WritableValue fRDbgExtValue;
 	
 	private Button fObjectDBEnabledControl;
 	private WritableValue fObjectDBEnabledValue;
@@ -280,12 +283,17 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		{	fRHelpByStatetControl = new Button(container, SWT.CHECK);
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 			fRHelpByStatetControl.setLayoutData(gd);
-			fRHelpByStatetControl.setText("Enable R Help by StatET for R help functions ('help', 'help.start', '?')");
+			fRHelpByStatetControl.setText("Enable R Help by StatET for help functions in R ('help', 'help.start', '?')");
 		}
 		{	fRGraphicsByStatetControl = new Button(container, SWT.CHECK);
 			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
 			fRGraphicsByStatetControl.setLayoutData(gd);
-			fRGraphicsByStatetControl.setText("Set R Graphic view by StatET as default graphic device for new R plots");
+			fRGraphicsByStatetControl.setText("Set R Graphic view by StatET as default graphic device for new plots in R");
+		}
+		{	fRDbgExtControl = new Button(container, SWT.CHECK);
+			final GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+			fRDbgExtControl.setLayoutData(gd);
+			fRDbgExtControl.setText("Enable extensions by StatET for improved debug support of R code");
 		}
 		
 		{	fObjectDBEnabledControl = new Button(container, SWT.CHECK);
@@ -339,8 +347,10 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		
 		fRHelpByStatetValue = new WritableValue(realm, Boolean.class);
 		fRGraphicsByStatetValue = new WritableValue(realm, Boolean.class);
+		fRDbgExtValue = new WritableValue(realm, Boolean.class);
 		dbc.bindValue(SWTObservables.observeSelection(fRHelpByStatetControl), fRHelpByStatetValue, null, null);
 		dbc.bindValue(SWTObservables.observeSelection(fRGraphicsByStatetControl), fRGraphicsByStatetValue, null, null);
+		dbc.bindValue(SWTObservables.observeSelection(fRDbgExtControl), fRDbgExtValue, null, null);
 		
 		fObjectDBEnabledValue = new WritableValue(realm, Boolean.class);
 		fObjectDBAutoEnabledValue = new WritableValue(realm, Boolean.class);
@@ -398,6 +408,15 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 				logReadingError(e);
 			}
 			fRGraphicsByStatetValue.setValue(enabled);
+		}
+		{	boolean enabled = true;
+			try {
+				enabled = configuration.getAttribute(ATTR_INTEGRATION_RDBGEXT_ENABLED, enabled);
+			}
+			catch (final CoreException e) {
+				logReadingError(e);
+			}
+			fRDbgExtValue.setValue(enabled);
 		}
 		
 		String startupSnippet;
@@ -514,6 +533,9 @@ public class RConsoleOptionsTab extends LaunchConfigTabWithDbc {
 		}
 		{	final Boolean enabled = (Boolean) fRGraphicsByStatetValue.getValue();
 			configuration.setAttribute(ATTR_INTEGRATION_RGRAPHICS_ASDEFAULT, enabled.booleanValue());
+		}
+		{	final Boolean enabled = (Boolean) fRDbgExtValue.getValue();
+			configuration.setAttribute(ATTR_INTEGRATION_RDBGEXT_ENABLED, enabled.booleanValue());
 		}
 		
 		final String startupSnippet = (String) fStartupSnippetValue.getValue();
