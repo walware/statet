@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Breakpoints - Enable / Disable Property</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">Enable / Disable Property of R Breakpoints</h1>
+
+<p>A breakpoint can be enabled and disabled. An enabled breakpoint causes the R thread to suspend 
+whenever the breakpoint is encountered; a disabled breakpoint is skipped.  If a breakpoint is 
+disabled, it is indicated in its icon by a blank circle 
+(<img alt="Icon" src="../icons/obj/r_breakpoint-disabled.png" style="vertical-align: text-top"/>).
+</p>
+<p>A disabled breakpoint is still installed in R; to remove the breakpoint completely from the 
+R code, the breakpoint must be removed.</p>
+
+
+<h4>Changing the Settings</h4>
+
+<p>The enablement state of a breakpoint can be changed in different ways:
+</p>
+<ul>
+	<li>Directly by the checkbox in list of the Breakpoints view. A checked checkbox means, that
+	the breakpoint is enabled, if the checkbox unchecked, the breakpoint is disabled.
+	</li>
+	<li>By using the actions <span class="uisequence"><a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-enable_contextaction.htm"
+	>Enable</a></span> and <span class="uisequence"><a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-disable_contextaction.htm"
+	>Disable</a></span> in the context menu of items in the Breakpoint view. The actions 
+	affects all selected breakpoint and so allows to change the state of multiple breakpoints 
+	all at once.
+	</li>
+	<li>By using the action <span class="uisequence">Enable / Disable Breakpoint</span> in the 
+	context menu of the editor ruler in the line of the breakpoint.
+	</li>
+</ul>
+
+<h3 id="skip_all">Skip All Breakpoints</h3>
+
+<p>The debug action <span class="uisequence"><a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-skipall_viewaction.htm"
+>Skip All Breakpoints</a></span> toggles a global flag allowing to skip all breakpoints
+independent of enablement state of a breakpoint. That means, all breakpoints including 
+enabled breakpoints are skipped like disabled breakpoints.</p>
+
+</body>
+</html>

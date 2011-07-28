@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Debugger - Important Notes</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">Important Notes for Debugging R Code</h1>
+
+<h3>Source References</h3>
+
+<p>To enable the complete functionality of the visual debugger for R, it is required that the
+	R code you want to debug has the the so called source references.  The source references 
+	are information attached to the R code and allows StatET to detect where the code is coming 
+	from.  See also R help of 'srcref'.</p>
+
+
+<h2>Submit code to R</h2>
+
+<p>For best results it is recommended, that the option <span class="uilabel">Enable extension for 
+improved debug support of R code in StatET</span> in the launch configuration of the R console 
+is enabled (default setting).</p>
+<p><a href="r_editor-codesubmit.xhtml">Submit commands</a> supporting the debugging functionality:</p>
+<ul>
+	<li>The command <span class="uilabel">Run File in R via Command</span> / 
+	<span class="uilabel">Run R-Script via 'source' in R</span> creates source references.  It also 
+	updates the breakpoint for the sourced file.</li>
+	<li>The commands <span class="uilabel">Run Entire Command in R</span> and 
+	<span class="uilabel">Run Function Definition in R</span> create source references and 
+	installs breakpoints in the submitted R code.  Furthermore these are the only commands 
+	supporting <a href="r_debug-breakpoints-line_breakpoints.xhtml#toplevel">toplevel breakpoints</a>.
+	</li>
+</ul>
+
+<p>All other submit commands, especially <span class="uilabel">Run Selection in R</span> / 
+<span class="uilabel">Run Selection/Current Line in R</span> do not create source references.  When 
+sourcing without using the submit command of StatET, source references are created (not the 
+improved version), but breakpoints are not updated.</p>
+
+
+<h2>R Packages</h2>
+
+<p>To attach source references to an R package, the R packages must be installed:</p>
+<ul>
+	<li>directly from a folder containing the unpacked source package; and</li>
+	<li>the environment variable <code>R_KEEP_PKG_SOURCE</code> must be set to <code>yes</code></li>
+</ul>
+
+</body>
+</html>

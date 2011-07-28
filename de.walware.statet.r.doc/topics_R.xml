@@ -43,6 +43,22 @@
          </topic>
       </topic>
    </topic>
+   <topic label="R Visual Debugger">
+      <topic href="reference/r_debug-breakpoints.xhtml" label="R Breakpoints">
+         <topic href="reference/r_debug-breakpoints-add_remove.xhtml" label="Organizing Breakpoint">
+         </topic>
+         <topic href="reference/r_debug-breakpoints-line_breakpoints.xhtml" label="Line Breakpoints">
+         </topic>
+         <topic href="reference/r_debug-breakpoints-method_breakpoints.xhtml" label="Method Breakpoints">
+         </topic>
+         <topic href="reference/r_debug-breakpoints-enable_disable.xhtml" label="Enable / Disable Property">
+         </topic>
+         <topic href="reference/r_debug-breakpoints-condition.xhtml" label="Condition Property">
+         </topic>
+      </topic>
+      <topic href="reference/r_debug-notes.xhtml" label="Important Notes">
+      </topic>
+   </topic>
    <topic href="reference/r_cmd-tools.xhtml" label="R CMD Tools">
    </topic>
    <topic href="reference/r_help.xhtml" label="R Help">

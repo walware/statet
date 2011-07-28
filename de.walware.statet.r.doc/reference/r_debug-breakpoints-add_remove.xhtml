@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Breakpoints - Adding / Removing and Installing</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">Organizing R Breakpoints</h1>
+
+<p>R breakpoints in StatET are saved and loaded with the Eclipse workspace and are organized 
+independently of running R consoles.</p>
+
+<h3>Adding Breakpoints</h3>
+
+<p>To set a breakpoint to a line of an R script file, you have to open the file in the source 
+editor.  Only files in a project in the Eclipse workspace are supported.</p>
+
+<h4>Commands</h4>
+
+<table class="style1">
+<thead><tr>
+	<th></th>
+	<th>Name</th>
+	<th>Description</th>
+	<th>Availability</th>
+</tr></thead>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint.png" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Toggle Breakpoint</span></td>
+	<td><p>If any breakpoint already exists at the line selected in the editor, that breakpoint is 
+		removed.  Otherwise StatET tries to create a new breakpoint at the given line.  
+		StatET directly validates the position of the breakpoint and adapts it, if required.
+		The type of the created breakpoint is chosen automatically dependent on the selected 
+		position.</p>
+		<ul>
+			<li>If the position is in a function header, it create a <a href="r_debug-breakpoints-method_breakpoints.xhtml"
+				>method breakpoint</a>.</li>
+			<li>Otherwise it creates a common <a href="r_debug-breakpoints-line_breakpoints.xhtml"
+				>line breakpoint</a>.</li>
+		</ul>
+		<p>When executing this command in the editor ruler using the mouse, the position of the 
+		mouse cursor and not the text selection in the editor is used.  
+		You can also <b>double-click</b> on the editor ruler next to the source code line.</p>
+	</td>
+	<td>Main menu (<span class="uisequence">Run</span>)<br/>
+		Local command<br/>
+		<kbd>Ctrl+Shift+B</kbd><br/>
+		Editor ruler</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint.png" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Toggle Line Breakpoint</span></td>
+	<td>This command removes or creates <a href="r_debug-breakpoints-line_breakpoints.xhtml"
+		>line breakpoints</a> only.  If a line breakpoint already exists at the line selected in 
+		the editor, that breakpoint is removed.  Otherwise StatET tries to create a new line 
+		breakpoint at the given line.
+		StatET directly validates the position of the breakpoint and adapts it, if required.
+		</td>
+	<td>Main menu (<span class="uisequence">Run</span>)<br/>
+		Local command</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint.png" style="vertical-align: text-top"/></td>
+	<td><span class="uilabel">Toggle Method Breakpoint</span></td>
+	<td>This command removes or creates <a href="r_debug-breakpoints-method_breakpoints.xhtml"
+		>method breakpoints</a> only.  If a method breakpoint already exists for the function
+		surrounding text selection in the editor, that breakpoint is removed.  Otherwise StatET 
+		tries to create a new method breakpoint for that function.
+		</td>
+	<td>Main menu (<span class="uisequence">Run</span>)<br/>
+		Local command</td>
+</tr>
+</table>
+
+<p>If a new breakpoint is created, its icon appears in the editor ruler and in the <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-breakpoints_view.htm"
+>Breakpoint view</a>.</p>
+<p>For all open R console running in debug mode in the Eclipse workbench, StatET also tries to 
+install the newly created breakpoints in R.</p>
+
+
+<h3>Removing Breakpoints</h3>
+
+<p>Since the ways to create a method breakpoint described above are toggle operation, you can 
+also use them again to remove the method breakpoint.  Beside that, the Breakpoint view offers
+additional actions to remove the <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-remove_viewaction.htm"
+>selected</a> or <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-removeall_viewaction.htm"
+>all</a> breakpoints.</p>
+
+<p>If the Eclipse workbench has open R console running in debug mode, StatET also tries to uninstall 
+the removed breakpoints from R.  In any case, the breakpoint is also directly disabled, so it 
+will no longer suspend any thread.</p>
+
+
+<h2 id="installed">Installed Breakpoints</h2>
+
+<p>For R consoles running in debug mode in the current Eclipse workbench, StatET tries to install 
+the breakpoints in R.  A breakpoint can only be installed when the R code the breakpoint belongs 
+to is loaded in R, e.g. the function or S4 method is assigned to an environment in the 'search' 
+path in R.  Additionally it is required, that the function in R must be created with source 
+references (see <a href="r_debug-notes.xhtml">Important Notes</a>).  
+If a breakpoint is successfully installed, its icon shows an checkmark overlay 
+(<img alt="Icon" src="../icons/obj/r_breakpoint-installed.png" style="vertical-align: text-top"/>).  
+Note that this indicator in the icon can be wrong at a later time in the R console session, 
+e.g. when the R element is removed or untrace manually by the user.</p>
+
+<p>Breakpoints are installed automatically by StatET when:</p>
+<ul>
+	<li>The user starts a new R console or reconnects to a running R console; StatET tries to
+	update the installation of all breakpoints.</li>
+	<li>The user submits R code containing breakpoints; StatET tries to install the breakpoints
+	relevant for that code.</li>
+	<li>A package is loaded to the R workspace. If this package exists in the Eclipse workspace,
+	StatET tries to install all breakpoints in this project.</li>
+</ul>
+
+
+</body>
+</html>

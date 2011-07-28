@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Breakpoints - Condition / Expression Property</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">Condition / Expression Property of R Breakpoints</h1>
+
+<p>Each breakpoint can have a unique condition that determines if the will be suspended at the
+breakpoint position. A conditional breakpoint has a question mark overlay on its icon.</p>
+	
+<p>A condition for a breakpoint can be any valid R expression.  The expression is evaluated in the 
+scope (R frame) of the breakpoint location.  If it evaluates to an atomic R logical value 
+<code>TRUE</code>, the thread is suspended as usual.  Otherwise it is skipped like a disabled 
+breakpoint.</p>
+
+<img alt="Screenshot conditional breakpoint in R editor and Breakpoint view"
+		src="../images/screenshot-breakpoints-condition.png"/>
+
+<!-- TODO: add example -->
+
+
+<h4>Changing the Settings</h4>
+
+<p>A condition can be set, enabled/disabled and removed in the Breakpoint view.
+</p>
+<ol>
+	<li>Select the breakpoint to change.<br/>
+	The Breakpoint view shows properties supported by the selected breakpoint in the 
+	detail pane below or beside the breakpoints list.
+	</li>
+	<li>The checkbox <span class="uisequence">Conditional / Expression</span> allows to enable and 
+	disable the condition.
+	</li>
+	<li>If the checkbox is enabled, the user can enter the expression of the condition in the 
+	text field below.  The common Save command (<span class="uisequence">File &gt; Save</span>) 
+	applies the changed expression to the breakpoint; it is also automatically saved when 
+	selecting another breakpoint.
+	</li>
+</ol>
+
+</body>
+</html>

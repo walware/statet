@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Breakpoints - Method Breakpoints</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">R Method Breakpoints</h1>
+
+<p>First, the name 'method' is originate from Eclipse and means in the context of R all functions,
+not only methods like S4 methods.  Method breakpoints are always associated with a functions and 
+allows to suspend the execution thread at the entry and exit of it.  Each positions can be enabled 
+and disabled separately, its settings are indicated in the icons by and right arrow at the top 
+(<img alt="Icon" src="../icons/obj/r_breakpoint-method_entry.png" style="vertical-align: text-top"/>) 
+for the function entry and an left arrow at the bottom (<img alt="Icon" src="../icons/obj/r_breakpoint-method_entry.png" style="vertical-align: text-top"/>)
+for the function exit.</p>
+
+<img alt="Screenshot conditional breakpoint in R editor and Breakpoint view"
+		src="../images/screenshot-breakpoints-method.png"/>
+
+<h4>Adding Method Breakpoints</h4>
+
+<p>To create a new method breakpoint, open the file in a the source editor and:</p>
+<ul>
+	<li>By using the <span class="uilabel">Toggle Method Breakpoint</span> command:<ol>
+		<li>Set the cursor inside at any position inside the definition of the function the 
+			breakpoint should be associated to.</li>
+		<li>Trigger the command <span class="uisequence">Toggle Method Breakpoint</span>.</li>
+		</ol>
+		This way ensures that a method breakpoint and not another type is created.
+	</li>
+	<li>Use the action <span class="uisequence">Toggle Breakpoint</span> in the context menu
+		of the editor ruler in a line of the function header.  
+		You can also double-click on the editor ruler to execute this command.</li>
+	<li>By using the common <span class="uilabel">Toggle Breakpoint</span> command:<ol>
+		<li>Set the cursor inside the header of the function the breakpoint should be 
+			associated to.</li>
+		<li>Trigger the common command <span class="uisequence">Toggle Breakpoint</span>.</li>
+		</ol>
+		The keyboard shortcut <kbd>Ctrl+Shift+B</kbd> is associated by default to this command.
+	</li>
+</ul>
+
+<h4>Removing Method Breakpoints</h4>
+
+<p>Since the ways to create a method breakpoint described above are toggle operation, you can 
+also use them again to remove the method breakpoint.  Beside that, the Breakpoint view offers
+additional actions to remove the <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-remove_viewaction.htm"
+>selected</a> or <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-removeall_viewaction.htm"
+>all</a> breakpoints.</p>
+
+<h4>Changing the Settings for the Entry / Exit Property</h4>
+
+<p>The entry and exit position for a method breakpoint can be enabled and disabled in the 
+	Breakpoint view.
+</p>
+<ol>
+	<li>Select the breakpoint to change.<br/>
+		The Breakpoint view shows properties supported by the selected breakpoint in the 
+		detail pane below or beside the breakpoints list.</li>
+	<li>Use the checkboxes <span class="uisequence">Entry</span> and <span class="uisequence">Exit</span> 
+		to enable or disable the positions.</li>
+</ol>
+
+</body>
+</html>

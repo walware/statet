@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Breakpoints - Line Breakpoints</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">R Line Breakpoints</h1>
+
+<p>Line breakpoints are the most usual breakpoints set to a line a R source file.  Beside the 
+common case of breakpoints inside a function definition (<img alt="Icon" src="../icons/obj/r_breakpoint.png" style="vertical-align: text-top"/>), 
+line breakpoints can be also set outside of function definition to toplevel commands in the R script.  
+These <b>toplevel breakpoints</b> are indicated in the icon by an overlaid prompt symbol 
+(<img alt="Icon" src="../icons/obj/r_breakpoint-toplevel.png" style="vertical-align: text-top"/>).
+Toplevel breakpoints are never <a href="r_debug-breakpoints-add_remove.xhtml#installed">installed</a>,
+they are directly handled when submitting code in StatET.</p>
+
+<h4>Adding Line Breakpoints</h4>
+
+<p>To create a new line breakpoint, open the file in a the source editor and:</p>
+<ul>
+	<li>By using the <span class="uilabel">Toggle Line Breakpoint</span> command:<ol>
+		<li>Set the cursor inside at any position inside the definition of the function the 
+			breakpoint should be associated to.</li>
+		<li>Trigger the command <span class="uisequence">Toggle Method Breakpoint</span>.</li>
+		</ol>
+		This way ensures that a line breakpoint and not another type is created.
+	</li>
+	<li>Use the action <span class="uisequence">Toggle Breakpoint</span> in the context menu
+		of the editor ruler in the line you want to set the breakpoint.  
+		You can also double-click on the editor ruler to execute this command.
+		<p>Note that this way creates in special contexts other breakpoints than a line breakpoint,
+			for example in line with function header a method breakpoint.</p>
+	</li>
+	<li>By using the common <span class="uilabel">Toggle Breakpoint</span> command:<ol>
+		<li>Set the cursor inside the header of the function the breakpoint should be 
+			associated to.</li>
+		<li>Trigger the common command <span class="uisequence">Toggle Breakpoint</span>.</li>
+		</ol>
+		The keyboard shortcut <kbd>Ctrl+Shift+B</kbd> is associated by default to this command.
+		<p>Note that this way creates in special contexts other breakpoints than a line breakpoint,
+			for example in line with function header a method breakpoint.</p>
+	</li>
+</ul>
+
+<h4>Removing Line Breakpoints</h4>
+
+<p>Since the ways to create a line breakpoint described above are toggle operation, you can 
+also use them again to remove the line breakpoint.  Beside that, the Breakpoint view offers
+additional actions to remove the <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-remove_viewaction.htm"
+>selected</a> or <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-removeall_viewaction.htm"
+>all</a> breakpoints.</p>
+
+
+</body>
+</html>

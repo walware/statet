@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta http-equiv="Content-Style-Type" content="text/css"/>
+	<link rel="stylesheet" href="../book.css" charset="ISO-8859-1" type="text/css"/>
+	<title>R Breakpoints</title>
+	<meta name="copyright" content="Copyright (c) 2011 WalWare/StatET-Project (www.walware.de/goto/statet). All rights reserved."/>
+</head>
+<body>
+
+<h1 class="Head">R Breakpoints</h1>
+
+<p>A breakpoint suspends the execution of the R code at the location where the breakpoint is set.</p>
+
+<p>Breakpoints are displayed in the vertical editor ruler and in the <a href="PLUGINS_ROOT/org.eclipse.jdt.doc.user/reference/views/breakpoints/ref-breakpoints_view.htm"
+>Breakpoints view</a>.</p>
+
+<img alt="Screenshot breakpoints in R editor and Breakpoint view"
+		src="../images/screenshot-breakpoints-method.png"/>
+
+
+<h3>Overview of Breakpoint Properties and their Icons</h3>
+
+<table class="style1">
+<!-- >thead><tr>
+	<th></th>
+	<th>Name</th>
+</tr></thead -->
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint.png" style="vertical-align: text-top"/></td>
+	<td>(blue circle)</td>
+	<td><a href="r_debug-breakpoints-enable_disable.xhtml">Enabled</a> breakpoint</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-disabled.png" style="vertical-align: text-top"/></td>
+	<td>(blank circle)</td>
+	<td><a href="r_debug-breakpoints-enable_disable.xhtml">Disabled</a> breakpoint</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-skip_all.png" style="vertical-align: text-top"/></td>
+	<td>(strike out)</td>
+	<td>Disabled by <a href="r_debug-breakpoints-enable_disable.xhtml#skip_all">Skip All Breakpoints</a></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-conditional.png" style="vertical-align: text-top"/></td>
+	<td>(question mark)</td>
+	<td><a href="r_debug-breakpoints-condition.xhtml">Conditional breakpoint</a></td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-method_entry.png" style="vertical-align: text-top"/></td>
+	<td>(arrow right)</td>
+	<td>Hit <a href="r_debug-breakpoints-method_breakpoints.xhtml">Function entry</a> (method breakpoint)</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-method_exit.png" style="vertical-align: text-top"/></td>
+	<td>(arrow left)</td>
+	<td>Hit <a href="r_debug-breakpoints-method_breakpoints.xhtml">Function exit</a> (method breakpoint)</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-toplevel.png" style="vertical-align: text-top"/></td>
+	<td>(prompt)</td>
+	<td><a href="r_debug-breakpoints-line_breakpoints.xhtml">Toplevel</a> breakpoint</td>
+</tr>
+<tr>
+	<td><img alt="Icon" src="../icons/obj/r_breakpoint-installed.png" style="vertical-align: text-top"/></td>
+	<td>(checkmark)</td>
+	<td><a href="r_debug-breakpoints-add_remove.xhtml#installed">Installed</a> breakpoint</td>
+</tr>
+
+</table>
+
+<h2>Types</h2>
+
+<p>StatET provides the following types of breakpoints:</p>
+<ul>
+	<li><a href="r_debug-breakpoints-line_breakpoints.xhtml">R Line Breakpoint</a></li>
+	<li><a href="r_debug-breakpoints-method_breakpoints.xhtml">R Method Breakpoint</a></li>
+</ul>
+
+<h2>Properties</h2>
+
+<p>All properties of a breakpoints can be edited the Breakpoints view.  Note that the detail pane 
+showing breakpoint properties directly in the view is not visible when the Layout of the view is 
+set to <span class="uilabel">Breakpoints Only</span>; if required, change the layout of the 
+Breakpoint view to another option in its view menu.
+Some are also accessible in the context menu of breakpoints, if they are shown for example in the 
+editor ruler.</p>
+<p>In contrast to adding/removing a breakpoint, property changes takes effect immediately at any
+time, even the code is already running.</p>
+
+<p>Common properties:</p>
+<ul>
+	<li><a href="r_debug-breakpoints-enable_disable.xhtml">Enabled / Disabled</a></li>
+	<li><a href="r_debug-breakpoints-condition.xhtml">Condition</a></li>
+</ul>
+
+</body>
+</html>
