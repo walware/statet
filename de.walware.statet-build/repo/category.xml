@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description>WalWare StatET Update Site</description>
+
+   <category-def name="de.walware.libraries" label="WalWare - Libraries"/>
+   <category-def name="de.walware.statet" label="WalWare - StatET"/>
+   <category-def name="de.walware.utils" label="WalWare - Utilities"/>
+
+   <feature url="features/de.walware.ecommons.e_0.0.0.qualifier.jar" id="de.walware.ecommons.e" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+
+   <feature url="features/de.walware.rj.core_0.0.0.qualifier.jar" id="de.walware.rj.core" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/de.walware.rj.eclient_0.0.0.qualifier.jar" id="de.walware.rj.eclient" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+
+   <feature url="features/de.walware.ecommons.ltk_0.0.0.qualifier.jar" id="de.walware.ecommons.ltk" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+   <feature url="features/de.walware.ecommons.edb_0.0.0.qualifier.jar" id="de.walware.ecommons.edb" version="0.0.0">
+      <category name="de.walware.libraries"/>
+   </feature>
+
+   <feature url="features/de.walware.statet.r_0.0.0.qualifier.jar" id="de.walware.statet.r" version="0.0.0">
+      <category name="de.walware.statet"/>
+   </feature>
+   <feature url="features/de.walware.statet.r.sweave_0.0.0.qualifier.jar" id="de.walware.statet.r.sweave" version="0.0.0">
+      <category name="de.walware.statet"/>
+   </feature>
+
+   <feature url="features/de.walware.eutils.autorun_0.0.0.qualifier.jar" id="de.walware.eutils.autorun" version="0.0.0">
+      <category name="de.walware.utils"/>
+   </feature>
+
+</site>

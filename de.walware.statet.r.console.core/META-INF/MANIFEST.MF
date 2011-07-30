@@ -16,7 +16,7 @@ Require-Bundle: de.walware.statet.base.core;bundle-version="[2.0.0,2.1.0)",
  de.walware.rj.eclient.graphics;bundle-version="[1.0.0,1.1.0)",
  com.jcraft.jsch;bundle-version="0.1.41",
  de.walware.ecommons.ltk.core
-Import-Package: com.ibm.icu.text,
+Import-Package: com.ibm.icu.text;version="4.0.1",
  de.walware.ecommons,
  de.walware.ecommons.collections,
  de.walware.ecommons.io,

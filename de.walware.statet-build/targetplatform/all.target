@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="all">
+	<locations>
+		<location includeAllPlatforms="true" includeMode="slicer" includeSource="false"
+				type="InstallableUnit">
+			<repository location="http://download.eclipse.org/releases/helios"/>
+			<unit id="org.eclipse.platform.ide" version="3.6.2.M20110210-1200"/>
+			<unit id="org.eclipse.jdt.feature.group" version="3.6.2.r362_v20101117-0800-7z8XFW6FLFlmjJcvz03jyeFBLS_F"/>
+		</location>
+	</locations>
+</target>

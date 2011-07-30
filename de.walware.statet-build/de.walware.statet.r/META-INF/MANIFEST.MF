@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Vendor: WalWare.de
+Bundle-Name: StatET for R
+Bundle-SymbolicName: de.walware.statet.r;singleton:=true
+Bundle-Version: 2.0.0.qualifier

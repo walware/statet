@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>de.walware.statet</groupId>
+	<artifactId>statet</artifactId>
+	<version>2.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>StatET</name>
+	
+	<modules>
+		<module>targetplatform</module>
+		
+		<module>../de.walware.statet.base.core</module>
+		<module>../de.walware.statet.base.ui</module>
+		<module>../de.walware.statet.nico.core</module>
+		<module>../de.walware.statet.nico.ui</module>
+		<module>../de.walware.statet.r.core</module>
+		<module>../de.walware.statet.r.ui</module>
+		<module>../de.walware.statet.r.console.core</module>
+		<module>../de.walware.statet.r.console.ui</module>
+		<module>../de.walware.statet.r.debug.core</module>
+		<module>../de.walware.statet.r.debug.ui</module>
+		<module>../de.walware.statet.r.launching.winrgui</module>
+		<module>../de.walware.statet.r.xterm</module>
+		<module>../de.walware.statet.r.doc</module>
+		
+		<module>../../texlipse/net.sourceforge.texlipse</module>
+		<module>../de.walware.statet.r.sweave</module>
+	</modules>
+	
+	<properties>
+		<tycho.version>0.12.0</tycho.version>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<!-- configure the p2 repo/target -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<pomDependencies>consider</pomDependencies>
+					<target>
+						<artifact>
+							<groupId>de.walware.statet</groupId>
+							<artifactId>de.walware.statet-targetplatform</artifactId>
+							<version>2.0.0-SNAPSHOT</version>
+							<classifier>all</classifier>
+						</artifact>
+					</target>
+				</configuration>
+			</plugin>
+			<!-- enable source bundle generation -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<executions>
+					<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<profiles>
+		<profile>
+			<id>walware-releng</id>
+			<modules>
+				<module>de.walware.statet.r</module>
+				<module>de.walware.statet.r-feature</module>
+				<module>de.walware.statet.r.sweave-feature</module>
+				
+				<module>repo</module>
+			</modules>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<version>2.2.1</version>
+						<inherited>false</inherited>
+						<dependencies>
+							<dependency>
+								<groupId>de.walware.releng</groupId>
+								<artifactId>de.walware.releng.assemblies</artifactId>
+								<version>1.0.0</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<id>make-snapshot</id>
+								<phase>package</phase>
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptorRefs>
+										<descriptorRef>module-snapshot</descriptorRef>
+									</descriptorRefs>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	
+</project>
