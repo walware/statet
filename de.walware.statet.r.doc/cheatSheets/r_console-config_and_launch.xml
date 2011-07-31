@@ -18,7 +18,10 @@
          This cheat sheet shows you how to configure StatET to launch an
          R console from within Eclipse.
          <br/><br/>
-         You have to create a configuration for the R environment and the
+         Note that the R console in StatET requires the R package 'rj'. Please check
+         the homepage for more information and instructions.
+         <br/><br/>
+         In StatET you have to create a configuration for the R environment and the
          R console as shown here. 
       </description>
    </intro>
@@ -53,7 +56,7 @@
             label="Clicking on the &apos;Add...&apos; button opens the dialog to specify the new R environment.">
       </subitem>
       <subitem
-            label="Indicate a &apos;Name&apos; you would like to give to the configuration, e.g. &apos;R-2.9.2&apos;.">
+            label="Indicate a &apos;Name&apos; you would like to give to the configuration, e.g. &apos;R-2.13&apos;.">
       </subitem>
       <subitem
             label="Specify the &apos;R_HOME&apos; directory to which the R version you would like to use was installed.">
@@ -89,7 +92,7 @@
             label="Specify a &apos;Name&apos; and edit all tabs of the new launch configuration.">
       </subitem>
       <subitem
-            label="Add suitable Options in the Main tab if desired, such as --no-save, --no-restore or --silent, to be used when invoking R." skip="true">
+            label="Add suitable Options in the Main tab if desired, such as --no-save or --no-restore, to be used when invoking R." skip="true">
       </subitem>
       <subitem
             label="Specify the R Environment to be used in the R Config tab. This can be the default R Environment or any other R Environment that has been defined." skip="false">
